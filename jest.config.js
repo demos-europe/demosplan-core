@@ -15,6 +15,7 @@ const aliases = webpackConfig[0].resolve.alias
 delete aliases.vue
 
 const roots = {}
+
 for (const alias in aliases) {
   const from = alias + '/(.*)$'
   const to = aliases[alias] + '/$1'

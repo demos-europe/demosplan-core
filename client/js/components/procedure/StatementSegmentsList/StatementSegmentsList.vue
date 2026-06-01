@@ -403,6 +403,7 @@ export default {
       if (this.statement === null) {
         return '...'
       }
+
       const originalPdfCount = this.originalAttachment.hash ? '1' : '-'
       const additionalAttachmentsCount = this.additionalAttachments.length === 0 ? '-' : this.additionalAttachments.length
 
@@ -553,6 +554,7 @@ export default {
 
         if (isAssignedToCurrentUser === false) {
           const isAssignedToOtherUser = this.statement.hasRelationship('assignee') && this.statement.relationships.assignee.data.id !== this.currentUser.id
+
           if (isAssignedToOtherUser && globalThis.dpconfirm(Translator.trans('warning.statement.needLock.generic')) === false) {
             return false
           }
@@ -591,6 +593,7 @@ export default {
         .catch((err) => {
           // Restore statement in store in case request failed
           this.restoreStatementAction(this.statement.id)
+
           return err
         })
         .finally(() => {
@@ -654,6 +657,7 @@ export default {
         this.saveStatementAction(changes.id)
           .then(() => dplan.notify.notify('confirm', Translator.trans('confirm.saved')))
           .catch(() => dplan.notify.error(Translator.trans('error.api.generic')))
+
         return
       }
 
@@ -698,6 +702,7 @@ export default {
 
       const defaultAction = hasPermission('feature_segment_recommendation_edit') ? 'recommendation' : 'details'
       const selectedAction = actionFromParams || defaultAction
+
       this.currentAction = selectedAction
 
       if (actionFromParams) {
@@ -775,6 +780,7 @@ export default {
           },
         },
       }
+
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statement.id }), {}, payload)
         .then(() => {
           const dataToUpdate = this.setDataToUpdate()

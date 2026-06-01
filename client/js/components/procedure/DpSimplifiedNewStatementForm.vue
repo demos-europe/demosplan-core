@@ -470,6 +470,7 @@ export default {
     DpTextArea,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
+
       return DpEditor
     }),
     DpUploadFiles,
@@ -601,15 +602,19 @@ export default {
 
     escapedUsedInternIds () {
       const specialCharEscaper = /\[|\\|\^|\$|\.|\||\?|\*|\+|\(|\)|\//g
+
       return this.usedInternIds.map(id => id.replace(specialCharEscaper, (specialChar) => `\\${specialChar}`))
     },
 
     internIdsPattern () {
       let pattern = ''
+
       if (this.escapedUsedInternIds.length > 0) {
         pattern = '^(?!(?:' + this.escapedUsedInternIds.join('|') + ')$)'
       }
+
       pattern = pattern + '[0-9a-zA-Z-_ /().?!,+*#äüöß]{1,}$'
+
       return pattern
     },
 
@@ -617,10 +622,12 @@ export default {
       const date = new Date()
       let day = date.getDate()
       let month = date.getMonth()
+
       month = month + 1
       if ((String(day)).length === 1) {
         day = '0' + day
       }
+
       if ((String(month)).length === 1) {
         month = '0' + month
       }
@@ -642,6 +649,7 @@ export default {
   methods: {
     abort () {
       const href = `${Routing.generate('DemosPlan_procedure_import', { procedureId: this.procedureId })}/#import#StatementPdfImport`
+
       window.location.replace(href)
     },
 

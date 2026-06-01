@@ -376,6 +376,7 @@ export default {
     statementsTooltipCount (statementsCount, originalStatementsCount) {
       const statements = Translator.trans('procedures.statements.count.description', { statements: statementsCount })
       const originalStatements = Translator.trans('procedures.statements.count.original.description', { statements: originalStatementsCount })
+
       return `${statements.trim()}, ${originalStatements.trim()}`
     },
   },
