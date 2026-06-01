@@ -470,6 +470,17 @@ class AssessmentTableServiceOutput
     }
 
     /**
+     * Whether the last {@see self::singleStatementHandler()} call was aborted
+     * because the proposed authoredDate would be later than the submitDate.
+     *
+     * @return bool true if the cross-field validation rejected the last update
+     */
+    public function hasDateOrderError(): bool
+    {
+        return $this->assessmentTableServiceStorage->hasDateOrderError();
+    }
+
+    /**
      * Is user authorized.
      *
      * @param string $procedureId
