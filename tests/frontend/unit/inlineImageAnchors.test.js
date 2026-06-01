@@ -7,9 +7,9 @@
  * All rights reserved
  */
 
-global.Translator = { trans: jest.fn(key => key === 'image.open' ? 'Bild öffnen' : key) }
+globalThis.Translator = { trans: jest.fn(key => key === 'image.open' ? 'Bild öffnen' : key) }
 
-const { inlineImageAnchors } = require('@DpJs/lib/shared/inlineImageAnchors')
+import { inlineImageAnchors } from '@DpJs/lib/shared/inlineImageAnchors'
 
 describe('inlineImageAnchors', () => {
   it('replaces a pdf_importer_image anchor with an img and a visible link', () => {

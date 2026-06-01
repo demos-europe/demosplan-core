@@ -5,7 +5,7 @@ const WRAPPER_CLASS = 'pdf-importer-image-wrapper'
 const WRAPPER_UTILITY_CLASSES = `${WRAPPER_CLASS} inline-block text-center`
 const IMAGE_UTILITY_CLASSES = 'block'
 const LINK_UTILITY_CLASSES = 'pdf-importer-image-link block mt-1'
-const DEFAULT_FALLBACK_LABEL = Translator.trans('image.open')
+const DEFAULT_FALLBACK_LABEL_KEY = 'image.open'
 
 const filenameFromSrc = (src) => {
   if (typeof src !== 'string' || src === '' || src.startsWith('data:')) {
@@ -89,7 +89,7 @@ const isInsideWrapper = (element) =>
  * only. The result is idempotent: re-running on already-wrapped HTML is a
  * no-op.
  */
-export function inlineImageAnchors (html, className = DEFAULT_CLASS, fallbackLabel = DEFAULT_FALLBACK_LABEL) {
+export function inlineImageAnchors (html, className = DEFAULT_CLASS, fallbackLabel = Translator.trans(DEFAULT_FALLBACK_LABEL_KEY)) {
   if (typeof html !== 'string') {
     return html
   }
@@ -131,9 +131,9 @@ export function inlineImageAnchors (html, className = DEFAULT_CLASS, fallbackLab
     }
 
     const sibling = img.nextElementSibling
-    const orphanLink = (sibling?.tagName === 'A' && sibling?.getAttribute('href') === src)
-      ? sibling
-      : null
+    const orphanLink = (sibling?.tagName === 'A' && sibling?.getAttribute('href') === src) ?
+      sibling :
+      null
 
     const altLabel = resolveLinkLabel(img.getAttribute('alt'), src, fallbackLabel)
     const wrapper = createWrapper(doc)
