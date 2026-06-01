@@ -72,7 +72,9 @@
             <template v-slot:edit>
               <dp-editor
                 class="mr-4 pt-1"
-                :toolbar-items="{ linkButton: true, obscure: hasPermission('feature_obscure_text') }"
+                :routes="{ getFileByHash: (hash) => Routing.generate('core_file_procedure', { procedureId, hash }) }"
+                :toolbar-items="{ imageButton: true, linkButton: true, obscure: hasPermission('feature_obscure_text') }"
+                :tus-endpoint="dplan.paths.tusEndpoint"
                 :value="getSegmentInitialText(segment.id)"
                 @transform-obscure-tag="(val) => transformObscureTag(segment.id, val)"
                 @input="(val) => updateSegmentText(segment.id, val)"
@@ -181,6 +183,8 @@ export default {
   },
 
   mixins: [dpValidateMixin, paginationMixin],
+
+  inject: ['procedureId'],
 
   props: {
     currentUser: {
