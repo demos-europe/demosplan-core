@@ -22,7 +22,8 @@ const filenameFromSrc = (src) => {
       return ''
     }
     return decodeURIComponent(segment)
-  } catch (e) {
+  } catch (error) {
+    console.error('filenameFromSrc: failed to decode src', error)
     return ''
   }
 }
@@ -130,7 +131,7 @@ export function inlineImageAnchors (html, className = DEFAULT_CLASS, fallbackLab
     }
 
     const sibling = img.nextElementSibling
-    const orphanLink = (sibling && sibling.tagName === 'A' && sibling.getAttribute('href') === src)
+    const orphanLink = (sibling?.tagName === 'A' && sibling?.getAttribute('href') === src)
       ? sibling
       : null
 
@@ -142,7 +143,7 @@ export function inlineImageAnchors (html, className = DEFAULT_CLASS, fallbackLab
     wrapper.appendChild(img)
 
     if (orphanLink) {
-      orphanLink.parentNode.removeChild(orphanLink)
+      orphanLink.remove()
       orphanLink.setAttribute('class', LINK_UTILITY_CLASSES)
       orphanLink.setAttribute('target', orphanLink.getAttribute('target') || DEFAULT_TARGET)
       orphanLink.setAttribute('rel', orphanLink.getAttribute('rel') || DEFAULT_REL)
