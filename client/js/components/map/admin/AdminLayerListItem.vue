@@ -793,7 +793,7 @@ export default {
           relationshipType: 'gisLayers',
         }
 
-        const groupId = this.layer.attributes.visibilityGroupId
+        const groupId = this.layer.attributes?.visibilityGroupId
         if (groupId) {
           const groupMembers = this.$store.getters['Layers/elementsListByAttribute']({
             type: 'visibilityGroupId',
@@ -807,9 +807,13 @@ export default {
                 attributes: { ...member.attributes, visibilityGroupId: null },
               }))
 
-            Promise.all(dissolvePromises).then(() => {
-              this.$store.dispatch('Layers/deleteElement', deleteData)
-            })
+            Promise.all(dissolvePromises)
+              .then(() => {
+                this.$store.dispatch('Layers/deleteElement', deleteData)
+              })
+              .catch(() => {
+                dplan.notify.notify('error', Translator.trans('error.gislayer.visibility.group.dissolve'))
+              })
 
             return
           }
