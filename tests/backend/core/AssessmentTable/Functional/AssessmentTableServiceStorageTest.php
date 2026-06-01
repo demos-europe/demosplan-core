@@ -22,6 +22,9 @@ use Tests\Base\FunctionalTestCase;
 
 class AssessmentTableServiceStorageTest extends FunctionalTestCase
 {
+    private const BASE_DATE = '01.01.2020';
+    private const SUBMITTED_DATE = self::BASE_DATE.' 00:00:00';
+
     /**
      * @var AssessmentTableServiceStorage
      */
@@ -104,28 +107,28 @@ class AssessmentTableServiceStorageTest extends FunctionalTestCase
     {
         return [
             'authored after submitted, dates changed -> rejected' => [
-                ['authoredDate' => '10.01.2020', 'submittedDate' => '01.01.2020 00:00:00'],
-                '01.01.2020', '01.01.2020', true,
+                ['authoredDate' => '10.01.2020', 'submittedDate' => self::SUBMITTED_DATE],
+                self::BASE_DATE, self::BASE_DATE, true,
             ],
             'authored equals submitted -> allowed' => [
                 ['authoredDate' => '05.01.2020', 'submittedDate' => '05.01.2020 12:00:00'],
-                '01.01.2020', '01.01.2020', false,
+                self::BASE_DATE, self::BASE_DATE, false,
             ],
             'authored before submitted -> allowed' => [
-                ['authoredDate' => '01.01.2020', 'submittedDate' => '05.01.2020 00:00:00'],
-                '01.01.2020', '01.01.2020', false,
+                ['authoredDate' => self::BASE_DATE, 'submittedDate' => '05.01.2020 00:00:00'],
+                self::BASE_DATE, self::BASE_DATE, false,
             ],
             'both dates unchanged on pre-existing invalid record -> allowed' => [
-                ['authoredDate' => '10.01.2020', 'submittedDate' => '01.01.2020 00:00:00'],
-                '10.01.2020', '01.01.2020', false,
+                ['authoredDate' => '10.01.2020', 'submittedDate' => self::SUBMITTED_DATE],
+                '10.01.2020', self::BASE_DATE, false,
             ],
             'invalid authored date string -> ignored' => [
-                ['authoredDate' => 'not-a-date', 'submittedDate' => '01.01.2020 00:00:00'],
-                '01.01.2020', '01.01.2020', false,
+                ['authoredDate' => 'not-a-date', 'submittedDate' => self::SUBMITTED_DATE],
+                self::BASE_DATE, self::BASE_DATE, false,
             ],
             'no authored date available -> ignored' => [
-                ['submittedDate' => '01.01.2020 00:00:00'],
-                null, '01.01.2020', false,
+                ['submittedDate' => self::SUBMITTED_DATE],
+                null, self::BASE_DATE, false,
             ],
         ];
     }
