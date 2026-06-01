@@ -362,7 +362,6 @@ const SplitStatementStore = {
 
     fetchTags ({ commit }) {
       const url = Routing.generate('api_resource_list', { resourceType: 'Tag' })
-      // Sort by sortIndex so categorized tags keep the manual order from the tag management view (DPLAN-17907)
       return dpApi.get(url, { include: 'topic', sort: 'sortIndex' })
         .then(response => {
           const tags = response.data
@@ -384,9 +383,8 @@ const SplitStatementStore = {
             return acc
           }, { uncategorizedTags: [], categorizedTags: [] })
 
-          // Uncategorized tags have no meaningful sortIndex, so keep them alphabetical (natural number ordering)
+          // Categorized tags keep the backend sortIndex order; only uncategorized tags fall back to alphabetical
           uncategorizedTags.sort(sortByTitle)
-          // Categorized tags are already ordered by sortIndex from the backend, preserving the manual order per topic
 
           commit('setProperty', { prop: 'uncategorizedTags', val: uncategorizedTags })
           commit('setProperty', { prop: 'categorizedTags', val: categorizedTags })
