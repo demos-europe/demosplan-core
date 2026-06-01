@@ -38,6 +38,7 @@ module.exports = [
       '**/documentation/**/*',
       '**/node_modules/**/*',
       '**/projects/*/web/**/*',
+      '**/public/**/*',
       '**/vendor/**/*',
     ],
   },
