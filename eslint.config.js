@@ -240,6 +240,22 @@ module.exports = [
         'default': 'longform',
         'named': 'longform',
       }],
+      /*
+       * Require braces for all control structures — no `if (x) doThing()` one-liners.
+       * Set to 'warn' for incremental adoption; promote to 'error' once existing code is clean.
+       */
+      'curly': ['warn', 'all'],
+      // Enforce blank lines around control flow, returns, and declarations.
+      'padding-line-between-statements': ['warn',
+        // Blank line before every `return`.
+        { blankLine: 'always', prev: '*', next: 'return' },
+        // Blank line after block-like statements (if, for, while, switch, try, …).
+        { blankLine: 'always', prev: 'block-like', next: '*' },
+        // Blank line after a group of declarations.
+        { blankLine: 'always', prev: ['const', 'let', 'var'], next: '*' },
+        // …but no required blank between consecutive declarations.
+        { blankLine: 'any', prev: ['const', 'let', 'var'], next: ['const', 'let', 'var'] },
+      ],
     },
   },
   {
