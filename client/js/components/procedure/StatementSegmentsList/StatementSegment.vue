@@ -259,6 +259,19 @@
               </div>
             </template>
           </dp-multiselect>
+
+          <dp-datepicker
+            id="deadline"
+            class="mt-2"
+            data-cy="statementSegment:deadline"
+            :label="{
+              text: Translator.trans('period.until')
+            }"
+            max-date=""
+            :value="segment.attributes.deadline || ''"
+            @input="value => updateSegment('deadline', value)"
+          />
+
           <custom-fields-list
             v-if="hasPermission('field_segments_custom_fields')"
             v-slot:default="{ fieldsWithDefinitions }"
@@ -418,6 +431,7 @@ import {
   DpButtonRow,
   DpCheckbox,
   DpContextualHelp,
+  DpDatepicker,
   DpIcon,
   DpLabel,
   DpMultiselect,
@@ -450,6 +464,7 @@ export default {
     DpCheckbox,
     DpContextualHelp,
     DpClaim,
+    DpDatepicker,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor

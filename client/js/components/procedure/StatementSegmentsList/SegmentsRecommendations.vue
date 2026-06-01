@@ -280,6 +280,7 @@ export default {
         'orderInProcedure',
         'polygon',
         'recommendation',
+        'deadline',
       ]
 
       if (hasPermission('field_segments_custom_fields')) {

@@ -2611,6 +2611,7 @@ period.autoswitch.hint: "Der Verfahrensschritt wird nach dem Ende des Beteiligun
 period.institutions: "Zeitraum für Institutionen"
 period.public: "Zeitraum für Öffentlichkeit"
 period.public.participation: "Zeitraum der Beteiligung"
+period.until: "Bearbeitungsfrist bis"
 permission.add: "Berechtigung hinzufügen"
 permission.new: "Neue Berechtigung..."
 permission.status: "Status der Berechtigung"
