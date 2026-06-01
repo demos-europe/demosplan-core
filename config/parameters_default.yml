@@ -55,6 +55,15 @@ parameters:
     user_activity_last_login_threshold_days: 180
     user_activity_claimed_statements_threshold_days: 180
 
+    # Inactivity-based account deletion workflow.
+    # Leave first_warning_days unset (~) to keep the feature disabled per project.
+    # When set, the cron sends a first warning at that day count, a second warning
+    # warning_step_days later, and soft-deletes the user another warning_step_days
+    # after that.
+    account_deletion.first_warning_days: ~
+    account_deletion.warning_step_days: 30
+    account_deletion.additional_protected_user_ids: []
+
     # Route and parameters for the public index page
     #
     # - Using the controller forward notation here will result in an internal forward
