@@ -15,6 +15,10 @@
 - Add text custom field definition editing
 - Add customer admin interface for managing procedure phases - displaying and creating new phases
 
+### Changed
+- Tag selection when splitting a statement now lists keywords in the manual sort order from tag administration instead of alphabetically
+
+
 ### Fixed
 - `AccessProcedureListener` now checks for array controller before accessing index, preventing crashes on API Platform routes
 - `dplan:procedure:delete` now also removes the two associated `procedure_phase` rows; previous runs left orphan rows behind, which are cleaned up by a one-shot migration
