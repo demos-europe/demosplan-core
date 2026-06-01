@@ -764,7 +764,7 @@ const LayersStore = {
      * @returns {Object} Complete element object or empty object if not found
      */
     element: state => element => {
-      if (typeof state.apiData.included === 'undefined') {
+      if (state.apiData.included === undefined) {
         return {}
       }
 
@@ -791,7 +791,7 @@ const LayersStore = {
      * @returns {Array} Array of GisLayer objects sorted by mapOrder
      */
     gisLayerList: state => type => {
-      if (typeof state.apiData.included === 'undefined') {
+      if (state.apiData.included === undefined) {
         return []
       }
 
@@ -816,7 +816,7 @@ const LayersStore = {
      * @returns {Array} Array of matching elements
      */
     elementsListByAttribute: state => attribute => {
-      if (typeof state.apiData.included === 'undefined') {
+      if (state.apiData.included === undefined) {
         return []
       }
 
@@ -916,7 +916,7 @@ const LayersStore = {
      * @returns {Array} Array of legend objects sorted by treeOrder
      */
     elementListForLegendSidebar: state => {
-      if (typeof state.apiData.included === 'undefined') {
+      if (state.apiData.included === undefined) {
         return []
       }
 
@@ -941,7 +941,7 @@ const LayersStore = {
      * @returns {number} Number of elements in the group
      */
     visibilityGroupSize: state => visibilityGroupId => {
-      if (!visibilityGroupId || typeof state.apiData.included === 'undefined') {
+      if (!visibilityGroupId || state.apiData.included === undefined) {
         return 0
       }
 
@@ -960,7 +960,7 @@ const LayersStore = {
      * @returns {*} Attribute value or empty string if not found
      */
     attributeForElement: state => data => {
-      if (typeof state.apiData.included === 'undefined' || data.id === '') {
+      if (state.apiData.included === undefined || data.id === '') {
         return ''
       }
 
@@ -975,7 +975,7 @@ const LayersStore = {
      * @returns {Object} Minimap layer object or default object if none found
      */
     minimapLayer: state => {
-      if (typeof state.apiData.included === 'undefined') {
+      if (state.apiData.included === undefined) {
         return {}
       }
 

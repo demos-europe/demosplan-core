@@ -36,7 +36,7 @@ initialize(components, stores).then(() => {
     })
 
     document.querySelector('[data-procedurelist-content]').addEventListener('change', e => {
-      if (e.target.hasAttribute('data-done-procedure-id') === false) {
+      if (e.target.dataset.doneProcedureId === undefined) {
         return
       }
 

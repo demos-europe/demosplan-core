@@ -229,7 +229,7 @@ export default {
     setOpacity (e) {
       const val = e.target.value
 
-      if (isNaN(val * 1)) {
+      if (Number.isNaN(val * 1)) {
         return false
       }
 

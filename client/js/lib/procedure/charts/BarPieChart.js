@@ -191,9 +191,9 @@ export default class BarPieChart {
 
       select(elemSet[i]).transition().duration(transSpeed).attr('fill', this.setColor(0, 'active'))
 
-      const st = this.fData.filter((s) => {
+      const st = this.fData.find((s) => {
         return s.Category === d.key
-      })[0]
+      })
       const nD = Object.keys(st.freq).map((s) => {
         return { type: s, freq: st.freq[s] }
       })
