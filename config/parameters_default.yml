@@ -63,13 +63,6 @@ parameters:
     account_deletion.first_warning_days: ~
     account_deletion.warning_step_days: 30
     account_deletion.additional_protected_user_ids: []
-    # Optional homepage URL template for the warning mail link.
-    # The placeholder ${subdomain} (if present) is substituted with the user's
-    # customer subdomain at send time. Single-customer projects can configure a
-    # fixed URL with no placeholder. Leave unset to omit the link entirely.
-    # Per-instance override via the ACCOUNT_DELETION_HOMEPAGE_URL_TEMPLATE env var
-    # (set in .env.local or deployment config).
-    account_deletion.homepage_url_template: '%env(default::ACCOUNT_DELETION_HOMEPAGE_URL_TEMPLATE)%'
 
     # Route and parameters for the public index page
     #

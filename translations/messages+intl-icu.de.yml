@@ -1076,6 +1076,7 @@ email.address.notprovided.notmanual: "Beim Einreichen wurde keine E-Mail-Adresse
 email.address.type.fulladdress: "E-Mail-Adresse"
 email.address.update: "E-Mail-Adresse aktualisieren"
 email.body: "Ihre Nachricht"
+email.body.account_deletion.platform_link_intro: "Sie erreichen unsere Plattform unter:"
 email.change: "E-Mail ändern"
 email.cc: "Kopie"
 email.cc.participation: "Weitere E-Mail-Adressen für die Beteiligung"

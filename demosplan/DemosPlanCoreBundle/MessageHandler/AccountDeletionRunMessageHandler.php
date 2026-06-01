@@ -336,35 +336,41 @@ final class AccountDeletionRunMessageHandler
     }
 
     /**
-     * Returns either an empty string (no homepage URL template configured, or no
-     * resolvable customer subdomain) or a multi-line block with the link,
-     * including the leading blank line so it slots cleanly into the warning
-     * templates between the body text and the signature.
+     * Returns either an empty string (project domain unset, or no resolvable
+     * customer subdomain) or a multi-line block with the login link, including
+     * the leading blank line so it slots cleanly into the warning templates
+     * between the body text and the signature.
      *
-     * The template parameter may include a `${subdomain}` placeholder that gets
-     * substituted with the user's customer subdomain (multi-tenant deployments).
-     * Single-customer projects can set a fixed URL with no placeholder; the
-     * `str_replace` is then a no-op.
+     * The URL is built from the deployment-wide GlobalConfig (scheme, project
+     * domain, optional path prefix) plus the user's customer subdomain — the
+     * same host-building convention as customer_settings.html.twig
+     * (`[customer.subdomain, projectDomain]|join('.')`). This is exactly the
+     * host the user must reach to keep their account, so it cannot drift from
+     * the real login host.
      */
     private function computeLinkSection(UserInterface $user): string
     {
-        $template = (string) $this->parameterBag->get('account_deletion.homepage_url_template');
-        if ('' === $template) {
-            return '';
-        }
-
+        $domain = $this->globalConfig->getProjectDomain();
         $subdomain = $this->resolveCustomerSubdomain($user);
-        if (null === $subdomain) {
+        if ('' === $domain || null === $subdomain) {
             return '';
         }
 
-        $url = str_replace('${subdomain}', $subdomain, $template);
+        $url = sprintf(
+            '%s://%s.%s%s/',
+            $this->globalConfig->getUrlScheme(),
+            $subdomain,
+            $domain,
+            $this->globalConfig->getUrlPathPrefix(),
+        );
+
+        $intro = $this->translator->trans('email.body.account_deletion.platform_link_intro');
 
         // Wrap the URL in an <a> tag so it renders as a clickable link in the HTML
         // mail variant. MailService runs nl2br() on the content for the HTML body
         // and falls back to a markdown-stripped plain-text variant; both keep the
         // URL intact and most plain-text clients auto-linkify bare URLs anyway.
-        return sprintf("\n\nSie erreichen unsere Plattform unter:\n<a href=\"%s\">%s</a>", $url, $url);
+        return sprintf("\n\n%s\n<a href=\"%s\">%s</a>", $intro, $url, $url);
     }
 
     /**

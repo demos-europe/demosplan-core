@@ -47,9 +47,8 @@
 - LaTeX PDF exports rendered more reliably (ligature and babel-related gaps)
 
 ### Deployment notes
-- **Migration**: creates `account_deletion_tracking` table and seeds three mail templates (`account_deletion_warning_first`, `account_deletion_warning_second`, `account_deletion_completed`) — run `doctrine:migrations:migrate`
+- **Migration**: creates the `account_deletion_tracking` table — run `doctrine:migrations:migrate`
 - **New parameters** (with defaults): `account_deletion.first_warning_days` (~ — feature disabled), `account_deletion.warning_step_days` (30), `account_deletion.additional_protected_user_ids` ([])
-- **Optional env var**: `ACCOUNT_DELETION_HOMEPAGE_URL_TEMPLATE` — homepage URL inserted into warning mails; supports a `${subdomain}` placeholder for multi-tenant deployments, leave unset to omit the link
 - **Migration**: creates `oauth_tokens` table with FK to `_user` and `_orga` — run `doctrine:migrations:migrate`
 - **Required env var**: `OAUTH_SECRET_ENCRYPTION_KEY` — generate with `php -r "echo base64_encode(sodium_crypto_secretbox_keygen());"` and add to `.env.local` on every environment (shared with other encryption features)
 - **New parameters** (with defaults): `oauth_keycloak_login_only` (true — safe default, no behaviour change), `oauth_token_timezone` (Europe/Berlin), `oauth_token_fast_path_interval_seconds` (180), `oauth_token_refresh_buffer_minutes` (2)
