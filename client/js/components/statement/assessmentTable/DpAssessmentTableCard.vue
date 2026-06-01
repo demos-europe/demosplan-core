@@ -841,7 +841,9 @@ export default {
 
   computed: {
     // Get the Statement from the Store (if not Present there use initial data)
-    ...mapState('Statement', { statement (state) { return state.statements[this.statementId] } }),
+    ...mapState('Statement', { statement (state) {
+      return state.statements[this.statementId]
+    } }),
     ...mapGetters('AssessmentTable', [
       'adviceValues',
       'assessmentBase',
@@ -997,6 +999,7 @@ export default {
 
       if (!this.statement.isSubmittedByCitizen && !this.hasUserOrganisationAccess) {
         const orgName = this.statement.initialOrganisationName || Translator.trans('institution')
+
         parts.push(`${Translator.trans('organisation')}: ${orgName}`)
 
         if (this.statement.initialOrganisationDepartmentName) {
@@ -1106,17 +1109,22 @@ export default {
 
         if (fragmentsInSessionStorage && hasOwnProp(fragmentsInSessionStorage, this.procedureId)) {
           const selectedFragmentsOfMovedStatement = Object.values(fragmentsInSessionStorage[this.procedureId]).filter(fragment => fragment.statementId === this.statementId)
+
           if (selectedFragmentsOfMovedStatement.length > 0) {
             selectedFragmentsOfMovedStatement.forEach(frag => this.removeFragmentFromSelectionAction(frag.id))
           }
         }
+
         this.$nextTick(() => {
           const statementElem = document.getElementById('itemdisplay_' + statementId)
+
           statementElem.focus()
           const header = statementElem.querySelector('[data-add-animation]')
+
           if (header.classList.contains('animation--bg-highlight-grey--light-1')) {
             header.classList.remove('animation--bg-highlight-grey--light-1')
           }
+
           header.classList.add('animation--bg-highlight-grey--light-1')
         })
       }
@@ -1249,11 +1257,13 @@ export default {
      */
     saveStatement (data, propType, fieldName) {
       const payload = this.preparePayload(data, propType, fieldName)
+
       this.$emit('statement:updated')
       //  ##### Fire store action #####
       this.updateStatementAction({ data: payload })
         .then(updated => {
           let updatedField = ''
+
           //  Unset loading state of saved field
           for (const field in updated) {
             // If TAGS are changed, we have to add the tag content to consideration text field
@@ -1274,6 +1284,7 @@ export default {
                         return false
                       } else {
                         textToBeAdded += '<p>' + data.data.body + '</p>'
+
                         return Promise.resolve(true)
                       }
                     }
@@ -1299,14 +1310,17 @@ export default {
               updatedField = field
               //  Handle components that use <dp-edit-field>
               const editFieldComponent = this.$refs[field].$children.find(child => child.$options.name === 'DpEditField')
+
               if (editFieldComponent) {
                 editFieldComponent.$data.loading = false
                 editFieldComponent.$data.editingEnabled = false
               }
+
               //  Handle components that have a loading state by themselves
               if (hasOwnProp(this.$refs[field].$data, 'loading')) {
                 this.$refs[field].$data.loading = false
               }
+
               if (hasOwnProp(this.$refs[field].$data, 'editingEnabled')) {
                 this.$refs[field].$data.editingEnabled = false
               }
@@ -1329,6 +1343,7 @@ export default {
       if (this.tab === 'statement') {
         this.toggleTab(false)
       }
+
       this.$refs.fragmentList.showAll = checked
     },
 
@@ -1349,6 +1364,7 @@ export default {
           assignee: this.statement.assignee,
           isCluster: this.statement.isCluster,
         }
+
         // Make sure that no fragments are checked if we check statement (fragments may not be loaded at this point so the checkbox in TableCard will not be disabled)
         this.resetSelection()
         this.$emit('statement:addToSelection', statement)

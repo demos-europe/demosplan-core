@@ -168,6 +168,7 @@ export default {
       if (Object.keys(this.appliedFilterQuery).length === 0) {
         return []
       }
+
       return Object.values(this.appliedFilterQuery)
         .filter(el => el && el.condition && el.condition.value)
         .map(el => el.condition.value)
@@ -259,6 +260,7 @@ export default {
 
       if (isInitialWithQuery) {
         const filterQueryFromStorage = this.getFilterQueryStorage()
+
         if (Object.keys(filterQueryFromStorage).length > 0) {
           this.updateFilterQuery({ ...this.filterQuery, ...filterQueryFromStorage })
         }
@@ -274,13 +276,16 @@ export default {
 
       if (!this.rawItems) {
         console.error('rawItems is undefined!')
+
         return
       }
 
       if (Object.keys(this.appliedFilterQuery).length > 0) {
         filteredItems = this.rawItems.filter(item => {
           return Object.values(this.appliedFilterQuery).every(filterCondition => {
-            if (!filterCondition.condition) return true
+            if (!filterCondition.condition) {
+              return true
+            }
 
             // Support both 'assignedTags' (OrganisationTable) and 'tags' (InstitutionList) properties
             const itemTags = item.assignedTags || item.tags || []
@@ -290,6 +295,7 @@ export default {
           })
         })
       }
+
       this.$emit('itemsFiltered', filteredItems)
     },
 
@@ -330,17 +336,20 @@ export default {
         })
         .catch(err => {
           console.error('Error loading tag categories:', err)
+
           return {}
         })
     },
 
     getFilterCategoriesStorage () {
       const selectedFilterCategories = localStorage.getItem('visibleFilterFlyouts')
+
       return selectedFilterCategories ? JSON.parse(selectedFilterCategories) : null
     },
 
     getFilterQueryStorage () {
       const filterQueryInStorage = localStorage.getItem('filterQuery')
+
       return filterQueryInStorage && filterQueryInStorage !== 'undefined' ?
         JSON.parse(filterQueryInStorage) :
         {}
@@ -358,10 +367,12 @@ export default {
         }
       } else {
         const index = this.currentlySelectedFilterCategories.indexOf(categoryLabel)
+
         if (index > -1) {
           this.currentlySelectedFilterCategories.splice(index, 1)
         }
       }
+
       this.setFilterCategoriesStorage(this.currentlySelectedFilterCategories)
     },
 

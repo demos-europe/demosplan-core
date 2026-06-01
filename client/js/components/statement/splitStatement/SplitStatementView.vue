@@ -211,12 +211,14 @@ import { v4 as uuid } from 'uuid'
  */
 const mergeSegmentMarksAndSegments = (segmentMarks, segments) => {
   const mergedSegments = []
+
   segmentMarks.forEach(mark => {
     const segment = segments.find(seg => seg.id === mark.segmentId)
     const mergedSegment = { ...segment }
 
     if (!segment) {
       console.warn('A segment was updated in Prosemirror but no corresponding segment found in store.')
+
       return
     }
 
@@ -414,6 +416,7 @@ export default {
      */
     calculateProcessingTime () {
       const statementLength = this.initialData.attributes.textualReference.length
+
       this.processingTime = statementLength > 4000 ? Math.round(statementLength / 2000) + 3 : 0
     },
 
@@ -434,6 +437,7 @@ export default {
         }
       } else if (segmentIsAtBottom) {
         const vh = document.documentElement.clientHeight
+
         this.scrollButtonPosition = {
           direction: 'bottom',
           offset: `${vh - 70}px`,
@@ -449,7 +453,9 @@ export default {
       if (this.segmentationStatus === 'aiSegmented' || this.segmentationStatus === 'inUserSegmentation') {
         return
       }
+
       const time = counter < 3 ? 5000 : 2000
+
       setTimeout(() => {
         this.fetchStatementSegmentDraftList(this.statementId)
           .then(({ data }) => {
@@ -462,8 +468,10 @@ export default {
               this.fetchInitialData().then(() => {
                 this.segmentationStatus = 'aiSegmented'
               })
+
               return
             }
+
             counter++
             this.determineIfStatementReady(counter)
           })
@@ -477,6 +485,7 @@ export default {
 
       this.ignoreProsemirrorUpdates = true
       const { rangeTrackerKey, editingDecorationsKey } = this.prosemirror.keyAccess
+
       setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(this.editingSegment.id, false)
       this.ignoreProsemirrorUpdates = false
       this.setProperty({ prop: 'editingSegment', val: null })
@@ -486,6 +495,7 @@ export default {
     enableEditMode (segmentId) {
       if (this.editModeActive) {
         console.warn('Tried to enable edit mode although it was already active')
+
         return
       }
 
@@ -524,6 +534,7 @@ export default {
       const fragment = serializer.serializeFragment(state.tr.doc.content)
 
       const wrapper = document.createElement('div')
+
       wrapper.appendChild(fragment)
 
       wrapper.querySelectorAll('span[data-segment-id]').forEach(span => {
@@ -546,6 +557,7 @@ export default {
 
     fetchAssignableUsers () {
       const url = Routing.generate('api_resource_list', { resourceType: 'AssignableUser' })
+
       return dpApi.get(url, { sort: 'lastname' })
         .then(response => {
           this.assignableUsers = response.data.data.map(assignableUser => {
@@ -578,6 +590,7 @@ export default {
             description: place.attributes.description,
           }
         })
+
         this.setProperty({ prop: 'availablePlaces', val: availablePlaces })
       })
         .catch((err) => console.error(err))
@@ -594,6 +607,7 @@ export default {
               this.setInitialData()
               this.fetchTags()
             }
+
             this.segmentationStatus = 'inUserSegmentation'
           })
       }
@@ -611,6 +625,7 @@ export default {
         if (node.marks.some(mark => mark.type.name === 'segmentMark' && mark.attrs.segmentId === segmentId)) {
           ranges.push({ from: pos, to: pos + node.nodeSize })
         }
+
         return true
       })
 
@@ -619,6 +634,7 @@ export default {
 
     handleCardHighlighting (segmentId, highlight) {
       const card = document.querySelector(`div[data-segment-id="${segmentId}"]`)
+
       if (card) {
         if (highlight) {
           card.classList.add('highlighted')
@@ -657,6 +673,7 @@ export default {
          */
         if (!segmentId) {
           const closestParent = event.target.closest('span[data-segment-id]')
+
           segmentId = closestParent ? closestParent.dataset.segmentId : null
         }
 
@@ -664,6 +681,7 @@ export default {
           if (segmentId !== this.currentlyHighlightedSegmentId) {
             this.handleSegmentHighlighting(this.currentlyHighlightedSegmentId, false)
           }
+
           this.handleCardHighlighting(segmentId, true)
           this.handleSegmentHighlighting(segmentId, true)
         } else {
@@ -680,9 +698,11 @@ export default {
       if (this.ignoreProsemirrorUpdates) {
         return
       }
+
       if (this.editModeActive === false) {
         this.stateBeforeEditing = oldSegments
       }
+
       if (createdRanges.length > 1) {
         console.warn('More than one segment was created since the last update event. There might be issues with the segment creation process.')
       }
@@ -719,6 +739,7 @@ export default {
         hasProsemirrorIndex: true,
         status: 'confirmed',
       }
+
       this.setProperty({ prop: 'editingSegment', val: segment })
       this.setProperty({ prop: 'editModeActive', val: true })
       this.locallyUpdateSegments([segment])
@@ -728,6 +749,7 @@ export default {
       setRange(this.prosemirror.view)(segmentToCreate.from, segmentToCreate.to, { segmentId: segment.id, isConfirmed: true, isActive: false })
 
       const { rangeTrackerKey, editingDecorationsKey, editStateTrackerKey } = this.prosemirror.keyAccess
+
       setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(segment.id, true)
       activateRangeEdit(this.prosemirror.view, rangeTrackerKey, editStateTrackerKey, segment.id)
       this.ignoreProsemirrorUpdates = false
@@ -735,6 +757,7 @@ export default {
 
     handleSegmentDeletions (segments) {
       const idsToDelete = segments.map(segment => segment.segmentId)
+
       this.locallyDeleteSegments(idsToDelete)
     },
 
@@ -747,6 +770,7 @@ export default {
         if (highlight && !part.classList.contains('highlighted')) {
           part.classList.add('highlighted')
         }
+
         if (!highlight && part.classList.contains('highlighted')) {
           part.classList.remove('highlighted')
         }
@@ -792,6 +816,7 @@ export default {
 
       changes.deletedRanges.forEach(range => {
         const tr = removeRange(state, range.from, range.to)
+
         this.prosemirror.view.dispatch(tr)
       })
       this.ignoreProsemirrorUpdates = false
@@ -809,6 +834,7 @@ export default {
       const { state } = this.prosemirror.view
       const segmentMarks = Object.values(this.prosemirror.keyAccess.rangeTrackerKey.getState(state))
       const updatedSegments = mergeSegmentMarksAndSegments(segmentMarks, this.segments)
+
       this.locallyUpdateSegments(updatedSegments)
       this.ignoreProsemirrorUpdates = false
     },
@@ -829,8 +855,10 @@ export default {
           try {
             const segmentMarks = this.prosemirror.keyAccess.rangeTrackerKey.getState(this.prosemirror.view.state)
             const segmentsWithText = this.segments.filter(segment => !!segmentMarks[segment.id])
+
             this.setProperty({ prop: 'segmentsWithText', val: segmentsWithText })
             const currentStatementText = this.prosemirror.getContent(this.prosemirror.view.state)
+
             this.setProperty({ prop: 'statementText', val: currentStatementText })
             this.saveSegmentsFinal()
               .then(() => this.setProperty({ prop: 'isBusy', val: false }))
@@ -871,6 +899,7 @@ export default {
       const elementRect = segment.getBoundingClientRect().top
       const elementPosition = elementRect - bodyRect
       const offsetPosition = elementPosition - 100
+
       window.scrollTo({
         top: offsetPosition,
         behavior: 'smooth',
@@ -908,6 +937,7 @@ export default {
 
     updateSegments (updatedSegments) {
       const newSegments = mergeSegmentMarksAndSegments(updatedSegments, this.segments)
+
       this.locallyUpdateSegments(newSegments)
     },
   },

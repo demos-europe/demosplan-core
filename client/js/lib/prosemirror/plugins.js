@@ -142,6 +142,7 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
       handleDOMEvents: {
         mousedown (view, e) {
           const isHandle = e.target.getAttribute('data-range-widget') !== null
+
           /**
            * Here, we need to check if the user clicked on a handle. If a handle was clicked, we need to prevent the
            * default behaviour. If we would not prevent the default behaviour, a prosemirror selection would be set close
@@ -150,6 +151,7 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
           if (isHandle) {
             e.preventDefault()
           }
+
           toggleRangeEdit(view, rangeTrackerKey, editingTrackerKey, pluginKey, e.target)
 
           return true
@@ -174,13 +176,17 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
        */
       if (Object.keys(position).length && move.moving) {
         let tr = removeMarkByName(newState, 'rangeselection', 'active')
+
         tr = replaceMarkInRange(newState, position.from, position.to, 'rangeselection', { active: true }, tr)
+
         return tr
       } else {
         const oldEditState = pluginKey.getState(oldState).isEditing
         const newEditState = pluginKey.getState(newState).isEditing
+
         if (oldEditState && !newEditState) {
           const tr = removeMarkByName(newState, 'rangeselection', 'active')
+
           return tr
         }
       }
@@ -189,12 +195,14 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
       let updateFunc = (view, state) => {
         if (this.callbackPayload) {
           const payload = [...this.callbackPayload]
+
           this.callbackPayload = null
           this.callbackRunning = true
           editToggleCallback(...payload)
           this.callbackRunning = false
         }
       }
+
       // We need to bind the context of the view method to the updateFunc so that we can access the context when calling it.
       updateFunc = updateFunc.bind(this)
 
@@ -237,9 +245,11 @@ const editStateTracker = (trackerKey, decoPluginKey) => {
           positions: null,
         }
         let returnVal = pluginState
+
         if (meta) {
           returnVal = meta === 'stop-editing' ? defaultReturnVal : meta
         }
+
         if (editMeta?.editing === false) {
           returnVal = defaultReturnVal
         }
@@ -280,6 +290,7 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
 
         const ranges = getMarks(flattenNode(newState.doc), 'segmentMark', 'segmentId')
         const equal = ranges && pluginState && rangesEqual(pluginState, ranges)
+
         if (equal) {
           return pluginState
         }
@@ -292,6 +303,7 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
            */
           if (!this.spec.callbackRunning) {
             const rangeChangeMap = generateRangeChangeMap(pluginState, ranges)
+
             this.spec.callbackPayload = [pluginState, ranges, rangeChangeMap]
           }
 
@@ -303,12 +315,14 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
       let updateFunc = (view, state) => {
         if (this.callbackPayload) {
           const payload = [...this.callbackPayload]
+
           this.callbackPayload = null
           this.callbackRunning = true
           rangeChangeCallback(...payload)
           this.callbackRunning = false
         }
       }
+
       // We need to bind the context of the view method to the updateFunc so that we can access the context when calling it.
       updateFunc = updateFunc.bind(this)
 
@@ -362,12 +376,14 @@ const rangeCreator = (pluginKey, rangeEditingKey) => {
        */
       if (isFullyCovered) {
         tippy = null
+
         return
       }
 
       tippy = createCreatorMenu(view, $anchor.pos, $head.pos)
     }
   }
+
   return new Plugin({
     key: pluginKey,
     view (view) {

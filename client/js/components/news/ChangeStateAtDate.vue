@@ -201,6 +201,7 @@ export default {
   computed: {
     initLabel () {
       const initLabel = this.statusOptions.find(el => el.value === this.initStatus).label
+
       return Translator.trans(initLabel)
     },
   },
@@ -212,6 +213,7 @@ export default {
 
     getTomorrowDate () {
       const tomorrow = new Date()
+
       tomorrow.setDate(tomorrow.getDate() + 1)
 
       return tomorrow

@@ -147,6 +147,7 @@ export default {
         width: this.target.parentElement.offsetWidth,
         height: this.target.parentElement.offsetHeight,
       }
+
       this.maxSize = containerDimensions[this.dimension] - this.magicNumber - this.parentPadding
     },
 
@@ -191,6 +192,7 @@ export default {
 
     // Check if size has to be recalculated after tab-use (map-specific)
     const procedureTab = document.querySelector('[href="#procedureDetailsMap"]')
+
     if (procedureTab) {
       procedureTab.addEventListener('click', this.setMaxSize)
     }
