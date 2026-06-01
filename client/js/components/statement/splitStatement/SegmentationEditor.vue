@@ -170,7 +170,7 @@ export default {
             link.setAttribute('href', node.attrs.src)
             link.setAttribute('target', '_blank')
             link.setAttribute('rel', 'noopener noreferrer')
-            link.textContent = (node.attrs.alt || '').trim() || 'Bild öffnen'
+            link.textContent = (node.attrs.alt || '').trim() || Translator.trans('image.open')
             wrapper.appendChild(img)
             wrapper.appendChild(link)
             return { dom: wrapper }

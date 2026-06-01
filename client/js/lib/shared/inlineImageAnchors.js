@@ -5,7 +5,7 @@ const WRAPPER_CLASS = 'pdf-importer-image-wrapper'
 const WRAPPER_UTILITY_CLASSES = `${WRAPPER_CLASS} inline-block text-center`
 const IMAGE_UTILITY_CLASSES = 'block'
 const LINK_UTILITY_CLASSES = 'pdf-importer-image-link block mt-1'
-const DEFAULT_FALLBACK_LABEL = 'Bild öffnen'
+const DEFAULT_FALLBACK_LABEL = Translator.trans('image.open')
 
 const filenameFromSrc = (src) => {
   if (typeof src !== 'string' || src === '' || src.startsWith('data:')) {
