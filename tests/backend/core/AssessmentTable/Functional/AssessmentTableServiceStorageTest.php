@@ -23,6 +23,7 @@ use Tests\Base\FunctionalTestCase;
 class AssessmentTableServiceStorageTest extends FunctionalTestCase
 {
     private const BASE_DATE = '01.01.2020';
+    private const LATER_DATE = '10.01.2020';
     private const SUBMITTED_DATE = self::BASE_DATE.' 00:00:00';
 
     /**
@@ -107,7 +108,7 @@ class AssessmentTableServiceStorageTest extends FunctionalTestCase
     {
         return [
             'authored after submitted, dates changed -> rejected' => [
-                ['authoredDate' => '10.01.2020', 'submittedDate' => self::SUBMITTED_DATE],
+                ['authoredDate' => self::LATER_DATE, 'submittedDate' => self::SUBMITTED_DATE],
                 self::BASE_DATE, self::BASE_DATE, true,
             ],
             'authored equals submitted -> allowed' => [
@@ -119,8 +120,8 @@ class AssessmentTableServiceStorageTest extends FunctionalTestCase
                 self::BASE_DATE, self::BASE_DATE, false,
             ],
             'both dates unchanged on pre-existing invalid record -> allowed' => [
-                ['authoredDate' => '10.01.2020', 'submittedDate' => self::SUBMITTED_DATE],
-                '10.01.2020', self::BASE_DATE, false,
+                ['authoredDate' => self::LATER_DATE, 'submittedDate' => self::SUBMITTED_DATE],
+                self::LATER_DATE, self::BASE_DATE, false,
             ],
             'invalid authored date string -> ignored' => [
                 ['authoredDate' => 'not-a-date', 'submittedDate' => self::SUBMITTED_DATE],
