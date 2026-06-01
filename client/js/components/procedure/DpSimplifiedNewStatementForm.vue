@@ -355,6 +355,7 @@
         v-model="values.text"
         :aria-label="Translator.trans('statement.text.short')"
         :procedure-id="procedureId"
+        :routes="{ getFileByHash: (hash) => Routing.generate('core_file_procedure', { procedureId, hash }) }"
         :toolbar-items="{ linkButton: true, imageButton: true }"
         :tus-endpoint="dplan.paths.tusEndpoint"
         required

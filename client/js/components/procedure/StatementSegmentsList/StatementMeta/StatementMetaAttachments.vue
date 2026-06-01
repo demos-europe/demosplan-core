@@ -248,14 +248,10 @@ export default {
 
   computed: {
     hasUnsavedChanges () {
-      if (!this.localAttachments || !this.initialAttachments) {
-        return false
-      }
-
-      const initialAttributes = this.initialAttachments
-      const currentAttributes = this.localAttachments
-
-      return JSON.stringify(currentAttributes) !== JSON.stringify(initialAttributes)
+      return this.fileIds.length > 0 ||
+        this.genericAttachmentsMarkedForDeletion.length > 0 ||
+        this.isSourceAttachmentMarkedForDeletion ||
+        this.fileIdSourceAttachment !== ''
     },
   },
 
