@@ -170,7 +170,7 @@
         </template>
         <template v-slot:text="{ text }">
           <div
-            v-cleanhtml="text"
+            v-cleanhtml="renderStatementText(text)"
             class="line-clamp-3 c-styled-html"
           />
         </template>
@@ -565,6 +565,10 @@ export default {
       }
 
       return inlineImageAnchors(attributes.isFulltextDisplayed ? attributes.fullText : attributes.text)
+    },
+
+    renderStatementText (text) {
+      return inlineImageAnchors(text)
     },
 
     getAssignee (statement) {
