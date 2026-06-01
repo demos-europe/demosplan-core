@@ -190,8 +190,6 @@ export default function StatementForm () {
   }
 }
 
-;
-
 /**
  * Speichere Werte in dem sessionStorage. Überschreibe dabei existierende Werte
  * @param key
