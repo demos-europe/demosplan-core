@@ -692,9 +692,16 @@ class DemosPlanAssessmentTableController extends BaseController
             );
         }
 
-        // redirect to same form to avoid sending form multiple times on reload
-        // also mitigate effect that changes are not visible immediately
-        if ($request->request->has('r_action') && null === $redirectReturn) {
+        /*
+         * Redirect to same form to avoid sending form multiple times on reload
+         * Mitigate effect that changes are not visible immediately
+         * Skip the redirect when cross-field validation fired (authoredDate can't be > submitDate,
+         * submitDate can't be < authoredDate) so the template can render the inline error state on the date inputs.
+         */
+        if ($request->request->has('r_action')
+            && null === $redirectReturn
+            && !$assessmentTableServiceOutput->hasDateOrderError()
+        ) {
             $redirectRoute = 'dm_plan_assessment_single_view';
             if ($isCluster) {
                 $redirectRoute = 'DemosPlan_cluster_view';
