@@ -18,7 +18,7 @@ All rights reserved
       >
         <dp-button
           :text="Translator.trans('procedure.phase.create')"
-          @click="isCreating = true"
+          @click="openCreateForm"
         />
       </div>
 
@@ -608,7 +608,16 @@ export default {
         })
     }
 
+    const openCreateForm = () => {
+      editingRowId.value = null
+      isCreating.value = true
+    }
+
     const startEdit = (rowData) => {
+      if (isCreating.value) {
+        resetForm()
+      }
+
       editingRowId.value = rowData.id
     }
 
@@ -683,6 +692,7 @@ export default {
       isSaving,
       newPhase,
       newPhaseAddonPayload,
+      openCreateForm,
       permissionSetOptions,
       resetForm,
       savedRowPayloads,
