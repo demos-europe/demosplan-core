@@ -19,7 +19,7 @@ use demosplan\DemosPlanCoreBundle\EventSubscriber\BaseEventSubscriber;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 
-class StatementOnUpdateEventSubscriber extends BaseEventSubscriber
+class OnStatementApiUpdateEventSubscriber extends BaseEventSubscriber
 {
     public function __construct(
         private readonly EntityContentChangeService $entityContentChangeService,
