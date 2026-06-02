@@ -17,6 +17,7 @@
 
 ### Changed
 - Tag selection when splitting a statement now lists keywords in the manual sort order from tag administration instead of alphabetically
+- Widen `_procedure.extern_id` from `VARCHAR(50)` to `VARCHAR(255)` so XBeteiligung planIDs longer than 50 characters can be stored (DPLAN-17455)
 
 ### Fixed
 - `AccessProcedureListener` now checks for array controller before accessing index, preventing crashes on API Platform routes
