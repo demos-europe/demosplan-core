@@ -11,11 +11,13 @@
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use Closure;
+use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Repositories\UserRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\Address;
+use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
@@ -53,6 +55,8 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
      * Number of seconds to cache the login list in dev mode.
      */
     final public const LOGIN_LIST_CACHE_DURATION = 43200;
+
+    private const WHERE_NOT_DELETED = 'u.deleted = false';
 
     public function __construct(
         private readonly CacheInterface $cache,
@@ -301,7 +305,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
 
         $this->setUserEntityFieldsOnFieldCollection($commonEntityFields, $entity, $data);
 
-        if (array_key_exists('password', $data) && 0 < strlen((string) $data['password'])) {
+        if (array_key_exists('password', $data) && '' !== (string) $data['password']) {
             $entity->setPassword($data['password']);
             $entity->setAlternativeLoginPassword($data['password']);
         }
@@ -634,7 +638,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
         $qb = $this->createQueryBuilder('u')
             ->setFirstResult($startIndex - 1)
             ->setMaxResults($count)
-            ->where('u.deleted = false')
+            ->where(self::WHERE_NOT_DELETED)
             ->orderBy($sort, $sortDir);
 
         // Apply criteria filters
@@ -645,7 +649,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
         // Get total count for pagination
         $totalCountQb = $this->createQueryBuilder('u')
             ->select('COUNT(u.id)')
-            ->where('u.deleted = false');
+            ->where(self::WHERE_NOT_DELETED);
 
         // Apply criteria filters
         $totalCountQb = $this->applyCriteriaFilters($criteria, $totalCountQb);
@@ -756,5 +760,38 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
         }
 
         return $qb;
+    }
+
+    /**
+     * Returns active users whose effective inactivity reference (`lastLogin` if set,
+     * else `createdDate`) is at or before the cutoff. Excludes deleted users, the
+     * AI API user (by login — its row ID is random per project), and any further
+     * protected IDs supplied by the caller (typically the anonymous-user constant
+     * plus project-specific protected accounts).
+     *
+     * @param list<string> $protectedUserIds
+     *
+     * @return list<User>
+     */
+    public function findInactivityDeletionCandidates(
+        DateTimeInterface $cutoff,
+        array $protectedUserIds,
+    ): array {
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder()
+            ->select('u')
+            ->from(User::class, 'u')
+            ->where(self::WHERE_NOT_DELETED)
+            ->andWhere('COALESCE(u.lastLogin, u.createdDate) <= :cutoff')
+            ->andWhere('u.login != :aiApiUserLogin')
+            ->setParameter('cutoff', $cutoff)
+            ->setParameter('aiApiUserLogin', AiApiUser::AI_API_USER_LOGIN);
+
+        if ([] !== $protectedUserIds) {
+            $queryBuilder
+                ->andWhere('u.id NOT IN (:protectedUserIds)')
+                ->setParameter('protectedUserIds', $protectedUserIds);
+        }
+
+        return $queryBuilder->getQuery()->getResult();
     }
 }

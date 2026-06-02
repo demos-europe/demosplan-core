@@ -163,13 +163,15 @@ fos_elastica:
                         rawSort: {type: icu_collation_keyword}
                         text: {type: text, analyzer: customHTMLGerman}
                 orgaId: {type: keyword, index: true}
-                phase: {type: keyword, index: true}
+                phaseDefinitionId: {type: keyword, index: true}
+                phaseOrderInAudience: {type: integer, index: true}
                 phasePermissionset: {type: keyword, index: true}
                 startDate: {type: keyword, index: true}
                 startDateTimestamp: {type: long, index: true}
                 endDate: {type: keyword, index: true}
                 endDateTimestamp: {type: long, index: true}
-                publicParticipationPhase: {type: keyword, index: true}
+                publicParticipationPhaseDefinitionId: {type: keyword, index: true}
+                publicParticipationPhaseOrderInAudience: {type: integer, index: true}
                 publicParticipationPhasePermissionset: {type: keyword, index: true}
                 publicParticipationStartDate: {type: keyword, index: true}
                 publicParticipationStartDateTimestamp: {type: long, index: true}
@@ -363,7 +365,7 @@ fos_elastica:
                         postalCode: { type: keyword, index: false }
                         city: { type: keyword, index: false }
                 procedureId: {type: keyword, index: true}
-                phase: {type: keyword, index: true}
+                phaseDefinitionId: {type: keyword, index: true}
                 polygon: {type: text, index: false}
                 file: {type: keyword, index: false}
                 files: {type: text, index: true}

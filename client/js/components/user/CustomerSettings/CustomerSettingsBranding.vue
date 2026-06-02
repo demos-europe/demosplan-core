@@ -181,6 +181,7 @@ export default {
           },
         },
       }
+
       this.updateBranding(payload)
       this.saveBranding(this.brandingId).then(() => {
         this.unsetFile({ fileId: this.uploadedFileId })
@@ -237,6 +238,7 @@ export default {
   },
   mounted () {
     const file = this.brandingList[this.brandingId].relationships?.logo?.data?.id ?? null
+
     this.uploadedFileId = file ? this.fileList[file].id : null
   },
 }

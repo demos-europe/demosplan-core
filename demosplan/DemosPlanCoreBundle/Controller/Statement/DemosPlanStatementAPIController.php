@@ -101,7 +101,7 @@ class DemosPlanStatementAPIController extends APIController
      * @throws MessageBagException
      */
     #[DplanPermissions('feature_statement_copy_to_procedure')]
-    #[Route(path: '/api/1.0/statements/{statementId}/copy/{procedureId}', methods: ['POST'], name: 'dplan_api_statement_copy_to_procedure', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/statements/{statementId}/copy/{procedureId}', name: 'dplan_api_statement_copy_to_procedure', options: ['expose' => true], methods: ['POST'])]
     public function copyStatement(ProcedureHandler $procedureHandler, Request $request, StatementHandler $statementHandler, string $statementId): APIResponse
     {
         try {
@@ -192,7 +192,7 @@ class DemosPlanStatementAPIController extends APIController
      * @throws MessageBagException
      */
     #[DplanPermissions('feature_statement_move_to_procedure')]
-    #[Route(path: '/api/1.0/statements/{statementId}/move/{procedureId}', methods: ['POST'], name: 'dplan_api_statement_move', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/statements/{statementId}/move/{procedureId}', name: 'dplan_api_statement_move', options: ['expose' => true], methods: ['POST'])]
     public function moveStatement(
         CurrentProcedureService $currentProcedureService,
         ProcedureHandler $procedureHandler,
@@ -288,7 +288,7 @@ class DemosPlanStatementAPIController extends APIController
      * @return JsonResponse
      */
     #[DplanPermissions('area_admin_assessmenttable')]
-    #[Route(path: '/api/1.0/statements/{procedureId}/{statementId}/edit', methods: ['POST'], name: 'dplan_api_statement_edit', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/statements/{procedureId}/{statementId}/edit', name: 'dplan_api_statement_edit', options: ['expose' => true], methods: ['POST'])]
     public function editStatement(StatementService $statementService, ValidatorInterface $validator, $statementId): APIResponse
     {
         try {
@@ -298,7 +298,7 @@ class DemosPlanStatementAPIController extends APIController
                 throw ViolationsException::fromConstraintViolationList($errors);
             }
 
-            if (!($this->requestData instanceof TopLevel)) {
+            if (!$this->requestData instanceof TopLevel) {
                 throw BadRequestException::normalizerFailed();
             }
 
@@ -383,7 +383,7 @@ class DemosPlanStatementAPIController extends APIController
 
     // @improve T12984
     #[DplanPermissions('area_admin_assessmenttable')]
-    #[Route(path: '/api/1.0/assessmentqueryhash/{filterSetHash}/statements/{procedureId}', methods: ['GET'], name: 'dplan_assessmentqueryhash_get_procedure_statement_list', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/assessmentqueryhash/{filterSetHash}/statements/{procedureId}', name: 'dplan_assessmentqueryhash_get_procedure_statement_list', options: ['expose' => true], methods: ['GET'])]
     public function list(
         AssessmentHandler $assessmentHandler,
         HashedQueryService $filterSetService,
@@ -470,7 +470,7 @@ class DemosPlanStatementAPIController extends APIController
      * @throws MessageBagException
      */
     #[DplanPermissions(['area_admin_assessmenttable', 'feature_statement_cluster'])]
-    #[Route(path: '/api/1.0/statements/{procedureId}/statements/group', methods: ['POST'], name: 'dplan_api_create_group_statement', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/statements/{procedureId}/statements/group', name: 'dplan_api_create_group_statement', options: ['expose' => true], methods: ['POST'])]
     public function createGroupStatement(StatementHandler $statementHandler, string $procedureId): APIResponse
     {
         try {
@@ -513,7 +513,7 @@ class DemosPlanStatementAPIController extends APIController
      * @throws MessageBagException
      */
     #[DplanPermissions(['area_admin_assessmenttable', 'feature_statement_cluster'])]
-    #[Route(path: '/api/1.0/statements/{procedureId}/statements/group', methods: ['PATCH'], name: 'dplan_api_update_group_statement', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/statements/{procedureId}/statements/group', name: 'dplan_api_update_group_statement', options: ['expose' => true], methods: ['PATCH'])]
     public function updateGroupStatement(StatementHandler $statementHandler, string $procedureId): APIResponse
     {
         try {
@@ -563,7 +563,7 @@ class DemosPlanStatementAPIController extends APIController
      * @throws MessageBagException
      */
     #[DplanPermissions(['area_admin_assessmenttable', 'feature_statement_bulk_edit'])]
-    #[Route(path: '/api/1.0/statements/{procedureId}/statements/bulk-edit', methods: ['POST'], name: 'dplan_assessment_table_assessment_table_statement_bulk_edit_api_action', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/statements/{procedureId}/statements/bulk-edit', name: 'dplan_assessment_table_assessment_table_statement_bulk_edit_api_action', options: ['expose' => true], methods: ['POST'])]
     public function statementBulkEditApi(StatementService $statementService, ValidatorInterface $validator, string $procedureId): APIResponse
     {
         try {

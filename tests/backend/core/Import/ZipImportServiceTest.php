@@ -21,7 +21,7 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Tests\Base\FunctionalTestCase;
 use ValueError;
-use Zenstruck\Foundry\Proxy;
+use Zenstruck\Foundry\Persistence\Proxy;
 
 class ZipImportServiceTest extends FunctionalTestCase
 {

@@ -156,26 +156,28 @@
         >
           <dp-data-table
             ref="dataTable"
-            class="min-h-12"
+            :key="columnSelectorKey"
             :class="{ 'px-2': isFullscreen, 'scrollbar-none': !isFullscreen }"
+            :header-fields="availableHeaderFields"
+            :items="items"
+            :multi-page-all-selected="allSelectedVisually"
+            :multi-page-selection-items-toggled="toggledItems.length"
+            :multi-page-selection-items-total="allItemsCount"
+            :should-be-selected-items="currentlySelectedItems"
+            class="min-h-12"
+            column-storage-key="segmentsList"
+            column-width-storage-key="segmentsListColumnWidths"
             data-cy="segmentsList"
             density="spacious"
-            has-flyout
+            track-by="id"
             has-borders
+            has-flyout
             has-sticky-header
-            :header-fields="availableHeaderFields"
-            column-storage-key="segmentsList"
             is-columns-draggable
             is-resizable
             is-selectable
-            :items="items"
-            :multi-page-all-selected="allSelectedVisually"
-            :multi-page-selection-items-total="allItemsCount"
-            :multi-page-selection-items-toggled="toggledItems.length"
-            :should-be-selected-items="currentlySelectedItems"
-            track-by="id"
-            @select-all="handleSelectAll"
             @items-toggled="handleToggleItem"
+            @select-all="handleSelectAll"
           >
             <template v-slot:header-tags>
               <span class="inline-flex items-center">
@@ -414,6 +416,7 @@ import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaToolti
 import StatusBadge from '../Shared/StatusBadge'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 export default {
   name: 'SegmentsList',
@@ -501,6 +504,7 @@ export default {
       columnSelectorKey: 0,
       defaultColumnSelection: [],
       currentSelection: [],
+      customFieldDefinitions: [],
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
@@ -540,10 +544,6 @@ export default {
 
     ...mapState('AssignableUser', {
       assignableUsersObject: 'items',
-    }),
-
-    ...mapState('CustomField', {
-      customFields: 'items',
     }),
 
     ...mapState('Orga', {
@@ -588,12 +588,11 @@ export default {
         ]
       }
 
-      const customFields = Object.values(this.customFields)
-      const selectedCustomFields = customFields
-        .filter(customField => this.currentSelection.includes(`customField_${customField.id}`))
-        .map(customField => ({
-          field: `customField_${customField.id}`,
-          label: customField.attributes.name,
+      const selectedCustomFields = this.customFieldDefinitions
+        .filter(definition => this.currentSelection.includes(`customField_${definition.id}`))
+        .map(definition => ({
+          field: `customField_${definition.id}`,
+          label: definition.attributes.name,
           colWidth: '180px',
           initialMinWidth: 180,
         }))
@@ -631,6 +630,7 @@ export default {
 
     queryIds () {
       let ids = []
+
       if (Array.isArray(this.appliedFilterQuery) === false && Object.values(this.appliedFilterQuery).length > 0) {
         ids = Object.values(this.appliedFilterQuery)
           .filter(el => el.condition) // Remove group objects
@@ -642,6 +642,7 @@ export default {
             return el.condition.value
           })
       }
+
       return ids
     },
 
@@ -658,7 +659,7 @@ export default {
         return staticColumns
       }
 
-      const customFields = Object.values(this.customFields).map(customField => ([`customField_${customField.id}`, customField.attributes.name]))
+      const customFields = this.customFieldDefinitions.map(definition => ([`customField_${definition.id}`, definition.attributes.name]))
 
       return [
         ...staticColumns,
@@ -671,14 +672,12 @@ export default {
         return []
       }
 
-      return Object.values(this.customFields)
-        .filter(customField => this.currentSelection.includes(`customField_${customField.id}`))
-        .map(customField => {
-          return {
-            field: `customField_${customField.id}`,
-            fieldId: customField.id,
-          }
-        })
+      return this.customFieldDefinitions
+        .filter(definition => this.currentSelection.includes(`customField_${definition.id}`))
+        .map(definition => ({
+          field: `customField_${definition.id}`,
+          fieldId: definition.id,
+        }))
     },
 
     storageKeyPagination () {
@@ -689,10 +688,6 @@ export default {
   methods: {
     ...mapActions('AssignableUser', {
       fetchAssignableUsers: 'list',
-    }),
-
-    ...mapActions('AdminProcedure', {
-      getCustomFieldsForProcedure: 'get',
     }),
 
     ...mapActions('FilterFlyout', [
@@ -793,12 +788,14 @@ export default {
           ].join(),
         },
       }
+
       if (this.searchTerm !== '') {
         payload.search = {
           value: this.searchTerm,
           ...this.searchFieldsSelected.length !== 0 ? { fieldsToSearch: this.searchFieldsSelected } : {},
         }
       }
+
       this.isLoading = true
       this.fetchSegments(payload)
         .then((data) => {
@@ -852,33 +849,25 @@ export default {
         return ''
       }
 
-      return this.customFields[fieldId].attributes.options.find(option => option.id === customFieldOptionId)?.label || ''
+      const definition = this.customFieldDefinitions.find(customField => customField.id === fieldId)
+
+      return definition?.attributes.options.find(option => option.id === customFieldOptionId)?.label || ''
     },
 
-    getCustomFields () {
-      const payload = {
-        id: this.procedureId,
-        fields: {
-          AdminProcedure: [
-            'segmentCustomFields',
-          ].join(),
-          CustomField: [
-            'name',
-            'description',
-            'options',
-          ].join(),
-        },
-        include: [
-          'segmentCustomFields',
-        ].join(),
-      }
+    loadSegmentCustomFields () {
+      const { fetchCustomFields } = useCustomFields()
 
-      this.getCustomFieldsForProcedure(payload)
+      return fetchCustomFields(this.procedureId, { sourceEntity: 'PROCEDURE', targetEntity: 'SEGMENT' })
+        .then(definitions => {
+          this.customFieldDefinitions = definitions
+        })
+        .catch(() => { /* Notification already shown by useCustomFieldDefinitions */ })
     },
 
     getTagsBySegment (id) {
       const segment = this.segmentsObject[id]
       const relatedTagIds = segment.relationships.tags && segment.relationships.tags.data.map(tag => tag.id)
+
       return relatedTagIds.map(id => this.tagsObject[id])
     },
 
@@ -887,8 +876,10 @@ export default {
      */
     getOriginalPdfAttachmentHashBySegment (segment) {
       const parentStatement = segment.rel('parentStatement')
+
       if (parentStatement.hasRelationship('attachments')) {
         const originalAttachment = Object.values(parentStatement.relationships.attachments.list()).filter(attachment => attachment.attributes.attachmentType === 'source_statement')[0]
+
         if (originalAttachment) {
           return originalAttachment.rel('file').attributes.hash
         }
@@ -902,6 +893,7 @@ export default {
       if (filterType === 'tags') {
         return null
       }
+
       // Replace '.' in workflow.places because it is forbidden in group names
       return `${filterType.replaceAll('.', '-')}_group`
     },
@@ -921,6 +913,7 @@ export default {
     handleSizeChange (newSize) {
       // Compute new page with current page for changed number of items per page
       const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
+
       this.pagination.perPage = newSize
       this.applyQuery(page)
     },
@@ -928,6 +921,12 @@ export default {
     resetColumnSelection () {
       localStorage.removeItem('segmentList')
       this.setCurrentSelection([...this.defaultColumnSelection])
+
+      // Clear persisted column widths
+      Object.keys(localStorage)
+        .filter(key => key.startsWith('dpDataTable:colWidth:segmentsListColumnWidths:'))
+        .forEach(key => localStorage.removeItem(key))
+
       this.columnSelectorKey++
     },
 
@@ -1053,6 +1052,7 @@ export default {
 
               const currentFlyoutFilterIds = this.queryIds.filter(queryId => {
                 const item = allOptions.find(item => item.id === queryId)
+
                 return item ? item.id : null
               })
 
@@ -1111,6 +1111,7 @@ export default {
     // Called by apply as well as by reset in filterFlyout
     sendFilterQuery (filter) {
       const isReset = Object.keys(filter).length === 0
+
       if (isReset === false && Object.keys(this.appliedFilterQuery).length) {
         Object.values(filter).forEach(el => {
           this.appliedFilterQuery[el.condition.value] = el
@@ -1122,6 +1123,7 @@ export default {
           this.appliedFilterQuery = filter
         }
       }
+
       this.updateQueryHash()
       this.resetSelection()
       this.applyQuery(1)
@@ -1138,9 +1140,11 @@ export default {
       const url = Routing.generate('dplan_rpc_segment_list_query_update', { queryHash: oldQueryHash })
 
       const data = { filter: this.getFilterQuery }
+
       if (this.searchterm !== '') {
         data.searchPhrase = this.searchTerm
       }
+
       return dpApi.patch(url, {}, data)
         .then(({ data }) => {
           if (data) {
@@ -1153,6 +1157,7 @@ export default {
 
     updateQueryHashInURL (oldQueryHash, newQueryHash) {
       const newHref = globalThis.location.href.replace(oldQueryHash, newQueryHash)
+
       globalThis.history.pushState({ html: newHref, pageTitle: document.title }, document.title, newHref)
     },
 
@@ -1169,10 +1174,12 @@ export default {
 
   async mounted () {
     const addons = await loadAddonComponents('tag.style.segments.list')
+
     this.hasStyledTopicalTags = addons.length > 0
 
     // Get queryHash from URL
     const hrefParts = globalThis.location.href.split('/')
+
     this.currentQueryHash = hrefParts[hrefParts.length - 1]
 
     // When returning from bulk edit flow, the currentQueryHash which was used there to build a return link must be deleted.
@@ -1189,14 +1196,17 @@ export default {
         }
 
         const query = {}
+
         query[filter.condition.value] = filter
         this.updateFilterQuery(query)
       })
     }
+
     this.initPagination()
     if (hasPermission('field_segments_custom_fields')) {
-      this.getCustomFields()
+      this.loadSegmentCustomFields()
     }
+
     this.applyQuery(this.pagination.currentPage)
 
     this.fetchPlaces()

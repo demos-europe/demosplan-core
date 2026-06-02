@@ -331,6 +331,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import CreateCustomFieldForm from '@DpJs/components/procedure/admin/CreateCustomFieldForm'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
+import { useCustomFieldTypes } from '@DpJs/composables/useCustomFieldTypes'
 
 const {
   createCustomFieldDefinition,
@@ -338,6 +339,8 @@ const {
   fetchCustomFields: fetchCustomFieldsFromComposable,
   updateCustomFieldDefinition,
 } = useCustomFields()
+
+const { fieldTypeSupportsOptions, getFieldTypeLabel } = useCustomFieldTypes()
 
 export default {
   name: 'AdministrationCustomFieldsList',
@@ -465,6 +468,10 @@ export default {
     },
 
     deleteWarningMessage () {
+      if (this.isCustomerContext) {
+        return Translator.trans('custom.field.delete.message.warning')
+      }
+
       return this.getTextForEnabledFieldTypes('delete', 'custom.field.delete.message.warning')
     },
 
@@ -483,25 +490,19 @@ export default {
         return Translator.trans('warning.custom_field.edit.statement.message')
       }
 
+      if (this.isCustomerContext) {
+        return Translator.trans('custom.field.edit.message.warning')
+      }
+
       return this.getTextForEnabledFieldTypes('edit', 'custom.field.edit.message.warning')
     },
 
     fieldTypeText () {
-      const fieldTypeMap = {
-        'multiSelect': 'custom.field.type.multiSelect',
-        'singleSelect': 'custom.field.type.singleSelect',
-        'text': 'custom.field.type.text',
-      }
-
-      return (fieldType) => {
-        const translationKey = fieldTypeMap[fieldType]
-
-        return translationKey ? Translator.trans(translationKey) : fieldType
-      }
+      return (fieldType) => getFieldTypeLabel(fieldType)
     },
 
     hasOptionsBasedFieldTypes () {
-      return this.typeOptions.some(option => ['multiSelect', 'singleSelect'].includes(option.value))
+      return this.typeOptions.some(option => fieldTypeSupportsOptions(option.value))
     },
 
     headerFields () {
@@ -558,8 +559,7 @@ export default {
     },
 
     isDefinitionActionDisabled () {
-      // For the moment editing and deleting of customer context fields is disabled, feature is added in the next step
-      return this.isCustomerContext || (this.isActiveTabStatementContext && this.procedureReceivedStatements)
+      return this.isActiveTabStatementContext && this.procedureReceivedStatements
     },
 
     isActiveTabStatementContext () {
@@ -855,6 +855,7 @@ export default {
 
           const sourceDefinition = this.currentTabDefinitions.find(definition => definition.id === this.newRowData.id)
           const { description = '', isRequired, name, options } = this.newRowData
+          const isOptionsSupported = fieldTypeSupportsOptions(sourceDefinition.attributes.fieldType)
 
           const updatedPayload = {
             ...sourceDefinition,
@@ -865,13 +866,14 @@ export default {
                 isRequired,
                 name,
                 options,
-              }).filter(([key]) => key !== 'fieldType'),
+              }).filter(([key]) => key !== 'fieldType' && (key !== 'options' || isOptionsSupported)),
             ),
           }
 
           updateCustomFieldDefinition(this.newRowData.id, updatedPayload, this.definitionSourceId)
             .then(() => {
               const idx = this.customFieldItems.findIndex(item => item.id === sourceDefinition.id)
+
               this.customFieldItems[idx] = { ...this.newRowData }
               this.setEditMode(sourceDefinition, false)
             })
@@ -958,6 +960,7 @@ export default {
 
     setFieldBeingEdited (rowData) {
       const newRowData = JSON.parse(JSON.stringify(rowData))
+
       this.setInitialRowData(rowData)
       this.setNewRowData(newRowData)
       this.setEditMode(rowData)
@@ -1004,6 +1007,7 @@ export default {
       }
 
       let isAnyOptionNameDuplicated = false
+
       customFieldOptions.forEach(option => {
         if (!isAnyOptionNameDuplicated && option.label !== '') {
           isAnyOptionNameDuplicated = !this.checkIfOptionNameIsUnique(customFieldOptions, option.label)

@@ -937,6 +937,7 @@ export default {
     DpRadio,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
+
       return DpEditor
     }),
     DpUploadFiles,
@@ -1128,11 +1129,13 @@ export default {
       isLoading: false,
       makePublicLabel: (() => {
         let label = Translator.trans('explanation.statement.public', { projectName: this.projectName })
+
         /*
          * While published statements of citizens do not show their name, the orga name of institutions is shown on
          * statements published by them.
          */
         label += ' ' + Translator.trans(hasPermission('feature_statement_publish_name') ? 'explanation.statement.public.organame' : 'explanation.statement.public.noname')
+
         return label
       })(),
       draftHasLocalStorageData: false,
@@ -1190,6 +1193,7 @@ export default {
         return JSON.parse(this.formData.r_files_initial)
           .map(fileString => {
             const fileArray = fileString.split(':')
+
             return {
               name: fileArray[0],
               hash: fileArray[1],
@@ -1198,6 +1202,7 @@ export default {
             }
           })
       }
+
       return []
     },
 
@@ -1212,6 +1217,7 @@ export default {
     personalDataFormDefinitions () {
       return this.personalDataFormFields.map(el => {
         this.availableFormComponents[el.name].width = this.availableFormComponents[el.name].width || 'u-1-of-2'
+
         return { ...el, ...this.availableFormComponents[el.name] }
       })
     },
@@ -1253,6 +1259,7 @@ export default {
     formData: {
       handler (newFormData) {
         const parsed = JSON.stringify(newFormData)
+
         this.continueWriting = this.initFormDataJSON !== parsed
       },
       deep: true,
@@ -1385,6 +1392,7 @@ export default {
     focusMultistep (step) {
       this.$nextTick(() => {
         const currentMultistepButton = this.$el.querySelectorAll('.c-multistep__step')[step]
+
         if (currentMultistepButton) {
           currentMultistepButton.focus()
         }
@@ -1406,6 +1414,7 @@ export default {
       const dId = draftStatementId === '' ? 'new' : draftStatementId
       const existingDataString = localStorage.getItem(`publicStatement:${this.userId}:${this.procedureId}:${dId}`)
       const draftExists = (draftStatementId !== '' && existingDataString !== null)
+
       /*
        * When opening from the draft list, the server is the source of truth for custom fields.
        * Only use localStorage values for custom fields when editing a new (not yet submitted) statement.
@@ -1439,6 +1448,7 @@ export default {
             const priorityAreaKey = data.draftStatement.statementAttributes.priorityAreaKey || ''
             const priorityAreaType = data.draftStatement.statementAttributes.priorityAreaType || ''
             const draft = this.setDraftData(data, priorityAreaKey, priorityAreaType)
+
             /*
              * If it is a draft, we set the data from local storage (see above).
              */
@@ -1490,6 +1500,7 @@ export default {
       this.$nextTick(() => {
         if (!this.selectableCustomFields || this.selectableCustomFields.length === 0) {
           this.setStatementData({ customFields: [] })
+
           return
         }
 
@@ -1498,6 +1509,7 @@ export default {
             // Filter out fields with no value
             const hasValue = field.value != null &&
               (Array.isArray(field.value) ? field.value.length > 0 : field.value !== '')
+
             return hasValue
           })
           .map(field => ({
@@ -1533,6 +1545,7 @@ export default {
     handleCustomFieldValueUpdate (fieldId, newValue) {
       // 1. Update selectableCustomFields[].value (backend format)
       const fieldIndex = this.selectableCustomFields.findIndex(f => f.id === fieldId)
+
       if (fieldIndex !== -1) {
         /*
          * Store raw value directly (IDs, not objects)
@@ -1583,6 +1596,7 @@ export default {
         } else if (input === 'r_customFields') {
           // Scroll to first custom field
           const firstCustomField = document.querySelector('[data-cy^="customField"]')
+
           if (firstCustomField) {
             firstCustomField.scrollIntoView({ behavior: 'smooth', block: 'center' })
           }
@@ -1667,21 +1681,27 @@ export default {
       if (dataToSend.r_makePublic === 'off') {
         delete dataToSend.r_makePublic
       }
+
       if (dataToSend.r_getFeedback === 'off') {
         delete dataToSend.r_getFeedback
       }
+
       if (dataToSend.r_houseNumber === '') {
         delete dataToSend.r_houseNumber
       }
+
       if (dataToSend.r_postalCode === '') {
         delete dataToSend.r_postalCode
       }
+
       if (dataToSend.r_city === '') {
         delete dataToSend.r_city
       }
+
       if (hasPermission('feature_statements_feedback_check_email') === false) {
         delete dataToSend.r_email2
       }
+
       /*
        * Tweak e-mail values so they fit to the update request
        * due to the dynamic handling there can be inconsistencies
@@ -1829,6 +1849,7 @@ export default {
 
       this.selectableCustomFields = this.selectableCustomFields.map(def => {
         const serverField = serverValues.find(v => v.id === def.id)
+
         return serverField ? { ...def, value: serverField.value } : def
       })
       /*
@@ -1900,11 +1921,13 @@ export default {
 
             return false
           }
+
           if (response.status !== 200) {
             dplan.notify.notify('error', Translator.trans('error.statement.not.saved'))
 
             return false
           }
+
           /*
            * Handling for successful responses
            * if it's not an HTML-Response like after creating a new one
@@ -1941,6 +1964,7 @@ export default {
               this.removeUnsavedDraft(this.draftStatementId)
               this.clearDraftState(this.draftStatementId)
             }
+
             this.removeStatementProp('immediate_submit')
           }
 
@@ -2017,8 +2041,13 @@ export default {
         r_makePublic: data.draftStatement.publicAllowed ? 'on' : 'off',
       }
 
-      if (draft.r_location === 'noLocation') draft.r_location = 'notLocated'
-      if (draft.r_location === 'mapLocation' && data.draftStatement.polygon) draft.r_location = 'point'
+      if (draft.r_location === 'noLocation') {
+        draft.r_location = 'notLocated'
+      }
+
+      if (draft.r_location === 'mapLocation' && data.draftStatement.polygon) {
+        draft.r_location = 'point'
+      }
 
       return draft
     },
@@ -2040,6 +2069,7 @@ export default {
       if (isActiveFullScreen()) {
         toggleFullscreen()
       }
+
       this.editDraftDataInPublicDetail = resetOnClose
       this.step = 0
       this.showHeader = true
@@ -2082,6 +2112,7 @@ export default {
 
       // Store updated data
       const newFilesArrayString = JSON.stringify(currentFiles)
+
       this.setStatementData({ r_files_initial: newFilesArrayString })
 
       // Reset helper
@@ -2089,6 +2120,7 @@ export default {
       if (this.$refs.uploadFiles) {
         this.$refs.uploadFiles.clearFilesList()
       }
+
       // Reset store data
       this.setStatementData({ delete_file: [] })
       this.setStatementData({ uploadedFiles: '' })
@@ -2118,8 +2150,10 @@ export default {
       const postValidation = () => {
         if (this.dpValidate.statementForm === false) {
           this.$nextTick(() => document.getElementById('statementFormErrors').focus())
+
           return false
         }
+
         if (typeof this.dpValidate.invalidFields.statementForm.find(el => el.id === 'check_location_isset') !== 'undefined') {
           this.$refs.mapStatementRadio.classList.add('is-invalid')
         }
@@ -2128,8 +2162,10 @@ export default {
           this.step = 1
           this.focusMultistep(1)
         }
+
         return this.dpValidate.statementForm
       }
+
       return this.dpValidateAction('statementForm', postValidation, true)
     },
 

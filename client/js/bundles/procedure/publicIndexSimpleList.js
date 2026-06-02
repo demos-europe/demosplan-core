@@ -24,6 +24,7 @@ initialize()
         data,
       }).then(({ data }) => {
         const parsedData = JSON.parse(data)
+
         if (parsedData.code === 100 && parsedData.success === true) {
           document.querySelector('[data-procedurelist-content]').innerHTML = parsedData.responseHtml
         }
