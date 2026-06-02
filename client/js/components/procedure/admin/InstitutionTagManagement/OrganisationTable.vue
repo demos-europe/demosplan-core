@@ -68,7 +68,7 @@ All rights reserved
     >
       <!-- Resource-specific content based on resourceType -->
       <template v-slot:expandedContent="{ id, participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson, assignedTags }">
-        <div class="border-l-4 border-[#757575] mb-2 ml-4 mt-4 pl-4">
+        <div class="border-l-4 border-neutral mb-2 ml-4 mt-4 pl-4">
           <p class="weight--bold pb-2">
             {{ Translator.trans('institution.general.information') }}
           </p>
@@ -256,7 +256,6 @@ export default {
   data () {
     return {
       customFieldDefinitions: [],
-      customFieldValuesByInstitutionId: {},
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
@@ -319,6 +318,20 @@ export default {
       return this.pagination.currentPage || 1
     },
 
+    customFieldValuesByInstitutionId () {
+      return Object.keys(this.storeItems).reduce((byInstitution, id) => {
+        const customFields = this.storeItems[id].attributes?.customFields || []
+
+        return {
+          ...byInstitution,
+          [id]: customFields.reduce((byField, field) => ({
+            ...byField,
+            [field.id]: field.value,
+          }), {}),
+        }
+      }, {})
+    },
+
     isSearchApplied () {
       return this.searchTerm !== ''
     },
@@ -369,6 +382,7 @@ export default {
     selectedItemsText () {
       const count = this.selectedItems.length
       const translationKey = count === 1 ? 'entry.selected' : 'entries.selected'
+
       return `${count} ${Translator.trans(translationKey)}`
     },
 
@@ -397,6 +411,21 @@ export default {
     ...mapActions('InstitutionTagCategory', {
       fetchInstitutionTagCategories: 'list',
     }),
+
+    getCustomFieldsForInstitution (institutionId) {
+      const values = this.customFieldValuesByInstitutionId[institutionId] || {}
+
+      return this.customFieldDefinitions
+        .map(definition => ({
+          definition,
+          field: { id: definition.id, value: values[definition.id] ?? null },
+        }))
+        .filter(({ field }) =>
+          field.value !== null &&
+          field.value !== undefined &&
+          field.value !== '',
+        )
+    },
 
     getInstitutionTagCategories (isInitial = false) {
       if (!hasPermission('feature_institution_tag_read')) {
@@ -512,7 +541,6 @@ export default {
           .then(data => {
             this.setLocalStorage(data.meta.pagination)
             this.updatePagination(data.meta.pagination)
-            this.extractCustomFieldValues()
           })
       }
 
@@ -520,7 +548,6 @@ export default {
         .then(data => {
           this.setLocalStorage(data.meta.pagination)
           this.updatePagination(data.meta.pagination)
-          this.extractCustomFieldValues()
         })
     },
 
@@ -583,37 +610,13 @@ export default {
         if (hasPermission(check.permission)) {
           acc.push(check.value)
         }
+
         return acc
       }, [])
     },
 
     setSelectedItems (items) {
       this.$emit('selectedItems', items)
-    },
-
-    getCustomFieldsForInstitution (institutionId) {
-      const values = this.customFieldValuesByInstitutionId[institutionId] || {}
-
-      return this.customFieldDefinitions
-        .map(definition => ({
-          definition,
-          field: { id: definition.id, value: values[definition.id] ?? null },
-        }))
-        .filter(({ field }) => field.value !== null && field.value !== undefined && field.value !== '')
-    },
-
-    extractCustomFieldValues () {
-      this.customFieldValuesByInstitutionId = Object.keys(this.storeItems).reduce((byInstitution, id) => {
-        const customFields = this.storeItems[id].attributes?.customFields || []
-
-        return {
-          ...byInstitution,
-          [id]: customFields.reduce((byField, field) => ({
-            ...byField,
-            [field.id]: field.value,
-          }), {}),
-        }
-      }, {})
     },
 
     sortFields (fields) {
@@ -646,8 +649,7 @@ export default {
         this.fetchCustomFields(null, { sourceEntity: 'CUSTOMER', targetEntity: 'ORGA' })
           .then(definitions => {
             this.customFieldDefinitions = definitions || []
-          })
-          .catch(err => console.error(err)),
+          }),
       )
     }
 

@@ -355,6 +355,7 @@ import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import lscache from 'lscache'
 import RecommendationModal from '../Shared/RecommendationModal'
 import SelectedTagsList from '@DpJs/components/procedure/SegmentsBulkEdit/SelectedTagsList'
+import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 export default {
   name: 'SegmentsBulkEdit',
@@ -366,10 +367,12 @@ export default {
     DpBoilerPlateModal,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
+
       return DpEditor
     }),
     DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
+
       return DpInlineNotification
     }),
     DpMultiselect,
@@ -433,6 +436,7 @@ export default {
       },
       assignableUsers: [],
       busy: false,
+      customFieldDefinitions: [],
       hasRecommendationTabs: false,
       isLoading: true,
       places: [],
@@ -444,10 +448,6 @@ export default {
   },
 
   computed: {
-    ...mapState('CustomField', {
-      customFieldItems: 'items',
-    }),
-
     ...mapState('Tag', {
       tagsItems: 'items',
     }),
@@ -515,9 +515,11 @@ export default {
       if (isEmptyTextAttached) {
         return Translator.trans('segments.bulk.edit.recommendations.warning.empty.text.attach', { count: this.segments.length })
       }
+
       if (isEmptyTextReplaced) {
         return Translator.trans('segments.bulk.edit.recommendations.warning.empty.text.replace', { count: this.segments.length })
       }
+
       return ''
     },
 
@@ -527,7 +529,7 @@ export default {
           title: topic.attributes.title,
           id: topic.id,
           tags: this.tags
-            .filter(tag => tag.relationships.topic.data.id === topic.id)
+            .filter(tag => tag?.relationships?.topic?.data?.id === topic.id)
             .map(tag => {
               return {
                 title: tag.attributes.title,
@@ -571,10 +573,6 @@ export default {
   },
 
   methods: {
-    ...mapActions('AdminProcedure', {
-      getAdminProcedureWithFields: 'get',
-    }),
-
     ...mapActions('StatementSegment', {
       getSegment: 'get',
     }),
@@ -588,7 +586,7 @@ export default {
     }),
 
     addCustomFieldsToActions () {
-      Object.values(this.customFieldItems).forEach(customField => {
+      this.customFieldDefinitions.forEach(customField => {
         this.actions.customFields.push({
           checked: false,
           id: customField.id,
@@ -667,6 +665,7 @@ export default {
 
     fetchAssignableUsers () {
       const url = Routing.generate('api_resource_list', { resourceType: 'AssignableUser' })
+
       return dpApi.get(url, { include: 'department' })
         .then(response => {
           this.assignableUsers = response.data.data.map(assignableUser => {
@@ -684,27 +683,17 @@ export default {
         })
     },
 
-    /**
-     * Fetch custom fields that are available either in the procedure or in the procedure template
-     */
-    fetchCustomFields () {
-      const payload = {
-        id: this.procedureId,
-        fields: {
-          AdminProcedure: [
-            'segmentCustomFields',
-          ].join(),
-          CustomField: [
-            'name',
-            'description',
-            'options',
-          ].join(),
-        },
-        include: ['segmentCustomFields'].join(),
-      }
+    loadSegmentCustomFields () {
+      const { fetchCustomFields } = useCustomFields()
 
-      return this.getAdminProcedureWithFields(payload)
-        .catch(err => console.error(err))
+      return fetchCustomFields(this.procedureId, {
+        sourceEntity: 'PROCEDURE',
+        targetEntity: 'SEGMENT',
+      })
+        .then(definitions => {
+          this.customFieldDefinitions = definitions
+        })
+        .catch(() => { /* Notification already shown by useCustomFieldDefinitions */ })
     },
 
     fetchPlaces () {
@@ -712,6 +701,7 @@ export default {
         resourceType: 'Place',
         sort: 'sortIndex',
       })
+
       return dpApi.get(url)
         .then(response => {
           this.places = response.data.data.map(place => {
@@ -754,6 +744,7 @@ export default {
      */
     setReturnLink () {
       const currentQueryHash = lscache.get(`${this.procedureId}:segments:currentQueryHash`)
+
       if (currentQueryHash) {
         this.returnLink = Routing.generate('dplan_segments_list_by_query_hash', {
           procedureId: this.procedureId,
@@ -772,6 +763,7 @@ export default {
 
       if (segments && allSegments) {
         const toggledIds = segments.toggledSegments.map(item => item.id)
+
         if (segments.trackDeselected === false) {
           this.segments = toggledIds
         } else if (segments.trackDeselected === true) {
@@ -798,7 +790,7 @@ export default {
     }
 
     if (hasPermission('field_segments_custom_fields')) {
-      promises.push(this.fetchCustomFields())
+      promises.push(this.loadSegmentCustomFields())
     }
 
     Promise.all(promises)
@@ -811,7 +803,7 @@ export default {
         this.isLoading = false
       })
     if (this.segments.length === 1) {
-      this.getSegment({ id: this.segments[0], include: 'tags' })
+      this.getSegment({ id: this.segments[0], include: 'tags,tags.topic' })
         .then(() => {
           this.segmentDataLoaded = true
         })

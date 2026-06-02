@@ -220,6 +220,7 @@ export default {
       if (button === 'notifyButton') {
         if (dpconfirm(Translator.trans('check.fragment.save')) === false) {
           this.saving = ''
+
           return
         } else {
           saveData.push({
@@ -231,9 +232,11 @@ export default {
 
       // Under the hood this is an old post-request, though we have to transform the data
       const dataForRequest = {}
+
       saveData.forEach(el => {
         dataForRequest[el.name] = el.value
       })
+
       return makeFormPost(dataForRequest, Routing.generate('DemosPlan_statement_fragment_edit_reviewer_ajax', { fragmentId: this.fragmentId }))
         .then(({ data }) => {
           /*

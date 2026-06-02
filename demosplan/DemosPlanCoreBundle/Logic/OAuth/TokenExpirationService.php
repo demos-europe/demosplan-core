@@ -52,7 +52,7 @@ class TokenExpirationService
         private readonly OzgKeycloakSessionManager $ozgKeycloakSessionManager,
         private readonly RouterInterface $router,
         private readonly SecretEncryptor $tokenEncryptionService,
-        #[Autowire('%oauth_token_timezone%')]
+        #[Autowire(param: 'oauth_token_timezone')]
         string $tokenTimezone,
     ) {
         $this->tokenTimezone = new DateTimeZone($tokenTimezone);
@@ -69,7 +69,7 @@ class TokenExpirationService
         $request = $event->getRequest();
         $session = $request->getSession();
 
-        if (null !== $oauthToken) {
+        if ($oauthToken instanceof OAuthToken) {
             try {
                 $encryptedIdToken = $oauthToken->getIdToken();
                 if (null !== $encryptedIdToken) {
@@ -157,7 +157,7 @@ class TokenExpirationService
     public function isAccessTokenExpired(?OAuthToken $token): bool
     {
         // No token or no expiration timestamp → expired
-        if (null === $token || null === $token->getAccessTokenExpiresAt()) {
+        if (!$token instanceof OAuthToken || !$token->getAccessTokenExpiresAt() instanceof DateTime) {
             return true;
         }
 
@@ -181,12 +181,12 @@ class TokenExpirationService
     public function isRefreshTokenExpired(?OAuthToken $token): bool
     {
         // No token or no refresh token → expired
-        if (null === $token || null === $token->getRefreshToken()) {
+        if (!$token instanceof OAuthToken || null === $token->getRefreshToken()) {
             return true;
         }
 
         // No expiration timestamp → invalid state, consider expired
-        if (null === $token->getRefreshTokenExpiresAt()) {
+        if (!$token->getRefreshTokenExpiresAt() instanceof DateTime) {
             return true;
         }
 
@@ -218,12 +218,12 @@ class TokenExpirationService
     public function accessTokenNeedsRefresh(?OAuthToken $token, int $bufferMinutes = 2): bool
     {
         // No token → needs refresh/authentication
-        if (null === $token) {
+        if (!$token instanceof OAuthToken) {
             return true;
         }
 
         // No expiration timestamp → invalid state, needs refresh
-        if (null === $token->getAccessTokenExpiresAt()) {
+        if (!$token->getAccessTokenExpiresAt() instanceof DateTime) {
             return true;
         }
 

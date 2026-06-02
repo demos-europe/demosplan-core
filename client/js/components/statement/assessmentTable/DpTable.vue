@@ -298,6 +298,7 @@ export default {
     DpPager,
     DpSlidebar: defineAsyncComponent(async () => {
       const { DpSlidebar } = await import('@demos-europe/demosplan-ui')
+
       return DpSlidebar
     }),
     DpAssessmentTableCard,
@@ -492,6 +493,7 @@ export default {
 
       this.sortingOptions.forEach(option => {
         const hasSortingDirection = option.value !== 'forPoliticians'
+
         dropdownOptions.push({
           value: option.value,
           label: hasSortingDirection ? ascPrefix + ' nach ' + Translator.trans(option.translation) : Translator.trans(option.translation),
@@ -503,6 +505,7 @@ export default {
           })
         }
       })
+
       return dropdownOptions || []
     },
   },
@@ -559,6 +562,7 @@ export default {
         ...this.pagination,
         current_page: newPage,
       }
+
       this.updatePagination(tmpPager)
       this.changeUrl(tmpPager)
       this.setProperty({
@@ -573,6 +577,7 @@ export default {
         ...this.pagination,
         count: newSize,
       }
+
       this.updatePagination(tmpPager)
       this.changeUrl(tmpPager)
       this.setProperty({
@@ -592,6 +597,7 @@ export default {
 
     renderMessagesFromStorage () {
       const messagesToRender = window.sessionStorage.getItem('messagesToRender')
+
       if (messagesToRender) {
         handleResponseMessages(JSON.parse(messagesToRender))
         window.sessionStorage.removeItem('messagesToRender')
@@ -606,12 +612,14 @@ export default {
             if (id.charAt(0) === '#') {
               id = id.substr(1)
             }
+
             // Add border to the statement, to which we scroll (and remove the border after first click)
             document.getElementById(id).classList.add('c-at-item__focus-border')
             const removeBorder = () => {
               document.getElementById(id).classList.remove('c-at-item__focus-border')
               document.removeEventListener('click', removeBorder)
             }
+
             document.addEventListener('click', removeBorder)
 
             /*
@@ -632,6 +640,7 @@ export default {
 
     setInitialData () {
       const sortVal = this.sortingOptionsForDropdown.find(opt => opt.value === this.initSort) || {}
+
       this.setProperty({
         prop: 'sort',
         val: sortVal,
@@ -681,6 +690,7 @@ export default {
       this.setProperty({ prop: 'accessibleProcedureIds', val: this.accessibleProcedureIds })
 
       const hasOnlyFragmentFilters = this.appliedFilters.length ? typeof (this.appliedFilters.find(filter => filter.type !== 'fragment')) === 'undefined' : false
+
       if (hasOnlyFragmentFilters) {
         this.setProperty({ prop: 'currentTableView', val: 'fragments' })
       }
@@ -693,6 +703,7 @@ export default {
       if (this.selectedElements && this.selectedElementsLength > 0 && hasPermission('area_statements_fragment')) {
         this.resetFragmentSelection()
       }
+
       if (hasPermission('area_statements_fragment')) {
         this.$store.commit('Fragment/setInitFragments', response.meta.fragmentAssignments)
         this.setSelectedFragments(response.meta.fragmentAssignments)
@@ -735,11 +746,13 @@ export default {
 
       if (window.location.hash) {
         const hash = window.location.hash.includes('?') ? window.location.hash.substr(0, window.location.hash.indexOf('?')) : window.location.hash
+
         this.waitForElement(hash)
           .then(() => {
             this.scrollAndAnimate(hash)
           })
       }
+
       this.renderMessagesFromStorage()
     },
 
@@ -747,6 +760,7 @@ export default {
       if (hash.length === 12) {
         this.filterHash = hash
         const url = window.location.href.split('?')
+
         url[0] = url[0].substring(0, url[0].length - 12) + hash
         window.history.pushState({
           html: url.join('?'),

@@ -37,9 +37,10 @@ class HtmlHelper
     }
 
     /**
-     * Extracts URLs from the given HTML text that are contained within <a> tags with the specified class, and
-     * creates ImageReference objects from those URLs. The link text of the <a> tags is used as the image reference.
-     * The image reference is prefixed with the specified prefix.
+     * Extracts image references from the given HTML text. The $class parameter identifies legacy anchor-form
+     * image references `<a class="…" href="…">label</a>` (the form is required to disambiguate from real
+     * hyperlinks). All `<img src="…" alt="label">` tags are extracted regardless of class — for an `<img>`
+     * there's no ambiguity, every `<img>` in statement text is an image reference.
      *
      * @return array<int, ImageReference> an array containing the extracted ImageReference objects
      */
@@ -47,19 +48,24 @@ class HtmlHelper
     {
         $imageReferences = [];
 
-        // The regex pattern to match <a> tags with the specified class and extract their href attributes and link text
-        // irrespective of the order of class and href attributes
-        $pattern = '/<a\b(?=[^>]*\bclass="[^"]*\b'.preg_quote($class, '/').'\b[^"]*")(?=[^>]*\bhref="([^"]*)")[^>]*>(.*?)<\/a>/i';
-
-        // Perform the regex match
-        if (preg_match_all($pattern, $htmlText, $matches)) {
+        $anchorPattern = '/<a\b(?=[^>]*\bclass="[^"]*\b'.preg_quote($class, '/').'\b[^"]*")(?=[^>]*\bhref="([^"]*)")[^>]*>(.*?)<\/a>/i';
+        if (preg_match_all($anchorPattern, $htmlText, $matches)) {
             foreach ($matches[1] as $index => $url) {
                 $linkText = $matches[2][$index];
-                // Create an ImageReference object with linkText as imageReference and url as imagePath
                 $srcParts = explode('/', $url);
                 $hash = $srcParts[array_key_last($srcParts)];
-                $imageReference = new ImageReference($prefix.$linkText, $url, $hash);
-                $imageReferences[] = $imageReference;
+                $imageReferences[] = new ImageReference($prefix.$linkText, $url, $hash);
+            }
+        }
+
+        $imgPattern = '/<img\b(?=[^>]*\bsrc="([^"]*)")[^>]*\/?>/i';
+        if (preg_match_all($imgPattern, $htmlText, $matches)) {
+            foreach ($matches[0] as $index => $fullTag) {
+                $src = $matches[1][$index];
+                $alt = $this->extractAttribute($fullTag, 'alt');
+                $srcParts = explode('/', $src);
+                $hash = $srcParts[array_key_last($srcParts)];
+                $imageReferences[] = new ImageReference($prefix.$alt, $src, $hash);
             }
         }
 
@@ -67,19 +73,33 @@ class HtmlHelper
     }
 
     /**
-     * Updates the link text of all links with the specified class by appending a prefix, changing the href value based
-     * on the link text, changing the text color to blue and underlining the text.
+     * Rewrites image references to styled cross-reference anchors suitable for DOCX export. Matches the
+     * legacy anchor form `<a class="…" href="…">label</a>` (identified by $className) and any
+     * `<img src="…" alt="label">` tag (matched regardless of class).
      */
     public function updateLinkTextWithClass(string $htmlText, string $className, string $prefix): string
     {
-        $pattern = '/<a\b(?=[^>]*\bclass="[^"]*\b'
+        $anchorPattern = '/<a\b(?=[^>]*\bclass="[^"]*\b'
             .preg_quote($className, '/').'\b[^"]*")(?=[^>]*\bhref="([^"]*)")[^>]*>(.*?)<\/a>/i';
-        if (preg_match_all($pattern, $htmlText, $matches)) {
+        if (preg_match_all($anchorPattern, $htmlText, $matches)) {
             foreach ($matches[2] as $index => $linkText) {
-                $replacement = '<a class="'.$className
-                    .'" href="#'.$prefix.$linkText.'" style="color: blue; text-decoration: underline;">'
-                    .$prefix.$linkText.'</a>';
-                $htmlText = str_replace($matches[0][$index], $replacement, $htmlText);
+                $htmlText = str_replace(
+                    $matches[0][$index],
+                    $this->buildCrossReferenceAnchor($className, $prefix.$linkText),
+                    $htmlText
+                );
+            }
+        }
+
+        $imgPattern = '/<img\b[^>]*\/?>/i';
+        if (preg_match_all($imgPattern, $htmlText, $matches)) {
+            foreach ($matches[0] as $fullTag) {
+                $label = $this->extractAttribute($fullTag, 'alt');
+                $htmlText = str_replace(
+                    $fullTag,
+                    $this->buildCrossReferenceAnchor($className, $prefix.$label),
+                    $htmlText
+                );
             }
         }
 
@@ -87,16 +107,36 @@ class HtmlHelper
     }
 
     /**
-     * Removes all <a> tags with the specified class from the given HTML text.
-     * The inner text of the removed tags is replaced with the specified prefix.
+     * Strips anchor-form image references (identified by $className) and all `<img>` tags. The label
+     * (anchor inner text or img alt) is kept inline, prefixed with $prefix.
      */
     public function removeLinkTagsByClass(string $htmlText, string $className, string $prefix): string
     {
-        // Regex pattern to match <a> tags with the specified class and capture their inner text
-        $pattern = '/<a\b[^>]*class="[^"]*\b'.preg_quote($className, '/').'\b[^"]*"[^>]*>(.*?)<\/a>/i';
-        // Replacement string to keep only the inner text
-        $replacement = $prefix.'$1';
+        $anchorPattern = '/<a\b[^>]*class="[^"]*\b'.preg_quote($className, '/').'\b[^"]*"[^>]*>(.*?)<\/a>/i';
+        $htmlText = preg_replace($anchorPattern, $prefix.'$1', $htmlText);
 
-        return preg_replace($pattern, $replacement, $htmlText);
+        $imgPattern = '/<img\b[^>]*\/?>/i';
+        if (preg_match_all($imgPattern, $htmlText, $matches)) {
+            foreach ($matches[0] as $fullTag) {
+                $alt = $this->extractAttribute($fullTag, 'alt');
+                $htmlText = str_replace($fullTag, $prefix.$alt, $htmlText);
+            }
+        }
+
+        return $htmlText;
+    }
+
+    private function buildCrossReferenceAnchor(string $className, string $label): string
+    {
+        return '<a class="'.$className.'" href="#'.$label.'" style="color: blue; text-decoration: underline;">'.$label.'</a>';
+    }
+
+    private function extractAttribute(string $tagHtml, string $attribute): string
+    {
+        if (preg_match('/\b'.preg_quote($attribute, '/').'="([^"]*)"/i', $tagHtml, $match)) {
+            return $match[1];
+        }
+
+        return '';
     }
 }

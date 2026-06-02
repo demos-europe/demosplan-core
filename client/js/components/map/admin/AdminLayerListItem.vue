@@ -317,9 +317,11 @@ export default {
         id: this.layer.attributes.categoryId,
         type: 'GisLayerCategory',
       })
+
       if (typeof parentLayer !== 'undefined') {
         return parentLayer
       }
+
       return {}
     },
 
@@ -327,6 +329,7 @@ export default {
       if (hasOwnProp(this.parentCategory, 'attributes')) {
         return this.parentCategory.attributes.layerWithChildrenHidden
       }
+
       return false
     },
 
@@ -402,6 +405,7 @@ export default {
         if (this.hasSettingsThatPreventGrouping) {
           return 'fa fa-lock color--grey cursor-help'
         }
+
         if (this.hasGroupId) {
           if (this.showCurrentIconState) {
             return 'fa fa-unlink color-highlight'
@@ -425,6 +429,7 @@ export default {
         if (this.hasSettingsThatPreventGrouping || this.hasDifferentDefaultVisibility || this.isInAnotherGroupThatsNotEmpty) {
           return 'fa fa-lock color--grey cursor-help'
         }
+
         if (this.hasGroupId) {
           if (this.showCurrentIconState) {
             return 'fa fa-unlink color-highlight'
@@ -764,6 +769,7 @@ export default {
       if (this.childElements.length < 1) {
         return
       }
+
       this.showChildren = !this.showChildren
     },
 
@@ -772,12 +778,15 @@ export default {
      */
     deleteElement () {
       let deleteData = {}
+
       if (this.isLoading) {
         return false
       }
+
       if (!dpconfirm(Translator.trans('check.item.delete'))) {
         return
       }
+
       if (this.layer.type === 'GisLayerCategory') {
         deleteData = {
           id: this.layer.id,
@@ -793,6 +802,7 @@ export default {
           relationshipType: 'gisLayers',
         }
       }
+
       this.$store.dispatch('Layers/deleteElement', deleteData)
     },
 
@@ -886,6 +896,7 @@ export default {
       if (this.isLoading || this.layer.attributes.layerType !== 'overlay') {
         return false
       }
+
       this.$store.commit('Layers/setHoverLayerId', this.layer.id)
     },
 
@@ -900,6 +911,7 @@ export default {
       if (this.isLoading) {
         return false
       }
+
       if (this.layer.attributes.layerType === 'overlay' && typeof this.activeLayer.id !== 'undefined') {
         this.setHoverLayerIconIsHovered(true)
       } else {
@@ -950,6 +962,7 @@ export default {
        * base-layer can't be grouped at all
        */
       let newVisibilityGroupId = (typeof this.activeLayer.attributes === 'undefined') ? null : this.activeLayer.attributes.visibilityGroupId
+
       this.preventActiveFromToggeling = true
 
       if (typeof this.activeLayer.id === 'undefined' ||
@@ -983,6 +996,7 @@ export default {
           type: 'visibilityGroupId',
           value: newVisibilityGroupId,
         })
+
         if (relatedLayers.length <= 2) {
           for (let i = 0; i < relatedLayers.length; i++) {
             this.setAttributeForLayer({

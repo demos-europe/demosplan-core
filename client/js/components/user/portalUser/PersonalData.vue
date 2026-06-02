@@ -154,6 +154,7 @@ export default {
       const transkey = hasPermission('feature_statement_gdpr_consent_may_revoke') ?
         'statements.yours.list.description.short.gdpr_consent_may_revoke' :
         'statements.yours.list.description.short'
+
       return Translator.trans(transkey, { href: Routing.generate('DemosPlan_user_statements') })
     },
   },

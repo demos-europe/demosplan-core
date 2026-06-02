@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -66,7 +68,7 @@ class FileInfo extends ValueObject implements FileInfoInterface
         string $contentType,
         string $path,
         string $absolutePath,
-        ?Procedure $procedure
+        ?Procedure $procedure,
     ) {
         $this->hash = $hash;
         $this->fileName = $fileName;

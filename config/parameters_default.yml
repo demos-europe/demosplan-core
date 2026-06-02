@@ -55,6 +55,15 @@ parameters:
     user_activity_last_login_threshold_days: 180
     user_activity_claimed_statements_threshold_days: 180
 
+    # Inactivity-based account deletion workflow.
+    # Leave first_warning_days unset (~) to keep the feature disabled per project.
+    # When set, the cron sends a first warning at that day count, a second warning
+    # warning_step_days later, and soft-deletes the user another warning_step_days
+    # after that.
+    account_deletion.first_warning_days: ~
+    account_deletion.warning_step_days: 30
+    account_deletion.additional_protected_user_ids: []
+
     # Route and parameters for the public index page
     #
     # - Using the controller forward notation here will result in an internal forward
@@ -180,6 +189,10 @@ parameters:
     ratelimit_anonymous_statement_rate_interval: '%env(RATELIMIT_ANONYMOUS_STATEMENT_RATE_INTERVAL)%'
     ratelimit_anonymous_statement_rate_amount: '%env(int:RATELIMIT_ANONYMOUS_STATEMENT_RATE_AMOUNT)%'
     password_history_max_entries: '%env(int:PASSWORD_HISTORY_MAX_ENTRIES)%'
+
+    # Retention period (in days) for login_audit rows. Cleanup is performed by
+    # `dplan:login-audit:cleanup` and should be wired to a recurring schedule.
+    login_audit_retention_days: '%env(int:LOGIN_AUDIT_RETENTION_DAYS)%'
 
     # GitHub token may be used to download addons directly from github
     github_token: '%env(GITHUB_TOKEN)%'
@@ -561,6 +574,7 @@ parameters:
     ai_service_post_url: ""
 
     languagetool_url: ''
+    languagetool_timeout: 30
 
     # #refactor: used only once, could be constant
     drafts_info_schema_path: "%kernel.project_dir%/config/json-schema/drafts-info-schema.json"
