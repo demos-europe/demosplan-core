@@ -11,6 +11,7 @@
 namespace Tests\Core\Procedure\Unit\Entity;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use Tests\Base\UnitTestCase;
 
 class ProcedureTest extends UnitTestCase
@@ -27,7 +28,8 @@ class ProcedureTest extends UnitTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->sut = new Procedure();
+        $def = new ProcedurePhaseDefinition();
+        $this->sut = new Procedure($def, $def);
     }
 
     public function testSetLocationNameStripsControlCharacters(): void
