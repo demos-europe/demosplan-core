@@ -2186,4 +2186,24 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             'completed'  => $completed,
         ];
     }
+
+    /**
+     * @return array<Statement>
+     */
+    public function findStatementsWithCustomField(string $customFieldId): array
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder();
+
+        $escapedCustomFieldId = str_replace(['\\', '"'], ['\\\\', '\\"'], $customFieldId);
+        $searchPattern = '%"id":"'.$escapedCustomFieldId.'"%';
+
+        return $qb
+            ->select('statement')
+            ->from(Statement::class, 'statement')
+            ->where('statement.customFields IS NOT NULL')
+            ->andWhere('statement.customFields LIKE :customFieldSearch')
+            ->setParameter('customFieldSearch', $searchPattern)
+            ->getQuery()
+            ->getResult();
+    }
 }

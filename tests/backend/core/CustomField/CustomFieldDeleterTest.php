@@ -18,10 +18,12 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomField
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldDeleter;
 use Tests\Base\UnitTestCase;
 
@@ -216,5 +218,62 @@ class CustomFieldDeleterTest extends UnitTestCase
             $refreshedOrga2->getCustomFields()?->findById($customFieldId),
             'Orga 2 should no longer have the custom field value'
         );
+    }
+
+    public function testDeleteMultiSelectCustomFieldRemovesUsagesFromStatements(): void
+    {
+        // Arrange
+        $customField = CustomFieldConfigurationFactory::new()
+            ->withRelatedTargetEntity('STATEMENT')
+            ->asMultiSelect('Tags', options: ['Tag A', 'Tag B', 'Tag C'])
+            ->create();
+
+        $customFieldId = $customField->getId();
+        $options = $customField->getConfiguration()->getOptions();
+        $option1Id = $options[0]->getId();
+        $option2Id = $options[1]->getId();
+
+        $statement1 = StatementFactory::createOne();
+        $statement2 = StatementFactory::createOne();
+
+        $value1 = new CustomFieldValue();
+        $value1->setId($customFieldId);
+        $value1->setValue([$option1Id, $option2Id]);
+
+        $value2 = new CustomFieldValue();
+        $value2->setId($customFieldId);
+        $value2->setValue([$option1Id]);
+
+        $list1 = new CustomFieldValuesList();
+        $list1->addCustomFieldValue($value1);
+        $statement1->_real()->setCustomFields($list1);
+        $statement1->_save();
+
+        $list2 = new CustomFieldValuesList();
+        $list2->addCustomFieldValue($value2);
+        $statement2->_real()->setCustomFields($list2);
+        $statement2->_save();
+
+        $statementRepo = $this->getContainer()->get(StatementRepository::class);
+        self::assertCount(2, $statementRepo->findStatementsWithCustomField($customFieldId));
+
+        // Act
+        $this->sut->deleteCustomField($customFieldId);
+
+        // Assert
+        self::assertCount(0, $statementRepo->findStatementsWithCustomField($customFieldId));
+
+        $refreshed1 = $statementRepo->find($statement1->getId());
+        $refreshed2 = $statementRepo->find($statement2->getId());
+
+        self::assertNull(
+            $refreshed1->getCustomFields()?->findById($customFieldId),
+            'Statement 1 should no longer have the multiSelect field'
+        );
+        self::assertNull(
+            $refreshed2->getCustomFields()?->findById($customFieldId),
+            'Statement 2 should no longer have the multiSelect field'
+        );
+        self::assertNull($this->repository->find($customFieldId));
     }
 }
