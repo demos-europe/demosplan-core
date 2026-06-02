@@ -362,7 +362,7 @@ const SplitStatementStore = {
 
     fetchTags ({ commit }) {
       const url = Routing.generate('api_resource_list', { resourceType: 'Tag' })
-      return dpApi.get(url, { include: 'topic' })
+      return dpApi.get(url, { include: 'topic', sort: 'sortIndex' })
         .then(response => {
           const tags = response.data
           commit('setProperty', { prop: 'availableTags', val: tags.data })
@@ -383,8 +383,8 @@ const SplitStatementStore = {
             return acc
           }, { uncategorizedTags: [], categorizedTags: [] })
 
+          // Categorized tags keep the backend sortIndex order; only uncategorized tags fall back to alphabetical
           uncategorizedTags.sort(sortByTitle)
-          categorizedTags.sort(sortByTitle)
 
           commit('setProperty', { prop: 'uncategorizedTags', val: uncategorizedTags })
           commit('setProperty', { prop: 'categorizedTags', val: categorizedTags })
