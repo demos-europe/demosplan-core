@@ -14,17 +14,17 @@ namespace Tests\Core\JsonApi\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementSearchResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\AdminStatementCrossProcedureSearchResourceType;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Base\JsonApiTest;
 
-class StatementSearchResourceTypeTest extends JsonApiTest
+class AdminStatementCrossProcedureSearchResourceTypeTest extends JsonApiTest
 {
     public function testListWithoutPermissionIsRejected(): void
     {
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
         $this->executeListRequest(
-            StatementSearchResourceType::getName(),
+            AdminStatementCrossProcedureSearchResourceType::getName(),
             $user,
             null,
             Response::HTTP_BAD_REQUEST
@@ -37,7 +37,7 @@ class StatementSearchResourceTypeTest extends JsonApiTest
         $this->enablePermissions(['feature_json_api_statement_cross_procedures_search']);
 
         $responseBody = $this->executeListRequest(
-            StatementSearchResourceType::getName(),
+            AdminStatementCrossProcedureSearchResourceType::getName(),
             $user,
             null
         );
@@ -52,7 +52,7 @@ class StatementSearchResourceTypeTest extends JsonApiTest
         self::assertIsArray($responseBody['data']);
         self::assertArrayHasKey('jsonapi', $responseBody);
         foreach ($responseBody['data'] as $resource) {
-            self::assertSame('StatementSearch', $resource['type']);
+            self::assertSame('AdminStatementCrossProcedureSearch', $resource['type']);
             self::assertArrayHasKey('id', $resource);
             self::assertArrayHasKey('attributes', $resource);
         }
@@ -66,7 +66,7 @@ class StatementSearchResourceTypeTest extends JsonApiTest
         $this->enablePermissions(['feature_json_api_statement_cross_procedures_search', 'area_admin_procedures']);
 
         $responseBody = $this->executeListRequest(
-            StatementSearchResourceType::getName(),
+            AdminStatementCrossProcedureSearchResourceType::getName(),
             $user,
             null,
             Response::HTTP_OK,
@@ -92,7 +92,7 @@ class StatementSearchResourceTypeTest extends JsonApiTest
         $this->enablePermissions(['feature_json_api_statement_cross_procedures_search']);
 
         $responseBody = $this->executeListRequest(
-            StatementSearchResourceType::getName(),
+            AdminStatementCrossProcedureSearchResourceType::getName(),
             $user,
             null,
             Response::HTTP_OK,
@@ -124,7 +124,7 @@ class StatementSearchResourceTypeTest extends JsonApiTest
         $this->enablePermissions(['feature_json_api_statement_cross_procedures_search']);
 
         $responseBody = $this->executeListRequest(
-            StatementSearchResourceType::getName(),
+            AdminStatementCrossProcedureSearchResourceType::getName(),
             $user,
             null,
             Response::HTTP_OK,

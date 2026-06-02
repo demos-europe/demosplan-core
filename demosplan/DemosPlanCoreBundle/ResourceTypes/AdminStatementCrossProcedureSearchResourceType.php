@@ -29,16 +29,16 @@ use Webmozart\Assert\Assert;
  * procedure context.
  *
  * In contrast to {@link StatementResourceType}, this type:
- * - is only available when the user holds `feature_json_api_statement_cross_procedures_search`
- *   (a dedicated permission, deliberately separate from `area_search_submitter_in_procedures`
- *   which also activates the ROBOBSH "Einreicher suchen" procedure-list UI flow)
+ * - is only available when the user holds `feature_json_api_statement_cross_procedures_search`,
+ *   a dedicated permission kept deliberately separate from `area_search_submitter_in_procedures`
+ *   (which also activates a procedure-list submitter-search UI flow in legacy projects that enable it)
  * - scopes statements to the user's administrable procedures via pre-fetched IDs (no current procedure context required)
  * - exposes only the property surface the search-results UI needs; it deliberately does not inherit
  *   the assessment-table-specific surface of {@link StatementResourceType}
  *
  * @property-read StatementResourceType $parentStatementOfSegment Do not expose! Alias usage only — needed to filter segment rows out of the result set.
  */
-final class StatementSearchResourceType extends AbstractStatementResourceType
+final class AdminStatementCrossProcedureSearchResourceType extends AbstractStatementResourceType
 {
     public function __construct(
         HTMLSanitizer $htmlSanitizer,
@@ -56,7 +56,7 @@ final class StatementSearchResourceType extends AbstractStatementResourceType
 
     public static function getName(): string
     {
-        return 'StatementSearch';
+        return 'AdminStatementCrossProcedureSearch';
     }
 
     public function isAvailable(): bool
