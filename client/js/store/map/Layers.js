@@ -540,6 +540,7 @@ const LayersStore = {
         })
         .catch(err => {
           console.error('Error: save layer', err)
+          throw err
         })
         .finally(() => {
           commit('setActiveLayerId', '')
