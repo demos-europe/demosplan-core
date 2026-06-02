@@ -109,16 +109,67 @@ All rights reserved
           :title="section.title"
           is-open
         >
-          <div class="overflow-x-auto pb-3">
+          <div class="overflow-x-auto pb-3 has-scrollable-content">
             <dp-data-table
-              :has-flyout="isAddonActive"
               :header-fields="headerFields"
               :items="section.audiencePhases"
               density="spacious"
               track-by="id"
               has-borders
+              has-flyout
               is-resizable
             >
+              <template v-slot:name="phase">
+                <dp-input
+                  v-if="editingRowId === phase.id"
+                  :id="`phaseName-${phase.id}`"
+                  :model-value="phase.name"
+                />
+
+                <span v-else>{{ phase.name }}</span>
+              </template>
+
+              <!-- Column "permissionSetLabel" exposes raw permissionSet for edit mode. -->
+              <template v-slot:permissionSetLabel="phase">
+                <dp-select
+                  v-if="editingRowId === phase.id"
+                  :id="`phasePermissionSet-${phase.id}`"
+                  :options="permissionSetOptions"
+                  :selected="phase.permissionSet"
+                />
+
+                <span v-else>{{ phase.permissionSetLabel }}</span>
+              </template>
+
+              <!-- Column "participationStateLabel" exposes raw participationState for edit mode. -->
+              <template v-slot:participationStateLabel="phase">
+                <fieldset v-if="editingRowId === phase.id">
+                  <legend class="sr-only">
+                    {{ Translator.trans('participation.state.radio.label') }}
+                  </legend>
+
+                  <div class="flex gap-4">
+                    <dp-radio
+                      :id="`phaseParticipationStateNotFinished-${phase.id}`"
+                      :checked="phase.participationState !== 'finished'"
+                      :label="{ text: Translator.trans('no') }"
+                      :name="`phaseParticipationState-${phase.id}`"
+                      value=""
+                    />
+
+                    <dp-radio
+                      :id="`phaseParticipationStateFinished-${phase.id}`"
+                      :checked="phase.participationState === 'finished'"
+                      :label="{ text: Translator.trans('yes') }"
+                      :name="`phaseParticipationState-${phase.id}`"
+                      value="finished"
+                    />
+                  </div>
+                </fieldset>
+
+                <span v-else>{{ phase.participationStateLabel }}</span>
+              </template>
+
               <template v-slot:phaseCode="phase">
                 <addon-wrapper
                   :addon-props="{
@@ -133,19 +184,32 @@ All rights reserved
               </template>
 
               <template v-slot:flyout="rowData">
-                <div class="flex float-right py-[15px]">
-                  <button
-                    v-if="editingRowId !== rowData.id"
-                    :aria-label="Translator.trans('item.edit')"
-                    :title="Translator.trans('edit')"
-                    class="btn--blank o-link--default"
-                    @click="startEdit(rowData)"
-                  >
-                    <dp-icon
-                      aria-hidden="true"
-                      icon="edit"
-                    />
-                  </button>
+                <div class="flex gap-1 py-[15px]">
+                  <template v-if="editingRowId !== rowData.id">
+                    <button
+                      :aria-label="Translator.trans('item.edit')"
+                      :title="Translator.trans('edit')"
+                      class="btn--blank o-link--default"
+                      @click="startEdit(rowData)"
+                    >
+                      <dp-icon
+                        aria-hidden="true"
+                        icon="edit"
+                      />
+                    </button>
+
+                    <button
+                      :aria-label="Translator.trans('item.delete')"
+                      :title="Translator.trans('delete')"
+                      class="btn--blank o-link--default"
+                      disabled
+                    >
+                      <dp-icon
+                        aria-hidden="true"
+                        icon="delete"
+                      />
+                    </button>
+                  </template>
 
                   <template v-else>
                     <button
@@ -256,12 +320,17 @@ export default {
       { label: Translator.trans('permissionset.write'), value: 'write' },
     ]
 
-    const mapPhaseForDisplay = (phase) => ({
+    const findPermissionSetOption = (value) =>
+      permissionSetOptions.find(option => option.value === value) || null
+
+    const mapPhaseToRow = (phase) => ({
       id: phase.id,
       name: phase.name,
       orderInAudience: phase.orderInAudience,
-      permissionSetLabel: permissionSetOptions.find(option => option.value === phase.permissionSet)?.label || phase.permissionSet,
+      participationState: phase.participationState,
       participationStateLabel: phase.participationState === 'finished' ? Translator.trans('yes') : Translator.trans('no'),
+      permissionSet: phase.permissionSet,
+      permissionSetLabel: findPermissionSetOption(phase.permissionSet)?.label || phase.permissionSet,
     })
 
     const audienceSections = computed(() =>
@@ -269,7 +338,7 @@ export default {
         audience,
         audiencePhases: phaseDefinitions.value
           .filter(phase => phase.audience === audience)
-          .map(phase => mapPhaseForDisplay(phase)),
+          .map(phase => mapPhaseToRow(phase)),
         title: Translator.trans(`audience.${audience}`),
       })),
     )
