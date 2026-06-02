@@ -137,7 +137,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     #[ORM\JoinColumn(nullable: false)]
     #[ORM\OneToOne(targetEntity: ProcedurePhase::class, cascade: ['persist', 'remove'])]
-    protected ProcedurePhase $phase;
+    protected ProcedurePhaseInterface $phase;
 
     /**
      * @var string
@@ -154,11 +154,14 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     /**
      * @var string
      */
-    #[ORM\Column(name: '_p_plis_id', type: 'string', length: 36, options: ['fixed' => true, 'default' => ''], nullable: false)]
+    #[ORM\Column(name: '_p_plis_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true, 'default' => ''])]
     protected $plisId = '';
 
     /**
      * @var bool
+     *
+     * @deprecated Will be removed once the phase key system is fully replaced by ProcedurePhaseDefinition.
+     *             The closed state is now derived from the permissionSet of the associated ProcedurePhaseDefinition.
      */
     #[ORM\Column(name: '_p_closed', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $closed = false;
@@ -212,7 +215,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     #[ORM\JoinColumn(nullable: false)]
     #[ORM\OneToOne(targetEntity: ProcedurePhase::class, cascade: ['persist', 'remove'])]
-    protected ProcedurePhase $publicParticipationPhase;
+    protected ProcedurePhaseInterface $publicParticipationPhase;
 
     /**
      * @var string
@@ -265,14 +268,16 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: '_p_created_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createdDate;
 
     /**
      * @var DateTime
+     *
+     * @deprecated Will be removed once the phase key system is fully replaced by ProcedurePhaseDefinition.
+     *             The closed state is now derived from the permissionSet of the associated ProcedurePhaseDefinition.
      */
     #[ORM\Column(name: '_p_closed_date', type: 'datetime', nullable: false)]
     protected $closedDate;
@@ -490,13 +495,15 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     protected ?CustomFieldConfiguration $customFieldConfiguration = null;
 
-    public function __construct()
-    {
+    public function __construct(
+        ProcedurePhaseDefinition $internalPhaseDefinition,
+        ProcedurePhaseDefinition $externalPhaseDefinition,
+    ) {
         $this->organisation = new ArrayCollection();
         $this->elements = new ArrayCollection();
         $this->topics = new ArrayCollection();
-        $this->closedDate = new DateTime();
         $this->deletedDate = new DateTime();
+        $this->closedDate = new DateTime();
         $this->dataInputOrganisations = new ArrayCollection();
         $this->authorizedUsers = new ArrayCollection();
         $this->agencyExtraEmailAddresses = new ArrayCollection();
@@ -508,8 +515,8 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         $this->notificationReceivers = new ArrayCollection();
         $this->exportFieldsConfigurations = new ArrayCollection();
         $this->segmentPlaces = new ArrayCollection();
-        $this->phase = new ProcedurePhase('configuration', '');
-        $this->publicParticipationPhase = new ProcedurePhase('configuration', '');
+        $this->phase = new ProcedurePhase($internalPhaseDefinition);
+        $this->publicParticipationPhase = new ProcedurePhase($externalPhaseDefinition);
     }
 
     /**
@@ -659,24 +666,16 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $this->desc;
     }
 
-    /**
-     * @param string $phaseKey
-     */
-    public function setPhase($phaseKey): Procedure
+    /** @internal Used for Elasticsearch indexing only. */
+    public function getPhaseDefinitionId(): ?string
     {
-        $this->setPhaseKey($phaseKey);
-
-        return $this;
+        return $this->phase->getPhaseDefinition()->getId();
     }
 
-    public function setPhaseKey($phaseKey): void
+    /** @internal Used for Elasticsearch indexing only. */
+    public function getPhaseOrderInAudience(): int
     {
-        $this->phase->setKey($phaseKey);
-    }
-
-    public function getPhase(): string
-    {
-        return $this->phase->getKey();
+        return $this->phase->getPhaseDefinition()->getOrderInAudience();
     }
 
     public function getPhaseObject(): ProcedurePhaseInterface
@@ -684,53 +683,9 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $this->phase;
     }
 
-    public function getPhaseName(): string
-    {
-        return $this->phase->getName();
-    }
-
-    /**
-     * @param string $phaseName
-     */
-    public function setPhaseName($phaseName)
-    {
-        $this->phase->setName($phaseName);
-    }
-
     public function getPhasePermissionset(): string
     {
-        return $this->phase->getPermissionSet() ?? ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
-    }
-
-    public function setPhasePermissionset(string $phasePermissionset): Procedure
-    {
-        $this->phase->setPermissionSet($phasePermissionset);
-
-        return $this;
-    }
-
-    /**
-     * Set pStep.
-     *
-     * @param string $step
-     *
-     * @return Procedure
-     */
-    public function setStep($step)
-    {
-        $this->phase->setStep($step);
-
-        return $this;
-    }
-
-    /**
-     * Get pStep.
-     *
-     * @return string
-     */
-    public function getStep()
-    {
-        return $this->phase->getStep();
+        return $this->phase->getPhaseDefinition()->getPermissionSet();
     }
 
     /**
@@ -803,30 +758,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     public function getPlisId()
     {
         return $this->plisId;
-    }
-
-    /**
-     * Set pClosed.
-     *
-     * @param bool $closed
-     *
-     * @return Procedure
-     */
-    public function setClosed($closed)
-    {
-        $this->closed = \filter_var($closed, FILTER_VALIDATE_BOOLEAN);
-
-        return $this;
-    }
-
-    /**
-     * Get pClosed.
-     *
-     * @return bool
-     */
-    public function getClosed()
-    {
-        return \filter_var($this->closed, FILTER_VALIDATE_BOOLEAN);
     }
 
     /**
@@ -979,23 +910,16 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return \filter_var($this->publicParticipation, FILTER_VALIDATE_BOOLEAN);
     }
 
-    /**
-     * Set pPublicParticipationPhase.
-     *
-     * @param string $publicParticipationPhaseKey
-     *
-     * @return Procedure
-     */
-    public function setPublicParticipationPhase($publicParticipationPhaseKey)
+    /** @internal Used for Elasticsearch indexing only. */
+    public function getPublicParticipationPhaseDefinitionId(): ?string
     {
-        $this->publicParticipationPhase->setKey($publicParticipationPhaseKey);
-
-        return $this;
+        return $this->publicParticipationPhase->getPhaseDefinition()->getId();
     }
 
-    public function getPublicParticipationPhase(): string
+    /** @internal Used for Elasticsearch indexing only. */
+    public function getPublicParticipationPhaseOrderInAudience(): int
     {
-        return $this->publicParticipationPhase->getKey();
+        return $this->publicParticipationPhase->getPhaseDefinition()->getOrderInAudience();
     }
 
     public function getPublicParticipationPhaseObject(): ProcedurePhaseInterface
@@ -1003,53 +927,25 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $this->publicParticipationPhase;
     }
 
-    /**
-     * @return string
-     */
-    public function getPublicParticipationPhaseName()
-    {
-        return $this->publicParticipationPhase->getName();
-    }
-
-    /**
-     * @param string $publicParticipationPhaseName
-     */
-    public function setPublicParticipationPhaseName($publicParticipationPhaseName)
-    {
-        $this->publicParticipationPhase->setName($publicParticipationPhaseName);
-    }
-
     public function getPublicParticipationPhasePermissionset(): string
     {
-        return $this->publicParticipationPhase->getPermissionSet() ??
-            ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN;
-    }
-
-    public function setPublicParticipationPhasePermissionset(string $publicParticipationPhasePermissionset): Procedure
-    {
-        $this->publicParticipationPhase->setPermissionSet($publicParticipationPhasePermissionset);
-
-        return $this;
+        return $this->publicParticipationPhase->getPhaseDefinition()->getPermissionSet();
     }
 
     /**
-     * @param string $publicParticipationStep
+     * @deprecated phase keys will be removed
      */
     public function setPublicParticipationStep($publicParticipationStep): Procedure
     {
-        $this->publicParticipationPhase->setStep($publicParticipationStep);
-
         return $this;
     }
 
     /**
-     * Get pPublicParticipationStep.
-     *
-     * @return string
+     * @deprecated phase keys will be removed
      */
     public function getPublicParticipationStep()
     {
-        return $this->publicParticipationPhase->getStep();
+        return '';
     }
 
     /**
@@ -1392,30 +1288,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         }
 
         return 7200;
-    }
-
-    /**
-     * Set pClosedDate.
-     *
-     * @param DateTime $closedDate
-     *
-     * @return Procedure
-     */
-    public function setClosedDate($closedDate)
-    {
-        $this->closedDate = $closedDate;
-
-        return $this;
-    }
-
-    /**
-     * Get pClosedDate.
-     *
-     * @return DateTime
-     */
-    public function getClosedDate()
-    {
-        return $this->closedDate;
     }
 
     /**
@@ -2104,9 +1976,15 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $this;
     }
 
+    /**
+     * @deprecated not used anymore
+     *
+     * @todo remove this method when demosplan-addon is adjusted
+     */
     public function isInPublicParticipationPhase(): bool
     {
-        return ProcedureInterface::PROCEDURE_PARTICIPATION_PHASE === $this->getPublicParticipationPhase();
+        return ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_WRITE ===
+            $this->getPublicParticipationPhaseObject()->getPhaseDefinition()->getPermissionSet();
     }
 
     public function addTagTopic(TagTopicInterface $tagTopic): void

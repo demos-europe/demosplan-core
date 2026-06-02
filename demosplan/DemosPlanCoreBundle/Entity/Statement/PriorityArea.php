@@ -39,13 +39,13 @@ class PriorityArea extends CoreEntity implements UuidEntityInterface, PriorityAr
     /**
      * @var string
      */
-    #[ORM\Column(name: '_pa_key', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
+    #[ORM\Column(name: '_pa_key', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     protected $key;
 
     /**
      * @var string
      */
-    #[ORM\Column(name: '_pa_type', type: 'string', length: 36, options: ['fixed' => true, 'default' => null], nullable: true)]
+    #[ORM\Column(name: '_pa_type', type: 'string', length: 36, nullable: true, options: ['fixed' => true, 'default' => null])]
     protected $type;
 
     /**

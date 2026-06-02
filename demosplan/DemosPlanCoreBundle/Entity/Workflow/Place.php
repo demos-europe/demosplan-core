@@ -46,7 +46,7 @@ class Place extends CoreEntity implements SortableInterface, PlaceInterface
         /**
          * The displayed name of this instance.
          */
-        #[Assert\NotBlank(normalizer: 'trim', allowNull: false)]
+        #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
         #[Assert\Length(min: 1, max: 255, normalizer: 'trim')] #[ORM\Column(type: 'string', length: 255, nullable: false)]
         private string $name = '',
         #[Assert\NotNull] #[ORM\Column(type: 'integer', nullable: false, options: ['unsigned' => true, 'default' => 0])]

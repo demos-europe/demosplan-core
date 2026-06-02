@@ -26,6 +26,7 @@ class Progress {
     if (this.loading === 0) {
       this.show()
     }
+
     ++this.loading
     this.update()
   }
@@ -35,6 +36,7 @@ class Progress {
    */
   addLoaded () {
     const this_ = this
+
     setTimeout(function () {
       ++this_.loaded
       this_.update()
@@ -50,6 +52,7 @@ class Progress {
       this.loading = 0
       this.loaded = 0
       const this_ = this
+
       setTimeout(function () {
         this_.hide()
       }, 500)

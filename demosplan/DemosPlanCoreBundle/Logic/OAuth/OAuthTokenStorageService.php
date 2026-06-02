@@ -54,7 +54,7 @@ class OAuthTokenStorageService
         private readonly SecretEncryptor $encryptionService,
         private readonly UserRepository $userRepository,
         private readonly ValidatorInterface $validator,
-        #[Autowire('%oauth_token_timezone%')]
+        #[Autowire(param: 'oauth_token_timezone')]
         string $tokenTimezone,
     ) {
         $this->tokenTimezone = new DateTimeZone($tokenTimezone);
@@ -74,7 +74,7 @@ class OAuthTokenStorageService
             $user = $this->userRepository->get($userId);
             $oauthToken = $this->oauthTokenRepository->findByUserId($userId);
 
-            if (null === $oauthToken) {
+            if (!$oauthToken instanceof OAuthToken) {
                 $oauthToken = new OAuthToken();
                 $oauthToken->setUser($user);
                 $this->entityManager->persist($oauthToken);
@@ -157,7 +157,7 @@ class OAuthTokenStorageService
             // Sync session threshold and expiration after every token store.
             // Uses the expiry already computed above — no extra DB query needed.
             $request = $this->requestStack->getCurrentRequest();
-            if (null !== $request) {
+            if ($request instanceof Request) {
                 $session = $request->getSession();
                 if ($session->isStarted()) {
                     $this->ozgKeycloakSessionManager->syncSession($session, $userId, $accessTokenExpiresAt, $refreshTokenExpiresAt);
@@ -190,7 +190,7 @@ class OAuthTokenStorageService
         $oauthToken = $this->oauthTokenRepository->findByUserId($userId);
 
         // return early if no valid tokens exist - request buffer might still be present
-        if (null === $oauthToken || null === $oauthToken->getAccessToken()) {
+        if (!$oauthToken instanceof OAuthToken || null === $oauthToken->getAccessToken()) {
             return null;
         }
 
@@ -227,7 +227,7 @@ class OAuthTokenStorageService
     {
         $oauthToken = $this->oauthTokenRepository->findByUserId($userId);
 
-        if (null === $oauthToken) {
+        if (!$oauthToken instanceof OAuthToken) {
             return;
         }
 
@@ -311,7 +311,7 @@ class OAuthTokenStorageService
      */
     public function storePendingPageUrl(OAuthToken $oauthToken, string $pageUrl): void
     {
-        $needsTimestamp = null === $oauthToken->getPendingRequestTimestamp();
+        $needsTimestamp = !$oauthToken->getPendingRequestTimestamp() instanceof DateTime;
         $oauthToken->clearTokens();
         $oauthToken->setPendingPageUrl($pageUrl);
 
@@ -348,7 +348,7 @@ class OAuthTokenStorageService
     {
         $request = $this->requestStack->getCurrentRequest();
 
-        if (null === $request || !$this->shouldBufferRequest($request)) {
+        if (!$request instanceof Request || !$this->shouldBufferRequest($request)) {
             return;
         }
 
@@ -382,11 +382,7 @@ class OAuthTokenStorageService
             return false;
         }
 
-        if (str_contains($request->getPathInfo(), '/logout')) {
-            return false;
-        }
-
-        return true;
+        return !str_contains($request->getPathInfo(), '/logout');
     }
 
     private function getRequestBody(Request $request): ?string
@@ -442,7 +438,7 @@ class OAuthTokenStorageService
     {
         $oauthToken = $this->oauthTokenRepository->findByUserId($userId);
 
-        if (null === $oauthToken || !$oauthToken->hasPendingData()) {
+        if (!$oauthToken instanceof OAuthToken || !$oauthToken->hasPendingData()) {
             return null;
         }
 

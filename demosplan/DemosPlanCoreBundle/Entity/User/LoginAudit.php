@@ -65,10 +65,8 @@ class LoginAudit implements EntityInterface
     #[ORM\Column(type: 'string', length: 64, nullable: true, options: ['fixed' => true])]
     private ?string $sessionIdHash = null;
 
-    /**
-     * @Gedmo\Timestampable(on="create")
-     */
     #[ORM\Column(type: 'datetime')]
+    #[Gedmo\Timestampable(on: 'create')]
     private DateTime $createdDate;
 
     public function __construct(string $result, string $authenticator)

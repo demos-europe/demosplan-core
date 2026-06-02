@@ -53,6 +53,7 @@ export default {
       if (this.dragZoom) {
         this.map.removeInteraction(this.dragZoom)
       }
+
       this.dragZoom = new DragZoom({ condition: always, className: this.prefixClass('border--normal') })
       this.map.addInteraction(this.dragZoom)
       this.$emit('tool:activated', true)

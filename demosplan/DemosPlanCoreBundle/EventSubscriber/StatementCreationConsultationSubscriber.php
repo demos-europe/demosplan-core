@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
-use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ManualStatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
@@ -44,7 +43,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
  */
 class StatementCreationConsultationSubscriber extends BaseEventSubscriber
 {
-    public function __construct(private readonly ConsultationTokenService $consultationService, private readonly GlobalConfigInterface $globalConfig, private readonly MessageBagInterface $messageBag, private readonly PermissionsInterface $permissions)
+    public function __construct(private readonly ConsultationTokenService $consultationService, private readonly MessageBagInterface $messageBag, private readonly PermissionsInterface $permissions)
     {
     }
 
@@ -84,23 +83,13 @@ class StatementCreationConsultationSubscriber extends BaseEventSubscriber
 
     private function shouldCreateToken(Statement $statement): bool
     {
-        $hasWritePermission = $this->hasPhaseWritePermission($statement->getPhase());
+        $phaseDefinition = $statement->getPhaseDefinition();
+        $hasWritePermission = 'write' === $phaseDefinition->getPermissionSet()
+            && 'external' === $phaseDefinition->getAudience();
         $isPublicCitizenStatement = $statement->isCreatedByCitizen();
         $isPlannerCreatedCitizenStatement = $statement->isPlannerCreatedCitizenStatement();
 
         return $hasWritePermission && ($isPublicCitizenStatement || $isPlannerCreatedCitizenStatement);
-    }
-
-    private function hasPhaseWritePermission(string $phase): bool
-    {
-        $procedurePhases = $this->globalConfig->getExternalPhases();
-        foreach ($procedurePhases as $procedurePhase) {
-            if ($procedurePhase['key'] === $phase && 'write' === $procedurePhase['permissionset']) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private function createTokenFromEvent(StatementCreatedEventInterface $event, bool $isManual): void

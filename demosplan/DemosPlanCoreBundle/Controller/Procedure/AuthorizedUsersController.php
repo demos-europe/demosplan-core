@@ -41,7 +41,7 @@ class AuthorizedUsersController extends BaseController
     }
 
     #[DplanPermissions('area_admin_consultations')]
-    #[Route(path: '/verfahren/{procedureId}/berechtigte/export', name: 'dplan_admin_procedure_authorized_users_export', methods: ['HEAD', 'GET'], options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedureId}/berechtigte/export', name: 'dplan_admin_procedure_authorized_users_export', options: ['expose' => true], methods: ['HEAD', 'GET'])]
     public function export(
         ConsultationTokenService $consultationTokenService,
         CurrentUserInterface $currentUser,

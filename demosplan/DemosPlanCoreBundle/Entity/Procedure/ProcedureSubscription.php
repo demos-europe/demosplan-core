@@ -78,26 +78,23 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface, P
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: '_psu_created_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createdDate;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="update")
      */
     #[ORM\Column(name: '_psu_modified_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modifiedDate;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="update")
      */
     #[ORM\Column(name: '_psu_deleted_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     protected $deletedDate;
 
     public function getId(): ?string
@@ -286,8 +283,6 @@ class ProcedureSubscription extends CoreEntity implements UuidEntityInterface, P
 
     /**
      * Get CreatedDate.
-     *
-     * @Gedmo\Timestampable(on="create")
      *
      * @return DateTime
      */
