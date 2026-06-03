@@ -265,9 +265,8 @@
             class="mt-2"
             data-cy="statementSegment:deadline"
             :label="{
-              text: Translator.trans('period.until')
+              text: Translator.trans('deadline.processing.until')
             }"
-            max-date=""
             :value="segment.attributes.deadline || ''"
             @input="value => updateSegment('deadline', value)"
           />

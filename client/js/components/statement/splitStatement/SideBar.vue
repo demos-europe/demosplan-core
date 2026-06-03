@@ -121,7 +121,7 @@
       <button
         v-if="!isCollapsed.placesAndAssignee"
         data-cy="sidebar:toggleVisibility:placesAndAssignee"
-        class="relative btn--blank o-link--default font-semibold text-left w-full"
+        class="relative btn--blank o-link--default text-left w-full"
         @click="toggleVisibility('placesAndAssignee')"
       >
         {{ Translator.trans('workflow.place.and.assignment') }}
@@ -171,6 +171,15 @@
           :show-placeholder="false"
           track-by="id"
         />
+        <dp-datepicker
+          id="deadline"
+          v-model="deadline"
+          class="mt-1"
+          data-cy="selectedDeadline"
+          :label="{
+             text: Translator.trans('deadline.processing.until')
+          }"
+        />
       </div>
     </div>
 
@@ -191,6 +200,7 @@
 import {
   DpButtonRow,
   DpContextualHelp,
+  DpDatepicker,
   DpLabel,
   DpMultiselect,
   hasOwnProp,
@@ -211,6 +221,7 @@ export default {
     DpButtonRow,
     DpCreateTag,
     DpContextualHelp,
+    DpDatepicker,
     DpLabel,
     DpMultiselect,
     FloatingContextButton,
@@ -237,6 +248,7 @@ export default {
 
   data () {
     return {
+      deadline: '',
       isCollapsed: {
         tags: true,
         placesAndAssignee: false,
@@ -278,6 +290,10 @@ export default {
       return null
     },
 
+    deadlineNeedsUpdate () {
+      return this.deadline !== this.initialDeadline
+    },
+
     initialAssignee () {
       if (this.currentSegment && hasOwnProp(this.currentSegment, 'assigneeId')) {
         return this.getAssignableUserById(this.currentSegment.assigneeId)
@@ -285,6 +301,12 @@ export default {
       const noAssignee = this.getAssignableUserById('noAssigneeId')
 
       return noAssignee || null
+    },
+
+    initialDeadline () {
+      return this.currentSegment && hasOwnProp(this.currentSegment, 'deadline')
+        ? this.currentSegment.deadline
+        : ''
     },
 
     initialPlace () {
@@ -296,7 +318,9 @@ export default {
     },
 
     needsUpdate () {
-      return this.assigneeNeedsUpdate || this.placeNeedsUpdate
+      return this.assigneeNeedsUpdate ||
+        this.placeNeedsUpdate ||
+        this.deadlineNeedsUpdate
     },
 
     placeNeedsUpdate () {
@@ -376,6 +400,7 @@ export default {
     },
 
     setInitialValues () {
+      this.deadline = this.initialDeadline
       this.selectedAssignee = this.initialAssignee
       this.selectedPlace = this.initialPlace || this.availablePlaces[0]
     },
@@ -389,6 +414,10 @@ export default {
         } else {
           segment.assigneeId = this.selectedAssignee.id
         }
+      }
+
+      if (this.deadlineNeedsUpdate) {
+        segment.deadline = this.deadline
       }
 
       if (this.placeNeedsUpdate) {

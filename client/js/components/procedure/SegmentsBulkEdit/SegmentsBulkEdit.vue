@@ -57,6 +57,20 @@
           />
         </action-stepper-action>
 
+        <!-- Add deadline -->
+        <action-stepper-action
+          id="selectDeadlineAction"
+          v-model="actions.addDeadline.checked"
+          :label="Translator.trans('segments.bulk.edit.deadline.description')"
+        >
+          <dp-datepicker
+            id="deadline"
+            class="w-9"
+            v-model="actions.addDeadline.value"
+            data-cy="deadline"
+          />
+        </action-stepper-action>
+
         <!-- Add tags -->
         <action-stepper-action
           id="selectAddTagsAction"
@@ -237,6 +251,14 @@
         </div>
 
         <div
+          v-if="actions.addDeadline.checked && actions.addDeadline.value"
+          class="py-4"
+        >
+          <p v-html="Translator.trans('segments.bulk.edit.deadline.assigned.description', { count: segments.length })" />
+          <p>{{ actions.addDeadline.value }}</p>
+        </div>
+
+        <div
           v-if="addTagsCheckedAndSelected"
           class="py-4"
         >
@@ -292,6 +314,17 @@
         />
       </action-stepper-response>
 
+     <action-stepper-response
+        v-if="actions.addDeadline.checked && actions.addDeadline.value"
+        :success="actions.addDeadline.success"
+        :description-error="Translator.trans('segments.bulk.edit.deadline.assigned.error', { count: segments.length })"
+        :description-success="Translator.trans('segments.bulk.edit.deadline.assigned.success', { count: segments.length })"
+      >
+        <p class="mt-2">
+          {{ actions.addDeadline.value }}
+        </p>
+      </action-stepper-response>
+
       <action-stepper-response
         v-if="addTagsCheckedAndSelected"
         :success="actions.addTags.success"
@@ -339,6 +372,7 @@
 import {
   CleanHtml,
   dpApi,
+  DpDatepicker,
   DpMultiselect,
   DpRadio,
   dpRpc,
@@ -365,6 +399,7 @@ export default {
     ActionStepperAction,
     ActionStepperResponse,
     DpBoilerPlateModal,
+    DpDatepicker,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
@@ -402,6 +437,11 @@ export default {
   data () {
     return {
       actions: {
+        addDeadline: {
+          value: '',
+          checked: false,
+          success: false,
+        },
         addRecommendations: {
           text: '',
           checked: false,
@@ -537,6 +577,7 @@ export default {
     },
 
     hasActions () {
+      const addDeadline = this.actions.addDeadline.checked && this.actions.addDeadline.value !== ''
       const addRecommendationAction = this.actions.addRecommendations.checked && this.actions.addRecommendations.text
       const addTagsAction = this.actions.addTags.checked && this.actions.addTags.selected.length > 0
       const assignPlaceAction = this.actions.assignPlace.checked && Object.values(this.actions.assignPlace.selected).length > 0
@@ -544,7 +585,7 @@ export default {
       const deleteTagsAction = this.actions.deleteTags.checked && this.actions.deleteTags.selected.length > 0
       const customFieldsAction = this.customFieldsCheckedAndSelected.length > 0
 
-      return addRecommendationAction || addTagsAction || assignPlaceAction || assignSegmentAction || deleteTagsAction || customFieldsAction
+      return addRecommendationAction || addTagsAction || assignPlaceAction || assignSegmentAction || deleteTagsAction || customFieldsAction || addDeadline
     },
 
     hasPlaces () {
@@ -629,6 +670,10 @@ export default {
 
       if (this.assignPlaceCheckedAndSelected) {
         params.placeId = this.actions.assignPlace.selected.id
+      }
+
+      if (this.actions.addDeadline.checked && this.actions.addDeadline.value) {
+        params.deadline = this.actions.addDeadline.value
       }
 
       dpRpc('segment.bulk.edit', params)
