@@ -77,12 +77,13 @@
         class="flex space-x-1 mt-1 mr-2"
       >
         <dp-icon
-          class="text-interactive"
+          class="text-interactive mt-0.5"
           icon="prohibit"
           weight="fill"
         />
         <dp-tooltip :text="badgeTooltipText">
           <dp-badge
+            class="pt-0.5"
             color="info"
             size="small"
             :is-button="hasPermission('feature_administrate_segment_lock')"
