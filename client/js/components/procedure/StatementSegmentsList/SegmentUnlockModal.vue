@@ -3,9 +3,9 @@
     ref="unlockModal"
     content-classes="w-1/4 px-2 pb-4"
   >
-    <template v-slot:header>
+    <h3 class="font-bold text-lg border-b border-neutral pb-4 mb-4 mt-2">
       {{ Translator.trans('segment.unlock') }}
-    </template>
+    </h3>
     <dp-inline-notification
       :message="Translator.trans('segment.lock.hint.admin')"
       class="mb-4 mt-2"
