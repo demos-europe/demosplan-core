@@ -1195,6 +1195,7 @@ error.custom_field.minimum.option.count: "Das konfigurierte Feld kann nicht weni
 error.custom_fields.institution.save: "Die Eingaben in den Freitextfeldern konnten nicht gespeichert werden."
 error.custom_fields.save: "Mögliche Änderungen an folgenden Feldern konnten nicht gespeichert werden: {fields}"
 error.date.authored: "Bitte geben Sie ein Verfassungsdatum ein."
+error.date.authored.after.submitted: "Das Verfassungsdatum darf nicht nach dem Einreichungsdatum liegen."
 error.in.fields: "Bitte korrigieren Sie Ihre Eingabe in folgenden Feldern: "
 error.phone_or_email.required: "Bitte geben Sie entweder eine gültige E-Mail-Adresse oder Telefonnummer ein."
 error.phone.pattern: "Bitte geben Sie gültige Telefonnummer ein."

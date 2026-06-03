@@ -300,6 +300,9 @@ parameters:
     #  Set shard settings to dev settings. When use in cluster with 3 nodes use 3 shards, 2 replicas
     elasticsearch_number_of_shards: "1"
     elasticsearch_number_of_replicas: "1"
+    # High result window applied at index creation so deep paginating exports (size up to 1_000_000)
+    # work even before a full populate completes. Replaces the runtime PopulateElasticaListener setting.
+    elasticsearch_max_result_window: "1000000"
     # Major version of elasticsearch
     elasticsearch_major_version: 6
     # Number of workers to use during populate in command dplan:elasticsearch:populate
