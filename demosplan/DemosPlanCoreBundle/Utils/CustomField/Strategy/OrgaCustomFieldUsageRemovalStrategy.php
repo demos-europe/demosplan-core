@@ -15,12 +15,16 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Strategy;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\CustomFieldOptionRemovalStrategyFactory;
 
 class OrgaCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRemovalStrategyInterface
 {
     public function __construct(
         private readonly OrgaRepository $orgaRepository,
+        private readonly CustomFieldConfigurationRepository $configRepository,
+        private readonly CustomFieldOptionRemovalStrategyFactory $optionRemovalStrategyFactory,
     ) {
     }
 
@@ -40,10 +44,29 @@ class OrgaCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRemov
 
     public function removeOptionUsages(string $customFieldId, array $deletedOptionIds): void
     {
-        // Orga currently supports only text custom fields, which have no options.
-        // When option-bearing field types (single/multi-select) are added for Orga,
-        // implement this analogously to removeUsages, deciding per field type
-        // whether to drop the value or trim deleted option ids from it.
+        $fieldType = $this->configRepository->find($customFieldId)->getConfiguration()->getFieldType();
+        $strategy = $this->optionRemovalStrategyFactory->createForFieldType($fieldType);
+
+        $orgas = $this->orgaRepository->findOrgasWithCustomField($customFieldId);
+
+        foreach ($orgas as $orga) {
+            $originalCustomFields = $orga->getCustomFields();
+            if (!$originalCustomFields instanceof CustomFieldValuesList) {
+                continue;
+            }
+            $customFields = clone $originalCustomFields;
+            $currentValue = $customFields->findById($customFieldId);
+            if (!$currentValue instanceof CustomFieldValue) {
+                continue;
+            }
+            $updatedValue = $strategy->removeOptionUsage($currentValue, $deletedOptionIds);
+            $customFields->removeCustomFieldValue($currentValue);
+            if (null !== $updatedValue) {
+                $customFields->addCustomFieldValue($updatedValue);
+            }
+            $customFields->reindexValues();
+            $orga->setCustomFields($customFields);
+        }
     }
 
     private function removeCustomFieldFromOrga(Orga $orga, string $customFieldId): void

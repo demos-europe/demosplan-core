@@ -16,13 +16,17 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Exception\PersistResourceException;
+use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\CustomFieldOptionRemovalStrategyFactory;
 use Doctrine\DBAL\Exception;
 
 class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRemovalStrategyInterface
 {
     public function __construct(
         private readonly SegmentRepository $segmentRepository,
+        private readonly CustomFieldConfigurationRepository $configRepository,
+        private readonly CustomFieldOptionRemovalStrategyFactory $optionRemovalStrategyFactory,
     ) {
     }
 
@@ -44,6 +48,33 @@ class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRe
         return 'SEGMENT' === $targetEntityClass;
     }
 
+    public function removeOptionUsages(string $customFieldId, array $deletedOptionIds): void
+    {
+        $fieldType = $this->configRepository->find($customFieldId)->getConfiguration()->getFieldType();
+        $strategy = $this->optionRemovalStrategyFactory->createForFieldType($fieldType);
+
+        $segments = $this->segmentRepository->findSegmentsWithCustomField($customFieldId);
+
+        foreach ($segments as $segment) {
+            $originalCustomFields = $segment->getCustomFields();
+            if (!$originalCustomFields instanceof CustomFieldValuesList) {
+                continue;
+            }
+            $customFields = clone $originalCustomFields;
+            $currentValue = $customFields->findById($customFieldId);
+            if (!$currentValue instanceof CustomFieldValue) {
+                continue;
+            }
+            $updatedValue = $strategy->removeOptionUsage($currentValue, $deletedOptionIds);
+            $customFields->removeCustomFieldValue($currentValue);
+            if (null !== $updatedValue) {
+                $customFields->addCustomFieldValue($updatedValue);
+            }
+            $customFields->reindexValues();
+            $segment->setCustomFields($customFields);
+        }
+    }
+
     private function removeCustomFieldFromSegment(Segment $segment, string $customFieldId): void
     {
         $originalCustomFields = $segment->getCustomFields();
@@ -54,34 +85,6 @@ class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRe
         if ($customFields instanceof CustomFieldValuesList) {
             $customFieldValue = $customFields->findById($customFieldId);
             if ($customFieldValue instanceof CustomFieldValue) {
-                $customFields->removeCustomFieldValue($customFieldValue);
-                $customFields->reindexValues();
-                $segment->setCustomFields($customFields);
-            }
-        }
-    }
-
-    public function removeOptionUsages(string $customFieldId, array $deletedOptionIds): void
-    {
-        $segments = $this->segmentRepository->findSegmentsWithCustomField($customFieldId);
-
-        foreach ($segments as $segment) {
-            $this->removeDeletedOptionsFromSegment($segment, $customFieldId, $deletedOptionIds);
-        }
-    }
-
-    private function removeDeletedOptionsFromSegment(Segment $segment, string $customFieldId, array $deletedOptionIds): void
-    {
-        $originalCustomFields = $segment->getCustomFields();
-        if (!$originalCustomFields instanceof CustomFieldValuesList) {
-            return;
-        }
-        $customFields = clone $originalCustomFields;
-        if ($customFields instanceof CustomFieldValuesList) {
-            $customFieldValue = $customFields->findById($customFieldId);
-            if ($customFieldValue instanceof CustomFieldValue
-                && in_array($customFieldValue->getValue(), $deletedOptionIds, true)) {
-                // Remove the entire custom field value if it references a deleted option
                 $customFields->removeCustomFieldValue($customFieldValue);
                 $customFields->reindexValues();
                 $segment->setCustomFields($customFields);

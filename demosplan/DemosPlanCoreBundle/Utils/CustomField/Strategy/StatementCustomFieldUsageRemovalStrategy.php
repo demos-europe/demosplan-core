@@ -15,12 +15,16 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Strategy;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\CustomFieldOptionRemovalStrategyFactory;
 
 class StatementCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRemovalStrategyInterface
 {
     public function __construct(
         private readonly StatementRepository $statementRepository,
+        private readonly CustomFieldConfigurationRepository $configRepository,
+        private readonly CustomFieldOptionRemovalStrategyFactory $optionRemovalStrategyFactory,
     ) {
     }
 
@@ -40,10 +44,28 @@ class StatementCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsage
 
     public function removeOptionUsages(string $customFieldId, array $deletedOptionIds): void
     {
+        $fieldType = $this->configRepository->find($customFieldId)->getConfiguration()->getFieldType();
+        $strategy = $this->optionRemovalStrategyFactory->createForFieldType($fieldType);
+
         $statements = $this->statementRepository->findStatementsWithCustomField($customFieldId);
 
         foreach ($statements as $statement) {
-            $this->removeDeletedOptionsFromStatement($statement, $customFieldId, $deletedOptionIds);
+            $originalCustomFields = $statement->getCustomFields();
+            if (!$originalCustomFields instanceof CustomFieldValuesList) {
+                continue;
+            }
+            $customFields = clone $originalCustomFields;
+            $currentValue = $customFields->findById($customFieldId);
+            if (!$currentValue instanceof CustomFieldValue) {
+                continue;
+            }
+            $updatedValue = $strategy->removeOptionUsage($currentValue, $deletedOptionIds);
+            $customFields->removeCustomFieldValue($currentValue);
+            if (null !== $updatedValue) {
+                $customFields->addCustomFieldValue($updatedValue);
+            }
+            $customFields->reindexValues();
+            $statement->setCustomFields($customFields);
         }
     }
 
@@ -60,43 +82,5 @@ class StatementCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsage
             $customFields->reindexValues();
             $statement->setCustomFields($customFields);
         }
-    }
-
-    private function removeDeletedOptionsFromStatement(
-        Statement $statement,
-        string $customFieldId,
-        array $deletedOptionIds,
-    ): void {
-        $originalCustomFields = $statement->getCustomFields();
-        if (!$originalCustomFields instanceof CustomFieldValuesList) {
-            return;
-        }
-        $customFields = clone $originalCustomFields;
-        $customFieldValue = $customFields->findById($customFieldId);
-        if (!$customFieldValue instanceof CustomFieldValue) {
-            return;
-        }
-
-        $value = $customFieldValue->getValue();
-
-        if (is_array($value)) {
-            // multiSelect: trim deleted option IDs, keep field if options remain
-            $remaining = array_values(
-                array_filter($value, static fn (string $id) => !in_array($id, $deletedOptionIds, true))
-            );
-            $customFields->removeCustomFieldValue($customFieldValue);
-            if ([] !== $remaining) {
-                $updated = new CustomFieldValue();
-                $updated->setId($customFieldId);
-                $updated->setValue($remaining);
-                $customFields->addCustomFieldValue($updated);
-            }
-        } elseif (in_array($value, $deletedOptionIds, true)) {
-            // singleSelect: drop the whole field if the selected option was deleted
-            $customFields->removeCustomFieldValue($customFieldValue);
-        }
-
-        $customFields->reindexValues();
-        $statement->setCustomFields($customFields);
     }
 }

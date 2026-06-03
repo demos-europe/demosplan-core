@@ -70,6 +70,10 @@ services:
         arguments:
             $strategies: !tagged_iterator entity_custom_field_usage_removal_strategy
 
+    demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\CustomFieldOptionRemovalStrategyFactory:
+        arguments:
+            $strategies: !tagged_iterator custom_field_option_removal_strategy
+
 
     DemosEurope\DemosplanAddon\Contracts\Services\TagServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Statement\TagService'
 

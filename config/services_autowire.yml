@@ -9,6 +9,9 @@ services:
         demosplan\DemosPlanCoreBundle\Utils\CustomField\Strategy\EntityCustomFieldUsageRemovalStrategyInterface:
             tags:
                 - name: entity_custom_field_usage_removal_strategy
+        demosplan\DemosPlanCoreBundle\Utils\CustomField\Strategy\CustomFieldOptionRemovalStrategyInterface:
+            tags:
+                - name: custom_field_option_removal_strategy
 
     # makes classes in demosplan/* available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
