@@ -585,7 +585,7 @@ export default {
       const deleteTagsAction = this.actions.deleteTags.checked && this.actions.deleteTags.selected.length > 0
       const customFieldsAction = this.customFieldsCheckedAndSelected.length > 0
 
-      return addRecommendationAction || addTagsAction || assignPlaceAction || assignSegmentAction || deleteTagsAction || customFieldsAction || addDeadline
+      return addDeadline || addRecommendationAction || addTagsAction || assignPlaceAction || assignSegmentAction || deleteTagsAction || customFieldsAction
     },
 
     hasPlaces () {
