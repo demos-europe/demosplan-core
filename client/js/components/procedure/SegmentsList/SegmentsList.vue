@@ -632,7 +632,7 @@ export default {
       const toggledIds = new Set(this.toggledItems.map(item => item.id))
       let selected
 
-      if (this.trackDeselected === false) {
+      if (!this.trackDeselected) {
         selected = this.toggledItems
       } else {
         selected = this.toggledItems.length === 0 ?

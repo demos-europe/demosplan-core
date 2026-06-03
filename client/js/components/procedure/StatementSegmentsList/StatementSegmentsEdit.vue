@@ -382,6 +382,7 @@ export default {
       if (this.isSegmentLocked(segment)) {
         return false
       }
+
       return segment?.relationships?.assignee?.data?.id === this.currentUser.id
     },
 
@@ -389,7 +390,9 @@ export default {
       if (!hasPermission('feature_segment_lock_by_workflow_place')) {
         return false
       }
+
       const placeId = segment?.relationships?.place?.data?.id
+
       return !!this.placeItems[placeId]?.attributes?.locked
     },
 
