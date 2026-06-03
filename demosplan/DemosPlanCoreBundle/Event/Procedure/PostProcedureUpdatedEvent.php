@@ -73,18 +73,14 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
                 continue;
             }
 
-            // Skip uninitialized typed properties (e.g. Doctrine lazy proxies backed by
-            // Symfony's LazyObjectState), whose access would throw an Error, not an Exception.
-            if (!$property->isInitialized($oldObject) || !$property->isInitialized($newObject)) {
-                continue;
-            }
-
             try {
                 $oldValue = $property->getValue($oldObject);
                 $newValue = $property->getValue($newObject);
             } catch (Throwable) {
-                // The property can not be accessed or does not exist within newObject,
-                // skip it and continue with other properties.
+                // Skip properties that can not be compared: uninitialized typed properties
+                // (e.g. Doctrine lazy proxies backed by Symfony's LazyObjectState, which throw
+                // an Error on access), or properties not declared on both objects when old/new
+                // are of different classes (ReflectionException).
                 continue;
             }
 
