@@ -18,6 +18,7 @@ export function inlineImageAnchors (html, className = DEFAULT_CLASS) {
 
   root.querySelectorAll(`a.${className}[href]`).forEach((anchor) => {
     const img = doc.createElement('img')
+
     img.setAttribute('src', anchor.getAttribute('href'))
     img.setAttribute('alt', anchor.textContent.trim())
     img.setAttribute('loading', 'lazy')

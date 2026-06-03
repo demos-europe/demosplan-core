@@ -825,6 +825,7 @@ export default {
           ...this.searchFieldsSelected.length !== 0 ? { fieldsToSearch: this.searchFieldsSelected } : {},
         }
       }
+
       this.isLoading = true
       this.fetchSegments(payload)
         .then((data) => {
@@ -910,6 +911,7 @@ export default {
     getTagsBySegment (id) {
       const segment = this.segmentsObject[id]
       const relatedTagIds = segment.relationships.tags && segment.relationships.tags.data.map(tag => tag.id)
+
       return relatedTagIds.map(id => this.tagsObject[id])
     },
 
@@ -918,8 +920,10 @@ export default {
      */
     getOriginalPdfAttachmentHashBySegment (segment) {
       const parentStatement = segment.rel('parentStatement')
+
       if (parentStatement.hasRelationship('attachments')) {
         const originalAttachment = Object.values(parentStatement.relationships.attachments.list()).filter(attachment => attachment.attributes.attachmentType === 'source_statement')[0]
+
         if (originalAttachment) {
           return originalAttachment.rel('file').attributes.hash
         }
@@ -933,6 +937,7 @@ export default {
       if (filterType === 'tags') {
         return null
       }
+
       // Replace '.' in workflow.places because it is forbidden in group names
       return `${filterType.replaceAll('.', '-')}_group`
     },
@@ -952,6 +957,7 @@ export default {
     handleSizeChange (newSize) {
       // Compute new page with current page for changed number of items per page
       const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
+
       this.pagination.perPage = newSize
       this.applyQuery(page)
     },
@@ -1090,6 +1096,7 @@ export default {
 
               const currentFlyoutFilterIds = this.queryIds.filter(queryId => {
                 const item = allOptions.find(item => item.id === queryId)
+
                 return item ? item.id : null
               })
 
@@ -1148,6 +1155,7 @@ export default {
     // Called by apply as well as by reset in filterFlyout
     sendFilterQuery (filter) {
       const isReset = Object.keys(filter).length === 0
+
       if (isReset === false && Object.keys(this.appliedFilterQuery).length) {
         Object.values(filter).forEach(el => {
           this.appliedFilterQuery[el.condition.value] = el
@@ -1159,6 +1167,7 @@ export default {
           this.appliedFilterQuery = filter
         }
       }
+
       this.updateQueryHash()
       this.resetSelection()
       this.applyQuery(1)
@@ -1175,9 +1184,11 @@ export default {
       const url = Routing.generate('dplan_rpc_segment_list_query_update', { queryHash: oldQueryHash })
 
       const data = { filter: this.getFilterQuery }
+
       if (this.searchterm !== '') {
         data.searchPhrase = this.searchTerm
       }
+
       return dpApi.patch(url, {}, data)
         .then(({ data }) => {
           if (data) {
@@ -1190,6 +1201,7 @@ export default {
 
     updateQueryHashInURL (oldQueryHash, newQueryHash) {
       const newHref = globalThis.location.href.replace(oldQueryHash, newQueryHash)
+
       globalThis.history.pushState({ html: newHref, pageTitle: document.title }, document.title, newHref)
     },
 
@@ -1206,10 +1218,12 @@ export default {
 
   async mounted () {
     const addons = await loadAddonComponents('tag.style.segments.list')
+
     this.hasStyledTopicalTags = addons.length > 0
 
     // Get queryHash from URL
     const hrefParts = globalThis.location.href.split('/')
+
     this.currentQueryHash = hrefParts[hrefParts.length - 1]
 
     // When returning from bulk edit flow, the currentQueryHash which was used there to build a return link must be deleted.
@@ -1226,14 +1240,17 @@ export default {
         }
 
         const query = {}
+
         query[filter.condition.value] = filter
         this.updateFilterQuery(query)
       })
     }
+
     this.initPagination()
     if (hasPermission('field_segments_custom_fields')) {
       this.loadSegmentCustomFields()
     }
+
     this.applyQuery(this.pagination.currentPage)
 
     this.fetchPlaces()

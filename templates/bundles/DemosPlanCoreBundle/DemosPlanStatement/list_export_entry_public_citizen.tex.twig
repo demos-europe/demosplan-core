@@ -4,7 +4,7 @@
         \hline
             % Caption-Zeile - Dieses Template wird von der Beteiligungsebene und von den amgemeldeten Bürger angesprochen
             % Caption-Zeile - der doppelte Backslash setzt das Ende der Tabellenzeile, das & trennt die Spalten auf, \textbf setzt den Text in den geschweiften Klammern Bold (=<b></b> oder <strong></strong>)
-            {# phase #}{{ "procedure.public.phase"|trans|latex|raw }}: & {{ getProcedurePhase(statement.procedure, 'public', statement.phase) }} \\
+            {# phase #}{{ "procedure.public.phase"|trans|latex|raw }}: & {{ statement.phaseDefinition.name }} \\
             {# name #}{% if hasPermission('field_statement_meta_submit_name')%} {{ "name"|trans|latex|raw }}: & {{ statement.uName|default("notgiven"|trans)|latex|raw }}{% endif %}\\
             {# address #}{{ "address"|trans|latex|raw }}: &
                 {% if statement.uStreet is defined or statement.uPostalCode is defined or statement.uCity is defined %}

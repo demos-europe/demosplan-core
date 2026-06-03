@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData;
 
 use Carbon\Carbon;
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -26,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
 use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Slug;
@@ -64,18 +64,13 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
     final public const TEST_PROCEDURE_2 = 'testProcedure2';
 
     private $currentDate;
-    private $existingExternalPhasesWrite;
-    private $existingInternalPhasesWrite;
     private $manager;
     private $testOrgaFP;
     private $testUser;
 
-    public function __construct(EntityManagerInterface $entityManager, GlobalConfigInterface $globalConfig)
+    public function __construct(EntityManagerInterface $entityManager)
     {
         parent::__construct($entityManager);
-
-        $this->existingInternalPhasesWrite = $globalConfig->getInternalPhaseKeys('write');
-        $this->existingExternalPhasesWrite = $globalConfig->getExternalPhaseKeys('write');
     }
 
     public function load(ObjectManager $manager): void
@@ -90,19 +85,20 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         // Erstelle die Masterblaupause.
         // sie hat eine festgeschriebene Id, kann aber nicht ohne weiteres via doctrine
         // direkt gesetzt werden, deshalb wird die Id in den Tests dynamisiert
-        $procedureMaster = new Procedure();
+        $procedureMaster = new Procedure(
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION),
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION),
+        );
         $procedureMaster
             ->setName('Master')
             ->setOrga($this->testOrgaFP)
             ->setOrgaName('MasterOrga')
             ->setAgencyMainEmailAddress('agencyMainEmailAddress@example.org')
             ->setDesc('test')
-            ->setPublicParticipationPhase('configuration')
             ->addSlug(new Slug('procedureMasterSlug'))
             ->setMaster(true)
             ->setMasterTemplate(true)
             ->addExportFieldsConfiguration(new ExportFieldsConfiguration($procedureMaster));
-
         $manager->persist($procedureMaster);
         $manager->flush();
 
@@ -122,7 +118,10 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
 
         $this->loadTestProcedure();
 
-        $procedure2 = new Procedure();
+        $procedure2 = new Procedure(
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION),
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION),
+        );
         $procedure2->setName('TestProcedure2')
             ->setShortUrl('Lokstedt62')
             ->setStartDate($this->currentDate)
@@ -133,12 +132,9 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->setAgencyMainEmailAddress('agencyMainEmailAddress@example.org')
             ->setOrgaName('testOrgaFP')
             ->setDesc('testDesc')
-            ->setPhase($this->existingInternalPhasesWrite[0] ?? 'participation')
-            ->setStep('test')
             ->setLogo('test')
             ->setExternId('test')
             ->setPlisId('test')
-            ->setClosed(false)
             ->setDeleted(false)
             ->setMaster(false)
             ->setExternalName('testExternalName')
@@ -146,7 +142,6 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->setPublicParticipation(false)
             ->setPublicParticipationStep('asdfasdf')
             ->setMunicipalCode('12345')
-            ->setPublicParticipationPhase('configuration')
             ->setPublicParticipationStartDate($this->currentDate)
             ->setPublicParticipationEndDate($this->currentDate)
             ->setCreatedDate($this->currentDate)
@@ -154,7 +149,6 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->setPublicParticipationPublicationEnabled(false)
             ->setLocationName('testLocationName')
             ->setLocationPostCode('12345')
-            ->setClosedDate($this->currentDate)
             ->setDeletedDate($this->currentDate)
             ->addExportFieldsConfiguration(new ExportFieldsConfiguration($procedure2))
             ->addSlug(new Slug('procedure2NeverUsedSlug'));
@@ -172,7 +166,10 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->setPlanningArea('');
         $manager->persist($procedureSettings);
 
-        $procedure2 = new Procedure();
+        $procedure2 = new Procedure(
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_CONFIGURATION_PHASE_DEFINITION),
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION),
+        );
         $exportFieldsConfiguration = new ExportFieldsConfiguration($procedure2);
         $procedure2
             ->setName('Procedure number two')
@@ -182,8 +179,6 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->setPlanningOffices([$this->getReference('testOrgaPB')])
             ->setAgencyMainEmailAddress('agencyMainEmailAddress@example.org')
             ->setDesc('test second')
-            ->setPhase('configuration')
-            ->setPublicParticipationPhase('configuration')
             ->setMaster(false)
             ->addSlug(new Slug('procedure2Slug'));
 
@@ -192,10 +187,11 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $this->setReference(self::TEST_PROCEDURE_2, $procedure2);
         $this->setReference('defaultExportFieldsConfiguration', $exportFieldsConfiguration);
 
-        $archivedProcedure = new Procedure();
+        $archivedProcedure = new Procedure(
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_CLOSED_PHASE_DEFINITION),
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CLOSED_PHASE_DEFINITION),
+        );
         $archivedProcedure->setName('ArchivedProcedure')
-            ->setPhase('closed')
-            ->setPublicParticipationPhase('closed')
             ->setOrga($this->testOrgaFP)
             ->setOrgaName('testOrgaFP')
             ->setOrganisation([$this->testOrgaFP])
@@ -213,10 +209,11 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $this->setReference('archivedProcedure', $archivedProcedure);
         $manager->persist($archivedProcedure);
 
-        $semiArchivedProcedure = new Procedure();
+        $semiArchivedProcedure = new Procedure(
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_CLOSED_PHASE_DEFINITION),
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION),
+        );
         $semiArchivedProcedure->setName('SemiArchivedProcedure')
-            ->setPhase('closed')
-            ->setPublicParticipationPhase('configuration')
             ->setOrga($this->testOrgaFP)
             ->setOrgaName('testOrgaFP')
             ->setOrganisation([$this->testOrgaFP])
@@ -241,7 +238,10 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->setPlanningArea('');
         $manager->persist($procedureSettings);
 
-        $procedure3 = new Procedure();
+        $procedure3 = new Procedure(
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION),
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION),
+        );
         $procedure3
             ->setName('Procedure number three')
             ->setOrga($this->testOrgaFP)
@@ -249,8 +249,6 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->setOrganisation([$this->testOrgaFP])
             ->setAgencyMainEmailAddress('agencyMainEmailAddress@example.org')
             ->setDesc('test third')
-            ->setPhase($this->existingInternalPhasesWrite[0] ?? 'configuration')
-            ->setPublicParticipationPhase('configuration')
             ->setMaster(false)
             ->setPublicParticipationPublicationEnabled(false)
             ->addExportFieldsConfiguration(new ExportFieldsConfiguration($procedure3))
@@ -267,7 +265,10 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->setPlanningArea('');
         $manager->persist($procedureSettings);
 
-        $procedure4 = new Procedure();
+        $procedure4 = new Procedure(
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_CONFIGURATION_PHASE_DEFINITION),
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION),
+        );
         $procedure4
             ->setName('Master Procedure number four')
             ->setOrga($this->testOrgaFP)
@@ -275,8 +276,6 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->setOrganisation([$this->getReference('testOrgaFP')])
             ->setAgencyMainEmailAddress('agencyMainEmailAddress@example.org')
             ->setDesc('test fourth')
-            ->setPhase('configuration')
-            ->setPublicParticipationPhase('configuration')
             ->setMaster(true)
             ->addExportFieldsConfiguration(new ExportFieldsConfiguration($procedure4))
             ->addSlug(new Slug('procedure4Slug'));
@@ -386,14 +385,16 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $manager->persist($news2);
         $this->setReference('news2', $news2);
 
-        $procedureMaster2 = new Procedure();
+        $procedureMaster2 = new Procedure(
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION),
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION),
+        );
         $procedureMaster2
             ->setName('Master2')
             ->setOrga($this->testOrgaFP)
             ->setOrgaName('MasterOrga')
             ->setAgencyMainEmailAddress('agencyMainEmailAddress@example.org')
             ->setDesc('test2')
-            ->setPublicParticipationPhase('configuration')
             ->setMaster(true)
             ->addExportFieldsConfiguration(new ExportFieldsConfiguration($procedureMaster2))
             ->addSlug(new Slug('procedureMaster2Slug'));
@@ -422,7 +423,10 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         /** @var Customer $customer */
         $customer = $this->getReference('testCustomerBrandenburg');
 
-        $procedure = new Procedure();
+        $procedure = new Procedure(
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION),
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_PARTICIPATION_PHASE_DEFINITION),
+        );
         $procedure->setName('TestProcedure1')
             ->setShortUrl('Lokstedt64')
             ->setStartDate($this->currentDate)
@@ -434,12 +438,9 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->setOrgaName('testOrgaFP')
             ->setAgencyMainEmailAddress('agencyMainEmailAddress@example.org')
             ->setDesc('testDesc')
-            ->setPhase($this->existingInternalPhasesWrite[0] ?? 'participation')
-            ->setStep('test')
             ->setLogo('test')
             ->setExternId('test')
             ->setPlisId('test')
-            ->setClosed(false)
             ->setDeleted(false)
             ->setMaster(false)
             ->setExternalName('testExternalName')
@@ -447,14 +448,12 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->setPublicParticipation(false)
             ->setPublicParticipationStep('asdfasdf')
             ->setMunicipalCode('12345')
-            ->setPublicParticipationPhase($this->existingExternalPhasesWrite[0] ?? 'participation')
             ->setPublicParticipationStartDate($this->currentDate)
             ->setPublicParticipationEndDate($this->currentDate)
             ->setCreatedDate($this->currentDate)
             ->setPublicParticipationContact('testPPContact')
             ->setLocationName('testLocationName')
             ->setLocationPostCode('12456')
-            ->setClosedDate($this->currentDate)
             ->setDeletedDate($this->currentDate)
             ->setDataInputOrganisations([$this->getReference('dataInputOrga')])
             ->addExportFieldsConfiguration(new ExportFieldsConfiguration($procedure))
@@ -642,7 +641,6 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $statement->setOrganisation($this->getReference('testOrgaInvitableInstitution'));
         $statement->setElement($this->getReference('testSingleDocumentElement'));
         $statement->setParagraph($this->getReference('testParagraphVersion'));
-        $statement->setPhase($this->existingInternalPhasesWrite[0] ?? 'participation');
         $statement->setMapFile('Chrysanthemum.jpg:fefcd2bc-51a6-46c0-96a1-fbe62c9dc64c:879394:image/pjpeg');
         $statement->setFile('toDeleteFile');
         $statement->addCounty($locationArray['county']);
@@ -650,6 +648,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $statement->addPriorityArea($locationArray['priorityArea']);
         $statement->setMeta((new StatementMeta())->setStatement($statement)->setAuthorName('Max Mustermann'));
         $statement->setPublicVerified(Statement::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED);
+        $statement->setPhaseDefinition($this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION));
         $this->setReference(self::TESTPROCEDURE_STATEMENT, $statement);
         $this->manager->persist($statement);
     }
@@ -731,7 +730,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $draftStatement->setOName($this->testOrgaFP->getName());
         $draftStatement->setElement($this->getReference('testSingleDocumentElement'));
         $draftStatement->setParagraph($this->getReference('testParagraphVersion'));
-        $draftStatement->setPhase($this->existingInternalPhasesWrite[0] ?? 'participation');
+        $draftStatement->setPhaseDefinition($this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION));
         $draftStatement->setFile('Chrysanthemum.jpg:fefcd2bc-51a6-46c0-96a1-fbe62c9dc64c:879394:image/pjpeg');
         $draftStatement->setMapFile('Map_6e0f8e31-d468-465d-9087-4f0a69ec637c.png:e1883475-60cb-49c4-b0b6-11e4b5536e75');
         $this->setReference(self::TESTPROCEDURE_DRAFTSTATEMENT, $draftStatement);
@@ -756,7 +755,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
         $draftStatementVersion->setOName($this->testOrgaFP->getName());
         $draftStatementVersion->setElement($this->getReference('testSingleDocumentElement'));
         $draftStatementVersion->setParagraph($this->getReference('testParagraphVersion'));
-        $draftStatementVersion->setPhase($this->existingInternalPhasesWrite[0] ?? 'participation');
+        $draftStatementVersion->setPhaseDefinition($this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION));
         $draftStatementVersion->setFile('Chrysanthemum.jpg:fefcd2bc-51a6-46c0-96a1-fbe62c9dc64c:879394:image/pjpeg');
         $draftStatementVersion->setMapFile('Map_6e0f8e31-d468-465d-9087-4f0a69ec637c.png:e1883475-60cb-49c4-b0b6-11e4b5536e75');
         $draftStatementVersion->setCreatedDate(new DateTime());
@@ -794,8 +793,6 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->setEmailTitle('Einladung zur Beteiligung  Amt "Nordwest": Ein neues Testverfahren 1')
             ->setEmailText('Hallo Hallo! Was geht?')
             ->setEmailCc('ich@ich.de')
-            ->setDesignatedPublicPhase($this->existingInternalPhasesWrite[0] ?? 'configuration')
-            ->setDesignatedPhase('configuration')
 
             ->setDesignatedSwitchDate($switchDateTime->toDateTime())
             ->setDesignatedPublicSwitchDate($publicSwitchDateTime->toDateTime())
@@ -805,11 +802,21 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->setPlanningArea('I');
         $procedureSettings->setMapHint('This is a procedure specific map hint which might have been edited by a planer.');
         $this->manager->persist($procedureSettings);
+
+        /** @var ProcedurePhaseDefinition $internalConfigDef */
+        $internalConfigDef = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_CONFIGURATION_PHASE_DEFINITION);
+        /** @var ProcedurePhaseDefinition $externalConfigDef */
+        $externalConfigDef = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION);
+        $procedure->getPhaseObject()->setDesignatedPhaseDefinition($internalConfigDef);
+        $procedure->getPublicParticipationPhaseObject()->setDesignatedPhaseDefinition($externalConfigDef);
     }
 
     private function createBlueprintProcedure(): void
     {
-        $masterProcedureWithBoilerplates = new Procedure();
+        $masterProcedureWithBoilerplates = new Procedure(
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION),
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION),
+        );
         $masterProcedureWithBoilerplates
             ->setName('MasterProcedureWithBoilerplates')
             ->setOrga($this->testOrgaFP)
@@ -817,8 +824,6 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->setOrganisation([])
             ->setAgencyMainEmailAddress('agencyMainEmailAddress@example.org')
             ->setDesc('testproceduremaster')
-            ->setPhase($this->existingInternalPhasesWrite[0] ?? 'configuration')
-            ->setPublicParticipationPhase('configuration')
             ->setMaster(false)
             ->addExportFieldsConfiguration(new ExportFieldsConfiguration($masterProcedureWithBoilerplates))
             ->addSlug(new Slug('procedureMasterProcedureBoilerplateSlug'));
@@ -843,7 +848,10 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
 
     private function createProcedureToDelete(): void
     {
-        $procedureToDelete = new Procedure();
+        $procedureToDelete = new Procedure(
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION),
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION),
+        );
         $procedureToDelete->setName('TestprocedureToDelete')
             ->setShortUrl('Lokstedt62')
             ->setStartDate($this->currentDate)
@@ -854,12 +862,9 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->setAgencyMainEmailAddress('agencyMainEmailAddress@example.org')
             ->setOrgaName('testOrgaFP')
             ->setDesc('testDesc')
-            ->setPhase($this->existingInternalPhasesWrite[0] ?? 'configuration')
-            ->setStep('test')
             ->setLogo('test')
             ->setExternId('test')
             ->setPlisId('test')
-            ->setClosed(false)
             ->setDeleted(false)
             ->setMaster(false)
             ->setExternalName('testExternalName')
@@ -867,14 +872,12 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->setPublicParticipation(false)
             ->setPublicParticipationStep('asdfasdf')
             ->setMunicipalCode('12345')
-            ->setPublicParticipationPhase('configuration')
             ->setPublicParticipationStartDate($this->currentDate)
             ->setPublicParticipationEndDate($this->currentDate)
             ->setCreatedDate($this->currentDate)
             ->setPublicParticipationContact('testPPContact')
             ->setLocationName('testLocationName')
             ->setLocationPostCode('12345')
-            ->setClosedDate($this->currentDate)
             ->setDeletedDate($this->currentDate)
             ->addExportFieldsConfiguration(new ExportFieldsConfiguration($procedureToDelete))
             ->addSlug(new Slug('procedureToDeleteSlug'));
@@ -894,6 +897,7 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
     {
         return [
             LoadProcedureBehaviorDefinitionData::class,
+            LoadProcedurePhaseDefinitionData::class,
             LoadProcedureTypeData::class,
             LoadProcedureUiDefinitionData::class,
             LoadStatementFormDefinitionData::class,
@@ -903,7 +907,10 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
 
     private function createProcedureInPublicConsultationPhase(): void
     {
-        $procedure = new Procedure();
+        $procedure = new Procedure(
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION),
+            $this->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_PARTICIPATION_PHASE_DEFINITION),
+        );
         $procedure
             ->setName('Procedure in public consultation phase')
             ->setOrga($this->testOrgaFP)
@@ -911,8 +918,6 @@ class LoadProcedureData extends TestFixture implements DependentFixtureInterface
             ->setOrganisation([$this->testOrgaFP])
             ->setPlanningOffices([$this->getReference('testOrgaPB')])
             ->setAgencyMainEmailAddress('a@a.com')
-            ->setPhase($this->existingInternalPhasesWrite[0] ?? 'participation')
-            ->setPublicParticipationPhase('participation')
             ->setMaster(false)
             ->addExportFieldsConfiguration(new ExportFieldsConfiguration($procedure))
             ->addSlug(new Slug(self::TESTPROCEDURE_IN_PUBLIC_PARTICIPATION_PHASE));

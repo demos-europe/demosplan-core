@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementFile;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion;
@@ -172,7 +173,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
         );
         $this->setEntityFlagFieldsOnFlagFieldCollection($flagFields, $entity, $data);
 
-        if (array_key_exists('dId', $data) && 0 < strlen((string) $data['dId'])) {
+        if (array_key_exists('dId', $data) && '' !== (string) $data['dId']) {
             $entity->setDepartment($em->getReference(Department::class, $data['dId']));
         }
         if (array_key_exists('dName', $data)) {
@@ -181,9 +182,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
         if (array_key_exists('document', $data)) {
             $entity->setDocument($data['document']);
         }
-        if (!array_key_exists('document', $data) && array_key_exists('documentId', $data) && 0 < strlen(
-            (string) $data['documentId']
-        )
+        if (!array_key_exists('document', $data) && array_key_exists('documentId', $data) && '' !== (string) $data['documentId']
         ) {
             $entity->setDocument(
                 $em->getReference(SingleDocumentVersion::class, $data['documentId'])
@@ -197,7 +196,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
         if (array_key_exists('element', $data)) {
             $entity->setElement($data['element']);
         }
-        if (array_key_exists('elementId', $data) && 0 < strlen((string) $data['elementId'])) {
+        if (array_key_exists('elementId', $data) && '' !== (string) $data['elementId']) {
             $entity->setElement(
                 $em->getReference(Elements::class, $data['elementId'])
             );
@@ -238,7 +237,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
         if (array_key_exists('number', $data)) {
             $entity->setNumber($data['number']);
         }
-        if (array_key_exists('oId', $data) && 0 < strlen((string) $data['oId'])) {
+        if (array_key_exists('oId', $data) && '' !== (string) $data['oId']) {
             $entity->setOrganisation($em->getReference(Orga::class, $data['oId']));
         }
         if (array_key_exists('oName', $data)) {
@@ -248,9 +247,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
             $entity->setParagraph($data['paragraph']);
         }
         // nutze die paragraphId nur, wenn nicht schon das Objekt direkt gesetzt wurde
-        if (!array_key_exists('paragraph', $data) && array_key_exists('paragraphId', $data) && 0 < strlen(
-            (string) $data['paragraphId']
-        )
+        if (!array_key_exists('paragraph', $data) && array_key_exists('paragraphId', $data) && '' !== (string) $data['paragraphId']
         ) {
             $entity->setParagraph(
                 $em->getReference(ParagraphVersion::class, $data['paragraphId'])
@@ -261,7 +258,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
         ) {
             $entity->setParagraph(null);
         }
-        if (array_key_exists('pId', $data) && 0 < strlen((string) $data['pId'])) {
+        if (array_key_exists('pId', $data) && '' !== (string) $data['pId']) {
             $entity->setProcedure(
                 $em->getReference(Procedure::class, $data['pId'])
             );
@@ -294,7 +291,7 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
         if (array_key_exists('title', $data)) {
             $entity->setTitle($data['title']);
         }
-        if (array_key_exists('uId', $data) && 0 < strlen((string) $data['uId'])) {
+        if (array_key_exists('uId', $data) && '' !== (string) $data['uId']) {
             $entity->setUser($em->getReference(User::class, $data['uId']));
         }
         if (array_key_exists('uCity', $data)) {
@@ -323,17 +320,17 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
         }
 
         // Setze die Phase des Verfahrens ein
-        if (array_key_exists('phase', $data)) {
-            $entity->setPhase($data['phase']);
-        } else {
-            $procedure = $entity->getProcedure();
-            if (!is_null($procedure)) {
-                // public or internal statement?
-                if (DraftStatement::INTERNAL === $entity->getPublicDraftStatement()) {
-                    $entity->setPhase($procedure->getPhase());
-                } else {
-                    $entity->setPhase($procedure->getPublicParticipationPhase());
-                }
+        $procedure = $entity->getProcedure();
+        if (array_key_exists('phaseDefinitionId', $data)) {
+            /** @var ProcedurePhaseDefinition $phaseDefinition */
+            $phaseDefinition = $this->getEntityManager()->getReference(ProcedurePhaseDefinition::class, $data['phaseDefinitionId']);
+            $entity->setPhaseDefinition($phaseDefinition);
+        } elseif (!is_null($procedure)) {
+            // public or internal statement?
+            if (DraftStatement::INTERNAL === $entity->getPublicDraftStatement()) {
+                $entity->setPhaseDefinition($procedure->getPhaseObject()->getPhaseDefinition());
+            } else {
+                $entity->setPhaseDefinition($procedure->getPublicParticipationPhaseObject()->getPhaseDefinition());
             }
         }
         if (array_key_exists('represents', $data)) {

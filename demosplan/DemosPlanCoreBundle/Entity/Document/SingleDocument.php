@@ -77,32 +77,32 @@ class SingleDocument extends CoreEntity implements SingleDocumentInterface, Uuid
     /**
      * @var string
      */
-    #[ORM\Column(name: '_sd_category', type: 'string', nullable: false, length: 36)]
+    #[ORM\Column(name: '_sd_category', type: 'string', length: 36, nullable: false)]
     protected $category;
 
     /**
      * @var int
      */
-    #[ORM\Column(name: '_sd_order', type: 'integer', nullable: false, length: 10)]
+    #[ORM\Column(name: '_sd_order', type: 'integer', length: 10, nullable: false)]
     protected $order = 0;
 
     /**
      * @var string
      */
-    #[Assert\NotBlank(normalizer: 'trim', allowNull: false, message: 'error.mandatoryfield.heading', groups: [SingleDocument::IMPORT_CREATION])]
+    #[Assert\NotBlank(message: 'error.mandatoryfield.heading', allowNull: false, normalizer: 'trim', groups: [SingleDocument::IMPORT_CREATION])]
     #[ORM\Column(name: '_sd_title', type: 'string', length: 256, nullable: false)]
     protected $title = '';
 
     /**
      * @var string
      */
-    #[ORM\Column(name: '_sd_text', type: 'text', nullable: false, length: 65535)]
+    #[ORM\Column(name: '_sd_text', type: 'text', length: 65535, nullable: false)]
     protected $text = '';
 
     /**
      * @var string
      */
-    #[ORM\Column(name: '_sd_symbol', type: 'string', nullable: false, length: 36)]
+    #[ORM\Column(name: '_sd_symbol', type: 'string', length: 36, nullable: false)]
     protected $symbol = '';
 
     /**
@@ -110,8 +110,8 @@ class SingleDocument extends CoreEntity implements SingleDocumentInterface, Uuid
      *
      * @var string
      */
-    #[Assert\NotBlank(normalizer: 'trim', allowNull: false, message: 'error.mandatoryfield.file', groups: [SingleDocument::IMPORT_CREATION])]
-    #[ORM\Column(name: '_sd_document', type: 'string', nullable: false, length: 256)]
+    #[Assert\NotBlank(message: 'error.mandatoryfield.file', allowNull: false, normalizer: 'trim', groups: [SingleDocument::IMPORT_CREATION])]
+    #[ORM\Column(name: '_sd_document', type: 'string', length: 256, nullable: false)]
     protected $document = '';
 
     /**

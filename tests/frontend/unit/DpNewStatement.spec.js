@@ -56,8 +56,8 @@ describe('DpNewStatement', () => {
       },
       props: {
         procedureId: '123',
-        currentExternalPhase: 'participation',
-        currentInternalPhase: 'evaluation',
+        currentExternalPhase: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+        currentInternalPhase: 'f9e8d7c6-b5a4-3210-fedc-ba0987654321',
       },
     })
   })
@@ -66,6 +66,7 @@ describe('DpNewStatement', () => {
     const sortSelectedSpy = jest.spyOn(wrapper.vm, 'sortSelected')
 
     const data = { counties: ['2', '1'] }
+
     wrapper.vm.addLocationPrompt(data)
 
     expect(wrapper.vm.values.counties).toHaveLength(2)
@@ -77,6 +78,7 @@ describe('DpNewStatement', () => {
 
   it('resets counties when no county IDs are provided', () => {
     const data = { counties: [] }
+
     wrapper.vm.addLocationPrompt(data)
 
     expect(wrapper.vm.values.counties).toEqual([])

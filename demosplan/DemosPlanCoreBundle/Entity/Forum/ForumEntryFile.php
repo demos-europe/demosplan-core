@@ -36,7 +36,7 @@ class ForumEntryFile extends CoreEntity implements UuidEntityInterface, ForumEnt
     /**
      * @var string
      */
-    #[ORM\Column(name: '_fef_entry_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
+    #[ORM\Column(name: '_fef_entry_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     protected $entryId;
 
     /**
@@ -87,7 +87,7 @@ class ForumEntryFile extends CoreEntity implements UuidEntityInterface, ForumEnt
     /**
      * @var string
      */
-    #[ORM\Column(name: '_fef_hash', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
+    #[ORM\Column(name: '_fef_hash', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     protected $hash;
 
     public function getId(): ?string

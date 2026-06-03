@@ -58,7 +58,7 @@ class KeycloakUserBadgeCreator
                         'exception'     => $e,
                     ]
                 );
-                throw new AuthenticationException('You shall not pass!');
+                throw new AuthenticationException('You shall not pass!', $e->getCode(), $e);
             }
         });
     }

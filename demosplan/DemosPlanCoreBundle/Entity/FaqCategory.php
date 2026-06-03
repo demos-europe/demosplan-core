@@ -62,7 +62,7 @@ class FaqCategory extends CoreEntity implements FaqCategoryInterface
     /**
      * @var Customer
      */
-    #[ORM\JoinColumn(referencedColumnName: '_c_id', onDelete: 'CASCADE', nullable: false)]
+    #[ORM\JoinColumn(referencedColumnName: '_c_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Customer::class)]
     protected $customer;
 

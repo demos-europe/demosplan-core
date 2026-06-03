@@ -54,7 +54,7 @@ class KeycloakTokenRefreshService
         private readonly OAuthTokenStorageService $tokenStorageService,
         private readonly OzgKeycloakSessionManager $ozgKeycloakSessionManager,
         private readonly TokenExpirationService $tokenExpirationService,
-        #[Autowire('%oauth_token_timezone%')]
+        #[Autowire(param: 'oauth_token_timezone')]
         string $tokenTimezone,
     ) {
         $this->tokenTimezone = new DateTimeZone($tokenTimezone);
