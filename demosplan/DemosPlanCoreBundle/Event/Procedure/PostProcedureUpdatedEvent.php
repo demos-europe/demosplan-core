@@ -16,15 +16,14 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureUpdatedEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
-use Exception;
 use ReflectionClass;
+use Throwable;
 
 class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdatedEventInterface
 {
     public function __construct(
         protected readonly Procedure $procedureBeforeUpdate,
         protected readonly Procedure $procedureAfterUpdate,
-        private array $fieldsNotPresentInNewProcedure = [],
     ) {
     }
 
@@ -44,14 +43,6 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
     public function getModifiedValues(): array
     {
         return $this->determineModifiedValues($this->procedureBeforeUpdate, $this->procedureAfterUpdate);
-    }
-
-    /** Some properties might not exist for both objects (old and new) and can not be compared - of Proxy as example
-     * this method provides access to those properties to be able to check them manually.
-     */
-    public function getPropertiesFailedToCompare(): array
-    {
-        return $this->fieldsNotPresentInNewProcedure;
     }
 
     /**
@@ -82,14 +73,18 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
                 continue;
             }
 
+            // Skip uninitialized typed properties (e.g. Doctrine lazy proxies backed by
+            // Symfony's LazyObjectState), whose access would throw an Error, not an Exception.
+            if (!$property->isInitialized($oldObject) || !$property->isInitialized($newObject)) {
+                continue;
+            }
+
             try {
                 $oldValue = $property->getValue($oldObject);
                 $newValue = $property->getValue($newObject);
-            } catch (Exception) {
-                // The property can not be accessed or does not exist within newObject
-                // store it and continue with other properties
-                $this->fieldsNotPresentInNewProcedure[$propertyName] = ['old' => $oldObject, 'new' => $newObject];
-
+            } catch (Throwable) {
+                // The property can not be accessed or does not exist within newObject,
+                // skip it and continue with other properties.
                 continue;
             }
 
