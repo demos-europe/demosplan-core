@@ -624,7 +624,7 @@ export default {
     },
 
     canUnlock () {
-      return hasPermission('feature_administrate_segment_lock')
+      return hasPermission('feature_segment_lock_by_workflow_place') && hasPermission('feature_administrate_segment_lock')
     },
 
     // Overrides tableSelectAllItems mixin to exclude locked segments from selection for users without unlock permission
