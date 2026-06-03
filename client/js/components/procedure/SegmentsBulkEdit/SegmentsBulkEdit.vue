@@ -24,9 +24,11 @@
       <div class="border-between-vertical">
         <dp-inline-notification
           v-if="hasLockedSelection"
-          type="info"
+          :dismissible-key="lockedHintDismissibleKey"
           :message="Translator.trans('segments.bulk.edit.locked.hint', { lockedCount, totalCount: segments.length })"
           class="border-between-none mt-3 mb-2"
+          type="info"
+          dismissible
         />
         <!-- Assign user -->
         <action-stepper-action
@@ -572,6 +574,10 @@ export default {
 
     isSingleSegmentSelected () {
       return this.segments.length === 1
+    },
+
+    lockedHintDismissibleKey () {
+      return `${this.procedureId}:segmentsBulkEditLockedHint`
     },
 
     tags () {
