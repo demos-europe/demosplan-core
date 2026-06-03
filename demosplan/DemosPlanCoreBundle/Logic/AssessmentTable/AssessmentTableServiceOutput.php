@@ -848,11 +848,6 @@ class AssessmentTableServiceOutput
         );
     }
 
-    private function createFormerProcedureSuffix($formerExternId, $nameOfFormerProcedure): string
-    {
-        return ' ('.$this->translator->trans('formerExternId').': '.$formerExternId.' '.$this->translator->trans('from').' '.$nameOfFormerProcedure.')';
-    }
-
     /**
      * Returns the default active sorting set for the assessment table.
      */

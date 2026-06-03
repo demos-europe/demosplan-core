@@ -734,11 +734,6 @@ class DocxExporter
         return $leadingComma ? ', '.$idString : $idString;
     }
 
-    private function createFormerProcedureSuffix($formerExternId, $nameOfFormerProcedure): string
-    {
-        return ' ('.$this->translator->trans('formerExternId').': '.$formerExternId.' '.$this->translator->trans('from').' '.$nameOfFormerProcedure.')';
-    }
-
     /**
      * Add each fragments in $item['fragments'] as a row with the fragment text on the left side and the fragment recommendation
      * on the right side. $item is needed for the submitterData of the first fragment.

@@ -332,4 +332,9 @@ trait AssessmentTableFormattingTrait
         // if statement was moved into another procedure, this will usually be displayed in the textfield of the statement
         return $externIdString;
     }
+
+    private function createFormerProcedureSuffix($formerExternId, $nameOfFormerProcedure): string
+    {
+        return ' ('.$this->translator->trans('formerExternId').': '.$formerExternId.' '.$this->translator->trans('from').' '.$nameOfFormerProcedure.')';
+    }
 }
