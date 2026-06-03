@@ -75,6 +75,7 @@
           :current-user-first-name="currentUser.firstname"
           :current-user-last-name="currentUser.lastname"
           :current-user-orga="currentUser.orgaName"
+          @unlock="openUnlockModal"
         />
 
         <!-- Pagination below segments list -->
@@ -95,6 +96,13 @@
           />
         </div>
       </div>
+      <segment-unlock-modal
+        v-if="hasPermission('feature_administrate_segment_lock')"
+        ref="unlockModal"
+        :assignable-users="unlockAssignableUsers"
+        :places="places"
+        @unlock="unlockSegment"
+      />
     </div>
   </div>
 </template>
@@ -105,6 +113,7 @@ import { mapActions, mapMutations, mapState } from 'vuex'
 import { handleSegmentNavigation } from '@DpJs/lib/segment/handleSegmentNavigation'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import { scrollTo } from 'vue-scrollto'
+import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
 import StatementSegment from './StatementSegment'
 
 export default {
@@ -116,6 +125,7 @@ export default {
     DpButton,
     DpLoading,
     DpPager,
+    SegmentUnlockModal,
     StatementSegment,
   },
 
@@ -145,6 +155,7 @@ export default {
       pagination: {},
       storageKeyPagination: `segmentsRecommendations_${this.statementId}_pagination`,
       segmentNavigation: null,
+      segmentToUnlock: null,
     }
   },
 
@@ -153,12 +164,38 @@ export default {
       segments: 'items',
     }),
 
+    ...mapState('Place', {
+      placeItems: 'items',
+    }),
+
+    ...mapState('AssignableUser', {
+      assignableUsersObject: 'items',
+    }),
+
     hasSegments () {
       return Object.keys(this.segments).length > 0
     },
 
+    places () {
+      return Object.values(this.placeItems).map(place => ({
+        name: place.attributes.name,
+        id: place.id,
+        locked: place.attributes.locked,
+      }))
+    },
+
     statement () {
       return this.$store.state.Statement.items[this.statementId] || null
+    },
+
+    // Assignable users including the "not assigned" option, used as the unlock modal default
+    unlockAssignableUsers () {
+      const users = Object.values(this.assignableUsersObject).map(user => ({
+        name: user.attributes.firstname + ' ' + user.attributes.lastname,
+        id: user.id,
+      }))
+
+      return [{ name: Translator.trans('not.assigned'), id: 'noAssigneeId' }, ...users]
     },
   },
 
@@ -418,6 +455,42 @@ export default {
 
     handlePageChange (page) {
       this.fetchSegments(page)
+    },
+
+    openUnlockModal (segment) {
+      this.segmentToUnlock = segment
+      this.$refs.unlockModal.toggle()
+    },
+
+    unlockSegment ({ assignee, place }) {
+      const assigneeRel = assignee.id === 'noAssigneeId' ?
+        { data: null } :
+        { data: { id: assignee.id, type: 'AssignableUser' } }
+
+      const payload = {
+        data: {
+          id: this.segmentToUnlock.id,
+          type: 'StatementSegment',
+          relationships: {
+            assignee: assigneeRel,
+            place: { data: { id: place.id, type: 'Place' } },
+          },
+        },
+      }
+
+      return dpApi.patch(
+        Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segmentToUnlock.id }),
+        {},
+        payload,
+      )
+        .then(() => {
+          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+          this.fetchSegments(this.pagination?.currentPage || 1)
+        })
+        .catch((err) => {
+          console.error(err)
+          dplan.notify.notify('error', Translator.trans('error.api.generic'))
+        })
     },
 
     handleSizeChange (newSize) {

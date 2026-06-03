@@ -76,27 +76,31 @@
         v-if="isLocked"
         class="flex space-x-1 mt-1 mr-2"
       >
-        <dp-icon
-          class="text-interactive mt-0.5"
+        <dp-button
+          v-if="hasPermission('feature_administrate_segment_lock')"
+          :text="badgeTooltipText"
+          class="mt-0.5"
           icon="prohibit"
-          weight="fill"
+          icon-weight="fill"
+          variant="subtle"
+          hide-text
+          @click="$emit('unlock', segment)"
         />
-        <dp-tooltip :text="badgeTooltipText">
-          <dp-badge
-            class="pt-0.5"
-            color="info"
-            size="small"
-            :is-button="hasPermission('feature_administrate_segment_lock')"
-            :text="Translator.trans('segment.lock.state.locked')"
-            @click="toggleUnlockModal"
+        <dp-tooltip
+          v-else
+          :text="badgeTooltipText"
+        >
+          <dp-icon
+            class="text-interactive mt-0.5"
+            icon="prohibit"
+            weight="fill"
           />
         </dp-tooltip>
-        <segment-unlock-modal
-          v-if="hasPermission('feature_administrate_segment_lock')"
-          ref="unlockModal"
-          :assignable-users="assignableUsers"
-          :places="places"
-          @unlock="unlockSegment"
+        <dp-badge
+          class="pt-0.5"
+          color="info"
+          size="small"
+          :text="Translator.trans('segment.lock.state.locked')"
         />
       </div>
       <dp-claim
@@ -445,6 +449,7 @@ import {
   CleanHtml,
   dpApi,
   DpBadge,
+  DpButton,
   DpButtonRow,
   DpCheckbox,
   DpContextualHelp,
@@ -464,7 +469,6 @@ import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import ImageModal from '@DpJs/components/shared/ImageModal'
 import RecommendationModal from '../Shared/RecommendationModal'
-import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useUnsavedChangesGuard } from '@DpJs/composables/useUnsavedChangesGuard'
@@ -479,6 +483,7 @@ export default {
     CustomFieldsList,
     DpBoilerPlateModal,
     DpBadge,
+    DpButton,
     DpButtonRow,
     DpCheckbox,
     DpContextualHelp,
@@ -493,7 +498,6 @@ export default {
     DpTooltip,
     ImageModal,
     RecommendationModal,
-    SegmentUnlockModal,
     TextContentRenderer,
     VPopover,
   },
@@ -548,6 +552,8 @@ export default {
       type: String,
     },
   },
+
+  emits: ['unlock'],
 
   data () {
     return {
@@ -1085,10 +1091,6 @@ export default {
       this.$refs.recommendationModal.toggle()
     },
 
-    toggleUnlockModal () {
-      this.$refs.unlockModal.toggle()
-    },
-
     unclaimSegment () {
       const payload = {
         data: {
@@ -1119,41 +1121,6 @@ export default {
         .catch((err) => {
           console.error(err)
           this.claimLoading = false
-        })
-    },
-
-    unlockSegment ({ assignee, place }) {
-      const assigneeRel = assignee.id === 'noAssigneeId' ?
-        { data: null } :
-        { data: { id: assignee.id, type: 'AssignableUser' } }
-
-      const payload = {
-        data: {
-          id: this.segment.id,
-          type: 'StatementSegment',
-          relationships: {
-            assignee: assigneeRel,
-            place: { data: { id: place.id, type: 'Place' } },
-          },
-        },
-      }
-
-      return dpApi.patch(
-        Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }),
-        {},
-        payload,
-      )
-        .then(() => {
-          this.setSegment({
-            ...this.segment,
-            relationships: { ...this.segment.relationships, ...payload.data.relationships },
-            id: this.segment.id,
-          })
-          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-        })
-        .catch((err) => {
-          console.error(err)
-          dplan.notify.notify('error', Translator.trans('error.api.generic'))
         })
     },
 
