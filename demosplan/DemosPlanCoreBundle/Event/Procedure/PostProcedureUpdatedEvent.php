@@ -16,8 +16,8 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureUpdatedEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
-use Exception;
 use ReflectionClass;
+use Throwable;
 
 class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdatedEventInterface
 {
@@ -82,10 +82,18 @@ class PostProcedureUpdatedEvent extends DPlanEvent implements PostProcedureUpdat
                 continue;
             }
 
+            // Skip uninitialized typed properties (e.g. Doctrine lazy proxies backed by
+            // Symfony's LazyObjectState), whose access would throw an Error, not an Exception.
+            if (!$property->isInitialized($oldObject) || !$property->isInitialized($newObject)) {
+                $this->fieldsNotPresentInNewProcedure[$propertyName] = ['old' => $oldObject, 'new' => $newObject];
+
+                continue;
+            }
+
             try {
                 $oldValue = $property->getValue($oldObject);
                 $newValue = $property->getValue($newObject);
-            } catch (Exception) {
+            } catch (Throwable) {
                 // The property can not be accessed or does not exist within newObject
                 // store it and continue with other properties
                 $this->fieldsNotPresentInNewProcedure[$propertyName] = ['old' => $oldObject, 'new' => $newObject];
