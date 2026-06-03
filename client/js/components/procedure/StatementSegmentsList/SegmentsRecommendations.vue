@@ -270,17 +270,17 @@ export default {
 
     async fetchSegments (page = 1) {
       const statementSegmentFields = [
-        'tags',
-        'text',
         'assignee',
-        'place',
         'comments',
+        'deadline',
         'externId',
         'internId',
         'orderInProcedure',
+        'place',
         'polygon',
         'recommendation',
-        'deadline',
+        'tags',
+        'text'
       ]
 
       if (hasPermission('field_segments_custom_fields')) {
