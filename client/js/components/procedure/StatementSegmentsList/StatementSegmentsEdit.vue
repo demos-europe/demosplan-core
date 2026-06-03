@@ -72,9 +72,11 @@
             <template v-slot:edit>
               <dp-editor
                 class="mr-4 pt-1"
-                :toolbar-items="{ linkButton: true, obscure: hasPermission('feature_obscure_text') }"
-                :value="segment.attributes.text"
-                @transform-obscure-tag="transformObscureTag"
+                :routes="{ getFileByHash: (hash) => Routing.generate('core_file_procedure', { procedureId, hash }) }"
+                :toolbar-items="{ imageButton: true, linkButton: true, obscure: hasPermission('feature_obscure_text') }"
+                :tus-endpoint="dplan.paths.tusEndpoint"
+                :value="getSegmentInitialText(segment.id)"
+                @transform-obscure-tag="(val) => transformObscureTag(segment.id, val)"
                 @input="(val) => updateSegmentText(segment.id, val)"
               />
             </template>
@@ -108,8 +110,8 @@
           hidden-input="statementText"
           required
           :toolbar-items="{ linkButton: true}"
-          :value="statement.attributes.fullText || ''"
-          @transform-obscure-tag="transformObscureTag"
+          :value="getStatementInitialText()"
+          @transform-obscure-tag="transformObscureStatementTag"
           @input="updateStatementText"
         />
         <dp-button-row
@@ -170,6 +172,7 @@ export default {
     DpPager,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
+
       return DpEditor
     }),
     DpInlineNotification,
@@ -181,6 +184,8 @@ export default {
   },
 
   mixins: [dpValidateMixin, paginationMixin],
+
+  inject: ['procedureId'],
 
   props: {
     currentUser: {
@@ -216,7 +221,6 @@ export default {
       claimLoading: null,
       editingSegmentIds: [],
       isLoading: false,
-      obscuredText: '',
       defaultPagination: {
         currentPage: 1,
         limits: [10, 20, 50],
@@ -292,11 +296,20 @@ export default {
     }),
 
     addToEditing (id) {
-      this.editingSegmentIds.push(id)
+      this._localSegmentTexts[id] = this.segments[id]?.attributes?.text || ''
+
+      if (!this.editingSegmentIds.includes(id)) {
+        this.editingSegmentIds.push(id)
+      }
+    },
+
+    getSegmentInitialText (segmentId) {
+      return this.segments[segmentId]?.attributes?.text ?? ''
     },
 
     claimSegment (segment) {
       const dataToUpdate = { ...segment, ...{ relationships: { ...segment.relationships, ...{ assignee: { data: { type: 'AssignableUser', id: this.currentUser.id } } } } } }
+
       this.setSegment({ ...dataToUpdate, id: segment.id })
 
       const payload = {
@@ -351,33 +364,44 @@ export default {
     },
 
     reset (segmentId) {
-      // Restore initial text value
-      const initText = this.$store.state.StatementSegment.initial[segmentId].attributes.text
-      this.updateSegmentText(segmentId, initText)
+      delete this._localSegmentTexts[segmentId]
+
       if (this.$refs[`editField_${segmentId}`][0]) {
         this.$refs[`editField_${segmentId}`][0].loading = false
         this.$refs[`editField_${segmentId}`][0].editingEnabled = false
       }
+
       const segmentIdIndex = this.editingSegmentIds.indexOf(segmentId)
-      this.editingSegmentIds.splice(segmentIdIndex, 1)
+
+      if (segmentIdIndex > -1) {
+        this.editingSegmentIds.splice(segmentIdIndex, 1)
+      }
     },
 
     resetStatement () {
       this.restoreStatementAction(this.statement.id)
+
+      this._localStatementText = null
     },
 
     saveSegment (segmentId) {
-      if (!this.segments[segmentId].attributes.text) {
+      const textToSave = this._localSegmentTexts[segmentId] ?? ''
+
+      if (!textToSave) {
         this.$refs[`editField_${segmentId}`][0].loading = false
 
         return dplan.notify.error(Translator.trans('error.segment.empty.text'))
       }
 
-      // Use the transformed text if available
-      const textToSave = this.obscuredText || this.segments[segmentId].attributes.text
+      const updated = {
+        ...this.segments[segmentId],
+        attributes: {
+          ...this.segments[segmentId].attributes,
+          text: textToSave,
+        },
+      }
 
-      // Update the segment text with the transformed text
-      this.updateSegmentText(segmentId, textToSave)
+      this.setSegment({ ...updated, id: segmentId })
 
       this.saveSegmentAction(segmentId)
         .catch(() => {
@@ -386,7 +410,12 @@ export default {
         })
         .finally(() => {
           const segmentIdIndex = this.editingSegmentIds.indexOf(segmentId)
-          this.editingSegmentIds.splice(segmentIdIndex, 1)
+
+          if (segmentIdIndex > -1) {
+            this.editingSegmentIds.splice(segmentIdIndex, 1)
+          }
+
+          delete this._localSegmentTexts[segmentId]
 
           if (this.$refs[`editField_${segmentId}`][0]) {
             this.$refs[`editField_${segmentId}`][0].loading = false
@@ -396,7 +425,18 @@ export default {
     },
 
     saveStatement () {
-      this.$emit('saveStatement', this.statement)
+      const textToSave = this._localStatementText ?? this.statement.attributes.fullText
+
+      const updatedStatement = {
+        ...this.statement,
+        attributes: {
+          ...this.statement.attributes,
+          fullText: textToSave,
+        },
+      }
+
+      this.setStatement({ ...updatedStatement, id: this.statement.id })
+      this.$emit('saveStatement', updatedStatement)
     },
 
     scrollToSegment () {
@@ -438,9 +478,11 @@ export default {
           },
         },
       }
+
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: segment.id }), {}, payload)
         .then(() => {
           const dataToUpdate = JSON.parse(JSON.stringify(segment))
+
           delete dataToUpdate.relationships.assignee
           // Set segment in store without the assignee
           this.setSegment({ ...dataToUpdate, id: segment.id })
@@ -453,34 +495,23 @@ export default {
     },
 
     updateSegmentText (segmentId, val) {
-      const fullText = this.obscuredText && this.obscuredText !== val ? this.obscuredText : val
-      const updated = {
-        ...this.segments[segmentId],
-        attributes: {
-          ...this.segments[segmentId].attributes,
-          text: fullText,
-        },
-      }
-      this.setSegment({ ...updated, id: segmentId })
+      this._localSegmentTexts[segmentId] = val
+    },
+
+    getStatementInitialText () {
+      return this.statement?.attributes?.fullText || ''
     },
 
     updateStatementText (val) {
-      const fullText = this.obscuredText && this.obscuredText !== val ? this.obscuredText : val
-
-      this.$emit('statementText:updated')
-
-      const updated = {
-        ...this.statement,
-        attributes: {
-          ...this.statement.attributes,
-          fullText,
-        },
-      }
-      this.setStatement({ ...updated, id: this.statement.id })
+      this._localStatementText = val
     },
 
-    transformObscureTag (val) {
-      this.obscuredText = val
+    transformObscureTag (segmentId, val) {
+      this._localSegmentTexts[segmentId] = val
+    },
+
+    transformObscureStatementTag (val) {
+      this._localStatementText = val
     },
 
     async fetchSegments (page = 1) {
@@ -570,14 +601,20 @@ export default {
         // Prevent division by zero or negative page size
         return
       }
+
       // Compute new page with current page for changed number of items per page
       const page = Math.floor((this.pagination?.perPage * (this.pagination?.currentPage - 1) / newSize) + 1)
+
       this.pagination.perPage = newSize
       this.fetchSegments(page)
     },
   },
 
   created () {
+    // Non-reactive buffers for editor content (avoid controlled component issues)
+    this._localSegmentTexts = {}
+    this._localStatementText = null
+
     this.segmentNavigation = handleSegmentNavigation({
       statementId: this.statementId,
       storageKey: this.storageKeyPagination,
@@ -608,9 +645,10 @@ export default {
 
   beforeUnmount () {
     if (this.editingSegmentIds.length > 0 && hasPermission('area_statement_segmentation')) {
-      this.editingSegmentIds.forEach(segment => this.reset(segment.id))
+      this.editingSegmentIds.forEach(segmentId => this.reset(segmentId))
     }
-    if (this.hasSegments === false && this.segment) {
+
+    if (this.hasSegments === false && this.statement) {
       this.resetStatement()
     }
   },

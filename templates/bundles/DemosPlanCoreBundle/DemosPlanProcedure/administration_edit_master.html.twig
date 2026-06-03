@@ -31,7 +31,8 @@
                 action="{{ path('DemosPlan_procedure_edit_master',{'procedure':proceduresettings.ident}) }}">
                 <input type="hidden" name="_token" value="{{ form._token.vars.value }}" />
                 <input type="hidden" value="{% if proceduresettings.ident is defined %}{{ proceduresettings.ident }}{% endif %}" name="r_ident">
-                <input type="hidden" value="{% if templateVars.internalPhases.1 is defined %}{{ templateVars.internalPhases.1.key }}{% endif %}" name="r_phase">
+                {# Master procedures have no phase UI. Send the current phase definition back unchanged to pass the mandatory check. #}
+                <input type="hidden" value="{{ proceduresettings.phaseObject.phaseDefinition.id }}" name="r_phaseDefinitionId">
                 <input type="hidden" value="edit" name="action">
 
                 <dp-input
@@ -164,7 +165,7 @@
                 </div>
                 {% endif %}
 
-                {% if hasPermission('field_procedure_pictogram') and hasPermission('area_public_participation') %}
+                {% if hasPermission('field_procedure_pictogram_view') and hasPermission('area_public_participation') %}
                     <div class="mb-4 flow-root">
                         <label class="inline-block mb-0" for="r_pictogram">
                             {{ 'procedure.pictogram'|trans }}
@@ -275,10 +276,16 @@
                     </div>
                 {% endif %}
 
-                {% set isAnotherBlueprintSetAsCustomerMaster = (templateVars.isCustomerMasterBlueprintExisting == true and (proceduresettings.master != true or proceduresettings.customer == null))  %}
+                {#
+                    A procedure template is considered "not a customer master blueprint" if either:
+                    - It is not a procedure template (proceduresettings.master != true) — always true on this page
+                    - It does not have a customer assigned (proceduresettings.customer == null)
+                #}
+                {% set isNotCustomerMaster = (proceduresettings.master != true or proceduresettings.customer == null) %}
+                {% set isAnotherBlueprintSetAsCustomerMaster = (templateVars.customerMasterBlueprint is not null and isNotCustomerMaster) %}
 
                 {% if hasPermission('feature_admin_customer_master_procedure_template') %}
-                    <label class="mb-0 {% if isAnotherBlueprintSetAsCustomerMaster %}color--grey-light{% endif %}">
+                    <label class="mt-4 mb-2 {% if isAnotherBlueprintSetAsCustomerMaster %}color--grey-light{% endif %}">
                         <input
                             type="checkbox"
                             {% if proceduresettings.master == true and proceduresettings.customer != null %}
@@ -293,7 +300,10 @@
                         <p class="lbl__hint ml-3">{{ 'explanation.customer.masterblueprint'|trans }}</p>
                     </label>
                     {% if isAnotherBlueprintSetAsCustomerMaster %}
-                        <p class="lbl__hint ml-3">{{ 'explanation.customer.masterblueprint.uncheck.existing'|trans }}</p>
+                        <p class="flash flash-info ml-3">{{ 'explanation.customer.masterblueprint.uncheck.existing'|trans({
+                            procedureName: templateVars.customerMasterBlueprint.name,
+                            organisationName: templateVars.customerMasterBlueprint.orgaName
+                        }) }}</p>
                     {% endif %}
                 {% endif %}
 

@@ -57,13 +57,10 @@
     @open="handleOpen"
   >
     <template v-slot:trigger>
-      <span :class="{ 'weight--bold' : (appliedQuery.length > 0) }">
-        {{ category.label }}
-        <span
-          v-if="appliedQuery.length > 0"
-          class="o-badge o-badge--small o-badge--transparent mb-px mr-1"
-        >
-          {{ appliedQuery.length }}
+      <span :class="[{ 'weight--bold' : (appliedQuery.length > 0) }, 'px-1']">
+        <span :class="{ 'mr-0.5': appliedQuery.length > 0 }">{{ category.label }}</span>
+        <span v-if="appliedQuery.length > 0">
+          ({{ appliedQuery.length }})
         </span>
       </span>
       <i
@@ -74,7 +71,7 @@
     </template>
 
     <div
-      class="min-w-12 border--bottom u-p-0_5 leading-[2] whitespace-nowrap"
+      class="min-w-12 border-b border-neutral p-2 leading-[2] whitespace-nowrap"
     >
       <dp-resettable-input
         :id="`searchField_${path}`"
@@ -87,17 +84,23 @@
 
     <dp-loading
       v-if="isLoading"
-      class="u-mt u-ml-0_5 u-pb"
+      class="mt-4 ml-2 pb-4"
     />
 
     <div v-else>
       <div
         :style="flyoutHeightStyle"
-        class="w-full border--bottom overflow-y-scroll u-p-0_5"
+        class="w-full border-b border-neutral overflow-y-scroll p-2"
       >
+        <dp-inline-notification
+          v-if="hint"
+          class="mb-2"
+          :message="Translator.trans('filter.hint.or.logic')"
+          type="info"
+        />
         <ul
           v-if="ungroupedOptions?.length > 0"
-          class="o-list line-height--1_6"
+          class="m-0 p-0 pb-2 list-none leading-[1.6] border-b border-neutral mb-2"
         >
           <filter-flyout-checkbox
             v-for="option in searchedUngroupedOptions"
@@ -110,13 +113,13 @@
           />
         </ul>
         <ul
-          v-for="group in searchedGroupedOptions"
-          :key="`list_${group.id}}`"
-          class="o-list line-height--1_6"
+          v-for="(group, index) in searchedGroupedOptions"
+          :key="`list_${group.id}`"
+          :class="['m-0 p-0 list-none leading-[1.6]', { 'border-b border-neutral mb-2': index < searchedGroupedOptions.length - 1 }]"
         >
-          <span class="font-size-small">
+          <li class="font-semibold text-sm mb-2">
             {{ group.label }}
-          </span>
+          </li>
           <filter-flyout-checkbox
             v-for="option in group.options"
             :key="option.id"
@@ -137,13 +140,13 @@
         class="flow-root"
       >
         <h3
-          class="inline-block font-size-small weight--normal u-m-0_5"
+          class="inline-block text-sm font-normal m-2"
         >
           {{ Translator.trans('filter.active') }}
         </h3>
         <button
           v-if="currentQuery.length"
-          class="o-link--default btn--blank font-size-small u-m-0_5 float-right"
+          class="o-link--default btn--blank text-sm m-2 float-right"
           :data-cy="`filter:removeActiveFilter:${path}`"
           @click="resetAndApply"
         >
@@ -151,7 +154,7 @@
         </button>
       </div>
       <ul
-        class="o-list u-p-0_5 u-pt-0 line-height--1_6"
+        class="m-0 list-none p-2 pt-0 leading-[1.6]"
       >
         <filter-flyout-checkbox
           v-for="item in itemsSelected"
@@ -163,19 +166,17 @@
           @change="updateQuery"
         />
       </ul>
-      <div class="flow-root u-p-0_5 u-pt-0">
+      <div class="flex justify-end gap-2 p-2 pt-0">
         <dp-button
-          class="float-left"
-          :data-cy="`filter:applyFilter:${path}`"
-          :text="Translator.trans('apply')"
-          @click="apply"
-        />
-        <dp-button
-          class="float-right"
           color="secondary"
           :data-cy="`filter:abortFilter:${path}`"
           :text="Translator.trans('abort')"
           @click="close"
+        />
+        <dp-button
+          :data-cy="`filter:applyFilter:${path}`"
+          :text="Translator.trans('apply')"
+          @click="apply"
         />
       </div>
     </div>
@@ -187,6 +188,7 @@ import {
   dataTableSearch,
   DpButton,
   DpFlyout,
+  DpInlineNotification,
   DpLoading,
   DpResettableInput,
   hasOwnProp,
@@ -200,6 +202,7 @@ export default {
   components: {
     DpButton,
     DpFlyout,
+    DpInlineNotification,
     DpLoading,
     DpResettableInput,
     FilterFlyoutCheckbox,
@@ -225,6 +228,12 @@ export default {
       validator: prop => {
         return hasOwnProp(prop, 'label') && hasOwnProp(prop, 'id')
       },
+    },
+
+    hint: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
 
     // Contains ids of applied filters from this and the neighboring filterFlyouts
@@ -345,6 +354,13 @@ export default {
               operator: 'IS NULL',
             },
           }
+
+          if (this.memberOf) {
+            filter[id].condition = {
+              ...filter[id].condition,
+              memberOf: this.memberOf,
+            }
+          }
         } else {
           filter[id] = {
             condition: {
@@ -397,6 +413,7 @@ export default {
         ...this.ungroupedOptions,
         ...this.groupedOptions.flatMap(group => group.options),
       ]
+
       return items.filter((item) => item.selected)
     },
 
@@ -526,9 +543,24 @@ export default {
      * @param {boolean} [isInitialWithQuery=false] - Indicates if it is an initial request with query.
      */
     requestFilterOptions (isInitialWithQuery = false) {
+      // For OR groups (memberOf is set), exclude this group's own filters so counts always show full availability
+      let filter = this.getFilterQuery
+
+      if (this.memberOf && !isInitialWithQuery) {
+        filter = Object.fromEntries(
+          Object.entries(this.getFilterQuery).filter(([key, val]) => {
+            if (key === this.memberOf) {
+              return false
+            }
+
+            return val.condition?.memberOf !== this.memberOf
+          }),
+        )
+      }
+
       this.$emit('filterOptions:request', {
         additionalQueryParams: this.additionalQueryParams,
-        filter: this.getFilterQuery,
+        filter,
         isInitialWithQuery,
         path: this.path,
         currentQuery: this.currentQuery,
@@ -550,6 +582,7 @@ export default {
     resetFilterQuery () {
       Object.values(this.filter).forEach(el => {
         const query = {}
+
         query[el.condition.value] = el
         this.updateFilters(query)
       })
@@ -563,11 +596,13 @@ export default {
     restoreAppliedFilterQuery () {
       const filterArray = Object.values(this.filter)
       const hasUnappliedFilters = filterArray.length > this.appliedQuery.length
+
       if (filterArray.length && hasUnappliedFilters) {
         filterArray.forEach(filter => {
           // Delete filters that are not in appliedQuery
           if (typeof this.appliedQuery.find(queryId => queryId === filter.condition.value) === 'undefined') {
             const query = {}
+
             query[filter.condition.value] = filter
             this.updateFilters(query)
           }
@@ -589,11 +624,13 @@ export default {
       if (isSelected) {
         this.currentQuery.push(option.id)
         const query = {}
+
         query[option.id] = this.filter[option.id]
 
         this.updateFilters(query)
       } else if (!isSelected) {
         const query = {}
+
         query[option.id] = this.filter[option.id]
 
         this.updateFilters(query)
@@ -627,6 +664,7 @@ export default {
 
       if (this.itemsSelected) {
         const selectedIds = this.itemsSelected.map(item => item.id)
+
         this.appliedQuery = selectedIds
         this.currentQuery = selectedIds
       }

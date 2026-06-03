@@ -4,6 +4,7 @@ const pluginJest = require('eslint-plugin-jest')
 const pluginJquery = require('eslint-plugin-jquery')
 const js = require('@eslint/js')
 const pluginImportExtensions = require('eslint-plugin-import')
+const tseslint = require('typescript-eslint')
 
 module.exports = [
   {
@@ -37,6 +38,7 @@ module.exports = [
       '**/documentation/**/*',
       '**/node_modules/**/*',
       '**/projects/*/web/**/*',
+      '**/public/**/*',
       '**/vendor/**/*',
     ],
   },
@@ -95,7 +97,7 @@ module.exports = [
   },
   {
     name: 'app/jest-rules',
-    files: ['**/*.test.js', '**/*.spec.js', '**/tests/**/*.js'],
+    files: ['**/*.test.{js,ts}', '**/*.spec.{js,ts}', '**/tests/**/*.{js,ts}'],
     plugins: {
       jest: pluginJest,
     },
@@ -106,6 +108,29 @@ module.exports = [
     },
     rules: {
       ...pluginJest.configs.recommended.rules,
+    },
+  },
+  {
+    name: 'app/ts-rules',
+    files: ['**/*.ts', '**/*.vue'],
+    languageOptions: {
+      parser: require('vue-eslint-parser'),
+      parserOptions: {
+        parser: tseslint.parser,
+        extraFileExtensions: ['.vue'],
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tseslint.plugin,
+    },
+    rules: {
+      '@typescript-eslint/no-unused-vars': ['error', {
+        args: 'none',
+        varsIgnorePattern: '^_',
+        argsIgnorePattern: '^_|^(state|commit|dispatch|getters|rootState|rootGetters)$',
+        caughtErrors: 'none',
+      }],
+      'no-unused-vars': 'off',
     },
   },
   {
@@ -138,7 +163,7 @@ module.exports = [
       'keyword-spacing': 'error',                         // Space after keywords, e.g. if (condition) {, return , else {
       'object-curly-spacing': ['error', 'always'],        // Space inside objects, e.g. { key: value }
       'array-bracket-spacing': ['error', 'never'],        // No space in arrays: [1, 2, 3], not [ 1, 2, 3 ]
-      'brace-style': ['error', '1tbs', { 'allowSingleLine': true }], // One true brace style, allow single line
+      'brace-style': ['error', '1tbs', { 'allowSingleLine': false }], // One true brace style, require block body on its own line
       'eol-last': 'error',                                // Files must end with newline
       'no-trailing-spaces': 'error',                      // No trailing whitespace at end of lines
       'comma-spacing': ['error', { 'before': false, 'after': true }], // Space after commas
@@ -159,7 +184,7 @@ module.exports = [
     rules: {
       // Do not allow file extensions when importing .js and .vue files, enforce extension on json files.
       'import/extensions': ['error', 'never', {
-        json: 'always', js: 'never', vue: 'never',
+        json: 'always', js: 'never', vue: 'never', ts: 'never',
       }],
 
       'capitalized-comments': ['error', 'always', {
@@ -215,6 +240,22 @@ module.exports = [
         'default': 'longform',
         'named': 'longform',
       }],
+      /*
+       * Require braces for all control structures — no `if (x) doThing()` one-liners.
+       * Set to 'warn' for incremental adoption; promote to 'error' once existing code is clean.
+       */
+      'curly': ['warn', 'all'],
+      // Enforce blank lines around control flow, returns, and declarations.
+      'padding-line-between-statements': ['warn',
+        // Blank line before every `return`.
+        { blankLine: 'always', prev: '*', next: 'return' },
+        // Blank line after block-like statements (if, for, while, switch, try, …).
+        { blankLine: 'always', prev: 'block-like', next: '*' },
+        // Blank line after a group of declarations.
+        { blankLine: 'always', prev: ['const', 'let', 'var'], next: '*' },
+        // …but no required blank between consecutive declarations.
+        { blankLine: 'any', prev: ['const', 'let', 'var'], next: ['const', 'let', 'var'] },
+      ],
     },
   },
   {

@@ -99,9 +99,11 @@ export default {
       .then(() => {
         const tagsFromStore = this.$store.getters['AssessmentTable/tags']
         const selectedTags = []
+
         Object.values(tagsFromStore).forEach(group => {
           this.initTags.forEach(tag => {
             const foundTag = group.tags.find(tagInGroup => tagInGroup.id === tag)
+
             if (foundTag) {
               selectedTags.push({ id: foundTag.id, title: foundTag.name })
             }

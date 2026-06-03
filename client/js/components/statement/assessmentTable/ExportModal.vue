@@ -175,7 +175,7 @@
           role="tabpanel"
         >
           <fieldset
-            v-if="options.docx.anonymize || options.docx.obscure"
+            v-if="(options.docx.anonymize || options.docx.obscure) && !isDocxPortraitWithPrioritization"
             class="u-mb-0_5 pb-2"
           >
             <legend
@@ -227,7 +227,7 @@
               }"
               name="docxTemplate"
               :value="identifier"
-              @change="exportChoice.docx.template = identifier"
+              @change="handleDocxTemplateChange(identifier)"
             />
           </fieldset>
 
@@ -679,7 +679,9 @@ export default {
       optGroup = options[optGroupKey]
       data[optGroupKey] = {}
 
-      if (!optGroup) continue
+      if (!optGroup) {
+        continue
+      }
 
       for (optKey in optGroup._defaults) {
         data[optGroupKey][optKey] = optGroup._defaults[optKey]
@@ -697,8 +699,12 @@ export default {
 
   computed: {
     explanationZip () {
-      if (this.options.zip.exportType === 'originalStatements') {
+      if (this.exportChoice.zip.exportType === 'originalStatements') {
         return Translator.trans('explanation.export.original_statements.zip', { hasSelectedElements: this.hasSelectedElements })
+      }
+
+      if (this.exportChoice.zip.exportType === 'originalStatementsWithAttachments') {
+        return Translator.trans('explanation.export.original_statements_with_attachments.zip', { hasSelectedElements: this.hasSelectedElements })
       }
 
       return Translator.trans('explanation.export.statements.zip', { hasSelectedElements: this.hasSelectedElements })
@@ -716,6 +722,7 @@ export default {
           return key
         }
       }
+
       return false
     },
 
@@ -723,14 +730,19 @@ export default {
       const optionsDocxFilter = Object.entries(this.options.docx.templates).filter(([key, value]) => {
         return value ? this.hasVisibleTemplate({ [key]: value }) : false
       })
+
       return Object.fromEntries(optionsDocxFilter)
     },
 
     odtTemplateOptions () {
-      if (!this.options.odt?.templates) return {}
+      if (!this.options.odt?.templates) {
+        return {}
+      }
+
       const optionsOdtFilter = Object.entries(this.options.odt.templates).filter(([key, value]) => {
         return value ? this.hasVisibleTemplate({ [key]: value }) : false
       })
+
       return Object.fromEntries(optionsOdtFilter)
     },
 
@@ -743,6 +755,10 @@ export default {
       return this.viewMode === 'view_mode_default'
     },
 
+    isDocxPortraitWithPrioritization () {
+      return this.exportChoice.docx.template === 'portraitWithPrioritization'
+    },
+
     isDocxSortTypeByParagraphChecked () {
       return this.exportChoice.docx.exportType === 'statementsAndFragments' ?
         this.exportChoice.docx.sortType === 'byParagraphFragmentsOnly' :
@@ -750,7 +766,10 @@ export default {
     },
 
     isOdtSortTypeByParagraphChecked () {
-      if (!this.exportChoice.odt) return false
+      if (!this.exportChoice.odt) {
+        return false
+      }
+
       return this.exportChoice.odt.exportType === 'statementsAndFragments' ?
         this.exportChoice.odt.sortType === 'byParagraphFragmentsOnly' :
         this.exportChoice.odt.sortType === 'byParagraph'
@@ -798,6 +817,7 @@ export default {
         .filter(option => this.options[option])
         .reduce((obj, key) => {
           obj[key] = this.options[key]
+
           return obj
         }, {})
     },
@@ -831,14 +851,29 @@ export default {
         'byParagraph'
     },
 
+    handleDocxTemplateChange (template) {
+      this.exportChoice.docx.template = template
+
+      if (template === 'portraitWithPrioritization') {
+        this.exportChoice.docx.numberStatements = false
+        this.exportChoice.docx.anonymous = false
+      }
+    },
+
     handleOdtExportTypeChange (value) {
-      if (!this.exportChoice.odt) return
+      if (!this.exportChoice.odt) {
+        return
+      }
+
       this.exportChoice.odt.exportType = value
       this.exportChoice.odt.sortType = 'default'
     },
 
     handleOdtSortTypeByParagraphChange () {
-      if (!this.exportChoice.odt) return
+      if (!this.exportChoice.odt) {
+        return
+      }
+
       this.exportChoice.odt.sortType = this.exportChoice.odt.exportType === 'statementsAndFragments' ?
         'byParagraphFragmentsOnly' :
         'byParagraph'
@@ -858,6 +893,7 @@ export default {
      */
     hasVisibleTemplate (templateInfo) {
       const hideForViewModes = templateInfo.hideForViewModes || false
+
       if (hideForViewModes) {
         return !templateInfo.hideForViewModes.includes(this.viewMode)
       } else {
@@ -872,12 +908,14 @@ export default {
     getSearchFields () {
       const allSearchFields = Array.from(document.getElementsByName('search_fields[]'))
       const checkedSearchFields = []
+
       allSearchFields.forEach(function (searchField) {
         if (searchField.checked) {
           checkedSearchFields.push(searchField.id)
         }
       },
       )
+
       return checkedSearchFields.join()
     },
 
@@ -919,6 +957,7 @@ export default {
           break
         }
       }
+
       if (!hasContent) {
         this.switchTab(tab)
         this.submit()
@@ -934,10 +973,12 @@ export default {
     setBodyMaxHeight () {
       const contentHeights = []
       const tabs = this.$refs.exportModalContent.querySelectorAll('.tab-content')
+
       tabs.forEach(tabContent => {
         if (!tabContent.classList.contains('active')) {
           tabContent.style.display = 'block'
         }
+
         contentHeights.push(tabContent.clientHeight)
         tabContent.style.display = ''
       })

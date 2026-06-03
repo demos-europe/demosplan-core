@@ -37,7 +37,7 @@ class WebpackBundleExtension extends ExtensionBase
         'd3.js',
         'ol.js',
         'leaflet.js',
-        'jquery-3.5.1.min.js',
+        'jquery.js',
 
         // these bundles do not require a vue instance on #app. see T14094
         'core-sidenav.js',
@@ -51,7 +51,7 @@ class WebpackBundleExtension extends ExtensionBase
         'bs.js',
         'common.js',
         'core.js',
-        'jquery-3.5.1.min.js',
+        'jquery.js',
         'leaflet.js',
         'ol.js',
         'runtime.js',
@@ -237,7 +237,7 @@ class WebpackBundleExtension extends ExtensionBase
      */
     protected function loadManifest(string $manifest): array
     {
-        $manifestFile = DemosPlanPath::getProjectPath("web/{$manifest}.manifest.json");
+        $manifestFile = DemosPlanPath::getPublicPath("{$manifest}.manifest.json");
 
         $manifestArray = [];
         // uses local file, no need for flysystem

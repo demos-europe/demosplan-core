@@ -253,7 +253,6 @@
         <dp-editor
           id="r_simpleLanguage"
           v-model="customer.overviewDescriptionInSimpleLanguage"
-          :basic-auth="dplan.settings.basicAuth"
           hidden-input="r_simpleLanguage"
           :routes="{
             getFileByHash: (hash) => Routing.generate('core_file', { hash: hash })
@@ -322,6 +321,7 @@ export default {
     DpLoading,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
+
       return DpEditor
     }),
   },
@@ -545,6 +545,7 @@ export default {
 
     resetProperty (property) {
       const currentCustomer = this.customerList[this.currentCustomerId]
+
       this.customer[property] = currentCustomer.attributes[property]
     },
 
@@ -558,6 +559,7 @@ export default {
           [property]: this.customer[property],
         },
       }
+
       this.updateCustomer(payload)
       this.saveCustomer(this.currentCustomerId).then(() => {
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
@@ -572,6 +574,7 @@ export default {
       }
 
       const form = this.$refs.customerSettings
+
       form.submit()
     },
   },

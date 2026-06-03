@@ -1,0 +1,56 @@
+name: Generate JS SBOM
+
+on:
+  schedule:
+    - cron: 0 7 * * 1
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - yarn.lock
+
+jobs:
+  sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24.11.1'
+
+      - run: npm install --ignore-scripts -g corepack && corepack enable && yarn set version 4.2.2
+
+      - name: Cache yarn dependencies
+        uses: actions/cache@v5.0.5
+        with:
+          path: |
+            ~/.yarn/cache
+            .yarn/cache
+            node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - run: YARN_ENABLE_SCRIPTS=false yarn install --immutable
+
+      - name: Generate JS SBOM
+        run: |
+          mkdir -p sbom
+          npx @cyclonedx/cdxgen -t yarn -o sbom/sbom-js.cdx.json --spec-version 1.5 --validate --output-reproducible
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          add-paths: sbom/sbom-js.cdx.json
+          base: main
+          branch: chore/sbom-js
+          delete-branch: true
+          commit-message: 'chore: update JS SBOM'
+          title: 'chore: update JS SBOM'
+          body: |
+            Auto-generated CycloneDX SBOM for JS/yarn dependencies.
+
+            Triggered by: `${{ github.event_name }}`
+          labels: devops, dependencies:yarn

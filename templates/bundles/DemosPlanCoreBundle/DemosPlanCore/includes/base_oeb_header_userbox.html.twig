@@ -40,7 +40,7 @@
             </a>
 
             {# flyout content #}
-            <div class="{{ 'c-flyout__content text-left'|prefixClass }}" data-extern-dataport="userMenu">
+            <div class="{{ 'c-flyout__content text-left'|prefixClass }}" data-extern-dataport="userMenu" role="menu">
 
                 {# display roles of current user #}
                 <div class="{{ 'c-flyout__item u-mt-0_5'|prefixClass }}">
@@ -132,6 +132,20 @@
                     {% endif %}
                 {% endif %}
 
+                {# Multi-responsibility organisation switcher #}
+                {% if currentUser.hasMultipleOrganisations %}
+                    <a
+                        class="{{ 'c-flyout__item flow-root'|prefixClass }}"
+                        data-cy="userBox:responsibilitySwitcher"
+                        href="{{ path('DemosPlan_user_select_organisation') }}"
+                        data-actionmenu-menuitem>
+                        <i class="{{ 'fa fa-exchange float-left u-mt-0_125'|prefixClass }}" aria-hidden="true"></i>
+                        <span class="{{ 'block u-ml'|prefixClass }}">
+                            {{- "organisation.switch"|trans -}}
+                        </span>
+                    </a>
+                {% endif %}
+
                 {# subscribe to notifications #}
                 {% if hasPermission('area_subscriptions') %}
                     <a
@@ -220,6 +234,20 @@
     {% else %}
 
         {# loggedout state of userbox #}
+        {% if idpLogoutUrl is defined and idpLogoutUrl is not null %}
+            {# IDP session exists but dplan auth failed - show logout to terminate IDP session #}
+            <div class="{{ 'c-nav__flyout c-flyout float-right text-right'|prefixClass }}">
+                <a
+                    class="{{ 'c-flyout__trigger'|prefixClass }}"
+                    href="{{ idpLogoutUrl }}"
+                    data-cy="headerNav:logout">
+                    <span class="{{ 'c-flyout__trigger-inner'|prefixClass }}">
+                        <i class="{{ 'fa fa-sign-out'|prefixClass }}" aria-hidden="true"></i>
+                        {{ "logout"|trans }}
+                    </span>
+                </a>
+            </div>
+        {% else %}
         <div class="{{ 'c-nav__flyout c-flyout float-right text-right'|prefixClass }}" {%  if projectType == 'gateway' and loggedout_simple is not defined and hasPermission('area_login_dialog') %}data-actionmenu{% endif %}>
             {% if projectType == 'gateway' %}
 
@@ -242,7 +270,7 @@
 
                 {# flyout with information about gateway login #}
                 {% if loggedout_simple is not defined and hasPermission('area_login_dialog') %}
-                    <div class="{{ 'c-flyout__content text-left'|prefixClass }}" id="explanationLoginGateway">
+                    <div class="{{ 'c-flyout__content text-left'|prefixClass }}" id="explanationLoginGateway" role="menu">
                         <p class="{{ 'u-ph-0_5 u-pv-0_25 u-mb-0'|prefixClass }}">
                             {{ "explanation.login.gateway"|trans }}
                         </p>
@@ -274,5 +302,6 @@
 
             {% endif %}
         </div>
+        {% endif %}
 
     {% endif %}

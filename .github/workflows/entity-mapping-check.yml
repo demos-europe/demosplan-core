@@ -1,0 +1,34 @@
+name: Entity mapping check
+
+on:
+    pull_request:
+        paths:
+            - 'demosplan/**/Entity/**.php'
+
+jobs:
+    check:
+        # Doctrine ORM v3 removes AnnotationDriver, so any @ORM\* docblock
+        # annotation on an entity is silently ignored at runtime: the table is
+        # never created, listeners never fire, and the symptom surfaces far from
+        # the cause (failing persists, closed EntityManager, 302 redirects on
+        # auth paths). This job fails the PR before tests even run, with a
+        # pointer to the offending line.
+        #
+        # Gedmo annotations are intentionally not checked here — they still work
+        # on this branch because the Gedmo listener uses the annotation reader.
+        # The Gedmo counterpart belongs in the PR that switches Gedmo to
+        # AttributeReader (PR 6268 on main).
+        name: No @ORM docblock annotations in Entity/
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v6
+            - name: Scan Entity files for @ORM docblock annotations
+              run: |
+                  set -euo pipefail
+                  if hits=$(grep -rnE '^\s*\*\s*@ORM\\' demosplan/*/Entity 2>/dev/null); then
+                      echo "::error::Entity files must use #[ORM\\…] attributes, not @ORM docblock annotations (ORM v3 removed AnnotationDriver)."
+                      echo "::group::Offending lines"
+                      echo "$hits"
+                      echo "::endgroup::"
+                      exit 1
+                  fi

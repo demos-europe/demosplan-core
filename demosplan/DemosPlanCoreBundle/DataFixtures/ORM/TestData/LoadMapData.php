@@ -254,7 +254,7 @@ class LoadMapData extends TestFixture implements DependentFixtureInterface
         $this->setReference('testGlobalGisLayer1', $globalGisLayer1);
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             LoadProcedureData::class,

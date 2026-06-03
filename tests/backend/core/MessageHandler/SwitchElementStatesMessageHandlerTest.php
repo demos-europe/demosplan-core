@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\MessageHandler;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Message\SwitchElementStatesMessage;
 use demosplan\DemosPlanCoreBundle\MessageHandler\SwitchElementStatesMessageHandler;
@@ -23,12 +24,14 @@ class SwitchElementStatesMessageHandlerTest extends UnitTestCase
     use LoggerTestTrait;
 
     private ?ElementsService $elementService = null;
+    private ?PermissionsInterface $permissions = null;
     private ?SwitchElementStatesMessageHandler $sut = null;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->elementService = $this->createMock(ElementsService::class);
+        $this->permissions = $this->createMock(PermissionsInterface::class);
     }
 
     public function testInvokeSwitchesElementStatesAndLogs(): void
@@ -39,7 +42,7 @@ class SwitchElementStatesMessageHandlerTest extends UnitTestCase
             ->willReturn(5);
 
         $logger = $this->createLoggerMockWithCapture(2);
-        $this->sut = new SwitchElementStatesMessageHandler($this->elementService, $logger);
+        $this->sut = new SwitchElementStatesMessageHandler($this->elementService, $this->permissions, $logger);
 
         // Act
         ($this->sut)(new SwitchElementStatesMessage());
@@ -56,7 +59,7 @@ class SwitchElementStatesMessageHandlerTest extends UnitTestCase
             ->willReturn(0);
 
         $logger = $this->createLoggerMockWithSingleCall('switchStatesOfToday');
-        $this->sut = new SwitchElementStatesMessageHandler($this->elementService, $logger);
+        $this->sut = new SwitchElementStatesMessageHandler($this->elementService, $this->permissions, $logger);
 
         // Act
         ($this->sut)(new SwitchElementStatesMessage());
@@ -72,7 +75,7 @@ class SwitchElementStatesMessageHandlerTest extends UnitTestCase
             ->willThrowException($exception);
 
         $logger = $this->createLoggerMockForError('switchStatesOfToday failed', $exception);
-        $this->sut = new SwitchElementStatesMessageHandler($this->elementService, $logger);
+        $this->sut = new SwitchElementStatesMessageHandler($this->elementService, $this->permissions, $logger);
 
         // Act
         ($this->sut)(new SwitchElementStatesMessage());

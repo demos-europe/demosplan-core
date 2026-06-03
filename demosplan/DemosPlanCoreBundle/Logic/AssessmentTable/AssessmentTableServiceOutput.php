@@ -812,7 +812,7 @@ class AssessmentTableServiceOutput
         $totalResults = $table->getTotal();
 
         if (!$viewMode instanceof AssessmentTableViewMode) {
-            $statements = $this->statementService->addSourceStatementAttachments($statements);
+            $statements = $this->statementService->addStatementAttachments($statements);
         }
 
         // give search back to fe to put it back into input field

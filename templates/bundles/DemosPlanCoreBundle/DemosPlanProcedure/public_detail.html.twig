@@ -120,15 +120,15 @@
 
                                 {% if ownsProcedure(proceduresettings) %}
                                     {# Display procedure phase of institutions and citizens to enable planner user to quickly check correct settings #}
-                                    {{ getProcedurePhase(proceduresettings, 'internal') }}
-                                    {{- contextualHelp('help.public.detail.phase.'~ getProcedurePhaseKey(proceduresettings, 'internal'), ['c-infolist__help u-ml-0_25'|prefixClass]) -}}
+                                    {{ getProcedurePhaseDefinitionName(proceduresettings, 'internal') }}
+                                    {{- contextualHelp('help.public.detail.phase.'~ getProcedurePhaseDefinitionId(proceduresettings, 'internal'), ['c-infolist__help u-ml-0_25'|prefixClass]) -}}
                                     {{ '\n'|nl2br }}
-                                    {{ getProcedurePhase(proceduresettings, 'public') }}
-                                    {{- contextualHelp('help.public.detail.phase.'~ getProcedurePhaseKey(proceduresettings, 'public'), ['c-infolist__help u-ml-0_25'|prefixClass]) -}}
+                                    {{ getProcedurePhaseDefinitionName(proceduresettings, 'public') }}
+                                    {{- contextualHelp('help.public.detail.phase.'~ getProcedurePhaseDefinitionId(proceduresettings, 'public'), ['c-infolist__help u-ml-0_25'|prefixClass]) -}}
                                 {% else %}
                                     {# Display procedure phase and help depending on role #}
-                                    {{ getProcedurePhase(proceduresettings) }}
-                                    {{- contextualHelp('help.public.detail.phase.'~ getProcedurePhaseKey(proceduresettings), ['c-infolist__help u-ml-0_25'|prefixClass]) -}}
+                                    {{ getProcedurePhaseDefinitionName(proceduresettings) }}
+                                    {{- contextualHelp('help.public.detail.phase.'~ getProcedurePhaseDefinitionId(proceduresettings), ['c-infolist__help u-ml-0_25'|prefixClass]) -}}
                                 {% endif %}
 
                                 {# Display a "legal notice" for institutions #}
@@ -458,17 +458,18 @@
 
                      --><div class="{{ 'layout__item width-map-canvas u-pl-0_5-lap-up u-pr-0_5-lap-up'|prefixClass }}">
                             {# top pager #}
-                            {% if templateVars.publicStatements.pager is defined %}
+                            {% set showPager = templateVars.publicStatements.pager is defined and templateVars.publicStatements.totalResults|default(0) >= 10 %}
+                            {% if showPager %}
                                 <form class="{{ 'u-mb-0_5'|prefixClass }}" action="{{ path('DemosPlan_procedure_public_detail', {'procedure':procedure}) }}#procedureDetailsStatementsPublic" method="get">
                                     {{ macros.pager( templateVars.publicStatements|default(), false, ' ', true, 'procedureDetailsStatementsPublic' ) }}
                                 </form>
                             {% endif %}
                             {# loop published statements #}
                             {% for statement in templateVars.publicStatements.statements %}
-                                {% include '@DemosPlanCore/DemosPlanProcedure/includes/public_statement.html.twig' %}
+                                {% include '@DemosPlanCore/DemosPlanProcedure/includes/public_statement.html.twig' with { showTopBorder: not loop.first or showPager } %}
                             {% endfor %}
                             {# bottom pager #}
-                            {% if templateVars.publicStatements.pager is defined %}
+                            {% if showPager %}
                                 <form class="{{ 'u-mb-0_5'|prefixClass }}" action="{{ path('DemosPlan_procedure_public_detail', {'procedure':procedure}) }}#procedureDetailsStatementsPublic" method="get">
                                     {{ macros.pager( templateVars.publicStatements|default(), false, ' ', true, 'procedureDetailsStatementsPublic' ) }}
                                 </form>

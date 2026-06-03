@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -11,8 +13,10 @@
 namespace demosplan\DemosPlanCoreBundle\MessageHandler;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Logic\BounceChecker;
 use demosplan\DemosPlanCoreBundle\Message\CheckMailBouncesMessage;
+use demosplan\DemosPlanCoreBundle\Traits\InitializesAnonymousUserPermissionsTrait;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -20,15 +24,20 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 final class CheckMailBouncesMessageHandler
 {
+    use InitializesAnonymousUserPermissionsTrait;
+
     public function __construct(
         private readonly BounceChecker $bounceChecker,
         private readonly GlobalConfigInterface $globalConfig,
+        private readonly PermissionsInterface $permissions,
         private readonly LoggerInterface $logger,
     ) {
     }
 
     public function __invoke(CheckMailBouncesMessage $message): void
     {
+        $this->initializeAnonymousUserPermissions();
+
         if (!$this->globalConfig->doEmailBounceCheck()) {
             return;
         }

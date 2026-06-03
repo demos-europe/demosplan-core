@@ -19,7 +19,7 @@
 @source not "../../client/js/legacy";
 @source not "../../client/js/store";
 @source "../../demosplan/plugins/**/*.twig";
-@source "../../node_modules/@demos-europe/demosplan-ui";
+@source "../../node_modules/@demos-europe/demosplan-ui/src/**/*.{vue,js,ts}";
 @source "../../templates/bundles/DemosPlanCoreBundle/**/*.html.twig";
 
 /*

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\MessageHandler;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Message\SwitchProcedurePhasesMessage;
 use demosplan\DemosPlanCoreBundle\MessageHandler\SwitchProcedurePhasesMessageHandler;
@@ -23,12 +24,14 @@ class SwitchProcedurePhasesMessageHandlerTest extends UnitTestCase
     use LoggerTestTrait;
 
     private ?ProcedureService $procedureService = null;
+    private ?PermissionsInterface $permissions = null;
     private ?SwitchProcedurePhasesMessageHandler $sut = null;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->procedureService = $this->createMock(ProcedureService::class);
+        $this->permissions = $this->createMock(PermissionsInterface::class);
     }
 
     public function testInvokeSwitchesPhasesAndLogs(): void
@@ -39,7 +42,7 @@ class SwitchProcedurePhasesMessageHandlerTest extends UnitTestCase
             ->willReturn([3, 2]);
 
         $logger = $this->createLoggerMockWithCapture(3);
-        $this->sut = new SwitchProcedurePhasesMessageHandler($this->procedureService, $logger);
+        $this->sut = new SwitchProcedurePhasesMessageHandler($this->procedureService, $this->permissions, $logger);
 
         // Act
         ($this->sut)(new SwitchProcedurePhasesMessage());
@@ -60,7 +63,7 @@ class SwitchProcedurePhasesMessageHandlerTest extends UnitTestCase
             ->willReturn([0, 0]);
 
         $logger = $this->createLoggerMockWithSingleCall('switchPhasesOfToday');
-        $this->sut = new SwitchProcedurePhasesMessageHandler($this->procedureService, $logger);
+        $this->sut = new SwitchProcedurePhasesMessageHandler($this->procedureService, $this->permissions, $logger);
 
         // Act
         ($this->sut)(new SwitchProcedurePhasesMessage());
@@ -74,7 +77,7 @@ class SwitchProcedurePhasesMessageHandlerTest extends UnitTestCase
             ->willReturn([5, 0]);
 
         $logger = $this->createLoggerMockWithCapture(3);
-        $this->sut = new SwitchProcedurePhasesMessageHandler($this->procedureService, $logger);
+        $this->sut = new SwitchProcedurePhasesMessageHandler($this->procedureService, $this->permissions, $logger);
 
         // Act
         ($this->sut)(new SwitchProcedurePhasesMessage());
@@ -95,7 +98,7 @@ class SwitchProcedurePhasesMessageHandlerTest extends UnitTestCase
             ->willReturn([0, 4]);
 
         $logger = $this->createLoggerMockWithCapture(3);
-        $this->sut = new SwitchProcedurePhasesMessageHandler($this->procedureService, $logger);
+        $this->sut = new SwitchProcedurePhasesMessageHandler($this->procedureService, $this->permissions, $logger);
 
         // Act
         ($this->sut)(new SwitchProcedurePhasesMessage());
@@ -118,7 +121,7 @@ class SwitchProcedurePhasesMessageHandlerTest extends UnitTestCase
             ->willThrowException($exception);
 
         $logger = $this->createLoggerMockForError('switchPhasesOfToday failed', $exception);
-        $this->sut = new SwitchProcedurePhasesMessageHandler($this->procedureService, $logger);
+        $this->sut = new SwitchProcedurePhasesMessageHandler($this->procedureService, $this->permissions, $logger);
 
         // Act
         ($this->sut)(new SwitchProcedurePhasesMessage());

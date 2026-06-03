@@ -151,6 +151,9 @@ class SingleDocumentHandler implements SingleDocumentHandlerInterface
         if (array_key_exists('r_statement_enabled', $data)) {
             $document['statement_enabled'] = '1' == $data['r_statement_enabled'];
         }
+        if (array_key_exists('r_elementId', $data)) {
+            $document['elementId'] = $data['r_elementId'];
+        }
 
         return $this->service->updateSingleDocument($document);
     }

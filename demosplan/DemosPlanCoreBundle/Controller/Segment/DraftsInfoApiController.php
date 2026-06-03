@@ -29,6 +29,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Transformers\Segment\SegmentTransformerPass;
 use demosplan\DemosPlanCoreBundle\Transformers\Segment\StatementToDraftsInfoTransformer;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Query\QueryException;
 use Exception;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -48,7 +49,7 @@ class DraftsInfoApiController extends APIController
      * @throws StatementNotFoundException
      */
     #[DplanPermissions('area_statement_segmentation')]
-    #[Route(name: 'dplan_drafts_list_edit_ajax', methods: 'GET', path: '/_ajax/verfahren/{procedureId}/statements/{statementId}/drafts-list', options: ['expose' => true])]
+    #[Route(path: '/_ajax/verfahren/{procedureId}/statements/{statementId}/drafts-list', name: 'dplan_drafts_list_edit_ajax', options: ['expose' => true], methods: 'GET')]
     public function edit(
         StatementToDraftsInfoTransformer $transformer,
         string $procedureId,
@@ -81,7 +82,7 @@ class DraftsInfoApiController extends APIController
      * @throws StatementNotFoundException
      */
     #[DplanPermissions('area_statement_segmentation')]
-    #[Route(name: 'dplan_drafts_list_save', methods: 'PATCH', path: '/_ajax/verfahren/{procedureId}/drafts-list/save/{statementId}', options: ['expose' => true])]
+    #[Route(path: '/_ajax/verfahren/{procedureId}/drafts-list/save/{statementId}', name: 'dplan_drafts_list_save', options: ['expose' => true], methods: 'PATCH')]
     public function save(
         DraftsInfoHandler $draftsInfoHandler,
         Request $request,
@@ -116,7 +117,7 @@ class DraftsInfoApiController extends APIController
      * @throws Exception
      */
     #[DplanPermissions('area_statement_segmentation')]
-    #[Route(name: 'dplan_drafts_list_confirm', methods: 'POST', path: '/verfahren/{procedureId}/drafts-list/confirm', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedureId}/drafts-list/confirm', name: 'dplan_drafts_list_confirm', options: ['expose' => true], methods: 'POST')]
     public function confirmDrafts(
         CurrentUserService $currentUserProvider,
         DraftsInfoHandler $draftsInfoHandler,
@@ -147,8 +148,13 @@ class DraftsInfoApiController extends APIController
             // persist the segments
             $segmentHandler->addSegments($segments);
 
+            // populate the statement's segment collection with fresh segments before dispatching event
+            // this ensures getSegmentsOfStatement() returns the new segments in event subscribers
+            $statement = $statementHandler->getStatementWithCertainty($statementId);
+            $statement->setSegmentsOfStatement(new ArrayCollection($segments));
+
             // request additional statement processing (asynchronous)
-            $eventDispatcher->dispatch(new AfterSegmentationEvent($statementHandler->getStatementWithCertainty($statementId)), AfterSegmentationEventInterface::class);
+            $eventDispatcher->dispatch(new AfterSegmentationEvent($statement), AfterSegmentationEventInterface::class);
 
             $currentUser = $currentUserProvider->getUser();
 

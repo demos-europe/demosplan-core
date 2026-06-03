@@ -37,7 +37,7 @@
         required
         :aria-label="Translator.trans('search.assessment.table')"
         @enter="submit"
-        @input="emptySearchErrorVisible = false"
+        @update:model-value="emptySearchErrorVisible = false"
       />
     </label>
 
@@ -85,7 +85,9 @@
           :key="index"
           :summary="explanation.title"
         >
+          <!-- eslint-disable vue/no-v-html -->
           <span v-html="explanation.description" />
+          <!-- eslint-enable vue/no-v-html -->
         </dp-details>
       </div>
 
@@ -326,6 +328,7 @@ export default {
       return this.availableFilterFields.filter(checkbox => {
         const allowedToShow = typeof checkbox.permissions === 'undefined' || hasAnyPermissions(checkbox.permissions)
         const showInView = this.searchInFields.includes(checkbox.id)
+
         return allowedToShow && showInView
       })
     },
@@ -406,6 +409,7 @@ export default {
 
         this.emptySearchErrorVisible = true
         dplan.notify.error(Translator.trans('error.search.empty'))
+
         return
       }
 
@@ -413,6 +417,7 @@ export default {
 
       if (this.isForm) {
         const searchWordInput = document.querySelector('input[name="search_word2"]')
+
         searchWordInput.value = this.searchString
         window.submitForm(event, 'search')
       } else {

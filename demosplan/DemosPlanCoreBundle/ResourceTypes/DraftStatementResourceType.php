@@ -1,0 +1,129 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
+
+use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\DraftStatementResourceConfigBuilder;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
+use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
+use EDT\PathBuilding\End;
+
+/**
+ * @template-extends DplanResourceType<DraftStatementInterface>
+ *
+ * @property-read ProcedureResourceType $procedure
+ * @property-read UserResourceType $user
+ * @property-read OrgaResourceType $organisation
+ * @property-read End $deleted
+ * @property-read End $customFields
+ */
+final class DraftStatementResourceType extends DplanResourceType
+{
+    public function __construct(
+        private readonly CustomFieldValueCreator $customFieldValueCreator,
+    ) {
+    }
+
+    public static function getName(): string
+    {
+        return 'DraftStatement';
+    }
+
+    public function getEntityClass(): string
+    {
+        return DraftStatement::class;
+    }
+
+    public function isAvailable(): bool
+    {
+        return $this->currentUser->hasPermission('area_statements_draft');
+    }
+
+    protected function getAccessConditions(): array
+    {
+        $procedure = $this->currentProcedureService->getProcedure();
+        if (!$procedure instanceof Procedure) {
+            return [$this->conditionFactory->false()];
+        }
+
+        $user = $this->currentUser->getUser();
+        if (!$user instanceof User) {
+            return [$this->conditionFactory->false()];
+        }
+
+        return [
+            // Current procedure only
+            $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id),
+
+            // Not deleted
+            $this->conditionFactory->propertyHasValue(false, $this->deleted),
+
+            // Same organization
+            $this->conditionFactory->propertyHasValue($user->getOrganisationId(), $this->organisation->id),
+
+            // Own drafts only (works for all user types)
+            $this->conditionFactory->propertyHasValue($user->getId(), $this->user->id),
+        ];
+    }
+
+    public function isGetAllowed(): bool
+    {
+        return $this->isAvailable();
+    }
+
+    public function isListAllowed(): bool
+    {
+        return $this->isGetAllowed();
+    }
+
+    public function isUpdateAllowed(): bool
+    {
+        return $this->isGetAllowed();
+    }
+
+    protected function getProperties(): ResourceConfigBuilderInterface
+    {
+        /** @var DraftStatementResourceConfigBuilder $draftStatementConfig */
+        $draftStatementConfig = $this->getConfig(DraftStatementResourceConfigBuilder::class);
+
+        $draftStatementConfig->id->setReadableByPath()->setFilterable();
+
+        if ($this->currentUser->hasPermission('feature_statements_custom_fields')) {
+            $draftStatementConfig->customFields
+                ->setReadableByCallable(static fn (DraftStatement $draftStatement): ?array => $draftStatement->getCustomFields()?->toJson())
+                ->updatable([],
+                    function (DraftStatement $draftStatement, array $customFields): array {
+                        $customFieldList = $draftStatement->getCustomFields() ?? new CustomFieldValuesList();
+                        $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues(
+                            $customFieldList,
+                            $customFields,
+                            $draftStatement->getProcedure()->getId(),
+                            CustomFieldSupportedEntity::procedure->value,
+                            CustomFieldSupportedEntity::statement->value,
+                        );
+                        $draftStatement->setCustomFields($customFieldList);
+
+                        return [];
+                    }
+                );
+        }
+
+        return $draftStatementConfig;
+    }
+}

@@ -18,6 +18,7 @@ use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterHandleSegmentsEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ExcelImporterPrePersistTagsEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonResourceNotFoundException;
@@ -59,6 +60,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType;
 use demosplan\DemosPlanCoreBundle\Validator\StatementValidator;
 use demosplan\DemosPlanCoreBundle\ValueObject\Import\StatementProcessingContext;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use InvalidArgumentException;
@@ -68,9 +70,9 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\SplFileInfo;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\String\UnicodeString;
 use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints\Range;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -95,16 +97,16 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     private const STATEMENT_TEXT = 'Stellungnahmetext';
 
     private const SUBMIT_TYPE_MAPPING = [
-        self::SUBMIT_TYPE_EMAIL_TRANSLATED       => Statement::SUBMIT_TYPE_EMAIL,
-        self::SUBMIT_TYPE_LETTER_TRANSLATED      => Statement::SUBMIT_TYPE_LETTER,
-        self::SUBMIT_TYPE_FAX_TRANSLATED         => Statement::SUBMIT_TYPE_FAX,
-        self::SUBMIT_TYPE_EAKTE_TRANSLATED       => Statement::SUBMIT_TYPE_EAKTE,
-        self::SUBMIT_TYPE_SYSTEM_TRANSLATED      => Statement::SUBMIT_TYPE_SYSTEM,
-        self::SUBMIT_TYPE_DECLARATION_TRANSLATED => Statement::SUBMIT_TYPE_DECLARATION,
-        self::SUBMIT_TYPE_UNSPECIFIED_TRANSLATED => Statement::SUBMIT_TYPE_UNSPECIFIED,
-        ''                                       => Statement::SUBMIT_TYPE_UNKNOWN,
-        self::SUBMIT_TYPE_UNKNOWN_TRANSLATED_UC  => Statement::SUBMIT_TYPE_UNKNOWN,
-        self::SUBMIT_TYPE_UNKNOWN_TRANSLATED_LC  => Statement::SUBMIT_TYPE_UNKNOWN,
+        self::SUBMIT_TYPE_EMAIL_TRANSLATED       => StatementInterface::SUBMIT_TYPE_EMAIL,
+        self::SUBMIT_TYPE_LETTER_TRANSLATED      => StatementInterface::SUBMIT_TYPE_LETTER,
+        self::SUBMIT_TYPE_FAX_TRANSLATED         => StatementInterface::SUBMIT_TYPE_FAX,
+        self::SUBMIT_TYPE_EAKTE_TRANSLATED       => StatementInterface::SUBMIT_TYPE_EAKTE,
+        self::SUBMIT_TYPE_SYSTEM_TRANSLATED      => StatementInterface::SUBMIT_TYPE_SYSTEM,
+        self::SUBMIT_TYPE_DECLARATION_TRANSLATED => StatementInterface::SUBMIT_TYPE_DECLARATION,
+        self::SUBMIT_TYPE_UNSPECIFIED_TRANSLATED => StatementInterface::SUBMIT_TYPE_UNSPECIFIED,
+        ''                                       => StatementInterface::SUBMIT_TYPE_UNKNOWN,
+        self::SUBMIT_TYPE_UNKNOWN_TRANSLATED_UC  => StatementInterface::SUBMIT_TYPE_UNKNOWN,
+        self::SUBMIT_TYPE_UNKNOWN_TRANSLATED_LC  => StatementInterface::SUBMIT_TYPE_UNKNOWN,
     ];
 
     final public const PUBLIC = 'Öffentlichkeit';
@@ -132,6 +134,15 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
      * @var array<string, Place|null> Keyed by procedure ID
      */
     private array $firstWorkflowPlaceCache = [];
+
+    /**
+     * Track statement IDs that have been processed during segment import
+     * to avoid duplicate statement creation when metadata worksheet has
+     * multiple rows per statement (one row per segment).
+     *
+     * @var array<string|int, bool> Keyed by statement ID
+     */
+    private array $processedStatementIds = [];
 
     public function __construct(
         CurrentProcedureService $currentProcedureService,
@@ -232,12 +243,9 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $this->firstWorkflowPlaceCache = [];
         $this->generatedTags = [];
         $this->generatedStatements = [];
+        $this->processedStatementIds = [];
         $this->errors = [];
         $this->excelIdToStatementMapping = [];
-
-        if (!$this->currentUser->hasPermission('feature_segment_recommendation_edit')) {
-            throw new AccessDeniedException('Current user is not permitted to create or edit segments.');
-        }
 
         $step = microtime(true);
         [$segmentsWorksheet, $metaDataWorksheet] = $this->getSegmentImportWorksheets($fileInfo);
@@ -373,19 +381,19 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             }
             $indexMap[$worksheetTitle] = $worksheet;
         }
-        if (null === $indexMap[self::PUBLIC] && null === $indexMap[self::INSTITUTION]) {
+        if (!$indexMap[self::PUBLIC] instanceof Worksheet && !$indexMap[self::INSTITUTION] instanceof Worksheet) {
             throw new MissingDataException('The Excel Statement import is missing mandatory worksheets');
         }
-        if (null !== $indexMap[self::PUBLIC]) {
+        if ($indexMap[self::PUBLIC] instanceof Worksheet) {
             $sortedWorksheets[] = $indexMap[self::PUBLIC];
         }
-        if (null !== $indexMap[self::INSTITUTION]) {
+        if ($indexMap[self::INSTITUTION] instanceof Worksheet) {
             $sortedWorksheets[] = $indexMap[self::INSTITUTION];
         }
-        if (null !== $indexMap[self::STATEMENT_PROCEDURE_PERSON_WORKSHEET]) {
+        if ($indexMap[self::STATEMENT_PROCEDURE_PERSON_WORKSHEET] instanceof Worksheet) {
             $sortedWorksheets[] = $indexMap[self::STATEMENT_PROCEDURE_PERSON_WORKSHEET];
         }
-        if (null !== $indexMap[self::LEGENDE_WORKSHEET]) {
+        if ($indexMap[self::LEGENDE_WORKSHEET] instanceof Worksheet) {
             $sortedWorksheets[] = $indexMap[self::LEGENDE_WORKSHEET];
         }
 
@@ -588,20 +596,16 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         string $worksheetTitle,
         TagTopic $miscTopic,
     ): Segment {
-        if (!$this->currentUser->hasPermission('feature_segment_recommendation_edit')) {
-            throw new AccessDeniedException('Current user is not permitted to create or edit segments.');
-        }
-
         $procedure = $statement->getProcedure();
 
         $segment = new Segment();
         $segment->setParentStatementOfSegment($statement);
         $segment->setProcedure($procedure);
         $segment->setExternId($statement->getExternId().'-'.$counter);
-        $segment->setPhase('participation');
+        $segment->setPhaseDefinition($statement->getPhaseDefinition());
         $segment->setPublicVerified(Statement::PUBLICATION_PENDING);
-        $segment->setText($segmentData['Einwand'] ?? '');
-        $segment->setRecommendation($segmentData['Erwiderung'] ?? '');
+        $segment->setText($this->htmlSanitizerService->escapeDisallowedTags($segmentData['Einwand']));
+        $segment->setRecommendation($this->htmlSanitizerService->escapeDisallowedTags($segmentData['Erwiderung']));
 
         // Use cached workflow place to avoid repeated database queries
         $procedureId = $procedure->getId();
@@ -620,35 +624,14 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
 
         // Handle Tags
         if (array_key_exists('Schlagworte', $segmentData) && '' !== $segmentData['Schlagworte'] && null !== $segmentData['Schlagworte']) {
-            $procedureId = $statement->getProcedure()->getId();
-            $tagTitlesString = $segmentData['Schlagworte'];
-            if (is_numeric($tagTitlesString)) {
-                $tagTitlesString = (string) $tagTitlesString;
-            }
-            $tagTitles = explode(',', (string) $tagTitlesString);
-
-            foreach ($tagTitles as $tagTitle) {
-                $tagTitle = new UnicodeString($tagTitle);
-                $tagTitle = $tagTitle->trim()->toString();
-                $matchingTag = $this->getMatchingTag($tagTitle, $procedureId);
-
-                $createNewTag = !$matchingTag instanceof Tag;
-                if ($createNewTag) {
-                    $matchingTag = $this->tagService->createTag($tagTitle, $miscTopic, false);
-                }
-
-                // Check if valid tag
-                $violations = $this->tagValidator->validate($matchingTag, ['segments_import']);
-
-                if (0 === $violations->count()) {
-                    $segment->addTag($matchingTag);
-                    if ($createNewTag) {
-                        $this->generatedTags[] = $matchingTag;
-                    }
-                } else {
-                    $this->addImportViolations($violations, $line, $worksheetTitle);
-                }
-            }
+            $this->processSegmentTags(
+                $statement,
+                $segmentData['Schlagworte'],
+                $miscTopic,
+                $segment,
+                $line,
+                $worksheetTitle
+            );
         }
 
         return $segment;
@@ -750,7 +733,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         // always use standard statementElement for now:
         $statementElement = $this->elementsService->getStatementElement($currentProcedure->getId());
         $newOriginalStatement->setElement($statementElement);
-        $newOriginalStatement->setPhase($newOriginalStatement->getProcedure()->getPhase());
+        $newOriginalStatement->setPhaseDefinition($newOriginalStatement->getProcedure()->getPhaseObject()->getPhaseDefinition());
 
         // not supported:
         // county, priorityArea, municipalities, tags, voters, headstatement, recommendation, housenumber,
@@ -874,7 +857,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             }
             // Validate Excel serial date is in valid range (1 = 1900-01-01, 2958465 = 9999-12-31)
             $violations = $this->validator->validate($dateValue, [
-                new \Symfony\Component\Validator\Constraints\Range([
+                new Range([
                     'min'               => 1,
                     'max'               => 2958465,
                     'notInRangeMessage' => 'Das Excel-Datumsnummer "{{ value }}" ist ungültig. Gültige Werte: {{ min }} bis {{ max }}.',
@@ -896,55 +879,6 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         }
 
         return $parsedDate;
-    }
-
-    /**
-     * Get the first {@link Tag} entity with a title and procedure matching the given one.
-     *
-     * Searches in {@link ExcelImporter::$generatedTags} first and of no matching entity is
-     * found the database is searched.
-     *
-     * @throws PathException
-     */
-    private function getMatchingTag(string $tagTitle, string $procedureId): ?Tag
-    {
-        $tagTitleLower = mb_strtolower($tagTitle);
-
-        // First, search in generatedTags array (tags created during this import) - CASE-INSENSITIVE
-        foreach ($this->generatedTags as $tag) {
-            $topic = $tag->getTopic();
-            if (null !== $topic
-                && $topic->getProcedure()?->getId() === $procedureId
-                && mb_strtolower($tag->getTitle()) === $tagTitleLower) {
-                return $tag;
-            }
-        }
-
-        // If not found, check EntityManager's UnitOfWork for tags that are persisted but not yet flushed - CASE-INSENSITIVE
-        $uow = $this->entityManager->getUnitOfWork();
-        $scheduledInsertions = $uow->getScheduledEntityInsertions();
-
-        foreach ($scheduledInsertions as $entity) {
-            if ($entity instanceof Tag && mb_strtolower($entity->getTitle()) === $tagTitleLower) {
-                $topic = $entity->getTopic();
-                if (null !== $topic && $topic->getProcedure()?->getId() === $procedureId) {
-                    return $entity;
-                }
-            }
-        }
-
-        // If still not found, query the database (already case-insensitive due to utf8mb3_unicode_ci collation)
-        $titleCondition = $this->conditionFactory->allConditionsApply(
-            $this->conditionFactory->propertyHasValue($tagTitle, ['title']),
-            $this->conditionFactory->propertyHasValue($procedureId, ['topic', 'procedure', 'id']),
-        );
-        $matchingTags = $this->tagResourceType->getEntities([$titleCondition], []);
-
-        if ([] !== $matchingTags) {
-            return $matchingTags[0];
-        }
-
-        return null;
     }
 
     protected function getValidatedStatementText(
@@ -978,7 +912,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         }
 
         $currentProcedure = $this->currentProcedureService->getProcedure();
-        if (null === $currentProcedure) {
+        if (!$currentProcedure instanceof Procedure) {
             throw new InvalidArgumentException('Current procedure is missing.');
         }
 
@@ -1084,7 +1018,11 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         }
 
         $statement = \array_combine($context->columnNamesMeta, $statement);
-        $statement[self::PUBLIC_STATEMENT] = $this->getPublicStatement($statement['Typ'] ?? self::PUBLIC);
+        if (isset($statement['Typ']) && null !== $statement['Typ']) {
+            $statement[self::PUBLIC_STATEMENT] = $this->getPublicStatement($statement['Typ']);
+        } else {
+            $statement[self::PUBLIC_STATEMENT] = $this->getPublicStatement(self::PUBLIC);
+        }
 
         $idConstraints = $this->validator->validate($statement[self::STATEMENT_ID], $this->notNullConstraint);
         if (0 !== $idConstraints->count()) {
@@ -1093,6 +1031,17 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         }
 
         $statementId = $statement[self::STATEMENT_ID];
+
+        // Check if this statement ID has already been processed during this import
+        // This prevents duplicate statement creation when metadata worksheet has multiple
+        // rows per statement (one row per segment)
+        if (isset($this->processedStatementIds[$statementId])) {
+            return 0;
+        }
+
+        // Mark this statement ID as processed
+        $this->processedStatementIds[$statementId] = true;
+
         $correspondingSegments = $segments[$statementId] ?? [];
 
         $idMatchViolations = $this->validator->validate(
@@ -1180,5 +1129,105 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         }
 
         return $segmentsCreated;
+    }
+
+    /**
+     * @throws DuplicatedTagTitleException
+     * @throws PathException
+     * @throws NonUniqueResultException
+     */
+    public function processSegmentTags(
+        Statement $statement,
+        $tagTitles,
+        TagTopic $miscTopic,
+        Segment $segment,
+        int $line,
+        string $worksheetTitle,
+    ): void {
+        $procedureId = $statement->getProcedure()->getId();
+        if (is_numeric($tagTitles)) {
+            $tagTitles = (string) $tagTitles;
+        }
+
+        $tagTitleList = explode(',', (string) $tagTitles);
+
+        foreach ($tagTitleList as $tagTitle) {
+            // Strip HTML tags and trim whitespace
+            $tagTitle = strip_tags($tagTitle);
+            $tagTitle = new UnicodeString($tagTitle);
+            $tagTitle = $tagTitle->trim()->toString();
+
+            // Use the robust matching method that checks:
+            // 1. Generated tags array (tags created during this import)
+            // 2. EntityManager's UnitOfWork (persisted but not yet flushed)
+            // 3. Database
+            // All checks are case-insensitive and validate procedure ID
+            $matchingTag = $this->getMatchingTag($tagTitle, $procedureId);
+            $createNewTag = !$matchingTag instanceof Tag;
+
+            if ($createNewTag) {
+                $matchingTag = $this->tagService->createTag($tagTitle, $miscTopic, false);
+                $this->generatedTags[] = $matchingTag;
+            }
+
+            // Check if valid tag
+            $violations = $this->tagValidator->validate($matchingTag, ['segments_import']);
+
+            if (0 === $violations->count()) {
+                $segment->addTag($matchingTag);
+            } else {
+                $this->addImportViolations($violations, $line, $worksheetTitle);
+                array_pop($this->generatedTags);
+            }
+        }
+    }
+
+    /**
+     * Get the first {@link Tag} entity with a title and procedure matching the given one.
+     *
+     * Searches in {@link ExcelImporter::$generatedTags} first and of no matching entity is
+     * found the database is searched.
+     *
+     * @throws PathException
+     */
+    private function getMatchingTag(string $tagTitle, string $procedureId): ?Tag
+    {
+        $tagTitleLower = mb_strtolower($tagTitle);
+
+        // First, search in generatedTags array (tags created during this import) - CASE-INSENSITIVE
+        foreach ($this->generatedTags as $tag) {
+            $topic = $tag->getTopic();
+            if (null !== $topic
+                && $topic->getProcedure()?->getId() === $procedureId
+                && mb_strtolower($tag->getTitle()) === $tagTitleLower) {
+                return $tag;
+            }
+        }
+
+        // If not found, check EntityManager's UnitOfWork for tags that are persisted but not yet flushed - CASE-INSENSITIVE
+        $uow = $this->entityManager->getUnitOfWork();
+        $scheduledInsertions = $uow->getScheduledEntityInsertions();
+
+        foreach ($scheduledInsertions as $entity) {
+            if ($entity instanceof Tag && mb_strtolower($entity->getTitle()) === $tagTitleLower) {
+                $topic = $entity->getTopic();
+                if ($topic instanceof TagTopicInterface && $topic->getProcedure()?->getId() === $procedureId) {
+                    return $entity;
+                }
+            }
+        }
+
+        // If still not found, query the database (already case-insensitive due to utf8mb3_unicode_ci collation)
+        $titleCondition = $this->conditionFactory->allConditionsApply(
+            $this->conditionFactory->propertyHasValue($tagTitle, ['title']),
+            $this->conditionFactory->propertyHasValue($procedureId, ['topic', 'procedure', 'id']),
+        );
+        $matchingTags = $this->tagResourceType->getEntities([$titleCondition], []);
+
+        if ([] !== $matchingTags) {
+            return $matchingTags[0];
+        }
+
+        return null;
     }
 }

@@ -923,7 +923,7 @@ class StatementFragmentService
 
         // Wenn das Fragment einen Absatz hat lege eine Version an, wenn sich der Absatz verändert hat
         if (array_key_exists('paragraphId', $fragmentArray)
-            && 0 < \strlen((string) $fragmentArray['paragraphId'])
+            && '' !== (string) $fragmentArray['paragraphId']
             && $fragmentArray['paragraphId'] != $currentFragment->getParagraphId()) {
             $paragraphVersion = $em->find(
                 Paragraph::class,
@@ -1144,7 +1144,7 @@ class StatementFragmentService
             $this->profilerService->profilerStart(ProfilerService::ELASTICSEARCH_PROFILER);
 
             // if a Searchterm is set use it
-            if (is_string($search) && 0 < \strlen($search)) {
+            if (is_string($search) && '' !== $search) {
                 $availableSearchfields = [
                     'fragment_text'           => 'text',
                     'municipalityNames'       => 'municipalityNames.raw',
@@ -1242,7 +1242,7 @@ class StatementFragmentService
                     if ('statementId' === $filterName) {
                         // special handling for the statement IDs to avoid errors regarding max clause count
                         // and query length problems for many statement
-                        $boolMustFilter[] = new Terms($filterName, $filterKeys);
+                        $boolMustFilter[] = new Terms($filterName, \array_values($filterKeys));
                     } else {
                         // for each filter with multiple options we need a distinct should
                         // query as filters should only be ORed within one field
@@ -1676,7 +1676,7 @@ class StatementFragmentService
                 );
 
                 $updateResult = $this->updateStatementFragment($statementFragment);
-                if (!($updateResult instanceof StatementFragment)) {
+                if (!$updateResult instanceof StatementFragment) {
                     throw new InvalidArgumentException(sprintf('could not update statementFragment wtih ID %s', $statementFragment->getId()));
                 }
 
@@ -1687,7 +1687,7 @@ class StatementFragmentService
                 );
 
                 $updateResult = $this->updateStatementFragment($updateResult, true);
-                if (!($updateResult instanceof StatementFragment)) {
+                if (!$updateResult instanceof StatementFragment) {
                     throw new InvalidArgumentException(sprintf('could not update statementFragment wtih ID %s', $statementFragment->getId()));
                 }
             }

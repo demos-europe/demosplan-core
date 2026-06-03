@@ -86,6 +86,7 @@ use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
@@ -102,6 +103,7 @@ use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldPropertyName;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResultSet;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\CountyNotificationData;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PdfFile;
@@ -233,6 +235,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         PermissionsInterface $permissions,
         PriorityAreaService $priorityAreaService,
         ProcedureHandler $procedureHandler,
+        private readonly ProcedurePhaseDefinitionService $procedurePhaseDefinitionService,
         ProcedureService $procedureService,
         QueryFragment $esQueryFragment,
         ServiceImporter $serviceImporter,
@@ -445,9 +448,9 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         return $this->statementFragmentService->getStatementFragmentsDepartmentArchive($esQuery, $this->getRequestValues(), $departmentId);
     }
 
-    public function addSourceStatementAttachments(array $statements)
+    public function addStatementAttachments(array $statements, bool $includeAdditionalAttachments = false)
     {
-        return $this->statementService->addSourceStatementAttachments($statements);
+        return $this->statementService->addStatementAttachments($statements, $includeAdditionalAttachments);
     }
 
     /**
@@ -572,7 +575,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     {
         $fragmentToUpdate = $this->statementFragmentService->getStatementFragment($fragmentId);
 
-        if (!($fragmentToUpdate instanceof StatementFragment)) {
+        if (!$fragmentToUpdate instanceof StatementFragment) {
             throw new EntityNotFoundException('StatementFragment not found: '.$fragmentId);
         }
 
@@ -592,7 +595,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     {
         $fragmentToUpdate = $this->statementFragmentService->getStatementFragment($statementFragmentId);
 
-        if (!($fragmentToUpdate instanceof StatementFragment)) {
+        if (!$fragmentToUpdate instanceof StatementFragment) {
             $this->getLogger()->error('Could not update StatementFragment, Fragment not found: '.$statementFragmentId);
 
             return false;
@@ -938,20 +941,18 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         // in 3 Fällen wird r_location == point übergeben: Ortsbezug, Vorranggebietsauswahl und Ortseinzeichung
         if (array_key_exists('r_location', $data) && 'point' === $data['r_location']) {
             // Punkteinzeichnung
-            if (array_key_exists('r_location_geometry', $data) && 0 < strlen((string) $data['r_location_geometry'])) {
+            if (array_key_exists('r_location_geometry', $data) && '' !== (string) $data['r_location_geometry']) {
                 $statement['polygon'] = $data['r_location_geometry'];
             }
 
             // Vorranggebiet
-            if (array_key_exists('r_location_priority_area_key', $data) && 0 < strlen(
-                (string) $data['r_location_priority_area_key']
-            )
+            if (array_key_exists('r_location_priority_area_key', $data) && '' !== (string) $data['r_location_priority_area_key']
             ) {
                 $statement['statementAttributes']['priorityAreaKey'] = $data['r_location_priority_area_key'];
             }
 
             // Ortsbezug
-            if (array_key_exists('r_location_point', $data) && 0 < strlen((string) $data['r_location_point'])) {
+            if (array_key_exists('r_location_point', $data) && '' !== (string) $data['r_location_point']) {
                 try {
                     // wandle die Punktkoordinate in ein valides GeoJson um
                     $statement['polygon'] = '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":['.$data['r_location_point'].']},"properties":null}]}';
@@ -961,10 +962,14 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             }
         }
 
-        if (array_key_exists('r_county', $data) && 0 < strlen((string) $data['r_county'])) {
+        if (array_key_exists('r_county', $data) && '' !== (string) $data['r_county']) {
             $statement['statementAttributes']['county'] = $data['r_county'];
         } elseif (array_key_exists('r_county', $data)) {
             $statement['statementAttributes']['county'] = '';
+        }
+
+        if (array_key_exists(CustomFieldPropertyName::twigRequestName->value, $data)) {
+            $statement[CustomFieldPropertyName::twigRequestName->value] = $data[CustomFieldPropertyName::twigRequestName->value];
         }
 
         // Alle Stellungnahmen sind externe SN
@@ -1240,7 +1245,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $formOptions = $this->getDemosplanConfig()->getFormOptions();
         /** @var array $fragment */
         foreach ($fragments as $fragment) {
-            if (0 < strlen((string) $fragment['voteAdvice'])) {
+            if ('' !== (string) $fragment['voteAdvice']) {
                 $voteAdviceLabel =
                     array_key_exists('statement_fragment_advice_values', $formOptions)
                     && array_key_exists($fragment['voteAdvice'], $formOptions['statement_fragment_advice_values'])
@@ -1985,6 +1990,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 'r_document_title',
                 'r_phone',
                 'r_submitter_role',
+                CustomFieldPropertyName::twigRequestName->value,
             ],
         ];
     }
@@ -2082,10 +2088,10 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         // update field consideration as planners only use this field
         $statementFragmentData['consideration'] = $statementFragmentData['considerationAdvice'];
         // if VoteAdvice is set
-        if (array_key_exists('r_departmentName', $data) && 0 < strlen((string) $data['r_departmentName'])) {
+        if (array_key_exists('r_departmentName', $data) && '' !== (string) $data['r_departmentName']) {
             $statementFragmentData['archivedDepartmentName'] = $data['r_departmentName'];
         }
-        if (array_key_exists('r_orgaName', $data) && 0 < strlen((string) $data['r_orgaName'])) {
+        if (array_key_exists('r_orgaName', $data) && '' !== (string) $data['r_orgaName']) {
             $statementFragmentData['archivedOrgaName'] = $data['r_orgaName'];
         }
 
@@ -3002,8 +3008,14 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         }
 
         // Verfahrensschritte
-        $templateVars['internalPhases'] = $this->getDemosplanConfig()->getInternalPhases();
-        $templateVars['externalPhases'] = $this->getDemosplanConfig()->getExternalPhases();
+        $templateVars['internalPhaseDefinitions'] = array_map(
+            static fn ($def) => ['id' => $def->getId(), 'name' => $def->getName(), 'permissionSet' => $def->getPermissionSet()],
+            $this->procedurePhaseDefinitionService->getInternalPhaseDefinitionsForCurrentCustomer()
+        );
+        $templateVars['externalPhaseDefinitions'] = array_map(
+            static fn ($def) => ['id' => $def->getId(), 'name' => $def->getName(), 'permissionSet' => $def->getPermissionSet()],
+            $this->procedurePhaseDefinitionService->getExternalPhaseDefinitionsForCurrentCustomer()
+        );
 
         // add vars for location fields
         $procedureService = $this->procedureService;
@@ -3040,7 +3052,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         if (array_key_exists('r_publicVerified', $data)) {
             $procedure = $this->procedureService->getProcedure($procedureId);
 
-            if (!($procedure instanceof Procedure)) {
+            if (!$procedure instanceof Procedure) {
                 throw ProcedurePublicationException::procedureNotFound($procedureId);
             }
 
@@ -3100,7 +3112,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
                 if ($this->permissions->hasPermission('feature_segments_of_statement_list')) {
                     $routeName = 'dplan_statement_segments_list';
-                    $routeParameters = ['procedureId' => $newOriginalStatement->getProcedureId(), 'statementId' => $assessableStatement->getId(), 'action' => 'editText'];
+                    $routeParameters = ['procedureId' => $newOriginalStatement->getProcedureId(), 'statementId' => $assessableStatement->getId(), 'action' => 'details'];
                 }
 
                 // check for permission to avoid link to an unreachable area
@@ -3432,9 +3444,8 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
             if ($updatedStatement instanceof Statement) {
                 return true;
-            } else {
-                $this->getLogger()->error('Set assignee of Statement '.$statement->getId().' failed.');
             }
+            $this->getLogger()->error('Set assignee of Statement '.$statement->getId().' failed.');
         }
 
         return $statement->getExternId();
@@ -3647,7 +3658,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
             $headStatement->setMunicipalities($representativeStatement->getMunicipalities());
             $headStatement->setParagraph($representativeStatement->getParagraph());
-            $headStatement->setPhase($representativeStatement->getPhase());
+            $headStatement->setPhaseDefinition($representativeStatement->getPhaseDefinition());
             $headStatement->setPolygon($representativeStatement->getPolygon());
             $headStatement->setPriority($representativeStatement->getPriority());
             $headStatement->setPriorityAreas($representativeStatement->getPriorityAreas()->toArray());

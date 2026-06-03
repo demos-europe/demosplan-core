@@ -188,16 +188,22 @@ export default {
      * - if statement has assignee and assignee is not currentUser, ask if statement should be claimed and if so, continue
      * - if statement is claimed by currentUser, continue
      * - if statement has no assignee, assign it to currentUser and continue
+     *
+     * setTimeout is used to slightly delay the redirect so the success notification is visible
+     * and the claimed status is correctly reflected when navigating back in the browser
      */
     claimAndRedirect () {
       if (this.statement.hasRelationship('assignee')) {
-        if (this.statement.relationships.assignee.data.id !== this.currentUserId) {
+        if (this.statement.relationships.assignee.data.id !== this.currentUser.id) {
           if (globalThis.dpconfirm(Translator.trans('warning.statement.needLock.generic'))) {
             this.claimStatement()
-              .then(err => {
-                if (typeof err === 'undefined') {
+              .then(() => {
+                setTimeout(() => {
                   this.goToSplitStatementView()
-                }
+                }, 1000)
+              })
+              .catch(() => {
+                dplan.notify.notify('error', Translator.trans('error.statement.assignment.assigned'))
               })
           }
         } else {
@@ -205,10 +211,13 @@ export default {
         }
       } else {
         this.claimStatement()
-          .then(err => {
-            if (typeof err === 'undefined') {
+          .then(() => {
+            setTimeout(() => {
               this.goToSplitStatementView()
-            }
+            }, 1000)
+          })
+          .catch(() => {
+            dplan.notify.notify('error', Translator.trans('error.statement.assignment.assigned'))
           })
       }
     },
@@ -219,6 +228,7 @@ export default {
      */
     claimStatement () {
       const dataToUpdate = { ...this.statement, ...{ relationships: { ...this.statement.relationships, ...{ assignee: { data: { type: 'Claim', id: this.currentUser.id } } } } } }
+
       this.setStatement({ ...dataToUpdate, id: this.statementId })
 
       const payload = {
@@ -255,7 +265,7 @@ export default {
         .catch((err) => {
           // Restore statement in store in case request failed
           this.restoreStatementAction(this.statementId)
-          return err
+          throw err
         })
     },
 
@@ -408,8 +418,10 @@ export default {
         // Prevent division by zero or negative page size
         return
       }
+
       // Compute new page with current page for changed number of items per page
       const page = Math.floor((this.pagination?.perPage * (this.pagination?.currentPage - 1) / newSize) + 1)
+
       this.pagination.perPage = newSize
       this.fetchSegments(page)
     },

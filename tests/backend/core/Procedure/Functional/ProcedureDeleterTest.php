@@ -11,11 +11,15 @@
 namespace backend\core\Procedure\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\FileFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
+use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhase;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
+use League\Flysystem\FilesystemOperator;
 use Tests\Base\FunctionalTestCase;
 use Zenstruck\Foundry\Persistence\Proxy;
 
@@ -112,6 +116,102 @@ class ProcedureDeleterTest extends FunctionalTestCase
         }
 
         return $customFieldsCount;
+    }
+
+    public function testDeleteProcedureRemovesProcedurePhases(): void
+    {
+        // Arrange
+        $procedureIds = $this->extractTestProcedureIds($this->testProcedures);
+        $phasesBefore = $this->countEntries(ProcedurePhase::class);
+
+        // Act
+        $this->sut->deleteProcedures($procedureIds, false);
+
+        // Assert
+        // Each procedure owns two procedure_phase rows (phase + publicParticipationPhase).
+        $expectedPhasesAfter = $phasesBefore - (2 * count($procedureIds));
+        static::assertSame(
+            $expectedPhasesAfter,
+            $this->countEntries(ProcedurePhase::class),
+            'Both procedure_phase rows per deleted procedure should be removed'
+        );
+    }
+
+    public function testDeleteProcedureDryRunKeepsProcedurePhases(): void
+    {
+        // Arrange
+        $procedureIds = $this->extractTestProcedureIds($this->testProcedures);
+        $phasesBefore = $this->countEntries(ProcedurePhase::class);
+
+        // Act
+        $this->sut->deleteProcedures($procedureIds, true);
+
+        // Assert
+        static::assertSame(
+            $phasesBefore,
+            $this->countEntries(ProcedurePhase::class),
+            'Dry run must not delete procedure_phase rows'
+        );
+    }
+
+    public function testDeleteProcedureRemovesFilesFromStorage(): void
+    {
+        // Arrange
+        $defaultStorage = $this->getContainer()->get('default.storage');
+        \assert($defaultStorage instanceof FilesystemOperator);
+
+        $procedure = $this->testProcedure->_real();
+        $filePath = 'files/test';
+        $fileHash = md5(uniqid('', true));
+        $flysystemPath = $filePath.'/'.$fileHash;
+
+        $defaultStorage->write($flysystemPath, 'test content');
+        static::assertTrue($defaultStorage->fileExists($flysystemPath));
+
+        FileFactory::createOne([
+            'hash'      => $fileHash,
+            'path'      => $filePath,
+            'filename'  => 'test.txt',
+            'mimetype'  => 'text/plain',
+            'size'      => 12,
+            'procedure' => $procedure,
+        ]);
+
+        // Act
+        $this->sut->deleteProcedures([$procedure->getId()], false);
+
+        // Assert
+        static::assertFalse($defaultStorage->fileExists($flysystemPath), 'File should be deleted from storage');
+        static::assertSame(0, $this->countEntries(File::class, ['procedure' => $procedure]));
+    }
+
+    public function testDeleteProcedureDryRunKeepsFilesInStorage(): void
+    {
+        // Arrange
+        $defaultStorage = $this->getContainer()->get('default.storage');
+        \assert($defaultStorage instanceof FilesystemOperator);
+
+        $procedure = $this->testProcedure->_real();
+        $filePath = 'files/test';
+        $fileHash = md5(uniqid('', true));
+        $flysystemPath = $filePath.'/'.$fileHash;
+
+        $defaultStorage->write($flysystemPath, 'test content');
+
+        FileFactory::createOne([
+            'hash'      => $fileHash,
+            'path'      => $filePath,
+            'filename'  => 'test.txt',
+            'mimetype'  => 'text/plain',
+            'size'      => 12,
+            'procedure' => $procedure,
+        ]);
+
+        // Act
+        $this->sut->deleteProcedures([$procedure->getId()], true);
+
+        // Assert
+        static::assertTrue($defaultStorage->fileExists($flysystemPath), 'File should still exist in storage after dry run');
     }
 
     /**

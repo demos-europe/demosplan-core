@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -10,8 +12,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\MessageHandler;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Message\SwitchProcedurePhasesMessage;
+use demosplan\DemosPlanCoreBundle\Traits\InitializesAnonymousUserPermissionsTrait;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -19,14 +23,19 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 final class SwitchProcedurePhasesMessageHandler
 {
+    use InitializesAnonymousUserPermissionsTrait;
+
     public function __construct(
         private readonly ProcedureService $procedureService,
+        private readonly PermissionsInterface $permissions,
         private readonly LoggerInterface $logger,
     ) {
     }
 
     public function __invoke(SwitchProcedurePhasesMessage $message): void
     {
+        $this->initializeAnonymousUserPermissions();
+
         $this->logger->info('switchPhasesOfToday');
 
         $internalProcedureCounter = 0;

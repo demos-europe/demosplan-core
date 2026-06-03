@@ -14,8 +14,14 @@ namespace demosplan\DemosPlanCoreBundle\Mailer\Transport;
 
 use Symfony\Component\Mailer\Transport\AbstractTransportFactory;
 use Symfony\Component\Mailer\Transport\Dsn;
+use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 
+/**
+ * Registers the `smtp-plain://` DSN scheme: an ESMTP transport with the
+ * initial TLS handshake disabled. Useful when the mail server is reachable
+ * on port 25 only and should not be contacted over SSL.
+ */
 class PlainTransportFactory extends AbstractTransportFactory
 {
     public function create(Dsn $dsn): TransportInterface
@@ -23,7 +29,7 @@ class PlainTransportFactory extends AbstractTransportFactory
         $port = $dsn->getPort(0);
         $host = $dsn->getHost();
 
-        return new PlainTransport($host, $port, false, $this->dispatcher, $this->logger);
+        return new EsmtpTransport($host, $port, false, $this->dispatcher, $this->logger);
     }
 
     protected function getSupportedSchemes(): array

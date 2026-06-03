@@ -16,29 +16,25 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureSettingsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureSettingsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Table(name="_procedure_settings", indexes={@ORM\Index(name="_procedure_settings_ibfk_1", columns={"_p_id"})})
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedureSettingsRepository")
- */
+#[ORM\Table(name: '_procedure_settings')]
+#[ORM\Index(name: '_procedure_settings_ibfk_1', columns: ['_p_id'])]
+#[ORM\Entity(repositoryClass: ProcedureSettingsRepository::class)]
 class ProcedureSettings extends CoreEntity implements UuidEntityInterface, ProcedureSettingsInterface
 {
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_ps_id", type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_ps_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
@@ -50,196 +46,163 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ps_map_extent", type="string", length=2048, nullable=false)
      */
+    #[ORM\Column(name: '_ps_map_extent', type: 'string', length: 2048, nullable: false)]
     protected $mapExtent = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ps_start_scale", type="string", length=2048, nullable=false)
      */
+    #[ORM\Column(name: '_ps_start_scale', type: 'string', length: 2048, nullable: false)]
     protected $startScale = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ps_available_scale", type="string", length=2048, nullable=false)
      */
+    #[ORM\Column(name: '_ps_available_scale', type: 'string', length: 2048, nullable: false)]
     protected $availableScale = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ps_bounding_box", type="string", length=2048, nullable=false)
      */
+    #[ORM\Column(name: '_ps_bounding_box', type: 'string', length: 2048, nullable: false)]
     protected $boundingBox = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ps_information_url", type="string", length=2048, nullable=false)
      */
+    #[ORM\Column(name: '_ps_information_url', type: 'string', length: 2048, nullable: false)]
     protected $informationUrl = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ps_default_layer", type="string", length=2048, nullable=false)
      */
+    #[ORM\Column(name: '_ps_default_layer', type: 'string', length: 2048, nullable: false)]
     protected $defaultLayer = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ps_territory", type="text", length=65535, nullable=false)
      */
+    #[ORM\Column(name: '_ps_territory', type: 'text', length: 65535, nullable: false)]
     protected $territory = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ps_coordinate", type="string", length=2048, nullable=false)
      */
+    #[ORM\Column(name: '_ps_coordinate', type: 'string', length: 2048, nullable: false)]
     protected $coordinate = '';
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_ps_plan_enable", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_ps_plan_enable', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $planEnable = false;
 
-    /**
-     * @ORM\Column(name="allow_anonymous_statements", type="boolean", nullable=false, options={"default":true})
-     */
+    #[ORM\Column(name: 'allow_anonymous_statements', type: 'boolean', nullable: false, options: ['default' => true])]
     private bool $allowAnonymousStatements = true;
 
-    /**
-     * @ORM\Column(name="expand_procedure_description", type="boolean", nullable=false, options={"default": false})
-     */
+    #[ORM\Column(name: 'expand_procedure_description', type: 'boolean', nullable: false, options: ['default' => false])]
     private bool $expandProcedureDescription = false;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ps_plan_text", type="text", length=65535, nullable=false)
      */
+    #[ORM\Column(name: '_ps_plan_text', type: 'text', length: 65535, nullable: false)]
     protected $planText = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ps_plan_pdf", type="string", length=256, nullable=false)
      */
+    #[ORM\Column(name: '_ps_plan_pdf', type: 'string', length: 256, nullable: false)]
     protected $planPDF = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ps_plan_para1_pdf", type="string", length=256, nullable=false)
      */
+    #[ORM\Column(name: '_ps_plan_para1_pdf', type: 'string', length: 256, nullable: false)]
     protected $planPara1PDF = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ps_plan_para2_pdf", type="string", length=256, nullable=false)
      */
+    #[ORM\Column(name: '_ps_plan_para2_pdf', type: 'string', length: 256, nullable: false)]
     protected $planPara2PDF = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ps_plan_draw_text", type="text", length=65535, nullable=false)
      */
+    #[ORM\Column(name: '_ps_plan_draw_text', type: 'text', length: 65535, nullable: false)]
     protected $planDrawText = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ps_plan_draw_pdf", type="string", length=256, nullable=false)
      */
+    #[ORM\Column(name: '_ps_plan_draw_pdf', type: 'string', length: 256, nullable: false)]
     protected $planDrawPDF = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ps_email_title", type="string", length=2048, nullable=false)
      */
+    #[ORM\Column(name: '_ps_email_title', type: 'string', length: 2048, nullable: false)]
     protected $emailTitle = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ps_email_text", type="text", length=65535, nullable=false)
      */
+    #[ORM\Column(name: '_ps_email_text', type: 'text', length: 65535, nullable: false)]
     protected $emailText = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ps_email_cc", type="text", length=25000, nullable=false)
      */
+    #[ORM\Column(name: '_ps_email_cc', type: 'text', length: 25000, nullable: false)]
     protected $emailCc = '';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_ps_links", type="text", nullable=false)
      */
+    #[ORM\Column(name: '_ps_links', type: 'text', nullable: false)]
     protected $links = '';
 
     /**
      * @var ProcedureInterface
-     *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="settings")
-     *
-     * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\OneToOne(targetEntity: Procedure::class, inversedBy: 'settings')]
     protected $procedure;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_ps_pictogram", type="string", length=256, nullable=true)
      */
+    #[ORM\Column(name: '_ps_pictogram', type: 'string', length: 256, nullable: true)]
     protected $pictogram;
 
-    /**
-     * @ORM\Column(name="_ps_pictogram_copyright", type="string", nullable=false, length=512, options={"default":""})
-     */
+    #[ORM\Column(name: '_ps_pictogram_copyright', type: 'string', length: 512, nullable: false, options: ['default' => ''])]
     protected string $pictogramCopyright = '';
 
-    /**
-     * @ORM\Column(name="_ps_pictogram_alt_text", type="string", nullable=false, length=512, options={"default":""})
-     */
+    #[ORM\Column(name: '_ps_pictogram_alt_text', type: 'string', length: 512, nullable: false, options: ['default' => ''])]
     protected string $pictogramAltText = '';
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_ps_send_mails_to_counties", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_ps_send_mails_to_counties', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $sendMailsToCounties = false;
 
     /**
      * Contains an identifier for a specific planningArea getting from WFS.
      *
      * @var string|null
-     *
-     * @ORM\Column(type="string", options={"default":"all"})
      */
+    #[ORM\Column(type: 'string', options: ['default' => 'all'])]
     protected $planningArea = 'all';
 
     /**
      * Comma separated numbers as string.
      *
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=true)
      */
+    #[ORM\Column(type: 'string', nullable: true)]
     protected $scales = '';
 
     /**
@@ -247,18 +210,16 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      * Legal notice to contains clause or other legal relevant information or references of this Procedure.
      *
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=false, options={"default":""})
      */
+    #[ORM\Column(type: 'string', nullable: false, options: ['default' => ''])]
     protected $legalNotice = '';
 
     /**
      * T10133.
      *
      * @var string
-     *
-     * @ORM\Column(type="string", nullable=false, options={"default":""})
      */
+    #[ORM\Column(type: 'string', nullable: false, options: ['default' => ''])]
     protected $copyright = '';
 
     /**
@@ -274,9 +235,8 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      * readers.
      *
      * @var string
-     *
-     * @ORM\Column(type="string", length=2000, nullable=false, options={"default":""})
      */
+    #[ORM\Column(type: 'string', length: 2000, nullable: false, options: ['default' => ''])]
     protected $mapHint = '';
 
     /**
@@ -285,22 +245,19 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      * be returned too *if* the user owns the {@link ProcedureInterface} or has at least been invited.
      *
      * @var Collection<int,ProcedureInterface>
-     *
-     * @ORM\ManyToMany(targetEntity=Procedure::class)
-     *
-     * @ORM\JoinTable(
-     *     name="procedure_settings_allowed_segment_procedures",
-     *     joinColumns={@ORM\JoinColumn(referencedColumnName="_ps_id")},
-     *     inverseJoinColumns={@ORM\JoinColumn(referencedColumnName="_p_id")}
-     * )
      */
+    #[ORM\JoinTable(
+        name: 'procedure_settings_allowed_segment_procedures',
+        joinColumns: [new ORM\JoinColumn(referencedColumnName: '_ps_id')],
+        inverseJoinColumns: [new ORM\JoinColumn(referencedColumnName: '_p_id')]
+    )]
+    #[ORM\ManyToMany(targetEntity: Procedure::class)]
     private $allowedSegmentAccessProcedures;
 
     /**
      * Enable publication of Feedback possibility.
-     *
-     * @ORM\Column(name="_p_public_participation_feedback_enabled", type="boolean", nullable=false, options={"default":true})
      */
+    #[ORM\Column(name: '_p_public_participation_feedback_enabled', type: 'boolean', nullable: false, options: ['default' => true])]
     protected bool $publicParticipationFeedbackEnabled = false;
 
     public function __construct()
@@ -867,48 +824,6 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     public function getPictogramAltText(): string
     {
         return $this->pictogramAltText;
-    }
-
-    /**
-     * Returns the internal phase to which will be switch, when the time(dateOfSwitchPhase) has come.
-     *
-     * @return string
-     */
-    public function getDesignatedPhase()
-    {
-        return $this->procedure->getPhaseObject()->getDesignatedPhase();
-    }
-
-    /**
-     * @param string $designatedPhase
-     *
-     * @return $this
-     */
-    public function setDesignatedPhase($designatedPhase)
-    {
-        $this->procedure->getPhaseObject()->setDesignatedPhase($designatedPhase);
-
-        return $this;
-    }
-
-    /**
-     * Returns the external phase to which will be switch, when the time(dateOfSwitchPublicPhase) has come.
-     *
-     * @return string
-     */
-    public function getDesignatedPublicPhase()
-    {
-        return $this->procedure->getPublicParticipationPhaseObject()->getDesignatedPhase();
-    }
-
-    /**
-     * @param string $designatedPublicPhase
-     */
-    public function setDesignatedPublicPhase($designatedPublicPhase): self
-    {
-        $this->procedure->getPublicParticipationPhaseObject()->setDesignatedPhase($designatedPublicPhase);
-
-        return $this;
     }
 
     /**

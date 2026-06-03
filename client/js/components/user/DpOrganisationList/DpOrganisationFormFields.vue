@@ -231,13 +231,15 @@
       </div>
 
       <addon-wrapper
-        hook-name="addon.additional.field"
+        hook-name="interface.fields.to.transmit"
         :addon-props="{
           additionalFieldOptions,
           class: 'ml-4',
           isValueRemovable: true,
           relationshipId: organisationId,
-          relationshipKey: 'orga'
+          relationshipKey: 'orga',
+          userOrgaId: organisationId,
+          userMeinBerlinOrgId: ''
         }"
         class="w-1/2"
         @resource-list:loaded="setAdditionalFieldOptions"
@@ -288,7 +290,7 @@
         </template>
 
         <!-- Readonly: Currently assigned or requested permissions -->
-        <template v-if="canEdit('registrationStatuses') === false && hasPermission('area_organisations_applications_manage') === false">
+        <template v-if="!canEdit('registrationStatuses') && !hasPermission('area_organisations_applications_manage')">
           <div
             v-for="(registrationStatus, idx) in registrationStatuses"
             :key="idx"
@@ -312,7 +314,7 @@
           v-if="availableRegistrationTypes.length > 0 && (canEdit('registrationStatuses') || hasPermission('area_organisations_applications_manage'))"
         >
           <button
-            v-if="showAddStatusForm === false"
+            v-if="!showAddStatusForm"
             class="btn btn--primary u-mt-0_25 u-mb-0_5"
             data-cy="orgaFormField:showAddStatusForm"
             type="button"
@@ -382,7 +384,7 @@
         </template>
 
         <dp-checkbox
-          v-if="hasPermission('feature_manage_procedure_creation_permission')"
+          v-if="hasPermission('feature_manage_procedure_creation_permission') && isPlanningOfficeOrMunicipalityAcceptedOrPending"
           :id="`${organisation.id}:procedureCreatePermission`"
           v-model="localOrganisation.attributes.canCreateProcedures"
           class="mt-2"
@@ -893,7 +895,9 @@ export default {
     initialOrganisation: {
       type: Object,
       required: false,
-      default: () => { return {} },
+      default: () => {
+        return {}
+      },
     },
 
     organisation: {
@@ -1006,6 +1010,7 @@ export default {
   computed: {
     availableRegistrationTypes () {
       const activeTypes = this.registrationStatuses.map(status => status.type) || []
+
       return this.availableOrgaTypes.filter(type => activeTypes.includes(type.value) === false)
     },
 
@@ -1019,15 +1024,21 @@ export default {
       } else if (Object.keys(this.organisation.relationships.customers.data).length && this.organisation.relationships.customers.data[0].id !== '') {
         const allCustomers = Object.values(this.organisation.relationships.customers.list())
         const names = []
+
         allCustomers.forEach(el => {
           if (typeof el !== 'undefined') {
             names.push(el.attributes.name)
           }
         })
+
         return names.join(', ')
       } else {
         return ''
       }
+    },
+
+    isPlanningOfficeOrMunicipalityAcceptedOrPending () {
+      return this.registrationStatuses.some(registration => (registration.status === 'accepted' || registration.status === 'pending') && (registration.type === 'OPAUTH' || registration.type === 'OLAUTH'))
     },
 
     /**
@@ -1104,6 +1115,7 @@ export default {
           this.localOrganisation.attributes[field] !== this.initialOrganisation.attributes[field] :
           false
       }
+
       return false
     },
 
@@ -1165,6 +1177,7 @@ export default {
     if (this.registrationStatuses.length === 0) {
       this.showAddStatusForm = true
     }
+
     this.statusForm.type = this.availableRegistrationTypes.length > 0 ? this.availableRegistrationTypes[0].value : ''
   },
 }

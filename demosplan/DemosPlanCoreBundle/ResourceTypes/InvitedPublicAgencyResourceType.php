@@ -136,6 +136,12 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
                 ->setFilterable();
         }
 
+        if ($this->currentUser->hasPermission('field_organisations_custom_fields')) {
+            $configBuilder->customFields->setReadableByCallable(
+                static fn (Orga $orga): ?array => $orga->getCustomFields()?->toJson()
+            );
+        }
+
         return $configBuilder;
     }
 
@@ -179,7 +185,7 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
 
             $invitationEmailList = $this->procedureService->getInstitutionMailList(
                 $procedure->getId(),
-                $procedure->getPhase()
+                $procedure->getPhaseObject()->getPhaseDefinition()
             );
 
             $hasValidResultFormat = is_array($invitationEmailList['result']);
@@ -190,7 +196,7 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
                 [
                     'orgaId'      => $orgaId,
                     'procedureId' => $procedure->getId(),
-                    'phase'       => $procedure->getPhase(),
+                    'phase'       => $procedure->getPhaseObject()->getPhaseDefinition()->getName(),
                     'exception'   => $e,
                 ]
             );

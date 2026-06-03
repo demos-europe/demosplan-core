@@ -28,7 +28,6 @@
           id="r_customerLogo"
           ref="logoUpload"
           allowed-file-types="img"
-          :basic-auth="dplan.settings.basicAuth"
           :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
           :max-file-size="200000"
           :max-number-of-files="1"
@@ -182,6 +181,7 @@ export default {
           },
         },
       }
+
       this.updateBranding(payload)
       this.saveBranding(this.brandingId).then(() => {
         this.unsetFile({ fileId: this.uploadedFileId })
@@ -238,6 +238,7 @@ export default {
   },
   mounted () {
     const file = this.brandingList[this.brandingId].relationships?.logo?.data?.id ?? null
+
     this.uploadedFileId = file ? this.fileList[file].id : null
   },
 }
