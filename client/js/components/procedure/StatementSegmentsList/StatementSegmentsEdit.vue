@@ -43,7 +43,7 @@
             :text="lockTooltip"
           >
             <dp-icon
-              class="text-interactive"
+              class="text-interactive inline-block ml-1"
               icon="prohibit"
               weight="fill"
             />
