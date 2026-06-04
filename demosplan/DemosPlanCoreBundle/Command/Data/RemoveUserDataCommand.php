@@ -60,6 +60,22 @@ use function strlen;
 #[AsCommand(name: 'dplan:data:remove-user-data', description: 'Deletes sensitive/personal data from DB.')]
 class RemoveUserDataCommand extends CoreCommand
 {
+    /**
+     * Visual width of the overall progress bar, intentionally decoupled from the number of steps.
+     */
+    private const PROGRESS_BAR_WIDTH = 40;
+
+    /**
+     * Number of top-level steps reported on the overall progress bar.
+     * Must match the number of initializeRemovingDataForEntity() calls in execute().
+     */
+    private const TOTAL_WIPE_STEPS = 22;
+
+    /**
+     * Project keys for which this command is not supported.
+     */
+    private const UNSUPPORTED_PROJECTS = ['BOBHH', 'BOPHH'];
+
     /** @var UserService */
     protected $userService;
 
@@ -153,13 +169,13 @@ class RemoveUserDataCommand extends CoreCommand
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->output = $output;
-        $this->totalProgress = $this->initializeProgressBar(23, 23);
+        $this->totalProgress = $this->initializeProgressBar(self::TOTAL_WIPE_STEPS, self::PROGRESS_BAR_WIDTH);
 
         // Disable audit listener to prevent logging anonymization changes as new audit entries
         $this->personalDataAuditListener->disable();
 
         $projectName = strtoupper($this->parameterBag->get('project_name'));
-        if ('BOBHH' === $projectName || 'BOPHH' === $projectName) {
+        if (in_array($projectName, self::UNSUPPORTED_PROJECTS, true)) {
             $this->output->writeln('This command is not supported for the current project');
 
             // in case of this command should be workable for HH too.
