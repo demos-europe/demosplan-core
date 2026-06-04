@@ -80,7 +80,7 @@ class SegmentMarkParser
     private function collectSegmentIdsInDocumentOrder(DOMElement $body): array
     {
         $orderedIds = [];
-        foreach ($this->collectMarks($body) as $mark) {
+        foreach ($this->collectSegmentMarks($body) as $mark) {
             $segmentId = $mark->getAttribute(self::SEGMENT_ID_ATTRIBUTE);
             if ('' !== $segmentId) {
                 $orderedIds[$segmentId] = true;
@@ -99,7 +99,7 @@ class SegmentMarkParser
         $container = $body->cloneNode(true);
 
         $keptNodes = new SplObjectStorage();
-        foreach ($this->collectMarks($container) as $mark) {
+        foreach ($this->collectSegmentMarks($container) as $mark) {
             if ($mark->getAttribute(self::SEGMENT_ID_ATTRIBUTE) !== $segmentId) {
                 continue;
             }
@@ -108,7 +108,7 @@ class SegmentMarkParser
         }
 
         $this->pruneToKeptNodes($container, $keptNodes);
-        $this->unwrapMarks($container);
+        $this->unwrapSegmentMarks($container);
 
         return trim($this->serializeChildren($container));
     }
@@ -118,7 +118,7 @@ class SegmentMarkParser
      *
      * @return array<int, DOMElement>
      */
-    private function collectMarks(DOMNode $node): array
+    private function collectSegmentMarks(DOMNode $node): array
     {
         $marks = [];
         foreach ($node->childNodes as $child) {
@@ -128,7 +128,7 @@ class SegmentMarkParser
             if (self::SEGMENT_MARK_TAG === $child->localName) {
                 $marks[] = $child;
             }
-            $marks = [...$marks, ...$this->collectMarks($child)];
+            $marks = [...$marks, ...$this->collectSegmentMarks($child)];
         }
 
         return $marks;
@@ -136,7 +136,7 @@ class SegmentMarkParser
 
     private function keepNodeWithDescendants(DOMNode $node, SplObjectStorage $keptNodes): void
     {
-        $keptNodes->attach($node);
+        $keptNodes[$node] = true;
         foreach ($node->childNodes as $child) {
             $this->keepNodeWithDescendants($child, $keptNodes);
         }
@@ -146,7 +146,7 @@ class SegmentMarkParser
     {
         $ancestor = $node->parentNode;
         while (null !== $ancestor && $ancestor !== $boundary) {
-            $keptNodes->attach($ancestor);
+            $keptNodes[$ancestor] = true;
             $ancestor = $ancestor->parentNode;
         }
     }
@@ -154,7 +154,7 @@ class SegmentMarkParser
     private function pruneToKeptNodes(DOMNode $node, SplObjectStorage $keptNodes): void
     {
         foreach (iterator_to_array($node->childNodes) as $child) {
-            if ($keptNodes->contains($child)) {
+            if (isset($keptNodes[$child])) {
                 $this->pruneToKeptNodes($child, $keptNodes);
                 continue;
             }
@@ -166,9 +166,9 @@ class SegmentMarkParser
      * Replaces every remaining <segment-mark> with its child nodes, so the
      * marks no longer appear in the reconstructed HTML.
      */
-    private function unwrapMarks(DOMNode $container): void
+    private function unwrapSegmentMarks(DOMNode $container): void
     {
-        foreach ($this->collectMarks($container) as $mark) {
+        foreach ($this->collectSegmentMarks($container) as $mark) {
             $parent = $mark->parentNode;
             if (null === $parent) {
                 continue;
