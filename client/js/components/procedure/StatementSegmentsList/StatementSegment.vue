@@ -1002,7 +1002,11 @@ export default {
       return this.saveSegmentAction({ id: this.segment.id })
         .then(() => {
           return Promise.all([
-            this.fetchUpdatedSegment(),
+            this.fetchUpdatedSegment().catch((err) => {
+              console.error('Failed to fetch updated segment:', err)
+
+              return null
+            }),
             this.saveCustomFields(),
           ])
         })
@@ -1020,6 +1024,10 @@ export default {
               )
             }
           })
+        })
+        .catch((err) => {
+          console.error('Save failed:', err)
+          dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
         })
         .finally(() => {
           this.finalizeSave(comments)
