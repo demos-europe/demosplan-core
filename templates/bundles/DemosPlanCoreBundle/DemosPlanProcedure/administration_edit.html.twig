@@ -685,7 +685,7 @@
                                                 locationName: templateVars.procedure.locationName,
                                                 municipalCode: templateVars.procedure.municipalCode,
                                                 ars: templateVars.procedure.ars
-                                            }|e('js')|json_encode }}')"
+                                            }|json_encode|e('js', 'utf-8') }}')"
                                             :use-opengeodb="Boolean({{ useOpenGeoDb == true }})"
                                         >
                                             {# Noscript fallback #}
