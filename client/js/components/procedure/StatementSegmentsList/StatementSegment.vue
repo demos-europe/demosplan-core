@@ -74,12 +74,11 @@
 
       <div
         v-if="isLocked"
-        class="flex space-x-1 mt-1 mr-2"
+        class="flex items-center space-x-1 mt-1 mr-2"
       >
         <dp-button
           v-if="hasPermission('feature_administrate_segment_lock')"
           :text="badgeTooltipText"
-          class="mt-0.5"
           icon="prohibit"
           icon-weight="fill"
           variant="subtle"
@@ -91,13 +90,14 @@
           :text="badgeTooltipText"
         >
           <dp-icon
-            class="text-interactive mt-0.5"
+            class="text-interactive ml-0.5"
             icon="prohibit"
+            size="small"
             weight="fill"
           />
         </dp-tooltip>
         <dp-badge
-          class="pt-0.5"
+          class="inline-flex items-center leading-none py-1"
           color="info"
           size="small"
           :text="Translator.trans('segment.lock.state.locked')"
@@ -105,6 +105,7 @@
       </div>
       <dp-claim
         v-else
+        class="ml-[4px] mt-1"
         entity-type="segment"
         :assigned-id="assignee.id || ''"
         :assigned-name="assignee.name || ''"
