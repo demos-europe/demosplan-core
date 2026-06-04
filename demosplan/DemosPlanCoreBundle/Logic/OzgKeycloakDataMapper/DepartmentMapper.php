@@ -89,7 +89,7 @@ class DepartmentMapper
         $this->entityManager->persist($orga);
         $this->entityManager->flush();
 
-        $this->logger->info('Created new department for organisational unit',
+        $this->logger->info('oauthAuthenticator: Created new department for organisational unit',
             [
                 'departmentName' => $departmentNameInToken,
                 'orgaName'       => $orga->getName(),

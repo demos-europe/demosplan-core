@@ -1266,6 +1266,7 @@ error.gdpr.revoke.of.statement.not.permitted: "Sie sind nicht berechtigt die Ein
 error.gislayer.delete: "Die Kartenebene konnte nicht gelöscht werden."
 error.gislayer.noprotocol: "Bitte geben Sie das Protokoll http:// oder https:// für die URL an."
 error.gislayer.update: "Fehler beim Speichern der Kartenebene."
+error.gislayer.visibility.group.dissolve: 'Die Kartenebene konnte nicht gelöscht werden. Gegebenenfalls liegt es an der Sichtbarkeitsgruppe, diese können Sie auch manuell auflösen.'
 error.gislayers.updated: "Die Kartenebenen konnten nicht gespeichert werden."
 error.gislayerCategory.treedepth: "Kartenebenen-Kategorien können nicht mehr als {max_depth} Ebenen tief gruppiert werden."
 error.gislayerCategory.delete: "Die Kartenebenen-Kategorie konnte nicht gelöscht werden."
