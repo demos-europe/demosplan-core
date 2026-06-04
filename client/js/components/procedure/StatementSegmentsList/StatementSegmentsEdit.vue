@@ -42,7 +42,7 @@
             <dp-button
               v-if="hasPermission('feature_administrate_segment_lock')"
               :text="lockTooltip"
-              class="text-interactive inline-block ml-1"
+              class="text-interactive inline-block ml-0.5"
               icon="prohibit"
               icon-weight="fill"
               variant="subtle"
@@ -56,6 +56,7 @@
               <dp-icon
                 class="text-interactive inline-block ml-1"
                 icon="prohibit"
+                size="small"
                 weight="fill"
               />
             </dp-tooltip>

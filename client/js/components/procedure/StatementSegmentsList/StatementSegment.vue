@@ -105,7 +105,7 @@
       </div>
       <dp-claim
         v-else
-        class="ml-[4px] mt-1"
+        class="ml-[5px] mt-1"
         entity-type="segment"
         :assigned-id="assignee.id || ''"
         :assigned-name="assignee.name || ''"
