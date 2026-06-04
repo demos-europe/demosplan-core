@@ -462,6 +462,7 @@ export default {
           elem.role = 1
         }
       }
+
       objVoters[index] = elem
     })
 
@@ -489,6 +490,7 @@ export default {
 
 const preventSend = function (e) {
   const key = e.charCode || e.keyCode || 0
+
   if (key === 13) {
     e.preventDefault()
   }

@@ -35,6 +35,7 @@ export default class ProcedureCharts {
       const cssColorClasses = JSON.parse(element.getAttribute('data-colors'))
 
       const colors = {}
+
       for (const color in cssColorClasses) {
         colors[color] = getColorFromCSS(cssColorClasses[color])
       }
@@ -44,6 +45,7 @@ export default class ProcedureCharts {
        * (we need the copy (fake-node) to have a box instead of a line)
        */
       const data = {}
+
       data.nodes = [{
         title: currentProcedureTitle,
         id: currentProcedureId,
@@ -70,6 +72,7 @@ export default class ProcedureCharts {
         } else {
           el.title = el.title + ' (' + el.value + ')'
         }
+
         data.nodes.push(el)
 
         const link = {
@@ -94,6 +97,7 @@ export default class ProcedureCharts {
         } else {
           el.title = el.title + ' (' + el.value + ')'
         }
+
         data.nodes.push(el)
 
         const link = {
@@ -112,6 +116,7 @@ export default class ProcedureCharts {
       const diagramWidth = 400
       const heightMultiplier = 20
       const trasholdHeight = diagramHeight / heightMultiplier
+
       if (movedStatements.fromThisProcedure.total > trasholdHeight || movedStatements.toThisProcedure.total > trasholdHeight) {
         if (movedStatements.fromThisProcedure.total > movedStatements.toThisProcedure.total) {
           diagramHeight = movedStatements.fromThisProcedure.total * heightMultiplier

@@ -170,7 +170,7 @@ class StatementCopier
         $copiedStatement->setName($sourceStatement->getName());
         $copiedStatement->setNegativeStatement($sourceStatement->getNegativeStatement());
         $copiedStatement->setOrganisation($sourceStatement->getOrganisation());
-        $copiedStatement->setPhase($sourceStatement->getPhase());
+        $copiedStatement->setPhaseDefinition($sourceStatement->getPhaseDefinition());
 
         $copiedStatement->setPolygon($sourceStatement->getPolygon());
         $copiedStatement->setPublicUseName($sourceStatement->getPublicUseName());
@@ -365,7 +365,7 @@ class StatementCopier
                 if ($file instanceof File) {
                     $this->fileService->addStatementFileContainer(
                         $copiedStatement->getId(),
-                        $file->getHash(),
+                        $file->getId(),
                         $file->getFileString()
                     );
                 }

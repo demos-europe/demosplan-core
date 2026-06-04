@@ -44,6 +44,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidUserDataException;
 use demosplan\DemosPlanCoreBundle\Exception\LoginNameInUseException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Exception\PasswordAlreadyUsedException;
 use demosplan\DemosPlanCoreBundle\Exception\ReservedSystemNameException;
 use demosplan\DemosPlanCoreBundle\Exception\SendMailException;
 use demosplan\DemosPlanCoreBundle\Exception\UserAlreadyExistsException;
@@ -69,6 +70,7 @@ use Exception;
 use Illuminate\Support\Collection;
 use LogicException;
 use RuntimeException;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\Validator\Constraints\Email;
@@ -167,6 +169,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         private readonly UserSecurityHandler $userSecurityHandler,
         UserService $userService,
         ValidatorInterface $validator,
+        private readonly ParameterBagInterface $parameterBag,
     ) {
         parent::__construct($messageBag);
         $this->customerService = $customerService;
@@ -241,9 +244,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             $fieldsExpected += 2;
         }
 
-        if (null === $firstname
-            || null === $lastname
-            || null === $emailAddress
+        if (in_array(null, [$firstname, $lastname, $emailAddress], true)
             || !is_string($firstname)
             || !is_string($lastname)
             // there are only seven values expected. Three "real" values + 1 checkbox + 1 csrf token + eventually 2 Honeypot values
@@ -735,7 +736,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                         $invitationFailedList->push($errorUser);
                     }
 
-                    throw new InvalidUserDataException("Failed to invite {$userId}");
+                    throw new InvalidUserDataException("Failed to invite {$userId}", $e->getCode(), $e);
                 }
             });
 
@@ -852,18 +853,17 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 );
 
                 return $userId; // Return the failed user ID to indicate failure
-            } else {
-                $result = $this->wipeUserData($userId);
-
-                if (!$result instanceof User) {
-                    $this->logger->error("Failed to delete user with id {$userId}");
-                    $this->getMessageBag()->add('error', 'error.delete.user');
-
-                    return $userId;
-                }
-
-                $this->getMessageBag()->add('confirm', 'confirm.entries.marked.deleted');
             }
+            $result = $this->wipeUserData($userId);
+
+            if (!$result instanceof User) {
+                $this->logger->error("Failed to delete user with id {$userId}");
+                $this->getMessageBag()->add('error', 'error.delete.user');
+
+                return $userId;
+            }
+
+            $this->getMessageBag()->add('confirm', 'confirm.entries.marked.deleted');
         }
 
         return null;
@@ -1510,6 +1510,9 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         try {
             $this->userService->changePassword($userId, $oldPassword, $newPassword);
             $this->getMessageBag()->add('confirm', 'confirm.password.changed');
+        } catch (PasswordAlreadyUsedException $e) {
+            $this->logger->warning('User password change rejected: password already used', [$e]);
+            $this->getMessageBag()->add('error', 'error.password.already.used', ['passwordHistoryMaxEntries' => $this->parameterBag->get('password_history_max_entries')]);
         } catch (Exception $e) {
             $this->logger->error('User password change exited with an error', [$e]);
             $this->getMessageBag()->add('error', 'error.password.change');
@@ -2178,7 +2181,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 OrgaStatusInCustomerInterface::STATUS_ACCEPTED
             );
 
-            if (null !== $customer) {
+            if ($customer instanceof Customer) {
                 $acceptedCustomers = array_filter(
                     $acceptedCustomers,
                     static fn (Customer $c) => $c->getId() === $customer->getId()
@@ -2371,7 +2374,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
     public function checkMandatoryErrorsPasswordEquals(array $data, array $mandatoryErrors): array
     {
-        if (0 != strcmp((string) $data['password_new'], (string) $data['password_new_2'])) {
+        if (0 !== strcmp((string) $data['password_new'], (string) $data['password_new_2'])) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->translator->trans('warning.password.repeat.not.equal'),

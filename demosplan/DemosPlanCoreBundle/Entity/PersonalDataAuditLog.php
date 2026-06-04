@@ -14,27 +14,22 @@ namespace demosplan\DemosPlanCoreBundle\Entity;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Repository\PersonalDataAuditRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
  * Audit log for changes to personal data entities (User, Orga, Address, Department).
  * Required for GDPR compliance (Art. 5(1)(f)).
- *
- * @ORM\Table(
- *     name="personal_data_audit_log",
- *     indexes={
- *
- *         @ORM\Index(name="idx_pda_entity", columns={"entity_type", "entity_id"}),
- *         @ORM\Index(name="idx_pda_user", columns={"user_id"}),
- *         @ORM\Index(name="idx_pda_created", columns={"created"}),
- *         @ORM\Index(name="idx_pda_procedure", columns={"procedure_id"}),
- *         @ORM\Index(name="idx_pda_orga", columns={"orga_id"})
- *     }
- * )
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\PersonalDataAuditRepository")
  */
+#[ORM\Table(name: 'personal_data_audit_log')]
+#[ORM\Index(name: 'idx_pda_entity', columns: ['entity_type', 'entity_id'])]
+#[ORM\Index(name: 'idx_pda_user', columns: ['user_id'])]
+#[ORM\Index(name: 'idx_pda_created', columns: ['created'])]
+#[ORM\Index(name: 'idx_pda_procedure', columns: ['procedure_id'])]
+#[ORM\Index(name: 'idx_pda_orga', columns: ['orga_id'])]
+#[ORM\Entity(repositoryClass: PersonalDataAuditRepository::class)]
 class PersonalDataAuditLog extends CoreEntity implements UuidEntityInterface
 {
     final public const CHANGE_TYPE_CREATE = 'create';
@@ -47,94 +42,68 @@ class PersonalDataAuditLog extends CoreEntity implements UuidEntityInterface
 
     final public const SENSITIVE_MASK = '***';
 
-    /**
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
-     */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected ?string $id = null;
 
-    /**
-     * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
-     */
+    #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected DateTime $created;
 
     /**
      * No relation to avoid difficulties on deleting user.
-     *
-     * @ORM\Column(type="string", length=36, options={"fixed":true}, nullable=true)
      */
+    #[ORM\Column(type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
     protected ?string $userId = null;
 
-    /**
-     * @ORM\Column(type="string", nullable=true)
-     */
+    #[ORM\Column(type: 'string', nullable: true)]
     protected ?string $userName = null;
 
     /**
      * FQCN of the changed entity.
-     *
-     * @ORM\Column(type="string", nullable=false)
      */
+    #[ORM\Column(type: 'string', nullable: false)]
     protected string $entityType;
 
-    /**
-     * @ORM\Column(type="string", length=36, options={"fixed":true}, nullable=false)
-     */
+    #[ORM\Column(type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     protected string $entityId;
 
-    /**
-     * @ORM\Column(type="string", nullable=false)
-     */
+    #[ORM\Column(type: 'string', nullable: false)]
     protected string $entityField;
 
     /**
      * One of: create, update, delete, wipe.
-     *
-     * @ORM\Column(type="string", length=20, nullable=false)
      */
+    #[ORM\Column(type: 'string', length: 20, nullable: false)]
     protected string $changeType;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     protected ?string $preUpdateValue = null;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     protected ?string $postUpdateValue = null;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=false, options={"default":false})
-     */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
     protected bool $isSensitiveField = false;
 
     /**
      * Set for procedure-scoped entities (StatementMeta, DraftStatement, ProcedurePerson).
-     *
-     * @ORM\Column(type="string", length=36, options={"fixed":true}, nullable=true)
      */
+    #[ORM\Column(type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
     protected ?string $procedureId = null;
 
     /**
      * Set for user-scoped entities (User -> their Orga, Orga -> self).
-     *
-     * @ORM\Column(type="string", length=36, options={"fixed":true}, nullable=true)
      */
+    #[ORM\Column(type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
     protected ?string $orgaId = null;
 
     /**
      * Source context: web, cli.
-     *
-     * @ORM\Column(type="string", length=20, nullable=true)
      */
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
     protected ?string $context = null;
 
     public function getId(): ?string

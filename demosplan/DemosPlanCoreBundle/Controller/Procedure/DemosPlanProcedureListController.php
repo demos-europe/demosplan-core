@@ -33,7 +33,6 @@ use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
-use Elastica\Exception\NotFoundException;
 use Exception;
 use proj4php\Point;
 use proj4php\Proj;
@@ -53,7 +52,6 @@ use function date;
 use function explode;
 use function is_array;
 use function is_string;
-use function strlen;
 use function substr;
 
 /**
@@ -61,76 +59,6 @@ use function substr;
  */
 class DemosPlanProcedureListController extends DemosPlanProcedureController
 {
-    /**
-     * Public procedure search.
-     *
-     * @param string $orgaSlug Must be empty instead of null to allow
-     *                         URL generation without $orgaSlug somewhere
-     *                         else in the application
-     *
-     * @return RedirectResponse|Response|null
-     *
-     * @throws Exception
-     */
-    #[DplanPermissions('area_public_participation')]
-    #[Route(name: 'DemosPlan_procedure_list_search', path: '/verfahren/suche')]
-    public function publicProcedureSearch(
-        BrandingService $brandingService,
-        ContentService $contentService,
-        CurrentUserInterface $currentUser,
-        OrgaService $orgaService,
-        PermissionsInterface $permissions,
-        PublicIndexProcedureLister $procedureLister,
-        ProcedureListService $procedureListService,
-        Request $request,
-        string $orgaSlug = '')
-    {
-        $templateVars = [];
-        try {
-            if (!$permissions->hasPermission('feature_orga_slug')
-                && 'DemosPlan_procedure_public_orga_index' === $request->get('_route')) {
-                throw new NotFoundException('This content is not available');
-            }
-
-            $orgaRedirect = $this->handleRedirectOrgaSlug($orgaService, $orgaSlug);
-            if ($orgaRedirect instanceof RedirectResponse) {
-                return $orgaRedirect;
-            }
-            $orga = $orgaRedirect;
-
-            // orga Branding
-            if ($orga instanceof Orga && $permissions->hasPermission('area_orga_display')) {
-                $orgaBranding = $brandingService->createOrgaBranding($orga);
-                $templateVars['orgaBranding'] = $orgaBranding;
-            }
-
-            $user = $currentUser->getUser();
-
-            $templateVars = $procedureLister->getPublicIndexProcedureList($request, $orgaSlug);
-            $templateVars = $procedureLister->reformatPhases($currentUser->getUser()->isLoggedIn(), $templateVars);
-
-            $templateVars = $this->collectProcedureListTemplateVars(
-                $templateVars,
-                $contentService,
-                $user,
-                $request,
-                $procedureListService,
-                $currentUser
-            );
-
-            return $this->render(
-                '@DemosPlanCore/DemosPlanProcedure/public_index.html.twig',
-                [
-                    'templateVars' => $templateVars,
-                    'title'        => 'procedure.list',
-                    'gatewayURL'   => $this->globalConfig->getGatewayURL(),
-                ]
-            );
-        } catch (Exception $e) {
-            return $this->handleError($e);
-        }
-    }
-
     /**
      * Orga branded index page.
      *
@@ -143,7 +71,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      * @throws Exception
      */
     #[DplanPermissions('area_public_participation')]
-    #[Route(name: 'DemosPlan_procedure_public_orga_index', path: '/plaene/{orgaSlug}')]
+    #[Route(path: '/plaene/{orgaSlug}', name: 'DemosPlan_procedure_public_orga_index')]
     public function publicOrgaIndex(
         BrandingService $brandingService,
         ContentService $contentService,
@@ -208,7 +136,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      * @throws Exception
      */
     #[DplanPermissions(['area_admin_procedures', 'area_search_submitter_in_procedures'])]
-    #[Route(path: '/verfahren/suche/stellungnahmen', methods: ['GET'], name: 'DemosPlan_procedure_search_statements')]
+    #[Route(path: '/verfahren/suche/stellungnahmen', name: 'DemosPlan_procedure_search_statements', methods: ['GET'])]
     public function findProceduresByStatementAuthorView(ProcedureHandler $procedureHandler)
     {
         $procedures = $procedureHandler->getProceduresForAdmin();
@@ -227,7 +155,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      * @throws Exception
      */
     #[DplanPermissions('area_admin_procedures')]
-    #[Route(name: 'DemosPlan_procedures_delete', path: '/verfahren/delete', methods: ['POST'], options: ['expose' => true])]
+    #[Route(path: '/verfahren/delete', name: 'DemosPlan_procedures_delete', options: ['expose' => true], methods: ['POST'])]
     public function deleteProcedures(Request $request): RedirectResponse
     {
         $this->deleteProceduresOrProcedureTemplates($request);
@@ -239,7 +167,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      * @throws Exception
      */
     #[DplanPermissions('area_admin_procedure_templates')]
-    #[Route(name: 'DemosPlan_procedure_templates_delete', path: '/verfahren/blaupausen/delete', methods: ['POST'], options: ['expose' => true])]
+    #[Route(path: '/verfahren/blaupausen/delete', name: 'DemosPlan_procedure_templates_delete', options: ['expose' => true], methods: ['POST'])]
     public function deleteMasterProcedures(Request $request): RedirectResponse
     {
         $this->deleteProceduresOrProcedureTemplates($request);
@@ -277,8 +205,8 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      * @throws Exception
      */
     #[DplanPermissions('area_admin_procedures')]
-    #[Route(name: 'DemosPlan_procedure_administration_post', path: '/verfahren/verwalten', methods: ['POST'])]
-    #[Route(name: 'DemosPlan_procedure_administration_get', path: '/verfahren/verwalten', methods: ['GET'], options: ['expose' => true])]
+    #[Route(path: '/verfahren/verwalten', name: 'DemosPlan_procedure_administration_post', methods: ['POST'])]
+    #[Route(path: '/verfahren/verwalten', name: 'DemosPlan_procedure_administration_get', options: ['expose' => true], methods: ['GET'])]
     public function proceduresList(ProcedureListService $procedureListService): Response
     {
         $title = 'procedure.admin.list';
@@ -299,7 +227,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      * @throws Exception
      */
     #[DplanPermissions('area_admin_procedure_templates')]
-    #[Route(name: 'DemosPlan_procedure_templates_list', path: '/verfahren/blaupausen', methods: ['GET'], options: ['expose' => true])]
+    #[Route(path: '/verfahren/blaupausen', name: 'DemosPlan_procedure_templates_list', options: ['expose' => true], methods: ['GET'])]
     public function proceduresMasterList(
         PermissionsInterface $permissions,
         ProcedureListService $procedureListService,
@@ -337,7 +265,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      * @throws Exception
      */
     #[DplanPermissions('area_public_participation')]
-    #[Route(name: 'DemosPlan_procedure_public_list_json', path: '/list/json', options: ['expose' => true])]
+    #[Route(path: '/list/json', name: 'DemosPlan_procedure_public_list_json', options: ['expose' => true])]
     public function publicProcedureListJson(
         CurrentUserInterface $currentUser,
         ContentService $contentService,
@@ -368,7 +296,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
             // by full fledged Gemeindekennziffer (gkz like 01062090) by only having municipality
             // gkz like 01062. Therefore we need to model filter as query string to be able to use
             // wildcard. The filter itself needs to be unset
-            if (array_key_exists('municipalCode', $requestPost) && 0 < strlen((string) $requestPost['municipalCode'])) {
+            if (array_key_exists('municipalCode', $requestPost) && '' !== (string) $requestPost['municipalCode']) {
                 // if user searched for something add municipalCode as an AND-Search, not OR (default search)
                 $delimiter = '' !== $request->request->get('search') ? ' AND ' : ' ';
                 $requestPost['search'] .= $delimiter.$requestPost['municipalCode'].'*';
@@ -434,7 +362,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
                     'externalName'                 => $procedureExtension->getNameFunction($procedure),
                     'publicParticipationStartDate' => $dateConvert($procedureExtension->getStartDate($procedure)),
                     'publicParticipationEndDate'   => $dateConvert($procedureExtension->getEndDate($procedure)),
-                    'publicParticipationPhaseName' => $procedureExtension->getPhase($procedure),
+                    'publicParticipationPhaseName' => $procedureExtension->getPhaseDefinitionName($procedure),
                     'externalDesc'                 => $procedure['externalDesc'],
                     'publicParticipationContact'   => $procedure['publicParticipationContact'],
                     'procedureUrl'                 => $this->generateUrl(
@@ -466,7 +394,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      * @return Response
      */
     #[DplanPermissions('area_public_participation')]
-    #[Route(name: 'DemosPlan_procedure_public_suggest_procedure_location_json', path: '/suggest/procedureLocation/json', options: ['expose' => true])]
+    #[Route(path: '/suggest/procedureLocation/json', name: 'DemosPlan_procedure_public_suggest_procedure_location_json', options: ['expose' => true])]
     public function searchProcedureJson(
         Request $request,
         CurrentProcedureService $currentProcedureService,
@@ -553,7 +481,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      * @throws Exception
      */
     #[DplanPermissions('area_public_participation')]
-    #[Route(name: 'DemosPlan_procedure_public_orga_id_index', path: '/oid/{orgaId}')]
+    #[Route(path: '/oid/{orgaId}', name: 'DemosPlan_procedure_public_orga_id_index')]
     public function publicOrgaIdIndex(OrgaHandler $orgaHandler, string $orgaId)
     {
         try {

@@ -51,6 +51,7 @@
         data-dp-validate="statementMetaData"
       >
         <statement-entry
+          ref="statementEntry"
           :editable="editable"
           :statement="statement"
           :submit-type-options="submitTypeOptions"
@@ -58,6 +59,7 @@
         />
 
         <statement-submitter
+          ref="statementSubmitter"
           :editable="editable"
           :procedure="procedure"
           :statement="statement"
@@ -118,6 +120,7 @@
         />
 
         <statement-meta-attachments
+          ref="statementMetaAttachments"
           :initial-attachments="attachments"
           :editable="editable"
           :is-source-and-coupled-procedure="isSourceAndCoupledProcedure"
@@ -151,6 +154,7 @@ import StatementMetaLocationAndDocumentReference from './StatementMetaLocationAn
 import StatementMetaMultiselect from './StatementMetaMultiselect'
 import StatementPublicationAndVoting from './StatementPublicationAndVoting'
 import StatementSubmitter from './StatementSubmitter'
+import { useUnsavedChangesGuard } from '@DpJs/composables/useUnsavedChangesGuard'
 
 export default {
   name: 'StatementMeta',
@@ -167,6 +171,15 @@ export default {
   },
 
   mixins: [dpValidateMixin],
+
+  setup () {
+    const { init, cleanup } = useUnsavedChangesGuard()
+
+    return {
+      initUnsavedChangesGuard: init,
+      cleanupUnsavedChangesGuard: cleanup,
+    }
+  },
 
   props: {
     attachments: {
@@ -273,6 +286,7 @@ export default {
       const yyyy = today.getFullYear()
 
       today = dd + '.' + mm + '.' + yyyy
+
       return today
     },
 
@@ -280,10 +294,23 @@ export default {
       return this.menuEntries.filter(entry => entry.condition ?? true)
     },
 
+    /**
+     * Check if any child component has unsaved changes
+     * Required by useUnsavedChangesGuard composable
+     */
+    hasUnsavedChanges () {
+      const entryHasChanges = this.$refs.statementEntry?.hasUnsavedChanges || false
+      const submitterHasChanges = this.$refs.statementSubmitter?.hasUnsavedChanges || false
+      const attachmentsHaveChanges = this.$refs.statementMetaAttachments?.hasUnsavedChanges || false
+
+      return attachmentsHaveChanges || entryHasChanges || submitterHasChanges
+    },
+
     isCurrentUserAssigned () {
       if (this.storageStatement[this.statement.id].relationships.assignee.data) {
         return this.currentUserId === this.storageStatement[this.statement.id].relationships.assignee.data.id
       }
+
       return false
     },
 
@@ -308,7 +335,9 @@ export default {
       if (!this.statement.attributes.submitType) {
         return '-'
       }
+
       const option = this.submitTypeOptions.find(option => option.value === this.statement.attributes.submitType)
+
       return option ? Translator.trans(option.label) : ''
     },
   },
@@ -333,18 +362,40 @@ export default {
     },
 
     handleScroll () {
-      if (this.isScrolling) return
+      if (this.isScrolling) {
+        return
+      }
 
       const sections = this.menuEntries.map(entry => document.querySelector(`#${entry.id}`))
       const scrollPosition = window.scrollY + 62
 
       for (let i = sections.length - 1; i >= 0; i--) {
         const section = sections[i]
+
         if (section && section.offsetTop <= scrollPosition) {
           this.activeItem = this.menuEntries[i].id
           break
         }
       }
+    },
+
+    /**
+     * Required by useUnsavedChangesGuard composable
+     */
+    onDiscardChanges () {
+      if (this.$refs.statementEntry?.hasUnsavedChanges) {
+        this.$refs.statementEntry.reset()
+      }
+
+      if (this.$refs.statementSubmitter?.hasUnsavedChanges) {
+        this.$refs.statementSubmitter.reset()
+      }
+
+      if (this.$refs.statementMetaAttachments?.hasUnsavedChanges) {
+        this.$refs.statementMetaAttachments.handleResetGenericAttachments()
+      }
+
+      return Promise.resolve()
     },
 
     reset () {
@@ -355,9 +406,31 @@ export default {
       this.$emit('save', data)
     },
 
+    /**
+     * Required by useUnsavedChangesGuard composable
+     */
+    saveUnsavedChanges () {
+      const promises = []
+
+      if (this.$refs.statementEntry?.hasUnsavedChanges) {
+        promises.push(this.$refs.statementEntry.save())
+      }
+
+      if (this.$refs.statementSubmitter?.hasUnsavedChanges) {
+        promises.push(this.$refs.statementSubmitter.save())
+      }
+
+      if (this.$refs.statementMetaAttachments?.hasUnsavedChanges) {
+        promises.push(this.$refs.statementMetaAttachments.saveGenericAttachments())
+      }
+
+      return Promise.all(promises)
+    },
+
     scrollToItem (id) {
       this.isScrolling = true
       const element = document.querySelector(`#${id}`)
+
       if (element) {
         const headerOffset = 62
         const elementPosition = element.getBoundingClientRect().top + window.pageYOffset
@@ -407,10 +480,19 @@ export default {
   mounted () {
     window.addEventListener('scroll', this.handleScroll)
     this.scrollToItemFromHash()
+
+    // Initialize unsaved changes guard
+    this.initUnsavedChangesGuard({
+      hasUnsavedChanges: () => this.hasUnsavedChanges,
+      saveUnsavedChanges: () => this.saveUnsavedChanges(),
+      onDiscardChanges: () => this.onDiscardChanges(),
+      componentId: `statement-meta-${this.statement.id}`,
+    })
   },
 
   beforeUnmount () {
     window.removeEventListener('scroll', this.handleScroll)
+    this.cleanupUnsavedChangesGuard()
   },
 }
 </script>

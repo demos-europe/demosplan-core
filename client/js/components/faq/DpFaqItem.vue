@@ -199,6 +199,7 @@ export default {
               dplan.notify.error(Translator.trans('error.changes.not.saved'))
             })
         }
+
         this.queue.push(saveAction)
         this.processQueue()
       }
@@ -212,6 +213,7 @@ export default {
         }
       }, {})
       let newSelection = {}
+
       this.availableGroupOptions.forEach(group => {
         newSelection = selectedGroups[group.id] ? newSelection : { ...newSelection, ...{ [group.id]: false } }
       })
@@ -219,6 +221,7 @@ export default {
       newSelection = { ...newSelection, ...selectedGroups }
 
       const faqCpy = JSON.parse(JSON.stringify(this.faqItem))
+
       faqCpy.attributes = { ...faqCpy.attributes, ...newSelection }
 
       /**
@@ -230,6 +233,7 @@ export default {
       const hasChangedAttributes = Object.entries(faqCpy.attributes).filter(([key, value]) => {
         return this.faqItem.attributes[key] !== value
       }).length !== 0
+
       if (hasChangedAttributes === true) {
         const { attributes, id, type } = faqCpy
 
@@ -269,10 +273,13 @@ export default {
     },
 
     processQueue () {
-      if (this.isQueueProcessing || !this.queue.length) return
+      if (this.isQueueProcessing || !this.queue.length) {
+        return
+      }
 
       this.isQueueProcessing = true
       const action = this.queue.shift()
+
       action().finally(() => {
         this.isQueueProcessing = false
         this.processQueue()

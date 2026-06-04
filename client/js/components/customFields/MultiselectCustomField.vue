@@ -46,9 +46,10 @@ All rights reserved
   </dl>
   <div
     v-else
-    :class="prefixClass('mb-3')"
+    :class="showLabel ? prefixClass('mb-3') : null"
   >
     <dp-label
+      v-if="showLabel"
       :class="prefixClass('mb-2')"
       :for="`custom-field-${field.id}`"
       :required="field.attributes.isRequired"
@@ -98,6 +99,12 @@ export default {
       default: 'readonly',
       validator: (value) => ['readonly', 'editable'].includes(value),
     },
+
+    showLabel: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
   },
 
   emits: ['update:value'],
@@ -135,6 +142,7 @@ export default {
     if (this.field?.attributes?.isRequired && this.currentValue.length > 0) {
       this.$nextTick(() => {
         const el = this.$el.querySelector('[data-dp-validate-is-valid]')
+
         if (el) {
           el.dataset.dpValidateIsValid = 'true'
         }

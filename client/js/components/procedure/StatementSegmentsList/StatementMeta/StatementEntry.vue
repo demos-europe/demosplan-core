@@ -124,14 +124,15 @@ All rights reserved
       <dp-select
         v-if="availableProcedurePhases.length > 1"
         id="statementProcedurePhase"
-        v-model="localStatement.attributes.procedurePhase.key"
-        class="mb-3"
-        data-cy="statementEntry:procedurePhase"
         :disabled="!editable || !isStatementManual"
         :label="{
           text: Translator.trans('procedure.public.phase')
         }"
         :options="availableProcedurePhases"
+        :selected="localStatement.relationships?.procedurePhase?.data?.id"
+        class="mb-3"
+        data-cy="statementEntry:procedurePhase"
+        @select="id => localStatement.relationships.procedurePhase.data = { id, type: 'ProcedurePhaseDefinition' }"
       />
       <dl
         v-else
@@ -141,7 +142,7 @@ All rights reserved
           {{ Translator.trans('procedure.public.phase') }}
         </dt>
         <dd class="text-muted">
-          {{ localStatement.attributes.procedurePhase?.name || '-' }}
+          {{ currentPhaseName }}
         </dd>
       </dl>
     </template>
@@ -177,6 +178,7 @@ import {
   DpTextArea,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
+
 export default {
   name: 'StatementEntry',
 
@@ -225,7 +227,7 @@ export default {
 
       return phases.map(phase => ({
         label: phase.name,
-        value: phase.key,
+        value: phase.id,
       }))
     },
 
@@ -236,7 +238,36 @@ export default {
       const yyyy = today.getFullYear()
 
       today = dd + '.' + mm + '.' + yyyy
+
       return today
+    },
+
+    currentPhaseName () {
+      const id = this.localStatement.relationships?.procedurePhase?.data?.id
+
+      return this.$store.state.ProcedurePhaseDefinition?.items?.[id]?.attributes?.name || '-'
+    },
+
+    hasUnsavedChanges () {
+      if (!this.localStatement || !this.statement) {
+        return false
+      }
+
+      const initialAttributes = this.statement.attributes
+      const currentAttributes = this.localStatement.attributes
+      const isDifferent = (a, b) => (a ?? '') !== (b ?? '')
+      const isDifferentDate = (a, b) => this.getFormattedDate(a) !== this.getFormattedDate(b)
+
+      return [
+        isDifferentDate(currentAttributes.authoredDate, initialAttributes.authoredDate),
+        isDifferentDate(currentAttributes.submitDate, initialAttributes.submitDate),
+        isDifferent(currentAttributes.submitType, initialAttributes.submitType),
+        isDifferent(currentAttributes.internId, initialAttributes.internId),
+        hasPermission('field_statement_phase') &&
+          isDifferent(currentAttributes.procedurePhase?.key, initialAttributes.procedurePhase?.key),
+        hasPermission('field_statement_memo') &&
+          isDifferent(currentAttributes.memo, initialAttributes.memo),
+      ].some(Boolean)
     },
 
     isStatementManual () {
@@ -245,10 +276,21 @@ export default {
   },
 
   methods: {
+    /**
+     * Deep clone via JSON serialization.
+     *
+     * `structuredClone()` may fail on Vuex store objects containing functions/methods.
+     */
+    deepCloneSerializable (obj) {
+      // eslint-disable-next-line unicorn/prefer-structured-clone
+      return JSON.parse(JSON.stringify(obj))
+    },
+
     getFormattedDate (date) {
       if (!date) {
         return ''
       }
+
       return date.match(/[0-9]{2}.[0-9]{2}.[0-9]{4}/) ?
         date :
         this.formatDate(date)
@@ -274,12 +316,17 @@ export default {
           internId: attrs.internId,
         },
       }
+
       if (hasPermission('field_statement_phase')) {
-        changes.attributes.procedurePhase = attrs.procedurePhase
+        changes.relationships = {
+          procedurePhase: this.localStatement.relationships.procedurePhase,
+        }
       }
+
       if (hasPermission('field_statement_memo')) {
         changes.attributes.memo = attrs.memo
       }
+
       this.$emit('save', changes)
     },
 
@@ -288,9 +335,17 @@ export default {
     },
 
     setInitValues () {
-      this.localStatement = JSON.parse(JSON.stringify(this.statement))
+      this.localStatement = this.deepCloneSerializable(this.statement)
       this.localStatement.attributes.authoredDate = this.getFormattedDate(this.localStatement.attributes.authoredDate)
       this.localStatement.attributes.submitDate = this.getFormattedDate(this.localStatement.attributes.submitDate)
+
+      if (!this.localStatement.relationships) {
+        this.localStatement.relationships = {}
+      }
+
+      if (!this.localStatement.relationships.procedurePhase) {
+        this.localStatement.relationships.procedurePhase = { data: null }
+      }
     },
   },
 

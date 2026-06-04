@@ -13,11 +13,11 @@
     :style="{ 'min-height': containerMinHeight }"
   >
     <card-pane-card
-      v-for="segment in filteredSortedSegments"
+      v-for="segment in sortedSegments"
       :key="'card' + segment.id + Math.random()"
       ref="card"
       :segment="segment"
-      :data-range="segment.id"
+      :data-segment-id="segment.id"
       :offset="offset"
       @card:check-overlap="positionCards"
       @segment:confirm="$emit('segment:confirm', segment.id)"
@@ -75,10 +75,6 @@ export default {
       'currentlyHighlightedSegmentId',
       'sortedSegments',
     ]),
-
-    filteredSortedSegments () {
-      return this.sortedSegments.filter(el => el.charEnd <= this.maxRange)
-    },
   },
 
   methods: {
@@ -87,7 +83,8 @@ export default {
     ]),
 
     handleCardHighlighting (segmentId, highlight) {
-      const card = document.querySelector(`div[data-range="${segmentId}"]`)
+      const card = document.querySelector(`div[data-segment-id="${segmentId}"]`)
+
       if (card) {
         if (highlight) {
           card.classList.add('highlighted')
@@ -110,12 +107,13 @@ export default {
     handleSegmentHighlighting (segmentId, highlight = false) {
       const id = segmentId || this.currentlyHighlightedSegmentId
       const highlightedSegmentId = highlight ? segmentId : null
-      const segmentParts = Array.from(document.querySelectorAll(`span[data-range="${id}"]`))
+      const segmentParts = Array.from(document.querySelectorAll(`span[data-segment-id="${id}"]`))
 
       segmentParts.forEach(part => {
         if (highlight && !part.classList.contains('highlighted')) {
           part.classList.add('highlighted')
         }
+
         if (!highlight && part.classList.contains('highlighted')) {
           part.classList.remove('highlighted')
         }
@@ -127,12 +125,14 @@ export default {
     positionCards () {
       // Check offset of other cards. if it is same, position it left-right
       const groupedCards = {}
+
       if (typeof this.$refs.card === 'undefined') {
         return false
       }
 
       this.$refs.card.forEach((card) => {
         const style = card.offsetTop
+
         if (groupedCards[style]) {
           groupedCards[style].push(card)
         } else {
@@ -141,7 +141,6 @@ export default {
       })
 
       Object.values(groupedCards).forEach(group => {
-        group.sort((a, b) => a.segment.charStart - b.segment.charStart)
         group.forEach((el, idx) => {
           el.position = idx + 1
         })
@@ -162,6 +161,7 @@ export default {
       const cardBottomValues = this.$refs.card.map((card) => card.$el.getBoundingClientRect().bottom)
       const maxBottom = Math.max(...cardBottomValues)
       const containerBounds = this.getContainerBounds()
+
       this.containerMinHeight = `${maxBottom + containerBounds.height - containerBounds.bottom}px`
     },
 
