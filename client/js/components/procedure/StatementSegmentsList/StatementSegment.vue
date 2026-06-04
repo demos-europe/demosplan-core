@@ -979,6 +979,7 @@ export default {
           }) || []
 
           const errorMessage = this.customFieldsSaveError(definitions)
+
           dplan.notify.error(errorMessage)
           throw new Error(errorMessage)
         })

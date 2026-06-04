@@ -648,6 +648,7 @@ export default {
 
     queryIds () {
       let ids = []
+
       if (Array.isArray(this.appliedFilterQuery) === false && Object.values(this.appliedFilterQuery).length > 0) {
         ids = Object.values(this.appliedFilterQuery)
           .filter(el => el.condition) // Remove group objects
@@ -659,6 +660,7 @@ export default {
             return el.condition.value
           })
       }
+
       return ids
     },
 
@@ -964,7 +966,8 @@ export default {
     },
 
     recommendationHasHtmlTags (recommendation) {
-     const div = document.createElement('div')
+      const div = document.createElement('div')
+
       div.innerHTML = recommendation.trim()
 
       return div.children.length > 0
