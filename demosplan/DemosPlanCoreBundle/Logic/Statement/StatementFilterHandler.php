@@ -633,7 +633,7 @@ class StatementFilterHandler extends CoreHandler
                 'type'          => 'submission',
             ],
             [
-                'key'           => 'phase',
+                'key'           => 'phaseDefinitionId',
                 'hasPermission' => $permissions->hasPermission(
                     'area_admin_assessmenttable'
                 ),
