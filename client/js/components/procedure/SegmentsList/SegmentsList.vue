@@ -205,16 +205,16 @@
                   />
                 </template>
               </v-popover>
-              <dp-tooltip
+              <dp-button
                 v-if="canUnlock && rowData.isPlaceLocked"
-                :text="Translator.trans('segment.lock.hint.admin.change.view')"
-              >
-                <dp-icon
-                  class="text-interactive"
-                  icon="prohibit"
-                  weight="fill"
-                />
-              </dp-tooltip>
+                :text="Translator.trans('segment.unlock.click.hint')"
+                class="text-interactive"
+                icon="prohibit"
+                icon-weight="fill"
+                variant="subtle"
+                hide-text
+                @click="openUnlockModal(rowData)"
+              />
             </template>
             <template v-slot:statementStatus="rowData">
               <status-badge
@@ -393,6 +393,13 @@
         type="info"
       />
     </template>
+    <segment-unlock-modal
+      v-if="canUnlock"
+      ref="unlockModal"
+      :assignable-users="unlockAssignableUsers"
+      :places="places"
+      @unlock="unlockSegment"
+    />
   </div>
 </template>
 
@@ -406,13 +413,11 @@ import {
   DpColumnSelector,
   DpDataTable,
   DpFlyout,
-  DpIcon,
   DpInlineNotification,
   DpLoading,
   DpPager,
   dpRpc,
   DpStickyElement,
-  DpTooltip,
   hasOwnProp,
   tableSelectAllItems,
   VPopover,
@@ -426,6 +431,7 @@ import ImageModal from '@DpJs/components/shared/ImageModal'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
+import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 import StatusBadge from '../Shared/StatusBadge'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
@@ -442,14 +448,13 @@ export default {
     DpColumnSelector,
     DpDataTable,
     DpFlyout,
-    DpIcon,
     DpInlineNotification,
     DpLoading,
     DpPager,
     DpStickyElement,
-    DpTooltip,
     FilterFlyout,
     ImageModal,
+    SegmentUnlockModal,
     StatementMetaTooltip,
     StatusBadge,
     TextContentRenderer,
@@ -547,6 +552,7 @@ export default {
       pagination: {},
       searchTerm: this.initialSearchTerm,
       searchFieldsSelected: [],
+      segmentToUnlock: null,
     }
   },
 
@@ -625,6 +631,11 @@ export default {
 
     canUnlock () {
       return hasPermission('feature_segment_lock_by_workflow_place') && hasPermission('feature_administrate_segment_lock')
+    },
+
+    // Assignable users including the "not assigned" option, used as the unlock modal default
+    unlockAssignableUsers () {
+      return [{ name: Translator.trans('not.assigned'), id: 'noAssigneeId' }, ...this.assignableUsers]
     },
 
     // Overrides tableSelectAllItems mixin to exclude locked segments from selection for users without unlock permission
@@ -1209,9 +1220,45 @@ export default {
       this.applyQuery(1)
     },
 
+    openUnlockModal (segment) {
+      this.segmentToUnlock = segment
+      this.$refs.unlockModal.toggle()
+    },
+
     showVersionHistory (segmentId, externId) {
       this.$root.$emit('version:history', segmentId, 'segment', externId)
       this.$root.$emit('show-slidebar')
+    },
+
+    unlockSegment ({ assignee, place }) {
+      const assigneeRel = assignee.id === 'noAssigneeId' ?
+        { data: null } :
+        { data: { id: assignee.id, type: 'AssignableUser' } }
+
+      const payload = {
+        data: {
+          id: this.segmentToUnlock.id,
+          type: 'StatementSegment',
+          relationships: {
+            assignee: assigneeRel,
+            place: { data: { id: place.id, type: 'Place' } },
+          },
+        },
+      }
+
+      return dpApi.patch(
+        Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segmentToUnlock.id }),
+        {},
+        payload,
+      )
+        .then(() => {
+          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+          this.applyQuery(this.pagination.currentPage)
+        })
+        .catch((err) => {
+          console.error(err)
+          dplan.notify.notify('error', Translator.trans('error.api.generic'))
+        })
     },
 
     updateQueryHash () {
