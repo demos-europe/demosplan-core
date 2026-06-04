@@ -45,7 +45,7 @@ class SegmentMarkParser
      * Parse HTML with <segment-mark data-segment-id="..."> elements.
      *
      * @return array<int, array{segmentId: string, text: string}> One entry per
-     *                                                             segment, ordered by document position
+     *                                                            segment, ordered by document position
      */
     public function parse(string $html): array
     {
