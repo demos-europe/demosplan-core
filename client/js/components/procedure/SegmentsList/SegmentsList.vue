@@ -643,12 +643,12 @@ export default {
       const toggledIds = new Set(this.toggledItems.map(item => item.id))
       let selected
 
-      if (!this.trackDeselected) {
-        selected = this.toggledItems
-      } else {
+      if (this.trackDeselected) {
         selected = this.toggledItems.length === 0 ?
           this.items.filter(item => this.canUnlock || !item.isPlaceLocked) :
           this.items.filter(item => (this.canUnlock || !item.isPlaceLocked) && !toggledIds.has(item.id))
+      } else {
+        selected = this.toggledItems
       }
 
       return selected.reduce((acc, el) => ({ ...acc, [el.id]: true }), {})
