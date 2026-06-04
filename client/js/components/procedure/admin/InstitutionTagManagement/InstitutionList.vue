@@ -560,6 +560,10 @@ export default {
     },
 
     loadCustomFieldDefinitions () {
+      if (!hasPermission('feature_organisations_custom_fields')) {
+        return Promise.resolve([])
+      }
+
       return useCustomFields().fetchCustomFields(null, {
         sourceEntity: 'CUSTOMER',
         targetEntity: 'ORGA',
