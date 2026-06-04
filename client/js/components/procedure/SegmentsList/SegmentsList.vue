@@ -276,6 +276,7 @@
                 <span
                   v-if="hasPermission('feature_enable_recommendation_versions') && getRecommendationVersionNumber(rowData)"
                   class="text-neutral-base"
+                  :class="{ 'mt-2': !recommendationHasHtmlTags(rowData.attributes.recommendation) }"
                 >
                   {{ Translator.trans('version') }}:
                   {{ getRecommendationVersionNumber(rowData) }}
@@ -960,6 +961,13 @@ export default {
 
       this.pagination.perPage = newSize
       this.applyQuery(page)
+    },
+
+    recommendationHasHtmlTags (recommendation) {
+     const div = document.createElement('div')
+      div.innerHTML = recommendation.trim()
+
+      return div.children.length > 0
     },
 
     resetColumnSelection () {
