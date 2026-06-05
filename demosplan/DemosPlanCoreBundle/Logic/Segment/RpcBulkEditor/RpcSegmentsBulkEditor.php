@@ -274,6 +274,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
     private function extractDeadline(object $rpcRequest): ?DateTime
     {
         $deadline = data_get($rpcRequest, 'params.deadline', '');
+
         return '' !== $deadline ? new DateTime($deadline) : null;
     }
 
