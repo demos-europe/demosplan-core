@@ -195,7 +195,7 @@ class DemosPlanKernel extends Kernel
      *
      * @throws Exception
      */
-    protected function initializeContainer()
+    protected function initializeContainer(): void
     {
         if ('test' !== $this->getEnvironment()) {
             parent::initializeContainer();
