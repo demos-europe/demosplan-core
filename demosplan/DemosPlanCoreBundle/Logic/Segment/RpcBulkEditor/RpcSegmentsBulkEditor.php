@@ -131,13 +131,16 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
                     $customFields = $this->extractCustomFields($rpcRequest);
 
+                    $deadline = $this->extractDeadline($rpcRequest);
+
                     $segments = $this->segmentBulkEditorService->updateSegments(
                         $segments,
                         $addTagIds,
                         $removeTagIds,
                         $assignee,
                         $workflowPlace,
-                        $customFields
+                        $customFields,
+                        $deadline
                     );
 
                     $resultSegments = [...$resultSegments, ...$segments];
@@ -266,6 +269,12 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
         }
 
         return json_decode(json_encode($rawCustomFields), true);
+    }
+
+    private function extractDeadline(object $rpcRequest): ?DateTime
+    {
+        $deadline = data_get($rpcRequest, 'params.deadline', '');
+        return '' !== $deadline ? new DateTime($deadline) : null;
     }
 
     /**

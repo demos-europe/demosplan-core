@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
+use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 
@@ -17,18 +18,21 @@ class DoctrineSegmentListener
 {
     public function preUpdate(Segment $segment, PreUpdateEventArgs $args): void
     {
-        if (!$args->hasChangedField('place')) {
-            return;
-        }
-
+        // Convert it to a DateTime so Doctrine can persist it to the date column.
         if ($args->hasChangedField('deadline')) {
-            return;
+            $value = $args->getNewValue('deadline');
+            if (is_string($value)) {
+                $args->setNewValue('deadline', '' === $value ? null : new DateTime($value));
+            }
         }
 
-        if (null === $segment->getDeadline()) {
-            return;
+        // Reset the deadline when the workflow place changes, unless this same update
+        // already set a deadline explicitly (then the user's input wins).
+        if ($args->hasChangedField('place')
+            && !$args->hasChangedField('deadline')
+            && null !== $segment->getDeadline()
+        ) {
+            $args->setNewValue('deadline', null);
         }
-
-        $args->setNewValue('deadline', null);
     }
 }
