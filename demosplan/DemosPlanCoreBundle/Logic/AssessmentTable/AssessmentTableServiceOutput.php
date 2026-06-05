@@ -146,7 +146,7 @@ class AssessmentTableServiceOutput
         private readonly StatementHandler $statementHandler,
         StatementService $statementService,
         private readonly TranslatorInterface $translator,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
     ) {
         $this->assessmentTableServiceStorage = $assessmentTableServiceStorage;
         $this->config = $config;
