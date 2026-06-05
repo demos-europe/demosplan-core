@@ -24,8 +24,7 @@ All rights reserved
       <template v-slot:step-1>
         <div class="mt-5 mb-6">
           <dp-radio
-            id="action-create"
-            checked
+            id="actionCreate"
             class="mb-3"
             name="groupAction"
             value="createGroup"
@@ -35,6 +34,17 @@ All rights reserved
               hint: Translator.trans('statement.cluster.create.hint'),
             }"
             @change="selectedAction = 'createGroup'"
+          />
+          <dp-radio
+            id="addToGroup"
+            name="groupAction"
+            :checked="selectedAction === 'addToGroup'"
+            :label="{
+              text: Translator.trans('statement.cluster.add'),
+              hint: Translator.trans('statement.cluster.add.hint'),
+            }"
+            value="addToGroup"
+            @change="selectedAction = 'addToGroup'"
           />
         </div>
         <div v-if="isLoading">
@@ -47,68 +57,67 @@ All rights reserved
           <p class="mb-3">
             {{ Translator.trans('statements.selected.adjust.hint') }}
           </p>
-          <ul
-            :class="statements.length > 5 ? 'max-h-[255px] overflow-y-auto' : ''"
-            class="border rounded-md pb-2 px-1"
-          >
-            <li
-              v-for="stmt in statements"
-              :key="stmt.id"
-              class="py-2 border-b border-neutral-light-2"
-            >
-              <div class="flex items-center gap-2 px-1.5">
-                <span>{{ stmt.attributes.externId }}</span>
-                <span
-                  v-if="stmt.attributes.isSubmittedByCitizen"
-                >{{ stmt.attributes.authorName }}
-                </span>
-                <span
-                  v-else
-                >{{ stmt.attributes.initialOrganisationName }}
-                </span>
-                <button
-                  type="button"
-                  class="btn--blank o-link--default ml-auto"
-                  :data-cy="`statementGroupForm:removeStatement:${stmt.id}`"
-                  @click="removeStatement(stmt.id)"
-                >
-                  <dp-icon
-                    icon="close"
-                    size="small"
-                  />
-                </button>
-              </div>
-            </li>
-          </ul>
+          <selected-statements-list
+            :statements="statements"
+            @remove="removeStatement"
+          />
         </div>
       </template>
       <template v-slot:step-2>
         <div data-dp-validate="groupForm">
-          <dp-input
-            id="groupName"
-            v-model="groupName"
-            class="mb-5"
-            :label="{
+          <template v-if="selectedAction === 'createGroup'">
+            <dp-input
+              id="groupName"
+              v-model="groupName"
+              :label="{
               text: Translator.trans('statement.cluster.name'),
               hint: Translator.trans('statement.cluster.name.hint'),
             }"
-            required
-          />
-          <dp-label
-            for="mainStatement"
-            bold
-            :text="Translator.trans('statement.main')"
-            :hint="Translator.trans('statement.cluster.create.help')"
-          />
-          <dp-multiselect
-            id="mainStatement"
-            v-model="mainStatementId"
-            :custom-label="stmt => stmt.attributes.externId"
-            :options="statements"
-            required
-            track-by="id"
-            searchable
-          />
+              class="mb-5"
+              required
+            />
+            <dp-label
+              for="mainStatement"
+              bold
+              :text="Translator.trans('statement.main')"
+              :hint="Translator.trans('statement.cluster.create.help')"
+            />
+            <dp-multiselect
+              id="mainStatement"
+              v-model="mainStatementId"
+              :custom-label="stmt => stmt.attributes.externId"
+              :options="statements"
+              required
+              track-by="id"
+              searchable
+            />
+          </template>
+          <template v-else-if="selectedAction === 'addToGroup'">
+            <dp-label
+              for="targetGroup"
+              bold
+              :text="Translator.trans('cluster.choose')"
+              :hint="Translator.trans('cluster.choose.hint')"
+            />
+            <!-- TODO(DPLAN-17748): load this procedure's existing groups into `groups`; backend endpoint not available yet, using statements as placeholder -->
+            <dp-multiselect
+              id="targetGroup"
+              v-model="targetGroupId"
+              class="mb-5"
+              :custom-label="stmt => stmt.attributes.externId"
+              :options="statements"
+              required
+              track-by="id"
+              searchable
+            />
+            <h4 class="font-semibold mb-0.5">
+              {{ Translator.trans('statements.selected.no.count') }}
+            </h4>
+            <selected-statements-list
+              :statements="statements"
+              @remove="removeStatement"
+            />
+          </template>
         </div>
       </template>
       <template v-slot:step-3>
@@ -127,6 +136,7 @@ import { computed, onMounted, ref } from 'vue'
 import { dpApi, DpIcon, DpInput, DpLabel, DpLoading, DpMultiselect, DpRadio, validateForm } from '@demos-europe/demosplan-ui'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
+import SelectedStatementsList from '@DpJs/components/statement/SelectedStatementsList'
 import lscache from 'lscache'
 
 const props = defineProps({
@@ -139,9 +149,10 @@ const props = defineProps({
 const isBusy = ref(false)
 const isLoading = ref(true)
 const mainStatementId = ref(null)
+const targetGroupId = ref(null)
 const groupName = ref('')
 const returnLink = ref(Routing.generate('dplan_procedure_statement_list', { procedureId: props.procedureId }))
-const selectedAction = ref('') // Default until second story will be implemented (add stmt to group)
+const selectedAction = ref('createGroup')
 const statements = ref([])
 const selectionCriteria = ref(null)
 const step = ref(1)
@@ -157,7 +168,9 @@ const translations = computed(() => ({
   edit: Translator.trans('back.to.action.selection'),
   stepTitles: [
     Translator.trans('bulk.edit.title.actions.choose', { count: selectedElementsCount.value }),
-    Translator.trans('statement.cluster.create'),
+    selectedAction.value === 'addToGroup'
+      ? Translator.trans('statement.cluster.add')
+      : Translator.trans('statement.cluster.create'),
     Translator.trans('confirm.saved.plural'),
   ],
 }))
