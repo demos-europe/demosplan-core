@@ -12,6 +12,7 @@ export default () => {
     if (checked) {
       // Disable all radio-options
       const allRadioOptionsElements = Array.from(document.querySelectorAll('[name=r_type]'))
+
       allRadioOptionsElements.forEach((el) => {
         el.disabled = true
       })
@@ -20,11 +21,13 @@ export default () => {
       document.querySelector(requiredElements).disabled = false
       // Uncheck correlating options
       const allCheckedBoxElements = Array.from(document.querySelectorAll(toDisable))
+
       allCheckedBoxElements.forEach((el) => {
         el.checked = false
       })
     } else {
       const allDisabledElements = Array.from(document.querySelectorAll('[name=r_type]'))
+
       allDisabledElements.forEach((el) => {
         el.disabled = false
       })
@@ -32,6 +35,7 @@ export default () => {
   }
 
   const allDataRequiresElements = Array.from(document.querySelectorAll('[data-requires]'))
+
   allDataRequiresElements.forEach((el) => {
     // Register eventListener for scope and bPlan
     el.addEventListener('change', () => {
@@ -85,6 +89,7 @@ export default () => {
 
   // If base layer, hide toggleVisibility checkbox and its parent (the label)
   const isBaseLayerSelected = document.querySelector('input[name="r_type"][value="base"]')?.checked
+
   if (isBaseLayerSelected) {
     elementsHiddenForBaseMap.forEach((element) => {
       disableNode(element.node, element.defaultValue, element.hideParent)
@@ -135,6 +140,7 @@ export default () => {
     } else {
       node.value = defaultValue
     }
+
     document.getElementById('form').appendChild(createHiddenNode(node, defaultValue))
     node.setAttribute('disabled', 'true')
 
@@ -169,6 +175,7 @@ export default () => {
       // Don't show hint or change checkbox if it's disabled (e.g., in visibility group)
       if (defaultVisibilityCheckbox.disabled) {
         defaultVisibilityHint.classList.add('hidden')
+
         return
       }
 
@@ -213,6 +220,7 @@ export default () => {
     // Toggle defaultLayer checkbox
     const xPlanDefaultLayersVisibility = function (show) {
       const inputXplanDefaultLayers = document.querySelector('input[name="r_xplanDefaultlayers"]')
+
       if (show === false) {
         inputXplanDefaultLayers.parentNode.setAttribute('style', 'display: none')
         inputXplanDefaultLayers.checked = false

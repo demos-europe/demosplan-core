@@ -172,6 +172,7 @@ export default {
     DpTransitionExpand,
     DpSlidingPagination: defineAsyncComponent(async () => {
       const { DpSlidingPagination } = await import('@demos-europe/demosplan-ui')
+
       return DpSlidingPagination
     }),
     DpUserListItem: defineAsyncComponent(() => import('./DpUserListItem')),
@@ -224,6 +225,7 @@ export default {
 
     allOnPageSelected () {
       const userIds = Object.keys(this.users)
+
       return userIds.length > 0 && userIds.every(id => this.currentPageSelections[id])
     },
 
@@ -328,14 +330,18 @@ export default {
         Translator.trans('check.user.delete', { count: this.selectedUsersCount }),
       )
 
-      if (!isConfirmed) return
+      if (!isConfirmed) {
+        return
+      }
 
       let ids
+
       try {
         ids = await this.resolveSelectedIds()
       } catch (error) {
         console.error('Failed to resolve selected user ids for delete:', error)
         dplan.notify.notify('error', Translator.trans('error.api.generic'))
+
         return
       }
 
@@ -346,6 +352,7 @@ export default {
         ids.map(async id => {
           try {
             const response = await this.deleteAdministratableUser(id)
+
             if (response && response.status >= 400) {
               errorCount++
             } else {
@@ -361,6 +368,7 @@ export default {
       if (successCount > 0) {
         dplan.notify.notify('confirm', Translator.trans('confirm.entries.marked.deleted'))
       }
+
       if (errorCount > 0) {
         dplan.notify.notify('error', Translator.trans('error.delete.user'))
       }
@@ -388,10 +396,12 @@ export default {
       const response = await dpApi.get(url, params)
 
       const users = response.data?.data || []
+
       this.selectedUsersMap = users.reduce((acc, user) => {
         if (!this.toggledUsers.includes(user.id)) {
           acc[user.id] = user
         }
+
         return acc
       }, {})
       this.allUsersFetched = true
@@ -432,6 +442,7 @@ export default {
 
     async inviteUsers () {
       let ids
+
       try {
         ids = await this.resolveSelectedIds()
       } catch (error) {
@@ -440,6 +451,7 @@ export default {
 
         return
       }
+
       const form = this.$el.closest('form')
       const currentPageIds = new Set(Object.keys(this.users))
 
@@ -456,12 +468,14 @@ export default {
 
     loadUsers () {
       const arr = []
+
       if (hasPermission('feature_organisation_user_list')) {
         arr.push(this.organisationList({ include: ['departments', 'allowedRoles'].join() }))
       } else {
         arr.push(this.departmentList())
         arr.push(this.roleList())
       }
+
       Promise.all(arr)
         .then(() => {
           this.getUsersByPage()

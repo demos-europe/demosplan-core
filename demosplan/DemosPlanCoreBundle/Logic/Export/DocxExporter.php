@@ -43,9 +43,9 @@ use League\Flysystem\FilesystemOperator;
 use Monolog\Logger;
 use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\Cell;
+use PhpOffice\PhpWord\Element\Footer;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
-use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Shared\Html;
 use PhpOffice\PhpWord\Writer\WriterInterface;
@@ -340,7 +340,7 @@ class DocxExporter
 
                                     // Abteilung
                                     $orgaDepartmentName = $statementMeta->getOrgaDepartmentName();
-                                    if (0 < strlen($orgaDepartmentName)) {
+                                    if ('' !== (string) $orgaDepartmentName) {
                                         $orgaName .= ', '.$orgaDepartmentName;
                                     }
 
@@ -770,11 +770,11 @@ class DocxExporter
                 $institutionData = $translator->trans('institution').': '.$orgaName;
 
                 // Abteilung
-                if (0 < strlen((string) $item['orgaDepartmentName'])) {
+                if ('' !== (string) $item['orgaDepartmentName']) {
                     $institutionData .= ', '.$item['orgaDepartmentName'];
                 }
-                if (false == $anonymous) {
-                    $institutionData .= 0 < strlen((string) $item['submitName']) ? ': '.$item['submitName'] : '';
+                if (false === $anonymous) {
+                    $institutionData .= '' !== (string) $item['submitName'] ? ': '.$item['submitName'] : '';
                 }
                 $metaInfoCell->addText(
                     $institutionData,
@@ -786,7 +786,7 @@ class DocxExporter
                 $orgaName = ('' == $item['orgaName']) ? $translator->trans('not.specified') : $item['orgaName'];
                 $citizenData = $translator->trans('public').': '.$orgaName;
 
-                if (false == $anonymous) {
+                if (false === $anonymous) {
                     // Name
                     $citizenData .= ', '.$item['authorName'];
                     // T454 address should not be exported
@@ -1062,7 +1062,7 @@ class DocxExporter
         $frontPageSection->addText(htmlspecialchars((string) $procedure->getName(), ENT_NOQUOTES), $coverHeadingStyle, $coverParagraphStyle);
 
         // Verfahrensschritt
-        $phaseName = $procedure->getPhaseName();
+        $phaseName = $procedure->getPhaseObject()->getPhaseDefinition()->getName();
         if (null !== $phaseName) {
             $frontPageSection->addText(htmlspecialchars((string) $phaseName), $coverHeadingStyle, $coverParagraphStyle);
         }
@@ -1310,10 +1310,7 @@ class DocxExporter
             if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_PROCEDURE_PHASE, $exportConfig, $statement)) {
                 // Verfahrensschritt
                 // Ersetze die Phase, in der die SN eingegangen ist
-                $phaseName = $this->statementService->getProcedurePhaseName(
-                    $statement->getPhase(),
-                    $statement->isSubmittedByCitizen()
-                );
+                $phaseName = $statement->getPhaseDefinition()->getName();
                 $cell2AddText('procedure.public.phase', $phaseName);
             }
 
@@ -1495,7 +1492,7 @@ class DocxExporter
                 $text = ' - ';
                 $text .= $this->translator->trans('voters')
                     .': '.$statement->getVotesNum().' ';
-                if (1 == $statement->getVotesNum()) {
+                if (1 === $statement->getVotesNum()) {
                     $text .= $this->translator->trans('person');
                 } else {
                     $text .= $this->translator->trans('persons');
@@ -1652,7 +1649,7 @@ class DocxExporter
 
         // in Hamburg wird nur anonyme Ansicht verwendet, beim Bürger soll allerdings die Straße mit angegeben werden
         if ($this->permissions->hasPermission('feature_keep_street_on_anonymize')) {
-            if (0 < strlen((string) $statement->getMeta()->getOrgaStreet())) {
+            if ('' !== (string) $statement->getMeta()->getOrgaStreet()) {
                 $result['orgaName'] .= ', '.$statement->getMeta()->getOrgaStreet().$houseNumber;
             }
             // @improve this special cases should not be mixed with this permission check
@@ -1964,7 +1961,7 @@ class DocxExporter
             );
         }
 
-        return IOFactory::createWriter($phpWord, $this->writerSelector->getWriterType());
+        return $this->writerSelector->createWriter($phpWord);
     }
 
     /**
@@ -2032,7 +2029,7 @@ class DocxExporter
         $footer = $tableSection->addFooter();
         $this->addPageNumbers($footer);
 
-        return IOFactory::createWriter($phpWord, $this->writerSelector->getWriterType());
+        return $this->writerSelector->createWriter($phpWord);
     }
 
     /**
@@ -2082,7 +2079,7 @@ class DocxExporter
         $footer = $section->addFooter();
         $this->addPageNumbers($footer);
 
-        return IOFactory::createWriter($phpWord, $this->writerSelector->getWriterType());
+        return $this->writerSelector->createWriter($phpWord);
     }
 
     /**
@@ -2122,7 +2119,7 @@ class DocxExporter
         $footer = $section->addFooter();
         $this->addPageNumbers($footer);
 
-        return IOFactory::createWriter($phpWord, $this->writerSelector->getWriterType());
+        return $this->writerSelector->createWriter($phpWord);
     }
 
     /**
@@ -2130,7 +2127,7 @@ class DocxExporter
      * For DOCX: uses PreserveText with {PAGE}/{NUMPAGES} placeholder.
      * For ODT: uses separate Field elements since ODT doesn't parse PreserveText placeholders.
      *
-     * @param \PhpOffice\PhpWord\Element\Footer $footer
+     * @param Footer $footer
      */
     private function addPageNumbers($footer): void
     {

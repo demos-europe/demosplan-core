@@ -124,14 +124,15 @@ All rights reserved
       <dp-select
         v-if="availableProcedurePhases.length > 1"
         id="statementProcedurePhase"
-        v-model="localStatement.attributes.procedurePhase.key"
-        class="mb-3"
-        data-cy="statementEntry:procedurePhase"
         :disabled="!editable || !isStatementManual"
         :label="{
           text: Translator.trans('procedure.public.phase')
         }"
         :options="availableProcedurePhases"
+        :selected="localStatement.relationships?.procedurePhase?.data?.id"
+        class="mb-3"
+        data-cy="statementEntry:procedurePhase"
+        @select="id => localStatement.relationships.procedurePhase.data = { id, type: 'ProcedurePhaseDefinition' }"
       />
       <dl
         v-else
@@ -141,7 +142,7 @@ All rights reserved
           {{ Translator.trans('procedure.public.phase') }}
         </dt>
         <dd class="text-muted">
-          {{ localStatement.attributes.procedurePhase?.name || '-' }}
+          {{ currentPhaseName }}
         </dd>
       </dl>
     </template>
@@ -226,7 +227,7 @@ export default {
 
       return phases.map(phase => ({
         label: phase.name,
-        value: phase.key,
+        value: phase.id,
       }))
     },
 
@@ -237,7 +238,14 @@ export default {
       const yyyy = today.getFullYear()
 
       today = dd + '.' + mm + '.' + yyyy
+
       return today
+    },
+
+    currentPhaseName () {
+      const id = this.localStatement.relationships?.procedurePhase?.data?.id
+
+      return this.$store.state.ProcedurePhaseDefinition?.items?.[id]?.attributes?.name || '-'
     },
 
     hasUnsavedChanges () {
@@ -245,13 +253,21 @@ export default {
         return false
       }
 
-      const initialAttributes = this.deepCloneSerializable(this.statement.attributes)
-      initialAttributes.authoredDate = this.getFormattedDate(initialAttributes.authoredDate)
-      initialAttributes.submitDate = this.getFormattedDate(initialAttributes.submitDate)
-
+      const initialAttributes = this.statement.attributes
       const currentAttributes = this.localStatement.attributes
+      const isDifferent = (a, b) => (a ?? '') !== (b ?? '')
+      const isDifferentDate = (a, b) => this.getFormattedDate(a) !== this.getFormattedDate(b)
 
-      return JSON.stringify(currentAttributes) !== JSON.stringify(initialAttributes)
+      return [
+        isDifferentDate(currentAttributes.authoredDate, initialAttributes.authoredDate),
+        isDifferentDate(currentAttributes.submitDate, initialAttributes.submitDate),
+        isDifferent(currentAttributes.submitType, initialAttributes.submitType),
+        isDifferent(currentAttributes.internId, initialAttributes.internId),
+        hasPermission('field_statement_phase') &&
+          isDifferent(currentAttributes.procedurePhase?.key, initialAttributes.procedurePhase?.key),
+        hasPermission('field_statement_memo') &&
+          isDifferent(currentAttributes.memo, initialAttributes.memo),
+      ].some(Boolean)
     },
 
     isStatementManual () {
@@ -274,6 +290,7 @@ export default {
       if (!date) {
         return ''
       }
+
       return date.match(/[0-9]{2}.[0-9]{2}.[0-9]{4}/) ?
         date :
         this.formatDate(date)
@@ -299,12 +316,17 @@ export default {
           internId: attrs.internId,
         },
       }
+
       if (hasPermission('field_statement_phase')) {
-        changes.attributes.procedurePhase = attrs.procedurePhase
+        changes.relationships = {
+          procedurePhase: this.localStatement.relationships.procedurePhase,
+        }
       }
+
       if (hasPermission('field_statement_memo')) {
         changes.attributes.memo = attrs.memo
       }
+
       this.$emit('save', changes)
     },
 
@@ -316,6 +338,14 @@ export default {
       this.localStatement = this.deepCloneSerializable(this.statement)
       this.localStatement.attributes.authoredDate = this.getFormattedDate(this.localStatement.attributes.authoredDate)
       this.localStatement.attributes.submitDate = this.getFormattedDate(this.localStatement.attributes.submitDate)
+
+      if (!this.localStatement.relationships) {
+        this.localStatement.relationships = {}
+      }
+
+      if (!this.localStatement.relationships.procedurePhase) {
+        this.localStatement.relationships.procedurePhase = { data: null }
+      }
     },
   },
 

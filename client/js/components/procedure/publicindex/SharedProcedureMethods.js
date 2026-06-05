@@ -13,6 +13,7 @@ const Methods = {
   period () {
     const { internalStartDate, externalStartDate, internalEndDate, externalEndDate, daysLeft } = this.procedure
     let period = ''
+
     if (!!internalStartDate && !!externalStartDate && !!internalEndDate && !!externalEndDate) {
       period = formatDate(internalStartDate) +
                 ' – ' +
@@ -30,6 +31,7 @@ const Methods = {
                 ' – ' +
                 formatDate(internalEndDate)
     }
+
     if (daysLeft !== '') {
       if (daysLeft === Translator.trans('days.left.participation.finished')) {
         period = ' ' + daysLeft
@@ -37,11 +39,13 @@ const Methods = {
         period = ' ' + daysLeft + ' ' + period
       }
     }
+
     return period
   },
 
   procedureName () {
     const { name, externalName } = this.procedure
+
     if (!!name && !!externalName) {
       return `${name} / ${externalName}`
     } else if (externalName) {
@@ -52,13 +56,14 @@ const Methods = {
   },
 
   phaseName () {
-    const { internalPhaseTranslationKey, externalPhaseTranslationKey } = this.procedure
-    if (!!internalPhaseTranslationKey && !!externalPhaseTranslationKey) {
-      return `${Translator.trans(internalPhaseTranslationKey)} / ${Translator.trans(externalPhaseTranslationKey)}`
-    } else if (externalPhaseTranslationKey) {
-      return Translator.trans(externalPhaseTranslationKey)
-    } else if (internalPhaseTranslationKey) {
-      return Translator.trans(internalPhaseTranslationKey)
+    const { internalPhaseDefinitionName, externalPhaseDefinitionName } = this.procedure
+
+    if (internalPhaseDefinitionName && externalPhaseDefinitionName) {
+      return `${internalPhaseDefinitionName} / ${externalPhaseDefinitionName}`
+    } else if (externalPhaseDefinitionName) {
+      return externalPhaseDefinitionName
+    } else if (internalPhaseDefinitionName) {
+      return internalPhaseDefinitionName
     }
   },
 }

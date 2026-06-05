@@ -40,23 +40,21 @@ class ExportFieldsConfiguration extends CoreEntity implements UuidEntityInterfac
      * @var ProcedureInterface
      */
     #[ORM\JoinColumn(referencedColumnName: '_p_id', nullable: false)]
-    #[ORM\ManyToOne(targetEntity: Procedure::class, inversedBy: 'exportFieldsConfigurations', cascade: ['persist'])]
+    #[ORM\ManyToOne(targetEntity: Procedure::class, cascade: ['persist'], inversedBy: 'exportFieldsConfigurations')]
     private $procedure;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     private $creationDate;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="update")
      */
     #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     private $modificationDate;
 
     /**

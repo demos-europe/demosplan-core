@@ -61,23 +61,21 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
      * @var InstitutionTagCategory
      */
     #[ORM\JoinColumn(referencedColumnName: 'id', nullable: false)]
-    #[ORM\ManyToOne(targetEntity: InstitutionTagCategory::class, inversedBy: 'tags', cascade: ['persist'])]
+    #[ORM\ManyToOne(targetEntity: InstitutionTagCategory::class, cascade: ['persist'], inversedBy: 'tags')]
     protected $category;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $creationDate;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="update")
      */
     #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     private $modificationDate;
 
     public function getId(): ?string

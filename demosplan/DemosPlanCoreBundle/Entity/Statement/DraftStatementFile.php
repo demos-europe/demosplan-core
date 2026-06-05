@@ -43,10 +43,9 @@ class DraftStatementFile implements UuidEntityInterface, DraftStatementFileInter
 
     /**
      * @var DateTimeInterface
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     private $createDate;
 
     /**
