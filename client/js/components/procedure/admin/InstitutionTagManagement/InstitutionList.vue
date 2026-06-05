@@ -461,6 +461,7 @@ export default {
     },
 
     getInstitutionsByPage (page) {
+      const customFields = hasPermission('feature_organisations_custom_fields') ? ['customFields'] : []
       const args = {
         page: {
           number: page,
@@ -472,7 +473,7 @@ export default {
             'name',
             'createdDate',
             'assignedTags',
-            'customFields',
+            ...customFields,
           ].join(),
           InstitutionTag: [
             'category',
