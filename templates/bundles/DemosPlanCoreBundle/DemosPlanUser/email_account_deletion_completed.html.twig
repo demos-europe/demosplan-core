@@ -1,0 +1,11 @@
+{% extends '@DemosPlanCore/DemosPlanCore/email.html.twig' %}
+{% block body_plain %}
+
+Sehr geehrte/r {{ templateVars.firstname }} {{ templateVars.lastname }},
+
+Ihr Konto wurde aufgrund von Inaktivität gemäß den geltenden Datenschutzrichtlinien gelöscht.
+
+Mit freundlichen Grüßen
+Ihr Support-Team {{ projectName }}
+
+{% endblock body_plain %}

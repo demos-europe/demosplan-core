@@ -466,6 +466,7 @@ export default {
     DpDatepicker,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
+
       return DpEditor
     }),
     DpIcon,
@@ -566,6 +567,7 @@ export default {
             id: assignableUser.id,
           }
         })
+
       assigneeOptions.unshift({
         name: Translator.trans('not.assigned'),
         id: 'noAssigneeId',
@@ -628,11 +630,13 @@ export default {
 
     visibleRecommendation () {
       const shortText = this.segment.attributes.recommendation.length > 40 ? this.segment.attributes.recommendation.slice(0, 40) + '...' : this.segment.attributes.recommendation
+
       return this.isCollapsed ? shortText : this.segment.attributes.recommendation
     },
 
     visibleSegmentText () {
       const shortText = this.segment.attributes.text.length > 40 ? this.segment.attributes.text.slice(0, 40) + '...' : this.segment.attributes.text
+
       return this.isCollapsed ? shortText : this.segment.attributes.text
     },
   },
@@ -675,6 +679,7 @@ export default {
     abort () {
       // Restore initial recommendation value, set it also in tiptap
       const initText = this.$store.state.StatementSegment.initial[this.segment.id].attributes.recommendation
+
       this.updateSegment('recommendation', initText)
       // Update interface
       this.isFullscreen = false
@@ -704,6 +709,7 @@ export default {
           },
         },
       }
+
       this.setSegment({ ...dataToUpdate, id: this.segment.id })
 
       const payload = {
@@ -873,6 +879,7 @@ export default {
             comments,
           },
         }
+
         this.setSegment({ ...segmentWithComments, id: this.segment.id })
       }
     },
@@ -1059,6 +1066,7 @@ export default {
           this.isEditing = false
           this.isCollapsed = true
           const dataToUpdate = JSON.parse(JSON.stringify(this.segment))
+
           delete dataToUpdate.relationships.assignee
           // Reset recommendation text in store (segment might have been in edit mode with some changes)
           dataToUpdate.attributes.recommendation = this.$store.state.StatementSegment.initial[this.segment.id].attributes.recommendation
@@ -1124,6 +1132,7 @@ export default {
 
     updateSegment (key, val) {
       const updated = { ...this.segment, ...{ attributes: { ...this.segment.attributes, ...{ [key]: val } } } }
+
       this.setSegment({ ...updated, id: this.segment.id })
     },
 

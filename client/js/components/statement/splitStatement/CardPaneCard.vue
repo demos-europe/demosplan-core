@@ -178,9 +178,11 @@ export default {
   methods: {
     calculateCardPosition () {
       const segmentEl = document.querySelector(`#editor [data-segment-id="${this.segment.id}"]`)
+
       if (segmentEl) {
         const mainOffset = document.querySelector('div.ProseMirror').getBoundingClientRect().top
         const segmentOffset = segmentEl.getBoundingClientRect().top
+
         this.offsetTop = segmentOffset - mainOffset + 'px'
       }
 
@@ -196,6 +198,7 @@ export default {
 
     window.addEventListener('scroll', () => {
       const segmentSpans = Array.from(document.querySelectorAll(`#editor [data-segment-id="${this.segment.id}"]`))
+
       if (segmentSpans.length === 0) {
         return
       }
@@ -209,6 +212,7 @@ export default {
 
       if (top < threshold && bottom > threshold) {
         const parent = document.querySelector('.split-statement .container').getBoundingClientRect().top
+
         /*
          * The magic 24 is subtracted to compensate the padding-top
          * between segmentation-editor container and fixed header.

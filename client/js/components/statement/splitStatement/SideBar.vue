@@ -298,6 +298,7 @@ export default {
       if (this.currentSegment && hasOwnProp(this.currentSegment, 'assigneeId')) {
         return this.getAssignableUserById(this.currentSegment.assigneeId)
       }
+
       const noAssignee = this.getAssignableUserById('noAssigneeId')
 
       return noAssignee || null
@@ -424,6 +425,7 @@ export default {
         // Place can't be empty
         if (this.selectedPlace?.id) {
           const place = this.availablePlaces.find(aPlace => aPlace.id === this.selectedPlace.id)
+
           segment.place = place ? { id: place.id, name: place.name } : { id: this.availablePlaces[0].id, name: this.availablePlaces[0].name }
         }
       }

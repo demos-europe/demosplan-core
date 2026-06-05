@@ -79,7 +79,7 @@ class TokenExpirationService
                     );
                 }
             } catch (Exception $e) {
-                $this->logger->error('Failed to store id_token for logout', ['error' => $e->getMessage()]);
+                $this->logger->error('oauthAuthenticator: Failed to store id_token for logout', ['error' => $e->getMessage()]);
             }
 
             $this->oauthTokenStorageService->bufferRequestIfNeeded($oauthToken);
@@ -102,7 +102,7 @@ class TokenExpirationService
                     }
                     $this->oauthTokenStorageService->storePendingPageUrl($oauthToken, $path);
                 } catch (Exception $e) {
-                    $this->logger->error('Failed to store pending page URL for redirect-back', ['error' => $e->getMessage()]);
+                    $this->logger->error('oauthAuthenticator: Failed to store pending page URL for redirect-back', ['error' => $e->getMessage()]);
                 }
             }
         }
@@ -138,7 +138,7 @@ class TokenExpirationService
 
     private function redirectToLogout(ControllerEvent $event): void
     {
-        $this->logger->info('Token expired, redirecting to logout');
+        $this->logger->info('oauthAuthenticator: Token expired, redirecting to logout');
 
         $redirectResponse = new RedirectResponse($this->router->generate('DemosPlan_user_logout'));
         $event->setController(static fn () => $redirectResponse);

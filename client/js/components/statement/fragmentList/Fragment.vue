@@ -645,6 +645,7 @@ export default {
       if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee?.id) {
         return this.fragment.assignee.id
       }
+
       return ''
     },
 
@@ -652,6 +653,7 @@ export default {
       if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee?.name) {
         return this.fragment.assignee.name
       }
+
       return ''
     },
 
@@ -667,6 +669,7 @@ export default {
       if (Array.isArray(this.fragment.document)) {
         return false
       }
+
       return true
     },
 
@@ -674,6 +677,7 @@ export default {
       if (hasOwnProp(this.fragment, 'assignee') && this.fragment.assignee?.orgaName) {
         return this.fragment.assignee.orgaName
       }
+
       return ''
     },
 
@@ -687,6 +691,7 @@ export default {
       for (let i = 0; i < this.fragment.statement.files.length; i++) {
         files.push(getFileInfo(this.fragment.statement.files[i]))
       }
+
       return files
     },
 

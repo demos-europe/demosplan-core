@@ -119,12 +119,15 @@ export default {
     setTableElements () {
       this.tableElements = this.documents.map(el => {
         let file = `${el.fileName ?? Translator.trans('notspecified')}`
+
         if (el.size || el.mimeType) {
           file += `(${el.size ?? ''} ${el.mimeType ?? ''})`
         }
+
         const status = el.status ? Translator.trans('released') : Translator.trans('blocked')
         const statement = el.statementEnabled ? Translator.trans('yes') : Translator.trans('no')
         const { title, id, hash, procedure, hasDocument } = el
+
         return { title, file, status, statement, id, hash, procedure, hasDocument }
       })
     },
@@ -153,6 +156,7 @@ export default {
 
     saveManualSort (val) {
       const initialSort = structuredClone(this.tableElements)
+
       this.tableElements.splice(val.moved.newIndex, 0, this.tableElements.splice(val.moved.oldIndex, 1)[0])
 
       const payload = {
@@ -187,6 +191,7 @@ export default {
         if (a.name > b.name) {
           return 1
         }
+
         if (b.name > a.name) {
           return -1
         }

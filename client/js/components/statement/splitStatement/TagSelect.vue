@@ -77,11 +77,13 @@ export default {
       } else {
         return this.tags.filter((tag) => {
           let returnValue = false
+
           if (hasOwnProp(tag, 'relationships') && hasOwnProp(tag.relationships, 'topic')) {
             if (hasOwnProp(tag.relationships.topic, 'data') && typeof tag.relationships.topic.data !== 'undefined') {
               returnValue = tag.relationships.topic.data.id === this.entity.id ? tag : false
             }
           }
+
           return returnValue
         })
       }
@@ -95,8 +97,10 @@ export default {
 
     updateTags (val, isEditing = true) {
       let value
+
       if (Array.isArray(val)) {
         const [tag] = val
+
         value = tag
       } else if (typeof val === 'object' && !Array.isArray(val)) {
         value = val

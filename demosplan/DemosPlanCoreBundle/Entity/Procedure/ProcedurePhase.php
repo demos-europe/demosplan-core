@@ -56,7 +56,7 @@ class ProcedurePhase extends CoreEntity implements UuidEntityInterface, Procedur
     #[Gedmo\Timestampable(on: 'update')]
     private $modificationDate;
 
-    #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     protected ?string $designatedPhase = null;
 
     #[ORM\ManyToOne(targetEntity: ProcedurePhaseDefinition::class)]

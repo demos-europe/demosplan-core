@@ -66,6 +66,7 @@ describe('StatementExportModal', () => {
   it('opens the modal when the button is clicked', async () => {
     const modal = wrapper.findComponent(DpModal)
     const mockEvent = { preventDefault: jest.fn() }
+
     modal.vm.$emit('click', mockEvent)
 
     expect(modal.isVisible()).toBe(true)
@@ -73,6 +74,7 @@ describe('StatementExportModal', () => {
 
   it('sets the initial values correctly', () => {
     const sessionStorageValue = 'Stored Column Title'
+
     window.sessionStorage.setItem('exportModal:docxCol:col1', JSON.stringify(sessionStorageValue))
     wrapper.vm.setInitialValues()
 
@@ -90,6 +92,7 @@ describe('StatementExportModal', () => {
 
       Object.keys(wrapper.vm.docxColumns).forEach(key => {
         const input = wrapper.find(`[datacy="exportModal:input:${key}"]`)
+
         expect(input.exists()).toBe(true)
       })
     })
@@ -275,6 +278,7 @@ describe('StatementExportModal', () => {
     ]
 
     const flyoutRef = wrapper.vm.$refs.filterFlyout
+
     expect(flyoutRef).toBeTruthy()
     flyoutRef.itemsSelected = itemsSelectedMock
 
@@ -308,6 +312,7 @@ describe('StatementExportModal', () => {
     ]
 
     const flyoutRef = wrapper.vm.$refs.filterFlyout
+
     expect(flyoutRef).toBeTruthy()
     flyoutRef.itemsSelected = itemsSelectedMock
 
@@ -354,6 +359,7 @@ describe('StatementExportModal', () => {
 
   it('closes the DpModal after executing the handleExport function', () => {
     const toggleSpy = jest.spyOn(wrapper.vm.$refs.exportModalInner, 'toggle')
+
     wrapper.vm.handleExport()
 
     expect(toggleSpy).toHaveBeenCalled()
@@ -390,6 +396,7 @@ describe('StatementExportModal', () => {
 
   it('requests the full-export placeholder when no tag filters are selected', () => {
     const transSpy = jest.spyOn(globalThis.Translator, 'trans')
+
     transSpy.mockClear()
 
     expect(wrapper.vm.customHeaderPlaceholder).toBe('docx.export.header.custom.placeholder')
@@ -401,6 +408,7 @@ describe('StatementExportModal', () => {
 
   it('requests the partial-export placeholder when tag filters are selected', async () => {
     const transSpy = jest.spyOn(globalThis.Translator, 'trans')
+
     await wrapper.setData({ selectedTagIds: ['tagID1'] })
     transSpy.mockClear()
 

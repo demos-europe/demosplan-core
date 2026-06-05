@@ -248,14 +248,10 @@ export default {
 
   computed: {
     hasUnsavedChanges () {
-      if (!this.localAttachments || !this.initialAttachments) {
-        return false
-      }
-
-      const initialAttributes = this.initialAttachments
-      const currentAttributes = this.localAttachments
-
-      return JSON.stringify(currentAttributes) !== JSON.stringify(initialAttributes)
+      return this.fileIds.length > 0 ||
+        this.genericAttachmentsMarkedForDeletion.length > 0 ||
+        this.isSourceAttachmentMarkedForDeletion ||
+        this.fileIdSourceAttachment !== ''
     },
   },
 
@@ -447,6 +443,7 @@ export default {
 
     markGenericAttachmentForDeletion (id) {
       const genericAttachmentToBeDeleted = { ...this.localAttachments.additionalAttachments.find(attachment => attachment.id === id) }
+
       this.genericAttachmentsMarkedForDeletion.push(genericAttachmentToBeDeleted)
     },
 

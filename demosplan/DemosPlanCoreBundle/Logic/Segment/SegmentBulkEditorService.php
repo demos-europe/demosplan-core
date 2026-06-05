@@ -42,7 +42,7 @@ class SegmentBulkEditorService
     ) {
     }
 
-    public function updateSegments($segments, $addTagIds, $removeTagIds, $assignee, $workflowPlace, $customFields)
+    public function updateSegments($segments, $addTagIds, $removeTagIds, $assignee, $workflowPlace, $customFields, $deadline)
     {
         foreach ($segments as $segment) {
             /* @var Segment $segment */
@@ -67,6 +67,10 @@ class SegmentBulkEditorService
                     'SEGMENT'
                 );
                 $segment->setCustomFields($customFieldList);
+            }
+
+            if (null !== $deadline) {
+                $segment->setDeadline($deadline);
             }
         }
 

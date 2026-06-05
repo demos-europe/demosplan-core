@@ -33,6 +33,7 @@ const presetModules = [
   .filter(name => hasPermission('feature_procedure_report_' + name))
   .map(name => {
     const camelName = name.replace(/_([a-z])/g, (match, p1) => p1.toUpperCase())
+
     return {
       name: camelName,
       defaultQuery: {
