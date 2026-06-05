@@ -304,6 +304,9 @@
                     {{ Translator.trans('submit.type') }}:
                   </dt>
                   <dd>{{ submitType }}</dd>
+                  <!-- TODO(DPLAN-17748): show the statement's associated group once the backend exposes it -->
+                  <dt>{{ Translator.trans('statement.associated.group') }}:</dt>
+                  <dd>-</dd>
                 </dl>
               </div>
             </template>
