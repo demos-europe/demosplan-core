@@ -230,6 +230,9 @@ class UserService implements UserServiceInterface
         return null;
     }
 
+    /**
+     * @return User|false
+     */
     public function findDistinctUserByEmailOrLogin($loginOrEmail)
     {
         // Use case-insensitive login lookup (explicit UPPER() in query)

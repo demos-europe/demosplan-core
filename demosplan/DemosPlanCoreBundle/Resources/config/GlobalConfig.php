@@ -1253,6 +1253,9 @@ class GlobalConfig implements GlobalConfigInterface
         return $this->mapPublicExtent;
     }
 
+    /**
+     * @return mixed
+     */
     public function getMapPublicAvailableScales()
     {
         return $this->mapPublicAvailableScales;
@@ -1362,6 +1365,9 @@ class GlobalConfig implements GlobalConfigInterface
         return $this->allowedMimeTypes;
     }
 
+    /**
+     * @return mixed
+     */
     public function getProcedureEntrypointRoute()
     {
         return $this->procedureEntrypointRoute;
