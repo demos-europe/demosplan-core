@@ -21,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedGuestException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Export\AssessmentTableFormattingTrait;
-use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocxExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -147,8 +146,7 @@ class AssessmentTableServiceOutput
         private readonly StatementHandler $statementHandler,
         StatementService $statementService,
         private readonly TranslatorInterface $translator,
-        ValidatorInterface $validator,
-        private readonly DocumentWriterSelector $writerSelector,
+        ValidatorInterface $validator
     ) {
         $this->assessmentTableServiceStorage = $assessmentTableServiceStorage;
         $this->config = $config;
