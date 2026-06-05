@@ -379,6 +379,7 @@ import {
   DpTooltip,
   hasOwnProp,
   prefixClassMixin,
+  toDate,
 } from '@demos-europe/demosplan-ui'
 import { defineAsyncComponent } from 'vue'
 import { mapActions, mapState } from 'vuex'
@@ -677,7 +678,7 @@ export default {
       }
 
       if (this.actions.addDeadline.checked && this.actions.addDeadline.value) {
-        params.deadline = this.actions.addDeadline.value
+        params.deadline = toDate(this.actions.addDeadline.value, 'YYYY-MM-DD')
       }
 
       dpRpc('segment.bulk.edit', params)
