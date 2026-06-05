@@ -25,6 +25,7 @@ All rights reserved
         <div class="mt-5 mb-6">
           <dp-radio
             id="action-create"
+            checked
             class="mb-3"
             name="groupAction"
             value="createGroup"
@@ -82,7 +83,7 @@ All rights reserved
         </div>
       </template>
       <template v-slot:step-2>
-        <div>
+        <div data-dp-validate="groupForm">
           <dp-input
             id="groupName"
             v-model="groupName"
@@ -104,6 +105,7 @@ All rights reserved
             v-model="mainStatementId"
             :custom-label="stmt => stmt.attributes.externId"
             :options="statements"
+            required
             track-by="id"
             searchable
           />
@@ -122,7 +124,7 @@ All rights reserved
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { dpApi, DpIcon, DpInput, DpLabel, DpLoading, DpMultiselect, DpRadio } from '@demos-europe/demosplan-ui'
+import { dpApi, DpIcon, DpInput, DpLabel, DpLoading, DpMultiselect, DpRadio, validateForm } from '@demos-europe/demosplan-ui'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
 import lscache from 'lscache'
@@ -162,6 +164,15 @@ const translations = computed(() => ({
 
 function handleApply () {
   console.log('apply clicked, statements:', statements.value)
+
+  const { valid } = validateForm(document.querySelector('[data-dp-validate=groupForm]'))
+
+  if (!valid) {
+    dplan.notify.notify('error', Translator.trans('error.mandatoryfields'))
+
+    return
+  }
+
   step.value = 3
 }
 
