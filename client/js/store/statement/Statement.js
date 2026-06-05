@@ -26,6 +26,7 @@ function addTitleAttr (data) {
   if (data.data.relationships?.paragraph) {
     titleAttrs.paragraphTitle = ''
   }
+
   if (data.data.relationships?.document) {
     titleAttrs.documentTitle = ''
   }
@@ -40,6 +41,7 @@ function addTitleAttr (data) {
  */
 function addIdAttr (dataToUpdate, data) {
   const idAttrs = {}
+
   if (dataToUpdate.elementId && data.data.relationships.paragraph.data === null) {
     idAttrs.paragraphParentId = ''
   }
@@ -116,7 +118,10 @@ function mapRelations (data, includes) {
 }
 
 function mapSingleRelation ({ id, type }, includes) {
-  if (!id) return null
+  if (!id) {
+    return null
+  }
+
   const item = includes.find(incl => incl.id === id && incl.type === type)
 
   return item ? { id: item.id, ...item.attributes } : null
@@ -131,6 +136,7 @@ function setUpdatedProps (data) {
 
   //  Loop over data (a.k.a. what is passed from component to be saved)
   let updatedData = {}
+
   if (data.data.attributes) {
     updatedData = {
       ...data.data.attributes,
@@ -156,6 +162,7 @@ function setUpdatedProps (data) {
 function transformStatementStructure ({ el, includes, meta }) {
   // Map attributes to match the old structure/naming
   const statement = el.attributes
+
   statement.clusterName = statement.name || ''
   statement.files = statement.files || []
   statement.fragments = statement.fragments || []
@@ -180,6 +187,7 @@ function transformStatementStructure ({ el, includes, meta }) {
       // For 1-n Relations
       if (Array.isArray(data)) {
         const items = data.length ? mapRelations(data, includes) : []
+
         statement[relationKey] = items
 
         if (relationKey === 'genericAttachments') {
@@ -205,6 +213,7 @@ function transformStatementStructure ({ el, includes, meta }) {
 
 function prepareStatement ({ el, includes, meta }) {
   const statement = transformStatementStructure({ el, includes, meta })
+
   return setStatementAssignee(statement)
 }
 
@@ -220,6 +229,7 @@ function setStatementAssignee (statement) {
 
   return statement
 }
+
 export default {
   namespaced: true,
 
@@ -260,6 +270,7 @@ export default {
 
       if (hasOwnProp(state.selectedElements, statement.id) && state.persistStatementSelection) {
         const selectedEntries = JSON.parse(sessionStorage.getItem('selectedElements')) || {}
+
         selectedEntries[state.procedureId][statement.id].assignee = statement.assignee
         sessionStorage.setItem('selectedElements', JSON.stringify(selectedEntries))
       }
@@ -382,6 +393,7 @@ export default {
 
         if (state.persistStatementSelection) {
           const selectedEntries = JSON.parse(sessionStorage.getItem('selectedElements')) || {}
+
           selectedEntries[state.procedureId][data.id].assignee = data.assigne
           sessionStorage.setItem('selectedElements', JSON.stringify(selectedEntries))
         }
@@ -396,6 +408,7 @@ export default {
        * For reactivity reasons, we should merge the updated statement into statements and then reassign the whole statements object.
        */
       const newStatement = { [data.id]: { ...state.statements[data.id], ...data } }
+
       state.statements = { ...state.statements, ...newStatement }
     },
   },
@@ -418,9 +431,11 @@ export default {
       if (state.persistStatementSelection) {
         sessionStorage.setItem('selectedElements', JSON.stringify(selectedEntries))
       }
+
       commit('addElementToSelection', data)
       performance.mark('selection-end')
       performance.measure('selection-duration', 'selection-start', 'selection-end')
+
       return Promise.resolve(true)
     },
 
@@ -473,6 +488,7 @@ export default {
           if (e.response && e.response.data && hasOwnProp(e.response.data, 'meta') && hasOwnProp(e.response.data.meta, 'messages')) {
             handleResponseMessages(e.response.data.meta)
           }
+
           return e
         })
     },
@@ -656,6 +672,7 @@ export default {
 
           if (state.persistStatementSelection) {
             const selectedEntries = JSON.parse(sessionStorage.getItem('selectedElements')) || {}
+
             selectedEntries[state.procedureId] = { ...selectedEntries[state.procedureId], ...sessionStorageUpdates }
             sessionStorage.setItem('selectedElements', JSON.stringify(selectedEntries))
           }
@@ -670,6 +687,7 @@ export default {
         .catch(e => {
           console.error(e)
           dplan.notify.error(Translator.trans('error.api.generic'))
+
           return {}
         })
     },
@@ -703,7 +721,9 @@ export default {
         delete selectedEntries[state.procedureId][id]
         sessionStorage.setItem('selectedElements', JSON.stringify(selectedEntries))
       }
+
       commit('removeElementFromSelection', id)
+
       return Promise.resolve(true)
     },
 
@@ -733,11 +753,14 @@ export default {
      */
     resetSelection ({ state, commit }) {
       const sessionStore = JSON.parse(sessionStorage.getItem('selectedElements'))
+
       if (sessionStore) {
         delete sessionStore[state.procedureId]
         sessionStorage.setItem('selectedElements', JSON.stringify(sessionStore))
       }
+
       commit('resetSelection')
+
       return true
     },
 
@@ -764,9 +787,11 @@ export default {
       })
         .then(response => {
           let assignee = {}
+
           if (assigneeId === '' || assigneeId == null) {
             assignee = { id: '', name: '', orgaName: '', uId: '' }
             commit('updateStatement', { id: statementId, assignee })
+
             return { id: statementId, assignee }
           } else {
             assignee = {
@@ -776,6 +801,7 @@ export default {
               orgaName: response.data.data.attributes.orgaName,
             }
             commit('updateStatement', { id: statementId, assignee })
+
             return { id: statementId, assignee }
           }
         })
@@ -819,6 +845,7 @@ export default {
      */
     setProcedureIdAction ({ commit }, procedureId) {
       commit('setProcedureId', procedureId)
+
       return Promise.resolve(true)
     },
 
@@ -845,6 +872,7 @@ export default {
             if (initStatement && hasOwnProp(initStatement, 'assigneeId')) {
               item.assignee = { id: initStatement.assigneeId ? initStatement.assigneeId : '' }
             }
+
             // Hidden elements are needed for submit form actions in ATabelle, to submit also the selected elements from other pages (if the element is on other page, the hiddenElement is true). it is used in selectedElementsFromOtherPages getter and then in assessment_table_view.twig
             item.hiddenElement = hasOwnProp(state.statements, itemId) === false
 
@@ -898,6 +926,7 @@ export default {
         .then(response => {
           let dataToUpdate = {}
           const updatedData = setUpdatedProps(data)
+
           dataToUpdate = getDataFromResponse(response.data, dataToUpdate, updatedData)
 
           /*
@@ -921,6 +950,7 @@ export default {
         })
         .catch(err => {
           dplan.notify.error(Translator.trans('statement.change.failed'))
+
           return err
         })
     },
@@ -948,12 +978,14 @@ export default {
           data.relationships.statements.data.filter(stn => stn.id !== data.attributes.headStatementId).forEach(stn => dispatch('removeStatementAction', stn.id))
 
           commit('updateStatement', { id: response.data.attributes.id, isCluster: true })
+
           return response
         })
         .catch(e => {
           if (e.response && e.response.data && hasOwnProp(e.response.data, 'meta') && hasOwnProp(e.response.data.meta, 'messages')) {
             handleResponseMessages(e.response.data.meta)
           }
+
           return e
         })
     },
@@ -995,11 +1027,13 @@ export default {
       })
 
       const elementsFromOtherPages = {}
+
       for (const itemId in selectedItems) {
         if (hasOwnProp(state.statements, selectedItems[itemId]) === false) {
           elementsFromOtherPages[selectedItems[itemId]] = state.selectedElements[selectedItems[itemId]]
         }
       }
+
       return elementsFromOtherPages
     },
 

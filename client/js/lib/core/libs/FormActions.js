@@ -47,6 +47,7 @@
 function addFormHiddenField (form, fieldname, value) {
   //  Append new hidden field reflecting current form action
   const input = document.createElement('input')
+
   setAttributes(input, { type: 'hidden', name: fieldname, value, 'data-form-actions-added': '1' })
 
   form.appendChild(input)
@@ -59,6 +60,7 @@ function addFormHiddenField (form, fieldname, value) {
 function removeFormHiddenField (form) {
   const formSelector = form.name !== '' ? '[name=' + form.name + ']' : '[id=' + form.id + ']'
   const target = Array.from(document.querySelectorAll(`${formSelector} [data-form-actions-added]`))
+
   target.forEach(el => {
     el.parentNode.removeChild(el)
   })
@@ -93,6 +95,7 @@ function FormActions () {
      */
     document.addEventListener('customValidationFailed', (e) => {
       const form = e.detail.form
+
       try {
         removeFormHiddenField(form)
       } catch (err) {
@@ -108,6 +111,7 @@ function FormActions () {
      * @TODO Refactor form actions to make it unnecessary to add a hidden field
      */
     const formActionsConfirm = Array.from(document.querySelectorAll('[data-form-actions-confirm]'))
+
     formActionsConfirm.forEach((element) => {
       element.addEventListener('click', ev => {
         //  Get confirm message from data attr
@@ -126,6 +130,7 @@ function FormActions () {
           //  Add hidden field with intended form action
           if (simple === false) {
             const hiddenInputValue = ev.currentTarget.getAttribute('data-form-actions-confirm-value')
+
             addFormHiddenField(form, ev.currentTarget.name, hiddenInputValue || 1)
           }
         } else {
@@ -138,6 +143,7 @@ function FormActions () {
      * Add hidden field with sort order of a list of elements
      */
     const manualSortBtn = Array.from(document.querySelectorAll('[data-form-actions-manualsort]'))
+
     manualSortBtn.forEach(element => {
       element.addEventListener('click', () => {
         const form = element.closest('form')
@@ -150,6 +156,7 @@ function FormActions () {
 
         // Loop over set of items to get their actual order
         const sortedArray = Array.from(document.querySelectorAll('input[name="' + target + '"]'))
+
         sortedArray.forEach(el => {
           sorted.push(el.getAttribute('value'))
         })
@@ -161,11 +168,13 @@ function FormActions () {
      * Add hidden input field when click on export button, and take id for input value.
      */
     const linkPdfExportSingle = Array.from(document.querySelectorAll('[data-form-actions-pdf-single]'))
+
     linkPdfExportSingle.forEach((element) => {
       element.addEventListener('click', event => {
         event.preventDefault()
         const statementId = event.target.getAttribute('data-form-actions-pdf-single')
         const form = element.closest('form')
+
         form.setAttribute('target', '_blank')
         removeFormHiddenField(form)
         addFormHiddenField(form, 'pdfExportSingle', statementId)
@@ -177,9 +186,11 @@ function FormActions () {
      * Remove hidden fields before doing Filter & remove target from Form.
      */
     const submitFilterSet = Array.from(document.querySelectorAll('[data-submit-filter-set]'))
+
     if (submitFilterSet.length > 0) {
       submitFilterSet.forEach(el => {
         const form = el.closest('form')
+
         el.addEventListener('click', () => {
           removeFormHiddenField(form)
           form.removeAttribute('target')
@@ -194,8 +205,10 @@ function FormActions () {
      * Remove hidden fields before Submit marked Statements & remove target from Form.
      */
     const statementReleaseBtn = document.querySelector('button[name=statement_release]')
+
     if (statementReleaseBtn) {
       const form = statementReleaseBtn.closest('form')
+
       statementReleaseBtn.addEventListener('click', () => {
         removeFormHiddenField(form)
         form.removeAttribute('target')
@@ -212,6 +225,7 @@ function FormActions () {
     if (formActionsPdfInstitutionsList.length > 0) {
       formActionsPdfInstitutionsList.forEach((element) => {
         const form = element.closest('form')
+
         element.addEventListener('click', () => {
           if (document.querySelector('input[name=r_gdpr_consent]') !== null) {
             document.querySelector('input[name=r_gdpr_consent]').checked = true
@@ -248,6 +262,7 @@ function FormActions () {
               removeFormHiddenField(form)
               this.removeAttribute('target')
             }
+
             if (document.querySelector('input[name=r_gdpr_consent]') !== null) {
               document.querySelector('input[name=r_gdpr_consent]').checked = false
             }
@@ -265,17 +280,21 @@ function FormActions () {
      * Disables any other possible side-effect actions.
      */
     const formActionsSubmitTarget = Array.from(document.querySelectorAll('[data-form-actions-submit-target]'))
+
     if (formActionsSubmitTarget.length > 0) {
       formActionsSubmitTarget.forEach((element) => {
         const form = element.closest('form')
+
         element.addEventListener('keypress', e => {
           if (e.keyCode === 13) {
             const target = element.getAttribute('data-form-actions-submit-target')
+
             document.querySelector(target).click()
             e.preventDefault()
           }
         })
         const otherButtonsInForm = Array.from(form.querySelectorAll('input:not(textarea):not([type=submit])'))
+
         otherButtonsInForm.forEach(btn => {
           btn.addEventListener('keypress', e => (e.keyCode !== 13))
         })

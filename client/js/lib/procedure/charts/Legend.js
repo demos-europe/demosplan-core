@@ -48,10 +48,12 @@ export default class Legend {
     // Utility function to be called on mouseover of a legend element.
     const mouseover = (ev, d) => {
       const i = d.index
+
       this.updateElementColor(this.getChartElement(i), this.activeColor)
       this.updateElementColor(this.getLegendElement(i), this.activeColor)
 
       const dataPoints = this.getDataPointElements()
+
       if (dataPoints.size() > 0) {
         this.updateElementColor(dataPoints, this.activeColor, true)
       }
@@ -60,9 +62,11 @@ export default class Legend {
     // Utility function to be called on mouseout of a legend element.
     const mouseout = (ev, d) => {
       const i = d.index
+
       this.updateElementColor(this.getChartElement(i), this.colors[i])
       this.updateElementColor(this.getLegendElement(i), this.colors[i])
       const dataPoints = this.getDataPointElements()
+
       if (dataPoints.size() > 0) {
         this.updateElementColor(dataPoints, this.colors[i])
       }
@@ -113,6 +117,7 @@ export default class Legend {
       if (typeof d === 'object' && hasOwnProp(d, 'url')) {
         text = `<a href="${d.url}">${text}</a>`
       }
+
       return text
     })
 
@@ -148,6 +153,7 @@ export default class Legend {
     // Update the frequencies.
     l.select('[data-selector=legendFreq]').text((d) => {
       let val = 0
+
       if (typeof d[1] !== 'undefined') {
         val = d[1]
       } else if (typeof d.freq !== 'undefined') {
@@ -174,9 +180,11 @@ export default class Legend {
       if (hasOwnProp(st, 'Category')) {
         headingPostfix = st.Category !== 'gesamt' ? entityName + ' ' + '"' + st.Category + '"' : headingPostfix
       }
+
       if (hasOwnProp(st, 'key')) {
         headingPostfix = st.key !== 'gesamt' ? entityName + ' ' + '"' + st.key + '"' : headingPostfix
       }
+
       return headingPostfix
     })
   }

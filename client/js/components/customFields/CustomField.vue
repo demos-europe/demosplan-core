@@ -373,10 +373,12 @@ export default {
 
         if (isRequired && isEmpty) {
           const fieldName = this.resolvedDefinition?.attributes?.name
+
           dplan.notify.notify('error', fieldName ?
             Translator.trans('error.mandatoryfield', { name: fieldName }) :
             Translator.trans('error.mandatoryfields'),
           )
+
           return
         }
 

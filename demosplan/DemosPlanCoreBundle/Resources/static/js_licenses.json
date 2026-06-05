@@ -507,7 +507,7 @@
     {
         "package": "terser-webpack-plugin",
         "license": "MIT",
-        "website": "https://github.com/webpack/terser-webpack-plugin"
+        "website": "https://github.com/webpack/minimizer-webpack-plugin"
     },
     {
         "package": "timers-browserify",

@@ -34,6 +34,7 @@ class Config {
 
     // Yes, technically this is not needed, but it's here to document the possible use in `config.webpack`.
     const clientBundlesPath = path.resolve(__dirname, this.relativeRoot) + '/client/js/bundles'
+
     this.clientBundleGlob = clientBundlesPath + '/**/*.js'
 
     this.purgeCss = {
