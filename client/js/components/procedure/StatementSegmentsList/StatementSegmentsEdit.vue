@@ -498,6 +498,13 @@ export default {
       this._localSegmentTexts[segmentId] = val
     },
 
+    hasUnsavedChanges () {
+      console.log('_localSegmentTexts', this._localSegmentTexts)
+      console.log('segments', this.segments)
+
+      return this._localSegmentTexts
+    },
+
     getStatementInitialText () {
       return this.statement?.attributes?.fullText || ''
     },
