@@ -368,7 +368,10 @@ export default {
     isActive (newValue) {
       if (newValue) {
         this.getInstitutionTagCategories()
-        this.loadCustomFieldDefinitions()
+
+        if (hasPermission('feature_organisations_custom_fields')) {
+          this.loadCustomFieldDefinitions()
+        }
       }
     },
   },
@@ -673,10 +676,11 @@ export default {
   },
 
   mounted () {
+    const customFields = hasPermission('feature_organisations_custom_fields') ? [this.loadCustomFieldDefinitions()] : []
     const promises = [
       this.getInstitutionsByPage(1),
       this.getInstitutionTagCategories(true),
-      this.loadCustomFieldDefinitions(),
+      ...customFields
     ]
 
     Promise.allSettled(promises)
