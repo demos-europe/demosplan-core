@@ -334,7 +334,10 @@
       />
     </template>
   </div>
-  <statement-group-form :procedure-id="procedureId" />
+  <statement-group-form
+    v-if="showGroupForm"
+    :procedure-id="procedureId"
+  />
 </template>
 
 <script>
@@ -436,6 +439,11 @@ export default {
         perPage: 10,
       },
       isFullscreen: false,
+      // Provisional: renders the inline group form on click so it mounts fresh and reads
+      // the freshly stored selection from localStorage. Mimics the future dedicated page
+      // that the backend redirect will open. Remove together with the inline form once the
+      // backend route exists.
+      showGroupForm: false,
       lsKey: {
         // LocalStorage keys
         toggledStatements: `${this.procedureId}:toggledStatements`,
@@ -635,7 +643,9 @@ export default {
     handleBulkGroup () {
       console.log('toggledItems:', this.toggledItems)
       this.storeToggledStatements()
-      // Todo: Routing to tbd
+      // Mount the form after the selection is stored, so its onMounted reads the fresh
+      // localStorage data. Replaced by a redirect to the dedicated page once the route exists.
+      this.showGroupForm = true
     },
 
     handleFullTextAction (statementId) {
