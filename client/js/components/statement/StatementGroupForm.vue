@@ -35,16 +35,6 @@ All rights reserved
             }"
             @change="selectedAction = 'createGroup'"
           />
-          <dp-radio
-            id="addToGroup"
-            name="groupAction"
-            value="addToGroup"
-            :label="{
-              text: Translator.trans('statement.cluster.add'),
-              hint: Translator.trans('statement.cluster.add.hint'),
-            }"
-            @change="selectedAction = 'addToGroup'"
-          />
         </div>
         <div v-if="isLoading">
           <dp-loading />
