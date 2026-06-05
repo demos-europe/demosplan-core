@@ -32,7 +32,6 @@ All rights reserved
             :label="{
               text: Translator.trans('statement.cluster.create'),
               hint: Translator.trans('statement.cluster.create.hint'),
-              bold: true
             }"
             @change="selectedAction = 'createGroup'"
           />
@@ -57,7 +56,10 @@ All rights reserved
           <p class="mb-3">
             {{ Translator.trans('statements.selected.adjust.hint') }}
           </p>
-          <ul :class="statements.length > 5 ? 'max-h-[245px] overflow-y-auto' : ''">
+          <ul
+            :class="statements.length > 5 ? 'max-h-[255px] overflow-y-auto' : ''"
+            class="border rounded-md"
+          >
             <li
               v-for="stmt in statements"
               :key="stmt.id"
