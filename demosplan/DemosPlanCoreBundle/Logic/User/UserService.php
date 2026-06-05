@@ -1520,8 +1520,8 @@ class UserService implements UserServiceInterface
     {
         $testUserXml = match ($project) {
             'bimschgsh', 'bobsh', 'planfestsh', 'robobsh' => UserMapperDataportGatewaySHStatic::AVAILABLE_USER,
-            'bobhh' => UserMapperDataportGatewayHHStatic::AVAILABLE_USER,
-            default => [],
+            'bobhh'                                       => UserMapperDataportGatewayHHStatic::AVAILABLE_USER,
+            default                                       => [],
         };
 
         return collect($testUserXml)
