@@ -118,6 +118,7 @@ use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -225,6 +226,7 @@ class ProcedureService implements ProcedureServiceInterface
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
         private readonly LoggerInterface $logger,
         private readonly ProfilerService $profilerService,
+        private readonly LockFactory $lockFactory,
     ) {
         $this->contentService = $contentService;
         $this->elementsService = $elementsService;
@@ -838,6 +840,19 @@ class ProcedureService implements ProcedureServiceInterface
      */
     public function addProcedureEntity(array $data, string $currentUserId): Procedure
     {
+        // DPLAN-11634: Creating a procedure from a blueprint copies its sub-entities
+        // (elements, paragraphs, topics, ...) within a single transaction, taking FK
+        // locks on the shared blueprint rows. Concurrent creations from the same
+        // blueprint can therefore deadlock (SQLSTATE 40001 / 1213). Serialize them with
+        // a per-blueprint lock so they queue instead of contending for the same locks.
+        $blueprintId = $data['copymaster'] ?? null;
+        $blueprintId = $blueprintId instanceof Procedure ? $blueprintId->getId() : $blueprintId;
+        $lock = null;
+        if (null !== $blueprintId) {
+            $lock = $this->lockFactory->createLock('procedure-create-from-blueprint-'.$blueprintId, ttl: 300);
+            $lock->acquire(blocking: true);
+        }
+
         try {
             // T15853 + T10976: default while allowing complete deletion of emailTitle by customer:
             $data['settings']['emailTitle'] ??= '';
@@ -875,9 +890,6 @@ class ProcedureService implements ProcedureServiceInterface
                 $this->customerService->updateCustomer($customer);
             }
 
-            /** @var string|null $blueprintId */
-            $blueprintId = $data['copymaster'] ?? null;
-            $blueprintId = $blueprintId instanceof Procedure ? $blueprintId->getId() : $blueprintId;
             Assert::false($this->getProcedure($blueprintId)?->isDeleted());
             $newProcedure = $this->setAuthorizedUsersToProcedure($newProcedure, $blueprintId, $currentUserId);
             $newProcedure = $this->addCurrentOrgaToPlanningOffices($newProcedure, $currentUserId);
@@ -931,6 +943,8 @@ class ProcedureService implements ProcedureServiceInterface
         } catch (Exception $e) {
             $this->logger->warning('Create Procedure failed Message: ', [$e]);
             throw $e;
+        } finally {
+            $lock?->release();
         }
     }
 
