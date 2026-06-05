@@ -18,6 +18,7 @@ All rights reserved
       >
         <dp-button
           :text="Translator.trans('procedure.phase.create')"
+          data-cy="procedurePhases:create"
           @click="openCreateForm"
         />
       </div>
@@ -37,6 +38,7 @@ All rights reserved
           v-model="newPhase.name"
           :class="{ '[&_input]:border-status-failed': showErrorInputStyle }"
           :label="{ text: Translator.trans('procedure.phase.name') }"
+          data-cy="procedurePhases:createForm:name"
           required
         />
 
@@ -54,6 +56,7 @@ All rights reserved
           v-model="newPhase.audience"
           :label="{ text: Translator.trans('audience') }"
           :options="audienceOptions"
+          data-cy="procedurePhases:createForm:audience"
           required
         />
 
@@ -62,6 +65,7 @@ All rights reserved
           v-model="newPhase.permissionSet"
           :label="{ text: Translator.trans('permissionset.label') }"
           :options="permissionSetOptions"
+          data-cy="procedurePhases:createForm:permissionSet"
           required
         />
 
@@ -75,6 +79,7 @@ All rights reserved
               id="phaseParticipationStateNotFinished"
               :checked="newPhase.participationState !== 'finished'"
               :label="{ text: Translator.trans('participation.state.not.finished') }"
+              data-cy="procedurePhases:createForm:participationState:notFinished"
               name="phaseParticipationState"
               value=""
               @change="setParticipationState(null)"
@@ -84,6 +89,7 @@ All rights reserved
               id="phaseParticipationStateFinished"
               :checked="newPhase.participationState === 'finished'"
               :label="{ text: Translator.trans('participation.state.finished') }"
+              data-cy="procedurePhases:createForm:participationState:finished"
               name="phaseParticipationState"
               value="finished"
               @change="setParticipationState('finished')"
@@ -93,6 +99,7 @@ All rights reserved
 
         <dp-button-row
           :busy="isLoading"
+          data-cy="procedurePhases:createForm"
           primary
           secondary
           @primary-action="submitForm()"
@@ -113,6 +120,7 @@ All rights reserved
             <dp-data-table
               :header-fields="headerFields"
               :items="section.audiencePhases"
+              :data-cy="`procedurePhases:dataTable:${section.audience}`"
               density="spacious"
               track-by="id"
               has-borders
@@ -123,17 +131,18 @@ All rights reserved
                 <dp-input
                   v-if="editingRowId === phase.id"
                   :id="`phaseName-${phase.id}`"
+                  :data-cy="`procedurePhases:editName:${phase.id}`"
                   :model-value="phase.name"
                 />
 
                 <span v-else>{{ phase.name }}</span>
               </template>
 
-              <!-- Column "permissionSetLabel" exposes raw permissionSet for edit mode. -->
-              <template v-slot:permissionSetLabel="phase">
+              <template v-slot:permissionSet="phase">
                 <dp-select
                   v-if="editingRowId === phase.id"
                   :id="`phasePermissionSet-${phase.id}`"
+                  :data-cy="`procedurePhases:editPermissionSet:${phase.id}`"
                   :options="permissionSetOptions"
                   :selected="phase.permissionSet"
                 />
@@ -141,8 +150,7 @@ All rights reserved
                 <span v-else>{{ phase.permissionSetLabel }}</span>
               </template>
 
-              <!-- Column "participationStateLabel" exposes raw participationState for edit mode. -->
-              <template v-slot:participationStateLabel="phase">
+              <template v-slot:participationState="phase">
                 <fieldset v-if="editingRowId === phase.id">
                   <legend class="sr-only">
                     {{ Translator.trans('participation.state.radio.label') }}
@@ -152,6 +160,7 @@ All rights reserved
                     <dp-radio
                       :id="`phaseParticipationStateNotFinished-${phase.id}`"
                       :checked="phase.participationState !== 'finished'"
+                      :data-cy="`procedurePhases:editParticipationState:notFinished:${phase.id}`"
                       :label="{ text: Translator.trans('no') }"
                       :name="`phaseParticipationState-${phase.id}`"
                       value=""
@@ -160,6 +169,7 @@ All rights reserved
                     <dp-radio
                       :id="`phaseParticipationStateFinished-${phase.id}`"
                       :checked="phase.participationState === 'finished'"
+                      :data-cy="`procedurePhases:editParticipationState:finished:${phase.id}`"
                       :label="{ text: Translator.trans('yes') }"
                       :name="`phaseParticipationState-${phase.id}`"
                       value="finished"
@@ -184,10 +194,11 @@ All rights reserved
               </template>
 
               <template v-slot:flyout="rowData">
-                <div class="flex gap-1 py-[15px]">
+                <div class="flex gap-3 py-[15px]">
                   <template v-if="editingRowId !== rowData.id">
                     <button
                       :aria-label="Translator.trans('item.edit')"
+                      :data-cy="`procedurePhases:edit:${rowData.id}`"
                       :title="Translator.trans('edit')"
                       class="btn--blank o-link--default"
                       @click="startEdit(rowData)"
@@ -200,6 +211,7 @@ All rights reserved
 
                     <button
                       :aria-label="Translator.trans('item.delete')"
+                      :data-cy="`procedurePhases:delete:${rowData.id}`"
                       :title="Translator.trans('delete')"
                       class="btn--blank o-link--default"
                       disabled
@@ -214,9 +226,10 @@ All rights reserved
                   <template v-else>
                     <button
                       :aria-label="Translator.trans('save')"
+                      :data-cy="`procedurePhases:saveEdit:${rowData.id}`"
                       :disabled="isSaving"
                       :title="Translator.trans('save')"
-                      class="btn--blank o-link--default mr-1"
+                      class="btn--blank o-link--default"
                       @click="handleSaveEditClick"
                     >
                       <dp-icon
@@ -227,6 +240,7 @@ All rights reserved
 
                     <button
                       :aria-label="Translator.trans('abort')"
+                      :data-cy="`procedurePhases:abortEdit:${rowData.id}`"
                       :title="Translator.trans('abort')"
                       class="btn--blank o-link--default"
                       @click="cancelEdit"
@@ -345,8 +359,8 @@ export default {
 
     const headerFields = computed(() => [
       { field: 'name', label: Translator.trans('procedure.phase.name'), colWidth: '270px', initialMinWidth: 270 },
-      { field: 'permissionSetLabel', label: Translator.trans('permissionset.label'), colWidth: '270px', initialMinWidth: 270 },
-      { field: 'participationStateLabel', label: Translator.trans('participation.state.finished'), colWidth: '160px', initialMinWidth: 160 },
+      { field: 'permissionSet', label: Translator.trans('permissionset.label'), colWidth: '270px', initialMinWidth: 270 },
+      { field: 'participationState', label: Translator.trans('participation.state.finished'), colWidth: '160px', initialMinWidth: 160 },
       ...(isAddonActive.value ? [{ field: 'phaseCode', label: Translator.trans('procedure.phase.code'), colWidth: '160px', initialMinWidth: 160 }] : []),
     ])
 
