@@ -186,7 +186,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
                 ->setRelationshipType($this->resourceTypeStore->getStatementResourceType())
                 ->readable()->updatable()->aliasedPath($this->parentStatementOfSegment),
             $this->createToOneRelationship($this->assignee)->readable()->updatable(),
-            $this->createAttribute($this->deadline)->readable(true)->updatable(),
+            $this->createAttribute($this->deadline)->readable(true, fn (Segment $segment): ?string => $this->formatDate($segment->getDeadline()))->updatable(),
             $this->createToManyRelationship($this->tags)->readable()->updatable(),
             // for now all segments have a place, this may change however
             $this->createToOneRelationship($this->place)->readable()
