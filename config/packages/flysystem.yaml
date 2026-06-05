@@ -2,7 +2,7 @@
 flysystem:
     storages:
         s3.storage:
-            adapter: 'demosplan.s3_adapter_no_acl'
+            adapter: 'demosplan.s3_adapter'
         local.storage:
             adapter: 'local'
             options:
@@ -28,15 +28,14 @@ services:
                 http:
                     verify: '%cafile%'
 
-    demosplan\DemosPlanCoreBundle\Logic\File\AwsS3V3AdapterWithoutAcl: ~
-
-    demosplan.s3_adapter_no_acl:
-        class: demosplan\DemosPlanCoreBundle\Logic\File\AwsS3V3AdapterWithoutAcl
+    demosplan.s3_adapter:
+        class: demosplan\DemosPlanCoreBundle\Logic\File\ConfigurableAclS3Adapter
         arguments:
             - '@Aws\S3\S3Client'
             - '%env(S3_BUCKET)%'
             - '%env(S3_PREFIX)%'
-            - null  # visibility converter (not needed since we don't use ACLs)
+            - null  # visibility converter (default PortableVisibilityConverter)
             - null  # mime type detector (will use default)
             - []    # options
             - true  # streamReads
+            - '%env(bool:S3_DISABLE_ACL)%'  # omit ACLs for BucketOwnerEnforced buckets (e.g. IONOS)
