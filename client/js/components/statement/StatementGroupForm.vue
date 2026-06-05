@@ -105,6 +105,7 @@ All rights reserved
             :custom-label="stmt => stmt.attributes.externId"
             :options="statements"
             track-by="id"
+            searchable
           />
         </div>
       </template>
