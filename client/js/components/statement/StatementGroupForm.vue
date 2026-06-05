@@ -48,7 +48,7 @@ All rights reserved
           </p>
           <ul
             :class="statements.length > 5 ? 'max-h-[255px] overflow-y-auto' : ''"
-            class="border rounded-md"
+            class="border rounded-md pb-2 px-1"
           >
             <li
               v-for="stmt in statements"
@@ -140,6 +140,7 @@ const groupName = ref('')
 const returnLink = ref(Routing.generate('dplan_procedure_statement_list', { procedureId: props.procedureId }))
 const selectedAction = ref('') // Default until second story will be implemented (add stmt to group)
 const statements = ref([])
+const selectionCriteria = ref(null)
 const step = ref(1)
 const success = ref(true)
 
@@ -164,39 +165,29 @@ function handleApply () {
 }
 
 async function fetchStatements () {
-  const ids = statements.value.map(s => s.id)
-  if (ids.length === 0) return
-
-  // Filter mit OR-Gruppe aufbauen
-  const filter = {
-    statementFilterGroup: {
-      group: { conjunction: 'OR' },
-    },
-  }
-  ids.forEach((id, idx) => {
-    filter['statement_' + idx] = {
-      condition: {
-        path: 'id',
-        value: id,
-        memberOf: 'statementFilterGroup',
-      },
-    }
-  })
-
-  const params = {
-    filter,
-    fields: {
-      Statement: 'externId,authorName,initialOrganisationName,isSubmittedByCitizen',
-    },
+  if (!selectionCriteria.value) {
+    return
   }
 
-  const response = await dpApi.get(
-    Routing.generate('api_resource_list', { resourceType: 'Statement' }),
-    params,
-  )
+  const fields = { Statement: 'externId,authorName,initialOrganisationName,isSubmittedByCitizen' }
+  const size = 100
+  const collected = []
+  let number = 1
+  let totalPages = 1
 
-  // Response-Daten in statements.value schreiben (ersetzt die )
-  statements.value = response.data.data
+  // Page through the whole selected set so "select all" covers every matching statement.
+  do {
+    const response = await dpApi.get(
+      Routing.generate('api_resource_list', { resourceType: 'Statement' }),
+      { ...selectionCriteria.value, fields, page: { number, size } },
+    )
+
+    collected.push(...response.data.data)
+    totalPages = response.data.meta?.pagination?.totalPages ?? 1
+    number++
+  } while (number <= totalPages)
+
+  statements.value = collected
 }
 
 function removeStatement (id) {
@@ -204,11 +195,7 @@ function removeStatement (id) {
 }
 
 function setStatements () {
-  const stored = lscache.get(`${props.procedureId}:toggledStatements`)
-
-  if (stored) {
-    statements.value = stored
-  }
+  selectionCriteria.value = lscache.get(`${props.procedureId}:toggledStatements`)
 }
 
 onMounted(async () => {

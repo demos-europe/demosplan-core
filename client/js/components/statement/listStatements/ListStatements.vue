@@ -773,7 +773,9 @@ export default {
 
     storeToggledStatements () {
       console.log('Saving:', this.lsKey.toggledStatements, this.toggledItems)
-      lscache.set(this.lsKey.toggledStatements, this.toggledItems)
+      // Store selection as criteria so "select all" resolves across pages on load.
+      const { search, filter } = this.getParamsForBulkShare()
+      lscache.set(this.lsKey.toggledStatements, { search, filter })
     },
 
     unclaimStatement (statementId) {
