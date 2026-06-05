@@ -25,6 +25,7 @@ export default function AssessmentTableOriginal () {
   window.updateFilterHash = function (procedureId, filterOptions = []) {
     // Get inputfields from original table (filters not included)
     let inputFields = $('form[name=bpform]').serializeArray()
+
     inputFields = inputFields.filter(inputField => inputField.name.includes('filter') === false)
 
     // Add currently selected filters
@@ -55,6 +56,7 @@ export default function AssessmentTableOriginal () {
     const filterOptions = inputFields.filter(inputField => inputField.name.includes('filter') && inputField.value !== '')
 
     const procedureId = $('form[name=bpform]').data('assessment-original-statements')
+
     window.updateFilterHash(procedureId, filterOptions)
       .then((filterHash) => {
         document.bpform.action = Routing.generate('dplan_assessmenttable_view_original_table', {
@@ -69,6 +71,7 @@ export default function AssessmentTableOriginal () {
               document.bpform.r_action.value = 'copy'
               document.bpform.submit()
             }
+
             break
 
           case 'search':
@@ -90,6 +93,7 @@ export default function AssessmentTableOriginal () {
     if (hasQuestionMark) {
       hash = hash.split('?')[0]
     }
+
     scrollTo(hash, { offset: -180 })
   }
 }

@@ -24,6 +24,12 @@ when@prod:
             release: '%demosplan.project_name%@%project_version%'
             traces_sample_rate: "%sentry_traces_sample_rate%"
             profiles_sample_rate: "%sentry_profiles_sample_rate%"
+            # Drop fatal-error wrappers so the underlying exception is captured
+            # only once (matches the recipe default; complements
+            # register_error_listener / handler being disabled below).
+            ignore_exceptions:
+                - 'Symfony\Component\ErrorHandler\Error\FatalError'
+                - 'Symfony\Component\Debug\Exception\FatalErrorException'
         register_error_listener: false # Disables the ErrorListener to avoid duplicate entries
         register_error_handler: false
         # this hooks into critical paths of the framework (and vendors) to perform
@@ -31,10 +37,6 @@ when@prod:
         # https://docs.sentry.io/platforms/php/guides/symfony/performance/instrumentation/automatic-instrumentation/
 #        tracing:
 #            enabled: false
-
-#        If you are using Monolog, you also need this additional configuration to log the errors correctly:
-#        https://docs.sentry.io/platforms/php/guides/symfony/#monolog-integration
-#        register_error_listener: false
 
     monolog:
         handlers:
@@ -48,5 +50,11 @@ when@prod:
 #    Uncomment these lines to register a log message processor that resolves PSR-3 placeholders
 #    https://docs.sentry.io/platforms/php/guides/symfony/#monolog-integration
 #    services:
-#        Monolog\Processor\PsrLogMessageProcessor:
-#            tags: { name: monolog.processor, handler: sentry }
+#        Sentry\Monolog\Handler:
+#            arguments:
+#                $hub: '@Sentry\State\HubInterface'
+#                $level: !php/const Monolog\Logger::ERROR
+#                $fillExtraContext: true # Enables sending monolog context to Sentry
+#        Sentry\SentryBundle\Monolog\LogsHandler:
+#            arguments:
+#                - !php/const Monolog\Logger::INFO

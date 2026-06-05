@@ -56,7 +56,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\NoTargetsException;
-use demosplan\DemosPlanCoreBundle\Exception\UndefinedPhaseException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedDoctrineResultException;
 use demosplan\DemosPlanCoreBundle\Exception\UnknownIdsException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -82,6 +81,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Grouping\EntityGrouper;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGrouper;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
@@ -130,11 +130,11 @@ use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use Elastica\Aggregation\GlobalAggregation;
-use FOS\ElasticaBundle\Index\IndexManager;
 use Elastica\Index;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
 use Exception;
+use FOS\ElasticaBundle\Index\IndexManager;
 use Pagerfanta\Elastica\ElasticaAdapter;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
@@ -259,6 +259,7 @@ class StatementService implements StatementServiceInterface
         protected ParagraphService $paragraphService,
         PermissionsInterface $permissions,
         PriorityAreaService $priorityAreaService,
+        private readonly ProcedurePhaseDefinitionResolver $procedurePhaseDefinitionResolver,
         private readonly ProcedureRepository $procedureRepository,
         ProcedureService $procedureService,
         private readonly ReportService $reportService,
@@ -288,7 +289,6 @@ class StatementService implements StatementServiceInterface
         private readonly UserRepository $userRepository,
         UserService $userService,
         private readonly StatementDeleter $statementDeleter,
-        private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
         private readonly LoggerInterface $logger,
         private readonly ManagerRegistry $doctrine,
         private readonly ProfilerService $profilerService,
@@ -327,13 +327,13 @@ class StatementService implements StatementServiceInterface
         $em = $this->doctrine->getManager();
 
         // Create and use versions of paragraph and SingleDocument
-        if (\array_key_exists('paragraphId', $data) && 0 < \strlen((string) $data['paragraphId']) && '-' != $data['paragraphId']) {
+        if (\array_key_exists('paragraphId', $data) && '' !== (string) $data['paragraphId'] && '-' != $data['paragraphId']) {
             $data['paragraph'] = $this->paragraphService->createParagraphVersion(
                 $em->find(Paragraph::class, $data['paragraphId'])
             );
         }
 
-        if (\array_key_exists('documentId', $data) && 0 < \strlen((string) $data['documentId'])) {
+        if (\array_key_exists('documentId', $data) && '' !== (string) $data['documentId']) {
             $data['document'] = $this->singleDocumentService->createSingleDocumentVersion(
                 $em->find(SingleDocument::class, $data['documentId'])
             );
@@ -408,7 +408,7 @@ class StatementService implements StatementServiceInterface
             if (\array_key_exists('noLocation', $data['statementAttributes'])
                 && true == $data['statementAttributes']['noLocation']) {
                 $attrRepo->setNoLocation($statement);
-            } elseif (\array_key_exists('county', $data['statementAttributes']) && 0 < \strlen((string) $data['statementAttributes']['county'])) {
+            } elseif (\array_key_exists('county', $data['statementAttributes']) && '' !== (string) $data['statementAttributes']['county']) {
                 try {
                     $attrRepo->addCounty($statement, $data['statementAttributes']['county']);
                 } catch (Exception) {
@@ -587,7 +587,7 @@ class StatementService implements StatementServiceInterface
 
             /** @var StatementCreatedEvent $statementCreatedEvent */
             $statementCreatedEvent = $this->eventDispatcher->dispatch(
-                new StatementCreatedEvent($assessableStatement),
+                new StatementCreatedEvent($assessableStatement), // dispatched event
                 StatementCreatedEventInterface::class
             );
 
@@ -1153,6 +1153,16 @@ class StatementService implements StatementServiceInterface
                 $this->logger->warning('Trying to update a locked by assignment statement.');
             }
 
+            // there are fields, which are only allowed to modify on a manual statement?
+            $hasManualStatementUpdateFields = $this->hasManualStatementUpdateFields($updatedStatement, $currentStatementObject);
+            $updateForbidden = ($hasManualStatementUpdateFields
+                && !$currentStatementObject->isManual())
+                && !$this->permissions->hasPermission('feature_statement_submitter_data_always_editable');
+            if ($updateForbidden) {
+                $this->messageBag->add('warning', 'warning.deny.update.manual.statement');
+                $this->logger->warning('Trying to update manualStatementUpdateFields on a normal statement.');
+            }
+
             // is a original statement?
             $lockedByOriginal = false;
             $isOriginal = $currentStatementObject->isOriginal();
@@ -1170,6 +1180,7 @@ class StatementService implements StatementServiceInterface
             if (!$lockedByAssignment
                 && !$lockedByAssignmentOfHeadStatement
                 && !$lockedByCluster
+                && !$updateForbidden
                 && !$lockedByOriginal
                 && !$currentStatementObject->isPlaceholder()) {
                 $preUpdatedStatement = clone $currentStatementObject;
@@ -1269,6 +1280,71 @@ class StatementService implements StatementServiceInterface
         }
 
         return $fileHashToFileContainerMapping;
+    }
+
+    /**
+     * Determines if one of the fields which only can be modified on a manual statement, should be updated.
+     *
+     * @param Statement|array $statement        - Statement as array or object
+     * @param Statement       $currentStatement - current unmodified statement object, to compare with incoming update data
+     *
+     * @return bool - true if one of the 'critical' fields should be updated, otherwise false
+     */
+    private function hasManualStatementUpdateFields($statement, Statement $currentStatement): bool
+    {
+        $currentAuthorName = $currentStatement->getAuthorName();
+        $currentSubmitterName = $currentStatement->getSubmitterName();
+        $currentSubmitterEmailAddress = $currentStatement->getSubmitterEmailAddress();
+        $currentDepartmentName = $currentStatement->getMeta()->getOrgaDepartmentName();
+        // orgaName is submitterType:
+        $currentSubmitterType = $currentStatement->getMeta()->getOrgaName();
+        $currentOrgaPostalCode = $currentStatement->getOrgaPostalCode();
+        $currentOrgaCity = $currentStatement->getOrgaCity();
+        $currentOrgaStreet = $currentStatement->getOrgaStreet();
+        $currentOrgaEmail = $currentStatement->getOrgaEmail();
+        $currentAuthoredDateString = $currentStatement->getAuthoredDateString();
+        $currentAuthoredDateTimeStamp = $currentStatement->getAuthoredDate();
+        $currentSubmittedDateString = $currentStatement->getSubmitDateString();
+        $currentSubmittedDateTimeStamp = $currentStatement->getSubmit();
+
+        if (\is_array($statement)) {
+            $statement = \collect($statement);
+            if (
+                ($statement->has('author_name') && $statement->get('author_name') != $currentAuthorName)
+                || ($statement->has('submit_name') && $statement->get('submit_name') != $currentSubmitterName)
+                || ($statement->has('submitterEmailAddress') && $statement->get('submitterEmailAddress') != $currentSubmitterEmailAddress)
+                || ($statement->has('departmentName') && $statement->get('departmentName') != $currentDepartmentName)
+                || ($statement->has('submitterType') && $statement->get('submitterType') != $currentSubmitterType)
+                || ($statement->has('orga_postalcode') && $statement->get('orga_postalcode') != $currentOrgaPostalCode)
+                || ($statement->has('orga_city') && $statement->get('orga_city') != $currentOrgaCity)
+                || ($statement->has('orga_street') && $statement->get('orga_street') != $currentOrgaStreet)
+                || ($statement->has('orga_email') && $statement->get('orga_email') != $currentOrgaEmail)
+                || ($statement->has('authoredDate') && $statement->get('authoredDate') != $currentAuthoredDateString)
+                || ($statement->has('submittedDate') && $statement->get('submittedDate') != $currentSubmittedDateString)
+            ) {
+                return true;
+            }
+        }
+
+        if ($statement instanceof Statement) {
+            if (
+                $statement->getAuthorName() != $currentAuthorName
+                || $statement->getSubmitterName() != $currentSubmitterName
+                || $statement->getMeta()->getOrgaDepartmentName() != $currentDepartmentName
+                || $statement->getMeta()->getOrgaName() != $currentSubmitterType
+                || $statement->getSubmitterEmailAddress() != $currentSubmitterEmailAddress
+                || $statement->getOrgaPostalCode() != $currentOrgaPostalCode
+                || $statement->getOrgaCity() != $currentOrgaCity
+                || $statement->getOrgaStreet() != $currentOrgaStreet
+                || $statement->getOrgaEmail() != $currentOrgaEmail
+                || $statement->getAuthoredDate() != $currentAuthoredDateTimeStamp
+                || $statement->getSubmit() != $currentSubmittedDateTimeStamp
+            ) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -1646,15 +1722,22 @@ class StatementService implements StatementServiceInterface
      *
      * @throws Exception
      */
-    public function addSourceStatementAttachments(array $statements): array
+    public function addStatementAttachments(array $statements, bool $includeAdditionalAttachments = false): array
     {
         $entities = $this->elasticsearchStatementsToObjects($statements);
 
-        return \array_map(static function (array $statement) use ($entities): array {
+        return \array_map(static function (array $statement) use ($entities, $includeAdditionalAttachments): array {
+            // Add SOURCE_STATEMENT attachment
             $statement['attachments'] = array_filter(
                 $entities[$statement['id']]->getAttachments()->getValues(),
                 static fn (StatementAttachment $attachment) => StatementAttachment::SOURCE_STATEMENT === $attachment->getType()
             );
+
+            // Add additional attachments
+            if ($includeAdditionalAttachments) {
+                $files = $entities[$statement['id']]->getFiles();
+                $statement['files'] = $files;
+            }
 
             return $statement;
         }, $statements);
@@ -1788,7 +1871,7 @@ class StatementService implements StatementServiceInterface
         }
         // Wenn das Statement einen Absatz hat lege eine Version an, wenn sich der Absatz verändert hat
         if (\array_key_exists('paragraphId', $data)
-            && 0 < \strlen((string) $data['paragraphId'])
+            && '' !== (string) $data['paragraphId']
             && $data['paragraphId'] != $currentStatement->getParagraphId()) {
             $data['paragraph'] = $this->paragraphService->createParagraphVersion(
                 $em->find(Paragraph::class, $data['paragraphId'])
@@ -1801,7 +1884,7 @@ class StatementService implements StatementServiceInterface
         }
 
         if (\array_key_exists('documentId', $data)
-            && 0 < \strlen((string) $data['documentId'])
+            && '' !== (string) $data['documentId']
             && $data['documentId'] != $currentStatement->getDocumentId()) {
             $data['document'] = $this->singleDocumentService->createSingleDocumentVersion(
                 $em->find(SingleDocument::class, $data['documentId'])
@@ -2257,9 +2340,9 @@ class StatementService implements StatementServiceInterface
             static function ($value, string $key) {
                 if ('r_submitterEmailAddress' === $key) {
                     return str_starts_with($key, 'r_') && (\is_string($value) || (\is_array($value) && [] !== $value));
-                } else {
-                    return str_starts_with($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && [] !== $value));
                 }
+
+                return str_starts_with($key, 'r_') && ((\is_string($value) && '' !== $value) || (\is_array($value) && [] !== $value));
             }
         )->mapWithKeys(
             static function ($stringOrArrayValue, string $key) {
@@ -2395,7 +2478,7 @@ class StatementService implements StatementServiceInterface
             return $statementAbwaegungstabelle;
         }
 
-        if (!is_null($statementAbwaegungstabelle->getPolygon()) && 0 < \strlen($statementAbwaegungstabelle->getPolygon())) {
+        if (!is_null($statementAbwaegungstabelle->getPolygon()) && '' !== (string) $statementAbwaegungstabelle->getPolygon()) {
             try {
                 $this->statementGeoService->scheduleFetchGeoData($statementAbwaegungstabelle->getId());
             } catch (Exception $e) {
@@ -2680,46 +2763,20 @@ class StatementService implements StatementServiceInterface
     }
 
     /**
-     * Gets the internal or external phase of the given statement depending on
-     * the value set for the 'publicStatement' field.
+     * Gets the phase name of the given statement from its phase definition.
      *
      * @param array $statement The statement entity as array
      *
-     * @return string the internal or external phase of the given statement
-     *
-     * @deprecated use {@link getProcedurePhaseName} instead
+     * @return string the phase name of the given statement
      */
     public function getProcedurePhaseNameFromArray(array $statement): string
     {
-        $statementObject = $this->getStatement($statement['id']);
-
-
-        if(!$statementObject instanceof Statement) {
-            $this->logger->error('Statement with id '.$statement['id'].' not found.');
-
+        $phaseDefinitionId = $statement['phaseDefinitionId'] ?? null;
+        if (null === $phaseDefinitionId) {
             return '';
         }
-        return $this->getProcedurePhaseName(
-            $statement['phase'],
-            $statementObject->isSubmittedByCitizen()
-        );
-    }
 
-    public function getProcedurePhaseName(string $phaseKey, bool $isSubmittedByCitizen): string
-    {
-        $phaseName = '';
-        try {
-            $phaseVO = $this->statementProcedurePhaseResolver->getProcedurePhaseVO($phaseKey, $isSubmittedByCitizen);
-            $phaseName = $phaseVO->getName();
-
-            if ('' === $phaseName) {
-                throw new UndefinedPhaseException($phaseKey);
-            }
-        } catch (UndefinedPhaseException $e) {
-            $this->logger->error($e->getMessage());
-        }
-
-        return $phaseName;
+        return $this->procedurePhaseDefinitionResolver->getNameById($phaseDefinitionId);
     }
 
     /**
@@ -3036,6 +3093,10 @@ class StatementService implements StatementServiceInterface
             $statement['author_feedback'] = true;
         }
 
+        if (\array_key_exists('r_oId', $data) && 36 === \strlen((string) $data['r_oId'])) {
+            $statement['oId'] = $data['r_oId'];
+        }
+
         if (\array_key_exists('r_orga_name', $data)) {
             $statement['orga_name'] = $data['r_orga_name'];
         }
@@ -3052,8 +3113,8 @@ class StatementService implements StatementServiceInterface
             $statement['memo'] = $data['r_memo'];
         }
 
-        if (\array_key_exists('r_phase', $data)) {
-            $statement['phase'] = $data['r_phase'];
+        if (\array_key_exists('r_phaseDefinitionId', $data) && '' !== $data['r_phaseDefinitionId']) {
+            $statement['phaseDefinitionId'] = $data['r_phaseDefinitionId'];
         }
 
         if (\array_key_exists('r_created_date', $data)) {
@@ -3130,23 +3191,23 @@ class StatementService implements StatementServiceInterface
             }
         }
 
-        if (\array_key_exists('r_userState', $data) && 0 < \strlen((string) $data['r_userState'])) {
+        if (\array_key_exists('r_userState', $data) && '' !== (string) $data['r_userState']) {
             $statement['meta']['userState'] = $data['r_userState'];
         }
-        if (\array_key_exists('r_userGroup', $data) && 0 < \strlen((string) $data['r_userGroup'])) {
+        if (\array_key_exists('r_userGroup', $data) && '' !== (string) $data['r_userGroup']) {
             $statement['meta']['userGroup'] = $data['r_userGroup'];
         }
-        if (\array_key_exists('r_userOrganisation', $data) && 0 < \strlen((string) $data['r_userOrganisation'])) {
+        if (\array_key_exists('r_userOrganisation', $data) && '' !== (string) $data['r_userOrganisation']) {
             $statement['meta']['userOrganisation'] = $data['r_userOrganisation'];
         }
-        if (\array_key_exists('r_userPosition', $data) && 0 < \strlen((string) $data['r_userPosition'])) {
+        if (\array_key_exists('r_userPosition', $data) && '' !== (string) $data['r_userPosition']) {
             $statement['meta']['userPosition'] = $data['r_userPosition'];
         }
-        if (\array_key_exists('r_phone', $data) && 0 < \strlen((string) $data['r_phone'])) {
+        if (\array_key_exists('r_phone', $data) && '' !== (string) $data['r_phone']) {
             $statement['meta'][StatementMeta::USER_PHONE] = $data['r_phone'];
         }
 
-        if (\array_key_exists('r_authored_date', $data) && 0 < \strlen((string) $data['r_authored_date'])) {
+        if (\array_key_exists('r_authored_date', $data) && '' !== (string) $data['r_authored_date']) {
             $statement['authoredDate'] = $data['r_authored_date'];
         }
 
@@ -3359,19 +3420,7 @@ class StatementService implements StatementServiceInterface
 
     public function getStatisticsOfProcedure(ProcedureInterface $procedure)
     {
-        /** @var StatementInterface $statementsOfProcedure */
-        $statementsOfProcedure = $procedure->getStatements();
-        $statistics = [
-            self::STATEMENT_STATUS_NEW         => 0,
-            self::STATEMENT_STATUS_PROCESSING  => 0,
-            self::STATEMENT_STATUS_COMPLETED   => 0,
-        ];
-        foreach ($statementsOfProcedure as $statement) {
-            /** @var StatementInterface $statement */
-            if (!$statement->isOriginal()) {
-                ++$statistics[$this->getProcessingStatus($statement)];
-            }
-        }
+        $statistics = $this->statementRepository->getSegmentationStatistics($procedure->getId());
 
         return new PercentageDistribution(
             $statistics[self::STATEMENT_STATUS_NEW] +

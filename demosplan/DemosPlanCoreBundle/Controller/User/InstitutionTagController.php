@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class InstitutionTagController extends BaseController
 {
     #[DplanPermissions('area_institution_tag_manage')]
-    #[Route(name: 'DemosPlan_get_institution_tag_management', path: '/institutions/tags', methods: ['GET'], options: ['expose' => true])]
+    #[Route(path: '/institutions/tags', name: 'DemosPlan_get_institution_tag_management', options: ['expose' => true], methods: ['GET'])]
     public function getInstitutionTagManagement(): Response
     {
         return $this->render(

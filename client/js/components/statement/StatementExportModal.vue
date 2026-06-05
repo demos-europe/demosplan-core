@@ -19,7 +19,7 @@
     <dp-modal
       ref="exportModalInner"
       content-classes="w-11/12 sm:w-10/12 md:w-10/12 lg:w-8/12 xl:w-7/12 h-fit"
-      content-body-classes="flex flex-col h-14"
+      content-body-classes="flex flex-col h-16"
       @modal:toggled="onModalToggle"
     >
       <h2 class="mb-5">
@@ -28,7 +28,7 @@
 
       <fieldset v-if="!isSingleStatementExport">
         <legend
-          class="o-form__label text-base"
+          class="font-semibold text-base"
           v-text="Translator.trans('export.type')"
         />
         <div class="grid grid-cols-3 mt-2 mb-3 gap-x-2 gap-y-5">
@@ -106,7 +106,7 @@
       <fieldset v-if="['docx_normal', 'zip_normal'].includes(active)">
         <legend
           id="docxColumnTitles"
-          class="o-form__label text-base float-left mr-1"
+          class="font-semibold text-base float-left mr-1"
           v-text="Translator.trans('docx.export.column.title')"
         />
         <dp-contextual-help
@@ -127,7 +127,7 @@
         <fieldset v-if="active === 'zip' || isSingleStatementExport">
           <legend
             id="docxFileName"
-            class="o-form__label text-base float-left mr-1"
+            class="font-semibold text-base float-left mr-1"
             v-text="Translator.trans('docx.export.file_name')"
           />
           <dp-contextual-help
@@ -142,9 +142,9 @@
             :placeholder="Translator.trans('docx.export.file_name.placeholder')"
             type="text"
           />
-          <div class="font-size-small mt-2">
+          <div class="text-sm mt-2">
             <span
-              class="weight--bold"
+              class="font-bold"
               v-text="Translator.trans('docx.export.example_file_name')"
             />
             <span v-text="exampleFileName" />
@@ -155,7 +155,7 @@
       <fieldset v-if="!isSingleStatementExport">
         <legend
           id="tagsFilter"
-          class="o-form__label text-base mb-1"
+          class="font-semibold text-base mb-1"
           v-text="Translator.trans('segments.export.filter.tags.only')"
         />
         <filter-flyout
@@ -193,6 +193,20 @@
           </li>
         </ul>
       </fieldset>
+      <dp-input
+        v-if="active === 'docx_normal' && !isSingleStatementExport && hasPermissionAdjustPreamble"
+        id="customHeaderText"
+        v-model="customHeaderText"
+        :label="{
+          text: Translator.trans('docx.export.header.custom'),
+          tooltip: Translator.trans('docx.export.header.custom.hint')
+        }"
+        :maxlength="customHeaderMaxLength"
+        :placeholder="customHeaderPlaceholder"
+        class="mt-2 mb-4"
+        data-cy="exportModal:customHeaderText"
+        type="text"
+      />
 
       <dp-button-row
         class="text-right mt-auto"
@@ -241,6 +255,12 @@ export default {
   mixins: [sessionStorageMixin],
 
   props: {
+    hasPermissionAdjustPreamble: {
+      required: false,
+      type: Boolean,
+      default: false,
+    },
+
     isSingleStatementExport: {
       required: false,
       type: Boolean,
@@ -250,6 +270,12 @@ export default {
     procedureId: {
       required: true,
       type: String,
+    },
+
+    procedureName: {
+      required: false,
+      type: String,
+      default: '',
     },
   },
 
@@ -298,6 +324,8 @@ export default {
         },
       },
       fileName: '',
+      customHeaderText: '',
+      customHeaderMaxLength: 200,
       filter: {
         comparisonOperator: 'ARRAY_CONTAINS_VALUE',
         grouping: {
@@ -324,6 +352,13 @@ export default {
       'getIsExpandedByCategoryId',
     ]),
 
+    customHeaderPlaceholder () {
+      return Translator.trans('docx.export.header.custom.placeholder', {
+        isPartialExport: this.selectedTagIds.length > 0,
+        procedureName: this.procedureName,
+      })
+    },
+
     exportModalTitle () {
       return this.isSingleStatementExport ? Translator.trans('statement.export.do') : Translator.trans('export.statements')
     },
@@ -345,6 +380,7 @@ export default {
         if (exampleFileName === this.fileName) {
           exampleFileName += '-837474df23'
         }
+
         exampleFileName += '.docx'
       }
 
@@ -377,11 +413,13 @@ export default {
 
       result.included?.forEach(resource => {
         const group = this.getGroupedOptions(resource, filter, result)
+
         if (group) {
           groupedOptions.push(group)
         }
 
         const item = this.getUngroupedOptions(resource, filter)
+
         if (item) {
           ungroupedOptions.push(item)
         }
@@ -423,6 +461,7 @@ export default {
         return result || null
       } catch (error) {
         console.error('Failed to fetch filter options', error)
+
         return null
       }
     },
@@ -515,6 +554,7 @@ export default {
       })
 
       this.$emit('export', {
+        customHeaderText: this.customHeaderText || null,
         docxHeaders: ['docx_normal', 'zip_normal'].includes(this.active) ? columnTitles : null,
         fileNameTemplate: this.fileName || null,
         isCitizenDataCensored: this.isCitizenDataCensored,
@@ -569,6 +609,7 @@ export default {
       // Load filter options only when no filters are active. If filters are active, skip loading and scroll to the flyout.
       if (currentQuery && currentQuery.length > 0) {
         this.scrollModalToBottom()
+
         return
       }
 
@@ -580,11 +621,13 @@ export default {
       })
 
       const result = await this.fetchFilterOptions(requestParams)
+
       if (!result) {
         return
       }
 
       const filterDefinition = this.findFilterDefinition(result, path)
+
       if (!filterDefinition) {
         return
       }
@@ -630,6 +673,7 @@ export default {
 
     resetExportModalState () {
       this.active = 'docx_normal'
+      this.customHeaderText = ''
       this.isCitizenDataCensored = false
       this.isInstitutionDataCensored = false
       this.isObscure = false
@@ -658,6 +702,7 @@ export default {
       Object.keys(this.docxColumns).forEach(key => {
         const storageKey = `exportModal:docxCol:${key}`
         const storedColumnTitle = this.getItemFromSessionStorage(storageKey)
+
         this.docxColumns[key].title = storedColumnTitle || null /** Setting the value to null will display the placeholder titles of the column */
       })
     },
@@ -689,6 +734,7 @@ export default {
 
       if (!filterFlyout || !Array.isArray(filterFlyout.itemsSelected)) {
         this.selectedTags = []
+
         return
       }
 
@@ -715,6 +761,7 @@ export default {
     updateSelectedTags () {
       if (this.selectedTagIds.length === 0) {
         this.selectedTags = []
+
         return
       }
 

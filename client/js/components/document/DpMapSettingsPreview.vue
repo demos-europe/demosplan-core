@@ -520,6 +520,7 @@ export default {
 
           // Get "Status" (a.k.a. procedure setting, if map is enabled)
           const elem = response.data.included.find((elem) => elem.id === this.mapIdent)
+
           this.isMapEnabled = (typeof elem !== 'undefined') ? elem.attributes.enabled : false
 
           // Planstand equals a date (with no further functionality attached)

@@ -30,13 +30,11 @@ nelmio_security:
 
         compat_headers: false #Disable compat_headers to avoid sending X-Content-Security-Policy (IE10, IE11, Firefox < 23). This will mean those browsers get no CSP instructions.
     clickjacking:
-        paths:
-            '^/.*': DENY
+        paths: '%demosplan_clickjacking_paths%'
         content_types: []
 
     content_type:
         nosniff: true
-
 
     # Send a full URL in the `Referer` header when performing a same-origin request,
     # only send the origin of the document to secure destination (HTTPS->HTTPS),
@@ -48,6 +46,26 @@ nelmio_security:
         policies:
             - 'no-referrer'
             - 'strict-origin-when-cross-origin'
+
+    cross_origin_isolation:
+        enabled: true
+        paths:
+            '^/.*':
+                corp: '%demosplan_corp_policy%'
+                coep: credentialless
+                coop: same-origin-allow-popups
+
+    permissions_policy:
+        enabled: true
+        policies:
+            camera: []
+            microphone: []
+            geolocation: []
+            payment: []
+            usb: []
+            magnetometer: []
+            gyroscope: []
+            accelerometer: []
 
 when@dev:
     # Development-specific CSP overrides for webpack source maps

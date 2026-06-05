@@ -75,8 +75,9 @@ class OwnsProcedureConditionFactoryTest extends FunctionalTestCase
      */
     private function linkUserToOrga(User $user, Orga $orga): void
     {
-        $user->setOrga($orga);
         $orga->addUser($user);
+        $user->setOrga($orga);
+        $this->getEntityManager()->flush();
     }
 
     /**

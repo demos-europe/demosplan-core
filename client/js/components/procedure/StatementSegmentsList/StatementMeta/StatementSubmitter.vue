@@ -26,19 +26,6 @@ All rights reserved
     </div>
 
     <div class="grid grid-cols-1 gap-x-4 md:grid-cols-2">
-      <dp-input
-        v-if="hasPermission('field_statement_meta_orga_department_name') && !localStatement.attributes.isSubmittedByCitizen"
-        id="statementDepartmentName"
-        :disabled="!editable || !isStatementManual"
-        :label="{
-          text: Translator.trans('department')
-        }"
-        :model-value="getDisplayValue(localStatement.attributes.initialOrganisationDepartmentName)"
-        class="mb-2"
-        data-cy="statementSubmitter:departmentName"
-        @update:model-value="value => localStatement.attributes.initialOrganisationDepartmentName = value"
-      />
-
       <!--  TO DO: add if not participationGuestOnly -->
       <dp-input
         v-if="!localStatement.attributes.isSubmittedByCitizen"
@@ -51,6 +38,18 @@ All rights reserved
         class="mb-2"
         data-cy="statementSubmitter:orgaName"
         @update:model-value="value => localStatement.attributes.initialOrganisationName = value"
+      />
+      <dp-input
+        v-if="hasPermission('field_statement_meta_orga_department_name') && !localStatement.attributes.isSubmittedByCitizen"
+        id="statementDepartmentName"
+        :disabled="!editable || !isStatementManual"
+        :label="{
+          text: Translator.trans('department')
+        }"
+        :model-value="getDisplayValue(localStatement.attributes.initialOrganisationDepartmentName)"
+        class="mb-2"
+        data-cy="statementSubmitter:departmentName"
+        @update:model-value="value => localStatement.attributes.initialOrganisationDepartmentName = value"
       />
 
       <dp-contextual-help
@@ -237,6 +236,33 @@ export default {
       statements: 'items',
     }),
 
+    hasUnsavedChanges () {
+      if (!this.localStatement || !this.statement) {
+        return false
+      }
+
+      const initialAttributes = this.statement.attributes
+      const currentAttributes = this.localStatement.attributes
+      const isDifferent = (a, b) => (a ?? '') !== (b ?? '')
+
+      const stringFields = [
+        'initialOrganisationDepartmentName',
+        'initialOrganisationName',
+        'authorName',
+        'submitName',
+        'submitterEmailAddress',
+        'initialOrganisationStreet',
+        'initialOrganisationHouseNumber',
+        'initialOrganisationPostalCode',
+        'initialOrganisationCity',
+      ]
+
+      return [
+        ...stringFields.map(field => isDifferent(currentAttributes[field], initialAttributes[field])),
+        Boolean(currentAttributes.representationChecked) !== Boolean(initialAttributes.representationChecked),
+      ].some(Boolean)
+    },
+
     isStatementManual () {
       return this.localStatement.attributes.isManual
     },
@@ -245,12 +271,14 @@ export default {
       if (typeof this.statement.hasRelationship === 'function' && this.statement.hasRelationship('similarStatementSubmitters')) {
         return Object.values(this.statement.relationships.similarStatementSubmitters.list())
       }
+
       return null
     },
 
     statementSubmitterField () {
       const attr = this.localStatement.attributes
       let submitterField = 'authorName'
+
       // If submitter is an orga and name has a value
       if (attr.submitName && !attr.isSubmittedByCitizen) {
         submitterField = 'submitName'
@@ -317,6 +345,7 @@ export default {
 
     save () {
       const attrs = this.localStatement.attributes
+
       this.$emit('save', {
         attributes: {
           initialOrganisationDepartmentName: attrs.initialOrganisationDepartmentName,

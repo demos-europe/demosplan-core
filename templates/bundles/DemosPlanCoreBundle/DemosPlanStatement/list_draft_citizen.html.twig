@@ -45,7 +45,6 @@
         class="layout__item"
         :statements="JSON.parse('{{ templateVars.list.statementlist|default([])|json_encode|e('js', 'utf-8') }}')"
         :counties="JSON.parse('{{ counties|default([])|json_encode|e('js', 'utf-8') }}')"
-        :statements-custom-fields-list="JSON.parse('{{ statementsCustomFieldsList|json_encode|e('js', 'utf-8') }}')"
         procedure-id="{{ templateVars.procedure|default('') }}"
         show-author
         show-checkbox
@@ -53,5 +52,6 @@
         show-edit
         show-pdf-download
         show-versions
-        target="draft"></dp-public-statement-list>
+        target="draft"
+        @open-statement-modal-from-list="openStatementModalFromList"></dp-public-statement-list>
 {% endblock %}

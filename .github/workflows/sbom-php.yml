@@ -1,0 +1,64 @@
+name: Generate PHP SBOM
+
+on:
+  schedule:
+    - cron: 0 7 * * 1
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - composer.lock
+
+jobs:
+  sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup PHP with composer v2
+        uses: shivammathur/setup-php@728c6c6b8cf02c2e48117716a91ee48313958a19 # v2
+        with:
+          php-version: '8.2'
+          extensions: gd soap sockets zip
+          tools: composer:v2
+
+      - name: Cache php modules
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: |
+            ~/.composer/cache
+            vendor
+          key: ${{ runner.os }}-build-php-${{ hashFiles('**/composer-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-php-
+
+      - name: Install composer dependencies
+        run: |
+          composer --version
+          composer install --no-interaction
+
+      - name: Generate PHP SBOM
+        run: |
+          mkdir -p sbom
+          composer CycloneDX:make-sbom \
+            --output-format=JSON \
+            --output-file=sbom/sbom-php.cdx.json \
+            --spec-version=1.5 \
+            --output-reproducible \
+            --validate
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          add-paths: sbom/sbom-php.cdx.json
+          base: main
+          branch: chore/sbom-php
+          delete-branch: true
+          commit-message: 'chore: update PHP SBOM'
+          title: 'chore: update PHP SBOM'
+          body: |
+            Auto-generated CycloneDX SBOM for PHP/composer dependencies.
+
+            Triggered by: `${{ github.event_name }}`
+          labels: devops, dependencies:composer

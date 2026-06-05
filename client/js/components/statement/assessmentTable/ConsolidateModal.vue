@@ -411,6 +411,7 @@ export default {
       } else {
         this.validations[validationKey] = true
       }
+
       return this.validations[validationKey]
     },
 
@@ -437,6 +438,7 @@ export default {
           ].join(),
         },
       }
+
       return dpApi.get(url, params)
         .then(response => response.data.data)
     },
@@ -458,9 +460,11 @@ export default {
 
     isValidForm () {
       const validationChecks = [this.checkSelectionValidity(), this.checkHeadStatementValidity(), this.checkClusterValidity()]
+
       if (hasPermission('feature_statement_assignment')) {
         validationChecks.push(this.checkClusterAssignmentValidity())
       }
+
       return validationChecks
         .filter(test => !test).length === 0
     },
@@ -493,6 +497,7 @@ export default {
       if (this.isValidForm() === false) {
         return false
       }
+
       // Submit data depending on consolidationMethod
       this.isLoading = true;
       (this.consolidationMethod === 'consolidateStatements' ?

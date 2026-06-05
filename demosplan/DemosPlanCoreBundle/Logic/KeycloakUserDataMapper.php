@@ -57,14 +57,14 @@ class KeycloakUserDataMapper
         $user = $this->userService->findDistinctUserByEmailOrLogin($keycloakUserData->getEmailAddress());
 
         if ($user instanceof User) {
-            $this->logger->info('Found user in Keycloak request', ['data' => $keycloakUserData]);
+            $this->logger->info('oauthAuthenticator: Found user in Keycloak request', ['data' => $keycloakUserData]);
 
             $this->updateOrgaWithKnownValues($user->getOrga(), $keycloakUserData);
 
             return $this->updateUserWithKnownValues($user, $keycloakUserData);
         }
 
-        $this->logger->info('Eventually create new User from Keycloak', ['data' => $keycloakUserData]);
+        $this->logger->info('oauthAuthenticator: Eventually create new User from Keycloak', ['data' => $keycloakUserData]);
 
         // At this state the login attempt may be from different Identity Providers (IdP).
         // In some cases the IdP only passes an orga without any acting user (like Orgakonto Bund)
@@ -73,13 +73,13 @@ class KeycloakUserDataMapper
 
         // Does the payload carry an organisation?
         if ('' !== $keycloakUserData->getOrganisationName()) {
-            $this->logger->info('User is Orgauser');
+            $this->logger->info('oauthAuthenticator: User is Orgauser');
 
             return $this->getUserForOrga($keycloakUserData);
         }
 
         // otherwise we assume that it is a citizen
-        $this->logger->info('User is citizen');
+        $this->logger->info('oauthAuthenticator: User is citizen');
 
         return $this->getUserForNewCitizen($keycloakUserData);
     }
@@ -88,7 +88,7 @@ class KeycloakUserDataMapper
     {
         $login = $keycloakUserData->getUserName();
 
-        $this->logger->info('Create new User from Keycloak data');
+        $this->logger->info('oauthAuthenticator: Create new User from Keycloak data');
 
         // user does not yet exist
         $user = $this->getNewUserWithDefaultValues();
@@ -109,21 +109,21 @@ class KeycloakUserDataMapper
         // in this context the given Id is the GatewayName of the organisation
         $orgas = $this->orgaService->getOrgaByFields(['gwId' => $keycloakUserData->getOrganisationId()]);
         if (null === $orgas || ([] === $orgas)) {
-            $this->logger->info('Create new User and Orga from Keycloak');
+            $this->logger->info('oauthAuthenticator: Create new User and Orga from Keycloak');
 
             return $this->createNewUserAndOrgaFromOrga($keycloakUserData);
         }
 
         // orga is already registered in customer, return default user
 
-        $this->logger->info('Orga is already registered in customer');
+        $this->logger->info('oauthAuthenticator: Orga is already registered in customer');
         $orga = $orgas[0] ?? null;
         if (!$orga instanceof Orga) {
-            $this->logger->error('Could not find valid orga in Keycloak request', [$orgas]);
+            $this->logger->error('oauthAuthenticator: Could not find valid orga in Keycloak request', [$orgas]);
             throw new InvalidArgumentException('Could not find valid orga in Keycloak request');
         }
 
-        $this->logger->info('Update existing Orga with Keycloak data');
+        $this->logger->info('oauthAuthenticator: Update existing Orga with Keycloak data');
         $orga = $this->updateOrgaWithKnownValues($orga, $keycloakUserData);
 
         $users = $orga->getUsers();
@@ -131,13 +131,13 @@ class KeycloakUserDataMapper
         // return the orga default user
         $user = $users->filter(fn (User $user) => UserInterface::DEFAULT_ORGA_USER_NAME === $user->getLastname());
 
-        $this->logger->info('Fetched users', ['users' => $user]);
+        $this->logger->info('oauthAuthenticator: Fetched users', ['users' => $user]);
 
         if (1 === $user->count()) {
             return $user->first();
         }
 
-        $this->logger->error('No valid users found');
+        $this->logger->error('oauthAuthenticator: No valid users found');
 
         throw new InvalidArgumentException('Invalid Keycloak user attributes given');
     }
@@ -199,7 +199,7 @@ class KeycloakUserDataMapper
             );
             $this->eventDispatcherPost->post($newOrgaRegisteredEvent);
         } catch (Exception $e) {
-            $this->logger->warning('Could not successfully perform orga registered from OAuth login event', [$e]);
+            $this->logger->warning('oauthAuthenticator: Could not successfully perform orga registered from OAuth login event', [$e]);
         }
 
         // Orga has exactly one master user so far

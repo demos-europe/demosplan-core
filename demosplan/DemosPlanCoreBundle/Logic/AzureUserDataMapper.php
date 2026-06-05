@@ -13,8 +13,10 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\DepartmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
+use demosplan\DemosPlanCoreBundle\Entity\User\CustomerOAuthConfig;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -101,16 +103,13 @@ class AzureUserDataMapper
         $customer = $this->customerService->getCurrentCustomer();
         $config = $this->configRepository->findByCustomer($customer);
 
-        if (null === $config || null === $config->getDefaultOrganisation()) {
+        if (!$config instanceof CustomerOAuthConfig || !$config->isAutoProvisionUsers() || !$config->getDefaultOrganisation() instanceof OrgaInterface) {
             $this->logger->warning('Azure OAuth auto-provisioning not available: no default organisation configured', [
                 'email'    => $azureUserData->getEmailAddress(),
                 'objectId' => $azureUserData->getObjectId(),
             ]);
 
-            throw new AuthenticationException(
-                'User not found and auto-provisioning is not configured. '
-                .'Please contact your administrator.'
-            );
+            throw new AuthenticationException('User not found and auto-provisioning is not configured. Please contact your administrator.');
         }
 
         /** @var Orga $organisation */

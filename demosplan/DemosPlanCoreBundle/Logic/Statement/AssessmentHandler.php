@@ -324,7 +324,7 @@ class AssessmentHandler extends CoreHandler
         );
 
         $statements = $outputResult->getStatements();
-        $statements = $this->statementService->addSourceStatementAttachments($statements);
+        $statements = $this->statementService->addStatementAttachments($statements);
 
         // TODO: this seems to do nothing as the statement changed seems to be just a copy, please verify and delete code or falsify and explain with comment
         foreach ($statements as $statement) {

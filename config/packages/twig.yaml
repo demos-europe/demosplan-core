@@ -2,6 +2,7 @@ twig:
     debug:            '%kernel.debug%'
     exception_controller: null
     strict_variables: '%kernel.debug%'
+    file_name_pattern: '*.twig'
     globals:
         alternative_login_use_testuser: '%alternative_login_use_testuser%'
         alternative_login_testuser_defaultpass: '%alternative_login_testuser_defaultpass%'

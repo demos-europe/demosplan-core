@@ -6,8 +6,180 @@
 
 ## UNRELEASED
 
+### Added
+- Show text custom fields and its values in manage institutions and add institutions dialogs
+- Add text custom field value editing to institution tag management dialog
+- Set up API Platform infrastructure alongside existing EDT (Entity Definition Toolkit) as part of the gradual API migration (DPLAN-17129)
+- Add dedicated security firewall for API Platform routes (`/api/3.0/`) with shared session authentication
+- Add bridge classes in demosplan-addon for EDT-to-API Platform relationship handling during migration (`PlainIdJsonApiNormalizer`, `ApiPlatformRelationshipConfig`, `ExtendedDynamicTransformer`)
+- Add text custom field definition editing
+- Add customer admin interface for managing procedure phases - displaying and creating new phases
+- Store procedure phase definitions in the database as `ProcedurePhaseDefinition` entities (per customer and audience) instead of in YAML/`GlobalConfig`, with a new `procedure_phase_definition` table and `phase_definition_id` foreign keys on `procedure_phase` (plus `designated_phase_definition_id`), `_statement`, `_draft_statement`, `_draft_statement_versions` and `institution_mail` (DPLAN-17570)
+
+### Changed
+- Widen `_procedure.extern_id` from `VARCHAR(50)` to `VARCHAR(255)` so XBeteiligung planIDs longer than 50 characters can be stored (DPLAN-17455)
+- Tag selection when splitting a statement now lists keywords in the manual sort order from tag administration instead of alphabetically
+- Procedure phase names are now read from the `ProcedurePhaseDefinition` entity in the database everywhere they are displayed, instead of from YAML-based phase translation keys (DPLAN-17570)
+
 ### Fixed
-- Fix redirect to split-view after claiming statement and correct unclaim behavior to prevent false assignee confirmation dialog
+- `AccessProcedureListener` now checks for array controller before accessing index, preventing crashes on API Platform routes
+- `dplan:procedure:delete` now also removes the two associated `procedure_phase` rows; previous runs left orphan rows behind, which are cleaned up by a one-shot migration
+
+### New dependencies
+- `api-platform/core ^3.4`
+
+### New environment variable
+- `CORS_ALLOW_ORIGIN` — Required. Controls which origins are allowed to make cross-origin requests to API Platform endpoints. Default: `'^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$'`
+
+## v4.42.0 (2026-05-21)
+## v4.40.1 (2026-05-21)
+
+## v4.40.0 (2026-05-20)
+
+### Added
+- Tags can be reordered within and between TagTopics via drag and drop in tag administration
+
+### Changed
+- Segment transformer extracts segment IDs and text from `<segment-mark>` elements in textualReference instead of charStart/charEnd positions
+- Column widths in the segment list now persist across browser sessions
+- "column reset" in the segment list now also resets column widths to defaults
+- Doctrine ORM upgraded from v2.20 to v3.6 and `doctrine/persistence` widened to `^2.0 || ^3.0`; entity mappings converted from annotations to PHP 8 attributes (preparation for the API Platform integration)
+
+## v4.39.0 (2026-05-06)
+
+## v4.38.0 (2026-05-06)
+
+### Added
+- Add text custom field definition to institution tag management dialog
+- Inactivity-based account-deletion workflow: a daily cron sends two warning mails and then soft-deletes accounts that stay inactive past configurable thresholds; the next successful login resets the cascade. Disabled by default — enable per project by setting `account_deletion.first_warning_days` in `parameters_default_project.yml`. Includes the `dplan:account-deletion:prepare-test` console command for QA scenarios.
+- Track recommendation versions for statements and segments with full text snapshots, exposed via API and XLSX export (permission: `feature_enable_recommendation_versions`)
+- Support multiple custom field types and target contexts per project
+- Spellcheck in the Tiptap editor highlights spelling errors and suggests corrections while writing statements
+- Confirmation modal when leaving a page with unsaved changes (statement detail page and "Erwiderung verfassen")
+- Custom fields are included in PDF exports of draft statements
+- Full OAuth2 token lifecycle management with Keycloak: tokens (access, refresh, ID) are now stored encrypted (via `SecretEncryptor` / XSalsa20-Poly1305) in a new `oauth_tokens` table and refreshed transparently in the background before expiry
+- Request buffering during re-authentication: when tokens expire mid-request, the pending request (including POST body) is preserved encrypted in the database and the user is redirected back to the original page after re-authenticating (a review page for replaying buffered POST data is planned but not yet implemented)
+- Organisation-aware re-authentication for multi-org users: the selected organisation is persisted through the re-auth flow; users are shown the org-selection page and redirected back to their original page if the same org is chosen
+- Scheduled cleanup of expired OAuth tokens via Symfony Messenger
+- Parameter `oauth_keycloak_login_only` (default: `true`) to control whether full token management is active; set to `false` in `parameters_default_project.yml` per project to enable token refresh
+- Translation `confirm.session.renewed` shown as flash message after seamless re-authentication
+
+### Changed
+- Statement detail view now shows the institution before the department (corrected order)
+- Replaced `KeycloakAuthenticationSuccessTrait` with `AbstractOzgKeycloakAuthenticator` base class shared by both real and static (test) authenticators
+- `ExpirationTimestampRequestListener` now checks actual OAuth token expiry instead of only PHP session lifetime; includes a configurable fast-path interval to avoid DB queries on every request
+- `OzgKeycloakSessionManager` (renamed from `OzgKeycloakLogoutManager`) now also handles per-customer OAuth config lookup and session sync
+- `LogoutSubscriber` uses `getEffectiveLogoutRoute()` for per-customer Keycloak config
+
+### Fixed
+- Creating a tag/topic directly while splitting a statement works again
+- Label spacing on the imprint page
+- Large file uploads no longer fail when a chunk PATCH response is lost — upload resumes via recovered FILE_ID/HASH headers
+- LaTeX PDF exports rendered more reliably (ligature and babel-related gaps)
+
+### Deployment notes
+- **Migration**: creates the `account_deletion_tracking` table — run `doctrine:migrations:migrate`
+- **New parameters** (with defaults): `account_deletion.first_warning_days` (~ — feature disabled), `account_deletion.warning_step_days` (30), `account_deletion.additional_protected_user_ids` ([])
+- **Migration**: creates `oauth_tokens` table with FK to `_user` and `_orga` — run `doctrine:migrations:migrate`
+- **Required env var**: `OAUTH_SECRET_ENCRYPTION_KEY` — generate with `php -r "echo base64_encode(sodium_crypto_secretbox_keygen());"` and add to `.env.local` on every environment (shared with other encryption features)
+- **New parameters** (with defaults): `oauth_keycloak_login_only` (true — safe default, no behaviour change), `oauth_token_timezone` (Europe/Berlin), `oauth_token_fast_path_interval_seconds` (180), `oauth_token_refresh_buffer_minutes` (2)
+- To enable full token management for a project, set `oauth_keycloak_login_only: false` in `parameters_default_project.yml`
+
+## v4.37.0 (2026-04-27)
+
+## v4.36.0 (2026-04-24)
+
+### Added
+- Tables support draggable column reordering, persisted locally per user
+- Administrators can configure a retention period for purging deleted procedures
+
+### Changed
+- Unused tags are no longer shown in the filter flyout
+- Improved performance of procedure phase resolution on list and export views
+- Submitter name, address and priority are hidden in the "portrait with prioritization" export
+
+### Fixed
+- Filter flyout could be hidden behind sticky table headers
+- Incorrect initial filter state on statements
+- Tooltips for hidden table columns were shown incorrectly
+- Hover color on checked multiselect checkbox
+- Overview map was shown on initial render when it should have been hidden
+- Logout button now appears on the IDP error page to terminate the Keycloak session
+- Designated end dates were saved with 00:00:00 instead of 23:59:59
+- Elasticsearch error when removing a keyword that was in use
+- Document exports could fail when CSS contained non-numeric line-height values
+
+## v4.35.0 (2026-04-09)
+
+## v4.34.0 (2026-04-09)
+
+### Added
+- Console commands to list and detach organisations from customers
+
+### Fixed
+- Various visual and interaction issues in the configurable segment list table
+- Organisation ID was not set when manually creating statements for institutions
+
+## v4.33.2 (2026-05-19)
+
+### Fixed
+- Per-statement DOCX export failed with an error
+- Excel export of statements failed with an error
+- Option to create tags directly when splitting a statement was missing
+
+## v4.33.0 (2026-04-02)
+
+### Added
+- Introduce password check to forbid re-usage of passwords when trying to change passwords. This adds a new table to the DB, user_password_history
+- Make custom fields available in assessment table, original statement list, my releases list, and public statement dialogs
+- Improved segment list interface with configurable column layout
+- Show blueprint name and organization in platform blueprint warning
+
+### Changed
+- Improved performance of procedure statistics endpoint
+
+### Fixed
+- Global GIS layers were always saved as enabled regardless of the selected setting
+- "Split now" button in statement details only assigned the statement without redirecting to the split view
+- Pagination in assessment table required double click to navigate
+- Public paragraph list could fail when an element was missing
+- Statement votes were not immediately visible after voting
+- Procedure exports could fail in certain cases
+
+## v4.32.0 (2026-03-25)
+### Added
+- Export original statements as ZIP file including attachments for archiving
+- Display custom fields in assessment table, original statement list, and public participation dialog
+- Support for users belonging to multiple organizations with organization switcher
+- Warning when saving processing steps without any step marked as "completed"
+- Segment list filters for assignee and step now use OR logic within the same category
+- Hints for map territory features
+- Protocol entries for automatic phase switch
+- Rate limiting for new statements restricted to anonymous users only
+- Option for addons to customize export column definitions
+- Allow editing organization names in user profile
+- Clear browser data on logout for improved session security
+
+### Changed
+- Renamed "Bearbeiten" to "Details" in segment list context menu and reordered menu options
+- Updated pager styling
+- Protocol export uses flow text instead of table layout
+- Redesigned attachment entries in original statement list
+
+### Fixed
+- Redirect to split-view after claiming statement and correct unclaim behavior to prevent false assignee confirmation dialog
+- Date pickers overlapping and breaking layout in procedure creation
+- Statement attachments missing from procedure zip export for ToeB
+- Overlapping icons in searchbar
+- Support contact creation failing
+- Draft statement polygon data being truncated
+- Statement data being overwritten when saving additional submitters
+- Publication field incorrectly shown in citizen PDF when disabled
+- Flyout trigger column not staying visible when scrolling horizontally
+- Organization type permission check preventing correct access
+- Pagination errors when navigating statement lists
+- Elasticsearch search queries returning malformed results
+- Statement voting not working on MySQL 8+
 
 ## v4.31.0 (2026-02-25)
 ### Changed
@@ -28,6 +200,21 @@
 
 ### Changed
 - Extract GetFeatureInfo logic for visible WMS layers out of Map.vue and into WmsGetFeatureInfo component
+
+## v4.29.4 (2026-03-24)
+
+### Fixed
+- Custom fields column causing errors in segments list for users without segment access permission
+
+### Added
+- Explicit identity provider type configuration for SSO connections
+
+## v4.29.3 (2026-03-18)
+
+### Fixed
+- Requests with numeric query parameter keys being incorrectly rejected as security violations
+- User lookup by email or login now works case-insensitively across all authentication flows
+- SSO login redirect URL missing from dynamic OAuth client configuration
 
 ## v4.29.2 (2026-03-13)
 
@@ -133,6 +320,11 @@
 
 ### Features
 - Add possibility to delete custom fields and their options
+
+## v4.15.4 (2026-03-06)
+- Fix statement vote on mysql8+, immediately show vote
+- Rate limit new statements only for anonymous users
+- Set TUS resumable upload cache TTL to a week by default
 
 ## v4.15.3 (2025-12-02)
 

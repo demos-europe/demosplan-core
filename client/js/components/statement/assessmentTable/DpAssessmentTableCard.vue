@@ -513,6 +513,42 @@
             />
           </dp-item-row>
 
+          <!--  custom fields  -->
+          <dp-item-row
+            v-if="hasPermission('feature_statements_custom_fields') && (hasCustomFieldContent ?? true)"
+            class="pb-0"
+            title="custom.fields"
+          >
+            <custom-fields-list
+              :definition-source-id="procedureId"
+              :enable-toggle="true"
+              :list-title="Translator.trans('statement.data')"
+              :resource-id="statement.id"
+              :show-empty="true"
+              :title-info-text="Translator.trans('custom.fields.submitter.info')"
+              batch-filter-path="procedure.id"
+              class="py-2"
+              resource-type="Statement"
+              show-field-borders
+              source-entity="PROCEDURE"
+              target-entity="STATEMENT"
+              title-class="font-[600] mb-2"
+              @has-content="val => hasCustomFieldContent = val"
+            >
+              <template v-slot:readonly-display="{ field }">
+                <span v-if="field.value?.selectedOptions?.length > 0">
+                  {{ field.value.selectedOptions.map(o => o.label).join(', ') }}
+                </span>
+                <span
+                  v-else
+                  class="text-sm text-muted"
+                >
+                  -
+                </span>
+              </template>
+            </custom-fields-list>
+          </dp-item-row>
+
           <!-- Statement / Recommendation Text -->
           <dp-item-row
             title="statement.text"
@@ -728,6 +764,7 @@
 import { dpApi, DpContextualHelp, DpTooltip, formatDate, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
+import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
 import DpClaim from '../DpClaim'
 import DpEditFieldMultiSelect from './DpEditFieldMultiSelect'
 import DpEditFieldSingleSelect from './DpEditFieldSingleSelect'
@@ -739,16 +776,17 @@ export default {
   name: 'DpAssessmentTableCard',
 
   components: {
-    DpContextualHelp,
+    CustomFieldsList,
     DpClaim,
+    DpContextualHelp,
     DpEditFieldMultiSelect,
     DpEditFieldSingleSelect,
     DpFragmentList: () => import(/* webpackChunkName: "dp-fragment-list" */ './DpFragmentList'),
     DpFragmentsSwitcher: () => import(/* webpackChunkName: "dp-fragments-switcher" */ './DpFragmentsSwitcher'),
     DpItemRow,
+    DpTooltip,
     EditableText,
     TableCardFlyoutMenu,
-    DpTooltip,
   },
 
   props: {
@@ -797,12 +835,15 @@ export default {
       updatingClaimState: false,
       fragmentsLoading: false,
       placeholderStatementId: null,
+      hasCustomFieldContent: null,
     }
   },
 
   computed: {
     // Get the Statement from the Store (if not Present there use initial data)
-    ...mapState('Statement', { statement (state) { return state.statements[this.statementId] } }),
+    ...mapState('Statement', { statement (state) {
+      return state.statements[this.statementId]
+    } }),
     ...mapGetters('AssessmentTable', [
       'adviceValues',
       'assessmentBase',
@@ -925,7 +966,10 @@ export default {
 
       // Add submitted date and phase
       parts.push(`${Translator.trans('statement.date.submitted')}: ${this.statementDate(this.statement.submitDate)}`)
-      parts.push(`${Translator.trans('phase')}: ${this.statement.phase}`)
+
+      if (this.statement.procedurePhase?.name) {
+        parts.push(`${Translator.trans('phase')}: ${this.statement.procedurePhase.name}`)
+      }
 
       // Add moved procedure info if available
       if (this.statement.movedFromProcedureId !== '') {
@@ -955,6 +999,7 @@ export default {
 
       if (!this.statement.isSubmittedByCitizen && !this.hasUserOrganisationAccess) {
         const orgName = this.statement.initialOrganisationName || Translator.trans('institution')
+
         parts.push(`${Translator.trans('organisation')}: ${orgName}`)
 
         if (this.statement.initialOrganisationDepartmentName) {
@@ -1064,17 +1109,22 @@ export default {
 
         if (fragmentsInSessionStorage && hasOwnProp(fragmentsInSessionStorage, this.procedureId)) {
           const selectedFragmentsOfMovedStatement = Object.values(fragmentsInSessionStorage[this.procedureId]).filter(fragment => fragment.statementId === this.statementId)
+
           if (selectedFragmentsOfMovedStatement.length > 0) {
             selectedFragmentsOfMovedStatement.forEach(frag => this.removeFragmentFromSelectionAction(frag.id))
           }
         }
+
         this.$nextTick(() => {
           const statementElem = document.getElementById('itemdisplay_' + statementId)
+
           statementElem.focus()
           const header = statementElem.querySelector('[data-add-animation]')
+
           if (header.classList.contains('animation--bg-highlight-grey--light-1')) {
             header.classList.remove('animation--bg-highlight-grey--light-1')
           }
+
           header.classList.add('animation--bg-highlight-grey--light-1')
         })
       }
@@ -1207,11 +1257,13 @@ export default {
      */
     saveStatement (data, propType, fieldName) {
       const payload = this.preparePayload(data, propType, fieldName)
+
       this.$emit('statement:updated')
       //  ##### Fire store action #####
       this.updateStatementAction({ data: payload })
         .then(updated => {
           let updatedField = ''
+
           //  Unset loading state of saved field
           for (const field in updated) {
             // If TAGS are changed, we have to add the tag content to consideration text field
@@ -1232,6 +1284,7 @@ export default {
                         return false
                       } else {
                         textToBeAdded += '<p>' + data.data.body + '</p>'
+
                         return Promise.resolve(true)
                       }
                     }
@@ -1257,14 +1310,17 @@ export default {
               updatedField = field
               //  Handle components that use <dp-edit-field>
               const editFieldComponent = this.$refs[field].$children.find(child => child.$options.name === 'DpEditField')
+
               if (editFieldComponent) {
                 editFieldComponent.$data.loading = false
                 editFieldComponent.$data.editingEnabled = false
               }
+
               //  Handle components that have a loading state by themselves
               if (hasOwnProp(this.$refs[field].$data, 'loading')) {
                 this.$refs[field].$data.loading = false
               }
+
               if (hasOwnProp(this.$refs[field].$data, 'editingEnabled')) {
                 this.$refs[field].$data.editingEnabled = false
               }
@@ -1287,6 +1343,7 @@ export default {
       if (this.tab === 'statement') {
         this.toggleTab(false)
       }
+
       this.$refs.fragmentList.showAll = checked
     },
 
@@ -1307,6 +1364,7 @@ export default {
           assignee: this.statement.assignee,
           isCluster: this.statement.isCluster,
         }
+
         // Make sure that no fragments are checked if we check statement (fragments may not be loaded at this point so the checkbox in TableCard will not be disabled)
         this.resetSelection()
         this.$emit('statement:addToSelection', statement)

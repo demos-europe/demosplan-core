@@ -29,6 +29,7 @@ phpstan.neon
 logs
 /docker-compose.override.yml
 plans
+tasks
 
 # Core project
 /projects/core/app/cache/*
@@ -39,6 +40,17 @@ plans
 /projects/core/web/js
 /projects/core/web/video
 /projects/core/web/files
+/public/css
+/public/fonts
+/public/img
+/public/js
+/public/video
+/public/files
+/public/uploads/*
+!/public/uploads/.gitkeep
+!/public/uploads/files/
+/public/uploads/files/*
+!/public/uploads/files/.gitkeep
 !/var/.gitkeep
 
 ###> symfony/framework-bundle ###
@@ -64,12 +76,6 @@ plans
 /phpunit.xml
 .phpunit.result.cache
 ###< phpunit/phpunit ###
-
-###> squizlabs/php_codesniffer ###
-/.phpcs-cache
-/phpcs.xml
-###< squizlabs/php_codesniffer ###
-
 ###> symfony/phpunit-bridge ###
 .phpunit.result.cache
 /phpunit.xml
