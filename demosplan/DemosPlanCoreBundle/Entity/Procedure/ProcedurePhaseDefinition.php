@@ -172,6 +172,16 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
         $this->orderInAudience = $orderInAudience;
     }
 
+    /**
+     * The configuration phase ("Konfiguration") is always the first phase within its audience.
+     * There is exactly one per audience and, unlike other phases, only its name may be edited -
+     * its permissionSet and participationState are fixed.
+     */
+    public function isConfigurationPhase(): bool
+    {
+        return 0 === $this->orderInAudience;
+    }
+
     public function getCustomer(): ?CustomerInterface
     {
         return $this->customer;
