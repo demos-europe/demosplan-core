@@ -216,7 +216,7 @@ abstract class AbstractOzgKeycloakAuthenticator extends OAuth2Authenticator
 
             if ($organisations->count() > 1) {
                 if ($this->currentOrganisationService->requiresOrganisationSelection($user)) {
-                    $this->logger->info('Multi-organisation user requires organisation selection', [
+                    $this->logger->info('oauthAuthenticator: Multi-organisation user requires organisation selection', [
                         'userId'            => $user->getId(),
                         'organisationCount' => $organisations->count(),
                     ]);
@@ -231,7 +231,7 @@ abstract class AbstractOzgKeycloakAuthenticator extends OAuth2Authenticator
                 $singleOrga = $organisations->first();
                 if (false !== $singleOrga) {
                     $this->currentOrganisationService->setCurrentOrganisation($user, $singleOrga);
-                    $this->logger->info('Single organisation auto-selected', [
+                    $this->logger->info('oauthAuthenticator: Single organisation auto-selected', [
                         'userId' => $user->getId(),
                         'orgaId' => $singleOrga->getId(),
                     ]);
@@ -244,7 +244,7 @@ abstract class AbstractOzgKeycloakAuthenticator extends OAuth2Authenticator
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
-        $this->logger->warning('Keycloak login failed', ['exception' => $exception]);
+        $this->logger->warning('oauthAuthenticator: Keycloak login failed', ['exception' => $exception]);
 
         return new RedirectResponse($this->router->generate('core_login_idp_error'));
     }

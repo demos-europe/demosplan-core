@@ -21,7 +21,7 @@ jobs:
         name: No @ORM docblock annotations in Entity/
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v4
+            - uses: actions/checkout@v6
             - name: Scan Entity files for @ORM docblock annotations
               run: |
                   set -euo pipefail

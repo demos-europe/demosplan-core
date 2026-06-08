@@ -44,6 +44,7 @@ describe('FilterModalSelectItem', () => {
 
   it('should update selected options when selectFilterOption is called', () => {
     const option = { label: 'Option 1', value: '1' }
+
     wrapper.vm.selectFilterOption(option)
     expect(wrapper.vm.selected).toContainEqual(option)
   })

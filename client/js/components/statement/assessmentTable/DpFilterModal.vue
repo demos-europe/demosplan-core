@@ -317,6 +317,7 @@ export default {
       return this.filterGroups.filter(filterGroup => {
         const groupHasPermission = filterGroup.permission ? hasPermission(filterGroup.permission) : true
         const groupHasFilters = this.filterByType(filterGroup.type).length > 0
+
         return groupHasPermission && groupHasFilters ? filterGroup : false
       })
     },
@@ -327,12 +328,14 @@ export default {
     filterSetName () {
       let selectedFilter
       const selectedFilterLabels = []
+
       for (const index in this.selectedFilterOptions) {
         if (hasOwnProp(this.selectedFilterOptions, index)) {
           selectedFilter = this.selectedFilterOptions[index]
           selectedFilterLabels.push(selectedFilter.label)
         }
       }
+
       return selectedFilterLabels.join(', ')
     },
 
@@ -401,6 +404,7 @@ export default {
 
     createSelectedFiltersBadge (filterGroup) {
       const selectedCount = this.selectedOptions.length ? this.selectedOptions.filter(option => option.type === filterGroup.type).length : 0
+
       return (selectedCount > 0) ? '<span class="o-badge o-badge--small o-badge--dark">' + selectedCount + '</span>' : ''
     },
 
@@ -416,6 +420,7 @@ export default {
 
     loadUserFilterSet () {
       const filterHash = this.userFilterSetFilterHash(this.selectedUserFilterSet)
+
       // Reload with userFilterSet
       document.location.href = Routing.generate(this.route, { procedureId: this.procedureId, filterHash })
     },
@@ -442,6 +447,7 @@ export default {
         .then(() => {
           // Select current user filter set
           const currentFilterSet = this.userFilterSets.filter(userFilterSet => this.filterHash === this.userFilterSetFilterHash(userFilterSet))
+
           this.selectedUserFilterSet = (currentFilterSet.length === 1) ? currentFilterSet[0] : {}
         })
     },
@@ -456,6 +462,7 @@ export default {
         this.updateBaseState({ procedureId: this.procedureId, original: this.original })
           .then(() => {
             const promises = [this.initFilterList()]
+
             if (this.userFilterSetSaveEnabled) {
               promises.push(this.initUserFilterSets())
             }
@@ -527,6 +534,7 @@ export default {
               if (filterItemId) {
                 this.setLoading({ filterId: filterItemId, isLoading: false })
               }
+
               this.disabledInteractions = false
             })
         })

@@ -253,6 +253,7 @@ export default {
   methods: {
     createAddonPayload () {
       const { attributes, id, resourceType, url } = this.addonPayload
+
       return {
         type: resourceType,
         attributes,

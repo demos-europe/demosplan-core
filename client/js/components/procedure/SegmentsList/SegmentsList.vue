@@ -271,7 +271,17 @@
               />
             </template>
             <template v-slot:recommendation="rowData">
-              <div v-cleanhtml="rowData.attributes.recommendation !== '' ? rowData.attributes.recommendation : '-'" />
+              <div class="flex flex-col">
+                <div v-cleanhtml="rowData.attributes.recommendation || '-'" />
+                <span
+                  v-if="hasPermission('feature_enable_recommendation_versions') && getRecommendationVersionNumber(rowData)"
+                  class="text-neutral-base"
+                  :class="{ 'mt-2': !recommendationHasHtmlTags(rowData.attributes.recommendation) }"
+                >
+                  {{ Translator.trans('version') }}:
+                  {{ getRecommendationVersionNumber(rowData) }}
+                </span>
+              </div>
             </template>
             <template v-slot:tags="rowData">
               <addon-wrapper
@@ -537,33 +547,41 @@ export default {
   },
 
   computed: {
+    ...mapState('AssignableUser', {
+      assignableUsersObject: 'items',
+    }),
+
+    ...mapState('CustomField', {
+      customFields: 'items',
+    }),
+
     ...mapGetters('FilterFlyout', [
       'getFilterQuery',
       'getIsExpandedByCategoryId',
     ]),
 
-    ...mapState('AssignableUser', {
-      assignableUsersObject: 'items',
-    }),
-
     ...mapState('Orga', {
       orgaObject: 'items',
     }),
 
-    ...mapState('StatementSegment', {
-      segmentsObject: 'items',
+    ...mapState('Place', {
+      placesObject: 'items',
+    }),
+
+    ...mapState('RecommendationVersion', {
+      recommendationVersions: 'items',
     }),
 
     ...mapState('Statement', {
       statementsObject: 'items',
     }),
 
-    ...mapState('Tag', {
-      tagsObject: 'items',
+    ...mapState('StatementSegment', {
+      segmentsObject: 'items',
     }),
 
-    ...mapState('Place', {
-      placesObject: 'items',
+    ...mapState('Tag', {
+      tagsObject: 'items',
     }),
 
     assignableUsers () {
@@ -630,6 +648,7 @@ export default {
 
     queryIds () {
       let ids = []
+
       if (Array.isArray(this.appliedFilterQuery) === false && Object.values(this.appliedFilterQuery).length > 0) {
         ids = Object.values(this.appliedFilterQuery)
           .filter(el => el.condition) // Remove group objects
@@ -641,6 +660,7 @@ export default {
             return el.condition.value
           })
       }
+
       return ids
     },
 
@@ -732,18 +752,25 @@ export default {
         'recommendation',
       ]
 
+      const statementSegmentInclude = [
+        'assignee',
+        'place',
+        'tags',
+        'parentStatement.genericAttachments.file',
+        'parentStatement.sourceAttachment.file',
+      ]
+
       if (hasPermission('field_segments_custom_fields')) {
         statementSegmentFields.push('customFields')
       }
 
+      if (hasPermission('feature_enable_recommendation_versions')) {
+        statementSegmentFields.push('recommendationVersions')
+        statementSegmentInclude.push('recommendationVersions')
+      }
+
       const payload = {
-        include: [
-          'assignee',
-          'place',
-          'tags',
-          'parentStatement.genericAttachments.file',
-          'parentStatement.sourceAttachment.file',
-        ].join(),
+        include: statementSegmentInclude.join(),
         page: {
           number: page,
           size: this.pagination.perPage,
@@ -786,12 +813,22 @@ export default {
           ].join(),
         },
       }
+
+      if (hasPermission('feature_enable_recommendation_versions')) {
+        payload.fields.RecommendationVersion = [
+          'versionNumber',
+          'recommendationText',
+          'createdAt',
+        ].join()
+      }
+
       if (this.searchTerm !== '') {
         payload.search = {
           value: this.searchTerm,
           ...this.searchFieldsSelected.length !== 0 ? { fieldsToSearch: this.searchFieldsSelected } : {},
         }
       }
+
       this.isLoading = true
       this.fetchSegments(payload)
         .then((data) => {
@@ -860,9 +897,24 @@ export default {
         .catch(() => { /* Notification already shown by useCustomFieldDefinitions */ })
     },
 
+    getRecommendationVersionNumber (segment) {
+      const currentVersionId = segment.relationships?.recommendationVersions?.data?.[0]?.id
+
+      if (!currentVersionId) {
+        return ''
+      }
+
+      const versionNumber = this.recommendationVersions[currentVersionId]?.attributes?.versionNumber
+
+      return versionNumber ?
+        String(versionNumber).padStart(3, '0') :
+        ''
+    },
+
     getTagsBySegment (id) {
       const segment = this.segmentsObject[id]
       const relatedTagIds = segment.relationships.tags && segment.relationships.tags.data.map(tag => tag.id)
+
       return relatedTagIds.map(id => this.tagsObject[id])
     },
 
@@ -871,8 +923,10 @@ export default {
      */
     getOriginalPdfAttachmentHashBySegment (segment) {
       const parentStatement = segment.rel('parentStatement')
+
       if (parentStatement.hasRelationship('attachments')) {
         const originalAttachment = Object.values(parentStatement.relationships.attachments.list()).filter(attachment => attachment.attributes.attachmentType === 'source_statement')[0]
+
         if (originalAttachment) {
           return originalAttachment.rel('file').attributes.hash
         }
@@ -886,6 +940,7 @@ export default {
       if (filterType === 'tags') {
         return null
       }
+
       // Replace '.' in workflow.places because it is forbidden in group names
       return `${filterType.replaceAll('.', '-')}_group`
     },
@@ -905,8 +960,17 @@ export default {
     handleSizeChange (newSize) {
       // Compute new page with current page for changed number of items per page
       const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
+
       this.pagination.perPage = newSize
       this.applyQuery(page)
+    },
+
+    recommendationHasHtmlTags (recommendation) {
+      const div = document.createElement('div')
+
+      div.innerHTML = recommendation.trim()
+
+      return div.children.length > 0
     },
 
     resetColumnSelection () {
@@ -1043,6 +1107,7 @@ export default {
 
               const currentFlyoutFilterIds = this.queryIds.filter(queryId => {
                 const item = allOptions.find(item => item.id === queryId)
+
                 return item ? item.id : null
               })
 
@@ -1101,6 +1166,7 @@ export default {
     // Called by apply as well as by reset in filterFlyout
     sendFilterQuery (filter) {
       const isReset = Object.keys(filter).length === 0
+
       if (isReset === false && Object.keys(this.appliedFilterQuery).length) {
         Object.values(filter).forEach(el => {
           this.appliedFilterQuery[el.condition.value] = el
@@ -1112,6 +1178,7 @@ export default {
           this.appliedFilterQuery = filter
         }
       }
+
       this.updateQueryHash()
       this.resetSelection()
       this.applyQuery(1)
@@ -1128,9 +1195,11 @@ export default {
       const url = Routing.generate('dplan_rpc_segment_list_query_update', { queryHash: oldQueryHash })
 
       const data = { filter: this.getFilterQuery }
+
       if (this.searchterm !== '') {
         data.searchPhrase = this.searchTerm
       }
+
       return dpApi.patch(url, {}, data)
         .then(({ data }) => {
           if (data) {
@@ -1143,6 +1212,7 @@ export default {
 
     updateQueryHashInURL (oldQueryHash, newQueryHash) {
       const newHref = globalThis.location.href.replace(oldQueryHash, newQueryHash)
+
       globalThis.history.pushState({ html: newHref, pageTitle: document.title }, document.title, newHref)
     },
 
@@ -1159,10 +1229,12 @@ export default {
 
   async mounted () {
     const addons = await loadAddonComponents('tag.style.segments.list')
+
     this.hasStyledTopicalTags = addons.length > 0
 
     // Get queryHash from URL
     const hrefParts = globalThis.location.href.split('/')
+
     this.currentQueryHash = hrefParts[hrefParts.length - 1]
 
     // When returning from bulk edit flow, the currentQueryHash which was used there to build a return link must be deleted.
@@ -1179,14 +1251,17 @@ export default {
         }
 
         const query = {}
+
         query[filter.condition.value] = filter
         this.updateFilterQuery(query)
       })
     }
+
     this.initPagination()
     if (hasPermission('field_segments_custom_fields')) {
       this.loadSegmentCustomFields()
     }
+
     this.applyQuery(this.pagination.currentPage)
 
     this.fetchPlaces()

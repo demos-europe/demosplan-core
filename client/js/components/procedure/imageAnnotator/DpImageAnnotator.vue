@@ -262,6 +262,7 @@ export default {
     labels () {
       return this.allLabels.reduce((acc, label) => {
         acc[label.piName] = label.color
+
         return acc
       }, {})
     },
@@ -269,6 +270,7 @@ export default {
     labelTranslations () {
       return this.allLabels.reduce((acc, label) => {
         acc[label.piName] = label.translation
+
         return acc
       }, {})
     },
@@ -290,6 +292,7 @@ export default {
       // Add event listener on click on features => toggle label modal
       this.map.on('dblclick', (e) => {
         let isFirstFeature = false
+
         if (this.currentInteractionName === 'select') {
           this.map.forEachFeatureAtPixel(e.pixel, (feature) => {
             if (isFirstFeature === false) {
@@ -322,6 +325,7 @@ export default {
       // Add event listener on mousemove => if delete or modify is active, change cursor pointer on feature hover
       this.map.on('pointermove', (e) => {
         const isFeature = this.map.forEachFeatureAtPixel(e.pixel, () => true)
+
         if (isFeature) {
           this.map.getTargetElement().style.cursor = 'pointer'
         } else {
@@ -338,6 +342,7 @@ export default {
       // Check which vertex of the feature was moved; get the squarified-version of the changed coordinates as its extent
       const getChangedCoordinates = (currentCoords, initCoords) => {
         let hasChanged = false
+
         currentCoords.forEach((coordpair, idx) => {
           if (coordpair[0] !== initCoords[idx][0] || coordpair[1] !== initCoords[idx][1]) {
             hasChanged = {}
@@ -346,24 +351,29 @@ export default {
             hasChanged.idx = idx === 0 ? 4 : idx
           }
         })
+
         return hasChanged
       }
       const changed = getChangedCoordinates(currentCoordinates, initCoords)
 
       const calculateSquaredCoordinates = (changed, initCoordinates) => {
         const newCorrectCoordinates = initCoordinates
+
         // First set new coordinates of the vertex that was moved
         newCorrectCoordinates[changed.idx] = changed.newCoords
         // Then set coordinates of the sibling vertices
         if (changed.idx === 1 || changed.idx === 3) {
           const idxBefore = changed.idx === 1 ? 4 : changed.idx - 1
+
           newCorrectCoordinates[changed.idx + 1][0] = changed.newCoords[0]
           newCorrectCoordinates[idxBefore][1] = changed.newCoords[1]
         } else if (changed.idx === 2 || changed.idx === 4) {
           const idxAfter = changed.idx === 4 ? 1 : changed.idx + 1
+
           newCorrectCoordinates[changed.idx - 1][0] = changed.newCoords[0]
           newCorrectCoordinates[idxAfter][1] = changed.newCoords[1]
         }
+
         // At the end set first and last coordinate identical (it is a closed polygon)
         newCorrectCoordinates[0] = newCorrectCoordinates[4]
 
@@ -375,6 +385,7 @@ export default {
 
       if (changed && isInMapView) {
         const newCoords = calculateSquaredCoordinates(changed, initCoords)
+
         feature.un('change', this.applyFeatureUpdate)
         feature.getGeometry().setCoordinates([newCoords])
         feature.on('change', this.applyFeatureUpdate)
@@ -410,6 +421,7 @@ export default {
 
     deleteFeature (feature) {
       const idx = this.geoJson.features.findIndex(el => el.id === feature.getId())
+
       this.geoJson.features.splice(idx, 1)
       this.boxLayerSource.removeFeature(feature)
       this.setInteraction('select')
@@ -417,6 +429,7 @@ export default {
 
     generateFeatureStyle (labelText, isSelected = false) {
       let selectedCircleStyle = null
+
       if (isSelected) {
         // Display drag circles in the corners of the box in selected state
         selectedCircleStyle = new Style({
@@ -429,6 +442,7 @@ export default {
           }),
           geometry: (feature) => {
             const coordinates = feature.getGeometry().getCoordinates()[0]
+
             return new MultiPoint(coordinates)
           },
         })
@@ -462,8 +476,10 @@ export default {
 
     getFeatureLabel (feature) {
       let label = null
+
       try {
         const featureId = feature.getId()
+
         label = this.geoJson.features.find(el => el.id === featureId).properties.label
         if (label.startsWith('"') || label.endsWith('"')) {
           label.replace('"', '')
@@ -471,6 +487,7 @@ export default {
       } catch (err) {
         label = null
       }
+
       return label
     },
 
@@ -520,8 +537,10 @@ export default {
         include: ['annotatedStatementPdf'].join(),
       }
       const pageResponse = await dpApi.get(url, params)
+
       if (hasOwnProp(pageResponse, 'data') && hasOwnProp(pageResponse.data, 'data') && pageResponse.data.data.length) {
         const pageAttrs = pageResponse.data.data[0].attributes
+
         this.geoJson = pageAttrs.geoJson
         this.geoJson.features.forEach(feature => {
           feature.id = uuid()
@@ -533,12 +552,14 @@ export default {
 
         // Get info about how many pages are in the document
         const documentInclude = pageResponse.data.included.find(el => el.type === 'AnnotatedStatementPdf' && el.id === this.documentId)
+
         this.allDocumentPages = documentInclude.relationships.annotatedStatementPdfPages.data
 
         // Step 2: update documentId in url and get next documentId only initially or if we just got a first page of a new document
         if (isNewDocument) {
           this.updateUrl()
           const documentResponse = await dpApi.get(Routing.generate('dplan_next_annotated_statement_pdf_to_review', { procedureId: window.dplan.procedureId, documentId: this.documentId }))
+
           this.nextDocumentId = documentResponse.data.documentId
         }
 
@@ -597,8 +618,10 @@ export default {
           this.editingFeature.getGeometry().setCoordinates(this.editingFeature.getGeometry().getCoordinates())
           // Set new coords in geoJson
           const idx = this.geoJson.features.findIndex(el => el.id === this.editingFeature.getId())
+
           this.geoJson.features[idx].geometry.coordinates = this.editingFeature.getGeometry().getCoordinates()
         }
+
         // Unregister event listener because they are not needed anymore
         this.editingFeature.un('change', this.applyFeatureUpdate)
         this.editingFeatureInitialCoords = null
@@ -627,6 +650,7 @@ export default {
       }))
       this.drawInteraction.on('drawend', (e) => {
         const newFeature = e.feature
+
         newFeature.setId(uuid())
         this.editingFeature = newFeature
         this.geoJson.features.push(this.createNewFeature(newFeature))
@@ -674,6 +698,7 @@ export default {
       // Set initial features' labels
       this.boxLayerSource.getFeatures().forEach((feature) => {
         const label = feature.getProperties().label
+
         if (label) {
           feature.setStyle(this.generateFeatureStyle(label))
         }
@@ -746,6 +771,7 @@ export default {
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'AnnotatedStatementPdfPage', resourceId: this.pageId }), {}, payload)
         .then(() => {
           const isLastPage = Boolean(this.currentPageNumber === this.documentLengthTotal)
+
           if (isLastPage) {
             // Depending on the current user, redirect to dashboard (FPA) or statement import ("Datenerfassung") if there is no next document
             this.redirect()
@@ -754,6 +780,7 @@ export default {
             if (isLastPage) {
               this.documentId = this.nextDocumentId
             }
+
             this.getInitialData(isLastPage)
             this.isSaving = false
           }
@@ -766,6 +793,7 @@ export default {
 
     setInteraction (interactionName) {
       let interaction = null
+
       switch (interactionName) {
         case 'draw':
           interaction = this.drawInteraction
@@ -775,6 +803,7 @@ export default {
           interaction = this.selectInteraction
           break
       }
+
       if (this.currentInteraction) {
         this.map.removeInteraction(this.currentInteraction)
       }
@@ -796,14 +825,17 @@ export default {
 
     setLabel (label) {
       const isCurrentlySelected = this.currentInteractionName === 'select' && this.editingFeature === this.selectInteraction.getFeatures().getArray()[0]
+
       this.editingFeature.setStyle(this.generateFeatureStyle(label, isCurrentlySelected))
       const featureInArray = this.geoJson.features.find(el => el.id === this.editingFeature.getId())
+
       featureInArray.properties.label = label
     },
 
     updateUrl () {
       const regex = /(annotatedStatementPdf\/)(.*?)(\/)/
       const newUrl = window.location.href.replace(regex, '$1' + this.documentId + '$3')
+
       window.history.pushState({ html: newUrl, pageTitle: document.title }, document.title, newUrl)
     },
   },
@@ -841,6 +873,7 @@ const useResistFingerprintingDuckTest = (callback) => {
     // Draw the image onto a new canvas to read the pixel values
     const testCanvas = document.createElement('canvas')
     const testCtx = testCanvas.getContext('2d')
+
     testCanvas.width = image.width
     testCanvas.height = image.height
     testCtx.drawImage(image, 0, 0)

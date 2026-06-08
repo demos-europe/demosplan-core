@@ -367,10 +367,12 @@ export default {
     DpBoilerPlateModal,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
+
       return DpEditor
     }),
     DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
+
       return DpInlineNotification
     }),
     DpMultiselect,
@@ -513,9 +515,11 @@ export default {
       if (isEmptyTextAttached) {
         return Translator.trans('segments.bulk.edit.recommendations.warning.empty.text.attach', { count: this.segments.length })
       }
+
       if (isEmptyTextReplaced) {
         return Translator.trans('segments.bulk.edit.recommendations.warning.empty.text.replace', { count: this.segments.length })
       }
+
       return ''
     },
 
@@ -525,7 +529,7 @@ export default {
           title: topic.attributes.title,
           id: topic.id,
           tags: this.tags
-            .filter(tag => tag.relationships.topic.data.id === topic.id)
+            .filter(tag => tag?.relationships?.topic?.data?.id === topic.id)
             .map(tag => {
               return {
                 title: tag.attributes.title,
@@ -661,6 +665,7 @@ export default {
 
     fetchAssignableUsers () {
       const url = Routing.generate('api_resource_list', { resourceType: 'AssignableUser' })
+
       return dpApi.get(url, { include: 'department' })
         .then(response => {
           this.assignableUsers = response.data.data.map(assignableUser => {
@@ -685,7 +690,9 @@ export default {
         sourceEntity: 'PROCEDURE',
         targetEntity: 'SEGMENT',
       })
-        .then(definitions => { this.customFieldDefinitions = definitions })
+        .then(definitions => {
+          this.customFieldDefinitions = definitions
+        })
         .catch(() => { /* Notification already shown by useCustomFieldDefinitions */ })
     },
 
@@ -694,6 +701,7 @@ export default {
         resourceType: 'Place',
         sort: 'sortIndex',
       })
+
       return dpApi.get(url)
         .then(response => {
           this.places = response.data.data.map(place => {
@@ -736,6 +744,7 @@ export default {
      */
     setReturnLink () {
       const currentQueryHash = lscache.get(`${this.procedureId}:segments:currentQueryHash`)
+
       if (currentQueryHash) {
         this.returnLink = Routing.generate('dplan_segments_list_by_query_hash', {
           procedureId: this.procedureId,
@@ -754,6 +763,7 @@ export default {
 
       if (segments && allSegments) {
         const toggledIds = segments.toggledSegments.map(item => item.id)
+
         if (segments.trackDeselected === false) {
           this.segments = toggledIds
         } else if (segments.trackDeselected === true) {
@@ -793,7 +803,7 @@ export default {
         this.isLoading = false
       })
     if (this.segments.length === 1) {
-      this.getSegment({ id: this.segments[0], include: 'tags' })
+      this.getSegment({ id: this.segments[0], include: 'tags,tags.topic' })
         .then(() => {
           this.segmentDataLoaded = true
         })
