@@ -105,6 +105,7 @@
           v-else
           id="editPlaceName"
           v-model="newRowData.name"
+          :disabled="isSaving"
           data-cy="places:editPlaceName"
           aria-labelledby="placeName"
           maxlength="250"
@@ -120,6 +121,7 @@
           v-else
           id="editPlaceDescription"
           v-model="newRowData.description"
+          :disabled="isSaving"
           data-cy="places:editPlaceDescription"
           aria-labelledby="placeDescription"
           maxlength="250"
@@ -128,7 +130,7 @@
       <template v-slot:solved="rowData">
         <dp-checkbox
           id="editPlaceSolved"
-          :disabled="!rowData.edit"
+          :disabled="!rowData.edit || isSaving"
           :checked="rowData.edit ? newRowData.solved : rowData.solved"
           @change="checked => newRowData.solved = checked"
         />
@@ -152,6 +154,7 @@
               :aria-label="Translator.trans('save')"
               class="btn--blank o-link--default u-mr-0_25 inline-block"
               data-cy="places:saveEdit"
+              :disabled="isSaving"
               @click="dpValidateAction('placesTable', () => updatePlace(rowData), false)"
             >
               <dp-icon
@@ -163,6 +166,7 @@
               class="btn--blank o-link--default inline-block"
               data-cy="places:abortEdit"
               :aria-label="Translator.trans('abort')"
+              :disabled="isSaving"
               @click="abort(rowData)"
             >
               <dp-icon
@@ -261,6 +265,7 @@ export default {
       isLoading: false,
       addNewPlace: false,
       confirmDialogMessage: '',
+      isSaving: false,
       newPlace: {},
       newRowData: {},
       places: [],
@@ -478,6 +483,8 @@ export default {
         },
       }
 
+      this.isSaving = true
+
       dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Place', resourceId: rowData.id }), {}, payload)
         .then(() => {
           dplan.notify.confirm(Translator.trans('confirm.saved'))
@@ -486,6 +493,9 @@ export default {
         })
         .catch(err => {
           console.error(err)
+        })
+        .finally(() => {
+          this.isSaving = false
         })
     },
 
