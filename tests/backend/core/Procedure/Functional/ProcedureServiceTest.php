@@ -811,9 +811,6 @@ class ProcedureServiceTest extends FunctionalTestCase
         $procedureId = $procedure->getId();
         static::assertInstanceOf(Procedure::class, $procedure);
 
-        $relatedReports = $this->getEntityManager()
-            ->getRepository(ReportEntry::class)
-            ->findBy(['identifier' => $procedure->getId()]);
         $relatedTopics = $this->getEntries(TagTopic::class, ['procedure' => $procedureId]);
         $relatedTags = $this->getEntries(Tag::class, ['procedure' => $procedureId]);
         $relatedSettings = $this->getEntries(Setting::class, ['procedure' => $procedureId]);
