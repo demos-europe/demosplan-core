@@ -2426,20 +2426,7 @@ Email:',
         static::assertContains($testUser, $procedureMaster->getAuthorizedUsers());
         static::assertContains($testUser2, $procedureMaster->getAuthorizedUsers());
 
-        $procedure = [
-            'copymaster'    => $procedureMaster,
-            'desc'          => '',
-            'startDate'     => '01.02.2018',
-            'endDate'       => '01.02.2019',
-            'externalName'  => 'test',
-            'name'          => 'testSetAuthorizedUserOnCreateProcedureWithMaster',
-            'master'        => false,
-            'procedureType' => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
-            'orgaId'        => $this->testProcedure->getOrgaId(),
-            'orgaName'      => $this->testProcedure->getOrga()->getName(),
-            'logo'          => 'some:logodata:string',
-            'shortUrl'      => 'myShortUrl',
-        ];
+        $procedure = $this->blueprintProcedureCreationData($procedureMaster);
 
         $createdProcedure = $this->sut->addProcedureEntity($procedure, $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY)->getId());
 
@@ -2459,34 +2446,7 @@ Email:',
      */
     public function testMinimumUserOnCreateProcedure(): void
     {
-        /** @var Procedure $procedureMaster */
-        $procedureMaster = $this->fixtures->getReference('masterBlaupause');
-        /** @var User $testUser */
-        $testUser = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-
-        $procedureMaster->setAuthorizedUsers([]);
-        $this->sut->updateProcedureObject($procedureMaster);
-        $procedureMaster = $this->sut->getProcedure($procedureMaster->getId());
-        static::assertCount(0, $procedureMaster->getAuthorizedUsers());
-
-        $procedure = [
-            'copymaster'    => $procedureMaster,
-            'desc'          => '',
-            'startDate'     => '01.02.2018',
-            'endDate'       => '01.02.2019',
-            'externalName'  => 'test',
-            'name'          => 'testSetAuthorizedUserOnCreateProcedureWithMaster',
-            'master'        => false,
-            'procedureType' => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
-            'orgaId'        => $this->testProcedure->getOrgaId(),
-            'orgaName'      => $this->testProcedure->getOrga()->getName(),
-            'logo'          => 'some:logodata:string',
-            'shortUrl'      => 'myShortUrl',
-        ];
-
-        $createdProcedure = $this->sut->addProcedureEntity($procedure, $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY)->getId());
-        static::assertCount(1, $createdProcedure->getAuthorizedUsers());
-        static::assertContains($testUser, $createdProcedure->getAuthorizedUsers());
+        $this->assertCreatingUserIsSoleAuthorizedUser();
     }
 
     /**
@@ -2497,34 +2457,7 @@ Email:',
      */
     public function testSetAuthorizedUsersOfBlueprintOnCreateProcedure(): void
     {
-        /** @var Procedure $procedureMaster */
-        $procedureMaster = $this->fixtures->getReference('masterBlaupause');
-        /** @var User $testUser */
-        $testUser = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-
-        $procedureMaster->setAuthorizedUsers([]);
-        $this->sut->updateProcedureObject($procedureMaster);
-        $procedureMaster = $this->sut->getProcedure($procedureMaster->getId());
-        static::assertCount(0, $procedureMaster->getAuthorizedUsers());
-
-        $procedure = [
-            'copymaster'    => $procedureMaster,
-            'desc'          => '',
-            'startDate'     => '01.02.2018',
-            'endDate'       => '01.02.2019',
-            'externalName'  => 'test',
-            'name'          => 'testSetAuthorizedUserOnCreateProcedureWithMaster',
-            'master'        => false,
-            'procedureType' => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
-            'orgaId'        => $this->testProcedure->getOrgaId(),
-            'orgaName'      => $this->testProcedure->getOrga()->getName(),
-            'logo'          => 'some:logodata:string',
-            'shortUrl'      => 'myShortUrl',
-        ];
-
-        $createdProcedure = $this->sut->addProcedureEntity($procedure, $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY)->getId());
-        static::assertCount(1, $createdProcedure->getAuthorizedUsers());
-        static::assertContains($testUser, $createdProcedure->getAuthorizedUsers());
+        $this->assertCreatingUserIsSoleAuthorizedUser();
     }
 
     public function testCopyBoilerplatesOnCreateProcedure(): void
@@ -3124,26 +3057,7 @@ Email:',
      */
     public function testElementsOnCreateProcedure(): void
     {
-        $templateProcedure = $this->getProcedureReference('masterBlaupause');
-        $amountOfElements = $templateProcedure->getElements()->count();
-        self::assertGreaterThan(0, $amountOfElements);
-
-        $newProcedureData = $this->newProcedureData($templateProcedure);
-
-        $newlyCreatedProcedure = $this->sut->addProcedureEntity($newProcedureData, $this->loginTestUser()->getId());
-
-        self::assertCount($amountOfElements, $templateProcedure->getElements());
-        self::assertCount($amountOfElements, $newlyCreatedProcedure->getElements());
-
-        foreach ($templateProcedure->getElements() as $elementOfTemplateProcedure) {
-            self::assertInstanceOf(Elements::class, $elementOfTemplateProcedure);
-            self::assertSame($elementOfTemplateProcedure->getProcedure()->getId(), $templateProcedure->getId());
-        }
-
-        foreach ($newlyCreatedProcedure->getElements() as $newlyCreatedElement) {
-            self::assertInstanceOf(Elements::class, $newlyCreatedElement);
-            self::assertSame($newlyCreatedElement->getProcedure()->getId(), $newlyCreatedProcedure->getId());
-        }
+        $this->assertElementsCopiedFromBlueprint($this->getProcedureReference('masterBlaupause'));
     }
 
     /**
@@ -3262,25 +3176,7 @@ Email:',
      */
     public function testElementsFilesOnCreateProcedure(): void
     {
-        $templateProcedure = $this->getProcedureReference('masterBlaupause');
-        $amountOfElements = $templateProcedure->getElements()->count();
-        self::assertGreaterThan(0, $amountOfElements);
-
-        $newProcedureData = $this->newProcedureData($templateProcedure);
-        $newlyCreatedProcedure = $this->sut->addProcedureEntity($newProcedureData, $this->loginTestUser()->getId());
-
-        self::assertCount($amountOfElements, $templateProcedure->getElements());
-        self::assertCount($amountOfElements, $newlyCreatedProcedure->getElements());
-
-        foreach ($templateProcedure->getElements() as $elementOfTemplateProcedure) {
-            self::assertInstanceOf(Elements::class, $elementOfTemplateProcedure);
-            self::assertSame($elementOfTemplateProcedure->getProcedure()->getId(), $templateProcedure->getId());
-        }
-
-        foreach ($newlyCreatedProcedure->getElements() as $newlyCreatedElement) {
-            self::assertInstanceOf(Elements::class, $newlyCreatedElement);
-            self::assertSame($newlyCreatedElement->getProcedure()->getId(), $newlyCreatedProcedure->getId());
-        }
+        $this->assertElementsCopiedFromBlueprint($this->getProcedureReference('masterBlaupause'));
     }
 
     /**
@@ -3347,6 +3243,76 @@ Email:',
             'publicParticipationPhaseDefinition' => $this->fixtures->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION),
             'procedureType'                      => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
         ];
+    }
+
+    private function blueprintProcedureCreationData(Procedure $procedureMaster): array
+    {
+        return [
+            'copymaster'    => $procedureMaster,
+            'desc'          => '',
+            'startDate'     => '01.02.2018',
+            'endDate'       => '01.02.2019',
+            'externalName'  => 'test',
+            'name'          => 'testSetAuthorizedUserOnCreateProcedureWithMaster',
+            'master'        => false,
+            'procedureType' => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
+            'orgaId'        => $this->testProcedure->getOrgaId(),
+            'orgaName'      => $this->testProcedure->getOrga()->getName(),
+            'logo'          => 'some:logodata:string',
+            'shortUrl'      => 'myShortUrl',
+        ];
+    }
+
+    /**
+     * Creates a procedure from a blueprint that has no authorized users and asserts that the
+     * creating user becomes the sole authorized user of the new procedure.
+     *
+     * @throws Exception
+     */
+    private function assertCreatingUserIsSoleAuthorizedUser(): void
+    {
+        /** @var Procedure $procedureMaster */
+        $procedureMaster = $this->fixtures->getReference('masterBlaupause');
+        /** @var User $testUser */
+        $testUser = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
+
+        $procedureMaster->setAuthorizedUsers([]);
+        $this->sut->updateProcedureObject($procedureMaster);
+        $procedureMaster = $this->sut->getProcedure($procedureMaster->getId());
+        static::assertCount(0, $procedureMaster->getAuthorizedUsers());
+
+        $createdProcedure = $this->sut->addProcedureEntity(
+            $this->blueprintProcedureCreationData($procedureMaster),
+            $testUser->getId()
+        );
+        static::assertCount(1, $createdProcedure->getAuthorizedUsers());
+        static::assertContains($testUser, $createdProcedure->getAuthorizedUsers());
+    }
+
+    /**
+     * Creates a procedure from the given blueprint and asserts that all of its elements are
+     * copied onto the new procedure while remaining on the blueprint, with correct ownership.
+     */
+    private function assertElementsCopiedFromBlueprint(Procedure $templateProcedure): void
+    {
+        $amountOfElements = $templateProcedure->getElements()->count();
+        self::assertGreaterThan(0, $amountOfElements);
+
+        $newProcedureData = $this->newProcedureData($templateProcedure);
+        $newlyCreatedProcedure = $this->sut->addProcedureEntity($newProcedureData, $this->loginTestUser()->getId());
+
+        self::assertCount($amountOfElements, $templateProcedure->getElements());
+        self::assertCount($amountOfElements, $newlyCreatedProcedure->getElements());
+
+        foreach ($templateProcedure->getElements() as $elementOfTemplateProcedure) {
+            self::assertInstanceOf(Elements::class, $elementOfTemplateProcedure);
+            self::assertSame($elementOfTemplateProcedure->getProcedure()->getId(), $templateProcedure->getId());
+        }
+
+        foreach ($newlyCreatedProcedure->getElements() as $newlyCreatedElement) {
+            self::assertInstanceOf(Elements::class, $newlyCreatedElement);
+            self::assertSame($newlyCreatedElement->getProcedure()->getId(), $newlyCreatedProcedure->getId());
+        }
     }
 
     /**
