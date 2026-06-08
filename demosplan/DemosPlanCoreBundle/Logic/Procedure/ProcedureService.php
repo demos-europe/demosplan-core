@@ -848,12 +848,13 @@ class ProcedureService implements ProcedureServiceInterface
         $blueprintId = $data['copymaster'] ?? null;
         $blueprintId = $blueprintId instanceof Procedure ? $blueprintId->getId() : $blueprintId;
         $lock = null;
-        if (null !== $blueprintId) {
-            $lock = $this->lockFactory->createLock('procedure-create-from-blueprint-'.$blueprintId, ttl: 300);
-            $lock->acquire(blocking: true);
-        }
 
         try {
+            if (null !== $blueprintId) {
+                $lock = $this->lockFactory->createLock('procedure-create-from-blueprint-'.$blueprintId, ttl: 300);
+                $lock->acquire(blocking: true);
+            }
+
             // T15853 + T10976: default while allowing complete deletion of emailTitle by customer:
             $data['settings']['emailTitle'] ??= '';
             if ('' === $data['settings']['emailTitle']) {
