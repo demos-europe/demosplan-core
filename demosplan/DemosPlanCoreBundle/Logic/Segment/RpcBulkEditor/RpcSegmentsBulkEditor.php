@@ -273,7 +273,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
     private function extractDeadline(object $rpcRequest): ?DateTime
     {
-        if (!$this->currentUser->hasPermission('feature_segments_deadline')) {
+        if (!$this->currentUser->hasPermission('field_statement_deadline')) {
             return null;
         }
         $deadline = data_get($rpcRequest, 'params.deadline', '');
