@@ -42,7 +42,7 @@ class SegmentBulkEditorService
     ) {
     }
 
-    public function updateSegments($segments, $addTagIds, $removeTagIds, $assignee, $workflowPlace, $customFields, $deadline = 0)
+    public function updateSegments($segments, $addTagIds, $removeTagIds, $assignee, $workflowPlace, $customFields, ?DateTime $deadline = null)
     {
         foreach ($segments as $segment) {
             /* @var Segment $segment */
