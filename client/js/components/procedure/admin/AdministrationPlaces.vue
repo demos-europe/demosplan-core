@@ -453,7 +453,7 @@ export default {
         return dplan.notify.error(Translator.trans('workflow.place.error.duplication'))
       }
 
-      if (this.newRowData.solved && !this.initialRowData.solved) {
+      if (hasPermission('feature_administrate_segment_lock') && this.newRowData.solved && !this.initialRowData.solved) {
         const isConfirmed = await this.openConfirmDialog(Translator.trans('confirm.places.solved.changed'))
 
         if (!isConfirmed) {
