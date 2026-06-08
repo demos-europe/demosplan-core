@@ -4240,6 +4240,7 @@ validation.error.exclusive.procedure.or.procedure.type: "Die Definitionen des Ve
 validation.error.needed.procedure.or.procedure.type: "Die Definitionen des Verfahrenstypen müssen entweder direkt einem Verfahrenstypen oder direkt einem Verfahren zugeordnet sein."
 versions: "Versionen"
 verified: "Überprüft"
+version: "Version"
 via.mail: "per E-Mail"
 via.mail.notified: "Ich möchte per E-Mail benachrichtigt werden bei..."
 via.post: "per Post"
