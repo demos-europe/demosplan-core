@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ManualOriginalStatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementUpdatedEventInterface;
@@ -130,11 +131,11 @@ use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use Elastica\Aggregation\GlobalAggregation;
-use FOS\ElasticaBundle\Index\IndexManager;
 use Elastica\Index;
 use Elastica\Query;
 use Elastica\Query\BoolQuery;
 use Exception;
+use FOS\ElasticaBundle\Index\IndexManager;
 use Pagerfanta\Elastica\ElasticaAdapter;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
@@ -1153,7 +1154,6 @@ class StatementService implements StatementServiceInterface
                 $this->logger->warning('Trying to update a locked by assignment statement.');
             }
 
-
             // is a original statement?
             $lockedByOriginal = false;
             $isOriginal = $currentStatementObject->isOriginal();
@@ -1271,7 +1271,6 @@ class StatementService implements StatementServiceInterface
 
         return $fileHashToFileContainerMapping;
     }
-
 
     /**
      * Determines if the given statement is "locked" because of assigned to another user.
@@ -2696,12 +2695,16 @@ class StatementService implements StatementServiceInterface
     public function getProcedurePhaseNameFromArray(array $statement): string
     {
         // Fast path: large exports feed thousands of statement arrays through here,
-        // so avoid the per-statement getStatement() round-trip when publicStatement
-        // is already present on the array (ES- and JSON-sourced statements have it).
-        if (isset($statement['publicStatement'])) {
+        // so avoid the per-statement getStatement() round-trip when the submitting
+        // organisation id is already present on the array (ES- and JSON-sourced
+        // statements carry it). A statement is citizen-submitted when it belongs to
+        // the default citizen organisation, mirroring Statement::isSubmittedByCitizen().
+        // Note: publicStatement === EXTERNAL is not equivalent, as organisation
+        // statements submitted via the public view are also flagged EXTERNAL.
+        if (isset($statement['oId'])) {
             return $this->getProcedurePhaseName(
                 $statement['phase'] ?? '',
-                StatementInterface::EXTERNAL === $statement['publicStatement']
+                UserInterface::ANONYMOUS_USER_ORGA_ID === $statement['oId']
             );
         }
 
