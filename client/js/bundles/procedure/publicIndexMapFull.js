@@ -19,11 +19,11 @@ import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 
 const stores = {
   location: locationStore,
-  procedure: procedureStore
+  procedure: procedureStore,
 }
 const components = {
   DpProcedures: Procedures,
-  RegisterFlyout
+  RegisterFlyout,
 }
 
 initialize(components, stores)

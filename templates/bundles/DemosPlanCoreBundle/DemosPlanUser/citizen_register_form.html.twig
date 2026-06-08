@@ -9,7 +9,7 @@
             <citizen-register-form
                 :is-idp="{{ useIdp|json_encode }}"
                 idp-login-path="{{ gatewayURL }}"
-                :csrf-token="{{ csrf_token('register-user')|json_encode }}">
+                csrf-token="{{ csrf_token('register-user')|json_encode }}">
                 {{ extensionPointMarkup('formExtraFields')|raw }}
             </citizen-register-form>
         {% endblock content %}

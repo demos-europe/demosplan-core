@@ -94,7 +94,7 @@ class RpcSegmentFacetsProvider implements RpcMethodSolverInterface
                 $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
             } catch (AccessDeniedException|UserNotFoundException) {
                 $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
-            } catch (Exception) {
+            } catch (Exception $e) {
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
             }
         }

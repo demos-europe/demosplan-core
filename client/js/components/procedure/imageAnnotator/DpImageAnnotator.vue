@@ -14,122 +14,137 @@
       <div class="annotator__wrapper">
         <div
           id="map"
-          class="annotator__canvas" />
+          class="annotator__canvas"
+        />
         <dp-label-modal
           ref="labelModal"
           :labels="selectElementLabels"
-          @set-label="setLabel" />
+          @set-label="setLabel"
+        />
         <dp-sticky-element>
-          <template>
-            <div class="u-ml w-12">
+          <div class="u-ml w-12">
+            <p
+              class="weight--bold"
+            >
+              {{ Translator.trans('tool.active') }}
+            </p>
+            <div>
+              <div class="annotator__button-wrapper is-first">
+                <button
+                  class="btn annotator__button annotator__button--toggle"
+                  :class="{'is-current': currentInteractionName === 'select'}"
+                  aria-labelledby="elementSelectLabel"
+                  @click="setInteraction('select')"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 10 17"
+                    style="width: 20px; height: 20px;"
+                  >
+                    <defs>
+                      <clipPath id="selectIcon">
+                        <path d="M0 0h12v17H0z" />
+                      </clipPath>
+                    </defs>
+                    <g :clip-path="`url(#selectIcon)`">
+                      <path
+                        d="M0 0v17l4.849-4.973H12z"
+                        :fill="currentInteractionName === 'select' ? '#fff' : '#4d4d4d'"
+                      />
+                    </g>
+                  </svg>
+                </button>
+              </div>
+              <span
+                id="elementSelectLabel"
+                class="align-middle u-ml-0_5"
+              >
+                {{ Translator.trans('select.or.edit') }}
+              </span>
+            </div>
+            <div>
+              <div class="annotator__button-wrapper is-last">
+                <button
+                  class="btn annotator__button annotator__button--toggle"
+                  :class="{'is-current': currentInteractionName === 'draw'}"
+                  aria-labelledby="elementDrawLabel"
+                  @click="setInteraction('draw')"
+                >
+                  <i class="fa fa-plus" />
+                </button>
+              </div>
+              <span
+                id="elementDrawLabel"
+                class="align-middle u-ml-0_5"
+              >
+                {{ Translator.trans('element.add') }}
+              </span>
+            </div>
+            <div class="u-mt-2">
               <p
-                class="weight--bold">
-                {{ Translator.trans('tool.active') }}
+                class="weight--bold"
+                :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}"
+              >
+                {{ Translator.trans('element.selected') }}
+                <dp-contextual-help
+                  class="float-right u-mt-0_12"
+                  :text="Translator.trans('annotator.modify.explanation')"
+                />
               </p>
               <div>
-                <div class="annotator__button-wrapper is-first">
-                  <button
-                    @click="setInteraction('select')"
-                    class="btn annotator__button annotator__button--toggle"
-                    :class="{'is-current': currentInteractionName === 'select'}"
-                    aria-labelledby="elementSelectLabel">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 10 17"
-                      style="width: 20px; height: 20px;">
-                      <defs>
-                        <clipPath id="selectIcon">
-                          <path d="M0 0h12v17H0z" />
-                        </clipPath>
-                      </defs>
-                      <g :clip-path="`url(#selectIcon)`">
-                        <path
-                          d="M0 0v17l4.849-4.973H12z"
-                          :fill="currentInteractionName === 'select' ? '#fff' : '#4d4d4d'" />
-                      </g>
-                    </svg>
-                  </button>
-                </div>
+                <button
+                  class="annotator__button btn btn--warning btn--outline u-ml-0_25"
+                  :disabled="currentInteractionName !== 'select' || !editingFeature"
+                  aria-labelledby="elementDeleteLabel"
+                  @click="deleteFeature(editingFeature)"
+                >
+                  <i class="fa fa-trash" />
+                </button>
                 <span
+                  id="elementDeleteLabel"
                   class="align-middle u-ml-0_5"
-                  id="elementSelectLabel">
-                  {{ Translator.trans('select.or.edit') }}
+                  :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}"
+                >
+                  {{ Translator.trans('element.delete') }}
                 </span>
               </div>
               <div>
-                <div class="annotator__button-wrapper is-last">
-                  <button
-                    @click="setInteraction('draw')"
-                    class="btn annotator__button annotator__button--toggle"
-                    :class="{'is-current': currentInteractionName === 'draw'}"
-                    aria-labelledby="elementDrawLabel">
-                    <i class="fa fa-plus" />
-                  </button>
-                </div>
+                <button
+                  class="annotator__button btn btn--primary btn--outline u-ml-0_25"
+                  :disabled="currentInteractionName !== 'select' || !editingFeature"
+                  aria-labelledby="formatChangeLabel"
+                  @click="$refs.labelModal.toggleModal(getFeatureLabel(editingFeature))"
+                >
+                  <i class="fa fa-tag" />
+                </button>
                 <span
+                  id="formatChangeLabel"
                   class="align-middle u-ml-0_5"
-                  id="elementDrawLabel">
-                  {{ Translator.trans('element.add') }}
+                  :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}"
+                >
+                  {{ Translator.trans('format.change') }}
                 </span>
               </div>
-              <div class="u-mt-2">
-                <p
-                  class="weight--bold"
-                  :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}">
-                  {{ Translator.trans('element.selected') }}
-                  <dp-contextual-help
-                    class="float-right u-mt-0_12"
-                    :text="Translator.trans('annotator.modify.explanation')" />
-                </p>
-                <div>
-                  <button
-                    @click="deleteFeature(editingFeature)"
-                    class="annotator__button btn btn--warning btn--outline u-ml-0_25"
-                    :disabled="currentInteractionName !== 'select' || !editingFeature"
-                    aria-labelledby="elementDeleteLabel">
-                    <i class="fa fa-trash" />
-                  </button>
-                  <span
-                    class="align-middle u-ml-0_5"
-                    :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}"
-                    id="elementDeleteLabel">
-                    {{ Translator.trans('element.delete') }}
-                  </span>
-                </div>
-                <div>
-                  <button
-                    @click="$refs.labelModal.toggleModal(getFeatureLabel(editingFeature))"
-                    class="annotator__button btn btn--primary btn--outline u-ml-0_25"
-                    :disabled="currentInteractionName !== 'select' || !editingFeature"
-                    aria-labelledby="formatChangeLabel">
-                    <i class="fa fa-tag" />
-                  </button>
-                  <span
-                    class="align-middle u-ml-0_5"
-                    :class="{'color--grey-light': currentInteractionName !== 'select' || !editingFeature}"
-                    id="formatChangeLabel">
-                    {{ Translator.trans('format.change') }}
-                  </span>
-                </div>
-              </div>
-              <div class="u-mt-2">
-                <p>{{ Translator.trans('pages.checked', { doneCount: donePagesCount, totalCount: documentLengthTotal }) }}</p>
-                <div>
-                  <dp-button
-                    :busy="isSaving"
-                    class="w-11 u-mb-0_25"
-                    :disabled="documentLengthTotal === 0"
-                    :text="buttonText"
-                    @click="save" />
-                  <dp-button
-                    class="w-11"
-                    color="secondary"
-                    :href="Routing.generate('DemosPlan_procedure_dashboard', { procedure: procedureId })"
-                    :text="Translator.trans('abort')" />
-                </div>
+            </div>
+            <div class="u-mt-2">
+              <p>{{ Translator.trans('pages.checked', { doneCount: donePagesCount, totalCount: documentLengthTotal }) }}</p>
+              <div>
+                <dp-button
+                  :busy="isSaving"
+                  class="w-11 u-mb-0_25 justify-center"
+                  :disabled="documentLengthTotal === 0"
+                  :text="buttonText"
+                  @click="save"
+                />
+                <dp-button
+                  class="w-11 justify-center"
+                  color="secondary"
+                  :href="Routing.generate('DemosPlan_procedure_dashboard', { procedure: procedureId })"
+                  :text="Translator.trans('abort')"
+                />
               </div>
             </div>
-          </template>
+          </div>
         </dp-sticky-element>
       </div>
     </template>
@@ -137,7 +152,8 @@
       :url="Routing.generate('dplan_annotated_statement_pdf_pause_box_review', {
         documentId: initDocumentId,
         procedureId: procedureId
-      })" />
+      })"
+    />
   </div>
 </template>
 
@@ -152,6 +168,7 @@ import DpSendBeacon from './DpSendBeacon'
 import GeoJSON from 'ol/format/GeoJSON'
 import ImageLayer from 'ol/layer/Image'
 import Map from 'ol/Map'
+import { markRaw } from 'vue'
 import { MultiPoint } from 'ol/geom'
 import Projection from 'ol/proj/Projection'
 import Static from 'ol/source/ImageStatic'
@@ -169,7 +186,7 @@ export default {
     DpLabelModal,
     DpLoading,
     DpSendBeacon,
-    DpStickyElement
+    DpStickyElement,
   },
 
   props: {
@@ -183,18 +200,18 @@ export default {
         return Array.isArray(value) && value
           .filter(label => label.piName && label.color && label.translation).length === value.length
       },
-      required: true
+      required: true,
     },
 
     initDocumentId: {
       type: String,
-      required: true
+      required: true,
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
@@ -217,17 +234,17 @@ export default {
        * How many pages in the document are still not confirmed,
        * including the currently displayed one
        */
-      unconfirmedPagesCount: ''
+      unconfirmedPagesCount: '',
     }
   },
 
   computed: {
     buttonText () {
-      return this.unconfirmedPagesCount - 1 > 0 // We have to subtract 1 for the currently displayed page
-        ? Translator.trans('save.and.show.next.page')
-        : this.currentPageNumber === this.documentLengthTotal
-          ? Translator.trans('save.and.return.to.list')
-          : Translator.trans('save.and.show.next.document')
+      return this.unconfirmedPagesCount - 1 > 0 ? // We have to subtract 1 for the currently displayed page
+        Translator.trans('save.and.show.next.page') :
+        this.currentPageNumber === this.documentLengthTotal ?
+          Translator.trans('save.and.return.to.list') :
+          Translator.trans('save.and.show.next.document')
     },
 
     currentPageNumber () {
@@ -245,6 +262,7 @@ export default {
     labels () {
       return this.allLabels.reduce((acc, label) => {
         acc[label.piName] = label.color
+
         return acc
       }, {})
     },
@@ -252,6 +270,7 @@ export default {
     labelTranslations () {
       return this.allLabels.reduce((acc, label) => {
         acc[label.piName] = label.translation
+
         return acc
       }, {})
     },
@@ -261,11 +280,11 @@ export default {
         .map(([key, value]) => {
           return {
             label: Translator.trans(value),
-            value: key
+            value: key,
           }
         })
         .sort((a, b) => a.label.localeCompare(b.label, 'de', { sensitivity: 'base' }))
-    }
+    },
   },
 
   methods: {
@@ -273,6 +292,7 @@ export default {
       // Add event listener on click on features => toggle label modal
       this.map.on('dblclick', (e) => {
         let isFirstFeature = false
+
         if (this.currentInteractionName === 'select') {
           this.map.forEachFeatureAtPixel(e.pixel, (feature) => {
             if (isFirstFeature === false) {
@@ -305,6 +325,7 @@ export default {
       // Add event listener on mousemove => if delete or modify is active, change cursor pointer on feature hover
       this.map.on('pointermove', (e) => {
         const isFeature = this.map.forEachFeatureAtPixel(e.pixel, () => true)
+
         if (isFeature) {
           this.map.getTargetElement().style.cursor = 'pointer'
         } else {
@@ -321,6 +342,7 @@ export default {
       // Check which vertex of the feature was moved; get the squarified-version of the changed coordinates as its extent
       const getChangedCoordinates = (currentCoords, initCoords) => {
         let hasChanged = false
+
         currentCoords.forEach((coordpair, idx) => {
           if (coordpair[0] !== initCoords[idx][0] || coordpair[1] !== initCoords[idx][1]) {
             hasChanged = {}
@@ -329,24 +351,29 @@ export default {
             hasChanged.idx = idx === 0 ? 4 : idx
           }
         })
+
         return hasChanged
       }
       const changed = getChangedCoordinates(currentCoordinates, initCoords)
 
       const calculateSquaredCoordinates = (changed, initCoordinates) => {
         const newCorrectCoordinates = initCoordinates
+
         // First set new coordinates of the vertex that was moved
         newCorrectCoordinates[changed.idx] = changed.newCoords
         // Then set coordinates of the sibling vertices
         if (changed.idx === 1 || changed.idx === 3) {
           const idxBefore = changed.idx === 1 ? 4 : changed.idx - 1
+
           newCorrectCoordinates[changed.idx + 1][0] = changed.newCoords[0]
           newCorrectCoordinates[idxBefore][1] = changed.newCoords[1]
         } else if (changed.idx === 2 || changed.idx === 4) {
           const idxAfter = changed.idx === 4 ? 1 : changed.idx + 1
+
           newCorrectCoordinates[changed.idx - 1][0] = changed.newCoords[0]
           newCorrectCoordinates[idxAfter][1] = changed.newCoords[1]
         }
+
         // At the end set first and last coordinate identical (it is a closed polygon)
         newCorrectCoordinates[0] = newCorrectCoordinates[4]
 
@@ -358,6 +385,7 @@ export default {
 
       if (changed && isInMapView) {
         const newCoords = calculateSquaredCoordinates(changed, initCoords)
+
         feature.un('change', this.applyFeatureUpdate)
         feature.getGeometry().setCoordinates([newCoords])
         feature.on('change', this.applyFeatureUpdate)
@@ -382,17 +410,18 @@ export default {
         id: feature.getId(),
         geometry: {
           type: 'Polygon',
-          coordinates: feature.getGeometry().getCoordinates()
+          coordinates: feature.getGeometry().getCoordinates(),
         },
         properties: {
           score: null,
-          label: ''
-        }
+          label: '',
+        },
       }
     },
 
     deleteFeature (feature) {
       const idx = this.geoJson.features.findIndex(el => el.id === feature.getId())
+
       this.geoJson.features.splice(idx, 1)
       this.boxLayerSource.removeFeature(feature)
       this.setInteraction('select')
@@ -400,31 +429,33 @@ export default {
 
     generateFeatureStyle (labelText, isSelected = false) {
       let selectedCircleStyle = null
+
       if (isSelected) {
         // Display drag circles in the corners of the box in selected state
         selectedCircleStyle = new Style({
           image: new CircleStyle({
             radius: 5,
             fill: new Fill({
-              color: '#00aaff'
+              color: '#00aaff',
             }),
-            stroke: new Stroke({ color: '#fff', width: 3 / 2 })
+            stroke: new Stroke({ color: '#fff', width: 3 / 2 }),
           }),
           geometry: (feature) => {
             const coordinates = feature.getGeometry().getCoordinates()[0]
+
             return new MultiPoint(coordinates)
-          }
+          },
         })
       }
 
       const featureStyle = new Style({
         fill: new Fill({
-          color: 'rgba(255, 255, 255, 0.2)'
+          color: 'rgba(255, 255, 255, 0.2)',
         }),
         stroke: new Stroke({
           color: this.labels[labelText] || 'black',
-          width: 2
-        })
+          width: 2,
+        }),
       })
 
       if (labelText) {
@@ -436,7 +467,7 @@ export default {
           textBaseline: 'bottom',
           overflow: true,
           offsetY: -2,
-          stroke: new Stroke({ color: 'white', width: 5 })
+          stroke: new Stroke({ color: 'white', width: 5 }),
         }))
       }
 
@@ -445,8 +476,10 @@ export default {
 
     getFeatureLabel (feature) {
       let label = null
+
       try {
         const featureId = feature.getId()
+
         label = this.geoJson.features.find(el => el.id === featureId).properties.label
         if (label.startsWith('"') || label.endsWith('"')) {
           label.replace('"', '')
@@ -454,6 +487,7 @@ export default {
       } catch (err) {
         label = null
       }
+
       return label
     },
 
@@ -467,19 +501,19 @@ export default {
           annotatedStatementPdf: {
             condition: {
               path: 'annotatedStatementPdf.id',
-              value: this.documentId
-            }
+              value: this.documentId,
+            },
           },
           confirmed: {
             condition: {
               path: 'confirmed',
-              value: false
-            }
-          }
+              value: false,
+            },
+          },
         },
         procedureId: window.dplan.procedureId,
         page: {
-          size: 1
+          size: 1,
         },
         sort: 'pageSortIndex',
         fields: {
@@ -489,7 +523,7 @@ export default {
             'width',
             'height',
             'geoJson',
-            'annotatedStatementPdf'
+            'annotatedStatementPdf',
           ].join(),
           AnnotatedStatementPdf: [
             'status',
@@ -497,14 +531,16 @@ export default {
             'file',
             'procedure',
             'statement',
-            'annotatedStatementPdfPages'
-          ].join()
+            'annotatedStatementPdfPages',
+          ].join(),
         },
-        include: ['annotatedStatementPdf'].join()
+        include: ['annotatedStatementPdf'].join(),
       }
       const pageResponse = await dpApi.get(url, params)
+
       if (hasOwnProp(pageResponse, 'data') && hasOwnProp(pageResponse.data, 'data') && pageResponse.data.data.length) {
         const pageAttrs = pageResponse.data.data[0].attributes
+
         this.geoJson = pageAttrs.geoJson
         this.geoJson.features.forEach(feature => {
           feature.id = uuid()
@@ -516,12 +552,14 @@ export default {
 
         // Get info about how many pages are in the document
         const documentInclude = pageResponse.data.included.find(el => el.type === 'AnnotatedStatementPdf' && el.id === this.documentId)
+
         this.allDocumentPages = documentInclude.relationships.annotatedStatementPdfPages.data
 
         // Step 2: update documentId in url and get next documentId only initially or if we just got a first page of a new document
         if (isNewDocument) {
           this.updateUrl()
           const documentResponse = await dpApi.get(Routing.generate('dplan_next_annotated_statement_pdf_to_review', { procedureId: window.dplan.procedureId, documentId: this.documentId }))
+
           this.nextDocumentId = documentResponse.data.documentId
         }
 
@@ -533,8 +571,15 @@ export default {
     },
 
     initInteractions () {
+      /*
+       * Wrap OpenLayers interactions in markRaw so that:
+       * 1) Vue won’t convert them into Proxies,
+       * 2) OL’s instanceof checks and internal state stay intact,
+       * otherwise map.addInteraction(this.currentInteraction) silently fails.
+       */
+
       // SELECT INTERACTION
-      this.selectInteraction = new Select({ layers: [this.boxLayer] })
+      this.selectInteraction = markRaw(new Select({ layers: [this.boxLayer] }))
 
       this.selectInteraction.on('select', e => {
         if (e.deselected.length === 1) {
@@ -553,11 +598,11 @@ export default {
       })
 
       // MODIFY INTERACTION
-      this.modifyInteraction = new Modify({
+      this.modifyInteraction = markRaw(new Modify({
         insertVertexCondition: () => false,
         pixelTolerance: 1,
-        features: this.selectInteraction.getFeatures()
-      })
+        features: this.selectInteraction.getFeatures(),
+      }))
 
       this.modifyInteraction.on('modifystart', (e) => {
         // Remove snap during modify action because it tries to snap to invisible features/vertices
@@ -573,8 +618,10 @@ export default {
           this.editingFeature.getGeometry().setCoordinates(this.editingFeature.getGeometry().getCoordinates())
           // Set new coords in geoJson
           const idx = this.geoJson.features.findIndex(el => el.id === this.editingFeature.getId())
+
           this.geoJson.features[idx].geometry.coordinates = this.editingFeature.getGeometry().getCoordinates()
         }
+
         // Unregister event listener because they are not needed anymore
         this.editingFeature.un('change', this.applyFeatureUpdate)
         this.editingFeatureInitialCoords = null
@@ -584,25 +631,26 @@ export default {
       })
 
       // DRAW INTERACTION
-      this.drawInteraction = new Draw({
+      this.drawInteraction = markRaw(new Draw({
         source: this.boxLayerSource,
         type: 'Circle',
         geometryFunction: createBox(),
         style: new Style({
           stroke: new Stroke({
             color: '#228B22',
-            width: 2
+            width: 2,
           }),
           image: new CircleStyle({
             radius: 5,
             fill: new Fill({
-              color: '#228B22'
-            })
-          })
-        })
-      })
+              color: '#228B22',
+            }),
+          }),
+        }),
+      }))
       this.drawInteraction.on('drawend', (e) => {
         const newFeature = e.feature
+
         newFeature.setId(uuid())
         this.editingFeature = newFeature
         this.geoJson.features.push(this.createNewFeature(newFeature))
@@ -610,7 +658,7 @@ export default {
       })
 
       // SNAP INTERACTION
-      this.snapInteraction = new Snap({ source: this.boxLayerSource, edge: false, pixelTolerance: 15 })
+      this.snapInteraction = markRaw(new Snap({ source: this.boxLayerSource, edge: false, pixelTolerance: 15 }))
 
       // Set select as initial interaction
       this.setInteraction('select')
@@ -635,21 +683,22 @@ export default {
       const projection = new Projection({
         code: 'image',
         units: 'pixels',
-        extent: this.imageLayerExtent
+        extent: this.imageLayerExtent,
       })
 
       this.boxLayerSource = new VectorSource({
         features: (new GeoJSON()).readFeatures(this.geoJson),
-        format: new GeoJSON()
+        format: new GeoJSON(),
       })
 
       this.boxLayer = new VectorLayer({
         source: this.boxLayerSource,
-        style: this.generateFeatureStyle()
+        style: this.generateFeatureStyle(),
       })
       // Set initial features' labels
       this.boxLayerSource.getFeatures().forEach((feature) => {
         const label = feature.getProperties().label
+
         if (label) {
           feature.setStyle(this.generateFeatureStyle(label))
         }
@@ -663,8 +712,6 @@ export default {
           keyboardPan: false,
           keyboardZoom: false,
           mouseWheelZoom: true,
-          pointer: false,
-          select: true
         }),
         controls: [],
         layers: [
@@ -672,16 +719,16 @@ export default {
             source: new Static({
               url: this.imageUrl,
               projection,
-              imageExtent: this.imageLayerExtent
-            })
-          }), this.boxLayer
+              imageExtent: this.imageLayerExtent,
+            }),
+          }), this.boxLayer,
         ],
         target: 'map',
         view: new View({
           projection,
           center: getCenter(this.imageLayerExtent),
-          zoom: 2
-        })
+          zoom: 2,
+        }),
       })
       this.fitMap()
       // Set max view extent to image extent with padding to disable panning outside of the view
@@ -689,7 +736,7 @@ export default {
         center: this.map.getView().getCenter(),
         extent: this.map.getView().calculateExtent(this.map.getSize()),
         projection: this.map.getView().getProjection(),
-        zoom: this.map.getView().getZoom()
+        zoom: this.map.getView().getZoom(),
       }))
 
       this.initInteractions()
@@ -717,13 +764,14 @@ export default {
         data: {
           type: 'AnnotatedStatementPdfPage',
           id: this.pageId,
-          attributes: { geoJson: this.geoJson, confirmed: true }
-        }
+          attributes: { geoJson: this.geoJson, confirmed: true },
+        },
       }
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'AnnotatedStatementPdfPage', resourceId: this.pageId }), {}, payload)
         .then(() => {
           const isLastPage = Boolean(this.currentPageNumber === this.documentLengthTotal)
+
           if (isLastPage) {
             // Depending on the current user, redirect to dashboard (FPA) or statement import ("Datenerfassung") if there is no next document
             this.redirect()
@@ -732,6 +780,7 @@ export default {
             if (isLastPage) {
               this.documentId = this.nextDocumentId
             }
+
             this.getInitialData(isLastPage)
             this.isSaving = false
           }
@@ -744,6 +793,7 @@ export default {
 
     setInteraction (interactionName) {
       let interaction = null
+
       switch (interactionName) {
         case 'draw':
           interaction = this.drawInteraction
@@ -753,6 +803,7 @@ export default {
           interaction = this.selectInteraction
           break
       }
+
       if (this.currentInteraction) {
         this.map.removeInteraction(this.currentInteraction)
       }
@@ -774,16 +825,19 @@ export default {
 
     setLabel (label) {
       const isCurrentlySelected = this.currentInteractionName === 'select' && this.editingFeature === this.selectInteraction.getFeatures().getArray()[0]
+
       this.editingFeature.setStyle(this.generateFeatureStyle(label, isCurrentlySelected))
       const featureInArray = this.geoJson.features.find(el => el.id === this.editingFeature.getId())
+
       featureInArray.properties.label = label
     },
 
     updateUrl () {
       const regex = /(annotatedStatementPdf\/)(.*?)(\/)/
       const newUrl = window.location.href.replace(regex, '$1' + this.documentId + '$3')
+
       window.history.pushState({ html: newUrl, pageTitle: document.title }, document.title, newUrl)
-    }
+    },
   },
 
   mounted () {
@@ -798,7 +852,7 @@ export default {
         dplan.notify.notify('error', Translator.trans('warning.resistFingerPrinting'))
       }
     })
-  }
+  },
 }
 
 const useResistFingerprintingDuckTest = (callback) => {
@@ -819,6 +873,7 @@ const useResistFingerprintingDuckTest = (callback) => {
     // Draw the image onto a new canvas to read the pixel values
     const testCanvas = document.createElement('canvas')
     const testCtx = testCanvas.getContext('2d')
+
     testCanvas.width = image.width
     testCanvas.height = image.height
     testCtx.drawImage(image, 0, 0)

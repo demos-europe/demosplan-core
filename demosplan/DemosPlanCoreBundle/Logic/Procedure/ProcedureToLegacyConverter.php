@@ -15,7 +15,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
@@ -28,7 +27,7 @@ use function collect;
 /**
  * @deprecated Use Procedure Object instead
  */
-class ProcedureToLegacyConverter extends CoreService
+class ProcedureToLegacyConverter
 {
     public function __construct(private readonly DateHelper $dateHelper, private readonly EntityHelper $entityHelper, private readonly ProcedureRepository $procedureRepository)
     {
@@ -46,7 +45,6 @@ class ProcedureToLegacyConverter extends CoreService
         if (!$procedure instanceof Procedure) {
             // Legacy returnvalues if no procedure found
             return [
-                'closed'              => false,
                 'deleted'             => false,
                 'master'              => false,
                 'publicParticipation' => false,
@@ -62,13 +60,19 @@ class ProcedureToLegacyConverter extends CoreService
 
         // When using objects this is not needed any more
 
+        $procedureArray['phaseObject'] = $this->entityHelper->toArray($procedure->getPhaseObject());
+        $procedureArray['phaseObject']['phaseDefinition'] = $this->entityHelper->toArray($procedure->getPhaseObject()->getPhaseDefinition());
+        $procedureArray['publicParticipationPhaseObject'] = $this->entityHelper->toArray($procedure->getPublicParticipationPhaseObject());
+        $procedureArray['publicParticipationPhaseObject']['phaseDefinition'] = $this->entityHelper->toArray($procedure->getPublicParticipationPhaseObject()->getPhaseDefinition());
+
         if (null !== $procedureArray['settings']) {
             $procedureArray['settings'] = $this->entityHelper->toArray($procedureArray['settings']);
-            $procedureArray['phaseObject'] = $this->entityHelper->toArray($procedure->getPhaseObject());
-            $procedureArray['publicParticipationPhaseObject'] = $this->entityHelper->toArray($procedure->getPublicParticipationPhaseObject());
             $procedureArray['pictogram'] = $procedureArray['settings']['pictogram'];
             $procedureArray['pictogramCopyright'] = $procedureArray['settings']['pictogramCopyright'];
             $procedureArray['pictogramAltText'] = $procedureArray['settings']['pictogramAltText'];
+            $procedureArray['allowAnonymousStatements'] = $procedureArray['settings']['allowAnonymousStatements'];
+            $procedureArray['expandProcedureDescription'] = $procedureArray['settings']['expandProcedureDescription'];
+            $procedureArray['publicParticipationFeedbackEnabled'] = $procedureArray['settings']['publicParticipationFeedbackEnabled'];
         }
 
         $procedureArray['isMapEnabled'] = false;
@@ -131,15 +135,13 @@ class ProcedureToLegacyConverter extends CoreService
             'ars'                                   => $procedure->getArs(),
             'authorizedUsers'                       => $procedure->getAuthorizedUsers(),
             'authorizedUserIds'                     => $authorizedUserIds,
-            'closed'                                => $procedure->getClosed(),
-            'closedDate'                            => $procedure->getClosedDate(),
             'coordinate'                            => $procedure->getCoordinate(),
             'createdDate'                           => $procedure->getCreatedDate(),
             'currentSlug'                           => $procedure->getCurrentSlug(),
             'customer'                              => $customerToLegacy,
             'dataInputOrganisations'                => $procedure->getDataInputOrganisations(),
             'dataInputOrgaIds'                      => $dataInputOrgaIds,
-            'deleted'                               => $procedure->getDeleted(),
+            'deleted'                               => $procedure->isDeleted(),
             'deletedDate'                           => $procedure->getDeletedDate(),
             'desc'                                  => $procedure->getDesc(),
             'elements'                              => $procedure->getElements(),
@@ -163,9 +165,6 @@ class ProcedureToLegacyConverter extends CoreService
             'orgaName'                              => $procedure->getOrgaName(),
             'organisation'                          => $nonPlanningOfficeOrganisationIds,
             'organisationIds'                       => $nonPlanningOfficeOrganisationIds,
-            'phase'                                 => $procedure->getPhase(),
-            'phaseName'                             => $procedure->getPhaseName(),
-            'phasePermissionset'                    => $procedure->getPhasePermissionset(),
             'planningOffices'                       => $planningOfficeOrganisations,
             'planningOfficesIds'                    => $planningOfficeIds,
             'plisId'                                => $procedure->getPlisId(),
@@ -176,9 +175,6 @@ class ProcedureToLegacyConverter extends CoreService
             'publicParticipation'                   => $procedure->getPublicParticipation(),
             'publicParticipationContact'            => $procedure->getPublicParticipationContact(),
             'publicParticipationEndDate'            => $procedure->getPublicParticipationEndDate(),
-            'publicParticipationPhase'              => $procedure->getPublicParticipationPhase(),
-            'publicParticipationPhaseName'          => $procedure->getPublicParticipationPhaseName(),
-            'publicParticipationPhasePermissionset' => $procedure->getPublicParticipationPhasePermissionset(),
             'publicParticipationPublicationEnabled' => $procedure->getPublicParticipationPublicationEnabled(),
             'publicParticipationStartDate'          => $procedure->getPublicParticipationStartDate(),
             'publicParticipationStep'               => $procedure->getPublicParticipationStep(),
@@ -188,8 +184,6 @@ class ProcedureToLegacyConverter extends CoreService
             'startDate'                             => $procedure->getStartDate(),
             'statementFormDefinition'               => $procedure->getStatementFormDefinition(),
             'statements'                            => $procedure->getStatements(),
-            'step'                                  => $procedure->getStep(),
-            'surveys'                               => $procedure->getSurveys(),
             'topics'                                => $procedure->getTopics(),
         ];
     }

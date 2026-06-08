@@ -12,12 +12,14 @@
 
 {% set subnav = [
     {
+        datacy: 'administrationPublicagency:administer',
         current: 'publicagency_registered' == highlighted|default,
         href: path('DemosPlan_procedure_member_index', {'procedure': procedureId}),
         label: 'invitable_institution.administer',
         feature: 'area_admin_invitable_institution'
     },
     {
+        datacy: 'administrationPublicagency:inviteUnregistered',
         current: 'publicagency_unregistered' == highlighted|default,
         href: path('DemosPlan_invite_unregistered_public_agency_list', {'procedureId': procedureId}),
         label: 'invitable_institution.unregistered.invite',

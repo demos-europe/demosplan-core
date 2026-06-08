@@ -14,11 +14,12 @@ import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 const components = {
   DpDataTable,
   DpIcon,
-  RegisterFlyout
+  RegisterFlyout,
 }
 
 initialize(components).then(() => {
   const consentHook = document.querySelector('[data-change-cookie-consent]')
+
   if (consentHook) {
     consentHook.addEventListener('click', () => {
       window.dplan.consent.adjustSettings()

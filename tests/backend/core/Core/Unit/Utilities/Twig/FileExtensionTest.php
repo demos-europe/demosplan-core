@@ -41,9 +41,9 @@ class FileExtensionTest extends UnitTestCase
         parent::setUp();
 
         $this->twigExtension = new FileExtension(
-            self::$container,
-            self::$container->get(Environment::class),
-            self::$container->get(FileService::class)
+            self::getContainer(),
+            self::getContainer()->get(Environment::class),
+            self::getContainer()->get(FileService::class)
         );
     }
 

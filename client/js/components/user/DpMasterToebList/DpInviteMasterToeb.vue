@@ -11,7 +11,8 @@
   <div>
     <button
       class="btn btn--primary"
-      @click.prevent="inviteToeb">
+      @click.prevent="inviteToeb"
+    >
       {{ Translator.trans('invitable_institution.add') }}
     </button>
   </div>
@@ -25,27 +26,29 @@ export default {
     selectedToebIds: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   methods: {
     inviteToeb () {
       const form = document.querySelector('form#orgalistForm')
+
       this.selectedToebIds.forEach(id => {
         const additionalParam = document.createElement('input')
+
         additionalParam.setAttribute('name', 'orga_add[]')
         additionalParam.setAttribute('value', id)
         additionalParam.setAttribute('type', 'hidden')
         form.appendChild(additionalParam)
       })
       form.submit()
-    }
-  }
+    },
+  },
 }
 </script>

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -12,21 +14,20 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Map;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Transformers\Map\MapOptionsTransformer;
 use Exception;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class DemosPlanMapApiController extends APIController
 {
     /**
-     * @DplanPermissions("area_admin")
-     *
      * @throws Exception
      */
-    #[Route(path: '/api/1.0/map/options/admin/{procedureId}', methods: ['GET'], name: 'dplan_api_map_options_admin', options: ['expose' => true])]
-    public function optionsAdminAction(MapService $mapService, string $procedureId): APIResponse
+    #[DplanPermissions('area_admin')]
+    #[Route(path: '/api/1.0/map/options/admin/{procedureId}', name: 'dplan_api_map_options_admin', options: ['expose' => true], methods: ['GET'])]
+    public function optionsAdmin(MapService $mapService, string $procedureId): APIResponse
     {
         // @improve T14122
         $mapOptions = $mapService->getMapOptions($procedureId);
@@ -35,12 +36,11 @@ class DemosPlanMapApiController extends APIController
     }
 
     /**
-     * @DplanPermissions("area_demosplan")
-     *
      * @throws Exception
      */
-    #[Route(path: '/api/1.0/map/options/public/{procedureId}', methods: ['GET'], name: 'dplan_api_map_options_public', options: ['expose' => true])]
-    public function optionsPublicAction(MapService $mapService, string $procedureId): APIResponse
+    #[DplanPermissions('area_demosplan')]
+    #[Route(path: '/api/1.0/map/options/public/{procedureId}', name: 'dplan_api_map_options_public', options: ['expose' => true], methods: ['GET'])]
+    public function optionsPublic(MapService $mapService, string $procedureId): APIResponse
     {
         // @improve T14122
         $mapOptions = $mapService->getMapOptions($procedureId);

@@ -21,7 +21,7 @@ const components = {
   DpEditor,
   DpEmailList,
   DpInlineNotification,
-  DpLabel
+  DpLabel,
 }
 
 const stores = {}

@@ -17,12 +17,17 @@ use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use demosplan\DemosPlanCoreBundle\Repository\MailRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
-class BounceChecker extends CoreService
+class BounceChecker
 {
-    public function __construct(private readonly GlobalConfigInterface $globalConfig, private readonly MailRepository $mailRepository, private readonly MailService $mailService)
-    {
+    public function __construct(
+        private readonly GlobalConfigInterface $globalConfig,
+        private readonly MailRepository $mailRepository,
+        private readonly MailService $mailService,
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     /**
@@ -81,9 +86,9 @@ class BounceChecker extends CoreService
                 );
                 continue;
             }
-            $mailTo = 0 < strlen($mailEntity->getTo()) ? explode(',', $mailEntity->getTo()) : [];
-            $mailCc = 0 < strlen($mailEntity->getCc()) ? explode(',', $mailEntity->getCc()) : [];
-            $mailBcc = 0 < strlen($mailEntity->getBcc()) ? explode(',', $mailEntity->getBcc()) : [];
+            $mailTo = '' !== (string) $mailEntity->getTo() ? explode(',', $mailEntity->getTo()) : [];
+            $mailCc = '' !== (string) $mailEntity->getCc() ? explode(',', $mailEntity->getCc()) : [];
+            $mailBcc = '' !== (string) $mailEntity->getBcc() ? explode(',', $mailEntity->getBcc()) : [];
 
             // Gibt es nur einen Empänger? Dann wissen wir, welche Email gebounced ist
             if (1 === (count($mailTo) + count($mailCc) + count($mailBcc))) {

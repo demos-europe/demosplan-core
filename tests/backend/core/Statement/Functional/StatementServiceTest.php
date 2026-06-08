@@ -54,15 +54,15 @@ class StatementServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(StatementService::class);
+        $this->sut = self::getContainer()->get(StatementService::class);
         $this->testDraftStatement = $this->getDraftStatementReference('testDraftStatement');
-        $this->statementCopier = self::$container->get(StatementCopier::class);
+        $this->statementCopier = self::getContainer()->get(StatementCopier::class);
 
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
         $this->logIn($user);
 
         $this->mockSession = $this->setUpMockSession();
-        $this->setElasticsearchIndexManager(self::$container->get('fos_elastica.index_manager'));
+        $this->setElasticsearchIndexManager(self::getContainer()->get('fos_elastica.index_manager'));
     }
 
     protected function setUpMockSession(string $userReferenceName = LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY): Session
@@ -382,7 +382,7 @@ class StatementServiceTest extends FunctionalTestCase
 
     public function testDuplicateAddingTagToStatement()
     {
-        $tagService = self::$container->get(TagService::class);
+        $tagService = self::getContainer()->get(TagService::class);
         $tag = $this->getTagReference('testFixtureTag_2');
         $statement = $this->getStatementReference('testStatement2');
 
@@ -409,7 +409,7 @@ class StatementServiceTest extends FunctionalTestCase
 
     public function testDeleteTag()
     {
-        $tagService = self::$container->get(TagService::class);
+        $tagService = self::getContainer()->get(TagService::class);
         $tag = $this->getTagReference('testFixtureTag_2');
         $statement = $this->getStatementReference('testStatement2');
         $topic = $this->getTagTopicReference('testFixtureTopic_1');
@@ -1307,7 +1307,7 @@ class StatementServiceTest extends FunctionalTestCase
 
         $expected = $this->getStatementReference('testStatement');
         /** @var CurrentProcedureService $currentProcedureService */
-        $currentProcedureService = self::$container->get(CurrentProcedureService::class);
+        $currentProcedureService = self::getContainer()->get(CurrentProcedureService::class);
         $currentProcedureService->setProcedure($expected->getProcedure());
 
         $percentageDistribution = $this->sut->getStatisticsOfProcedure($expected->getProcedure());

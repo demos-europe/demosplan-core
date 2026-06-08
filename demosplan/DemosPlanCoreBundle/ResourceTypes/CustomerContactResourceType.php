@@ -38,7 +38,7 @@ class CustomerContactResourceType extends DplanResourceType
 {
     public function __construct(
         protected readonly EmailAddressRepository $emailAddressRepository,
-        protected readonly SupportContactRepository $supportContactRepository
+        protected readonly SupportContactRepository $supportContactRepository,
     ) {
     }
 
@@ -137,7 +137,9 @@ class CustomerContactResourceType extends DplanResourceType
 
                     $this->eventDispatcher->dispatch(new BeforeResourceCreateFlushEvent($this, $contact));
 
-                    return new ModifiedEntity($contact, []);
+                    // Without 'id' the server returns 204 No Content, which prevents the frontend
+                    // from updating the list without a page reload.
+                    return new ModifiedEntity($contact, ['id']);
                 }
             );
         } catch (Exception $exception) {

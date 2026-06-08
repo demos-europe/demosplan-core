@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\UserServiceInterface;
@@ -21,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Entity\User\UserPasswordHistory;
 use demosplan\DemosPlanCoreBundle\Exception\CouldNotDeleteAddressesOfDepartmentException;
 use demosplan\DemosPlanCoreBundle\Exception\CouldNotDeleteDraftStatementsOfDepartmentException;
 use demosplan\DemosPlanCoreBundle\Exception\CouldNotDetachMasterToebOfDepartmentException;
@@ -29,10 +31,10 @@ use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateGwIdException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\NullPointerException;
+use demosplan\DemosPlanCoreBundle\Exception\PasswordAlreadyUsedException;
 use demosplan\DemosPlanCoreBundle\Exception\UserAlreadyExistsException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Logger\ProdLogger;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
@@ -41,6 +43,7 @@ use demosplan\DemosPlanCoreBundle\Repository\BrandingRepository;
 use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
+use demosplan\DemosPlanCoreBundle\Repository\UserPasswordHistoryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRoleInCustomerRepository;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
@@ -51,12 +54,15 @@ use demosplan\DemosPlanCoreBundle\ValueObject\User\OrgaUsersPair;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\Persistence\ManagerRegistry;
 use DOMDocument;
 use Exception;
 use Illuminate\Support\Collection as IlluminateCollection;
 use LSS\XML2Array;
 use Pagerfanta\Pagerfanta;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\ConstraintViolation;
@@ -64,13 +70,12 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function array_key_exists;
 
-class UserService extends CoreService implements UserServiceInterface
+class UserService implements UserServiceInterface
 {
     /**
      * The hash function that is being used to generate password hashes.
      */
     private const PW_HASH = 'sha512';
-
     /**
      * @var ContentService
      */
@@ -121,8 +126,12 @@ class UserService extends CoreService implements UserServiceInterface
         private readonly StatementVoteRepository $statementVoteRepository,
         private readonly TranslatorInterface $translator,
         private readonly UserPasswordHasherInterface $userPasswordHasher,
+        private readonly UserPasswordHistoryRepository $userPasswordHistoryRepository,
         private readonly UserRepository $userRepository,
         private readonly UserRoleInCustomerRepository $userRoleInCustomerRepository,
+        private readonly LoggerInterface $logger,
+        private readonly ManagerRegistry $doctrine,
+        private readonly ParameterBagInterface $parameterBag,
     ) {
         $this->addressService = $addressService;
         $this->contentService = $serviceContent;
@@ -170,14 +179,14 @@ class UserService extends CoreService implements UserServiceInterface
 
             // orga should not be soft deleted
             if ($orga->isDeleted()) {
-                $this->getLogger()->info('User Orga is soft deleted', ['orgaId' => $orga->getId()]);
+                $this->logger->info('User Orga is soft deleted', ['orgaId' => $orga->getId()]);
 
                 return null;
             }
 
             // user needs to have a role in current customer
             if (0 === count($user->getRoles())) {
-                $this->getLogger()->info('User is not registered in current customer',
+                $this->logger->info('User is not registered in current customer',
                     [
                         'user'              => $user->getId(),
                         'currentCustomer'   => $currentCustomer->getId(),
@@ -202,10 +211,10 @@ class UserService extends CoreService implements UserServiceInterface
                     return $user;
                 }
 
-                $this->getLogger()->warning('User Orga has no accepted orgaType in current customer');
+                $this->logger->warning('User Orga has no accepted orgaType in current customer');
             }
 
-            $this->getLogger()->warning('User Orga is not registered in current customer',
+            $this->logger->warning('User Orga is not registered in current customer',
                 [
                     'user'              => $user->getId(),
                     'userOrga'          => $orga->getId(),
@@ -223,17 +232,18 @@ class UserService extends CoreService implements UserServiceInterface
 
     public function findDistinctUserByEmailOrLogin($loginOrEmail)
     {
-        $user = $this->userRepository->findOneBy(['login' => $loginOrEmail, 'deleted' => false]);
+        // Use case-insensitive login lookup (explicit UPPER() in query)
+        $user = $this->userRepository->getFirstUserByCaseInsensitiveLogin($loginOrEmail);
 
-        if ($user instanceof User) {
+        if ($user instanceof User && !$user->isDeleted()) {
             return $user;
         }
-        // User not found, try to find user by email address:
-        $this->getLogger()->info('Could not find user by given login',
+        // User not found, try to find user by email address (case-insensitive):
+        $this->logger->info('Could not find user by given login',
             [$loginOrEmail]);
 
         // important to return null in case of more than one user was found!
-        $foundUsers = $this->userRepository->findBy(['email' => $loginOrEmail, 'deleted' => false]);
+        $foundUsers = $this->userRepository->findNonDeletedUsersByEmailCaseInsensitive($loginOrEmail);
 
         if (1 === count($foundUsers) && $foundUsers[0] instanceof User) {
             $this->logger->info('User found by email');
@@ -242,7 +252,7 @@ class UserService extends CoreService implements UserServiceInterface
         }
 
         if ([] === $foundUsers) {
-            $this->getLogger()->warning('Could not find user by login or email.',
+            $this->logger->warning('Could not find user by login or email.',
                 ['loginOrEmail' => $loginOrEmail]);
 
             return false;
@@ -250,7 +260,7 @@ class UserService extends CoreService implements UserServiceInterface
 
         // In case more than one user was found, do not login
         if (1 < count($foundUsers)) {
-            $this->getLogger()->warning('Found more than one user matched to given mail.',
+            $this->logger->warning('Found more than one user matched to given mail.',
                 ['loginOrEmail' => $loginOrEmail]);
             $this->messageBag->add('warning', 'warning.use.login');
 
@@ -546,11 +556,11 @@ class UserService extends CoreService implements UserServiceInterface
                     if (isset($data['ccEmail2']) && $data['ccEmail2'] != $emailCCBefore) {
                         $masterToebUpdate['ccEmail'] = $data['ccEmail2'];
                     }
-                    if (0 < count($masterToebUpdate) && !is_null($masterToebEntry)) {
+                    if ([] !== $masterToebUpdate && !is_null($masterToebEntry)) {
                         $this->serviceMasterToeb->updateMasterToeb($masterToebEntry->getIdent(), $masterToebUpdate);
                     }
                 } catch (Exception $e) {
-                    $this->getLogger()->error('Update MasterToeb after OrgaUpdate failed ', [$e]);
+                    $this->logger->error('Update MasterToeb after OrgaUpdate failed ', [$e]);
                 }
             }
             try {
@@ -583,7 +593,7 @@ class UserService extends CoreService implements UserServiceInterface
     public function handleBrandingByUpdate(Orga $orga, array $data): Branding
     {
         $orgaBranding = $orga->getBranding();
-        if (null === $orgaBranding) {
+        if (!$orgaBranding instanceof Branding) {
             return $this->brandingRepository->createFromData($data);
         }
 
@@ -647,7 +657,7 @@ class UserService extends CoreService implements UserServiceInterface
     public function orgaAddDepartment($orgaId, Department $department)
     {
         try {
-            $em = $this->getDoctrine()->getManager();
+            $em = $this->doctrine->getManager();
 
             $orga = $this->orgaService->getOrga($orgaId);
             $orga->addDepartment($department);
@@ -962,7 +972,7 @@ class UserService extends CoreService implements UserServiceInterface
 
             // display only users of current Customer
             if ($customer instanceof Customer) {
-                $users = collect($users)->filter(static fn (User $user) => null !== $user->getOrga() && $user->getOrga()->getCustomers()->contains($customer))->all();
+                $users = collect($users)->filter(static fn (User $user) => $user->getOrga() instanceof OrgaInterface && $user->getOrga()->getCustomers()->contains($customer))->all();
             }
 
             // never show internal Citizen user
@@ -994,15 +1004,28 @@ class UserService extends CoreService implements UserServiceInterface
             }
 
             if ($verifyOld && !$this->userPasswordHasher->isPasswordValid($user, $oldPassword)) {
-                throw new \InvalidArgumentException("This is either not the user's old password or the user does not exist");
+                throw new InvalidArgumentException("This is either not the user's old password or the user does not exist");
+            }
+            // check new password against stored history entries
+            $hasher = $this->passwordHasherFactory->getPasswordHasher($user);
+            foreach ($this->userPasswordHistoryRepository->findByUser($user) as $entry) {
+                if ($hasher->verify($entry->getHashedPassword(), $newPassword)) {
+                    throw new PasswordAlreadyUsedException('This password has already been used. Please choose a different one.');
+                }
+            }
+            // check new password against the current password
+            if (null !== $user->getPassword() && $this->userPasswordHasher->isPasswordValid($user, $newPassword)) {
+                throw new PasswordAlreadyUsedException('This password has already been used. Please choose a different one.');
             }
 
             $newPasswordHash = $this->userPasswordHasher->hashPassword($user, $newPassword);
+            $em = $this->doctrine->getManager();
+            $em->persist(new UserPasswordHistory($user, $newPasswordHash));
+            $this->userPasswordHistoryRepository->deleteExceedingEntries($user, $this->parameterBag->get('password_history_max_entries') - 1);
 
             $user->setPassword($newPasswordHash);
             $user->setAlternativeLoginPassword($newPasswordHash);
 
-            $em = $this->getDoctrine()->getManager();
             $em->persist($user);
             $em->flush();
         } catch (RuntimeException $e) {
@@ -1031,14 +1054,14 @@ class UserService extends CoreService implements UserServiceInterface
             $user = $this->userRepository->updateObject($user);
 
             if ($user instanceof User) {
-                $this->getLogger()->info('Email of user was changed.', ['uId' => $user->getId()]);
+                $this->logger->info('Email of user was changed.', ['uId' => $user->getId()]);
 
                 return $user;
             }
 
             return false;
         } catch (RuntimeException $e) {
-            $this->getLogger()->error('Fehler beim Ändern der E-Mail-Adresse:', [$e]);
+            $this->logger->error('Fehler beim Ändern der E-Mail-Adresse:', [$e]);
             throw $e;
         }
     }
@@ -1053,7 +1076,7 @@ class UserService extends CoreService implements UserServiceInterface
         try {
             return $this->reportService->getInvitableInstitutionShowlistChanges();
         } catch (Exception $e) {
-            $this->getLogger()->warning('Error getInvitableInstitutionShowlistChanges: ', [$e]);
+            $this->logger->warning('Error getInvitableInstitutionShowlistChanges: ', [$e]);
             throw $e;
         }
     }
@@ -1298,21 +1321,21 @@ class UserService extends CoreService implements UserServiceInterface
 
             // in case of not changing the email address, we do not want to check if the current email is unique.
             if (!$isEmailChanging && $userToUpdate instanceof User) {
-                $this->getLogger()->info('Given Email is unique as email or login', ['email' => $stringToCheck]);
+                $this->logger->info('Given Email is unique as email or login', ['email' => $stringToCheck]);
 
                 return true;
             }
 
             // in case of email is changing, check if incoming email is already existing as email or as login.
             if (!$this->isEmailExisting($stringToCheck, $updateUserId) && !$this->isLoginExisting($stringToCheck, $updateUserId)) {
-                $this->getLogger()->info('Given Email is unique as email or login', ['email' => $stringToCheck]);
+                $this->logger->info('Given Email is unique as email or login', ['email' => $stringToCheck]);
 
                 return true;
             }
 
             return false;
         } catch (Exception $e) {
-            $this->getLogger()->error('Fehler beim Prüfen der E-Mail-Adresse: ', [$e]);
+            $this->logger->error('Fehler beim Prüfen der E-Mail-Adresse: ', [$e]);
 
             return false;
         }
@@ -1338,21 +1361,21 @@ class UserService extends CoreService implements UserServiceInterface
 
             // in case of not changing the login, we do not want to check if the current login is unique.
             if (!$isLoginChanging && $userToUpdate instanceof User) {
-                $this->getLogger()->info('Given Login is unique as email or login', ['login' => $stringToCheck]);
+                $this->logger->info('Given Login is unique as email or login', ['login' => $stringToCheck]);
 
                 return true;
             }
 
             // in case of login is changing, check if incoming login is already existing as email or as login.
             if (!$this->isEmailExisting($stringToCheck, $updateUserId) && !$this->isLoginExisting($stringToCheck, $updateUserId)) {
-                $this->getLogger()->info('Given Login is unique as email or login', ['login' => $stringToCheck]);
+                $this->logger->info('Given Login is unique as email or login', ['login' => $stringToCheck]);
 
                 return true;
             }
 
             return false;
         } catch (Exception $e) {
-            $this->getLogger()->error('Fehler beim prüfen des user-Login: ', [$e]);
+            $this->logger->error('Fehler beim prüfen des user-Login: ', [$e]);
 
             return false;
         }
@@ -1381,14 +1404,14 @@ class UserService extends CoreService implements UserServiceInterface
 
         $uniqueAsEmail = $this->checkUniqueAsEmail($userToUpdate, $stringToCheck);
         if (!$uniqueAsEmail) {
-            $this->getLogger()->error('Given Email or Login is not unique as email or login', ['email' => $stringToCheck]);
+            $this->logger->error('Given Email or Login is not unique as email or login', ['email' => $stringToCheck]);
 
             return false;
         }
 
         $uniqueAsLogin = $this->checkUniqueAsLogin($userToUpdate, $stringToCheck);
         if (!$uniqueAsLogin) {
-            $this->getLogger()->error('Given Login or Login is not unique as email or login', ['login' => $stringToCheck]);
+            $this->logger->error('Given Login or Login is not unique as email or login', ['login' => $stringToCheck]);
 
             return false;
         }
@@ -1457,7 +1480,7 @@ class UserService extends CoreService implements UserServiceInterface
     {
         return collect($this->getAllActiveUsers())
             ->filter(function (User $user) use ($testPassword) {
-                if (null === $this->getValidUser($user->getLogin() ?? '')) {
+                if (!$this->getValidUser($user->getLogin() ?? '') instanceof User) {
                     return false;
                 }
 

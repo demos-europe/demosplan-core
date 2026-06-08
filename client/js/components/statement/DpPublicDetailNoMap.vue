@@ -11,8 +11,8 @@
 import { addFormHiddenField, removeFormHiddenField } from '../../lib/core/libs/FormActions'
 import { DpButton, DpContextualHelp, DpModal, dpValidateMixin, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import DpPublicStatementList from '@DpJs/components/statement/publicStatementLists/DpPublicStatementList'
-import DpPublicSurvey from '@DpJs/components/procedure/survey/DpPublicSurvey'
 import StatementModal from '@DpJs/components/statement/publicStatementModal/StatementModal'
 
 export default {
@@ -23,18 +23,19 @@ export default {
     DpButton,
     DpContextualHelp,
     DpModal,
-    DpPublicSurvey,
     DpPublicStatementList,
-    DpMapModal: () => import('@DpJs/components/statement/assessmentTable/DpMapModal'),
-    DpSelect: async () => {
+    DpMapModal: defineAsyncComponent(() => import('@DpJs/components/statement/assessmentTable/DpMapModal')),
+    DpSelect: defineAsyncComponent(async () => {
       const { DpSelect } = await import('@demos-europe/demosplan-ui')
+
       return DpSelect
-    },
-    DpVideoPlayer: async () => {
+    }),
+    DpVideoPlayer: defineAsyncComponent(async () => {
       const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
+
       return DpVideoPlayer
-    },
-    ElementsList: () => import('@DpJs/components/document/ElementsList')
+    }),
+    ElementsList: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList')),
   },
 
   mixins: [dpValidateMixin, prefixClassMixin],
@@ -43,25 +44,25 @@ export default {
     isMapEnabled: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     userId: {
       type: String,
-      required: true
+      required: true,
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       activeTab: '#procedureDetailsDocumentlist',
       consultationTokenInputField: '',
-      isSubmitting: false
+      isSubmitting: false,
     }
   },
 
@@ -70,12 +71,12 @@ export default {
       'activeActionBoxTab',
       'initForm',
       'statement',
-      'unsavedDrafts'
+      'unsavedDrafts',
     ]),
 
     activeStatement () {
       return this.initForm !== JSON.stringify(this.statement)
-    }
+    },
   },
 
   methods: {
@@ -83,6 +84,7 @@ export default {
 
     submitForm (formId, hiddenFieldName) {
       const form = this.$el.querySelector(`[data-dp-validate="${formId}"]`)
+
       if (hiddenFieldName) {
         addFormHiddenField(form, hiddenFieldName)
       }
@@ -107,11 +109,25 @@ export default {
       this.activeTab = tabId
     },
 
+    openStatementModalFromList (id, customFields) {
+      /*
+       * Only set custom fields from list if there are NO unsaved changes
+       * If there are unsaved changes, localStorage will restore them
+       */
+      const hasUnsavedChanges = this.$refs.statementModal.unsavedDrafts.includes(id)
+
+      if (!hasUnsavedChanges && customFields?.length > 0) {
+        this.$refs.statementModal.setCustomFieldsForEditing(customFields)
+      }
+
+      this.$refs.statementModal.getDraftStatement(id, true, true)
+    },
+
     updateStatementAndOpenModal (updateStatementPayload) {
       this.toggleStatementModal(updateStatementPayload)
       this.updateHighlighted({ key: 'documents', val: false })
       this.updateHighlighted({ key: 'documents', val: true })
-    }
+    },
   },
 
   created () {
@@ -120,15 +136,12 @@ export default {
 
   mounted () {
     const currentHash = window.document.location.hash.split('?')[0]
+
     if (['#openStatementForm'].includes(currentHash)) {
       this.toggleStatementModal(true, {})
-    } else if (['#procedureDetailsMap', '#procedureDetailsDocumentlist', '#procedureDetailsStatementsPublic', '#procedureDetailsSurvey'].includes(currentHash)) {
+    } else if (['#procedureDetailsMap', '#procedureDetailsDocumentlist', '#procedureDetailsStatementsPublic'].includes(currentHash)) {
       this.toggleTabs(currentHash)
     }
-
-    this.$on('open-statement-modal-from-list', (id) => {
-      this.$refs.statementModal.getDraftStatement(id, true)
-    })
-  }
+  },
 }
 </script>

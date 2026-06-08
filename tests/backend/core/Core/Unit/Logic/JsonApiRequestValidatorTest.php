@@ -28,7 +28,7 @@ class JsonApiRequestValidatorTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(JsonApiRequestValidator::class);
+        $this->sut = self::getContainer()->get(JsonApiRequestValidator::class);
     }
 
     /**

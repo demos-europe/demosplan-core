@@ -15,6 +15,8 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use EDT\PathBuilding\End;
 
 /**
@@ -38,19 +40,22 @@ use EDT\PathBuilding\End;
  * @property-read End                           $originalStatementsCount
  * @property-read End                           $statementsCount
  * @property-read ProcedurePhaseResourceType    $phase
- * @property-read End                           $internalPhaseIdentifier
- * @property-read End                           $internalPhaseTranslationKey
  * @property-read End                           $publicParticipation
  * @property-read End                           $externalEndDate
  * @property-read ProcedurePhaseResourceType    $publicParticipationPhase
  * @property-read End                           $externalStartDate
- * @property-read End                           $externalPhaseIdentifier
- * @property-read End                           $externalPhaseTranslationKey
+ * @property-read End                           $internalPhaseDefinitionName
+ * @property-read End                           $externalPhaseDefinitionName
+ * @property-read CustomFieldResourceType       $segmentCustomFields
+ * @property-read CustomFieldResourceType       $statementCustomFields
  * @property-read CustomerResourceType          $customer
  */
 final class AdminProcedureResourceType extends DplanResourceType
 {
-    public function __construct(private readonly ProcedureResourceType $procedureResourceType, private readonly ProcedureService $procedureService)
+    public function __construct(
+        private readonly ProcedureResourceType $procedureResourceType,
+        private readonly ProcedureService $procedureService,
+        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository)
     {
     }
 
@@ -82,9 +87,6 @@ final class AdminProcedureResourceType extends DplanResourceType
             $name->sortable()->readable()->filterable();
             $creationDate->sortable()->readable();
 
-            $internalPhases = $this->globalConfig->getInternalPhasesAssoc();
-            $externalPhases = $this->globalConfig->getExternalPhasesAssoc();
-
             $properties = [
                 ...$properties,
                 $this->createAttribute($this->externalName)->readable(),
@@ -106,21 +108,30 @@ final class AdminProcedureResourceType extends DplanResourceType
 
                     return $counts[$procedureId] ?? 0;
                 }),
-                $this->createAttribute($this->internalPhaseIdentifier)->readable()->aliasedPath($this->phase->key),
-                $this->createAttribute($this->internalPhaseTranslationKey)->readable(false, static function (Procedure $procedure) use ($internalPhases): string {
-                    $internalPhaseIdentifier = $procedure->getPhase();
-
-                    return $internalPhases[$internalPhaseIdentifier]['name'] ?? $internalPhaseIdentifier;
-                }),
                 $this->createAttribute($this->publicParticipation)->readable(),
                 $this->createAttribute($this->externalEndDate)->readable()->aliasedPath($this->publicParticipationPhase->endDate),
-                $this->createAttribute($this->externalPhaseIdentifier)->readable()->aliasedPath($this->publicParticipationPhase->key),
-                $this->createAttribute($this->externalPhaseTranslationKey)->readable(false, static function (Procedure $procedure) use ($externalPhases): string {
-                    $externalPhaseIdentifier = $procedure->getPublicParticipationPhase();
+                $this->createAttribute($this->externalStartDate)->readable()->aliasedPath($this->publicParticipationPhase->startDate),
+                $this->createAttribute($this->internalPhaseDefinitionName)
+                    ->readable(false, static fn (Procedure $procedure): string => $procedure->getPhaseObject()->getPhaseDefinition()->getName()
+                    ),
+                $this->createAttribute($this->externalPhaseDefinitionName)
+                    ->readable(false, static fn (Procedure $procedure): string => $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName()
+                    ),
+            ];
 
-                    return $externalPhases[$externalPhaseIdentifier]['name'] ?? $externalPhaseIdentifier;
-                }),
-                $this->createAttribute($this->externalStartDate)->readable()->aliasedPath($this->publicParticipationPhase->startDate)];
+            if ($this->currentUser->hasAllPermissions('area_admin_custom_fields', 'field_segments_custom_fields')) {
+                $properties[] = $this->createToManyRelationship($this->segmentCustomFields)
+                    ->readable(true, function (Procedure $procedure): ?ArrayCollection {
+                        return $this->customFieldConfigurationRepository->getCustomFields('PROCEDURE', $procedure->getId(), 'SEGMENT');
+                    });
+            }
+
+            if ($this->currentUser->hasAllPermissions('area_admin_custom_fields', 'field_statements_custom_fields')) {
+                $properties[] = $this->createToManyRelationship($this->statementCustomFields)
+                    ->readable(true, function (Procedure $procedure): ?ArrayCollection {
+                        return $this->customFieldConfigurationRepository->getCustomFields('PROCEDURE', $procedure->getId(), 'STATEMENT');
+                    });
+            }
         }
 
         return $properties;
@@ -146,5 +157,10 @@ final class AdminProcedureResourceType extends DplanResourceType
         $resourceTypeConditions = $this->procedureResourceType->getResourceTypeConditions();
 
         return array_merge($adminProcedureConditions, $resourceTypeConditions);
+    }
+
+    public function isUpdateAllowed(): bool
+    {
+        return true;
     }
 }

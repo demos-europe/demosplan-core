@@ -13,6 +13,9 @@ namespace Tests\Base;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\FileServiceInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\File;
@@ -58,16 +61,19 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
 use Symfony\Component\Yaml\Yaml;
+use Zenstruck\Foundry\Persistence\Proxy;
 use Zenstruck\Foundry\Test\Factories;
 
+/**
+ * Base class for functional tests.
+ *
+ * @property object $sut System under test (defined by child test classes with specific types)
+ */
 class FunctionalTestCase extends WebTestCase
 {
     use Factories;
     use MonoKernelTrait;
     // use resetDatabase is currently actually done by liip. In case of removing liip, its necessary to enable this or using DAMA
-
-    /** @var object System under Test */
-    protected $sut;
 
     /** @var AbstractDatabaseTool */
     protected $databaseTool;
@@ -95,13 +101,32 @@ class FunctionalTestCase extends WebTestCase
         parent::setUp();
 
         self::bootKernel(['environment' => 'test', 'debug' => false]);
+        $container = self::getContainer();
 
-        $this->currentUserService = self::$container->get(CurrentUserService::class);
-        $this->entityManager = self::$container->get(EntityManagerInterface::class);
-        $this->databaseTool = self::$container->get(DatabaseToolCollection::class)->get();
-        $this->tokenStorage = self::$container->get('security.token_storage');
+        $this->currentUserService = $container->get(CurrentUserService::class);
+        $this->entityManager = $container->get(EntityManagerInterface::class);
+        $this->databaseTool = $container->get(DatabaseToolCollection::class)->get();
+        $this->tokenStorage = $container->get('security.token_storage');
 
         $this->fixtures = $this->databaseTool->loadAllFixtures(['TestData'])->getReferenceRepository();
+
+        // Replace each fixture User reference with the EM-managed instance loaded via
+        // find(). On warm-cache runs liip rebuilds references through the EM so they
+        // arrive managed (and lazy collections work); on cold-cache runs the references
+        // are the fixture-time in-memory instances and are *detached*, which leaves
+        // PersistentCollections unable to lazy-load — getDplanRoles() then returns an
+        // empty collection and breaks setUp in the UserPermission*Command tests.
+        // find() also fires the Doctrine entity listener (DoctrineUserListener::postLoad)
+        // which populates the transient rolesAllowed / currentCustomer fields needed
+        // by User::getDplanroles() under ORM v3.
+        foreach ($this->fixtures->getReferences() as $name => $object) {
+            if ($object instanceof User) {
+                $managed = $this->entityManager->find(User::class, $object->getId());
+                if (null !== $managed) {
+                    $this->fixtures->setReference($name, $managed);
+                }
+            }
+        }
     }
 
     protected function tearDown(): void
@@ -247,7 +272,7 @@ class FunctionalTestCase extends WebTestCase
         $entityDate = strtotime(date('Y-m-d', $timestamp));
 
         return $this->isTimestamp($timestamp)
-            && $currentDate == $entityDate;
+            && $currentDate >= $entityDate; // this $entityDate might be cached and then an equal comparison fails
     }
 
     /**
@@ -389,9 +414,9 @@ class FunctionalTestCase extends WebTestCase
             return false;
         }
 
-        if (24 === strlen($dateString)) {
+        if (25 === strlen($dateString)) {
             $dateString[10] = ' ';
-            $dateString = substr($dateString, 0, -5);
+            $dateString = substr($dateString, 0, -6);
         } else {
             if (19 !== strlen($dateString)) {
                 return false;
@@ -436,15 +461,12 @@ class FunctionalTestCase extends WebTestCase
     private function hasValidDateFormat($dateString): bool
     {
         $format1 = '/^[0-9]{4}[-](0[1-9]|1[012])[-](0[1-9]|[12][0-9]|3[01])[ ](0[0-9]|1[0-9]|2[0-3])[:]([0-5][0-9]|60)[:]([0-5][0-9]|60)$/';
-        $format2 = '/^[0-9]{4}[-](0[1-9]|1[012])[-](0[1-9]|[12][0-9]|3[01])[T](0[0-9]|1[0-9]|2[0-3])[:]([0-5][0-9]|60)[:]([0-5][0-9]|60)[+][0-9]{4}$/';
+        $format2 = '/^[0-9]{4}[-](0[1-9]|1[012])[-](0[1-9]|[12][0-9]|3[01])[T](0[0-9]|1[0-9]|2[0-3])[:]([0-5][0-9]|60)[:]([0-5][0-9]|60)[+][0-9]{2}:[0-9]{2}$/';
 
         return preg_match($format1, $dateString) || preg_match($format2, $dateString);
     }
 
-    /**
-     * @return array
-     */
-    protected function getProcedurePhases()
+    protected function getProcedurePhases(): array
     {
         return Yaml::parseFile(DemosPlanPath::getConfigPath('procedure/procedurephases.yml'));
     }
@@ -755,5 +777,43 @@ class FunctionalTestCase extends WebTestCase
         }
 
         return null;
+    }
+
+    protected function createMinimalTestStatement(
+        string $idSuffix,
+        string $internIdSuffix,
+        string $submitterNameSuffix,
+    ): Statement|Proxy {
+        $statement = StatementFactory::createOne();
+        $statement->setExternId("statement_extern_id_$idSuffix");
+        $statement->_save();
+        $statement->setInternId("statement_intern_id_$internIdSuffix");
+        $statement->_save();
+        $statement->getMeta()->setOrgaName(\DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface::ANONYMOUS_USER_NAME);
+        $statement->_save();
+        $statement->getMeta()->setAuthorName("statement_author_name_$submitterNameSuffix");
+        $statement->_save();
+
+        return $statement;
+    }
+
+    /**
+     * Creates a minimal test segment for use in tests.
+     * Moved here to avoid code duplication across multiple test files.
+     */
+    protected function createMinimalTestSegment(Statement|Proxy $parentStatement, string $submitterNameSuffix): Segment|Proxy
+    {
+        $segment = SegmentFactory::createOne([
+            'parentStatementOfSegment' => $parentStatement->_real(),
+            'orderInProcedure'         => 1,
+        ]);
+
+        $segment->setPlace(PlaceFactory::createOne([])->_real());
+        $segment->_withoutAutoRefresh(function ($seg) use ($submitterNameSuffix) {
+            $seg->getMeta()->setAuthorName("segment_author_name_$submitterNameSuffix");
+        });
+        $segment->_save();
+
+        return $segment->_real();
     }
 }

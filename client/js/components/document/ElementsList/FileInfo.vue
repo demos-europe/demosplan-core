@@ -11,10 +11,12 @@
   <a
     class="flex break-words font-size-small"
     target="_blank"
-    :href="path">
+    :href="path"
+  >
     <i
       class="fa fa-file-o u-mr-0_25"
-      aria-hidden="true" />
+      aria-hidden="true"
+    />
     {{ name }} ({{ byteSize }})
   </a>
 </template>
@@ -28,18 +30,18 @@ export default {
   props: {
     hash: {
       type: String,
-      required: true
+      required: true,
     },
 
     name: {
       type: String,
-      required: true
+      required: true,
     },
 
     size: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   computed: {
@@ -49,7 +51,7 @@ export default {
 
     byteSize () {
       return formatBytes(this.size).replace(/\./g, ',')
-    }
-  }
+    },
+  },
 }
 </script>

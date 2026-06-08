@@ -10,11 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Handler\ProcedureHandlerInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -93,6 +96,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         private readonly PermissionsInterface $permissions,
         private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,
         private readonly ProcedureDeleter $procedureDeleter,
+        private readonly ProcedurePhaseDefinitionService $procedurePhaseDefinitionService,
         private readonly ProcedureService $procedureService,
         PublicAffairsAgentHandler $publicAffairsAgentHandler,
         QueryProcedure $esQueryProcedure,
@@ -388,8 +392,8 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             $recipientsWithNoEmail
         );
         // generiere Protokolleintrag, bereits hier, da bei Nicht-Mailversand auch ein Eintrag gemacht wird.
-        $procedureAsArray = $this->serviceOutput->getProcedureWithPhaseNames($procedure['id']);
-        $procedurePhase = $procedureAsArray['phase'];
+        $procedurePhaseDefinition = $this->getProcedure($procedure['id'])->getPhaseObject()->getPhaseDefinition();
+        $procedurePhaseDefinitionName = $procedurePhaseDefinition->getName();
 
         if (empty($recipientsWithEmail)) {
             throw new NoRecipientsWithEmailException('No recipient was selected');
@@ -421,7 +425,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
 
             // speichere den Versand in der Datenbank
             try {
-                $this->procedureService->addInstitutionMail($procedure['id'], $recipientData['ident'], $procedurePhase);
+                $this->procedureService->addInstitutionMail($procedure['id'], $recipientData['ident'], $procedurePhaseDefinition);
             } catch (Exception $exception) {
                 $this->logger->warning('Add Institutionmail failed', [$exception]);
             }
@@ -446,7 +450,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             $this->prepareReportFromProcedureService->addReportInvite(
                 $recipientsWithEmail,
                 $procedure['id'],
-                $procedurePhase,
+                $procedurePhaseDefinitionName,
                 $providedEmailTitle
             );
         } catch (Exception $e) {
@@ -478,7 +482,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         // fill cc field:
         $cc = $data['r_emailCc'];
         $cc[] = $from;
-        if (0 < strlen($userEmail)) {
+        if ('' !== (string) $userEmail) {
             $cc[] = $userEmail;
         }
         $cc = array_unique($cc);
@@ -499,7 +503,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                 $recipientEmailAddresses,
                 $data['r_emailCc'],  // refs T11918: only email addresses which was explicit set in CC field by user
                 $procedure->getId(),
-                $procedure->getPhase(),
+                $procedure->getPhaseObject()->getPhaseDefinition()->getName(),
                 $vars['mailsubject']
             );
         } catch (Exception $e) {
@@ -537,16 +541,8 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         if ($this->permissions->hasPermission('feature_notification_ending_phase')) {
             // How many days in advance should notification been sent?
             $daysToGo = $this->limitForNotification;
-            // Look only fpr participation phases for publicAgencies
-            $internalPhases = $this->getDemosplanConfig()->getInternalPhasesAssoc();
-            $phases = [];
-            foreach ($internalPhases as $phase) {
-                if ('write' === $phase['permissionset']) {
-                    $phases[] = $phase['key'];
-                }
-            }
             // Get all procedures with given phases and time limit
-            $resultProcedures = $this->getAllProceduresWithSoonEndingPhases($phases, $daysToGo);
+            $resultProcedures = $this->getAllProceduresWithSoonEndingPhases($daysToGo);
 
             // Get all involved public Agencies of these procedures
             foreach ($resultProcedures as $procedure) {
@@ -558,7 +554,6 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                 // if there are recipients go further
                 if (0 < count($recipients)) {
                     // save same for the mailtemplate
-                    $procedure->setPhaseName($this->getDemosplanConfig()->getPhaseNameWithPriorityInternal($procedure->getPhase()));
                     $mailTemplateVars['procedure'] = $procedure;
                     $mailTemplateVars['daysToGo'] = $daysToGo;
 
@@ -610,14 +605,13 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
     }
 
     /**
-     * Get all procedures within given time and phases.
+     * Get all procedures within given time whose active phase has permissionSet 'write'.
      *
-     * @param string[] $phaseKeys
-     * @param bool     $internal  check for institution phases. false checks public phases
+     * @param bool $internal check for institution phases. false checks public phases
      *
      * @return Procedure[]|string[]
      */
-    public function getAllProceduresWithSoonEndingPhases(array $phaseKeys, int $exactlyDaysToGo, bool $idsOnly = false, $internal = true): array
+    public function getAllProceduresWithSoonEndingPhases(int $exactlyDaysToGo, bool $idsOnly = false, bool $internal = true): array
     {
         $procedures = [];
         try {
@@ -627,16 +621,18 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             $this->getLogger()->error('Could not get procedureList with soon ending phases');
         }
 
-        // Choose all procedures with given phases
+        // Choose all procedures whose active phase allows participation (permissionSet = 'write')
         $proceduresWithSoonEndingPhase = [];
         foreach ($procedures as $procedure) {
-            $phase = $internal ? $procedure->getPhase() : $procedure->getPublicParticipationPhase();
-            if (in_array($phase, $phaseKeys, true)) {
+            $phaseDefinition = $internal
+                ? $procedure->getPhaseObject()->getPhaseDefinition()
+                : $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition();
+            if ('write' === $phaseDefinition->getPermissionSet()) {
                 $proceduresWithSoonEndingPhase[] = $idsOnly ? $procedure->getId() : $procedure;
             }
         }
 
-        if (0 === count($proceduresWithSoonEndingPhase)) {
+        if ([] === $proceduresWithSoonEndingPhase) {
             $this->getLogger()->info('No soon ending procedures found');
         }
 
@@ -650,10 +646,11 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
      *
      * @throws Exception
      */
-    public function purgeDeletedProcedures($limit = 1): int
+    public function purgeDeletedProcedures($limit = 1, int $retentionDays = 0): int
     {
+        $deletedBefore = $retentionDays > 0 ? new DateTime("-$retentionDays days") : null;
         $proceduresPurged = 0;
-        foreach ($this->procedureService->getDeletedProcedures($limit) as $deletedProcedure) {
+        foreach ($this->procedureService->getDeletedProcedures($limit, $deletedBefore) as $deletedProcedure) {
             $procedureId = $deletedProcedure->getId();
             try {
                 $this->procedureDeleter->beginTransactionAndDisableForeignKeyChecks();
@@ -743,7 +740,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                     ->lock(),
                 false
             );
-            if (is_array($settings) && 0 === count($settings)) {
+            if (is_array($settings) && [] === $settings) {
                 $this->contentService->setSetting('markedParticipated', [
                     'procedureId' => $procedureId,
                     'userId'      => $this->currentUser->getUser()->getId(),
@@ -860,62 +857,85 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
     {
         $changedInternalProcedures = collect([]);
         $changedExternalProcedures = collect([]);
+        $reportEntries = [];
+        $systemUserName = $this->translator->trans('user.system.name');
 
         // internal:
-        $internalWritePhaseKeys = $this->getDemosplanConfig()->getInternalPhaseKeys('write');
-        $endedInternalProcedures = $this->procedureService->getProceduresWithEndedParticipation($internalWritePhaseKeys);
-
-        $internalPhaseKey = 'evaluating';
-        $internalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityInternal($internalPhaseKey);
-        // T17248: necessary because of different phasekeys per project:
-        if ($internalPhaseKey === $internalPhaseName) { // not found?
-            $internalPhaseKey = 'analysis';
-            $internalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityInternal($internalPhaseKey);
-        }
+        $endedInternalProcedures = $this->procedureService->getProceduresWithEndedParticipation();
 
         /** @var Procedure $endedInternalProcedure */
         foreach ($endedInternalProcedures as $endedInternalProcedure) {
             if (null !== $endedInternalProcedure->getEndDate()
                 && !$endedInternalProcedure->getMaster() && !$endedInternalProcedure->isDeleted()) {
-                $endedInternalProcedure->setPhaseKey($internalPhaseKey);
-                $endedInternalProcedure->setPhaseName($internalPhaseName);
-                $endedInternalProcedure->setCustomer($endedInternalProcedure->getCustomer());
+                // clone before modification so the phase change is detectable for report entry creation
+                $originalProcedure = $this->procedureService->cloneProcedure($endedInternalProcedure);
 
-                $updatedProcedure = $this->procedureService->updateProcedureObject($endedInternalProcedure);
-                $changedInternalProcedures->push($updatedProcedure);
+                $data = ['id' => $endedInternalProcedure->getId(), 'customer' => $endedInternalProcedure->getCustomer()];
+                $internalEvaluatingDefinition = $this->procedurePhaseDefinitionService->findEvaluatingDefinition('internal', $endedInternalProcedure->getCustomer());
+                if ($internalEvaluatingDefinition instanceof ProcedurePhaseDefinition) {
+                    $data['phaseDefinition'] = $internalEvaluatingDefinition;
+                }
+                $this->procedureService->updateProcedure($data, isSystem: true);
+
+                try {
+                    $reportEntries[] = $this->prepareReportFromProcedureService->createPhaseChangeReportEntryIfChangesOccurred(
+                        $originalProcedure,
+                        $endedInternalProcedure,
+                        $systemUserName,
+                        true
+                    );
+                } catch (Exception $e) {
+                    $this->getLogger()->warning('Failed to create report entry for internal phase auto-switch', ['exception' => $e]);
+                }
+                $changedInternalProcedures->push($endedInternalProcedure);
             }
         }
 
         // external:
-        $externalWritePhaseKeys = $this->getDemosplanConfig()->getExternalPhaseKeys('write');
-        $endedExternalProcedures = $this->procedureService->getProceduresWithEndedParticipation($externalWritePhaseKeys, false);
-
-        $externalPhaseKey = 'evaluating';
-        $externalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityExternal($externalPhaseKey);
-        // T17248: necessary because of different phasekeys per project:
-        if ($externalPhaseKey === $externalPhaseName) { // not found?
-            $externalPhaseKey = 'analysis';
-            $externalPhaseName = $this->getDemosplanConfig()->getPhaseNameWithPriorityExternal($externalPhaseKey);
-        }
+        $endedExternalProcedures = $this->procedureService->getProceduresWithEndedParticipation(false);
 
         /** @var Procedure $endedExternalProcedure */
         foreach ($endedExternalProcedures as $endedExternalProcedure) {
             if (null !== $endedExternalProcedure->getPublicParticipationEndDate()
                 && !$endedExternalProcedure->getMaster() && !$endedExternalProcedure->isDeleted()) {
-                $endedExternalProcedure->setPublicParticipationPhase($externalPhaseKey);
-                $endedExternalProcedure->setPublicParticipationPhaseName($externalPhaseName);
-                $endedExternalProcedure->setCustomer($endedExternalProcedure->getCustomer());
+                // clone before modification so the phase change is detectable for report entry creation
+                $originalProcedure = $this->procedureService->cloneProcedure($endedExternalProcedure);
 
-                $updatedProcedure = $this->procedureService->updateProcedureObject($endedExternalProcedure);
-                $changedExternalProcedures->push($updatedProcedure);
+                $data = ['id' => $endedExternalProcedure->getId(), 'customer' => $endedExternalProcedure->getCustomer()];
+                $externalEvaluatingDefinition = $this->procedurePhaseDefinitionService->findEvaluatingDefinition('external', $endedExternalProcedure->getCustomer());
+                if ($externalEvaluatingDefinition instanceof ProcedurePhaseDefinition) {
+                    $data['publicParticipationPhaseDefinition'] = $externalEvaluatingDefinition;
+                }
+                $this->procedureService->updateProcedure($data, isSystem: true);
+
+                try {
+                    $reportEntries[] = $this->prepareReportFromProcedureService->createPhaseChangeReportEntryIfChangesOccurred(
+                        $originalProcedure,
+                        $endedExternalProcedure,
+                        $systemUserName,
+                        true
+                    );
+                } catch (Exception $e) {
+                    $this->getLogger()->warning('Failed to create report entry for external phase auto-switch', ['exception' => $e]);
+                }
+                $changedExternalProcedures->push($endedExternalProcedure);
             }
+        }
+
+        // persist phase change report entries
+        $reportEntries = array_filter($reportEntries, static fn (?ReportEntry $e): bool => $e instanceof ReportEntry);
+        foreach ($reportEntries as $reportEntry) {
+            $this->entityManager->persist($reportEntry);
+        }
+        if ([] !== $reportEntries) {
+            $this->entityManager->flush();
         }
 
         // Success notice
         $this->getLogger()->info('Switched phases to evaluation of '.$changedInternalProcedures->count().' internal/toeb procedures.');
         $this->getLogger()->info('Switched phases to evaluation of '.$changedExternalProcedures->count().' external/public procedures.');
 
-        return $changedExternalProcedures->merge($changedInternalProcedures)->unique();
+        return $changedExternalProcedures->merge($changedInternalProcedures)->unique(static fn (Procedure $p) => $p->getId());
     }
 
     /**
@@ -938,7 +958,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             $ccEmailAddresses->add(trim((string) $additionalAddress));
         }
         // alle E-Mail-Adressen aus dem CC-Feld
-        if (0 < count($formEmailCC)) {
+        if ([] !== $formEmailCC) {
             foreach ($formEmailCC as $mailAddress) {
                 $ccEmailAddresses->add(trim((string) $mailAddress));
             }
@@ -956,15 +976,15 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         /** @var Orga $orgaData */
         foreach ($orgas as $orgaData) {
             if (in_array($orgaData->getId(), $orgaSelected, true)) {
-                if (0 < strlen(trim($orgaData->getEmail2()))) {
+                if ('' !== trim((string) $orgaData->getEmail2())) {
                     $recipientOrga = [
                         'ident'     => $orgaData->getId(),
                         'nameLegal' => $orgaData->getName(),
                         'email2'    => $orgaData->getEmail2(),
                     ];
                     // Füge eventuelle CC-Email für Beteiligung hinzu
-                    if (0 < strlen(trim($orgaData->getCcEmail2()))) {
-                        $ccEmailAdresses = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $orgaData->getCcEmail2());
+                    if ('' !== trim((string) $orgaData->getCcEmail2())) {
+                        $ccEmailAdresses = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', (string) $orgaData->getCcEmail2());
                         $recipientOrga['ccEmails'] = $ccEmailAdresses;
                     }
                     $recipientsWithEmail[] = $recipientOrga;

@@ -74,7 +74,7 @@
                 <li class="inline-block {{ loop.last ?: 'u-mr-0_5' }}">
                     <a
                         class="{{ item.current|default == true  ? 'o-link--active' : 'o-link--default' }} whitespace-nowrap"
-                        :data-cy="`pageHeader:item:{{ loop.index }}`"
+                        :data-cy="`pageHeader:{{ item.datacy }}`"
                         href="{{ item.href }}"
                         {% if item.datacy|default != '' %}data-cy="{{ item.datacy }}"{% endif %}
                         {% if item.id|default != '' %}id="{{ item.id }}"{% endif %}

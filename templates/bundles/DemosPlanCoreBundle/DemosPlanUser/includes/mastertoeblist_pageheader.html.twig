@@ -8,12 +8,14 @@
 
 {% set subnav = [
     {
+        datacy: 'mastertoeblist',
         current: 'mastertoeblist' == highlighted|default,
         href: path('DemosPlan_user_mastertoeblist'),
         label: 'invitable_institution.master',
         feature: 'area_manage_mastertoeblist'
     },
     {
+        datacy: 'mastertoeblist:report',
         current: 'mastertoeblist_report' == highlighted|default,
         href: path('DemosPlan_user_mastertoeblist_report'),
         label: 'invitable_institution.master.report'|trans,
@@ -21,6 +23,7 @@
         icon: 'fa-bell'
     },
     {
+        datacy: 'mastertoeblist:merge',
         current: 'mastertoeblist_merge' == highlighted|default,
         href: path('DemosPlan_user_mastertoeblist_merge'),
         label: 'invitable_institution.master.merge'|trans,

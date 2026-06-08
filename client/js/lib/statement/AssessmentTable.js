@@ -12,7 +12,7 @@
  * inside the webpack scope. These are to be refactored, generalized or made obsolete by migrating
  * their functionality to other components.
  */
-import { checkResponse, dpApi } from '@demos-europe/demosplan-ui'
+import { dpApi } from '@demos-europe/demosplan-ui'
 
 export default function AssessmentTable () {
   /*
@@ -31,6 +31,7 @@ export default function AssessmentTable () {
   window.updateFilterHash = function (procedureId, filterOptions = []) {
     // Get inputfields from assessment table (filters not included)
     let inputFields = $('form[name=bpform]').serializeArray()
+
     inputFields = inputFields.filter(inputField => inputField.name.includes('filter') === false)
 
     // Add currently selected filters
@@ -48,11 +49,9 @@ export default function AssessmentTable () {
     return dpApi({
       method: 'POST',
       url: Routing.generate('dplan_api_procedure_update_filter_hash', { procedureId }),
-      data: inputFields
-    }).then(checkResponse)
-      .then((data) => {
-        return data.data.attributes.hash
-      })
+      data: inputFields,
+    })
+      .then(({ data }) => data.data.attributes.hash)
   }
 
   window.submitForm = function (event, task, filterHash = null) {
@@ -93,6 +92,7 @@ export default function AssessmentTable () {
         } else {
           return false
         }
+
         break
 
       case 'copy':
@@ -104,6 +104,7 @@ export default function AssessmentTable () {
         } else {
           return false
         }
+
         break
 
       case 'search':

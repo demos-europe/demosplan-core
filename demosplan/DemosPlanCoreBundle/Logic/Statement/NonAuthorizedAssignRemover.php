@@ -87,7 +87,7 @@ class NonAuthorizedAssignRemover
             $assigneeId = $claimable->getAssignee()->getId();
 
             $claimable->setAssignee(null);
-            $this->entityContentChangeService->saveEntityChanges($claimable, $claimable::class);
+            $this->entityContentChangeService->trackChanges($claimable, $claimable::class);
 
             return $assigneeId;
         }, $claimables);

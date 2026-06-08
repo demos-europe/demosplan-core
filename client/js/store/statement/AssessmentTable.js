@@ -8,7 +8,6 @@
  */
 
 import { dpApi, hasOwnProp } from '@demos-europe/demosplan-ui'
-import { set } from 'vue'
 
 const AssessmentTable = {
   namespaced: true,
@@ -44,7 +43,7 @@ const AssessmentTable = {
       status: {},
       tags: [],
       internalPhases: {},
-      externalPhases: {}
+      externalPhases: {},
     },
     assessmentBaseLoaded: false,
     boilerPlates: [],
@@ -66,17 +65,22 @@ const AssessmentTable = {
        * ('statement' or 'fragment'), initialAssigneeId, and parentStatementId
        */
       assignEntityModal: {
-        show: false
+        show: false,
       },
       // Visibility state of ConsolidateModal
       consolidateModal: {
-        show: false
+        show: false,
       },
       // Visibility state of CopyStatementModal and statementId
       copyStatementModal: {
         show: false,
-        statementId: null
-      }
+        statementId: null,
+      },
+      // Visibility state of MoveStatementModal and statementId
+      moveStatementModal: {
+        show: false,
+        statementId: null,
+      },
     },
     procedureStatementPriorityArea: false,
     publicParticipationPublicationEnabled: false,
@@ -85,7 +89,7 @@ const AssessmentTable = {
     showSearchModal: false,
     sort: '',
     statementFormDefinitions: {},
-    viewMode: ''
+    viewMode: '',
   },
 
   mutations: {
@@ -114,7 +118,7 @@ const AssessmentTable = {
       if (Array.isArray(state.assessmentBase[data.prop])) {
         state.assessmentBase[data.prop].unshift(data.value)
       } else if (typeof state.assessmentBase[data.prop] === 'object' && data.prop !== 'paragraph') {
-        set(state.assessmentBase[data.prop], [data.value.key], data.value.title)
+        state.assessmentBase[data.prop][data.value.key] = data.value.title
       } else if (data.prop === 'paragraph') { // To paragraphs the empty option has to be passed differently because of the specific structure of data
         Object.entries(state.assessmentBase.paragraph).forEach(element => {
           element.forEach(array => {
@@ -138,12 +142,12 @@ const AssessmentTable = {
      * @TODO maybe extract stuff that is not related to a procedure into a more generic route/store
      */
     setAssessmentBaseProperty (state, data) {
-      set(state.assessmentBase, [data.prop], data.val)
+      state.assessmentBase[data.prop] = data.val
       state.assessmentBaseLoaded = true
     },
 
     setModalProperty (state, data) {
-      set(state.modals, [data.prop], data.val)
+      state.modals[data.prop] = data.val
     },
 
     /**
@@ -151,29 +155,32 @@ const AssessmentTable = {
      * @param data {Object<prop, val>}
      */
     setProperty (state, data) {
-      set(state, [data.prop], data.val)
-    }
+      state[data.prop] = data.val
+    },
   },
 
   actions: {
     /**
+     * @param commit
+     * @param state
      * @param {String} procedureId
      */
     async applyBaseData ({ commit, state }, procedureId) {
-      const data = await dpApi({
+      const { data } = await dpApi({
         method: 'GET',
-        url: Routing.generate('DemosPlan_assessment_base_ajax', { procedureId })
+        url: Routing.generate('DemosPlan_assessment_base_ajax', { procedureId }),
       })
-        .then(this.api.checkResponse)
         .then(response => response.data)
 
-      return new Promise((resolve, reject) => {
-        // To prevent invalid type error missmatch of array and object
+      return new Promise(resolve => {
+        // To prevent invalid type error mismatch of array and object
         if (Array.isArray(data.accessibleProcedures)) {
           data.accessibleProcedures = {}
         }
+
         // Large arrays that do not need to be reactive (enhances performance)
         const immutable = ['municipalities', 'priorityAreas', 'inaccessibleProcedures', 'accessibleProcedures']
+
         immutable.forEach(prop => {
           data[prop] = data[prop] && Object.freeze(data[prop])
         })
@@ -181,11 +188,12 @@ const AssessmentTable = {
         commit('addBase', data)
         commit('setProperty', { prop: 'currentTableView', val: data.defaultToggleView })
         const emptyOptions = ['adviceValues', 'priorities', 'paragraph', 'agencies']
+
         emptyOptions.forEach(field => commit('addOptionToProperty', { prop: field, value: { key: '', title: '-', name: '-', id: '', elementId: '' } }))
 
         return resolve(true)
       })
-    }
+    },
   },
 
   getters: {
@@ -209,17 +217,20 @@ const AssessmentTable = {
      */
     adviceValues: state => {
       const statusArray = []
+
       Object.entries(state.assessmentBase.adviceValues).forEach(
-        ([key, value]) => statusArray.push({ id: key, name: Translator.trans(value), title: Translator.trans(value) })
+        ([key, value]) => statusArray.push({ id: key, name: Translator.trans(value), title: Translator.trans(value) }),
       )
       //  Move empty option to beginning of array so it will be displayed as first option
       const result = statusArray.find(obj => {
         return obj.title === '-'
       })
+
       if (statusArray.indexOf(result) > 0) {
         statusArray.splice(statusArray.indexOf(result), 1)
         statusArray.splice(0, 0, result)
       }
+
       return statusArray
     },
 
@@ -228,6 +239,8 @@ const AssessmentTable = {
     consolidateModal: state => state.modals.consolidateModal,
 
     copyStatementModal: state => state.modals.copyStatementModal,
+
+    moveStatementModal: state => state.modals.moveStatementModal,
 
     /**
      *
@@ -242,18 +255,22 @@ const AssessmentTable = {
             reviewerArray.push({ id: key, title: '-', name: '-', orgaName: '' })
           } else {
             const title = state.assessmentBase.agencies[key].departmentName
+
             reviewerArray.push({ id: key, title: `${state.assessmentBase.agencies[key].orgaName}, ${Translator.trans('department')}: ${title}`, name: Translator.trans(title), orgaName: state.assessmentBase.agencies[key].orgaName })
           }
         }
       }
+
       //  Move empty option to beginning of array so it will be displayed as first option
       const result = reviewerArray.find(obj => {
         return obj.title === '-'
       })
+
       if (reviewerArray.indexOf(result) > 0) {
         reviewerArray.splice(reviewerArray.indexOf(result), 1)
         reviewerArray.splice(0, 0, result)
       }
+
       return reviewerArray
     },
 
@@ -281,20 +298,25 @@ const AssessmentTable = {
      */
     fragmentStatus: state => {
       const statusArray = []
+
       for (const key in state.assessmentBase.fragmentStatus) {
         if (hasOwnProp(state.assessmentBase.fragmentStatus, key)) {
           const title = state.assessmentBase.fragmentStatus[key]
+
           statusArray.push({ id: key, title: Translator.trans(title), name: Translator.trans(title) })
         }
       }
+
       //  Move empty option to beginning of array so it will be displayed as first option
       const result = statusArray.find(obj => {
         return obj.title === '-'
       })
+
       if (statusArray.indexOf(result) > 0) {
         statusArray.splice(statusArray.indexOf(result), 1)
         statusArray.splice(0, 0, result)
       }
+
       return statusArray
     },
 
@@ -324,20 +346,25 @@ const AssessmentTable = {
      */
     priorities: state => {
       const priorityArray = []
+
       for (const key in state.assessmentBase.priorities) {
         if (hasOwnProp(state.assessmentBase.priorities, key)) {
           const title = state.assessmentBase.priorities[key]
+
           priorityArray.push({ id: key, title: Translator.trans(title), name: Translator.trans(title) })
         }
       }
+
       //  Move empty option to beginning of array so it will be displayed as first option
       const result = priorityArray.find(obj => {
         return obj.title === '-'
       })
+
       if (priorityArray.indexOf(result) > 0) {
         priorityArray.splice(priorityArray.indexOf(result), 1)
         priorityArray.splice(0, 0, result)
       }
+
       return priorityArray
     },
 
@@ -355,17 +382,20 @@ const AssessmentTable = {
      */
     status: state => {
       const statusArray = []
+
       Object.entries(state.assessmentBase.status).forEach(
-        ([key, value]) => statusArray.push({ id: key, name: Translator.trans(value), title: Translator.trans(value) })
+        ([key, value]) => statusArray.push({ id: key, name: Translator.trans(value), title: Translator.trans(value) }),
       )
       //  Move empty option to beginning of array so it will be displayed as first option
       const result = statusArray.find(obj => {
         return obj.title === '-'
       })
+
       if (statusArray.indexOf(result) > 0) {
         statusArray.splice(statusArray.indexOf(result), 1)
         statusArray.splice(0, 0, result)
       }
+
       return statusArray
     },
 
@@ -381,14 +411,18 @@ const AssessmentTable = {
      */
     tags: state => {
       const tagsArray = []
+
       state.assessmentBase.tags.forEach((entry) => {
         const topic = {}
+
         topic.title = Translator.trans(entry.name)
         if (hasOwnProp(entry, 'tags')) {
           topic.tags = entry.tags
         }
+
         tagsArray.push(topic)
       })
+
       return tagsArray
     },
 
@@ -398,15 +432,18 @@ const AssessmentTable = {
      */
     procedurePhases: state => data => {
       let phases = []
+
       if (Object.keys(state.assessmentBase.internalPhases).length > 0 && data.internal) {
         phases = Object.values(state.assessmentBase.internalPhases)
       }
+
       if (Object.keys(state.assessmentBase.externalPhases).length > 0 && data.external) {
         phases = Object.values(state.assessmentBase.externalPhases)
       }
+
       return phases
-    }
-  }
+    },
+  },
 
 }
 

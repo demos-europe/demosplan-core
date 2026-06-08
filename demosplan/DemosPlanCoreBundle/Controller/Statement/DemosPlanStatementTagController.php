@@ -10,7 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use DemosEurope\DemosplanAddon\Contracts\Events\UpdateTagEventInterface;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Event\Tag\UpdateTagEvent;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
@@ -22,7 +24,8 @@ use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function array_key_exists;
@@ -34,20 +37,20 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
     /**
      * Renders the admin view of a single tag.
      *
-     * @DplanPermissions("area_admin_statements_tag")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_statement_administration_tag', path: '/verfahren/{procedure}/tag/{tag}', defaults: ['master' => false], options: ['expose' => true])]
-    public function tagViewAction(
+    #[DplanPermissions('area_admin_statements_tag')]
+    #[Route(path: '/verfahren/{procedure}/tag/{tag}', name: 'DemosPlan_statement_administration_tag', options: ['expose' => true], defaults: ['master' => false])]
+    public function tagView(
         ProcedureService $procedureService,
         Request $request,
         StatementHandler $statementHandler,
         TranslatorInterface $translator,
         string $procedure,
         string $tag,
+        EventDispatcherInterface $eventDispatcher,
     ): Response {
         $requestPost = $request->request->all();
         $data = [];
@@ -86,11 +89,15 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         $templateVars['boilerplates'] = $procedureService->getBoilerplateList($procedure);
         if (null !== $data['action']) {
             $this->getMessageBag()->add('confirm', 'confirm.tag.edited');
+            $eventDispatcher->dispatch(
+                new UpdateTagEvent($tagEntity->getId()),
+                UpdateTagEventInterface::class
+            );
 
             return $this->redirectToRoute('DemosPlan_statement_administration_tags', ['procedure' => $procedure]);
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/edit_tag.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -104,14 +111,13 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
     /**
      * List of Tags that are being used in this procedures.
      *
-     * @DplanPermissions("area_admin_statements_tag")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_statement_administration_tags', path: '/verfahren/{procedure}/schlagworte', defaults: ['master' => false], options: ['expose' => true])]
-    public function tagListAction(
+    #[DplanPermissions('area_admin_statements_tag')]
+    #[Route(path: '/verfahren/{procedure}/schlagworte', name: 'DemosPlan_statement_administration_tags', options: ['expose' => true], defaults: ['master' => false])]
+    public function tagList(
         TranslatorInterface $translator,
         CurrentProcedureService $currentProcedureService,
         string $procedure,
@@ -122,7 +128,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         $title = $translator->trans('tag.administration');
         $templateVars['procedureTemplate'] = $currentProcedureService->getProcedure()?->getMaster() ?? false;
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/list_tags.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -136,19 +142,18 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
      * Creates a list of Tags for the given procedure by
      * parsing a csv import file.
      *
-     * @DplanPermissions("area_admin_statements_tag")
-     *
      * @return RedirectResponse
      *
      * @throws Exception
      */
+    #[DplanPermissions('area_admin_statements_tag')]
     #[Route(
         path: '/verfahren/{procedureId}/schlagworte/import/csv',
         name: 'DemosPlan_statement_administration_tags_csv_import',
         options: ['expose' => true],
         defaults: ['master' => false]
     )]
-    public function tagListCsvImportAction(
+    public function tagListCsvImport(
         FileService $fileService,
         FileUploadService $fileUploadService,
         Request $request,

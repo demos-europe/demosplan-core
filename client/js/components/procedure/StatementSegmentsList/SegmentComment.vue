@@ -32,38 +32,40 @@ export default {
   name: 'SegmentComment',
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     comment: {
       type: Object,
-      required: true
+      required: true,
     },
 
     currentUser: {
       type: Object,
-      required: true
+      required: true,
     },
 
     segmentId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   computed: {
     ...mapState('StatementSegment', {
-      segments: 'items'
+      segments: 'items',
     }),
 
     place () {
       if (this.comment && this.comment?.relationships?.place?.data && Object.keys(this.comment.relationships.place.data).length) {
         const place = this.comment.rel('place')
+
         if (place.attributes.name) {
           return place.attributes.name
         }
       }
+
       return Translator.trans('workflow.place.deleted')
     },
 
@@ -88,8 +90,9 @@ export default {
           return `${submitter.attributes.firstname} ${submitter.attributes.lastname}`
         }
       }
+
       return Translator.trans('user.deleted')
-    }
+    },
   },
 
   methods: {
@@ -99,7 +102,7 @@ export default {
 
     createdDateTimeItem (date) {
       return `${formatDate(date, 'long')}`
-    }
-  }
+    },
+  },
 }
 </script>

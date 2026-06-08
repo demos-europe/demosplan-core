@@ -202,6 +202,7 @@ export default function ToggleAnything () {
         target.toggleClass(el.config.propertyClass)
 
         const isToggled = el.hasClass(el.config.propertyClass + '-toggle')
+
         toggleAriaAttrs(el, isToggled)
       }
     }
@@ -227,6 +228,9 @@ export default function ToggleAnything () {
           el.one('click', function () {
             el.config.targetObj.removeClass(prefixClass('is-run', omitPrefix))
           })
+          // Sync element's visual state and aria attributes
+          toggleAriaAttrs(el, true)
+          el.addClass(el.config.propertyClass + '-toggle')
         }
 
         //  Activate toggle on page load when toggles are checked checkboxes / radios

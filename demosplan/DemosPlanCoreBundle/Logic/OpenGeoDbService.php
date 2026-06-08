@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -13,7 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 use demosplan\DemosPlanCoreBundle\Entity\OpenGeoDbShortTable;
 use demosplan\DemosPlanCoreBundle\Repository\OpenGeoDbRepository;
 
-class OpenGeoDbService extends CoreService
+class OpenGeoDbService
 {
     public function __construct(private readonly OpenGeoDbRepository $openGeoDbRepository)
     {

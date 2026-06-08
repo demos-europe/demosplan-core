@@ -17,8 +17,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\GetDatasheetFilePathAbsoluteEvent;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
+use demosplan\DemosPlanCoreBundle\Logic\Workflow\ProfilerService;
 use demosplan\DemosPlanCoreBundle\Repository\StatementAttributeRepository;
 use demosplan\DemosPlanCoreBundle\Services\DatasheetService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
@@ -29,6 +29,7 @@ use geoPHP\Geometry\Point;
 use geoPHP\Geometry\Polygon;
 use geoPHP\geoPHP;
 use Illuminate\Support\Collection;
+use Psr\Log\LoggerInterface;
 use SimpleXMLElement;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
@@ -36,7 +37,7 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
-class StatementGeoService extends CoreService
+class StatementGeoService
 {
     /**
      * @var Environment
@@ -59,6 +60,8 @@ class StatementGeoService extends CoreService
         private readonly StatementAttributeRepository $statementAttributeRepository,
         private readonly StatementService $statementService,
         EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger,
+        private readonly ProfilerService $profilerService,
     ) {
         $this->twig = $twig;
         $this->eventDispatcher = $eventDispatcher;
@@ -104,7 +107,7 @@ class StatementGeoService extends CoreService
 
             // Profiling der Requestzeit im Log
             $microtime = microtime(true);
-            $this->profilerStart('Request GeoDB');
+            $this->profilerService->profilerStart(ProfilerService::REQUESTGEODB_PROFILER);
             if ($geometries['points']->count() > 0) {
                 $geoResults = $this->getDataFromPoints($geometries['points']->toArray(), $geoResults, $tempStatementId);
             }
@@ -114,8 +117,8 @@ class StatementGeoService extends CoreService
             if ($geometries['polygons']->count() > 0) {
                 $geoResults = $this->getDataFromPolygons($geometries['polygons']->toArray(), $geoResults, $tempStatementId);
             }
-            $this->profilerStop('Request GeoDB');
-            $this->getLogger()->info('Time for Georequest: '.DemosPlanTools::varExport(microtime(true) - $microtime, true));
+            $this->profilerService->profilerStop(ProfilerService::REQUESTGEODB_PROFILER);
+            $this->logger->info('Time for Georequest: '.DemosPlanTools::varExport(microtime(true) - $microtime, true));
 
             // save counties
             $data['counties'] = $geoResults['counties']->unique()->toArray();
@@ -129,7 +132,7 @@ class StatementGeoService extends CoreService
             );
             $data['priorityAreas'] = $priorityAreas;
         } catch (Exception $e) {
-            $this->getLogger()->error('Fehler beim Abruf der Geodaten ', [$e, $e->getTraceAsString()]);
+            $this->logger->error('Fehler beim Abruf der Geodaten ', [$e, $e->getTraceAsString()]);
         }
 
         return $data;
@@ -184,13 +187,13 @@ class StatementGeoService extends CoreService
             $hasMunicipalities = 0 < count($statement->getMunicipalities());
             $hasPriorityAreas = 0 < count($statement->getPriorityAreas());
             if ($hasCounties || $hasMunicipalities || $hasPriorityAreas) {
-                $this->getLogger()->warning('Statement already has Geodata', [$statement->getId()]);
+                $this->logger->warning('Statement already has Geodata', [$statement->getId()]);
                 $this->unscheduleFetchGeoData($statement->getId());
                 continue;
             }
 
             $data = $this->getStatementGeoData($statement);
-            $this->getLogger()->info('Statement Geodata: '.DemosPlanTools::varExport($data, true));
+            $this->logger->info('Statement Geodata: '.DemosPlanTools::varExport($data, true));
             $statementData['ident'] = $statement->getId();
 
             $microtime = microtime(true);
@@ -205,7 +208,7 @@ class StatementGeoService extends CoreService
                     if (1 === $area->count()) {
                         $statementData['priorityAreas'][] = $area->first();
                     } else {
-                        $this->getLogger()->warning('Zur Potenzialfläche konnte kein Eintrag gefunden werden: '.DemosPlanTools::varExport($priorityAreaString, true).DemosPlanTools::varExport($area, true));
+                        $this->logger->warning('Zur Potenzialfläche konnte kein Eintrag gefunden werden: '.DemosPlanTools::varExport($priorityAreaString, true).DemosPlanTools::varExport($area, true));
                     }
                 }
             }
@@ -239,13 +242,13 @@ class StatementGeoService extends CoreService
                     if (0 == $municipality->count()) {
                         $newMunicipality = $this->municipalityService->addMunicipality(['name' => $municipalityString]);
                         $statementData['municipalities'][] = $newMunicipality->getId();
-                        $this->getLogger()->info('Folgende Gemeinde wurde neu angelegt: '.DemosPlanTools::varExport($municipalityString, true));
+                        $this->logger->info('Folgende Gemeinde wurde neu angelegt: '.DemosPlanTools::varExport($municipalityString, true));
                     }
                 }
             }
-            $this->getLogger()->info('Time for parsing Objects from Georequest: '.DemosPlanTools::varExport(microtime(true) - $microtime, true));
+            $this->logger->info('Time for parsing Objects from Georequest: '.DemosPlanTools::varExport(microtime(true) - $microtime, true));
 
-            if (0 < count($statementData)) {
+            if ([] !== $statementData) {
                 // update statement, explicitly allow editing original statement
                 $statements[$key] = $this->statementService->updateStatement($statementData, true, true, true);
                 $original = $statement->getOriginal();
@@ -335,7 +338,7 @@ class StatementGeoService extends CoreService
         $this->httpCall->setContentType('text/xml');
         $response = $this->httpCall->request('POST', $path, $data);
         if (false !== stripos((string) $response['body'], 'ows:ExceptionText')) {
-            $this->getLogger()->error('Error in GeoRequest: '.DemosPlanTools::varExport($response, true));
+            $this->logger->error('Error in GeoRequest: '.DemosPlanTools::varExport($response, true));
         }
 
         return $response;
@@ -362,27 +365,26 @@ class StatementGeoService extends CoreService
                 $priorityAreasXpath = $item->xpath('child::app:vorranggebiete');
                 $priorityAreas2Xpath = $item->xpath('child::app:potentialflaechen');
                 // viva SimpleXML
-                if (isset($municipalitiesXpath[0]) && strlen((string) $municipalitiesXpath[0]) > 0) {
+                if (isset($municipalitiesXpath[0]) && '' !== (string) $municipalitiesXpath[0]) {
                     $geoResults['municipalities'] = $geoResults['municipalities']->merge(explode(';', (string) $municipalitiesXpath[0]));
                 }
-                if (isset($countiesXpath[0]) && strlen((string) $countiesXpath[0]) > 0) {
+                if (isset($countiesXpath[0]) && '' !== (string) $countiesXpath[0]) {
                     $geoResults['counties'] = $geoResults['counties']->merge(explode(';', (string) $countiesXpath[0]));
                 }
-                if (isset($priorityAreasXpath[0]) && strlen((string) $priorityAreasXpath[0]) > 0) {
+                if (isset($priorityAreasXpath[0]) && '' !== (string) $priorityAreasXpath[0]) {
                     $geoResults['priorityAreas'] = $geoResults['priorityAreas']->merge(explode(';', (string) $priorityAreasXpath[0]));
                 }
-                if (isset($priorityAreas2Xpath[0]) && strlen((string) $priorityAreas2Xpath[0]) > 0) {
+                if (isset($priorityAreas2Xpath[0]) && '' !== (string) $priorityAreas2Xpath[0]) {
                     $geoResults['priorityAreas'] = $geoResults['priorityAreas']->merge(explode(';', (string) $priorityAreas2Xpath[0]));
                 }
             }
-            $this->getLogger()->info('Parsed Georesults: '.DemosPlanTools::varExport($geoResults, true));
-
-            return $geoResults;
-        } else {
-            $this->getLogger()->warning('Abruf der Daten vom Geoserver fehlgeschlagen. Typ: '.$type.' Response: '.DemosPlanTools::varExport($responseGet, true));
+            $this->logger->info('Parsed Georesults: '.DemosPlanTools::varExport($geoResults, true));
 
             return $geoResults;
         }
+        $this->logger->warning('Abruf der Daten vom Geoserver fehlgeschlagen. Typ: '.$type.' Response: '.DemosPlanTools::varExport($responseGet, true));
+
+        return $geoResults;
     }
 
     /**
@@ -403,7 +405,7 @@ class StatementGeoService extends CoreService
 
         foreach ($polygons as $wktItem) {
             preg_match('/POLYGON[\s]*\({1,2}([0-9\. ,]*)/', (string) $wktItem, $coords);
-            if (0 < count($coords)) {
+            if ([] !== $coords) {
                 // leerzeichen zu komma, komma zu Leerzeichen mit Zwischenschritt über |
                 $coordinates->push(str_replace('|', ' ', str_replace(' ', ',', str_replace(',', '|', $coords[1]))));
             }
@@ -418,8 +420,8 @@ class StatementGeoService extends CoreService
                 ],
             ]);
         $responseInsert = $this->sendRestPostRequest($this->globalConfig->getGeoWfstStatementPolygone(), $postBodyInsert);
-        $this->getLogger()->info('Insert Request', [$postBodyInsert]);
-        $this->getLogger()->info('Insert Response', [$responseInsert]);
+        $this->logger->info('Insert Request', [$postBodyInsert]);
+        $this->logger->info('Insert Response', [$responseInsert]);
 
         // Frage die Verschneidungen ab
         $postBodyGet = $this->twig->render('@DemosPlanCore/DemosPlanStatement/Geo/getFeature.xml.twig',
@@ -437,8 +439,8 @@ class StatementGeoService extends CoreService
                 'templateVars' => ['id' => $tempStatementId, 'type' => 'stellungnahmen_polygone'],
             ]);
         $responseDelete = $this->sendRestPostRequest($this->globalConfig->getGeoWfstStatementPolygone(), $postBodyDelete);
-        $this->getLogger()->info('Delete Request', [$postBodyDelete]);
-        $this->getLogger()->info('Delete Response', [$responseDelete]);
+        $this->logger->info('Delete Request', [$postBodyDelete]);
+        $this->logger->info('Delete Response', [$responseDelete]);
 
         return $geoResults;
     }
@@ -461,7 +463,7 @@ class StatementGeoService extends CoreService
 
         foreach ($linestrings as $wktItem) {
             preg_match('/LINESTRING[\s]*\((.*)\)/', (string) $wktItem, $coords);
-            if (0 < count($coords)) {
+            if ([] !== $coords) {
                 // leerzeichen zu komma, komma zu Leerzeichen mit Zwischenschritt über |
                 $coordinates->push(str_replace('|', ' ', str_replace(' ', ',', str_replace(',', '|', $coords[1]))));
             }
@@ -476,8 +478,8 @@ class StatementGeoService extends CoreService
                 ],
             ]);
         $responseInsert = $this->sendRestPostRequest($this->globalConfig->getGeoWfstStatementLinien(), $postBodyInsert);
-        $this->getLogger()->info('Insert Request: '.DemosPlanTools::varExport($postBodyInsert, true));
-        $this->getLogger()->info('Insert Respose: '.DemosPlanTools::varExport($responseInsert, true));
+        $this->logger->info('Insert Request: '.DemosPlanTools::varExport($postBodyInsert, true));
+        $this->logger->info('Insert Respose: '.DemosPlanTools::varExport($responseInsert, true));
 
         // Frage die Verschneidungen ab
         $postBodyGet = $this->twig->render('@DemosPlanCore/DemosPlanStatement/Geo/getFeature.xml.twig',
@@ -485,8 +487,8 @@ class StatementGeoService extends CoreService
                 'templateVars' => ['id' => $tempStatementId, 'type' => $type],
             ]);
         $responseGet = $this->sendRestPostRequest($this->globalConfig->getGeoWfsStatementLinien(), $postBodyGet);
-        $this->getLogger()->info('Get Request: '.DemosPlanTools::varExport($postBodyGet, true));
-        $this->getLogger()->info('Get Response: '.DemosPlanTools::varExport($responseGet, true));
+        $this->logger->info('Get Request: '.DemosPlanTools::varExport($postBodyGet, true));
+        $this->logger->info('Get Response: '.DemosPlanTools::varExport($responseGet, true));
 
         // parse Antwort
         $geoResults = $this->parseGeoResponse($geoResults, $responseGet, $type);
@@ -497,8 +499,8 @@ class StatementGeoService extends CoreService
                 'templateVars' => ['id' => $tempStatementId, 'type' => 'stellungnahmen_linien'],
             ]);
         $responseDelete = $this->sendRestPostRequest($this->globalConfig->getGeoWfstStatementLinien(), $postBodyDelete);
-        $this->getLogger()->info('Delete Request: '.DemosPlanTools::varExport($postBodyDelete, true));
-        $this->getLogger()->info('Delete Respose: '.DemosPlanTools::varExport($responseDelete, true));
+        $this->logger->info('Delete Request: '.DemosPlanTools::varExport($postBodyDelete, true));
+        $this->logger->info('Delete Respose: '.DemosPlanTools::varExport($responseDelete, true));
 
         return $geoResults;
     }
@@ -524,7 +526,7 @@ class StatementGeoService extends CoreService
 
         foreach ($points as $wktItem) {
             preg_match('/POINT[\s]*\((.*)\)/', (string) $wktItem, $coords);
-            if (0 < count($coords)) {
+            if ([] !== $coords) {
                 $coordinates->push(str_replace(' ', ',', $coords[1]));
             }
         }
@@ -538,8 +540,8 @@ class StatementGeoService extends CoreService
                 ],
             ]);
         $responseInsert = $this->sendRestPostRequest($this->globalConfig->getGeoWfstStatementPunkte(), $postBodyInsert);
-        $this->getLogger()->info('Insert Request: '.DemosPlanTools::varExport($postBodyInsert, true));
-        $this->getLogger()->info('Insert Respose: '.DemosPlanTools::varExport($responseInsert, true));
+        $this->logger->info('Insert Request: '.DemosPlanTools::varExport($postBodyInsert, true));
+        $this->logger->info('Insert Respose: '.DemosPlanTools::varExport($responseInsert, true));
 
         // Frage die Verschneidungen ab
         $postBodyGet = $this->twig->render('@DemosPlanCore/DemosPlanStatement/Geo/getFeature.xml.twig',
@@ -547,8 +549,8 @@ class StatementGeoService extends CoreService
                 'templateVars' => ['id' => $tempStatementId, 'type' => $type],
             ]);
         $responseGet = $this->sendRestPostRequest($this->globalConfig->getGeoWfsStatementPunkte(), $postBodyGet);
-        $this->getLogger()->info('Get Request: '.DemosPlanTools::varExport($postBodyGet, true));
-        $this->getLogger()->info('Get Response: '.DemosPlanTools::varExport($responseGet, true));
+        $this->logger->info('Get Request: '.DemosPlanTools::varExport($postBodyGet, true));
+        $this->logger->info('Get Response: '.DemosPlanTools::varExport($responseGet, true));
 
         // parse Antwort
         $geoResults = $this->parseGeoResponse($geoResults, $responseGet, $type);
@@ -559,8 +561,8 @@ class StatementGeoService extends CoreService
                 'templateVars' => ['id' => $tempStatementId, 'type' => 'stellungnahmen_punkte'],
             ]);
         $responseDelete = $this->sendRestPostRequest($this->globalConfig->getGeoWfstStatementPunkte(), $postBodyDelete);
-        $this->getLogger()->info('Delete Request: '.DemosPlanTools::varExport($postBodyDelete, true));
-        $this->getLogger()->info('Delete Respose: '.DemosPlanTools::varExport($responseDelete, true));
+        $this->logger->info('Delete Request: '.DemosPlanTools::varExport($postBodyDelete, true));
+        $this->logger->info('Delete Respose: '.DemosPlanTools::varExport($responseDelete, true));
 
         return $geoResults;
     }

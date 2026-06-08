@@ -23,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
@@ -38,11 +37,8 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
 
-class StatementMover extends CoreService
+class StatementMover
 {
-    /** @var LoggerInterface */
-    protected $logger;
-
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly ElementsService $elementsService,
@@ -50,16 +46,15 @@ class StatementMover extends CoreService
         private readonly PermissionsInterface $permissions,
         private readonly MessageBagInterface $messageBag,
         private readonly StatementService $statementService,
-        LoggerInterface $logger,
+        private readonly LoggerInterface $logger,
         private readonly StatementCopyAndMoveService $statementCopyAndMoveService,
         private readonly StatementHandler $statementHandler,
         private readonly EntityContentChangeService $entityContentChangeService,
         private readonly StatementReportEntryFactory $statementReportEntryFactory,
         private readonly ReportService $reportService,
         private readonly StatementCopier $statementCopier,
-        private readonly StatementRepository $statementRepository
+        private readonly StatementRepository $statementRepository,
     ) {
-        $this->logger = $logger;
     }
 
     /**
@@ -75,7 +70,7 @@ class StatementMover extends CoreService
      *                                   will be deleted or kept. In case of EntityContentChanges where not
      *                                   deleted, they can be seen by owner of target procedure.
      *
-     * @return statement|false - Returns the moved Statement if successful, otherwise false
+     * @return Statement|false - Returns the moved Statement if successful, otherwise false
      *
      * @throws ConnectionException
      * @throws MessageBagException
@@ -88,7 +83,7 @@ class StatementMover extends CoreService
     public function moveStatementToProcedure(
         Statement $statementToMove,
         Procedure $targetProcedure,
-        bool $deleteVersionHistory = false
+        bool $deleteVersionHistory = false,
     ) {
         $doctrineConnection = $this->entityManager->getConnection();
         try {
@@ -332,14 +327,12 @@ class StatementMover extends CoreService
     {
         $placeholderStatement = clone $statementToMove;
 
-        // remove related Entitycollections
-        $placeholderStatement->setFragments([]);
-        $placeholderStatement->setVotes([]);
-        $placeholderStatement->setTags([]);
-        $placeholderStatement->setCounties([]);
-        $placeholderStatement->setMunicipalities([]);
-        $placeholderStatement->setPriorityAreas([]);
-        $placeholderStatement->setFiles([]);
+        // Reset collections via direct assignment instead of per-element setters.
+        // Placeholder is a fresh clone not present in any inverse collection,
+        // so the previous setCounties/setMunicipalities/setPriorityAreas calls
+        // hydrated huge mappedBy collections (e.g. County::$statements) for no
+        // data-side effect.
+        $placeholderStatement->resetCollectionsForPlaceholder();
         $placeholderStatement->setInternId(null);
         $placeholderStatement->setMovedStatement($statementToMove);
         $placeholderStatement->setExternId($statementToMove->getExternId()); // maybe Moved %externId%

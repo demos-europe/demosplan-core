@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -12,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeDisplayHandler;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
@@ -22,22 +24,22 @@ use demosplan\DemosPlanCoreBundle\Transformers\EntityContentChangeComparisonTran
 use demosplan\DemosPlanCoreBundle\Transformers\HistoryDayTransformer;
 use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class DemosPlanEntityContentChangeAPIController extends APIController
 {
     // @improve T12984
     /**
-     * @DplanPermissions("feature_statement_content_changes_view")
      * This action provides all formatted diffs of all EntityContentChange objects of one specific change instance.
      * A change instance is a moment in time when an entity is changed. E.g. if person A changes Statement B at time C.
      * Then the combination of ABC is a change instance.
      */
-    #[Route(path: '/api/1.0/statements/{procedureId}/entitycontentchange/{entityContentChangeId}', name: 'dplan_api_history_of_all_fields_of_specific_datetime', methods: ['GET'], options: ['expose' => true])]
-    public function getEntityContentChangeAction(
+    #[DplanPermissions('feature_statement_content_changes_view')]
+    #[Route(path: '/api/1.0/statements/{procedureId}/entitycontentchange/{entityContentChangeId}', name: 'dplan_api_history_of_all_fields_of_specific_datetime', options: ['expose' => true], methods: ['GET'])]
+    public function getEntityContentChange(
         EntityContentChangeService $contentChangeService,
-        string $entityContentChangeId
+        string $entityContentChangeId,
     ): APIResponse {
         // any entity content change object with the correct create time
         $contentChange = $contentChangeService->findByIdWithCertainty($entityContentChangeId);
@@ -48,17 +50,16 @@ class DemosPlanEntityContentChangeAPIController extends APIController
 
     // @improve T12984
     /**
-     * @DplanPermissions("feature_statement_fragment_content_changes_view")
-     *
      * @return APIResponse|JsonResponse
      */
-    #[Route(path: '/api/1.0/statements/{procedureId}/statementfragment/{statementFragmentId}/history', name: 'dplan_api_statement_fragment_history', methods: ['GET'], options: ['expose' => true])]
-    public function getStatementFragmentHistoryAction(
+    #[DplanPermissions('feature_statement_fragment_content_changes_view')]
+    #[Route(path: '/api/1.0/statements/{procedureId}/statementfragment/{statementFragmentId}/history', name: 'dplan_api_statement_fragment_history', options: ['expose' => true], methods: ['GET'])]
+    public function getStatementFragmentHistory(
         CurrentProcedureService $currentProcedureService,
         EntityContentChangeDisplayHandler $displayHandler,
         StatementFragmentService $statementFragmentService,
         string $statementFragmentId,
-        string $procedureId)
+        string $procedureId): APIResponse
     {
         $statementFragment = $statementFragmentService->getStatementFragment($statementFragmentId);
         if (null === $statementFragment) {
@@ -78,13 +79,12 @@ class DemosPlanEntityContentChangeAPIController extends APIController
      * This action provides all formatted diffs of all EntityContentChange objects of one specific change instance.
      * A change instance is a moment in time when an entity is changed. E.g. if person A changes Statement B at time C.
      * Then the combination of ABC is a change instance.
-     *
-     * @DplanPermissions("feature_segment_content_changes_view")
      */
-    #[Route(path: '/api/1.0/segments/{procedureId}/entitycontentchange/{entityContentChangeId}', name: 'dplan_api_segments_history_of_all_fields_of_specific_datetime', methods: ['GET'], options: ['expose' => true])]
-    public function getSegmentContentChangeAction(
+    #[DplanPermissions('feature_segment_content_changes_view')]
+    #[Route(path: '/api/1.0/segments/{procedureId}/entitycontentchange/{entityContentChangeId}', name: 'dplan_api_segments_history_of_all_fields_of_specific_datetime', options: ['expose' => true], methods: ['GET'])]
+    public function getSegmentContentChange(
         EntityContentChangeService $contentChangeService,
-        string $entityContentChangeId
+        string $entityContentChangeId,
     ): APIResponse {
         // any entity content change object with the correct create time
         $contentChange = $contentChangeService->findByIdWithCertainty($entityContentChangeId);

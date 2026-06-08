@@ -17,12 +17,14 @@
 
     <administration-import
         class="u-mb-2"
+        current-internal-phase-definition-id="{{ templateVars.currentInternalPhaseDefinitionId }}"
+        current-external-phase-definition-id="{{ templateVars.currentExternalPhaseDefinitionId }}"
         procedure-id="{{ procedureId }}"
         {% if templateVars.initValues is defined  %}
             :init-values="JSON.parse('{{ templateVars.initValues|json_encode|e('js', 'utf-8') }}')"
         {% endif %}
         :tags="JSON.parse('{{ allTags|json_encode|e('js', 'utf-8') }}')"
-        :csrf-token="{{ csrf_token('csrf')|json_encode }}"
+        csrf-token="{{ csrf_token('csrf')|json_encode }}"
         current-user-id="{{ currentUserId }}"
         newest-intern-id="{{ templateVars.newestInternalId }}"
         :used-intern-ids="JSON.parse('{{ templateVars.usedInternIds|json_encode|e('js', 'utf-8') }}')"

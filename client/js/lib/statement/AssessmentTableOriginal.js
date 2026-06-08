@@ -13,7 +13,7 @@
  * their functionality to other components.
  */
 
-import { checkResponse, dpApi } from '@demos-europe/demosplan-ui'
+import { dpApi } from '@demos-europe/demosplan-ui'
 import { scrollTo } from 'vue-scrollto'
 
 export default function AssessmentTableOriginal () {
@@ -25,6 +25,7 @@ export default function AssessmentTableOriginal () {
   window.updateFilterHash = function (procedureId, filterOptions = []) {
     // Get inputfields from original table (filters not included)
     let inputFields = $('form[name=bpform]').serializeArray()
+
     inputFields = inputFields.filter(inputField => inputField.name.includes('filter') === false)
 
     // Add currently selected filters
@@ -35,11 +36,9 @@ export default function AssessmentTableOriginal () {
     return dpApi({
       method: 'POST',
       url: Routing.generate('dplan_api_procedure_update_original_filter_hash', { procedureId }),
-      data: inputFields
-    }).then(checkResponse)
-      .then(function (data) {
-        return data.data.attributes.hash
-      })
+      data: inputFields,
+    })
+      .then(({ data }) => data.data.attributes.hash)
   }
 
   window.submitForm = function (event, task) {
@@ -57,11 +56,12 @@ export default function AssessmentTableOriginal () {
     const filterOptions = inputFields.filter(inputField => inputField.name.includes('filter') && inputField.value !== '')
 
     const procedureId = $('form[name=bpform]').data('assessment-original-statements')
+
     window.updateFilterHash(procedureId, filterOptions)
       .then((filterHash) => {
         document.bpform.action = Routing.generate('dplan_assessmenttable_view_original_table', {
           procedureId,
-          filterHash
+          filterHash,
         })
 
         switch (task) {
@@ -71,6 +71,7 @@ export default function AssessmentTableOriginal () {
               document.bpform.r_action.value = 'copy'
               document.bpform.submit()
             }
+
             break
 
           case 'search':
@@ -92,6 +93,7 @@ export default function AssessmentTableOriginal () {
     if (hasQuestionMark) {
       hash = hash.split('?')[0]
     }
+
     scrollTo(hash, { offset: -180 })
   }
 }

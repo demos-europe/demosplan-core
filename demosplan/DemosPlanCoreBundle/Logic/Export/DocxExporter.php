@@ -21,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ViewOrientation;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
@@ -33,24 +32,22 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
-use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
+use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementHandlingResult;
 use Exception;
 use Illuminate\Support\Collection;
 use League\Flysystem\FilesystemOperator;
-use Monolog\Logger;
 use PhpOffice\PhpWord\Element\AbstractContainer;
 use PhpOffice\PhpWord\Element\Cell;
+use PhpOffice\PhpWord\Element\Footer;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
-use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Shared\Html;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Psr\Log\LoggerInterface;
-use ReflectionException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -60,10 +57,12 @@ use Twig\Environment;
 class DocxExporter
 {
     use RequiresTranslatorTrait;
+    use AssessmentTableFormattingTrait;
 
     final public const EXPORT_SORT_BY_PARAGRAPH_FRAGMENTS_ONLY = 'byParagraphFragmentsOnly';
     final public const EXPORT_SORT_BY_PARAGRAPH = 'byParagraph';
     final public const EXPORT_SORT_DEFAULT = 'default';
+    final public const TEMPLATE_PORTRAIT_WITH_PRIORITIZATION = 'portraitWithPrioritization';
     /**
      * @var array Style, wie Tabelle im gesamten aussehen soll
      */
@@ -89,6 +88,11 @@ class DocxExporter
     protected $cellHCentered = ['valign' => 'center', 'spaceAfter' => 0];
 
     /**
+     * @var PhpWord Current PhpWord document instance for ODT processing
+     */
+    protected $currentPhpWord;
+
+    /**
      * @var StatementService
      */
     protected $statementService;
@@ -97,11 +101,6 @@ class DocxExporter
      * @var FileService
      */
     protected $fileService;
-
-    /**
-     * @var ServiceImporter
-     */
-    protected $serviceImport;
 
     /**
      * @var Environment
@@ -134,14 +133,17 @@ class DocxExporter
         FileService $fileService,
         protected readonly FilesystemOperator $defaultStorage,
         GlobalConfigInterface $config,
+        private readonly HTMLSanitizer $htmlSanitizer,
         LoggerInterface $logger,
         protected readonly MapService $mapService,
+        private readonly OdtHtmlProcessor $odtHtmlProcessor,
         PermissionsInterface $permissions,
         protected readonly ProcedureHandler $procedureHandler,
         private readonly StatementFragmentService $statementFragmentService,
         private readonly StatementHandler $statementHandler,
         StatementService $statementService,
         TranslatorInterface $translator,
+        private readonly DocumentWriterSelector $writerSelector,
     ) {
         $this->config = $config;
         $this->fileService = $fileService;
@@ -172,6 +174,7 @@ class DocxExporter
          * documents.
          */
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
+        $this->currentPhpWord = $phpWord;
 
         $incomingStatements = $outputResult->getStatements();
         $procedure = $this->procedureHandler->getProcedureWithCertainty($outputResult->getProcedure()['id']);
@@ -258,9 +261,9 @@ class DocxExporter
                 case self::EXPORT_SORT_BY_PARAGRAPH_FRAGMENTS_ONLY:
                     $relevantFragmentIds = $this->getSelectedFragmentIdsOfStatements($incomingStatements);
                     // 'items' may contain IDs of statements and/or fragments, get the fragment ones only
-                    $selections = array_filter($requestPost['items'], fn (string $id) => null === $this->statementHandler->getStatement($id));
+                    $selections = array_filter($requestPost['items'], fn (string $id) => !$this->statementHandler->getStatement($id) instanceof Statement);
                     // if specific fragments were selected use these only
-                    if (0 !== count((array) $selections)) {
+                    if ([] !== (array) $selections) {
                         // create a mapping from ID to ID
                         $selections = array_combine($selections, $selections);
                         // filter out non-selected items
@@ -335,7 +338,7 @@ class DocxExporter
 
                                     // Abteilung
                                     $orgaDepartmentName = $statementMeta->getOrgaDepartmentName();
-                                    if (0 < strlen($orgaDepartmentName)) {
+                                    if ('' !== (string) $orgaDepartmentName) {
                                         $orgaName .= ', '.$orgaDepartmentName;
                                     }
 
@@ -409,6 +412,11 @@ class DocxExporter
 
             $phpWord->addTableStyle('assessmentTable', $this->tableStyle, $this->firstRowStyle);
 
+            // Register ODT font styles early in document creation
+            if ($this->writerSelector->isOdtFormat()) {
+                $this->odtHtmlProcessor->registerStyles($phpWord);
+            }
+
             $statements = array_column($incomingStatements, 'id', 'id');
             $statementEntities = $this->statementService->getStatementsByIds(array_keys($statements));
 
@@ -478,59 +486,15 @@ class DocxExporter
             ->all();
     }
 
-    /**
-     * Get default Docx Page Styles.
-     */
-    protected function getDefaultDocxPageStyles(ViewOrientation $orientation): array
-    {
-        $styles = [];
-        // Benutze das ausgewählte Format
-        $styles['orientation'] = [];
-        // im Hochformat werden für LibreOffice anderen Breiten benötigt
-        $styles['cellWidthTotal'] = 10000;
-        $styles['firstCellWidth'] = 1500;
-        $styles['cellWidth'] = 3850;
-        $styles['cellWidthSecondThird'] = 7500;
-
-        $tableStyle = $this->getDefaultDocxTableStyle();
-        $styles['tableStyle'] = $tableStyle;
-        $styles['cellStyleStatementDetails'] = ['gridSpan' => 2, 'bgColor' => 'f0f0f5', 'valign' => 'top'];
-        $styles['textStyleStatementDetails'] = ['bold' => true];
-        $styles['textStyleStatementDetailsParagraphStyles'] = ['spaceAfter' => 0];
-        $styles['cellHeading'] = ['align' => 'center', 'valign' => 'center'];
-        $styles['cellHeadingText'] = ['bold' => true, 'valign' => 'center', 'align' => 'center', 'name' => 'Arial', 'size' => 9];
-        $styles['cellTop'] = ['valign' => 'top'];
-
-        if ($orientation->isLandscape()) {
-            $styles['cellWidthTotal'] = 14000;
-            $styles['orientation'] = ['orientation' => 'landscape'];
-            $styles['firstCellWidth'] = 2000;
-            $styles['cellWidth'] = 6000;
-            $styles['cellWidthSecondThird'] = 12000;
-        }
-
-        return $styles;
-    }
-
-    protected function getDefaultDocxTableStyle(): \PhpOffice\PhpWord\Style\Table
-    {
-        $tableStyle = new \PhpOffice\PhpWord\Style\Table();
-        $tableStyle->setLayout(\PhpOffice\PhpWord\Style\Table::LAYOUT_FIXED)
-            ->setBorderColor($this->tableStyle['borderColor'])
-            ->setBorderSize($this->tableStyle['borderSize'])
-            ->setCellMargin($this->tableStyle['cellMargin']);
-
-        return $tableStyle;
-    }
-
     public function addCondensedTableHeaders(array $styles, Table $table, string $typeHeader): void
     {
         $table->addRow(null, ['tblHeader' => true]);
-        $table->addCell($styles['cellWidthTotal'] * 0.12, $styles['cellHeading'])
+        $headerCellStyle = $styles['cellHeading'];
+        $table->addCell($styles['cellWidthTotal'] * 0.12, $headerCellStyle)
             ->addText($this->translator->trans('submitter.data'), $styles['cellHeadingText'], $styles['textStyleStatementDetailsParagraphStyles']);
-        $table->addCell($styles['cellWidthTotal'] * 0.44, $styles['cellHeading'])
+        $table->addCell($styles['cellWidthTotal'] * 0.44, $headerCellStyle)
             ->addText($typeHeader, $styles['cellHeadingText'], $styles['textStyleStatementDetailsParagraphStyles']);
-        $table->addCell($styles['cellWidthTotal'] * 0.44, $styles['cellHeading'])
+        $table->addCell($styles['cellWidthTotal'] * 0.44, $headerCellStyle)
             ->addText($this->translator->trans('response'), $styles['cellHeadingText'], $styles['textStyleStatementDetailsParagraphStyles']);
     }
 
@@ -554,74 +518,6 @@ class DocxExporter
         $item['elementTitle'] = $fragment->getElementTitle();
 
         return $item;
-    }
-
-    /**
-     * Statement in unified data format.
-     *
-     * @return array - formatted statement
-     *
-     * @throws ReflectionException
-     *
-     * @deprecated Use {@link formatStatementObject} instead
-     */
-    public function formatStatementArray(array $statement): array
-    {
-        return [
-            'type'                      => 'statement',
-            'attachments'               => $statement['attachments'] ?? null,
-            'authoredDate'              => $statement['meta']['authoredDate'] ?? null,
-            'cluster'                   => $statement['cluster'] ?? null,
-            'documentTitle'             => $statement['document']['title'] ?? null,
-            'externId'                  => $statement['externId'] ?? null,
-            'formerExternId'            => $statement['formerExternId'] ?? null,
-            'elementTitle'              => $statement['element']['title'] ?? null,
-            'files'                     => $statement['files'] ?? null,
-            'orgaName'                  => $statement['meta']['orgaName'] ?? null,
-            'orgaDepartmentName'        => $statement['meta']['orgaDepartmentName'] ?? null,
-            'originalId'                => $statement['original']['ident'] ?? null,
-            'paragraphTitle'            => $statement['paragraph']['title'] ?? null,
-            'parentId'                  => $statement['parent']['ident'] ?? null,
-            'polygon'                   => $statement['polygon'] ?? null,
-            'publicAllowed'             => $statement['publicAllowed'] ?? null,
-            'publicCheck'               => $statement['publicCheck'] ?? null,
-            'publicStatement'           => $statement['publicStatement'] ?? null,
-            'publicVerified'            => $statement['publicVerified'] ?? null,
-            'publicVerifiedTranslation' => $statement['publicVerifiedTranslation'] ?? null,
-            'recommendation'            => $statement['recommendation'] ?? null,
-            'submit'                    => $statement['submit'] ?? null,
-            'submitName'                => $statement['meta']['submitName'] ?? null,
-            'authorName'                => $statement['meta']['authorName'] ?? null,
-            'text'                      => $statement['text'] ?? null,
-            'votes'                     => $statement['votes'] ?? null,
-            'votesNum'                  => $statement['votesNum'] ?? null,
-            'likesNum'                  => $statement['likesNum'] ?? null,
-            'fragments'                 => [],
-            'userState'                 => $statement['meta']['userState'] ?? null,
-            'userGroup'                 => $statement['meta']['userGroup'] ?? null,
-            'userOrganisation'          => $statement['meta']['userOrganisation'] ?? null,
-            'movedToProcedureName'      => $statement['movedToProcedureName'] ?? null,
-            'movedFromProcedureName'    => $statement['movedFromProcedureName'] ?? null,
-            'userPosition'              => $statement['meta']['userPosition'] ?? null,
-            'isClusterStatement'        => $statement['isClusterStatement'] ?? null,
-            'name'                      => $statement['name'] ?? null,
-        ];
-    }
-
-    /**
-     * Statement in unified data format.
-     *
-     * @return array formatted statement
-     *
-     * @throws ReflectionException
-     */
-    public function formatStatementObject(Statement $statement): array
-    {
-        $item = $this->statementService->convertToLegacy($statement);
-        $item['parent'] = $this->statementService->convertToLegacy($statement->getParent());
-        $item['original'] = $this->statementService->convertToLegacy($statement->getOriginal());
-
-        return $this->formatStatementArray($item);
     }
 
     /**
@@ -665,13 +561,15 @@ class DocxExporter
                     $numberStatements,
                     $statementNumber
                 );
-                $cell2 = $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $styles['cellTop']);
+                $cellStyle = $styles['cellTop'];
+                $cell2 = $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $cellStyle);
                 if (isset($item['text'])) {
                     $item['text'] = $this->editorService->handleObscureTags($item['text'], $anonymous);
                     $this->addHtml($cell2, $item['text'], $styles);
                 }
 
-                $cell3 = $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $styles['cellTop']);
+                $cell3 = $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $cellStyle);
+                $this->addVotePlaText($cell3, $item);
                 if (isset($item['recommendation'])) {
                     $this->addHtml($cell3, $item['recommendation'], $styles);
                 }
@@ -691,10 +589,30 @@ class DocxExporter
             $movedStatementText =
                 $this->translator->trans('statement.moved', ['name' => $item['movedToProcedureName']]);
 
-            $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $styles['cellHeading'])
+            $cellStyle = $styles['cellHeading'];
+            $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $cellStyle)
                 ->addText($movedStatementText, $styles['cellHeadingText'], $styles['textStyleStatementDetailsParagraphStyles']);
 
-            $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $styles['cellHeading']);
+            $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $cellStyle);
+        }
+    }
+
+    /**
+     * Add votePla (vote advice) text to a cell if permission is granted.
+     */
+    private function addVotePlaText(Cell $cell, array $item): void
+    {
+        if (!isset($item['votePla']) || !$this->permissions->hasPermission('field_vote_advice_docx')) {
+            return;
+        }
+
+        try {
+            $statementAdviceValues = $this->config->getFormOptions()['statement_fragment_advice_values'] ?? [];
+            $translationKey = $statementAdviceValues[$item['votePla']];
+            $voteTextShort = $this->translator->trans($translationKey);
+            Html::addHtml($cell, '<p>'.$voteTextShort.'</p><br />');
+        } catch (Exception $e) {
+            $this->getLogger()->warning('statement with invalid \'votePla\' value given to condensed export', [$e]);
         }
     }
 
@@ -709,11 +627,12 @@ class DocxExporter
     ): void {
         $translator = $this->translator;
 
-        $metaInfoCell = $assessmentTable->addCell($styles['cellWidthTotal'] * 0.12, $styles['cellTop']);
+        $cellStyle = $styles['cellTop'];
+        $metaInfoCell = $assessmentTable->addCell($styles['cellWidthTotal'] * 0.12, $cellStyle);
 
         $isCluster = false;
         if (isset($item['cluster'])) {
-            $isCluster = is_array($item['cluster']) && 0 < count($item['cluster']);
+            $isCluster = is_array($item['cluster']) && [] !== $item['cluster'];
         } elseif (isset($item['isClusterStatement'])) {
             $isCluster = $item['isClusterStatement'];
         }
@@ -734,11 +653,11 @@ class DocxExporter
                 $institutionData = $translator->trans('institution').': '.$orgaName;
 
                 // Abteilung
-                if (0 < strlen((string) $item['orgaDepartmentName'])) {
+                if ('' !== (string) $item['orgaDepartmentName']) {
                     $institutionData .= ', '.$item['orgaDepartmentName'];
                 }
-                if (false == $anonymous) {
-                    $institutionData .= 0 < strlen((string) $item['submitName']) ? ': '.$item['submitName'] : '';
+                if (false === $anonymous) {
+                    $institutionData .= '' !== (string) $item['submitName'] ? ': '.$item['submitName'] : '';
                 }
                 $metaInfoCell->addText(
                     $institutionData,
@@ -750,7 +669,7 @@ class DocxExporter
                 $orgaName = ('' == $item['orgaName']) ? $translator->trans('not.specified') : $item['orgaName'];
                 $citizenData = $translator->trans('public').': '.$orgaName;
 
-                if (false == $anonymous) {
+                if (false === $anonymous) {
                     // Name
                     $citizenData .= ', '.$item['authorName'];
                     // T454 address should not be exported
@@ -779,7 +698,7 @@ class DocxExporter
         );
 
         // cluster
-        if (isset($item['cluster']) && is_array($item['cluster']) && 0 < count($item['cluster'])) {
+        if (isset($item['cluster']) && is_array($item['cluster']) && [] !== $item['cluster']) {
             $clusteredStatementMetaData = '('.$translator->trans('id.plural').': ';
             $clusteredStatementMetaData .= implode(', ', array_column($item['cluster'], 'externId'));
             $clusteredStatementMetaData .= ')';
@@ -815,91 +734,6 @@ class DocxExporter
     }
 
     /**
-     * T10049
-     * Centralisation of logic to generate string of externId.
-     *
-     * Includes "Kopie von" in case of current statement is a copy of a statement and placeholder statement information.
-     */
-    public function createExternIdStringFromObject(Statement $statement): string
-    {
-        $externIdString = $statement->getExternId();
-
-        // add "copyof"
-        if (null !== $statement->getParentId()
-            && $statement->getOriginalId() != $statement->getParentId()) {
-            $externIdString = $this->translator->trans('copyof').' '.$externIdString;
-        }
-
-        // add former externID in case of statement was moved from another procedure
-        // was moved?
-        $placeholderStatement = $statement->getPlaceholderStatement();
-        if (null !== $statement->getFormerExternId()) {
-            $formerExternId = $statement->getFormerExternId();
-            $nameOfFormerProcedure = $statement->getMovedFromProcedureName();
-            $externIdString .= $this->createFormerProcedureSuffix($formerExternId, $nameOfFormerProcedure);
-        } elseif (null !== $placeholderStatement) {
-            $formerExternId = $placeholderStatement->getExternId();
-            $nameOfFormerProcedure = $placeholderStatement->getProcedure()->getName();
-            $externIdString .= $this->createFormerProcedureSuffix($formerExternId, $nameOfFormerProcedure);
-        }
-
-        // if statement was moved into another procedure, this will usually be displayed in the textfield of the statement
-        return $externIdString;
-    }
-
-    /**
-     * T10049
-     * Centralisation of logic to generate string of externId.
-     *
-     * Includes "Kopie von" in case of current statement is a copy of a statement and placeholder statement information.
-     *
-     * @param array $statementArray
-     *
-     * @deprecated use {@link AssessmentTableServiceOutput::createExternIdStringFromObject} instead
-     */
-    public function createExternIdString($statementArray): string
-    {
-        $externIdString = '';
-
-        // add "copyof"
-        if (isset($statementArray['originalId']) && isset($statementArray['parentId'])
-            && $statementArray['originalId'] != $statementArray['parentId']
-            && false === is_null($statementArray['parentId'])) {
-            $externIdString .= $this->translator->trans('copyof').' ';
-        }
-
-        $externIdString .= $statementArray['externId'];
-
-        // add former externID in case of statement was moved from another procedure
-
-        // was moved?
-        if (array_key_exists('formerExternId', $statementArray) && false === is_null($statementArray['formerExternId'])) {
-            $externIdString .= ' ('.$this->translator->trans('formerExternId').': '.$statementArray['formerExternId'].' '.$this->translator->trans('from').' '.$statementArray['movedFromProcedureName'].')';
-        } else {
-            if (array_key_exists('placeholderStatement', $statementArray)
-                && false === is_null($statementArray['placeholderStatement'])) {
-                // dont know, if $statementArray['placeholderStatement'] is an object or array. -> handle both cases:
-                if ($statementArray['placeholderStatement'] instanceof Statement) {
-                    $formerExternId = $statementArray['placeholderStatement']->getExternId();
-                    $nameOfFormerProcedure = $statementArray['placeholderStatement']->getProcedure()->getName();
-                } else {
-                    $formerExternId = $statementArray['placeholderStatement']['externId'];
-                    $nameOfFormerProcedure = $statementArray['placeholderStatement']['procedure']['name'];
-                }
-                $externIdString .= ' ('.$this->translator->trans('formerExternId').': '.$formerExternId.' '.$this->translator->trans('from').' '.$nameOfFormerProcedure.')';
-            }
-        }
-
-        // if statement was moved into another procedure, this will usually be displayed in the textfield of the statement
-        return $externIdString;
-    }
-
-    private function createFormerProcedureSuffix($formerExternId, $nameOfFormerProcedure): string
-    {
-        return ' ('.$this->translator->trans('formerExternId').': '.$formerExternId.' '.$this->translator->trans('from').' '.$nameOfFormerProcedure.')';
-    }
-
-    /**
      * Add each fragments in $item['fragments'] as a row with the fragment text on the left side and the fragment recommendation
      * on the right side. $item is needed for the submitterData of the first fragment.
      *
@@ -927,14 +761,15 @@ class DocxExporter
                 $this->addSubmitterData($anonymous, $assessmentTable, $item, $styles, true);
             }
 
-            $cell2 = $assessmentTable->addCell($textCellWidth, $styles['cellTop']);
+            $cellStyle = $styles['cellTop'];
+            $cell2 = $assessmentTable->addCell($textCellWidth, $cellStyle);
             if (isset($fragment['text'])) {
                 // T6679:
                 $fragment['text'] = $this->editorService->handleObscureTags($fragment['text'], $anonymous);
                 $this->addHtml($cell2, $fragment['text'], $styles);
             }
 
-            $cell3 = $assessmentTable->addCell($recommendationCellWidth, $styles['cellTop']);
+            $cell3 = $assessmentTable->addCell($recommendationCellWidth, $cellStyle);
             if (isset($fragment['recommendation'])) {
                 $fragment['recommendation'] = $this->editorService->handleObscureTags($fragment['recommendation'], $anonymous);
                 $this->addHtml($cell3, $fragment['recommendation'], $styles);
@@ -959,10 +794,18 @@ class DocxExporter
         }
         try {
             $text = self::replaceTags($text);
+            $text = $this->htmlSanitizer->sanitizeCssForPhpWord($text);
+            Html::addHtml($cell, $text, false);
+            $text = $this->replaceTags($text);
             // remove STX (start of text) EOT (end of text) special chars
             $text = str_replace([chr(2), chr(3)], '', $text);
 
-            Html::addHtml($cell, $text, false);
+            // ODT format has simplified HTML processing
+            if ($this->writerSelector->isOdtFormat()) {
+                $this->odtHtmlProcessor->processHtmlForCell($cell, $text);
+            } else {
+                Html::addHtml($cell, $text, false);
+            }
         } catch (Exception $e) {
             $this->getLogger()->warning('Could not parse HTML in Export', [$e, $text, $e->getTraceAsString()]);
             // fallback: print with html tags
@@ -976,7 +819,7 @@ class DocxExporter
         return '';
     }
 
-    private static function replaceTags(string $text): string
+    private function replaceTags(string $text): string
     {
         $replacements = [
             // phpword breaks when self closing tags are not closed
@@ -993,10 +836,7 @@ class DocxExporter
         return preg_replace(array_keys($replacements), array_values($replacements), $text);
     }
 
-    /**
-     * @return Logger
-     */
-    protected function getLogger()
+    protected function getLogger(): LoggerInterface
     {
         return $this->logger;
     }
@@ -1019,7 +859,7 @@ class DocxExporter
         $frontPageSection->addText(htmlspecialchars((string) $procedure->getName(), ENT_NOQUOTES), $coverHeadingStyle, $coverParagraphStyle);
 
         // Verfahrensschritt
-        $phaseName = $procedure->getPhaseName();
+        $phaseName = $procedure->getPhaseObject()->getPhaseDefinition()->getName();
         if (null !== $phaseName) {
             $frontPageSection->addText(htmlspecialchars((string) $phaseName), $coverHeadingStyle, $coverParagraphStyle);
         }
@@ -1029,31 +869,6 @@ class DocxExporter
         $frontPageSection->addText($translator->trans('procedure.agency').': '.$procedure->getOrgaName(), $coverStyle, $coverParagraphStyle);
 
         return $frontPageSection;
-    }
-
-    /**
-     * @throws Exception
-     */
-    protected function renderGroup(
-        StatementEntityGroup $group,
-        callable $entriesRenderFunction,
-        Section $section,
-        int $depth = 0,
-    ): void {
-        $section->addTitle($group->getTitle(), $depth + 2);
-
-        foreach ($group->getSubgroups() as $subgroup) {
-            $this->renderGroup(
-                $subgroup,
-                $entriesRenderFunction,
-                $section,
-                $depth + 1
-            );
-        }
-
-        if (0 !== (is_countable($group->getEntries()) ? count($group->getEntries()) : 0)) {
-            $entriesRenderFunction($section, $group->getEntries());
-        }
     }
 
     protected function getExportPageHeader(Procedure $procedure): string
@@ -1104,45 +919,6 @@ class DocxExporter
     }
 
     /**
-     * Fragment in unified data format.
-     *
-     * @return array - formatted fragment
-     *
-     * @throws Exception
-     *
-     * @deprecated Use {@link formatFragmentObject} instead
-     */
-    public function formatFragmentArray(array $statement, array $fragment): array
-    {
-        $tmpElementId = $fragment['elementId'];
-        $tmpElementTitle = $fragment['elementTitle'];
-
-        $item = $this->formatStatementArray($statement);
-        $item['sortIndex'] = $fragment['sortIndex'];
-
-        // override selected item fields with fragment content:
-        $item['type'] = 'fragment';
-        $item['created'] = $fragment['created'] ?? null;
-
-        $item['text'] = '';
-        $item['recommendation'] = '';
-        // we need to fetch Fragment, as text fields are not mapped in statement
-        // index for performance reasons
-        $statementFragment = $this->statementHandler->getStatementFragment($fragment['id']);
-        if ($statementFragment instanceof StatementFragment) {
-            // pretend as if consideration would be an recommendation
-            // as it has the same behaviour
-            $item['recommendation'] = $statementFragment->getConsideration();
-            $item['text'] = $statementFragment->getText();
-        }
-
-        $item['elementId'] = $tmpElementId;
-        $item['elementTitle'] = $tmpElementTitle;
-
-        return $item;
-    }
-
-    /**
      * Returns formatted label and content of the toeb address.
      *
      * @return array<string, string>
@@ -1152,21 +928,21 @@ class DocxExporter
         $result = [];
         $meta = $statement->getMeta();
 
-        if ('' != $meta->getOrgaName()) {
+        if ('' !== $meta->getOrgaName()) {
             $result['orgaName'] = $this->translator->trans('invitable_institution')
                 .': '.$meta->getOrgaName();
         } else {
             $result['orgaName'] = $this->translator->trans('invitable_institution').': '.
                 $this->translator->trans('notgiven');
         }
-        if ('' != $meta->getOrgaDepartmentName()) {
+        if ('' !== $meta->getOrgaDepartmentName()) {
             $result['orgaDepartment'] = $this->translator->trans('department')
                 .': '.$meta->getOrgaDepartmentName();
         } else {
             $result['orgaDepartment'] = $this->translator->trans('department')
                 .': '.$this->translator->trans('notgiven');
         }
-        if ('' != $meta->getSubmitName()) {
+        if ('' !== $meta->getSubmitName()) {
             $result['submitName'] = $this->translator->trans('name')
                 .': '.$meta->getSubmitName();
         } else {
@@ -1267,10 +1043,7 @@ class DocxExporter
             if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_PROCEDURE_PHASE, $exportConfig, $statement)) {
                 // Verfahrensschritt
                 // Ersetze die Phase, in der die SN eingegangen ist
-                $phaseName = $this->statementService->getProcedurePhaseName(
-                    $statement->getPhase(),
-                    $statement->isSubmittedByCitizen()
-                );
+                $phaseName = $statement->getPhaseDefinition()->getName();
                 $cell2AddText('procedure.public.phase', $phaseName);
             }
 
@@ -1322,7 +1095,7 @@ class DocxExporter
                 }
 
                 // Address
-                if ($this->isAddressExportable($organisationData, $exportConfig, $statement, $anonym)) {
+                if (self::TEMPLATE_PORTRAIT_WITH_PRIORITIZATION !== $templateName && $this->isAddressExportable($organisationData, $exportConfig, $statement, $anonym)) {
                     $cell2->addText(
                         htmlspecialchars($organisationData['postalAddressPartsOfAuthor']),
                         null,
@@ -1330,7 +1103,7 @@ class DocxExporter
                     );
                 }
 
-                if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_SUBMITTER_NAME,
+                if (self::TEMPLATE_PORTRAIT_WITH_PRIORITIZATION !== $templateName && $this->exportFieldDecider->isExportable(FieldDecider::FIELD_SUBMITTER_NAME,
                     $exportConfig,
                     $statement,
                     $organisationData,
@@ -1381,7 +1154,7 @@ class DocxExporter
                     );
                 }
 
-                if ($this->exportFieldDecider->isExportable(
+                if (self::TEMPLATE_PORTRAIT_WITH_PRIORITIZATION !== $templateName && $this->exportFieldDecider->isExportable(
                     FieldDecider::FIELD_SUBMITTER_NAME,
                     $exportConfig,
                     $statement,
@@ -1396,7 +1169,7 @@ class DocxExporter
                     );
                 }
 
-                if ($this->isAddressExportable($citizenDetails, $exportConfig, $statement, $anonym)) {
+                if (self::TEMPLATE_PORTRAIT_WITH_PRIORITIZATION !== $templateName && $this->isAddressExportable($citizenDetails, $exportConfig, $statement, $anonym)) {
                     // Adresse
                     $cell2->addText(
                         htmlspecialchars((string) $citizenDetails['postalAddressPartsOfAuthor']),
@@ -1452,7 +1225,7 @@ class DocxExporter
                 $text = ' - ';
                 $text .= $this->translator->trans('voters')
                     .': '.$statement->getVotesNum().' ';
-                if (1 == $statement->getVotesNum()) {
+                if (1 === $statement->getVotesNum()) {
                     $text .= $this->translator->trans('person');
                 } else {
                     $text .= $this->translator->trans('persons');
@@ -1503,8 +1276,8 @@ class DocxExporter
                     });
             }
 
-            // Priorität
-            if ($this->exportFieldDecider->isExportable(FieldDecider::FIELD_PRIORITY, $exportConfig, $statement)) {
+            // Priorität (redundant in TEMPLATE_PORTRAIT_WITH_PRIORITIZATION as it is already shown in the group heading)
+            if (self::TEMPLATE_PORTRAIT_WITH_PRIORITIZATION !== $templateName && $this->exportFieldDecider->isExportable(FieldDecider::FIELD_PRIORITY, $exportConfig, $statement)) {
                 $textRun2 = $cell2->addTextRun($cellHCentered);
                 $textRun2AddText = $this->containerAddTextFunctionConstructor($textRun2, null, null);
                 $textRun2AddText('priority', '');
@@ -1584,14 +1357,14 @@ class DocxExporter
         $result = [];
         $meta = $statement->getMeta();
 
-        if ('' != $meta->getOrgaName()) {
+        if ('' !== $meta->getOrgaName()) {
             $result['orgaName'] = $this->translator->trans('submitted.author')
                 .': '.$meta->getOrgaName();
         }
-        if ('' != $meta->getSubmitName()) {
+        if ('' !== $meta->getSubmitName()) {
             $result['submitName'] = $this->translator->trans('name')
                 .': '.$meta->getSubmitName();
-        } elseif ('' != $meta->getAuthorName()) {
+        } elseif ('' !== $meta->getAuthorName()) {
             $result['submitName'] = $this->translator->trans('name')
                 .': '.$meta->getAuthorName();
         } else {
@@ -1609,7 +1382,7 @@ class DocxExporter
 
         // in Hamburg wird nur anonyme Ansicht verwendet, beim Bürger soll allerdings die Straße mit angegeben werden
         if ($this->permissions->hasPermission('feature_keep_street_on_anonymize')) {
-            if (0 < strlen((string) $statement->getMeta()->getOrgaStreet())) {
+            if ('' !== (string) $statement->getMeta()->getOrgaStreet()) {
                 $result['orgaName'] .= ', '.$statement->getMeta()->getOrgaStreet().$houseNumber;
             }
             // @improve this special cases should not be mixed with this permission check
@@ -1723,48 +1496,6 @@ class DocxExporter
             }
             $cell2->addText($this->mapService->getReplacedMapAttribution($statement->getProcedure()));
         }
-    }
-
-    /**
-     * Generate Html imagetag to be used in PhpWord Html::addHtml().
-     * File needs to be locally accessible.
-     *
-     * @param string $imageFile
-     * @param int    $maxWidth  maximum image width in pixel
-     *
-     * @return string
-     */
-    protected function getDocxImageTag($imageFile, $maxWidth = 500)
-    {
-        $imgTag = '';
-        $width = 300;
-        $height = 300;
-        $margin = 10;
-        // phpword needs a local file, no need for flysystem
-        if (!file_exists($imageFile)) {
-            return $imgTag;
-        }
-
-        // get Image size
-        $imageInfo = getimagesize($imageFile);
-        if (2 < (is_countable($imageInfo) ? count($imageInfo) : 0)) {
-            $width = $imageInfo[0] - $margin;
-            $height = $imageInfo[1] - $margin;
-        }
-
-        // check that picture is not wider than allowed
-        if ($width > $maxWidth) {
-            $factor = $width / $maxWidth;
-
-            // resize Image
-            if (0 != $factor) {
-                $width = $width / $factor;
-                $height = $height / $factor;
-            }
-            $this->getLogger()->info('Docx Image resize to width: '.$width.' and height: '.$height);
-        }
-
-        return '<img height="'.$height.'" width="'.$width.'" src="'.$imageFile.'"/>';
     }
 
     /**
@@ -1913,7 +1644,7 @@ class DocxExporter
             $header = $section->addHeader();
             $header->addText($this->getExportPageHeader($procedure));
             $footer = $section->addFooter();
-            $footer->addPreserveText('{PAGE}/{NUMPAGES}');
+            $this->addPageNumbers($footer);
             $this->renderGroup(
                 $group,
                 $entriesRenderFunction,
@@ -1921,7 +1652,7 @@ class DocxExporter
             );
         }
 
-        return IOFactory::createWriter($phpWord, 'Word2007');
+        return $this->writerSelector->createWriter($phpWord);
     }
 
     /**
@@ -1945,6 +1676,14 @@ class DocxExporter
     ): WriterInterface {
         $phpWord->setDefaultFontSize(9);
         $styles = $this->getDefaultDocxPageStyles($orientation);
+
+        // Register table style
+        $phpWord->addTableStyle('assessmentTable', $this->tableStyle, $this->firstRowStyle);
+
+        // Register ODT font styles early in document creation
+        if ($this->writerSelector->isOdtFormat()) {
+            $this->odtHtmlProcessor->registerStyles($phpWord);
+        }
 
         $this->createFrontPage($phpWord, $procedure, $orientation);
         $items = $this->convertStatementsForExport($statements, $exportType, $requestPost);
@@ -1979,9 +1718,9 @@ class DocxExporter
         }
 
         $footer = $tableSection->addFooter();
-        $footer->addPreserveText('{PAGE}/{NUMPAGES}');
+        $this->addPageNumbers($footer);
 
-        return IOFactory::createWriter($phpWord, 'Word2007');
+        return $this->writerSelector->createWriter($phpWord);
     }
 
     /**
@@ -2029,9 +1768,9 @@ class DocxExporter
         }
 
         $footer = $section->addFooter();
-        $footer->addPreserveText('{PAGE}/{NUMPAGES}');
+        $this->addPageNumbers($footer);
 
-        return IOFactory::createWriter($phpWord, 'Word2007');
+        return $this->writerSelector->createWriter($phpWord);
     }
 
     /**
@@ -2069,9 +1808,30 @@ class DocxExporter
         );
 
         $footer = $section->addFooter();
-        $footer->addPreserveText('{PAGE}/{NUMPAGES}');
+        $this->addPageNumbers($footer);
 
-        return IOFactory::createWriter($phpWord, 'Word2007');
+        return $this->writerSelector->createWriter($phpWord);
+    }
+
+    /**
+     * Adds page numbers to footer in a format-compatible way.
+     * For DOCX: uses PreserveText with {PAGE}/{NUMPAGES} placeholder.
+     * For ODT: uses separate Field elements since ODT doesn't parse PreserveText placeholders.
+     *
+     * @param Footer $footer
+     */
+    private function addPageNumbers($footer): void
+    {
+        if ($this->writerSelector->isOdtFormat()) {
+            // ODT requires TextRun with Field elements
+            $textRun = $footer->addTextRun();
+            $textRun->addField('PAGE', [], [], '1');
+            $textRun->addText('/');
+            $textRun->addField('NUMPAGES', [], [], '1');
+        } else {
+            // DOCX can use PreserveText with placeholders
+            $footer->addPreserveText('{PAGE}/{NUMPAGES}');
+        }
     }
 
     /**

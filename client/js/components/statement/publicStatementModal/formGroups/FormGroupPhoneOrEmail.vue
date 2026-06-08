@@ -22,8 +22,9 @@
         pattern="^(\+?)(-| |[0-9]|\(|\))*$"
         :required="phoneIsRequired"
         type="tel"
-        :value="statement.r_phone"
-        @input="val => setStatementData({r_phone: val})" /><!--
+        :model-value="statement.r_phone"
+        @update:model-value="val => setStatementData({r_phone: val})"
+      /><!--
    --><dp-input
         id="r_email"
         autocomplete="email"
@@ -35,8 +36,9 @@
         name="r_email"
         :required="mailIsRequired"
         type="email"
-        :value="statement.r_email"
-        @input="val => setStatementData({r_email: val})" />
+        :model-value="statement.r_email"
+        @update:model-value="val => setStatementData({r_email: val})"
+      />
     </div>
   </div>
 </template>
@@ -56,7 +58,7 @@ export default {
 
     phoneIsRequired () {
       return this.required && this.statement.r_useName === '1' && this.statement.r_email === ''
-    }
-  }
+    },
+  },
 }
 </script>

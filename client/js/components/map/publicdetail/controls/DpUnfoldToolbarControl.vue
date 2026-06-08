@@ -23,14 +23,16 @@
 <template>
   <div
     :class="prefixClass('c-map__unfold-button')"
+    draggable="true"
     @mousedown.prevent="startDrag"
     @touchstart="startDrag"
-    draggable="true">
+  >
     <slot>
       <div :class="prefixClass('c-map__unfold-button-inner')">
         <i
           aria-hidden="true"
-          :class="prefixClass('c-map__unfold-button-handle')" />
+          :class="prefixClass('c-map__unfold-button-handle')"
+        />
       </div>
     </slot>
   </div>
@@ -48,22 +50,26 @@ export default {
     dragTarget: {
       required: false,
       type: String,
-      default: '#app'
+      default: '#app',
     },
 
     // This number is used to have a "margin" for the max-value. So we prevent a scrollbar and can see the handle at max-scale
     magicNumber: {
       required: false,
       type: Number,
-      default: 100
+      default: 100,
     },
 
     direction: {
       required: false,
       type: String,
-      default: 'right'
-    }
+      default: 'right',
+    },
   },
+
+  emits: [
+    'toolbar:drag',
+  ],
 
   data () {
     return {
@@ -71,7 +77,7 @@ export default {
       target: null,
       initialSize: 0,
       currentSize: 0,
-      maxSize: 0
+      maxSize: 0,
     }
   },
 
@@ -89,7 +95,7 @@ export default {
 
     parentPadding () {
       return parseInt(getComputedStyle(this.target.parentElement)[this.dimensionPadding[0]].slice(0, -2)) + parseInt(getComputedStyle(this.target.parentElement)[this.dimensionPadding[1]].slice(0, -2))
-    }
+    },
   },
 
   methods: {
@@ -97,18 +103,22 @@ export default {
      * Check if the new size is valid. Otherwise use min/max values.
      */
     handleDrag (event) {
+      const rect = this.target.getBoundingClientRect()
       let newSize
+
       if (this.dimension === 'height') {
-        if (event.type === 'mousemove') {
-          newSize = event.clientY - this.target.getBoundingClientRect().top - this.parentPadding
-        } else {
-          newSize = event.changedTouches[0].clientY - this.target.getBoundingClientRect().top - this.parentPadding
-        }
+        // Mouse events vs touch events
+        const clientY = event.type === 'mousemove' ? event.clientY : event.changedTouches[0].clientY
+
+        newSize = clientY - rect.top - this.parentPadding
       } else {
-        if (event.type === 'mousemove') {
-          newSize = event.clientX - this.target.getBoundingClientRect().left - this.parentPadding
+        // Width calculation for mouse and touch events
+        const clientX = event.type === 'mousemove' ? event.clientX : event.changedTouches[0].clientX
+
+        if (this.direction === 'left') {
+          newSize = rect.right - clientX - this.parentPadding
         } else {
-          newSize = event.changedTouches[0].clientX - this.target.getBoundingClientRect().left - this.parentPadding
+          newSize = clientX - rect.left - this.parentPadding
         }
       }
 
@@ -117,6 +127,7 @@ export default {
       } else if (newSize > this.maxSize) {
         newSize = this.maxSize
       }
+
       this.setNewSize(newSize)
     },
 
@@ -134,8 +145,9 @@ export default {
     setMaxSize () {
       const containerDimensions = {
         width: this.target.parentElement.offsetWidth,
-        height: this.target.parentElement.offsetHeight
+        height: this.target.parentElement.offsetHeight,
       }
+
       this.maxSize = containerDimensions[this.dimension] - this.magicNumber - this.parentPadding
     },
 
@@ -144,7 +156,7 @@ export default {
      */
     setNewSize (newSize) {
       this.currentSize = newSize
-      this.target.setAttribute('style', this.dimension + ': ' + newSize + 'px')
+      this.target.setAttribute('style', this.dimension + ': ' + newSize + 'px; max-width: none')
       this.target.style.background = 'white'
       this.target.style.zIndex = '10'
       this.$root.$emit('toolbar:drag')
@@ -164,7 +176,7 @@ export default {
     stopDrag () {
       window.removeEventListener('mousemove', this.handleDrag)
       window.removeEventListener('touchmove', this.handleDrag)
-    }
+    },
   },
 
   mounted () {
@@ -178,8 +190,12 @@ export default {
     // Listen for the resize of the page to know if the max-size has to be recalculated.
     window.addEventListener('resize', this.handleResize)
 
-    // Check if size has to be recalculated after tab-use
-    document.querySelector('[href="#procedureDetailsMap"]').addEventListener('click', this.setMaxWidth)
+    // Check if size has to be recalculated after tab-use (map-specific)
+    const procedureTab = document.querySelector('[href="#procedureDetailsMap"]')
+
+    if (procedureTab) {
+      procedureTab.addEventListener('click', this.setMaxSize)
+    }
 
     // Set initial values for min/max size
     this.initialSize = parseInt(getComputedStyle(this.target)[this.dimension].slice(0, -2))
@@ -187,11 +203,11 @@ export default {
     this.setMaxSize()
   },
 
-  beforeDestroy () {
+  beforeUnmount () {
     // Remove event listener if the component gets destroyed
     window.removeEventListener('mouseup', this.stopDrag)
     window.removeEventListener('touchend', this.stopDrag)
     window.removeEventListener('resize', this.handleResize)
-  }
+  },
 }
 </script>

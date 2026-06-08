@@ -12,13 +12,16 @@
     <dp-simplified-new-statement-form
       allow-file-upload
       :csrf-token="csrfToken"
+      :current-external-phase-definition-id="currentExternalPhaseDefinitionId"
+      :current-internal-phase-definition-id="currentInternalPhaseDefinitionId"
       expand-all
       :newest-intern-id="newestInternId"
       :procedure-id="procedureId"
       :statement-import-email-id="null"
       :submit-type-options="submitTypeOptions"
       :tags="tags"
-      :used-intern-ids="usedInternIds" />
+      :used-intern-ids="usedInternIds"
+    />
   </div>
 </template>
 
@@ -28,17 +31,17 @@ import DpSimplifiedNewStatementForm from '@DpJs/components/procedure/DpSimplifie
 export default {
   name: 'StatementFormImport',
 
-  inject: ['currentUserId', 'newestInternId', 'procedureId', 'submitTypeOptions', 'tags', 'usedInternIds'],
+  inject: ['currentExternalPhaseDefinitionId', 'currentInternalPhaseDefinitionId', 'currentUserId', 'newestInternId', 'procedureId', 'submitTypeOptions', 'tags', 'usedInternIds'],
 
   components: {
-    DpSimplifiedNewStatementForm
+    DpSimplifiedNewStatementForm,
   },
 
   props: {
     csrfToken: {
       type: String,
-      required: true
-    }
-  }
+      required: true,
+    },
+  },
 }
 </script>

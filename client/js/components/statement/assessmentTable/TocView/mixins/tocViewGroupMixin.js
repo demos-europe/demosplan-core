@@ -14,23 +14,23 @@ export default {
     group: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     parentId: {
       type: String,
       required: false,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   computed: {
     ...mapGetters('Statement', [
-      'getToc'
+      'getToc',
     ]),
 
     depth () {
       return this.group.level
-    }
-  }
+    },
+  },
 }

@@ -18,20 +18,23 @@
         <h3 class="u-m-0 inline">
           <i
             class="c-publicindex__icon-content fa fa-calendar"
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
           <span class="sr-only">
             {{ Translator.trans('period') }}
           </span>
         </h3>
         <p
+          v-cleanhtml="period"
           class="u-m-0 inline"
-          v-cleanhtml="period" />
+        />
       </li>
       <li>
         <h3 class="u-m-0 inline">
           <i
             class="c-publicindex__icon-content fa fa-puzzle-piece"
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
           <span class="sr-only">
             {{ Translator.trans('procedure.public.phase') }}
           </span>
@@ -44,7 +47,8 @@
         <h3 class="u-m-0 inline">
           <i
             class="c-publicindex__icon-content fa fa-university"
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
           <span class="sr-only">
             {{ Translator.trans('administration.alt') }}
           </span>
@@ -54,11 +58,13 @@
         </p>
       </li>
       <li
-        v-if="hasPermission('feature_procedures_count_released_drafts') && procedure.statementSubmitted > 0">
+        v-if="hasPermission('feature_procedures_count_released_drafts') && procedure.statementSubmitted > 0"
+      >
         <h3 class="u-m-0 inline">
           <i
             class="c-publicindex__icon-content fa fa-comment-o"
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
           <span class="sr-only">
             {{ Translator.trans('statements.submitted.institution') }}
           </span>
@@ -71,12 +77,14 @@
         <h3 class="u-mb-0_25 weight--normal">
           <i
             class="c-publicindex__icon-content fa fa-file-text-o"
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
           {{ Translator.trans('information.short') }}
         </h3>
         <p
           v-if="hasDescription"
-          v-cleanhtml="procedure.externalDescription" />
+          v-cleanhtml="procedure.externalDescription"
+        />
         <p v-else>
           {{ Translator.trans('information.short.empty') }}
         </p>
@@ -86,11 +94,13 @@
     <a
       class="weight--bold no-underline block"
       data-cy="toProcedureDetail"
-      :href="Routing.generate('DemosPlan_procedure_public_detail', { procedure: procedure.id })">
+      :href="Routing.generate('DemosPlan_procedure_public_detail', { procedure: procedure.id })"
+    >
       {{ Translator.trans('procedure.view') }}
       <i
         class="c-publicindex__icon-action fa fa-chevron-circle-right"
-        aria-hidden="true" />
+        aria-hidden="true"
+      />
     </a>
   </div>
 </template>
@@ -110,20 +120,20 @@ export default {
      * The "v-scroller" directive sets max-height on an element so that it does not exceed the viewport,
      * then it applies a utility class that makes that container scrollable.
      */
-    scroller: Scroller
+    scroller: Scroller,
   },
 
   props: {
     procedure: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
 
   computed: Object.assign({
     hasDescription () {
       return this.procedure.externalDescription !== ''
-    }
-  }, SharedMethods)
+    },
+  }, SharedMethods),
 }
 </script>

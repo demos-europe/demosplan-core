@@ -1,4 +1,4 @@
-import { checkResponse, dpRpc } from '@demos-europe/demosplan-ui'
+import { dpRpc } from '@demos-europe/demosplan-ui'
 
 export default async function loadAddonComponents (hookName) {
   while (window.dplan.loadedAddons[hookName] === 'pending') {
@@ -12,17 +12,17 @@ export default async function loadAddonComponents (hookName) {
   window.dplan.loadedAddons[hookName] = 'pending'
 
   const params = {
-    hookName
+    hookName,
   }
 
   return await dpRpc('addons.assets.load', params)
-    .then(response => checkResponse(response))
-    .then(response => {
-      const result = response[0].result
+    .then(({ data }) => {
+      const result = data[0].result
       const addons = []
 
       for (const key of Object.keys(result)) {
         const addon = result[key]
+
         if (addon === undefined) {
           /*
            * If for some reason we don't receive a valid response object from the backend
@@ -31,6 +31,7 @@ export default async function loadAddonComponents (hookName) {
           console.debug('Skipping addon hook response evaluation for ' + key)
           continue
         }
+
         const contentKey = addon.entry + '.umd.js'
         const content = addon.content[contentKey]
 
@@ -38,13 +39,12 @@ export default async function loadAddonComponents (hookName) {
          * While eval is generally a BAD IDEA, we really need to evaluate the code
          * we're adding dynamically to use the provided addon's script from now on.
          */
-        // eslint-disable-next-line no-eval
         eval(content)
 
         addons.push({
           entry: content,
           name: addon.entry,
-          options: addon.options ?? ''
+          options: addon.options ?? '',
         })
       }
 

@@ -162,7 +162,12 @@ class StatementSynchronizer
         $newOriginalStatement->setSubmitTypeTranslated($sourceStatement->getSubmitTypeTranslated());
         $newOriginalStatement->setMapFile($sourceStatement->getMapFile());
         $newOriginalStatement->setSubmit($sourceStatement->getSubmitObject()->add(new DateInterval('PT1S')));
-        $newOriginalStatement->setExternId($sourceStatement->getExternId());
+        $newOriginalStatement->setExternId(
+            $this->statementService->getNextValidExternalIdForProcedure(
+                $targetProcedure->getId(),
+                true
+            )
+        );
         $newOriginalStatement->setProcedure($targetProcedure);
         $newOriginalStatement->setOrganisation($sourceStatement->getOrganisation());
         $newOriginalStatement->setManual($sourceStatement->isManual());
@@ -171,7 +176,7 @@ class StatementSynchronizer
         $newOriginalStatement->setText($sourceStatement->getText());
         $newOriginalStatement->setSend($sourceStatement->getSend());
         $newOriginalStatement->setAnonymous($sourceStatement->isAnonymous());
-        $newOriginalStatement->setPhase($sourceStatement->getPhase());
+        $newOriginalStatement->setPhaseDefinition($sourceStatement->getPhaseDefinition());
         $newOriginalStatement->setMemo($sourceStatement->getMemo());
         // This may be useless information in the target procedure, but copying the value
         // from the source procedure seems like the most resilient thing to do in case

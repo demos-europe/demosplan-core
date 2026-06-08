@@ -2,14 +2,24 @@
 fos_elastica:
     clients:
         default:
-            connections: '%elasticsearch_urls%'
+            # Updated for Elasticsearch 8 compatibility
+            hosts: '%elasticsearch_urls%'
             connection_strategy: RoundRobin
+            username: '%env(default:elasticsearch_user:ELASTICSEARCH_USERNAME)%'
+            password: '%env(default:elasticsearch_pass:ELASTICSEARCH_PASSWORD)%'
+            # Add SSL configuration if needed
+            client_config: '%elasticsearch_client_config%'
+            # Add other client options if needed
+            # client_options:
+            #    timeout: 30
+            #    retries: 2
     indexes:
         statementSegments:
             index_name: '%project_prefix%_segments'
             settings:
                 number_of_shards: "%elasticsearch_number_of_shards%"
                 number_of_replicas: "%elasticsearch_number_of_replicas%"
+                max_result_window: "%elasticsearch_max_result_window%"
                 analysis:
                     char_filter:
                         remove_filename_extension:
@@ -23,10 +33,6 @@ fos_elastica:
                         stemmer_german:
                             type: "stemmer"
                             language: "light_german"
-                        icu_filter:
-                            type: icu_collation
-                            language: de
-                            country: DE
                         min_length_filter:
                             type: length
                             min: 2
@@ -118,6 +124,7 @@ fos_elastica:
             settings:
                 number_of_shards: "%elasticsearch_number_of_shards%"
                 number_of_replicas: "%elasticsearch_number_of_replicas%"
+                max_result_window: "%elasticsearch_max_result_window%"
                 analysis:
                     filter:
                         stop_german:
@@ -126,10 +133,6 @@ fos_elastica:
                         stemmer_german:
                             type: "stemmer"
                             language: "light_german"
-                        icu_filter:
-                            type: icu_collation
-                            language: de
-                            country: DE
                         min_length_filter:
                             type: length
                             min: 3
@@ -148,10 +151,6 @@ fos_elastica:
                                 - stemmer_german
                                 - unique
                                 - asciifolding
-                        ducet_sort:
-                            tokenizer: keyword
-                            filter:
-                                - icu_filter
             properties:
                 name:
                     type: text
@@ -166,13 +165,15 @@ fos_elastica:
                         rawSort: {type: icu_collation_keyword}
                         text: {type: text, analyzer: customHTMLGerman}
                 orgaId: {type: keyword, index: true}
-                phase: {type: keyword, index: true}
+                phaseDefinitionId: {type: keyword, index: true}
+                phaseOrderInAudience: {type: integer, index: true}
                 phasePermissionset: {type: keyword, index: true}
                 startDate: {type: keyword, index: true}
                 startDateTimestamp: {type: long, index: true}
                 endDate: {type: keyword, index: true}
                 endDateTimestamp: {type: long, index: true}
-                publicParticipationPhase: {type: keyword, index: true}
+                publicParticipationPhaseDefinitionId: {type: keyword, index: true}
+                publicParticipationPhaseOrderInAudience: {type: integer, index: true}
                 publicParticipationPhasePermissionset: {type: keyword, index: true}
                 publicParticipationStartDate: {type: keyword, index: true}
                 publicParticipationStartDateTimestamp: {type: long, index: true}
@@ -226,6 +227,7 @@ fos_elastica:
             settings:
                 number_of_shards: "%elasticsearch_number_of_shards%"
                 number_of_replicas: "%elasticsearch_number_of_replicas%"
+                max_result_window: "%elasticsearch_max_result_window%"
                 analysis:
                     filter:
                         stop_german:
@@ -234,10 +236,6 @@ fos_elastica:
                         stemmer_german:
                             type: "stemmer"
                             language: "light_german"
-                        icu_filter:
-                            type: icu_collation
-                            language: de
-                            country: DE
                         min_length_filter:
                             type: length
                             min: 2
@@ -273,6 +271,7 @@ fos_elastica:
                 pId: {type: keyword, index: true}
                 uId: {type: keyword, index: true}
                 elementId: {type: keyword, index: true}
+                authorOnly: {type: boolean }
                 deleted: {type: boolean }
                 released: {type: boolean }
                 submitted: {type: boolean }
@@ -290,6 +289,7 @@ fos_elastica:
             settings:
                 number_of_shards: "%elasticsearch_number_of_shards%"
                 number_of_replicas: "%elasticsearch_number_of_replicas%"
+                max_result_window: "%elasticsearch_max_result_window%"
                 analysis:
                     char_filter:
                         remove_filename_extension:
@@ -303,10 +303,6 @@ fos_elastica:
                         stemmer_german:
                             type: "stemmer"
                             language: "light_german"
-                        icu_filter:
-                            type: icu_collation
-                            language: de
-                            country: DE
                         min_length_filter:
                             type: length
                             min: 2
@@ -373,25 +369,25 @@ fos_elastica:
                         postalCode: { type: keyword, index: false }
                         city: { type: keyword, index: false }
                 procedureId: {type: keyword, index: true}
-                phase: {type: keyword, index: true}
-                polygon: {type: text, index: true}
-                file: {type: keyword, index: true}
+                phaseDefinitionId: {type: keyword, index: true}
+                polygon: {type: text, index: false}
+                file: {type: keyword, index: false}
                 files: {type: text, index: true}
-                fileNames: {type: text, index: true}
-                mapFile: {type: keyword, index: true}
-                movedStatementId: {type: keyword, index: true}
-                movedToProcedureId: {type: keyword, index: true}
-                movedFromProcedureId: {type: keyword, index: true}
-                movedToProcedureName: {type: text, index: true}
-                movedFromProcedureName: {type: text, index: true}
+                fileNames: {type: text, index: false}
+                mapFile: {type: keyword, index: false}
+                movedStatementId: {type: keyword, index: false}
+                movedToProcedureId: {type: keyword, index: false}
+                movedFromProcedureId: {type: keyword, index: false}
+                movedToProcedureName: {type: text, index: false}
+                movedFromProcedureName: {type: text, index: false}
                 isPlaceholder: {type: boolean, index: true}
-                formerExternId: {type: keyword, index: true}
+                formerExternId: {type: keyword, index: false}
                 status: {type: keyword, index: true}
                 publicStatement: {type: keyword, index: true}
-                publicCheck: {type: keyword, index: true}
+                publicCheck: {type: keyword, index: false}
                 publicAllowed: {type: boolean, index: true}
-                publicVerified: {type: keyword, index: true}
-                publicVerifiedTranslation: {type: keyword, index: true}
+                publicVerified: {type: keyword, index: false}
+                publicVerifiedTranslation: {type: keyword, index: false}
                 priority: {type: keyword, index: true}
                 prioritySort: {type: keyword, index: true}
                 elementId: {type: keyword, index: true}
@@ -470,6 +466,7 @@ fos_elastica:
                 headStatementId: {type: keyword, index: true}
                 isClusterStatement: { type: boolean }
                 votesNum: { type: integer, null_value: 0 }
+                numberOfAnonymVotes: { type: integer, null_value: 0 }
                 voteStk: {type: keyword, index: true}
                 votePla: {type: keyword, index: true}
                 likesNum: { type: integer, null_value: 0 }
@@ -661,6 +658,7 @@ fos_elastica:
             settings:
                 number_of_shards: "%elasticsearch_number_of_shards%"
                 number_of_replicas: "%elasticsearch_number_of_replicas%"
+                max_result_window: "%elasticsearch_max_result_window%"
                 analysis:
                     char_filter:
                         remove_filename_extension:
@@ -674,10 +672,6 @@ fos_elastica:
                         stemmer_german:
                             type: "stemmer"
                             language: "light_german"
-                        icu_filter:
-                            type: icu_collation
-                            language: de
-                            country: DE
                         min_length_filter:
                             type: length
                             min: 2
@@ -700,10 +694,6 @@ fos_elastica:
                                 - stemmer_german
                                 - unique
                                 - asciifolding
-                        ducet_sort:
-                            tokenizer: keyword
-                            filter:
-                                - icu_filter
                         file_name:
                             type: custom
                             char_filter: remove_filename_extension
@@ -913,6 +903,7 @@ fos_elastica:
             settings:
                 number_of_shards: "%elasticsearch_number_of_shards%"
                 number_of_replicas: "%elasticsearch_number_of_replicas%"
+                max_result_window: "%elasticsearch_max_result_window%"
             properties:
                 id: {type: keyword, index: true}
                 name:

@@ -7,13 +7,13 @@
  * All rights reserved
  */
 
-import { createLocalVue } from '@vue/test-utils'
-import Statement from '.@DpJs/store/statement/Statement'
-import Vuex from 'vuex'
+import { createApp } from 'vue'
+import { createStore } from 'vuex'
+import Statement from '@DpJs/store/statement/Statement'
 
-const localVue = createLocalVue()
-localVue.use(Vuex)
+const localVue = createApp({})
 let StubStore
+
 global.Vue = localVue
 
 // Non-instance tests
@@ -32,7 +32,7 @@ describe('Statement', () => {
 
 describe('StatementStore', () => {
   beforeEach(() => {
-    StubStore = new Vuex.Store({})
+    StubStore = createStore({})
     StubStore.registerModule('Statement', Statement)
   })
 
@@ -40,6 +40,7 @@ describe('StatementStore', () => {
     expect(Object.keys(StubStore.state.Statement.statements)).toHaveLength(0)
 
     const statement = { id: '123-456-234' }
+
     StubStore.commit('Statement/addStatement', statement)
     expect(Object.keys(StubStore.state.Statement.statements)).toHaveLength(1)
   })

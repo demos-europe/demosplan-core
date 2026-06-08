@@ -16,7 +16,10 @@
 @if not index($dp-skip-components, 'c-proceduresearch') {
     .c-proceduresearch {
         &__heading {
-            padding-left: 0; // this erases the padding-left of .layout__item but not the one on .o-page__padded
+            // Reset padding for layout__item, but not for o-page__padded
+            &.layout__item:not(.o-page__padded) {
+                padding-left: 0;
+            }
             color: $dp-color-highlight !important;
 
             @include media-query('palm') {
@@ -51,7 +54,7 @@
         &__search-field {
             flex-grow: 1;
             max-width: calc(100% - 24px);
-            min-width: calc(37.5% - 24px); // Does not solve the "jumpy" behavior of DpAutocomplete/vue-omnibox, but diminishes it.
+            min-width: calc(37.5% - 24px);
         }
 
         &__search-btn {

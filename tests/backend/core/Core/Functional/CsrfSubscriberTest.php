@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Functional;
 
-use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\EventSubscriber\CsrfSubscriber;
+use demosplan\DemosPlanCoreBundle\Logic\HeaderSanitizerService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,6 +30,7 @@ class CsrfSubscriberTest extends FunctionalTestCase
     private ?CsrfTokenManagerInterface $csrfTokenManager;
     private ?MessageBagInterface $messageBag;
     private ?LoggerInterface $logger;
+    private ?HeaderSanitizerService $headerSanitizer;
 
     protected function setUp(): void
     {
@@ -37,6 +38,7 @@ class CsrfSubscriberTest extends FunctionalTestCase
         $this->csrfTokenManager = $this->createMock(CsrfTokenManagerInterface::class);
         $this->messageBag = $this->createMock(MessageBagInterface::class);
         $this->logger = $this->createMock(LoggerInterface::class);
+        $this->headerSanitizer = new HeaderSanitizerService();
     }
 
     /**
@@ -44,8 +46,6 @@ class CsrfSubscriberTest extends FunctionalTestCase
      */
     public function testOnKernelRequestWithValidToken($method): void
     {
-        $globalConfig = self::$container->get(GlobalConfigInterface::class);
-
         // Set up a valid token
         $validToken = new CsrfToken('token_id', 'valid_token');
         $this->csrfTokenManager->expects($this->once())
@@ -59,7 +59,7 @@ class CsrfSubscriberTest extends FunctionalTestCase
             ->willReturn(true);
 
         // Create a subscriber with the mocked dependencies
-        $subscriber = new CsrfSubscriber($this->csrfTokenManager, $this->messageBag, $this->logger, $globalConfig);
+        $subscriber = new CsrfSubscriber($this->csrfTokenManager, $this->messageBag, $this->logger, $this->headerSanitizer);
 
         // Create a request event with a request and a valid token
         $request = new Request([], ['_token' => 'valid_token'], [], [], [], ['REQUEST_URI' => '/some-uri', 'REQUEST_METHOD' => $method]);
@@ -85,7 +85,7 @@ class CsrfSubscriberTest extends FunctionalTestCase
         $this->assertEquals(0, $messages);
 
         // Create a subscriber with the mocked dependencies
-        $subscriber = new CsrfSubscriber($this->csrfTokenManager, $messageBag, $this->logger);
+        $subscriber = new CsrfSubscriber($this->csrfTokenManager, $messageBag, $this->logger, $this->headerSanitizer);
 
         // Create a request event with a request and a missing token
         $request = new Request([], [], [], [], [], ['REQUEST_URI' => '/some-uri', 'REQUEST_METHOD' => $method]);
@@ -103,7 +103,7 @@ class CsrfSubscriberTest extends FunctionalTestCase
         $messageBag = new MessageBag($this->createMock(TranslatorInterface::class));
         // get messages to ensure that they are empty
         $messageBag->get();
-        $subscriber = new CsrfSubscriber($this->csrfTokenManager, $messageBag, $this->logger);
+        $subscriber = new CsrfSubscriber($this->csrfTokenManager, $messageBag, $this->logger, $this->headerSanitizer);
         // Create a request event with a request and a missing token
         $request = new Request([], [], [], [], [], ['REQUEST_URI' => '/some-uri', 'REQUEST_METHOD' => 'GET']);
         $event = new RequestEvent($this->createMock(KernelInterface::class), $request, 1);

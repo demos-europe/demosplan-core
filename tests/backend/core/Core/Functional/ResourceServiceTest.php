@@ -44,10 +44,10 @@ class ResourceServiceTest extends FunctionalTestCase
         parent::setUp();
 
         /* @var JsonApiActionService sut */
-        $this->sut = self::$container->get(JsonApiActionService::class);
-        $this->conditionFactory = self::$container->get(DqlConditionFactory::class);
-        $this->statementResourceType = self::$container->get(StatementResourceType::class);
-        $this->orgaResourceType = self::$container->get(OrgaResourceType::class);
+        $this->sut = self::getContainer()->get(JsonApiActionService::class);
+        $this->conditionFactory = self::getContainer()->get(DqlConditionFactory::class);
+        $this->statementResourceType = self::getContainer()->get(StatementResourceType::class);
+        $this->orgaResourceType = self::getContainer()->get(OrgaResourceType::class);
     }
 
     /**
@@ -72,7 +72,7 @@ class ResourceServiceTest extends FunctionalTestCase
 
         $expected = $this->getStatementReference('testStatement');
         /** @var CurrentProcedureService $currentProcedureService */
-        $currentProcedureService = self::$container->get(CurrentProcedureService::class);
+        $currentProcedureService = self::getContainer()->get(CurrentProcedureService::class);
         $currentProcedureService->setProcedure($expected->getProcedure());
         $actual = $this->statementResourceType->getEntity($expected->getId());
 
@@ -93,7 +93,7 @@ class ResourceServiceTest extends FunctionalTestCase
 
         $expected = $this->getStatementReference('testStatement');
         /** @var CurrentProcedureService $currentProcedureService */
-        $currentProcedureService = self::$container->get(CurrentProcedureService::class);
+        $currentProcedureService = self::getContainer()->get(CurrentProcedureService::class);
         $currentProcedureService->setProcedure($expected->getProcedure());
 
         self::assertSame('Max Mustermann', $expected->getAuthorName());
@@ -153,7 +153,7 @@ class ResourceServiceTest extends FunctionalTestCase
 
         $expected = $this->getStatementReference('testStatement');
         /** @var CurrentProcedureService $currentProcedureService */
-        $currentProcedureService = self::$container->get(CurrentProcedureService::class);
+        $currentProcedureService = self::getContainer()->get(CurrentProcedureService::class);
         $currentProcedureService->setProcedure($expected->getProcedure());
 
         self::assertEmpty($expected->getSegmentsOfStatement());

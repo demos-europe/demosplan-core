@@ -18,10 +18,10 @@ import { dpValidate } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 
 const stores = {
-  assessmentTable: AssessmentTableStore
+  assessmentTable: AssessmentTableStore,
 }
 const components = {
-  DpCreateStatementFragment
+  DpCreateStatementFragment,
 }
 
 initialize(components, stores).then(() => {
@@ -30,6 +30,7 @@ initialize(components, stores).then(() => {
   // To Disable Submit Button after Form Validate
   dpValidate()
   const fragmentSubmitButton = document.getElementById('fragmentSubmitButton')
+
   document.addEventListener('customValidationPassed', function (e) {
     fragmentSubmitButton.disabled = true
   })

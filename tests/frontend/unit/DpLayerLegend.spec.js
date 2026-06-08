@@ -7,29 +7,31 @@
  * All rights reserved
  */
 
+import { createStore } from 'vuex'
 import DpLayerLegend from '@DpJs/components/map/publicdetail/controls/legendList/DpLayerLegend'
 import LayersStore from '@DpJs/store/map/Layers'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
-import Vuex from 'vuex'
 
 describe('DpLayerLegend', () => {
   let wrapper
   let store
 
   beforeEach(() => {
-    store = new Vuex.Store({
+    store = createStore({
       modules: {
-        Layers: LayersStore
-      }
+        Layers: LayersStore,
+      },
     })
 
     wrapper = shallowMountWithGlobalMocks(DpLayerLegend, {
-      store,
-      propsData: {
+      props: {
         layersWithLegendFiles: [],
         planPdf: {},
-        procedureId: '123'
-      }
+        procedureId: '123',
+      },
+      global: {
+        plugins: [store],
+      },
     })
   })
 

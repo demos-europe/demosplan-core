@@ -30,7 +30,7 @@ abstract class CoreCommand extends Command
      */
     protected $parameterBag;
 
-    public function __construct(ParameterBagInterface $parameterBag, string $name = null)
+    public function __construct(ParameterBagInterface $parameterBag, ?string $name = null)
     {
         parent::__construct($name);
         $this->parameterBag = $parameterBag;
@@ -65,7 +65,7 @@ abstract class CoreCommand extends Command
         try {
             $output = new MultiplexedOutput(
                 [
-                $output,
+                    $output,
                     new NativeFileOutput(
                         DemosPlanPath::getRootPath("logs/{$logFilename}"),
                         FileOutputInterface::WRITE_MODE_RESET
@@ -87,7 +87,7 @@ abstract class CoreCommand extends Command
         InputInterface $input,
         OutputInterface $output,
         $enableLogging = true,
-        $logFilename = 'command.log'
+        $logFilename = 'command.log',
     ): SymfonyStyle {
         $output = $this->getLoggingOutput($output, $enableLogging, $logFilename);
 

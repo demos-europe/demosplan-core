@@ -6,8 +6,6 @@
  *
  * All rights reserved
  */
-
-import { createLocalVue } from '@vue/test-utils'
 import NewTagForm from '@DpJs/components/procedure/admin/InstitutionTagManagement/NewTagForm'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
@@ -15,39 +13,40 @@ describe('NewTagForm', () => {
   let wrapper
 
   beforeEach(() => {
-    const localVue = createLocalVue()
     wrapper = shallowMountWithGlobalMocks(NewTagForm, {
-      localVue,
-      propsData: {
+      props: {
         tagCategories: [
           {
             id: 1,
             name: 'Category 1',
-            children: [{ name: 'Existing Tag' }]
-          }
-        ]
-      }
+            children: [{ name: 'Existing Tag' }],
+          },
+        ],
+      },
     })
   })
 
   it('returns false when tag name is not unique within the same category', () => {
     const result = wrapper.vm.isTagNameUnique('Existing Tag', 1)
+
     expect(result).toBe(false)
   })
 
   it('returns true when tag name is unique within the same category', () => {
     const result = wrapper.vm.isTagNameUnique('New Tag', 1)
+
     expect(result).toBe(true)
   })
 
   it('returns true when tag name is not unique but in a different category', () => {
     const result = wrapper.vm.isTagNameUnique('Existing Tag', 2)
+
     expect(result).toBe(true)
   })
 
   it('resets the form and emits close event when resetNewTagForm is called', () => {
     wrapper.setData({
-      newTag: { name: 'Test Tag', category: 1 }
+      newTag: { name: 'Test Tag', category: 1 },
     })
     wrapper.vm.resetNewTagForm()
     expect(wrapper.vm.newTag).toEqual({})

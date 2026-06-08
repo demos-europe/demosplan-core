@@ -32,7 +32,8 @@
         {% endif %}
 
         {% set filters = [] %}
-        {% for filter in templateVars.definition.interfaceFilters|default([])|filter(filter => hasPermission(filter.permission)) %}
+        {% set interfaceFilters = templateVars.definition.interfaceFilters ?? []  %}
+        {% for filter in interfaceFilters|filter(filter => hasPermission(filter.permission)) %}
             {% set options = [] %}
             {% for filterOption in filter.values|default([]) %}
                 {% set options = options|merge([{ label: filterOption.label, value: filterOption.value }]) %}

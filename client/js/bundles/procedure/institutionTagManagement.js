@@ -17,13 +17,13 @@ import InstitutionTagManagement from '@DpJs/components/procedure/admin/Instituti
 const components = { InstitutionTagManagement }
 
 const stores = {
-  FilterFlyout: FilterFlyoutStore
+  FilterFlyout: FilterFlyoutStore,
 }
 
 const apiStores = [
   'InstitutionTag',
   'InstitutionTagCategory',
-  'InvitableInstitution'
+  'InvitableInstitution',
 ]
 
 initialize(components, stores, apiStores)

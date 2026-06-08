@@ -48,7 +48,7 @@ const updateElement = function (element) {
 }
 
 const Scroller = {
-  inserted: function (element) {
+  mounted: function (element) {
     setTimeout(updateElement.bind(null, element), 60)
     window.addEventListener('resize', throttle(updateElement.bind(null, element), 60))
 
@@ -57,14 +57,15 @@ const Scroller = {
      * ResizeObserver does not trigger anymore even if its content changes.
      */
     const contextMutationObserver = new MutationObserver(updateElement.bind(null, element))
+
     contextMutationObserver.observe(element, {
       childList: true,
-      subtree: true
+      subtree: true,
     })
   },
-  unbind: function () {
+  unmounted: function () {
     window.removeEventListener('resize', updateElement)
-  }
+  },
 }
 
 export default Scroller

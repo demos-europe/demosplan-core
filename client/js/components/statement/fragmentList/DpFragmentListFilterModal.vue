@@ -14,24 +14,24 @@ export default {
   name: 'DpFragmentListFilterModal',
   components: {
     DpModal,
-    DpMultiselect
+    DpMultiselect,
   },
   props: {
     filters: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
     appliedFilters: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
     permissionFields: {
       type: Object,
       required: false,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
   data () {
     return {
@@ -44,8 +44,8 @@ export default {
         countyNames: [],
         tagNames: [],
         elementId: [],
-        paragraphId: []
-      }
+        paragraphId: [],
+      },
     }
   },
   computed: {
@@ -53,37 +53,40 @@ export default {
       const groups = {
         submissionFilters: {
           groupLabel: 'submission',
-          values: this.filters.filter(el => el.name !== 'elementId' && el.name !== 'paragraphId')
+          values: this.filters.filter(el => el.name !== 'elementId' && el.name !== 'paragraphId'),
         },
         documentFilters: {
           groupLabel: 'plandocument',
-          values: this.filters.filter(el => el.name === 'elementId' || el.name === 'paragraphId')
-        }
+          values: this.filters.filter(el => el.name === 'elementId' || el.name === 'paragraphId'),
+        },
       }
 
       // Set correct permissions for some filter fields
       Object.values(groups).forEach(group => group.values.forEach(el => {
         const permissionsToCheck = this.permissionFields[el.name]
+
         el.hasPermission = permissionsToCheck ? permissionsToCheck.every(permission => hasPermission(permission.replace(/([-_]\w)/g, g => g[1].toUpperCase()))) : true
       }))
 
       return groups
-    }
+    },
   },
 
   methods: {
     stripRaw (string) {
       return string.split('.raw').join('')
-    }
+    },
   },
 
   mounted () {
     // On mounted set initially selected filters by taking applied filters and finding the correct multiselect option in all options
     this.appliedFilters.forEach(filter => {
       const foundFilterInAllOptions = this.filters.find(el => el.name === filter.field)
+
       if (foundFilterInAllOptions) {
         const foundFilterValues = foundFilterInAllOptions.values
         let initialFilters
+
         if (Array.isArray(foundFilterValues)) {
           initialFilters = foundFilterValues.filter(val => filter.value.includes(val.value)) || filter.value
         } else if (typeof foundFilterValues === 'object') {
@@ -95,6 +98,6 @@ export default {
         this.userSelection[this.stripRaw(filter.field)] = initialFilters
       }
     })
-  }
+  },
 }
 </script>

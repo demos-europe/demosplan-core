@@ -20,7 +20,7 @@ export default class ProcedureCharts {
       MovedStatements: this.initSankeyDiagram('#movedStatements'),
       StatementNewCountDonut: initDonutChart('#statementNewCount', '#statementNewCountLegend'),
       StatementProcessingCountDonut: initDonutChart('#statementProcessingCount', '#statementProcessingCount'),
-      StatementCompletedCountDonut: initDonutChart('#statementCompletedCount', '#statementCompletedCountLegend')
+      StatementCompletedCountDonut: initDonutChart('#statementCompletedCount', '#statementCompletedCountLegend'),
     }
   }
 
@@ -35,6 +35,7 @@ export default class ProcedureCharts {
       const cssColorClasses = JSON.parse(element.getAttribute('data-colors'))
 
       const colors = {}
+
       for (const color in cssColorClasses) {
         colors[color] = getColorFromCSS(cssColorClasses[color])
       }
@@ -44,20 +45,21 @@ export default class ProcedureCharts {
        * (we need the copy (fake-node) to have a box instead of a line)
        */
       const data = {}
+
       data.nodes = [{
         title: currentProcedureTitle,
-        id: currentProcedureId
+        id: currentProcedureId,
       },
       {
         title: ' ',
-        id: 'fake-node'
+        id: 'fake-node',
       }]
       data.links = [{
         source: currentProcedureId,
         target: 'fake-node',
         value: currentProcedureStatementsTotal,
         linkTitle: Translator.trans('statement.sum', { count: currentProcedureStatementsTotal }),
-        color: colors.current
+        color: colors.current,
       }]
 
       /*
@@ -70,6 +72,7 @@ export default class ProcedureCharts {
         } else {
           el.title = el.title + ' (' + el.value + ')'
         }
+
         data.nodes.push(el)
 
         const link = {
@@ -78,7 +81,7 @@ export default class ProcedureCharts {
           value: el.value,
           direction: 'r',
           linkTitle: el.title + ' --> ' + currentProcedureTitle,
-          color: colors.toThisProcedure
+          color: colors.toThisProcedure,
         }
 
         data.links.push(link)
@@ -94,6 +97,7 @@ export default class ProcedureCharts {
         } else {
           el.title = el.title + ' (' + el.value + ')'
         }
+
         data.nodes.push(el)
 
         const link = {
@@ -102,7 +106,7 @@ export default class ProcedureCharts {
           value: el.value,
           direction: 'l',
           linkTitle: currentProcedureTitle + ' --> ' + el.title,
-          color: colors.fromThisProcedure
+          color: colors.fromThisProcedure,
         }
 
         data.links.push(link)
@@ -112,6 +116,7 @@ export default class ProcedureCharts {
       const diagramWidth = 400
       const heightMultiplier = 20
       const trasholdHeight = diagramHeight / heightMultiplier
+
       if (movedStatements.fromThisProcedure.total > trasholdHeight || movedStatements.toThisProcedure.total > trasholdHeight) {
         if (movedStatements.fromThisProcedure.total > movedStatements.toThisProcedure.total) {
           diagramHeight = movedStatements.fromThisProcedure.total * heightMultiplier
@@ -126,7 +131,7 @@ export default class ProcedureCharts {
         target: elementId,
         data,
         dimensions: diagramDimensions,
-        colors
+        colors,
       })
     }
   }

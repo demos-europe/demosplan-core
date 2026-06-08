@@ -7,8 +7,7 @@
  * All rights reserved
  */
 
-import { checkResponse, dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-ui'
-import { del, set } from 'vue'
+import { dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { transformJsonApiToPi, transformPiToJsonApi } from './storeHelpers/SplitStatementStore/PiTagsToJSONApi'
 import { transformHTMLPositionsToProsemirrorPositions } from './storeHelpers/SplitStatementStore/HTMLIdxToProsemirrorIdx'
 
@@ -44,19 +43,21 @@ const SplitStatementStore = {
     statementText: null,
     statementId: '',
     tagTopics: [],
-    uncategorizedTags: []
+    uncategorizedTags: [],
   },
 
   mutations: {
     deleteSegment (state, id) {
       const index = state.segments.findIndex((el) => el.id === id)
+
       if (index >= 0) {
-        del(state.segments, index)
+        state.segments.splice(index, 1)
       }
     },
 
     locallyDeleteSegments (state, deletedSegmentIds) {
       const updatedSegments = state.segments.filter(segment => !deletedSegmentIds.includes(segment.id))
+
       state.segments = updatedSegments
     },
 
@@ -90,8 +91,9 @@ const SplitStatementStore = {
 
     replaceSegment (state, { id, newSegment }) {
       const oldSegmentIndex = state.segments.findIndex((el) => el.id === id)
+
       if (oldSegmentIndex >= 0) {
-        set(state.segments, oldSegmentIndex, newSegment)
+        state.segments.oldSegmentIndex = newSegment
       }
     },
 
@@ -99,12 +101,12 @@ const SplitStatementStore = {
       state.segments = state.initialSegments
     },
 
-    setProperty (state, data) {
-      set(state, data.prop, data.val)
+    setProperty (state, { prop, val }) {
+      state[prop] = val
     },
 
     setStatementSegmentDraftList (state, segmentDraftList) {
-      set(state.statement.attributes, 'segmentDraftList', segmentDraftList || null)
+      state.statement.attributes.segmentDraftList = segmentDraftList || null
     },
 
     /**
@@ -112,28 +114,30 @@ const SplitStatementStore = {
      * Add, replace or delete a property
      * @param data  {Object}  needs this format: { prop: 'propToUpdate', obj: { resourceObject } }
      */
-    updateProperty (state, data) {
-      const titleIdx = state[data.prop].findIndex(el => el.attributes.title === data.obj.attributes.title)
-      const idIdx = state[data.prop].findIndex(el => el.id === data.obj.id)
+    updateProperty (state, { prop, obj }) {
+      const titleIdx = state[prop].findIndex(el => el.attributes.title === obj.attributes.title)
+      const idIdx = state[prop].findIndex(el => el.id === obj.id)
 
       // If neither id nor title exist, add element
       if (idIdx < 0 && titleIdx < 0) {
-        set(state[data.prop], state[data.prop].length, data.obj)
+        state[prop][state[prop].length] = obj
       } else if (idIdx < 0 && titleIdx >= 0) {
         // If title exists, but id doesn't, replace element
-        set(state[data.prop], titleIdx, data.obj)
+        state[prop][titleIdx] = obj
       } else if (idIdx >= 0 && titleIdx >= 0) {
         // If id and title exist, delete element
-        del(state[data.prop], idIdx)
+        state[prop].splice(idIdx, 1)
       }
-    }
+    },
   },
 
   actions: {
     acceptSegmentProposal ({ state, commit, dispatch }) {
       const id = state.currentlyHighlightedSegmentId
+
       if (id) {
         const segment = state.segments.find((el) => el.id === id)
+
         if (typeof segment !== 'undefined') {
           const segmentCopy = JSON.parse(JSON.stringify(segment))
 
@@ -160,17 +164,17 @@ const SplitStatementStore = {
         data: {
           type: 'Tag',
           attributes: {
-            title: tag.title
+            title: tag.title,
           },
           relationships: {
             topic: {
               data: {
                 id: topicId,
-                type: 'TagTopic'
-              }
-            }
-          }
-        }
+                type: 'TagTopic',
+              },
+            },
+          },
+        },
       }))
 
       const response = await dpApi.post(Routing.generate('api_resource_create', { resourceType: 'Tag' }), {}, { data: payload.data })
@@ -181,10 +185,10 @@ const SplitStatementStore = {
           topic: {
             data: {
               id: topicId,
-              type: 'TagTopic'
-            }
-          }
-        }
+              type: 'TagTopic',
+            },
+          },
+        },
       }
     },
 
@@ -193,17 +197,17 @@ const SplitStatementStore = {
         data: {
           type: 'TagTopic',
           attributes: {
-            title: topic.title
+            title: topic.title,
           },
           relationships: {
             procedure: {
               data: {
                 id: state.procedureId,
-                type: 'Procedure'
-              }
-            }
-          }
-        }
+                type: 'Procedure',
+              },
+            },
+          },
+        },
       }
 
       return dpApi.post(Routing.generate('api_resource_create', { resourceType: 'TagTopic' }), {}, { data: payload.data })
@@ -223,39 +227,17 @@ const SplitStatementStore = {
         resourceId: state.statementId,
         fields: {
           Statement: [
-            'segmentDraftList'
-          ].join()
-        }
+            'segmentDraftList',
+          ].join(),
+        },
       }))
         .then(({ data }) => {
           if (!hasOwnProp(data.data.attributes.segmentDraftList, 'data')) {
             return []
           }
-          const initialData = data.data.attributes.segmentDraftList.data
-          let segments = initialData.attributes.segments
-            /*
-             * Filter out segments with less than 10 characters as those may lead the frontend to crash
-             * (because often that are closing or opening tags)
-             * and should probably not be needed in a real world scenario.
-             */
-            .filter(segment => (segment.charEnd - segment.charStart) > 10)
 
-          // Check if we are getting overlapping segments from pipeline that would cause errors
-          if (doUpdate) {
-            for (let i = 0; i < segments.length; i++) {
-              for (let j = i + 1; j < segments.length; j++) {
-                // Check for overlap
-                if (
-                  (segments[i].charStart > segments[j].charStart && segments[i].charStart < segments[j].charEnd) ||
-                  (segments[j].charStart > segments[i].charStart && segments[j].charStart < segments[i].charEnd)
-                ) {
-                  // Overlapping segments found
-                  segments = []
-                  dplan.notify.notify('error', Translator.trans('error.split_statement.segments'))
-                }
-              }
-            }
-          }
+          const initialData = data.data.attributes.segmentDraftList.data
+          const segments = initialData.attributes.segments
 
           commit('setProperty', { prop: 'initialData', val: initialData })
           commit('setProperty', { prop: 'initialSegments', val: segments })
@@ -279,6 +261,7 @@ const SplitStatementStore = {
            * cause misalignment of segments.
            */
           const haveProsemirrorIndexing = typeof segments.find(segment => segment.hasProsemirrorIndex === true) !== 'undefined'
+
           if (haveProsemirrorIndexing === false && doUpdate === true) {
             commit('recalculatePositionsInText')
             dispatch('persistProsemirrorIndexing')
@@ -286,6 +269,7 @@ const SplitStatementStore = {
 
           const segmentTags = state.segments.reduce((acc, seg) => {
             const tagNames = seg.tags || []
+
             return [...acc, ...tagNames]
           }, [])
 
@@ -307,6 +291,7 @@ const SplitStatementStore = {
 
       return Promise.all([segments, tags]).then(([segmentTags, tags]) => {
         let pendingPiTags = []
+
         segmentTags.forEach(tag => {
           if (tags.indexOf(tag.tagName) === -1) {
             pendingPiTags.push(tag)
@@ -317,15 +302,17 @@ const SplitStatementStore = {
           // We need to replace PI generated tag ids with dplan tag ids
           segment.tags = segment.tags.map(tag => {
             const dplanTag = state.categorizedTags.find(t => t.attributes.title === tag.tagName)
+
             if (dplanTag) {
               return {
                 ...tag,
-                id: dplanTag.id
+                id: dplanTag.id,
               }
             } else {
               return tag
             }
           })
+
           return segment
         })
 
@@ -333,7 +320,9 @@ const SplitStatementStore = {
         pendingPiTags = transformPiToJsonApi(pendingPiTags)
 
         const mergedTags = [...state.uncategorizedTags, ...pendingPiTags]
+          .sort((a, b) => a.attributes.title.localeCompare(b.attributes.title, undefined, { numeric: true, sensitivity: 'base' }))
         const availableTags = [...state.availableTags, ...pendingPiTags]
+
         commit('setProperty', { prop: 'uncategorizedTags', val: mergedTags })
         commit('setProperty', { prop: 'availableTags', val: availableTags })
       })
@@ -361,11 +350,11 @@ const SplitStatementStore = {
             'segmentDraftList',
             'submitDate',
             'submitName',
-            'submitType'
-          ].join()
-        }
+            'submitType',
+          ].join(),
+        },
       }))
-        .then((response) => {
+        .then(response => {
           commit('setProperty', { prop: 'statement', val: response.data.data })
         })
     },
@@ -376,20 +365,27 @@ const SplitStatementStore = {
         resourceId: statementId || state.statementId,
         fields: {
           Statement: [
-            'segmentDraftList'
-          ].join()
-        }
+            'segmentDraftList',
+          ].join(),
+        },
       }))
     },
 
     fetchTags ({ commit }) {
       const url = Routing.generate('api_resource_list', { resourceType: 'Tag' })
-      return dpApi.get(url, { include: 'topic' })
+
+      return dpApi.get(url, { include: 'topic', sort: 'sortIndex' })
         .then(response => {
           const tags = response.data
+
           commit('setProperty', { prop: 'availableTags', val: tags.data })
 
+          const sortByTitle = (a, b) => a.attributes.title.localeCompare(b.attributes.title, undefined, { numeric: true, sensitivity: 'base' })
+
           const tagTopics = tags.included.filter((el) => el.type === 'TagTopic')
+
+          tagTopics.sort(sortByTitle)
+
           commit('setProperty', { prop: 'tagTopics', val: tagTopics })
 
           const { uncategorizedTags, categorizedTags } = tags.data.reduce((acc, tag) => {
@@ -398,8 +394,12 @@ const SplitStatementStore = {
             } else if (tag.relationships) {
               return { ...acc, uncategorizedTags: [...acc.uncategorizedTags, tag] }
             }
+
             return acc
           }, { uncategorizedTags: [], categorizedTags: [] })
+
+          // Categorized tags keep the backend sortIndex order; only uncategorized tags fall back to alphabetical
+          uncategorizedTags.sort(sortByTitle)
 
           commit('setProperty', { prop: 'uncategorizedTags', val: uncategorizedTags })
           commit('setProperty', { prop: 'categorizedTags', val: categorizedTags })
@@ -412,6 +412,7 @@ const SplitStatementStore = {
       const segments = JSON.parse(JSON.stringify(state.segments))
       const indexedSegments = segments.map(segment => {
         segment.hasProsemirrorIndex = true
+
         return segment
       })
 
@@ -424,18 +425,22 @@ const SplitStatementStore = {
 
     saveSegmentsDrafts ({ state, dispatch }, triggerNotifications = false) {
       const dataToSend = JSON.parse(JSON.stringify(state.initialData))
+
+      dataToSend.attributes.textualReference = state.initText
       dataToSend.attributes.segments = state.segments
       const payload = {
         id: state.statementId,
         type: 'Statement',
-        attributes: {}
+        attributes: {},
       }
+
       payload.attributes.segmentDraftList = {
-        data: dataToSend
+        data: dataToSend,
       }
+
       return dpApi.patch(Routing.generate('api_resource_update', {
         resourceType: 'Statement',
-        resourceId: state.statementId
+        resourceId: state.statementId,
       }), {}, { data: payload })
         .then((response) => {
           dispatch('fetchInitialData', false)
@@ -451,27 +456,37 @@ const SplitStatementStore = {
 
     saveSegmentsFinal ({ dispatch, state, commit }) {
       const dataToSend = JSON.parse(JSON.stringify(state.initialData))
+
       dataToSend.attributes.segments = state.segmentsWithText
       dataToSend.attributes.statementText = state.statementText
 
-      return dpApi.post(Routing.generate('dplan_drafts_list_confirm', { statementId: state.statementId, procedureId: state.procedureId }), {}, { data: dataToSend })
-        .then(checkResponse)
-        .then((response) => {
-          if (response.data.nextStatementId !== '') {
+      return dpApi.post(Routing.generate('dplan_drafts_list_confirm', {
+        statementId: state.statementId,
+        procedureId: state.procedureId,
+      }), {}, { data: dataToSend })
+        .then(response => {
+          if (response.data.data.nextStatementId !== '') {
             const form = document.createElement('form')
-            const path = Routing.generate('dplan_drafts_list_claim', { statementId: response.data.nextStatementId, procedureId: state.procedureId })
+            const path = Routing.generate('dplan_drafts_list_claim', {
+              statementId: response.data.data.nextStatementId,
+              procedureId: state.procedureId,
+            })
+
             form.setAttribute('action', path)
             form.setAttribute('method', 'post')
             document.body.appendChild(form)
+
             form.submit()
           } else {
             window.location.href = Routing.generate('DemosPlan_procedure_dashboard', { procedure: state.procedureId })
           }
+
           return Promise.resolve(true)
         })
         .catch((err) => {
           // Reset view to last saved data - set segments from last initial data
           commit('setProperty', { prop: 'segments', val: state.initialSegments })
+
           return Promise.reject(err)
         })
     },
@@ -489,8 +504,8 @@ const SplitStatementStore = {
           procedureId: state.procedureId,
           segments: [],
           statementId: state.statementId,
-          textualReference: state.statement.attributes.fullText
-        }
+          textualReference: state.statement.attributes.fullText,
+        },
       }
 
       commit('setProperty', { prop: 'initialData', val: initialData })
@@ -517,9 +532,11 @@ const SplitStatementStore = {
       } else if (idIdx >= 0 && titleIdx >= 0) {
         // If id and tagName exist, delete tag
         const tags = [...newEditingSegment.tags]
+
         tags.splice(idIdx, 1)
         newEditingSegment.tags = tags
       }
+
       commit('setProperty', { prop: 'editingSegment', val: newEditingSegment })
       commit('locallyUpdateSegments', [newEditingSegment])
     },
@@ -531,7 +548,7 @@ const SplitStatementStore = {
     splitStatementAction ({ state }, id) {
       dpRpc('segment.statement', { statementId: id })
         .catch(err => console.error(err))
-    }
+    },
   },
 
   getters: {
@@ -557,8 +574,8 @@ const SplitStatementStore = {
     tagTopics: (state) => state.tagTopics,
     tagsByCategoryId: (state) => (categoryId) => state.categorizedTags.filter(tag => tag.relationships.topic.data.id === categoryId),
     uncategorizedTagById: (state) => (id) => state.uncategorizedTags.find((el) => el.id === id),
-    uncategorizedTags: (state) => state.uncategorizedTags
-  }
+    uncategorizedTags: (state) => state.uncategorizedTags,
+  },
 }
 
 export default SplitStatementStore

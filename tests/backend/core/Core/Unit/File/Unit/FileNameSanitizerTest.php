@@ -24,7 +24,7 @@ class FileNameSanitizerTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->sut = static::$container->get(FileService::class);
+        $this->sut = self::getContainer()->get(FileService::class);
     }
 
     /**

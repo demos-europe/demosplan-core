@@ -58,7 +58,7 @@ class UserServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(UserService::class);
+        $this->sut = self::getContainer()->get(UserService::class);
         $this->testUser = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
         $this->testOrgaFp = $this->fixtures->getReference('testOrgaFP');
         $this->testDepartment = $this->fixtures->getReference('testDepartment');
@@ -221,6 +221,61 @@ class UserServiceTest extends FunctionalTestCase
             'password'      => md5('myPassword2'),
         ];
         $user = $this->sut->addUser($data);
+    }
+
+    public function testFindDistinctUserByEmailOrLoginFindsUserByExactLogin(): void
+    {
+        $data = [
+            'email'     => 'find-test@example.de',
+            'firstname' => 'FindTest',
+            'lastname'  => 'User',
+            'login'     => 'findTestLogin',
+            'password'  => md5('password'),
+        ];
+        $createdUser = $this->sut->addUser($data);
+
+        $foundUser = $this->sut->findDistinctUserByEmailOrLogin('findTestLogin');
+        static::assertInstanceOf(User::class, $foundUser);
+        static::assertEquals($createdUser->getId(), $foundUser->getId());
+    }
+
+    public function testFindDistinctUserByEmailOrLoginFindsUserByLoginCaseInsensitive(): void
+    {
+        $data = [
+            'email'     => 'case-login-test@example.de',
+            'firstname' => 'CaseTest',
+            'lastname'  => 'User',
+            'login'     => 'caseLoginTest',
+            'password'  => md5('password'),
+        ];
+        $createdUser = $this->sut->addUser($data);
+
+        $foundUser = $this->sut->findDistinctUserByEmailOrLogin('CASELOGINTEST');
+        static::assertInstanceOf(User::class, $foundUser);
+        static::assertEquals($createdUser->getId(), $foundUser->getId());
+    }
+
+    public function testFindDistinctUserByEmailOrLoginFindsUserByEmailCaseInsensitive(): void
+    {
+        $data = [
+            'email'     => 'Case.Email@Example.DE',
+            'firstname' => 'EmailCase',
+            'lastname'  => 'User',
+            'login'     => 'emailCaseUniqueLogin',
+            'password'  => md5('password'),
+        ];
+        $createdUser = $this->sut->addUser($data);
+
+        // Search by email with different casing (login won't match)
+        $foundUser = $this->sut->findDistinctUserByEmailOrLogin('case.email@example.de');
+        static::assertInstanceOf(User::class, $foundUser);
+        static::assertEquals($createdUser->getId(), $foundUser->getId());
+    }
+
+    public function testFindDistinctUserByEmailOrLoginReturnsFalseForNonExistentUser(): void
+    {
+        $result = $this->sut->findDistinctUserByEmailOrLogin('nonexistent-user-' . uniqid() . '@example.de');
+        static::assertFalse($result);
     }
 
     public function testAddUserWithAddress()
@@ -477,7 +532,7 @@ class UserServiceTest extends FunctionalTestCase
             'emailReviewerAdmin' => 'newEmailReviewerAdmin@mine.de',
         ];
         $orga = $this->sut->updateOrga($this->testOrgaFp->getId(), $data);
-        $contentService = self::$container->get(ContentService::class);
+        $contentService = self::getContainer()->get(ContentService::class);
         $existingSetting = $contentService->getSettings(
             'submissionType',
             SettingsFilter::whereOrga($this->testOrgaFp)->lock(),
@@ -888,7 +943,7 @@ class UserServiceTest extends FunctionalTestCase
     public function testGetParticipatingOrganisations()
     {
         /** @var OrgaService $orgaService */
-        $orgaService = self::$container->get(OrgaService::class);
+        $orgaService = self::getContainer()->get(OrgaService::class);
         $publicAgencyTestId = $this->getOrgaReference('testOrgaInvitableInstitution')->getId();
 
         $countOrgas = $this->countEntries(Orga::class, ['showname' => true, 'showlist' => true, 'deleted' => false]);

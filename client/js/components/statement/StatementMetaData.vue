@@ -18,16 +18,19 @@
       :memo="statement.attributes.memo || '-'"
       :submit-name="submitName"
       :submit-type="submitType"
-      :location="location" />
+      :location="location"
+    />
   </div>
 </template>
 
 <script>
 const convertDate = (dateString) => {
   const date = dateString.split('T')[0].split('-')
+
   if (date.length > 1) {
     return date[2] + '.' + date[1] + '.' + date[0]
   }
+
   return date[0]
 }
 
@@ -37,14 +40,14 @@ export default {
   props: {
     statement: {
       type: Object,
-      required: true
+      required: true,
     },
 
     submitTypeOptions: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   computed: {
@@ -58,19 +61,24 @@ export default {
 
     location () {
       let locationString = ''
+
       if (this.statement.attributes.initialOrganisationStreet) {
         locationString += this.statement.attributes.initialOrganisationStreet
         if (this.statement.attributes.initialOrganisationHouseNumber) {
           locationString += ' ' + this.statement.attributes.initialOrganisationHouseNumber
         }
+
         locationString += ', '
       }
+
       if (this.statement.attributes.initialOrganisationPostalCode) {
         locationString += this.statement.attributes.initialOrganisationPostalCode + ' '
       }
+
       if (this.statement.attributes.initialOrganisationCity) {
         locationString += this.statement.attributes.initialOrganisationCity
       }
+
       return locationString !== '' ? locationString : '-'
     },
 
@@ -82,9 +90,11 @@ export default {
       if (!this.statement.attributes.submitType) {
         return '-'
       }
+
       const option = this.submitTypeOptions.find(option => option.value === this.statement.attributes.submitType)
+
       return option ? Translator.trans(option.label) : ''
-    }
-  }
+    },
+  },
 }
 </script>

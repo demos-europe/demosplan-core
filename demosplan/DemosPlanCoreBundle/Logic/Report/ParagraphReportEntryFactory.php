@@ -32,21 +32,18 @@ class ParagraphReportEntryFactory extends AbstractReportEntryFactory
             'relatedElementCategory'    => $paragraph->getElement()->getCategory(), // eg map, file, statement, paragraph, ..
             'relatedElementTitle'       => $paragraph->getElement()->getTitle(), // eg Fehlanzeige, Begründung, Ergänzende Unterlagen, Planzeichnung
             'visible'                   => $paragraph->getVisible(),
-            'keyOfInternalPhase'        => $paragraph->getProcedure()->getPhase(),
-            'keyOfEternalPhase'         => $paragraph->getProcedure()->getPublicParticipationPhase(),
-            //The translation of the time the report is created is the important one, not the key
-            'nameOfInternalPhase'       => $paragraph->getProcedure()->getPhaseName(),
-            'nameOfExternalPhase'       => $paragraph->getProcedure()->getPublicParticipationPhaseName(),
+            'nameOfInternalPhase'       => $paragraph->getProcedure()->getPhaseObject()->getPhaseDefinition()->getName(),
+            'nameOfExternalPhase'       => $paragraph->getProcedure()->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName(),
         ];
     }
 
     public function createParagraphEntry(
         Paragraph $paragraph,
         string $reportCategory,
-        int $date = null
+        ?int $date = null,
     ): ReportEntry {
         $data = $this->createMessageData($paragraph);
-        $data['date'] = null === $date ? Carbon::now()->getTimestamp() : $date;
+        $data['date'] = $date ?? Carbon::now()->getTimestamp();
         $reportEntry = $this->createReportEntry();
         $reportEntry->setUser($this->getCurrentUser());
         $reportEntry->setGroup(ReportEntry::GROUP_PARAGRAPH);

@@ -2,8 +2,10 @@
     <td>
         {% if hasPermission('feature_admin_delete_procedure') %}
             <input
+                aria-label="{{ 'master.select'|trans({'name': procedure.name|default('ohne Name')}) }}"
                 name="procedure_selected[]"
                 type="checkbox"
+                data-checkable-item=""
                 data-cy="ListMasters"
                 value="{% if procedure.ident is defined %}{{ procedure.ident }}{% else %}{{ "notspecified"|trans }}{% endif %}">
         {% endif %}

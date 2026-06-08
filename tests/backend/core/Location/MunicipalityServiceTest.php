@@ -25,7 +25,7 @@ class MunicipalityServiceTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(MunicipalityService::class);
+        $this->sut = self::getContainer()->get(MunicipalityService::class);
     }
 
     public function testGetAllMunicipalities()

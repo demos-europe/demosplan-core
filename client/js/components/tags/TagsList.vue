@@ -4,7 +4,8 @@
 
     <tags-create-form
       :is-master-procedure="isMasterProcedure"
-      :procedure-id="procedureId" />
+      :procedure-id="procedureId"
+    />
 
     <dp-tree-list
       v-if="transformedCategories"
@@ -22,17 +23,19 @@
         }
       }"
       :branch-identifier="isBranch"
-      @draggable:change="changeTopic">
+      @end="handleTagReorder"
+    >
       <template v-slot:header>
         <div class="flex">
           <div class="ml-4 flex-1">
             {{ Translator.trans('topic.or.tag') }}
           </div>
+
+          <addon-wrapper hook-name="tag.extend.form" />
+
           <div class="ml-1 flex-0 w-9">
             {{ Translator.trans('boilerplates') }}
           </div>
-
-          <addon-wrapper hook-name="tag.extend.form" />
 
           <div class="ml-1 flex-0 w-8 text-right">
             {{ Translator.trans('actions') }}
@@ -49,7 +52,8 @@
           @abort="closeEditForm"
           @delete="deleteItem"
           @edit="setEditState"
-          @save="save" />
+          @save="save"
+        />
       </template>
       <template v-slot:leaf="{ nodeElement }">
         <tag-list-edit-form
@@ -60,7 +64,8 @@
           @abort="closeEditForm"
           @delete="deleteItem"
           @edit="setEditState"
-          @save="save" />
+          @save="save"
+        />
       </template>
     </dp-tree-list>
 
@@ -68,16 +73,16 @@
 
     <tags-import-form
       class="mb-1"
-      :procedure-id="procedureId" />
+      :procedure-id="procedureId"
+    />
   </div>
 </template>
 
 <script>
 import {
-  checkResponse,
   DpLoading,
   dpRpc,
-  DpTreeList
+  DpTreeList,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
@@ -95,139 +100,186 @@ export default {
     TagsCreateForm,
     TagsImportForm,
     TagListEditForm,
-    TagsListHeader
+    TagsListHeader,
   },
 
   props: {
     isMasterProcedure: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     procedureId: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
 
   data () {
     return {
       dataIsRequested: false,
-      isInEditState: ''
+      isInEditState: '',
     }
   },
 
   computed: {
     ...mapState('Tag', {
-      Tag: 'items'
+      Tag: 'items',
     }),
     ...mapState('TagTopic', {
-      TagTopic: 'items'
+      TagTopic: 'items',
     }),
 
     transformedCategories () {
-      return Object.values(this.TagTopic).map(category => {
-        const { attributes, id, relationships, type } = category
-        const tags = category.relationships?.tags?.data.length > 0 ? category.relationships.tags.list() : []
+      // Sort topics naturally (handles numbers: "1, 2, 3, 11, 12" instead of "1, 11, 12, 2, 3")
+      return Object.values(this.TagTopic)
+        .sort((a, b) => a.attributes.title.localeCompare(b.attributes.title, undefined, { numeric: true, sensitivity: 'base' }))
+        .map(category => {
+          const { attributes, id, relationships, type } = category
+          const tags = category.relationships?.tags?.data.length > 0 ? Object.values(category.relationships.tags.list()) : []
 
-        return {
-          id,
-          attributes,
-          children: Object.values(tags).map(tag => {
-            const { attributes, id, relationships, type } = tag
-            const boilerplate = relationships?.boilerplate?.get ? relationships.boilerplate.get() : null
+          return {
+            id,
+            attributes,
+            children: tags.map(tag => {
+              const { attributes, id, relationships, type } = tag
+              const boilerplate = relationships?.boilerplate?.get ? relationships.boilerplate.get() : null
 
-            return {
-              attributes,
-              id,
-              relationships: { boilerplate },
-              type
-            }
-          }),
-          relationships,
-          type
-        }
-      })
-    }
+              return {
+                attributes,
+                id,
+                relationships: { boilerplate },
+                type,
+              }
+            }),
+            relationships,
+            type,
+          }
+        })
+    },
   },
 
   methods: {
     ...mapMutations('Tag', {
-      updateTag: 'setItem'
+      updateTag: 'setItem',
     }),
 
     ...mapMutations('TagTopic', {
-      updateTagTopic: 'setItem'
+      updateTagTopic: 'setItem',
     }),
 
     ...mapActions('Tag', {
       createTag: 'create',
       listTags: 'list',
-      saveTag: 'save'
+      saveTag: 'save',
     }),
 
     ...mapActions('TagTopic', {
       createTagTopic: 'create',
       listTagTopics: 'list',
-      saveTagTopic: 'save'
+      saveTagTopic: 'save',
     }),
+
+    // Apply tagList.reorder RPC response — sync sortIndex in the Tag store for every changed tag
+    applyReorderResponse (response) {
+      const result = response.data[0].result
+
+      for (const [id, { sortIndex }] of Object.entries(result)) {
+        const tag = this.Tag[id]
+
+        if (tag) {
+          this.updateTag({
+            ...tag,
+            attributes: { ...tag.attributes, sortIndex },
+          })
+        }
+      }
+
+      dplan.notify.confirm(Translator.trans('confirm.saved'))
+    },
 
     closeEditForm () {
       this.isInEditState = ''
     },
 
-    addTagToNewTopic (parentTopic, tagId) {
-      this.updateTagTopic({
-        id: parentTopic.id,
-        type: 'TagTopic',
-        attributes: parentTopic.attributes,
-        relationships: parentTopic.relationships
-          ? {
-              ...parentTopic.relationships,
-              tags: {
-                data: parentTopic.relationships.tags.data.concat({
-                  type: 'Tag',
-                  id: tagId
-                })
-              }
-            }
-          : {
-              tags: {
-                data: [{ type: 'Tag', id: tagId }]
-              }
-            }
-      })
+    // Persist cross-topic move via tagList.reorder RPC — optimistic update on both topics + rollback
+    crossTopicReorder (tagId, newIndex, targetTopicId) {
+      const newParent = this.TagTopic[targetTopicId]
 
-      this.saveTagTopic(parentTopic.id)
-    },
-
-    changeTopic ({ elementId, parentId }) {
-      if (!parentId) {
-        console.error('No parentId provided:', { elementId, parentId })
-
+      if (!newParent) {
         return
       }
 
-      const hasNewParent = !this.TagTopic[parentId].relationships?.tags.data.find(tag => tag.id === elementId)
+      const oldParent = Object.values(this.TagTopic).find(topic =>
+        topic.relationships?.tags.data.some(tag => tag.id === tagId),
+      )
 
-      if (hasNewParent) {
-        const parentTopic = { ...this.TagTopic[parentId] }
-        const oldParent = Object.values(this.TagTopic).find(topic => topic.relationships?.tags.data.find(tag => tag.id === elementId))
-
-        this.addTagToNewTopic(parentTopic, elementId)
-        this.removeTagFromOldTopic(oldParent, elementId)
-      } else {
-        dplan.notify.notify('warning', Translator.trans('tags.can.only.be.moved.to.topics'))
+      if (!oldParent) {
+        return
       }
+
+      const oldSourceData = [...oldParent.relationships.tags.data]
+      const oldTargetData = [...(newParent.relationships?.tags?.data || [])]
+
+      const newSourceData = oldSourceData.filter(tag => tag.id !== tagId)
+      const newTargetData = [...oldTargetData]
+
+      newTargetData.splice(newIndex, 0, { type: 'Tag', id: tagId })
+
+      this.updateTagTopic({
+        id: oldParent.id,
+        type: 'TagTopic',
+        attributes: oldParent.attributes,
+        relationships: { ...oldParent.relationships, tags: { data: newSourceData } },
+      })
+
+      this.updateTagTopic({
+        id: newParent.id,
+        type: 'TagTopic',
+        attributes: newParent.attributes,
+        relationships: { ...newParent.relationships, tags: { data: newTargetData } },
+      })
+
+      dpRpc('tagList.reorder', { tagId, topicId: targetTopicId, newIndex })
+        .then((response) => this.applyReorderResponse(response))
+        .catch(error => {
+          console.error(error)
+          this.updateTagTopic({
+            id: oldParent.id,
+            type: 'TagTopic',
+            attributes: oldParent.attributes,
+            relationships: { ...oldParent.relationships, tags: { data: oldSourceData } },
+          })
+          this.updateTagTopic({
+            id: newParent.id,
+            type: 'TagTopic',
+            attributes: newParent.attributes,
+            relationships: { ...newParent.relationships, tags: { data: oldTargetData } },
+          })
+          dplan.notify.error(Translator.trans('error.changes.not.saved'))
+        })
     },
 
     deleteItem (item) {
       dpRpc('bulk.delete.tags.and.topics', { ids: [item] })
-        .then(checkResponse)
         .then(() => {
           this.loadTagsAndTopics()
         })
+    },
+
+    handleTagReorder (event, item, parentId) {
+      if (event.oldIndex === event.newIndex && event.from === event.to) {
+        return
+      }
+
+      const isCrossTopic = event.from !== event.to
+
+      if (isCrossTopic) {
+        this.crossTopicReorder(item.id, event.newIndex, event.to.id)
+      } else {
+        this.reorderTagInTopic(parentId, item.id, event.newIndex)
+      }
     },
 
     isBranch ({ node }) {
@@ -235,46 +287,70 @@ export default {
     },
 
     loadTagsAndTopics () {
-      if (this.dataIsRequested) return
+      if (this.dataIsRequested) {
+        return
+      }
 
       this.dataIsRequested = true
       const topicAttributes = [
         'title',
-        'tags'
+        'tags',
       ]
 
       this.listTagTopics({
         fields: {
-          Tag: ['boilerplate', 'title'].join(),
+          Tag: ['boilerplate', 'sortIndex', 'title'].join(),
           TagTopic: topicAttributes.join(),
           Boilerplate: [
-            'title'
-          ].join()
+            'title',
+          ].join(),
         },
         include: 'tags,tags.boilerplate',
-        sort: 'title'
+        sort: 'title',
       }).then(() => {
         this.dataIsRequested = false
       })
     },
 
-    removeTagFromOldTopic (oldParent, tagId) {
-      const oldParentTags = [...oldParent.relationships?.tags?.data || []]
-      const indexToBeRemoved = oldParentTags.findIndex(el => el.id === tagId)
-      oldParentTags.splice(indexToBeRemoved, 1)
+    // Persist new tag order within a topic — optimistic update + rollback on failure
+    reorderTagInTopic (parentId, tagId, newIndex) {
+      const topic = this.TagTopic[parentId]
 
+      if (!topic) {
+        return
+      }
+
+      const oldTagsData = [...(topic.relationships?.tags?.data || [])]
+      const newTagsData = oldTagsData.filter(tag => tag.id !== tagId)
+
+      newTagsData.splice(newIndex, 0, { type: 'Tag', id: tagId })
+
+      // Optimistic UI update
       this.updateTagTopic({
-        id: oldParent.id,
-        attributes: oldParent.attributes,
+        id: topic.id,
         type: 'TagTopic',
+        attributes: topic.attributes,
         relationships: {
+          ...topic.relationships,
           tags: {
-            data: oldParentTags
-          }
-        }
+            data: newTagsData,
+          },
+        },
       })
 
-      this.saveTagTopic(oldParent.id)
+      dpRpc('tagList.reorder', { tagId, topicId: parentId, newIndex })
+        .then((response) => this.applyReorderResponse(response))
+        .catch(error => {
+          console.error(error)
+          // Rollback
+          this.updateTagTopic({
+            id: topic.id,
+            type: 'TagTopic',
+            attributes: topic.attributes,
+            relationships: { ...topic.relationships, tags: { data: oldTagsData } },
+          })
+          dplan.notify.error(Translator.trans('error.changes.not.saved'))
+        })
     },
 
     save ({ id, attributes, type, isTitleChanged }) {
@@ -291,7 +367,7 @@ export default {
         attributes,
         id,
         relationships: this[type][id]?.relationships,
-        type
+        type,
       })
       this[saveMethod](id)
         .then(() => {
@@ -301,11 +377,11 @@ export default {
 
     setEditState ({ id }) {
       this.isInEditState = id
-    }
+    },
   },
 
   mounted () {
     this.loadTagsAndTopics()
-  }
+  },
 }
 </script>

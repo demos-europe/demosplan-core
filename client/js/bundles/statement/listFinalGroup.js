@@ -20,11 +20,11 @@ import Tabs from '@DpJs/lib/statement/Tabs'
 
 const components = {
   DpMapModal,
-  DpPublicStatementList
+  DpPublicStatementList,
 }
 
 const stores = {
-  publicStatement
+  publicStatement,
 }
 
 const setTabFromHash = () => {
@@ -42,6 +42,7 @@ const setTabFromHash = () => {
     titles[1].classList.remove(prefixClass('is-active-tab'))
   }
 }
+
 initialize(components, stores).then(() => {
   Tabs()
 

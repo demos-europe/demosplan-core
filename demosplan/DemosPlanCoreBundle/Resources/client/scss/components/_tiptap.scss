@@ -218,6 +218,10 @@
 
             font-size: .9em;
 
+            .lt-error {
+                border-bottom: 1px solid $dp-color-status-failed-border;
+            }
+
             div[contenteditable='true'] {
                 height: 100%;
                 overflow-y: auto;
@@ -421,7 +425,7 @@
         white-space: nowrap;
         overflow: hidden;
         padding: 0;
-        box-shadow: $dp-box-shadow;
+        box-shadow: $dp-box-shadow-sm;
     }
 
     &__list-item {
@@ -458,4 +462,11 @@
         list-style: decimal;
     }
 }
+
+// Focus style for the editor when any of its children has focus
+.editor:focus-within {
+    outline: 2px solid $dp-color-interactive-default;
+}
+
+
 

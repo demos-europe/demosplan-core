@@ -37,12 +37,12 @@
                     </span>
                     <select name="r_limit" data-pager-select>
                         {% for limit in templateVars.pager.limits|default([25]) %}
-                            {% if limit < templateVars.totalResults|default(0) %}
+                            {% if limit <= templateVars.totalResults|default(0) %}
                                 <option {% if templateVars.limitResults|default(0) == limit %}selected{% endif %}>{{ limit }}</option>
                             {% endif %}
                         {% endfor %}
-                        {% if showAll == true %}
-                            <option value="{{ templateVars.totalResults|default(0) }}" {% if templateVars.limitResults|default(0) == templateVars.totalResults|default(0) %}selected{% endif %}>alle</option>
+                        {% if showAll == true or (templateVars.totalResults|default(0) not in templateVars.pager.limits|default([25]) and templateVars.totalResults|default(0) < (templateVars.pager.limits|default([25])|last)) %}
+                            <option value="{{ templateVars.totalResults|default(0) }}" {% if templateVars.limitResults|default(0) == templateVars.totalResults|default(0) %}selected{% endif %}>{{ templateVars.totalResults|default(0) }}</option>
                         {% endif %}
                     </select>
                     <span aria-hidden="true">

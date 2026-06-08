@@ -635,37 +635,30 @@
 
                         {# set selected option #}
                         {% set procedurePhaseOptions = procedurePhaseOptions|merge([{
-                            label: statement.phase,
+                            label: statement.phaseDefinition.name,
                             value: '',
                             selected: true
                         }]) %}
 
-                        {% set procedurePhaseControlOptions = { name: 'r_phase', options: procedurePhaseOptions } %}
+                        {% set procedurePhaseControlOptions = { name: 'r_phaseDefinitionId', options: procedurePhaseOptions } %}
 
                     {% elseif manualStatement and not readonly %}
-                        {# set all options for optgroups only for edit-mode #}
-                        {% if statement.isSubmittedByCitizen == false and hasPermission('field_show_internal_procedure_phases_in_dropdown') %}
-                            {% set phases = templateVars.internalPhases|default %}
+                        {# set all options for edit-mode #}
+                        {% if statement.isSubmittedByCitizen == false %}
+                            {% set phaseDefinitions = templateVars.internalPhaseDefinitions|default %}
                         {% else %}
-                            {% set phases = templateVars.externalPhases|default %}
+                            {% set phaseDefinitions = templateVars.externalPhaseDefinitions|default %}
                         {% endif %}
 
-                        {% for phase in phases %}
-                            {% if phase.name == statement.phase %}
-                                {% set procedurePhaseOptions = procedurePhaseOptions|merge([{
-                                    label: phase.name,
-                                    value: phase.key,
-                                    selected: true
-                                }]) %}
-                            {% else %}
-                                {% set procedurePhaseOptions = procedurePhaseOptions|merge([{
-                                    label: phase.name,
-                                    value: phase.key
-                                }]) %}
-                            {% endif %}
+                        {% for phaseDefinition in phaseDefinitions %}
+                            {% set procedurePhaseOptions = procedurePhaseOptions|merge([{
+                                label: phaseDefinition.name,
+                                value: phaseDefinition.id,
+                                selected: phaseDefinition.id == statement.phaseDefinition.id
+                            }]) %}
                         {% endfor %}
 
-                        {% set procedurePhaseControlOptions = { name: 'r_phase', options: procedurePhaseOptions } %}
+                        {% set procedurePhaseControlOptions = { name: 'r_phaseDefinitionId', options: procedurePhaseOptions } %}
                     {% endif %}
                         {{ uiComponent('form.row', {
                             elements: [
@@ -706,6 +699,11 @@
                         {% set authoredDateValue = '' %}
                     {% endif %}
 
+                    {# cap authoredDate at submitDate (or today, whichever is earlier) #}
+                    {% set authoredMaxDate = 'now'|date('d.m.Y') %}
+                    {% if statement.submit > 0 and statement.submit < 'now'|date('U') %}
+                        {% set authoredMaxDate = statement.submit|dplanDate() %}
+                    {% endif %}
                     {% set authorDateRowElements = authorDateRowElements|merge([{
                         label: { text: 'statement.date.authored'|trans },
                         control: {
@@ -714,7 +712,7 @@
                             calendarsBefore: 2,
                             class: 'u-5-of-6 o-form__control-wrapper',
                             dataCy: 'statementDetail:authoredDate',
-                            maxDate: 'now'|date('d.m.Y')
+                            maxDate: authoredMaxDate
                         },
                         type: submitDateDisabled|default(false) ? 'text' : 'datepicker',
                         id: 'r_authored_date',
@@ -724,6 +722,11 @@
                     }]) %}
                 {% endif %}
 
+                {# pin submitDate to at least the authoredDate #}
+                {% set submittedMinDate = '' %}
+                {% if statement.meta.authoredDate is defined and statement.meta.authoredDate|dplanDate() != '' %}
+                    {% set submittedMinDate = statement.meta.authoredDate|dplanDate() %}
+                {% endif %}
                 {% set authorDateRowElements = authorDateRowElements|merge([{
                     label: { text: 'statement.date.submitted'|trans },
                     control: {
@@ -732,6 +735,7 @@
                         statement.submit|default()|dplanDate(),
                         calendarsBefore: 2,
                         maxDate: 'now'|date('d.m.Y'),
+                        minDate: submittedMinDate,
                         class: 'u-5-of-6 o-form__control-wrapper',
                         dataCy: 'statementDetail:submittedDate'
                     },
@@ -1196,7 +1200,7 @@
                                 fileupload(
                                     "r_fileupload_source_statement",
                                     "document.attach",
-                                    "all",
+                                    ['.jpg', '.png', '.bmp', '.jpeg', '.zip', '.docx', '.odt', '.pdf', '.txt', '.tiff', '.tif'],
                                     "form.button.upload.file",
                                     1,
                                     true
@@ -1218,7 +1222,7 @@
                                     fileupload(
                                         "r_fileupload",
                                         "documents.attach",
-                                        "all",
+                                        ['.jpg', '.png', '.bmp', '.jpeg', '.zip', '.docx', '.odt', '.pdf', '.txt', '.tiff', '.tif'],
                                         "form.button.upload.files",
                                         20,
                                         true
@@ -1275,7 +1279,7 @@
                                 {{ "location"|trans }}
                             </strong>
                             {% if statement.polygon is defined and statement.polygon != '' %}
-                                <a href="#" @click.prevent.stop="(function(){$refs.mapModal.toggleModal({{ statement.polygon|convertLegacyPolygon|escape('html_attr') }})})()">{{ 'see'|trans }}</a>
+                                <a href="#" @click.prevent.stop="openMapModal({{ statement.polygon|convertLegacyPolygon|escape('html_attr') }})">{{ 'see'|trans }}</a>
                             {% else %}
                                 <span class="layout__item u-3-of-4 color--grey">{{ 'map.no_outline'|trans }}</span>
                             {% endif %}
@@ -1311,13 +1315,13 @@
                                     {{ "counties"|trans }}
                                 </strong>
                                 <dp-multiselect
-                                    v-model="selectedCounties"
+                                    :value="selectedCounties"
                                     class="layout__item u-1-of-1 inline-block"
                                     label="name"
                                     multiple
                                     :options="counties"
                                     track-by="id"
-                                    @input="sortSelected('Counties')">
+                                    @input="handleCountiesInput">
                                     <template v-slot:option="{ props }">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     </template>
@@ -1362,13 +1366,13 @@
                                     {{ "municipalities"|trans }}
                                 </strong>
                                 <dp-multiselect
-                                    v-model="selectedMunicipalities"
+                                    :value="selectedMunicipalities"
                                     class="layout__item u-1-of-1 inline-block"
                                     label="name"
                                     multiple
                                     :options="municipalities"
                                     track-by="id"
-                                    @input="sortSelected('Municipalities')">
+                                    @input="handleMunicipalitiesInput">
                                     <template v-slot:option="{ props }">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     </template>
@@ -1413,13 +1417,13 @@
                                     {{ "priorityArea"|trans }}
                                 </strong>
                                 <dp-multiselect
-                                    v-model="selectedPriorityAreas"
+                                    :value="selectedPriorityAreas"
                                     class="layout__item u-1-of-1 inline-block"
                                     label="name"
                                     multiple
                                     :options="priorityAreas"
                                     track-by="id"
-                                    @input="sortSelected('PriorityAreas')">
+                                    @input="handlePriorityAreasInput">
                                     <template v-slot:option="{ props }">
                                         {% verbatim %}{{ props.option.name }}{% endverbatim %}
                                     </template>

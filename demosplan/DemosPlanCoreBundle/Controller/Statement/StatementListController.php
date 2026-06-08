@@ -14,12 +14,13 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
 use Exception;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class StatementListController extends BaseController
 {
@@ -36,20 +37,20 @@ class StatementListController extends BaseController
         options: ['expose' => true],
         methods: ['GET']
     )]
-    public function readOnlyStatementListAction(
+    public function readOnlyStatementList(
         string $procedureId,
         ProcedureCoupleTokenFetcher $tokenFetcher,
         ProcedureService $procedureService,
     ): Response {
         $procedure = $procedureService->getProcedure($procedureId);
 
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             throw ProcedureNotFoundException::createFromId($procedureId);
         }
 
         $isSourceAndCoupledProcedure = $tokenFetcher->isSourceAndCoupledProcedure($procedure);
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/list_statements.html.twig',
             [
                 'title'          => 'statements',
@@ -73,17 +74,17 @@ class StatementListController extends BaseController
         options: ['expose' => true],
         methods: ['GET']
     )]
-    public function readOnlyOriginalStatementListAction(
+    public function readOnlyOriginalStatementList(
         string $procedureId,
         ProcedureService $procedureService,
     ): Response {
         $procedure = $procedureService->getProcedure($procedureId);
 
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             throw ProcedureNotFoundException::createFromId($procedureId);
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/list_original_statements.html.twig',
             [
                 'title'          => 'statements.original',

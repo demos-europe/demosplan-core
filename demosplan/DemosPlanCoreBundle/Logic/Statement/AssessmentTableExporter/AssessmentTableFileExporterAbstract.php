@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter;
 
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
+use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
@@ -51,6 +52,8 @@ abstract class AssessmentTableFileExporterAbstract
      */
     protected $statementHandler;
 
+    protected RequestStack $requestStack;
+
     public function __construct(
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         CurrentProcedureService $currentProcedureService,
@@ -58,7 +61,8 @@ abstract class AssessmentTableFileExporterAbstract
         TranslatorInterface $translator,
         LoggerInterface $logger,
         RequestStack $requestStack,
-        StatementHandler $statementHandler
+        StatementHandler $statementHandler,
+        protected DocumentWriterSelector $writerSelector,
     ) {
         $this->assessmentHandler = $assessmentHandler;
         $this->assessmentTableOutput = $assessmentTableServiceOutput;
@@ -67,6 +71,7 @@ abstract class AssessmentTableFileExporterAbstract
         $this->session = $requestStack->getSession();
         $this->translator = $translator;
         $this->statementHandler = $statementHandler;
+        $this->requestStack = $requestStack;
     }
 
     /**

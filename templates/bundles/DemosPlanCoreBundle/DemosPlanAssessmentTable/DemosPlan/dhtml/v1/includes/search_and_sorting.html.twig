@@ -21,7 +21,6 @@
             ref="searchModal">
         </search-modal>
 
-        {# The modal is rendered into <portal-target name="vueModals" multiple></portal-target> via vue-portal #}
         <dp-filter-modal
             :applied-filter-options="{{ filters|default({})|json_encode }}"
             view="{{ assessmentTableView|default }}"

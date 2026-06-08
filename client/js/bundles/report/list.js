@@ -19,25 +19,26 @@ const stores = {}
 const components = { DpReportListing }
 
 const presetModules = [
-    'general',
-    'public_phase',
-    'invitations',
-    'register_invitations',
-    'final_mails',
-    'statements',
-    'elements',
-    'single_documents',
-    'paragraphs',
-    'drawings'
+  'general',
+  'public_phase',
+  'invitations',
+  'register_invitations',
+  'final_mails',
+  'statements',
+  'elements',
+  'single_documents',
+  'paragraphs',
+  'drawings',
 ]
   .filter(name => hasPermission('feature_procedure_report_' + name))
   .map(name => {
     const camelName = name.replace(/_([a-z])/g, (match, p1) => p1.toUpperCase())
+
     return {
       name: camelName,
       defaultQuery: {
-        group: camelName
-      }
+        group: camelName,
+      },
     }
   })
 

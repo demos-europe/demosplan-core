@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -26,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use InvalidArgumentException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
@@ -41,6 +43,7 @@ use Webmozart\Assert\Assert;
 use function in_array;
 use function is_string;
 
+#[AsCommand(name: 'dplan:data:generate-customer', description: 'Creates a new customer')]
 class GenerateCustomerCommand extends CoreCommand
 {
     private const OPTION_NAME = 'name';
@@ -48,9 +51,6 @@ class GenerateCustomerCommand extends CoreCommand
     private const MAP_PARAMETERS = 'map-parameters'; // use value 'default' to automatically insert default values
     private const CHOICE_DEFAULT = 'use default';
     private const CHOICE_CUSTOMIZE = 'customize';
-
-    protected static $defaultName = 'dplan:data:generate-customer';
-    protected static $defaultDescription = 'Creates a new customer';
 
     protected QuestionHelper $helper;
 
@@ -130,6 +130,7 @@ class GenerateCustomerCommand extends CoreCommand
             $customer->setMapAttribution($mapParams[2]);
 
             $this->registerDefaultUsers($customer);
+            $this->seedPhaseDefinitions($customer);
             $this->entityManager->flush();
 
             $output->writeln(
@@ -189,6 +190,19 @@ class GenerateCustomerCommand extends CoreCommand
         }
 
         return $subdomain;
+    }
+
+    private function seedPhaseDefinitions(Customer $customer): void
+    {
+        foreach (['internal', 'external'] as $audience) {
+            $definition = new ProcedurePhaseDefinition();
+            $definition->setCustomer($customer);
+            $definition->setName('Konfiguration');
+            $definition->setAudience($audience);
+            $definition->setPermissionSet('hidden');
+            $definition->setOrderInAudience(0);
+            $this->entityManager->persist($definition);
+        }
     }
 
     private function registerDefaultUsers(Customer $customer): void

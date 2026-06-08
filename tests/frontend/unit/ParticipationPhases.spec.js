@@ -6,48 +6,47 @@ describe('ParticipationPhases', () => {
 
   beforeEach(() => {
     wrapper = shallowMountWithGlobalMocks(ParticipationPhases, {
-      propsData: {
+      props: {
         autoswitchHint: 'Here comes a tooltip Hint',
         fieldName: 'some_name',
         helpText: 'Some Help Text',
         labelText: 'I am a Label',
-        participationPhases: ['first', 'second', 'third'],
         permissionMessage: 'Some Message',
         phaseOptions: [{
           label: 'My Label C',
           permissionset: 'read',
-          value: 'first'
+          value: 'first',
         }, {
           label: 'My Label A',
           permissionset: 'write',
-          value: 'fourth'
+          value: 'fourth',
         }, {
           label: 'My Label B',
           permissionset: 'hidden',
-          value: 'fifth'
+          value: 'fifth',
         }],
         initSelectedPhase: 'first',
         iterator: {
           label: 'Iterator Label',
           name: 'iterator_input_name',
           tooltip: 'Tooltip text for the iterator',
-          value: '1'
-        }
-      }
+          value: '1',
+        },
+      },
     })
   })
 
   it('should set the `inParticipation` state correctly depending on whether the selected Phase is a participation phase or not', async () => {
-    expect(wrapper.vm.isInParticipation).toBe(true)
-
-    await wrapper.setData({
-      selectedPhase: 'fourth'
-    })
-
     expect(wrapper.vm.isInParticipation).toBe(false)
 
     await wrapper.setData({
-      selectedPhase: 'noneAtall'
+      selectedPhase: 'fourth',
+    })
+
+    expect(wrapper.vm.isInParticipation).toBe(true)
+
+    await wrapper.setData({
+      selectedPhase: 'noneAtall',
     })
 
     expect(wrapper.vm.isInParticipation).toBe(false)
@@ -57,13 +56,13 @@ describe('ParticipationPhases', () => {
     expect(wrapper.vm.permissionMessageText).toEqual('Some Message permissionset.read')
 
     await wrapper.setData({
-      selectedPhase: 'fifth'
+      selectedPhase: 'fifth',
     })
 
     expect(wrapper.vm.permissionMessageText).toEqual('Some Message permissionset.hidden')
 
     await wrapper.setData({
-      selectedPhase: 'fourth'
+      selectedPhase: 'fourth',
     })
 
     expect(wrapper.vm.permissionMessageText).toEqual('Some Message permissionset.write')
@@ -72,6 +71,7 @@ describe('ParticipationPhases', () => {
   it('should emit the correct value when a new phase is selected', async () => {
     const newPhase = 'newPhase'
     const dpSelect = wrapper.findComponent({ name: 'DpSelect' })
+
     dpSelect.vm.$emit('select', newPhase)
     await wrapper.vm.$nextTick()
     expect(wrapper.emitted('phase:select')[0]).toEqual([newPhase])

@@ -21,7 +21,7 @@ const components = {
   AddonWrapper,
   ElementsAdminList,
   DpMapSettingsPreview,
-  DpUploadFiles
+  DpUploadFiles,
 }
 
 const apiStores = ['Elements']

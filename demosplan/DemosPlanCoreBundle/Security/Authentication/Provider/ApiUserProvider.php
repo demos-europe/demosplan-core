@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -44,9 +46,6 @@ class ApiUserProvider implements UserProviderInterface
         return $user;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function refreshUser(UserInterface $user): UserInterface
     {
         return $this->loadUserByIdentifier($user->getUserIdentifier());
@@ -54,6 +53,7 @@ class ApiUserProvider implements UserProviderInterface
 
     public function supportsClass(string $class): bool
     {
-        return User::class === $class;
+        // Support User class including Doctrine proxies
+        return is_a($class, User::class, true);
     }
 }

@@ -5,7 +5,6 @@ parameters:
     email_system: 'testemail@mail.org'
     avscan_enable: false
     fileservice_filepath: "/tmp/uploads"
-    doctrine.dbal.connection_factory.class: Liip\TestFixturesBundle\Factory\ConnectionFactory
     subdomain: 'hindsight'
     project_prefix: 'dplan_test'
     honeypot_disabled: true

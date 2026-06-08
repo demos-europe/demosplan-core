@@ -13,7 +13,6 @@
  *
  * @returns url {Array<base, params>}
  */
-/* eslint-disable camelcase */
 function changeUrlforPager ({ count, current_page }) {
   const url = window.location.href.split('?')
 
@@ -23,11 +22,13 @@ function changeUrlforPager ({ count, current_page }) {
     } else {
       url[1] = `r_limit=${count}&${url[1]}`
     }
+
     if (url[1].match('page') !== null) {
       url[1] = url[1].replace(/page=(\d*)/g, (hit) => 'page=' + current_page)
     } else {
       url[1] = `page=${current_page}&${url[1]}`
     }
+
     url[1] = url[1].replace(/&$/g, (hit) => '') // Strip trailing &
   } else {
     url[1] = `r_limit=${count}&page=${current_page}`

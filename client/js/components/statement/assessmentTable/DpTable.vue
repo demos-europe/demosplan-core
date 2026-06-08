@@ -10,56 +10,69 @@
 <template>
   <!-- Whenever there is an update to the assessment table, the hash must not be sent to the server -->
   <form
+    v-cloak
     id="start"
-    name="bpform"
+    ref="root"
     :action="Routing.generate('dplan_assessmenttable_view_table', { procedureId: procedureId, filterHash: initFilterHash })"
-    method="post"
     :data-statement-admin-container="procedureId"
-    v-cloak>
+    name="bpform"
+    method="post"
+  >
     <input
       type="hidden"
       name="r_ident"
-      value="">
+      value=""
+    >
     <input
       type="hidden"
       name="r_text"
-      value="">
+      value=""
+    >
     <input
       type="hidden"
       name="r_action"
-      value="">
+      value=""
+    >
     <input
       type="hidden"
       name="r_headStatement"
-      value="">
+      value=""
+    >
     <input
       type="hidden"
       name="r_clusterName"
-      value="">
+      value=""
+    >
 
     <!-- These are set by the export modal, do not remove -->
     <input
       type="hidden"
       name="r_export_format"
-      value="">
+      value=""
+    >
     <input
       type="hidden"
       name="r_export_choice"
-      value="">
+      value=""
+    >
     <input
       type="hidden"
       name="r_view_mode"
-      :value="viewMode">
+      :value="viewMode"
+    >
     <input
       type="hidden"
-      name="searchFields">
+      name="searchFields"
+    >
     <input
       type="hidden"
-      name="currentTableSort">
+      name="currentTableSort"
+    >
 
     <!-- Top pager -->
     <dp-pager
       v-if="pagination.hasOwnProperty('current_page') && hasPermission('feature_assessmenttable_use_pager')"
+      :key="`pager1_${pagination.current_page}_${pagination.count}`"
       :class="{ 'invisible': isLoading }"
       class="u-pt-0_5 text-right u-1-of-1"
       :current-page="pagination.current_page"
@@ -69,7 +82,7 @@
       :limits="pagination.limits"
       @page-change="handlePageChange"
       @size-change="handleSizeChange"
-      :key="`pager1_${pagination.current_page}_${pagination.count}`" />
+    />
 
     <!-- Export modal -->
     <export-modal
@@ -81,43 +94,51 @@
       :procedure-id="procedureId"
       view="assessment_table"
       :view-mode="viewMode"
-      @submit="resetStatementSelection" />
+      @submit="resetStatementSelection"
+    />
 
     <consolidate-modal
       v-if="hasPermission('feature_statement_cluster') && consolidateModal.show"
       :procedure-id="procedureId"
-      @scrollto="scrollAndAnimate" />
+      @scrollto="scrollAndAnimate"
+    />
 
     <copy-statement-modal
       v-if="hasPermission('feature_statement_move_to_procedure') && copyStatementModal.show"
       :accessible-procedures="accessibleProcedures"
       :inaccessible-procedures="inaccessibleProcedures"
-      :procedure-id="procedureId" />
+      :procedure-id="procedureId"
+    />
 
     <dp-move-statement-modal
-      v-if="hasPermission('feature_statement_move_to_procedure')"
+      v-if="hasPermission('feature_statement_move_to_procedure') && moveStatementModal.show"
       :accessible-procedures="accessibleProcedures"
       :inaccessible-procedures="inaccessibleProcedures"
-      :procedure-id="procedureId" />
+      :procedure-id="procedureId"
+    />
 
     <assign-entity-modal
       v-if="hasPermission('feature_statement_assignment') && assignEntityModal.show"
       :procedure-id="procedureId"
       :current-user-id="currentUserId"
-      :authorised-users="authorisedUsers" />
+      :authorised-users="authorisedUsers"
+    />
 
     <dp-map-modal
       ref="mapModal"
-      :procedure-id="procedureId" />
+      :procedure-id="procedureId"
+    />
 
     <!-- filters + sorting -->
     <assessment-table-filter
+      ref="filter"
       :has-changed-statements="hasChangedStatements"
       :assessment-export-options="assessmentExportOptions"
       :sorting-options="sortingOptionsForDropdown"
       :view-mode="viewMode"
-      ref="filter"
-      @handle-sort-change="option => handleSortChange(option)" />
+      @export-modal:toggle="tab => $refs.exportModal.toggleModal(tab)"
+      @handle:sort-change="option => handleSortChange(option)"
+    />
 
     <!-- Version History Slidebar -->
     <dp-slidebar>
@@ -127,64 +148,70 @@
     <!-- If there are statements, display statement list -->
     <dp-loading
       v-if="isLoading"
-      class="u-mt u-ml" />
+      class="u-mt u-ml"
+    />
 
     <ul
       v-if="false === isLoading && hasStatements"
       class="o-list o-list--card u-mb"
-      data-cy="statementList">
+      data-cy="statementList"
+    >
       <!-- The hidden checkboxes are needed for actions that require "real form data", otherwise
       the selected state of at items could also be handled by vuex store. -->
       <li
         v-for="element in selectedElements"
-        :key="`selectedElement:${element.id}`">
+        :key="`selectedElement:${element.id}`"
+      >
         <input
+          :id="element.id + ':item_check[]'"
           class="sr-only"
           name="item_check[]"
           type="checkbox"
-          :id="element.id + ':item_check[]'"
           :checked="true"
           :data-extid="element.extid"
-          :value="element.id">
+          :value="element.id"
+        >
         <div :data-assigned="element.editable" />
       </li>
 
       <li
         v-for="element in selectedFragments"
-        :key="`selectedFragment:${element.id}`">
+        :key="`selectedFragment:${element.id}`"
+      >
         <input
+          :id="element.id + ':item_check[]'"
+          :key="`selectedFragmentInput:${element.id}`"
           class="sr-only"
           name="item_check[]"
           type="checkbox"
-          :key="`selectedFragmentInput:${element.id}`"
-          :id="element.id + ':item_check[]'"
           :checked="true"
-          :value="element.id">
+          :value="element.id"
+        >
         <div :data-assigned="element.assignee.id === currentUserId" />
       </li>
 
       <assessment-table-group-list
         v-if="viewMode === 'view_mode_tag' || viewMode === 'view_mode_elements'"
         :csrf-token="csrfToken"
-        :form-definitions="formDefinitions" />
+        :form-definitions="formDefinitions"
+      />
       <!-- Loop statements in default viewMode -->
-      <template
+      <dp-assessment-table-card
+        v-for="(statement, _, index) in statements"
         v-else
-        v-for="(statement, key, index) in statements">
-        <dp-assessment-table-card
-          :csrf-token="csrfToken"
-          :data-cy="`statementCard:index:${index}`"
-          :ref="'itemdisplay_' + statement.id"
-          :key="`statement:${statement.id}`"
-          class="o-list__item"
-          :init-statement="{}"
-          :statement-procedure-id="statement.procedureId"
-          :statement-id="statement.id"
-          :is-selected="getSelectionStateById(statement.id)"
-          @statement:updated="hasChangedStatements = true"
-          @statement:addToSelection="addToSelectionAction"
-          @statement:removeFromSelection="removeFromSelectionAction" />
-      </template>
+        :ref="'itemdisplay_' + statement.id"
+        :key="`statement:${statement.id}`"
+        class="o-list__item"
+        :csrf-token="csrfToken"
+        :data-cy="`statementCard:index:${index}`"
+        :init-statement="{}"
+        :statement-procedure-id="statement.procedureId"
+        :statement-id="statement.id"
+        :is-selected="getSelectionStateById(statement.id)"
+        @statement:updated="hasChangedStatements = true"
+        @statement:add-to-selection="addToSelectionAction"
+        @statement:remove-from-selection="removeFromSelectionAction"
+      />
     </ul>
 
     <!-- If there are no statements: -->
@@ -193,15 +220,18 @@
         <!-- empty state message with link to list of original statements -->
         <p
           v-if="filterSet.userWarning"
+          v-cleanhtml="Translator.trans(filterSet.userWarning)"
           class="flash flash-warning"
-          v-cleanhtml="Translator.trans(filterSet.userWarning)" />
+        />
 
         <p
           v-else
-          class="flash flash-info">
+          class="flash flash-info"
+        >
           <i
             class="fa fa-info-circle"
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
           {{ Translator.trans('explanation.considerationtable.empty.filtered') }}
           <br>
           <a :href="Routing.generate('dplan_assessmenttable_view_original_table', { procedureId: procedureId, filterHash: initFilterHash })">
@@ -213,7 +243,8 @@
         <p class="flash flash-info">
           <i
             class="fa fa-info-circle"
-            aria-hidden="true" />
+            aria-hidden="true"
+          />
           {{ Translator.trans('statements.none') }}
         </p>
       </template>
@@ -222,6 +253,7 @@
     <!-- bottom pager -->
     <dp-pager
       v-if="pagination.hasOwnProperty('current_page') && hasPermission('feature_assessmenttable_use_pager')"
+      :key="`pager2_${pagination.current_page}_${pagination.count}`"
       :class="{ 'invisible': isLoading }"
       class="u-pb-0_5 text-right"
       :current-page="pagination.current_page"
@@ -231,7 +263,7 @@
       :limits="pagination.limits"
       @page-change="handlePageChange"
       @size-change="handleSizeChange"
-      :key="`pager2_${pagination.current_page}_${pagination.count}`" />
+    />
   </form>
 </template>
 
@@ -240,6 +272,7 @@ import { CleanHtml, DpLoading, DpPager, handleResponseMessages, Stickier } from 
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import AssessmentTableFilter from '@DpJs/components/statement/assessmentTable/AssessmentTableFilter'
 import changeUrlforPager from './utils/changeUrlforPager'
+import { defineAsyncComponent } from 'vue'
 import DpAssessmentTableCard from '@DpJs/components/statement/assessmentTable/DpAssessmentTableCard'
 import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal'
 import { scrollTo } from 'vue-scrollto'
@@ -253,139 +286,140 @@ export default {
   name: 'DpTable',
 
   components: {
-    AssessmentTableGroupList: () => import(/* webpackChunkName: "assessment-table-group-list" */ './TocView/AssessmentTableGroupList'),
+    AssessmentTableGroupList: defineAsyncComponent(() => import(/* webpackChunkName: "assessment-table-group-list" */ './TocView/AssessmentTableGroupList')),
     AssessmentTableFilter,
-    AssignEntityModal: () => import(/* webpackChunkName: "assign-entity-modal" */ '@DpJs/components/statement/assessmentTable/AssignEntityModal'),
-    ConsolidateModal: () => import(/* webpackChunkName: "consolidate-modal" */ '@DpJs/components/statement/assessmentTable/ConsolidateModal'),
-    CopyStatementModal: () => import(/* webpackChunkName: "copy-statement-modal" */ '@DpJs/components/statement/assessmentTable/CopyStatementModal'),
+    AssignEntityModal: defineAsyncComponent(() => import(/* webpackChunkName: "assign-entity-modal" */ '@DpJs/components/statement/assessmentTable/AssignEntityModal')),
+    ConsolidateModal: defineAsyncComponent(() => import(/* webpackChunkName: "consolidate-modal" */ '@DpJs/components/statement/assessmentTable/ConsolidateModal')),
+    CopyStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "copy-statement-modal" */ '@DpJs/components/statement/assessmentTable/CopyStatementModal')),
     ExportModal,
     DpLoading,
-    DpMapModal: () => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal'),
-    DpMoveStatementModal: () => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal'),
+    DpMapModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal')),
+    DpMoveStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal')),
     DpPager,
-    DpSlidebar: async () => {
+    DpSlidebar: defineAsyncComponent(async () => {
       const { DpSlidebar } = await import('@demos-europe/demosplan-ui')
+
       return DpSlidebar
-    },
+    }),
     DpAssessmentTableCard,
-    DpVersionHistory: () => import(/* webpackChunkName: "dp-version-history" */ '@DpJs/components/statement/statement/DpVersionHistory')
+    DpVersionHistory: defineAsyncComponent(() => import(/* webpackChunkName: "dp-version-history" */ '@DpJs/components/statement/statement/DpVersionHistory')),
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     accessibleProcedureIds: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     appliedFilters: {
       required: false,
       type: Array,
-      default: () => ([])
+      default: () => ([]),
     },
 
     //  Export options that define which formats / fields to display
     assessmentExportOptions: {
       required: true,
-      type: Object
+      type: Object,
     },
 
     authorisedUsers: {
       required: false,
       type: Array,
-      default: () => ([])
+      default: () => ([]),
     },
 
     csrfToken: {
       type: String,
-      required: true
+      required: true,
     },
 
     currentUserId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     currentUserName: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     exactSearch: {
       type: Boolean,
-      default: false
+      default: false,
     },
 
     filterSet: {
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     formDefinitions: {
       type: Object,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     initFilterHash: {
       required: true,
-      type: String
+      type: String,
     },
 
     initPagination: {
       required: false,
       type: [Object, undefined],
-      default: undefined
+      default: undefined,
     },
 
     initSort: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     procedureId: {
       required: true,
-      type: String
+      type: String,
     },
 
     procedureStatementPriorityArea: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     publicParticipationPublicationEnabled: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     searchFields: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     searchTerm: {
       type: String,
-      default: ''
+      default: '',
     },
 
     sortingOptions: {
       required: false,
       type: Array,
-      default: () => []
+      default: () => [],
     },
 
     statementFormDefinitions: {
       required: true,
-      type: Object
+      type: Object,
     },
 
     /**
@@ -394,8 +428,8 @@ export default {
     viewMode: {
       required: false,
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   data () {
@@ -403,7 +437,7 @@ export default {
       filterHash: this.initFilterHash,
       hasChangedStatements: false,
       processingData: false,
-      processingDataNotConfirmed: false
+      processingDataNotConfirmed: false,
     }
   },
 
@@ -412,19 +446,20 @@ export default {
       'assessmentBase',
       'assessmentBaseLoaded',
       'currentTableView',
-      'sort'
+      'sort',
     ]),
 
     ...mapGetters('AssessmentTable', [
       'assignEntityModal',
       'consolidateModal',
       'copyStatementModal',
-      'isLoading'
+      'moveStatementModal',
+      'isLoading',
     ]),
 
     ...mapState('Statement', [
       'selectedElements',
-      'pagination'
+      'pagination',
     ]),
 
     ...mapGetters('Statement', [
@@ -432,11 +467,11 @@ export default {
       'selectedElementsFromOtherPages',
       'selectedElementsLength',
       'statements',
-      'statementsInOrder'
+      'statementsInOrder',
     ]),
 
     ...mapGetters('Fragment', [
-      'selectedFragments'
+      'selectedFragments',
     ]),
 
     accessibleProcedures () {
@@ -458,53 +493,55 @@ export default {
 
       this.sortingOptions.forEach(option => {
         const hasSortingDirection = option.value !== 'forPoliticians'
+
         dropdownOptions.push({
           value: option.value,
-          label: hasSortingDirection ? ascPrefix + ' nach ' + Translator.trans(option.translation) : Translator.trans(option.translation)
+          label: hasSortingDirection ? ascPrefix + ' nach ' + Translator.trans(option.translation) : Translator.trans(option.translation),
         })
         if (hasSortingDirection) {
           dropdownOptions.push({
             value: '-' + option.value,
-            label: descPrefix + ' nach ' + Translator.trans(option.translation)
+            label: descPrefix + ' nach ' + Translator.trans(option.translation),
           })
         }
       })
+
       return dropdownOptions || []
-    }
+    },
   },
 
   methods: {
     ...mapActions('AssessmentTable', [
-      'applyBaseData'
+      'applyBaseData',
     ]),
 
     ...mapActions('Statement', [
       'addToSelectionAction',
       'getStatementAction',
       'removeFromSelectionAction',
-      'updateStatementAction'
+      'updateStatementAction',
     ]),
 
     ...mapActions('Statement', {
       resetStatementSelection: 'resetSelection',
       setProcedureIdForStatement: 'setProcedureIdAction',
-      setSelectedStatements: 'setSelectedElementsAction'
+      setSelectedStatements: 'setSelectedElementsAction',
     }),
 
     ...mapActions('Fragment', {
       resetFragmentSelection: 'resetSelection',
       setProcedureIdForFragment: 'setProcedureIdAction',
-      setSelectedFragments: 'setSelectedFragmentsAction'
+      setSelectedFragments: 'setSelectedFragmentsAction',
     }),
 
     ...mapMutations('AssessmentTable', [
       'setAssessmentBaseProperty',
       'setModalProperty',
-      'setProperty'
+      'setProperty',
     ]),
 
     ...mapMutations('Statement', [
-      'updatePagination'
+      'updatePagination',
     ]),
 
     /**
@@ -516,31 +553,36 @@ export default {
 
       window.history.pushState({
         html: newUrl.join('?'),
-        pageTitle: document.title
+        pageTitle: document.title,
       }, document.title, newUrl.join('?'))
     },
 
     handlePageChange (newPage) {
-      const tmpPager = Object.assign(this.pagination, {
+      const tmpPager = {
+        ...this.pagination,
         current_page: newPage,
-        count: this.pagination.per_page
-      })
+      }
+
       this.updatePagination(tmpPager)
       this.changeUrl(tmpPager)
       this.setProperty({
         prop: 'isLoading',
-        val: true
+        val: true,
       })
       this.triggerApiCallForStatements()
     },
 
     handleSizeChange (newSize) {
-      const tmpPager = Object.assign(this.pagination, { count: newSize })
+      const tmpPager = {
+        ...this.pagination,
+        count: newSize,
+      }
+
       this.updatePagination(tmpPager)
       this.changeUrl(tmpPager)
       this.setProperty({
         prop: 'isLoading',
-        val: true
+        val: true,
       })
       this.triggerApiCallForStatements()
     },
@@ -548,13 +590,14 @@ export default {
     handleSortChange (newVal) {
       this.setProperty({
         prop: 'sort',
-        val: newVal
+        val: newVal,
       })
       this.triggerApiCallForStatements()
     },
 
     renderMessagesFromStorage () {
       const messagesToRender = window.sessionStorage.getItem('messagesToRender')
+
       if (messagesToRender) {
         handleResponseMessages(JSON.parse(messagesToRender))
         window.sessionStorage.removeItem('messagesToRender')
@@ -569,12 +612,14 @@ export default {
             if (id.charAt(0) === '#') {
               id = id.substr(1)
             }
+
             // Add border to the statement, to which we scroll (and remove the border after first click)
             document.getElementById(id).classList.add('c-at-item__focus-border')
             const removeBorder = () => {
               document.getElementById(id).classList.remove('c-at-item__focus-border')
               document.removeEventListener('click', removeBorder)
             }
+
             document.addEventListener('click', removeBorder)
 
             /*
@@ -589,61 +634,63 @@ export default {
               window.sessionStorage.removeItem('saveAndReturn')
             }
           }
-        }
+        },
       })
     },
 
     setInitialData () {
       const sortVal = this.sortingOptionsForDropdown.find(opt => opt.value === this.initSort) || {}
+
       this.setProperty({
         prop: 'sort',
-        val: sortVal
+        val: sortVal,
       })
 
       this.setProperty({
         prop: 'searchTerm',
-        val: this.searchTerm
+        val: this.searchTerm,
       })
 
       this.setProperty({
         prop: 'statementFormDefinitions',
-        val: this.statementFormDefinitions
+        val: this.statementFormDefinitions,
       })
 
       this.setAssessmentBaseProperty({
         prop: 'exactSearch',
-        val: this.exactSearch
+        val: this.exactSearch,
       })
 
       this.setProperty({
         prop: 'filterSet',
-        val: this.filterSet
+        val: this.filterSet,
       })
 
       // Set current user id in store to be able to check editable state of selected elements later on
       this.setProperty({
         prop: 'currentUserId',
-        val: this.currentUserId
+        val: this.currentUserId,
       })
 
       this.setProperty({
         prop: 'viewMode',
-        val: this.viewMode
+        val: this.viewMode,
       })
 
       this.setProperty({
         prop: 'publicParticipationPublicationEnabled',
-        val: this.publicParticipationPublicationEnabled
+        val: this.publicParticipationPublicationEnabled,
       })
 
       this.setProperty({
         prop: 'procedureStatementPriorityArea',
-        val: this.procedureStatementPriorityArea
+        val: this.procedureStatementPriorityArea,
       })
 
       this.setProperty({ prop: 'accessibleProcedureIds', val: this.accessibleProcedureIds })
 
       const hasOnlyFragmentFilters = this.appliedFilters.length ? typeof (this.appliedFilters.find(filter => filter.type !== 'fragment')) === 'undefined' : false
+
       if (hasOnlyFragmentFilters) {
         this.setProperty({ prop: 'currentTableView', val: 'fragments' })
       }
@@ -656,6 +703,7 @@ export default {
       if (this.selectedElements && this.selectedElementsLength > 0 && hasPermission('area_statements_fragment')) {
         this.resetFragmentSelection()
       }
+
       if (hasPermission('area_statements_fragment')) {
         this.$store.commit('Fragment/setInitFragments', response.meta.fragmentAssignments)
         this.setSelectedFragments(response.meta.fragmentAssignments)
@@ -671,7 +719,7 @@ export default {
     triggerApiCallForStatements () {
       this.setProperty({
         prop: 'isLoading',
-        val: true
+        val: true,
       })
       // Trigger the get-action for all the required statements
       this.getStatementAction({
@@ -679,30 +727,32 @@ export default {
         hasPriorityArea: this.procedureStatementPriorityArea,
         procedureId: this.procedureId,
         pagination: this.pagination,
-        sort: this.sort.value
+        sort: this.sort.value,
       })
         .then((response) => {
           this.updateFilterHash(response.meta.filterHash)
           this.setSelectedElementsMethod(response)
           this.setProperty({
             prop: 'isLoading',
-            val: false
+            val: false,
           })
         })
         .catch(() => {
           this.setProperty({
             prop: 'isLoading',
-            val: false
+            val: false,
           })
         })
 
       if (window.location.hash) {
         const hash = window.location.hash.includes('?') ? window.location.hash.substr(0, window.location.hash.indexOf('?')) : window.location.hash
+
         this.waitForElement(hash)
           .then(() => {
             this.scrollAndAnimate(hash)
           })
       }
+
       this.renderMessagesFromStorage()
     },
 
@@ -710,10 +760,11 @@ export default {
       if (hash.length === 12) {
         this.filterHash = hash
         const url = window.location.href.split('?')
+
         url[0] = url[0].substring(0, url[0].length - 12) + hash
         window.history.pushState({
           html: url.join('?'),
-          pageTitle: document.title
+          pageTitle: document.title,
         }, document.title, url.join('?'))
       }
     },
@@ -736,10 +787,10 @@ export default {
         })
           .observe(document.documentElement, {
             childList: true,
-            subtree: true
+            subtree: true,
           })
       })
-    }
+    },
   },
 
   mounted () {
@@ -757,17 +808,17 @@ export default {
           .then(() => {
             this.setAssessmentBaseProperty({
               prop: 'initFilterHash',
-              val: this.initFilterHash
+              val: this.initFilterHash,
             })
 
             this.setAssessmentBaseProperty({
               prop: 'searchFields',
-              val: this.searchFields
+              val: this.searchFields,
             })
 
             this.setAssessmentBaseProperty({
               prop: 'appliedFilters',
-              val: this.appliedFilters
+              val: this.appliedFilters,
             })
 
             if (hasPermission('area_statements_fragment')) {
@@ -781,23 +832,21 @@ export default {
              * Initialize fixed header after all data has been processed (a.k.a. pager has been rendered)
              * to ensure dom manipulation of Stickier is executed last.
              */
-            this.stickyHeader = new Stickier(this.$refs.filter.$refs.header, this.$el, 0)
-
-            this.$root.$emit('assessment-table-loaded')
+            this.stickyHeader = new Stickier(this.$refs.filter.$refs.header, this.$refs.root, 0)
           })
       })
 
-    this.$root.$on('update-assessment-table', () => {
+    this.$root.$on('update:assessmentTable', () => {
       this.triggerApiCallForStatements()
     })
 
-    this.$root.$on('update-pagination-assessment-table', () => {
+    this.$root.$on('update:paginationAssessmentTable', () => {
       this.updatePagination(this.initPagination)
     })
   },
 
-  beforeDestroy () {
+  beforeUnmount () {
     this.stickyHeader.destroy()
-  }
+  },
 }
 </script>

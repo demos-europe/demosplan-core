@@ -100,7 +100,7 @@
                         data-cy="mapAdminGislayerList:mapHint"
                         required minlength="50"
                         maxlength="2000">
-                        {{ templateVars.procedure.settings.mapHint|default(templateVars.procedure.procedureUiDefinition.mapHintDefault) }}
+                        {{- templateVars.procedure.settings.mapHint|default(templateVars.procedure.procedureUiDefinition.mapHintDefault) -}}
                     </textarea>
                 </fieldset>
             {% endif %}

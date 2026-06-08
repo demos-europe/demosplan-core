@@ -12,17 +12,19 @@
     <!-- modal to add a new organisation -->
     <dp-new-orga-modal
       ref="newOrgaModal"
+      :fields="fields"
       @save="addOrga"
-      :fields="fields" />
+    />
     <!-- button to trigger the "new orga modal" -->
     <button
       class="btn btn--primary"
       type="button"
-      @click="() => { $refs.newOrgaModal.toggleModal() }"
       aria-haspopup="true"
       aria-role="navigation"
       :aria-label="Translator.trans('organisation.add')"
-      aria-expanded="false">
+      aria-expanded="false"
+      @click="() => { $refs.newOrgaModal.toggleModal() }"
+    >
       {{ Translator.trans('organisation.add') }}
     </button>
   </div>
@@ -36,24 +38,29 @@ export default {
   name: 'DpNewMasterToeb',
 
   components: {
-    DpNewOrgaModal
+    DpNewOrgaModal,
   },
 
   props: {
     fields: {
       type: Array,
-      required: true
+      required: true,
     },
 
     boolToStringFields: {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   },
+
+  emits: [
+    'orga:added',
+  ],
 
   methods: {
     addOrga (newOrga) {
       const newOrgaCpy = { ...newOrga }
+
       this.boolToStringFields.forEach(field => {
         // Set true if boolToStringFields where set with any string.
         newOrgaCpy[field] = typeof newOrgaCpy[field] !== 'undefined'
@@ -61,7 +68,7 @@ export default {
       const initialPayload = {
         oId: '',
         field: 'orgaName',
-        value: newOrgaCpy.orgaName
+        value: newOrgaCpy.orgaName,
       }
 
       makeFormPost(initialPayload, Routing.generate('DemosPlan_user_mastertoeblist_add_ajax')).then((response) => {
@@ -69,7 +76,7 @@ export default {
         newOrgaCpy.ident = response.data.ident
         this.batchRequest(newOrgaCpy).then(() => {
           newOrgaCpy.orgaName = newOrga.orgaName
-          this.$emit('orga-added', newOrgaCpy)
+          this.$emit('orga:added', newOrgaCpy)
         })
       })
     },
@@ -81,13 +88,13 @@ export default {
             {
               oId: orga.ident,
               field: key,
-              value: orga[key]
+              value: orga[key],
             },
-            Routing.generate('DemosPlan_user_mastertoeblist_update_ajax')
+            Routing.generate('DemosPlan_user_mastertoeblist_update_ajax'),
           )
-        })
+        }),
       )
-    }
-  }
+    },
+  },
 }
 </script>

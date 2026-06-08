@@ -15,7 +15,8 @@
   <tr
     v-if="Object.entries(time).length"
     class="border--top"
-    data-cy="versionHistoryItem">
+    data-cy="versionHistoryItem"
+  >
     <td colspan="4">
       <table>
         <thead>
@@ -34,13 +35,15 @@
 
         <tbody>
           <tr
+            class="o-sortablelist__item cursor-pointer"
             @click="getContent"
-            class="o-sortablelist__item cursor-pointer">
+          >
             <!-- time -->
             <td
               class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5"
               style="width: 15%;"
-              data-cy="historyTime">
+              data-cy="historyTime"
+            >
               {{ timeCreated }} {{ Translator.trans('clock') }}
             </td>
 
@@ -49,26 +52,30 @@
               v-if="time.userName !== null"
               class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5"
               style="width: 40%;"
-              data-cy="historyUserName">
+              data-cy="historyUserName"
+            >
               {{ time.userName }}
             </td>
             <td
               v-else
               class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5"
-              style="width: 40%;">
+              style="width: 40%;"
+            >
               -
             </td>
 
             <!-- fields -->
             <td
               class="line-height--1_6 u-pv-0_5"
-              style="width: 40%;">
+              style="width: 40%;"
+            >
               <ul class="o-list o-list--csv">
                 <li
                   v-for="field in time.fieldNames"
-                  class="o-list__item"
                   :key="field"
-                  data-cy="historyField">
+                  class="o-list__item"
+                  data-cy="historyField"
+                >
                   {{ Translator.trans(field) }}
                 </li>
               </ul>
@@ -76,11 +83,13 @@
 
             <td
               class="line-height--1_6 u-pr u-pv-0_5 u-pl-0_5 text-right cursor-pointer"
-              style="width: 5%">
+              style="width: 5%"
+            >
               <i
                 class="btn-icns fa cursor-pointer"
                 :class="{'fa-angle-down': !isOpen, 'fa-angle-up': isOpen}"
-                data-cy="toggleIcon" />
+                data-cy="toggleIcon"
+              />
             </td>
           </tr>
 
@@ -90,13 +99,15 @@
                 <thead>
                   <tr class="sr-only">
                     <th
+                      v-if="isOpen && isLoading"
                       colspan="4"
-                      v-if="isOpen && isLoading">
+                    >
                       {{ Translator.trans('loading') }}
                     </th>
                     <th
+                      v-if="isOpen && !isLoading"
                       colspan="4"
-                      v-if="isOpen && !isLoading">
+                    >
                       {{ Translator.trans('dropdown.open') }}
                     </th>
                   </tr>
@@ -107,13 +118,15 @@
                     <td
                       v-if="isOpen && isLoading"
                       class="u-ml u-mb u-mt inline-block"
-                      colspan="4">
+                      colspan="4"
+                    >
                       <dp-loading />
                     </td>
 
                     <td
+                      v-if="isOpen && !isLoading"
                       colspan="4"
-                      v-if="isOpen && !isLoading">
+                    >
                       <table v-if="time.displayChange">
                         <thead>
                           <tr class="sr-only">
@@ -127,25 +140,29 @@
                             v-for="(content, fieldName) in history.attributes"
                             :key="fieldName + 'content'"
                             class="u-pb-0_25"
-                            data-cy="historyItemElement">
+                            data-cy="historyItemElement"
+                          >
                             <td
                               :id="'fieldName' + time.anyEntityContentChangeIdOfThisChangeInstance"
                               class="u-pt-0_5 u-pl-0_5 u-mr u-pr align-top u-1-of-6 inline-block"
-                              data-cy="fieldName">
+                              data-cy="fieldName"
+                            >
                               <strong>
                                 {{ Translator.trans(fieldName) }}
                               </strong>
                             </td>
                             <td
                               v-if="content !== null && content !== ''"
+                              v-cleanhtml="content"
                               style="width: 79%;"
                               class="u-pt-0_5 u-pb-0_5 u-ml-0_5 break-words inline-block"
                               data-cy="contentChange"
-                              v-cleanhtml="content" />
+                            />
                             <td
                               v-else-if="content === null"
                               style="width: 82%;"
-                              class="u-pt-0_5 u-pb-0_5 u-ml-0_5 color--grey inline-block">
+                              class="u-pt-0_5 u-pb-0_5 u-ml-0_5 color--grey inline-block"
+                            >
                               {{ Translator.trans('formatting.change') }}
                             </td>
                           </tr>
@@ -183,49 +200,49 @@
 </template>
 
 <script>
-import { checkResponse, CleanHtml, dpApi, DpLoading, formatDate } from '@demos-europe/demosplan-ui'
+import { CleanHtml, dpApi, DpLoading, formatDate } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpVersionHistoryItem',
 
   components: {
-    DpLoading
+    DpLoading,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   props: {
     entity: {
       type: String,
-      required: true
+      required: true,
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     time: {
       type: Object,
       required: false,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
 
   data () {
     return {
       history: null,
       isLoading: true,
-      isOpen: false
+      isOpen: false,
     }
   },
 
   computed: {
     timeCreated () {
       return formatDate(this.time.created, 'HH:mm:ss')
-    }
+    },
   },
 
   methods: {
@@ -238,7 +255,7 @@ export default {
       if (this.time.displayChange) {
         this.loadHistory()
           .then((response) => {
-            this.history = response.data
+            this.history = response.data.data
             this.isLoading = false
           })
       } else {
@@ -251,13 +268,10 @@ export default {
         method: 'GET',
         url: Routing.generate('dplan_api_history_of_all_fields_of_specific_datetime', {
           entityContentChangeId: this.time.anyEntityContentChangeIdOfThisChangeInstance,
-          procedureId: this.procedureId
-        })
+          procedureId: this.procedureId,
+        }),
       })
-        .then(response => checkResponse(response))
-        .then(response => response)
-        .catch(error => checkResponse(error.response))
-    }
-  }
+    },
+  },
 }
 </script>

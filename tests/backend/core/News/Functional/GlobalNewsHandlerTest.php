@@ -36,8 +36,8 @@ class GlobalNewsHandlerTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(GlobalNewsHandler::class);
-        $this->doctrine = self::$container->get('doctrine');
+        $this->sut = self::getContainer()->get(GlobalNewsHandler::class);
+        $this->doctrine = self::getContainer()->get('doctrine');
     }
 
     public function testGetGlobalNewsListStructure()

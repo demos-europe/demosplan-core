@@ -19,7 +19,7 @@ const components = {
   DpLabel,
   DpRadio,
   DpTextArea,
-  DpUploadFiles
+  DpUploadFiles,
 }
 
 initialize(components).then(() => {

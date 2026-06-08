@@ -35,8 +35,8 @@ export default class BarChart {
         'no-data-fallback': Translator.trans('fragments.not.submitted'),
         'legend-headline': Translator.trans('fragments'),
         'data-names': Translator.trans('fragments'),
-        'data-name': Translator.trans('fragment')
-      }
+        'data-name': Translator.trans('fragment'),
+      },
     }
 
     Object.assign(this, { ...defaults, ...options })
@@ -58,7 +58,7 @@ export default class BarChart {
           colors: this.colors,
           activeColor: this.activeColor,
           texts: this.texts,
-          total: this.total
+          total: this.total,
         })
       } // Create the legend.
     } else {
@@ -73,7 +73,10 @@ export default class BarChart {
    * @returns {string | *}
    */
   setColor (c) {
-    if (typeof this.colors[c] !== 'undefined') return this.colors[c]
+    if (typeof this.colors[c] !== 'undefined') {
+      return this.colors[c]
+    }
+
     return ''
   }
 
@@ -94,6 +97,7 @@ export default class BarChart {
     const mouseover = (ev, d) => {
       const i = d.index
       const elemSet = hGsvg
+
       /*
        * Utility function to be called on mouseover.
        * highlight selected segment
@@ -107,6 +111,7 @@ export default class BarChart {
       // Utility function to be called on mouseout.
       const i = d.index
       const elemSet = hGsvg
+
       // Reset the pie-chart and legend.
       select(elemSet[i]).transition().duration(transSpeed).attr('fill', this.colors[i])
       // Call update-row functions of the legend.

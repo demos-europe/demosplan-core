@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -10,10 +12,10 @@
 
 namespace demosplan\DemosPlanCoreBundle\Event\Procedure;
 
-use Symfony\Component\HttpFoundation\Request;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 use Illuminate\Support\Collection;
+use Symfony\Component\HttpFoundation\Request;
 
 class PublicDetailStatementListLoadedEvent extends DPlanEvent
 {
@@ -45,7 +47,7 @@ class PublicDetailStatementListLoadedEvent extends DPlanEvent
     public function __construct(
         Collection $statements,
         Request $request,
-        User $user
+        User $user,
     ) {
         $this->statements = $statements;
         $this->request = $request;

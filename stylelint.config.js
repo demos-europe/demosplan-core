@@ -7,11 +7,10 @@
  * All rights reserved
  */
 
-/* eslint-disable quote-props */
 module.exports = {
   extends: 'stylelint-config-standard-scss',
   ignoreFiles: [
-    'demosplan/DemosPlanCoreBundle/Resources/client/scss/inuit-5/*.scss'
+    'demosplan/DemosPlanCoreBundle/Resources/client/scss/inuit-5/*.scss',
   ],
   rules: {
     'at-rule-empty-line-before': null,
@@ -26,9 +25,9 @@ module.exports = {
       {
         'ignoreAtRules': [
           'extends',
-          'tailwind'
-        ]
-      }
+          'tailwind',
+        ],
+      },
     ],
     'scss/comment-no-empty': null,
     'scss/dollar-variable-colon-space-after': null,
@@ -44,9 +43,9 @@ module.exports = {
       {
         ignoreKeywords: [
           'Roboto',
-          'Arial'
-        ]
-      }
-    ]
-  }
+          'Arial',
+        ],
+      },
+    ],
+  },
 }

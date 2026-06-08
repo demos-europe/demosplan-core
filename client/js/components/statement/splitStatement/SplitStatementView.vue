@@ -13,36 +13,45 @@
       <dp-sticky-element border>
         <header
           id="header"
-          class="u-pv-0_25 flow-root">
+          class="u-pv-0_25 flow-root"
+        >
+          <dp-inline-notification
+            v-if="!isLoading && availablePlaces.length < 1"
+            class="mt-3 mb-2"
+            :message="Translator.trans('error.split_statement.no_place.link', { href: Routing.generate('DemosPlan_procedure_places_list', { procedureId: procedureId }) })"
+            type="warning"
+          />
           <dp-inline-notification
             v-if="!isLoading && isSegmentDraftUpdated"
             class="mt-3 mb-2"
             :message="Translator.trans('last.saved', { date: lastSavedTime })"
-            type="info" />
+            type="info"
+          />
           <h1 class="font-size-h1 align-bottom inline-block u-m-0">
             {{ Translator.trans('statement.do.segment', { id: statementExternId }) }}
           </h1>
 
           <ul
             v-if="segmentationStatus === 'inUserSegmentation'"
-            class="float-right u-pt-0_25 u-m-0">
+            class="float-right u-pt-0_25 u-m-0"
+          >
             <li class="inline-block">
-              <dp-flyout
-                ref="metadataFlyout"
-                :has-menu="false">
+              <dp-flyout ref="metadataFlyout">
                 <template v-slot:trigger>
                   <span>
                     {{ Translator.trans('statement.information', { id: statementExternId }) }}
                     <i
                       class="fa fa-angle-down"
-                      aria-hidden="true" />
+                      aria-hidden="true"
+                    />
                   </span>
                 </template>
                 <statement-meta-tooltip
                   v-if="statement"
                   :statement="statement"
                   toggle-button
-                  @toggle="toggleInfobox" />
+                  @toggle="toggleInfobox"
+                />
               </dp-flyout>
             </li>
           </ul>
@@ -58,24 +67,29 @@
         }"
         hook-name="split.statement.preprocessor"
         @addons:loaded="fetchSegments"
-        @segmentationStatus:change="setSegmentationStatus" />
+        @segmentation-status:change="setSegmentationStatus"
+      />
 
       <transition
         name="slide-fade"
-        mode="out-in">
+        mode="out-in"
+      >
         <div v-if="segmentationStatus === 'inUserSegmentation'">
           <transition
             name="slide-fade"
-            mode="out-in">
+            mode="out-in"
+          >
             <button
               v-show="displayScrollButton"
               :aria-label="Translator.trans('scroll.back.to.segment')"
               class="scroll-button text-center"
               :style="scrollButtonStyles"
-              @click="scrollToSegment">
+              @click="scrollToSegment"
+            >
               <i
                 :class="scrollButtonPosition.direction === 'top' ? 'fa fa-angle-double-up' : scrollButtonPosition.direction === 'bottom' ? 'fa fa-angle-double-down' : ''"
-                aria-hidden="true" />
+                aria-hidden="true"
+              />
             </button>
           </transition>
 
@@ -83,69 +97,81 @@
             v-if="statement && showInfobox"
             :statement="statement"
             :submit-type-options="submitTypeOptions"
-            @close="showInfobox = false" />
+            @close="showInfobox = false"
+          />
 
           <div v-if="isLoading">
             <dp-loading class="u-mt u-ml" />
           </div>
           <main
+            v-else-if="initialData"
             ref="main"
             class="container pt-2"
-            v-else-if="initialData">
+          >
             <segmentation-editor
-              @prosemirror-initialized="runPostInitTasks"
-              @prosemirror-max-range="setMaxRange"
-              @mouseover.native="handleMouseOver"
-              @mouseleave.native="handleMouseLeave"
               :init-statement-text="initText ?? ''"
               :segments="segments"
               :range-change-callback="handleSegmentChanges"
-              :class="{ 'is-fullwidth': !showTags }" />
+              :class="{ 'is-fullwidth': !showTags }"
+              @prosemirror:initialized="runPostInitTasks"
+              @prosemirror:max-range="setMaxRange"
+              @focus="event => handleMouseOver(event)"
+              @focusout="handleMouseLeave"
+              @mouseover="event => handleMouseOver(event)"
+              @mouseleave="handleMouseLeave"
+            />
 
             <transition
               name="slide-fade"
-              mode="out-in">
+              mode="out-in"
+            >
               <card-pane
                 v-if="showTags && editModeActive === false && maxRange"
                 id="cardPane"
-                class="u-ml"
                 :key="tagsCounter"
+                class="ml-4"
                 :max-range="maxRange"
                 :offset="headerOffset"
                 @segment:confirm="handleSegmentConfirmation"
-                @edit-segment="enableEditMode"
-                @delete-segment="immediatelyDeleteSegment" />
+                @segment:edit="enableEditMode"
+                @segment:delete="immediatelyDeleteSegment"
+              />
             </transition>
 
             <transition
               name="slide-fade"
-              mode="out-in">
+              mode="out-in"
+            >
               <dp-sticky-element
                 v-if="editModeActive"
                 :apply-z-index="false"
                 :context="$refs.main"
-                :offset="headerOffset">
+                :offset="headerOffset"
+              >
                 <side-bar
                   id="sideBar"
+                  ref="sideBar"
                   class="u-mb-0_25"
                   :offset="headerOffset"
-                  ref="sideBar"
                   @abort="abortEdit"
                   @keydown.esc="toggleSideBar"
-                  @save="save(editingSegment)" />
+                  @save="save(editingSegment)"
+                />
               </dp-sticky-element>
             </transition>
           </main>
 
           <div
             v-if="editModeActive === false"
-            class="button-container">
+            class="button-container"
+          >
             <dp-button
-              @click="saveAndFinish"
               :busy="isBusy"
               :text="Translator.trans('statement.split.complete')"
               data-cy="statementSplitComplete"
-              variant="outline" />
+              variant="outline"
+              @click="saveAndFinish"
+            />
           </div>
         </div>
       </transition>
@@ -159,13 +185,14 @@ import {
   applySelectionChange,
   removeRange,
   setRange,
-  setRangeEditingState
+  setRangeEditingState,
 } from '@DpJs/lib/prosemirror/commands'
 import { dpApi, DpButton, DpFlyout, DpInlineNotification, DpLoading, DpStickyElement } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CardPane from './CardPane'
 import dayjs from 'dayjs'
+import { DOMSerializer } from 'prosemirror-model'
 import { generateRangeChangeMap } from '@DpJs/lib/prosemirror/utilities'
 import SegmentationEditor from './SegmentationEditor'
 import SideBar from './SideBar'
@@ -173,29 +200,29 @@ import StatementMeta from '@DpJs/components/procedure/StatementSegmentsList/Stat
 import StatementMetaTooltip from '../StatementMetaTooltip'
 import { v4 as uuid } from 'uuid'
 /**
- * This function merges ranges with their corresponding segments.
- * Ranges are used to represent range shaped information in prosemirror.
- * Their attributes do not perfectly match segment attributes.
- * Thus, range attributes are mapped to their corresponding segment attributes and an Array of updated segments is returned.
+ * Merges ProseMirror segmentMark data with segment metadata from the store.
  *
- * @param {Array} ranges
- * @param {Array} segments
- * @return {undefined|Array}
+ * SegmentMarks are ProseMirror marks that track segment positions and confirmation status in the editor.
+ * This function synchronizes that state with the segment metadata (tags, place, assignee) stored in Vuex.
+ *
+ * @param {Array} segmentMarks - Array of segmentMark objects from ProseMirror with {segmentId, isConfirmed}
+ * @param {Array} segments - Array of segment metadata objects from Vuex store
+ * @return {Array} Array of merged segment objects with updated status
  */
-const mergeRangesAndSegments = (ranges, segments) => {
+const mergeSegmentMarksAndSegments = (segmentMarks, segments) => {
   const mergedSegments = []
-  ranges.forEach(range => {
-    const segment = segments.find(seg => seg.id === range.rangeId)
+
+  segmentMarks.forEach(mark => {
+    const segment = segments.find(seg => seg.id === mark.segmentId)
     const mergedSegment = { ...segment }
+
     if (!segment) {
       console.warn('A segment was updated in Prosemirror but no corresponding segment found in store.')
+
       return
     }
 
-    mergedSegment.charStart = range.from
-    mergedSegment.charEnd = range.to
-    mergedSegment.status = range.isConfirmed ? 'confirmed' : false
-    mergedSegment.text = range.text
+    mergedSegment.status = mark.isConfirmed ? 'confirmed' : false
     mergedSegments.push(mergedSegment)
   })
 
@@ -216,12 +243,12 @@ export default {
     SegmentationEditor,
     SideBar,
     StatementMeta,
-    StatementMetaTooltip
+    StatementMetaTooltip,
   },
 
   provide () {
     return {
-      procedureId: this.procedureId
+      procedureId: this.procedureId,
     }
   },
 
@@ -229,35 +256,35 @@ export default {
     editable: {
       required: false,
       type: Boolean,
-      default: false
+      default: false,
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     showTags: {
       type: Boolean,
       required: false,
-      default: true
+      default: true,
     },
 
     statementExternId: {
       type: String,
-      required: true
+      required: true,
     },
 
     statementId: {
       type: String,
-      required: true
+      required: true,
     },
 
     submitTypeOptions: {
       type: Array,
       required: false,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
 
   data () {
@@ -277,17 +304,18 @@ export default {
       processingTime: 0,
       scrollButtonPosition: {
         direction: '',
-        offset: ''
+        offset: '',
       },
       prosemirror: null,
       segmentationStatus: 'processing',
       showInfobox: false,
-      tagsCounter: 0
+      tagsCounter: 0,
     }
   },
 
   computed: {
     ...mapGetters('SplitStatement', [
+      'availablePlaces',
       'currentlyHighlightedSegmentId',
       'editingSegment',
       'editingSegmentId',
@@ -298,7 +326,7 @@ export default {
       'segmentById',
       'segments',
       'statement',
-      'statementSegmentDraftList'
+      'statementSegmentDraftList',
     ]),
 
     /**
@@ -321,27 +349,33 @@ export default {
 
     scrollButtonStyles () {
       return {
-        top: this.scrollButtonPosition.offset
+        top: this.scrollButtonPosition.offset,
       }
-    }
+    },
   },
 
   watch: {
-    editModeActive (newVal) {
-      if (newVal) {
-        window.addEventListener('scroll', this.handleScroll, false)
-      } else {
-        window.removeEventListener('scroll', this.handleScroll, false)
-        this.displayScrollButton = false
-      }
+    editModeActive: {
+      handler (newVal) {
+        if (newVal) {
+          window.addEventListener('scroll', this.handleScroll, false)
+        } else {
+          window.removeEventListener('scroll', this.handleScroll, false)
+          this.displayScrollButton = false
+        }
+      },
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
     },
 
-    initialData (newVal) {
-      this.calculateProcessingTime()
-      if (newVal) {
-        this.isLoading = false
-      }
-    }
+    initialData: {
+      handler (newVal) {
+        this.calculateProcessingTime()
+        if (newVal) {
+          this.isLoading = false
+        }
+      },
+      deep: false, // Set default for migrating purpose. To know this occurrence is checked
+    },
   },
 
   methods: {
@@ -349,7 +383,7 @@ export default {
       'locallyDeleteSegments',
       'locallyUpdateSegments',
       'resetSegments',
-      'setProperty'
+      'setProperty',
     ]),
 
     ...mapActions('SplitStatement', [
@@ -360,7 +394,7 @@ export default {
       'fetchStatementSegmentDraftList',
       'fetchTags',
       'saveSegmentsDrafts',
-      'saveSegmentsFinal'
+      'saveSegmentsFinal',
     ]),
 
     setCurrentTime () {
@@ -382,6 +416,7 @@ export default {
      */
     calculateProcessingTime () {
       const statementLength = this.initialData.attributes.textualReference.length
+
       this.processingTime = statementLength > 4000 ? Math.round(statementLength / 2000) + 3 : 0
     },
 
@@ -398,26 +433,29 @@ export default {
       if (segmentIsAtTop) {
         this.scrollButtonPosition = {
           direction: 'top',
-          offset: '65px'
+          offset: '65px',
         }
       } else if (segmentIsAtBottom) {
         const vh = document.documentElement.clientHeight
+
         this.scrollButtonPosition = {
           direction: 'bottom',
-          offset: `${vh - 70}px`
+          offset: `${vh - 70}px`,
         }
       }
 
-      return segmentSpans.length
-        ? segmentIsAtTop || segmentIsAtBottom
-        : false
+      return segmentSpans.length ?
+        segmentIsAtTop || segmentIsAtBottom :
+        false
     },
 
     determineIfStatementReady (counter = 0) {
       if (this.segmentationStatus === 'aiSegmented' || this.segmentationStatus === 'inUserSegmentation') {
         return
       }
+
       const time = counter < 3 ? 5000 : 2000
+
       setTimeout(() => {
         this.fetchStatementSegmentDraftList(this.statementId)
           .then(({ data }) => {
@@ -430,8 +468,10 @@ export default {
               this.fetchInitialData().then(() => {
                 this.segmentationStatus = 'aiSegmented'
               })
+
               return
             }
+
             counter++
             this.determineIfStatementReady(counter)
           })
@@ -445,6 +485,7 @@ export default {
 
       this.ignoreProsemirrorUpdates = true
       const { rangeTrackerKey, editingDecorationsKey } = this.prosemirror.keyAccess
+
       setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(this.editingSegment.id, false)
       this.ignoreProsemirrorUpdates = false
       this.setProperty({ prop: 'editingSegment', val: null })
@@ -454,6 +495,7 @@ export default {
     enableEditMode (segmentId) {
       if (this.editModeActive) {
         console.warn('Tried to enable edit mode although it was already active')
+
         return
       }
 
@@ -472,19 +514,56 @@ export default {
         rangeTrackerKey,
         editStateTrackerKey,
         id,
-        { active: this.editingSegment.charEnd, fixed: this.editingSegment.charStart }
       )
       this.ignoreProsemirrorUpdates = false
     },
 
+    /**
+     * Serialize the entire ProseMirror document to HTML, converting any `<span data-segment-id="...">…</span>` into a custom `<segment-mark>`
+     * element so that segment identifiers are preserved in the output.
+     *
+     * @param {EditorState} state
+     *  The current ProseMirror editor state.
+     * @returns {string}
+     *  Serialized HTML including `<segment-mark data-segment-id="...">…</segment-mark>`
+     */
+    extractHtmlWithSegmentMarks () {
+      const state = this.prosemirror.view.state
+      const { schema } = state
+      const serializer = DOMSerializer.fromSchema(schema)
+      const fragment = serializer.serializeFragment(state.tr.doc.content)
+
+      const wrapper = document.createElement('div')
+
+      wrapper.appendChild(fragment)
+
+      wrapper.querySelectorAll('span[data-segment-id]').forEach(span => {
+        const mark = document.createElement('segment-mark')
+        const attributes = [...span.attributes]
+
+        attributes.forEach(({ name, value }) => {
+          /* Copy just the essential metadata (e.g. data-segment-id) for the textual reference */
+          if (name === 'data-segment-id') {
+            mark.setAttribute(name, value)
+          }
+        })
+
+        mark.innerHTML = span.innerHTML
+        span.replaceWith(mark)
+      })
+
+      return wrapper.innerHTML.trim()
+    },
+
     fetchAssignableUsers () {
       const url = Routing.generate('api_resource_list', { resourceType: 'AssignableUser' })
+
       return dpApi.get(url, { sort: 'lastname' })
         .then(response => {
           this.assignableUsers = response.data.data.map(assignableUser => {
             return {
               name: assignableUser.attributes.firstname + ' ' + assignableUser.attributes.lastname,
-              id: assignableUser.id
+              id: assignableUser.id,
             }
           })
           this.assignableUsers.unshift({ name: Translator.trans('not.assigned'), id: 'noAssigneeId' })
@@ -499,18 +578,19 @@ export default {
           Place: [
             'name',
             'description',
-            'solved'
-          ].join()
+            'solved',
+          ].join(),
         },
-        sort: 'sortIndex'
+        sort: 'sortIndex',
       })).then((response) => {
         const availablePlaces = response.data.data.map(place => {
           return {
             name: place.attributes.name,
             id: place.id,
-            description: place.attributes.description
+            description: place.attributes.description,
           }
         })
+
         this.setProperty({ prop: 'availablePlaces', val: availablePlaces })
       })
         .catch((err) => console.error(err))
@@ -533,15 +613,33 @@ export default {
       }
     },
 
+    /**
+     * Find all occurrences of a `segmentMark` with the given ID in the document.
+     * This handles multiple occurrences across different paragraphs or blocks.
+     */
+    getSegmentMarkRangesById (segmentId) {
+      const { doc } = this.prosemirror.view.state
+      const ranges = []
+
+      doc.nodesBetween(0, doc.content.size, (node, pos) => {
+        if (node.marks.some(mark => mark.type.name === 'segmentMark' && mark.attrs.segmentId === segmentId)) {
+          ranges.push({ from: pos, to: pos + node.nodeSize })
+        }
+
+        return true
+      })
+
+      return ranges
+    },
+
     handleCardHighlighting (segmentId, highlight) {
-      const card = document.querySelector(`div[data-range="${segmentId}"]`)
+      const card = document.querySelector(`div[data-segment-id="${segmentId}"]`)
+
       if (card) {
         if (highlight) {
           card.classList.add('highlighted')
-        } else {
-          if (card.classList.contains('highlighted')) {
-            card.classList.remove('highlighted')
-          }
+        } else if (card.classList.contains('highlighted')) {
+          card.classList.remove('highlighted')
         }
       }
     },
@@ -562,25 +660,28 @@ export default {
      * Adds highlighting background color to segment and border color to corresponding card
      * Updates currentlyHighlightedSegmentId in the store
      */
-    handleMouseOver (e) {
+    handleMouseOver (event) {
       if (!this.editModeActive) {
-        let segmentId = e.target.getAttribute('data-range') || e.target.closest('span[data-range]')?.getAttribute('data-range')
+        let segmentId = event.target.dataset.segmentId ||
+          event.target.closest('span[data-segment-id]')?.dataset.segmentId
 
         /**
-         * If the target element doesn't have the attribute 'data-range', it may be an html element inside the segment span,
+         * If the target element doesn't have the attribute 'data-segment-id', it may be an html element inside the segment span,
          * and we don't know how deeply nested
-         * In this case, we look for the next parent with the attribute 'data-range' to retrieve the segmentId; if none
+         * In this case, we look for the next parent with the attribute 'data-segment-id' to retrieve the segmentId; if none
          * exists, the hovered element is not inside a segment and highlighting is removed
          */
         if (!segmentId) {
-          const closestParent = e.target.closest('span[data-range]')
-          segmentId = closestParent ? closestParent.getAttribute('data-range') : null
+          const closestParent = event.target.closest('span[data-segment-id]')
+
+          segmentId = closestParent ? closestParent.dataset.segmentId : null
         }
 
         if (segmentId) {
           if (segmentId !== this.currentlyHighlightedSegmentId) {
             this.handleSegmentHighlighting(this.currentlyHighlightedSegmentId, false)
           }
+
           this.handleCardHighlighting(segmentId, true)
           this.handleSegmentHighlighting(segmentId, true)
         } else {
@@ -597,9 +698,11 @@ export default {
       if (this.ignoreProsemirrorUpdates) {
         return
       }
+
       if (this.editModeActive === false) {
         this.stateBeforeEditing = oldSegments
       }
+
       if (createdRanges.length > 1) {
         console.warn('More than one segment was created since the last update event. There might be issues with the segment creation process.')
       }
@@ -619,8 +722,12 @@ export default {
 
     handleSegmentConfirmation (segmentId) {
       this.ignoreProsemirrorUpdates = true
-      const { id, charStart, charEnd } = this.segmentById(segmentId)
-      setRange(this.prosemirror.view)(charStart, charEnd, { rangeId: id, isConfirmed: true })
+      const { state } = this.prosemirror.view
+      const { rangeTrackerKey } = this.prosemirror.keyAccess
+      const range = rangeTrackerKey.getState(state)[segmentId]
+      const { id } = this.segmentById(segmentId)
+
+      setRange(this.prosemirror.view)(range.from, range.to, { segmentId: id, isConfirmed: true })
       this.acceptSegmentProposal()
       this.ignoreProsemirrorUpdates = false
     },
@@ -628,38 +735,42 @@ export default {
     handleSegmentCreation (segmentToCreate) {
       const segment = {
         id: uuid(),
-        charStart: segmentToCreate.from,
-        charEnd: segmentToCreate.to,
         tags: [],
         hasProsemirrorIndex: true,
         status: 'confirmed',
-        text: segmentToCreate.text
       }
+
       this.setProperty({ prop: 'editingSegment', val: segment })
       this.setProperty({ prop: 'editModeActive', val: true })
       this.locallyUpdateSegments([segment])
       this.ignoreProsemirrorUpdates = true
-      setRange(this.prosemirror.view)(segment.charStart, segment.charEnd, { rangeId: segment.id, isConfirmed: true, isActive: false })
+
+      // We still need from/to values to create a segment marks in the prosemirror
+      setRange(this.prosemirror.view)(segmentToCreate.from, segmentToCreate.to, { segmentId: segment.id, isConfirmed: true, isActive: false })
+
       const { rangeTrackerKey, editingDecorationsKey, editStateTrackerKey } = this.prosemirror.keyAccess
+
       setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(segment.id, true)
-      activateRangeEdit(this.prosemirror.view, rangeTrackerKey, editStateTrackerKey, segment.id, { active: segment.charEnd, fixed: segment.charStart })
+      activateRangeEdit(this.prosemirror.view, rangeTrackerKey, editStateTrackerKey, segment.id)
       this.ignoreProsemirrorUpdates = false
     },
 
     handleSegmentDeletions (segments) {
-      const IdsToDelete = segments.map(segment => segment.rangeId)
-      this.locallyDeleteSegments(IdsToDelete)
+      const idsToDelete = segments.map(segment => segment.segmentId)
+
+      this.locallyDeleteSegments(idsToDelete)
     },
 
     handleSegmentHighlighting (segmentId, highlight) {
       const id = segmentId || this.currentlyHighlightedSegmentId
       const highlightedSegmentId = highlight ? segmentId : null
-      const segmentParts = Array.from(document.querySelectorAll(`span[data-range="${id}"]`))
+      const segmentParts = Array.from(document.querySelectorAll(`span[data-segment-id="${id}"]`))
 
       segmentParts.forEach(part => {
         if (highlight && !part.classList.contains('highlighted')) {
           part.classList.add('highlighted')
         }
+
         if (!highlight && part.classList.contains('highlighted')) {
           part.classList.remove('highlighted')
         }
@@ -669,13 +780,18 @@ export default {
     },
 
     immediatelyDeleteSegment (segmentId) {
-      const segment = this.segmentById(segmentId)
+      const segmentMarkRanges = this.getSegmentMarkRangesById(segmentId)
       const { state } = this.prosemirror.view
-      const tr = removeRange(state, segment.charStart, segment.charEnd)
+      let tr = null
+
+      segmentMarkRanges.forEach(({ from, to }) => {
+        tr = removeRange(state, from, to, tr)
+      })
 
       this.ignoreProsemirrorUpdates = true
       this.prosemirror.view.dispatch(tr)
       this.ignoreProsemirrorUpdates = false
+      this.updateTextualReference()
       this.deleteSegmentAction(segmentId)
       this.isSegmentDraftUpdated = true
       this.setCurrentTime()
@@ -691,15 +807,16 @@ export default {
       const changes = generateRangeChangeMap(newSegments, oldSegments)
 
       changes.createdRanges.forEach(range => {
-        setRange(this.prosemirror.view)(range.from, range.to, { rangeId: range.rangeId, isConfirmed: range.isConfirmed })
+        setRange(this.prosemirror.view)(range.from, range.to, { segmentId: range.segmentId, isConfirmed: range.isConfirmed })
       })
 
       changes.updatedRanges.forEach(range => {
-        setRange(this.prosemirror.view)(range.from, range.to, { rangeId: range.rangeId, isConfirmed: range.isConfirmed })
+        setRange(this.prosemirror.view)(range.from, range.to, { segmentId: range.segmentId, isConfirmed: range.isConfirmed })
       })
 
       changes.deletedRanges.forEach(range => {
         const tr = removeRange(state, range.from, range.to)
+
         this.prosemirror.view.dispatch(tr)
       })
       this.ignoreProsemirrorUpdates = false
@@ -707,16 +824,17 @@ export default {
     },
 
     /**
-     * After prosemirror was initialized we need to perform a few tasks:
-     * 1. Making prosemirror and the pluginstates available in this component by assigning it to this.prosemirror.
-     * 2. Update segments because prosemirror might have made non-conforming range positions conformant.
-     * 3. Set this.ignoreProsemirrorUpdates to true in order to listen to prosemirror changes.
+     * Post-initialization tasks after ProseMirror editor is ready:
+     * 1. Store prosemirror instance and plugin states for component access
+     * 2. Synchronize segment metadata with segmentMarks parsed from HTML
+     * 3. Enable prosemirror change listeners by setting ignoreProsemirrorUpdates to false
      */
     runPostInitTasks (prosemirrorState) {
       this.prosemirror = prosemirrorState
       const { state } = this.prosemirror.view
-      const ranges = Object.values(this.prosemirror.keyAccess.rangeTrackerKey.getState(state))
-      const updatedSegments = mergeRangesAndSegments(ranges, this.segments)
+      const segmentMarks = Object.values(this.prosemirror.keyAccess.rangeTrackerKey.getState(state))
+      const updatedSegments = mergeSegmentMarksAndSegments(segmentMarks, this.segments)
+
       this.locallyUpdateSegments(updatedSegments)
       this.ignoreProsemirrorUpdates = false
     },
@@ -735,22 +853,17 @@ export default {
         if (window.dpconfirm(Translator.trans('statement.split.complete.confirm'))) {
           this.setProperty({ prop: 'isBusy', val: true })
           try {
-            // Set data with html not only charStart and charEnd
-            const ranges = this.prosemirror.keyAccess.rangeTrackerKey.getState(this.prosemirror.view.state)
-            const segmentsWithText = this.segments
-              .filter(segment => !!ranges[segment.id])
-              .map(segment => {
-                return {
-                  ...segment,
-                  text: ranges[segment.id].text
-                }
-              })
+            const segmentMarks = this.prosemirror.keyAccess.rangeTrackerKey.getState(this.prosemirror.view.state)
+            const segmentsWithText = this.segments.filter(segment => !!segmentMarks[segment.id])
+
             this.setProperty({ prop: 'segmentsWithText', val: segmentsWithText })
             const currentStatementText = this.prosemirror.getContent(this.prosemirror.view.state)
+
             this.setProperty({ prop: 'statementText', val: currentStatementText })
             this.saveSegmentsFinal()
               .then(() => this.setProperty({ prop: 'isBusy', val: false }))
           } catch (err) {
+            console.error('An error occurred:', err)
             dplan.notify.error(Translator.trans('error.api.generic'))
             this.setProperty({ prop: 'isBusy', val: false })
           }
@@ -762,9 +875,9 @@ export default {
     },
 
     /**
-     * This function will apply all changes from the changed selection. It will generate new ranges/range boundaries.
-     * The range changes are handled by handleSegmentChanges (as a callback). After handleSegmentChanges has persisted
-     * the range changes locally, saveSegmentsDrafts will save the new json to our API.
+     * Applies changes from the current selection to create or modify a segmentMark.
+     * Updates are handled by handleSegmentChanges callback, which persists changes locally.
+     * Finally, saveSegmentsDrafts saves the updated segments and textualReference to the API.
      */
     save () {
       const validSegment = applySelectionChange(this.prosemirror.view, this.prosemirror.keyAccess.editStateTrackerKey, this.prosemirror.keyAccess.rangeTrackerKey)
@@ -773,21 +886,23 @@ export default {
         return
       }
 
+      this.disableEditMode()
+      this.updateTextualReference()
       this.saveSegmentsDrafts(true)
       this.isSegmentDraftUpdated = true
-      this.disableEditMode()
       this.setCurrentTime()
     },
 
     scrollToSegment () {
-      const segment = document.querySelector(`span[data-range="${this.editingSegment.id}"`)
+      const segment = document.querySelector(`span[data-segment-id="${this.editingSegment.id}"`)
       const bodyRect = document.body.getBoundingClientRect().top
       const elementRect = segment.getBoundingClientRect().top
       const elementPosition = elementRect - bodyRect
       const offsetPosition = elementPosition - 100
+
       window.scrollTo({
         top: offsetPosition,
-        behavior: 'smooth'
+        behavior: 'smooth',
       })
     },
 
@@ -810,26 +925,42 @@ export default {
       }
     },
 
+    updateTextualReference () {
+      const textualReference = this.extractHtmlWithSegmentMarks()
+
+      /* Store the serialized HTML (with custom <segment-mark> annotations) in draftSegmentsList for future rehydration */
+      this.setProperty({
+        prop: 'initText',
+        val: textualReference,
+      })
+    },
+
     updateSegments (updatedSegments) {
-      const newSegments = mergeRangesAndSegments(updatedSegments, this.segments)
+      const newSegments = mergeSegmentMarksAndSegments(updatedSegments, this.segments)
+
       this.locallyUpdateSegments(newSegments)
-    }
+    },
   },
 
   created () {
     this.setProperty({ prop: 'statementId', val: this.statementId })
     this.setProperty({ prop: 'procedureId', val: this.procedureId })
-
-    // Add event listener to close sidebar on esc
-    document.addEventListener('keydown', (e) => this.toggleSideBar(e))
-    this.$once('hook:destroyed', () => {
-      document.removeEventListener('keydown', (e) => this.toggleSideBar(e))
-    })
   },
 
   mounted () {
     this.fetchAssignableUsers()
     this.fetchAvailablePlaces()
-  }
+
+    // Add event listener to close sidebar on esc
+    document.addEventListener('keydown', (e) => this.toggleSideBar(e))
+  },
+
+  unmounted () {
+    /**
+     * Remove event listener when component is destroyed
+     * This is necessary to prevent memory leaks
+     */
+    document.removeEventListener('keydown', (e) => this.toggleSideBar(e))
+  },
 }
 </script>

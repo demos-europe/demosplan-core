@@ -10,31 +10,36 @@
 <template>
   <div>
     <dp-editable-list
+      ref="listComponent"
       :entries="emails"
       :data-cy="dataCy !== '' ? `${dataCy}:emailList` : `emailList`"
-      @reset="resetForm"
-      @saveEntry="handleSubmit(itemIndex !== null ? itemIndex : 'new')"
       :translation-keys="translationKeys"
-      ref="listComponent">
+      @delete="handleDelete"
+      @reset="resetForm"
+      @save-entry="handleSubmit(itemIndex !== null ? itemIndex : 'new')"
+      @show-update-form="showUpdateForm"
+    >
       <template v-slot:list="entry">
         <span>{{ entry.mail }}
           <input
             type="email"
             :value="entry.mail"
             :name="formFieldName"
-            class="sr-only">
+            class="sr-only"
+          >
         </span>
       </template>
 
       <template v-slot:form>
         <dp-input
           id="emailAddress"
+          v-model="formFields.mail"
           :data-cy="dataCy !== '' ? `${dataCy}:emailAddressInput` : `emailAddressInput`"
           :placeholder="Translator.trans('email.address')"
           type="email"
-          v-model="formFields.mail"
           width="u-1-of-2"
-          @enter="handleSubmit(itemIndex !== null ? itemIndex : 'new')" />
+          @enter="handleSubmit(itemIndex !== null ? itemIndex : 'new')"
+        />
       </template>
     </dp-editable-list>
   </div>
@@ -48,38 +53,46 @@ export default {
 
   components: {
     DpEditableList,
-    DpInput
+    DpInput,
   },
 
   props: {
     allowUpdatesFromOutside: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     dataCy: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     initEmails: {
       required: true,
-      type: Array
+      type: Array,
     },
 
     formFieldName: {
       type: String,
       required: false,
-      default: 'agencyExtraEmailAddresses[][fullAddress]'
-    }
+      default: 'agencyExtraEmailAddresses[][fullAddress]',
+    },
   },
+
+  compatConfig: {
+    WATCH_ARRAY: false,
+  },
+
+  emits: [
+    'saved',
+  ],
 
   data () {
     return {
       formFields: {
-        mail: ''
+        mail: '',
       },
       itemIndex: null,
       emails: this.initEmails,
@@ -89,29 +102,36 @@ export default {
         abort: Translator.trans('abort'),
         update: Translator.trans('email.address.update'),
         noEntries: Translator.trans('email.address.no'),
-        delete: Translator.trans('email.address.delete')
-      }
+        delete: Translator.trans('email.address.delete'),
+      },
     }
   },
 
   watch: {
-    initEmails (newVal) {
-      if (this.allowUpdatesFromOutside) {
-        this.emails = newVal
-      }
-    }
+    initEmails: {
+      handler (newVal) {
+        if (this.allowUpdatesFromOutside) {
+          this.emails = newVal
+        }
+      },
+      deep: true,
+    },
   },
 
   methods: {
-    delete (index) {
-      this.emails.splice(index, 1)
-      this.updateExtraEmailAddress(index)
-    },
-
     addElement () {
       this.emails.push({
-        mail: this.formFields.mail
+        mail: this.formFields.mail,
       })
+    },
+
+    deleteEntry (index) {
+      this.emails.splice(index, 1)
+    },
+
+    handleDelete (index) {
+      this.deleteEntry(index)
+      this.resetForm()
     },
 
     handleSubmit (index) {
@@ -121,7 +141,6 @@ export default {
           this.saveExtraEmailAddress(this.formFields.mail)
         } else {
           this.updateEmailAddress(index)
-          this.updateExtraEmailAddress(index, this.formFields.mail[index])
         }
 
         this.resetForm()
@@ -139,25 +158,14 @@ export default {
       this.$emit('saved', extraEmailAddress)
     },
 
-    updateExtraEmailAddress (index, extraEmailAddress) {
-      this.$emit('updated', (index, extraEmailAddress))
+    showUpdateForm (index) {
+      this.formFields.mail = this.emails[index].mail
+      this.itemIndex = index
     },
 
     updateEmailAddress (index) {
       this.emails[index].mail = this.formFields.mail
-    }
+    },
   },
-
-  mounted () {
-    this.$on('delete', (index) => {
-      this.delete(index)
-      this.resetForm()
-    })
-
-    this.$on('showUpdateForm', (index) => {
-      this.formFields.mail = this.emails[index].mail
-      this.itemIndex = index
-    })
-  }
 }
 </script>

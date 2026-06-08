@@ -19,7 +19,7 @@ import { initialize } from '@DpJs/InitVue'
 const components = {
   DpCheckbox,
   DpEditor,
-  DpLabel
+  DpLabel,
 }
 
 const stores = {}

@@ -32,7 +32,7 @@ export default function DpWizard () {
         prev: $wizardElements.find('.o-wizard__btn--prev'),
         next: $form.find('.o-wizard__btn--next'),
         done: $wizardElements.find('.o-wizard__btn--done'),
-        close: $wizardElements.find('.o-wizard__close')
+        close: $wizardElements.find('.o-wizard__close'),
       },
       $menu: null,
       topics: [],
@@ -51,8 +51,11 @@ export default function DpWizard () {
         for (; i < len; i++) {
           $item = $items.eq(i)
           topics.push($item.data('wizard-topic'))
-          if ($item.find('[data-wizard-cb]').prop('checked')) done.push(i)
+          if ($item.find('[data-wizard-cb]').prop('checked')) {
+            done.push(i)
+          }
         }
+
         $items.eq(0).find('legend').click()
 
         this.buildMenu()
@@ -90,24 +93,27 @@ export default function DpWizard () {
           .addClass('o-wizard--active')
           .find('.o-wizard__content')
           .append(
-            $wizardElements.attr('aria-hidden', false)
+            $wizardElements.attr('aria-hidden', false),
           )
           .addClass('is-active')
 
         //  Vue Components that need to init on visible elements may listen to this
         const wizardShow = new CustomEvent('wizard:show', { data: $currentItem.attr('data-wizard-topic') })
+
         document.dispatchEvent(wizardShow)
 
         this.$menu.find('li').removeClass('active').eq(idx).addClass('active')
 
         this.toggleButtons()
+
         return this
       },
 
       showElement: function ($elements) {
         const elements = $elements.toArray()
+
         elements.forEach((element) => {
-          element.setAttribute('style', 'display: block !important')
+          element.style.display = 'block'
         })
       },
 
@@ -118,13 +124,15 @@ export default function DpWizard () {
         $wizardElements.attr('aria-hidden', true)
         this.hideElement($wizardElements)
         this.hideElement($form.find('.o-wizard__btn--next'))
+
         return this
       },
 
       hideElement: function ($elements) {
         const elements = $elements.toArray()
+
         elements.forEach((element) => {
-          element.setAttribute('style', '')
+          element.style.display = 'none'
         })
       },
 
@@ -144,14 +152,19 @@ export default function DpWizard () {
           listFragment.append(
             listElement
               .append('<i class="fa fa-check-circle"></i>')
-              .append(textNode)
+              .append(textNode),
           )
-          if (!i) listElement.addClass('active')
+          if (!i) {
+            listElement.addClass('active')
+          }
+
           if (done.indexOf(i) !== -1) {
             listElement.addClass('finished')
           }
         }
+
         $menu.append(listFragment)
+
         return this
       },
 
@@ -173,6 +186,7 @@ export default function DpWizard () {
 
           this.done.splice(this.done.indexOf(idx), 1)
         }
+
         return this
       },
 
@@ -187,29 +201,38 @@ export default function DpWizard () {
           this.showElement($nextBtn)
           this.hideElement($doneBtn)
         }
+
         return this
       },
 
       move: function (dir) {
         if (dir === -1) {
-          if (this.step === 1) return this
+          if (this.step === 1) {
+            return this
+          }
+
           this.step--
         } else {
-          if (this.step + dir > this.length) return this
+          if (this.step + dir > this.length) {
+            return this
+          }
+
           this.step++
           this.save()
         }
+
         return this.hide().show()
       },
 
       moveTo: function (e) {
         this.step = $(e.currentTarget).data('wizard-step') * 1
+
         return this.hide().show()
       },
 
       save: function () {
         const url = Routing.generate('DemosPlan_procedure_edit_ajax', {
-          procedure: $form.data('procedure')
+          procedure: $form.data('procedure'),
         })
 
         $.post(url, $form.serialize())
@@ -221,6 +244,7 @@ export default function DpWizard () {
                   dplan.notify.notify(type, xhr.meta.messages[type][message])
                 }
               }
+
               return true
             }
           })
@@ -240,7 +264,7 @@ export default function DpWizard () {
           this.$actions.close.off('click')
           this.$menu.off('click')
         }
-      }
+      },
     }).init()
   }
 }

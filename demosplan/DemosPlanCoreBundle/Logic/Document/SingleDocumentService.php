@@ -12,11 +12,11 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface;
+use DemosEurope\DemosplanAddon\Exception\JsonException;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Event\CreateReportEntryEvent;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -27,11 +27,11 @@ use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-
-class SingleDocumentService extends CoreService implements SingleDocumentServiceInterface
+class SingleDocumentService implements SingleDocumentServiceInterface
 {
     /**
      * @var FileService
@@ -47,6 +47,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
         private readonly SingleDocumentReportEntryFactory $reportEntryFactory,
         private readonly ReportService $reportService,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger,
     ) {
         $this->fileService = $fileService;
     }
@@ -84,11 +85,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
             $resArray[] = $res;
         }
 
-        if (null === $search) {
-            $resArray['search'] = '';
-        } else {
-            $resArray['search'] = $search;
-        }
+        $resArray['search'] = null === $search ? '' : $search;
 
         return $this->toLegacyResult($resArray);
     }
@@ -141,11 +138,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
             $resArray[] = $res;
         }
 
-        if (is_null($search)) {
-            $resArray['search'] = '';
-        } else {
-            $resArray['search'] = $search;
-        }
+        $resArray['search'] = is_null($search) ? '' : $search;
 
         return $this->toLegacyResult($resArray);
     }
@@ -181,11 +174,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
             $resArray[] = $res;
         }
 
-        if (null === $search) {
-            $resArray['search'] = '';
-        } else {
-            $resArray['search'] = $search;
-        }
+        $resArray['search'] = null === $search ? '' : $search;
 
         return $this->toLegacyResult($resArray);
     }
@@ -197,9 +186,9 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
      *
      * @return SingleDocumentInterface|array|null
      *
-     * @throws ReflectionException
-     *
      * @psalm-return SingleDocumentInterface|array{statement_enabled: mixed}|null
+     *
+     * @throws ReflectionException
      */
     public function getSingleDocument($ident, bool $legacy = true)
     {
@@ -290,7 +279,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws ReflectionException
-     * @throws \DemosEurope\DemosplanAddon\Exception\JsonException
+     * @throws JsonException
      */
     public function updateSingleDocument($data): array
     {
@@ -353,7 +342,7 @@ class SingleDocumentService extends CoreService implements SingleDocumentService
         ];
 
         unset($result['result']['search'], $singleDocument['search']);
-        $result['total'] = sizeof($singleDocument);
+        $result['total'] = count($singleDocument);
 
         return $result;
     }

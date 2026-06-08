@@ -3,8 +3,9 @@
 addonDev
 addonZip
 addonZips
-addonDev
 addons
+CLAUDE.md
+claude-mds
 node_modules
 yarn-error.log
 docker-compose.yml
@@ -27,6 +28,8 @@ phpstan.neon
 !.github
 logs
 /docker-compose.override.yml
+plans
+tasks
 
 # Core project
 /projects/core/app/cache/*
@@ -37,6 +40,17 @@ logs
 /projects/core/web/js
 /projects/core/web/video
 /projects/core/web/files
+/public/css
+/public/fonts
+/public/img
+/public/js
+/public/video
+/public/files
+/public/uploads/*
+!/public/uploads/.gitkeep
+!/public/uploads/files/
+/public/uploads/files/*
+!/public/uploads/files/.gitkeep
 !/var/.gitkeep
 
 ###> symfony/framework-bundle ###
@@ -62,12 +76,6 @@ logs
 /phpunit.xml
 .phpunit.result.cache
 ###< phpunit/phpunit ###
-
-###> squizlabs/php_codesniffer ###
-/.phpcs-cache
-/phpcs.xml
-###< squizlabs/php_codesniffer ###
-
 ###> symfony/phpunit-bridge ###
 .phpunit.result.cache
 /phpunit.xml

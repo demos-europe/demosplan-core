@@ -16,25 +16,35 @@ const UserFormFields = {
   name: 'UserFormFields',
 
   state: {
-    orgaSuggestions: []
+    orgaSuggestions: [],
   },
 
   mutations: {
     setOrgaSuggestions (state, organisations) {
       state.orgaSuggestions = organisations
-    }
+    },
   },
 
   actions: {
     fetchOrgaSuggestions ({ commit }) {
       if (hasPermission('area_organisations') || hasPermission('feature_organisation_user_list')) {
-        const url = Routing.generate('dplan_api_organisation_list') + '?' + qs.stringify({ page: { number: 1, size: 500 } }) + '&' + qs.stringify({ include: 'departments' })
+        const queryParams = {
+          page: {
+            number: 1,
+            size: 500,
+          },
+          include: 'departments',
+        }
+        const url = `${Routing.generate('dplan_api_organisation_list')}?${qs.stringify(queryParams)}`
+
         dpApi.get(url).then((response) => {
           const organisations = []
           const inclDepartments = {}
 
           response.data.included.forEach(dep => {
-            if (dep.type === 'Department') inclDepartments[dep.id] = { id: dep.id, type: dep.type, ...dep.attributes }
+            if (dep.type === 'Department') {
+              inclDepartments[dep.id] = { id: dep.id, type: dep.type, ...dep.attributes }
+            }
           })
 
           response.data.data.forEach(org => {
@@ -43,23 +53,25 @@ const UserFormFields = {
             if (org.relationships && org.relationships.departments) {
               const departments = org.relationships.departments.data
               const orgaDepartments = {}
+
               departments.forEach(dep => {
                 orgaDepartments[dep.id] = inclDepartments[dep.id]
               })
               newOrg.departments = orgaDepartments
             }
+
             organisations.push(newOrg)
           })
 
           commit('setOrgaSuggestions', organisations)
         })
       }
-    }
+    },
   },
 
   getters: {
-    getOrgaSuggestions: state => state.orgaSuggestions
-  }
+    getOrgaSuggestions: state => state.orgaSuggestions,
+  },
 }
 
 export default UserFormFields

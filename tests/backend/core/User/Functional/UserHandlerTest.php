@@ -32,7 +32,7 @@ class UserHandlerTest extends FunctionalTestCase
      */
     protected $testUser;
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\ContentService|object|null
+     * @var ContentService|object|null
      */
     protected $contentService;
 
@@ -40,7 +40,7 @@ class UserHandlerTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(UserHandler::class);
+        $this->sut = self::getContainer()->get(UserHandler::class);
         // generiere ein Stub vom GlobalConfig
         $stub = $this->getMockBuilder(
             GlobalConfig::class
@@ -50,7 +50,7 @@ class UserHandlerTest extends FunctionalTestCase
         $this->sut->setDemosplanConfig($stub);
 
         $this->testUser = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-        $this->contentService = self::$container->get(ContentService::class);
+        $this->contentService = self::getContainer()->get(ContentService::class);
     }
 
     public function testWipeUser()

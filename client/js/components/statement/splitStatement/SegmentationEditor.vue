@@ -8,8 +8,17 @@
 </license>
 
 <template>
-  <div class="segmentation-editor">
-    <div id="editor" />
+  <div
+    class="segmentation-editor"
+    @focus="event => $emit('focus', event)"
+    @focusout="$emit('focusout')"
+    @mouseleave="$emit('mouseleave')"
+    @mouseover="event => $emit('mouseover', event)"
+  >
+    <div
+      id="editor"
+      class="c-styled-html"
+    />
   </div>
 </template>
 
@@ -20,8 +29,7 @@ import { EditorState } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
 import { initRangePlugin } from '@DpJs/lib/prosemirror/plugins'
 import { schema } from 'prosemirror-schema-basic'
-import { setRange } from '@DpJs/lib/prosemirror/commands'
-import { v4 as uuid } from 'uuid'
+import { segmentMark } from '@DpJs/lib/prosemirror/marks'
 
 export default {
   name: 'SegmentationEditor',
@@ -30,25 +38,34 @@ export default {
     editToggleCallback: {
       type: Function,
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     initStatementText: {
       type: String,
-      required: true
+      required: true,
     },
 
     segments: {
       type: Array,
-      required: true
+      required: true,
     },
 
     rangeChangeCallback: {
       type: Function,
       required: false,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
+
+  emits: [
+    'focus',
+    'focusout',
+    'mouseleave',
+    'mouseover',
+    'prosemirror:initialized',
+    'prosemirror:maxRange',
+  ],
 
   data () {
     return {
@@ -57,12 +74,12 @@ export default {
           parseDOM: [{ tag: 'u' }],
           toDOM () {
             return ['u']
-          }
+          },
         },
         link: {
           attrs: {
             href: {},
-            class: { default: null }
+            class: { default: null },
           },
           inclusive: false,
           parseDOM: [{
@@ -70,17 +87,19 @@ export default {
             getAttrs (dom) {
               return {
                 href: dom.getAttribute('href'),
-                class: dom.getAttribute('class')
+                class: dom.getAttribute('class'),
               }
-            }
+            },
           }],
           toDOM (node) {
             const { href, class: className } = node.attrs
+
             return ['a', { href, class: className }, 0]
-          }
-        }
+          },
+        },
+        segmentMark,
       },
-      maxRange: 0
+      maxRange: 0,
     }
   },
 
@@ -98,9 +117,10 @@ export default {
     initialize () {
       const proseSchema = new Schema({
         nodes: addListNodes(schema.spec.nodes, 'paragraph block*', 'block'),
-        marks: this.getExtendedMarks()
+        marks: this.getExtendedMarks(),
       })
       const wrapper = document.createElement('div')
+
       wrapper.innerHTML = this.initStatementText ?? ''
       const rangePlugin = initRangePlugin(proseSchema, this.rangeChangeCallback, this.editToggleCallback)
       const parsedContent = DOMParser.fromSchema(rangePlugin.schema).parse(wrapper, { preserveWhitespace: true })
@@ -111,23 +131,51 @@ export default {
         editable: () => false,
         state: EditorState.create({
           doc: parsedContent,
-          plugins: rangePlugin.plugins
-        })
-      })
+          plugins: rangePlugin.plugins,
+        }),
+        markViews: {
+          link: (mark) => {
+            const className = mark.attrs.class || ''
 
-      const transformedSegments = this.transformSegments(this.segments.filter(segment => segment.charEnd <= this.maxRange))
-      transformedSegments.forEach(segment => setRange(view)(segment.from, segment.to, segment.attributes))
+            if (!className.split(/\s+/).includes('pdf_importer_image')) {
+              const anchor = document.createElement('a')
+
+              anchor.setAttribute('href', mark.attrs.href)
+              if (className) {
+                anchor.setAttribute('class', className)
+              }
+
+              return { dom: anchor, contentDOM: anchor }
+            }
+
+            const wrapper = document.createElement('span')
+            const img = document.createElement('img')
+
+            img.setAttribute('src', mark.attrs.href)
+            img.setAttribute('alt', '')
+            img.setAttribute('loading', 'lazy')
+            const label = document.createElement('span')
+
+            label.className = 'sr-only'
+            wrapper.appendChild(img)
+            wrapper.appendChild(label)
+
+            return { dom: wrapper, contentDOM: label }
+          },
+        },
+      })
 
       const getContent = (schema) => (state) => {
         const container = document.createElement('div')
         const serialized = DOMSerializer.fromSchema(schema).serializeFragment(state.doc.content, { document: window.document }, container)
+
         return serialized.innerHTML
       }
 
       let prosemirrorStateWrapper = {
         view,
         keyAccess: rangePlugin.keys,
-        getContent: getContent(proseSchema)
+        getContent: getContent(proseSchema),
       }
 
       /**
@@ -136,28 +184,13 @@ export default {
        */
       prosemirrorStateWrapper = Object.freeze(prosemirrorStateWrapper)
 
-      this.$emit('prosemirror-max-range', this.maxRange)
-      this.$emit('prosemirror-initialized', prosemirrorStateWrapper)
+      this.$emit('prosemirror:maxRange', this.maxRange)
+      this.$emit('prosemirror:initialized', prosemirrorStateWrapper)
     },
-
-    transformSegments (segments) {
-      const segmentsCpy = JSON.parse(JSON.stringify(segments))
-      return segmentsCpy.map(segment => {
-        return {
-          attributes: {
-            rangeId: segment.id,
-            isConfirmed: segment.status === 'confirmed',
-            pmId: uuid()
-          },
-          from: segment.charStart,
-          to: segment.charEnd
-        }
-      })
-    }
   },
 
   mounted () {
     this.initialize()
-  }
+  },
 }
 </script>

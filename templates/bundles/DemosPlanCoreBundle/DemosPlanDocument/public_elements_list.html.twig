@@ -76,7 +76,7 @@
                                 <li class="{{ 'elements__file elements__grid u-pv-0_25 flow-root'|prefixClass }}">
                                     {% if element.file|getFile('mimeType') in videoFormats %}
                                         <dp-video-player
-                                            class="{{ 'shadow'|prefixClass }}"
+                                            class="{{ 'shadow-sm'|prefixClass }}"
                                             :sources="[ { src: '{{ path("core_file_procedure", { procedureId: procedure, hash: element.file|getFile('hash') }) }}', type: '{{ element.file|getFile('mimeType') }}' } ]"
                                             id="{{ 'file' ~ element.file|getFile('hash') }}"
                                             icon-url="{{ asset('img/plyr.svg') }}">
@@ -128,7 +128,7 @@
                                     <div class="{{ (not isVideo ? 'elements__grid')|prefixClass }}">
                                         {% if isVideo %}
                                             <dp-video-player
-                                                class="{{ 'shadow'|prefixClass }}"
+                                                class="{{ 'shadow-sm'|prefixClass }}"
                                                 :sources="[ { src: '{{ path("core_file_procedure", { procedureId: procedure, hash: document.document|getFile('hash') }) }}', type: '{{ document.document|getFile('mimeType') }}' } ]"
                                                 id="{{ 'file' ~ document.document|getFile('hash') }}"
                                                 icon-url="{{ asset('img/plyr.svg') }}">

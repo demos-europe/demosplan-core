@@ -29,17 +29,6 @@
             flex-direction: column;
         }
 
-        //  Here, the actual page-width is set by assigning a calculated padding
-        &__header,
-        &__main,
-        &__padded,
-        &__nav {
-            @media all and (min-width: $width) {
-                padding-left: $main-padding !important;
-                padding-right: $main-padding !important;
-            }
-        }
-
         //  Used to add additional padding for participation area (list_draft etc..) when
         //  there is no additional wrapper to apply inner padding.
         &__padded--spaced {
@@ -79,6 +68,7 @@
                 padding-left: $inuit-base-spacing-unit--small;
                 padding-right: $inuit-base-spacing-unit--small;
             }
+
             @include media-query('lap-up') {
                 padding-left: $inuit-base-spacing-unit;
                 padding-right: $inuit-base-spacing-unit;
@@ -89,6 +79,17 @@
             .oeb & {
                 padding-left: 0 !important;
                 padding-right: 0 !important;
+            }
+        }
+
+        //  Here, the actual page-width is set by assigning a calculated padding
+        &__header,
+        &__main,
+        &__padded,
+        &__nav {
+            @media all and (min-width: $width) {
+                padding-left: $main-padding;
+                padding-right: $main-padding;
             }
         }
 

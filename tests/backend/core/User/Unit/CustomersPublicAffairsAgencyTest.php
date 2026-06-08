@@ -45,8 +45,8 @@ class CustomersPublicAffairsAgencyTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->userHandler = self::$container->get(UserHandler::class);
-        $this->customerHandler = self::$container->get(CustomerHandler::class);
+        $this->userHandler = self::getContainer()->get(UserHandler::class);
+        $this->customerHandler = self::getContainer()->get(CustomerHandler::class);
     }
 
     /**

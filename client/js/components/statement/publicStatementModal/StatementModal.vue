@@ -11,16 +11,19 @@
   <div>
     <dp-modal
       ref="statementModal"
+      content-header-classes="border--none"
       @modal:toggled="handleModalToggle"
-      content-header-classes="border--none">
+    >
       <template
         v-if="showHeader"
-        v-slot:header>
+        v-slot:header
+      >
         <span :class="prefixClass('color-highlight')">
           <i
             aria-hidden="true"
             class="fa"
-            :class="commentingIcon" />
+            :class="commentingIcon"
+          />
           {{ Translator.trans('statement.yours') }}
         </span>
       </template>
@@ -31,113 +34,180 @@
           :class="prefixClass('c-statement__close btn-icns color-highlight u-m-0_25 p-0 absolute u-right-0')"
           :title="Translator.trans('statement.dialog.close')"
           type="button"
-          @click="toggleModal(false)">
+          @click="toggleModal(false)"
+        >
           <span
             id="statementDialogCloseTitle"
-            :class="prefixClass('sr-only')">
+            :class="prefixClass('sr-only')"
+          >
             {{ Translator.trans('explanation.statement.autosave') }}
           </span>
           <i
             aria-hidden="true"
-            :class="prefixClass('fa fa-compress fa-2x')" />
+            :class="prefixClass('fa fa-compress fa-2x')"
+          />
         </button>
       </template>
 
       <header
         v-if="loggedIn === false && showHeader"
+        :class="prefixClass('c-statement__header mb-2')"
         role="banner"
-        :class="prefixClass('c-statement__header u-mb-0_5')">
-        <dp-multistep-nav
-          :active-step="step"
-          :class="prefixClass('pb-0')"
-          :steps="[{
-            label: Translator.trans('statement.yours'),
-            icon: commentingIcon,
-            title: Translator.trans('statement.modal.step.write')
-          }, {
-            label: Translator.trans('personal.data'),
-            icon: 'fa-user',
-            title: Translator.trans('statement.modal.step.personal.data')
-          }, {
-            label: Translator.trans('recheck'),
-            icon: 'fa-check',
-            title: Translator.trans('statement.modal.step.recheck')
-          }]"
-          @change-step="val => step = val" />
+      >
+        <!-- Desktop -->
+        <div :class="prefixClass('c-statement__formnav tablet-desktop')">
+          <dp-multistep-nav
+            :active-step="step"
+            :class="prefixClass('pb-0')"
+            :steps="stepsData"
+            @change-step="val => step = val"
+          />
+        </div>
+
+        <!-- Mobile -->
+        <div :class="prefixClass('c-statement__formnav mobile')">
+          <div :class="prefixClass('mb-0.5 text-muted')">
+            Schritt {{ step + 1 }} von {{ stepsData.length }}
+          </div>
+
+          <div :class="prefixClass('mb-3 flex items-center gap-2')">
+            <i
+              v-if="stepsData[step].icon"
+              :class="[prefixClass('fa'), prefixClass(stepsData[step].icon), prefixClass('text-lg leading-none mt-[2px]')]"
+              aria-hidden="true"
+            />
+            <h3 :class="prefixClass('m-0 text-lg leading-none font-medium')">
+              {{ stepsData[step].label }}
+            </h3>
+          </div>
+
+          <dp-progress-bar
+            :class="prefixClass('p-0 pb-3 border-0')"
+            :percentage="Math.round(((step + 1) / stepsData.length) * 100)"
+            hide-percentage
+          />
+        </div>
       </header>
 
       <dp-inline-notification
-        :class="prefixClass('mt-3 mb-2')"
+        :class="prefixClass('mb-2')"
         dismissible
         dismissible-key="statementModalCloseExplanation"
         :message="Translator.trans('explanation.statement.autosave')"
-        type="info" />
+        type="info"
+      />
 
       <!-- Statement form incl. documents and location -->
       <section
         v-show="step === 0"
-        data-dp-validate="statementForm">
+        data-dp-validate="statementForm"
+      >
         <dp-inline-notification
           v-if="loggedIn === false"
-          :class="prefixClass('mt-3')"
-          type="info">
+          :class="prefixClass('mb-2')"
+          type="info"
+        >
           <p
             v-if="statementFormHintStatement"
-            v-cleanhtml="statementFormHintStatement" />
+            v-cleanhtml="statementFormHintStatement"
+          />
           <p v-cleanhtml="Translator.trans('statement.modal.step.write.privacy_policy')" />
           <p>{{ Translator.trans('error.mandatoryfields') }}</p>
         </dp-inline-notification>
 
         <dp-inline-notification
           v-if="dpValidate.statementForm === false"
-          :class="prefixClass('mt-3 mb-2')"
           id="statementFormErrors"
+          :class="prefixClass('mb-2')"
           aria-labelledby="statementFormErrorsContent"
-          tabindex="0">
+          tabindex="0"
+        >
           <p
             id="statementFormErrorsContent"
-            v-cleanhtml="createErrorMessage('statementForm')" />
+            v-cleanhtml="createErrorMessage('statementForm')"
+          />
         </dp-inline-notification>
 
         <div
           v-if="loggedIn && hasPermission('feature_elements_use_negative_report') && planningDocumentsHasNegativeStatement"
-          class="flex mt-4">
+          class="flex mt-4"
+        >
           <dp-radio
-            name="r_isNegativeReport"
             id="negative_report_false"
+            name="r_isNegativeReport"
             data-cy="statementModal:publicParticipationParticipate"
             class="u-mr-2"
             :checked="formData.r_isNegativeReport === '0'"
-            @change="() => { setStatementData({ r_isNegativeReport: '0'}) }"
             :label="{
               text: Translator.trans('public.participation.participate')
             }"
-            value="0" />
+            value="0"
+            @change="() => { setStatementData({ r_isNegativeReport: '0'}) }"
+          />
           <dp-radio
-            :disabled="canNotBeNegativeReport"
-            name="r_isNegativeReport"
             id="negative_report_true"
-            data-cy="statementModal:indicationerror"
             :checked="formData.r_isNegativeReport === '1'"
-            @change="() => { setStatementData({ r_isNegativeReport: '1'}) }"
+            data-cy="statementModal:indicationerror"
+            :disabled="canNotBeNegativeReport"
             :label="{
               hint: Translator.trans('link.title.indicationerror'),
               text: Translator.trans('indicationerror')
             }"
-            value="1" />
+            name="r_isNegativeReport"
+            value="1"
+            @change="() => { setStatementData({ r_isNegativeReport: '1'}) }"
+          />
         </div>
+
+        <!-- Existing draft WITHOUT localStorage: CustomFieldsList self-fetches, manages fieldset internally -->
+        <custom-fields-list
+          v-if="(draftStatementId && !draftHasLocalStorageData) && hasPermission('feature_statements_custom_fields')"
+          :class="prefixClass('mb-2')"
+          :definition-source-id="procedureId"
+          :list-title="Translator.trans('statement.data')"
+          :resource-id="draftStatementId"
+          :show-empty="true"
+          mode="editable"
+          resource-type="DraftStatement"
+          source-entity="PROCEDURE"
+          target-entity="STATEMENT"
+          @loaded="handleCustomFieldsListLoaded"
+          @update:value="handleCustomFieldValueUpdateFromList"
+        />
+
+        <!-- New statement OR draft with localStorage: individual fields with own fieldset -->
+        <fieldset
+          v-else-if="hasPermission('feature_statements_custom_fields') && selectableCustomFields.length > 0"
+          :class="prefixClass('mb-2 pb-0')"
+        >
+          <legend :class="prefixClass('mb-2 text-[1em] font-[500]')">
+            {{ Translator.trans('statement.data') }}
+          </legend>
+          <custom-field
+            v-for="customField in selectableCustomFields"
+            :key="customField.id"
+            ref="customFieldRefs"
+            :class="prefixClass('mb-2')"
+            :definition-source-id="procedureId"
+            :field-data="{ id: customField.id, value: customField.value }"
+            :resource-id="draftStatementId"
+            mode="editable"
+            resource-type="DraftStatement"
+            @update:value="(value) => handleCustomFieldValueUpdate(customField.id, value)"
+          />
+        </fieldset>
 
         <div :class="prefixClass('c-statement__text')">
           <dp-label
             :text="Translator.trans('statement.detail.form.statement_text')"
             for="statementText"
-            :required="formData.r_isNegativeReport !== '1'" />
+            :required="formData.r_isNegativeReport !== '1'"
+          />
           <dp-editor
-            :class="prefixClass('u-mb')"
-            :data-dp-validate-error-fieldname="Translator.trans('statement.text.short')"
-            hidden-input="r_text"
             id="statementText"
             ref="statementEditor"
+            :class="prefixClass('u-mb')"
+            :data-dp-validate-error-fieldname="Translator.trans('statement.text.short')"
             :readonly="formData.r_isNegativeReport === '1'"
             :required="formData.r_isNegativeReport !== '1'"
             :toolbar-items="{
@@ -145,11 +215,14 @@
               strikethrough: true
             }"
             :value="formData.r_text || ''"
-            @input="val => setStatementData({r_text: val})" />
+            hidden-input="r_text"
+            @input="val => setStatementData({r_text: val})"
+          />
         </div>
         <div
           v-if="loggedIn === false"
-          :class="prefixClass('u-mb')">
+          :class="prefixClass('u-mb')"
+        >
           <dp-checkbox
             id="confirmPrivacy"
             :checked="formData.r_privacy === 'on'"
@@ -160,10 +233,12 @@
             }"
             name="r_privacy"
             required
-            @change="val => setStatementData({r_privacy: val ? 'on' : 'off'})" />
+            @change="val => setStatementData({r_privacy: val ? 'on' : 'off'})"
+          />
         </div>
         <div
-          :class="prefixClass('u-mb')">
+          :class="prefixClass('u-mb')"
+        >
           <dp-checkbox
             v-if="hasPermission('field_statement_public_allowed') && publicParticipationPublicationEnabled && hasPermission('feature_statement_public_allowed_needs_verification')"
             id="r_makePublic"
@@ -173,7 +248,8 @@
               text: makePublicLabel
             }"
             name="r_makePublic"
-            @change="val => setStatementData({r_makePublic: val ? 'on' : 'off'})" />
+            @change="val => setStatementData({r_makePublic: val ? 'on' : 'off'})"
+          />
         </div>
 
         <template v-if="hasPermission('field_statement_add_assignment') && hasPlanningDocuments">
@@ -188,23 +264,28 @@
               :class="prefixClass('btn--blank o-link--default text-left')"
               data-cy="statementModal:elementAssign"
               :disabled="formData.r_isNegativeReport !== '0'"
-              @click="gotoTab('procedureDetailsDocumentlist')">
+              @click="gotoTab('procedureDetailsDocumentlist')"
+            >
               <i
                 aria-hidden="true"
-                :class="prefixClass('fa fa-plus')" />
+                :class="prefixClass('fa fa-plus')"
+              />
               {{ Translator.trans('element.assign') }}
             </button>
 
             <div
               v-if="formData.r_element_id !== ''"
-              :class="prefixClass('mb-3')">
+              :class="prefixClass('mb-3')"
+            >
               <button
                 aria-labelledby="documentReference"
                 :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up w-fit')"
-                @click="gotoTab('procedureDetailsDocumentlist')">
+                @click="gotoTab('procedureDetailsDocumentlist')"
+              >
                 <i
                   aria-hidden="true"
-                  :class="prefixClass('fa fa-pencil')" />
+                  :class="prefixClass('fa fa-pencil')"
+                />
                 {{ Translator.trans('document.reference.change') }}
               </button>
 
@@ -212,17 +293,20 @@
                 aria-labelledby="documentReference"
                 :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up w-fit')"
                 :href="Routing.generate( 'DemosPlan_procedure_public_detail', { procedure: procedureId }) + '#procedureDetailsDocumentlist'"
-                @click="removeDocumentRelation">
+                @click="removeDocumentRelation"
+              >
                 <i
                   aria-hidden="true"
-                  :class="prefixClass('fa fa-trash')" />
+                  :class="prefixClass('fa fa-trash')"
+                />
                 {{ Translator.trans('document.reference.delete') }}
               </button>
             </div>
 
             <dl
               v-if="formData.r_element_id !== ''"
-              :class="[highlighted.documents ? prefixClass('animation--bg-highlight-grey--light-2 space-y-2') : prefixClass('bg-color--grey-light-2'), 'mb-1 py-1 px-2']">
+              :class="[highlighted.documents ? prefixClass('animation--bg-highlight-grey--light-2 space-y-2') : prefixClass('bg-color--grey-light-2'), 'mb-1 py-1 px-2']"
+            >
               <div :class="prefixClass('md:flex')">
                 <dt :class="prefixClass('font-semibold w-1/6')">
                   {{ Translator.trans('document') }}:
@@ -234,7 +318,8 @@
 
               <div
                 v-if="formData.r_paragraph_id !== ''"
-                :class="prefixClass('md:flex')">
+                :class="prefixClass('md:flex')"
+              >
                 <dt :class="prefixClass('font-semibold w-1/6')">
                   {{ Translator.trans('paragraph') }}:
                 </dt>
@@ -245,7 +330,8 @@
 
               <div
                 v-if="formData.r_document_id !== ''"
-                :class="prefixClass('md:flex')">
+                :class="prefixClass('md:flex')"
+              >
                 <dt :class="prefixClass('font-semibold w-1/6')">
                   {{ Translator.trans('file') }}:
                 </dt>
@@ -260,50 +346,58 @@
         <!-- location reference -->
         <template v-if="(isMapEnabled && hasPermission('area_map_participation_area')) || hasPermission('field_statement_location')">
           <component
-            v-for="formDefinition in statementFormDefinitions"
             :is="formDefinition.component"
+            v-for="formDefinition in statementFormDefinitions"
             :key="formDefinition.key"
             :draft-statement-id="draftStatementId"
             :is-map-enabled="isMapEnabled"
             :disabled="formData.r_isNegativeReport !== '0'"
             :required="formDefinition.required && formData.r_isNegativeReport !== '1'"
             :logged-in="loggedIn"
-            :counties="counties" />
+            :counties="counties"
+          />
         </template>
 
         <template v-if="loggedIn">
           <fieldset>
             <legend
               class="sr-only"
-              v-text="Translator.trans('files.upload')" />
+              v-text="Translator.trans('files.upload')"
+            />
             <div
               v-if="hasPermission('field_statement_file')"
-              :class="prefixClass('u-mb-0_25 layout')">
+              :class="prefixClass('u-mb-0_25 layout')"
+            >
               <div
                 v-if="initialFiles.length > 0"
-                :class="prefixClass('layout__item u-1-of-2')">
+                :class="prefixClass('layout__item u-1-of-2')"
+              >
                 <p
-                  :class="prefixClass('weight--bold u-mb-0_25')">
+                  :class="prefixClass('weight--bold u-mb-0_25')"
+                >
                   {{ Translator.trans('attachments') }}
                 </p>
 
                 <div
                   v-for="(file, idx ) in initialFiles"
                   :key="`file_${idx}`"
-                  :class="prefixClass('o-hellip')">
+                  :class="prefixClass('o-hellip')"
+                >
                   <a
                     :class="prefixClass('align-top')"
                     :href="Routing.generate('core_file_procedure', { hash: file.hash, procedureId: procedureId })"
                     rel="noopener"
-                    target="_blank">
+                    target="_blank"
+                  >
                     {{ file.name }}
                   </a>
                   <label :class="prefixClass('lbl--text float-right')">
                     <input
                       :value="file.hash"
                       name="delete_file[]"
+                      type="checkbox"
                       @change="() => updateDeleteFile(file.hash)"
-                      type="checkbox">
+                    >
                     {{ Translator.trans('attachment.delete') }}
                   </label>
                 </div>
@@ -312,27 +406,29 @@
                 <dp-label
                   :class="prefixClass('mb-2')"
                   :text="Translator.trans('upload.files')"
-                  for="r_file" />
+                  for="r_file"
+                />
 
                 <dp-upload-files
                   id="upload_files"
+                  ref="uploadFiles"
                   :disabled="formData.r_isNegativeReport !== '0'"
                   allowed-file-types="pdf-img-zip"
-                  :basic-auth="dplan.settings.basicAuth"
                   :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
                   :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
                   :max-number-of-files="20"
-                  ref="uploadFiles"
                   :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
                   :tus-endpoint="dplan.paths.tusEndpoint"
                   :storage-name="fileStorageName"
                   @file-remove="removeUnsavedFile"
-                  @upload-success="addUnsavedFile" />
+                  @upload-success="addUnsavedFile"
+                />
               </div>
             </div>
             <div
               v-if="hasPermission('feature_statements_represent_orga')"
-              :class="prefixClass('layout')">
+              :class="prefixClass('layout')"
+            >
               <dp-input
                 id="r_represents"
                 :class="prefixClass('layout__item md:w-1/2')"
@@ -341,26 +437,30 @@
                 }"
                 name="r_represents"
                 :placeholder="Translator.trans('institution.represents')"
-                :value="formData.r_represents"
-                @input="val => setStatementData({r_represents: val})" />
+                :model-value="formData.r_represents"
+                @update:model-value="val => setStatementData({r_represents: val})"
+              />
             </div>
           </fieldset>
         </template>
         <div
           v-if="loggedIn"
-          :class="prefixClass('text-right sm:text-center md:text-right mb-2 flow-root')">
+          :class="prefixClass('text-right sm:text-center md:text-right mb-2 flow-root')"
+        >
           <!-- Logged in, existing draft statement -->
           <dp-loading
             v-if="isLoading"
             :class="prefixClass('align-text-bottom inline-block')"
-            hide-label />
+            hide-label
+          />
           <button
             v-if="displayEditSubmit"
             type="submit"
             :disabled="isLoading"
             :class="prefixClass('btn btn--primary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-palm')"
+            data-cy="saveChangedStatement"
             @click="sendStatement"
-            data-cy="saveChangedStatement">
+          >
             {{ Translator.trans('save.and.close') }}
           </button>
           <button
@@ -368,8 +468,9 @@
             type="submit"
             :disabled="isLoading"
             :class="prefixClass('btn btn--secondary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-palm u-ml-0_5-desk-up')"
+            data-cy="saveChangedStatementWothoutClosing"
             @click="e => sendStatement(e,false, true)"
-            data-cy="saveChangedStatementWothoutClosing">
+          >
             {{ Translator.trans('save') }}
           </button>
 
@@ -380,8 +481,9 @@
               type="submit"
               :disabled="isLoading"
               data-cy="statementModal:statementSaveImmediate"
+              :class="prefixClass('btn btn--primary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down')"
               @click="e => sendStatement(e,true)"
-              :class="prefixClass('btn btn--primary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down')">
+            >
               {{ Translator.trans('statement.save.immediate') }}
             </button>
             <button
@@ -391,8 +493,9 @@
                 hasPermission('feature_draft_statement_citizen_immediate_submit') ? prefixClass('btn--secondary') : prefixClass('btn--primary'),
                 prefixClass('btn u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down u-ml-0_5-desk-up')
               ]"
+              data-cy="statementModal:saveAsDraft"
               @click="sendStatement"
-              data-cy="statementModal:saveAsDraft">
+            >
               <template v-if="draftStatementId === ''">
                 {{ Translator.trans('statement.save.as.draft') }}
               </template>
@@ -406,33 +509,38 @@
             data-cy="statementModal:discardChanges"
             :disabled="isLoading"
             :class="prefixClass('btn btn--secondary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down u-ml-0_5-desk-up')"
-            @click.prevent="() => reset()">
+            @click.prevent="() => reset()"
+          >
             {{ Translator.trans('discard.changes') }}
           </button>
         </div>
         <!-- for not logged in users -->
         <div
           v-else
-          :class="prefixClass('text-right sm:text-center md:text-right mb-2')">
+          :class="prefixClass('flex flex-col sm:flex-row justify-end gap-2 mt-4')"
+        >
           <dp-loading
             v-if="isLoading"
             :class="prefixClass('align-text-bottom inline-block')"
-            hide-label />
+            hide-label
+          />
           <button
             type="reset"
             :disabled="isLoading"
-            :class="prefixClass('btn btn--secondary u-1-of-1-palm u-1-of-2-lap')"
+            :class="prefixClass('btn btn--secondary sm:w-1/2 md:w-auto')"
             data-cy="statementModal:discardStatement"
-            @click.prevent="() => reset()">
+            @click.prevent="() => reset()"
+          >
             {{ Translator.trans('discard.statement') }}
           </button>
           <button
             type="submit"
             data-cy="statementFormSubmit"
             :disabled="isLoading"
-            :class="prefixClass('btn btn--primary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down u-ml-0_5-desk-up')"
+            :class="prefixClass('btn btn--primary sm:w-1/2 md:w-auto')"
             form-name="statementForm"
-            @click="validateStatementStep">
+            @click="validateStatementStep"
+          >
             {{ Translator.trans('continue.personal_data') }}
           </button>
         </div>
@@ -440,15 +548,18 @@
 
       <!-- Personal data step -->
       <form
-        autocomplete="on"
         v-show="step === 1"
-        data-dp-validate="submitterForm">
+        autocomplete="on"
+        data-dp-validate="submitterForm"
+      >
         <dp-inline-notification
           :class="prefixClass('mt-3 mb-2')"
-          type="info">
+          type="info"
+        >
           <p
             v-if="statementFormHintPersonalData"
-            v-cleanhtml="statementFormHintPersonalData" />
+            v-cleanhtml="statementFormHintPersonalData"
+          />
           <p>
             {{ Translator.trans('error.mandatoryfields') }}
           </p>
@@ -462,86 +573,137 @@
           id="submitterFormErrors"
           tabindex="0"
           aria-labelledby="submitterFormErrorsContent"
-          :class="prefixClass('c-statement__formhint flash-error mb-2')">
+          :class="prefixClass('c-statement__formhint flash-error mb-2')"
+        >
           <i
             aria-hidden="true"
-            :class="prefixClass('c-statement__hint-icon fa fa-lg fa-exclamation-circle')" />
+            :class="prefixClass('c-statement__hint-icon fa fa-lg fa-exclamation-circle')"
+          />
           <div
             id="submitterFormErrorsContent"
+            v-cleanhtml="createErrorMessage('submitterForm')"
             :class="prefixClass('ml-4')"
-            v-cleanhtml="createErrorMessage('submitterForm')" />
+          />
         </div>
 
+        <!-- Show radio buttons if anonymous statements are allowed -->
         <fieldset
-          aria-required="true"
+          v-if="allowAnonymousStatements"
+          id="personalInfoFieldsetAnonymous"
+          :aria-hidden="step === 2"
           :class="prefixClass('mt-5')"
-          id="personalInfoFieldset"
+          aria-required="true"
           role="radiogroup"
-          required>
+          required
+        >
           <div
-            aria-live="polite"
-            aria-relevant="all"
             :class="[
               formData.r_useName === '1' ? prefixClass('bg-color--grey-light-2') : '',
               prefixClass('c-statement__formblock')
             ]"
-            aria-labelledby="statement-detail-post-publicly">
+            aria-labelledby="statement-detail-post-publicly"
+            aria-live="polite"
+            aria-relevant="all"
+          >
             <dp-radio
+              id="r_useName_1"
               :checked="formData.r_useName === '1'"
               :class="prefixClass('mb-1')"
-              data-cy="submitPublicly"
-              id="r_useName_1"
               :label="{
                 text: Translator.trans('statement.detail.form.personal.post_publicly')
               }"
+              data-cy="submitPublicly"
               name="r_useName"
               value="1"
-              @change="val => setPrivacyPreference({r_useName: '1'})" />
+              @change="val => setPrivacyPreference({r_useName: '1'})"
+            />
+
             <div
               v-show="formData.r_useName === '1'"
-              :class="prefixClass('layout mb-3 ml-2')">
+              :class="prefixClass('layout mb-3 ml-2')"
+            >
               <component
-                v-for="formDefinition in personalDataFormDefinitions"
                 :is="formDefinition.component"
-                :draft-statement-id="draftStatementId"
-                :required="formDefinition.required"
-                :form-options="formOptions"
+                v-for="formDefinition in personalDataFormDefinitions"
+                :key="formDefinition.key"
                 :class="prefixClass('layout__item u-1-of-1-palm mt-1 ' + formDefinition.width)"
-                :key="formDefinition.key" />
+                :draft-statement-id="draftStatementId"
+                :form-options="formOptions"
+                :required="formDefinition.required"
+              />
             </div>
           </div>
+
           <div
             :class="[
               formData.r_useName === '0' ? prefixClass('bg-color--grey-light-2') : '',
               prefixClass('c-statement__formblock')
-            ]">
+            ]"
+          >
             <dp-radio
-              aria-labelledby="statement-detail-post-anonymously"
-              :checked="formData.r_useName === '0'"
-              data-cy="submitAnonymously"
               id="r_useName_0"
+              :checked="formData.r_useName === '0'"
               :label="{
                 text: Translator.trans('statement.detail.form.personal.post_anonymously')
               }"
+              aria-labelledby="statement-detail-post-anonymously"
+              data-cy="submitAnonymously"
               name="r_useName"
               value="0"
-              @change="val => setPrivacyPreference({r_useName: '0'})" />
+              @change="val => setPrivacyPreference({r_useName: '0'})"
+            />
+          </div>
+        </fieldset>
+
+        <!-- Show the form directly if anonymous statements are not allowed -->
+        <fieldset
+          v-else
+          id="personalInfoFieldsetDirectly"
+          :aria-hidden="step === 2"
+          :class="prefixClass('mt-4')"
+          aria-required="true"
+        >
+          <legend class="sr-only">
+            {{ Translator.trans('personal.data') }}
+          </legend>
+          <div :class="prefixClass('layout mb-3')">
+            <component
+              :is="formDefinition.component"
+              v-for="formDefinition in personalDataFormDefinitions"
+              :key="formDefinition.key"
+              :class="prefixClass('layout__item u-1-of-1-palm mt-1 ' + formDefinition.width)"
+              :draft-statement-id="draftStatementId"
+              :form-options="formOptions"
+              :required="formDefinition.required"
+            />
           </div>
         </fieldset>
 
         <component
-          v-for="formDefinition in statementFeedbackDefinitions"
           :is="formDefinition.component"
+          v-for="formDefinition in statementFeedbackDefinitions"
           :key="formDefinition.key"
           :draft-statement-id="draftStatementId"
-          :required="formDefinition.required" />
-        <div :class="prefixClass('text-right mt-3')">
+          :public-participation-feedback-enabled="publicParticipationFeedbackEnabled"
+          :required="formDefinition.required"
+        />
+        <div :class="prefixClass('flex flex-col sm:flex-row justify-between gap-2 mt-6')">
           <button
+            :class="prefixClass('btn btn--secondary sm:w-1/2 md:w-auto')"
+            data-cy="statementModal:backToStatement"
             type="button"
+            @click="goToPreviousStep"
+          >
+            {{ Translator.trans('go.back.to.statement') }}
+          </button>
+
+          <button
+            :class="prefixClass('btn btn--primary sm:w-1/2 md:w-auto')"
             data-cy="submitterForm"
-            :class="prefixClass('btn btn--primary')"
             form-name="submitterForm"
-            @click="dpValidateAction('submitterForm', validatePersonalDataStep, true)">
+            type="button"
+            @click="dpValidateAction('submitterForm', validatePersonalDataStep, true)"
+          >
             {{ Translator.trans('continue.submission') }}
           </button>
         </div>
@@ -550,36 +712,46 @@
       <!-- recheck -->
       <section
         v-show="step === 2"
-        data-dp-validate="recheckForm">
+        data-dp-validate="recheckForm"
+      >
         <statement-modal-recheck
-          @edit-input="handleEditInput"
+          :allow-anonymous-statements="allowAnonymousStatements"
           :form-fields="formFields"
           :statement="formData"
           :public-participation-publication-enabled="publicParticipationPublicationEnabled"
+          :public-participation-feedback-enabled="publicParticipationFeedbackEnabled"
           :statement-feedback-definitions="statementFeedbackDefinitions"
-          :statement-form-hint-recheck="statementFormHintRecheck" />
+          :statement-form-hint-recheck="statementFormHintRecheck"
+          :selectable-custom-fields="selectableCustomFields"
+          :procedure-id="procedureId"
+          @edit-input="handleEditInput"
+        />
 
         <label
           v-if="hasPermission('feature_statement_data_protection')"
-          :class="prefixClass('u-mb-0 weight--normal')"
           id="data_protection_label"
-          :title="Translator.trans('statements.required.field')">
+          :class="prefixClass('u-mb-0 weight--normal')"
+          :title="Translator.trans('statements.required.field')"
+        >
           <input
-            type="checkbox"
             id="data_protection"
+            type="checkbox"
             name="r_data_protection"
             required
-            aria-labelledby="explanation-statement-data-protection">
+            aria-labelledby="explanation-statement-data-protection"
+          >
           <span
             id="explanation-statement-data-protection"
-            aria-hidden="true">
+            aria-hidden="true"
+          >
             {{ Translator.trans('explanation.statement.data.protection') }}
             <a
               :aria-label="Translator.trans('data.protection.more')"
               :class="prefixClass('o-link--default')"
               :href="Routing.generate('DemosPlan_misccontent_static_dataprotection')"
               rel="noopener"
-              target="_blank">
+              target="_blank"
+            >
               {{ Translator.trans('data.protection.more') }}
             </a>
             <span aria-hidden="true">*</span>
@@ -598,19 +770,31 @@
           }"
           name="r_gdpr_consent"
           required
-          @change="val => setStatementData({r_gdpr_consent: val ? 'on' : 'off'})" />
+          @change="val => setStatementData({r_gdpr_consent: val ? 'on' : 'off'})"
+        />
 
-        <div :class="prefixClass('text-right')">
+        <div :class="prefixClass('flex flex-col sm:flex-row justify-between gap-2 mt-6')">
+          <button
+            :class="prefixClass('btn btn--secondary sm:w-1/2 md:w-auto')"
+            data-cy="statementModal:backToPersonalData"
+            type="button"
+            @click.prevent="goToPreviousStep"
+          >
+            {{ Translator.trans('go.back.to.personal.data') }}
+          </button>
+
           <dp-loading
             v-if="isLoading"
             :class="prefixClass('align-text-bottom inline-block')"
-            hide-label />
+            hide-label
+          />
           <button
-            type="button"
-            data-cy="sendStatementNow"
+            :class="prefixClass('btn btn--primary sm:w-1/2 md:w-auto')"
             :disabled="isLoading"
-            :class="prefixClass('btn btn--primary')"
-            @click.prevent="e => dpValidateAction('recheckForm', () => sendStatement(e))">
+            data-cy="sendStatementNow"
+            type="button"
+            @click.prevent="e => dpValidateAction('recheckForm', () => sendStatement(e))"
+          >
             {{ Translator.trans('statement.submit.now') }}
           </button>
         </div>
@@ -618,27 +802,31 @@
       <section v-show="step === 3">
         <div
           v-if="responseHtml !== ''"
-          v-cleanhtml="responseHtml" />
+          v-cleanhtml="responseHtml"
+        />
         <template v-else>
           <h2
-            :class="prefixClass('color-highlight')"
             id="statementModalTitle"
+            :class="prefixClass('color-highlight')"
             data-title="confirmation"
-            tabindex="0"
-            aria-describedby="successConfirmation">
+            aria-describedby="successConfirmation"
+          >
             <i
               :class="prefixClass('fa fa-comment')"
-              aria-hidden="true" />
+              aria-hidden="true"
+            />
             {{ Translator.trans('participation.thank.you') }}
           </h2>
 
           <span
             id="successConfirmation"
-            :class="prefixClass('u-mb')">
+            :class="prefixClass('u-mb')"
+          >
             <p :class="prefixClass('flash-confirm c-statement__formhint')">
               <i
                 :class="prefixClass('fa fa-check fa-lg')"
-                aria-hidden="true" />
+                aria-hidden="true"
+              />
               <span v-cleanhtml="Translator.trans('confirm.statement.submitted.public', { externId: extId })" />
             </p>
 
@@ -650,20 +838,23 @@
               :href="Routing.generate('DemosPlan_statement_single_export_pdf',{ sId: draftStatementId , procedure: procedureId })"
               data-cy="statementModal:downloadPDF"
               rel="noopener"
-              target="_blank">
+              target="_blank"
+            >
               <i
                 :class="prefixClass('fa fa-file')"
-                aria-hidden="true" />
+                aria-hidden="true"
+              />
               {{ Translator.trans('pdf.download') }}
             </a>
 
             <span :class="prefixClass('float-right text-right u-1-of-1-palm u-mt-0_5-palm')">
               <a
                 :class="prefixClass('btn btn--secondary')"
-                @click="toggleModal"
                 :href="Routing.generate('DemosPlan_procedure_public_detail', { procedure: procedureId })"
                 data-cy="statementModal:close"
-                rel="noopener">
+                rel="noopener"
+                @click="toggleModal"
+              >
                 {{ Translator.trans('close') }}
               </a>
             </span>
@@ -676,7 +867,6 @@
 
 <script>
 import {
-  checkResponse,
   CleanHtml,
   dpApi,
   DpCheckbox,
@@ -685,7 +875,9 @@ import {
   DpLabel,
   DpLoading,
   DpModal,
+  DpMultiselect,
   DpMultistepNav,
+  DpProgressBar,
   DpRadio,
   DpUploadFiles,
   dpValidateMixin,
@@ -693,11 +885,15 @@ import {
   isActiveFullScreen,
   makeFormPost,
   prefixClassMixin,
-  toggleFullscreen
+  toggleFullscreen,
 } from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
+import CustomField from '@DpJs/components/customFields/CustomField'
+import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
 import dayjs from 'dayjs'
+import { defineAsyncComponent } from 'vue'
 import StatementModalRecheck from './StatementModalRecheck'
+import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 // This is the mapping between form field ids and translation keys, which are displayed in the error message if the field contains an error
 const fieldDescriptionsForErrors = {
@@ -715,170 +911,193 @@ const fieldDescriptionsForErrors = {
   r_getEvaluation: 'statement.feedback',
   r_phone: 'phone',
   personalInfoFieldset: 'submit.type',
+  personalInfoFieldsetAnonymous: 'submit.type',
+  personalInfoFieldsetDirectly: 'submit.type',
   submitterTypeFieldset: 'submitter',
   r_houseNumber: 'street.number.short',
   r_street: 'street',
-  r_userOrganisation: 'institution.name'
+  r_userOrganisation: 'institution.name',
 }
 
 export default {
   name: 'StatementModal',
 
   components: {
+    CustomField,
+    CustomFieldsList,
     DpCheckbox,
     DpInlineNotification,
     DpInput,
     DpLabel,
     DpLoading,
     DpModal,
+    DpMultiselect,
     DpMultistepNav,
+    DpProgressBar,
     DpRadio,
-    DpEditor: async () => {
+    DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
+
       return DpEditor
-    },
+    }),
     DpUploadFiles,
-    FormGroupCitizenOrInstitution: () => import('./formGroups/FormGroupCitizenOrInstitution'),
-    FormGroupCountyReference: () => import('./formGroups/FormGroupCountyReference'),
-    FormGroupEmailAddress: () => import('./formGroups/FormGroupEmailAddress'),
-    FormGroupEvaluationMailViaEmail: () => import('./formGroups/FormGroupEvaluationMailViaEmail'),
-    FormGroupEvaluationMailViaSnailMailOrEmail: () => import('./formGroups/FormGroupEvaluationMailViaSnailMailOrEmail'),
-    FormGroupMapReference: () => import('./formGroups/FormGroupMapReference'),
-    FormGroupName: () => import('./formGroups/FormGroupName'),
-    FormGroupPhoneNumber: () => import('./formGroups/FormGroupPhoneNumber'),
-    FormGroupPhoneOrEmail: () => import('./formGroups/FormGroupPhoneOrEmail'),
-    FormGroupPostalAndCity: () => import('./formGroups/FormGroupPostalAndCity'),
-    FormGroupStateAndGroupAndOrgaNameAndPosition: () => import('./formGroups/FormGroupStateAndGroupAndOrgaNameAndPosition'),
-    FormGroupStreet: () => import('./formGroups/FormGroupStreet'),
-    FormGroupStreetAndHouseNumber: () => import('./formGroups/FormGroupStreetAndHouseNumber'),
-    StatementModalRecheck
+    FormGroupCitizenOrInstitution: defineAsyncComponent(() => import('./formGroups/FormGroupCitizenOrInstitution')),
+    FormGroupCountyReference: defineAsyncComponent(() => import('./formGroups/FormGroupCountyReference')),
+    FormGroupEmailAddress: defineAsyncComponent(() => import('./formGroups/FormGroupEmailAddress')),
+    FormGroupEvaluationMailViaEmail: defineAsyncComponent(() => import('./formGroups/FormGroupEvaluationMailViaEmail')),
+    FormGroupEvaluationMailViaSnailMailOrEmail: defineAsyncComponent(() => import('./formGroups/FormGroupEvaluationMailViaSnailMailOrEmail')),
+    FormGroupMapReference: defineAsyncComponent(() => import('./formGroups/FormGroupMapReference')),
+    FormGroupName: defineAsyncComponent(() => import('./formGroups/FormGroupName')),
+    FormGroupPhoneNumber: defineAsyncComponent(() => import('./formGroups/FormGroupPhoneNumber')),
+    FormGroupPhoneOrEmail: defineAsyncComponent(() => import('./formGroups/FormGroupPhoneOrEmail')),
+    FormGroupPostalAndCity: defineAsyncComponent(() => import('./formGroups/FormGroupPostalAndCity')),
+    FormGroupStateAndGroupAndOrgaNameAndPosition: defineAsyncComponent(() => import('./formGroups/FormGroupStateAndGroupAndOrgaNameAndPosition')),
+    FormGroupStreet: defineAsyncComponent(() => import('./formGroups/FormGroupStreet')),
+    FormGroupStreetAndHouseNumber: defineAsyncComponent(() => import('./formGroups/FormGroupStreetAndHouseNumber')),
+    StatementModalRecheck,
   },
 
   directives: {
-    cleanhtml: CleanHtml
+    cleanhtml: CleanHtml,
   },
 
   mixins: [dpValidateMixin, prefixClassMixin],
 
   props: {
+    allowAnonymousStatements: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
+
     counties: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     currentPage: {
       type: String,
       required: false,
-      default: 'publicDetail'
+      default: 'publicDetail',
     },
 
     extId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     extraPersonalHint: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     feedbackFormFields: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     formOptions: {
       type: [Object, Array],
       required: false,
-      default: () => ({})
+      default: () => ({}),
     },
 
     initHasPlanningDocuments: {
       type: Boolean,
       required: false,
-      default: true
+      default: true,
     },
 
     isMapEnabled: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     loggedIn: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     orgaId: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     personalDataFormFields: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     planningDocumentsHasNegativeStatement: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     procedureId: {
       type: String,
-      required: true
+      required: true,
     },
 
     projectName: {
       type: String,
-      required: true
+      required: true,
     },
 
     publicParticipationPublicationEnabled: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
+    },
+
+    publicParticipationFeedbackEnabled: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
 
     initRedirectPath: {
       type: String,
       required: false,
-      default: 'DemosPlan_procedure_public_detail'
+      default: 'DemosPlan_procedure_public_detail',
     },
 
     statementFormFields: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
 
     statementFormHintPersonalData: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     statementFormHintRecheck: {
       type: String,
       required: false,
-      default: ''
+      default: '',
     },
 
     statementFormHintStatement: {
       type: String,
       required: false,
-      default: ''
-    }
+      default: '',
+    },
   },
+
+  emits: [
+    'toggleTabs',
+  ],
 
   data () {
     return {
@@ -898,30 +1117,37 @@ export default {
         countyReference: { component: 'FormGroupCountyReference' },
         stateAndGroupAndOrgaNameAndPosition: {
           component: 'FormGroupStateAndGroupAndOrgaNameAndPosition',
-          width: 'u-1-of-1'
-        }
+          width: 'u-1-of-1',
+        },
       },
       continueWriting: false,
       draftStatementId: '',
       editDraftDataInPublicDetail: true,
+      fieldIdsWithServerValues: [],
       formFields: [...this.statementFormFields, ...this.personalDataFormFields, ...this.feedbackFormFields],
       hasPlanningDocuments: this.initHasPlanningDocuments,
       isLoading: false,
       makePublicLabel: (() => {
         let label = Translator.trans('explanation.statement.public', { projectName: this.projectName })
+
         /*
          * While published statements of citizens do not show their name, the orga name of institutions is shown on
          * statements published by them.
          */
         label += ' ' + Translator.trans(hasPermission('feature_statement_publish_name') ? 'explanation.statement.public.organame' : 'explanation.statement.public.noname')
+
         return label
       })(),
+      draftHasLocalStorageData: false,
+      openedFromDraftList: false,
       redirectPath: 'DemosPlan_procedure_public_detail',
       responseHtml: '',
+      selectableCustomFields: [],
       showHeader: true,
+      statementCustomFields: [],
       step: 0,
       unsavedFiles: [],
-      updateDraftListRequired: false
+      updateDraftListRequired: false,
     }
   },
 
@@ -935,7 +1161,7 @@ export default {
       highlighted: 'highlighted',
       localStorageName: 'localStorageName',
       unsavedDrafts: 'unsavedDrafts',
-      userId: 'userId'
+      userId: 'userId',
     }),
 
     canNotBeNegativeReport () {
@@ -967,14 +1193,16 @@ export default {
         return JSON.parse(this.formData.r_files_initial)
           .map(fileString => {
             const fileArray = fileString.split(':')
+
             return {
               name: fileArray[0],
               hash: fileArray[1],
               size: fileArray[2],
-              type: fileArray[3]
+              type: fileArray[3],
             }
           })
       }
+
       return []
     },
 
@@ -982,9 +1210,14 @@ export default {
       return this.unsavedDrafts.includes(this.draftStatementId)
     },
 
+    isNameUsageRequired () {
+      return !this.allowAnonymousStatements && this.formData.r_useName !== '1'
+    },
+
     personalDataFormDefinitions () {
       return this.personalDataFormFields.map(el => {
         this.availableFormComponents[el.name].width = this.availableFormComponents[el.name].width || 'u-1-of-2'
+
         return { ...el, ...this.availableFormComponents[el.name] }
       })
     },
@@ -999,17 +1232,38 @@ export default {
       return this.feedbackFormFields.map(el => {
         return { ...el, ...this.availableFormComponents[el.name] }
       })
-    }
+    },
+
+    stepsData () {
+      return [
+        {
+          label: Translator.trans('statement.yours'),
+          icon: this.commentingIcon,
+          title: Translator.trans('statement.modal.step.write'),
+        },
+        {
+          label: Translator.trans('personal.data'),
+          icon: 'fa-user',
+          title: Translator.trans('statement.modal.step.personal.data'),
+        },
+        {
+          label: Translator.trans('recheck'),
+          icon: 'fa-check',
+          title: Translator.trans('statement.modal.step.recheck'),
+        },
+      ]
+    },
   },
 
   watch: {
     formData: {
       handler (newFormData) {
         const parsed = JSON.stringify(newFormData)
+
         this.continueWriting = this.initFormDataJSON !== parsed
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
@@ -1017,16 +1271,36 @@ export default {
 
     ...mapMutations('PublicStatement', [
       'addUnsavedDraft',
+      'applyInitialDefaults',
       'clearDraftState',
       'removeStatementProp',
       'removeUnsavedDraft',
       'resetInitForm',
       'resetStatement',
+      'resetStatementIdentifier',
       'update',
       'updateHighlighted',
       'updateDeleteFile',
-      'updateStatement'
+      'updateStatement',
     ]),
+
+    resetCustomFieldState () {
+      // Reset selectableCustomFields to initial empty state
+      this.selectableCustomFields = this.selectableCustomFields.map(field => ({
+        ...field,
+        value: field.fieldType === 'multiSelect' ? [] : null,
+      }))
+
+      // Clear readonly display custom fields
+      this.statementCustomFields = []
+
+      this.fieldIdsWithServerValues = []
+
+      // Clear formData.customFields
+      if (this.formData.customFields && this.formData.customFields.length > 0) {
+        this.setStatementData({ customFields: [] })
+      }
+    },
 
     // On every successful upload of a file, both `this.unsavedFiles` and `this.statement` are updated.
     addUnsavedFile (file) {
@@ -1042,72 +1316,149 @@ export default {
       const invalidFields = this.dpValidate.invalidFields[formId]
       const uniqueFieldDescriptions = Array.from(new Set(invalidFields.map(field => {
         const fieldId = field.getAttribute('id')
-        return `<li>${Translator.trans(fieldDescriptionsForErrors[fieldId])}</li>`
+
+        return `<li>${fieldDescriptionsForErrors[fieldId] ? Translator.trans(fieldDescriptionsForErrors[fieldId]) : field.dataset?.dpValidateErrorFieldname}</li>`
       })))
+
       return `<p>${Translator.trans('error.in.fields')}</p><ul class="list-disc u-ml-0_75">${uniqueFieldDescriptions.join('')}</ul>`
+    },
+
+    async fetchCustomFields () {
+      if (!hasPermission('feature_statements_custom_fields')) {
+        return
+      }
+
+      try {
+        const url = Routing.generate('api_resource_list', {
+          resourceType: 'CustomField',
+        })
+
+        const params = {
+          fields: {
+            CustomField: [
+              'name',
+              'description',
+              'options',
+              'fieldType',
+              'isRequired',
+            ].join(),
+          },
+          filter: {
+            sourceEntity: {
+              condition: {
+                path: 'sourceEntity',
+                value: 'PROCEDURE',
+              },
+            },
+            sourceEntityId: {
+              condition: {
+                path: 'sourceEntityId',
+                value: this.procedureId,
+              },
+            },
+            targetEntity: {
+              condition: {
+                path: 'targetEntity',
+                value: 'STATEMENT',
+              },
+            },
+          },
+        }
+
+        const response = await dpApi.get(url, params)
+
+        const customFields = response.data.data || []
+
+        this.selectableCustomFields = customFields.map(field => ({
+          id: field.id,
+          name: field.attributes.name,
+          description: field.attributes.description,
+          isRequired: field.attributes.isRequired || false,
+          options: Array.isArray(field.attributes.options) ? field.attributes.options : [],
+          // Initialize value based on field type to avoid null issues
+          value: field.attributes.fieldType === 'multiSelect' ? [] : null,
+        }))
+      } catch (error) {
+        console.log(error)
+
+        this.selectableCustomFields = []
+      }
     },
 
     fieldIsActive (fieldKey) {
       return this.formFields.map(el => el.name).includes(fieldKey)
     },
 
-    getDraftStatement (draftStatementId, openModal = false) {
+    focusMultistep (step) {
+      this.$nextTick(() => {
+        const currentMultistepButton = this.$el.querySelectorAll('.c-multistep__step')[step]
+
+        if (currentMultistepButton) {
+          currentMultistepButton.focus()
+        }
+      })
+    },
+
+    getDraftStatement (draftStatementId, openModal = false, fromDraftList = false) {
       this.writeDraftStatementIdToSession(draftStatementId)
 
+      this.openedFromDraftList = fromDraftList
+
+      // Reset state when opening for new statement
+      if (draftStatementId === '') {
+        this.resetCustomFieldState()
+        this.resetStatementIdentifier()
+      }
+
       // If the draft already exists. load it from session storage
-      const dId = draftStatementId !== '' ? draftStatementId : 'new'
+      const dId = draftStatementId === '' ? 'new' : draftStatementId
       const existingDataString = localStorage.getItem(`publicStatement:${this.userId}:${this.procedureId}:${dId}`)
       const draftExists = (draftStatementId !== '' && existingDataString !== null)
+
+      /*
+       * When opening from the draft list, the server is the source of truth for custom fields.
+       * Only use localStorage values for custom fields when editing a new (not yet submitted) statement.
+       */
+      this.draftHasLocalStorageData = draftExists && !fromDraftList
+
       if (draftExists) {
         const existingData = JSON.parse(existingDataString)
 
         this.setStatementData(existingData)
+
+        this.fieldIdsWithServerValues = (existingData.customFields || [])
+          .filter(customField => customField.value != null)
+          .map(customField => customField.id)
+
+        // Always restore custom field selections (for both new and draft statements)
+        this.$nextTick(() => {
+          this.restoreCustomFieldSelections()
+        })
       }
 
       // Else: get the data via api
       return dpApi({
         method: 'GET',
-        url: Routing.generate('DemosPlan_statement_get_ajax', { procedureId: this.procedureId, draftStatementId: this.draftStatementId })
+        url: Routing.generate('DemosPlan_statement_get_ajax', { procedureId: this.procedureId, draftStatementId: this.draftStatementId }),
       })
-        .then(checkResponse)
-        .then(data => {
-          const priorityAreaKey = data.draftStatement.statementAttributes.priorityAreaKey || ''
-          const priorityAreaType = data.draftStatement.statementAttributes.priorityAreaType || ''
-          const statementFiles = data.draftStatement.files ? JSON.stringify(data.draftStatement.files) : ''
-
-          const draft = {
-            r_text: data.draftStatement.text,
-            r_files_initial: statementFiles || [],
-            r_ident: this.draftStatementId,
-            r_isNegativeReport: data.draftStatement.negativ ? '1' : '0',
-            r_element_id: data.draftStatement.elementId || '',
-            r_element_title: !!data.draftStatement.element && !!data.draftStatement.element.title ? data.draftStatement.element.title : '',
-            r_paragraph_id: data.draftStatement.paragraphId || '',
-            r_paragraph_title: !!data.draftStatement.paragraph && !!data.draftStatement.paragraph.title ? data.draftStatement.paragraph.title : '',
-            r_document_id: !!data.draftStatement.document && !!data.draftStatement.document.id ? data.draftStatement.document.id : '',
-            r_document_title: !!data.draftStatement.document && !!data.draftStatement.document.title ? data.draftStatement.document.title : '',
-            r_represents: data.draftStatement.represents !== null ? data.draftStatement.represents : '',
-            r_location: Object.keys(data.draftStatement.statementAttributes).reduce((acc, key) => {
-              acc = key
-              return acc
-            }, 'mapLocation'),
-            r_location_geometry: data.draftStatement.polygon,
-            r_location_priority_area_key: priorityAreaKey,
-            r_location_priority_area_type: priorityAreaType,
-            r_location_point: '',
-            location_is_set: priorityAreaKey.length > 0 ? 'priority_area' : 'geometry',
-            r_county: data.draftStatement.statementAttributes.county ? data.draftStatement.statementAttributes.county : '',
-            r_makePublic: !!data.draftStatement.publicAllowed
-          }
+        .then(({ data }) => {
           this.hasPlanningDocuments = data.hasPlanningDocuments || this.initHasPlanningDocuments
-          if (draft.r_location === 'noLocation') draft.r_location = 'notLocated'
-          if (draft.r_location === 'mapLocation' && data.draftStatement.polygon) draft.r_location = 'point'
 
           if (draftExists === false) {
+            const priorityAreaKey = data.draftStatement.statementAttributes.priorityAreaKey || ''
+            const priorityAreaType = data.draftStatement.statementAttributes.priorityAreaType || ''
+            const draft = this.setDraftData(data, priorityAreaKey, priorityAreaType)
+
             /*
              * If it is a draft, we set the data from local storage (see above).
              */
             this.setStatementData(draft)
+
+            // Always restore custom field selections (for both new and draft statements)
+            this.$nextTick(() => {
+              this.restoreCustomFieldSelections()
+            })
+
             this.removeStatementProp('immediate_submit')
             sessionStorage.removeItem(this.fileStorageName)
 
@@ -1127,6 +1478,103 @@ export default {
         })
     },
 
+    goToPreviousStep () {
+      if (this.step > 0) {
+        this.step -= 1
+      }
+    },
+
+    gotoTab (tab) {
+      if (document.getElementById(tab)) {
+        this.$emit('toggleTabs', '#' + tab)
+      }
+
+      if (this.currentPage === 'publicDetail') {
+        this.toggleModal(false)
+      } else {
+        window.location.href = Routing.generate('DemosPlan_procedure_public_detail', { procedure: this.procedureId }) + `#${tab}`
+      }
+    },
+
+    handleCustomFieldChange () {
+      this.$nextTick(() => {
+        if (!this.selectableCustomFields || this.selectableCustomFields.length === 0) {
+          this.setStatementData({ customFields: [] })
+
+          return
+        }
+
+        const customFields = this.selectableCustomFields
+          .filter(field => {
+            // Filter out fields with no value
+            const hasValue = field.value != null &&
+              (Array.isArray(field.value) ? field.value.length > 0 : field.value !== '')
+
+            return hasValue
+          })
+          .map(field => ({
+            id: field.id,
+            value: field.value,
+          }))
+
+        this.setStatementData({ customFields })
+      })
+    },
+
+    /**
+     * Get current value for a custom field
+     * Reads from statementCustomFields[].value (Source of Truth)
+     * Returns raw backend value (IDs, text, etc.) for CustomField
+     */
+    getCustomFieldValue (fieldId) {
+      const selectableField = this.selectableCustomFields?.find(f => f.id === fieldId)
+
+      if (!selectableField) {
+        return null
+      }
+
+      // Return raw value directly (backend format)
+      return selectableField.value ?? null
+    },
+
+    /**
+     * Handle custom field value updates from CustomField component
+     * Updates BOTH formData.customFields AND selectableCustomFields[].value
+     * Now stores raw backend values (IDs) instead of objects
+     */
+    handleCustomFieldValueUpdate (fieldId, newValue) {
+      // 1. Update selectableCustomFields[].value (backend format)
+      const fieldIndex = this.selectableCustomFields.findIndex(f => f.id === fieldId)
+
+      if (fieldIndex !== -1) {
+        /*
+         * Store raw value directly (IDs, not objects)
+         * CustomField handles the ID-to-object transformation internally
+         */
+        this.selectableCustomFields = this.selectableCustomFields.map((field, idx) =>
+          idx === fieldIndex ?
+            { ...field, value: newValue } :
+            field,
+        )
+      }
+
+      // 2. Update formData.customFields (for submit)
+      if (!this.formData.customFields) {
+        this.setStatementData({ customFields: [] })
+      }
+
+      const customFields = [...(this.formData.customFields || [])]
+      const existingIndex = customFields.findIndex(f => f.id === fieldId)
+
+      if (existingIndex >= 0) {
+        customFields[existingIndex] = { id: fieldId, value: newValue }
+      } else {
+        customFields.push({ id: fieldId, value: newValue })
+      }
+
+      this.setStatementData({ customFields })
+    },
+
     /*
      * When clicking the little ✎ icon in the "recheck" step, users are sent to the
      * respective multistep step, and afterwards the element they want to edit is focused.
@@ -1136,71 +1584,26 @@ export default {
       this.step = {
         r_text: 0,
         r_makePublic: 0,
+        r_customFields: 0,
         r_useName_0: 1,
         r_useName_1: 1,
-        r_getFeedback: 1
+        r_getFeedback: 1,
       }[input] || 0
       this.$nextTick(() => {
         // Focusing of the tiptap instance must be handled separately
         if (input === 'r_text') {
           this.$refs.statementEditor.editor.focus('end')
+        } else if (input === 'r_customFields') {
+          // Scroll to first custom field
+          const firstCustomField = document.querySelector('[data-cy^="customField"]')
+
+          if (firstCustomField) {
+            firstCustomField.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          }
         } else {
           document.getElementById(input).focus()
         }
       })
-    },
-
-    loadDraftListPage () {
-      if (window.location.href.includes(Routing.generate('DemosPlan_statement_list_draft', { procedure: this.procedureId })) || window.location.href.includes(Routing.generate('DemosPlan_statement_list_released_group', { procedure: this.procedureId }))) {
-        window.location.reload()
-      } else {
-        window.location.href = Routing.generate(this.redirectPath, { procedure: this.procedureId }) + '#' + this.draftStatementId
-      }
-    },
-
-    reset () {
-      if (window.dpconfirm(Translator.trans('check.statement.discard.changes'))) {
-        this.unsavedFiles.forEach(file => {
-          this.$refs.uploadFiles.handleRemove(file)
-        })
-        this.$refs.statementEditor.resetEditor()
-        this.setStatementData(JSON.parse(this.initFormDataJSON))
-        this.addToUnsavedDrafts = false
-        this.toggleModal(false)
-        this.step = 0
-        this.showHeader = true
-        this.$nextTick(() => {
-          this.$root.$emit('uploader-reset')
-
-          if (this.draftStatementId !== '') {
-            window.location.href = Routing.generate(this.redirectPath, { procedure: this.procedureId, _fragment: this.draftStatementId })
-          }
-        })
-
-        this.resetSessionStorage()
-        sessionStorage.removeItem('redirectpath')
-      }
-    },
-
-    focusMultistep (step) {
-      this.$nextTick(() => {
-        const currentMultistepButton = this.$el.querySelectorAll('.c-multistep__step')[step]
-        if (currentMultistepButton) {
-          currentMultistepButton.focus()
-        }
-      })
-    },
-
-    gotoTab (tab) {
-      if (document.getElementById(tab)) {
-        this.$emit('toggle-tabs', '#' + tab)
-      }
-
-      if (this.currentPage === 'publicDetail') {
-        this.toggleModal(false)
-      } else {
-        window.location.href = Routing.generate('DemosPlan_procedure_public_detail', { procedure: this.procedureId }) + `#${tab}`
-      }
     },
 
     handleModalToggle (open) {
@@ -1215,10 +1618,103 @@ export default {
           this.removeUnsavedDraft(this.draftStatementId)
         }
 
+        // Clear r_ident to prevent pollution of next modal opening
+        this.resetStatementIdentifier()
+
         if (this.updateDraftListRequired) {
           this.loadDraftListPage()
         }
       }
+    },
+
+    loadDraftListPage () {
+      if (window.location.href.includes(Routing.generate('DemosPlan_statement_list_draft', { procedure: this.procedureId })) || window.location.href.includes(Routing.generate('DemosPlan_statement_list_released_group', { procedure: this.procedureId }))) {
+        window.location.reload()
+      } else {
+        window.location.href = Routing.generate(this.redirectPath, { procedure: this.procedureId }) + '#' + this.draftStatementId
+      }
+    },
+
+    /**
+     * Prepare the data to be sent to the backend
+     * We have to copy the store state because deleting entries is not reactive atm.
+     *
+     * @param formData
+     *
+     * @return {*}
+     */
+    prepareDataToSend (formData) {
+      const dataToSend = { ...formData }
+
+      /*
+       * If we have no map/county-reference enabled we can't set it as default, because then this would be preselected
+       * which we don't want
+       */
+      if (dataToSend.location_is_set === '') {
+        dataToSend.location_is_set = 'notLocated'
+      }
+
+      if (dataToSend.r_location !== 'county') {
+        dataToSend.r_county = ''
+      }
+
+      /*
+       * If no submitter type is selected we assume its a citizen.
+       * it can't be preset to prevent the radio options from being preselected
+       */
+      if (dataToSend.r_submitter_role === '') {
+        dataToSend.r_submitter_role = 'citizen'
+      }
+
+      if (dataToSend.r_location !== 'point') {
+        dataToSend.r_location_point = ''
+        dataToSend.r_location_priority_area_key = ''
+        dataToSend.r_location_priority_area_type = ''
+        dataToSend.r_location_geometry = ''
+      }
+
+      /*
+       * Remove not used fields
+       * thats neccessary because the BE checks for their existance to decide what do show (e.g. in exports)
+       *
+       */
+      if (dataToSend.r_makePublic === 'off') {
+        delete dataToSend.r_makePublic
+      }
+
+      if (dataToSend.r_getFeedback === 'off') {
+        delete dataToSend.r_getFeedback
+      }
+
+      if (dataToSend.r_houseNumber === '') {
+        delete dataToSend.r_houseNumber
+      }
+
+      if (dataToSend.r_postalCode === '') {
+        delete dataToSend.r_postalCode
+      }
+
+      if (dataToSend.r_city === '') {
+        delete dataToSend.r_city
+      }
+
+      if (hasPermission('feature_statements_feedback_check_email') === false) {
+        delete dataToSend.r_email2
+      }
+
+      /*
+       * Tweak e-mail values so they fit to the update request
+       * due to the dynamic handling there can be inconsistencies
+       */
+      if ((hasOwnProp(dataToSend, 'r_getFeedback') === false || dataToSend.r_getEvaluation !== 'email') && dataToSend.r_email === '') {
+        delete dataToSend.r_email
+      }
+
+      if (dataToSend.customFields && Array.isArray(dataToSend.customFields)) {
+        dataToSend.customFields = JSON.stringify(dataToSend.customFields)
+      }
+
+      return dataToSend
     },
 
     removeDocumentRelation () {
@@ -1228,8 +1724,9 @@ export default {
         r_document_id: '',
         r_document_title: '',
         r_paragraph_id: '',
-        r_paragraph_title: ''
+        r_paragraph_title: '',
       }
+
       this.setStatementData(elementFields)
     },
 
@@ -1241,8 +1738,125 @@ export default {
 
     removeUnsavedFile (file) {
       const indexToRemove = this.unsavedFiles.findIndex(el => el.hash === file.hash)
+
       this.unsavedFiles.splice(indexToRemove, 1)
-      this.setStatementData({ uploadedFiles: this.unsavedFiles.map(el => el.hash).join(',') })
+      this.setStatementData({
+        uploadedFiles: this.unsavedFiles
+          .map(el => el.hash)
+          .join(','),
+      })
+    },
+
+    reset () {
+      if (window.dpconfirm(Translator.trans('check.statement.discard.changes'))) {
+        this.unsavedFiles.forEach(file => {
+          this.$refs.uploadFiles.handleRemove(file)
+        })
+        this.$refs.statementEditor.resetEditor()
+        this.setStatementData(JSON.parse(this.initFormDataJSON))
+        this.addToUnsavedDrafts = false
+        this.toggleModal(false)
+        this.step = 0
+        this.showHeader = true
+        this.$nextTick(() => {
+          if (this.draftStatementId !== '') {
+            window.location.href = Routing.generate(this.redirectPath, { procedure: this.procedureId, _fragment: this.draftStatementId })
+          }
+        })
+
+        this.resetSessionStorage()
+        sessionStorage.removeItem('redirectpath')
+      }
+    },
+
+    resetSessionStorage () {
+      sessionStorage.removeItem(this.draftStatementIdStorageName)
+    },
+
+    restoreCustomFieldSelections () {
+      if (!this.formData.customFields) {
+        return
+      }
+
+      /*
+       * Restore values from formData.customFields
+       * Match stored values with selectableCustomFields by ID
+       */
+      this.selectableCustomFields = this.selectableCustomFields.map(field => {
+        const storedField = this.formData.customFields.find(f => f.id === field.id)
+
+        if (storedField) {
+          // Restore stored value
+          return { ...field, value: storedField.value }
+        }
+
+        return field
+      })
+
+      /*
+       * Also populate statementCustomFields for readonly display
+       * This is the separate list used when opening from draft list
+       */
+      this.statementCustomFields = this.formData.customFields || []
+    },
+
+    /**
+     * Save all custom fields in a single batch API call
+     * More efficient than individual saves per field
+     * Returns a Promise that resolves when batch save completes
+     */
+    saveCustomFields () {
+      if (!this.draftStatementId) {
+        return Promise.resolve()
+      }
+
+      /*
+       * Use formData.customFields as source of truth:
+       * - In CustomFieldsList mode: reset to server values by handleCustomFieldsListLoaded, then updated by user changes
+       * - In CustomField loop mode: restored from localStorage, then updated by user changes
+       * Empty arrays are included intentionally to allow clearing multiselect fields on the server.
+       */
+      const customFieldValues = (this.formData.customFields || [])
+        .filter(field => field.id && field.value !== undefined &&
+          (field.value !== null || this.fieldIdsWithServerValues.includes(field.id)))
+        .map(field => ({
+          id: field.id,
+          value: field.value,
+        }))
+
+      if (customFieldValues.length === 0) {
+        return Promise.resolve()
+      }
+
+      const { updateCustomFields } = useCustomFields()
+
+      // Single batch API call for all custom fields
+      return updateCustomFields(
+        'DraftStatement',
+        this.draftStatementId,
+        customFieldValues,
+      )
+    },
+
+    handleCustomFieldValueUpdateFromList ({ fieldId, value }) {
+      this.handleCustomFieldValueUpdate(fieldId, value)
+    },
+
+    handleCustomFieldsListLoaded (serverValues) {
+      this.fieldIdsWithServerValues = serverValues
+        .filter(serverField => serverField.value != null)
+        .map(serverField => serverField.id)
+
+      this.selectableCustomFields = this.selectableCustomFields.map(def => {
+        const serverField = serverValues.find(v => v.id === def.id)
+
+        return serverField ? { ...def, value: serverField.value } : def
+      })
+      /*
+       * Synchronize formData.customFields with server state so saveCustomFields
+       * sends correct values and stale localStorage data is discarded.
+       */
+      this.setStatementData({ customFields: serverValues.map(v => ({ id: v.id, value: v.value })) })
     },
 
     sendStatement (e, immediateSubmit = false, keepModalOpen = false) {
@@ -1253,92 +1867,70 @@ export default {
       }
 
       this.isLoading = true
-
       this.setStatementData({ immediate_submit: immediateSubmit })
       this.setStatementData({ r_loadtime: dayjs().unix() })
 
-      /*
-       * If we have no map/county-reference enabled we can't set it as default, because then this would be preselected
-       * which we don't want
-       */
-      if (this.formData.location_is_set === '') {
-        this.setStatementData({ location_is_set: 'notLocated' })
+      // For existing drafts: Save custom fields first via batch API call
+      if (this.draftStatementId === '') {
+        // New statement: Use form-based submission (includes custom fields)
+        this.sendStatementForm(immediateSubmit, keepModalOpen)
+      } else {
+        this.saveCustomFields()
+          .then(() => {
+            // Custom fields saved, now save rest of statement
+            return this.sendStatementForm(immediateSubmit, keepModalOpen)
+          })
+          .catch((error) => {
+            console.error('Failed to save custom fields:', error)
+            this.isLoading = false
+            // Error notification already shown by component
+          })
       }
+    },
 
-      if (this.formData.r_location !== 'county') {
-        this.setStatementData({ r_county: '' })
-      }
+    /**
+     * Extracted statement form submission logic
+     * Handles the actual form POST after custom fields are saved (for existing drafts)
+     */
+    sendStatementForm (immediateSubmit, keepModalOpen) {
+      const dataToSend = this.prepareDataToSend(this.formData)
 
-      /*
-       * If no submitter type is selected we assume its a citizen.
-       * it can't be preset to prevent the radio options from being preselected
-       */
-      if (this.formData.r_submitter_role === '') {
-        this.setStatementData({ r_submitter_role: 'citizen' })
+      // For existing drafts: Remove custom fields from payload (already saved via API)
+      if (this.draftStatementId !== '') {
+        delete dataToSend.customFields
       }
-
-      if (this.formData.r_location !== 'point') {
-        this.setStatementData({
-          r_location_point: '',
-          r_location_priority_area_key: '',
-          r_location_priority_area_type: '',
-          r_location_geometry: ''
-        })
-      }
-
-      /*
-       * Remove not used fields
-       * thats neccessary because the BE checks for their existance to decide what do show (e.g. in exports)
-       *
-       */
-      if (this.formData.r_getFeedback === 'off') {
-        delete this.formData.r_getFeedback
-      }
-      if (this.formData.r_houseNumber === '') {
-        delete this.formData.r_houseNumber
-      }
-      if (this.formData.r_postalCode === '') {
-        delete this.formData.r_postalCode
-      }
-      if (this.formData.r_city === '') {
-        delete this.formData.r_city
-      }
-      if (hasPermission('feature_statements_feedback_check_email') === false) {
-        delete this.formData.r_email2
-      }
-      /*
-       * Tweak e-mail values so they fit to the update request
-       * due to the dynamic handling there can be inconsistencies
-       */
-      if ((hasOwnProp(this.formData, 'r_getFeedback') === false || this.formData.r_getEvaluation !== 'email') && this.formData.r_email === '') {
-        delete this.formData.r_email
-      }
+      // For new statements: Keep custom fields in payload
 
       let route = Routing.generate('DemosPlan_statement_public_participation_new_ajax', { procedure: this.procedureId }) + (immediateSubmit ? '?immediate_submit=true' : '')
 
       // Draft statements
-      if (this.draftStatementId !== '') {
-        this.setStatementData({ action: 'statementedit' })
-        route = Routing.generate('DemosPlan_statement_edit', { statementID: this.draftStatementId, procedure: this.procedureId })
+      if (this.draftStatementId === '') {
+        dataToSend.action = 'statementpublicnew'
       } else {
-        this.setStatementData({ action: 'statementpublicnew' })
+        dataToSend.action = 'statementedit'
+        route = Routing.generate('DemosPlan_statement_edit', {
+          statementID: this.draftStatementId,
+          procedure: this.procedureId,
+        })
       }
 
-      return makeFormPost(this.formData, route)
+      return makeFormPost(dataToSend, route)
         .then(response => {
           if (response.status === 429) {
             dplan.notify.notify('error', Translator.trans('error.statement.not.saved.throttle'))
 
             return false
           }
+
           if (response.status !== 200) {
             dplan.notify.notify('error', Translator.trans('error.statement.not.saved'))
 
             return false
           }
+
           /*
            * Handling for successful responses
-           * if its not an HTML-Response like after creating a new one
+           * if it's not an HTML-Response like after creating a new one
            */
           if (response.status === 200) {
             dplan.notify.notify('confirm', Translator.trans('confirm.statement.saved'))
@@ -1364,14 +1956,15 @@ export default {
              * necessary to compare for unsaved changes
              */
             this.setStatementData({ action: 'statementedit', r_submitter_role: '' })
-            if (this.draftStatementId !== '') {
+            if (this.draftStatementId === '') {
+              this.resetStatement()
+            } else {
               // We have to set it here again because in the meanwhile some fields got resetted which triggered a state change
               this.addToUnsavedDrafts = false
               this.removeUnsavedDraft(this.draftStatementId)
               this.clearDraftState(this.draftStatementId)
-            } else {
-              this.resetStatement()
             }
+
             this.removeStatementProp('immediate_submit')
           }
 
@@ -1381,12 +1974,7 @@ export default {
             setTimeout(() => {
               window.location.href = response.data.data.submitRoute
             }, 2000)
-          } else if (this.draftStatementId !== '') {
-            // Go to draft statement list and highlight current draft
-            this.toggleModal(false)
-            this.resetSessionStorage()
-            this.loadDraftListPage()
-          } else {
+          } else if (this.draftStatementId === '') {
             this.step = 3
             this.showHeader = false
             if (response.data.data && response.data.data.responseHtml) {
@@ -1405,6 +1993,11 @@ export default {
                 }
               })
             }
+          } else {
+            // Go to draft statement list and highlight current draft
+            this.toggleModal(false)
+            this.resetSessionStorage()
+            this.loadDraftListPage()
           }
         })
         .catch(e => {
@@ -1415,18 +2008,53 @@ export default {
         })
     },
 
+    setCustomFieldsForEditing (customFields) {
+      // Set custom fields in formData so they can be edited
+      this.setStatementData({ customFields: customFields || [] })
+
+      // Restore to selectableCustomFields for display in editable mode
+      this.$nextTick(() => {
+        this.restoreCustomFieldSelections()
+      })
+    },
+
+    setDraftData (data, priorityAreaKey, priorityAreaType) {
+      const draft = {
+        r_text: data.draftStatement.text,
+        r_files_initial: data.draftStatement.files ? JSON.stringify(data.draftStatement.files) : [],
+        r_ident: this.draftStatementId,
+        r_isNegativeReport: data.draftStatement.negativ ? '1' : '0',
+        r_element_id: data.draftStatement.elementId || '',
+        r_element_title: data.draftStatement.element?.title ?? '',
+        r_paragraph_id: data.draftStatement.paragraphId ?? '',
+        r_paragraph_title: data.draftStatement.paragraph?.title ?? '',
+        r_document_id: data.draftStatement.document?.id ?? '',
+        r_document_title: data.draftStatement.document?.title ?? '',
+        r_represents: data.draftStatement.represents ?? '',
+        r_location: Object.keys(data.draftStatement.statementAttributes).pop() ?? 'mapLocation',
+        r_location_geometry: data.draftStatement.polygon,
+        r_location_priority_area_key: priorityAreaKey,
+        r_location_priority_area_type: priorityAreaType,
+        r_location_point: '',
+        location_is_set: priorityAreaKey.length > 0 ? 'priority_area' : 'geometry',
+        r_county: data.draftStatement.statementAttributes.county ?? '',
+        r_makePublic: data.draftStatement.publicAllowed ? 'on' : 'off',
+      }
+
+      if (draft.r_location === 'noLocation') {
+        draft.r_location = 'notLocated'
+      }
+
+      if (draft.r_location === 'mapLocation' && data.draftStatement.polygon) {
+        draft.r_location = 'point'
+      }
+
+      return draft
+    },
+
     setPrivacyPreference (data) {
       this.setStatementData(data)
       this.removeNotificationsFromStore()
-    },
-
-    writeDraftStatementIdToSession (draftStatementId) {
-      this.draftStatementId = draftStatementId
-      sessionStorage.setItem(this.draftStatementIdStorageName, draftStatementId)
-    },
-
-    resetSessionStorage () {
-      sessionStorage.removeItem(this.draftStatementIdStorageName)
     },
 
     setStatementData (data) {
@@ -1434,14 +2062,28 @@ export default {
       this.updateStatement({ r_ident: this.draftStatementId, ...data })
     },
 
-    toggleModal (resetOnClose = true, data) {
+    toggleModal (resetOnClose = true, data = null) {
+      const isClosing = this.$refs.statementModal && this.$refs.statementModal.isOpen
+
       // Check if browser is in fullscreen mode
       if (isActiveFullScreen()) {
         toggleFullscreen()
       }
+
       this.editDraftDataInPublicDetail = resetOnClose
       this.step = 0
       this.showHeader = true
+
+      if (isClosing) {
+        this.openedFromDraftList = false
+        this.statementCustomFields = []
+
+        // Reset custom fields when closing new statement (not draft)
+        if (this.draftStatementId === '') {
+          this.resetCustomFieldState()
+        }
+      }
+
       this.$refs.statementModal.toggle()
       if (data) {
         this.updateStatement(data)
@@ -1470,6 +2112,7 @@ export default {
 
       // Store updated data
       const newFilesArrayString = JSON.stringify(currentFiles)
+
       this.setStatementData({ r_files_initial: newFilesArrayString })
 
       // Reset helper
@@ -1477,35 +2120,12 @@ export default {
       if (this.$refs.uploadFiles) {
         this.$refs.uploadFiles.clearFilesList()
       }
+
       // Reset store data
       this.setStatementData({ delete_file: [] })
       this.setStatementData({ uploadedFiles: '' })
       // Reset session storage - remove uploaded and saved files
       sessionStorage.removeItem(this.fileStorageName)
-    },
-
-    validateStatementStep () {
-      if (this.formData.r_location === 'point' && (this.formData.r_location_geometry === '' && this.formData.r_location_point === '' && this.formData.r_location_priority_area_key === '')) {
-        this.setStatementData({ r_location: '' })
-        document.getElementById('locationPoint').checked = false
-      }
-
-      const postValidation = () => {
-        if (this.dpValidate.statementForm === false) {
-          this.$nextTick(() => document.getElementById('statementFormErrors').focus())
-          return false
-        }
-        if (typeof this.dpValidate.invalidFields.statementForm.find(el => el.id === 'check_location_isset') !== 'undefined') {
-          this.$refs.mapStatementRadio.classList.add('is-invalid')
-        }
-
-        if (this.step === 0 && this.dpValidate.statementForm && this.loggedIn === false) {
-          this.step = 1
-          this.focusMultistep(1)
-        }
-        return this.dpValidate.statementForm
-      }
-      return this.dpValidateAction('statementForm', postValidation, true)
     },
 
     validatePersonalDataStep () {
@@ -1519,12 +2139,83 @@ export default {
 
     validateRecheckStep () {
       return this.dpValidate.recheckForm
-    }
+    },
+
+    validateStatementStep () {
+      if (this.formData.r_location === 'point' && (this.formData.r_location_geometry === '' && this.formData.r_location_point === '' && this.formData.r_location_priority_area_key === '')) {
+        this.setStatementData({ r_location: '' })
+        document.getElementById('locationPoint').checked = false
+      }
+
+      const postValidation = () => {
+        if (this.dpValidate.statementForm === false) {
+          this.$nextTick(() => document.getElementById('statementFormErrors').focus())
+
+          return false
+        }
+
+        if (typeof this.dpValidate.invalidFields.statementForm.find(el => el.id === 'check_location_isset') !== 'undefined') {
+          this.$refs.mapStatementRadio.classList.add('is-invalid')
+        }
+
+        if (this.step === 0 && this.dpValidate.statementForm && this.loggedIn === false) {
+          this.step = 1
+          this.focusMultistep(1)
+        }
+
+        return this.dpValidate.statementForm
+      }
+
+      return this.dpValidateAction('statementForm', postValidation, true)
+    },
+
+    writeDraftStatementIdToSession (draftStatementId) {
+      this.draftStatementId = draftStatementId
+      sessionStorage.setItem(this.draftStatementIdStorageName, draftStatementId)
+    },
   },
 
   mounted () {
-    // Set data from map
-    this.$root.$on('update-statement-form-map-data', (data = {}, toggle = true) => {
+    this.fetchCustomFields().then(() => {
+      this.draftStatementId = sessionStorage.getItem(this.draftStatementIdStorageName) || ''
+      this.redirectPath = sessionStorage.getItem('redirectpath') || this.initRedirectPath
+
+      if (this.draftStatementId === '') {
+        const sessionStorageBegunStatement = localStorage.getItem(`publicStatement:${this.userId}:${this.procedureId}:new`)
+        const sessionStorageBegunStatementParsed = JSON.parse(sessionStorageBegunStatement)
+
+        if (
+          sessionStorageBegunStatement &&
+          sessionStorageBegunStatement !== this.initFormDataJSON &&
+          sessionStorageBegunStatementParsed.r_ident === ''
+        ) {
+          this.setStatementData(sessionStorageBegunStatementParsed)
+          if (this.isNameUsageRequired) {
+            this.setStatementData({ r_useName: '1' })
+          }
+
+          this.$nextTick(() => {
+            this.restoreCustomFieldSelections()
+          })
+        } else {
+          const initialStatementDefaults = {
+            r_county: this.counties.some(el => el.selected) ?
+              this.counties.find(el => el.selected)?.value :
+              '',
+          }
+
+          if (this.isNameUsageRequired) {
+            initialStatementDefaults.r_useName = '1'
+          }
+
+          this.applyInitialDefaults(initialStatementDefaults)
+        }
+      } else {
+        this.getDraftStatement(this.draftStatementId)
+      }
+    })
+
+    this.$root.$on('updateStatementFormMapData', (data = {}, toggle = true) => {
       this.setStatementData(data)
       if (toggle) {
         this.toggleModal(false)
@@ -1536,22 +2227,9 @@ export default {
       }
     })
 
-    // Set draft statement Id from href
-    this.draftStatementId = sessionStorage.getItem(this.draftStatementIdStorageName) || ''
-    this.redirectPath = sessionStorage.getItem('redirectpath') || this.initRedirectPath
-
-    if (this.draftStatementId !== '') {
-      this.getDraftStatement(this.draftStatementId)
-    } else {
-      const sessionStorageBegunStatement = localStorage.getItem(`publicStatement:${this.userId}:${this.procedureId}:new`)
-      const sessionStorageBegunStatementParsed = JSON.parse(sessionStorageBegunStatement)
-      if (sessionStorageBegunStatement && sessionStorageBegunStatement !== this.initFormDataJSON && sessionStorageBegunStatementParsed.r_ident === '') {
-        const existingData = sessionStorageBegunStatementParsed
-        this.setStatementData(existingData)
-      } else {
-        this.setStatementData({ r_county: this.counties.find(el => el.selected) ? this.counties.find(el => el.selected).value : '' })
-      }
-    }
-  }
+    this.$root.$on('statementModal:goToTab', tabname => {
+      this.gotoTab(tabname)
+    })
+  },
 }
 </script>

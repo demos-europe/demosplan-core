@@ -32,10 +32,10 @@ class MatomoApiTest extends FunctionalTestCase
         parent::setUp();
 
         $mockClient = $this->buildMockHttpClient();
-        $logger = self::$container->get(LoggerInterface::class);
-        $parameterBag = self::$container->get(ParameterBagInterface::class);
-        $procedureRepository = self::$container->get(ProcedureRepository::class);
-        $router = self::$container->get(RouterInterface::class);
+        $logger = self::getContainer()->get(LoggerInterface::class);
+        $parameterBag = self::getContainer()->get(ParameterBagInterface::class);
+        $procedureRepository = self::getContainer()->get(ProcedureRepository::class);
+        $router = self::getContainer()->get(RouterInterface::class);
 
         $this->sut = new MatomoApi($mockClient, $logger, $parameterBag, $procedureRepository, $router);
     }

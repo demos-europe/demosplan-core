@@ -28,9 +28,9 @@ class ConfigParametersDataCollector extends DataCollector
     public function collect(
         Request $request,
         Response $response,
-        Throwable $exception = null
-    ) {
-        $esUrls = collect($this->parameterBag->get('elasticsearch_urls'))->transform(static fn ($item) => $item['url'])->toArray();
+        ?Throwable $exception = null,
+    ): void {
+        $esUrls = collect($this->parameterBag->get('elasticsearch_urls'))->toArray();
 
         $this->data = [
             'database_host'        => $this->parameterBag->get('database_host'),

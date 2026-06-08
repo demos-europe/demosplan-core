@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -10,6 +12,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Event\Statement;
 
-class ManualOriginalStatementCreatedEvent extends StatementCreatedEvent
+use DemosEurope\DemosplanAddon\Contracts\Events\ManualOriginalStatementCreatedEventInterface;
+
+class ManualOriginalStatementCreatedEvent extends StatementCreatedEvent implements ManualOriginalStatementCreatedEventInterface
 {
 }

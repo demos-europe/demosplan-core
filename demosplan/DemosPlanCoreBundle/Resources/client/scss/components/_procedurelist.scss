@@ -115,13 +115,13 @@
             position: absolute;
 
             &-icon {
-                &,
-                .is-done:hover & {
-                    display: none;
+                &.fa.fa-check-circle,
+                .is-done:hover &.fa.fa-check-circle {
+                    display: none !important;
                 }
 
-                .is-done & {
-                    display: block;
+                .is-done &.fa.fa-check-circle {
+                    display: block !important;
                 }
             }
 

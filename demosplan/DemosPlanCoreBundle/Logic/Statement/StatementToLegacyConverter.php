@@ -19,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
@@ -27,15 +26,17 @@ use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Doctrine\Common\Collections\Collection;
 use Exception;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 
-class StatementToLegacyConverter extends CoreService
+class StatementToLegacyConverter
 {
     public function __construct(
         private readonly DateHelper $dateHelper,
         private readonly ElementsService $elementsService,
         private readonly EntityHelper $entityHelper,
         private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -44,7 +45,7 @@ class StatementToLegacyConverter extends CoreService
      */
     public function convert(?Statement $statement): ?array
     {
-        if (null === $statement) {
+        if (!$statement instanceof Statement) {
             return null;
         }
 
@@ -54,6 +55,7 @@ class StatementToLegacyConverter extends CoreService
             $statementArray = $this->convertStatementAttributes($statementArray, $statement->getStatementAttributes());
             $statementArray = $this->handleDocumentConversion($statementArray);
             $statementArray = $this->convertProcedure($statementArray);
+            $statementArray = $this->convertPhaseDefinition($statementArray, $statement);
             $statementArray = $this->convertOrga($statementArray);
             $statementArray = $this->convertStatementMeta($statementArray);
             $statementArray = $this->convertVotes($statementArray);
@@ -164,7 +166,10 @@ class StatementToLegacyConverter extends CoreService
     {
         if ($statementArray['procedure'] instanceof Procedure) {
             try {
-                $statementArray['procedure'] = $this->entityHelper->toArray($statementArray['procedure']);
+                $procedure = $statementArray['procedure'];
+                $phaseDefinitionName = $procedure->getPhaseObject()->getPhaseDefinition()->getName();
+                $publicParticipationPhaseDefinitionName = $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName();
+                $statementArray['procedure'] = $this->entityHelper->toArray($procedure);
                 $statementArray['procedure']['settings'] = $this->entityHelper->toArray(
                     $statementArray['procedure']['settings']
                 );
@@ -179,6 +184,8 @@ class StatementToLegacyConverter extends CoreService
                     isset($statementArray['procedure']['planningOffices']) ?
                         $this->entityHelper->toArray($statementArray['procedure']['planningOffices']) :
                         [];
+                $statementArray['procedure']['phaseDefinitionName'] = $phaseDefinitionName;
+                $statementArray['procedure']['publicParticipationPhaseDefinitionName'] = $publicParticipationPhaseDefinitionName;
             } catch (Exception $e) {
                 $this->logger->warning(
                     'Could not convert  Statement Procedure to Legacy. Statement: '.DemosPlanTools::varExport(
@@ -188,6 +195,13 @@ class StatementToLegacyConverter extends CoreService
                 );
             }
         }
+
+        return $statementArray;
+    }
+
+    private function convertPhaseDefinition(array $statementArray, Statement $statement): array
+    {
+        $statementArray['phaseDefinition'] = $this->entityHelper->toArray($statement->getPhaseDefinition());
 
         return $statementArray;
     }

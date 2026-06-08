@@ -20,8 +20,9 @@
 <template>
   <button
     type="button"
+    class="btn--blank u-ml-0_5 o-link--default weight--bold"
     @click="setExtent"
-    class="btn--blank u-ml-0_5 o-link--default weight--bold">
+  >
     {{ Translator.trans(translationKey) }}
   </button>
 </template>
@@ -35,14 +36,18 @@ export default {
   props: {
     translationKey: {
       required: true,
-      type: String
-    }
+      type: String,
+    },
   },
+
+  emits: [
+    'extentSet',
+  ],
 
   computed: {
     map () {
       return this.olMapState.map
-    }
+    },
   },
 
   methods: {
@@ -53,11 +58,11 @@ export default {
       this.map.getView().fit(extent, {
         size: this.map.getSize(),
         padding: [5, 5, 5, 5],
-        duration: 100
+        duration: 100,
       })
 
       this.$emit('extentSet', extent)
-    }
-  }
+    },
+  },
 }
 </script>

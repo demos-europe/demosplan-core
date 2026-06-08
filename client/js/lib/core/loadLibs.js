@@ -11,7 +11,7 @@
 import {
   ActionMenu,
   Confirm,
-  Sticky
+  Sticky,
 } from '@demos-europe/demosplan-ui'
 
 import {
@@ -20,7 +20,7 @@ import {
   FloodControlField,
   FormActions,
   Pager,
-  ToggleAnything
+  ToggleAnything,
 } from './libs'
 
 /*

@@ -26,8 +26,10 @@ export default function StatementForm () {
     (function () {
       const ev = new $.Event('toggleClass')
       const orig = $.fn.toggleClass
+
       $.fn.toggleClass = function () {
         $(this).trigger(ev)
+
         return orig.apply(this, arguments)
       }
     })()
@@ -83,6 +85,7 @@ export default function StatementForm () {
       if (!!userDataProcedure && !!userDataProcedure[dplan.currentStatementId]) {
         return userDataProcedure[dplan.currentStatementId][field]
       }
+
       return null
     }
 
@@ -120,26 +123,26 @@ export default function StatementForm () {
         priorityAreaPopup: {
           headings: {
             negative: Translator.trans('priorityArea.rejected'),
-            positive: Translator.trans('priorityArea')
+            positive: Translator.trans('priorityArea'),
           },
-          buttons: Translator.trans('statement.new')
+          buttons: Translator.trans('statement.new'),
         },
         markLocationPopup: {
-          buttons: Translator.trans('statement.new')
+          buttons: Translator.trans('statement.new'),
         },
         saveStatementButton: {
           states: {
             visible: {
               button: Translator.trans('statement.map.draw_to_map'),
-              title: Translator.trans('statement.map.draw.no_drawing_warning')
+              title: Translator.trans('statement.map.draw.no_drawing_warning'),
             },
             active: {
               button: Translator.trans('statement.continue'),
-              title: Translator.trans('statement.map.draw.drawing_complete')
-            }
+              title: Translator.trans('statement.map.draw.drawing_complete'),
+            },
 
-          }
-        }
+          },
+        },
       }
 
       //  Assign functions to methods of 'statement' obj to be reusable by map scripts
@@ -185,7 +188,7 @@ export default function StatementForm () {
       }
     })
   }
-};
+}
 
 /**
  * Speichere Werte in dem sessionStorage. Überschreibe dabei existierende Werte
@@ -195,15 +198,18 @@ export default function StatementForm () {
 window.addSessionStorageData = function (key, data) {
   // Besorge die bestehenden Werte
   let existingData = window.getUserdataSession(key)
+
   if (existingData === null) {
     existingData = {}
   }
+
   // Ersetze die bestehenden Werte
   for (const dataItem in data) {
     if (hasOwnProp(data, dataItem)) {
       existingData[dataItem] = data[dataItem]
     }
   }
+
   window.setUserdataSession(key, existingData)
 }
 

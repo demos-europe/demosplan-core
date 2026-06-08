@@ -11,14 +11,31 @@
  * This is the entrypoint for administration_member_list.html.twig
  */
 import { addFormHiddenField, removeFormHiddenField } from '../../lib/core/libs/FormActions'
+import AdministrationMemberList from '@DpJs/components/procedure/admin/AdministrationMemberList'
 import { DpContextualHelp } from '@demos-europe/demosplan-ui'
+import FilterFlyoutStore from '@DpJs/store/procedure/FilterFlyout'
 import { initialize } from '@DpJs/InitVue'
+import OrganisationTable from '@DpJs/components/procedure/admin/InstitutionTagManagement/OrganisationTable'
 
 const components = {
-  DpContextualHelp
+  AdministrationMemberList,
+  DpContextualHelp,
+  OrganisationTable,
 }
 
-initialize(components).then(() => {
+const apiStores = [
+  'InvitableToeb',
+  'InvitedToeb',
+  'InstitutionTag',
+  'InstitutionTagCategory',
+  'InstitutionLocationContact',
+]
+
+const stores = {
+  FilterFlyout: FilterFlyoutStore,
+}
+
+initialize(components, stores, apiStores).then(() => {
   const pdfExport = () => {
     const action = document.procedureForm.action
     const target = document.procedureForm.target
@@ -31,6 +48,7 @@ initialize(components).then(() => {
   }
 
   const pdfExportButton = document.getElementById('pdfExportButton')
+
   if (pdfExportButton) {
     pdfExportButton.addEventListener('click', pdfExport)
   }
@@ -38,6 +56,7 @@ initialize(components).then(() => {
   const writeEmail = (e) => {
     e.preventDefault()
     const oldAction = document.procedureForm.action
+
     document.procedureForm.action = Routing.generate('DemosPlan_admin_member_email', { procedureId: dplan.procedureId })
 
     // Add hidden field to tell BE it is a 'writeEmail' action
@@ -52,6 +71,7 @@ initialize(components).then(() => {
   }
 
   const writeEmailButton = document.getElementById('writeEmailButton')
+
   if (writeEmailButton) {
     writeEmailButton.addEventListener('click', writeEmail)
   }

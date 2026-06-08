@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -10,6 +12,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement;
 
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
@@ -40,5 +43,16 @@ final class SegmentFactory extends StatementFactory
     public static function class(): string
     {
         return Segment::class;
+    }
+
+    protected function defaults(): array|callable
+    {
+        $defaults = parent::defaults();
+
+        $defaults['orderInProcedure'] = 1;
+        $defaults['parentStatementOfSegment'] = StatementFactory::new(['procedure' => $defaults['procedure']]);
+        $defaults['place'] = PlaceFactory::new(['procedure' => $defaults['procedure']]);
+
+        return $defaults;
     }
 }

@@ -7,6 +7,7 @@
  * All rights reserved
  */
 
+import 'd3-transition'
 import { arc, pie } from 'd3-shape'
 import { axisBottom, axisLeft } from 'd3-axis'
 import { max, sum } from 'd3-array'
@@ -53,7 +54,7 @@ export default class BarPieChart {
       colors: {
         bar: ['#cccccc', '#999999'],
         pie: ['#ff0000', '#00ff00', '#0000ff'],
-        active: ['#ff0000']
+        active: ['#ff0000'],
       },
       texts: {
         'no-data-fallback': Translator.trans('statements.none'),
@@ -62,14 +63,14 @@ export default class BarPieChart {
         pie: {
           'legend-headline': 'statements.grouped.priority',
           'data-names': Translator.trans('statements'),
-          'data-name': Translator.trans('statement')
+          'data-name': Translator.trans('statement'),
         },
         bar: {
           'legend-headline': 'statements.grouped.status',
           'data-names': Translator.trans('statements'),
-          'data-name': Translator.trans('statement')
-        }
-      }
+          'data-name': Translator.trans('statement'),
+        },
+      },
     }
 
     Object.assign(this, { ...defaults, ...options })
@@ -80,7 +81,7 @@ export default class BarPieChart {
       type: d.key,
       label: d.label,
       freq: sum(this.fData.map(t => t.freq[d.key])),
-      index: idx
+      index: idx,
     }))
 
     // Store overall total
@@ -117,7 +118,7 @@ export default class BarPieChart {
         colors: this.colors.bar,
         activeColor: this.colors.active,
         texts: this.texts.bar,
-        total: this.total
+        total: this.total,
       })
       this.pLeg = new Legend({
         data: this.tF,
@@ -126,7 +127,7 @@ export default class BarPieChart {
         colors: this.colors.pie,
         activeColor: this.colors.active,
         texts: this.texts.pie,
-        total: this.total
+        total: this.total,
       })
     } else {
       // Display a message if no data is found to be displayed.
@@ -158,7 +159,10 @@ export default class BarPieChart {
    * @returns {string | *}
    */
   setColor (c, chartType) {
-    if (typeof this.colors[chartType][c] !== 'undefined') return this.colors[chartType][c]
+    if (typeof this.colors[chartType][c] !== 'undefined') {
+      return this.colors[chartType][c]
+    }
+
     return '#cccccc'
   }
 
@@ -187,8 +191,12 @@ export default class BarPieChart {
 
       select(elemSet[i]).transition().duration(transSpeed).attr('fill', this.setColor(0, 'active'))
 
-      const st = this.fData.filter((s) => { return s.Category === d.key })[0]
-      const nD = Object.keys(st.freq).map((s) => { return { type: s, freq: st.freq[s] } })
+      const st = this.fData.find((s) => {
+        return s.Category === d.key
+      })
+      const nD = Object.keys(st.freq).map((s) => {
+        return { type: s, freq: st.freq[s] }
+      })
 
       // Call update functions of pie-chart and legend.
       this.pC.update(nD)
@@ -393,7 +401,9 @@ export default class BarPieChart {
      */
     const arcTween = (a) => {
       const i = interpolate(this._current, a)
+
       this._current = i(0)
+
       return t => pieArc(i(t))
     }
 
@@ -402,6 +412,7 @@ export default class BarPieChart {
     const textPosTween = (d) => {
       this._current = this._current || d
       const interpol = interpolate(this._current, d)
+
       this._current = interpol(0)
 
       // Check if offset for not fitting label has to be reset
@@ -410,6 +421,7 @@ export default class BarPieChart {
       return (t) => {
         const d2 = interpol(t)
         const pos = labelArc.centroid(d2)
+
         pos[0] = pieRadius * (midAngle(d2) < Math.PI ? 1 : -1)
         pos[0] = pos[0] * (1.2 + (labelOffset * offset))
         pos[1] = pos[1] * (1 + (labelOffset * offset))
@@ -422,9 +434,12 @@ export default class BarPieChart {
       this._current = this._current || d
 
       const interpol = interpolate(this._current, d)
+
       this._current = interpol(0)
+
       return (t) => {
         const d2 = interpol(t)
+
         return midAngle(d2) < Math.PI ? 'start' : 'end'
       }
     }
@@ -432,6 +447,7 @@ export default class BarPieChart {
     const labelLineTween = (d) => {
       this._current = this._current || d
       const interpol = interpolate(this._current, d)
+
       this._current = interpol(0)
 
       const offset = lastPieceCounter(d, lastPiece)
@@ -442,10 +458,12 @@ export default class BarPieChart {
         let outerRadiusPoint = labelLineArc.centroid(d2)
         const currentOffset = 1 + (labelOffset * offset)
         const labelOffesetArc = arc().outerRadius(labelRadius * currentOffset).innerRadius(labelRadius * currentOffset)
+
         outerRadiusPoint = labelOffesetArc.centroid(d2)
 
         // Horizontal line from outer point
         const pos = labelLineArc.centroid(d2)
+
         pos[0] = pieRadius * (midAngle(d2) < Math.PI ? 1 : -1)
         pos[0] = pos[0] * currentOffset
         pos[1] = pos[1] * currentOffset
@@ -493,6 +511,7 @@ export default class BarPieChart {
         const offset = lastPieceCounter(d, lastPiece)
 
         const pos = labelArc.centroid(d)
+
         pos[0] = pieRadius * (midAngle(d) < Math.PI ? 1 : -1)
         pos[0] = pos[0] * (1.2 + (labelOffset * offset))
         pos[1] = pos[1] * (1 + (labelOffset * offset))
@@ -509,6 +528,7 @@ export default class BarPieChart {
           if (this.categoryDefinition[i].key === d.data.type && d.data.freq > 0) {
             const length = 10
             let label = this.categoryDefinition[i].label
+
             if (label.length > length) {
               label = label.substring(0, length) + '...'
             }
@@ -516,6 +536,7 @@ export default class BarPieChart {
             return ' ' + label + ' (' + d.data.freq + ') '
           }
         }
+
         return ''
       })
 
@@ -550,6 +571,7 @@ export default class BarPieChart {
         const currentOffset = (1 + ((labelOffset - 0.1) * offset))
 
         const labelOffesetArc = arc().outerRadius(labelRadius * currentOffset).innerRadius(labelRadius * currentOffset)
+
         outerRadiusPoint = labelOffesetArc.centroid(d)
 
         pos[0] = pos[0] * currentOffset
@@ -575,6 +597,7 @@ export default class BarPieChart {
             if (this.categoryDefinition[i].key === d.data.type && d.data.freq > 0) {
               let label = this.categoryDefinition[i].label
               const length = 10
+
               if (label.length > length) {
                 label = label.substring(0, length) + '...'
               }
@@ -582,6 +605,7 @@ export default class BarPieChart {
               return label + ' (' + d.data.freq + ') '
             }
           }
+
           return ''
         })
         .transition()

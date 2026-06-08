@@ -7,7 +7,6 @@
  * All rights reserved
  */
 
-import { DOMSerializer } from 'prosemirror-model'
 import { setRange } from './commands'
 import { TextSelection } from 'prosemirror-state'
 import tippy from 'tippy.js'
@@ -24,13 +23,16 @@ function flattenNode (node, descend = true) {
   if (!node) {
     throw new Error('Invalid "node" parameter')
   }
+
   const result = []
+
   node.descendants((child, pos) => {
     result.push({ node: child, pos })
     if (!descend) {
       return false
     }
   })
+
   return result
 }
 
@@ -47,29 +49,34 @@ function flattenNode (node, descend = true) {
  */
 const getMarks = (nodes, markName, attrId) => {
   const marks = {}
+
   nodes.forEach(({ node, pos }) => {
     node.marks
       .filter(mark => mark.type.name === markName)
       .forEach(mark => {
-        let storedMark = marks[mark.attrs[attrId]]
+        const markAttr = mark.attrs[attrId]
+        let storedMark = marks[markAttr]
+
         if (!storedMark) {
           storedMark = { marks: [] }
-          storedMark.rangeId = mark.attrs[attrId]
+          storedMark.segmentId = markAttr
           storedMark.from = pos
-          marks[mark.attrs[attrId]] = storedMark
+          marks[markAttr] = storedMark
         }
+
         storedMark.to = pos + node.nodeSize
         storedMark.isConfirmed = mark.attrs.isConfirmed
         storedMark.marks = [...storedMark.marks, { from: pos, to: storedMark.to }]
       })
   })
+
   return marks
 }
 
 /**
  * Checks if two range objects are equal ({ <id>: { from, to, isConfirmed, marks }, <id>: { from, to, isConfirmed, marks }}):
- * - Have ranges (rangeIds) been added or removed?
- * - Have range lengths (from, to) changed?
+ * - Have segments (segmentIds) been added or removed?
+ * - Have segment lengths (from, to) changed?
  * - Has the confirmation state (isConfirmed) changed?
  *
  * @param {Object} ranges ranges before update
@@ -78,14 +85,16 @@ const getMarks = (nodes, markName, attrId) => {
  *
  */
 const rangesEqual = (ranges, cmpRanges) => {
-  // Check if there are any rangeIds in ranges that are not in cmpRanges (= were ranges deleted?)
+  // Check if there are any segmentIds in ranges that are not in cmpRanges (= were ranges deleted?)
   const keysEqual = Object.keys(ranges).filter(key => cmpRanges[key]).length === Object.keys(ranges).length
+
   if (!keysEqual) {
     return false
   }
 
-  // Check if there are any rangeIds in cmpRanges that are not in ranges (= were ranges added?)
+  // Check if there are any segmentIds in cmpRanges that are not in ranges (= were ranges added?)
   const cmpKeysEqual = Object.keys(cmpRanges).filter(key => ranges[key]).length === Object.keys(cmpRanges).length
+
   if (!cmpKeysEqual) {
     return false
   }
@@ -93,41 +102,15 @@ const rangesEqual = (ranges, cmpRanges) => {
   // Check if to, from or isConfirmed have changed
   const attributesEqual = Object.entries(ranges).filter(([key, val]) => {
     const cmpRange = cmpRanges[key]
+
     return cmpRange.from === val.from && cmpRange.to === val.to && cmpRange.isConfirmed === val.isConfirmed
   }).length === Object.keys(ranges).length
+
   if (!attributesEqual) {
     return false
   }
 
   return true
-}
-
-/**
- * Used to extract HTML content of a prosemirror fragment.
- *
- * @param {prosemirror-fragment} fragment
- * @param {prosemirror-schema} schema
- * @returns {String}
- *
- */
-const serializeFragment = (fragment, schema) => {
-  const container = document.createElement('div')
-  return DOMSerializer.fromSchema(schema).serializeFragment(fragment, { document: window.document }, container)
-}
-
-/**
- * Extracts the HTML content of a from - to range ({ from: <int>, to: <int> }) from the given prosemirror state.
- *
- * @param {Object} range
- * @param {prosemirror-state} state
- * @param {prosemirror-schema} schema
- * @returns {String}
- *
- */
-const serializeRange = (range, state, schema) => {
-  const { doc } = state
-  const { content } = doc.slice(range.from, range.to)
-  return serializeFragment(content, schema).innerHTML
 }
 
 /**
@@ -140,8 +123,9 @@ const serializeRange = (range, state, schema) => {
  *
  */
 const splitsExistingRange = (from, to, doc) => {
-  const existingMarks = getMarks(flattenNode(doc), 'range', 'rangeId')
+  const existingMarks = getMarks(flattenNode(doc), 'segmentMark', 'segmentId')
   const doesSplit = Object.values(existingMarks).filter((mark) => from > mark.from && to < mark.to)
+
   return doesSplit.length !== 0
 }
 
@@ -157,18 +141,22 @@ const splitsExistingRange = (from, to, doc) => {
 const getMinMax = (num1, num2) => {
   const from = Math.min(num1, num2)
   const to = Math.max(num1, num2)
+
   return { from, to }
 }
 
 const range = (start, end, step = 1) => {
   const output = []
+
   if (typeof end === 'undefined') {
     end = start
     start = 0
   }
+
   for (let i = start; i < end; i += step) {
     output.push(i)
   }
+
   return output
 }
 
@@ -178,6 +166,7 @@ const isSuperset = (set, subset) => {
       return false
     }
   }
+
   return true
 }
 
@@ -192,12 +181,15 @@ const isSuperset = (set, subset) => {
  */
 const createCreatorMenu = (view, anchor, head) => {
   const wrapper = document.createElement('div')
+
   wrapper.setAttribute('class', 'editor-menububble__wrapper is-active')
 
   const addBtn = document.createElement('button')
+
   addBtn.setAttribute('class', 'editor-menububble__button')
   addBtn.setAttribute('data-cy', 'menuBubbleButton')
   const icon = document.createElement('i')
+
   icon.setAttribute('class', 'fa fa-plus')
   addBtn.appendChild(icon)
 
@@ -205,9 +197,11 @@ const createCreatorMenu = (view, anchor, head) => {
     e.preventDefault()
     const from = Math.min(anchor, head)
     const to = Math.max(anchor, head)
-    setRange(view)(from, to, { rangeId: `${from}_${to}` })
+
+    setRange(view)(from, to, { segmentId: `${from}_${to}` })
     const { state, dispatch } = view
     let { tr } = state
+
     view.focus()
     tr = tr.setSelection(new TextSelection(state.doc.resolve(to)))
     dispatch(tr)
@@ -235,17 +229,19 @@ const createCreatorMenu = (view, anchor, head) => {
     arrow: false,
     theme: 'light-border',
     getReferenceClientRect: () => {
-      const positions = view.coordsAtPos(head, -1)
+      const pickPositionProps = ({ top, bottom, left, right }) => ({ top, bottom, left, right })
+      const positions = pickPositionProps(view.coordsAtPos(head, -1))
+
       return {
         height: 10,
         width: 0,
-        ...positions
+        ...positions,
       }
     },
     content: wrapper,
     interactive: true,
     trigger: 'manual',
-    showOnCreate: true
+    showOnCreate: true,
   })
 
   wrapper.appendChild(addBtn)
@@ -267,6 +263,7 @@ const generateRangeChangeMap = (oldRanges, newRanges) => {
       if (!newRanges[key]) {
         return false
       }
+
       const originalRange = oldRanges[key]
       const rangeToCompare = newRanges[key]
       const hasChangedPositions = originalRange.from !== rangeToCompare.from || originalRange.to !== rangeToCompare.to
@@ -282,7 +279,7 @@ const generateRangeChangeMap = (oldRanges, newRanges) => {
     newRanges,
     deletedRanges,
     createdRanges,
-    updatedRanges
+    updatedRanges,
   }
 }
 
@@ -292,9 +289,8 @@ export {
   getMinMax,
   rangesEqual,
   splitsExistingRange,
-  serializeRange,
   range,
   isSuperset,
   createCreatorMenu,
-  generateRangeChangeMap
+  generateRangeChangeMap,
 }

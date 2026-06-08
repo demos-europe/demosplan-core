@@ -90,7 +90,7 @@ class ServiceOutput
         ProcedureService $procedureService,
         ServiceImporter $serviceImport,
         private readonly StatementService $statementService,
-        UserService $userService
+        UserService $userService,
     ) {
         $this->contentService = $contentService;
         $this->permissions = $permissions;
@@ -114,15 +114,15 @@ class ServiceOutput
     }
 
     /**
-     * Get all Datainput orgs.
+     * Get all Datainput orgs for a specific customer.
      *
      * @return array Orga[]
      *
      * @throws Exception
      */
-    public function getDataInputOrgas()
+    public function getDataInputOrgas(Customer $customer)
     {
-        return $this->orgaService->getDataInputOrgaList();
+        return $this->orgaService->getDataInputOrgaList($customer);
     }
 
     /**
@@ -157,7 +157,6 @@ class ServiceOutput
         if ($this->permissions->hasPermission('feature_procedures_count_released_drafts')) {
             $proclistCount = count($sResult);
             for ($proclistcounter = 0; $proclistcounter < $proclistCount; ++$proclistcounter) {
-                $sResult[$proclistcounter] = $this->addPhaseNames($sResult[$proclistcounter]);
                 $statementResult = $this->draftStatementService->getDraftStatementList(
                     $sResult[$proclistcounter]['ident'],
                     'group',
@@ -167,7 +166,7 @@ class ServiceOutput
                     $user,
                     null
                 );
-                if (is_array($statementResult->getResult()) && count($statementResult->getResult()) > 0) {
+                if (is_array($statementResult->getResult()) && [] !== $statementResult->getResult()) {
                     $sResult[$proclistcounter]['statementSubmitted'] = count($statementResult->getResult());
                 } else {
                     $sResult[$proclistcounter]['statementSubmitted'] = 0;
@@ -181,15 +180,13 @@ class ServiceOutput
     /**
      * Verarbeitet alle Anfragen aus der Listenansicht.
      *
-     * @param mixed $search
-     *
      * @return array
      *
      * @throws Exception
      */
-    public function procedureTemplateAdminListHandler(array $filter, $search)
+    public function procedureTemplateAdminListHandler(array $filter, mixed $search)
     {
-        if (0 === count($filter)) {
+        if ([] === $filter) {
             throw new InvalidArgumentException('provide at least one filter');
         }
 
@@ -210,11 +207,6 @@ class ServiceOutput
         $procedureList = $sResult['result'] ?? [];
         $filters = $sResult['filterSet']['filters'] ?? [];
         $activeFilters = $sResult['filterSet']['activeFilters'] ?? [];
-
-        foreach ($procedureList as $key => $procedure) {
-            // Füge den Phasennamen aus der Config hinzu
-            $procedureList[$key] = $this->addPhaseNames($procedure);
-        }
 
         $result = [];
         if (0 !== (is_countable($procedureList) ? count($procedureList) : 0)) {
@@ -323,16 +315,15 @@ class ServiceOutput
     }
 
     /**
-     * Speichere ab, dass die Institution eine Emaileinladung bekommen hat.
-     *
-     * @param string $ident
-     * @param string $phase
-     *
      * @throws Exception
      */
-    public function getInvitationEmailSentList($ident, $phase): array
+    public function getInvitationEmailSentList(string $procedureId): array
     {
-        return $this->service->getInstitutionMailList($ident, $phase);
+        $phaseDefinition = $this->service->getProcedure($procedureId)
+            ->getPhaseObject()
+            ->getPhaseDefinition();
+
+        return $this->service->getInstitutionMailList($procedureId, $phaseDefinition);
     }
 
     /**
@@ -342,9 +333,7 @@ class ServiceOutput
      */
     public function getProcedureWithPhaseNames($procedureId): array
     {
-        $sResult = $this->service->getSingleProcedure($procedureId);
-        // Füge den Phasennamen aus der Config hinzu
-        return $this->addPhaseNames($sResult);
+        return $this->service->getSingleProcedure($procedureId);
     }
 
     /**
@@ -408,20 +397,12 @@ class ServiceOutput
         // Template Variable aus Storage Ergebnis erstellen(Output)
         $templateVars = $this->procedureMemberListHandler($procedure, $filters);
 
-        // Zeige den Namen des aktuellen internen Verfahrensschritts an
-        if (isset($templateVars['procedure']['phase']) && 0 < strlen((string) $templateVars['procedure']['phase'])) {
-            $templateVars['procedure']['phaseName'] = $this->config->getPhaseNameWithPriorityInternal(
-                $templateVars['procedure']['phase']
-            );
-        }
-
         // an welche Institutionen wurde eine Email geschickt?
         $templateVars['orgaInvitationemailSent'] = [];
         $invitationEmailSent = $this->getInvitationEmailSentList(
-            $templateVars['procedure']['ident'],
-            $templateVars['procedure']['phase']
+            $templateVars['procedure']['ident']
         );
-        if (is_array($invitationEmailSent['result']) && 0 < count($invitationEmailSent['result'])) {
+        if (is_array($invitationEmailSent['result']) && [] !== $invitationEmailSent['result']) {
             foreach ($invitationEmailSent['result'] as $invitedOrga) {
                 if (array_key_exists('organisation', $invitedOrga) && $invitedOrga['organisation'] instanceof Orga) {
                     $templateVars['orgaInvitationemailSent'][] = $invitedOrga['organisation']->getId();
@@ -510,37 +491,10 @@ class ServiceOutput
         );
         $templateVars['list'] = $masterListResult;
 
-        $templateVars['isCustomerMasterBlueprintExisting'] =
-            $this->service->isCustomerMasterBlueprintExisting(
-                $this->customerService->getCurrentCustomer()->getId()
-            );
+        $customerMasterBlueprint = $this->customerService->getCurrentCustomer()->getDefaultProcedureBlueprint();
+        $templateVars['customerMasterBlueprint'] = $customerMasterBlueprint;
 
         return $templateVars;
-    }
-
-    /**
-     * Füge den sprechenden Namen der Phase aus den Parametern hinzu.
-     *
-     * @param array $procedure
-     *
-     * @return mixed
-     */
-    protected function addPhaseNames($procedure)
-    {
-        // Institutions-Beteiligung
-        $procedure['phaseName'] = '';
-        $internalPhases = $this->config->getInternalPhasesAssoc();
-        if (isset($procedure['phase']) && isset($internalPhases[$procedure['phase']])) {
-            $procedure['phaseName'] = $internalPhases[$procedure['phase']]['name'];
-        }
-        // Öffentlichkeitsbeteiligung
-        $procedure['publicParticipationPhaseName'] = '';
-        $externalPhases = $this->config->getExternalPhasesAssoc();
-        if (isset($procedure['publicParticipationPhase']) && isset($externalPhases[$procedure['publicParticipationPhase']])) {
-            $procedure['publicParticipationPhaseName'] = $externalPhases[$procedure['publicParticipationPhase']]['name'];
-        }
-
-        return $procedure;
     }
 
     /**
@@ -567,7 +521,7 @@ class ServiceOutput
             ? Permissions::PROCEDURE_PERMISSION_SCOPE_EXTERNAL
             : Permissions::PROCEDURE_PERMISSION_SCOPE_INTERNAL;
 
-        if (!$this->permissions->hasPermissionsetRead($permissionScope)) {
+        if (!$this->permissions->hasPermissionsetRead($permissionScope) && !$this->permissions->ownsProcedure()) {
             return null;
         }
 

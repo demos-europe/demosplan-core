@@ -18,7 +18,7 @@ import { initialize } from '@DpJs/InitVue'
 
 const components = {
   DpAccordion,
-  HeightLimit
+  HeightLimit,
 }
 
 initialize(components).then(() => {

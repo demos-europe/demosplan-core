@@ -8,24 +8,28 @@
 </license>
 
 <template>
-  <li>
+  <li class="flex items-start mb-1">
     <input
-      :data-cy="`flyoutOption:${instance}:${option.id}`"
       :id="`${instance}_id_${option.id}`"
+      class="mt-0.5"
+      :data-cy="`flyoutOption:${instance}:${option.id}`"
       :checked="checked"
       :name="`${instance}_name_${option.id}`"
       type="checkbox"
-      @change="toggle">
+      @change="toggle"
+    >
     <label
       :class="{'weight--normal': highlight === false }"
-      class="inline-block u-m-0"
-      :for="`${instance}_id_${option.id}`">
+      class="text-sm mx-1 mt-0 mb-1"
+      :for="`${instance}_id_${option.id}`"
+    >
       {{ option.label }} <template v-if="showCount">({{ option.count }})</template>
     </label>
     <dp-contextual-help
       v-if="option.description && instance !=='itemsSelected'"
-      class="float-right mt-0.5"
-      :text="option.description" />
+      class="ml-auto mt-0.5"
+      :text="option.description"
+    />
   </li>
 </template>
 
@@ -36,26 +40,26 @@ export default {
   name: 'FilterFlyoutCheckbox',
 
   components: {
-    DpContextualHelp
+    DpContextualHelp,
   },
 
   props: {
     checked: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     highlight: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
 
     instance: {
       type: String,
       required: false,
-      default: 'list'
+      default: 'list',
     },
 
     /**
@@ -63,20 +67,24 @@ export default {
      */
     option: {
       type: Object,
-      required: true
+      required: true,
     },
 
     showCount: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
+
+  emits: [
+    'change',
+  ],
 
   methods: {
     toggle () {
       this.$emit('change', !this.checked, this.option)
-    }
-  }
+    },
+  },
 }
 </script>

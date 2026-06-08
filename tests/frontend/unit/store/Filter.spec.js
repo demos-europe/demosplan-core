@@ -7,19 +7,16 @@
  * All rights reserved
  */
 
-import { createLocalVue } from '@vue/test-utils'
+import { createStore } from 'vuex'
 import Filter from '@DpJs/store/statement/Filter'
-import { filterList } from '../__mocks__/Filter.mock'
-import { UserFilterSetResource } from '../__mocks__/UserFilterSetResource.mock'
-import Vuex from 'vuex'
+import filterList from '../fixtures/Filter.json'
+import UserFilterSetResource from '../fixtures/UserFilterSetResource.json'
 
 describe('FilterStore', () => {
   let store
 
   beforeEach(() => {
-    const localVue = createLocalVue()
-    localVue.use(Vuex)
-    store = new Vuex.Store(Filter)
+    store = createStore(Filter)
   })
 
   it('has filterGroups', () => {
@@ -56,6 +53,7 @@ describe('FilterStore', () => {
   it('returns the correct filter hash for a given UserFilterSet', () => {
     // Mock state
     const userFilterSet = UserFilterSetResource.data[0]
+
     store.state.userFilterSets = UserFilterSetResource
     // Call the getter with the mocked state and user filter set
     const result = store.getters.userFilterSetFilterHash(userFilterSet)

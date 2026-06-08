@@ -86,6 +86,20 @@
         position: absolute;
         right: .25em;
         top: .25em;
+        background: none;
+        border: none;
+        padding: 0;
+        color: inherit;
+        cursor: pointer;
+
+        &:focus-visible {
+            outline: 2px solid currentcolor;
+            outline-offset: 2px;
+        }
+
+        &:hover {
+            opacity: 0.8;
+        }
     }
 
     &__link {

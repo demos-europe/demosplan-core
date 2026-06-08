@@ -12,15 +12,18 @@ All rights reserved
     class="multiselect--dark inline-block align-bottom cursor-pointer w-full"
     :class="{'has-selection': selected.length}"
     :placeholder="placeHolder"
+    :open-direction="dropdownDirection"
     :options="tagsByTopic"
     :close-on-select="false"
     :searchable="false"
+    multiple
     @input="(val) => updateTags(val)"
-    multiple>
+  >
     <template v-slot:option="{ props }">
       <input
         type="checkbox"
-        :checked="!!selected.find(tag => tag.id === props.option.id || tag.attributes.title === props.option.title)">
+        :checked="!!selected.find(tag => tag.id === props.option.id || tag.attributes.title === props.option.title)"
+      >
       <label>
         {{ props.option.attributes.title }}
       </label>
@@ -36,26 +39,32 @@ export default {
   name: 'TagSelect',
 
   components: {
-    DpMultiselect
+    DpMultiselect,
   },
 
   props: {
+    dropdownDirection: {
+      type: String,
+      required: false,
+      default: '',
+    },
+
     entity: {
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     selected: {
       type: Array,
-      default: () => ([])
-    }
+      default: () => ([]),
+    },
   },
 
   computed: {
     ...mapGetters('SplitStatement', {
       tags: 'categorizedTags',
       editingSegment: 'editingSegment',
-      uncategorizedTags: 'uncategorizedTags'
+      uncategorizedTags: 'uncategorizedTags',
     }),
 
     placeHolder () {
@@ -68,26 +77,30 @@ export default {
       } else {
         return this.tags.filter((tag) => {
           let returnValue = false
+
           if (hasOwnProp(tag, 'relationships') && hasOwnProp(tag.relationships, 'topic')) {
             if (hasOwnProp(tag.relationships.topic, 'data') && typeof tag.relationships.topic.data !== 'undefined') {
               returnValue = tag.relationships.topic.data.id === this.entity.id ? tag : false
             }
           }
+
           return returnValue
         })
       }
-    }
+    },
   },
 
   methods: {
     ...mapActions('SplitStatement', [
-      'updateCurrentTags'
+      'updateCurrentTags',
     ]),
 
     updateTags (val, isEditing = true) {
       let value
+
       if (Array.isArray(val)) {
         const [tag] = val
+
         value = tag
       } else if (typeof val === 'object' && !Array.isArray(val)) {
         value = val
@@ -96,7 +109,7 @@ export default {
       }
 
       this.updateCurrentTags({ tagName: value.attributes.title, id: value.id })
-    }
-  }
+    },
+  },
 }
 </script>

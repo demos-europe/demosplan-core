@@ -35,7 +35,7 @@ class BoilerplateServiceTest extends FunctionalTestCase
         parent::setUp();
 
         $this->dateHelper = new DateHelper();
-        $this->sut = self::$container->get(ProcedureService::class);
+        $this->sut = self::getContainer()->get(ProcedureService::class);
     }
 
     public function testGetBoilerplate()
@@ -279,7 +279,7 @@ class BoilerplateServiceTest extends FunctionalTestCase
 
         $group->setBoilerplates([$boilerplate1, $boilerplate2]);
 
-        $em = static::$container->get('doctrine');
+        $em = self::getContainer()->get('doctrine');
         $boilerplateRepository = $em->getRepository(Boilerplate::class);
         $boilerplateRepository->updateObject($boilerplate1);
 
@@ -346,13 +346,15 @@ class BoilerplateServiceTest extends FunctionalTestCase
         // Ensure the boilerplate is associated with the category
         static::assertContains($boilerplate, $category->getBoilerplates());
 
-        // Delete the category and check if the boilerplate is also deleted
+        // Delete the boilerplate and verify it is removed
         $this->sut->deleteBoilerplate($boilerplate->getId());
 
-        $deletedCategory = $this->getEntries(BoilerplateCategory::class, ['id' => $category->getId()]);
         $deletedBoilerplate = $this->getEntries(Boilerplate::class, ['ident' => $boilerplate->getId()]);
-
-        static::assertCount(0, $deletedCategory);
         static::assertCount(0, $deletedBoilerplate);
+
+        // Category must still exist — it's a ManyToMany relation, deleting one
+        // boilerplate must not cascade-delete the category
+        $remainingCategory = $this->getEntries(BoilerplateCategory::class, ['id' => $category->getId()]);
+        static::assertCount(1, $remainingCategory);
     }
 }

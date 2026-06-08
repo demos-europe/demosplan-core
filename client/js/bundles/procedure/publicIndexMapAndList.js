@@ -17,13 +17,15 @@ import { initialize } from '@DpJs/InitVue'
 
 const stores = {}
 const components = {
-  DpSearchProcedureMap
+  DpSearchProcedureMap,
 }
+
 window.prefixClass = prefixClass
 
 initialize(components, stores).then(() => {
   if (hasPermission('feature_procedures_mark_participated')) {
     const checkboxes = document.querySelectorAll('[data-done-procedure-id]')
+
     //  Update classes on items onLoad just in case the user hit History.back
     Array.from(checkboxes).forEach(checkbox => {
       if (checkbox.checked) {
@@ -34,7 +36,10 @@ initialize(components, stores).then(() => {
     })
 
     document.querySelector('[data-procedurelist-content]').addEventListener('change', e => {
-      if (e.target.hasAttribute('data-done-procedure-id') === false) return
+      if (e.target.dataset.doneProcedureId === undefined) {
+        return
+      }
+
       const checkbox = e.target
       const isChecked = checkbox.checked
       const procedureId = checkbox.getAttribute('data-done-procedure-id')
@@ -43,7 +48,7 @@ initialize(components, stores).then(() => {
       dpApi({
         method: 'POST',
         url: Routing.generate(route, { procedureId }),
-        data: { procedureId }
+        data: { procedureId },
       })
         .then(() => {
           checkbox.closest(prefixClass('.c-procedurelist__item')).classList.toggle(prefixClass('is-done'))

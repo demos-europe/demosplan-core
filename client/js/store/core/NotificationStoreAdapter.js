@@ -14,13 +14,16 @@ export default class NotificationStoreAdapter {
 
   notify (type, text, linkUrl = '', linkText = '') {
     let message = { type }
+
     if (typeof text === 'object') {
       message.linkUrl = text.linkUrl || null
       message.linkText = text.linkText || null
       message.text = text.message
+      message.persist = text.persist || false
     } else {
-      message = { type, text, linkUrl, linkText }
+      message = { type, text, linkUrl, linkText, persist: false }
     }
+
     this.store.commit('Notify/add', message)
   }
 

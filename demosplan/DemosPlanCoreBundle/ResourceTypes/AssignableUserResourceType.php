@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -54,7 +55,7 @@ final class AssignableUserResourceType extends DplanResourceType
     protected function getAccessConditions(): array
     {
         $currentProcedure = $this->currentProcedureService->getProcedure();
-        if (null === $currentProcedure) {
+        if (!$currentProcedure instanceof Procedure) {
             // you need a procedure to know who can be an assignee
             return [$this->conditionFactory->false()];
         }

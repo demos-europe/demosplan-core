@@ -46,7 +46,7 @@ const setConfirmForBounds = function (data) {
 function getXplanboxBounds (procedureName) {
   return dpApi({
     method: 'GET',
-    url: Routing.generate('DemosPlan_xplanbox_get_bounds', { procedureName })
+    url: Routing.generate('DemosPlan_xplanbox_get_bounds', { procedureName }),
   })
     .then(data => {
       if (data.data.code === 100 && data.data.success === true) {
@@ -63,21 +63,16 @@ function getXplanboxBounds (procedureName) {
 export default function CreateProcedure () {
   const statusBox = document.getElementById('js__statusBox')
   const saveBtn = document.getElementById('saveBtn')
-
-  /*
-   * @improve T15008
-   * disable save-button - user can only save if we have a valid  plis-id seleced
-   */
-  saveBtn.setAttribute('disabled', true)
-
   const planningCauseSelect = document.getElementById('js__plisPlanungsanlass')
 
   //  Get plis data from BE
   const plisSelect = document.querySelector('select[name="r_plisId"]')
+
   plisSelect.addEventListener('change', value => {
     saveBtn.setAttribute('disabled', true)
     // Fill hidden fields
     const selectedOption = plisSelect[value.currentTarget.selectedIndex]
+
     document.querySelector('input[name="r_name"]').setAttribute('value', selectedOption.text)
     // Hide status-box
     statusBox.classList.add('sr-only')
@@ -85,10 +80,11 @@ export default function CreateProcedure () {
     if (selectedOption.value !== '') {
       dpApi({
         url: Routing.generate('DemosPlan_plis_get_procedure', { uuid: selectedOption.value }),
-        method: 'GET'
+        method: 'GET',
       })
         .then(data => {
           const dataResponse = JSON.parse(data.data)
+
           if (dataResponse.code === 100 && dataResponse.success === true) {
             planningCauseSelect.classList.remove('lbl__hint', 'flash-error', 'u-p-0_25', 'u-mt-0_25')
             const planningOccasionText = dataResponse.procedure.planungsanlass
@@ -96,6 +92,7 @@ export default function CreateProcedure () {
             planningCauseSelect.innerHTML = planningOccasionText.replace(/\n/g, '<br>')
             document.querySelector('input[name="r_externalDesc"]').setAttribute('value', planningOccasionText)
             const elt = document.querySelector('select[name="r_plisId"]')
+
             getXplanboxBounds(elt.options[elt.selectedIndex].text)
           } else {
             planningCauseSelect.innerText = Translator.trans('error.plis.getplanningcause')

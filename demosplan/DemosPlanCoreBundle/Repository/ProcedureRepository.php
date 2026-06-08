@@ -151,7 +151,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
                 ->andWhere('p.deleted = :deleted')
                 ->setParameter('deleted', false);
 
-            if (null !== $customer) {
+            if ($customer instanceof Customer) {
                 $queryBuilder->andWhere('p.customer = :customer')->setParameter('customer', $customer);
             }
 
@@ -172,13 +172,11 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
     /**
      * Get a list of all not deleted and open Procedures by dataInputOrga.
      *
-     * @param array<int, string> $allowedPhases
-     *
      * @return array<int, Procedure>
      *
      * @throws Exception
      */
-    public function getProceduresForDataInputOrga(string $orgaId, array $allowedPhases): array
+    public function getProceduresForDataInputOrga(string $orgaId): array
     {
         try {
             $em = $this->getEntityManager();
@@ -186,16 +184,18 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
                 ->select('p')
                 ->from(Procedure::class, 'p')
                 ->join('p.dataInputOrganisations', 'o')
+                ->join('p.phase', 'phase')
+                ->join('phase.phaseDefinition', 'phaseDef')
                 ->andWhere('o.id = :orgaId')
                 ->andWhere('p.deleted = 0')
-                ->andWhere('p.closed = 0')
+                ->andWhere('phaseDef.closingPhase = 0')
                 ->setParameter('orgaId', $orgaId)
                 ->orderBy('p.name', 'ASC');
 
             $prefilteredProcedures = $query->getQuery()->getResult();
 
             return collect($prefilteredProcedures)->filter(
-                static fn (Procedure $procedure): bool => collect($allowedPhases)->contains($procedure->getPhase())
+                static fn (Procedure $procedure): bool => 'hidden' !== $procedure->getPhaseObject()->getPhaseDefinition()->getPermissionSet()
             )->toArray();
         } catch (Exception $e) {
             $this->getLogger()->warning('getProceduresForDataInputOrga failed: ', [$e]);
@@ -250,7 +250,6 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
 
             $currentDate = new DateTime();
             $procedure->setDeletedDate($currentDate);
-            $procedure->setClosedDate($currentDate);
             $procedure->setAuthorizedUsers([]);
             $procedure->setCustomer($data['customer']);
             // When a procedure is created we may get an empty string as its description
@@ -267,17 +266,23 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedure = $this->generateObjectValues($procedure, $data);
             // default values different from blueprint
             $procedure->setCreatedDate($currentDate);
-            $procedure->setPublicParticipationPhase($data['publicParticipationPhase']);
             $procedure->setInitialSlug();
             $procedure->setXtaPlanId($data['xtaPlanId'] ?? '');
             $procedure->setElements(new ArrayCollection());
 
-            $procedure->setPhaseObject(new ProcedurePhase());
+            $procedure->setPhaseObject(new ProcedurePhase($procedureMaster->getPhaseObject()->getPhaseDefinition()));
             $procedure->getPhaseObject()->copyValuesFromPhase($procedureMaster->getPhaseObject());
-            $procedure->setPublicParticipationPhaseObject(new ProcedurePhase());
+            $procedure->setPublicParticipationPhaseObject(new ProcedurePhase($procedureMaster->getPublicParticipationPhaseObject()->getPhaseDefinition()));
             $procedure->getPublicParticipationPhaseObject()->copyValuesFromPhase(
                 $procedureMaster->getPublicParticipationPhaseObject()
             );
+
+            if (array_key_exists('phaseDefinition', $data) && null !== $data['phaseDefinition']) {
+                $procedure->getPhaseObject()->setPhaseDefinition($data['phaseDefinition']);
+            }
+            if (array_key_exists('publicParticipationPhaseDefinition', $data) && null !== $data['publicParticipationPhaseDefinition']) {
+                $procedure->getPublicParticipationPhaseObject()->setPhaseDefinition($data['publicParticipationPhaseDefinition']);
+            }
 
             // improve T20997:
             // this kind of denylisting should be avoided by do not using "clone"
@@ -314,7 +319,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             if (!is_array($procedureIds)) {
                 $procedureIds = [$procedureIds];
             }
-            if (0 === count($procedureIds)) {
+            if ([] === $procedureIds) {
                 throw new \InvalidArgumentException('No ProcedureIds given to delete');
             }
 
@@ -492,11 +497,11 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
         $procedureSettingsToDelete = $entityManager->getRepository(ProcedureSettings::class)
             ->findBy(['procedure' => $procedureId]);
         foreach ($procedureSettingsToDelete as $procedureSetting) {
-            if (0 < strlen($procedureSetting->getPlanPDF())) {
-                array_push($filesToDelete, $procedureSetting->getPlanPDF());
+            if ('' !== (string) $procedureSetting->getPlanPDF()) {
+                $filesToDelete[] = $procedureSetting->getPlanPDF();
             }
-            if (0 < strlen($procedureSetting->getPlanDrawPDF())) {
-                array_push($filesToDelete, $procedureSetting->getPlanDrawPDF());
+            if ('' !== (string) $procedureSetting->getPlanDrawPDF()) {
+                $filesToDelete[] = $procedureSetting->getPlanDrawPDF();
             }
         }
 
@@ -562,12 +567,8 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      */
     public function generateObjectValues($procedure, array $data)
     {
-        if (array_key_exists('closed', $data)) {
-            $procedure->setClosed($data['closed']);
-        }
         if (array_key_exists('deleted', $data)) {
             $procedure->setDeleted($data['deleted']);
-            $procedure->setCustomer(null);
             $procedure->setProcedureCategories([]);
             $procedure->setDeletedDate(Carbon::now());
         }
@@ -580,7 +581,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedure->setDesc($data['desc']);
         }
         if (array_key_exists('endDate', $data)) {
-            if (is_string($data['endDate']) && 0 < strlen($data['endDate'])) {
+            if (is_string($data['endDate']) && '' !== $data['endDate']) {
                 $procedure->setEndDate($this->convertUserInputDate($data['endDate'], '23:59:59'));
             } elseif ($data['endDate'] instanceof DateTime) {
                 $procedure->setEndDate(
@@ -644,8 +645,8 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
                 )
             );
         }
-        if (array_key_exists('phase', $data)) {
-            $procedure->setPhase($data['phase']);
+        if (array_key_exists('phaseDefinition', $data)) {
+            $procedure->getPhaseObject()->setPhaseDefinition($data['phaseDefinition']);
         }
         if (array_key_exists('phase_iteration', $data)) {
             $procedure->getPhaseObject()->setIteration($data['phase_iteration']);
@@ -668,14 +669,14 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedure->setPublicParticipationContact($data['publicParticipationContact']);
         }
         if (array_key_exists('publicParticipationStartDate', $data)) {
-            if (is_string($data['publicParticipationStartDate']) && 0 < strlen($data['publicParticipationStartDate'])) {
+            if (is_string($data['publicParticipationStartDate']) && '' !== $data['publicParticipationStartDate']) {
                 $procedure->setPublicParticipationStartDate($this->convertUserInputDate($data['publicParticipationStartDate']));
             } elseif ($data['publicParticipationStartDate'] instanceof DateTime) {
                 $procedure->setPublicParticipationStartDate($data['publicParticipationStartDate']);
             }
         }
         if (array_key_exists('publicParticipationEndDate', $data)) {
-            if (is_string($data['publicParticipationEndDate']) && 0 < strlen($data['publicParticipationEndDate'])) {
+            if (is_string($data['publicParticipationEndDate']) && '' !== $data['publicParticipationEndDate']) {
                 $procedure->setPublicParticipationEndDate($this->convertUserInputDate($data['publicParticipationEndDate'], '23:59:59'));
             } elseif ($data['publicParticipationEndDate'] instanceof DateTime) {
                 $procedure->setPublicParticipationEndDate(
@@ -683,14 +684,14 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
                 );
             }
         }
-        if (array_key_exists('publicParticipationPhase', $data)) {
-            $procedure->setPublicParticipationPhase($data['publicParticipationPhase']);
+        if (array_key_exists('publicParticipationPhaseDefinition', $data)) {
+            $procedure->getPublicParticipationPhaseObject()->setPhaseDefinition($data['publicParticipationPhaseDefinition']);
         }
         if (array_key_exists('publicParticipationPublicationEnabled', $data)) {
             $procedure->setPublicParticipationPublicationEnabled($data['publicParticipationPublicationEnabled']);
         }
         if (array_key_exists('startDate', $data)) {
-            if (is_string($data['startDate']) && 0 < strlen($data['startDate'])) {
+            if (is_string($data['startDate']) && '' !== $data['startDate']) {
                 $procedure->setStartDate($this->convertUserInputDate($data['startDate']));
             } elseif ($data['startDate'] instanceof DateTime) {
                 $procedure->setStartDate($data['startDate']);
@@ -802,6 +803,15 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             if (array_key_exists('pictogram', $data['settings'])) {
                 $procedureSettings->setPictogram($data['settings']['pictogram']);
             }
+            if (array_key_exists('allowAnonymousStatements', $data['settings'])) {
+                $procedureSettings->setAllowAnonymousStatements($data['settings']['allowAnonymousStatements']);
+            }
+            if (array_key_exists('expandProcedureDescription', $data['settings'])) {
+                $procedureSettings->setExpandProcedureDescription($data['settings']['expandProcedureDescription']);
+            }
+            if (array_key_exists('publicParticipationFeedbackEnabled', $data['settings'])) {
+                $procedureSettings->setPublicParticipationFeedbackEnabled($data['settings']['publicParticipationFeedbackEnabled']);
+            }
             if (array_key_exists('pictogramCopyright', $data['settings'])) {
                 $procedureSettings->setPictogramCopyright($data['settings']['pictogramCopyright']);
             }
@@ -810,6 +820,10 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             }
             if (array_key_exists('planningArea', $data['settings'])) {
                 $procedureSettings->setPlanningArea($data['settings']['planningArea']);
+            }
+
+            if (array_key_exists('publicParticipationFeedbackEnabled', $data['settings'])) {
+                $procedureSettings->setPublicParticipationFeedbackEnabled($data['settings']['publicParticipationFeedbackEnabled']);
             }
 
             $this->transferDesignatedExternalSwitch($procedureSettings, $data);
@@ -1220,22 +1234,21 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      *
      * @throws Exception
      */
-    public function getProceduresWithEndedParticipation(array $phaseKeys, bool $internal = true): array
+    public function getProceduresWithEndedParticipation(bool $internal = true): array
     {
         try {
             $currentDate = new DateTime();
             $procedures = $this->getUndeletedProcedures();
-            $phaseKeys = collect($phaseKeys);
 
             if ($internal) {
                 $hits = collect($procedures)->filter(
                     static fn (Procedure $procedure): bool => $procedure->getEndDate() < $currentDate
-                        && $phaseKeys->contains($procedure->getPhase())
+                        && 'write' === $procedure->getPhaseObject()->getPhaseDefinition()->getPermissionSet()
                 );
             } else {
                 $hits = collect($procedures)->filter(
                     static fn (Procedure $procedure): bool => $procedure->getPublicParticipationEndDate() < $currentDate
-                        && $phaseKeys->contains($procedure->getPublicParticipationPhase())
+                        && 'write' === $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getPermissionSet()
                 );
             }
 
@@ -1355,6 +1368,7 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
      */
     public function getProceduresReadyToSwitchPhases(): array
     {
+        $now = Carbon::now()->getTimestamp();
         $query = $this->createFluentQuery();
         $conditionDefinition = $query->getConditionDefinition()
             ->propertyHasValue(false, ['deleted'])
@@ -1363,15 +1377,15 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
 
         $orCondition = $conditionDefinition->anyConditionApplies();
         $orCondition->allConditionsApply()
-            ->propertyIsNotNull(['phase', 'designatedSwitchDate'])
-            ->propertyIsNotNull(['phase', 'designatedPhase'])
+            ->propertyIsNotNull(['phase', 'designatedSwitchDateTimestamp'])
+            ->propertyIsNotNull(['phase', 'designatedPhaseDefinition'])
             ->propertyIsNotNull(['phase', 'designatedEndDate'])
-            ->propertyHasValueBeforeNow(['phase', 'designatedSwitchDate']);
+            ->valueSmallerThan($now, ['phase', 'designatedSwitchDateTimestamp']);
         $orCondition->allConditionsApply()
-            ->propertyIsNotNull(['publicParticipationPhase', 'designatedSwitchDate'])
-            ->propertyIsNotNull(['publicParticipationPhase', 'designatedPhase'])
+            ->propertyIsNotNull(['publicParticipationPhase', 'designatedSwitchDateTimestamp'])
+            ->propertyIsNotNull(['publicParticipationPhase', 'designatedPhaseDefinition'])
             ->propertyIsNotNull(['publicParticipationPhase', 'designatedEndDate'])
-            ->propertyHasValueBeforeNow(['publicParticipationPhase', 'designatedSwitchDate']);
+            ->valueSmallerThan($now, ['publicParticipationPhase', 'designatedSwitchDateTimestamp']);
 
         return $query->getEntities();
     }
@@ -1386,17 +1400,19 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedureSettings->setDesignatedPublicSwitchDate($designatedPublicSwitchDate);
         }
 
-        if (array_key_exists('designatedPublicPhase', $data['settings'])) {
-            $procedureSettings->setDesignatedPublicPhase($data['settings']['designatedPublicPhase']);
+        if (array_key_exists('designatedPublicPhaseDefinition', $data['settings'])) {
+            $procedureSettings->getProcedure()
+                ->getPublicParticipationPhaseObject()
+                ->setDesignatedPhaseDefinition($data['settings']['designatedPublicPhaseDefinition']);
         }
 
         if (array_key_exists('designatedPublicEndDate', $data['settings'])) {
-            $convertedDate = $this->convertUserInputDate($data['settings']['designatedPublicEndDate']);
+            $convertedDate = $this->convertUserInputDate($data['settings']['designatedPublicEndDate'], '23:59:59');
             $procedureSettings->setDesignatedPublicEndDate($convertedDate);
         }
 
         if (($data['settings']['designatedPublicSwitchDate'] ?? null) !== null
-        || ($data['settings']['designatedPublicPhase'] ?? null) !== null
+        || ($data['settings']['designatedPublicPhaseDefinition'] ?? null) !== null
         || ($data['settings']['designatedPublicEndDate'] ?? null) !== null) {
             $procedureSettings->setDesignatedPublicPhaseChangeUser($data['currentUser']);
         }
@@ -1412,17 +1428,19 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             $procedureSettings->setDesignatedSwitchDate($designatedSwitchDate);
         }
 
-        if (array_key_exists('designatedPhase', $data['settings'])) {
-            $procedureSettings->setDesignatedPhase($data['settings']['designatedPhase']);
+        if (array_key_exists('designatedPhaseDefinition', $data['settings'])) {
+            $procedureSettings->getProcedure()
+                ->getPhaseObject()
+                ->setDesignatedPhaseDefinition($data['settings']['designatedPhaseDefinition']);
         }
 
         if (array_key_exists('designatedEndDate', $data['settings'])) {
-            $convertedDate = $this->convertUserInputDate($data['settings']['designatedEndDate']);
+            $convertedDate = $this->convertUserInputDate($data['settings']['designatedEndDate'], '23:59:59');
             $procedureSettings->setDesignatedEndDate($convertedDate);
         }
 
         if (($data['settings']['designatedSwitchDate'] ?? null) !== null
-            || ($data['settings']['designatedPhase'] ?? null) !== null
+            || ($data['settings']['designatedPhaseDefinition'] ?? null) !== null
             || ($data['settings']['designatedEndDate'] ?? null) !== null) {
             $procedureSettings->setDesignatedPhaseChangeUser($data['currentUser']);
         }

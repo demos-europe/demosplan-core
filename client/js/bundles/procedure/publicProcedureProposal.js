@@ -16,7 +16,7 @@ import { initialize } from '@DpJs/InitVue'
 
 initialize({
   DpEditor,
-  DpProcedureCoordinate
+  DpProcedureCoordinate,
 }).then(() => {
   dpValidate()
 })

@@ -58,18 +58,21 @@
   <div>
     <div
       id="DpOlMap"
-      :class="[small ? prefixClass('c-ol-map--small') : '', prefixClass('c-ol-map')]">
+      :class="[small ? prefixClass('c-ol-map--small') : '', prefixClass('c-ol-map')]"
+    >
       <!-- Components that depend on OpenLayers instance are mounted after map is initialized -->
       <div v-if="Boolean(map)">
         <!-- Controls -->
         <div :class="prefixClass('c-ol-map__controls flow-root')">
           <slot
             :map="map"
-            name="controls" />
+            name="controls"
+          />
           <div :class="prefixClass('float-right')">
             <dp-autocomplete
-              :class="prefixClass('u-mb inline-block w-11 bg-color--white')"
               v-if="_options.autoSuggest.enabled"
+              id="ol_map_autosuggest"
+              :class="prefixClass('u-mb inline-block w-11 bg-color--white')"
               :options="autoCompleteOptions"
               :route-generator="(searchString) => {
                 return Routing.generate(_options.autoSuggest.serviceUrlPath, {
@@ -82,11 +85,13 @@
               track-by="value"
               data-cy="autoCompleteInput"
               @search-changed="setAutoCompleteOptions"
-              @selected="zoomToSuggestion" />
+              @selected="zoomToSuggestion"
+            />
 
             <dp-ol-map-scale-select
+              v-if="_options.scaleSelect"
               :class="prefixClass('u-ml-0_5 u-mb-0_5 align-top')"
-              v-if="_options.scaleSelect" />
+            />
           </div>
         </div>
 
@@ -99,35 +104,41 @@
           :attributions="options?.defaultAttribution"
           :layers="baselayerLayers"
           :projection="baseLayerProjection"
-          :url="baselayer" />
+          :url="baselayer"
+        />
 
         <!-- Layer from outside -->
         <dp-ol-map-layer
-          v-for="layer in layers"
+          v-for="(layer, idx) in sortedLayers"
           :key="layer.name"
           :attributions="layer.attribution || ''"
-          :order="layer.mapOrder + 1"
+          :order="options.hideDefaultLayer ? idx : idx + 1"
           :opacity="layer.opacity"
           :url="layer.url"
           :layers="layer.layers"
-          :projection="layer.projectionValue" />
+          :projection="layer.projectionValue"
+          :layer-type="layer.layerType || 'overlay'"
+        />
       </div>
 
       <!-- Map container -->
       <div
+        :id="mapId"
         ref="mapContainer"
         data-cy="map:mapContainer"
         :class="[(isValid === false) ? 'border--error' : '', prefixClass('c-ol-map__canvas u-1-of-1 relative')]"
-        :id="mapId">
+      >
         <dp-loading
           v-if="!Boolean(map)"
-          overlay />
+          overlay
+        />
       </div>
 
       <!-- These blocks make it possible to set colors in _map.scss which then are read by map script -->
       <div
         ref="mapDrawStyles"
-        :class="prefixClass('hidden')">
+        :class="prefixClass('hidden')"
+      >
         <span :class="prefixClass('c-map__draw-fill')">&nbsp;</span>
         <span :class="prefixClass('c-map__draw-stroke')">&nbsp;</span>
         <span :class="prefixClass('c-map__draw-image')">&nbsp;</span>
@@ -139,12 +150,12 @@
 <script>
 import { Attribution, FullScreen, MousePosition, ScaleLine, Zoom } from 'ol/control'
 import {
-  checkResponse,
+  debounce,
   deepMerge,
   dpApi,
   DpAutocomplete,
   DpLoading,
-  prefixClassMixin
+  prefixClassMixin,
 } from '@demos-europe/demosplan-ui'
 import { addProjection } from 'ol/proj'
 import { containsXY } from 'ol/extent'
@@ -165,14 +176,14 @@ export default {
     DpAutocomplete,
     DpLoading,
     DpOlMapLayer,
-    DpOlMapScaleSelect
+    DpOlMapScaleSelect,
   },
 
   mixins: [prefixClassMixin],
 
   provide () {
     return {
-      olMapState: this.olMapState
+      olMapState: this.olMapState,
     }
   },
 
@@ -180,19 +191,19 @@ export default {
     isValid: {
       required: false,
       type: Boolean,
-      default: true
+      default: true,
     },
 
     layers: {
       required: false,
       type: Array,
-      default: () => ([])
+      default: () => ([]),
     },
 
     mapId: {
       required: false,
       type: String,
-      default: 'map'
+      default: 'map',
     },
 
     /*
@@ -202,32 +213,32 @@ export default {
     mapOptions: {
       required: false,
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     mapOptionsRoute: {
       required: false,
       type: String,
-      default: 'dplan_api_map_options_admin'
+      default: 'dplan_api_map_options_admin',
     },
 
     options: {
       required: false,
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
 
     procedureId: {
       required: false,
       type: String,
-      default: ''
+      default: '',
     },
 
     small: {
       required: false,
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   data () {
@@ -239,13 +250,13 @@ export default {
        */
       olMapState: {
         map: null,
-        drawStyles: {}
+        drawStyles: {},
       },
       baselayer: '',
       baselayerLayers: '',
       baseLayerProjection: '',
       maxExtent: [],
-      scales: []
+      scales: [],
     }
   },
 
@@ -259,7 +270,17 @@ export default {
       // Copying of the array is necessary since when bound values are sorted strange things happen performance wise
       const resolutions = this.resolutions.slice()
       const compareToResolution = this.publicSearchAutozoom
+
       return resolutions.sort((a, b) => Math.abs(compareToResolution - a) - Math.abs(compareToResolution - b))[0]
+    },
+
+    /**
+     * Sorted layers by mapOrder
+     *
+     * @return {layer[]}
+     */
+    sortedLayers () {
+      return [...this.layers].sort((a, b) => a.mapOrder - b.mapOrder)
     },
 
     /**
@@ -274,13 +295,26 @@ export default {
       return function (response) {
         const parsedResponse = JSON.parse(response)
         const projection = this._options.projection.code
+
         parsedResponse.data.suggestions = parsedResponse.data.suggestions.filter(suggestion => {
           const coordinate = suggestion.data[projection]
+
           return containsXY(maxExtent, coordinate.x, coordinate.y)
         })
+
         return parsedResponse.data
       }
-    }
+    },
+  },
+
+  watch: {
+    'mapOptions.baseLayer' (newVal) {
+      this.debouncedUpdateBaselayer(newVal)
+    },
+
+    'mapOptions.baseLayerLayers' (newVal) {
+      this.debouncedUpdateBaselayerLayers(newVal)
+    },
   },
 
   methods: {
@@ -288,8 +322,8 @@ export default {
       const namedProjections = [
         [
           this._options.projection.code,
-          this._options.projection.transform
-        ]
+          this._options.projection.transform,
+        ],
       ]
 
       // Put resolutions in correct format for masterportalapi
@@ -303,13 +337,21 @@ export default {
         options: resolutions,
         startCenter: [this.centerX, this.centerY],
         target: this.mapId,
-        units: 'm'
+        units: 'm',
       }
 
       const controls = this.options.controls ? this.options.controls : this._options.controls
 
       return MasterportalApi.createMap(config, '2D', { mapParams: { controls } })
     },
+
+    debouncedUpdateBaselayer: debounce(function (newVal) {
+      this.baselayer = newVal
+    }, 1000),
+
+    debouncedUpdateBaselayerLayers: debounce(function (newVal) {
+      this.baselayerLayers = newVal
+    }, 1000),
 
     /**
      * Define extent for map
@@ -337,6 +379,7 @@ export default {
      */
     getColorByClassName (selector) {
       const element = this.$refs.mapDrawStyles.querySelector(this.prefixClass(selector))
+
       return window.getComputedStyle(element).color
     },
 
@@ -348,7 +391,7 @@ export default {
       return {
         fillColor: this.getColorByClassName('.c-map__draw-fill'),
         strokeColor: this.getColorByClassName('.c-map__draw-stroke'),
-        imageColor: this.getColorByClassName('.c-map__draw-image')
+        imageColor: this.getColorByClassName('.c-map__draw-image'),
       }
     },
 
@@ -356,13 +399,12 @@ export default {
       if (this.procedureId === '') {
         return this.mapOptions
       }
+
       return dpApi({
         method: 'GET',
-        url: Routing.generate(this.mapOptionsRoute, { procedureId: this.procedureId })
+        url: Routing.generate(this.mapOptionsRoute, { procedureId: this.procedureId }),
       })
-        .then(checkResponse)
-        .then(response => response.data.attributes)
-        .catch(error => checkResponse(error.response))
+        .then(response => response.data.data.attributes)
     },
 
     panToCoordinate (coordinate) {
@@ -370,13 +412,14 @@ export default {
         center: coordinate,
         duration: 800,
         easing: easeOut,
-        resolution: this.panToResolution
+        resolution: this.panToResolution,
       })
     },
 
     registerFullscreenChangeHandler () {
       const html = document.getElementsByTagName('html')[0]
       const events = ['webkitfullscreenchange', 'mozfullscreenchange', 'fullscreenchange', 'MSFullscreenChange']
+
       events.forEach(event => {
         document.addEventListener(event, () => {
           //  Toggle class `fullscreen-mode` on html element to change canvas size dynamically via CSS
@@ -400,7 +443,7 @@ export default {
       const mapProjection = new Projection({
         code: this._options.projection.code,
         units: this._options.projection.units,
-        extent: this.maxExtent
+        extent: this.maxExtent,
       })
 
       addProjection(mapProjection)
@@ -421,7 +464,7 @@ export default {
       this.map.updateSize()
 
       view.fit(extent, {
-        size: this.map.getSize()
+        size: this.map.getSize(),
       })
 
       view.setCenter(center)
@@ -430,8 +473,9 @@ export default {
     //  Animate map to given coordinate when user selects an item from search-location
     zoomToSuggestion (suggestion) {
       const coordinate = [suggestion.data[this._options.projection.code].x, suggestion.data[this._options.projection.code].y]
+
       this.panToCoordinate(coordinate)
-    }
+    },
   },
 
   created () {
@@ -452,13 +496,14 @@ export default {
     this.baselayer = mapOptions.baseLayer
     this.baseLayerProjection = mapOptions.baseLayerProjection
 
-    if (this.mapOptions.scales) {
+    if (this.mapOptions.scales?.length > 0) {
       this.scales = this.mapOptions.scales
-    } else if (mapOptions.procedureScales.length > 0) {
+    } else if (mapOptions.procedureScales?.length > 0) {
       this.scales = mapOptions.procedureScales
     } else {
       this.scales = mapOptions.globalAvailableScales
     }
+
     //  Calculate resolutions from given scales
     this.resolutions = getResolutionsFromScales(this.scales, this._options.projection.units)
 
@@ -516,7 +561,7 @@ export default {
     this.registerFullscreenChangeHandler()
   },
 
-  beforeDestroy () {
+  beforeUnmount () {
     if (this.map instanceof Map) {
       /*
        *  Reset stuff - But. Is this really needed? Since every instance of DpOlMap has its own ol.Map instance.
@@ -526,10 +571,10 @@ export default {
       this.map.getOverlays().clear()
       this.map.getInteractions().clear()
     }
-  }
+  },
 }
 
-// DO NOT pass this as Prop if you are not exactly know what you are doing!
+// DO NOT pass this as prop unless you know exactly what you are doing!
 const _defaults = {
   hideDefaultLayer: false,
   procedureExtent: false,
@@ -537,7 +582,7 @@ const _defaults = {
   projection: {
     code: window.dplan.defaultProjectionLabel,
     transform: window.dplan.defaultProjectionString,
-    units: 'm'
+    units: 'm',
   },
   controls: [
     new Attribution({ collapsible: false }),
@@ -550,18 +595,19 @@ const _defaults = {
       coordinateFormat: (coordinate) => {
         const x = coordinate[0]
         const y = coordinate[1]
+
         return `${x.toFixed(10)} ${y.toFixed(10)}`
-      }
+      },
     }),
     new ScaleLine(),
-    new Zoom()
+    new Zoom(),
   ],
   autoSuggest: {
     enabled: true,
-    serviceUrlPath: 'DemosPlan_procedure_public_suggest_procedure_location_json' // Path to openGeoDb action
+    serviceUrlPath: 'DemosPlan_procedure_public_suggest_procedure_location_json', // Path to openGeoDb action
   },
   scaleSelect: true,
   initView: false,
-  initCenter: false
+  initCenter: false,
 }
 </script>
