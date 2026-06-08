@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\ManualOriginalStatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementUpdatedEventInterface;
@@ -2694,12 +2695,16 @@ class StatementService implements StatementServiceInterface
     public function getProcedurePhaseNameFromArray(array $statement): string
     {
         // Fast path: large exports feed thousands of statement arrays through here,
-        // so avoid the per-statement getStatement() round-trip when publicStatement
-        // is already present on the array (ES- and JSON-sourced statements have it).
-        if (isset($statement['publicStatement'])) {
+        // so avoid the per-statement getStatement() round-trip when the submitting
+        // organisation id is already present on the array (ES- and JSON-sourced
+        // statements carry it). A statement is citizen-submitted when it belongs to
+        // the default citizen organisation, mirroring Statement::isSubmittedByCitizen().
+        // Note: publicStatement === EXTERNAL is not equivalent, as organisation
+        // statements submitted via the public view are also flagged EXTERNAL.
+        if (isset($statement['oId'])) {
             return $this->getProcedurePhaseName(
                 $statement['phase'] ?? '',
-                StatementInterface::EXTERNAL === $statement['publicStatement']
+                UserInterface::ANONYMOUS_USER_ORGA_ID === $statement['oId']
             );
         }
 
