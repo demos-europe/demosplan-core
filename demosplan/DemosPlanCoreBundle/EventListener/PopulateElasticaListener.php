@@ -60,8 +60,6 @@ class PopulateElasticaListener
         // set short refresh interval to avoid problems with outdated lists
         // might lead to performance hits
         $settings->setRefreshInterval('500ms');
-        // set a high result window as long as we do not use scroll api
-        $settings->set(['max_result_window' => 1_000_000]);
 
         $this->logger->info('postIndexPopulate ES Index. Set refresh interval to 500');
     }
