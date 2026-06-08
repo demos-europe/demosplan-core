@@ -17,7 +17,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 /**
  * @method array  getFragmentIds()
  * @method        setFragmentIds(array $fragmentIds)
- * @method ?array getStatementIds()
+ * @method null|array getStatementIds()
  * @method        setStatementIds(array $statementIds)
  */
 class IdCollection extends ValueObject
