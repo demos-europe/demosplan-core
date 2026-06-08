@@ -30,6 +30,9 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplate;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplateName;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportType;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ListLineWidth;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\TextLineWidth;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
@@ -165,7 +168,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                 $statements
             );
 
-            if ('condensed' === $template) {
+            if (ExportTemplate::CONDENSED->value === $template) {
                 if (null === $procedure) {
                     throw ProcedureNotFoundException::createFromId($procedureId);
                 }
@@ -178,7 +181,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
 
                     $items = $this->collectStatementsOrFragments(
                         $statements,
-                        'statementsAndFragments' !== $exportType,
+                        ExportType::STATEMENTS_AND_FRAGMENTS->value !== $exportType,
                         $filterHash,
                         $procedureId,
                         $original,
@@ -250,7 +253,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             // * Kompakte Ansicht: DemosPlanAssessmentTableBundle:DemosPlan:export_condensed.tex.twig
             // * Querformat: DemosPlanAssessmentTableBundle:DemosPlan:export_original.tex.twig
             // * Hochformat: DemosPlanAssessmentTableBundle:DemosPlan:export_original.tex.twig
-            $fullTemplateName = '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/'.$templateName.'.tex.twig';
+            $fullTemplateName = '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/'.$templateName.'.tex.twig'; // $templateName is one of ExportTemplateName
 
             $templateVars['listwidth'] = $this->determineListLineWidth($template, $templateName, $original);
             $templateVars['textwidth'] = $this->determineTextLineWidth($template, $templateName, $original);
@@ -262,7 +265,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                     'isOriginal'    => $original,
                     'title'         => $title,
                     'procedure'     => $procedure,
-                    'pdfLandscape'  => 'landscape' === $template || 'landscapeWithFrags' === $template,
+                    'pdfLandscape'  => ExportTemplate::LANDSCAPE->value === $template || ExportTemplate::LANDSCAPE_WITH_FRAGMENTS->value === $template,
                     'viewMode'      => AssessmentTableViewMode::DEFAULT_VIEW,
                     'anonymous'     => $anonymous,
                     'newPagePerStn' => array_key_exists('newPagePerStn', $parameters) ? $parameters['newPagePerStn'] : false,
@@ -345,7 +348,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
 
         // collect Statements in unified data format
         foreach ($statements as $statement) {
-            // 'statementsAndFragments' or 'fragmentsOnly'
+            // ExportType::STATEMENTS_AND_FRAGMENTS or ExportType::FRAGMENTS_ONLY
             if (true === $statementsOnly) {
                 $item = $this->assessmentTableOutput->formatStatementArray($statement);
                 $items->push($item);
@@ -554,7 +557,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
     private function determineListLineWidth(string $template, string $templateName, bool $original): int
     {
         $listLineWidth = ListLineWidth::VERTICAL_SPLIT_VIEW->value;
-        if ('portrait' === $template && 'export_original' === $templateName) {
+        if (ExportTemplate::PORTRAIT->value === $template && ExportTemplateName::EXPORT_ORIGINAL->value === $templateName) {
             $listLineWidth = ListLineWidth::VERTICAL_NOT_SPLIT_VIEW->value;
         }
         if ($this->isHorizontalSplitView($template, $templateName, $original)) {
@@ -570,7 +573,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
     private function determineTextLineWidth(string $template, string $templateName, bool $original): int
     {
         $textLineWidth = ListLineWidth::VERTICAL_SPLIT_VIEW->value;
-        if ('portrait' === $template && 'export_original' === $templateName) {
+        if (ExportTemplate::PORTRAIT->value === $template && ExportTemplateName::EXPORT_ORIGINAL->value === $templateName) {
             $textLineWidth = TextLineWidth::VERTICAL_NOT_SPLIT_VIEW->value;
         }
         if ($this->isHorizontalSplitView($template, $templateName, $original)) {
@@ -585,17 +588,17 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
 
     private function isHorizontalSplitView(string $template, string $templateName, bool $original): bool
     {
-        return ('landscape' === $template && 'export' === $templateName)
-            || ('condensed' === $template && 'export_condensed' === $templateName && !$original)
-            || ('condensed' === $template && 'export_condensed_anonymous' === $templateName && !$original)
-            || ('landscape' === $template && 'export_anonymous' === $templateName && !$original)
-            || ('landscapeWithFrags' === $template && 'export_fragments_anonymous' === $templateName && !$original);
+        return (ExportTemplate::LANDSCAPE->value === $template && ExportTemplateName::EXPORT->value === $templateName)
+            || (ExportTemplate::CONDENSED->value === $template && ExportTemplateName::EXPORT_CONDENSED->value === $templateName && !$original)
+            || (ExportTemplate::CONDENSED->value === $template && ExportTemplateName::EXPORT_CONDENSED_ANONYMOUS->value === $templateName && !$original)
+            || (ExportTemplate::LANDSCAPE->value === $template && ExportTemplateName::EXPORT_ANONYMOUS->value === $templateName && !$original)
+            || (ExportTemplate::LANDSCAPE_WITH_FRAGMENTS->value === $template && ExportTemplateName::EXPORT_FRAGMENTS_ANONYMOUS->value === $templateName && !$original);
     }
 
     private function isHorizontalNotSplitView(string $template, string $templateName, bool $original): bool
     {
-        return ('landscape' === $template && 'export_original' === $templateName)
-            || ('condensed' === $template && 'export_condensed' === $templateName && $original);
+        return (ExportTemplate::LANDSCAPE->value === $template && ExportTemplateName::EXPORT_ORIGINAL->value === $templateName)
+            || (ExportTemplate::CONDENSED->value === $template && ExportTemplateName::EXPORT_CONDENSED->value === $templateName && $original);
     }
 
     /**
@@ -609,7 +612,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
      */
     private function filterStatementsForCondensedExport(array $statements, string $template, string $exportType): array
     {
-        if ('condensed' === $template && 'statementsOnly' !== $exportType) {
+        if (ExportTemplate::CONDENSED->value === $template && ExportType::STATEMENTS_ONLY->value !== $exportType) {
             $institutionStatements = collect($statements)
                 ->filter(static fn (array $statement): bool => 'internal' === $statement['publicStatement'] && !$statement['isClusterStatement'])->values();
 
@@ -655,7 +658,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
 
         $items = $this->collectStatementsOrFragments(
             $statements,
-            'statementsAndFragments' !== $exportType,
+            ExportType::STATEMENTS_AND_FRAGMENTS->value !== $exportType,
             $filterHash,
             $procedureId,
             $original,
