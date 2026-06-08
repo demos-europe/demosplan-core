@@ -128,7 +128,13 @@
         @select-all="handleSelectAll"
         @items-toggled="handleToggleItem"
       >
-        <template v-slot:externId="{ assignee = {}, externId, id: statementId, synchronized }">
+        <template v-slot:externId="{ assignee = {}, externId, id: statementId, isCluster, synchronized }">
+          <dp-icon
+            v-if="isCluster"
+            class="mr-1 text-interactive"
+            icon="folders"
+            weight="fill"
+          />
           <span
             class="weight--bold"
             v-text="externId"
@@ -351,6 +357,7 @@ import {
   DpButton,
   DpDataTable,
   DpFlyout,
+  DpIcon,
   DpInlineNotification,
   DpLoading,
   DpPager,
@@ -382,6 +389,7 @@ export default {
     DpClaim,
     DpDataTable,
     DpFlyout,
+    DpIcon,
     DpInlineNotification,
     DpLoading,
     DpPager,
@@ -828,6 +836,8 @@ export default {
         'initialOrganisationStreet',
         'internId',
         'isCitizen',
+        // TODO(DPLAN-17748): isCluster is the legacy/deprecated cluster flag; confirm the new grouping feature sets it for group heads
+        'isCluster',
         'memo',
         'originalId',
         'status',
