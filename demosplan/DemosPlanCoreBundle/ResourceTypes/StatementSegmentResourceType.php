@@ -239,7 +239,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
         }
 
         if ($this->currentUser->hasPermission('field_statement_deadline')) {
-            $properties[] = $this->createAttribute($this->deadline)->readable(true, static fn (Segment $segment): ?string => $this->formatDate($segment->getDeadline()))->updatable();
+            $properties[] = $this->createAttribute($this->deadline)->readable(true, fn (Segment $segment): ?string => $this->formatDate($segment->getDeadline()))->updatable();
         }
 
         if ($this->currentUser->hasPermission('feature_enable_recommendation_versions')) {
