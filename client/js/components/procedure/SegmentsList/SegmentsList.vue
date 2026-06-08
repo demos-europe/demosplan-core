@@ -398,7 +398,7 @@
       ref="unlockModal"
       :assignable-users="unlockAssignableUsers"
       :places="places"
-      @unlock="unlockSegment"
+      @unlock="payload => unlockSegment(payload, () => applyQuery(pagination.currentPage))"
     />
   </div>
 </template>
@@ -436,6 +436,7 @@ import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaToolti
 import StatusBadge from '../Shared/StatusBadge'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
 
 export default {
   name: 'SegmentsList',
@@ -517,6 +518,12 @@ export default {
     'show-slidebar',
   ],
 
+  setup () {
+    const { unlockModal, openUnlockModal, unlockSegment } = useSegmentUnlock()
+
+    return { unlockModal, openUnlockModal, unlockSegment }
+  },
+
   data () {
     return {
       appliedFilterQuery: this.initialFilter,
@@ -552,7 +559,6 @@ export default {
       pagination: {},
       searchTerm: this.initialSearchTerm,
       searchFieldsSelected: [],
-      segmentToUnlock: null,
     }
   },
 
@@ -1220,45 +1226,9 @@ export default {
       this.applyQuery(1)
     },
 
-    openUnlockModal (segment) {
-      this.segmentToUnlock = segment
-      this.$refs.unlockModal.toggle()
-    },
-
     showVersionHistory (segmentId, externId) {
       this.$root.$emit('version:history', segmentId, 'segment', externId)
       this.$root.$emit('show-slidebar')
-    },
-
-    unlockSegment ({ assignee, place }) {
-      const assigneeRel = assignee.id === 'noAssigneeId' ?
-        { data: null } :
-        { data: { id: assignee.id, type: 'AssignableUser' } }
-
-      const payload = {
-        data: {
-          id: this.segmentToUnlock.id,
-          type: 'StatementSegment',
-          relationships: {
-            assignee: assigneeRel,
-            place: { data: { id: place.id, type: 'Place' } },
-          },
-        },
-      }
-
-      return dpApi.patch(
-        Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segmentToUnlock.id }),
-        {},
-        payload,
-      )
-        .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-          this.applyQuery(this.pagination.currentPage)
-        })
-        .catch((err) => {
-          console.error(err)
-          dplan.notify.notify('error', Translator.trans('error.api.generic'))
-        })
     },
 
     updateQueryHash () {

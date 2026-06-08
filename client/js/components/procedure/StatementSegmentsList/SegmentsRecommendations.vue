@@ -101,7 +101,7 @@
         ref="unlockModal"
         :assignable-users="unlockAssignableUsers"
         :places="places"
-        @unlock="unlockSegment"
+        @unlock="payload => unlockSegment(payload, () => fetchSegments(pagination?.currentPage || 1))"
       />
     </div>
   </div>
@@ -115,6 +115,7 @@ import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import { scrollTo } from 'vue-scrollto'
 import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
 import StatementSegment from './StatementSegment'
+import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
 
 export default {
   name: 'SegmentsRecommendations',
@@ -143,6 +144,12 @@ export default {
     },
   },
 
+  setup () {
+    const { unlockModal, openUnlockModal, unlockSegment } = useSegmentUnlock()
+
+    return { unlockModal, openUnlockModal, unlockSegment }
+  },
+
   data () {
     return {
       isAllCollapsed: true,
@@ -155,7 +162,6 @@ export default {
       pagination: {},
       storageKeyPagination: `segmentsRecommendations_${this.statementId}_pagination`,
       segmentNavigation: null,
-      segmentToUnlock: null,
     }
   },
 
@@ -455,42 +461,6 @@ export default {
 
     handlePageChange (page) {
       this.fetchSegments(page)
-    },
-
-    openUnlockModal (segment) {
-      this.segmentToUnlock = segment
-      this.$refs.unlockModal.toggle()
-    },
-
-    unlockSegment ({ assignee, place }) {
-      const assigneeRel = assignee.id === 'noAssigneeId' ?
-        { data: null } :
-        { data: { id: assignee.id, type: 'AssignableUser' } }
-
-      const payload = {
-        data: {
-          id: this.segmentToUnlock.id,
-          type: 'StatementSegment',
-          relationships: {
-            assignee: assigneeRel,
-            place: { data: { id: place.id, type: 'Place' } },
-          },
-        },
-      }
-
-      return dpApi.patch(
-        Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segmentToUnlock.id }),
-        {},
-        payload,
-      )
-        .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-          this.fetchSegments(this.pagination?.currentPage || 1)
-        })
-        .catch((err) => {
-          console.error(err)
-          dplan.notify.notify('error', Translator.trans('error.api.generic'))
-        })
     },
 
     handleSizeChange (newSize) {

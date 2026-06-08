@@ -166,7 +166,7 @@
       ref="unlockModal"
       :assignable-users="assignableUsers"
       :places="places"
-      @unlock="unlockSegment"
+      @unlock="payload => unlockSegment(payload, () => fetchSegments(pagination?.currentPage || 1))"
     />
   </div>
 </template>
@@ -193,6 +193,7 @@ import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import { scrollTo } from 'vue-scrollto'
 import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
 
 export default {
   name: 'StatementSegmentsEdit',
@@ -250,6 +251,12 @@ export default {
     'statementText:updated',
   ],
 
+  setup () {
+    const { unlockModal, openUnlockModal, unlockSegment } = useSegmentUnlock()
+
+    return { unlockModal, openUnlockModal, unlockSegment }
+  },
+
   data () {
     return {
       claimLoading: null,
@@ -263,7 +270,6 @@ export default {
       pagination: {},
       storageKeyPagination: `segmentsEdit_${this.statementId}_pagination`,
       segmentNavigation: null,
-      segmentToUnlock: null,
     }
   },
 
@@ -362,6 +368,10 @@ export default {
       fetchAssignableUsers: 'list',
     }),
 
+    ...mapActions('Place', {
+      fetchPlaces: 'list',
+    }),
+
     ...mapMutations('Statement', {
       setStatement: 'setItem',
     }),
@@ -445,42 +455,6 @@ export default {
       const placeId = segment?.relationships?.place?.data?.id
 
       return !!this.placeItems[placeId]?.attributes?.locked
-    },
-
-    openUnlockModal (segment) {
-      this.segmentToUnlock = segment
-      this.$refs.unlockModal.toggle()
-    },
-
-    unlockSegment ({ assignee, place }) {
-      const assigneeRel = assignee.id === 'noAssigneeId' ?
-        { data: null } :
-        { data: { id: assignee.id, type: 'AssignableUser' } }
-
-      const payload = {
-        data: {
-          id: this.segmentToUnlock.id,
-          type: 'StatementSegment',
-          relationships: {
-            assignee: assigneeRel,
-            place: { data: { id: place.id, type: 'Place' } },
-          },
-        },
-      }
-
-      return dpApi.patch(
-        Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segmentToUnlock.id }),
-        {},
-        payload,
-      )
-        .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-          this.fetchSegments(this.pagination?.currentPage || 1)
-        })
-        .catch((err) => {
-          console.error(err)
-          dplan.notify.notify('error', Translator.trans('error.api.generic'))
-        })
     },
 
     reset (segmentId) {
@@ -760,9 +734,21 @@ export default {
        */
       this.fetchSegments(this.pagination?.currentPage || 1)
 
-      // Assignable users are needed to populate the unlock modal
+      // Assignable users and places are needed to populate the unlock modal
       if (hasPermission('feature_administrate_segment_lock')) {
         this.fetchAssignableUsers()
+        this.fetchPlaces({
+          fields: {
+            Place: [
+              'description',
+              ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+              'name',
+              'solved',
+              'sortIndex',
+            ].join(),
+          },
+          sort: 'sortIndex',
+        })
       }
     }
   },
