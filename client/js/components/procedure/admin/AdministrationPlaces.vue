@@ -177,10 +177,13 @@
     <dp-loading v-else />
     <div>
       <dp-confirm-dialog
-        ref="editConfirmNoSolved"
+        ref="confirmDialog"
         :confirm-button-text="Translator.trans('save.anyway')"
+        content-header-classes="text-h2 border-b-0 pb-4"
         :decline-button-text="Translator.trans('back.to.edit')"
-        :message="Translator.trans('confirm.places.solved.missing')"
+        :header="Translator.trans('place.change.confirm')"
+        icon="warning"
+        :message="confirmDialogMessage"
       />
     </div>
   </div>
@@ -257,6 +260,7 @@ export default {
       isInitiallyLoading: false,
       isLoading: false,
       addNewPlace: false,
+      confirmDialogMessage: '',
       newPlace: {},
       newRowData: {},
       places: [],
@@ -372,6 +376,12 @@ export default {
       return identicalNames.length === 0
     },
 
+    openConfirmDialog (message) {
+      this.confirmDialogMessage = message
+
+      return this.$refs.confirmDialog.open()
+    },
+
     resetNewPlaceForm () {
       this.newPlace = {}
       this.addNewPlace = false
@@ -438,10 +448,18 @@ export default {
         return dplan.notify.error(Translator.trans('workflow.place.error.duplication'))
       }
 
+      if (this.newRowData.solved && !this.initialRowData.solved) {
+        const isConfirmed = await this.openConfirmDialog(Translator.trans('confirm.places.solved.changed'))
+
+        if (!isConfirmed) {
+          return
+        }
+      }
+
       this.checkIfSolvedPlace(rowData.id)
 
       if (!this.isAnyPlaceSolved) {
-        const isConfirmed = await this.$refs.editConfirmNoSolved.open()
+        const isConfirmed = await this.openConfirmDialog(Translator.trans('confirm.places.solved.missing'))
 
         if (!isConfirmed) {
           return
