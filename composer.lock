@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6d4f4802ea6077ba0b9c15d923558321",
+    "content-hash": "5be61ef0013b22506255132f8c01a329",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1718,16 +1718,16 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "v0.73",
+            "version": "v0.74",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "ac68f661bcebea281bc0a80e6a5a20b495d67dc7"
+                "reference": "ce5763d1ebbe08ee811435980e118a2bef5cb900"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/ac68f661bcebea281bc0a80e6a5a20b495d67dc7",
-                "reference": "ac68f661bcebea281bc0a80e6a5a20b495d67dc7",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/ce5763d1ebbe08ee811435980e118a2bef5cb900",
+                "reference": "ce5763d1ebbe08ee811435980e118a2bef5cb900",
                 "shasum": ""
             },
             "require": {
@@ -1795,9 +1795,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.73"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.74"
             },
-            "time": "2026-05-27T09:12:45+00:00"
+            "time": "2026-06-08T06:39:47+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",
@@ -6863,16 +6863,16 @@
         },
         {
             "name": "justinrainbow/json-schema",
-            "version": "6.8.2",
+            "version": "6.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jsonrainbow/json-schema.git",
-                "reference": "2c89ebb95ca9cedc9347f780333f7b25792dcb76"
+                "reference": "bd1bda2ebfc8bff418565941771ea8f03c557886"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jsonrainbow/json-schema/zipball/2c89ebb95ca9cedc9347f780333f7b25792dcb76",
-                "reference": "2c89ebb95ca9cedc9347f780333f7b25792dcb76",
+                "url": "https://api.github.com/repos/jsonrainbow/json-schema/zipball/bd1bda2ebfc8bff418565941771ea8f03c557886",
+                "reference": "bd1bda2ebfc8bff418565941771ea8f03c557886",
                 "shasum": ""
             },
             "require": {
@@ -6882,7 +6882,7 @@
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "3.3.0",
-                "json-schema/json-schema-test-suite": "dev-main",
+                "json-schema/json-schema-test-suite": "^23.2",
                 "marc-mabe/php-enum-phpstan": "^2.0",
                 "phpspec/prophecy": "^1.19",
                 "phpstan/phpstan": "^1.12",
@@ -6932,9 +6932,9 @@
             ],
             "support": {
                 "issues": "https://github.com/jsonrainbow/json-schema/issues",
-                "source": "https://github.com/jsonrainbow/json-schema/tree/6.8.2"
+                "source": "https://github.com/jsonrainbow/json-schema/tree/6.9.0"
             },
-            "time": "2026-05-05T05:39:01+00:00"
+            "time": "2026-06-05T14:05:24+00:00"
         },
         {
             "name": "knplabs/knp-menu",
