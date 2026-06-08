@@ -169,50 +169,15 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             );
 
             if (ExportTemplate::CONDENSED->value === $template) {
-                if (null === $procedure) {
-                    throw ProcedureNotFoundException::createFromId($procedureId);
-                }
-                if ($procedure->getMaster()) {
-                    $statements = [];
-                } else {
-                    $filterHash = $this->session->get(
-                        'hashList'
-                    )[$procedureId]['assessment']['hash'];
-
-                    $items = $this->collectStatementsOrFragments(
-                        $statements,
-                        ExportType::STATEMENTS_AND_FRAGMENTS->value !== $exportType,
-                        $filterHash,
-                        $procedureId,
-                        $original,
-                        $fragmentIds
-                    );
-
-                    $items = $items->map(
-                        function ($item, $key) use ($anonymous) {
-                            $formattedDate = $this->formatDate($item);
-                            if (false !== $formattedDate) {
-                                $item['authoredDateDisplay'] = $formattedDate;
-                            }
-
-                            if (isset($item['cluster']) && is_array($item['cluster'])
-                                && 0 < count($item['cluster'])) {
-                                if (false === $anonymous) {
-                                    $departments = $this
-                                        ->assessmentTableOutput
-                                        ->collectClusterOrgaOutputForExport($item);
-                                    $item['clusteredInstitutions'] = $departments;
-                                }
-                                $item['metaDataOfClusteredStatements'] = $this
-                                    ->assessmentTableOutput
-                                    ->collectClusteredStatementMetaDataForExport($item);
-                            }
-
-                            return $item;
-                        }
-                    );
-                    $statements = $items->toArray();
-                }
+                $statements = $this->prepareStatementsForCondensedTemplate(
+                    $statements,
+                    $exportType,
+                    $procedureId,
+                    $original,
+                    $fragmentIds,
+                    $anonymous,
+                    $procedure
+                );
             }
             $statements = $this->createExternIds($statements);
 
