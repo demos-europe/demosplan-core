@@ -576,6 +576,7 @@ export default {
     handleExport () {
       const columnTitles = {}
       const shouldConfirm = /^(docx|zip)_/.test(this.active)
+      const exportViaTemplate = this.isSingleStatementExport && this.uploadedHash !== ''
 
       Object.keys(this.docxColumns).forEach(key => {
         const columnTitle = this.docxColumns[key].title
@@ -597,9 +598,12 @@ export default {
         isCitizenDataCensored: this.isCitizenDataCensored,
         isInstitutionDataCensored: this.isInstitutionDataCensored,
         isObscured: this.isObscure,
-        route: this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath,
+        route: exportViaTemplate ?
+          'dplan_statement_via_template_export' :
+          (this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath),
         shouldConfirm,
         tagFilterIds: this.selectedTagIds,
+        uploadedDocxTemplate: exportViaTemplate ? this.uploadedHash : null,
       })
       this.closeModal()
     },

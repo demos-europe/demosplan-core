@@ -722,10 +722,14 @@ export default {
       }
     },
 
-    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored }) {
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored, uploadedDocxTemplate }) {
       const parameters = {
         procedureId: this.procedure.id,
         statementId: this.statementId,
+      }
+
+      if (uploadedDocxTemplate) {
+        parameters.uploadedDocxTemplate = uploadedDocxTemplate
       }
 
       if (docxHeaders) {
