@@ -118,9 +118,9 @@ All rights reserved
         >
           <div class="overflow-x-auto pb-3 has-scrollable-content">
             <dp-data-table
+              :data-cy="`procedurePhases:dataTable:${section.audience}`"
               :header-fields="headerFields"
               :items="section.audiencePhases"
-              :data-cy="`procedurePhases:dataTable:${section.audience}`"
               density="spacious"
               track-by="id"
               has-borders
@@ -139,12 +139,14 @@ All rights reserved
               </template>
 
               <template v-slot:permissionSet="phase">
-                <dp-select
+                <dp-multiselect
                   v-if="editingRowId === phase.id"
                   :id="`phasePermissionSet-${phase.id}`"
                   :data-cy="`procedurePhases:editPermissionSet:${phase.id}`"
                   :options="permissionSetOptions"
-                  :selected="phase.permissionSet"
+                  :value="findPermissionSetOption(phase.permissionSet)"
+                  label="label"
+                  track-by="value"
                 />
 
                 <span v-else>{{ phase.permissionSetLabel }}</span>
@@ -272,6 +274,7 @@ import {
   DpIcon,
   DpInput,
   DpLoading,
+  DpMultiselect,
   DpRadio,
   DpSelect,
   dpValidateMixin,
@@ -291,6 +294,7 @@ export default {
     DpIcon,
     DpInput,
     DpLoading,
+    DpMultiselect,
     DpRadio,
     DpSelect,
   },
@@ -692,6 +696,7 @@ export default {
       cancelEdit,
       createPhase,
       editingRowId,
+      findPermissionSetOption,
       handleEditChange,
       handleEditStart,
       handleSaveEditClick,
