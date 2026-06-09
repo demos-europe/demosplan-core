@@ -184,6 +184,7 @@
           storage-name="templateHash"
           :translations="{ dropHereOr: Translator.trans('form.button.upload.docx', { browse: '{browse}', maxUploadSize: '5 MB' }) }"
           :tus-endpoint="dplan.paths.tusEndpoint"
+          @file-remove="uploadedHash = ''"
           @upload-success="file => { uploadedHash = file.hash }"
         />
       </div>
