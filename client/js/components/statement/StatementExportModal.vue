@@ -152,6 +152,39 @@
         </fieldset>
       </fieldset>
 
+      <div
+        v-if="isSingleStatementExport && hasPermission('feature_statement_via_template_export')"
+        class="border-t border-neutral pt-4 mb-4"
+      >
+        <dp-label
+          :hint="Translator.trans('docx.export.via_template.upload.hint')"
+          :text="Translator.trans('docx.export.via_template.upload.label')"
+          :tooltip="Translator.trans('docx.export.via_template.upload.tooltip')"
+          class="mb-1"
+          for="uploadTemplate"
+        />
+        <dp-button
+          :text="Translator.trans('docx.export.via_template.example.label')"
+          class="mb-2"
+          data-cy="exportModal:downloadExampleTemplate"
+          href="/files/statement_template_example_export.docx"
+          icon="download"
+          icon-size="medium"
+          variant="subtle"
+        />
+        <dp-upload-files
+          id="uploadTemplate"
+          allowed-file-types="import"
+          data-cy="exportModal:uploadTemplate"
+          :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash, procedureId })"
+          :max-file-size="5 * 1024 * 1024"
+          storage-name="briefvorlage"
+          :translations="{ dropHereOr: Translator.trans('form.button.upload.docx', { browse: '{browse}', maxUploadSize: '5 MB' }) }"
+          :tus-endpoint="dplan.paths.tusEndpoint"
+          @upload-success="file => { uploadedHash = file.hash }"
+        />
+      </div>
+
       <fieldset v-if="!isSingleStatementExport">
         <legend
           id="tagsFilter"
@@ -229,9 +262,11 @@ import {
   DpCheckbox,
   DpContextualHelp,
   DpInput,
+  DpLabel,
   DpModal,
   DpRadio,
   dpRpc,
+  DpUploadFiles,
   hasOwnProp,
   sessionStorageMixin,
 } from '@demos-europe/demosplan-ui'
@@ -247,8 +282,10 @@ export default {
     DpCheckbox,
     DpContextualHelp,
     DpInput,
+    DpLabel,
     DpModal,
     DpRadio,
+    DpUploadFiles,
     FilterFlyout,
   },
 
@@ -344,6 +381,7 @@ export default {
       selectedTags: [],
       selectedTagIds: [],
       singleStatementExportPath: 'dplan_segments_export', /** Used in the statements detail page */
+      uploadedHash: '',
     }
   },
 
