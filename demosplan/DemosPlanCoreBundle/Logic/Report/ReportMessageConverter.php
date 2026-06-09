@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Twig\Extension\DateExtension;
 use demosplan\DemosPlanCoreBundle\ValueObject\Report\ProcedureFinalMailReportEntryData;
 use demosplan\DemosPlanCoreBundle\ValueObject\Report\RegisteredInvitationReportEntryData;
 use demosplan\DemosPlanCoreBundle\ValueObject\Report\StatementFinalMailReportEntryData;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedurePhaseDefinitionUpdatableField;
 use demosplan\DemosPlanCoreBundle\ValueObject\Report\UnregisteredInvitationReportEntryData;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -137,6 +138,10 @@ class ReportMessageConverter
             } elseif (ReportEntry::GROUP_PLAN_DRAW === $group) { // Planzeichnung
                 if (ReportEntry::CATEGORY_CHANGE === $category) {
                     $message = $this->createChangePlanDrawMessage($reportEntryMessage);
+                }
+            } elseif (ReportEntry::GROUP_PROCEDURE_PHASE_DEFINITION === $group) {
+                if (ReportEntry::CATEGORY_UPDATE === $category) {
+                    $message = $this->getProcedurePhaseDefinitionUpdateMessage($reportEntryMessage);
                 }
             }
         } catch (Exception $e) {
@@ -505,6 +510,37 @@ class ReportMessageConverter
         $returnMessage[] = $this->translator->trans('message').': '.nl2br((string) $entry->getMailBody());
 
         return $this->toHtmlLines($returnMessage);
+    }
+
+    private function getProcedurePhaseDefinitionUpdateMessage(array $message): string
+    {
+        $field = $message['field'] ?? '';
+        $oldValue = $message['oldValue'] ?? null;
+        $newValue = $message['newValue'] ?? null;
+
+        $transKey = match ($field) {
+            ProcedurePhaseDefinitionUpdatableField::NAME->value              => 'text.protocol.phase.definition.name.changed',
+            ProcedurePhaseDefinitionUpdatableField::PERMISSION_SET->value    => 'text.protocol.phase.definition.permissionSet.changed',
+            ProcedurePhaseDefinitionUpdatableField::PARTICIPANT_STATE->value => 'text.protocol.phase.definition.participantState.changed',
+            default                                                          => '',
+        };
+
+        if ('' === $transKey) {
+            return '';
+        }
+
+        if (ProcedurePhaseDefinitionUpdatableField::PERMISSION_SET->value === $field) {
+            $oldValue = $this->translator->trans('permissionset.'.$oldValue);
+            $newValue = $this->translator->trans('permissionset.'.$newValue);
+        } elseif (ProcedurePhaseDefinitionUpdatableField::PARTICIPANT_STATE->value === $field) {
+            $oldValue = $this->translator->trans('finished' === $oldValue ? 'yes' : 'no');
+            $newValue = $this->translator->trans('finished' === $newValue ? 'yes' : 'no');
+        }
+
+        return $this->translator->trans($transKey, [
+            'oldValue' => $oldValue ?? '',
+            'newValue' => $newValue ?? '',
+        ]);
     }
 
     protected function getProcedureChangePhasesMessage(array $message): string
