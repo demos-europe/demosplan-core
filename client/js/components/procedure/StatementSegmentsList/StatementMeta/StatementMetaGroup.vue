@@ -19,21 +19,21 @@ All rights reserved
     />
     <!-- TODO(DPLAN-17748): bind/save the group name once the backend exposes it -->
 
-    <h4
+    <span
       v-if="isCluster"
       class="font-semibold mb-0.5"
     >
       {{ Translator.trans('statement.cluster.main') }}
-    </h4>
+    </span>
 
     <!-- Submitter of the main statement -->
     <slot />
 
     <!-- Other statements in this group — shown only for cluster heads -->
     <template v-if="isCluster">
-      <h4 class="font-semibold mb-0.5">
+      <span class="font-semibold mb-0.5">
         {{ Translator.trans('statement.cluster.further', { count: groupStatements.length }) }}
-      </h4>
+      </span>
       <!-- TODO(DPLAN-17748): replace placeholder data with the actual grouped statements once the backend provides them -->
       <selected-statements-list
         :statements="groupStatements"
