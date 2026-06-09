@@ -63,7 +63,7 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
 
     public function isUpdateAllowed(): bool
     {
-        return $this->currentUser->hasPermission('area_customer_procedure_phase_definitions');
+        return $this->isCreateAllowed();
     }
 
     protected function getAccessConditions(): array
