@@ -577,7 +577,9 @@ export default {
     handleExport () {
       const columnTitles = {}
       const shouldConfirm = /^(docx|zip)_/.test(this.active)
-      const exportViaTemplate = this.isSingleStatementExport && this.uploadedHash !== ''
+      const exportViaTemplate = this.isSingleStatementExport &&
+        this.uploadedHash !== '' &&
+        hasPermission('feature_statement_via_template_export')
       const defaultRoute = this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath
       const route = exportViaTemplate ? 'dplan_statement_via_template_export' : defaultRoute
 
