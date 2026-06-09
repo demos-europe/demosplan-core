@@ -220,4 +220,27 @@ class ReportRepository extends CoreRepository implements ArrayInterface, ObjectI
 
         return $query->getResult();
     }
+
+    /**
+     * Returns report entries scoped to a customer, filtered by groups and categories.
+     *
+     * @return ReportEntry[]
+     */
+    public function getCustomerReportEntries(string $customerId, array $groups, array $categories): array
+    {
+        $query = $this->getEntityManager()->createQueryBuilder()
+            ->select('r')
+            ->from(ReportEntry::class, 'r')
+            ->join('r.customer', 'c')
+            ->where('c.id = :customerId')
+            ->andWhere('r.group IN (:groups)')
+            ->andWhere('r.category IN (:categories)')
+            ->setParameter('customerId', $customerId)
+            ->setParameter('groups', $groups)
+            ->setParameter('categories', $categories)
+            ->addOrderBy('r.createDate', 'DESC')
+            ->getQuery();
+
+        return $query->getResult();
+    }
 }
