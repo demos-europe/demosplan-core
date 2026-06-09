@@ -110,7 +110,7 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
                     [],
                     function (ProcedurePhaseDefinition $phaseDefinition, mixed $value): array {
                         $this->guardConfigurationPhaseNotEditable($phaseDefinition);
-                        $phaseDefinition->setPermissionSet((string) $value);
+                        $phaseDefinition->setPermissionSet($this->resolvePermissionSet($value));
 
                         return [];
                     },
@@ -206,6 +206,36 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
             return ProcedureInterface::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN;
         }
 
-        throw new BadRequestException(sprintf('Invalid participationState; allowed values are null, "%s" or "%s".', ProcedureInterface::PARTICIPATIONSTATE_FINISHED, ProcedureInterface::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN));
+        throw new BadRequestException(
+            sprintf('Invalid participationState; allowed values are null, "%s" or "%s".',
+                ProcedureInterface::PARTICIPATIONSTATE_FINISHED,
+                ProcedureInterface::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN
+            ));
+    }
+
+    /**
+     * Validates the requested permission set. Allowed values are
+     * {@see ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN},
+     * {@see ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_READ} and
+     * {@see ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_WRITE}.
+     */
+    private function resolvePermissionSet(mixed $value): string
+    {
+        $allowed = [
+            ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN,
+            ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_READ,
+            ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_WRITE,
+        ];
+
+        if (in_array($value, $allowed, true)) {
+            return $value;
+        }
+
+        throw new BadRequestException(sprintf(
+            'Invalid permissionSet; allowed values are "%s", "%s" or "%s".',
+            ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN,
+            ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_READ,
+            ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_WRITE
+        ));
     }
 }
