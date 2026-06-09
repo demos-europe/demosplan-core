@@ -30,6 +30,7 @@ describe('StatementExportModal', () => {
     isInstitutionDataCensored: false,
     isObscured: false,
     tagFilterIds: [],
+    uploadedDocxTemplate: null,
   }
 
   beforeEach(() => {
@@ -230,6 +231,7 @@ describe('StatementExportModal', () => {
       isInstitutionDataCensored: true,
       isObscured: false,
       tagFilterIds: [],
+      uploadedDocxTemplate: null,
     })
   })
 
@@ -253,6 +255,7 @@ describe('StatementExportModal', () => {
       isInstitutionDataCensored: false,
       isObscured: true,
       tagFilterIds: [],
+      uploadedDocxTemplate: null,
     })
   })
 
@@ -409,5 +412,47 @@ describe('StatementExportModal', () => {
       'docx.export.header.custom.placeholder',
       expect.objectContaining({ isPartialExport: true }),
     )
+  })
+
+  it('emits the via-template route and hash when single statement export has an uploaded template and permission', async () => {
+    await wrapper.setProps({ isSingleStatementExport: true })
+    await wrapper.setData({ uploadedHash: 'template-hash-123' })
+
+    wrapper.vm.handleExport()
+    const exportEvent = wrapper.emitted('export')[0][0]
+
+    expect(exportEvent.route).toBe('dplan_statement_via_template_export')
+    expect(exportEvent.uploadedDocxTemplate).toBe('template-hash-123')
+  })
+
+  it('falls back to the default single-statement route when the template permission is missing', async () => {
+    const originalHasPermission = globalThis.hasPermission
+    globalThis.hasPermission = jest.fn(() => false)
+
+    try {
+      await wrapper.setProps({ isSingleStatementExport: true })
+      await wrapper.setData({ uploadedHash: 'template-hash-123' })
+
+      wrapper.vm.handleExport()
+      const exportEvent = wrapper.emitted('export')[0][0]
+
+      expect(exportEvent.route).toBe('dplan_segments_export')
+      expect(exportEvent.uploadedDocxTemplate).toBe(null)
+    } finally {
+      globalThis.hasPermission = originalHasPermission
+    }
+  })
+
+  it('restores uploadedHash from sessionStorage in setInitialValues', () => {
+    window.sessionStorage.setItem('templateHash', JSON.stringify([{ hash: 'stored-hash' }]))
+    wrapper.vm.setInitialValues()
+
+    expect(wrapper.vm.uploadedHash).toBe('stored-hash')
+  })
+
+  it('clears uploadedHash in setInitialValues when no template is stored', () => {
+    wrapper.vm.setInitialValues()
+
+    expect(wrapper.vm.uploadedHash).toBe('')
   })
 })
