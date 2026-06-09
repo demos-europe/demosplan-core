@@ -52,6 +52,25 @@
             @filter-apply="sendFilterQuery"
             @filter-options:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }})"
           />
+          <filter-flyout
+            v-for="field in customFieldFilters"
+            ref="filterFlyout"
+            :key="`customField_${field.id}`"
+            :category="{ id: `customField_${field.id}`, label: field.attributes.name }"
+            class="inline-block"
+            :data-cy="`segmentsListFilter:customField_${field.id}`"
+            align="left"
+            :hint="false"
+            :initial-query-ids="queryIds"
+            operator="CUSTOM_FIELD_CONTAINS"
+            :path="`customFields.${field.id}`"
+            :show-count="{
+              groupedOptions: false,
+              ungroupedOptions: false
+            }"
+            @filter-apply="sendFilterQuery"
+            @filter-options:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `customField_${field.id}`, label: field.attributes.name } })"
+          />
         </div>
         <dp-button
           v-tooltip="Translator.trans('search.filter.reset')"
@@ -626,6 +645,16 @@ export default {
       return this.headerFieldsAvailable.filter(headerField => this.currentSelection.includes(headerField.field))
     },
 
+    customFieldFilters () {
+      if (!hasPermission('field_segments_custom_fields')) {
+        return []
+      }
+
+      return this.customFieldDefinitions.filter(field =>
+        ['singleSelect', 'multiSelect'].includes(field.attributes.fieldType)
+      )
+    },
+
     items () {
       return Object.values(this.segmentsObject)
         // This is not working! better pass createdDate into segmentsObject
@@ -1013,7 +1042,32 @@ export default {
      * @param params.searchPhrase {String}
      */
     sendFilterOptionsRequest (params) {
-      const { additionalQueryParams, category, currentQuery, filter, isInitialWithQuery, path } = params
+      const { category, currentQuery, filter, isInitialWithQuery, path } = params
+
+      // Custom field options are static (from field definitions), no RPC needed
+      if (path.startsWith('customFields.')) {
+        const fieldId = path.replace('customFields.', '')
+        const definition = this.customFieldDefinitions.find(f => f.id === fieldId)
+
+        if (definition) {
+          const options = (definition.attributes.options ?? []).map(option => ({
+            id: option.id,
+            label: option.label,
+            count: null,
+            description: '',
+            selected: currentQuery?.includes(option.id) ?? false,
+            ungrouped: true,
+          }))
+
+          this.setUngroupedFilterOptions({ categoryId: category.id, options })
+          this.setGroupedFilterOptions({ categoryId: category.id, groupedOptions: [] })
+          this.setIsLoadingFilterFlyout({ categoryId: category.id, isLoading: false })
+        }
+
+        return
+      }
+
+      const { additionalQueryParams } = params
       const isUnusedTag = (filterPath, count, selected) => filterPath === 'tags' && count === 0 && !selected
 
       const buildGroupOptions = (resource, resultIncluded, currentQuery, filterPath) => {

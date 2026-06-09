@@ -366,6 +366,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             if ($this->currentUser->hasPermission('field_statements_custom_fields')) {
                 $configBuilder->customFields
                     ->setReadableByCallable(static fn (Statement $statement): ?array => $statement->getCustomFields()?->toJson())
+                    ->filterable()
                     ->updatable([],
                         function (Statement $statement, array $customFields): array {
                             $customFieldList = $statement->getCustomFields() ?? new CustomFieldValuesList();

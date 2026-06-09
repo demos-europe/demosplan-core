@@ -16,6 +16,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
+use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -29,6 +31,7 @@ class StatementFilterHandler extends CoreHandler
         PermissionsInterface $permissions,
         private readonly TranslatorInterface $translator,
         private readonly ProcedurePhaseDefinitionService $procedurePhaseDefinitionService,
+        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
     ) {
         parent::__construct($messageBag);
         $this->permissions = $permissions;
@@ -237,13 +240,13 @@ class StatementFilterHandler extends CoreHandler
      *
      * @throws Exception
      */
-    public function getAvailableFilters($originalStatements = false)
+    public function getAvailableFilters($originalStatements = false, ?string $procedureId = null)
     {
         if ($originalStatements) {
             return $this->getAvailableFiltersOriginalStatement();
         }
 
-        return $this->getAvailableFiltersAssessmentTable();
+        return $this->getAvailableFiltersAssessmentTable($procedureId);
     }
 
     /**
@@ -267,7 +270,7 @@ class StatementFilterHandler extends CoreHandler
      *
      * @throws Exception
      */
-    protected function getAvailableFiltersAssessmentTable()
+    protected function getAvailableFiltersAssessmentTable(?string $procedureId = null)
     {
         // Fachplaner-Admin (Abwägungstabelle Filter) → $permissions->hasPermission('area_admin_assessmenttable'))
         // Fachplaner-Planungsbehörde (Datensatzliste Filter) → ($permissions->hasPermission('feature_statements_fragment_list')
@@ -585,6 +588,29 @@ class StatementFilterHandler extends CoreHandler
             ],
             /********************************** END *********************************************/
         ];
+
+        if (null !== $procedureId && $this->permissions->hasPermission('field_segments_custom_fields')) {
+            $configurations = $this->customFieldConfigurationRepository->findCustomFieldConfigurationByCriteria(
+                CustomFieldSupportedEntity::procedure->value,
+                $procedureId,
+                CustomFieldSupportedEntity::statement->value,
+            ) ?? [];
+
+            foreach ($configurations as $configuration) {
+                $field = $configuration->getConfiguration();
+                if (!in_array($field->getFieldType(), ['singleSelect', 'multiSelect'], true)) {
+                    continue;
+                }
+                $definedFilters[] = [
+                    'key'           => 'customField_'.$configuration->getId(),
+                    'hasPermission' => true,
+                    'type'          => 'statement',
+                    'isCustomField' => true,
+                    'label'         => $field->getName(),
+                    'options'       => $field->getOptions(),
+                ];
+            }
+        }
 
         return $definedFilters;
     }

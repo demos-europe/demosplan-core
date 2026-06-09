@@ -50,7 +50,7 @@
           >
             <span>
               {{ props.option.label }}
-              <template v-if="'fragment' !== filterGroup.type">
+              <template v-if="'fragment' !== filterGroup.type && props.option.count != null">
                 ({{ props.option.count }})
               </template>
             </span>
@@ -83,7 +83,7 @@
               <span :data-cy="'option-' + generateDataCy(filterItem.attributes.name, props.option.label)">
                 {{ props.option.label }}
               </span>
-              <template v-if="'fragment' !== filterGroup.type">
+              <template v-if="'fragment' !== filterGroup.type && props.option.count != null">
                 ({{ props.option.count }})
               </template>
             </template>

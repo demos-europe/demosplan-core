@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Logic\Workflow\ProfilerService;
 use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
@@ -118,6 +119,7 @@ class ElasticsearchResultCreator
         private readonly DepartmentRepository $departmentRepository,
         private readonly ProfilerService $profilerService,
         private readonly LoggerInterface $logger,
+        private readonly StatementRepository $statementRepository,
     ) {
     }
 
@@ -157,6 +159,7 @@ class ElasticsearchResultCreator
                 $aggregationsMinDocumentCount
             );
             [$boolMustFilter, $boolMustNotFilter] = $this->getBasicFilters($procedureId, $userFilters);
+            $userFilters = $this->applyCustomFieldFilters($procedureId, $userFilters, $boolMustFilter);
             $userFilters = $this->getRenamedUserFilters($userFilters);
             $fragmentFilters = $this->getFragmentFilters($userFilters);
             $userFragmentFilters = $this->statementService->mapRequestFiltersToESFragmentFilters($userFilters);
@@ -1417,6 +1420,36 @@ class ElasticsearchResultCreator
         }
 
         return [$boolMustFilter, $boolMustNotFilter];
+    }
+
+    /**
+     * Extracts customField_* keys from $userFilters, queries matching statement IDs via Doctrine,
+     * adds a Terms MUST filter for those IDs to $boolMustFilter, and returns $userFilters without
+     * the customField_* entries so ES never sees them.
+     *
+     * @param array<string, mixed>       $userFilters
+     * @param list<AbstractQuery|BoolQuery> $boolMustFilter passed by reference
+     *
+     * @return array<string, mixed> $userFilters without customField_* entries
+     */
+    private function applyCustomFieldFilters(string $procedureId, array $userFilters, array &$boolMustFilter): array
+    {
+        foreach ($userFilters as $key => $values) {
+            if (!str_starts_with($key, 'customField_')) {
+                continue;
+            }
+            $fieldId = substr($key, strlen('customField_'));
+            $values = is_array($values) ? $values : [$values];
+            $matchingIds = $this->statementRepository->findIdsByCustomFieldFilter($procedureId, $fieldId, $values);
+            // Use a sentinel that can never be a real UUID to produce zero results when no match found
+            $boolMustFilter[] = $this->elasticSearchService->getElasticaTermsInstance(
+                'id',
+                [] !== $matchingIds ? $matchingIds : ['__no_match__']
+            );
+            unset($userFilters[$key]);
+        }
+
+        return $userFilters;
     }
 
     /**

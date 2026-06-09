@@ -2186,4 +2186,41 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             'completed'  => $completed,
         ];
     }
+
+    /**
+     * Returns statement IDs for a procedure that match ANY of the given values for a custom field.
+     * Used by the two-phase Abwägungstabelle filter to obtain a Doctrine-side ID set before ES query.
+     *
+     * @param string   $procedureId
+     * @param string   $fieldId    UUID of the CustomFieldConfiguration
+     * @param string[] $values     option IDs to match (OR semantics within one field)
+     *
+     * @return string[] statement IDs
+     */
+    public function findIdsByCustomFieldFilter(string $procedureId, string $fieldId, array $values): array
+    {
+        if ([] === $values) {
+            return [];
+        }
+
+        $em = $this->getEntityManager();
+        $qb = $em->createQueryBuilder();
+        $qb->select('s.id')
+            ->from(Statement::class, 's')
+            ->where('s.procedure = :procedureId')
+            ->setParameter('procedureId', $procedureId);
+
+        $orParts = [];
+        foreach ($values as $index => $value) {
+            $orParts[] = sprintf(
+                'JSON_CONTAINS_CUSTOM_FIELD(s.customFields, :cfFieldId, :cfVal%d) = 1',
+                $index
+            );
+            $qb->setParameter('cfVal'.$index, $value);
+        }
+        $qb->andWhere(implode(' OR ', $orParts));
+        $qb->setParameter('cfFieldId', $fieldId);
+
+        return array_column($qb->getQuery()->getScalarResult(), 'id');
+    }
 }

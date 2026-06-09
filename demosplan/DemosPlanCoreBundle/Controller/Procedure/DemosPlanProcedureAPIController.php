@@ -337,21 +337,31 @@ class DemosPlanProcedureAPIController extends APIController
         $esFilters = $res->getFilterSet()['filters'];
 
         $requestCollection = collect($rParams['filters']);
-        $availableFilters = $statementFilterHandler->getAvailableFilters($original);
+        $availableFilters = $statementFilterHandler->getAvailableFilters($original, $procedureId);
 
         foreach ($availableFilters as $filter) {
             $filterKey = $filter['key'];
-            // could not find filter at all
-            if (!array_key_exists($filterKey, $esFilters)) {
-                continue;
-            }
+            $isCustomField = $filter['isCustomField'] ?? false;
             // user has no permission to use this filter
             if (!$filter['hasPermission']) {
                 continue;
             }
+            // could not find filter at all (skip for custom fields which are not in ES aggregations)
+            if (!$isCustomField && !array_key_exists($filterKey, $esFilters)) {
+                continue;
+            }
             $filterName = 'filter_'.$filterKey;
-            $label = $statementFilterHandler->getTranslatedFilterLabel($filterKey);
-            $options = $statementFilterHandler->getTranslatedFilterOptions($filterKey, $esFilters[$filterKey], $filter['type']);
+            $label = $isCustomField ? $filter['label'] : $statementFilterHandler->getTranslatedFilterLabel($filterKey);
+            if ($isCustomField) {
+                $options = array_map(static fn ($opt) => [
+                    'value' => $opt->getId(),
+                    'label' => $opt->getLabel(),
+                    'count' => null,
+                    'type'  => $filter['type'],
+                ], $filter['options']);
+            } else {
+                $options = $statementFilterHandler->getTranslatedFilterOptions($filterKey, $esFilters[$filterKey], $filter['type']);
+            }
             $selectedOptions = [];
 
             // find selected options
