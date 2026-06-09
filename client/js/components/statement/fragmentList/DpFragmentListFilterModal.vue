@@ -64,6 +64,7 @@ export default {
       // Set correct permissions for some filter fields
       Object.values(groups).forEach(group => group.values.forEach(el => {
         const permissionsToCheck = this.permissionFields[el.name]
+
         el.hasPermission = permissionsToCheck ? permissionsToCheck.every(permission => hasPermission(permission.replace(/([-_]\w)/g, g => g[1].toUpperCase()))) : true
       }))
 
@@ -81,9 +82,11 @@ export default {
     // On mounted set initially selected filters by taking applied filters and finding the correct multiselect option in all options
     this.appliedFilters.forEach(filter => {
       const foundFilterInAllOptions = this.filters.find(el => el.name === filter.field)
+
       if (foundFilterInAllOptions) {
         const foundFilterValues = foundFilterInAllOptions.values
         let initialFilters
+
         if (Array.isArray(foundFilterValues)) {
           initialFilters = foundFilterValues.filter(val => filter.value.includes(val.value)) || filter.value
         } else if (typeof foundFilterValues === 'object') {

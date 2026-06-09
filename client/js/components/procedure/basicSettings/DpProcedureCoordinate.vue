@@ -130,7 +130,9 @@ export default {
     procedureLocation: {
       required: false,
       type: Object,
-      default: () => { return {} },
+      default: () => {
+        return {}
+      },
     },
 
     mapOptions: {
@@ -142,7 +144,9 @@ export default {
     initExtent: {
       required: false,
       type: Array,
-      default: () => { return [] },
+      default: () => {
+        return []
+      },
     },
 
     // Bobhh does not use the opengeodb; but there is no permission for that atm.
@@ -226,9 +230,11 @@ export default {
     //  Validate incoming coordinate to be 'Number,Number' or false
     isValidProcedureCoordinate (coordinate) {
       const coordinateArray = coordinate.split(',')
+
       if (coordinateArray.length !== 2) {
         return false
       }
+
       if (isNaN(coordinateArray[0]) || isNaN(coordinateArray[1])) {
         return false
       }
@@ -256,6 +262,7 @@ export default {
         this.$refs.map.updateMapInstance()
       }
     }
+
     //  Listeners are added because the OpenLayers map needs to be initialized on a visible element
     document.addEventListener('wizard:show', ({ data }) => {
       //  Only fire when relevant wizard step is transmitted

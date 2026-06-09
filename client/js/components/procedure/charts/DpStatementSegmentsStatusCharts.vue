@@ -82,6 +82,7 @@ export default {
   methods: {
     fetchStatisticsData () {
       const url = Routing.generate('dplan_rpc_procedure_segmentation_statistics_segmentations_get', { procedureId: this.procedureId })
+
       dpApi.get(url)
         .then(({ data }) => {
           const { absolutes, percentages, total } = data.data.attributes

@@ -115,6 +115,7 @@ describe('Layers Actions', () => {
     it('should handle layers with multiple layer parameters', async () => {
       // Modify mock data to have a layer with multiple layers
       const overlayLayer = StubStore.state.Layers.apiData.included.find(item => item.id === 'overlay-layer-1')
+
       overlayLayer.attributes.layers = 'layer1,layer2,layer3'
       const commitSpy = jest.spyOn(StubStore, 'commit')
 
@@ -128,6 +129,7 @@ describe('Layers Actions', () => {
   describe('saveAll', () => {
     it('should save all layers and categories', async () => {
       const dispatchSpy = jest.spyOn(StubStore, 'dispatch')
+
       jest.spyOn(dpApi, 'patch').mockResolvedValue({ data: {} })
       jest.spyOn(dpApi, 'get').mockResolvedValue(layersApiResponse)
 
@@ -135,6 +137,7 @@ describe('Layers Actions', () => {
 
       // Should dispatch save for each included element
       const includedCount = layersApiResponse.included.length
+
       /*
        * Each save triggers a 'get' dispatch, and each 'get' triggers a 'buildLegends' dispatch
        * So we have: saveAll + (save + get + buildLegends) * includedCount
@@ -146,6 +149,7 @@ describe('Layers Actions', () => {
   describe('save', () => {
     it('should save a GisLayer resource', async () => {
       const layerResource = layersApiResponse.included.find(item => item.type === 'GisLayer')
+
       jest.spyOn(dpApi, 'patch').mockResolvedValue({ data: {} })
       jest.spyOn(dpApi, 'get').mockResolvedValue(layersApiResponse)
 
@@ -165,6 +169,7 @@ describe('Layers Actions', () => {
 
     it('should save a GisLayerCategory resource', async () => {
       const categoryResource = layersApiResponse.included.find(item => item.type === 'GisLayerCategory')
+
       jest.spyOn(dpApi, 'patch').mockResolvedValue({ data: {} })
       jest.spyOn(dpApi, 'get').mockResolvedValue(layersApiResponse)
 

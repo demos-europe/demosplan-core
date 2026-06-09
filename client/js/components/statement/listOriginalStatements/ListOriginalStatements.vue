@@ -557,6 +557,7 @@ export default {
       return this.fetchOriginalStatementById(originalStatementId)
         .then(response => {
           const { fullText } = response.data.data.attributes
+
           this.toggleIsFullTextDisplayed(originalStatementId, true, fullText)
         })
     },
@@ -661,6 +662,7 @@ export default {
 
     handleSizeChange (newSize) {
       const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
+
       this.pagination.perPage = newSize
       this.fetchOriginalStatementsByPage(page)
     },

@@ -33,7 +33,9 @@ export default {
     legend: {
       required: true,
       type: Object,
-      default: () => { return { layerId: '', url: '#' } },
+      default: () => {
+        return { layerId: '', url: '#' }
+      },
     },
   },
 

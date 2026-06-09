@@ -71,6 +71,7 @@ describe('ParticipationPhases', () => {
   it('should emit the correct value when a new phase is selected', async () => {
     const newPhase = 'newPhase'
     const dpSelect = wrapper.findComponent({ name: 'DpSelect' })
+
     dpSelect.vm.$emit('select', newPhase)
     await wrapper.vm.$nextTick()
     expect(wrapper.emitted('phase:select')[0]).toEqual([newPhase])

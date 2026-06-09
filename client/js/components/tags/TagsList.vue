@@ -184,8 +184,10 @@ export default {
     // Apply tagList.reorder RPC response — sync sortIndex in the Tag store for every changed tag
     applyReorderResponse (response) {
       const result = response.data[0].result
+
       for (const [id, { sortIndex }] of Object.entries(result)) {
         const tag = this.Tag[id]
+
         if (tag) {
           this.updateTag({
             ...tag,
@@ -193,6 +195,7 @@ export default {
           })
         }
       }
+
       dplan.notify.confirm(Translator.trans('confirm.saved'))
     },
 
@@ -203,12 +206,15 @@ export default {
     // Persist cross-topic move via tagList.reorder RPC — optimistic update on both topics + rollback
     crossTopicReorder (tagId, newIndex, targetTopicId) {
       const newParent = this.TagTopic[targetTopicId]
+
       if (!newParent) {
         return
       }
+
       const oldParent = Object.values(this.TagTopic).find(topic =>
         topic.relationships?.tags.data.some(tag => tag.id === tagId),
       )
+
       if (!oldParent) {
         return
       }
@@ -218,6 +224,7 @@ export default {
 
       const newSourceData = oldSourceData.filter(tag => tag.id !== tagId)
       const newTargetData = [...oldTargetData]
+
       newTargetData.splice(newIndex, 0, { type: 'Tag', id: tagId })
 
       this.updateTagTopic({
@@ -280,7 +287,9 @@ export default {
     },
 
     loadTagsAndTopics () {
-      if (this.dataIsRequested) return
+      if (this.dataIsRequested) {
+        return
+      }
 
       this.dataIsRequested = true
       const topicAttributes = [
@@ -313,6 +322,7 @@ export default {
 
       const oldTagsData = [...(topic.relationships?.tags?.data || [])]
       const newTagsData = oldTagsData.filter(tag => tag.id !== tagId)
+
       newTagsData.splice(newIndex, 0, { type: 'Tag', id: tagId })
 
       // Optimistic UI update

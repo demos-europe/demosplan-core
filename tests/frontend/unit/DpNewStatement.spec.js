@@ -66,6 +66,7 @@ describe('DpNewStatement', () => {
     const sortSelectedSpy = jest.spyOn(wrapper.vm, 'sortSelected')
 
     const data = { counties: ['2', '1'] }
+
     wrapper.vm.addLocationPrompt(data)
 
     expect(wrapper.vm.values.counties).toHaveLength(2)
@@ -77,6 +78,7 @@ describe('DpNewStatement', () => {
 
   it('resets counties when no county IDs are provided', () => {
     const data = { counties: [] }
+
     wrapper.vm.addLocationPrompt(data)
 
     expect(wrapper.vm.values.counties).toEqual([])

@@ -6,13 +6,24 @@
 
 ## UNRELEASED
 
+## v4.44.0 (2026-06-05)
+
+## v4.43.0 (2026-06-05)
+
 ### Added
+- Show text custom fields and its values in manage institutions and add institutions dialogs
 - Add text custom field value editing to institution tag management dialog
 - Set up API Platform infrastructure alongside existing EDT (Entity Definition Toolkit) as part of the gradual API migration (DPLAN-17129)
 - Add dedicated security firewall for API Platform routes (`/api/3.0/`) with shared session authentication
 - Add bridge classes in demosplan-addon for EDT-to-API Platform relationship handling during migration (`PlainIdJsonApiNormalizer`, `ApiPlatformRelationshipConfig`, `ExtendedDynamicTransformer`)
 - Add text custom field definition editing
 - Add customer admin interface for managing procedure phases - displaying and creating new phases
+- Store procedure phase definitions in the database as `ProcedurePhaseDefinition` entities (per customer and audience) instead of in YAML/`GlobalConfig`, with a new `procedure_phase_definition` table and `phase_definition_id` foreign keys on `procedure_phase` (plus `designated_phase_definition_id`), `_statement`, `_draft_statement`, `_draft_statement_versions` and `institution_mail` (DPLAN-17570)
+
+### Changed
+- Widen `_procedure.extern_id` from `VARCHAR(50)` to `VARCHAR(255)` so XBeteiligung planIDs longer than 50 characters can be stored (DPLAN-17455)
+- Tag selection when splitting a statement now lists keywords in the manual sort order from tag administration instead of alphabetically
+- Procedure phase names are now read from the `ProcedurePhaseDefinition` entity in the database everywhere they are displayed, instead of from YAML-based phase translation keys (DPLAN-17570)
 
 ### Fixed
 - `AccessProcedureListener` now checks for array controller before accessing index, preventing crashes on API Platform routes
@@ -44,6 +55,7 @@
 
 ### Added
 - Add text custom field definition to institution tag management dialog
+- Inactivity-based account-deletion workflow: a daily cron sends two warning mails and then soft-deletes accounts that stay inactive past configurable thresholds; the next successful login resets the cascade. Disabled by default — enable per project by setting `account_deletion.first_warning_days` in `parameters_default_project.yml`. Includes the `dplan:account-deletion:prepare-test` console command for QA scenarios.
 - Track recommendation versions for statements and segments with full text snapshots, exposed via API and XLSX export (permission: `feature_enable_recommendation_versions`)
 - Support multiple custom field types and target contexts per project
 - Spellcheck in the Tiptap editor highlights spelling errors and suggests corrections while writing statements
@@ -70,6 +82,8 @@
 - LaTeX PDF exports rendered more reliably (ligature and babel-related gaps)
 
 ### Deployment notes
+- **Migration**: creates the `account_deletion_tracking` table — run `doctrine:migrations:migrate`
+- **New parameters** (with defaults): `account_deletion.first_warning_days` (~ — feature disabled), `account_deletion.warning_step_days` (30), `account_deletion.additional_protected_user_ids` ([])
 - **Migration**: creates `oauth_tokens` table with FK to `_user` and `_orga` — run `doctrine:migrations:migrate`
 - **Required env var**: `OAUTH_SECRET_ENCRYPTION_KEY` — generate with `php -r "echo base64_encode(sodium_crypto_secretbox_keygen());"` and add to `.env.local` on every environment (shared with other encryption features)
 - **New parameters** (with defaults): `oauth_keycloak_login_only` (true — safe default, no behaviour change), `oauth_token_timezone` (Europe/Berlin), `oauth_token_fast_path_interval_seconds` (180), `oauth_token_refresh_buffer_minutes` (2)
@@ -109,6 +123,13 @@
 ### Fixed
 - Various visual and interaction issues in the configurable segment list table
 - Organisation ID was not set when manually creating statements for institutions
+
+## v4.33.2 (2026-05-19)
+
+### Fixed
+- Per-statement DOCX export failed with an error
+- Excel export of statements failed with an error
+- Option to create tags directly when splitting a statement was missing
 
 ## v4.33.0 (2026-04-02)
 
