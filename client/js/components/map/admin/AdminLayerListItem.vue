@@ -803,11 +803,13 @@ export default {
         }
 
         const groupId = this.layer.attributes?.visibilityGroupId
+
         if (groupId) {
           const groupMembers = this.$store.getters['Layers/elementsListByAttribute']({
             type: 'visibilityGroupId',
             value: groupId,
           })
+
           if (groupMembers.length <= 2) {
             const dissolvePromises = groupMembers
               .filter(member => member.id !== this.layer.id)
