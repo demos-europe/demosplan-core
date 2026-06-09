@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -43,6 +44,7 @@ class ReportMessageConverter
         GlobalConfigInterface $globalConfig,
         private readonly LoggerInterface $logger,
         private readonly PermissionsInterface $permissions,
+        private readonly ProcedurePhaseDefinitionService $procedurePhaseDefinitionService,
         private readonly RouterInterface $router,
         private readonly TranslatorInterface $translator,
         private readonly FileService $fileService,
@@ -140,7 +142,10 @@ class ReportMessageConverter
                 }
             } elseif (ReportEntry::GROUP_PROCEDURE_PHASE_DEFINITION === $group) {
                 if (ReportEntry::CATEGORY_UPDATE === $category) {
-                    $message = $this->getProcedurePhaseDefinitionUpdateMessage($reportEntryMessage);
+                    $message = $this->getProcedurePhaseDefinitionUpdateMessage(
+                        $reportEntry->getIdentifier(),
+                        $reportEntryMessage
+                    );
                 }
             }
         } catch (Exception $e) {
@@ -511,7 +516,7 @@ class ReportMessageConverter
         return $this->toHtmlLines($returnMessage);
     }
 
-    private function getProcedurePhaseDefinitionUpdateMessage(array $message): string
+    private function getProcedurePhaseDefinitionUpdateMessage(string $phaseDefinitionId, array $message): string
     {
         $field = $message['field'] ?? '';
         $oldValue = $message['oldValue'] ?? null;
@@ -536,9 +541,21 @@ class ReportMessageConverter
             $newValue = $this->translator->trans('finished' === $newValue ? 'yes' : 'no');
         }
 
+        $phaseDefinition = $this->procedurePhaseDefinitionService->findById($phaseDefinitionId);
+        if (null === $phaseDefinition) {
+            return '';
+        }
+
+        $transKeyAudience = 'public.participation';
+        if (StatementInterface::INTERNAL === $phaseDefinition->getAudience()) {
+            $transKeyAudience = 'invitable_institution.participation';
+        }
+
         return $this->translator->trans($transKey, [
-            'oldValue' => $oldValue ?? '',
-            'newValue' => $newValue ?? '',
+            'phaseName' => $phaseDefinition->getName(),
+            'audience'  => $this->translator->trans($transKeyAudience),
+            'oldValue'  => $oldValue ?? '',
+            'newValue'  => $newValue ?? '',
         ]);
     }
 
