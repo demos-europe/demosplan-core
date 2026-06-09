@@ -306,33 +306,9 @@ export default {
   mixins: [dpValidateMixin],
 
   setup () {
-    const draftAddonRowPayloads = reactive({})
-    const draftCoreRowValue = ref({ name: '', participationState: null, permissionSet: '' })
-    const editingRowId = ref(null)
-    const hasAttemptedSubmit = ref(false)
-    const initialAddonRowPayloads = reactive({})
-    const initialCoreRowValue = ref({ name: '', participationState: null, permissionSet: '' })
-    const isAddonActive = ref(false)
-    const isCreateFormAddonLoading = ref(true)
-    const isCreating = ref(false)
-    const isInitiallyLoading = ref(true)
-    const isLoading = ref(false)
-    const isSaving = ref(false)
-    const newPhase = ref({
-      audience: '',
-      name: '',
-      participationState: null,
-      permissionSet: '',
-    })
-    const newPhaseAddonPayload = ref({
-      attributes: null,
-      parentRelationshipName: '',
-      resourceType: '',
-      value: '',
-    })
-    const phaseDefinitions = ref([])
-    const savedAddonRowPayloads = ref({})
-
+    // =================================
+    // Shared logic
+    // =================================
     const audienceOptions = [
       { label: Translator.trans('audience.external'), value: 'external' },
       { label: Translator.trans('audience.internal'), value: 'internal' },
@@ -344,18 +320,36 @@ export default {
       { label: Translator.trans('permissionset.write'), value: 'write' },
     ]
 
+    const hasAttemptedSubmit = ref(false)
+
+    const showErrorInputStyle = computed(() =>
+      hasAttemptedSubmit.value && (isNewPhaseNameDuplicate.value || isEditedPhaseNameDuplicate.value),
+    )
+
     const findPermissionSetOption = (value) =>
       permissionSetOptions.find(option => option.value === value) || null
 
-    const mapPhaseToRow = (phase) => ({
-      id: phase.id,
-      name: phase.name,
-      orderInAudience: phase.orderInAudience,
-      participationState: phase.participationState,
-      participationStateLabel: phase.participationState === 'finished' ? Translator.trans('yes') : Translator.trans('no'),
-      permissionSet: phase.permissionSet,
-      permissionSetLabel: findPermissionSetOption(phase.permissionSet)?.label || phase.permissionSet,
-    })
+    const isNameTakenInAudience = ({ name, audience, excludeId = null }) => {
+      const trimmedName = name.trim()
+
+      if (trimmedName.length === 0) {
+        return false
+      }
+
+      return phaseDefinitions.value.some(phase =>
+        phase.id !== excludeId &&
+        phase.audience === audience &&
+        phase.name.trim().toLowerCase() === trimmedName.toLowerCase(),
+      )
+    }
+
+    // =================================
+    // Phase list logic
+    // =================================
+    const isAddonActive = ref(false)
+    const isInitiallyLoading = ref(true)
+    const phaseDefinitions = ref([])
+    const savedAddonRowPayloads = ref({})
 
     const audienceSections = computed(() =>
       ['internal', 'external'].map(audience => ({
@@ -374,40 +368,81 @@ export default {
       ...(isAddonActive.value ? [{ field: 'phaseCode', label: Translator.trans('procedure.phase.code'), colWidth: '160px', initialMinWidth: 160 }] : []),
     ])
 
-    const isNameTakenInAudience = ({ name, audience, excludeId = null }) => {
-      const trimmedName = name.trim()
-
-      if (trimmedName.length === 0) {
-        return false
-      }
-
-      return phaseDefinitions.value.some(phase =>
-        phase.id !== excludeId &&
-        phase.audience === audience &&
-        phase.name.trim().toLowerCase() === trimmedName.toLowerCase(),
-      )
+    const detectPhaseListAddon = () => {
+      loadAddonComponents('phase.list.fields')
+        .then(addons => {
+          isAddonActive.value = addons.length > 0
+        })
     }
+
+    const fetchPhaseDefinitions = () => {
+      isInitiallyLoading.value = true
+
+      dpApi.get(Routing.generate('api_resource_list', {
+        resourceType: 'ProcedurePhaseDefinition',
+        fields: {
+          ProcedurePhaseDefinition: [
+            'name',
+            'audience',
+            'permissionSet',
+            'participationState',
+            'orderInAudience',
+          ].join(','),
+        },
+        sort: 'orderInAudience',
+      }))
+        .then(({ data }) => {
+          phaseDefinitions.value = data.data.map(item => ({
+            audience: item.attributes.audience,
+            id: item.id,
+            name: item.attributes.name,
+            orderInAudience: item.attributes.orderInAudience,
+            participationState: item.attributes.participationState,
+            permissionSet: item.attributes.permissionSet,
+          }))
+        })
+        .catch(err => {
+          console.error(err)
+          dplan.notify.error(Translator.trans('error.api.generic'))
+        })
+        .finally(() => {
+          isInitiallyLoading.value = false
+        })
+    }
+
+    const mapPhaseToRow = (phase) => ({
+      id: phase.id,
+      name: phase.name,
+      orderInAudience: phase.orderInAudience,
+      participationState: phase.participationState,
+      participationStateLabel: phase.participationState === 'finished' ? Translator.trans('yes') : Translator.trans('no'),
+      permissionSet: phase.permissionSet,
+      permissionSetLabel: findPermissionSetOption(phase.permissionSet)?.label || phase.permissionSet,
+    })
+
+    // =================================
+    // Create phase logic
+    // =================================
+    const isCreateFormAddonLoading = ref(true)
+    const isCreating = ref(false)
+    const isLoading = ref(false)
+    const newPhase = ref({
+      audience: '',
+      name: '',
+      participationState: null,
+      permissionSet: '',
+    })
+    const newPhaseAddonPayload = ref({
+      attributes: null,
+      parentRelationshipName: '',
+      resourceType: '',
+      value: '',
+    })
 
     const isNewPhaseNameDuplicate = computed(() => isNameTakenInAudience({
       name: newPhase.value.name,
       audience: newPhase.value.audience,
     }))
-
-    const isEditedPhaseNameDuplicate = computed(() => {
-      const editingPhase = phaseDefinitions.value.find(phase => phase.id === editingRowId.value)
-
-      return editingPhase ?
-        isNameTakenInAudience({
-          name: draftCoreRowValue.value.name,
-          audience: editingPhase.audience,
-          excludeId: editingRowId.value,
-        }) :
-        false
-    })
-
-    const showErrorInputStyle = computed(() =>
-      hasAttemptedSubmit.value && (isNewPhaseNameDuplicate.value || isEditedPhaseNameDuplicate.value),
-    )
 
     const buildNewPhaseAddonRequest = (parentId) => {
       const { attributes, parentRelationshipName, resourceType } = newPhaseAddonPayload.value
@@ -516,6 +551,49 @@ export default {
         .finally(() => {
           isLoading.value = false
         })
+    }
+
+    // =================================
+    // Edit phase logic
+    // =================================
+    const draftAddonRowPayloads = reactive({})
+    const draftCoreRowValue = ref({ name: '', participationState: null, permissionSet: '' })
+    const editingRowId = ref(null)
+    const initialAddonRowPayloads = reactive({})
+    const initialCoreRowValue = ref({ name: '', participationState: null, permissionSet: '' })
+    const isSaving = ref(false)
+
+    const isEditedPhaseNameDuplicate = computed(() => {
+      const editingPhase = phaseDefinitions.value.find(phase => phase.id === editingRowId.value)
+
+      return editingPhase ?
+        isNameTakenInAudience({
+          name: draftCoreRowValue.value.name,
+          audience: editingPhase.audience,
+          excludeId: editingRowId.value,
+        }) :
+        false
+    })
+
+    const startEdit = (rowData) => {
+      if (isCreating.value) {
+        resetForm()
+      }
+
+      hasAttemptedSubmit.value = false
+
+      draftCoreRowValue.value = {
+        name: rowData.name,
+        participationState: rowData.participationState,
+        permissionSet: rowData.permissionSet,
+      }
+      initialCoreRowValue.value = { ...draftCoreRowValue.value }
+
+      editingRowId.value = rowData.id
+    }
+
+    const cancelEdit = () => {
+      editingRowId.value = null
     }
 
     const handleAddonEditStart = (payload) => {
@@ -722,69 +800,6 @@ export default {
         })
     }
 
-    const startEdit = (rowData) => {
-      if (isCreating.value) {
-        resetForm()
-      }
-
-      hasAttemptedSubmit.value = false
-
-      draftCoreRowValue.value = {
-        name: rowData.name,
-        participationState: rowData.participationState,
-        permissionSet: rowData.permissionSet,
-      }
-      initialCoreRowValue.value = { ...draftCoreRowValue.value }
-
-      editingRowId.value = rowData.id
-    }
-
-    const cancelEdit = () => {
-      editingRowId.value = null
-    }
-
-    const detectPhaseListAddon = () => {
-      loadAddonComponents('phase.list.fields')
-        .then(addons => {
-          isAddonActive.value = addons.length > 0
-        })
-    }
-
-    const fetchPhaseDefinitions = () => {
-      isInitiallyLoading.value = true
-
-      dpApi.get(Routing.generate('api_resource_list', {
-        resourceType: 'ProcedurePhaseDefinition',
-        fields: {
-          ProcedurePhaseDefinition: [
-            'name',
-            'audience',
-            'permissionSet',
-            'participationState',
-            'orderInAudience',
-          ].join(','),
-        },
-        sort: 'orderInAudience',
-      }))
-        .then(({ data }) => {
-          phaseDefinitions.value = data.data.map(item => ({
-            audience: item.attributes.audience,
-            id: item.id,
-            name: item.attributes.name,
-            orderInAudience: item.attributes.orderInAudience,
-            participationState: item.attributes.participationState,
-            permissionSet: item.attributes.permissionSet,
-          }))
-        })
-        .catch(err => {
-          console.error(err)
-          dplan.notify.error(Translator.trans('error.api.generic'))
-        })
-        .finally(() => {
-          isInitiallyLoading.value = false
-        })
-    }
-
     onMounted(() => {
       fetchPhaseDefinitions()
       detectPhaseListAddon()
@@ -806,9 +821,9 @@ export default {
       isAddonActive,
       isCreateFormAddonLoading,
       isCreating,
-      isNewPhaseNameDuplicate,
       isInitiallyLoading,
       isLoading,
+      isNewPhaseNameDuplicate,
       isSaving,
       newPhase,
       newPhaseAddonPayload,
