@@ -131,8 +131,8 @@ All rights reserved
                 <dp-input
                   v-if="editingRowId === phase.id"
                   :id="`phaseName-${phase.id}`"
+                  v-model="draftCoreRowValue.name"
                   :data-cy="`procedurePhases:editName:${phase.id}`"
-                  :model-value="phase.name"
                 />
 
                 <span v-else>{{ phase.name }}</span>
@@ -140,20 +140,21 @@ All rights reserved
 
               <template v-slot:permissionSet="phase">
                 <dp-multiselect
-                  v-if="editingRowId === phase.id"
+                  v-if="editingRowId === phase.id && phase.orderInAudience !== 0"
                   :id="`phasePermissionSet-${phase.id}`"
                   :data-cy="`procedurePhases:editPermissionSet:${phase.id}`"
                   :options="permissionSetOptions"
-                  :value="findPermissionSetOption(phase.permissionSet)"
+                  :value="findPermissionSetOption(draftCoreRowValue.permissionSet)"
                   label="label"
                   track-by="value"
+                  @input="option => updateCoreRowValue('permissionSet', option?.value ?? '')"
                 />
 
                 <span v-else>{{ phase.permissionSetLabel }}</span>
               </template>
 
               <template v-slot:participationState="phase">
-                <fieldset v-if="editingRowId === phase.id">
+                <fieldset v-if="editingRowId === phase.id && phase.orderInAudience !== 0">
                   <legend class="sr-only">
                     {{ Translator.trans('participation.state.radio.label') }}
                   </legend>
@@ -161,20 +162,22 @@ All rights reserved
                   <div class="flex gap-4">
                     <dp-radio
                       :id="`phaseParticipationStateNotFinished-${phase.id}`"
-                      :checked="phase.participationState !== 'finished'"
+                      :checked="draftCoreRowValue.participationState !== 'finished'"
                       :data-cy="`procedurePhases:editParticipationState:notFinished:${phase.id}`"
                       :label="{ text: Translator.trans('no') }"
                       :name="`phaseParticipationState-${phase.id}`"
                       value=""
+                      @change="updateCoreRowValue('participationState', null)"
                     />
 
                     <dp-radio
                       :id="`phaseParticipationStateFinished-${phase.id}`"
-                      :checked="phase.participationState === 'finished'"
+                      :checked="draftCoreRowValue.participationState === 'finished'"
                       :data-cy="`procedurePhases:editParticipationState:finished:${phase.id}`"
                       :label="{ text: Translator.trans('yes') }"
                       :name="`phaseParticipationState-${phase.id}`"
                       value="finished"
+                      @change="updateCoreRowValue('participationState', 'finished')"
                     />
                   </div>
                 </fieldset>
@@ -185,13 +188,14 @@ All rights reserved
               <template v-slot:phaseCode="phase">
                 <addon-wrapper
                   :addon-props="{
+                    hasAttemptedSubmit,
                     isEditing: editingRowId === phase.id,
                     phaseId: phase.id,
-                    savedRowPayload: savedRowPayloads[phase.id] || null,
+                    savedRowPayload: savedAddonRowPayloads[phase.id] || null,
                   }"
                   hook-name="phase.list.fields"
-                  @edit-change="handleEditChange"
-                  @edit-start="handleEditStart"
+                  @edit-change="handleAddonEditChange"
+                  @edit-start="handleAddonEditStart"
                 />
               </template>
 
@@ -302,10 +306,12 @@ export default {
   mixins: [dpValidateMixin],
 
   setup () {
-    const draftRowPayloads = reactive({})
+    const draftAddonRowPayloads = reactive({})
+    const draftCoreRowValue = ref({ name: '', participationState: null, permissionSet: '' })
     const editingRowId = ref(null)
     const hasAttemptedSubmit = ref(false)
-    const initialRowPayloads = reactive({})
+    const initialAddonRowPayloads = reactive({})
+    const initialCoreRowValue = ref({ name: '', participationState: null, permissionSet: '' })
     const isAddonActive = ref(false)
     const isCreateFormAddonLoading = ref(true)
     const isCreating = ref(false)
@@ -325,7 +331,7 @@ export default {
       value: '',
     })
     const phaseDefinitions = ref([])
-    const savedRowPayloads = ref({})
+    const savedAddonRowPayloads = ref({})
 
     const audienceOptions = [
       { label: Translator.trans('audience.external'), value: 'external' },
@@ -368,20 +374,40 @@ export default {
       ...(isAddonActive.value ? [{ field: 'phaseCode', label: Translator.trans('procedure.phase.code'), colWidth: '160px', initialMinWidth: 160 }] : []),
     ])
 
-    const isDuplicateName = computed(() => {
-      const trimmedName = newPhase.value.name.trim()
+    const isNameTakenInAudience = ({ name, audience, excludeId = null }) => {
+      const trimmedName = name.trim()
 
       if (trimmedName.length === 0) {
         return false
       }
 
       return phaseDefinitions.value.some(phase =>
-        phase.audience === newPhase.value.audience &&
+        phase.id !== excludeId &&
+        phase.audience === audience &&
         phase.name.trim().toLowerCase() === trimmedName.toLowerCase(),
       )
+    }
+
+    const isNewPhaseNameDuplicate = computed(() => isNameTakenInAudience({
+      name: newPhase.value.name,
+      audience: newPhase.value.audience,
+    }))
+
+    const isEditedPhaseNameDuplicate = computed(() => {
+      const editingPhase = phaseDefinitions.value.find(phase => phase.id === editingRowId.value)
+
+      return editingPhase ?
+        isNameTakenInAudience({
+          name: draftCoreRowValue.value.name,
+          audience: editingPhase.audience,
+          excludeId: editingRowId.value,
+        }) :
+        false
     })
 
-    const showErrorInputStyle = computed(() => hasAttemptedSubmit.value && isDuplicateName.value)
+    const showErrorInputStyle = computed(() =>
+      hasAttemptedSubmit.value && (isNewPhaseNameDuplicate.value || isEditedPhaseNameDuplicate.value),
+    )
 
     const buildNewPhaseAddonRequest = (parentId) => {
       const { attributes, parentRelationshipName, resourceType } = newPhaseAddonPayload.value
@@ -398,6 +424,11 @@ export default {
           },
         },
       }
+    }
+
+    const openCreateForm = () => {
+      editingRowId.value = null
+      isCreating.value = true
     }
 
     const resetForm = () => {
@@ -454,9 +485,9 @@ export default {
             { data: buildNewPhaseAddonRequest(newPhaseId) },
           )
             .then(phaseCodeResponse => {
-              // Push the new code into savedRowPayloads so the row's addon cell renders the value without waiting for cache refetch
-              savedRowPayloads.value = {
-                ...savedRowPayloads.value,
+              // Push the new code into savedAddonRowPayloads so the row's addon cell renders the value without waiting for cache refetch
+              savedAddonRowPayloads.value = {
+                ...savedAddonRowPayloads.value,
                 [newPhaseId]: {
                   code: phaseCode,
                   resourceId: phaseCodeResponse.data.data.id,
@@ -487,14 +518,18 @@ export default {
         })
     }
 
-    const handleEditStart = (payload) => {
-      draftRowPayloads[payload.phaseId] = payload
+    const handleAddonEditStart = (payload) => {
+      draftAddonRowPayloads[payload.phaseId] = payload
       // Clone so the snapshot can't change if `payload` is ever mutated later.
-      initialRowPayloads[payload.phaseId] = structuredClone(payload)
+      initialAddonRowPayloads[payload.phaseId] = structuredClone(payload)
     }
 
-    const handleEditChange = (payload) => {
-      draftRowPayloads[payload.phaseId] = payload
+    const handleAddonEditChange = (payload) => {
+      draftAddonRowPayloads[payload.phaseId] = payload
+    }
+
+    const updateCoreRowValue = (field, value) => {
+      draftCoreRowValue.value[field] = value
     }
 
     /*
@@ -504,12 +539,12 @@ export default {
      *   - new value, no record yet    → POST
      *   - new value, record exists    → PATCH
      * Resolves to { code, resourceId } — the new state core stores in
-     * `savedRowPayloads` so the cell can re-render without a refetch.
+     * `savedAddonRowPayloads` so the cell can re-render without a refetch.
      *
      * The PATCH body intentionally omits the parent relationship — the
      * backend only accepts that field on create, not on update.
      */
-    const sendSaveEditRequest = (draftPayload) => {
+    const sendAddonEditRequest = (draftPayload) => {
       const { attributes, parentRelationshipName, resourceId, resourceType, value } = draftPayload
 
       if (value === '' && resourceId === null) {
@@ -571,32 +606,85 @@ export default {
       }))
     }
 
+    /*
+     * Builds the PATCH for the core fields, sending only those that changed.
+     * The configuration phase (orderInAudience 0) may only change its
+     * name — permissionSet and participationState cannot be edited.
+     * Returns null when nothing changed (so no request is fired).
+     */
+    const sendCoreEditRequest = (id) => {
+      const draft = draftCoreRowValue.value
+      const initial = initialCoreRowValue.value
+      const isConfigurationPhase = phaseDefinitions.value.find(phase => phase.id === id)?.orderInAudience === 0
+      const attributes = {}
+      const trimmedName = draft.name.trim()
+
+      if (trimmedName !== initial.name) {
+        attributes.name = trimmedName
+      }
+
+      if (!isConfigurationPhase) {
+        if (draft.permissionSet !== initial.permissionSet) {
+          attributes.permissionSet = draft.permissionSet
+        }
+
+        if (draft.participationState !== initial.participationState) {
+          attributes.participationState = draft.participationState
+        }
+      }
+
+      if (Object.keys(attributes).length === 0) {
+        return null
+      }
+
+      return dpApi.patch(
+        Routing.generate('api_resource_update', {
+          resourceType: 'ProcedurePhaseDefinition',
+          resourceId: id,
+        }),
+        {},
+        {
+          data: {
+            type: 'ProcedurePhaseDefinition',
+            id,
+            attributes,
+          },
+        },
+      )
+    }
+
     const handleSaveEditClick = () => {
+      hasAttemptedSubmit.value = true
+
+      if (isEditedPhaseNameDuplicate.value) {
+        dplan.notify.error(Translator.trans('error.name.unique'))
+
+        return
+      }
+
       const id = editingRowId.value
-      const draftPayload = draftRowPayloads[id]
-      const initialPayload = initialRowPayloads[id]
+      const draftPayload = draftAddonRowPayloads[id]
+      const initialPayload = initialAddonRowPayloads[id]
 
-      if (!draftPayload || !initialPayload) {
-        editingRowId.value = null
+      let addonRequest = null
 
-        return
+      if (draftPayload && initialPayload) {
+        if (draftPayload.isDuplicate) {
+          dplan.notify.error(Translator.trans('procedure.phase.code.duplicate'))
+
+          return
+        }
+
+        const hasPhaseCodeChanged = draftPayload.value !== initialPayload.value || draftPayload.resourceId !== initialPayload.resourceId
+
+        if (hasPhaseCodeChanged) {
+          addonRequest = sendAddonEditRequest(draftPayload)
+        }
       }
 
-      if (draftPayload.value === initialPayload.value && draftPayload.resourceId === initialPayload.resourceId) {
-        editingRowId.value = null
+      const coreRequest = sendCoreEditRequest(id)
 
-        return
-      }
-
-      if (draftPayload.isDuplicate) {
-        dplan.notify.error(Translator.trans('procedure.phase.code.duplicate'))
-
-        return
-      }
-
-      const request = sendSaveEditRequest(draftPayload)
-
-      if (request === null) {
+      if (!addonRequest && !coreRequest) {
         editingRowId.value = null
 
         return
@@ -604,17 +692,25 @@ export default {
 
       isSaving.value = true
 
-      request
-        .then(({ code, resourceId }) => {
-          savedRowPayloads.value = {
-            ...savedRowPayloads.value,
-            [id]: {
-              code,
-              resourceId,
-            },
-          }
+      Promise.all([
+        addonRequest ?
+          addonRequest.then(({ code, resourceId }) => {
+            savedAddonRowPayloads.value = {
+              ...savedAddonRowPayloads.value,
+              [id]: {
+                code,
+                resourceId,
+              },
+            }
+          }) :
+          Promise.resolve(),
+        coreRequest || Promise.resolve(),
+      ])
+        .then(() => {
           editingRowId.value = null
-          dplan.notify.confirm(Translator.trans('procedure.phase.code.edit.success'))
+          dplan.notify.confirm(Translator.trans(
+            coreRequest ? 'confirm.all.changes.saved' : 'procedure.phase.code.edit.success',
+          ))
           fetchPhaseDefinitions()
         })
         .catch(err => {
@@ -626,15 +722,19 @@ export default {
         })
     }
 
-    const openCreateForm = () => {
-      editingRowId.value = null
-      isCreating.value = true
-    }
-
     const startEdit = (rowData) => {
       if (isCreating.value) {
         resetForm()
       }
+
+      hasAttemptedSubmit.value = false
+
+      draftCoreRowValue.value = {
+        name: rowData.name,
+        participationState: rowData.participationState,
+        permissionSet: rowData.permissionSet,
+      }
+      initialCoreRowValue.value = { ...draftCoreRowValue.value }
 
       editingRowId.value = rowData.id
     }
@@ -695,17 +795,18 @@ export default {
       audienceSections,
       cancelEdit,
       createPhase,
+      draftCoreRowValue,
       editingRowId,
       findPermissionSetOption,
-      handleEditChange,
-      handleEditStart,
+      handleAddonEditChange,
+      handleAddonEditStart,
       handleSaveEditClick,
       hasAttemptedSubmit,
       headerFields,
       isAddonActive,
       isCreateFormAddonLoading,
       isCreating,
-      isDuplicateName,
+      isNewPhaseNameDuplicate,
       isInitiallyLoading,
       isLoading,
       isSaving,
@@ -714,11 +815,12 @@ export default {
       openCreateForm,
       permissionSetOptions,
       resetForm,
-      savedRowPayloads,
+      savedAddonRowPayloads,
       setParticipationState,
       showErrorInputStyle,
       startEdit,
       updateAddonPayload,
+      updateCoreRowValue,
     }
   },
 
@@ -726,7 +828,7 @@ export default {
     submitForm () {
       this.hasAttemptedSubmit = true
 
-      if (this.isDuplicateName) {
+      if (this.isNewPhaseNameDuplicate) {
         dplan.notify.error(Translator.trans('error.name.unique'))
 
         return
