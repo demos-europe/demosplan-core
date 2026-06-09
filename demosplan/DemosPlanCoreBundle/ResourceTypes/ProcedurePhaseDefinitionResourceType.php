@@ -14,14 +14,20 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedurePhaseDefinitionResourceTypeInterface;
+use DemosEurope\DemosplanAddon\Exception\JsonException;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedurePhaseDefinitionReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedurePhaseDefinitionUpdatableField;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\ProcedurePhaseDefinitionResourceConfigBuilder;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
+use EDT\Querying\Contracts\PathException;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\CallbackAttributeSetBehavior;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
@@ -33,6 +39,8 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
 {
     public function __construct(
         private readonly ProcedurePhaseDefinitionRepository $procedurePhaseDefinitionRepository,
+        private readonly ProcedurePhaseDefinitionReportEntryFactory $procedurePhaseDefinitionReportEntryFactory,
+        private readonly ReportService $reportService,
     ) {
     }
 
@@ -66,6 +74,10 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
         return $this->isCreateAllowed();
     }
 
+    /**
+     * @throws PathException
+     * @throws CustomerNotFoundException
+     */
     protected function getAccessConditions(): array
     {
         $customerId = $this->currentCustomerService->getCurrentCustomer()->getId();
@@ -89,7 +101,24 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
             ->setSortable()
             ->setFilterable()
             ->addPathCreationBehavior()
-            ->addPathUpdateBehavior();
+            ->addUpdateBehavior(
+                CallbackAttributeSetBehavior::createFactory(
+                    [],
+                    function (ProcedurePhaseDefinition $procedurePhaseDefinition, string $newName): array {
+                        $oldName = $procedurePhaseDefinition->getName();
+                        $procedurePhaseDefinition->setName($newName);
+                        $this->addReportEntryUpdate(
+                            $procedurePhaseDefinition,
+                            ProcedurePhaseDefinitionUpdatableField::NAME,
+                            $oldName,
+                            $newName
+                        );
+
+                        return [];
+                    },
+                    OptionalField::YES
+                )
+            );
 
         $configBuilder->audience
             ->setReadableByPath(DefaultField::YES)
@@ -108,9 +137,16 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
             ->addUpdateBehavior(
                 CallbackAttributeSetBehavior::createFactory(
                     [],
-                    function (ProcedurePhaseDefinition $phaseDefinition, mixed $value): array {
-                        $this->guardConfigurationPhaseNotEditable($phaseDefinition);
-                        $phaseDefinition->setPermissionSet($this->resolvePermissionSet($value));
+                    function (ProcedurePhaseDefinition $procedurePhaseDefinition, string $newPermissionSet): array {
+                        $this->guardConfigurationPhaseNotEditable($procedurePhaseDefinition);
+                        $oldPermissionSet = $procedurePhaseDefinition->getPermissionSet();
+                        $procedurePhaseDefinition->setPermissionSet($this->resolvePermissionSet($newPermissionSet));
+                        $this->addReportEntryUpdate(
+                            $procedurePhaseDefinition,
+                            ProcedurePhaseDefinitionUpdatableField::PERMISSION_SET,
+                            $oldPermissionSet,
+                            $newPermissionSet
+                        );
 
                         return [];
                     },
@@ -125,9 +161,18 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
             ->addUpdateBehavior(
                 CallbackAttributeSetBehavior::createFactory(
                     [],
-                    function (ProcedurePhaseDefinition $phaseDefinition, mixed $value): array {
-                        $this->guardConfigurationPhaseNotEditable($phaseDefinition);
-                        $phaseDefinition->setParticipationState($this->resolveParticipationState($value));
+                    function (ProcedurePhaseDefinition $procedurePhaseDefinition, ?string $newParticipationState): array {
+                        $this->guardConfigurationPhaseNotEditable($procedurePhaseDefinition);
+                        $oldParticipationState = $procedurePhaseDefinition->getParticipationState();
+                        $procedurePhaseDefinition->setParticipationState(
+                            $this->resolveParticipationState($newParticipationState)
+                        );
+                        $this->addReportEntryUpdate(
+                            $procedurePhaseDefinition,
+                            ProcedurePhaseDefinitionUpdatableField::PARTICIPANT_STATE,
+                            $oldParticipationState,
+                            $newParticipationState
+                        );
 
                         return [];
                     },
@@ -228,5 +273,25 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
         }
 
         throw new BadRequestException(sprintf('Invalid permissionSet; allowed values are "%s", "%s" or "%s".', ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN, ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_READ, ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_WRITE));
+    }
+
+    /**
+     * @throws JsonException
+     */
+    private function addReportEntryUpdate(
+        ProcedurePhaseDefinition $procedurePhaseDefinition,
+        ProcedurePhaseDefinitionUpdatableField $field,
+        mixed $oldValue,
+        mixed $newValue
+    ): void {
+        if ($oldValue !== $newValue) {
+            $reportEntry = $this->procedurePhaseDefinitionReportEntryFactory->createProcedurePhaseDefinitionUpdateEntry(
+                $procedurePhaseDefinition,
+                $field,
+                $oldValue,
+                $newValue,
+            );
+            $this->reportService->persistAndFlushReportEntry($reportEntry);
+        }
     }
 }
