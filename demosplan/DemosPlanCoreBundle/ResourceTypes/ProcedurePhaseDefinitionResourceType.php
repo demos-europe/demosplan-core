@@ -206,11 +206,7 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
             return ProcedureInterface::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN;
         }
 
-        throw new BadRequestException(
-            sprintf('Invalid participationState; allowed values are null, "%s" or "%s".',
-                ProcedureInterface::PARTICIPATIONSTATE_FINISHED,
-                ProcedureInterface::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN
-            ));
+        throw new BadRequestException(sprintf('Invalid participationState; allowed values are null, "%s" or "%s".', ProcedureInterface::PARTICIPATIONSTATE_FINISHED, ProcedureInterface::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN));
     }
 
     /**
@@ -231,11 +227,6 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
             return $value;
         }
 
-        throw new BadRequestException(sprintf(
-            'Invalid permissionSet; allowed values are "%s", "%s" or "%s".',
-            ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN,
-            ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_READ,
-            ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_WRITE
-        ));
+        throw new BadRequestException(sprintf('Invalid permissionSet; allowed values are "%s", "%s" or "%s".', ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN, ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_READ, ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_WRITE));
     }
 }
