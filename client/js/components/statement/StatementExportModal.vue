@@ -19,7 +19,7 @@
     <dp-modal
       ref="exportModalInner"
       content-classes="w-11/12 sm:w-10/12 md:w-10/12 lg:w-8/12 xl:w-7/12 h-fit"
-      content-body-classes="flex flex-col h-16"
+      content-body-classes="flex flex-col"
       @modal:toggled="onModalToggle"
     >
       <h2 class="mb-5">
@@ -103,7 +103,10 @@
         </div>
       </fieldset>
 
-      <fieldset v-if="['docx_normal', 'zip_normal'].includes(active)">
+      <fieldset
+        v-if="['docx_normal', 'zip_normal'].includes(active)"
+        class="py-0"
+      >
         <legend
           id="docxColumnTitles"
           class="font-semibold text-base float-left mr-1"
@@ -142,7 +145,7 @@
             :placeholder="Translator.trans('docx.export.file_name.placeholder')"
             type="text"
           />
-          <div class="text-sm mt-2">
+          <div class="text-sm mt-4">
             <span
               class="font-bold"
               v-text="Translator.trans('docx.export.example_file_name')"
