@@ -19,6 +19,7 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use Doctrine\DBAL\Connection;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementGroupResource;
+use demosplan\DemosPlanCoreBundle\Application\Header;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -93,9 +94,9 @@ class StatementGroupStateProvider implements ProviderInterface
             ->andWhere('EXISTS (SELECT 1 FROM _statement m WHERE m.head_statement_id = g._st_id AND m._st_deleted = 0)')
             ->setParameter('type', 'StatementGroup');
 
-        $procedure = $this->currentProcedureService->getProcedure();
-        if ($procedure instanceof Procedure) {
-            $qb->andWhere('g._p_id = :procedureId')->setParameter('procedureId', $procedure->getId());
+        $procedureId = $this->resolveProcedureId($context);
+        if (null !== $procedureId) {
+            $qb->andWhere('g._p_id = :procedureId')->setParameter('procedureId', $procedureId);
         }
 
         foreach ($this->getOrderBy($context) as $column => $direction) {
@@ -150,6 +151,26 @@ class StatementGroupStateProvider implements ProviderInterface
         $resource->memberIds = $memberIds;
 
         return $resource;
+    }
+
+    private function resolveProcedureId(array $context): ?string
+    {
+        $procedure = $this->currentProcedureService->getProcedure();
+        if ($procedure instanceof Procedure) {
+            return $procedure->getId();
+        }
+
+        $request = $context['request'] ?? null;
+        if (null === $request) {
+            return null;
+        }
+
+        $headerId = $request->headers->get(Header::PROCEDURE_ID);
+        if (null === $headerId || '' === $headerId || '0' === $headerId || 'undefined' === $headerId) {
+            return null;
+        }
+
+        return $headerId;
     }
 
     public function isAvailable(): bool

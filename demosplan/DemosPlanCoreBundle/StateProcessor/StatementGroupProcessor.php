@@ -15,44 +15,46 @@ namespace demosplan\DemosPlanCoreBundle\StateProcessor;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use DateTime;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use Doctrine\DBAL\Connection;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementGroupResource;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Webmozart\Assert\Assert;
 
-class StatementGroupMemberProcessor implements ProcessorInterface
+class StatementGroupProcessor implements ProcessorInterface
 {
     public function __construct(
         private readonly Connection $connection,
+        private readonly CurrentProcedureService $currentProcedureService,
+        private readonly StatementHandler $statementHandler,
     ) {
     }
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): StatementGroupResource
     {
         Assert::isInstanceOf($data, StatementGroupResource::class);
+        $procedureId = $this->currentProcedureService->getProcedure()->getId();
+        $groupName = $data->groupName;
+        $headStatementId = $data->headStatementId;
+        $statementIds = $data->statementIds;
 
-        $groupId = $uriVariables['id'];
+        $cluster = $this->statementHandler->createStatementCluster(
+            $procedureId,
+            $statementIds,
+            $headStatementId,
+            $groupName
+        );
 
-        $group = $this->connection->createQueryBuilder()
-            ->select('_st_id', '_st_created_date', '_p_id')
-            ->from('_statement')
-            ->where('_st_id = :id')
-            ->andWhere('entity_type = :type')
-            ->andWhere('_st_deleted = 0')
-            ->setParameter('id', $groupId)
-            ->setParameter('type', 'StatementGroup')
-            ->executeQuery()
-            ->fetchAssociative();
-
-        if (false === $group) {
-            throw new NotFoundHttpException(sprintf('StatementGroup "%s" not found', $groupId));
+        if (false === $cluster) {
+            throw new NotFoundHttpException(sprintf('StatementGroup "%s" not found', $procedureId));
         }
 
         $statementIds = $data->statementIds;
 
         if ([] !== $statementIds) {
-            $this->validateAndAssignMembers($statementIds, $groupId, $group['_p_id']);
+            $this->validateAndAssignMembers($statementIds, $procedureId, $group['_p_id']);
         }
 
         $resource = new StatementGroupResource();

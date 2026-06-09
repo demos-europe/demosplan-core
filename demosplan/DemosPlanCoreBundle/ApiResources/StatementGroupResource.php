@@ -19,18 +19,18 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
-use demosplan\DemosPlanCoreBundle\StateProcessor\StatementGroupMemberProcessor;
+use demosplan\DemosPlanCoreBundle\StateProcessor\StatementGroupProcessor;
 use demosplan\DemosPlanCoreBundle\StateProvider\StatementGroupStateProvider;
 use Symfony\Component\Serializer\Attribute\SerializedName;
 
 #[ApiResource(
     shortName: 'StatementGroup',
     operations: [
-        new Get(uriTemplate: '/StatementGroup/{id}'),
+        new Get(uriTemplate: '/StatementGroup'),
         new GetCollection(uriTemplate: '/StatementGroup'),
         new Post(
-            uriTemplate: '/StatementGroup/{id}/members',
-            processor: StatementGroupMemberProcessor::class,
+            uriTemplate: '/StatementGroup',
+            processor: StatementGroupProcessor::class,
             read: false,
         ),
     ],
@@ -51,6 +51,12 @@ class StatementGroupResource
     #[ApiProperty(readable: true, writable: true)]
     #[SerializedName('memberIds')]
     public array $memberIds = [];
+
+    #[ApiProperty(readable: true, writable: true)]
+    public ?string $groupName = null;
+
+    #[ApiProperty(readable: true, writable: true)]
+    public ?string $headStatementId = null;
 
     /** @var string[] */
     #[ApiProperty(readable: false, writable: true)]
