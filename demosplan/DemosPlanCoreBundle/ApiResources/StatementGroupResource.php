@@ -30,8 +30,8 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
         new GetCollection(uriTemplate: '/StatementGroup'),
         new Post(
             uriTemplate: '/StatementGroup',
-            processor: StatementGroupProcessor::class,
             read: false,
+            processor: StatementGroupProcessor::class,
         ),
     ],
     formats: ['jsonapi'],
@@ -47,18 +47,13 @@ class StatementGroupResource
     #[SerializedName('createdDate')]
     public \DateTime $createdDate;
 
-    /** @var string[] */
-    #[ApiProperty(readable: true, writable: true)]
-    #[SerializedName('memberIds')]
-    public array $memberIds = [];
-
     #[ApiProperty(readable: true, writable: true)]
     public ?string $groupName = null;
 
     #[ApiProperty(readable: true, writable: true)]
     public ?string $headStatementId = null;
 
-    /** @var string[] */
-    #[ApiProperty(readable: false, writable: true)]
-    public array $statementIds = [];
+    /** @var StatementResource[] */
+    #[ApiProperty(readable: true, writable: true)]
+    public array $statements = [];
 }

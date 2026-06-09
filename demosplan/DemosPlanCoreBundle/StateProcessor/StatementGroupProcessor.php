@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\StateProcessor;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use DateTime;
+use demosplan\DemosPlanCoreBundle\ApiResources\StatementResource;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use Doctrine\DBAL\Connection;
@@ -38,7 +39,7 @@ class StatementGroupProcessor implements ProcessorInterface
         $procedureId = $this->currentProcedureService->getProcedure()->getId();
         $groupName = $data->groupName;
         $headStatementId = $data->headStatementId;
-        $statementIds = $data->statementIds;
+        $statementIds = array_map(static fn (StatementResource $s): string => $s->id, $data->statements);
 
         $cluster = $this->statementHandler->createStatementCluster(
             $procedureId,
@@ -51,51 +52,10 @@ class StatementGroupProcessor implements ProcessorInterface
             throw new NotFoundHttpException(sprintf('StatementGroup "%s" not found', $procedureId));
         }
 
-        $statementIds = $data->statementIds;
+        $group = new StatementGroupResource();
+        $group->id = $cluster->getId();
+        $group->groupName = $cluster->getName();
 
-        if ([] !== $statementIds) {
-            $this->validateAndAssignMembers($statementIds, $procedureId, $group['_p_id']);
-        }
-
-        $resource = new StatementGroupResource();
-        $resource->id = $group['_st_id'];
-        $resource->createdDate = new DateTime($group['_st_created_date']);
-
-        return $resource;
-    }
-
-    /**
-     * @param string[] $statementIds
-     */
-    private function validateAndAssignMembers(array $statementIds, string $groupId, string $procedureId): void
-    {
-        $placeholders = implode(',', array_fill(0, count($statementIds), '?'));
-        $existing = $this->connection->executeQuery(
-            "SELECT _st_id FROM _statement
-             WHERE _st_id IN ($placeholders)
-             AND _p_id = ?
-             AND _st_deleted = 0
-             AND entity_type != 'StatementGroup'",
-            [...$statementIds, $procedureId]
-        )->fetchFirstColumn();
-
-        $missing = array_diff($statementIds, $existing);
-        if ([] !== $missing) {
-            throw new BadRequestHttpException(sprintf(
-                'Statement(s) not found in this procedure: %s',
-                implode(', ', $missing)
-            ));
-        }
-
-        foreach ($statementIds as $statementId) {
-            $this->connection->update(
-                '_statement',
-                [
-                    'head_statement_id' => $groupId,
-                    'entity_type'       => 'StatementMember',
-                ],
-                ['_st_id' => $statementId]
-            );
-        }
+        return $group;
     }
 }
