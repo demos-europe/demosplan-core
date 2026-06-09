@@ -247,6 +247,7 @@ All rights reserved
                     <button
                       :aria-label="Translator.trans('abort')"
                       :data-cy="`procedurePhases:abortEdit:${rowData.id}`"
+                      :disabled="isSaving"
                       :title="Translator.trans('abort')"
                       class="btn--blank o-link--default"
                       @click="cancelEdit"
@@ -306,9 +307,11 @@ export default {
   mixins: [dpValidateMixin],
 
   setup () {
-    // =================================
-    // Shared logic
-    // =================================
+    /*
+     * ==============================
+     *  Shared logic
+     * ==============================
+     */
     const audienceOptions = [
       { label: Translator.trans('audience.external'), value: 'external' },
       { label: Translator.trans('audience.internal'), value: 'internal' },
@@ -343,9 +346,11 @@ export default {
       )
     }
 
-    // =================================
-    // Phase list logic
-    // =================================
+    /*
+     * ==============================
+     *  Phase list logic
+     * ==============================
+     */
     const isAddonActive = ref(false)
     const isInitiallyLoading = ref(true)
     const phaseDefinitions = ref([])
@@ -420,9 +425,11 @@ export default {
       permissionSetLabel: findPermissionSetOption(phase.permissionSet)?.label || phase.permissionSet,
     })
 
-    // =================================
-    // Create phase logic
-    // =================================
+    /*
+     * ==============================
+     *  Create phase logic
+     * ==============================
+     */
     const isCreateFormAddonLoading = ref(true)
     const isCreating = ref(false)
     const isLoading = ref(false)
@@ -553,9 +560,11 @@ export default {
         })
     }
 
-    // =================================
-    // Edit phase logic
-    // =================================
+    /*
+     * ==============================
+     *  Edit phase logic
+     * ==============================
+     */
     const draftAddonRowPayloads = reactive({})
     const draftCoreRowValue = ref({ name: '', participationState: null, permissionSet: '' })
     const editingRowId = ref(null)
@@ -593,6 +602,7 @@ export default {
     }
 
     const cancelEdit = () => {
+      draftCoreRowValue.value = { ...initialCoreRowValue.value }
       editingRowId.value = null
     }
 
