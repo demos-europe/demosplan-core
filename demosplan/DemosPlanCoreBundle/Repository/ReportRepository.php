@@ -32,7 +32,7 @@ class ReportRepository extends CoreRepository implements ArrayInterface, ObjectI
      *
      * @param string $identifier
      *
-     * @return reportEntry|null - The report entry with the given identifier
+     * @return ReportEntry|null - The report entry with the given identifier
      */
     public function get($identifier)
     {

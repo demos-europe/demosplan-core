@@ -282,7 +282,7 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
         ProcedurePhaseDefinition $procedurePhaseDefinition,
         ProcedurePhaseDefinitionUpdatableField $field,
         mixed $oldValue,
-        mixed $newValue
+        mixed $newValue,
     ): void {
         if ($oldValue !== $newValue) {
             $reportEntry = $this->procedurePhaseDefinitionReportEntryFactory->createProcedurePhaseDefinitionUpdateEntry(

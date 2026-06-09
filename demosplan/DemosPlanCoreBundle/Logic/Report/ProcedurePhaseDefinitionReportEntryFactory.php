@@ -27,13 +27,13 @@ class ProcedurePhaseDefinitionReportEntryFactory extends AbstractReportEntryFact
         ProcedurePhaseDefinition $procedurePhaseDefinition,
         ProcedurePhaseDefinitionUpdatableField $field,
         mixed $oldValue,
-        mixed $newValue
+        mixed $newValue,
     ): ReportEntry {
         $data = [
             'phaseDefinitionId' => $procedurePhaseDefinition->getId(),
-            'field' => $field->value,
-            'oldValue' => $oldValue,
-            'newValue' => $newValue,
+            'field'             => $field->value,
+            'oldValue'          => $oldValue,
+            'newValue'          => $newValue,
         ];
 
         $entry = $this->createReportEntry();

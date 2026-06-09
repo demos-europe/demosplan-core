@@ -18,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\Twig\Extension\DateExtension;
 use demosplan\DemosPlanCoreBundle\ValueObject\Report\ProcedureFinalMailReportEntryData;
 use demosplan\DemosPlanCoreBundle\ValueObject\Report\RegisteredInvitationReportEntryData;
 use demosplan\DemosPlanCoreBundle\ValueObject\Report\StatementFinalMailReportEntryData;
-use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedurePhaseDefinitionUpdatableField;
 use demosplan\DemosPlanCoreBundle\ValueObject\Report\UnregisteredInvitationReportEntryData;
 use Exception;
 use Psr\Log\LoggerInterface;
