@@ -15,13 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\StateProvider;
 use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use Doctrine\DBAL\Connection;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementResource;
-use demosplan\DemosPlanCoreBundle\Application\Header;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Webmozart\Assert\Assert;
@@ -55,7 +49,6 @@ class StatementStateProvider implements ProviderInterface
 
     private function provideSingle(string $id): ?StatementResource
     {
-
         $statement = $this->statementService->getStatement($id);
 
         $statementResource = new StatementResource();
