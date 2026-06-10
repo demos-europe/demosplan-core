@@ -25,7 +25,6 @@ All rights reserved
         <div class="mt-5 mb-6">
           <dp-radio
             id="action-create"
-            checked
             class="mb-3"
             name="groupAction"
             value="createGroup"
@@ -141,7 +140,7 @@ const isLoading = ref(true)
 const mainStatementId = ref(null)
 const groupName = ref('')
 const returnLink = ref(Routing.generate('dplan_procedure_statement_list', { procedureId: props.procedureId }))
-const selectedAction = ref('') // Default until second story will be implemented (add stmt to group)
+const selectedAction = ref('createGroup')
 const statements = ref([])
 const selectionCriteria = ref(null)
 const step = ref(1)
@@ -162,9 +161,7 @@ const translations = computed(() => ({
   ],
 }))
 
-function handleApply () {
-  console.log('apply clicked, statements:', statements.value)
-
+async function handleApply () {
   const { valid } = validateForm(document.querySelector('[data-dp-validate=groupForm]'))
 
   if (!valid) {
@@ -173,7 +170,30 @@ function handleApply () {
     return
   }
 
-  step.value = 3
+  const payload = {
+    type: 'StatementGroup',
+    attributes: {
+      groupName: groupName.value,
+      headStatementId: mainStatementId.value.id,
+    },
+    relationships: {
+      statements: {
+        data: statements.value.map(stmt => ({ id: stmt.id, type: 'Statement' })),
+      },
+    },
+  }
+
+  isBusy.value = true
+
+  try {
+    await dpApi.post(Routing.generate('api_resource_create', { resourceType: 'StatementGroup' }), {}, { data: payload })
+    success.value = true
+  } catch {
+    success.value = false
+  } finally {
+    isBusy.value = false
+    step.value = 3
+  }
 }
 
 async function fetchStatements () {
