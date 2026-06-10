@@ -26,8 +26,7 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 #[ApiResource(
     shortName: 'StatementGroup',
     operations: [
-        new Get(uriTemplate: '/StatementGroup'),
-        new GetCollection(uriTemplate: '/StatementGroup'),
+        new Get(uriTemplate: '/StatementGroup/{id}'),
         new Post(
             uriTemplate: '/StatementGroup',
             read: false,
@@ -56,4 +55,7 @@ class StatementGroupResource
     /** @var StatementResource[] */
     #[ApiProperty(readable: true, writable: true)]
     public array $statements = [];
+
+    #[ApiProperty(readable: true, writable: false)]
+    public int $statementsCount = 0;
 }
