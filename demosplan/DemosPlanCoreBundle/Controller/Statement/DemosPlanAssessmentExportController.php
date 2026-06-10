@@ -23,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidPostParameterTypeException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
-use demosplan\DemosPlanCoreBundle\Logic\Export\DocxExporter;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentExportOptions;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
