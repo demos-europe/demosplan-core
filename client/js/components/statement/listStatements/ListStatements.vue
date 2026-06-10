@@ -447,10 +447,12 @@ export default {
         perPage: 10,
       },
       isFullscreen: false,
-      // Provisional: renders the inline group form on click so it mounts fresh and reads
-      // the freshly stored selection from localStorage. Mimics the future dedicated page
-      // that the backend redirect will open. Remove together with the inline form once the
-      // backend route exists.
+      /*
+       * Provisional: renders the inline group form on click so it mounts fresh and reads
+       * the freshly stored selection from localStorage. Mimics the future dedicated page
+       * that the backend redirect will open. Remove together with the inline form once the
+       * backend route exists.
+       */
       showGroupForm: false,
       lsKey: {
         // LocalStorage keys
@@ -650,8 +652,10 @@ export default {
 
     handleBulkGroup () {
       this.storeToggledStatements()
-      // Mount the form after the selection is stored, so its onMounted reads the fresh
-      // localStorage data. Replaced by a redirect to the dedicated page once the route exists.
+      /*
+       * Mount the form after the selection is stored, so its onMounted reads the fresh
+       * localStorage data. Replaced by a redirect to the dedicated page once the route exists.
+       */
       this.showGroupForm = true
     },
 
@@ -781,6 +785,7 @@ export default {
     storeToggledStatements () {
       // Store selection as criteria so "select all" resolves across pages on load.
       const { search, filter } = this.getParamsForBulkShare()
+
       lscache.set(this.lsKey.toggledStatements, { search, filter })
     },
 
