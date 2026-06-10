@@ -80,6 +80,7 @@
           </li>
           <li>
             <statement-export-modal
+              :procedure-id="procedure.id"
               data-cy="statementSegmentsList:export"
               is-single-statement-export
               @export="showHintAndDoExport"
