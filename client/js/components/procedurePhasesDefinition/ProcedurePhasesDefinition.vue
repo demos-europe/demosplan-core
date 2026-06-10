@@ -799,7 +799,19 @@ export default {
           dplan.notify.confirm(Translator.trans(
             coreRequest ? 'confirm.all.changes.saved' : 'procedure.phase.code.edit.success',
           ))
-          fetchPhaseDefinitions()
+
+          if (coreRequest) {
+            phaseDefinitions.value = phaseDefinitions.value.map(phase =>
+              phase.id === id ?
+                {
+                  ...phase,
+                  name: draftCoreRowValue.value.name.trim(),
+                  participationState: draftCoreRowValue.value.participationState,
+                  permissionSet: draftCoreRowValue.value.permissionSet,
+                } :
+                phase,
+            )
+          }
         })
         .catch(err => {
           console.error(err)
