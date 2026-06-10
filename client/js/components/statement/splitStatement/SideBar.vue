@@ -171,6 +171,34 @@
           :show-placeholder="false"
           track-by="id"
         />
+      </div>
+    </div>
+
+    <!-- Additional Fields Section -->
+    <div
+      aria-labelledby="floatingContextButton_additionalFields"
+      class="relative py-1 pl-2 pr-5 -mr-4"
+      @mouseover="showFloatingContextButton.additionalFields = true"
+      @mouseleave="showFloatingContextButton.additionalFields = false"
+    >
+      <FloatingContextButton
+        class="right-0 top-0"
+        section="additionalFields"
+        :is-visible="showFloatingContextButton.additionalFields"
+        :is-content-collapsed="isCollapsed.additionalFields"
+        @toggle-content-visibility="toggleVisibility"
+        @show="showFloatingContextButton.additionalFields = true"
+        @hide="showFloatingContextButton.additionalFields = false"
+      />
+      <button
+        v-if="!isCollapsed.additionalFields"
+        data-cy="sidebar:toggleVisibility:placesAndAssignee"
+        class="relative btn--blank o-link--default text-left w-full"
+        @click="toggleVisibility"
+      >
+        {{ Translator.trans('fields.more.edit') }}
+      </button>
+      <div v-else>
         <dp-datepicker
           id="deadline"
           v-model="deadline"
@@ -252,6 +280,7 @@ export default {
       isCollapsed: {
         tags: true,
         placesAndAssignee: false,
+        additionalFields: false,
       },
       selectedAssignee: null,
       selectedPlace: null,
@@ -259,6 +288,7 @@ export default {
       showFloatingContextButton: {
         tags: false,
         placesAndAssignee: false,
+        additionalFields: false,
       },
     }
   },
