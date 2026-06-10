@@ -310,6 +310,20 @@
                     {{ Translator.trans('submit.type') }}:
                   </dt>
                   <dd>{{ submitType }}</dd>
+                  <dt>{{ Translator.trans('statement.associated.group') }}:</dt>
+                  <dd v-if="statementsObject[id].attributes.isCluster">
+                    {{ statementsObject[id].attributes.name }}
+                    <!-- TODO(DPLAN-17748): the count needs a readable `clusterMembersCount` field on the statement resource; renders automatically once that field is available -->
+                    <span
+                      v-if="statementsObject[id].attributes.clusterMembersCount != null"
+                      class="block color--grey"
+                    >
+                      {{ Translator.trans('statements.count.parenthesized', { count: statementsObject[id].attributes.clusterMembersCount }) }}
+                    </span>
+                  </dd>
+                  <dd v-else>
+                    -
+                  </dd>
                 </dl>
               </div>
             </template>
@@ -839,6 +853,7 @@ export default {
         // TODO(DPLAN-17748): isCluster is the legacy/deprecated cluster flag; confirm the new grouping feature sets it for group heads
         'isCluster',
         'memo',
+        'name',
         'originalId',
         'status',
         'segmentsCount',
