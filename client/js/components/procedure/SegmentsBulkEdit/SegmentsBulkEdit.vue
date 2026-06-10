@@ -59,14 +59,15 @@
 
         <!-- Add deadline -->
         <action-stepper-action
-          id="selectDeadlineAction"
+          v-if="hasPermission('field_statement_deadline')"
+          id="addDeadlineAction"
           v-model="actions.addDeadline.checked"
           :label="Translator.trans('segments.bulk.edit.deadline.description')"
         >
           <dp-datepicker
             id="deadline"
-            class="w-9"
             v-model="actions.addDeadline.value"
+            class="w-9"
             data-cy="deadline"
           />
         </action-stepper-action>
@@ -251,11 +252,11 @@
         </div>
 
         <div
-          v-if="actions.addDeadline.checked && actions.addDeadline.value"
+          v-if="hasPermission('field_statement_deadline') && addDeadlineCheckedAndSelected"
           class="py-4"
         >
           <p v-html="Translator.trans('segments.bulk.edit.deadline.assigned.description', { count: segments.length })" />
-          <p>{{ actions.addDeadline.value }}</p>
+          <p v-cleanhtml="actions.addDeadline.value" />
         </div>
 
         <div
@@ -315,14 +316,15 @@
       </action-stepper-response>
 
      <action-stepper-response
-        v-if="actions.addDeadline.checked && actions.addDeadline.value"
+        v-if="hasPermission('field_statement_deadline') && addDeadlineCheckedAndSelected"
         :success="actions.addDeadline.success"
         :description-error="Translator.trans('segments.bulk.edit.deadline.assigned.error', { count: segments.length })"
         :description-success="Translator.trans('segments.bulk.edit.deadline.assigned.success', { count: segments.length })"
       >
-        <p class="mt-2">
-          {{ actions.addDeadline.value }}
-        </p>
+         <p
+           v-cleanhtml="actions.addDeadline.value"
+           class="mt-2"
+         />
       </action-stepper-response>
 
       <action-stepper-response
@@ -496,6 +498,10 @@ export default {
     ...mapState('TagTopic', {
       tagTopicsItems: 'items',
     }),
+
+    addDeadlineCheckedAndSelected () {
+      return this.actions.addDeadline.checked && this.actions.addDeadline.value
+    },
 
     addOrReplaceRecommendationMessage () {
       if (this.actions.addRecommendations.isTextAttached) {

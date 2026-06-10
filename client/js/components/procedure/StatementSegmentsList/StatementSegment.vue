@@ -271,8 +271,8 @@
 
         <dp-checkbox
           v-if="hasPermission('field_segments_custom_fields') || hasPermission('field_statement_deadline')"
-          :id="'showAdditionalFields_' + segment.id"
           v-model="showAdditionalFields"
+          :id="`showAdditionalFields_${segment.id}`"
           :label="{
             text: Translator.trans('fields.more.edit')
           }"
@@ -810,6 +810,9 @@ export default {
     },
 
     fetchUpdatedSegment () {
+      const hasRecommendationVersions = hasPermission('feature_enable_recommendation_versions')
+      const hasDeadline = hasPermission('field_statement_deadline')
+
       const include = [
         'assignee',
         'comments',
@@ -817,46 +820,40 @@ export default {
         'comments.submitter',
         'place',
         'tags',
+        ...(hasRecommendationVersions ? ['recommendationVersions'] : []),
       ]
 
       const statementSegmentFields = [
-        'tags',
-        'text',
         'assignee',
-        'place',
         'comments',
         'externId',
         'internId',
         'orderInProcedure',
+        'place',
         'polygon',
         'recommendation',
+        'tags',
+        'text',
+        ...(hasRecommendationVersions ? ['recommendationVersions'] : []),
+        ...(hasDeadline ? ['deadline'] : []),
       ]
 
       const fields = {
         SegmentComment: [
           'creationDate',
-          'text',
-          'submitter',
           'place',
+          'submitter',
+          'text',
         ].join(','),
+        StatementSegment: statementSegmentFields.join(','),
+        ...(hasRecommendationVersions && {
+          RecommendationVersion: [
+            'versionNumber',
+            'recommendationText',
+            'createdAt',
+          ].join(','),
+        }),
       }
-
-      if (hasPermission('feature_enable_recommendation_versions')) {
-        include.push('recommendationVersions')
-        statementSegmentFields.push('recommendationVersions')
-
-        fields.RecommendationVersion = [
-          'versionNumber',
-          'recommendationText',
-          'createdAt',
-        ].join(',')
-      }
-
-      if (hasPermission('field_statement_deadline')) {
-        statementSegmentFields.push('deadline')
-      }
-
-      fields.StatementSegment = statementSegmentFields.join(',')
 
       return this.getStatementSegmentAction({
         id: this.segment.id,
@@ -879,7 +876,6 @@ export default {
       }
 
       const isoDate = reformatDate(value, 'DD.MM.YYYY', 'YYYY-MM-DD')
-
       this.updateSegment('deadline', isoDate)
     },
 
@@ -1060,35 +1056,47 @@ export default {
             return
           }
 
-          return Promise.all([
-            this.fetchUpdatedSegment().catch((err) => {
-              console.error('Failed to fetch updated segment:', err)
-
-              return null
-            }),
-            this.saveCustomFields(),
-          ])
-            .then(() => {
-              dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-              this.isFullscreen = false
-              this.hideAdditionalFields()
-
-              this.$nextTick(() => {
-                if (this.$refs.recommendationContainer) {
-                  this.$refs.imageModal.addClickListener(
-                    this.$refs.recommendationContainer.querySelectorAll('img'),
-                  )
-                }
-              })
-            })
-            .catch((err) => {
-              console.error('Save failed:', err)
-              dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
-            })
-            .finally(() => {
-              this.finalizeSave(comments)
-            })
+          return this.handleSuccessfulSave(comments)
         })
+    },
+
+    handleSuccessfulSave (comments) {
+      return Promise.all([
+        this.fetchUpdatedSegment().catch((err) => {
+          console.error('Failed to fetch updated segment:', err)
+
+          return null
+        }),
+
+        this.saveCustomFields(),
+      ])
+        .then(() => {
+          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+          this.isFullscreen = false
+          this.hideAdditionalFields()
+          this.addRecommendationImageListeners()
+        })
+        .catch((err) => {
+          console.error('Save failed:', err)
+          dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
+        })
+        .finally(() => {
+          this.finalizeSave(comments)
+        })
+    },
+
+    addRecommendationImageListeners () {
+      this.$nextTick(() => {
+        const container = this.$refs.recommendationContainer
+
+        if (!container) {
+          return
+        }
+
+        this.$refs.imageModal.addClickListener(
+          container.querySelectorAll('img'),
+        )
+      })
     },
 
     /**

@@ -273,7 +273,6 @@ export default {
       const statementSegmentFields = [
         'assignee',
         'comments',
-        'deadline',
         'externId',
         'internId',
         'orderInProcedure',
@@ -292,6 +291,10 @@ export default {
         'place',
         'tags',
       ]
+
+      if (hasPermission('field_statement_deadline')) {
+        statementSegmentFields.push('deadline')
+      }
 
       if (hasPermission('feature_enable_recommendation_versions')) {
         statementSegmentInclude.push('recommendationVersions')
