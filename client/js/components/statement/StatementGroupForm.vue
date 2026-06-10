@@ -178,7 +178,8 @@ async function handleApply () {
     },
     relationships: {
       statements: {
-        data: statements.value.map(stmt => ({ id: stmt.id, type: 'Statement' })),
+        // API Platform (3.0) identifies resources by IRI, not by plain UUID.
+        data: statements.value.map(stmt => ({ id: `/api/3.0/Statement/${stmt.id}`, type: 'Statement' })),
       },
     },
   }
@@ -186,7 +187,7 @@ async function handleApply () {
   isBusy.value = true
 
   try {
-    await dpApi.post(Routing.generate('api_resource_create', { resourceType: 'StatementGroup' }), {}, { data: payload })
+    await dpApi.post(Routing.generate('_api_/3.0/StatementGroup_post'), {}, { data: payload })
     success.value = true
   } catch {
     success.value = false
