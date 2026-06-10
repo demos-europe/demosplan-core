@@ -733,6 +733,20 @@ export default {
       this.hideAdditionalFields()
     },
 
+    addRecommendationImageListeners () {
+      this.$nextTick(() => {
+        const container = this.$refs.recommendationContainer
+
+        if (!container) {
+          return
+        }
+
+        this.$refs.imageModal.addClickListener(
+          container.querySelectorAll('img'),
+        )
+      })
+    },
+
     checkIfToolIsActive (tool) {
       return (this.segment.id === this.slidebar.segmentId && this.slidebar.showTab === tool)
     },
@@ -877,6 +891,31 @@ export default {
 
       const isoDate = reformatDate(value, 'DD.MM.YYYY', 'YYYY-MM-DD')
       this.updateSegment('deadline', isoDate)
+    },
+
+    handleSuccessfulSave (comments) {
+      return Promise.all([
+        this.fetchUpdatedSegment().catch((err) => {
+          console.error('Failed to fetch updated segment:', err)
+
+          return null
+        }),
+
+        this.saveCustomFields(),
+      ])
+        .then(() => {
+          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+          this.isFullscreen = false
+          this.hideAdditionalFields()
+          this.addRecommendationImageListeners()
+        })
+        .catch((err) => {
+          console.error('Save failed:', err)
+          dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
+        })
+        .finally(() => {
+          this.finalizeSave(comments)
+        })
     },
 
     hasPolygonFeatures () {
@@ -1058,45 +1097,6 @@ export default {
 
           return this.handleSuccessfulSave(comments)
         })
-    },
-
-    handleSuccessfulSave (comments) {
-      return Promise.all([
-        this.fetchUpdatedSegment().catch((err) => {
-          console.error('Failed to fetch updated segment:', err)
-
-          return null
-        }),
-
-        this.saveCustomFields(),
-      ])
-        .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-          this.isFullscreen = false
-          this.hideAdditionalFields()
-          this.addRecommendationImageListeners()
-        })
-        .catch((err) => {
-          console.error('Save failed:', err)
-          dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
-        })
-        .finally(() => {
-          this.finalizeSave(comments)
-        })
-    },
-
-    addRecommendationImageListeners () {
-      this.$nextTick(() => {
-        const container = this.$refs.recommendationContainer
-
-        if (!container) {
-          return
-        }
-
-        this.$refs.imageModal.addClickListener(
-          container.querySelectorAll('img'),
-        )
-      })
     },
 
     /**
