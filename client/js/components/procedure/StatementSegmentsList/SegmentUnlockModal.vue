@@ -13,46 +13,57 @@
       type="info"
       dismissible
     />
-    <dp-label
-      :text="Translator.trans('place')"
-      class="mb-0 mt-4"
-      for="segmentUnlockPlace"
-      required
-    />
-    <dp-multiselect
-      id="segmentUnlockPlace"
-      v-model="localPlace"
-      :allow-empty="false"
-      :options="places"
-      class="mb-2"
-      label="name"
-      track-by="id"
-      required
-    />
-    <dp-label
-      :text="Translator.trans('assignee')"
-      class="mb-0 mt-4"
-      for="segmentUnlockAssignee"
-    />
-    <dp-multiselect
-      id="segmentUnlockAssignee"
-      v-model="localAssignee"
-      :allow-empty="false"
-      :options="assignableUsers"
-      class="mb-6"
-      label="name"
-      track-by="id"
-    />
-    <dp-button-row
-      primary
-      secondary
-      @primary-action="save"
-      @secondary-action="toggle"
-    />
+    <div data-dp-validate="unlockSegment">
+      <dp-label
+        :text="Translator.trans('place')"
+        class="mb-0 mt-4"
+        for="segmentUnlockPlace"
+        required
+      />
+      <dp-multiselect
+        id="segmentUnlockPlace"
+        v-model="localPlace"
+        :allow-empty="false"
+        :options="places"
+        class="mb-2"
+        label="name"
+        track-by="id"
+        required
+      />
+      <dp-label
+        :text="Translator.trans('assignee')"
+        class="mb-0 mt-4"
+        for="segmentUnlockAssignee"
+      />
+      <dp-multiselect
+        id="segmentUnlockAssignee"
+        v-model="localAssignee"
+        :allow-empty="false"
+        :options="assignableUsers"
+        class="mb-6"
+        label="name"
+        track-by="id"
+      />
+      <dp-button-row
+        primary
+        secondary
+        @primary-action="dpValidateAction('unlockSegment', save, false)"
+        @secondary-action="toggle"
+      />
+    </div>
   </dp-modal>
 </template>
 
+<script>
+import { dpValidateMixin } from '@demos-europe/demosplan-ui'
+
+export default {
+  mixins: [dpValidateMixin],
+}
+</script>
+
 <script setup>
+// eslint-disable-next-line sort-imports -- second <script> block above imports dpValidateMixin (single-member) from the same module
 import { DpButtonRow, DpInlineNotification, DpLabel, DpModal, DpMultiselect } from '@demos-europe/demosplan-ui'
 import { ref } from 'vue'
 
