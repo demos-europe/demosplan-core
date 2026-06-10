@@ -19,9 +19,12 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use Doctrine\DBAL\Connection;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementGroupResource;
+use demosplan\DemosPlanCoreBundle\ApiResources\StatementResource;
 use demosplan\DemosPlanCoreBundle\Application\Header;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Webmozart\Assert\Assert;
 
@@ -37,6 +40,7 @@ class StatementGroupStateProvider implements ProviderInterface
         private readonly CurrentUserInterface $currentUser,
         private readonly CurrentProcedureService $currentProcedureService,
         private readonly Connection $connection,
+        private readonly StatementHandler $statementHandler,
     ) {
     }
 
@@ -62,24 +66,32 @@ class StatementGroupStateProvider implements ProviderInterface
 
     private function provideSingle(string $id): ?StatementGroupResource
     {
-        $row = $this->connection->createQueryBuilder()
-            ->select('_st_id', '_st_created_date')
-            ->from('_statement')
-            ->where('_st_id = :id')
-            ->andWhere('entity_type = :type')
-            ->andWhere('_st_deleted = 0')
-            ->setParameter('id', $id)
-            ->setParameter('type', 'StatementGroup')
-            ->executeQuery()
-            ->fetchAssociative();
-
-        if (false === $row) {
+        $statement = $this->statementHandler->getStatement($id);
+        if (!$statement instanceof Statement || !$statement->isClusterStatement()) {
             return null;
         }
 
-        $memberIds = $this->fetchMemberIds([$id]);
+        return $this->hydrateFromStatement($statement);
+    }
 
-        return $this->hydrate($row, $memberIds[$id] ?? []);
+    private function hydrateFromStatement(Statement $statement): StatementGroupResource
+    {
+        $resource = new StatementGroupResource();
+        $resource->id = $statement->getId();
+        $resource->createdDate = $statement->getCreated();
+        $resource->groupName = $statement->getName();
+        $resource->statements = array_map(
+            static function (Statement $member): StatementResource {
+                $statementResource = new StatementResource();
+                $statementResource->id = $member->getId();
+
+                return $statementResource;
+            },
+            $statement->getCluster()->toArray()
+        );
+        $resource->statementsCount = count($resource->statements);
+
+        return $resource;
     }
 
     private function provideCollection(array $context = []): array
@@ -148,7 +160,16 @@ class StatementGroupStateProvider implements ProviderInterface
         $resource = new StatementGroupResource();
         $resource->id = $row['_st_id'];
         $resource->createdDate = new DateTime($row['_st_created_date']);
-        $resource->memberIds = $memberIds;
+        $resource->statements = array_map(
+            static function (string $memberId): StatementResource {
+                $statementResource = new StatementResource();
+                $statementResource->id = $memberId;
+
+                return $statementResource;
+            },
+            $memberIds
+        );
+        $resource->statementsCount = count($resource->statements);
 
         return $resource;
     }
