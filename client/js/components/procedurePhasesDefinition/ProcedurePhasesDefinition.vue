@@ -119,7 +119,7 @@ All rights reserved
           <div class="overflow-x-auto pb-3 has-scrollable-content">
             <dp-data-table
               :data-cy="`procedurePhases:dataTable:${section.audience}`"
-              :flyoutWidth="flyoutWidth"
+              :flyout-width="flyoutWidth"
               :header-fields="headerFields"
               :items="section.audiencePhases"
               density="spacious"
