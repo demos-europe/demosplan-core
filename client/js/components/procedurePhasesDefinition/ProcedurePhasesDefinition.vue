@@ -36,7 +36,7 @@ All rights reserved
         <dp-input
           id="phaseName"
           v-model="newPhase.name"
-          :class="{ '[&_input]:border-status-failed': showErrorInputStyle }"
+          :invalid="showInvalidInputStyle"
           :label="{ text: Translator.trans('procedure.phase.name') }"
           data-cy="procedurePhases:createForm:name"
           required
@@ -119,6 +119,7 @@ All rights reserved
           <div class="overflow-x-auto pb-3 has-scrollable-content">
             <dp-data-table
               :data-cy="`procedurePhases:dataTable:${section.audience}`"
+              :flyoutWidth="flyoutWidth"
               :header-fields="headerFields"
               :items="section.audiencePhases"
               density="spacious"
@@ -133,6 +134,7 @@ All rights reserved
                   :id="`phaseName-${phase.id}`"
                   v-model="draftCoreRowValue.name"
                   :data-cy="`procedurePhases:editName:${phase.id}`"
+                  :invalid="showInvalidInputStyle"
                 />
 
                 <span v-else>{{ phase.name }}</span>
@@ -200,7 +202,7 @@ All rights reserved
               </template>
 
               <template v-slot:flyout="rowData">
-                <div class="flex gap-3 py-[15px]">
+                <div class="flex justify-center gap-3 py-[15px]">
                   <template v-if="editingRowId !== rowData.id">
                     <button
                       :aria-label="Translator.trans('item.edit')"
@@ -323,9 +325,10 @@ export default {
       { label: Translator.trans('permissionset.write'), value: 'write' },
     ]
 
+    const flyoutWidth = ref('80px')
     const hasAttemptedSubmit = ref(false)
 
-    const showErrorInputStyle = computed(() =>
+    const showInvalidInputStyle = computed(() =>
       hasAttemptedSubmit.value && (isNewPhaseNameDuplicate.value || isEditedPhaseNameDuplicate.value),
     )
 
@@ -835,6 +838,7 @@ export default {
       draftCoreRowValue,
       editingRowId,
       findPermissionSetOption,
+      flyoutWidth,
       handleAddonEditChange,
       handleAddonEditStart,
       handleSaveEditClick,
@@ -854,7 +858,7 @@ export default {
       resetForm,
       savedAddonRowPayloads,
       setParticipationState,
-      showErrorInputStyle,
+      showInvalidInputStyle,
       startEdit,
       updateAddonPayload,
       updateCoreRowValue,
