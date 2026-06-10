@@ -26,9 +26,13 @@ use Symfony\Component\Serializer\Attribute\SerializedName;
 #[ApiResource(
     shortName: 'StatementGroup',
     operations: [
-        new Get(uriTemplate: '/StatementGroup/{id}'),
+        new Get(
+            uriTemplate: '/StatementGroup/{id}',
+            options: ['expose' => true],
+        ),
         new Post(
             uriTemplate: '/StatementGroup',
+            options: ['expose' => true],
             read: false,
             processor: StatementGroupProcessor::class,
         ),
