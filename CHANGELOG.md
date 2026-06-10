@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+- new SegmentTagsChangedEvent implements new interface added to contract layer in:
+- This core version will depend on the contract layer being > v...
+
 ## v4.44.0 (2026-06-05)
 
 ## v4.43.0 (2026-06-05)
