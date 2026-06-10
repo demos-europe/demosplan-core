@@ -636,7 +636,7 @@ export default {
     },
 
     canUnlock () {
-      return hasPermission('feature_segment_lock_by_workflow_place') && hasPermission('feature_administrate_segment_lock')
+      return hasPermission('feature_administrate_segment_lock')
     },
 
     // Assignable users including the "not assigned" option, used as the unlock modal default
