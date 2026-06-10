@@ -15,6 +15,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\DateExtension;
 use demosplan\DemosPlanCoreBundle\ValueObject\Report\ProcedureFinalMailReportEntryData;
 use demosplan\DemosPlanCoreBundle\ValueObject\Report\RegisteredInvitationReportEntryData;
