@@ -42,7 +42,7 @@
             <dp-button
               v-if="hasPermission('feature_administrate_segment_lock')"
               :text="lockTooltip"
-              class="text-interactive inline-block ml-0.5 align-middle"
+              class="text-interactive inline-block ml-0.5 align-middle bg-transparent! border-transparent! hover:bg-interactive-subtle-hover!"
               icon="prohibit"
               icon-weight="fill"
               variant="subtle"
