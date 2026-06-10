@@ -851,7 +851,6 @@ export default {
         'initialOrganisationStreet',
         'internId',
         'isCitizen',
-        // TODO(DPLAN-17748): isCluster is the legacy/deprecated cluster flag; confirm the new grouping feature sets it for group heads
         'isCluster',
         'memo',
         'name',
