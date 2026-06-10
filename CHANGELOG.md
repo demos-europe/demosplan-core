@@ -6,6 +6,10 @@
 
 ## UNRELEASED
 
+## v4.44.0 (2026-06-05)
+
+## v4.43.0 (2026-06-05)
+
 ### Added
 - Show text custom fields and its values in manage institutions and add institutions dialogs
 - Add text custom field value editing to institution tag management dialog
