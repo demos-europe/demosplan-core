@@ -70,10 +70,10 @@
       :key="field.id"
       :category="{ id: field.id, label: field.attributes.name }"
       class="inline-block"
-      :items-object="flyoutItems(field)"
       :operator="field.attributes.fieldType === 'multiSelect' ? 'ARRAY_CONTAINS_VALUE' : 'EQUAL'"
       :path="`customField.${field.id}`"
       @filter-apply="(conditions) => $emit('filter-apply', conditions)"
+      @filterOptions:request="seedFlyoutOptions(field)"
     />
   </template>
 </template>
@@ -166,10 +166,10 @@ export default {
 
     // ── Flyout variant ──────────────────────────────────────────────────────
 
-    flyoutItems (field) {
-      return Object.fromEntries(
-        (field.attributes?.options ?? []).map(o => [o.id, { id: o.id, label: o.label }])
-      )
+    seedFlyoutOptions (field) {
+      const options = (field.attributes?.options ?? []).map(o => ({ id: o.id, label: o.label, selected: false }))
+      this.$store.commit('FilterFlyout/setUngroupedOptions', { categoryId: field.id, options })
+      this.$store.commit('FilterFlyout/setIsLoading', { categoryId: field.id, isLoading: false })
     },
   },
 }
