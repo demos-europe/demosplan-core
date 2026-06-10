@@ -55,6 +55,15 @@ parameters:
     user_activity_last_login_threshold_days: 180
     user_activity_claimed_statements_threshold_days: 180
 
+    # Inactivity-based account deletion workflow.
+    # Leave first_warning_days unset (~) to keep the feature disabled per project.
+    # When set, the cron sends a first warning at that day count, a second warning
+    # warning_step_days later, and soft-deletes the user another warning_step_days
+    # after that.
+    account_deletion.first_warning_days: ~
+    account_deletion.warning_step_days: 30
+    account_deletion.additional_protected_user_ids: []
+
     # Route and parameters for the public index page
     #
     # - Using the controller forward notation here will result in an internal forward
@@ -181,6 +190,10 @@ parameters:
     ratelimit_anonymous_statement_rate_amount: '%env(int:RATELIMIT_ANONYMOUS_STATEMENT_RATE_AMOUNT)%'
     password_history_max_entries: '%env(int:PASSWORD_HISTORY_MAX_ENTRIES)%'
 
+    # Retention period (in days) for login_audit rows. Cleanup is performed by
+    # `dplan:login-audit:cleanup` and should be wired to a recurring schedule.
+    login_audit_retention_days: '%env(int:LOGIN_AUDIT_RETENTION_DAYS)%'
+
     # GitHub token may be used to download addons directly from github
     github_token: '%env(GITHUB_TOKEN)%'
     # addon repository is used to install addons. A token needs to be acquired
@@ -287,6 +300,9 @@ parameters:
     #  Set shard settings to dev settings. When use in cluster with 3 nodes use 3 shards, 2 replicas
     elasticsearch_number_of_shards: "1"
     elasticsearch_number_of_replicas: "1"
+    # High result window applied at index creation so deep paginating exports (size up to 1_000_000)
+    # work even before a full populate completes. Replaces the runtime PopulateElasticaListener setting.
+    elasticsearch_max_result_window: "1000000"
     # Major version of elasticsearch
     elasticsearch_major_version: 6
     # Number of workers to use during populate in command dplan:elasticsearch:populate
@@ -378,6 +394,10 @@ parameters:
     azure_sso_enabled: false
     # and if, which customers?
     azure_sso_customers: []
+    # Subdomains of customers that have completed the IdP migration. For those subdomains the
+    # password/form login rejects users flagged providedByIdentityProvider, so they can only
+    # log in via IdP. Leave empty during the transition to keep form login working.
+    idp_only_subdomains: []
     # knpu_oauth2_client settings
     # oath client referenced by knpu_oauth2_client when oauth is used
     oauth_client: ''
@@ -561,6 +581,7 @@ parameters:
     ai_service_post_url: ""
 
     languagetool_url: ''
+    languagetool_timeout: 30
 
     # #refactor: used only once, could be constant
     drafts_info_schema_path: "%kernel.project_dir%/config/json-schema/drafts-info-schema.json"

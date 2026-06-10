@@ -33,7 +33,7 @@ final class UserFromSecurityUserProvider
     {
         if (!$this->user instanceof User) {
             $token = $this->tokenStorage->getToken();
-            $this->user = null !== $token ? $this->fromToken($token) : null;
+            $this->user = $token instanceof TokenInterface ? $this->fromToken($token) : null;
         }
 
         return $this->user;

@@ -39,6 +39,9 @@ parameters:
                 translationKey: "segment.tags"
                 noHighlighting: true
         demosplan\DemosPlanCoreBundle\Entity\Statement\Statement:
+            customFields: #special case needs special handling
+                fieldType: "json"
+                noHighlighting: true
             assignee:
                 fieldType: "object"
                 translationKey: "assignment"
