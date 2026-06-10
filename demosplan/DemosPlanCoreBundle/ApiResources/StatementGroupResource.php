@@ -19,6 +19,7 @@ use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
+use DateTime;
 use demosplan\DemosPlanCoreBundle\StateProcessor\StatementGroupProcessor;
 use demosplan\DemosPlanCoreBundle\StateProvider\StatementGroupStateProvider;
 use Symfony\Component\Serializer\Attribute\SerializedName;
@@ -48,7 +49,7 @@ class StatementGroupResource
     public string $id;
 
     #[SerializedName('createdDate')]
-    public \DateTime $createdDate;
+    public DateTime $createdDate;
 
     #[ApiProperty(readable: true, writable: true)]
     public ?string $groupName = null;
