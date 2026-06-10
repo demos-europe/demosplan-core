@@ -78,7 +78,7 @@
       >
         <dp-button
           v-if="hasPermission('feature_administrate_segment_lock')"
-          :text="badgeTooltipText"
+          :text="lockTooltipText"
           icon="prohibit"
           icon-weight="fill"
           variant="subtle"
@@ -87,7 +87,7 @@
         />
         <dp-tooltip
           v-else
-          :text="badgeTooltipText"
+          :text="lockTooltipText"
         >
           <dp-icon
             class="text-interactive ml-0.5"
@@ -616,12 +616,6 @@ export default {
       }
     },
 
-    badgeTooltipText () {
-      return hasPermission('feature_administrate_segment_lock') ?
-        Translator.trans('segment.unlock.click.hint') :
-        Translator.trans('segment.lock.hint')
-    },
-
     commentCount () {
       return this.segment.relationships.comments?.data?.length || 0
     },
@@ -647,6 +641,12 @@ export default {
       }
       const placeId = this.segment.relationships?.place?.data?.id
       return !!this.placeItems[placeId]?.attributes?.locked
+    },
+
+    lockTooltipText () {
+      return hasPermission('feature_administrate_segment_lock') ?
+        Translator.trans('segment.unlock.click.hint') :
+        Translator.trans('segment.lock.hint')
     },
 
     places () {
