@@ -208,7 +208,7 @@
               <dp-button
                 v-if="canUnlock && rowData.isPlaceLocked"
                 :text="Translator.trans('segment.unlock.click.hint')"
-                class="text-interactive"
+                class="text-interactive bg-transparent! border-transparent! hover:bg-interactive-subtle-hover!"
                 icon="prohibit"
                 icon-weight="fill"
                 variant="subtle"
