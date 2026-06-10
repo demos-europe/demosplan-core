@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+### Added
+- Make procedure phase definitions editable
+
 ## v4.44.0 (2026-06-05)
 
 ## v4.43.0 (2026-06-05)
