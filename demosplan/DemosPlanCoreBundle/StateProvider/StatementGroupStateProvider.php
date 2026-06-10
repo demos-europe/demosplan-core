@@ -17,7 +17,6 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use Doctrine\DBAL\Connection;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementGroupResource;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementResource;
 use demosplan\DemosPlanCoreBundle\Application\Header;
@@ -25,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use Doctrine\DBAL\Connection;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Webmozart\Assert\Assert;
 
@@ -131,7 +131,8 @@ class StatementGroupStateProvider implements ProviderInterface
     }
 
     /**
-     * @param  string[]              $groupIds
+     * @param string[] $groupIds
+     *
      * @return array<string, string[]>
      */
     private function fetchMemberIds(array $groupIds): array
