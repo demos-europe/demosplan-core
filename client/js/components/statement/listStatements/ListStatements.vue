@@ -313,12 +313,11 @@
                   <dt>{{ Translator.trans('statement.associated.group') }}:</dt>
                   <dd v-if="statementsObject[id].attributes.isCluster">
                     {{ statementsObject[id].attributes.name }}
-                    <!-- TODO(DPLAN-17748): the count needs a readable `clusterMembersCount` field on the statement resource; renders automatically once that field is available -->
                     <span
-                      v-if="statementsObject[id].attributes.clusterMembersCount != null"
+                      v-if="groupMemberCounts[id] != null"
                       class="block color--grey"
                     >
-                      {{ Translator.trans('statements.count.parenthesized', { count: statementsObject[id].attributes.clusterMembersCount }) }}
+                      {{ Translator.trans('statements.count.parenthesized', { count: groupMemberCounts[id] }) }}
                     </span>
                   </dd>
                   <dd v-else>
@@ -482,6 +481,8 @@ export default {
         { field: 'segmentsCount', label: Translator.trans('segments') },
       ],
       pagination: {},
+      // Member counts per group head (keyed by head statement id), fetched from the 3.0 StatementGroup endpoint.
+      groupMemberCounts: {},
       searchFields: [
         'authorName',
         'department',
@@ -916,7 +917,23 @@ export default {
 
         this.setNumSelectableItems(data)
         this.updatePagination(data.meta.pagination)
+        this.fetchGroupMemberCounts()
       })
+    },
+
+    /**
+     * Fetch the member count for each group head on the current page from the 3.0 StatementGroup
+     * endpoint. The 2.0 statement list does not carry the count, so it is loaded per head.
+     */
+    fetchGroupMemberCounts () {
+      Object.values(this.statementsObject)
+        .filter(statement => statement.attributes.isCluster)
+        .forEach(head => {
+          dpApi.get(Routing.generate('_api_/3.0/StatementGroup/{id}_get', { id: head.id }))
+            .then(response => {
+              this.groupMemberCounts[head.id] = response.data.data.attributes.statementsCount
+            })
+        })
     },
 
     /**
