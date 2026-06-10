@@ -271,7 +271,17 @@
               />
             </template>
             <template v-slot:recommendation="rowData">
-              <div v-cleanhtml="rowData.attributes.recommendation !== '' ? rowData.attributes.recommendation : '-'" />
+              <div class="flex flex-col">
+                <div v-cleanhtml="rowData.attributes.recommendation || '-'" />
+                <span
+                  v-if="hasPermission('feature_enable_recommendation_versions') && getRecommendationVersionNumber(rowData)"
+                  class="text-neutral-base"
+                  :class="{ 'mt-2': !recommendationHasHtmlTags(rowData.attributes.recommendation) }"
+                >
+                  {{ Translator.trans('version') }}:
+                  {{ getRecommendationVersionNumber(rowData) }}
+                </span>
+              </div>
             </template>
             <template v-slot:tags="rowData">
               <addon-wrapper
@@ -537,33 +547,41 @@ export default {
   },
 
   computed: {
+    ...mapState('AssignableUser', {
+      assignableUsersObject: 'items',
+    }),
+
+    ...mapState('CustomField', {
+      customFields: 'items',
+    }),
+
     ...mapGetters('FilterFlyout', [
       'getFilterQuery',
       'getIsExpandedByCategoryId',
     ]),
 
-    ...mapState('AssignableUser', {
-      assignableUsersObject: 'items',
-    }),
-
     ...mapState('Orga', {
       orgaObject: 'items',
     }),
 
-    ...mapState('StatementSegment', {
-      segmentsObject: 'items',
+    ...mapState('Place', {
+      placesObject: 'items',
+    }),
+
+    ...mapState('RecommendationVersion', {
+      recommendationVersions: 'items',
     }),
 
     ...mapState('Statement', {
       statementsObject: 'items',
     }),
 
-    ...mapState('Tag', {
-      tagsObject: 'items',
+    ...mapState('StatementSegment', {
+      segmentsObject: 'items',
     }),
 
-    ...mapState('Place', {
-      placesObject: 'items',
+    ...mapState('Tag', {
+      tagsObject: 'items',
     }),
 
     assignableUsers () {
@@ -734,18 +752,25 @@ export default {
         'recommendation',
       ]
 
+      const statementSegmentInclude = [
+        'assignee',
+        'place',
+        'tags',
+        'parentStatement.genericAttachments.file',
+        'parentStatement.sourceAttachment.file',
+      ]
+
       if (hasPermission('field_segments_custom_fields')) {
         statementSegmentFields.push('customFields')
       }
 
+      if (hasPermission('feature_enable_recommendation_versions')) {
+        statementSegmentFields.push('recommendationVersions')
+        statementSegmentInclude.push('recommendationVersions')
+      }
+
       const payload = {
-        include: [
-          'assignee',
-          'place',
-          'tags',
-          'parentStatement.genericAttachments.file',
-          'parentStatement.sourceAttachment.file',
-        ].join(),
+        include: statementSegmentInclude.join(),
         page: {
           number: page,
           size: this.pagination.perPage,
@@ -787,6 +812,14 @@ export default {
             'title',
           ].join(),
         },
+      }
+
+      if (hasPermission('feature_enable_recommendation_versions')) {
+        payload.fields.RecommendationVersion = [
+          'versionNumber',
+          'recommendationText',
+          'createdAt',
+        ].join()
       }
 
       if (this.searchTerm !== '') {
@@ -864,6 +897,20 @@ export default {
         .catch(() => { /* Notification already shown by useCustomFieldDefinitions */ })
     },
 
+    getRecommendationVersionNumber (segment) {
+      const currentVersionId = segment.relationships?.recommendationVersions?.data?.[0]?.id
+
+      if (!currentVersionId) {
+        return ''
+      }
+
+      const versionNumber = this.recommendationVersions[currentVersionId]?.attributes?.versionNumber
+
+      return versionNumber ?
+        String(versionNumber).padStart(3, '0') :
+        ''
+    },
+
     getTagsBySegment (id) {
       const segment = this.segmentsObject[id]
       const relatedTagIds = segment.relationships.tags && segment.relationships.tags.data.map(tag => tag.id)
@@ -916,6 +963,14 @@ export default {
 
       this.pagination.perPage = newSize
       this.applyQuery(page)
+    },
+
+    recommendationHasHtmlTags (recommendation) {
+      const div = document.createElement('div')
+
+      div.innerHTML = recommendation.trim()
+
+      return div.children.length > 0
     },
 
     resetColumnSelection () {
