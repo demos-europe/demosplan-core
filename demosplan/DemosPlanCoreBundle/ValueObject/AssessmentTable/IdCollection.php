@@ -22,6 +22,6 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
  */
 class IdCollection extends ValueObject
 {
-    protected array $fragmentIds;
+    protected array $fragmentIds = [];
     protected ?array $statementIds = null;
 }
