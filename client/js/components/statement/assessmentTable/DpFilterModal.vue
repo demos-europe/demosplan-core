@@ -116,6 +116,12 @@
               @updating-filters="disabledInteractions = true"
               @updated-filters="disabledInteractions = false"
             />
+            <dp-custom-fields-filter
+              v-if="filterGroup.type === 'statement' && customFieldDefinitions.length > 0"
+              v-model="customFieldFilterValue"
+              :custom-field-definitions="customFieldDefinitions"
+              variant="modal"
+            />
           </dp-tab>
         </dp-tabs>
 
@@ -237,12 +243,15 @@
 <script>
 import { DpLoading, DpModal, DpMultiselect, DpTab, DpTabs, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import DpCustomFieldsFilter from '@DpJs/components/shared/DpCustomFieldsFilter'
 import DpFilterModalSelectItem from './FilterModalSelectItem'
+import { useCustomFieldDefinitions } from '@DpJs/composables/useCustomFieldDefinitions'
 
 export default {
   name: 'DpFilterModal',
 
   components: {
+    DpCustomFieldsFilter,
     DpFilterModalSelectItem,
     DpMultiselect,
     DpModal,
@@ -283,6 +292,8 @@ export default {
   data () {
     return {
       activeTabId: null,
+      customFieldDefinitions: [],
+      customFieldFilterValue: {},
       disabledInteractions: false, // Do not submit form if filters are currently updating
       isLoading: true,
       saveFilterSet: false,
@@ -322,7 +333,7 @@ export default {
       })
     },
 
-    /**
+/**
      * Generate initial name for filterSet from labels of selected options
      */
     filterSetName () {
@@ -459,9 +470,17 @@ export default {
       this.$refs.filterModalInner.toggle()
 
       if (this.filterList.length === 0) {
+        const { fetchCustomFields } = useCustomFieldDefinitions()
+
         this.updateBaseState({ procedureId: this.procedureId, original: this.original })
           .then(() => {
-            const promises = [this.initFilterList()]
+            console.log('Calling custom fields')
+            const promises = [
+              this.initFilterList(),
+              fetchCustomFields(this.procedureId, { sourceEntity: 'PROCEDURE', targetEntity: 'STATEMENT' })
+                .then(definitions => { this.customFieldDefinitions = definitions })
+                .catch(() => {}),
+            ]
 
             if (this.userFilterSetSaveEnabled) {
               promises.push(this.initUserFilterSets())
