@@ -649,7 +649,6 @@ export default {
     },
 
     handleBulkGroup () {
-      console.log('toggledItems:', this.toggledItems)
       this.storeToggledStatements()
       // Mount the form after the selection is stored, so its onMounted reads the fresh
       // localStorage data. Replaced by a redirect to the dedicated page once the route exists.
@@ -780,7 +779,6 @@ export default {
     },
 
     storeToggledStatements () {
-      console.log('Saving:', this.lsKey.toggledStatements, this.toggledItems)
       // Store selection as criteria so "select all" resolves across pages on load.
       const { search, filter } = this.getParamsForBulkShare()
       lscache.set(this.lsKey.toggledStatements, { search, filter })
