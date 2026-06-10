@@ -26,7 +26,7 @@
 </documentation>
 
 <template>
-  <!-- Modal row variant: matches DpFilterModalSelectItem layout inside DpFilterModal -->
+  <!-- Modal row variant: matches DpFilterModalSelectItem layout inside DpFilterModal. Selections are tracked in customFieldFilterValue (DpFilterModal data) and passed explicitly to updateFilterHash in submitWithSave — no hidden form inputs needed. -->
   <template v-if="variant === 'modal'">
     <div
       v-for="field in filterableFields"
@@ -52,14 +52,6 @@
           @input="(val) => handleModalChange(field.id, val)"
         />
       </div>
-      <!-- Hidden inputs so values are included in the filter form submission -->
-      <input
-        v-for="optionId in (value[field.id] || [])"
-        :key="`cf-hidden-${field.id}-${optionId}`"
-        type="hidden"
-        :name="`r_custom_field[${field.id}][]`"
-        :value="optionId"
-      />
     </div>
   </template>
 

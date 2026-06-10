@@ -532,12 +532,25 @@ export default {
     },
 
     submitWithSave (event) {
-      /*
-       * SubmitForm needs event to prevent default behaviour of submit button
-       * it first updates the filterHash and then submits the form with a new
-       * hash set in the action
-       */
-      window.submitForm(event, 'filters')
+      if (event) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
+
+      const customFieldEntries = []
+      Object.entries(this.customFieldFilterValue).forEach(([fieldId, optionIds]) => {
+        optionIds.forEach(optionId => {
+          customFieldEntries.push({ name: `r_custom_field[${fieldId}][]`, value: optionId })
+        })
+      })
+
+      const filterOptions = [...this.allSelectedFilterOptionsWithFilterName, ...customFieldEntries]
+
+      window.updateFilterHash(this.procedureId, filterOptions)
+        .then(filterHash => {
+          document.bpform.action = Routing.generate(this.route, { procedureId: this.procedureId, filterHash })
+          document.bpform.submit()
+        })
     },
 
     /**
