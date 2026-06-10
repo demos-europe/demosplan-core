@@ -54,7 +54,7 @@
       </div>
       <!-- Hidden inputs so values are included in the filter form submission -->
       <input
-        v-for="optionId in (modelValue[field.id] || [])"
+        v-for="optionId in (value[field.id] || [])"
         :key="`cf-hidden-${field.id}-${optionId}`"
         type="hidden"
         :name="`r_custom_field[${field.id}][]`"
@@ -114,7 +114,7 @@ export default {
      * Selected state — only used in 'modal' variant.
      * Shape: { [fieldId]: string[] }  (selected option IDs)
      */
-    modelValue: {
+    value: {
       type: Object,
       default: () => ({}),
     },
@@ -122,7 +122,7 @@ export default {
 
   emits: [
     /** modal variant: emits { [fieldId]: string[] } */
-    'update:modelValue',
+    'input',
     /** flyout variant: emits the FilterFlyout condition-map ({ [optionId]: { condition } }) */
     'filter-apply',
   ],
@@ -145,7 +145,7 @@ export default {
     // ── Modal variant ───────────────────────────────────────────────────────
 
     selectedForField (fieldId) {
-      const ids = this.modelValue[fieldId] ?? []
+      const ids = this.value[fieldId] ?? []
       const field = this.customFieldDefinitions.find(f => f.id === fieldId)
 
       if (!field) {
@@ -161,7 +161,7 @@ export default {
       const ids = Array.isArray(selected)
         ? selected.map(o => o.value)
         : (selected ? [selected.value] : [])
-      this.$emit('update:modelValue', { ...this.modelValue, [fieldId]: ids })
+      this.$emit('input', { ...this.value, [fieldId]: ids })
     },
 
     // ── Flyout variant ──────────────────────────────────────────────────────
