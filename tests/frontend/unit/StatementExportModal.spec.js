@@ -444,7 +444,7 @@ describe('StatementExportModal', () => {
   })
 
   it('restores uploadedHash from sessionStorage in setInitialValues', () => {
-    window.sessionStorage.setItem('templateHash', JSON.stringify([{ hash: 'stored-hash' }]))
+    globalThis.sessionStorage.setItem(`templateHash_${MOCK_PROCEDURE_ID}`, JSON.stringify([{ hash: 'stored-hash' }]))
     wrapper.vm.setInitialValues()
 
     expect(wrapper.vm.uploadedHash).toBe('stored-hash')

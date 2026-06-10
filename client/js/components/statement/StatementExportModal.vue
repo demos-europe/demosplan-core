@@ -181,7 +181,7 @@
           data-cy="exportModal:uploadTemplate"
           :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash, procedureId })"
           :max-file-size="5 * 1024 * 1024"
-          storage-name="templateHash"
+          :storage-name="templateStorageName"
           :translations="{ dropHereOr: Translator.trans('form.button.upload.docx', { browse: '{browse}', maxUploadSize: '5 MB' }) }"
           :tus-endpoint="dplan.paths.tusEndpoint"
           @file-remove="uploadedHash = ''"
@@ -426,6 +426,10 @@ export default {
       }
 
       return exampleFileName
+    },
+
+    templateStorageName () {
+      return `templateHash_${this.procedureId}`
     },
   },
 
@@ -748,7 +752,7 @@ export default {
       })
 
       /** DpUploadFiles restores its file list from sessionStorage on reload; mirror that hash so the export still routes via template. */
-      const storedTemplate = this.getItemFromSessionStorage('templateHash')
+      const storedTemplate = this.getItemFromSessionStorage(this.templateStorageName)
       this.uploadedHash = Array.isArray(storedTemplate) ? storedTemplate[storedTemplate.length - 1]?.hash ?? '' : ''
     },
 
