@@ -48,9 +48,8 @@
         />
       </dp-bulk-edit-header>
 
-      <!--Todo: add permission-->
       <dp-bulk-edit-header
-        v-if="selectedItemsCount > 0"
+        v-if="selectedItemsCount > 0 && hasPermission('feature_statement_cluster')"
         class="layout__item u-12-of-12 u-mt-0_5"
         :selected-items-text="Translator.trans('statements.selected', { count: selectedItemsCount })"
         @reset-selection="resetSelection"
