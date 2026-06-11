@@ -17,7 +17,7 @@ All rights reserved
       :total-steps="3"
       :translations="translations"
       :valid="isValid"
-      @confirm="step = 2"
+      @confirm="handleConfirmStep1"
       @edit="step = 1"
       @apply="handleApply"
     >
@@ -160,6 +160,17 @@ const translations = computed(() => ({
     Translator.trans('confirm.saved.plural'),
   ],
 }))
+
+function handleConfirmStep1 () {
+  // Creating a group needs at least two statements; adding to an existing group (action "addToGroup") later allows one.
+  if (selectedAction.value === 'createGroup' && statements.value.length < 2) {
+    dplan.notify.notify('error', Translator.trans('confirm.consolidation.not.enough.statements'))
+
+    return
+  }
+
+  step.value = 2
+}
 
 async function handleApply () {
   const { valid } = validateForm(document.querySelector('[data-dp-validate=groupForm]'))
