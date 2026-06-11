@@ -100,7 +100,7 @@
           class="inline-flex items-center leading-none py-1"
           color="info"
           size="small"
-          :text="Translator.trans('segment.lock.state.locked')"
+          :text="Translator.trans('segment.locked')"
         />
       </div>
       <dp-claim
