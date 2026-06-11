@@ -14,6 +14,7 @@ namespace Tests\Core\Statement\Segment;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentLockEnforcementService;
 use PHPUnit\Framework\TestCase;
@@ -98,7 +99,8 @@ class SegmentLockEnforcementServiceTest extends TestCase
 
     private function place(bool $locked): Place
     {
-        $place = new Place(new Procedure(), 'test-place', 0);
+        $def = new ProcedurePhaseDefinition();
+        $place = new Place(new Procedure($def, $def), 'test-place', 0);
         $place->setLocked($locked);
 
         return $place;
