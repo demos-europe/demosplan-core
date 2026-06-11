@@ -208,11 +208,22 @@ async function fetchStatements () {
   let number = 1
   let totalPages = 1
 
+  /*
+   * Exclude statements that have already been split into segments — they cannot be grouped.
+   * This also guards the "select all" path, where the stored criteria are resolved server-side.
+   */
+  const filter = {
+    ...selectionCriteria.value.filter,
+    notSegmented: {
+      condition: { path: 'segments.id', operator: 'IS NULL' },
+    },
+  }
+
   // Page through the whole selected set so "select all" covers every matching statement.
   do {
     const response = await dpApi.get(
       Routing.generate('api_resource_list', { resourceType: 'Statement' }),
-      { ...selectionCriteria.value, fields, page: { number, size } },
+      { ...selectionCriteria.value, filter, fields, page: { number, size } },
     )
 
     collected.push(...response.data.data)
