@@ -519,9 +519,10 @@ class ReportMessageConverter
 
     private function getProcedurePhaseDefinitionUpdateMessage(string $phaseDefinitionId, array $message): string
     {
-        $field = $message['field'] ?? '';
-        $oldValue = $message['oldValue'] ?? null;
-        $newValue = $message['newValue'] ?? null;
+        $field = $message[ProcedurePhaseDefinitionReportEntryField::FIELD->value] ?? '';
+        $oldValue = $message[ProcedurePhaseDefinitionReportEntryField::OLD_VALUE->value] ?? null;
+        $newValue = $message[ProcedurePhaseDefinitionReportEntryField::NEW_VALUE->value] ?? null;
+        $phaseDefinitionName = $message[ProcedurePhaseDefinitionReportEntryField::PHASE_DEFINITION_NAME->value] ?? null;
 
         $transKey = match ($field) {
             ProcedurePhaseDefinitionUpdatableField::NAME->value              => 'text.protocol.phase.definition.name.changed',
@@ -553,7 +554,7 @@ class ReportMessageConverter
         }
 
         return $this->translator->trans($transKey, [
-            'phaseName' => $phaseDefinition->getName(),
+            'phaseName' => $phaseDefinitionName,
             'audience'  => $this->translator->trans($transKeyAudience),
             'oldValue'  => $oldValue ?? '',
             'newValue'  => $newValue ?? '',
