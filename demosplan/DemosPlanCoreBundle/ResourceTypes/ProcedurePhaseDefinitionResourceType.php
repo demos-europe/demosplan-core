@@ -17,7 +17,6 @@ use DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedurePhaseDefinitionRe
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
-use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\ProcedurePhaseDefinitionResourceConfigBuilder;
@@ -26,7 +25,6 @@ use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\CallbackAttributeSetBehavior;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @template-extends DplanResourceType<ProcedurePhaseDefinition>
@@ -35,7 +33,6 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
 {
     public function __construct(
         private readonly ProcedurePhaseDefinitionRepository $procedurePhaseDefinitionRepository,
-        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -92,25 +89,7 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
             ->setSortable()
             ->setFilterable()
             ->addPathCreationBehavior()
-            ->addUpdateBehavior(
-                CallbackAttributeSetBehavior::createFactory(
-                    [],
-                    function (ProcedurePhaseDefinition $phaseDefinition, string $newName): array {
-                        $violations = $this->validator->validatePropertyValue(
-                            ProcedurePhaseDefinition::class,
-                            'name',
-                            $newName
-                        );
-                        if (0 < $violations->count()) {
-                            throw ViolationsException::fromConstraintViolationList($violations);
-                        }
-                        $phaseDefinition->setName($newName);
-
-                        return [];
-                    },
-                    OptionalField::YES
-                )
-            );
+            ->addPathUpdateBehavior();
 
         $configBuilder->audience
             ->setReadableByPath(DefaultField::YES)
@@ -131,7 +110,7 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
                     [],
                     function (ProcedurePhaseDefinition $phaseDefinition, mixed $value): array {
                         $this->guardConfigurationPhaseNotEditable($phaseDefinition);
-                        $phaseDefinition->setPermissionSet($this->resolvePermissionSet($value));
+                        $phaseDefinition->setPermissionSet($value);
 
                         return [];
                     },
@@ -148,7 +127,13 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
                     [],
                     function (ProcedurePhaseDefinition $phaseDefinition, mixed $value): array {
                         $this->guardConfigurationPhaseNotEditable($phaseDefinition);
-                        $phaseDefinition->setParticipationState($this->resolveParticipationState($value));
+                        if (ProcedureInterface::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN === $value) {
+                            $tokenPermission = 'area_customer_procedure_phase_participation_token';
+                            if (!$this->currentUser->hasPermission($tokenPermission)) {
+                                throw AccessDeniedException::missingPermissions(null, [$tokenPermission]);
+                            }
+                        }
+                        $phaseDefinition->setParticipationState($value);
 
                         return [];
                     },
@@ -200,54 +185,5 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
         if ($phaseDefinition->isConfigurationPhase()) {
             throw new BadRequestException('Only the name of the configuration phase can be changed; permissionSet and participationState are fixed.');
         }
-    }
-
-    /**
-     * Validates the requested participation state. Allowed values are null,
-     * {@see ProcedureInterface::PARTICIPATIONSTATE_FINISHED} and
-     * {@see ProcedureInterface::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN}; the latter additionally
-     * requires the 'area_customer_procedure_phase_participation_token' permission.
-     */
-    private function resolveParticipationState(mixed $value): ?string
-    {
-        if (null === $value) {
-            return null;
-        }
-
-        if (ProcedureInterface::PARTICIPATIONSTATE_FINISHED === $value) {
-            return ProcedureInterface::PARTICIPATIONSTATE_FINISHED;
-        }
-
-        if (ProcedureInterface::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN === $value) {
-            $tokenPermission = 'area_customer_procedure_phase_participation_token';
-            if (!$this->currentUser->hasPermission($tokenPermission)) {
-                throw AccessDeniedException::missingPermissions(null, [$tokenPermission]);
-            }
-
-            return ProcedureInterface::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN;
-        }
-
-        throw new BadRequestException(sprintf('Invalid participationState; allowed values are null, "%s" or "%s".', ProcedureInterface::PARTICIPATIONSTATE_FINISHED, ProcedureInterface::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN));
-    }
-
-    /**
-     * Validates the requested permission set. Allowed values are
-     * {@see ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN},
-     * {@see ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_READ} and
-     * {@see ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_WRITE}.
-     */
-    private function resolvePermissionSet(mixed $value): string
-    {
-        $allowed = [
-            ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN,
-            ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_READ,
-            ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_WRITE,
-        ];
-
-        if (in_array($value, $allowed, true)) {
-            return $value;
-        }
-
-        throw new BadRequestException(sprintf('Invalid permissionSet; allowed values are "%s", "%s" or "%s".', ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN, ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_READ, ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_WRITE));
     }
 }
