@@ -118,13 +118,14 @@
         is-expandable
         is-selectable
         :items="items"
-        lock-checkbox-by="synchronized"
+        lock-checkbox-by="lockedForSelection"
+        lock-message-by="lockedForSelectionMessage"
         :multi-page-all-selected="allSelectedVisually"
         :multi-page-selection-items-total="allItemsCount"
         :multi-page-selection-items-toggled="toggledItems.length"
         :should-be-selected-items="currentlySelectedItems"
         track-by="id"
-        :translations="{ lockedForSelection: Translator.trans('item.lockedForSelection.sharedStatement') }"
+        :translations="{ lockedForSelection: Translator.trans('item.lockedForSelection') }"
         @select-all="handleSelectAll"
         @items-toggled="handleToggleItem"
       >
@@ -594,6 +595,10 @@ export default {
             assignee: this.getAssignee(statement),
             id: statement.id,
             segmentsCount: segmentsCount || '-',
+            // Lock selection for synchronized statements, statements already split into segments, and groups.
+            lockedForSelection: Boolean(statement.attributes.synchronized) || segmentsCount > 0 || Boolean(statement.attributes.isCluster),
+            // Per-row tooltip for the locked checkbox, specific to the reason the statement is locked.
+            lockedForSelectionMessage: this.getLockMessage(statement),
             originalPdf,
           }
         })
@@ -668,10 +673,10 @@ export default {
     handleBulkGroup () {
       this.storeToggledStatements()
       /*
-       * Mount the form after the selection is stored, so its onMounted reads the fresh
-       * localStorage data. Replaced by a redirect to the dedicated page once the route exists.
+       * Store the selection first, then navigate to the dedicated group-creation page,
+       * whose form reads the selection from localStorage on mount.
        */
-      this.showGroupForm = true
+      window.location.href = Routing.generate('dplan_procedure_statement_group_create', { procedureId: this.procedureId })
     },
 
     handleFullTextAction (statementId) {
@@ -933,6 +938,27 @@ export default {
               this.groupMemberCounts[head.id] = response.data.data.attributes.statementsCount
             })
         })
+    },
+
+    /**
+     * Returns the tooltip message for a locked checkbox, specific to why the statement cannot be selected.
+     */
+    getLockMessage (statement) {
+      const { isCluster, segmentsCount, synchronized } = statement.attributes
+
+      if (synchronized) {
+        return Translator.trans('item.lockedForSelection.sharedStatement')
+      }
+
+      if (isCluster) {
+        return Translator.trans('item.lockedForSelection.cluster')
+      }
+
+      if (segmentsCount > 0) {
+        return Translator.trans('item.lockedForSelection.segmented')
+      }
+
+      return ''
     },
 
     /**
