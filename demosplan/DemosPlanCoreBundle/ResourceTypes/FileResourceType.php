@@ -13,13 +13,17 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\IsFileAvailableEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\IsFileDirectlyAccessibleEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\FileResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\IsFileAvailableEvent;
 use demosplan\DemosPlanCoreBundle\Event\IsFileDirectlyAccessibleEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use EDT\PathBuilding\End;
 
 /**
@@ -31,9 +35,15 @@ use EDT\PathBuilding\End;
  * @property-read End $hash
  * @property-read End $created
  * @property-read End $mimetype
+ * @property-read ProcedureResourceType $procedure
  */
 final class FileResourceType extends DplanResourceType implements FileResourceTypeInterface
 {
+    public function __construct(
+        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
+    ) {
+    }
+
     public function getEntityClass(): string
     {
         return File::class;
@@ -65,13 +75,38 @@ final class FileResourceType extends DplanResourceType implements FileResourceTy
     }
 
     /**
-     * This method does not check for {@link File::$procedure}, because it depends on where
-     * the file is used if access should be restricted. Also note that this property is
-     * checked when the actual file bytes are requested.
+     * Accessible are files without procedure (global assets) or files of a procedure
+     * the user has access to. Scoping is required here because this resource type
+     * exposes the file hash, which grants access to the file bytes.
      */
     protected function getAccessConditions(): array
     {
-        return [$this->conditionFactory->propertyHasValue(false, $this->deleted)];
+        $procedureConditions = [$this->conditionFactory->propertyIsNull($this->procedure)];
+
+        $currentProcedure = $this->currentProcedureService->getProcedure();
+        $user = $this->currentUser->getUser();
+        if ($currentProcedure instanceof Procedure && $user instanceof User) {
+            // same procedure scope as statements: current procedure plus
+            // procedures configured for cross-procedure segment access
+            $configuredProcedures = array_filter(
+                $currentProcedure->getSettings()->getAllowedSegmentAccessProcedures()->getValues(),
+                static fn (ProcedureInterface $procedure): bool => $procedure instanceof Procedure
+            );
+            $allowedProcedureIds = $this->procedureAccessEvaluator->filterNonOwnedProcedureIds(
+                $user,
+                ...$configuredProcedures
+            );
+            $allowedProcedureIds[] = $currentProcedure->getId();
+            $procedureConditions[] = $this->conditionFactory->propertyHasAnyOfValues(
+                $allowedProcedureIds,
+                $this->procedure->id
+            );
+        }
+
+        return [
+            $this->conditionFactory->propertyHasValue(false, $this->deleted),
+            $this->conditionFactory->anyConditionApplies(...$procedureConditions),
+        ];
     }
 
     protected function isDirectlyAccessible(): bool
