@@ -62,15 +62,14 @@ class RecommendationVersion extends CoreEntity implements UuidEntityInterface, R
     /**
      * @var string
      */
-    #[ORM\Column(name: 'recommendation_text', type: 'text', nullable: false, length: 15000000)]
+    #[ORM\Column(name: 'recommendation_text', type: 'text', length: 15000000, nullable: false)]
     protected $recommendationText = '';
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: 'created_at', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createdAt;
 
     public function getId(): ?string

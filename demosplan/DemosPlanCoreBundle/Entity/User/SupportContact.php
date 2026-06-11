@@ -60,7 +60,7 @@ class SupportContact extends CoreEntity implements UuidEntityInterface, SupportC
         private ?string $title,
         #[Assert\NotBlank(allowNull: true)] #[ORM\Column(name: 'phone_number', type: 'string', length: 255, nullable: true)]
         private ?string $phoneNumber,
-        #[Assert\Email(mode: 'strict')] #[ORM\Column(type: 'string', length: 255, name: 'email_address', nullable: true)]
+        #[Assert\Email(mode: 'strict')] #[ORM\Column(name: 'email_address', type: 'string', length: 255, nullable: true)]
         private ?string $eMailAddress,
         #[ORM\Column(name: 'text', type: 'text', nullable: true)]
         private ?string $text,

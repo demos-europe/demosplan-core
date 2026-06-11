@@ -19,6 +19,7 @@ export default class TocStateMemorizer {
 
   saveState () {
     const state = JSON.parse(sessionStorage.getItem('tocStates'))
+
     state[this.procedureId][this.elementId] = this.active
     sessionStorage.setItem('tocStates', JSON.stringify(state))
   }
@@ -27,6 +28,7 @@ export default class TocStateMemorizer {
     const pid = this.procedureId
     const eid = this.elementId
     const state = JSON.parse(sessionStorage.getItem('tocStates'))
+
     if (!state || !state[pid]) {
       sessionStorage.setItem('tocStates', JSON.stringify({ [pid]: { [eid]: [] } }))
     } else {
@@ -37,11 +39,13 @@ export default class TocStateMemorizer {
         this.active = state[pid][eid]
       }
     }
+
     return this
   }
 
   restoreState () {
     this.active.forEach(i => this.toggleBtns[i].click())
+
     return this
   }
 
@@ -53,6 +57,7 @@ export default class TocStateMemorizer {
     } else {
       active.push(i)
     }
+
     return this
   }
 

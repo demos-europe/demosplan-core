@@ -635,37 +635,30 @@
 
                         {# set selected option #}
                         {% set procedurePhaseOptions = procedurePhaseOptions|merge([{
-                            label: statement.phase,
+                            label: statement.phaseDefinition.name,
                             value: '',
                             selected: true
                         }]) %}
 
-                        {% set procedurePhaseControlOptions = { name: 'r_phase', options: procedurePhaseOptions } %}
+                        {% set procedurePhaseControlOptions = { name: 'r_phaseDefinitionId', options: procedurePhaseOptions } %}
 
                     {% elseif manualStatement and not readonly %}
-                        {# set all options for optgroups only for edit-mode #}
+                        {# set all options for edit-mode #}
                         {% if statement.isSubmittedByCitizen == false %}
-                            {% set phases = templateVars.internalPhases|default %}
+                            {% set phaseDefinitions = templateVars.internalPhaseDefinitions|default %}
                         {% else %}
-                            {% set phases = templateVars.externalPhases|default %}
+                            {% set phaseDefinitions = templateVars.externalPhaseDefinitions|default %}
                         {% endif %}
 
-                        {% for phase in phases %}
-                            {% if phase.name == statement.phase %}
-                                {% set procedurePhaseOptions = procedurePhaseOptions|merge([{
-                                    label: phase.name,
-                                    value: phase.key,
-                                    selected: true
-                                }]) %}
-                            {% else %}
-                                {% set procedurePhaseOptions = procedurePhaseOptions|merge([{
-                                    label: phase.name,
-                                    value: phase.key
-                                }]) %}
-                            {% endif %}
+                        {% for phaseDefinition in phaseDefinitions %}
+                            {% set procedurePhaseOptions = procedurePhaseOptions|merge([{
+                                label: phaseDefinition.name,
+                                value: phaseDefinition.id,
+                                selected: phaseDefinition.id == statement.phaseDefinition.id
+                            }]) %}
                         {% endfor %}
 
-                        {% set procedurePhaseControlOptions = { name: 'r_phase', options: procedurePhaseOptions } %}
+                        {% set procedurePhaseControlOptions = { name: 'r_phaseDefinitionId', options: procedurePhaseOptions } %}
                     {% endif %}
                         {{ uiComponent('form.row', {
                             elements: [
@@ -706,6 +699,11 @@
                         {% set authoredDateValue = '' %}
                     {% endif %}
 
+                    {# cap authoredDate at submitDate (or today, whichever is earlier) #}
+                    {% set authoredMaxDate = 'now'|date('d.m.Y') %}
+                    {% if statement.submit > 0 and statement.submit < 'now'|date('U') %}
+                        {% set authoredMaxDate = statement.submit|dplanDate() %}
+                    {% endif %}
                     {% set authorDateRowElements = authorDateRowElements|merge([{
                         label: { text: 'statement.date.authored'|trans },
                         control: {
@@ -714,7 +712,7 @@
                             calendarsBefore: 2,
                             class: 'u-5-of-6 o-form__control-wrapper',
                             dataCy: 'statementDetail:authoredDate',
-                            maxDate: 'now'|date('d.m.Y')
+                            maxDate: authoredMaxDate
                         },
                         type: submitDateDisabled|default(false) ? 'text' : 'datepicker',
                         id: 'r_authored_date',
@@ -724,6 +722,11 @@
                     }]) %}
                 {% endif %}
 
+                {# pin submitDate to at least the authoredDate #}
+                {% set submittedMinDate = '' %}
+                {% if statement.meta.authoredDate is defined and statement.meta.authoredDate|dplanDate() != '' %}
+                    {% set submittedMinDate = statement.meta.authoredDate|dplanDate() %}
+                {% endif %}
                 {% set authorDateRowElements = authorDateRowElements|merge([{
                     label: { text: 'statement.date.submitted'|trans },
                     control: {
@@ -732,6 +735,7 @@
                         statement.submit|default()|dplanDate(),
                         calendarsBefore: 2,
                         maxDate: 'now'|date('d.m.Y'),
+                        minDate: submittedMinDate,
                         class: 'u-5-of-6 o-form__control-wrapper',
                         dataCy: 'statementDetail:submittedDate'
                     },

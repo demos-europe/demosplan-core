@@ -206,7 +206,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     public function isDeleteAllowed(): bool
     {
-        return $this->currentUser->hasPermission('area_admin_custom_fields');
+        return $this->currentUser->hasAnyPermissions('area_admin_custom_fields', 'feature_organisations_custom_fields');
     }
 
     public function isGetAllowed(): bool

@@ -48,6 +48,7 @@ initialize(components, stores, apiStores).then(() => {
   }
 
   const pdfExportButton = document.getElementById('pdfExportButton')
+
   if (pdfExportButton) {
     pdfExportButton.addEventListener('click', pdfExport)
   }
@@ -55,6 +56,7 @@ initialize(components, stores, apiStores).then(() => {
   const writeEmail = (e) => {
     e.preventDefault()
     const oldAction = document.procedureForm.action
+
     document.procedureForm.action = Routing.generate('DemosPlan_admin_member_email', { procedureId: dplan.procedureId })
 
     // Add hidden field to tell BE it is a 'writeEmail' action
@@ -69,6 +71,7 @@ initialize(components, stores, apiStores).then(() => {
   }
 
   const writeEmailButton = document.getElementById('writeEmailButton')
+
   if (writeEmailButton) {
     writeEmailButton.addEventListener('click', writeEmail)
   }
