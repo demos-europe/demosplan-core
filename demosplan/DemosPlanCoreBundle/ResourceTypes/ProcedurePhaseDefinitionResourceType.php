@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedurePhaseDefinitionRe
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
+use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\ProcedurePhaseDefinitionResourceConfigBuilder;
@@ -25,6 +26,7 @@ use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\CallbackAttributeSetBehavior;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @template-extends DplanResourceType<ProcedurePhaseDefinition>
@@ -33,6 +35,7 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
 {
     public function __construct(
         private readonly ProcedurePhaseDefinitionRepository $procedurePhaseDefinitionRepository,
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -89,7 +92,25 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
             ->setSortable()
             ->setFilterable()
             ->addPathCreationBehavior()
-            ->addPathUpdateBehavior();
+            ->addUpdateBehavior(
+                CallbackAttributeSetBehavior::createFactory(
+                    [],
+                    function (ProcedurePhaseDefinition $phaseDefinition, string $newName): array {
+                        $violations = $this->validator->validatePropertyValue(
+                            ProcedurePhaseDefinition::class,
+                            'name',
+                            $newName
+                        );
+                        if (0 < $violations->count()) {
+                            throw ViolationsException::fromConstraintViolationList($violations);
+                        }
+                        $phaseDefinition->setName($newName);
+
+                        return [];
+                    },
+                    OptionalField::YES
+                )
+            );
 
         $configBuilder->audience
             ->setReadableByPath(DefaultField::YES)

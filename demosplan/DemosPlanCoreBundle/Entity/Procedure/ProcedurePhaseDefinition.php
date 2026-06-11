@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Stores a customer-specific procedure phase definition (Verfahrensschritt).
@@ -41,6 +42,7 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
     /**
      * The display name of this procedure phase definition.
      */
+    #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
     #[ORM\Column(type: 'string', length: 255, nullable: false)]
     protected string $name = '';
 
