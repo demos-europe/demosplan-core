@@ -271,16 +271,16 @@ export default {
 
     async fetchSegments (page = 1) {
       const statementSegmentFields = [
-        'tags',
-        'text',
         'assignee',
-        'place',
         'comments',
         'externId',
         'internId',
         'orderInProcedure',
+        'place',
         'polygon',
         'recommendation',
+        'tags',
+        'text'
       ]
 
       const statementSegmentInclude = [
@@ -291,6 +291,10 @@ export default {
         'place',
         'tags',
       ]
+
+      if (hasPermission('field_statement_deadline')) {
+        statementSegmentFields.push('deadline')
+      }
 
       if (hasPermission('feature_enable_recommendation_versions')) {
         statementSegmentInclude.push('recommendationVersions')

@@ -121,7 +121,7 @@
       <button
         v-if="!isCollapsed.placesAndAssignee"
         data-cy="sidebar:toggleVisibility:placesAndAssignee"
-        class="relative btn--blank o-link--default font-semibold text-left w-full"
+        class="relative btn--blank o-link--default text-left w-full"
         @click="toggleVisibility('placesAndAssignee')"
       >
         {{ Translator.trans('workflow.place.and.assignment') }}
@@ -174,6 +174,43 @@
       </div>
     </div>
 
+    <!-- Additional Fields Section -->
+    <div
+      aria-labelledby="floatingContextButton_additionalFields"
+      class="relative py-1 pl-2 pr-5 -mr-4"
+      @mouseover="showFloatingContextButton.additionalFields = true"
+      @mouseleave="showFloatingContextButton.additionalFields = false"
+    >
+      <FloatingContextButton
+        class="right-0 top-0"
+        section="additionalFields"
+        :is-visible="showFloatingContextButton.additionalFields"
+        :is-content-collapsed="isCollapsed.additionalFields"
+        @toggle-content-visibility="toggleVisibility"
+        @show="showFloatingContextButton.additionalFields = true"
+        @hide="showFloatingContextButton.additionalFields = false"
+      />
+      <button
+        v-if="!isCollapsed.additionalFields"
+        data-cy="sidebar:toggleVisibility:placesAndAssignee"
+        class="relative btn--blank o-link--default text-left w-full"
+        @click="toggleVisibility"
+      >
+        {{ Translator.trans('fields.more.edit') }}
+      </button>
+      <div v-else>
+        <dp-datepicker
+          id="deadline"
+          v-model="deadline"
+          class="mt-1"
+          data-cy="selectedDeadline"
+          :label="{
+             text: Translator.trans('deadline.processing.until')
+          }"
+        />
+      </div>
+    </div>
+
     <dp-button-row
       class="p-2"
       data-cy="assignedTags"
@@ -191,6 +228,7 @@
 import {
   DpButtonRow,
   DpContextualHelp,
+  DpDatepicker,
   DpLabel,
   DpMultiselect,
   hasOwnProp,
@@ -211,6 +249,7 @@ export default {
     DpButtonRow,
     DpCreateTag,
     DpContextualHelp,
+    DpDatepicker,
     DpLabel,
     DpMultiselect,
     FloatingContextButton,
@@ -237,9 +276,11 @@ export default {
 
   data () {
     return {
+      deadline: '',
       isCollapsed: {
         tags: true,
         placesAndAssignee: false,
+        additionalFields: false,
       },
       selectedAssignee: null,
       selectedPlace: null,
@@ -247,6 +288,7 @@ export default {
       showFloatingContextButton: {
         tags: false,
         placesAndAssignee: false,
+        additionalFields: false,
       },
     }
   },
@@ -278,6 +320,10 @@ export default {
       return null
     },
 
+    deadlineNeedsUpdate () {
+      return this.deadline !== this.initialDeadline
+    },
+
     initialAssignee () {
       if (this.currentSegment && hasOwnProp(this.currentSegment, 'assigneeId')) {
         return this.getAssignableUserById(this.currentSegment.assigneeId)
@@ -286,6 +332,12 @@ export default {
       const noAssignee = this.getAssignableUserById('noAssigneeId')
 
       return noAssignee || null
+    },
+
+    initialDeadline () {
+      return this.currentSegment && hasOwnProp(this.currentSegment, 'deadline')
+        ? this.currentSegment.deadline
+        : ''
     },
 
     initialPlace () {
@@ -297,7 +349,9 @@ export default {
     },
 
     needsUpdate () {
-      return this.assigneeNeedsUpdate || this.placeNeedsUpdate
+      return this.assigneeNeedsUpdate ||
+        this.placeNeedsUpdate ||
+        this.deadlineNeedsUpdate
     },
 
     placeNeedsUpdate () {
@@ -377,6 +431,7 @@ export default {
     },
 
     setInitialValues () {
+      this.deadline = this.initialDeadline
       this.selectedAssignee = this.initialAssignee
       this.selectedPlace = this.initialPlace || this.availablePlaces[0]
     },
@@ -390,6 +445,10 @@ export default {
         } else {
           segment.assigneeId = this.selectedAssignee.id
         }
+      }
+
+      if (this.deadlineNeedsUpdate) {
+        segment.deadline = this.deadline
       }
 
       if (this.placeNeedsUpdate) {

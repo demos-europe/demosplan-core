@@ -57,6 +57,21 @@
           />
         </action-stepper-action>
 
+        <!-- Add deadline -->
+        <action-stepper-action
+          v-if="hasPermission('field_statement_deadline')"
+          id="addDeadlineAction"
+          v-model="actions.addDeadline.checked"
+          :label="Translator.trans('segments.bulk.edit.deadline.description')"
+        >
+          <dp-datepicker
+            id="deadline"
+            v-model="actions.addDeadline.value"
+            class="w-9"
+            data-cy="deadline"
+          />
+        </action-stepper-action>
+
         <!-- Add tags -->
         <action-stepper-action
           id="selectAddTagsAction"
@@ -237,6 +252,14 @@
         </div>
 
         <div
+          v-if="hasPermission('field_statement_deadline') && addDeadlineCheckedAndSelected"
+          class="py-4"
+        >
+          <p v-html="Translator.trans('segments.bulk.edit.deadline.assigned.description', { count: segments.length })" />
+          <p v-cleanhtml="actions.addDeadline.value" />
+        </div>
+
+        <div
           v-if="addTagsCheckedAndSelected"
           class="py-4"
         >
@@ -292,6 +315,18 @@
         />
       </action-stepper-response>
 
+     <action-stepper-response
+        v-if="hasPermission('field_statement_deadline') && addDeadlineCheckedAndSelected"
+        :success="actions.addDeadline.success"
+        :description-error="Translator.trans('segments.bulk.edit.deadline.assigned.error', { count: segments.length })"
+        :description-success="Translator.trans('segments.bulk.edit.deadline.assigned.success', { count: segments.length })"
+      >
+         <p
+           v-cleanhtml="actions.addDeadline.value"
+           class="mt-2"
+         />
+      </action-stepper-response>
+
       <action-stepper-response
         v-if="addTagsCheckedAndSelected"
         :success="actions.addTags.success"
@@ -339,12 +374,14 @@
 import {
   CleanHtml,
   dpApi,
+  DpDatepicker,
   DpMultiselect,
   DpRadio,
   dpRpc,
   DpTooltip,
   hasOwnProp,
   prefixClassMixin,
+  reformatDate,
 } from '@demos-europe/demosplan-ui'
 import { defineAsyncComponent } from 'vue'
 import { mapActions, mapState } from 'vuex'
@@ -365,6 +402,7 @@ export default {
     ActionStepperAction,
     ActionStepperResponse,
     DpBoilerPlateModal,
+    DpDatepicker,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
 
@@ -404,6 +442,11 @@ export default {
   data () {
     return {
       actions: {
+        addDeadline: {
+          value: '',
+          checked: false,
+          success: false,
+        },
         addRecommendations: {
           text: '',
           checked: false,
@@ -455,6 +498,10 @@ export default {
     ...mapState('TagTopic', {
       tagTopicsItems: 'items',
     }),
+
+    addDeadlineCheckedAndSelected () {
+      return this.actions.addDeadline.checked && this.actions.addDeadline.value
+    },
 
     addOrReplaceRecommendationMessage () {
       if (this.actions.addRecommendations.isTextAttached) {
@@ -541,6 +588,7 @@ export default {
     },
 
     hasActions () {
+      const addDeadline = this.actions.addDeadline.checked && this.actions.addDeadline.value !== ''
       const addRecommendationAction = this.actions.addRecommendations.checked && this.actions.addRecommendations.text
       const addTagsAction = this.actions.addTags.checked && this.actions.addTags.selected.length > 0
       const assignPlaceAction = this.actions.assignPlace.checked && Object.values(this.actions.assignPlace.selected).length > 0
@@ -548,7 +596,7 @@ export default {
       const deleteTagsAction = this.actions.deleteTags.checked && this.actions.deleteTags.selected.length > 0
       const customFieldsAction = this.customFieldsCheckedAndSelected.length > 0
 
-      return addRecommendationAction || addTagsAction || assignPlaceAction || assignSegmentAction || deleteTagsAction || customFieldsAction
+      return addDeadline || addRecommendationAction || addTagsAction || assignPlaceAction || assignSegmentAction || deleteTagsAction || customFieldsAction
     },
 
     hasPlaces () {
@@ -633,6 +681,10 @@ export default {
 
       if (this.assignPlaceCheckedAndSelected) {
         params.placeId = this.actions.assignPlace.selected.id
+      }
+
+      if (this.actions.addDeadline.checked && this.actions.addDeadline.value) {
+        params.deadline = reformatDate(this.actions.addDeadline.value, 'DD.MM.YYYY', 'YYYY-MM-DD')
       }
 
       dpRpc('segment.bulk.edit', params)

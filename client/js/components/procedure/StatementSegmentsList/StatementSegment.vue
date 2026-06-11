@@ -194,14 +194,14 @@
       </div>
       <div v-if="isAssignedToMe">
         <dp-checkbox
-          :id="'showWorkflowActions_' + segment.id"
-          v-model="showWorkflowActions"
+          :id="'showWorkflowFields_' + segment.id"
+          v-model="showWorkflowFields"
           :label="{
-            text: displayEditableFieldsLabel
+            text: Translator.trans('workflow.change.assignee.place')
           }"
         />
         <div
-          v-if="showWorkflowActions"
+          v-if="showWorkflowFields"
           class="my-2"
         >
           <dp-label
@@ -267,6 +267,31 @@
               </div>
             </template>
           </dp-multiselect>
+        </div>
+
+        <dp-checkbox
+          v-if="hasPermission('field_segments_custom_fields') || hasPermission('field_statement_deadline')"
+          v-model="showAdditionalFields"
+          :id="`showAdditionalFields_${segment.id}`"
+          :label="{
+            text: Translator.trans('fields.more.edit')
+          }"
+        />
+        <div
+          v-if="showAdditionalFields"
+          class="my-2"
+        >
+          <dp-datepicker
+            :id="`deadline_${segment.id}`"
+            class="mt-2"
+            data-cy="statementSegment:deadline"
+            :label="{
+              text: Translator.trans('deadline.processing.until')
+            }"
+            :value="formattedDeadline"
+            @input="value => handleDeadlineUpdate(value)"
+          />
+
           <custom-fields-list
             v-if="hasPermission('field_segments_custom_fields')"
             v-slot:default="{ fieldsWithDefinitions }"
@@ -304,7 +329,7 @@
         </div>
       </div>
       <dp-button-row
-        v-if="isAssignedToMe && (isEditing || showWorkflowActions)"
+        v-if="isAssignedToMe && (isEditing || showWorkflowFields || showAdditionalFields)"
         align="left"
         class="mt-3"
         primary
@@ -426,10 +451,13 @@ import {
   DpButtonRow,
   DpCheckbox,
   DpContextualHelp,
+  DpDatepicker,
   DpIcon,
   DpLabel,
   DpMultiselect,
+  formatDate,
   prefixClassMixin,
+  reformatDate,
   Tooltip,
   VPopover,
 } from '@demos-europe/demosplan-ui'
@@ -458,6 +486,7 @@ export default {
     DpCheckbox,
     DpContextualHelp,
     DpClaim,
+    DpDatepicker,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
 
@@ -536,7 +565,8 @@ export default {
       isHover: false,
       selectedAssignee: {},
       selectedPlace: { id: '', type: 'Place' },
-      showWorkflowActions: false,
+      showAdditionalFields: false,
+      showWorkflowFields: true,
     }
   },
 
@@ -590,8 +620,10 @@ export default {
       return this.segment.relationships.comments?.data?.length || 0
     },
 
-    displayEditableFieldsLabel () {
-      return Translator.trans(hasPermission('field_segments_custom_fields') ? 'fields.more.edit' : 'workflow.change.assignee.place')
+    formattedDeadline () {
+      const deadline = this.segment?.attributes?.deadline
+
+      return deadline ? formatDate(deadline) : ''
     },
 
     /**
@@ -698,7 +730,21 @@ export default {
       this.isFullscreen = false
       this.isEditing = false
 
-      this.toggleAssignableUsersSelect()
+      this.hideAdditionalFields()
+    },
+
+    addRecommendationImageListeners () {
+      this.$nextTick(() => {
+        const container = this.$refs.recommendationContainer
+
+        if (!container) {
+          return
+        }
+
+        this.$refs.imageModal.addClickListener(
+          container.querySelectorAll('img'),
+        )
+      })
     },
 
     checkIfToolIsActive (tool) {
@@ -778,51 +824,55 @@ export default {
     },
 
     fetchUpdatedSegment () {
-      if (!hasPermission('feature_enable_recommendation_versions')) {
-        return Promise.resolve()
-      }
+      const hasRecommendationVersions = hasPermission('feature_enable_recommendation_versions')
+      const hasDeadline = hasPermission('field_statement_deadline')
 
       const include = [
-        'recommendationVersions',
         'assignee',
         'comments',
         'comments.place',
         'comments.submitter',
         'place',
         'tags',
+        ...(hasRecommendationVersions ? ['recommendationVersions'] : []),
       ]
 
       const statementSegmentFields = [
-        'tags',
-        'text',
         'assignee',
-        'place',
         'comments',
         'externId',
         'internId',
         'orderInProcedure',
+        'place',
         'polygon',
         'recommendation',
-        'recommendationVersions',
+        'tags',
+        'text',
+        ...(hasRecommendationVersions ? ['recommendationVersions'] : []),
+        ...(hasDeadline ? ['deadline'] : []),
       ]
 
-      return this.getStatementSegmentAction({
-        id: this.segment.id,
-        include: include.join(','),
-        fields: {
-          StatementSegment: statementSegmentFields.join(','),
-          SegmentComment: [
-            'creationDate',
-            'text',
-            'submitter',
-            'place',
-          ].join(','),
+      const fields = {
+        SegmentComment: [
+          'creationDate',
+          'place',
+          'submitter',
+          'text',
+        ].join(','),
+        StatementSegment: statementSegmentFields.join(','),
+        ...(hasRecommendationVersions && {
           RecommendationVersion: [
             'versionNumber',
             'recommendationText',
             'createdAt',
           ].join(','),
-        },
+        }),
+      }
+
+      return this.getStatementSegmentAction({
+        id: this.segment.id,
+        include: include.join(','),
+        fields,
       })
     },
 
@@ -830,6 +880,42 @@ export default {
       this.restoreComments(comments)
       this.setProperty({ prop: 'isLoading', val: false })
       this.isEditing = false
+    },
+
+    handleDeadlineUpdate (value) {
+      if (!value) {
+        this.updateSegment('deadline', '')
+
+        return
+      }
+
+      const isoDate = reformatDate(value, 'DD.MM.YYYY', 'YYYY-MM-DD')
+      this.updateSegment('deadline', isoDate)
+    },
+
+    handleSuccessfulSave (comments) {
+      return Promise.all([
+        this.fetchUpdatedSegment().catch((err) => {
+          console.error('Failed to fetch updated segment:', err)
+
+          return null
+        }),
+
+        this.saveCustomFields(),
+      ])
+        .then(() => {
+          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+          this.isFullscreen = false
+          this.hideAdditionalFields()
+          this.addRecommendationImageListeners()
+        })
+        .catch((err) => {
+          console.error('Save failed:', err)
+          dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
+        })
+        .finally(() => {
+          this.finalizeSave(comments)
+        })
     },
 
     hasPolygonFeatures () {
@@ -1001,37 +1087,15 @@ export default {
       this.excludeRecommendationVersion(relations)
 
       return this.saveSegmentAction({ id: this.segment.id })
-        .then(() => {
-          return Promise.all([
-            this.fetchUpdatedSegment().catch((err) => {
-              console.error('Failed to fetch updated segment:', err)
+        .then((response) => {
+          if (response && (response.status >= 400 || response.ok === false)) {
+            dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
+            this.finalizeSave(comments)
 
-              return null
-            }),
-            this.saveCustomFields(),
-          ])
-        })
-        .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+            return
+          }
 
-          this.isFullscreen = false
-
-          this.toggleAssignableUsersSelect()
-
-          this.$nextTick(() => {
-            if (this.$refs.recommendationContainer) {
-              this.$refs.imageModal.addClickListener(
-                this.$refs.recommendationContainer.querySelectorAll('img'),
-              )
-            }
-          })
-        })
-        .catch((err) => {
-          console.error('Save failed:', err)
-          dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
-        })
-        .finally(() => {
-          this.finalizeSave(comments)
+          return this.handleSuccessfulSave(comments)
         })
     },
 
@@ -1104,9 +1168,9 @@ export default {
       this.isCollapsed = false
     },
 
-    toggleAssignableUsersSelect () {
-      if (this.showWorkflowActions === true) {
-        this.showWorkflowActions = false
+    hideAdditionalFields () {
+      if (this.showAdditionalFields === true) {
+        this.showAdditionalFields = false
       }
     },
 
@@ -1168,7 +1232,7 @@ export default {
     updateRelationships () {
       let relations = { ...this.segment.relationships }
 
-      if (this.showWorkflowActions) {
+      if (this.showWorkflowFields) {
         let assignee = { assignee: { data: null } }
 
         if (this.selectedAssignee && this.selectedAssignee.id !== 'noAssigneeId') {
