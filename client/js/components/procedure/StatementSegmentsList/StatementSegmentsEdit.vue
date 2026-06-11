@@ -38,7 +38,31 @@
         class="px-1 hover:bg-interactive-secondary-subtle-hover"
       >
         <div class="inline-block w-[5%]">
+          <template v-if="isSegmentLocked(segment)">
+            <dp-button
+              v-if="hasPermission('feature_administrate_segment_lock')"
+              :text="lockTooltip"
+              class="text-interactive inline-block ml-0.5 align-middle bg-transparent! border-transparent! hover:bg-interactive-subtle-hover!"
+              icon="prohibit"
+              icon-weight="fill"
+              variant="subtle"
+              hide-text
+              @click="openUnlockModal(segment)"
+            />
+            <dp-tooltip
+              v-else
+              :text="lockTooltip"
+            >
+              <dp-icon
+                class="text-interactive inline-block ml-1"
+                icon="prohibit"
+                size="small"
+                weight="fill"
+              />
+            </dp-tooltip>
+          </template>
           <dp-claim
+            v-else
             class="c-at-item__row-icon inline-block"
             :assigned-id="assigneeBySegment(segment.id).id"
             :assigned-name="assigneeBySegment(segment.id).name"
@@ -137,6 +161,13 @@
         <div v-cleanhtml="statement.attributes.fullText || ''" />
       </div>
     </template>
+    <segment-unlock-modal
+      v-if="hasPermission('feature_administrate_segment_lock')"
+      ref="unlockModal"
+      :assignable-users="assignableUsers"
+      :places="places"
+      @unlock="payload => unlockSegment(payload, () => fetchSegments(pagination?.currentPage || 1))"
+    />
   </div>
 </template>
 
@@ -144,10 +175,13 @@
 import {
   CleanHtml,
   dpApi,
+  DpButton,
   DpButtonRow,
+  DpIcon,
   DpInlineNotification,
   DpLoading,
   DpPager,
+  DpTooltip,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
@@ -157,22 +191,28 @@ import DpEditField from '@DpJs/components/statement/assessmentTable/DpEditField'
 import { handleSegmentNavigation } from '@DpJs/lib/segment/handleSegmentNavigation'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import { scrollTo } from 'vue-scrollto'
+import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
 
 export default {
   name: 'StatementSegmentsEdit',
 
   components: {
+    DpButton,
     DpButtonRow,
     DpClaim,
     DpEditField,
+    DpIcon,
     DpLoading,
     DpPager,
+    DpTooltip,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
       return DpEditor
     }),
     DpInlineNotification,
+    SegmentUnlockModal,
     TextContentRenderer,
   },
 
@@ -211,6 +251,12 @@ export default {
     'statementText:updated',
   ],
 
+  setup () {
+    const { unlockModal, openUnlockModal, unlockSegment } = useSegmentUnlock()
+
+    return { unlockModal, openUnlockModal, unlockSegment }
+  },
+
   data () {
     return {
       claimLoading: null,
@@ -235,6 +281,23 @@ export default {
     ...mapState('Statement', {
       statements: 'items',
     }),
+
+    ...mapState('Place', {
+      placeItems: 'items',
+    }),
+
+    ...mapState('AssignableUser', {
+      assignableUsersObject: 'items',
+    }),
+
+    assignableUsers () {
+      const users = Object.values(this.assignableUsersObject).map(user => ({
+        name: user.attributes.firstname + ' ' + user.attributes.lastname,
+        id: user.id,
+      }))
+
+      return [{ name: Translator.trans('not.assigned'), id: 'noAssigneeId' }, ...users]
+    },
 
     assigneeBySegment () {
       return segmentId => {
@@ -264,9 +327,24 @@ export default {
       return Object.keys(this.segments).length > 0 && hasPermission('area_statement_segmentation')
     },
 
+    lockTooltip () {
+      return hasPermission('feature_administrate_segment_lock') ?
+        Translator.trans('segment.unlock.click.hint') :
+        Translator.trans('segment.lock.hint')
+    },
+
+    places () {
+      return Object.values(this.placeItems).map(place => ({
+        name: place.attributes.name,
+        id: place.id,
+        locked: place.attributes.locked,
+      }))
+    },
+
     statement () {
       return this.statements[this.statementId] || null
     },
+
   },
 
   methods: {
@@ -284,6 +362,14 @@ export default {
 
     ...mapActions('Statement', {
       restoreStatementAction: 'restoreFromInitial',
+    }),
+
+    ...mapActions('AssignableUser', {
+      fetchAssignableUsers: 'list',
+    }),
+
+    ...mapActions('Place', {
+      fetchPlaces: 'list',
     }),
 
     ...mapMutations('Statement', {
@@ -354,7 +440,21 @@ export default {
     },
 
     isAssigneeEditable (segment) {
+      if (this.isSegmentLocked(segment)) {
+        return false
+      }
+
       return segment?.relationships?.assignee?.data?.id === this.currentUser.id
+    },
+
+    isSegmentLocked (segment) {
+      if (!hasPermission('feature_segment_lock_by_workflow_place')) {
+        return false
+      }
+
+      const placeId = segment?.relationships?.place?.data?.id
+
+      return !!this.placeItems[placeId]?.attributes?.locked
     },
 
     reset (segmentId) {
@@ -545,7 +645,11 @@ export default {
         include: ['assignee', 'comments', 'place', 'tags', 'assignee.orga', 'comments.submitter', 'comments.place'].join(),
         sort: 'orderInProcedure',
         fields: {
-          Place: ['name', 'sortIndex'].join(),
+          Place: [
+            'name',
+            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+            'sortIndex',
+          ].join(),
           SegmentComment: ['creationDate', 'place', 'submitter', 'text'].join(),
           StatementSegment: statementSegmentFields.join(),
           User: ['lastname', 'firstname', 'orga'].join(),
@@ -629,6 +733,23 @@ export default {
        * default to 1st page
        */
       this.fetchSegments(this.pagination?.currentPage || 1)
+
+      // Assignable users and places are needed to populate the unlock modal
+      if (hasPermission('feature_administrate_segment_lock')) {
+        this.fetchAssignableUsers()
+        this.fetchPlaces({
+          fields: {
+            Place: [
+              'description',
+              ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+              'name',
+              'solved',
+              'sortIndex',
+            ].join(),
+          },
+          sort: 'sortIndex',
+        })
+      }
     }
   },
 
