@@ -900,7 +900,23 @@ export default {
             }) :
             Promise.resolve()
 
-          return saveCustomFields
+          /*
+           * Clearing the assignee ("nicht zugewiesen") is sent as a separate explicit PATCH for the
+           * same reason: the vuex-json-api diff drops a to-one relationship set to `{ data: null }`
+           * (it diffs against a stale `initial` baseline that setSegment never updates), so an unassign
+           * would be silently omitted from saveSegmentAction's request body. Mirrors the explicit
+           * payload already used by claimSegment()/unclaimSegment().
+           */
+          const isUnassigning = !this.selectedAssignee?.id || this.selectedAssignee.id === 'noAssigneeId'
+          const clearAssignee = isUnassigning ?
+            dpApi.patch(
+              Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }),
+              {},
+              { data: { type: 'StatementSegment', id: this.segment.id, relationships: { assignee: { data: null } } } },
+            ) :
+            Promise.resolve()
+
+          return Promise.all([saveCustomFields, clearAssignee])
             .then(() => {
               dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
               this.isFullscreen = false
