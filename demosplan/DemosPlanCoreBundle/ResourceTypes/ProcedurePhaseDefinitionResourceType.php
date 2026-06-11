@@ -14,15 +14,12 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedurePhaseDefinitionResourceTypeInterface;
-use DemosEurope\DemosplanAddon\Exception\JsonException;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
-use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedurePhaseDefinitionReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionEditor;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedurePhaseDefinitionUpdatableField;
-use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\ProcedurePhaseDefinitionResourceConfigBuilder;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
@@ -39,8 +36,7 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
 {
     public function __construct(
         private readonly ProcedurePhaseDefinitionRepository $procedurePhaseDefinitionRepository,
-        private readonly ProcedurePhaseDefinitionReportEntryFactory $procedurePhaseDefinitionReportEntryFactory,
-        private readonly ReportService $reportService,
+        private readonly ProcedurePhaseDefinitionEditor $procedurePhaseDefinitionEditor,
     ) {
     }
 
@@ -107,7 +103,7 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
                     function (ProcedurePhaseDefinition $procedurePhaseDefinition, string $newName): array {
                         $oldName = $procedurePhaseDefinition->getName();
                         $procedurePhaseDefinition->setName($newName);
-                        $this->addReportEntryUpdate(
+                        $this->procedurePhaseDefinitionEditor->addReportEntryUpdate(
                             $procedurePhaseDefinition,
                             ProcedurePhaseDefinitionUpdatableField::NAME,
                             $oldName,
@@ -138,10 +134,10 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
                 CallbackAttributeSetBehavior::createFactory(
                     [],
                     function (ProcedurePhaseDefinition $procedurePhaseDefinition, string $newPermissionSet): array {
-                        $this->guardConfigurationPhaseNotEditable($procedurePhaseDefinition);
+                        $this->procedurePhaseDefinitionEditor->guardConfigurationPhaseNotEditable($procedurePhaseDefinition);
                         $oldPermissionSet = $procedurePhaseDefinition->getPermissionSet();
                         $procedurePhaseDefinition->setPermissionSet($newPermissionSet);
-                        $this->addReportEntryUpdate(
+                        $this->procedurePhaseDefinitionEditor->addReportEntryUpdate(
                             $procedurePhaseDefinition,
                             ProcedurePhaseDefinitionUpdatableField::PERMISSION_SET,
                             $oldPermissionSet,
@@ -162,7 +158,7 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
                 CallbackAttributeSetBehavior::createFactory(
                     [],
                     function (ProcedurePhaseDefinition $procedurePhaseDefinition, ?string $newParticipationState): array {
-                        $this->guardConfigurationPhaseNotEditable($procedurePhaseDefinition);
+                        $this->procedurePhaseDefinitionEditor->guardConfigurationPhaseNotEditable($procedurePhaseDefinition);
                         if (ProcedureInterface::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN === $newParticipationState) {
                             $tokenPermission = 'area_customer_procedure_phase_participation_token';
                             if (!$this->currentUser->hasPermission($tokenPermission)) {
@@ -171,7 +167,7 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
                         }
                         $oldParticipationState = $procedurePhaseDefinition->getParticipationState();
                         $procedurePhaseDefinition->setParticipationState($newParticipationState);
-                        $this->addReportEntryUpdate(
+                        $this->procedurePhaseDefinitionEditor->addReportEntryUpdate(
                             $procedurePhaseDefinition,
                             ProcedurePhaseDefinitionUpdatableField::PARTICIPANT_STATE,
                             $oldParticipationState,
@@ -220,33 +216,4 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
         return $configBuilder;
     }
 
-    /**
-     * Rejects any attempt to set a field that is fixed for the configuration phase.
-     */
-    private function guardConfigurationPhaseNotEditable(ProcedurePhaseDefinition $phaseDefinition): void
-    {
-        if ($phaseDefinition->isConfigurationPhase()) {
-            throw new BadRequestException('Only the name of the configuration phase can be changed; permissionSet and participationState are fixed.');
-        }
-    }
-
-    /**
-     * @throws JsonException
-     */
-    private function addReportEntryUpdate(
-        ProcedurePhaseDefinition $procedurePhaseDefinition,
-        ProcedurePhaseDefinitionUpdatableField $field,
-        mixed $oldValue,
-        mixed $newValue,
-    ): void {
-        if ($oldValue !== $newValue) {
-            $reportEntry = $this->procedurePhaseDefinitionReportEntryFactory->createProcedurePhaseDefinitionUpdateEntry(
-                $procedurePhaseDefinition,
-                $field,
-                $oldValue,
-                $newValue,
-            );
-            $this->reportService->persistAndFlushReportEntry($reportEntry);
-        }
-    }
 }
