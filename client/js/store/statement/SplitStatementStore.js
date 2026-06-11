@@ -329,29 +329,35 @@ const SplitStatementStore = {
     },
 
     fetchStatement ({ state, commit }) {
+      const statementFields = [
+          'authoredDate',
+          'authorName',
+          'fullText',
+          'isSubmittedByCitizen',
+          'initialOrganisationCity',
+          'initialOrganisationDepartmentName',
+          'initialOrganisationHouseNumber',
+          'initialOrganisationName',
+          'initialOrganisationPostalCode',
+          'initialOrganisationStreet',
+          'internId',
+          'isManual',
+          'memo',
+          'segmentDraftList',
+          'submitDate',
+          'submitName',
+          'submitType',
+      ]
+
+      if (hasPermission('field_statement_deadline')) {
+        statementFields.push('deadline')
+      }
+
       return dpApi.get(Routing.generate('api_resource_get', {
         resourceType: 'Statement',
         resourceId: state.statementId,
         fields: {
-          Statement: [
-            'authoredDate',
-            'authorName',
-            'fullText',
-            'isSubmittedByCitizen',
-            'initialOrganisationCity',
-            'initialOrganisationDepartmentName',
-            'initialOrganisationHouseNumber',
-            'initialOrganisationName',
-            'initialOrganisationPostalCode',
-            'initialOrganisationStreet',
-            'internId',
-            'isManual',
-            'memo',
-            'segmentDraftList',
-            'submitDate',
-            'submitName',
-            'submitType',
-          ].join(),
+          Statement: statementFields.join(),
         },
       }))
         .then(response => {

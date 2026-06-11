@@ -176,6 +176,7 @@
 
     <!-- Additional Fields Section -->
     <div
+      v-if="showAdditionalFields"
       aria-labelledby="floatingContextButton_additionalFields"
       class="relative py-1 pl-2 pr-5 -mr-4"
       @mouseover="showFloatingContextButton.additionalFields = true"
@@ -192,7 +193,7 @@
       />
       <button
         v-if="!isCollapsed.additionalFields"
-        data-cy="sidebar:toggleVisibility:placesAndAssignee"
+        data-cy="sidebar:toggleVisibility:additionalFields"
         class="relative btn--blank o-link--default text-left w-full"
         @click="toggleVisibility"
       >
@@ -231,7 +232,9 @@ import {
   DpDatepicker,
   DpLabel,
   DpMultiselect,
+  formatDate,
   hasOwnProp,
+  reformatDate,
   Tooltip,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
@@ -335,9 +338,9 @@ export default {
     },
 
     initialDeadline () {
-      return this.currentSegment && hasOwnProp(this.currentSegment, 'deadline') ?
-        this.currentSegment.deadline :
-        ''
+      const deadline = this.currentSegment?.deadline ?? ''
+
+      return formatDate(deadline)
     },
 
     initialPlace () {
@@ -360,6 +363,12 @@ export default {
       return !hasPlace ||
           this.selectedPlace.id !== this.initialPlace.id ||
           this.editingSegment === null
+    },
+
+    showAdditionalFields () {
+      const hasDeadline = hasPermission('field_statement_deadline')
+
+      return hasDeadline
     },
 
     searchableTags () {
@@ -447,8 +456,8 @@ export default {
         }
       }
 
-      if (this.deadlineNeedsUpdate) {
-        segment.deadline = this.deadline
+      if (hasPermission('field_statement_deadline') && this.deadlineNeedsUpdate) {
+        segment.deadline = this.deadline ? reformatDate(this.deadline, 'DD.MM.YYYY', 'YYYY-MM-DD') : ''
       }
 
       if (this.placeNeedsUpdate) {
