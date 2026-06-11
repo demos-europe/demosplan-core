@@ -172,6 +172,7 @@ export default {
     DpPager,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
+
       return DpEditor
     }),
     DpInlineNotification,
@@ -308,6 +309,7 @@ export default {
 
     claimSegment (segment) {
       const dataToUpdate = { ...segment, ...{ relationships: { ...segment.relationships, ...{ assignee: { data: { type: 'AssignableUser', id: this.currentUser.id } } } } } }
+
       this.setSegment({ ...dataToUpdate, id: segment.id })
 
       const payload = {
@@ -398,6 +400,7 @@ export default {
           text: textToSave,
         },
       }
+
       this.setSegment({ ...updated, id: segmentId })
 
       this.saveSegmentAction(segmentId)
@@ -475,9 +478,11 @@ export default {
           },
         },
       }
+
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: segment.id }), {}, payload)
         .then(() => {
           const dataToUpdate = JSON.parse(JSON.stringify(segment))
+
           delete dataToUpdate.relationships.assignee
           // Set segment in store without the assignee
           this.setSegment({ ...dataToUpdate, id: segment.id })
@@ -596,8 +601,10 @@ export default {
         // Prevent division by zero or negative page size
         return
       }
+
       // Compute new page with current page for changed number of items per page
       const page = Math.floor((this.pagination?.perPage * (this.pagination?.currentPage - 1) / newSize) + 1)
+
       this.pagination.perPage = newSize
       this.fetchSegments(page)
     },

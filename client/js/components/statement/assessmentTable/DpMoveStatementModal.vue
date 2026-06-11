@@ -242,7 +242,9 @@ export default {
 
     handleFragments () {
       if (this.statementId) {
-        this.setFragments(this.statementId).then(() => { this.isLoading = false })
+        this.setFragments(this.statementId).then(() => {
+          this.isLoading = false
+        })
       } else {
         this.resetFragments()
       }
@@ -251,6 +253,7 @@ export default {
     setFragments (statementId) {
       const setFragmentsInComponent = () => {
         const fragments = this.fragmentsByStatement(statementId).fragments
+
         this.statementFragments = fragments.map(fragment => {
           return {
             id: fragment.id,
@@ -263,6 +266,7 @@ export default {
       // If fragments are already loaded don't load them again
       if (this.statement.fragmentsTotal === this.fragmentsByStatement(statementId).fragments.length) {
         setFragmentsInComponent()
+
         return Promise.resolve(true)
       } else {
         return this.loadFragments({ procedureId: this.procedureId, statementId })
@@ -285,6 +289,7 @@ export default {
       //  Return when no procedure is selected
       if (this.selectedProcedureId === '') {
         dplan.notify.notify('error', Translator.trans('warning.select.entry'))
+
         return
       }
 
@@ -316,6 +321,7 @@ export default {
             // Handle update of assessment table ui from TableCard.vue
             this.$root.$emit('statement:moveToProcedure', moveToProcedureParams)
           }
+
           this.toggleModal()
         })
         .catch(() => {

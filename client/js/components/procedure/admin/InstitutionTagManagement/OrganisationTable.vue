@@ -382,6 +382,7 @@ export default {
     selectedItemsText () {
       const count = this.selectedItems.length
       const translationKey = count === 1 ? 'entry.selected' : 'entries.selected'
+
       return `${count} ${Translator.trans(translationKey)}`
     },
 
@@ -609,6 +610,7 @@ export default {
         if (hasPermission(check.permission)) {
           acc.push(check.value)
         }
+
         return acc
       }, [])
     },

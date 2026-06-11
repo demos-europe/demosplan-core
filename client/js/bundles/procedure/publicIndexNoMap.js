@@ -19,15 +19,18 @@ import { initialize } from '@DpJs/InitVue'
 const countMatchingProcedures = function (phaseIds) {
   const listElements = document.getElementsByClassName('c-procedurelist__item')
   let count = 0
+
   for (const listElement of listElements) {
     const phaseSpan = listElement.getElementsByClassName('phase')[0]
     const phaseExtSpan = listElement.getElementsByClassName('phaseExt')[0]
     const phaseValue = phaseSpan?.innerHTML.trim() ?? ''
     const phaseExtValue = phaseExtSpan?.innerHTML.trim() ?? ''
+
     if (phaseIds.includes(phaseValue) || phaseIds.includes(phaseExtValue)) {
       count++
     }
   }
+
   return count
 }
 
@@ -78,6 +81,7 @@ const setSelectedOption = function () {
 const filterProceduresByPhase = function () {
   // Get selected filter option
   const filterPhasesSelectEl = document.getElementById('filterPhases')
+
   if (filterPhasesSelectEl !== null) {
     const selectedPhasesToFilter = splitOptionValue(filterPhasesSelectEl.value)
     // Get list elements in procedurelist
@@ -92,12 +96,14 @@ const filterProceduresByPhase = function () {
       // Get phase of procedure in procedurelist
       const phase = listElement.getElementsByClassName('phase')[0]
       let phaseExt
+
       if (listElement.getElementsByClassName('phaseExt')[0] !== null) {
         phaseExt = listElement.getElementsByClassName('phaseExt')[0]
       }
 
       // Check if phase of procedure matches selected filter option
       let showElement = selectedPhasesToFilter[0] === allOptionValue
+
       for (let j = 0; j < selectedPhasesToFilter.length && showElement === false; j++) {
         showElement = phase.innerHTML.trim() === selectedPhasesToFilter[j]
         if (typeof phaseExt !== 'undefined') {
@@ -111,12 +117,14 @@ const filterProceduresByPhase = function () {
           listElement.classList.remove('hidden')
           listElement.classList.add('block')
         }
+
         visibleElementsCount++
       } else if (showElement === false) {
         // If phase of procedure does not match selected filter option, hide it
         if (listElement.classList.contains('block')) {
           listElement.classList.remove('block')
         }
+
         listElement.classList.add('hidden')
       }
     }
@@ -128,6 +136,7 @@ const filterProceduresByPhase = function () {
     if (visibleElementsCount === 0) {
       //  If a combined filter is selected, show 'all' instead
       const selectedOptionId = filterPhasesSelectEl.selectedOptions[0]?.id
+
       if (selectedOptionId === 'combinedFilter' || selectedOptionId === 'combinedParticipationPreparation') {
         filterPhasesSelectEl.value = ['all']
       } else {
@@ -146,6 +155,7 @@ const filterProceduresByPhase = function () {
       //  For all options except 'all'
       if (option.value !== 'all') {
         const phaseIds = splitOptionValue(option.value)
+
         if (countMatchingProcedures(phaseIds) === 0) {
           option.style.display = 'none'
         }

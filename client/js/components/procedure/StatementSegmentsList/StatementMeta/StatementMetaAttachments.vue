@@ -443,6 +443,7 @@ export default {
 
     markGenericAttachmentForDeletion (id) {
       const genericAttachmentToBeDeleted = { ...this.localAttachments.additionalAttachments.find(attachment => attachment.id === id) }
+
       this.genericAttachmentsMarkedForDeletion.push(genericAttachmentToBeDeleted)
     },
 

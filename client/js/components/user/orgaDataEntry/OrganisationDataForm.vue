@@ -432,6 +432,7 @@ export default {
         this.organisation.submissionType === this.submissionTypeShort &&
         !window.dpconfirm(Translator.trans('confirm.statement.orgaedit.change'))) {
         this.$el.reset()
+
         return false
       }
 

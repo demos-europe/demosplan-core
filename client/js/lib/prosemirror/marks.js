@@ -33,6 +33,7 @@ const segmentMark = {
   }],
   toDOM (node) {
     const { isActive, isConfirmed, isMoving, pmId, segmentId } = node.attrs
+
     return ['span', {
       'data-range-active': isActive,
       'data-range-moving': isMoving,
@@ -61,6 +62,7 @@ const rangeSelectionMark = {
   }],
   toDOM (node) {
     const { active, pmId } = node.attrs
+
     return ['span', { 'data-range-selected': active, 'data-pm-id': pmId, 'data-range-type': 'selection' }, 0]
   },
 }

@@ -238,6 +238,7 @@ export default {
       const yyyy = today.getFullYear()
 
       today = dd + '.' + mm + '.' + yyyy
+
       return today
     },
 
@@ -289,6 +290,7 @@ export default {
       if (!date) {
         return ''
       }
+
       return date.match(/[0-9]{2}.[0-9]{2}.[0-9]{4}/) ?
         date :
         this.formatDate(date)
