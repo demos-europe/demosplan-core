@@ -12,14 +12,18 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedurePhaseDefinitionResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
+use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
+use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\ProcedurePhaseDefinitionResourceConfigBuilder;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\Wrapping\EntityDataInterface;
+use EDT\Wrapping\PropertyBehavior\Attribute\CallbackAttributeSetBehavior;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 
 /**
@@ -57,6 +61,11 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
         return $this->currentUser->hasPermission('area_customer_procedure_phase_definitions');
     }
 
+    public function isUpdateAllowed(): bool
+    {
+        return $this->isCreateAllowed();
+    }
+
     protected function getAccessConditions(): array
     {
         $customerId = $this->currentCustomerService->getCurrentCustomer()->getId();
@@ -79,22 +88,58 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
             ->setReadableByPath(DefaultField::YES)
             ->setSortable()
             ->setFilterable()
-            ->addPathCreationBehavior();
+            ->addPathCreationBehavior()
+            ->addPathUpdateBehavior();
 
         $configBuilder->audience
             ->setReadableByPath(DefaultField::YES)
             ->setFilterable()
             ->addPathCreationBehavior();
 
+        // permissionSet and participationState are editable for regular phases, but fixed for the
+        // configuration phase (orderInAudience 0), where only the name may be changed. Entity conditions
+        // on an update behavior would be merged across all properties and block even a name-only update,
+        // so the restriction is enforced per-attribute via a callback that only runs when the attribute
+        // is part of the request.
         $configBuilder->permissionSet
             ->setReadableByPath(DefaultField::YES)
             ->setFilterable()
-            ->addPathCreationBehavior();
+            ->addPathCreationBehavior()
+            ->addUpdateBehavior(
+                CallbackAttributeSetBehavior::createFactory(
+                    [],
+                    function (ProcedurePhaseDefinition $phaseDefinition, mixed $value): array {
+                        $this->guardConfigurationPhaseNotEditable($phaseDefinition);
+                        $phaseDefinition->setPermissionSet($value);
+
+                        return [];
+                    },
+                    OptionalField::YES
+                )
+            );
 
         $configBuilder->participationState
             ->setReadableByPath(DefaultField::YES)
             ->setFilterable()
-            ->addPathCreationBehavior();
+            ->addPathCreationBehavior()
+            ->addUpdateBehavior(
+                CallbackAttributeSetBehavior::createFactory(
+                    [],
+                    function (ProcedurePhaseDefinition $phaseDefinition, mixed $value): array {
+                        $this->guardConfigurationPhaseNotEditable($phaseDefinition);
+                        if (ProcedureInterface::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN === $value) {
+                            $tokenPermission = 'area_customer_procedure_phase_participation_token';
+                            if (!$this->currentUser->hasPermission($tokenPermission)) {
+                                throw AccessDeniedException::missingPermissions(null, [$tokenPermission]);
+                            }
+                        }
+                        $phaseDefinition->setParticipationState($value);
+
+                        return [];
+                    },
+                    OptionalField::YES
+                )
+            );
 
         $configBuilder->closingPhase
             ->setReadableByPath(DefaultField::YES)
@@ -130,5 +175,15 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
         );
 
         return $configBuilder;
+    }
+
+    /**
+     * Rejects any attempt to set a field that is fixed for the configuration phase.
+     */
+    private function guardConfigurationPhaseNotEditable(ProcedurePhaseDefinition $phaseDefinition): void
+    {
+        if ($phaseDefinition->isConfigurationPhase()) {
+            throw new BadRequestException('Only the name of the configuration phase can be changed; permissionSet and participationState are fixed.');
+        }
     }
 }
