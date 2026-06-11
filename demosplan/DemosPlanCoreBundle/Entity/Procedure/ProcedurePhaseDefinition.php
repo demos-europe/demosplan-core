@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
@@ -22,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Stores a customer-specific procedure phase definition (Verfahrensschritt).
@@ -41,6 +43,7 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
     /**
      * The display name of this procedure phase definition.
      */
+    #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
     #[ORM\Column(type: 'string', length: 255, nullable: false)]
     protected string $name = '';
 
@@ -67,6 +70,11 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
      *
      * Note: planners always have 'write' access for procedures they own, regardless of this value.
      */
+    #[Assert\Choice([
+        ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN,
+        ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_READ,
+        ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_WRITE,
+    ])]
     #[ORM\Column(type: 'string', length: 10, nullable: false)]
     protected string $permissionSet = 'hidden';
 
@@ -74,6 +82,10 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
      * Optional participation state for this phase.
      * Values: null | 'finished' | 'participateWithToken'.
      */
+    #[Assert\Choice([
+        ProcedureInterface::PARTICIPATIONSTATE_FINISHED,
+        ProcedureInterface::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN,
+    ])]
     #[ORM\Column(type: 'string', length: 50, nullable: true)]
     protected ?string $participationState = null;
 

@@ -163,10 +163,14 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
                     [],
                     function (ProcedurePhaseDefinition $procedurePhaseDefinition, ?string $newParticipationState): array {
                         $this->guardConfigurationPhaseNotEditable($procedurePhaseDefinition);
+                        if (ProcedureInterface::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN === $newParticipationState) {
+                            $tokenPermission = 'area_customer_procedure_phase_participation_token';
+                            if (!$this->currentUser->hasPermission($tokenPermission)) {
+                                throw AccessDeniedException::missingPermissions(null, [$tokenPermission]);
+                            }
+                        }
                         $oldParticipationState = $procedurePhaseDefinition->getParticipationState();
-                        $procedurePhaseDefinition->setParticipationState(
-                            $this->resolveParticipationState($newParticipationState)
-                        );
+                        $procedurePhaseDefinition->setParticipationState($newParticipationState);
                         $this->addReportEntryUpdate(
                             $procedurePhaseDefinition,
                             ProcedurePhaseDefinitionUpdatableField::PARTICIPANT_STATE,
@@ -224,55 +228,6 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
         if ($phaseDefinition->isConfigurationPhase()) {
             throw new BadRequestException('Only the name of the configuration phase can be changed; permissionSet and participationState are fixed.');
         }
-    }
-
-    /**
-     * Validates the requested participation state. Allowed values are null,
-     * {@see ProcedureInterface::PARTICIPATIONSTATE_FINISHED} and
-     * {@see ProcedureInterface::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN}; the latter additionally
-     * requires the 'area_customer_procedure_phase_participation_token' permission.
-     */
-    private function resolveParticipationState(mixed $value): ?string
-    {
-        if (null === $value) {
-            return null;
-        }
-
-        if (ProcedureInterface::PARTICIPATIONSTATE_FINISHED === $value) {
-            return ProcedureInterface::PARTICIPATIONSTATE_FINISHED;
-        }
-
-        if (ProcedureInterface::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN === $value) {
-            $tokenPermission = 'area_customer_procedure_phase_participation_token';
-            if (!$this->currentUser->hasPermission($tokenPermission)) {
-                throw AccessDeniedException::missingPermissions(null, [$tokenPermission]);
-            }
-
-            return ProcedureInterface::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN;
-        }
-
-        throw new BadRequestException(sprintf('Invalid participationState; allowed values are null, "%s" or "%s".', ProcedureInterface::PARTICIPATIONSTATE_FINISHED, ProcedureInterface::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN));
-    }
-
-    /**
-     * Validates the requested permission set. Allowed values are
-     * {@see ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN},
-     * {@see ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_READ} and
-     * {@see ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_WRITE}.
-     */
-    private function resolvePermissionSet(mixed $value): string
-    {
-        $allowed = [
-            ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN,
-            ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_READ,
-            ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_WRITE,
-        ];
-
-        if (in_array($value, $allowed, true)) {
-            return $value;
-        }
-
-        throw new BadRequestException(sprintf('Invalid permissionSet; allowed values are "%s", "%s" or "%s".', ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN, ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_READ, ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_WRITE));
     }
 
     /**
