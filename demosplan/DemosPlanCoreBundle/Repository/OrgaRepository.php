@@ -814,8 +814,7 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
      */
     public function findOrgasWithCustomField(string $customFieldId): array
     {
-        $escapedCustomFieldId = str_replace(['\\', '"'], ['\\\\', '\\"'], $customFieldId);
-        $searchPattern = '%"id":"'.$escapedCustomFieldId.'"%';
+        $searchPattern = '%"id":"'.$customFieldId.'"%';
 
         return $this->getEntityManager()->createQueryBuilder()
             ->select('orga')
