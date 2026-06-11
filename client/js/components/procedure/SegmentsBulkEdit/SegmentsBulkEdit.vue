@@ -247,7 +247,7 @@
           v-if="assignPlaceCheckedAndSelected"
           class="py-4"
         >
-          <p v-html="Translator.trans('segments.bulk.edit.place.assigned.description')" />
+          <p v-cleanhtml="Translator.trans('segments.bulk.edit.place.assigned.description')" />
           <p v-cleanhtml="actions.assignPlace.selected.name" />
         </div>
 
@@ -255,7 +255,7 @@
           v-if="hasPermission('field_statement_deadline') && addDeadlineCheckedAndSelected"
           class="py-4"
         >
-          <p v-html="Translator.trans('segments.bulk.edit.deadline.assigned.description', { count: segments.length })" />
+          <p v-cleanhtml="Translator.trans('segments.bulk.edit.deadline.assigned.description', { count: segments.length })" />
           <p v-cleanhtml="actions.addDeadline.value" />
         </div>
 
@@ -263,7 +263,7 @@
           v-if="addTagsCheckedAndSelected"
           class="py-4"
         >
-          <p v-html="Translator.trans('segments.bulk.edit.tags.add.description', { count: segments.length })" />
+          <p v-cleanhtml="Translator.trans('segments.bulk.edit.tags.add.description', { count: segments.length })" />
           <selected-tags-list :selected-tags="actions.addTags.selected" />
         </div>
 
@@ -271,7 +271,7 @@
           v-if="deleteTagsCheckedAndSelected"
           class="py-4"
         >
-          <p v-html="Translator.trans('segments.bulk.edit.tags.delete.description', { count: segments.length })" />
+          <p v-cleanhtml="Translator.trans('segments.bulk.edit.tags.delete.description', { count: segments.length })" />
           <selected-tags-list :selected-tags="actions.deleteTags.selected" />
         </div>
 
@@ -279,8 +279,8 @@
           v-if="addRecommendationsChecked && actions.addRecommendations.text !== ''"
           class="py-4"
         >
-          <p v-html="addOrReplaceRecommendationMessage" />
-          <p v-html="actions.addRecommendations.text" />
+          <p v-cleanhtml="addOrReplaceRecommendationMessage" />
+          <p v-cleanhtml="actions.addRecommendations.text" />
         </div>
 
         <div
@@ -288,7 +288,7 @@
           :key="`customField:${customField.id}`"
           class="py-4"
         >
-          <p v-html="Translator.trans('segments.bulk.edit.customFields.description', { label: customField.label })" />
+          <p v-cleanhtml="Translator.trans('segments.bulk.edit.customFields.description', { label: customField.label })" />
           <selected-tags-list :selected-tags="[{ title: customField.selected, id: customField.id }]" />
         </div>
       </div>
@@ -352,8 +352,8 @@
         :description-success="addRecommendationsSuccess"
       >
         <p
+          v-cleanhtml="actions.addRecommendations.text"
           class="mt-2"
-          v-html="actions.addRecommendations.text"
         />
       </action-stepper-response>
 
