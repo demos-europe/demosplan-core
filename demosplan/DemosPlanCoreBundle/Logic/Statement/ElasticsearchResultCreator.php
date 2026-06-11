@@ -37,6 +37,7 @@ use Exception;
 use Pagerfanta\Elastica\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Traversable;
 
@@ -118,6 +119,10 @@ class ElasticsearchResultCreator
         private readonly DepartmentRepository $departmentRepository,
         private readonly ProfilerService $profilerService,
         private readonly LoggerInterface $logger,
+        #[Autowire(param: 'elasticsearch_max_result_window')]
+        private readonly int $elasticsearchMaxResultWindow,
+        #[Autowire(param: 'elasticsearch_search_after_batch_size')]
+        private readonly int $searchAfterBatchSize,
     ) {
     }
 
@@ -679,16 +684,25 @@ class ElasticsearchResultCreator
             }
 
             try {
-                /** @var array|Traversable $resultSet */
-                $resultSet = $paginator->getCurrentPageResults();
-                $result = $resultSet->getResponse()->getData();
-                $elasticsearchResultStatement->setHits($result['hits']);
+                if ((int) $limit > $this->elasticsearchMaxResultWindow) {
+                    // "Fetch everything" path (exports, no-pager lists): a single from+size query
+                    // would exceed index.max_result_window, so page through all hits via search_after.
+                    $batch = $this->elasticSearchService->fetchAllHitsViaSearchAfter($search, $query, $this->searchAfterBatchSize);
+                    $result = $batch['result'];
+                    $elasticsearchResultStatement->setHits($result['hits']);
+                    $esResultAggregations = $batch['aggregations'];
+                } else {
+                    /** @var array|Traversable $resultSet */
+                    $resultSet = $paginator->getCurrentPageResults();
+                    $result = $resultSet->getResponse()->getData();
+                    $elasticsearchResultStatement->setHits($result['hits']);
+                    $esResultAggregations = $resultSet->getAggregations();
+                }
             } catch (ClientException $e) {
                 $this->logger->error('Elasticsearch probably hit a timeout: ', [$e]);
                 throw $e;
             }
 
-            $esResultAggregations = $resultSet->getAggregations();
             $totalHits = $result['hits']['total'];
             if (is_array($totalHits) && array_key_exists('value', $totalHits) && 0 === $totalHits['value']) {
                 $esResultAggregations = $this->addFilterToAggregationsWhenCausedResultIsEmpty(
