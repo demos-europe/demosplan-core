@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use Carbon\Carbon;
 use Cocur\Slugify\Slugify;
+use DemosEurope\DemosplanAddon\Contracts\CurrentContextProviderInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -135,6 +136,7 @@ class ExportService
         private readonly ZipExportService $zipExportService,
         private readonly string $rendererName,
         private readonly string $rendererPath,
+        private readonly CurrentContextProviderInterface $currentContextProvider,
     ) {
         $this->assessmentTableOutput = $assessmentTableServiceOutput;
         $this->draftStatementService = $draftStatementService;
@@ -754,7 +756,11 @@ class ExportService
             ];
             Settings::setPdfRendererPath($this->rendererPath);
             Settings::setPdfRendererName($this->rendererName);
-            $reportInfo = $this->exportReportService->getReportInfo($procedureId, $this->permissions);
+            $reportInfo = $this->exportReportService->getReportInfo(
+                $procedureId,
+                $this->permissions,
+                $this->currentContextProvider->getCurrentCustomer()->getId()
+            );
             $pdfReport = $this->exportReportService->generateProcedureReport($procedureId, $reportInfo, $reportMeta);
             $this->zipExportService->addWriterToZipStream(
                 $pdfReport,
