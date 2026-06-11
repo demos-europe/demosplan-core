@@ -329,7 +329,7 @@ export default {
     const hasAttemptedSubmit = ref(false)
 
     const showInvalidInputStyle = computed(() =>
-      hasAttemptedSubmit.value && (isNewPhaseNameDuplicate.value || isEditedPhaseNameDuplicate.value),
+      hasAttemptedSubmit.value && (isNewPhaseNameDuplicate.value || isEditedPhaseNameDuplicate.value || isEditedPhaseNameEmpty.value),
     )
 
     const findPermissionSetOption = (value) =>
@@ -473,6 +473,7 @@ export default {
 
     const openCreateForm = () => {
       editingRowId.value = null
+      hasAttemptedSubmit.value = false
       isCreating.value = true
     }
 
@@ -586,6 +587,10 @@ export default {
         }) :
         false
     })
+
+    const isEditedPhaseNameEmpty = computed(() =>
+      editingRowId.value !== null && draftCoreRowValue.value.name.trim() === '',
+    )
 
     const startEdit = (rowData) => {
       if (isCreating.value) {
@@ -753,6 +758,12 @@ export default {
         return
       }
 
+      if (isEditedPhaseNameEmpty.value) {
+        dplan.notify.error(Translator.trans('error.name.required'))
+
+        return
+      }
+
       const id = editingRowId.value
       const draftPayload = draftAddonRowPayloads[id]
       const initialPayload = initialAddonRowPayloads[id]
@@ -844,7 +855,6 @@ export default {
       handleSaveEditClick,
       hasAttemptedSubmit,
       headerFields,
-      isAddonActive,
       isCreateFormAddonLoading,
       isCreating,
       isInitiallyLoading,
