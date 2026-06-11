@@ -62,7 +62,7 @@ class StatementListController extends BaseController
     }
 
     /**
-     * Renders the statement group creation page
+     * Renders the statement group creation page.
      *
      * @throws Exception
      */
