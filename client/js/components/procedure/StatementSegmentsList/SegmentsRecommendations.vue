@@ -280,7 +280,7 @@ export default {
         'polygon',
         'recommendation',
         'tags',
-        'text'
+        'text',
       ]
 
       const statementSegmentInclude = [

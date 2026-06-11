@@ -205,7 +205,7 @@
           class="mt-1"
           data-cy="selectedDeadline"
           :label="{
-             text: Translator.trans('deadline.processing.until')
+            text: Translator.trans('deadline.processing.until')
           }"
         />
       </div>
@@ -335,9 +335,9 @@ export default {
     },
 
     initialDeadline () {
-      return this.currentSegment && hasOwnProp(this.currentSegment, 'deadline')
-        ? this.currentSegment.deadline
-        : ''
+      return this.currentSegment && hasOwnProp(this.currentSegment, 'deadline') ?
+        this.currentSegment.deadline :
+        ''
     },
 
     initialPlace () {

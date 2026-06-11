@@ -271,8 +271,8 @@
 
         <dp-checkbox
           v-if="hasPermission('field_segments_custom_fields') || hasPermission('field_statement_deadline')"
-          v-model="showAdditionalFields"
           :id="`showAdditionalFields_${segment.id}`"
+          v-model="showAdditionalFields"
           :label="{
             text: Translator.trans('fields.more.edit')
           }"
@@ -890,6 +890,7 @@ export default {
       }
 
       const isoDate = reformatDate(value, 'DD.MM.YYYY', 'YYYY-MM-DD')
+
       this.updateSegment('deadline', isoDate)
     },
 

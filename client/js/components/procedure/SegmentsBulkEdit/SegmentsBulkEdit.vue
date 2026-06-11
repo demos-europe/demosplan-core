@@ -315,16 +315,16 @@
         />
       </action-stepper-response>
 
-     <action-stepper-response
+      <action-stepper-response
         v-if="hasPermission('field_statement_deadline') && addDeadlineCheckedAndSelected"
         :success="actions.addDeadline.success"
         :description-error="Translator.trans('segments.bulk.edit.deadline.assigned.error', { count: segments.length })"
         :description-success="Translator.trans('segments.bulk.edit.deadline.assigned.success', { count: segments.length })"
       >
-         <p
-           v-cleanhtml="actions.addDeadline.value"
-           class="mt-2"
-         />
+        <p
+          v-cleanhtml="actions.addDeadline.value"
+          class="mt-2"
+        />
       </action-stepper-response>
 
       <action-stepper-response
