@@ -220,6 +220,7 @@ export default {
         this.values.counties = []
         this.countiesPromptAdded = false
       }
+
       if (data?.municipalities?.length > 0) {
         this.values.municipalities = data.municipalities.map(id => this.municipalities.find(municipality => municipality.id === id))
         this.sortSelected('municipalities')

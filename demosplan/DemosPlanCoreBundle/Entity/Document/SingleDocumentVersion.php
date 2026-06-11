@@ -81,37 +81,37 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface, S
     /**
      * @var string
      */
-    #[ORM\Column(name: '_sd_category', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
+    #[ORM\Column(name: '_sd_category', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     protected $category;
 
     /**
      * @var int
      */
-    #[ORM\Column(name: '_sd_order', type: 'integer', nullable: false, length: 10)]
+    #[ORM\Column(name: '_sd_order', type: 'integer', length: 10, nullable: false)]
     protected $order = 0;
 
     /**
      * @var string
      */
-    #[ORM\Column(name: '_sd_title', type: 'string', nullable: false, options: ['default' => ''], length: 256)]
+    #[ORM\Column(name: '_sd_title', type: 'string', length: 256, nullable: false, options: ['default' => ''])]
     protected $title = '';
 
     /**
      * @var string
      */
-    #[ORM\Column(name: '_sd_text', type: 'text', nullable: false, length: 65535)]
+    #[ORM\Column(name: '_sd_text', type: 'text', length: 65535, nullable: false)]
     protected $text = '';
 
     /**
      * @var string
      */
-    #[ORM\Column(name: '_sd_symbol', type: 'string', nullable: false, length: 36)]
+    #[ORM\Column(name: '_sd_symbol', type: 'string', length: 36, nullable: false)]
     protected $symbol = '';
 
     /**
      * @var string
      */
-    #[ORM\Column(name: '_sd_document', type: 'string', nullable: false, length: 256)]
+    #[ORM\Column(name: '_sd_document', type: 'string', length: 256, nullable: false)]
     protected $document = '';
 
     /**

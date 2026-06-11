@@ -50,6 +50,8 @@ class AssessmentTableServiceStorage
 {
     use RefreshElasticsearchIndexTrait;
 
+    private bool $dateOrderError = false;
+
     /** @var Container Container */
     protected $container;
 
@@ -157,6 +159,7 @@ class AssessmentTableServiceStorage
      */
     private function updateStatement($rParams): void
     {
+        $this->dateOrderError = false;
         $statementArray = [];
         $statementService = $this->getStatementService();
 
@@ -244,7 +247,7 @@ class AssessmentTableServiceStorage
             $statementArray['paragraphId'] = '';
         }
 
-        if (array_key_exists('element_new', $rParams['request']) && 0 < strlen((string) $rParams['request']['element_new'])) {
+        if (array_key_exists('element_new', $rParams['request']) && '' !== (string) $rParams['request']['element_new']) {
             $statementArray['elementId'] = $rParams['request']['element_new'];
 
             $statementArray = $this->updateFieldInStatementArray(
@@ -294,6 +297,14 @@ class AssessmentTableServiceStorage
             $incomingDate = Carbon::createFromFormat('d.m.Y', $rParams['request']['submitted_date']);
             $incomingDate->setTime($currentlySavedDate->hour, $currentlySavedDate->minute, $currentlySavedDate->second);
             $statementArray['submittedDate'] = $incomingDate->rawFormat('d.m.Y H:i:s');
+        }
+
+        // authoredDate must not be later than submittedDate
+        if ($this->isAuthoredDateAfterSubmittedDate($statementArray, $currentStatement)) {
+            $this->dateOrderError = true;
+            $this->getMessageBag()->add('error', 'error.date.authored.after.submitted');
+
+            return;
         }
 
         // We always get this value except it's empty string
@@ -372,6 +383,36 @@ class AssessmentTableServiceStorage
         $date = $submit->createFromFormat('d.m.Y', $string);
 
         return $date instanceof DateTime;
+    }
+
+    private function isAuthoredDateAfterSubmittedDate(array $statementArray, Statement $currentStatement): bool
+    {
+        $currentAuthored = $currentStatement->getMeta()?->getAuthoredDateObject();
+        $currentSubmitted = $currentStatement->getSubmitObject();
+
+        $proposedAuthored = isset($statementArray['authoredDate']) && '' !== $statementArray['authoredDate']
+            ? DateTime::createFromFormat('d.m.Y', $statementArray['authoredDate'])
+            : $currentAuthored;
+        $proposedSubmitted = isset($statementArray['submittedDate']) && '' !== $statementArray['submittedDate']
+            ? DateTime::createFromFormat('d.m.Y H:i:s', $statementArray['submittedDate'])
+            : $currentSubmitted;
+
+        if (!$proposedAuthored instanceof DateTime || !$proposedSubmitted instanceof DateTime) {
+            return false;
+        }
+
+        // The form always submits both dates. Only reject if the user actually
+        // changes at least one of them, so editing other fields on a Bestandsstatement
+        // with pre-existing invalid dates is still possible.
+        $authoredUnchanged = $currentAuthored instanceof DateTime
+            && $proposedAuthored->format('Ymd') === $currentAuthored->format('Ymd');
+        $submittedUnchanged = $currentSubmitted instanceof DateTime
+            && $proposedSubmitted->format('Ymd') === $currentSubmitted->format('Ymd');
+        if ($authoredUnchanged && $submittedUnchanged) {
+            return false;
+        }
+
+        return $proposedAuthored->format('Ymd') > $proposedSubmitted->format('Ymd');
     }
 
     /**
@@ -769,5 +810,19 @@ class AssessmentTableServiceStorage
     protected function getStatementService(): StatementService
     {
         return $this->statementService;
+    }
+
+    /**
+     * Whether the last {@see self::updateStatement()} call was aborted because
+     * the proposed authoredDate would be later than the submitDate.
+     *
+     * Used by the controller to skip the post-submit redirect so the user keeps
+     * the values they typed in the form.
+     *
+     * @return bool true if the cross-field validation rejected the last update
+     */
+    public function hasDateOrderError(): bool
+    {
+        return $this->dateOrderError;
     }
 }

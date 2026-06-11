@@ -154,6 +154,7 @@ export default {
     DpInput,
     DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
+
       return DpInlineNotification
     }),
     DpLabel,
@@ -453,6 +454,7 @@ export default {
     setSelectedPhase () {
       if (this.isParticipationPhaseSelected) {
         const evaluatingPhase = this.phaseOptions.find(phase => phase.participationState === 'finished')
+
         this.selectedPhase = evaluatingPhase ? evaluatingPhase.value : this.phaseOptions[0]?.value ?? ''
       } else {
         this.selectedPhase = this.phaseOptions[0]?.value ?? ''

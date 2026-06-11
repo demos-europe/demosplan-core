@@ -18,13 +18,15 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class LanguageToolService
 {
-    private readonly string $languageToolUrl;
+    private readonly string $url;
+    private readonly int $timeout;
 
     public function __construct(
         private readonly HttpClientInterface $httpClient,
         ParameterBagInterface $parameterBag,
     ) {
-        $this->languageToolUrl = $parameterBag->get('languagetool_url');
+        $this->url = $parameterBag->get('languagetool_url');
+        $this->timeout = (int) $parameterBag->get('languagetool_timeout');
     }
 
     /**
@@ -34,7 +36,7 @@ class LanguageToolService
     {
         $response = $this->httpClient->request('POST', $this->getUrl('/v2/check'), [
             'body'    => $formData,
-            'timeout' => 10,
+            'timeout' => $this->timeout,
         ]);
 
         return $response->toArray();
@@ -46,7 +48,7 @@ class LanguageToolService
     public function getLanguages(): array
     {
         $response = $this->httpClient->request('GET', $this->getUrl('/v2/languages'), [
-            'timeout' => 10,
+            'timeout' => $this->timeout,
         ]);
 
         return $response->toArray();
@@ -54,10 +56,10 @@ class LanguageToolService
 
     private function getUrl(string $path): string
     {
-        if ('' === $this->languageToolUrl) {
+        if ('' === $this->url) {
             throw new LanguageToolServiceException('LanguageTool service not configured: missing languagetool_url parameter');
         }
 
-        return $this->languageToolUrl.$path;
+        return $this->url.$path;
     }
 }

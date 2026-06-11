@@ -92,7 +92,7 @@ class GdprConsentRevokeToken extends CoreEntity implements UuidEntityInterface, 
      *
      * @var string
      */
-    #[ORM\Column(type: 'string', length: 12, nullable: false, unique: true, options: ['fixed' => true])]
+    #[ORM\Column(type: 'string', length: 12, unique: true, nullable: false, options: ['fixed' => true])]
     protected $token;
 
     /**

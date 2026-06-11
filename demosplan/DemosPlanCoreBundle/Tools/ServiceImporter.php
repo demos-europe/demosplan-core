@@ -34,6 +34,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\File;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -128,7 +129,7 @@ class ServiceImporter implements ServiceImporterInterface
         // Release the database session row lock before the blocking RabbitMQ call (up to 600s).
         // Without this, concurrent requests from the same browser hit a lock wait timeout.
         // In CLI/async contexts (e.g. message consumer) there is no HTTP session to save.
-        if (null !== $this->requestStack->getCurrentRequest()) {
+        if ($this->requestStack->getCurrentRequest() instanceof Request) {
             $this->requestStack->getSession()->save();
         }
 
@@ -151,7 +152,7 @@ class ServiceImporter implements ServiceImporterInterface
         // Release the MySQL session row lock before the blocking RabbitMQ call (up to 300s).
         // Without this, concurrent requests from the same browser hit a lock wait timeout.
         // In CLI/async contexts (e.g. message consumer) there is no HTTP session to save.
-        if (null !== $this->requestStack->getCurrentRequest()) {
+        if ($this->requestStack->getCurrentRequest() instanceof Request) {
             $this->requestStack->getSession()->save();
         }
 

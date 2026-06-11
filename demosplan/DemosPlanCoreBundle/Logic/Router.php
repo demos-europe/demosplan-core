@@ -43,7 +43,7 @@ class Router implements RouterInterface, WarmableInterface
 
         $generatedRoute = $this->router->generate($route, $parameters, $referenceType);
         // add pathprefix between host and path if needed
-        if (0 < strlen($this->globalConfig->getUrlPathPrefix())) {
+        if ('' !== $this->globalConfig->getUrlPathPrefix()) {
             $generatedRoute = $this->injectUrlPathPrefix($generatedRoute);
         }
         // replace scheme
@@ -157,7 +157,8 @@ class Router implements RouterInterface, WarmableInterface
         $this->procedureIdCache[$procedureId] = $procedureId;
         $slug = $procedureId;
         $shortUrl = $this->procedureRepository->findShortUrlById($procedureId);
-        if ('' !== $shortUrl && '0' !== $shortUrl) {
+        // shortUrl must be a slug (no slashes); reject bad data so it cannot break route generation
+        if ('' !== $shortUrl && '0' !== $shortUrl && !str_contains($shortUrl, '/')) {
             $this->procedureIdCache[$procedureId] = $shortUrl;
             $slug = $shortUrl;
         }

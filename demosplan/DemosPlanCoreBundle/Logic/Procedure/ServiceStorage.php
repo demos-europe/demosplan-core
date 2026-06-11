@@ -698,7 +698,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             $path = $this->fileService->ensureLocalFile($pictogramFileInfo->getAbsolutePath());
             $imageInfo = getimagesize($path);
         } catch (Exception $e) {
-            throw new InvalidArgumentException($e->getMessage());
+            throw new InvalidArgumentException($e->getMessage(), $e->getCode(), $e);
         }
         Assert::isArray($imageInfo);
         Assert::keyExists($imageInfo, 0, 'Unable to get pictogram image width');

@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
@@ -52,7 +53,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
     {
         $this->manager = $manager;
 
-        /** @var \demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition $phaseDefinition */
+        /** @var ProcedurePhaseDefinition $phaseDefinition */
         $phaseDefinition = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION);
 
         /** @var Procedure $testProcedure */
@@ -984,7 +985,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         /** @var ParagraphVersion $testParagraphVersion */
         $testParagraphVersion = $this->getReference('testparagraph4Version');
 
-        /** @var \demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition $phaseDefinition */
+        /** @var ProcedurePhaseDefinition $phaseDefinition */
         $phaseDefinition = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION);
 
         // ClusterStatements:

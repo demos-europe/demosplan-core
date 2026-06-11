@@ -40,7 +40,7 @@ class DemosPlanReportController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_admin_protocol')]
-    #[Route(name: 'dm_plan_report_table_view', path: '/report/view/{procedureId}')]
+    #[Route(path: '/report/view/{procedureId}', name: 'dm_plan_report_table_view')]
     public function viewReport($procedureId)
     {
         return $this->render(
@@ -58,12 +58,7 @@ class DemosPlanReportController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions(['area_admin_protocol', 'feature_export_protocol'])]
-    #[Route(
-        name: 'dplan_export_report',
-        path: '/report/export/{procedureId}',
-        methods: ['GET'],
-        options: ['expose' => true]
-    )]
+    #[Route(path: '/report/export/{procedureId}', name: 'dplan_export_report', options: ['expose' => true], methods: ['GET'])]
     public function exportProcedureReport(
         ExportReportService $reportService,
         ParameterBagInterface $parameterBag,

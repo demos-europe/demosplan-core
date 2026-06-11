@@ -54,7 +54,7 @@ class File extends CoreEntity implements UuidEntityInterface, FileInterface
      *
      * @var string
      */
-    #[ORM\Column(name: '_f_hash', type: 'string', length: 36, options: ['fixed' => true, 'comment' => 'This hash is used as filename'], nullable: true)]
+    #[ORM\Column(name: '_f_hash', type: 'string', length: 36, nullable: true, options: ['fixed' => true, 'comment' => 'This hash is used as filename'])]
     protected $hash;
 
     /**

@@ -16,6 +16,7 @@ import { dpApi } from '@demos-europe/demosplan-ui'
  */
 function isValidUUID (uuid) {
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+
   return uuidRegex.test(uuid)
 }
 
@@ -24,6 +25,7 @@ function isValidUUID (uuid) {
  */
 function removeSegmentParameter () {
   const url = new URL(globalThis.location)
+
   url.searchParams.delete('segment')
   globalThis.history.replaceState({}, '', url)
 }
@@ -49,6 +51,7 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
     // Validate UUID format before making API call
     if (!isValidUUID(segmentId)) {
       console.error('Invalid segment ID format:', segmentId)
+
       return null
     }
 
@@ -61,6 +64,7 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
       return await dpApi.get(url)
     } catch (error) {
       console.error('Failed to get segment position:', error)
+
       return null
     }
   }
@@ -104,6 +108,7 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
 
     // Update localStorage with calculated page
     const paginationData = { currentPage: calculatedPage, perPage }
+
     globalThis.localStorage.setItem(storageKey, JSON.stringify(paginationData))
 
     // Return segment ID so component can use it for scrolling before cleanup
@@ -139,6 +144,7 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
       // Check localStorage only for perPage setting
       if (globalThis.localStorage.getItem(storageKey)) {
         const stored = JSON.parse(globalThis.localStorage.getItem(storageKey))
+
         pagination.perPage = stored.perPage || defaultPagination.perPage
       }
 
@@ -146,6 +152,7 @@ export function handleSegmentNavigation ({ statementId, storageKey, currentPerPa
     } else {
       // Normal flow - use component's initPagination method
       initPaginationCallback()
+
       return null // Indicates to use component's existing pagination
     }
   }

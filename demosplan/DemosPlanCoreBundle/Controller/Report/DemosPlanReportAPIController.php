@@ -47,13 +47,7 @@ class DemosPlanReportAPIController extends APIController
      * @param string $group
      */
     #[DplanPermissions('area_admin_protocol')]
-    #[Route(
-        path: '/api/1.0/reports/{procedureId}/{group}',
-        methods: ['GET'],
-        name: 'dplan_api_report_procedure_list',
-        defaults: ['group' => null],
-        options: ['expose' => true]
-    )]
+    #[Route(path: '/api/1.0/reports/{procedureId}/{group}', name: 'dplan_api_report_procedure_list', options: ['expose' => true], defaults: ['group' => null], methods: ['GET'])]
     public function listProcedureReports(
         JsonApiPaginationParser $paginationParser,
         PaginatorFactory $paginatorFactory,

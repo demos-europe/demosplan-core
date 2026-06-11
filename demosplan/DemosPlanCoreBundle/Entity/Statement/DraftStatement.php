@@ -95,7 +95,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     /**
      * @var string
      */
-    #[ORM\Column(name: '_ds_text', type: 'text', nullable: false, length: 15000000)]
+    #[ORM\Column(name: '_ds_text', type: 'text', length: 15000000, nullable: false)]
     protected $text = '';
 
     /**
@@ -168,7 +168,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     /**
      * @var Collection<int, DraftStatementFileInterface>
      */
-    #[ORM\OneToMany(targetEntity: DraftStatementFile::class, mappedBy: 'draftStatement', orphanRemoval: true, fetch: 'EAGER', cascade: ['persist'])]
+    #[ORM\OneToMany(targetEntity: DraftStatementFile::class, mappedBy: 'draftStatement', cascade: ['persist'], fetch: 'EAGER', orphanRemoval: true)]
     protected $files;
 
     /**
@@ -370,7 +370,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
      * @deprecated Will be removed once all consumers are migrated to phaseDefinition.
      *              Kept on the entity to avoid data loss; value is synced from phaseDefinition->getName().
      */
-    #[ORM\Column(name: '_ds_phase', type: 'string', length: 50, nullable: false)]
+    #[ORM\Column(name: '_ds_phase', type: 'string', length: 255, nullable: false)]
     protected $phase = '';
 
     #[ORM\ManyToOne(targetEntity: ProcedurePhaseDefinition::class)]

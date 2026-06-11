@@ -22,8 +22,10 @@ function processValueQueue () {
   if (valueRequestQueue.length === 0 || activeValueFetches >= MAX_CONCURRENT_VALUE_FETCHES) {
     return
   }
+
   activeValueFetches++
   const { fn, resolve, reject } = valueRequestQueue.shift()
+
   fn()
     .then(resolve)
     .catch(reject)
@@ -158,6 +160,7 @@ function fetchBatchValues (resourceType, definitionSourceId, cacheKey, filterPat
       const batchCache = new Map(
         items.map(item => [item.id, item.attributes?.customFields || []]),
       )
+
       cachedBatchValues.set(cacheKey, batchCache)
       pendingBatchFetches.delete(cacheKey)
 
@@ -229,16 +232,19 @@ export function useCustomFields () {
        * match on ':definitionSourceId:' to avoid false positives at the start or end.
        */
       const definitionIdCacheKey = `:${definitionSourceId}:`
+
       for (const key of cachedBatchValues.keys()) {
         if (key.includes(definitionIdCacheKey)) {
           cachedBatchValues.delete(key)
         }
       }
+
       for (const key of pendingBatchFetches.keys()) {
         if (key.includes(definitionIdCacheKey)) {
           pendingBatchFetches.delete(key)
         }
       }
+
       cachedIndividualValues.clear()
       pendingIndividualFetches.clear()
     } else {
@@ -289,6 +295,7 @@ export function useCustomFields () {
     }
 
     const batchPromise = fetchBatchValues(resourceType, definitionSourceId, cacheKey, batchFilterPath)
+
     pendingBatchFetches.set(cacheKey, batchPromise)
 
     return batchPromise.then(batchCache =>

@@ -51,11 +51,13 @@ export function useCustomFieldDefinitions () {
   const clearDefinitionsCache = (definitionSourceId = null) => {
     if (definitionSourceId) {
       const prefix = `${definitionSourceId}:`
+
       for (const key of customFieldsDefinitions.keys()) {
         if (key.startsWith(prefix)) {
           customFieldsDefinitions.delete(key)
         }
       }
+
       for (const key of pendingFetches.keys()) {
         if (key.startsWith(prefix)) {
           pendingFetches.delete(key)
@@ -135,6 +137,7 @@ export function useCustomFieldDefinitions () {
     const fetchPromise = dpApi.get(url, params)
       .then(response => {
         const customFields = response.data.data || []
+
         customFieldsDefinitions.set(cacheKey, customFields)
         pendingFetches.delete(cacheKey)
 

@@ -97,7 +97,9 @@ export default {
     location: {
       required: false,
       type: Object,
-      default: () => { return {} },
+      default: () => {
+        return {}
+      },
     },
   },
 
