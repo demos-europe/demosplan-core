@@ -87,7 +87,7 @@ class FileResourceTypeTest extends FunctionalTestCase
     private function createFile(?Proxy $procedure): Proxy
     {
         $attributes = [
-            'hash'     => md5(uniqid('', true)),
+            'hash'     => bin2hex(random_bytes(16)),
             'filename' => 'test.txt',
             'mimetype' => 'text/plain',
         ];
