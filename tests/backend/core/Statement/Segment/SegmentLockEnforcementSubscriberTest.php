@@ -15,6 +15,7 @@ namespace Tests\Core\Statement\Segment;
 use DemosEurope\DemosplanAddon\Contracts\Events\BeforeResourceUpdateFlushEvent;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\SegmentLockEnforcementSubscriber;
@@ -185,7 +186,8 @@ class SegmentLockEnforcementSubscriberTest extends TestCase
 
     private function place(bool $locked): Place
     {
-        $place = new Place(new Procedure(), 'test-place', 0);
+        $def = new ProcedurePhaseDefinition();
+        $place = new Place(new Procedure($def, $def), 'test-place', 0);
         $place->setLocked($locked);
 
         return $place;
