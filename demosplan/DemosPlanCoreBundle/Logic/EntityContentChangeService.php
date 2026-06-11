@@ -34,6 +34,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
+use Illuminate\Support\Collection as SupportCollection;
 use InvalidArgumentException;
 use Jfcherng\Diff\DiffHelper;
 use Psr\Log\LoggerInterface;
@@ -196,7 +197,7 @@ class EntityContentChangeService
     /**
      * @param CoreEntity[]|Collection $coreEntities
      */
-    protected function mapToIds($coreEntities): \Illuminate\Support\Collection
+    protected function mapToIds($coreEntities): SupportCollection
     {
         return collect($coreEntities)->map(fn (CoreEntity $item) => $item->getId());
     }
@@ -204,7 +205,7 @@ class EntityContentChangeService
     /**
      * @param CoreEntity[]|Collection $coreEntities
      */
-    protected function mapToContentChangeIdentifiers($coreEntities): \Illuminate\Support\Collection
+    protected function mapToContentChangeIdentifiers($coreEntities): SupportCollection
     {
         return collect($coreEntities)->map(fn (CoreEntity $item) => $item->getEntityContentChangeIdentifier())->sort();
     }
@@ -1247,28 +1248,11 @@ class EntityContentChangeService
         }
 
         // Convert all custom field values of the segment into an array with can be compared by Collection::diff()
-        $preUpdateValues = collect([]);
-        if (!$emptyPre) {
-            $preUpdateValues = $preUpdateCustomFieldValueList->toJson();
-            $preUpdateValues = collect($preUpdateValues)->mapWithKeys(
-                fn (array $preUpdateValue) => [
-                    $this->getCustomFieldName($preUpdateValue['id']) => $this->getCustomFieldValueName($preUpdateValue['id'], $preUpdateValue['value']),
-                ]
-            );
-        }
-
-        $postUpdateValues = collect([]);
-        if (!$emptyPost) {
-            $postUpdateValues = $postUpdateCustomFieldValueList->toJson();
-            $postUpdateValues = collect($postUpdateValues)->mapWithKeys(
-                fn (array $postUpdateValues) => [
-                    $this->getCustomFieldName($postUpdateValues['id']) => $this->getCustomFieldValueName($postUpdateValues['id'], $postUpdateValues['value']),
-                ]
-            );
-        }
+        $preUpdateValues = $this->mapCustomFieldsToNames($emptyPre, $preUpdateCustomFieldValueList);
+        $postUpdateValues = $this->mapCustomFieldsToNames($emptyPost, $postUpdateCustomFieldValueList);
 
         $changes = [];
-        // detect new and updated values
+        // detect new and updated values HERE CHECK
         foreach ($postUpdateValues as $fieldName => $postUpdateValue) {
             $changes[$fieldName] = $this->createContentChangeData(
                 $preUpdateValues[$fieldName] ?? null,
@@ -1292,6 +1276,21 @@ class EntityContentChangeService
         return $changes;
     }
 
+    private function mapCustomFieldsToNames(bool $isEmpty, ?CustomFieldValuesList $customFieldValueList): SupportCollection
+    {
+        $customFieldSelectedValues = collect([]);
+        if (!$isEmpty) {
+            $customFieldSelectedValues = $customFieldValueList->toJson();
+            $customFieldSelectedValues = collect($customFieldSelectedValues)->mapWithKeys(
+                fn (array $updatedValue) => [
+                    $this->getCustomFieldName($updatedValue['id']) => $this->getCustomFieldValueName($updatedValue['id'], $updatedValue['value']),
+                ]
+            );
+        }
+
+        return $customFieldSelectedValues;
+    }
+
     public function getCustomFieldName(string $customFieldId): string
     {
         return $this->customFieldValueCreator
@@ -1299,9 +1298,11 @@ class EntityContentChangeService
             ->getConfiguration()->getName();
     }
 
-    public function getCustomFieldValueName(string $customFieldId, string $customFieldValueId): string
+    public function getCustomFieldValueName(string $customFieldId, mixed $customFieldValueId): string
     {
-        return $this->customFieldValueCreator->getCustomFieldConfigurationById($customFieldId)->getCustomOptionValueById($customFieldValueId)->getLabel();
+        return $this->customFieldValueCreator
+            ->getCustomFieldConfigurationById($customFieldId)
+            ->formatValueForDisplay($customFieldValueId);
     }
 
     /**
@@ -1375,15 +1376,15 @@ class EntityContentChangeService
         $changes = [];
         $class = ClassUtils::getClass($preUpdateObject);
 
-        foreach ($fieldsToTrack as $propertyName => $fieldMetaData) {
+        foreach (array_keys($fieldsToTrack) as $propertyName) {
             /*
-             * See skip reasoning in
-             * {{ @link EntityContentChangeService::calculateChangesOfStandardFieldsOfPreUpdateArrayAndPostUpdateObject }}.
-             */
+            * See skip reasoning in
+            * {{ @link EntityContentChangeService::calculateChangesOfStandardFieldsOfPreUpdateArrayAndPostUpdateObject }}.
+            */
             if ('locked' === $propertyName) {
                 continue;
             }
-            if ('customFields' === $propertyName) {
+            if ('customFields' === $propertyName && array_key_exists($propertyName, $incomingDataArray)) {
                 $changes['customFields'] = $this->diffCustomFields(
                     $preUpdateObject->getCustomFields(),
                     $incomingDataArray['customFields'] ?? null

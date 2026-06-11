@@ -271,6 +271,7 @@ export default {
      */
     claimStatement () {
       const dataToUpdate = { ...this.statement, ...{ relationships: { ...this.statement.relationships, ...{ assignee: { data: { type: 'Claim', id: this.currentUser.id } } } } } }
+
       this.setStatement({ ...dataToUpdate, id: this.statementId })
 
       const payload = {
@@ -325,6 +326,20 @@ export default {
         'recommendation',
       ]
 
+      const statementSegmentInclude = [
+        'assignee',
+        'comments',
+        'comments.place',
+        'comments.submitter',
+        'place',
+        'tags',
+      ]
+
+      if (hasPermission('feature_enable_recommendation_versions')) {
+        statementSegmentInclude.push('recommendationVersions')
+        statementSegmentFields.push('recommendationVersions')
+      }
+
       if (hasPermission('field_segments_custom_fields')) {
         statementSegmentFields.push('customFields')
       }
@@ -371,31 +386,34 @@ export default {
         sort: 'lastname',
       })
 
-      const response = await this.listSegments({
-        include: [
-          'assignee',
-          'comments',
-          'comments.place',
-          'comments.submitter',
+      const fields = {
+        StatementSegment: statementSegmentFields.join(),
+        SegmentComment: [
+          'creationDate',
+          'text',
+          'submitter',
           'place',
-          'tags',
         ].join(),
-        fields: {
-          StatementSegment: statementSegmentFields.join(),
-          SegmentComment: [
-            'creationDate',
-            'text',
-            'submitter',
-            'place',
-          ].join(),
-          Place: [
-            'description',
-            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
-            'name',
-            'solved',
-            'sortIndex',
-          ].join(),
-        },
+        Place: [
+          'description',
+          ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+          'name',
+          'solved',
+          'sortIndex',
+        ].join(),
+      }
+
+      if (hasPermission('feature_enable_recommendation_versions')) {
+        fields.RecommendationVersion = [
+          'versionNumber',
+          'recommendationText',
+          'createdAt',
+        ].join()
+      }
+
+      const response = await this.listSegments({
+        include: statementSegmentInclude.join(),
+        fields,
         page: {
           number: page,
           size: this.pagination?.perPage || this.defaultPagination.perPage,
@@ -468,8 +486,10 @@ export default {
         // Prevent division by zero or negative page size
         return
       }
+
       // Compute new page with current page for changed number of items per page
       const page = Math.floor((this.pagination?.perPage * (this.pagination?.currentPage - 1) / newSize) + 1)
+
       this.pagination.perPage = newSize
       this.fetchSegments(page)
     },

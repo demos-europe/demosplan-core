@@ -145,6 +145,7 @@ export default {
     DpLoading,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
+
       return DpEditor
     }),
   },
@@ -297,6 +298,7 @@ export default {
       // If there are no changes, no need to save something.
       if (this.uneditedFullText === this.fullText) {
         this.isEditing = false
+
         return
       }
 
@@ -324,6 +326,7 @@ export default {
       if (this.editable === false) {
         return
       }
+
       if (!this.isEditing && this.fullTextFetchRoute !== '') {
         this.update(() => {
           this.isEditing = true
@@ -414,6 +417,7 @@ export default {
       this.fullText = this.shortText
       this.fullTextLoaded = true
     }
+
     this.uneditedFullText = this.shortText
 
     // Update texts after entity save

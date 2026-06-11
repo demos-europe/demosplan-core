@@ -136,18 +136,16 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: '_u_created_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createdDate;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="update")
      */
     #[ORM\Column(name: '_u_modified_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modifiedDate;
 
     /**
@@ -165,7 +163,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     /**
      * @var string
      */
-    #[ORM\Column(name: '_u_gw_id', type: 'string', length: 36, options: ['fixed' => true], nullable: true)]
+    #[ORM\Column(name: '_u_gw_id', type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
     protected $gwId;
 
     /**
@@ -932,7 +930,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     public function getOrga(): ?OrgaInterface
     {
         // Return session-selected organisation if set (multi-responsibility support)
-        if (null !== $this->currentOrganisation) {
+        if ($this->currentOrganisation instanceof OrgaInterface) {
             return $this->currentOrganisation;
         }
 

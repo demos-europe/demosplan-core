@@ -266,6 +266,7 @@ export default {
   computed: {
     helpText () {
       const procedureInfoKey = this.isProcedureTemplate ? 'places.edit.infoProcedureTemplate' : 'places.edit.infoProcedure'
+
       return `${Translator.trans('places.edit.info')} ${Translator.trans(procedureInfoKey)}`
     },
 
@@ -367,6 +368,7 @@ export default {
      */
     isUniquePlaceName (placeName, placeId = '') {
       const identicalNames = this.places.filter(el => el.name === placeName && el.id !== placeId)
+
       return identicalNames.length === 0
     },
 
@@ -410,6 +412,7 @@ export default {
             solved: this.newPlace.solved,
             sortIndex: this.places.length,
           }
+
           this.places.push(dataToUpdate)
           dplan.notify.confirm(Translator.trans('confirm.saved'))
         })

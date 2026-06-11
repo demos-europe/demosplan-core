@@ -28,7 +28,7 @@ class Segment extends Statement implements SegmentInterface
     /**
      * @var Collection<int, SegmentCommentInterface>
      */
-    #[ORM\OneToMany(targetEntity: SegmentComment::class, mappedBy: 'segment', orphanRemoval: true, cascade: ['remove'])]
+    #[ORM\OneToMany(targetEntity: SegmentComment::class, mappedBy: 'segment', cascade: ['remove'], orphanRemoval: true)]
     protected $comments;
 
     /**

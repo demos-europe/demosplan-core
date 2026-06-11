@@ -15,10 +15,12 @@ namespace Tests\Core\CustomField;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
+use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldDeleter;
 use Tests\Base\UnitTestCase;
@@ -158,6 +160,61 @@ class CustomFieldDeleterTest extends UnitTestCase
         self::assertNull(
             $customFields2 ? $customFields2->findById($customFieldId) : null,
             'Segment 2 should no longer have the custom field value'
+        );
+    }
+
+    public function testDeleteCustomFieldRemovesUsagesFromOrgas(): void
+    {
+        // Arrange
+        $customField = CustomFieldConfigurationFactory::new()
+            ->withRelatedTargetEntity('ORGA')
+            ->asTextField('Notes')
+            ->create();
+
+        $customFieldId = $customField->getId();
+
+        $orga1 = OrgaFactory::createOne();
+        $orga2 = OrgaFactory::createOne();
+
+        $customFieldValue1 = new CustomFieldValue();
+        $customFieldValue1->setId($customFieldId);
+        $customFieldValue1->setValue('Some note for orga 1');
+
+        $customFieldValue2 = new CustomFieldValue();
+        $customFieldValue2->setId($customFieldId);
+        $customFieldValue2->setValue('Some note for orga 2');
+
+        $customFieldsList1 = new CustomFieldValuesList();
+        $customFieldsList1->addCustomFieldValue($customFieldValue1);
+        $orga1->_real()->setCustomFields($customFieldsList1);
+        $orga1->_save();
+
+        $customFieldsList2 = new CustomFieldValuesList();
+        $customFieldsList2->addCustomFieldValue($customFieldValue2);
+        $orga2->_real()->setCustomFields($customFieldsList2);
+        $orga2->_save();
+
+        $orgaRepo = $this->getContainer()->get(OrgaRepository::class);
+        $orgasWithField = $orgaRepo->findOrgasWithCustomField($customFieldId);
+        self::assertCount(2, $orgasWithField, 'Should have 2 orgas with custom field before deletion');
+
+        // Act
+        $this->sut->deleteCustomField($customFieldId);
+
+        // Assert: configuration deleted, usages cleaned up
+        $orgasWithFieldAfterDeletion = $orgaRepo->findOrgasWithCustomField($customFieldId);
+        self::assertCount(0, $orgasWithFieldAfterDeletion, 'No orgas should have the custom field after deletion');
+
+        $refreshedOrga1 = $orgaRepo->find($orga1->getId());
+        $refreshedOrga2 = $orgaRepo->find($orga2->getId());
+
+        self::assertNull(
+            $refreshedOrga1->getCustomFields()?->findById($customFieldId),
+            'Orga 1 should no longer have the custom field value'
+        );
+        self::assertNull(
+            $refreshedOrga2->getCustomFields()?->findById($customFieldId),
+            'Orga 2 should no longer have the custom field value'
         );
     }
 }

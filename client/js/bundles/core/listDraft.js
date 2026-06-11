@@ -36,9 +36,11 @@ const stores = {
 initialize(components, stores).then(() => {
   if (window.location.hash) {
     const elem = document.getElementById(window.location.hash.slice(1))
+
     if (elem) {
       elem.classList.add(prefixClass('target-element'))
     }
   }
+
   StatementForm()
 })

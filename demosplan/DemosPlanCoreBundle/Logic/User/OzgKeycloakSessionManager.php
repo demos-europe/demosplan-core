@@ -111,12 +111,12 @@ class OzgKeycloakSessionManager
 
             $session->set(self::EXPIRATION_TIMESTAMP, $expirationTimestamp);
 
-            $this->logger->debug('Expiration timestamp injected into session', [
+            $this->logger->debug('oauthAuthenticator: Expiration timestamp injected into session', [
                 'user_id'    => $userId,
                 'expiration' => $expirationTimestamp,
             ]);
         } catch (Exception $e) {
-            $this->logger->warning('Failed to inject expiration timestamp into session', [
+            $this->logger->warning('oauthAuthenticator: Failed to inject expiration timestamp into session', [
                 'user_id' => $userId,
                 'error'   => $e->getMessage(),
             ]);
@@ -132,7 +132,7 @@ class OzgKeycloakSessionManager
     public function storeIdTokenForLogout(SessionInterface $session, string $idToken): void
     {
         $session->set(self::KEYCLOAK_TOKEN, $idToken);
-        $this->logger->info('Storing keycloak id_token in session for logout');
+        $this->logger->info('oauthAuthenticator: Storing keycloak id_token in session for logout');
     }
 
     public function getLogoutUrl(string $logoutRoute, ?string $keycloakToken): string
@@ -185,7 +185,7 @@ class OzgKeycloakSessionManager
     ): void {
         $checkInterval = $this->parameterBag->get('oauth_token_fast_path_interval_seconds');
 
-        if (null !== $accessTokenExpiresAt) {
+        if ($accessTokenExpiresAt instanceof DateTime) {
             $secondsUntilExpiry = $accessTokenExpiresAt->getTimestamp() - time();
             // min/max guards against negative values if token is already expired
             $checkInterval = min($checkInterval, max(0, $secondsUntilExpiry));
@@ -194,7 +194,7 @@ class OzgKeycloakSessionManager
         $nextCheck = time() + $checkInterval;
         $session->set(self::NEXT_TOKEN_CHECK, $nextCheck);
 
-        $this->logger->debug('Session token check threshold updated', [
+        $this->logger->debug('oauthAuthenticator: Session token check threshold updated', [
             'user_id'          => $userId,
             'next_check'       => date('Y-m-d H:i:s', $nextCheck),
             'interval_seconds' => $checkInterval,
@@ -209,13 +209,13 @@ class OzgKeycloakSessionManager
         // Fall back to access token expiry if no refresh token is available.
         $expirationTimestamp = $refreshTokenExpiresAt ?? $accessTokenExpiresAt;
 
-        if (null === $expirationTimestamp) {
+        if (!$expirationTimestamp instanceof DateTime) {
             return;
         }
 
         $session->set(self::EXPIRATION_TIMESTAMP, $expirationTimestamp->getTimestamp());
 
-        $this->logger->debug('PHP session synced with OAuth token expiration', [
+        $this->logger->debug('oauthAuthenticator: PHP session synced with OAuth token expiration', [
             'expires_at' => $expirationTimestamp->format('Y-m-d H:i:s'),
         ]);
     }

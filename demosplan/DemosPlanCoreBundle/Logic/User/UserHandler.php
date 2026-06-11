@@ -244,9 +244,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             $fieldsExpected += 2;
         }
 
-        if (null === $firstname
-            || null === $lastname
-            || null === $emailAddress
+        if (in_array(null, [$firstname, $lastname, $emailAddress], true)
             || !is_string($firstname)
             || !is_string($lastname)
             // there are only seven values expected. Three "real" values + 1 checkbox + 1 csrf token + eventually 2 Honeypot values
@@ -738,7 +736,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                         $invitationFailedList->push($errorUser);
                     }
 
-                    throw new InvalidUserDataException("Failed to invite {$userId}");
+                    throw new InvalidUserDataException("Failed to invite {$userId}", $e->getCode(), $e);
                 }
             });
 
@@ -2183,7 +2181,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 OrgaStatusInCustomerInterface::STATUS_ACCEPTED
             );
 
-            if (null !== $customer) {
+            if ($customer instanceof Customer) {
                 $acceptedCustomers = array_filter(
                     $acceptedCustomers,
                     static fn (Customer $c) => $c->getId() === $customer->getId()
@@ -2376,7 +2374,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
     public function checkMandatoryErrorsPasswordEquals(array $data, array $mandatoryErrors): array
     {
-        if (0 != strcmp((string) $data['password_new'], (string) $data['password_new_2'])) {
+        if (0 !== strcmp((string) $data['password_new'], (string) $data['password_new_2'])) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->translator->trans('warning.password.repeat.not.equal'),
