@@ -215,5 +215,4 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
 
         return $configBuilder;
     }
-
 }
