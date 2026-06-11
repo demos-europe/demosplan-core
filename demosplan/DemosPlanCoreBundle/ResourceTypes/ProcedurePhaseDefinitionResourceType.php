@@ -140,7 +140,7 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
                     function (ProcedurePhaseDefinition $procedurePhaseDefinition, string $newPermissionSet): array {
                         $this->guardConfigurationPhaseNotEditable($procedurePhaseDefinition);
                         $oldPermissionSet = $procedurePhaseDefinition->getPermissionSet();
-                        $procedurePhaseDefinition->setPermissionSet($this->resolvePermissionSet($newPermissionSet));
+                        $procedurePhaseDefinition->setPermissionSet($newPermissionSet);
                         $this->addReportEntryUpdate(
                             $procedurePhaseDefinition,
                             ProcedurePhaseDefinitionUpdatableField::PERMISSION_SET,
