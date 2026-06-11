@@ -93,7 +93,7 @@ const SplitStatementStore = {
       const oldSegmentIndex = state.segments.findIndex((el) => el.id === id)
 
       if (oldSegmentIndex >= 0) {
-        state.segments.oldSegmentIndex = newSegment
+        state.segments[oldSegmentIndex] = newSegment
       }
     },
 
