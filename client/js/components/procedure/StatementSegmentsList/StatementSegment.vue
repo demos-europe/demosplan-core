@@ -1072,9 +1072,11 @@ export default {
            * stale `initial` baseline that setSegment never updates), so an unassign would be silently
            * omitted from saveSegmentAction's request body. Mirrors the explicit payload already used by
            * claimSegment()/unclaimSegment(). It must complete before fetchUpdatedSegment, which would
-           * otherwise re-store the stale assignee.
+           * otherwise re-store the stale assignee. Only applies while the workflow actions are visible,
+           * since `selectedAssignee` is meaningless otherwise (mirrors updateRelationships()).
            */
-          const isUnassigning = !this.selectedAssignee?.id || this.selectedAssignee.id === 'noAssigneeId'
+          const isUnassigning = this.showWorkflowActions &&
+            (!this.selectedAssignee?.id || this.selectedAssignee.id === 'noAssigneeId')
 
           return isUnassigning ?
             dpApi.patch(
