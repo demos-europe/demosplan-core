@@ -423,16 +423,7 @@ class ExportService
                 AssessmentTableViewMode::DEFAULT_VIEW,
                 false
             );
-            $filename = $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['considerationtable'].'/%s.docx';
-            switch ($exportType) {
-                case ExportType::STATEMENTS_ONLY->value:
-                    $filename = sprintf($filename, $this->literals['considerationtable'].'_Liste');
-                    break;
-
-                case ExportType::STATEMENTS_AND_FRAGMENTS->value:
-                    $filename = sprintf($filename, $this->literals['considerationtable'].'_Liste_mit_Datensaetzen');
-                    break;
-            }
+            $filename = $this->buildConsiderationTableDocxFilename($procedureName, $exportType, false);
 
             $this->addDocxToZip($exportResult, $zip, $filename);
             $this->logger->info('abwaegung_list created',
@@ -473,16 +464,7 @@ class ExportService
                 AssessmentTableViewMode::DEFAULT_VIEW,
                 false
             );
-            $filename = $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['considerationtable'].'/%s.docx';
-            switch ($exportType) {
-                case ExportType::STATEMENTS_ONLY->value:
-                    $filename = sprintf($filename, $this->literals['considerationtable'].'_Liste_Anonym');
-                    break;
-
-                case ExportType::STATEMENTS_AND_FRAGMENTS->value:
-                    $filename = sprintf($filename, $this->literals['considerationtable'].'_Liste_mit_Datensaetzen_Anonym');
-                    break;
-            }
+            $filename = $this->buildConsiderationTableDocxFilename($procedureName, $exportType, true);
 
             $this->addDocxToZip($exportResult, $zip, $filename);
 
@@ -502,6 +484,18 @@ class ExportService
         }
 
         return $zip;
+    }
+
+    private function buildConsiderationTableDocxFilename(string $procedureName, string $exportType, bool $anonymous): string
+    {
+        $anonymSuffix = $anonymous ? '_Anonym' : '';
+        $filename = $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['considerationtable'].'/%s.docx';
+
+        return match ($exportType) {
+            ExportType::STATEMENTS_ONLY->value            => sprintf($filename, $this->literals['considerationtable'].'_Liste'.$anonymSuffix),
+            ExportType::STATEMENTS_AND_FRAGMENTS->value   => sprintf($filename, $this->literals['considerationtable'].'_Liste_mit_Datensaetzen'.$anonymSuffix),
+            default                                       => $filename,
+        };
     }
 
     public function addAssessmentTableOriginalToZip(
