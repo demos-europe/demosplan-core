@@ -107,7 +107,6 @@
     />
 
     <template v-else>
-      <!-- Todo: add Permission and swap with is-selectable  :is-selectable="isSourceAndCoupledProcedure && hasPermission('feature_statements_sync_to_procedure')"-->
       <dp-data-table
         v-if="items.length > 0"
         data-cy="listStatements"
@@ -115,7 +114,7 @@
         has-flyout
         :header-fields="headerFields"
         is-expandable
-        is-selectable
+        :is-selectable="(isSourceAndCoupledProcedure && hasPermission('feature_statements_sync_to_procedure')) || hasPermission('feature_statement_cluster')"
         :items="items"
         lock-checkbox-by="lockedForSelection"
         lock-message-by="lockedForSelectionMessage"
