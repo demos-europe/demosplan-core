@@ -40,10 +40,13 @@
 
     <!-- Tags Section -->
     <div
+      role="group"
       aria-labelledby="floatingContextButton_tags"
       :class="['flex-1', 'flex', 'pl-2', 'pr-5', '-mr-4', { 'overflow-y-scroll': availableTags.length && tagTopics.length > 8 }]"
       @mouseover="showFloatingContextButton.tags = true"
       @mouseleave="showFloatingContextButton.tags = false"
+      @focusin="showFloatingContextButton.tags = true"
+      @focusout="showFloatingContextButton.tags = false"
     >
       <button
         v-if="!isCollapsed.tags"
@@ -103,10 +106,13 @@
 
     <!-- Places and Assignee Section -->
     <div
+      role="group"
       aria-labelledby="floatingContextButton_placesAndAssignee"
       class="relative py-1 pl-2 pr-5 -mr-4"
       @mouseover="showFloatingContextButton.placesAndAssignee = true"
       @mouseleave="showFloatingContextButton.placesAndAssignee = false"
+      @focusin="showFloatingContextButton.placesAndAssignee = true"
+      @focusout="showFloatingContextButton.placesAndAssignee = false"
     >
       <FloatingContextButton
         class="right-0 top-0"
@@ -181,6 +187,8 @@
       class="relative py-1 pl-2 pr-5 -mr-4"
       @mouseover="showFloatingContextButton.additionalFields = true"
       @mouseleave="showFloatingContextButton.additionalFields = false"
+      @focusin="showFloatingContextButton.additionalFields = true"
+      @focusout="showFloatingContextButton.additionalFields = false"
     >
       <FloatingContextButton
         class="right-0 top-0"
