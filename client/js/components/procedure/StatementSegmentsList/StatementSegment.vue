@@ -653,7 +653,9 @@ export default {
       if (this.isSaving) {
         return this.lockedBeforeSave
       }
+
       const placeId = this.segment.relationships?.place?.data?.id
+
       return !!this.placeItems[placeId]?.attributes?.locked
     },
 

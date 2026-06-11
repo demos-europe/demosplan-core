@@ -702,6 +702,7 @@ export default {
       if (!this.canUnlock) {
         return 0
       }
+
       return this.items.filter(item => item.isPlaceLocked && this.currentlySelectedItems[item.id]).length
     },
 
@@ -931,6 +932,7 @@ export default {
               },
             }
           }
+
           this.fetchSegmentIds({
             filter: idsFilter,
             search: payload.search,
