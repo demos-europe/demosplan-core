@@ -121,7 +121,7 @@
       <button
         v-if="!isCollapsed.placesAndAssignee"
         data-cy="sidebar:toggleVisibility:placesAndAssignee"
-        class="relative btn--blank o-link--default text-left w-full"
+        class="relative btn--blank o-link--default font-semibold text-left w-full"
         @click="toggleVisibility('placesAndAssignee')"
       >
         {{ Translator.trans('workflow.place.and.assignment') }}
@@ -194,7 +194,7 @@
       <button
         v-if="!isCollapsed.additionalFields"
         data-cy="sidebar:toggleVisibility:additionalFields"
-        class="relative btn--blank o-link--default text-left w-full"
+        class="relative btn--blank o-link--default font-semibold text-left w-full"
         @click="toggleVisibility"
       >
         {{ Translator.trans('fields.more.edit') }}
@@ -234,7 +234,7 @@ import {
   DpMultiselect,
   formatDate,
   hasOwnProp,
-  reformatDate,
+  reformatDateString,
   Tooltip,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
@@ -457,7 +457,8 @@ export default {
       }
 
       if (hasPermission('field_statement_deadline') && this.deadlineNeedsUpdate) {
-        segment.deadline = this.deadline ? reformatDate(this.deadline, 'DD.MM.YYYY', 'YYYY-MM-DD') : ''
+        const isoDate = reformatDateString(this.deadline)
+        segment.deadline = isoDate
       }
 
       if (this.placeNeedsUpdate) {

@@ -457,7 +457,7 @@ import {
   DpMultiselect,
   formatDate,
   prefixClassMixin,
-  reformatDate,
+  reformatDateString,
   Tooltip,
   VPopover,
 } from '@demos-europe/demosplan-ui'
@@ -889,7 +889,7 @@ export default {
         return
       }
 
-      const isoDate = reformatDate(value, 'DD.MM.YYYY', 'YYYY-MM-DD')
+      const isoDate = reformatDateString(value)
 
       this.updateSegment('deadline', isoDate)
     },
