@@ -59,7 +59,6 @@ class StatementGroupStateProvider implements ProviderInterface
     {
         $resource = new StatementGroupResource();
         $resource->id = $statement->getId();
-        $resource->createdDate = $statement->getCreated();
         $resource->groupName = $statement->getName();
         $resource->statements = array_map(
             static function (Statement $member): StatementResource {

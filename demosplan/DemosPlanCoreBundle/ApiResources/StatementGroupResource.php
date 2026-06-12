@@ -21,7 +21,6 @@ use ApiPlatform\Metadata\Post;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
 use demosplan\DemosPlanCoreBundle\StateProcessor\StatementGroupProcessor;
 use demosplan\DemosPlanCoreBundle\StateProvider\StatementGroupStateProvider;
-use Symfony\Component\Serializer\Attribute\SerializedName;
 
 #[ApiResource(
     shortName: 'StatementGroup',
@@ -42,9 +41,6 @@ class StatementGroupResource
 {
     #[ApiProperty(readable: false, identifier: true)]
     public string $id;
-
-    #[SerializedName('createdDate')]
-    public \DateTime $createdDate;
 
     #[ApiProperty(readable: true, writable: true)]
     public ?string $groupName = null;

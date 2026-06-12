@@ -44,6 +44,9 @@ class StatementStateProvider implements ProviderInterface
     private function provideSingle(string $id): ?StatementResource
     {
         $statement = $this->statementService->getStatement($id);
+        if (null === $statement) {
+            return null;
+        }
 
         $statementResource = new StatementResource();
         $statementResource->id = $statement->getId();
