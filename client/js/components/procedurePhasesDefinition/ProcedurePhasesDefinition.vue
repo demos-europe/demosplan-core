@@ -36,7 +36,7 @@ All rights reserved
         <dp-input
           id="phaseName"
           v-model="newPhase.name"
-          :invalid="showInvalidInputStyle"
+          :invalid="isNewPhaseNameInvalid"
           :label="{ text: Translator.trans('procedure.phase.name') }"
           data-cy="procedurePhases:createForm:name"
           required
@@ -134,7 +134,7 @@ All rights reserved
                   :id="`phaseName-${phase.id}`"
                   v-model="draftCoreRowValue.name"
                   :data-cy="`procedurePhases:editName:${phase.id}`"
-                  :invalid="showInvalidInputStyle"
+                  :invalid="isEditedPhaseNameInvalid"
                 />
 
                 <span v-else>{{ phase.name }}</span>
@@ -310,11 +310,7 @@ export default {
   mixins: [dpValidateMixin],
 
   setup () {
-    /*
-     * ==============================
-     *  Shared logic
-     * ==============================
-     */
+    // *** SHARED LOGIC ***
     const audienceOptions = [
       { label: Translator.trans('audience.external'), value: 'external' },
       { label: Translator.trans('audience.internal'), value: 'internal' },
@@ -329,8 +325,12 @@ export default {
     const flyoutWidth = ref('80px')
     const hasAttemptedSubmit = ref(false)
 
-    const showInvalidInputStyle = computed(() =>
-      hasAttemptedSubmit.value && (isNewPhaseNameDuplicate.value || isEditedPhaseNameDuplicate.value || isEditedPhaseNameEmpty.value),
+    const isNewPhaseNameInvalid = computed(() =>
+      hasAttemptedSubmit.value && isNewPhaseNameDuplicate.value,
+    )
+
+    const isEditedPhaseNameInvalid = computed(() =>
+      hasAttemptedSubmit.value && (isEditedPhaseNameDuplicate.value || isEditedPhaseNameEmpty.value),
     )
 
     const findPermissionSetOption = (value) =>
@@ -350,11 +350,7 @@ export default {
       )
     }
 
-    /*
-     * ==============================
-     *  Phase list logic
-     * ==============================
-     */
+    // *** PHASE LIST LOGIC ***
     const isAddonActive = ref(false)
     const isInitiallyLoading = ref(true)
     const phaseDefinitions = ref([])
@@ -429,11 +425,7 @@ export default {
       permissionSetLabel: findPermissionSetOption(phase.permissionSet)?.label || phase.permissionSet,
     })
 
-    /*
-     * ==============================
-     *  Create phase logic
-     * ==============================
-     */
+    // *** CREATE PHASE LOGIC ***
     const isCreateFormAddonLoading = ref(true)
     const isCreating = ref(false)
     const isLoading = ref(false)
@@ -565,11 +557,7 @@ export default {
         })
     }
 
-    /*
-     * ==============================
-     *  Edit phase logic
-     * ==============================
-     */
+    // *** EDIT PHASE LOGIC ***
     const draftAddonRowPayloads = reactive({})
     const draftCoreRowValue = ref({ name: '', participationState: null, permissionSet: '' })
     const editingRowId = ref(null)
@@ -858,9 +846,11 @@ export default {
       headerFields,
       isCreateFormAddonLoading,
       isCreating,
+      isEditedPhaseNameInvalid,
       isInitiallyLoading,
       isLoading,
       isNewPhaseNameDuplicate,
+      isNewPhaseNameInvalid,
       isSaving,
       newPhase,
       newPhaseAddonPayload,
@@ -869,7 +859,6 @@ export default {
       resetForm,
       savedAddonRowPayloads,
       setParticipationState,
-      showInvalidInputStyle,
       startEdit,
       updateAddonPayload,
       updateCoreRowValue,
