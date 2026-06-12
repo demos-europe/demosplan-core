@@ -16,9 +16,9 @@ use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\StateProcessor\StatementGroupProcessor;
 use demosplan\DemosPlanCoreBundle\StateProvider\StatementGroupStateProvider;
 
@@ -54,4 +54,27 @@ class StatementGroupResource
 
     #[ApiProperty(readable: true, writable: false)]
     public int $statementsCount = 0;
+
+    /**
+     * Builds the resource from a cluster (head) statement, used by both the
+     * read provider and the create processor so their output is identical.
+     */
+    public static function fromStatement(Statement $statement): self
+    {
+        $resource = new self();
+        $resource->id = $statement->getId();
+        $resource->groupName = $statement->getName();
+        $resource->statements = array_map(
+            static function (Statement $member): StatementResource {
+                $statementResource = new StatementResource();
+                $statementResource->id = $member->getId();
+
+                return $statementResource;
+            },
+            $statement->getCluster()->toArray()
+        );
+        $resource->statementsCount = count($resource->statements);
+
+        return $resource;
+    }
 }

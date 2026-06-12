@@ -16,7 +16,6 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementGroupResource;
-use demosplan\DemosPlanCoreBundle\ApiResources\StatementResource;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use Webmozart\Assert\Assert;
@@ -52,26 +51,7 @@ class StatementGroupStateProvider implements ProviderInterface
             return null;
         }
 
-        return $this->hydrateFromStatement($statement);
-    }
-
-    private function hydrateFromStatement(Statement $statement): StatementGroupResource
-    {
-        $resource = new StatementGroupResource();
-        $resource->id = $statement->getId();
-        $resource->groupName = $statement->getName();
-        $resource->statements = array_map(
-            static function (Statement $member): StatementResource {
-                $statementResource = new StatementResource();
-                $statementResource->id = $member->getId();
-
-                return $statementResource;
-            },
-            $statement->getCluster()->toArray()
-        );
-        $resource->statementsCount = count($resource->statements);
-
-        return $resource;
+        return StatementGroupResource::fromStatement($statement);
     }
 
     public function isAvailable(): bool
