@@ -876,7 +876,7 @@ export default {
       })
     },
 
-    finalizeSave (comments) {
+    restoreRelationships (comments) {
       this.restoreComments(comments)
       this.setProperty({ prop: 'isLoading', val: false })
       this.isEditing = false
@@ -915,7 +915,7 @@ export default {
           dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
         })
         .finally(() => {
-          this.finalizeSave(comments)
+          this.restoreRelationships(comments)
         })
     },
 
@@ -1091,7 +1091,7 @@ export default {
         .then((response) => {
           if (response && (response.status >= 400 || response.ok === false)) {
             dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
-            this.finalizeSave(comments)
+            this.restoreRelationships(comments)
 
             return
           }
