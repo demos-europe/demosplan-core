@@ -332,10 +332,9 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
                 $gdprConsent->setConsentReceivedDate($statement->getSubmitObject());
                 $gdprConsent->setConsentReceived(true);
             }
-            try {
+            $submitConsentee = null;
+            if (null !== $consenteeIds['submitter'] && '' !== $consenteeIds['submitter']) {
                 $submitConsentee = $em->getRepository(User::class)->find($consenteeIds['submitter']);
-            } catch (ORMException) {
-                $submitConsentee = null;
             }
 
             $gdprConsent->setConsentee($submitConsentee);
