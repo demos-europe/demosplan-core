@@ -16,12 +16,15 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedurePhaseDefinitionResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
-use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionEditor;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedurePhaseDefinitionUpdatableField;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\ProcedurePhaseDefinitionResourceConfigBuilder;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
+use EDT\Querying\Contracts\PathException;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\CallbackAttributeSetBehavior;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
@@ -33,6 +36,7 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
 {
     public function __construct(
         private readonly ProcedurePhaseDefinitionRepository $procedurePhaseDefinitionRepository,
+        private readonly ProcedurePhaseDefinitionEditor $procedurePhaseDefinitionEditor,
     ) {
     }
 
@@ -66,6 +70,10 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
         return $this->isCreateAllowed();
     }
 
+    /**
+     * @throws PathException
+     * @throws CustomerNotFoundException
+     */
     protected function getAccessConditions(): array
     {
         $customerId = $this->currentCustomerService->getCurrentCustomer()->getId();
@@ -89,7 +97,24 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
             ->setSortable()
             ->setFilterable()
             ->addPathCreationBehavior()
-            ->addPathUpdateBehavior();
+            ->addUpdateBehavior(
+                CallbackAttributeSetBehavior::createFactory(
+                    [],
+                    function (ProcedurePhaseDefinition $procedurePhaseDefinition, string $newName): array {
+                        $oldName = $procedurePhaseDefinition->getName();
+                        $procedurePhaseDefinition->setName($newName);
+                        $this->procedurePhaseDefinitionEditor->addReportEntryUpdate(
+                            $procedurePhaseDefinition,
+                            ProcedurePhaseDefinitionUpdatableField::NAME,
+                            $oldName,
+                            $newName
+                        );
+
+                        return [];
+                    },
+                    OptionalField::YES
+                )
+            );
 
         $configBuilder->audience
             ->setReadableByPath(DefaultField::YES)
@@ -108,9 +133,16 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
             ->addUpdateBehavior(
                 CallbackAttributeSetBehavior::createFactory(
                     [],
-                    function (ProcedurePhaseDefinition $phaseDefinition, mixed $value): array {
-                        $this->guardConfigurationPhaseNotEditable($phaseDefinition);
-                        $phaseDefinition->setPermissionSet($value);
+                    function (ProcedurePhaseDefinition $procedurePhaseDefinition, string $newPermissionSet): array {
+                        $this->procedurePhaseDefinitionEditor->guardConfigurationPhaseNotEditable($procedurePhaseDefinition);
+                        $oldPermissionSet = $procedurePhaseDefinition->getPermissionSet();
+                        $procedurePhaseDefinition->setPermissionSet($newPermissionSet);
+                        $this->procedurePhaseDefinitionEditor->addReportEntryUpdate(
+                            $procedurePhaseDefinition,
+                            ProcedurePhaseDefinitionUpdatableField::PERMISSION_SET,
+                            $oldPermissionSet,
+                            $newPermissionSet
+                        );
 
                         return [];
                     },
@@ -125,15 +157,22 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
             ->addUpdateBehavior(
                 CallbackAttributeSetBehavior::createFactory(
                     [],
-                    function (ProcedurePhaseDefinition $phaseDefinition, mixed $value): array {
-                        $this->guardConfigurationPhaseNotEditable($phaseDefinition);
-                        if (ProcedureInterface::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN === $value) {
+                    function (ProcedurePhaseDefinition $procedurePhaseDefinition, ?string $newParticipationState): array {
+                        $this->procedurePhaseDefinitionEditor->guardConfigurationPhaseNotEditable($procedurePhaseDefinition);
+                        if (ProcedureInterface::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN === $newParticipationState) {
                             $tokenPermission = 'area_customer_procedure_phase_participation_token';
                             if (!$this->currentUser->hasPermission($tokenPermission)) {
                                 throw AccessDeniedException::missingPermissions(null, [$tokenPermission]);
                             }
                         }
-                        $phaseDefinition->setParticipationState($value);
+                        $oldParticipationState = $procedurePhaseDefinition->getParticipationState();
+                        $procedurePhaseDefinition->setParticipationState($newParticipationState);
+                        $this->procedurePhaseDefinitionEditor->addReportEntryUpdate(
+                            $procedurePhaseDefinition,
+                            ProcedurePhaseDefinitionUpdatableField::PARTICIPANT_STATE,
+                            $oldParticipationState,
+                            $newParticipationState
+                        );
 
                         return [];
                     },
@@ -175,15 +214,5 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
         );
 
         return $configBuilder;
-    }
-
-    /**
-     * Rejects any attempt to set a field that is fixed for the configuration phase.
-     */
-    private function guardConfigurationPhaseNotEditable(ProcedurePhaseDefinition $phaseDefinition): void
-    {
-        if ($phaseDefinition->isConfigurationPhase()) {
-            throw new BadRequestException('Only the name of the configuration phase can be changed; permissionSet and participationState are fixed.');
-        }
     }
 }
