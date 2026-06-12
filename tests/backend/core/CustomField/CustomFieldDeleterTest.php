@@ -23,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
-use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldDeleter;
 use Tests\Base\UnitTestCase;
 
