@@ -144,12 +144,13 @@ All rights reserved
                 <dp-multiselect
                   v-if="editingRowId === phase.id && phase.orderInAudience !== 0"
                   :id="`phasePermissionSet-${phase.id}`"
+                  :allow-empty="false"
                   :data-cy="`procedurePhases:editPermissionSet:${phase.id}`"
                   :options="permissionSetOptions"
                   :value="findPermissionSetOption(draftCoreRowValue.permissionSet)"
                   label="label"
                   track-by="value"
-                  @input="option => updateCoreRowValue('permissionSet', option?.value ?? '')"
+                  @input="option => updateCoreRowValue('permissionSet', option?.value)"
                 />
 
                 <span v-else>{{ phase.permissionSetLabel }}</span>
