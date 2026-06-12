@@ -57,12 +57,17 @@ use stdClass;
  * "params": {
  *   "addTagIds": <JSON array of tag IDs>,
  *   "removeTagIds": <JSON array of tag IDs>,
- *   "assigneeId": <JSON string of a user ID>,
- *   "segmentIds": <JSON array: array of segment IDs>,
- *   "recommendationTextEdit": <JSON object containing "text" as string and "attach" as boolean>
+ *   "segmentIds": <JSON array of segment IDs>,
+ *   "recommendationTextEdit": <JSON object: "text" (string) and "attach" (boolean)>,
+ *   "assigneeId": <JSON string user ID, or null to unassign — omit the key to leave the assignee unchanged>,
+ *   "placeId": <JSON string: 36-char workflow place UUID>,
+ *   "customFields": <JSON array of {id, value} objects, e.g. [{"id": "f3a8…", "value": "high"}]>
  * }
  * ```
- * All fields are required, however each array/object may be empty.
+ * `addTagIds`, `removeTagIds`, `segmentIds` and `recommendationTextEdit` are
+ * required by the JSON schema (each array/object may be empty).
+ * `assigneeId`, `placeId` and `customFields` are optional — omit them to leave
+ * the corresponding segment property unchanged.
  */
 class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 {
@@ -105,6 +110,19 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                 try {
                     $this->validateRpcRequest($rpcRequest);
                     $segmentIds = $rpcRequest->params->segmentIds;
+
+                    /*
+                     * Reject the whole batch if the segment lock feature is
+                     * enabled for the current project and any segment is locked
+                     * by its workflow place for the current user — see
+                     * {{ @see SegmentBulkEditorService::assertBatchEditable }}.
+                     * Runs before {{ @see SegmentBulkEditorService::getValidSegments }}
+                     * so we don't pay entity hydration cost on batches we're
+                     * about to reject. Admins with `feature_administrate_segment_lock`
+                     * pass through.
+                     */
+                    $this->segmentBulkEditorService->assertBatchEditable($segmentIds, $procedureId);
+
                     $segments = $this->segmentBulkEditorService->getValidSegments($segmentIds, $procedureId);
 
                     // update texts directly in database for performance reasons
