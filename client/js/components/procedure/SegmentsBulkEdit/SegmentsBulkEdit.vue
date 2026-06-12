@@ -22,6 +22,14 @@
     <!-- Step 1 - Chose action -->
     <template v-slot:step-1>
       <div class="border-between-vertical">
+        <dp-inline-notification
+          v-if="hasLockedSelection"
+          :dismissible-key="lockedHintDismissibleKey"
+          :message="Translator.trans('segments.bulk.edit.locked.hint', { lockedCount, totalCount: segments.length })"
+          class="border-between-none mt-3 mb-2"
+          type="info"
+          dismissible
+        />
         <!-- Assign user -->
         <action-stepper-action
           v-if="hasPermission('feature_statement_assignment')"
@@ -59,6 +67,7 @@
 
         <!-- Add tags -->
         <action-stepper-action
+          v-if="!hasLockedSelection"
           id="selectAddTagsAction"
           v-model="actions.addTags.checked"
           :label="Translator.trans('segments.bulk.edit.tags.add')"
@@ -79,6 +88,7 @@
 
         <!-- Remove tags -->
         <action-stepper-action
+          v-if="!hasLockedSelection"
           id="selectDeleteTagsAction"
           v-model="actions.deleteTags.checked"
           :label="Translator.trans('segments.bulk.edit.tags.delete')"
@@ -99,6 +109,7 @@
 
         <!-- Append text to recommendation -->
         <action-stepper-action
+          v-if="!hasLockedSelection"
           id="selectAddRecommendationAction"
           v-model="actions.addRecommendations.checked"
           :label="Translator.trans('segments.bulk.edit.recommendations.add')"
@@ -182,21 +193,23 @@
           </dp-editor>
         </action-stepper-action>
         <!--Custom Fields-->
-        <action-stepper-action
-          v-for="customField in actions.customFields"
-          :id="customField.id"
-          :key="`customField:${customField.id}`"
-          v-model="customField.checked"
-          :label="customField.label"
-        >
-          <dp-multiselect
-            :id="`customFieldSelect:${customField.id}`"
-            v-model="customField.selected"
-            class="w-12"
-            :disabled="!hasSegments"
-            :options="customField.optionLabels"
-          />
-        </action-stepper-action>
+        <template v-if="!hasLockedSelection">
+          <action-stepper-action
+            v-for="customField in actions.customFields"
+            :id="customField.id"
+            :key="`customField:${customField.id}`"
+            v-model="customField.checked"
+            :label="customField.label"
+          >
+            <dp-multiselect
+              :id="`customFieldSelect:${customField.id}`"
+              v-model="customField.selected"
+              class="w-12"
+              :disabled="!hasSegments"
+              :options="customField.optionLabels"
+            />
+          </action-stepper-action>
+        </template>
       </div>
     </template>
 
@@ -437,8 +450,10 @@ export default {
       assignableUsers: [],
       busy: false,
       customFieldDefinitions: [],
+      hasLockedSelection: false,
       hasRecommendationTabs: false,
       isLoading: true,
+      lockedCount: 0,
       places: [],
       returnLink: Routing.generate('dplan_segments_list', { procedureId: this.procedureId }),
       segmentDataLoaded: false,
@@ -561,6 +576,10 @@ export default {
 
     isSingleSegmentSelected () {
       return this.segments.length === 1
+    },
+
+    lockedHintDismissibleKey () {
+      return `${this.procedureId}:segmentsBulkEditLockedHint`
     },
 
     tags () {
@@ -762,6 +781,8 @@ export default {
       const allSegments = lscache.get(`${this.procedureId}:allSegments`)
 
       if (segments && allSegments) {
+        this.hasLockedSelection = !!segments.hasLocked
+        this.lockedCount = segments.lockedCount ?? 0
         const toggledIds = segments.toggledSegments.map(item => item.id)
 
         if (segments.trackDeselected === false) {
