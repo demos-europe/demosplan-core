@@ -6,8 +6,14 @@
 
 ## UNRELEASED
 
+## v4.44.1 (2026-06-12)
+
+### Changed
+- Adjacent statement segments with identical tags are now merged into a single segment during statement segmentation, preserving the original text formatting (DPLAN-12697)
+
 ### Fixed
 - Submitting a public statement as an anonymous citizen no longer fails with a Doctrine `MissingIdentifierField` exception (DPLAN-18002)
+- Logging out via Keycloak no longer produces an invalid redirect address when the customer-specific logout route already contains the full host name
 
 ## v4.44.0 (2026-06-05)
 
