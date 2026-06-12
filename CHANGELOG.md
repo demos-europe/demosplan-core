@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+### Fixed
+- Submitting a public statement as an anonymous citizen no longer fails with a Doctrine `MissingIdentifierField` exception (DPLAN-18002)
+
 ## v4.43.0 (2026-06-05)
 
 ### Added
