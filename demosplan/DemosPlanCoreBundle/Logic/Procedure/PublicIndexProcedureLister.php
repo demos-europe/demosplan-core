@@ -140,6 +140,7 @@ class PublicIndexProcedureLister
     {
         $toPhaseArray = static fn (ProcedurePhaseDefinition $d): array => [
             'id'                 => $d->getId(),
+            'key'                => $d->getId(),
             'name'               => $d->getName(),
             'permissionset'      => $d->getPermissionSet(),
             'participationstate' => $d->getParticipationState(),

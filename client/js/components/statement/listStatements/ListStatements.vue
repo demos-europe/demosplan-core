@@ -48,9 +48,8 @@
         />
       </dp-bulk-edit-header>
 
-      <!--Todo: add permission-->
       <dp-bulk-edit-header
-        v-if="selectedItemsCount > 0"
+        v-if="selectedItemsCount > 0 && hasPermission('feature_statement_cluster')"
         class="layout__item u-12-of-12 u-mt-0_5"
         :selected-items-text="Translator.trans('statements.selected', { count: selectedItemsCount })"
         @reset-selection="resetSelection"
@@ -108,7 +107,6 @@
     />
 
     <template v-else>
-      <!-- Todo: add Permission and swap with is-selectable  :is-selectable="isSourceAndCoupledProcedure && hasPermission('feature_statements_sync_to_procedure')"-->
       <dp-data-table
         v-if="items.length > 0"
         data-cy="listStatements"
@@ -116,15 +114,16 @@
         has-flyout
         :header-fields="headerFields"
         is-expandable
-        is-selectable
+        :is-selectable="(isSourceAndCoupledProcedure && hasPermission('feature_statements_sync_to_procedure')) || hasPermission('feature_statement_cluster')"
         :items="items"
-        lock-checkbox-by="synchronized"
+        lock-checkbox-by="lockedForSelection"
+        lock-message-by="lockedForSelectionMessage"
         :multi-page-all-selected="allSelectedVisually"
         :multi-page-selection-items-total="allItemsCount"
         :multi-page-selection-items-toggled="toggledItems.length"
         :should-be-selected-items="currentlySelectedItems"
         track-by="id"
-        :translations="{ lockedForSelection: Translator.trans('item.lockedForSelection.sharedStatement') }"
+        :translations="{ lockedForSelection: Translator.trans('item.lockedForSelection') }"
         @select-all="handleSelectAll"
         @items-toggled="handleToggleItem"
       >
@@ -310,9 +309,19 @@
                     {{ Translator.trans('submit.type') }}:
                   </dt>
                   <dd>{{ submitType }}</dd>
-                  <!-- TODO(DPLAN-17748): show the statement's associated group once the backend exposes it -->
                   <dt>{{ Translator.trans('statement.associated.group') }}:</dt>
-                  <dd>-</dd>
+                  <dd v-if="statementsObject[id].attributes.isCluster">
+                    {{ statementsObject[id].attributes.name }}
+                    <span
+                      v-if="groupMemberCounts[id] != null"
+                      class="block color--grey"
+                    >
+                      {{ Translator.trans('statements.count.parenthesized', { count: groupMemberCounts[id] }) }}
+                    </span>
+                  </dd>
+                  <dd v-else>
+                    -
+                  </dd>
                 </dl>
               </div>
             </template>
@@ -450,10 +459,12 @@ export default {
         perPage: 10,
       },
       isFullscreen: false,
-      // Provisional: renders the inline group form on click so it mounts fresh and reads
-      // the freshly stored selection from localStorage. Mimics the future dedicated page
-      // that the backend redirect will open. Remove together with the inline form once the
-      // backend route exists.
+      /*
+       * Provisional: renders the inline group form on click so it mounts fresh and reads
+       * the freshly stored selection from localStorage. Mimics the future dedicated page
+       * that the backend redirect will open. Remove together with the inline form once the
+       * backend route exists.
+       */
       showGroupForm: false,
       lsKey: {
         // LocalStorage keys
@@ -469,6 +480,8 @@ export default {
         { field: 'segmentsCount', label: Translator.trans('segments') },
       ],
       pagination: {},
+      // Member counts per group head (keyed by head statement id), fetched from the 3.0 StatementGroup endpoint.
+      groupMemberCounts: {},
       searchFields: [
         'authorName',
         'department',
@@ -580,6 +593,10 @@ export default {
             assignee: this.getAssignee(statement),
             id: statement.id,
             segmentsCount: segmentsCount || '-',
+            // Lock selection for synchronized statements, statements already split into segments, and groups.
+            lockedForSelection: Boolean(statement.attributes.synchronized) || segmentsCount > 0 || Boolean(statement.attributes.isCluster),
+            // Per-row tooltip for the locked checkbox, specific to the reason the statement is locked.
+            lockedForSelectionMessage: this.getLockMessage(statement),
             originalPdf,
           }
         })
@@ -652,11 +669,12 @@ export default {
     },
 
     handleBulkGroup () {
-      console.log('toggledItems:', this.toggledItems)
       this.storeToggledStatements()
-      // Mount the form after the selection is stored, so its onMounted reads the fresh
-      // localStorage data. Replaced by a redirect to the dedicated page once the route exists.
-      this.showGroupForm = true
+      /*
+       * Store the selection first, then navigate to the dedicated group-creation page,
+       * whose form reads the selection from localStorage on mount.
+       */
+      window.location.href = Routing.generate('dplan_procedure_statement_group_create', { procedureId: this.procedureId })
     },
 
     handleFullTextAction (statementId) {
@@ -783,9 +801,9 @@ export default {
     },
 
     storeToggledStatements () {
-      console.log('Saving:', this.lsKey.toggledStatements, this.toggledItems)
       // Store selection as criteria so "select all" resolves across pages on load.
       const { search, filter } = this.getParamsForBulkShare()
+
       lscache.set(this.lsKey.toggledStatements, { search, filter })
     },
 
@@ -836,9 +854,9 @@ export default {
         'initialOrganisationStreet',
         'internId',
         'isCitizen',
-        // TODO(DPLAN-17748): isCluster is the legacy/deprecated cluster flag; confirm the new grouping feature sets it for group heads
         'isCluster',
         'memo',
+        'name',
         'originalId',
         'status',
         'segmentsCount',
@@ -901,7 +919,44 @@ export default {
 
         this.setNumSelectableItems(data)
         this.updatePagination(data.meta.pagination)
+        this.fetchGroupMemberCounts()
       })
+    },
+
+    /**
+     * Fetch the member count for each group head on the current page from the 3.0 StatementGroup
+     * endpoint. The 2.0 statement list does not carry the count, so it is loaded per head.
+     */
+    fetchGroupMemberCounts () {
+      Object.values(this.statementsObject)
+        .filter(statement => statement.attributes.isCluster)
+        .forEach(head => {
+          dpApi.get(Routing.generate('_api_/3.0/StatementGroup/{id}_get', { id: head.id }))
+            .then(response => {
+              this.groupMemberCounts[head.id] = response.data.data.attributes.statementsCount
+            })
+        })
+    },
+
+    /**
+     * Returns the tooltip message for a locked checkbox, specific to why the statement cannot be selected.
+     */
+    getLockMessage (statement) {
+      const { isCluster, segmentsCount, synchronized } = statement.attributes
+
+      if (synchronized) {
+        return Translator.trans('item.lockedForSelection.sharedStatement')
+      }
+
+      if (isCluster) {
+        return Translator.trans('item.lockedForSelection.cluster')
+      }
+
+      if (segmentsCount > 0) {
+        return Translator.trans('item.lockedForSelection.segmented')
+      }
+
+      return ''
     },
 
     /**

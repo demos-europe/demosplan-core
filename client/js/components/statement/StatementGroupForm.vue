@@ -17,14 +17,14 @@ All rights reserved
       :total-steps="3"
       :translations="translations"
       :valid="isValid"
-      @confirm="step = 2"
+      @confirm="handleConfirmStep1"
       @edit="step = 1"
       @apply="handleApply"
     >
       <template v-slot:step-1>
         <div class="mt-5 mb-6">
           <dp-radio
-            id="actionCreate"
+            id="action-create"
             class="mb-3"
             name="groupAction"
             value="createGroup"
@@ -175,9 +175,18 @@ const translations = computed(() => ({
   ],
 }))
 
-function handleApply () {
-  console.log('apply clicked, statements:', statements.value)
+function handleConfirmStep1 () {
+  // Creating a group needs at least two statements; adding to an existing group (action "addToGroup") later allows one.
+  if (selectedAction.value === 'createGroup' && statements.value.length < 2) {
+    dplan.notify.notify('error', Translator.trans('confirm.consolidation.not.enough.statements'))
 
+    return
+  }
+
+  step.value = 2
+}
+
+async function handleApply () {
   const { valid } = validateForm(document.querySelector('[data-dp-validate=groupForm]'))
 
   if (!valid) {
@@ -186,7 +195,31 @@ function handleApply () {
     return
   }
 
-  step.value = 3
+  const payload = {
+    type: 'StatementGroup',
+    attributes: {
+      groupName: groupName.value,
+      headStatementId: mainStatementId.value.id,
+    },
+    relationships: {
+      statements: {
+        // API Platform (3.0) identifies resources by IRI, not by plain UUID.
+        data: statements.value.map(stmt => ({ id: `/api/3.0/Statement/${stmt.id}`, type: 'Statement' })),
+      },
+    },
+  }
+
+  isBusy.value = true
+
+  try {
+    await dpApi.post(Routing.generate('_api_/3.0/StatementGroup_post'), {}, { data: payload })
+    success.value = true
+  } catch {
+    success.value = false
+  } finally {
+    isBusy.value = false
+    step.value = 3
+  }
 }
 
 async function fetchStatements () {
@@ -200,11 +233,22 @@ async function fetchStatements () {
   let number = 1
   let totalPages = 1
 
+  /*
+   * Exclude statements that have already been split into segments — they cannot be grouped.
+   * This also guards the "select all" path, where the stored criteria are resolved server-side.
+   */
+  const filter = {
+    ...selectionCriteria.value.filter,
+    notSegmented: {
+      condition: { path: 'segments.id', operator: 'IS NULL' },
+    },
+  }
+
   // Page through the whole selected set so "select all" covers every matching statement.
   do {
     const response = await dpApi.get(
       Routing.generate('api_resource_list', { resourceType: 'Statement' }),
-      { ...selectionCriteria.value, fields, page: { number, size } },
+      { ...selectionCriteria.value, filter, fields, page: { number, size } },
     )
 
     collected.push(...response.data.data)
