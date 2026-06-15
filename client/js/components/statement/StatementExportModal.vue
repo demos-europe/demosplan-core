@@ -354,7 +354,6 @@ export default {
 
     customHeaderPlaceholder () {
       return Translator.trans('docx.export.header.custom.placeholder', {
-        isPartialExport: this.selectedTagIds.length > 0,
         procedureName: this.procedureName,
       })
     },

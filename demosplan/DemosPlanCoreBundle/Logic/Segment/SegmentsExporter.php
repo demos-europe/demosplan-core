@@ -107,27 +107,32 @@ abstract class SegmentsExporter
     {
         $header = null === $headerType ? $section->addHeader() : $section->addHeader($headerType);
 
-        $titleText = '' !== $customHeaderText ? $customHeaderText : $procedure->getName();
         $header->addText(
-            $titleText,
+            $procedure->getName(),
             $this->styles['documentTitleFont'],
             $this->styles['documentTitleParagraph']
         );
 
-        if ('' === $customHeaderText) {
-            $currentDate = new DateTime();
-            $translationKey = [] !== $exportFilteredByTagsWithTopics ? 'segments.export.statement.export.date.filtered' : 'segments.export.statement.export.date';
-            $translationParameter = ['date' => $currentDate->format('d.m.Y')];
-            if ($this->currentUser->hasPermission('feature_adjust_preamble_export_file')) {
-                $translationKey = [] !== $exportFilteredByTagsWithTopics ? 'segments.export.statement.export.filtered' : 'segments.export.statement.export';
-                $translationParameter = ['procedureName' => $procedure->getName()];
-            }
-            $header->addText(
-                $this->translator->trans($translationKey, $translationParameter),
-                $this->styles['currentDateFont'],
-                $this->styles['currentDateParagraph']
+        if ('' !== $customHeaderText) {
+            $subHeaderText = $this->translator->trans(
+                'segments.export.statement.export.custom',
+                ['customHeaderText' => $customHeaderText]
             );
+        } else {
+            if ($this->currentUser->hasPermission('feature_adjust_preamble_export_file')) {
+                $subHeaderText = $this->translator->trans('synopsis');
+            } else {
+                $currentDate = new DateTime();
+                $translationKey = 'segments.export.statement.export.date';
+                $translationParameter = ['date' => $currentDate->format('d.m.Y')];
+                $subHeaderText = $this->translator->trans($translationKey, $translationParameter);
+            }
         }
+        $header->addText(
+            $subHeaderText,
+            $this->styles['currentDateFont'],
+            $this->styles['currentDateParagraph']
+        );
     }
 
     private function getSimilarStatementSubmitters(Statement $statement): string
