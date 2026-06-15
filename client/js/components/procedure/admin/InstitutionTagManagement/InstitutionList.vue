@@ -419,11 +419,13 @@ export default {
       })
       this.editingInstitution.relationships.assignedTags.data.forEach(el => {
         const tag = this.getTagById(el.id)
+
         this.editingInstitutionTags[tag.category.id].push(tag)
       })
 
       // Initialize editingInstitutionCustomFields from the component-local value cache
       const currentValues = this.customFieldValuesByInstitutionId[id] || {}
+
       this.editingInstitutionCustomFields = this.customFieldDefinitions.reduce(
         (acc, definition) => ({
           ...acc,
@@ -560,6 +562,10 @@ export default {
     },
 
     loadCustomFieldDefinitions () {
+      if (!hasPermission('feature_organisations_custom_fields')) {
+        return Promise.resolve([])
+      }
+
       return useCustomFields().fetchCustomFields(null, {
         sourceEntity: 'CUSTOMER',
         targetEntity: 'ORGA',
@@ -630,6 +636,7 @@ export default {
           const errorMessage = areTagsSaved ?
             Translator.trans('error.custom_fields.institution.save') :
             Translator.trans('error.changes.not.saved')
+
           dplan.notify.error(errorMessage)
           console.error(error)
         })

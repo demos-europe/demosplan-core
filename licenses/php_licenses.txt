@@ -8,6 +8,8 @@ cyclonedx/cyclonedx-php-composer: Apache-2.0
 demos-europe/demosplan-addon: MIT
 doctrine/annotations: MIT
 doctrine/common: MIT
+doctrine/data-fixtures: MIT
+doctrine/dbal: MIT
 doctrine/doctrine-bundle: MIT
 doctrine/doctrine-fixtures-bundle: MIT
 doctrine/doctrine-migrations-bundle: MIT
@@ -47,6 +49,7 @@ liip/functional-test-bundle: MIT
 liip/test-fixtures-bundle: MIT
 maennchen/zipstream-php: MIT
 masterminds/html5: MIT
+nelmio/cors-bundle: MIT
 nelmio/security-bundle: MIT
 nesbot/carbon: MIT
 open-telemetry/exporter-otlp: Apache-2.0
@@ -130,4 +133,4 @@ willdurand/geocoder-bundle: MIT
 willdurand/js-translation-bundle: MIT
 zenstruck/foundry: MIT
 
-As of 12.05.2026 07:55
+As of 08.06.2026 08:33

@@ -76,6 +76,7 @@ const emptyContact = {
   text: '',
   id: 'new',
 }
+
 export default {
   name: 'CustomerSettingsloginSupport',
 

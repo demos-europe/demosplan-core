@@ -32,7 +32,7 @@ class ReportRepository extends CoreRepository implements ArrayInterface, ObjectI
      *
      * @param string $identifier
      *
-     * @return reportEntry|null - The report entry with the given identifier
+     * @return ReportEntry|null - The report entry with the given identifier
      */
     public function get($identifier)
     {
@@ -213,6 +213,29 @@ class ReportRepository extends CoreRepository implements ArrayInterface, ObjectI
             ->andWhere('r.group IN (:groups)')
             ->andWhere('r.category IN (:categories)')
             ->setParameter('procedureId', $procedureId)
+            ->setParameter('groups', $groups)
+            ->setParameter('categories', $categories)
+            ->addOrderBy('r.createDate', 'DESC')
+            ->getQuery();
+
+        return $query->getResult();
+    }
+
+    /**
+     * Returns report entries scoped to a customer, filtered by groups and categories.
+     *
+     * @return ReportEntry[]
+     */
+    public function getCustomerReportEntries(string $customerId, array $groups, array $categories): array
+    {
+        $query = $this->getEntityManager()->createQueryBuilder()
+            ->select('r')
+            ->from(ReportEntry::class, 'r')
+            ->join('r.customer', 'c')
+            ->where('c.id = :customerId')
+            ->andWhere('r.group IN (:groups)')
+            ->andWhere('r.category IN (:categories)')
+            ->setParameter('customerId', $customerId)
             ->setParameter('groups', $groups)
             ->setParameter('categories', $categories)
             ->addOrderBy('r.createDate', 'DESC')

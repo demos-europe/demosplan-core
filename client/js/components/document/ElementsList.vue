@@ -161,11 +161,14 @@ export default {
         return sum + parseInt(current.attributes.fileInfo.size)
       }
       const byteSize = files.length > 0 ? files.reduce(accumulator, 0) : 0
+
       return formatBytes(byteSize).replace(/\./g, ',')
     },
 
     nodeSelectionChange (selectedNodes) {
-      this.selectedFiles = selectedNodes.filter(el => el.nodeType === 'leaf')
+      const selectedSingleDocuments = selectedNodes.filter(el => el.nodeType === 'leaf')
+
+      this.selectedFiles = selectedSingleDocuments
     },
 
     /*
@@ -221,6 +224,7 @@ export default {
       }
 
       roots = this.reorderList(roots)
+
       return roots
     },
 
@@ -232,8 +236,14 @@ export default {
      */
     reorderList (list) {
       list.sort((a, b) => {
-        if (a.type !== 'singleDocument' && b.type === 'singleDocument') { return -1 }
-        if (a.type === 'singleDocument' && b.type !== 'singleDocument') { return 1 }
+        if (a.type !== 'singleDocument' && b.type === 'singleDocument') {
+          return -1
+        }
+
+        if (a.type === 'singleDocument' && b.type !== 'singleDocument') {
+          return 1
+        }
+
         return a.attributes.index - b.attributes.index
       })
       list.forEach(el => {

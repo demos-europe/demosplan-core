@@ -176,6 +176,8 @@
             is-columns-draggable
             is-resizable
             is-selectable
+            :lock-checkbox-by="canUnlock ? false : 'isPlaceLocked'"
+            :lock-checkbox-hint="Translator.trans('segment.lock.hint')"
             @items-toggled="handleToggleItem"
             @select-all="handleSelectAll"
           >
@@ -203,6 +205,16 @@
                   />
                 </template>
               </v-popover>
+              <dp-button
+                v-if="canUnlock && rowData.isPlaceLocked"
+                :text="Translator.trans('segment.unlock.click.hint')"
+                class="text-interactive bg-transparent! border-transparent! hover:bg-interactive-subtle-hover!"
+                icon="prohibit"
+                icon-weight="fill"
+                variant="subtle"
+                hide-text
+                @click="openUnlockModal(rowData)"
+              />
             </template>
             <template v-slot:statementStatus="rowData">
               <status-badge
@@ -271,7 +283,17 @@
               />
             </template>
             <template v-slot:recommendation="rowData">
-              <div v-cleanhtml="rowData.attributes.recommendation !== '' ? rowData.attributes.recommendation : '-'" />
+              <div class="flex flex-col">
+                <div v-cleanhtml="rowData.attributes.recommendation || '-'" />
+                <span
+                  v-if="hasPermission('feature_enable_recommendation_versions') && getRecommendationVersionNumber(rowData)"
+                  class="text-neutral-base"
+                  :class="{ 'mt-2': !recommendationHasHtmlTags(rowData.attributes.recommendation) }"
+                >
+                  {{ Translator.trans('version') }}:
+                  {{ getRecommendationVersionNumber(rowData) }}
+                </span>
+              </div>
             </template>
             <template v-slot:tags="rowData">
               <addon-wrapper
@@ -381,6 +403,13 @@
         type="info"
       />
     </template>
+    <segment-unlock-modal
+      v-if="canUnlock"
+      ref="unlockModal"
+      :assignable-users="unlockAssignableUsers"
+      :places="places"
+      @unlock="payload => unlockSegment(payload, () => applyQuery(pagination.currentPage))"
+    />
   </div>
 </template>
 
@@ -412,11 +441,13 @@ import ImageModal from '@DpJs/components/shared/ImageModal'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
+import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 import StatusBadge from '../Shared/StatusBadge'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
+import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
 
 export default {
   name: 'SegmentsList',
@@ -435,6 +466,7 @@ export default {
     DpStickyElement,
     FilterFlyout,
     ImageModal,
+    SegmentUnlockModal,
     StatementMetaTooltip,
     StatusBadge,
     TextContentRenderer,
@@ -497,6 +529,12 @@ export default {
     'show-slidebar',
   ],
 
+  setup () {
+    const { unlockModal, openUnlockModal, unlockSegment } = useSegmentUnlock()
+
+    return { unlockModal, openUnlockModal, unlockSegment }
+  },
+
   data () {
     return {
       appliedFilterQuery: this.initialFilter,
@@ -537,33 +575,41 @@ export default {
   },
 
   computed: {
+    ...mapState('AssignableUser', {
+      assignableUsersObject: 'items',
+    }),
+
+    ...mapState('CustomField', {
+      customFields: 'items',
+    }),
+
     ...mapGetters('FilterFlyout', [
       'getFilterQuery',
       'getIsExpandedByCategoryId',
     ]),
 
-    ...mapState('AssignableUser', {
-      assignableUsersObject: 'items',
-    }),
-
     ...mapState('Orga', {
       orgaObject: 'items',
     }),
 
-    ...mapState('StatementSegment', {
-      segmentsObject: 'items',
+    ...mapState('Place', {
+      placesObject: 'items',
+    }),
+
+    ...mapState('RecommendationVersion', {
+      recommendationVersions: 'items',
     }),
 
     ...mapState('Statement', {
       statementsObject: 'items',
     }),
 
-    ...mapState('Tag', {
-      tagsObject: 'items',
+    ...mapState('StatementSegment', {
+      segmentsObject: 'items',
     }),
 
-    ...mapState('Place', {
-      placesObject: 'items',
+    ...mapState('Tag', {
+      tagsObject: 'items',
     }),
 
     assignableUsers () {
@@ -604,14 +650,60 @@ export default {
       ]
     },
 
+    canUnlock () {
+      return hasPermission('feature_administrate_segment_lock')
+    },
+
+    // Assignable users including the "not assigned" option, used as the unlock modal default
+    unlockAssignableUsers () {
+      return [{ name: Translator.trans('not.assigned'), id: 'noAssigneeId' }, ...this.assignableUsers]
+    },
+
+    // Overrides tableSelectAllItems mixin to exclude locked segments from selection for users without unlock permission
+    currentlySelectedItems () {
+      const toggledIds = new Set(this.toggledItems.map(item => item.id))
+      let selected
+
+      if (this.trackDeselected) {
+        selected = this.toggledItems.length === 0 ?
+          this.items.filter(item => this.canUnlock || !item.isPlaceLocked) :
+          this.items.filter(item => (this.canUnlock || !item.isPlaceLocked) && !toggledIds.has(item.id))
+      } else {
+        selected = this.toggledItems
+      }
+
+      return selected.reduce((acc, el) => ({ ...acc, [el.id]: true }), {})
+    },
+
+    hasLockedInSelection () {
+      return this.lockedInSelectionCount > 0
+    },
+
     headerFields () {
       return this.headerFieldsAvailable.filter(headerField => this.currentSelection.includes(headerField.field))
     },
 
     items () {
       return Object.values(this.segmentsObject)
+        .map(segment => ({
+          ...segment,
+          isPlaceLocked: !!this.placesObject[segment.relationships?.place?.data?.id]?.attributes?.locked,
+        }))
         // This is not working! better pass createdDate into segmentsObject
         .sort((a, b) => (b.attributes.externId.substring(1) - a.attributes.externId.substring(1)))
+    },
+
+    /*
+     * Count of locked segments in the current selection (loaded items only).
+     * Only relevant for users who can unlock — others cannot select locked segments.
+     * Used to flag the bulk-edit flow to restrict actions to place/assignee only.
+     */
+    lockedInSelectionCount () {
+      if (!this.canUnlock) {
+        return 0
+      }
+
+      return this.items.filter(item => item.isPlaceLocked && this.currentlySelectedItems[item.id]).length
     },
 
     noQuery () {
@@ -624,12 +716,14 @@ export default {
           .map(place => ({
             name: place.attributes.name,
             id: place.id,
+            locked: place.attributes.locked,
           })) :
         []
     },
 
     queryIds () {
       let ids = []
+
       if (Array.isArray(this.appliedFilterQuery) === false && Object.values(this.appliedFilterQuery).length > 0) {
         ids = Object.values(this.appliedFilterQuery)
           .filter(el => el.condition) // Remove group objects
@@ -641,6 +735,7 @@ export default {
             return el.condition.value
           })
       }
+
       return ids
     },
 
@@ -732,18 +827,25 @@ export default {
         'recommendation',
       ]
 
+      const statementSegmentInclude = [
+        'assignee',
+        'place',
+        'tags',
+        'parentStatement.genericAttachments.file',
+        'parentStatement.sourceAttachment.file',
+      ]
+
       if (hasPermission('field_segments_custom_fields')) {
         statementSegmentFields.push('customFields')
       }
 
+      if (hasPermission('feature_enable_recommendation_versions')) {
+        statementSegmentFields.push('recommendationVersions')
+        statementSegmentInclude.push('recommendationVersions')
+      }
+
       const payload = {
-        include: [
-          'assignee',
-          'place',
-          'tags',
-          'parentStatement.genericAttachments.file',
-          'parentStatement.sourceAttachment.file',
-        ].join(),
+        include: statementSegmentInclude.join(),
         page: {
           number: page,
           size: this.pagination.perPage,
@@ -759,6 +861,7 @@ export default {
           ].join(),
           Place: [
             'name',
+            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
           ].join(),
           SourceStatementAttachment: ['file'].join(),
           Statement: [
@@ -786,12 +889,22 @@ export default {
           ].join(),
         },
       }
+
+      if (hasPermission('feature_enable_recommendation_versions')) {
+        payload.fields.RecommendationVersion = [
+          'versionNumber',
+          'recommendationText',
+          'createdAt',
+        ].join()
+      }
+
       if (this.searchTerm !== '') {
         payload.search = {
           value: this.searchTerm,
           ...this.searchFieldsSelected.length !== 0 ? { fieldsToSearch: this.searchFieldsSelected } : {},
         }
       }
+
       this.isLoading = true
       this.fetchSegments(payload)
         .then((data) => {
@@ -804,9 +917,24 @@ export default {
           this.allItemsCount = data.meta.pagination.total
           this.updatePagination(data.meta.pagination)
 
-          // Get all segments (without pagination) to save them in localStorage for bulk editing
+          /*
+           * Get all segments (without pagination) to save them in localStorage for bulk editing.
+           * If 'feature_segment_lock_by_workflow_place' is active, users without `feature_administrate_segment_lock`
+           * must not be able to bulk-edit segments whose workflow place is locked, so exclude them from the ID set.
+           */
+          const idsFilter = { ...filter }
+
+          if (hasPermission('feature_segment_lock_by_workflow_place') && !this.canUnlock) {
+            idsFilter.placeNotLocked = {
+              condition: {
+                path: 'place.locked',
+                value: false,
+              },
+            }
+          }
+
           this.fetchSegmentIds({
-            filter,
+            filter: idsFilter,
             search: payload.search,
           })
         })
@@ -860,9 +988,24 @@ export default {
         .catch(() => { /* Notification already shown by useCustomFieldDefinitions */ })
     },
 
+    getRecommendationVersionNumber (segment) {
+      const currentVersionId = segment.relationships?.recommendationVersions?.data?.[0]?.id
+
+      if (!currentVersionId) {
+        return ''
+      }
+
+      const versionNumber = this.recommendationVersions[currentVersionId]?.attributes?.versionNumber
+
+      return versionNumber ?
+        String(versionNumber).padStart(3, '0') :
+        ''
+    },
+
     getTagsBySegment (id) {
       const segment = this.segmentsObject[id]
       const relatedTagIds = segment.relationships.tags && segment.relationships.tags.data.map(tag => tag.id)
+
       return relatedTagIds.map(id => this.tagsObject[id])
     },
 
@@ -871,8 +1014,10 @@ export default {
      */
     getOriginalPdfAttachmentHashBySegment (segment) {
       const parentStatement = segment.rel('parentStatement')
+
       if (parentStatement.hasRelationship('attachments')) {
         const originalAttachment = Object.values(parentStatement.relationships.attachments.list()).filter(attachment => attachment.attributes.attachmentType === 'source_statement')[0]
+
         if (originalAttachment) {
           return originalAttachment.rel('file').attributes.hash
         }
@@ -886,6 +1031,7 @@ export default {
       if (filterType === 'tags') {
         return null
       }
+
       // Replace '.' in workflow.places because it is forbidden in group names
       return `${filterType.replaceAll('.', '-')}_group`
     },
@@ -905,8 +1051,17 @@ export default {
     handleSizeChange (newSize) {
       // Compute new page with current page for changed number of items per page
       const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
+
       this.pagination.perPage = newSize
       this.applyQuery(page)
+    },
+
+    recommendationHasHtmlTags (recommendation) {
+      const div = document.createElement('div')
+
+      div.innerHTML = recommendation.trim()
+
+      return div.children.length > 0
     },
 
     resetColumnSelection () {
@@ -1043,6 +1198,7 @@ export default {
 
               const currentFlyoutFilterIds = this.queryIds.filter(queryId => {
                 const item = allOptions.find(item => item.id === queryId)
+
                 return item ? item.id : null
               })
 
@@ -1093,6 +1249,8 @@ export default {
 
     storeToggledSegments () {
       lscache.set(this.lsKey.toggledSegments, {
+        hasLocked: this.hasLockedInSelection,
+        lockedCount: this.lockedInSelectionCount,
         trackDeselected: this.trackDeselected,
         toggledSegments: this.toggledItems,
       })
@@ -1101,6 +1259,7 @@ export default {
     // Called by apply as well as by reset in filterFlyout
     sendFilterQuery (filter) {
       const isReset = Object.keys(filter).length === 0
+
       if (isReset === false && Object.keys(this.appliedFilterQuery).length) {
         Object.values(filter).forEach(el => {
           this.appliedFilterQuery[el.condition.value] = el
@@ -1112,6 +1271,7 @@ export default {
           this.appliedFilterQuery = filter
         }
       }
+
       this.updateQueryHash()
       this.resetSelection()
       this.applyQuery(1)
@@ -1128,9 +1288,11 @@ export default {
       const url = Routing.generate('dplan_rpc_segment_list_query_update', { queryHash: oldQueryHash })
 
       const data = { filter: this.getFilterQuery }
+
       if (this.searchterm !== '') {
         data.searchPhrase = this.searchTerm
       }
+
       return dpApi.patch(url, {}, data)
         .then(({ data }) => {
           if (data) {
@@ -1143,6 +1305,7 @@ export default {
 
     updateQueryHashInURL (oldQueryHash, newQueryHash) {
       const newHref = globalThis.location.href.replace(oldQueryHash, newQueryHash)
+
       globalThis.history.pushState({ html: newHref, pageTitle: document.title }, document.title, newHref)
     },
 
@@ -1159,10 +1322,12 @@ export default {
 
   async mounted () {
     const addons = await loadAddonComponents('tag.style.segments.list')
+
     this.hasStyledTopicalTags = addons.length > 0
 
     // Get queryHash from URL
     const hrefParts = globalThis.location.href.split('/')
+
     this.currentQueryHash = hrefParts[hrefParts.length - 1]
 
     // When returning from bulk edit flow, the currentQueryHash which was used there to build a return link must be deleted.
@@ -1179,17 +1344,27 @@ export default {
         }
 
         const query = {}
+
         query[filter.condition.value] = filter
         this.updateFilterQuery(query)
       })
     }
+
     this.initPagination()
     if (hasPermission('field_segments_custom_fields')) {
       this.loadSegmentCustomFields()
     }
+
     this.applyQuery(this.pagination.currentPage)
 
-    this.fetchPlaces()
+    this.fetchPlaces({
+      fields: {
+        Place: [
+          'name',
+          ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+        ].join(),
+      },
+    })
     this.fetchAssignableUsers()
   },
 }

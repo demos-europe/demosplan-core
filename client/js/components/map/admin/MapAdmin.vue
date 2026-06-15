@@ -312,6 +312,7 @@ export default {
 
   async mounted () {
     const settings = await this.fetchProcedureMapSettings({ procedureId: this.procedureId, isMaster: this.isMaster })
+
     this.procedureMapSettings = JSON.parse(JSON.stringify(settings))
     this.mapSettingsLoaded = true
   },

@@ -80,6 +80,7 @@ const postcssPurgeCss = purgeCSSPlugin({
   ...config.purgeCss,
   defaultExtractor (content) {
     const contentWithoutStyleBlocks = content.replace(/<style[^]+?<\/style>/gi, '')
+
     return contentWithoutStyleBlocks.match(/[A-Za-z0-9-_/:]*[A-Za-z0-9-_/.[\]%]+/g) || []
   },
 })
@@ -121,6 +122,7 @@ const moduleRules =
             postcssOptions: (loaderContext) => {
               // Do not pass 3rd party css through postCss in dev mode to gain some speed
               const skipPostCss = /node_modules/.test(loaderContext.resourcePath) && config.isProduction === false
+
               return {
                 plugins: skipPostCss ? [] : postCssPlugins,
               }
