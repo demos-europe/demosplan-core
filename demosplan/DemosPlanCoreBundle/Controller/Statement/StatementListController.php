@@ -66,7 +66,7 @@ class StatementListController extends BaseController
      *
      * @throws Exception
      */
-    #[DplanPermissions('area_admin_statement_list')]
+    #[DplanPermissions('feature_statement_cluster')]
     #[Route(
         path: '/verfahren/{procedureId}/einwendungen/gruppe-erstellen',
         name: 'dplan_procedure_statement_group_create',

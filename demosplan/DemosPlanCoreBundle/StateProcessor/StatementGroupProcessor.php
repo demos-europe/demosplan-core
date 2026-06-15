@@ -56,7 +56,7 @@ class StatementGroupProcessor implements ProcessorInterface
             throw new BadRequestHttpException($e->getMessage(), $e);
         }
         Assert::isInstanceOf($cluster, Statement::class);
-        
+
         $createdGroup = $this->statementHandler->getStatement($cluster->getId());
         Assert::isInstanceOf($createdGroup, Statement::class);
 

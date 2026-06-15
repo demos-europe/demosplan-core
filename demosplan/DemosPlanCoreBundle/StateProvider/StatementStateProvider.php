@@ -14,13 +14,16 @@ namespace demosplan\DemosPlanCoreBundle\StateProvider;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementResource;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use Webmozart\Assert\Assert;
 
 class StatementStateProvider implements ProviderInterface
 {
     public function __construct(
+        private readonly CurrentUserInterface $currentUser,
         private readonly StatementService $statementService,
     ) {
     }
@@ -29,16 +32,20 @@ class StatementStateProvider implements ProviderInterface
     {
         Assert::same($operation->getClass(), StatementResource::class);
 
-        // TEMP: security disabled for local exploration — restore isAvailable() check before merging.
-        // if (!$this->isAvailable()) {
-        //     throw new AccessDeniedHttpException('Access denied: insufficient permissions to access statements');
-        // }
+        if (!$this->isAvailable()) {
+            throw new AccessDeniedHttpException('Access denied: insufficient permissions to access statements');
+        }
 
         if (isset($uriVariables['id'])) {
             return $this->provideSingle($uriVariables['id']);
         }
 
         return null;
+    }
+
+    public function isAvailable(): bool
+    {
+        return $this->currentUser->hasPermission('feature_json_api_statement');
     }
 
     private function provideSingle(string $id): ?StatementResource

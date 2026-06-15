@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\StateProvider;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementGroupResource;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
@@ -30,12 +31,12 @@ class StatementGroupStateProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
+        //incorporate getAccessConditions()
         Assert::same($operation->getClass(), StatementGroupResource::class);
 
-        // TEMP: security disabled for local exploration — restore isAvailable() check before merging.
-        // if (!$this->isAvailable()) {
-        //     throw new AccessDeniedHttpException('Access denied: insufficient permissions to access statement groups');
-        // }
+        if (!$this->isAvailable()) {
+            throw new AccessDeniedHttpException('Access denied: insufficient permissions to access statement groups');
+        }
 
         if (isset($uriVariables['id'])) {
             return $this->provideSingle($uriVariables['id']);
@@ -46,6 +47,7 @@ class StatementGroupStateProvider implements ProviderInterface
 
     private function provideSingle(string $id): ?StatementGroupResource
     {
+
         $statement = $this->statementHandler->getStatement($id);
         if (!$statement instanceof Statement || !$statement->isClusterStatement()) {
             return null;
@@ -56,6 +58,6 @@ class StatementGroupStateProvider implements ProviderInterface
 
     public function isAvailable(): bool
     {
-        return $this->currentUser->hasPermission('area_admin_procedures');
+        return $this->currentUser->hasPermission('feature_json_api_statement_group');
     }
 }
