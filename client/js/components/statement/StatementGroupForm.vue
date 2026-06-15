@@ -70,9 +70,9 @@ All rights reserved
               id="groupName"
               v-model="groupName"
               :label="{
-              text: Translator.trans('statement.cluster.name'),
-              hint: Translator.trans('statement.cluster.name.hint'),
-            }"
+                text: Translator.trans('statement.cluster.name'),
+                hint: Translator.trans('statement.cluster.name.hint'),
+              }"
               class="mb-5"
               required
             />
@@ -132,11 +132,11 @@ All rights reserved
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { dpApi, DpIcon, DpInput, DpLabel, DpLoading, DpMultiselect, DpRadio, validateForm } from '@demos-europe/demosplan-ui'
+import { dpApi, DpInput, DpLabel, DpLoading, DpMultiselect, DpRadio, validateForm } from '@demos-europe/demosplan-ui'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
-import SelectedStatementsList from '@DpJs/components/statement/SelectedStatementsList'
 import lscache from 'lscache'
+import SelectedStatementsList from '@DpJs/components/statement/SelectedStatementsList'
 
 const props = defineProps({
   procedureId: {
@@ -168,9 +168,9 @@ const translations = computed(() => ({
   edit: Translator.trans('back.to.action.selection'),
   stepTitles: [
     Translator.trans('bulk.edit.title.actions.choose', { count: selectedElementsCount.value }),
-    selectedAction.value === 'addToGroup'
-      ? Translator.trans('statement.cluster.add')
-      : Translator.trans('statement.cluster.create'),
+    selectedAction.value === 'addToGroup' ?
+      Translator.trans('statement.cluster.add') :
+      Translator.trans('statement.cluster.create'),
     Translator.trans('confirm.saved.plural'),
   ],
 }))
@@ -194,6 +194,7 @@ async function handleApply () {
 
     return
   }
+
   isBusy.value = true
 
   if (selectedAction.value === 'createGroup') {
@@ -210,6 +211,7 @@ async function handleApply () {
         },
       },
     }
+
     try {
       await dpApi.post(Routing.generate('_api_/3.0/StatementGroup_post'), {}, { data: payload })
       success.value = true
@@ -228,6 +230,7 @@ async function handleApply () {
         },
       },
     }
+
     try {
       await dpApi.patch(Routing.generate('_api_/3.0/StatementGroup_patch', { id: targetGroupId.value.id }), {}, { data: payload })
       success.value = true
@@ -295,8 +298,9 @@ onMounted(async () => {
   try {
     await fetchGroups()
   } catch {
-    // endpoint not yet available
+    // Endpoint not yet available
   }
+
   setStatements()
   await fetchStatements()
   isLoading.value = false
