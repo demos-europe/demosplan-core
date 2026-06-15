@@ -99,13 +99,12 @@ All rights reserved
               :text="Translator.trans('cluster.choose')"
               :hint="Translator.trans('cluster.choose.hint')"
             />
-            <!-- TODO(DPLAN-17748): load this procedure's existing groups into `groups`; backend endpoint not available yet, using statements as placeholder -->
             <dp-multiselect
               id="targetGroup"
               v-model="targetGroupId"
               class="mb-5"
-              :custom-label="stmt => stmt.attributes.externId"
-              :options="statements"
+              :custom-label="stmt => stmt.attributes.groupName"
+              :options="groups"
               required
               track-by="id"
               searchable
@@ -151,9 +150,10 @@ const isLoading = ref(true)
 const mainStatementId = ref(null)
 const targetGroupId = ref(null)
 const groupName = ref('')
+const groups = ref([])
 const returnLink = ref(Routing.generate('dplan_procedure_statement_list', { procedureId: props.procedureId }))
 const selectedAction = ref('createGroup')
-const statements = ref([])
+const   statements = ref([])
 const selectionCriteria = ref(null)
 const step = ref(1)
 const success = ref(true)
@@ -194,32 +194,56 @@ async function handleApply () {
 
     return
   }
-
-  const payload = {
-    type: 'StatementGroup',
-    attributes: {
-      groupName: groupName.value,
-      headStatementId: mainStatementId.value.id,
-    },
-    relationships: {
-      statements: {
-        // API Platform (3.0) identifies resources by IRI, not by plain UUID.
-        data: statements.value.map(stmt => ({ id: `/api/3.0/Statement/${stmt.id}`, type: 'Statement' })),
-      },
-    },
-  }
-
   isBusy.value = true
 
-  try {
-    await dpApi.post(Routing.generate('_api_/3.0/StatementGroup_post'), {}, { data: payload })
-    success.value = true
-  } catch {
-    success.value = false
-  } finally {
-    isBusy.value = false
-    step.value = 3
+  if (selectedAction.value === 'createGroup') {
+    const payload = {
+      type: 'StatementGroup',
+      attributes: {
+        groupName: groupName.value,
+        headStatementId: mainStatementId.value.id,
+      },
+      relationships: {
+        statements: {
+          // API Platform (3.0) identifies resources by IRI, not by plain UUID.
+          data: statements.value.map(stmt => ({ id: `/api/3.0/Statement/${stmt.id}`, type: 'Statement' })),
+        },
+      },
+    }
+    try {
+      await dpApi.post(Routing.generate('_api_/3.0/StatementGroup_post'), {}, { data: payload })
+      success.value = true
+    } catch {
+      success.value = false
+    } finally {
+      isBusy.value = false
+      step.value = 3
+    }
+  } else {
+    const payload = {
+      type: 'StatementGroup',
+      relationships: {
+        statements: {
+          data: statements.value.map(stmt => ({ id: `/api/3.0/Statement/${stmt.id}`, type: 'Statement' })),
+        },
+      },
+    }
+    try {
+      await dpApi.patch(Routing.generate('_api_/3.0/StatementGroup_patch', { id: targetGroupId.value.id }), {}, { data: payload })
+      success.value = true
+    } catch {
+      success.value = false
+    } finally {
+      isBusy.value = false
+      step.value = 3
+    }
   }
+}
+
+async function fetchGroups () {
+  const response = await dpApi.get(Routing.generate('_api_/3.0/StatementGroup_get_collection'))
+
+  groups.value = response.data.data
 }
 
 async function fetchStatements () {
@@ -268,6 +292,11 @@ function setStatements () {
 }
 
 onMounted(async () => {
+  try {
+    await fetchGroups()
+  } catch {
+    // endpoint not yet available
+  }
   setStatements()
   await fetchStatements()
   isLoading.value = false
