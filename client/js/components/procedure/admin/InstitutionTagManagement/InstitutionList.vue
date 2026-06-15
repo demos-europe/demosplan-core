@@ -673,11 +673,11 @@ export default {
   },
 
   mounted () {
-    const customFields = hasPermission('feature_organisations_custom_fields') ? [this.loadCustomFieldDefinitions()] : []
+    const customFieldPromises = hasPermission('feature_organisations_custom_fields') ? [this.loadCustomFieldDefinitions()] : []
     const promises = [
       this.getInstitutionsByPage(1),
       this.getInstitutionTagCategories(true),
-      ...customFields
+      ...customFieldPromises,
     ]
 
     Promise.allSettled(promises)
