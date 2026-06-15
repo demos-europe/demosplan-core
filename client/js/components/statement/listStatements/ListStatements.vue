@@ -352,10 +352,6 @@
       />
     </template>
   </div>
-  <statement-group-form
-    v-if="showGroupForm"
-    :procedure-id="procedureId"
-  />
 </template>
 
 <script>
@@ -384,7 +380,6 @@ import { inlineImageAnchors } from '@DpJs/lib/shared/inlineImageAnchors'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
-import StatementGroupForm from '@DpJs/components/statement/StatementGroupForm'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
 import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge'
 
@@ -405,7 +400,6 @@ export default {
     DpSelect,
     DpStickyElement,
     StatementExportModal,
-    StatementGroupForm,
     StatementMetaData,
     StatusBadge,
   },
@@ -459,13 +453,6 @@ export default {
         perPage: 10,
       },
       isFullscreen: false,
-      /*
-       * Provisional: renders the inline group form on click so it mounts fresh and reads
-       * the freshly stored selection from localStorage. Mimics the future dedicated page
-       * that the backend redirect will open. Remove together with the inline form once the
-       * backend route exists.
-       */
-      showGroupForm: false,
       lsKey: {
         // LocalStorage keys
         toggledStatements: `${this.procedureId}:toggledStatements`,
