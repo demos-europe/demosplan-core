@@ -979,6 +979,7 @@ docx.export.header.custom.placeholder: |
       other {Export Synopse {procedureName}}
   }
 docx.export.landscape: "Docx Exp. (Querformat)"
+docx.export.via_template.column.headers.warning: "Ihre individuell angepassten Spaltennamen wurden durch die Bezeichnungen aus der hochgeladenen Briefvorlage ersetzt."
 docx.export.via_template.error.malformed_docx: "Die hochgeladene Datei konnte nicht als DOCX-Vorlage gelesen werden."
 docx.export.via_template.error.segment_data_without_block: "Abschnitts-Platzhalter müssen innerhalb des Blocks ${AbschnitteAlsAbsätze} … ${/AbschnitteAlsAbsätze} stehen."
 docx.export.via_template.error.segments_marker_incomplete: "Die Markierungen ${AbschnitteAlsAbsätze} und ${/AbschnitteAlsAbsätze} müssen beide vorhanden sein."

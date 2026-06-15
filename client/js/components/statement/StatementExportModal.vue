@@ -244,6 +244,12 @@
         data-cy="exportModal:customHeaderText"
         type="text"
       />
+      <dp-inline-notification
+        v-if="hasLayoutFileAndModifiedColumnHeaders"
+        class="mb-4"
+        :message="Translator.trans('docx.export.via_template.column.headers.warning')"
+        type="warning"
+      />
 
       <dp-button-row
         class="text-right mt-auto"
@@ -265,6 +271,7 @@ import {
   DpButtonRow,
   DpCheckbox,
   DpContextualHelp,
+  DpInlineNotification,
   DpInput,
   DpLabel,
   DpModal,
@@ -285,6 +292,7 @@ export default {
     DpButtonRow,
     DpCheckbox,
     DpContextualHelp,
+    DpInlineNotification,
     DpInput,
     DpLabel,
     DpModal,
@@ -426,6 +434,13 @@ export default {
       }
 
       return exampleFileName
+    },
+
+    hasLayoutFileAndModifiedColumnHeaders () {
+      return this.isSingleStatementExport &&
+        hasPermission('feature_statement_via_template_export') &&
+        this.uploadedHash !== '' &&
+        Object.values(this.docxColumns).some(col => col.title)
     },
 
     templateStorageName () {
