@@ -483,7 +483,45 @@ export default {
       return !!this.placeItems[placeId]?.attributes?.locked
     },
 
-    _saveSegmentInternal (segmentId) {
+    /**
+     * Required by useUnsavedChangesGuard composable
+     * Discard all unsaved changes
+     */
+    onDiscardChanges () {
+      const segmentsToReset = [...this.editingSegmentIds]
+
+      segmentsToReset.forEach(segmentId => {
+        this.reset(segmentId)
+      })
+
+      return Promise.resolve()
+    },
+
+
+    reset (segmentId) {
+      delete this._localSegmentTexts[segmentId]
+
+      if (this.$refs[`editField_${segmentId}`][0]) {
+        this.$refs[`editField_${segmentId}`][0].loading = false
+        this.$refs[`editField_${segmentId}`][0].editingEnabled = false
+      }
+
+      const segmentIdIndex = this.editingSegmentIds.indexOf(segmentId)
+
+      if (segmentIdIndex > -1) {
+        this.editingSegmentIds.splice(segmentIdIndex, 1)
+      }
+
+      this.checkForUnsavedChanges()
+    },
+
+    resetStatement () {
+      this.restoreStatementAction(this.statement.id)
+
+      this._localStatementText = null
+    },
+
+    saveSegment (segmentId) {
       const textToSave = this._localSegmentTexts[segmentId] ?? ''
 
       if (!textToSave) {
@@ -523,53 +561,9 @@ export default {
      * Save all segments that have unsaved changes
      */
     saveUnsavedChanges () {
-      const savePromises = this.editingSegmentIds.map(segmentId => this._saveSegmentInternal(segmentId))
+      const savePromises = this.editingSegmentIds.map(segmentId => this.saveSegment(segmentId))
 
       return Promise.all(savePromises)
-    },
-
-    /**
-     * Required by useUnsavedChangesGuard composable
-     * Discard all unsaved changes
-     */
-    onDiscardChanges () {
-      const segmentsToReset = [...this.editingSegmentIds]
-
-      segmentsToReset.forEach(segmentId => {
-        this.reset(segmentId)
-      })
-
-      return Promise.resolve()
-    },
-
-    reset (segmentId) {
-      delete this._localSegmentTexts[segmentId]
-
-      if (this.$refs[`editField_${segmentId}`][0]) {
-        this.$refs[`editField_${segmentId}`][0].loading = false
-        this.$refs[`editField_${segmentId}`][0].editingEnabled = false
-      }
-
-      const segmentIdIndex = this.editingSegmentIds.indexOf(segmentId)
-
-      if (segmentIdIndex > -1) {
-        this.editingSegmentIds.splice(segmentIdIndex, 1)
-      }
-
-      this.checkForUnsavedChanges()
-    },
-
-    resetStatement () {
-      this.restoreStatementAction(this.statement.id)
-
-      this._localStatementText = null
-    },
-
-    saveSegment (segmentId) {
-      this._saveSegmentInternal(segmentId)
-        .catch(() => {
-          dplan.notify.error(Translator.trans('error.api.generic'))
-        })
     },
 
     saveStatement () {
