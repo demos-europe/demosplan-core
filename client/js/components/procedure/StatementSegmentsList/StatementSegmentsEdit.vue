@@ -283,7 +283,7 @@ export default {
       pagination: {},
       storageKeyPagination: `segmentsEdit_${this.statementId}_pagination`,
       segmentNavigation: null,
-      textChangeCounter: 0, // Reactive counter to trigger hasUnsavedChanges re-evaluation
+      textChangeCounter: 0,
     }
   },
 
@@ -342,11 +342,12 @@ export default {
     },
 
     hasUnsavedChanges () {
-      // Depend on textChangeCounter to force re-evaluation when text changes
+      /** `_localSegmentTexts` is not reactive. Access `textChangeCounter`
+       * to create a reactive dependency and ensure this computed property updates when text changes.
+       */
       // eslint-disable-next-line no-unused-expressions
       this.textChangeCounter
 
-      // Check if any segment being edited has unsaved changes
       return this.editingSegmentIds.some(segmentId => {
         const originalText = this.segments[segmentId]?.attributes?.text || ''
         const currentText = this._localSegmentTexts[segmentId] || ''
