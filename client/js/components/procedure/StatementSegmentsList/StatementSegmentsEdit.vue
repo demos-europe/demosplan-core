@@ -274,6 +274,7 @@ export default {
     return {
       claimLoading: null,
       editingSegmentIds: [],
+      hasUnsavedChanges: false,
       isLoading: false,
       defaultPagination: {
         currentPage: 1,
@@ -283,7 +284,6 @@ export default {
       pagination: {},
       storageKeyPagination: `segmentsEdit_${this.statementId}_pagination`,
       segmentNavigation: null,
-      textChangeCounter: 0,
     }
   },
 
@@ -339,21 +339,6 @@ export default {
 
     hasSegments () {
       return Object.keys(this.segments).length > 0 && hasPermission('area_statement_segmentation')
-    },
-
-    hasUnsavedChanges () {
-      /** `_localSegmentTexts` is not reactive. Access `textChangeCounter`
-       * to create a reactive dependency and ensure this computed property updates when text changes.
-       */
-      // eslint-disable-next-line no-unused-expressions
-      this.textChangeCounter
-
-      return this.editingSegmentIds.some(segmentId => {
-        const originalText = this.segments[segmentId]?.attributes?.text || ''
-        const currentText = this._localSegmentTexts[segmentId] || ''
-
-        return originalText !== currentText
-      })
     },
 
     lockTooltip () {
@@ -415,6 +400,15 @@ export default {
 
     getSegmentInitialText (segmentId) {
       return this.segments[segmentId]?.attributes?.text ?? ''
+    },
+
+    checkForUnsavedChanges () {
+      this.hasUnsavedChanges = this.editingSegmentIds.some(segmentId => {
+        const originalText = this.segments[segmentId]?.attributes?.text || ''
+        const currentText = this._localSegmentTexts[segmentId] || ''
+
+        return originalText !== currentText
+      })
     },
 
     claimSegment (segment) {
@@ -648,8 +642,8 @@ export default {
     },
 
     updateSegmentText (segmentId, val) {
-      this.textChangeCounter++
       this._localSegmentTexts[segmentId] = val
+      this.checkForUnsavedChanges()
     },
 
     getStatementInitialText () {
