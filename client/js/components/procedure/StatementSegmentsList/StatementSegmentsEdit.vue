@@ -483,11 +483,6 @@ export default {
       return !!this.placeItems[placeId]?.attributes?.locked
     },
 
-    /**
-     * Internal helper to save a segment and return a promise
-     * @param {string} segmentId - The segment ID to save
-     * @returns {Promise} Promise that resolves on success or rejects on error
-     */
     _saveSegmentInternal (segmentId) {
       const textToSave = this._localSegmentTexts[segmentId] ?? ''
 
@@ -497,6 +492,7 @@ export default {
         }
 
         dplan.notify.error(Translator.trans('error.segment.empty.text'))
+
         return Promise.reject(new Error(Translator.trans('error.segment.empty.text')))
       }
 
@@ -514,6 +510,7 @@ export default {
         .catch((error) => {
           this.restoreSegmentAction(segmentId)
           dplan.notify.error(Translator.trans('error.api.generic'))
+
           throw error
         })
         .finally(() => {
@@ -570,8 +567,8 @@ export default {
 
     saveSegment (segmentId) {
       this._saveSegmentInternal(segmentId)
-        .catch((error) => {
-          dplan.notify.error(error.message || Translator.trans('error.api.generic'))
+        .catch(() => {
+          dplan.notify.error(Translator.trans('error.api.generic'))
         })
     },
 
@@ -815,7 +812,6 @@ export default {
       }
     }
 
-    // Initialize unsaved changes guard
     this.initUnsavedChangesGuard({
       hasUnsavedChanges: () => this.hasUnsavedChanges,
       saveUnsavedChanges: () => this.saveUnsavedChanges(),
@@ -833,7 +829,6 @@ export default {
       this.resetStatement()
     }
 
-    // Cleanup unsaved changes guard
     this.cleanupUnsavedChangesGuard()
   },
 }
