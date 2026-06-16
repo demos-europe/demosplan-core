@@ -16,8 +16,9 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementGroupResource;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementClusterConditions;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Webmozart\Assert\Assert;
 
@@ -25,13 +26,14 @@ class StatementGroupStateProvider implements ProviderInterface
 {
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
-        private readonly StatementHandler $statementHandler,
+        private readonly StatementClusterConditions $clusterConditions,
+        private readonly StatementRepository $statementRepository,
+        private readonly CurrentProcedureService $currentProcedureService,
     ) {
     }
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        // incorporate getAccessConditions()
         Assert::same($operation->getClass(), StatementGroupResource::class);
 
         if (!$this->isAvailable()) {
@@ -47,12 +49,17 @@ class StatementGroupStateProvider implements ProviderInterface
 
     private function provideSingle(string $id): ?StatementGroupResource
     {
-        $statement = $this->statementHandler->getStatement($id);
-        if (!$statement instanceof Statement || !$statement->isClusterStatement()) {
+        $procedure = $this->currentProcedureService->getProcedure();
+        if (null === $procedure) {
             return null;
         }
 
-        return StatementGroupResource::fromStatement($statement);
+        $statements = $this->statementRepository->getEntities(
+            $this->clusterConditions->forProcedureById($procedure->getId(), $id),
+            []
+        );
+
+        return [] === $statements ? null : StatementGroupResource::fromStatement($statements[0]);
     }
 
     public function isAvailable(): bool
