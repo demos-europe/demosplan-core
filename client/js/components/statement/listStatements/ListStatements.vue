@@ -55,7 +55,7 @@
         @reset-selection="resetSelection"
       >
         <dp-button
-          data-cy="statementsBulkShare"
+          data-cy="statementsBulkGroup"
           :text="Translator.trans('selection.group')"
           variant="outline"
           @click.prevent="handleBulkGroup"
