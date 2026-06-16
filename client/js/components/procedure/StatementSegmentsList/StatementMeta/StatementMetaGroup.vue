@@ -55,9 +55,7 @@ const props = defineProps({
   },
 })
 
-// TODO(DPLAN-17748): forced to true for visual development until the backend sets `isCluster`.
-// Revert to: computed(() => props.statement.attributes.isCluster)
-const isCluster = computed(() => true)
+const isCluster = computed(() => props.statement.attributes.isCluster)
 const groupName = ref('')
 // TODO(DPLAN-17748): populate with the backend's grouped statements
 const groupStatements = ref([])
