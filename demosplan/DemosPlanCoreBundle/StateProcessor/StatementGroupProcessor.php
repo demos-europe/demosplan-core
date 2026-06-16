@@ -47,9 +47,7 @@ class StatementGroupProcessor implements ProcessorInterface
 
         $headStatement = $this->statementHandler->getStatement($data->headStatementId);
         if (!$headStatement instanceof Statement) {
-            throw new BadRequestHttpException(
-                sprintf('Statement "%s" not found.', $data->headStatementId)
-            );
+            throw new BadRequestHttpException(sprintf('Statement "%s" not found.', $data->headStatementId));
         }
 
         $this->getAccessConditions($headStatement, $procedure);
@@ -86,40 +84,30 @@ class StatementGroupProcessor implements ProcessorInterface
     {
         // Mirrors: propertyHasValue($procedure->getId(), $this->procedure->id)
         if ($headStatement->getProcedureId() !== $procedure->getId()) {
-            throw new BadRequestHttpException(
-                sprintf('Statement "%s" does not belong to the current procedure.', $headStatement->getId())
-            );
+            throw new BadRequestHttpException(sprintf('Statement "%s" does not belong to the current procedure.', $headStatement->getId()));
         }
 
         // Mirrors: propertyIsNotNull($this->original)
         // Statements without an original are themselves originals and cannot head a cluster.
         if (null === $headStatement->getOriginal()) {
-            throw new BadRequestHttpException(
-                sprintf('Statement "%s" is an original statement and cannot serve as cluster head.', $headStatement->getId())
-            );
+            throw new BadRequestHttpException(sprintf('Statement "%s" is an original statement and cannot serve as cluster head.', $headStatement->getId()));
         }
 
         // Mirrors: propertyHasValue(false, $this->deleted)
         if ($headStatement->isDeleted()) {
-            throw new BadRequestHttpException(
-                sprintf('Statement "%s" is deleted and cannot serve as cluster head.', $headStatement->getId())
-            );
+            throw new BadRequestHttpException(sprintf('Statement "%s" is deleted and cannot serve as cluster head.', $headStatement->getId()));
         }
 
         // Mirrors: propertyIsNull($this->headStatement)
         // A statement that is already a cluster member cannot itself become a cluster head.
         if (null !== $headStatement->getHeadStatement()) {
-            throw new BadRequestHttpException(
-                sprintf('Statement "%s" is already a cluster member.', $headStatement->getId())
-            );
+            throw new BadRequestHttpException(sprintf('Statement "%s" is already a cluster member.', $headStatement->getId()));
         }
 
         // Mirrors: propertyIsNull($this->movedStatement)
         // Placeholder statements left behind by a move are not real statement resources.
         if (null !== $headStatement->getMovedStatement()) {
-            throw new BadRequestHttpException(
-                sprintf('Statement "%s" is a moved-statement placeholder and cannot serve as cluster head.', $headStatement->getId())
-            );
+            throw new BadRequestHttpException(sprintf('Statement "%s" is a moved-statement placeholder and cannot serve as cluster head.', $headStatement->getId()));
         }
     }
 }
