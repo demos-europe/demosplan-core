@@ -15,10 +15,10 @@ namespace demosplan\DemosPlanCoreBundle\StateProvider;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementGroupResource;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Webmozart\Assert\Assert;
 
 class StatementGroupStateProvider implements ProviderInterface
@@ -31,7 +31,7 @@ class StatementGroupStateProvider implements ProviderInterface
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
-        //incorporate getAccessConditions()
+        // incorporate getAccessConditions()
         Assert::same($operation->getClass(), StatementGroupResource::class);
 
         if (!$this->isAvailable()) {
@@ -47,7 +47,6 @@ class StatementGroupStateProvider implements ProviderInterface
 
     private function provideSingle(string $id): ?StatementGroupResource
     {
-
         $statement = $this->statementHandler->getStatement($id);
         if (!$statement instanceof Statement || !$statement->isClusterStatement()) {
             return null;
