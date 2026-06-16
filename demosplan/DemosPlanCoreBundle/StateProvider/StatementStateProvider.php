@@ -16,8 +16,8 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementResource;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Webmozart\Assert\Assert;
 
 class StatementStateProvider implements ProviderInterface
