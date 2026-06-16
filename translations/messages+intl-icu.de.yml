@@ -978,11 +978,7 @@ docx.export.file_name.placeholder: "'{ID}'_'{NAME}'_'{EINGANGSNR}'"
 docx.export.filtered: "<p>Angewendete Schlagwortfilter: </p> <br>"
 docx.export.header.custom: "Titelzusatz vergeben"
 docx.export.header.custom.hint: "Untertitel, der im exportierten docx-Dokument auf allen Seiten rechtsbündig unter dem Verfahrensnamen erscheint. Der Standard-Untertitel kann hier angepasst werden."
-docx.export.header.custom.placeholder: |
-  {isPartialExport, select,
-      true {Teilexport Synopse {procedureName}}
-      other {Export Synopse {procedureName}}
-  }
+docx.export.header.custom.placeholder: "Synopse"
 docx.export.landscape: "Docx Exp. (Querformat)"
 docx: "DOCX"
 done: "erledigt"
@@ -3366,6 +3362,7 @@ segments.export.filter.tags.only: "Nur Abschnitte mit folgenden Schlagworten"
 segments.export.pagination: "Seite {PAGE} von {NUMPAGES}"
 segments.export.segment.id: "Abschnitts-ID"
 segments.export.statement.export.date: "Synopse vom {date}"
+segments.export.statement.export.custom: "Synopse {customHeaderText}"
 segments.export.statement.export.date.filtered: "Teilexport Synopse vom {date}"
 segments.export.statement.extern.id: "ID: {externId}"
 segments.export.statement.intern.id: "Eingangsnummer: {internId}"
