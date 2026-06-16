@@ -45,7 +45,8 @@ class StatementStateProvider implements ProviderInterface
 
     public function isAvailable(): bool
     {
-        return $this->currentUser->hasPermission('feature_json_api_statement');
+        return $this->hasAssessmentPermission()
+            || $this->currentUser->hasPermission('area_search_submitter_in_procedures');
     }
 
     private function provideSingle(string $id): ?StatementResource
@@ -59,5 +60,15 @@ class StatementStateProvider implements ProviderInterface
         $statementResource->id = $statement->getId();
 
         return $statementResource;
+    }
+
+    private function hasAssessmentPermission(): bool
+    {
+        return $this->currentUser->hasAnyPermissions(
+            'area_admin_assessmenttable',
+            'feature_json_api_statement',
+            // allow access for the consultation token admin list
+            'area_admin_consultations'
+        );
     }
 }
