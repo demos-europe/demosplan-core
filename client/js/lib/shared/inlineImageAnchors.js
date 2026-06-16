@@ -11,65 +11,83 @@ const filenameFromSrc = (src) => {
   if (typeof src !== 'string' || src === '' || src.startsWith('data:')) {
     return ''
   }
+
   try {
     const path = src.split(/[?#]/)[0]
     const slashIndex = path.lastIndexOf('/')
+
     if (slashIndex === -1) {
       return ''
     }
+
     const segment = path.substring(slashIndex + 1)
+
     if (segment === '' || !segment.includes('.')) {
       return ''
     }
+
     return decodeURIComponent(segment)
   } catch (error) {
     console.error('filenameFromSrc: failed to decode src', error)
+
     return ''
   }
 }
 
 const resolveLinkLabel = (altText, src, fallback) => {
   const alt = (altText ?? '').trim()
+
   if (alt !== '') {
     return alt
   }
+
   const filename = filenameFromSrc(src)
+
   if (filename !== '') {
     return filename
   }
+
   return fallback
 }
 
 const ensureBlockClass = (img) => {
   const existingClasses = (img.getAttribute('class') || '').split(/\s+/).filter(Boolean)
+
   if (!existingClasses.includes('block')) {
     existingClasses.push('block')
   }
+
   img.setAttribute('class', existingClasses.join(' '))
 }
 
 const createWrapper = (doc) => {
   const wrapper = doc.createElement('span')
+
   wrapper.className = WRAPPER_UTILITY_CLASSES
+
   return wrapper
 }
 
 const createImg = (doc, { src, alt }) => {
   const img = doc.createElement('img')
+
   img.setAttribute('src', src)
   img.setAttribute('alt', alt)
   img.setAttribute('loading', 'lazy')
   img.className = IMAGE_UTILITY_CLASSES
+
   return img
 }
 
 const createLink = (doc, { href, target, rel, label }) => {
   const anchor = doc.createElement('a')
+
   anchor.className = LINK_UTILITY_CLASSES
   anchor.setAttribute('href', href)
   anchor.setAttribute('target', target)
   anchor.setAttribute('rel', rel)
   anchor.textContent = label
+
   return anchor
 }
 
@@ -93,6 +111,7 @@ export function inlineImageAnchors (html, className = DEFAULT_CLASS, fallbackLab
   if (typeof html !== 'string') {
     return html
   }
+
   if (!html.includes(className) && !html.includes('<img')) {
     return html
   }
@@ -115,6 +134,7 @@ export function inlineImageAnchors (html, className = DEFAULT_CLASS, fallbackLab
     const rel = anchor.getAttribute('rel') || DEFAULT_REL
 
     const wrapper = createWrapper(doc)
+
     wrapper.appendChild(createImg(doc, { src: href, alt: label }))
     wrapper.appendChild(createLink(doc, { href, target, rel, label }))
 
@@ -125,7 +145,9 @@ export function inlineImageAnchors (html, className = DEFAULT_CLASS, fallbackLab
     if (isInsideWrapper(img)) {
       return
     }
+
     const src = img.getAttribute('src')
+
     if (!src) {
       return
     }
@@ -150,6 +172,7 @@ export function inlineImageAnchors (html, className = DEFAULT_CLASS, fallbackLab
       if (orphanLink.textContent.trim() === '') {
         orphanLink.textContent = altLabel
       }
+
       wrapper.appendChild(orphanLink)
     } else {
       wrapper.appendChild(createLink(doc, {

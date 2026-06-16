@@ -166,13 +166,16 @@ export default {
         nodeViews: {
           image: (node) => {
             const wrapper = document.createElement('span')
+
             wrapper.className = 'pdf-importer-image-wrapper inline-block text-center'
             const img = document.createElement('img')
+
             img.setAttribute('src', node.attrs.src)
             img.setAttribute('alt', node.attrs.alt || '')
             img.setAttribute('loading', 'lazy')
             img.className = 'block'
             const link = document.createElement('a')
+
             link.className = 'pdf-importer-image-link block mt-1'
             link.setAttribute('href', node.attrs.src)
             link.setAttribute('target', '_blank')
@@ -180,6 +183,7 @@ export default {
             link.textContent = (node.attrs.alt || '').trim() || Translator.trans('image.open')
             wrapper.appendChild(img)
             wrapper.appendChild(link)
+
             return { dom: wrapper }
           },
         },
