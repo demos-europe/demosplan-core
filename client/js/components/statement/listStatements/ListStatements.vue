@@ -49,7 +49,9 @@
       </dp-bulk-edit-header>
       <statement-export-modal
         data-cy="listStatements:export"
+        :has-permission-adjust-preamble="hasPermission('feature_adjust_preamble_export_file')"
         :procedure-id="procedureId"
+        :procedure-name="procedureName"
         @export="showHintAndDoExport"
       />
       <div
@@ -393,6 +395,12 @@ export default {
       type: String,
     },
 
+    procedureName: {
+      required: false,
+      type: String,
+      default: '',
+    },
+
     submitTypeOptions: {
       type: Array,
       required: false,
@@ -474,7 +482,7 @@ export default {
     },
 
     exportRoute: function () {
-      return (exportRoute, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds) => {
+      return (exportRoute, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds, customHeaderText) => {
         const parameters = {
           filter: {
             procedureId: {
@@ -510,6 +518,10 @@ export default {
           parameters.fileNameTemplate = fileNameTemplate
         }
 
+        if (customHeaderText) {
+          parameters.customHeaderText = customHeaderText
+        }
+
         return Routing.generate(exportRoute, parameters)
       }
     },
@@ -519,6 +531,7 @@ export default {
         .map(statement => {
           const { segmentsCount = 0 } = statement.attributes
           const originalPdf = this.getOriginalPdfAttachmentHash(statement)
+
           return {
             ...statement.attributes,
             assignee: this.getAssignee(statement),
@@ -613,6 +626,7 @@ export default {
 
     handleSizeChange (newSize) {
       const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
+
       this.pagination.perPage = newSize
       this.getItemsByPage(page)
     },
@@ -673,8 +687,10 @@ export default {
      */
     claimStatement (statementId) {
       const statement = this.statementsObject[statementId]
+
       if (typeof statement !== 'undefined') {
         const dataToUpdate = { ...statement, ...{ relationships: { ...statement.relationships, ...{ assignee: { data: { type: 'Claim', id: this.currentUserId } } } } } }
+
         this.setStatement({ ...dataToUpdate, id: statementId })
 
         const payload = {
@@ -722,6 +738,7 @@ export default {
     unclaimStatement (statementId) {
       const statement = this.statementsObject[statementId]
       const dataToUpdate = { ...statement, ...{ relationships: { ...statement.relationships, ...{ assignee: { data: { type: 'Claim', id: null } } } } } }
+
       this.setStatement({ ...dataToUpdate, id: statementId })
 
       const payload = {
@@ -735,6 +752,7 @@ export default {
           },
         },
       }
+
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: statementId }), {}, payload)
         .catch((err) => {
           this.restoreStatementAction(statementId)
@@ -778,9 +796,11 @@ export default {
         'assignee',
         'sourceAttachment',
       ]
+
       if (this.isSourceAndCoupledProcedure) {
         statementFields.push('synchronized')
       }
+
       if (hasPermission('area_statement_segmentation')) {
         statementFields.push('segmentDraftList')
       }
@@ -875,6 +895,7 @@ export default {
        * That's why `AND` is used as conjunction, and `<>` (not equal) as operator, in that case.
        */
       const filterForToggledItems = {}
+
       if (this.toggledItems.length > 0) {
         filterForToggledItems.statementFilterGroup = {
           group: {
@@ -929,6 +950,7 @@ export default {
           const oldStatement = Object.values(this.statementsObject).find(el => el.id === statementId)
           const fullText = response.data.data.attributes.fullText
           const updatedStatement = { ...oldStatement, attributes: { ...oldStatement.attributes, fullText, isFulltextDisplayed: true } }
+
           this.setStatement({ ...updatedStatement, id: statementId })
         })
     },
@@ -999,8 +1021,9 @@ export default {
       }
     },
 
-    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, shouldConfirm, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds }) {
-      const url = this.exportRoute(route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds)
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, shouldConfirm, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds, customHeaderText }) {
+      const url = this.exportRoute(route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds, customHeaderText)
+
       if (!shouldConfirm || window.dpconfirm(Translator.trans('export.statements.hint'))) {
         window.location.href = url
       }
@@ -1030,6 +1053,7 @@ export default {
     toggleFulltext (statementId) {
       const statement = this.statementsObject[statementId]
       const isFulltext = statement.attributes.isFulltextDisplayed
+
       this.setStatement({ ...{ ...statement, attributes: { ...statement.attributes, isFulltextDisplayed: !isFulltext }, id: statementId } })
     },
 

@@ -43,6 +43,7 @@ class SegmentsExportController extends BaseController
     private const CITIZEN_CENSOR_PARAMETER = 'isCitizenDataCensored';
     private const INSTITUTION_CENSOR_PARAMETER = 'isInstitutionDataCensored';
     private const OBSCURE_PARAMETER = 'isObscured';
+    private const CUSTOM_HEADER_TEXT_PARAMETER = 'customHeaderText';
 
     public function __construct(
         private readonly NameGenerator $nameGenerator,
@@ -133,7 +134,8 @@ class SegmentsExportController extends BaseController
         $noTagsFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
 
         $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
-        $filteredTagNames = $this->statementExportTagFilter->getTagNames();
+        $exportFilteredByTagsWithTopics = $this->statementExportTagFilter->getFilteredTagsWithTitles();
+        $customHeaderText = $this->requestStack->getCurrentRequest()->query->get(self::CUSTOM_HEADER_TEXT_PARAMETER) ?? '';
 
         $censorCitizenData = $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER);
         $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
@@ -149,15 +151,17 @@ class SegmentsExportController extends BaseController
                 $censorCitizenData,
                 $censorInstitutionData,
                 $obscureParameter,
-                $filteredTagNames
+                $exportFilteredByTagsWithTopics,
+                $customHeaderText
             ) {
                 $exportedDoc = $exporter->exportAll(
                     $tableHeaders,
                     $procedure,
                     $obscureParameter,
-                    $filteredTagNames,
+                    $exportFilteredByTagsWithTopics,
                     $censorCitizenData,
                     $censorInstitutionData,
+                    $customHeaderText,
                     ...$statementEntities
                 );
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
@@ -271,7 +275,6 @@ class SegmentsExportController extends BaseController
         // Apply tag filtering after JsonAPI filtering
         $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
         $statements = $this->statementExportTagFilter->filterStatementsByTags($statements, $tagsFilter);
-        $filteredTagNames = $this->statementExportTagFilter->getTagNames();
 
         $statements = $exporter->mapStatementsToPathInZip(
             $statements,
@@ -290,8 +293,7 @@ class SegmentsExportController extends BaseController
                 $tableHeaders,
                 $censorCitizenData,
                 $censorInstitutionData,
-                $obscureParameter,
-                $filteredTagNames
+                $obscureParameter
             ): void {
                 array_map(
                     function (Statement $statement, string $filePathInZip) use (
@@ -302,8 +304,7 @@ class SegmentsExportController extends BaseController
                         $tableHeaders,
                         $censorCitizenData,
                         $censorInstitutionData,
-                        $obscureParameter,
-                        $filteredTagNames
+                        $obscureParameter
                     ): void {
                         $docx = $exporter->exportStatementSegmentsInSeparateDocx(
                             $statement,
@@ -312,7 +313,7 @@ class SegmentsExportController extends BaseController
                             $censorCitizenData,
                             $censorInstitutionData,
                             $obscureParameter,
-                            $filteredTagNames
+                            $this->statementExportTagFilter->getFilteredTagsWithTitles()
                         );
                         $writer = IOFactory::createWriter($docx);
                         $zipExportService->addWriterToZipStream(

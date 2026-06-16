@@ -116,12 +116,12 @@ class CheckPermissionEventSubscriber implements EventSubscriberInterface
             // als dass es ein echtes AccessDenied ist
             if (null === $this->requestStack->getCurrentRequest()?->getSession()->getId()) {
                 $this->logger->info('Access Denied nach nicht vorhandener Session: ', [$e]);
-                throw new AccessDeniedGuestException();
+                throw new AccessDeniedGuestException($e->getMessage(), $e);
             }
             throw $e;
         } catch (Exception $e) {
             $this->logger->error('Session Initialization not successful', [$e]);
-            throw new SessionUnavailableException('Session Initialization not successful: '.$e);
+            throw new SessionUnavailableException('Session Initialization not successful: '.$e, $e->getCode(), $e);
         }
     }
 

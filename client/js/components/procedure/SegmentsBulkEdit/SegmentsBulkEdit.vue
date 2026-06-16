@@ -22,6 +22,14 @@
     <!-- Step 1 - Chose action -->
     <template v-slot:step-1>
       <div class="border-between-vertical">
+        <dp-inline-notification
+          v-if="hasLockedSelection"
+          :dismissible-key="lockedHintDismissibleKey"
+          :message="Translator.trans('segments.bulk.edit.locked.hint', { lockedCount, totalCount: segments.length })"
+          class="border-between-none mt-3 mb-2"
+          type="info"
+          dismissible
+        />
         <!-- Assign user -->
         <action-stepper-action
           v-if="hasPermission('feature_statement_assignment')"
@@ -59,6 +67,7 @@
 
         <!-- Add tags -->
         <action-stepper-action
+          v-if="!hasLockedSelection"
           id="selectAddTagsAction"
           v-model="actions.addTags.checked"
           :label="Translator.trans('segments.bulk.edit.tags.add')"
@@ -79,6 +88,7 @@
 
         <!-- Remove tags -->
         <action-stepper-action
+          v-if="!hasLockedSelection"
           id="selectDeleteTagsAction"
           v-model="actions.deleteTags.checked"
           :label="Translator.trans('segments.bulk.edit.tags.delete')"
@@ -99,6 +109,7 @@
 
         <!-- Append text to recommendation -->
         <action-stepper-action
+          v-if="!hasLockedSelection"
           id="selectAddRecommendationAction"
           v-model="actions.addRecommendations.checked"
           :label="Translator.trans('segments.bulk.edit.recommendations.add')"
@@ -182,21 +193,23 @@
           </dp-editor>
         </action-stepper-action>
         <!--Custom Fields-->
-        <action-stepper-action
-          v-for="customField in actions.customFields"
-          :id="customField.id"
-          :key="`customField:${customField.id}`"
-          v-model="customField.checked"
-          :label="customField.label"
-        >
-          <dp-multiselect
-            :id="`customFieldSelect:${customField.id}`"
-            v-model="customField.selected"
-            class="w-12"
-            :disabled="!hasSegments"
-            :options="customField.optionLabels"
-          />
-        </action-stepper-action>
+        <template v-if="!hasLockedSelection">
+          <action-stepper-action
+            v-for="customField in actions.customFields"
+            :id="customField.id"
+            :key="`customField:${customField.id}`"
+            v-model="customField.checked"
+            :label="customField.label"
+          >
+            <dp-multiselect
+              :id="`customFieldSelect:${customField.id}`"
+              v-model="customField.selected"
+              class="w-12"
+              :disabled="!hasSegments"
+              :options="customField.optionLabels"
+            />
+          </action-stepper-action>
+        </template>
       </div>
     </template>
 
@@ -355,6 +368,7 @@ import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import lscache from 'lscache'
 import RecommendationModal from '../Shared/RecommendationModal'
 import SelectedTagsList from '@DpJs/components/procedure/SegmentsBulkEdit/SelectedTagsList'
+import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 export default {
   name: 'SegmentsBulkEdit',
@@ -366,10 +380,12 @@ export default {
     DpBoilerPlateModal,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
+
       return DpEditor
     }),
     DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
+
       return DpInlineNotification
     }),
     DpMultiselect,
@@ -433,8 +449,11 @@ export default {
       },
       assignableUsers: [],
       busy: false,
+      customFieldDefinitions: [],
+      hasLockedSelection: false,
       hasRecommendationTabs: false,
       isLoading: true,
+      lockedCount: 0,
       places: [],
       returnLink: Routing.generate('dplan_segments_list', { procedureId: this.procedureId }),
       segmentDataLoaded: false,
@@ -444,10 +463,6 @@ export default {
   },
 
   computed: {
-    ...mapState('CustomField', {
-      customFieldItems: 'items',
-    }),
-
     ...mapState('Tag', {
       tagsItems: 'items',
     }),
@@ -515,9 +530,11 @@ export default {
       if (isEmptyTextAttached) {
         return Translator.trans('segments.bulk.edit.recommendations.warning.empty.text.attach', { count: this.segments.length })
       }
+
       if (isEmptyTextReplaced) {
         return Translator.trans('segments.bulk.edit.recommendations.warning.empty.text.replace', { count: this.segments.length })
       }
+
       return ''
     },
 
@@ -561,6 +578,10 @@ export default {
       return this.segments.length === 1
     },
 
+    lockedHintDismissibleKey () {
+      return `${this.procedureId}:segmentsBulkEditLockedHint`
+    },
+
     tags () {
       return Object.values(this.tagsItems).sort((a, b) => a.attributes.title.localeCompare(b.attributes.title, 'de', { sensitivity: 'base' }))
     },
@@ -571,10 +592,6 @@ export default {
   },
 
   methods: {
-    ...mapActions('AdminProcedure', {
-      getAdminProcedureWithFields: 'get',
-    }),
-
     ...mapActions('StatementSegment', {
       getSegment: 'get',
     }),
@@ -588,7 +605,7 @@ export default {
     }),
 
     addCustomFieldsToActions () {
-      Object.values(this.customFieldItems).forEach(customField => {
+      this.customFieldDefinitions.forEach(customField => {
         this.actions.customFields.push({
           checked: false,
           id: customField.id,
@@ -667,6 +684,7 @@ export default {
 
     fetchAssignableUsers () {
       const url = Routing.generate('api_resource_list', { resourceType: 'AssignableUser' })
+
       return dpApi.get(url, { include: 'department' })
         .then(response => {
           this.assignableUsers = response.data.data.map(assignableUser => {
@@ -684,27 +702,17 @@ export default {
         })
     },
 
-    /**
-     * Fetch custom fields that are available either in the procedure or in the procedure template
-     */
-    fetchCustomFields () {
-      const payload = {
-        id: this.procedureId,
-        fields: {
-          AdminProcedure: [
-            'segmentCustomFields',
-          ].join(),
-          CustomField: [
-            'name',
-            'description',
-            'options',
-          ].join(),
-        },
-        include: ['segmentCustomFields'].join(),
-      }
+    loadSegmentCustomFields () {
+      const { fetchCustomFields } = useCustomFields()
 
-      return this.getAdminProcedureWithFields(payload)
-        .catch(err => console.error(err))
+      return fetchCustomFields(this.procedureId, {
+        sourceEntity: 'PROCEDURE',
+        targetEntity: 'SEGMENT',
+      })
+        .then(definitions => {
+          this.customFieldDefinitions = definitions
+        })
+        .catch(() => { /* Notification already shown by useCustomFieldDefinitions */ })
     },
 
     fetchPlaces () {
@@ -712,6 +720,7 @@ export default {
         resourceType: 'Place',
         sort: 'sortIndex',
       })
+
       return dpApi.get(url)
         .then(response => {
           this.places = response.data.data.map(place => {
@@ -754,6 +763,7 @@ export default {
      */
     setReturnLink () {
       const currentQueryHash = lscache.get(`${this.procedureId}:segments:currentQueryHash`)
+
       if (currentQueryHash) {
         this.returnLink = Routing.generate('dplan_segments_list_by_query_hash', {
           procedureId: this.procedureId,
@@ -771,7 +781,10 @@ export default {
       const allSegments = lscache.get(`${this.procedureId}:allSegments`)
 
       if (segments && allSegments) {
+        this.hasLockedSelection = !!segments.hasLocked
+        this.lockedCount = segments.lockedCount ?? 0
         const toggledIds = segments.toggledSegments.map(item => item.id)
+
         if (segments.trackDeselected === false) {
           this.segments = toggledIds
         } else if (segments.trackDeselected === true) {
@@ -798,7 +811,7 @@ export default {
     }
 
     if (hasPermission('field_segments_custom_fields')) {
-      promises.push(this.fetchCustomFields())
+      promises.push(this.loadSegmentCustomFields())
     }
 
     Promise.all(promises)

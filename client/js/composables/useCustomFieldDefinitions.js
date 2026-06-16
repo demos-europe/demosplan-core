@@ -51,11 +51,13 @@ export function useCustomFieldDefinitions () {
   const clearDefinitionsCache = (definitionSourceId = null) => {
     if (definitionSourceId) {
       const prefix = `${definitionSourceId}:`
+
       for (const key of customFieldsDefinitions.keys()) {
         if (key.startsWith(prefix)) {
           customFieldsDefinitions.delete(key)
         }
       }
+
       for (const key of pendingFetches.keys()) {
         if (key.startsWith(prefix)) {
           pendingFetches.delete(key)
@@ -72,10 +74,13 @@ export function useCustomFieldDefinitions () {
    * Supports optional server-side filtering by targetEntity and sourceEntity.
    * Uses a composite cache key so filtered and unfiltered results are cached independently.
    *
-   * @param {string} definitionSourceId - The procedure ID to fetch custom fields for
+   * @param {string|null} definitionSourceId - The source entity ID (e.g. procedure ID) to fetch custom fields for.
+   *   Pass null for sourceEntity 'CUSTOMER': the BE auto-scopes to the current customer via access conditions,
+   *   so the FE does not need to know the customer ID. The cache key collapses to a single per-(target, source)
+   *   slot per session — safe because customer switches always trigger a page reload, which discards this cache.
    * @param {Object} [options={}] - Optional server-side filter options
    * @param {string|null} [options.targetEntity=null] - Filter by target entity (e.g. 'STATEMENT', 'SEGMENT')
-   * @param {string|null} [options.sourceEntity=null] - Filter by source entity (e.g. 'PROCEDURE', 'PROCEDURE_TEMPLATE')
+   * @param {string|null} [options.sourceEntity=null] - Filter by source entity (e.g. 'PROCEDURE', 'PROCEDURE_TEMPLATE', 'CUSTOMER')
    * @returns {Promise<Array>} Promise resolving to array of custom field definitions
    */
   const fetchCustomFields = (definitionSourceId, { targetEntity = null, sourceEntity = null } = {}) => {
@@ -98,12 +103,18 @@ export function useCustomFieldDefinitions () {
         CustomField: ['name', 'description', 'options', 'fieldType', 'isRequired'].join(),
       },
       filter: {
-        sourceEntityId: {
-          condition: {
-            path: 'sourceEntityId',
-            value: definitionSourceId,
+        /*
+         * For CUSTOMER source the BE scopes results to the current customer
+         * via its access conditions, so we omit the sourceEntityId filter.
+         */
+        ...(sourceEntity !== 'CUSTOMER' && {
+          sourceEntityId: {
+            condition: {
+              path: 'sourceEntityId',
+              value: definitionSourceId,
+            },
           },
-        },
+        }),
         ...(targetEntity && {
           targetEntity: {
             condition: {
@@ -126,6 +137,7 @@ export function useCustomFieldDefinitions () {
     const fetchPromise = dpApi.get(url, params)
       .then(response => {
         const customFields = response.data.data || []
+
         customFieldsDefinitions.set(cacheKey, customFields)
         pendingFetches.delete(cacheKey)
 

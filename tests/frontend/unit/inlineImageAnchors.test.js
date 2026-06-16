@@ -27,6 +27,7 @@ describe('inlineImageAnchors', () => {
 
   it('preserves anchors without the target class', () => {
     const html = '<a class="other-class" href="http://example.com">keep me</a>'
+
     expect(inlineImageAnchors(html)).toBe(html)
   })
 
@@ -75,6 +76,7 @@ describe('inlineImageAnchors', () => {
 
   it('returns the input unchanged when there is nothing to transform', () => {
     const html = '<p>no images here</p>'
+
     expect(inlineImageAnchors(html)).toBe(html)
   })
 

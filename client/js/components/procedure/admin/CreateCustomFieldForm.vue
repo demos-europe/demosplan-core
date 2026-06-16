@@ -5,7 +5,7 @@
       class="text-right mb-4"
     >
       <dp-button
-        :text="Translator.trans('add')"
+        :text="addButtonText ?? Translator.trans('add')"
         data-cy="customFields:addField"
         @click="open"
       />
@@ -107,6 +107,9 @@ import {
   DpSelect,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
+import { useCustomFieldTypes } from '@DpJs/composables/useCustomFieldTypes'
+
+const { getDefaultFieldTypeForTarget } = useCustomFieldTypes()
 
 export default {
   name: 'CreateCustomFieldForm',
@@ -123,6 +126,11 @@ export default {
   mixins: [dpValidateMixin],
 
   props: {
+    addButtonText: {
+      type: String,
+      default: null,
+    },
+
     handleSuccess: {
       type: Boolean,
       default: false,
@@ -135,6 +143,11 @@ export default {
 
     targetOptions: {
       type: Object,
+      required: true,
+    },
+
+    typeOptions: {
+      type: Array,
       required: true,
     },
   },
@@ -155,16 +168,6 @@ export default {
         targetEntity: '',
       },
       isOpen: false,
-      typeOptions: [
-        {
-          value: 'multiSelect',
-          label: Translator.trans('custom.field.type.multiSelect'),
-        },
-        {
-          value: 'singleSelect',
-          label: Translator.trans('custom.field.type.singleSelect'),
-        },
-      ],
     }
   },
 
@@ -176,11 +179,7 @@ export default {
 
   watch: {
     'customField.targetEntity' (targetEntity) {
-      const typeMap = {
-        STATEMENT: 'multiSelect',
-        SEGMENT: 'singleSelect',
-      }
-      this.customField.fieldType = typeMap[targetEntity] ?? ''
+      this.customField.fieldType = getDefaultFieldTypeForTarget(targetEntity)
     },
 
     handleSuccess: {

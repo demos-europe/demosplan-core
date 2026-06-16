@@ -221,6 +221,7 @@ export default {
 
     sortSelected (type) {
       const area = `selected${type}`
+
       this[area].sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))
     },
 
@@ -271,6 +272,7 @@ export default {
       statementHistoryButton.addEventListener('click', (event) => {
         event.preventDefault()
         const externalId = this.isCopy ? Translator.trans('copyof') + ' ' + this.externId : this.externId
+
         this.$root.$emit('version:history', this.statementId, 'statement', externalId)
         this.$root.$emit('show-slidebar')
       })

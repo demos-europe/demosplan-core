@@ -6,11 +6,79 @@
 
 ## UNRELEASED
 
+### Added
+- Make procedure phase definitions editable
+- Segment lock feature: workflow places can now be marked as locked, making segments on them read-only for users without the `feature_administrate_segment_lock` permission. Enforced on JSON:API PATCH, `segment.bulk.edit` RPC, and place updates; transitions are recorded in the segment Versionsverlauf.
+- Permission `feature_segment_lock_by_workflow_place` (exposed, login-required) toggles the segment lock feature per project. Grant it in `projects/<name>/.../Permissions.php` to every role that should see the feature. Requires `demos-europe/demosplan-addon` ^0.68.1.
+
+## v4.44.1 (2026-06-12)
+
+### Changed
+- Adjacent statement segments with identical tags are now merged into a single segment during statement segmentation, preserving the original text formatting (DPLAN-12697)
+
+### Fixed
+- Submitting a public statement as an anonymous citizen no longer fails with a Doctrine `MissingIdentifierField` exception (DPLAN-18002)
+- Logging out via Keycloak no longer produces an invalid redirect address when the customer-specific logout route already contains the full host name
+
+## v4.44.0 (2026-06-05)
+
+## v4.43.1 (2026-06-16)
+
+### Changed
+- Adjacent statement segments with identical tags are now merged into a single segment during statement segmentation, preserving the original text formatting (DPLAN-12697)
+
+### Fixed
+- Submitting a public statement as an anonymous citizen no longer fails with a Doctrine `MissingIdentifierField` exception (DPLAN-18002)
+- Logging out via Keycloak no longer produces an invalid redirect address when the customer-specific logout route already contains the full host name
+
+## v4.43.0 (2026-06-05)
+
+### Added
+- Show text custom fields and its values in manage institutions and add institutions dialogs
+- Add text custom field value editing to institution tag management dialog
+- Set up API Platform infrastructure alongside existing EDT (Entity Definition Toolkit) as part of the gradual API migration (DPLAN-17129)
+- Add dedicated security firewall for API Platform routes (`/api/3.0/`) with shared session authentication
+- Add bridge classes in demosplan-addon for EDT-to-API Platform relationship handling during migration (`PlainIdJsonApiNormalizer`, `ApiPlatformRelationshipConfig`, `ExtendedDynamicTransformer`)
+- Add text custom field definition editing
+- Add customer admin interface for managing procedure phases - displaying and creating new phases
+- Store procedure phase definitions in the database as `ProcedurePhaseDefinition` entities (per customer and audience) instead of in YAML/`GlobalConfig`, with a new `procedure_phase_definition` table and `phase_definition_id` foreign keys on `procedure_phase` (plus `designated_phase_definition_id`), `_statement`, `_draft_statement`, `_draft_statement_versions` and `institution_mail` (DPLAN-17570)
+
+### Changed
+- Widen `_procedure.extern_id` from `VARCHAR(50)` to `VARCHAR(255)` so XBeteiligung planIDs longer than 50 characters can be stored (DPLAN-17455)
+- Tag selection when splitting a statement now lists keywords in the manual sort order from tag administration instead of alphabetically
+- Procedure phase names are now read from the `ProcedurePhaseDefinition` entity in the database everywhere they are displayed, instead of from YAML-based phase translation keys (DPLAN-17570)
+
+### Fixed
+- `AccessProcedureListener` now checks for array controller before accessing index, preventing crashes on API Platform routes
+- `dplan:procedure:delete` now also removes the two associated `procedure_phase` rows; previous runs left orphan rows behind, which are cleaned up by a one-shot migration
+
+### New dependencies
+- `api-platform/core ^3.4`
+
+### New environment variable
+- `CORS_ALLOW_ORIGIN` — Required. Controls which origins are allowed to make cross-origin requests to API Platform endpoints. Default: `'^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$'`
+
+## v4.42.0 (2026-05-21)
+## v4.40.1 (2026-05-21)
+
+## v4.40.0 (2026-05-20)
+
+### Added
+- Tags can be reordered within and between TagTopics via drag and drop in tag administration
+
+### Changed
+- Segment transformer extracts segment IDs and text from `<segment-mark>` elements in textualReference instead of charStart/charEnd positions
+- Column widths in the segment list now persist across browser sessions
+- "column reset" in the segment list now also resets column widths to defaults
+- Doctrine ORM upgraded from v2.20 to v3.6 and `doctrine/persistence` widened to `^2.0 || ^3.0`; entity mappings converted from annotations to PHP 8 attributes (preparation for the API Platform integration)
+
 ## v4.39.0 (2026-05-06)
 
 ## v4.38.0 (2026-05-06)
 
 ### Added
+- Add text custom field definition to institution tag management dialog
+- Inactivity-based account-deletion workflow: a daily cron sends two warning mails and then soft-deletes accounts that stay inactive past configurable thresholds; the next successful login resets the cascade. Disabled by default — enable per project by setting `account_deletion.first_warning_days` in `parameters_default_project.yml`. Includes the `dplan:account-deletion:prepare-test` console command for QA scenarios.
 - Track recommendation versions for statements and segments with full text snapshots, exposed via API and XLSX export (permission: `feature_enable_recommendation_versions`)
 - Support multiple custom field types and target contexts per project
 - Spellcheck in the Tiptap editor highlights spelling errors and suggests corrections while writing statements
@@ -37,6 +105,8 @@
 - LaTeX PDF exports rendered more reliably (ligature and babel-related gaps)
 
 ### Deployment notes
+- **Migration**: creates the `account_deletion_tracking` table — run `doctrine:migrations:migrate`
+- **New parameters** (with defaults): `account_deletion.first_warning_days` (~ — feature disabled), `account_deletion.warning_step_days` (30), `account_deletion.additional_protected_user_ids` ([])
 - **Migration**: creates `oauth_tokens` table with FK to `_user` and `_orga` — run `doctrine:migrations:migrate`
 - **Required env var**: `OAUTH_SECRET_ENCRYPTION_KEY` — generate with `php -r "echo base64_encode(sodium_crypto_secretbox_keygen());"` and add to `.env.local` on every environment (shared with other encryption features)
 - **New parameters** (with defaults): `oauth_keycloak_login_only` (true — safe default, no behaviour change), `oauth_token_timezone` (Europe/Berlin), `oauth_token_fast_path_interval_seconds` (180), `oauth_token_refresh_buffer_minutes` (2)

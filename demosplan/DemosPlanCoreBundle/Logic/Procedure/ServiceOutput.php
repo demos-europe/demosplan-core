@@ -157,7 +157,6 @@ class ServiceOutput
         if ($this->permissions->hasPermission('feature_procedures_count_released_drafts')) {
             $proclistCount = count($sResult);
             for ($proclistcounter = 0; $proclistcounter < $proclistCount; ++$proclistcounter) {
-                $sResult[$proclistcounter] = $this->addPhaseNames($sResult[$proclistcounter]);
                 $statementResult = $this->draftStatementService->getDraftStatementList(
                     $sResult[$proclistcounter]['ident'],
                     'group',
@@ -208,11 +207,6 @@ class ServiceOutput
         $procedureList = $sResult['result'] ?? [];
         $filters = $sResult['filterSet']['filters'] ?? [];
         $activeFilters = $sResult['filterSet']['activeFilters'] ?? [];
-
-        foreach ($procedureList as $key => $procedure) {
-            // Füge den Phasennamen aus der Config hinzu
-            $procedureList[$key] = $this->addPhaseNames($procedure);
-        }
 
         $result = [];
         if (0 !== (is_countable($procedureList) ? count($procedureList) : 0)) {
@@ -321,16 +315,15 @@ class ServiceOutput
     }
 
     /**
-     * Speichere ab, dass die Institution eine Emaileinladung bekommen hat.
-     *
-     * @param string $ident
-     * @param string $phase
-     *
      * @throws Exception
      */
-    public function getInvitationEmailSentList($ident, $phase): array
+    public function getInvitationEmailSentList(string $procedureId): array
     {
-        return $this->service->getInstitutionMailList($ident, $phase);
+        $phaseDefinition = $this->service->getProcedure($procedureId)
+            ->getPhaseObject()
+            ->getPhaseDefinition();
+
+        return $this->service->getInstitutionMailList($procedureId, $phaseDefinition);
     }
 
     /**
@@ -340,10 +333,7 @@ class ServiceOutput
      */
     public function getProcedureWithPhaseNames($procedureId): array
     {
-        $sResult = $this->service->getSingleProcedure($procedureId);
-
-        // Füge den Phasennamen aus der Config hinzu
-        return $this->addPhaseNames($sResult);
+        return $this->service->getSingleProcedure($procedureId);
     }
 
     /**
@@ -407,18 +397,10 @@ class ServiceOutput
         // Template Variable aus Storage Ergebnis erstellen(Output)
         $templateVars = $this->procedureMemberListHandler($procedure, $filters);
 
-        // Zeige den Namen des aktuellen internen Verfahrensschritts an
-        if (isset($templateVars['procedure']['phase']) && 0 < strlen((string) $templateVars['procedure']['phase'])) {
-            $templateVars['procedure']['phaseName'] = $this->config->getPhaseNameWithPriorityInternal(
-                $templateVars['procedure']['phase']
-            );
-        }
-
         // an welche Institutionen wurde eine Email geschickt?
         $templateVars['orgaInvitationemailSent'] = [];
         $invitationEmailSent = $this->getInvitationEmailSentList(
-            $templateVars['procedure']['ident'],
-            $templateVars['procedure']['phase']
+            $templateVars['procedure']['ident']
         );
         if (is_array($invitationEmailSent['result']) && [] !== $invitationEmailSent['result']) {
             foreach ($invitationEmailSent['result'] as $invitedOrga) {
@@ -513,29 +495,6 @@ class ServiceOutput
         $templateVars['customerMasterBlueprint'] = $customerMasterBlueprint;
 
         return $templateVars;
-    }
-
-    /**
-     * Füge den sprechenden Namen der Phase aus den Parametern hinzu.
-     *
-     * @param array $procedure
-     */
-    protected function addPhaseNames($procedure)
-    {
-        // Institutions-Beteiligung
-        $procedure['phaseName'] = '';
-        $internalPhases = $this->config->getInternalPhasesAssoc();
-        if (isset($procedure['phase']) && isset($internalPhases[$procedure['phase']])) {
-            $procedure['phaseName'] = $internalPhases[$procedure['phase']]['name'];
-        }
-        // Öffentlichkeitsbeteiligung
-        $procedure['publicParticipationPhaseName'] = '';
-        $externalPhases = $this->config->getExternalPhasesAssoc();
-        if (isset($procedure['publicParticipationPhase']) && isset($externalPhases[$procedure['publicParticipationPhase']])) {
-            $procedure['publicParticipationPhaseName'] = $externalPhases[$procedure['publicParticipationPhase']]['name'];
-        }
-
-        return $procedure;
     }
 
     /**

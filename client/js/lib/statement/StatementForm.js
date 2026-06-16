@@ -26,8 +26,10 @@ export default function StatementForm () {
     (function () {
       const ev = new $.Event('toggleClass')
       const orig = $.fn.toggleClass
+
       $.fn.toggleClass = function () {
         $(this).trigger(ev)
+
         return orig.apply(this, arguments)
       }
     })()
@@ -83,6 +85,7 @@ export default function StatementForm () {
       if (!!userDataProcedure && !!userDataProcedure[dplan.currentStatementId]) {
         return userDataProcedure[dplan.currentStatementId][field]
       }
+
       return null
     }
 
@@ -185,7 +188,7 @@ export default function StatementForm () {
       }
     })
   }
-};
+}
 
 /**
  * Speichere Werte in dem sessionStorage. Überschreibe dabei existierende Werte
@@ -195,15 +198,18 @@ export default function StatementForm () {
 window.addSessionStorageData = function (key, data) {
   // Besorge die bestehenden Werte
   let existingData = window.getUserdataSession(key)
+
   if (existingData === null) {
     existingData = {}
   }
+
   // Ersetze die bestehenden Werte
   for (const dataItem in data) {
     if (hasOwnProp(data, dataItem)) {
       existingData[dataItem] = data[dataItem]
     }
   }
+
   window.setUserdataSession(key, existingData)
 }
 

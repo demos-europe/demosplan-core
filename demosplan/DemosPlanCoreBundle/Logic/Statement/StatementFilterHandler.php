@@ -12,7 +12,9 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -22,8 +24,12 @@ class StatementFilterHandler extends CoreHandler
     /** @var Permissions */
     protected $permissions;
 
-    public function __construct(MessageBagInterface $messageBag, PermissionsInterface $permissions, private readonly TranslatorInterface $translator)
-    {
+    public function __construct(
+        MessageBagInterface $messageBag,
+        PermissionsInterface $permissions,
+        private readonly TranslatorInterface $translator,
+        private readonly ProcedurePhaseDefinitionService $procedurePhaseDefinitionService,
+    ) {
         parent::__construct($messageBag);
         $this->permissions = $permissions;
     }
@@ -61,7 +67,7 @@ class StatementFilterHandler extends CoreHandler
         )->values()->all();
 
         // handle special cases
-        if ('phase' === $filterName) {
+        if ('phaseDefinitionId' === $filterName) {
             return $this->getTranslatedPhaseOptions($options);
         }
 
@@ -103,33 +109,13 @@ class StatementFilterHandler extends CoreHandler
      */
     protected function getTranslatedPhaseOptions($options)
     {
-        $translator = $this->translator;
-        $internalPhases = $this->getDemosplanConfig()->getInternalPhasesAssoc();
-        $externalPhases = $this->getDemosplanConfig()->getExternalPhasesAssoc();
-
         foreach ($options as $key => $phase) {
-            $transKey = 'filter.phase.'.$phase['value'];
-            $filterTrans = $translator->trans($transKey);
-            if ($filterTrans !== $transKey) {
-                $options[$key]['label'] = $filterTrans;
-                continue;
-            }
-            // Wenn es keine besonderen Übersetzungen gibt, nimm die konfigurierten Bezeichner
-            if (array_key_exists($phase['value'], $internalPhases)) {
-                $options[$key]['label'] = $this->getDemosplanConfig()->getPhaseNameWithPriorityInternal(
-                    $phase['value']
-                );
-            }
-            if (array_key_exists($phase['value'], $externalPhases)) {
-                $options[$key]['label'] = $this->getDemosplanConfig()->getPhaseNameWithPriorityExternal(
-                    $phase['value']
-                );
-            }
+            $definition = $this->procedurePhaseDefinitionService->findById($phase['value']);
+            $options[$key]['label'] = $definition instanceof ProcedurePhaseDefinition ? $definition->getName() : $phase['value'];
+            $options[$key]['order'] = $definition instanceof ProcedurePhaseDefinition ? $definition->getOrderInAudience() : PHP_INT_MAX;
         }
-        // sort alphabetically
-        $options = collect($options)->sortBy('label')->values()->all();
 
-        return $options;
+        return collect($options)->sortBy('order')->values()->all();
     }
 
     /**
@@ -221,7 +207,7 @@ class StatementFilterHandler extends CoreHandler
             'movedToProcedureId'          => $translator->trans('statement.movedTo.filter.label'),
             'municipalityNames'           => $translator->trans('municipality'),
             'name'                        => $translator->trans('statement.cluster.name'),
-            'phase'                       => $translator->trans('procedure.public.phase'),
+            'phaseDefinitionId'           => $translator->trans('procedure.public.phase'),
             'planningDocument'            => $translator->trans('document'),
             'priority'                    => $translator->trans('priority'),
             'priorityAreaKeys'            => $translator->trans('priorityArea'),
@@ -341,7 +327,7 @@ class StatementFilterHandler extends CoreHandler
             ],
             // Verfahrensschritt - phase - phase
             [
-                'key'           => 'phase',
+                'key'           => 'phaseDefinitionId',
                 'hasPermission' => $this->permissions->hasPermission(
                     'area_admin_assessmenttable'
                 ),
@@ -647,7 +633,7 @@ class StatementFilterHandler extends CoreHandler
                 'type'          => 'submission',
             ],
             [
-                'key'           => 'phase',
+                'key'           => 'phaseDefinitionId',
                 'hasPermission' => $permissions->hasPermission(
                     'area_admin_assessmenttable'
                 ),

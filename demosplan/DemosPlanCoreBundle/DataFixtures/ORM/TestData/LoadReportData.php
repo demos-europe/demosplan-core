@@ -67,7 +67,7 @@ class LoadReportData extends TestFixture implements DependentFixtureInterface
         $manager->flush();
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             LoadCustomerData::class,
