@@ -103,7 +103,7 @@ abstract class SegmentsExporter
         }
     }
 
-    protected function addHeader(Section $section, Procedure $procedure, ?string $headerType = null, array $exportFilteredByTagsWithTopics = [], string $customHeaderText = ''): void
+    protected function addHeader(Section $section, Procedure $procedure, ?string $headerType = null, string $customHeaderText = ''): void
     {
         $header = null === $headerType ? $section->addHeader() : $section->addHeader($headerType);
 
@@ -113,19 +113,20 @@ abstract class SegmentsExporter
             $this->styles['documentTitleParagraph']
         );
 
+        $subHeaderText = '';
         if ('' !== $customHeaderText) {
             $subHeaderText = $this->translator->trans(
                 'segments.export.statement.export.custom',
                 ['customHeaderText' => $customHeaderText]
             );
-        } else {
+        }
+        if ('' === $customHeaderText) {
+            $currentDate = new DateTime();
+            $translationKey = 'segments.export.statement.export.date';
+            $translationParameter = ['date' => $currentDate->format('d.m.Y')];
+            $subHeaderText = $this->translator->trans($translationKey, $translationParameter);
             if ($this->currentUser->hasPermission('feature_adjust_preamble_export_file')) {
                 $subHeaderText = $this->translator->trans('synopsis');
-            } else {
-                $currentDate = new DateTime();
-                $translationKey = 'segments.export.statement.export.date';
-                $translationParameter = ['date' => $currentDate->format('d.m.Y')];
-                $subHeaderText = $this->translator->trans($translationKey, $translationParameter);
             }
         }
         $header->addText(
@@ -333,8 +334,8 @@ abstract class SegmentsExporter
     protected function addMetaDataSheet(PhpWord $phpWord, Procedure $procedure, array $exportTagTitles = [], string $customHeaderText = ''): void
     {
         $section = $phpWord->addSection($this->styles['globalSection']);
-        $this->addHeader($section, $procedure, Footer::FIRST, $exportTagTitles, $customHeaderText);
-        $this->addHeader($section, $procedure, null, $exportTagTitles, $customHeaderText);
+        $this->addHeader($section, $procedure, Footer::FIRST, $customHeaderText);
+        $this->addHeader($section, $procedure, null, $customHeaderText);
         $exportDate = (new DateTime('now', new DateTimeZone('Europe/Berlin')))->format('d.m.Y');
         $userName = $this->currentUser->getUser()->getFullName();
         $pageInfoText = $this->translator->trans('export.user').': '.$userName.' am '.$exportDate.'<br>';
@@ -355,8 +356,8 @@ abstract class SegmentsExporter
     protected function exportEmptyStatements(PhpWord $phpWord, Procedure $procedure, array $exportFilteredByTagsWithTopics = [], string $customHeaderText = ''): WriterInterface
     {
         $section = $phpWord->addSection($this->styles['globalSection']);
-        $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTagsWithTopics, $customHeaderText);
-        $this->addHeader($section, $procedure, null, $exportFilteredByTagsWithTopics, $customHeaderText);
+        $this->addHeader($section, $procedure, Footer::FIRST, $customHeaderText);
+        $this->addHeader($section, $procedure, null, $customHeaderText);
 
         return $this->addNoStatementsMessage($phpWord, $section);
     }
@@ -404,8 +405,8 @@ abstract class SegmentsExporter
         $this->addMetaDataSheet($phpWord, $procedure, $exportFilteredByTagsWithTopics, $customHeaderText);
 
         $section = $phpWord->addSection($this->styles['globalSection']);
-        $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTagsWithTopics, $customHeaderText);
-        $this->addHeader($section, $procedure, null, $exportFilteredByTagsWithTopics, $customHeaderText);
+        $this->addHeader($section, $procedure, Footer::FIRST, $customHeaderText);
+        $this->addHeader($section, $procedure, null, $customHeaderText);
 
         foreach ($statements as $index => $statement) {
             $censored = $this->needsToBeCensored(
