@@ -396,6 +396,8 @@ export default {
       if (!this.editingSegmentIds.includes(id)) {
         this.editingSegmentIds.push(id)
       }
+
+      this.checkForUnsavedChanges()
     },
 
     getSegmentInitialText (segmentId) {
@@ -556,6 +558,8 @@ export default {
       if (segmentIdIndex > -1) {
         this.editingSegmentIds.splice(segmentIdIndex, 1)
       }
+
+      this.checkForUnsavedChanges()
     },
 
     resetStatement () {
