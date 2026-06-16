@@ -877,6 +877,13 @@ export default {
             'submitter',
             'place',
           ].join(','),
+          Place: [
+            'description',
+            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+            'name',
+            'solved',
+            'sortIndex',
+          ].join(','),
           RecommendationVersion: [
             'versionNumber',
             'recommendationText',
