@@ -15,13 +15,11 @@ namespace demosplan\DemosPlanCoreBundle\ApiResources;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\GetCollection;
 use demosplan\DemosPlanCoreBundle\StateProvider\StatementStateProvider;
 
 #[ApiResource(
     shortName: 'Statement',
-    operations: [new Get(uriTemplate: '/Statement/{id}'),
-        new GetCollection(uriTemplate: '/Statement')],
+    operations: [new Get(uriTemplate: '/Statement/{id}')],
     formats: ['jsonapi'],
     routePrefix: '/3.0',
     provider: StatementStateProvider::class,

@@ -18,21 +18,16 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
-use DateTime;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\StateProcessor\StatementGroupProcessor;
 use demosplan\DemosPlanCoreBundle\StateProvider\StatementGroupStateProvider;
-use Symfony\Component\Serializer\Attribute\SerializedName;
 
 #[ApiResource(
     shortName: 'StatementGroup',
     operations: [
-        new Get(
-            uriTemplate: '/StatementGroup/{id}',
-            options: ['expose' => true],
-        ),
+        new Get(uriTemplate: '/StatementGroup/{id}'),
         new Post(
             uriTemplate: '/StatementGroup',
-            options: ['expose' => true],
             read: false,
             processor: StatementGroupProcessor::class,
         ),
@@ -47,9 +42,6 @@ class StatementGroupResource
     #[ApiProperty(readable: false, identifier: true)]
     public string $id;
 
-    #[SerializedName('createdDate')]
-    public DateTime $createdDate;
-
     #[ApiProperty(readable: true, writable: true)]
     public ?string $groupName = null;
 
@@ -62,4 +54,27 @@ class StatementGroupResource
 
     #[ApiProperty(readable: true, writable: false)]
     public int $statementsCount = 0;
+
+    /**
+     * Builds the resource from a cluster (head) statement, used by both the
+     * read provider and the create processor so their output is identical.
+     */
+    public static function fromStatement(Statement $statement): self
+    {
+        $resource = new self();
+        $resource->id = $statement->getId();
+        $resource->groupName = $statement->getName();
+        $resource->statements = array_map(
+            static function (Statement $member): StatementResource {
+                $statementResource = new StatementResource();
+                $statementResource->id = $member->getId();
+
+                return $statementResource;
+            },
+            $statement->getCluster()->toArray()
+        );
+        $resource->statementsCount = count($resource->statements);
+
+        return $resource;
+    }
 }

@@ -7,6 +7,14 @@
 ## UNRELEASED
 
 ### Added
+- Segment lock feature: workflow places can now be marked as locked, making segments on them read-only for users without the `feature_administrate_segment_lock` permission. Enforced on JSON:API PATCH, `segment.bulk.edit` RPC, and place updates; transitions are recorded in the segment Versionsverlauf.
+- Permission `feature_segment_lock_by_workflow_place` (exposed, login-required) toggles the segment lock feature per project. Grant it in `projects/<name>/.../Permissions.php` to every role that should see the feature. Requires `demos-europe/demosplan-addon` ^0.68.1.
+
+## v4.44.0 (2026-06-05)
+
+## v4.43.0 (2026-06-05)
+
+### Added
 - Show text custom fields and its values in manage institutions and add institutions dialogs
 - Add text custom field value editing to institution tag management dialog
 - Set up API Platform infrastructure alongside existing EDT (Entity Definition Toolkit) as part of the gradual API migration (DPLAN-17129)
