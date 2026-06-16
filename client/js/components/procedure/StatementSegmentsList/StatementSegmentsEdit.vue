@@ -196,6 +196,7 @@ import { scrollTo } from 'vue-scrollto'
 import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
+import { useUnsavedChangesGuard } from '@DpJs/composables/useUnsavedChangesGuard'
 
 export default {
   name: 'StatementSegmentsEdit',
@@ -258,8 +259,15 @@ export default {
 
   setup () {
     const { unlockModal, openUnlockModal, unlockSegment } = useSegmentUnlock()
+    const { init, cleanup } = useUnsavedChangesGuard()
 
-    return { unlockModal, openUnlockModal, unlockSegment }
+    return {
+      unlockModal,
+      openUnlockModal,
+      unlockSegment,
+      initUnsavedChangesGuard: init,
+      cleanupUnsavedChangesGuard: cleanup,
+    }
   },
 
   data () {
@@ -275,6 +283,7 @@ export default {
       pagination: {},
       storageKeyPagination: `segmentsEdit_${this.statementId}_pagination`,
       segmentNavigation: null,
+      textChangeCounter: 0, // Reactive counter to trigger hasUnsavedChanges re-evaluation
     }
   },
 
@@ -330,6 +339,20 @@ export default {
 
     hasSegments () {
       return Object.keys(this.segments).length > 0 && hasPermission('area_statement_segmentation')
+    },
+
+    hasUnsavedChanges () {
+      // Depend on textChangeCounter to force re-evaluation when text changes
+      // eslint-disable-next-line no-unused-expressions
+      this.textChangeCounter
+
+      // Check if any segment being edited has unsaved changes
+      return this.editingSegmentIds.some(segmentId => {
+        const originalText = this.segments[segmentId]?.attributes?.text || ''
+        const currentText = this._localSegmentTexts[segmentId] || ''
+
+        return originalText !== currentText
+      })
     },
 
     lockTooltip () {
@@ -463,6 +486,68 @@ export default {
       return !!this.placeItems[placeId]?.attributes?.locked
     },
 
+    /**
+     * Internal helper to save a segment and return a promise
+     * @param {string} segmentId - The segment ID to save
+     * @returns {Promise} Promise that resolves on success or rejects on error
+     */
+    _saveSegmentInternal (segmentId) {
+      const textToSave = this._localSegmentTexts[segmentId] ?? ''
+
+      if (!textToSave) {
+        if (this.$refs[`editField_${segmentId}`]?.[0]) {
+          this.$refs[`editField_${segmentId}`][0].loading = false
+        }
+
+        dplan.notify.error(Translator.trans('error.segment.empty.text'))
+        return Promise.reject(new Error(Translator.trans('error.segment.empty.text')))
+      }
+
+      const updated = {
+        ...this.segments[segmentId],
+        attributes: {
+          ...this.segments[segmentId].attributes,
+          text: textToSave,
+        },
+      }
+
+      this.setSegment({ ...updated, id: segmentId })
+
+      return this.saveSegmentAction(segmentId)
+        .catch((error) => {
+          this.restoreSegmentAction(segmentId)
+          dplan.notify.error(Translator.trans('error.api.generic'))
+          throw error
+        })
+        .finally(() => {
+          this.reset(segmentId)
+        })
+    },
+
+    /**
+     * Required by useUnsavedChangesGuard composable
+     * Save all segments that have unsaved changes
+     */
+    saveUnsavedChanges () {
+      const savePromises = this.editingSegmentIds.map(segmentId => this._saveSegmentInternal(segmentId))
+
+      return Promise.all(savePromises)
+    },
+
+    /**
+     * Required by useUnsavedChangesGuard composable
+     * Discard all unsaved changes
+     */
+    onDiscardChanges () {
+      const segmentsToReset = [...this.editingSegmentIds]
+
+      segmentsToReset.forEach(segmentId => {
+        this.reset(segmentId)
+      })
+
+      return Promise.resolve()
+    },
+
     reset (segmentId) {
       delete this._localSegmentTexts[segmentId]
 
@@ -485,42 +570,9 @@ export default {
     },
 
     saveSegment (segmentId) {
-      const textToSave = this._localSegmentTexts[segmentId] ?? ''
-
-      if (!textToSave) {
-        this.$refs[`editField_${segmentId}`][0].loading = false
-
-        return dplan.notify.error(Translator.trans('error.segment.empty.text'))
-      }
-
-      const updated = {
-        ...this.segments[segmentId],
-        attributes: {
-          ...this.segments[segmentId].attributes,
-          text: textToSave,
-        },
-      }
-
-      this.setSegment({ ...updated, id: segmentId })
-
-      this.saveSegmentAction(segmentId)
-        .catch(() => {
-          this.restoreSegmentAction(segmentId)
-          dplan.notify.error(Translator.trans('error.api.generic'))
-        })
-        .finally(() => {
-          const segmentIdIndex = this.editingSegmentIds.indexOf(segmentId)
-
-          if (segmentIdIndex > -1) {
-            this.editingSegmentIds.splice(segmentIdIndex, 1)
-          }
-
-          delete this._localSegmentTexts[segmentId]
-
-          if (this.$refs[`editField_${segmentId}`][0]) {
-            this.$refs[`editField_${segmentId}`][0].loading = false
-            this.$refs[`editField_${segmentId}`][0].editingEnabled = false
-          }
+      this._saveSegmentInternal(segmentId)
+        .catch((error) => {
+          dplan.notify.error(error.message || Translator.trans('error.api.generic'))
         })
     },
 
@@ -595,14 +647,8 @@ export default {
     },
 
     updateSegmentText (segmentId, val) {
+      this.textChangeCounter++
       this._localSegmentTexts[segmentId] = val
-    },
-
-    hasUnsavedChanges () {
-      console.log('_localSegmentTexts', this._localSegmentTexts)
-      console.log('segments', this.segments)
-
-      return this._localSegmentTexts
     },
 
     getStatementInitialText () {
@@ -769,6 +815,14 @@ export default {
         })
       }
     }
+
+    // Initialize unsaved changes guard
+    this.initUnsavedChangesGuard({
+      hasUnsavedChanges: () => this.hasUnsavedChanges,
+      saveUnsavedChanges: () => this.saveUnsavedChanges(),
+      onDiscardChanges: () => this.onDiscardChanges(),
+      componentId: `statement-segments-edit-${this.statementId}`,
+    })
   },
 
   beforeUnmount () {
@@ -779,6 +833,9 @@ export default {
     if (this.hasSegments === false && this.statement) {
       this.resetStatement()
     }
+
+    // Cleanup unsaved changes guard
+    this.cleanupUnsavedChangesGuard()
   },
 }
 </script>
