@@ -208,7 +208,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         array $tableHeaders,
         bool $censorCitizenData,
         bool $censorInstitutionData,
-        bool $obscureParameter
+        bool $obscureParameter,
     ): PhpWord {
         $censored = $this->needsToBeCensored(
             $statement,
