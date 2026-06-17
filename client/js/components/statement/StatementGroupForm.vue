@@ -273,8 +273,15 @@ function setStatements () {
 
 onMounted(async () => {
   setStatements()
-  await fetchStatements()
-  isLoading.value = false
+
+  try {
+    await fetchStatements()
+  } catch (error) {
+    console.error('Failed to load selected statements for grouping:', error)
+    dplan.notify.notify('error', Translator.trans('error.api.generic'))
+  } finally {
+    isLoading.value = false
+  }
 })
 
 </script>
