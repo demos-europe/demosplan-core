@@ -162,6 +162,19 @@ function removeGlobalListeners () {
 }
 
 /**
+ * Test helper to reset all module-level state.
+ * ONLY use this in tests to prevent state pollution between test cases.
+ *
+ * @private
+ */
+export const _resetUnsavedChangesGuard = () => {
+  removeGlobalListeners()
+  isGuardActive = false
+  isNavigationConfirmed = false
+  registeredComponents.clear()
+}
+
+/**
  * Composable that prevents navigation when there are unsaved changes.
  *
  * Returns an init function that should be called from mounted() with component methods.
