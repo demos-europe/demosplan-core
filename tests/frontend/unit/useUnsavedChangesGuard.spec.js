@@ -39,7 +39,7 @@ describe('useUnsavedChangesGuard', () => {
       onCancelNavigation: jest.fn(() => Promise.resolve()),
     }
 
-    Object.defineProperty(window, 'location', {
+    Object.defineProperty(globalThis, 'location', {
       configurable: true,
       writable: true,
       value: {
@@ -65,7 +65,7 @@ describe('useUnsavedChangesGuard', () => {
     })
 
     it('should register global listeners only once', () => {
-      const addEventListenerSpy = jest.spyOn(window, 'addEventListener')
+      const addEventListenerSpy = jest.spyOn(globalThis, 'addEventListener')
 
       const { init: init1 } = useUnsavedChangesGuard()
       const { init: init2 } = useUnsavedChangesGuard()
@@ -99,7 +99,7 @@ describe('useUnsavedChangesGuard', () => {
       const event = new Event('beforeunload')
       const preventDefaultSpy = jest.spyOn(event, 'preventDefault')
 
-      window.dispatchEvent(event)
+      globalThis.dispatchEvent(event)
 
       expect(preventDefaultSpy).not.toHaveBeenCalled()
     })
@@ -116,7 +116,7 @@ describe('useUnsavedChangesGuard', () => {
       const event = new Event('beforeunload', { cancelable: true })
       const preventDefaultSpy = jest.spyOn(event, 'preventDefault')
 
-      window.dispatchEvent(event)
+      globalThis.dispatchEvent(event)
 
       expect(mockComponent1.hasUnsavedChanges).toHaveBeenCalled()
       expect(preventDefaultSpy).toHaveBeenCalled()
@@ -142,7 +142,7 @@ describe('useUnsavedChangesGuard', () => {
       const event = new Event('beforeunload', { cancelable: true })
       const preventDefaultSpy = jest.spyOn(event, 'preventDefault')
 
-      window.dispatchEvent(event)
+      globalThis.dispatchEvent(event)
 
       expect(mockComponent1.hasUnsavedChanges).toHaveBeenCalled()
       expect(mockComponent2.hasUnsavedChanges).toHaveBeenCalled()
@@ -390,7 +390,7 @@ describe('useUnsavedChangesGuard', () => {
         cancelable: true,
       })
 
-      window.dispatchEvent(event)
+      globalThis.dispatchEvent(event)
 
       expect(mockComponent1.hasUnsavedChanges).not.toHaveBeenCalled()
     })
@@ -415,7 +415,7 @@ describe('useUnsavedChangesGuard', () => {
       cleanup1()
 
       const event = new Event('beforeunload', { cancelable: true })
-      window.dispatchEvent(event)
+      globalThis.dispatchEvent(event)
 
       expect(mockComponent1.hasUnsavedChanges).not.toHaveBeenCalled()
       expect(mockComponent2.hasUnsavedChanges).toHaveBeenCalled()
