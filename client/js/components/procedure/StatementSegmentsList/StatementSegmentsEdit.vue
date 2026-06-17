@@ -402,7 +402,7 @@ export default {
 
     checkForUnsavedChanges () {
       this.hasUnsavedChanges = this.editingSegmentIds.some(segmentId =>
-        this.hasSegmentUnsavedChanges(segmentId)
+        this.hasSegmentUnsavedChanges(segmentId),
       )
     },
 
@@ -536,6 +536,7 @@ export default {
         }
 
         dplan.notify.error(Translator.trans('error.segment.empty.text'))
+
         return Promise.resolve(false)
       }
 
@@ -557,6 +558,7 @@ export default {
         .catch(() => {
           this.restoreSegmentAction(segmentId)
           dplan.notify.error(Translator.trans('error.api.generic'))
+
           return false
         })
         .finally(() => {
