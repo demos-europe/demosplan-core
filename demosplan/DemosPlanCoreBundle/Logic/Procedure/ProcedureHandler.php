@@ -656,8 +656,8 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
             try {
                 $this->procedureDeleter->beginTransactionAndDisableForeignKeyChecks();
                 $this->procedureDeleter->deleteProcedures([$procedureId], false);
-                $this->procedureDeleter->commitTransactionAndEnableForeignKeyChecks();
                 $this->procedureDeletionLogService->logHardDelete($deletedProcedure);
+                $this->procedureDeleter->commitTransactionAndEnableForeignKeyChecks();
                 ++$proceduresPurged;
             } catch (Exception $e) {
                 $this->logger->warning("Delete Procedure '$procedureId' failed", [$e]);
