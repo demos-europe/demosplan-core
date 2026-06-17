@@ -400,17 +400,21 @@ export default {
       this.checkForUnsavedChanges()
     },
 
+    checkForUnsavedChanges () {
+      this.hasUnsavedChanges = this.editingSegmentIds.some(segmentId =>
+        this.hasSegmentUnsavedChanges(segmentId)
+      )
+    },
+
     getSegmentInitialText (segmentId) {
       return this.segments[segmentId]?.attributes?.text ?? ''
     },
 
-    checkForUnsavedChanges () {
-      this.hasUnsavedChanges = this.editingSegmentIds.some(segmentId => {
-        const originalText = this.segments[segmentId]?.attributes?.text || ''
-        const currentText = this._localSegmentTexts[segmentId] || ''
+    hasSegmentUnsavedChanges (segmentId) {
+      const originalText = this.segments[segmentId]?.attributes?.text || ''
+      const currentText = this._localSegmentTexts[segmentId] || ''
 
-        return originalText !== currentText
-      })
+      return originalText !== currentText
     },
 
     claimSegment (segment) {
@@ -525,31 +529,35 @@ export default {
       const textToSave = this._localSegmentTexts[segmentId] ?? ''
 
       if (!textToSave) {
-        if (this.$refs[`editField_${segmentId}`]?.[0]) {
-          this.$refs[`editField_${segmentId}`][0].loading = false
+        const editField = this.$refs[`editField_${segmentId}`]?.[0]
+
+        if (editField) {
+          editField.loading = false
         }
 
         dplan.notify.error(Translator.trans('error.segment.empty.text'))
-
-        return Promise.reject(new Error(Translator.trans('error.segment.empty.text')))
+        return Promise.resolve(false)
       }
 
-      const updated = {
-        ...this.segments[segmentId],
+      const segment = this.segments[segmentId]
+
+      this.setSegment({
+        ...segment,
+        id: segmentId,
         attributes: {
-          ...this.segments[segmentId].attributes,
+          ...segment.attributes,
           text: textToSave,
         },
-      }
-
-      this.setSegment({ ...updated, id: segmentId })
+      })
 
       return this.saveSegmentAction(segmentId)
-        .catch((error) => {
+        .then(() => {
+          return true
+        })
+        .catch(() => {
           this.restoreSegmentAction(segmentId)
           dplan.notify.error(Translator.trans('error.api.generic'))
-
-          throw error
+          return false
         })
         .finally(() => {
           this.reset(segmentId)
@@ -559,11 +567,28 @@ export default {
     /**
      * Required by useUnsavedChangesGuard composable
      * Save all segments that have unsaved changes
+     * @returns {Promise} Resolves if all saves succeed, rejects if any save fails
      */
     saveUnsavedChanges () {
-      const savePromises = this.editingSegmentIds.map(segmentId => this.saveSegment(segmentId))
+      const segmentsToSave = this.editingSegmentIds.filter(segmentId =>
+        this.hasSegmentUnsavedChanges(segmentId),
+      )
 
-      return Promise.all(savePromises)
+      if (segmentsToSave.length === 0) {
+        return Promise.resolve()
+      }
+
+      const savePromises = segmentsToSave.map(segmentId => this.saveSegment(segmentId))
+
+      return Promise.all(savePromises).then(results => {
+        const allSucceeded = results.every(result => result === true)
+
+        if (!allSucceeded) {
+          return Promise.reject(new Error('One or more segments failed to save'))
+        }
+
+        return Promise.resolve()
+      })
     },
 
     saveStatement () {
