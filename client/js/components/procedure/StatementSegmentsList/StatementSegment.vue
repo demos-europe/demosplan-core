@@ -477,7 +477,6 @@ import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import ImageModal from '@DpJs/components/shared/ImageModal'
-import { inlineImageAnchors } from '@DpJs/lib/shared/inlineImageAnchors'
 import RecommendationModal from '../Shared/RecommendationModal'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
@@ -703,9 +702,8 @@ export default {
 
     visibleRecommendation () {
       const shortText = this.segment.attributes.recommendation.length > 40 ? this.segment.attributes.recommendation.slice(0, 40) + '...' : this.segment.attributes.recommendation
-      const text = this.isCollapsed ? shortText : this.segment.attributes.recommendation
 
-      return inlineImageAnchors(text)
+      return this.isCollapsed ? shortText : this.segment.attributes.recommendation
     },
 
     visibleSegmentText () {
