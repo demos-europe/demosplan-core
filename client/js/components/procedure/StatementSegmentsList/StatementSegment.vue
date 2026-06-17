@@ -877,6 +877,13 @@ export default {
             'submitter',
             'place',
           ].join(','),
+          Place: [
+            'description',
+            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+            'name',
+            'solved',
+            'sortIndex',
+          ].join(','),
           RecommendationVersion: [
             'versionNumber',
             'recommendationText',
@@ -1065,6 +1072,25 @@ export default {
       this.isSaving = true
 
       return this.saveSegmentAction({ id: this.segment.id })
+        .then(() => {
+          /*
+           * Clearing the assignee ("nicht zugewiesen") is sent as a separate explicit PATCH because the
+           * vuex-json-api diff drops a to-one relationship set to `{ data: null }` (it diffs against a
+           * stale `initial` baseline that setSegment never updates), so an unassign would be silently
+           * omitted from saveSegmentAction's request body. Mirrors the explicit payload already used by
+           * claimSegment()/unclaimSegment(). It must complete before fetchUpdatedSegment, which would
+           * otherwise re-store the stale assignee.
+           */
+          const isUnassigning = !this.selectedAssignee?.id || this.selectedAssignee.id === 'noAssigneeId'
+
+          return isUnassigning ?
+            dpApi.patch(
+              Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }),
+              {},
+              { data: { type: 'StatementSegment', id: this.segment.id, relationships: { assignee: { data: null } } } },
+            ) :
+            Promise.resolve()
+        })
         .then(() => {
           return Promise.all([
             this.fetchUpdatedSegment().catch((err) => {
