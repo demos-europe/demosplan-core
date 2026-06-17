@@ -338,10 +338,10 @@ import {
   sessionStorageMixin,
   tableSelectAllItems,
 } from '@demos-europe/demosplan-ui'
+import { inlineImageAnchors, stripInlineImageAnchors } from '@DpJs/lib/shared/inlineImageAnchors'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import CustomSearchStatements from './CustomSearchStatements'
 import DpClaim from '@DpJs/components/statement/DpClaim'
-import { inlineImageAnchors } from '@DpJs/lib/shared/inlineImageAnchors'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
@@ -667,7 +667,11 @@ export default {
     },
 
     renderStatementText (text) {
-      return inlineImageAnchors(text)
+      /*
+       * Truncated list preview: strip image references to plain text. The full
+       * image + link renders in the expanded detail panel (see displayedText).
+       */
+      return stripInlineImageAnchors(text)
     },
 
     applySearch (term) {
