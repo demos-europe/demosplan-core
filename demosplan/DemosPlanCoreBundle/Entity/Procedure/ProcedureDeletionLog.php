@@ -21,9 +21,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ProcedureDeletionLogRepository::class)]
 class ProcedureDeletionLog implements UuidEntityInterface
 {
-    final public const DELETE_TYPE_SOFT = 'soft';
-    final public const DELETE_TYPE_HARD = 'hard';
-
     /**
      * @var string|null `null` if this instance was created but not persisted yet
      */
@@ -34,18 +31,6 @@ class ProcedureDeletionLog implements UuidEntityInterface
     private $id;
 
     /**
-     * Set while the procedure still exists; nulled before the procedure is hard-deleted
-     * so the FK constraint does not fire during purge.
-     *
-     * @var Procedure|null
-     */
-    #[ORM\JoinColumn(name: 'procedure_fk', referencedColumnName: '_p_id', nullable: true, onDelete: 'SET NULL')]
-    #[ORM\ManyToOne(targetEntity: Procedure::class)]
-    private $procedure;
-
-    /**
-     * Snapshot of the procedure ID — remains populated after the FK is nulled.
-     *
      * @var string
      */
     #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
@@ -90,10 +75,10 @@ class ProcedureDeletionLog implements UuidEntityInterface
     private $deletedByUserEmail;
 
     /**
-     * @var string
+     * @var bool
      */
-    #[ORM\Column(type: 'string', length: 10)]
-    private $deleteType;
+    #[ORM\Column(type: 'boolean')]
+    private $isHardDeleted;
 
     /**
      * @var DateTime
@@ -104,18 +89,6 @@ class ProcedureDeletionLog implements UuidEntityInterface
     public function getId(): ?string
     {
         return $this->id;
-    }
-
-    public function getProcedure(): ?Procedure
-    {
-        return $this->procedure;
-    }
-
-    public function setProcedure(?Procedure $procedure): self
-    {
-        $this->procedure = $procedure;
-
-        return $this;
     }
 
     public function getProcedureId(): string
@@ -202,14 +175,14 @@ class ProcedureDeletionLog implements UuidEntityInterface
         return $this;
     }
 
-    public function getDeleteType(): string
+    public function isHardDeleted(): bool
     {
-        return $this->deleteType;
+        return $this->isHardDeleted;
     }
 
-    public function setDeleteType(string $deleteType): self
+    public function setIsHardDeleted(bool $isHardDeleted): self
     {
-        $this->deleteType = $deleteType;
+        $this->isHardDeleted = $isHardDeleted;
 
         return $this;
     }

@@ -96,22 +96,27 @@ class DeleteProcedureCommand extends CoreCommand
             return Command::FAILURE;
         }
 
+        $proceduresToLog = [];
+        if (!$isDryRun) {
+            foreach ($retrievedProceduresIds as $procedureId) {
+                $procedure = $this->procedureRepository->find($procedureId);
+                if (null !== $procedure) {
+                    $proceduresToLog[] = $procedure;
+                }
+            }
+        }
+
         try {
             $output->info('Procedures id(s) to delete: '.implode(',', $retrievedProceduresIds));
             $output->info($isDryRun ? 'Dry-run: true' : 'Dry-run: false');
 
-            if (!$isDryRun) {
-                foreach ($retrievedProceduresIds as $procedureId) {
-                    $procedure = $this->procedureRepository->find($procedureId);
-                    if (null !== $procedure) {
-                        $this->procedureDeletionLogService->logHardDelete($procedure);
-                    }
-                }
-            }
-
             $this->procedureDeleter->beginTransactionAndDisableForeignKeyChecks();
             $this->procedureDeleter->deleteProcedures($retrievedProceduresIds, $isDryRun);
             $this->procedureDeleter->commitTransactionAndEnableForeignKeyChecks();
+
+            foreach ($proceduresToLog as $procedure) {
+                $this->procedureDeletionLogService->logHardDelete($procedure);
+            }
         } catch (Exception $exception) {
             // rollback all changes
             $this->queriesService->rollbackTransaction();

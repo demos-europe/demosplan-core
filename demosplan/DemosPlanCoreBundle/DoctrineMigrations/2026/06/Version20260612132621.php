@@ -35,8 +35,21 @@ class Version20260612132621 extends AbstractMigration
             return;
         }
 
-        $this->addSql('CREATE TABLE procedure_deletion_log (id CHAR(36) NOT NULL, procedure_fk CHAR(36) DEFAULT NULL, procedure_id CHAR(36) NOT NULL, procedure_name VARCHAR(4096) NOT NULL, is_blueprint TINYINT(1) NOT NULL, deleted_by_user_id CHAR(36) DEFAULT NULL, deleted_by_user_first_name VARCHAR(255) DEFAULT NULL, deleted_by_user_last_name VARCHAR(255) DEFAULT NULL, deleted_by_user_email VARCHAR(255) DEFAULT NULL, delete_type VARCHAR(10) NOT NULL, deleted_at DATETIME NOT NULL, INDEX IDX_E7867334103BD8C (procedure_fk), PRIMARY KEY(id)) DEFAULT CHARACTER SET UTF8 COLLATE `UTF8_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('ALTER TABLE procedure_deletion_log ADD CONSTRAINT FK_E7867334103BD8C FOREIGN KEY (procedure_fk) REFERENCES _procedure (_p_id) ON DELETE SET NULL');
+        $this->addSql(
+            'CREATE TABLE procedure_deletion_log (
+                id                          CHAR(36)        NOT NULL,
+                procedure_id                CHAR(36)        NOT NULL,
+                procedure_name              VARCHAR(4096)   NOT NULL,
+                is_blueprint                TINYINT(1)      NOT NULL,
+                deleted_by_user_id          CHAR(36)        DEFAULT NULL,
+                deleted_by_user_first_name  VARCHAR(255)    DEFAULT NULL,
+                deleted_by_user_last_name   VARCHAR(255)    DEFAULT NULL,
+                deleted_by_user_email       VARCHAR(255)    DEFAULT NULL,
+                is_hard_deleted             TINYINT(1)      NOT NULL,
+                deleted_at                  DATETIME        NOT NULL,
+                PRIMARY KEY(id)
+            ) DEFAULT CHARACTER SET UTF8 COLLATE `UTF8_unicode_ci` ENGINE = InnoDB'
+        );
     }
 
     /**
@@ -50,7 +63,6 @@ class Version20260612132621 extends AbstractMigration
             return;
         }
 
-        $this->addSql('ALTER TABLE procedure_deletion_log DROP FOREIGN KEY FK_E7867334103BD8C');
         $this->addSql('DROP TABLE procedure_deletion_log');
     }
 

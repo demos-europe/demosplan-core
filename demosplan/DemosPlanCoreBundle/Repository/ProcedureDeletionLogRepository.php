@@ -21,36 +21,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureDeletionLog;
  */
 class ProcedureDeletionLogRepository extends CoreRepository
 {
-    public function findSoftDeleteEntryForProcedure(string $procedureId): ?ProcedureDeletionLog
-    {
-        return $this->findOneBy([
-            'procedureId' => $procedureId,
-            'deleteType'  => ProcedureDeletionLog::DELETE_TYPE_SOFT,
-        ]);
-    }
-
-    /**
-     * @return ProcedureDeletionLog[]
-     */
-    public function getAllSoftDeleted(): array
-    {
-        return $this->findBy(
-            ['deleteType' => ProcedureDeletionLog::DELETE_TYPE_SOFT],
-            ['deletedAt' => 'ASC']
-        );
-    }
-
-    /**
-     * @return ProcedureDeletionLog[]
-     */
-    public function getAllHardDeleted(): array
-    {
-        return $this->findBy(
-            ['deleteType' => ProcedureDeletionLog::DELETE_TYPE_HARD],
-            ['deletedAt' => 'ASC']
-        );
-    }
-
     /**
      * Returns all log entries whose deletedAt is older than the given interval from now,
      * sorted oldest first.

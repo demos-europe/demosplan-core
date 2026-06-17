@@ -16,7 +16,6 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureDeletionLog;
-use demosplan\DemosPlanCoreBundle\Repository\ProcedureDeletionLogRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -28,14 +27,12 @@ class ProcedureDeletionLogService
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly LoggerInterface $logger,
-        private readonly ProcedureDeletionLogRepository $procedureDeletionLogRepository,
     ) {
     }
 
     public function logSoftDelete(Procedure $procedure, UserInterface $user): void
     {
         $logEntry = (new ProcedureDeletionLog())
-            ->setProcedure($procedure)
             ->setProcedureId($procedure->getId())
             ->setProcedureName($procedure->getName())
             ->setIsBlueprint($procedure->isMasterTemplate())
@@ -43,7 +40,7 @@ class ProcedureDeletionLogService
             ->setDeletedByUserFirstName($user->getFirstname())
             ->setDeletedByUserLastName($user->getLastname())
             ->setDeletedByUserEmail($user->getEmail())
-            ->setDeleteType(ProcedureDeletionLog::DELETE_TYPE_SOFT)
+            ->setIsHardDeleted(false)
             ->setDeletedAt(new DateTime());
 
         try {
@@ -59,15 +56,7 @@ class ProcedureDeletionLogService
 
     public function logHardDelete(Procedure $procedure): void
     {
-        $existingSoftEntry = $this->procedureDeletionLogRepository
-            ->findSoftDeleteEntryForProcedure($procedure->getId());
-
-        if ($existingSoftEntry instanceof ProcedureDeletionLog) {
-            $existingSoftEntry->setProcedure(null);
-        }
-
         $logEntry = (new ProcedureDeletionLog())
-            ->setProcedure(null)
             ->setProcedureId($procedure->getId())
             ->setProcedureName($procedure->getName())
             ->setIsBlueprint($procedure->isMasterTemplate())
@@ -75,7 +64,7 @@ class ProcedureDeletionLogService
             ->setDeletedByUserFirstName(self::SYSTEM_ACTOR_NAME)
             ->setDeletedByUserLastName(self::SYSTEM_ACTOR_NAME)
             ->setDeletedByUserEmail(null)
-            ->setDeleteType(ProcedureDeletionLog::DELETE_TYPE_HARD)
+            ->setIsHardDeleted(true)
             ->setDeletedAt(new DateTime());
 
         try {

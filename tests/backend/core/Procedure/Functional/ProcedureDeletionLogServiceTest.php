@@ -53,9 +53,9 @@ class ProcedureDeletionLogServiceTest extends FunctionalTestCase
         // Assert
         static::assertSame($countBefore + 1, $this->countEntries(ProcedureDeletionLog::class));
 
-        $logEntry = $this->repository->findSoftDeleteEntryForProcedure($this->procedure->getId());
+        $logEntry = $this->repository->findOneBy(['procedureId' => $this->procedure->getId(), 'isHardDeleted' => false]);
         static::assertInstanceOf(ProcedureDeletionLog::class, $logEntry);
-        static::assertSame(ProcedureDeletionLog::DELETE_TYPE_SOFT, $logEntry->getDeleteType());
+        static::assertFalse($logEntry->isHardDeleted());
         static::assertSame($this->procedure->getId(), $logEntry->getProcedureId());
         static::assertSame($this->procedure->getName(), $logEntry->getProcedureName());
         static::assertSame($this->procedure->isMasterTemplate(), $logEntry->isBlueprint());
@@ -63,16 +63,12 @@ class ProcedureDeletionLogServiceTest extends FunctionalTestCase
         static::assertSame($this->testUser->getFirstname(), $logEntry->getDeletedByUserFirstName());
         static::assertSame($this->testUser->getLastname(), $logEntry->getDeletedByUserLastName());
         static::assertSame($this->testUser->getEmail(), $logEntry->getDeletedByUserEmail());
-        static::assertNotNull($logEntry->getProcedure());
         static::assertNotNull($logEntry->getDeletedAt());
     }
 
-    public function testLogHardDeleteNullsFkOnSoftEntryAndCreatesNewEntry(): void
+    public function testLogHardDeleteCreatesEntry(): void
     {
         // Arrange
-        $this->sut->logSoftDelete($this->procedure->_real(), $this->testUser);
-        $softEntry = $this->repository->findSoftDeleteEntryForProcedure($this->procedure->getId());
-        static::assertNotNull($softEntry->getProcedure());
         $countBefore = $this->countEntries(ProcedureDeletionLog::class);
 
         // Act
@@ -81,24 +77,14 @@ class ProcedureDeletionLogServiceTest extends FunctionalTestCase
         // Assert
         static::assertSame($countBefore + 1, $this->countEntries(ProcedureDeletionLog::class));
 
-        // Soft entry FK must be nulled
-        $softEntryAfter = $this->repository->find($softEntry->getId());
-        static::assertNull($softEntryAfter->getProcedure());
-
-        // New hard-delete entry
-        $procedureId = $this->procedure->getId();
-        $hardEntries = $this->repository->getAllHardDeleted();
-        $hardEntry = array_values(array_filter(
-            $hardEntries,
-            static fn (ProcedureDeletionLog $entry) => $entry->getProcedureId() === $procedureId
-        ))[0] ?? null;
+        $hardEntry = $this->repository->findOneBy(['procedureId' => $this->procedure->getId(), 'isHardDeleted' => true]);
         static::assertInstanceOf(ProcedureDeletionLog::class, $hardEntry);
-        static::assertSame(ProcedureDeletionLog::DELETE_TYPE_HARD, $hardEntry->getDeleteType());
+        static::assertTrue($hardEntry->isHardDeleted());
         static::assertSame($this->procedure->getId(), $hardEntry->getProcedureId());
-        static::assertNull($hardEntry->getProcedure());
         static::assertSame(ProcedureDeletionLogService::SYSTEM_ACTOR_NAME, $hardEntry->getDeletedByUserFirstName());
         static::assertSame(ProcedureDeletionLogService::SYSTEM_ACTOR_NAME, $hardEntry->getDeletedByUserLastName());
         static::assertNull($hardEntry->getDeletedByUserId());
         static::assertNull($hardEntry->getDeletedByUserEmail());
+        static::assertNotNull($hardEntry->getDeletedAt());
     }
 }
