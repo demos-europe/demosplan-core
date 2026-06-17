@@ -380,9 +380,11 @@ export default {
           AssignableUser: [
             'firstname',
             'lastname',
+            'orga',
           ].join(),
+          Orga: ['name'].join(),
         },
-        include: 'department',
+        include: 'orga',
         sort: 'lastname',
       })
 
