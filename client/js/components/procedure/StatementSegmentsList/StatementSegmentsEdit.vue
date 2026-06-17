@@ -573,26 +573,23 @@ export default {
      * Save all segments that have unsaved changes
      * @returns {Promise} Resolves if all saves succeed, rejects if any save fails
      */
-    saveUnsavedChanges () {
+    async saveUnsavedChanges () {
       const segmentsToSave = this.editingSegmentIds.filter(segmentId =>
         this.hasSegmentUnsavedChanges(segmentId),
       )
 
       if (segmentsToSave.length === 0) {
-        return Promise.resolve()
+        return
       }
 
       const savePromises = segmentsToSave.map(segmentId => this.saveSegment(segmentId))
+      const results = await Promise.all(savePromises)
 
-      return Promise.all(savePromises).then(results => {
-        const allSucceeded = results.every(result => result === true)
+      const allSucceeded = results.every(result => result === true)
 
-        if (!allSucceeded) {
-          return Promise.reject(new Error('One or more segments failed to save'))
-        }
-
-        return Promise.resolve()
-      })
+      if (!allSucceeded) {
+        throw new Error('One or more segments failed to save')
+      }
     },
 
     saveStatement () {
