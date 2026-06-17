@@ -206,7 +206,7 @@ async function handleApply () {
   try {
     await dpApi.post('/api/3.0/StatementGroup', {}, { data: payload })
     success.value = true
-  } catch(error) {
+  } catch (error) {
     console.error('StatementGroup POST failed:', error)
     success.value = false
   } finally {
@@ -220,7 +220,7 @@ async function fetchStatements () {
     return
   }
 
-  const fields = { Statement: 'externId,authorName,initialOrganisationName,isSubmittedByCitizen, assignee' }
+  const fields = { Statement: 'externId,authorName,initialOrganisationName,isSubmittedByCitizen,assignee' }
   const size = 100
   const collected = []
   let number = 1
