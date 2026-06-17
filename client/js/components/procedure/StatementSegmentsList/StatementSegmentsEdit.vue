@@ -160,7 +160,7 @@
         <p class="font-semibold">
           {{ Translator.trans('statement.text.short') }}
         </p>
-        <div v-cleanhtml="displayFullText" />
+        <text-content-renderer :text="statement?.attributes?.fullText || ''" />
       </div>
     </template>
     <segment-unlock-modal
@@ -191,7 +191,6 @@ import { defineAsyncComponent } from 'vue'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpEditField from '@DpJs/components/statement/assessmentTable/DpEditField'
 import { handleSegmentNavigation } from '@DpJs/lib/segment/handleSegmentNavigation'
-import { inlineImageAnchors } from '@DpJs/lib/shared/inlineImageAnchors'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import { scrollTo } from 'vue-scrollto'
 import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
@@ -327,10 +326,6 @@ export default {
           orgaName: orga?.attributes?.name || '',
         }
       }
-    },
-
-    displayFullText () {
-      return inlineImageAnchors(this.statement?.attributes?.fullText || '')
     },
 
     hasSegments () {
