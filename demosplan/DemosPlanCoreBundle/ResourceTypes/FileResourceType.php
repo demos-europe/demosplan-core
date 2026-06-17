@@ -13,17 +13,10 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
-use DemosEurope\DemosplanAddon\Contracts\Events\IsFileAvailableEventInterface;
-use DemosEurope\DemosplanAddon\Contracts\Events\IsFileDirectlyAccessibleEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\FileResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Event\IsFileAvailableEvent;
-use demosplan\DemosPlanCoreBundle\Event\IsFileDirectlyAccessibleEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
+use demosplan\DemosPlanCoreBundle\ResourceAccess\FileAccessChecker;
 use EDT\PathBuilding\End;
 
 /**
@@ -40,7 +33,7 @@ use EDT\PathBuilding\End;
 final class FileResourceType extends DplanResourceType implements FileResourceTypeInterface
 {
     public function __construct(
-        private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
+        private readonly FileAccessChecker $fileAccessChecker,
     ) {
     }
 
@@ -61,63 +54,17 @@ final class FileResourceType extends DplanResourceType implements FileResourceTy
 
     public function isAvailable(): bool
     {
-        // Currently the File resource needs to be exposed for statement import and assessment table.
-        $event = new IsFileAvailableEvent();
-        $this->eventDispatcher->dispatch($event, IsFileAvailableEventInterface::class);
-
-        return $event->isFileAvailable() || $this->currentUser->hasAnyPermissions(
-            'area_admin_assessmenttable',
-            'area_admin_globalnews',
-            'feature_platform_logo_edit',
-            'feature_read_source_statement_via_api',
-            'field_sign_language_overview_video_edit',
-        );
+        return $this->fileAccessChecker->isAvailable();
     }
 
-    /**
-     * Accessible are files without procedure (global assets) or files of a procedure
-     * the user has access to. Scoping is required here because this resource type
-     * exposes the file hash, which grants access to the file bytes.
-     */
     protected function getAccessConditions(): array
     {
-        $procedureConditions = [$this->conditionFactory->propertyIsNull($this->procedure)];
-
-        $currentProcedure = $this->currentProcedureService->getProcedure();
-        $user = $this->currentUser->getUser();
-        if ($currentProcedure instanceof Procedure && $user instanceof User) {
-            // same procedure scope as statements: current procedure plus
-            // procedures configured for cross-procedure segment access
-            $configuredProcedures = array_filter(
-                $currentProcedure->getSettings()->getAllowedSegmentAccessProcedures()->getValues(),
-                static fn (ProcedureInterface $procedure): bool => $procedure instanceof Procedure
-            );
-            $allowedProcedureIds = $this->procedureAccessEvaluator->filterNonOwnedProcedureIds(
-                $user,
-                ...$configuredProcedures
-            );
-            $allowedProcedureIds[] = $currentProcedure->getId();
-            $procedureConditions[] = $this->conditionFactory->propertyHasAnyOfValues(
-                $allowedProcedureIds,
-                $this->procedure->id
-            );
-        }
-
-        return [
-            $this->conditionFactory->propertyHasValue(false, $this->deleted),
-            $this->conditionFactory->anyConditionApplies(...$procedureConditions),
-        ];
+        return $this->fileAccessChecker->getAccessConditions();
     }
 
     protected function isDirectlyAccessible(): bool
     {
-        $event = new IsFileDirectlyAccessibleEvent();
-        $this->eventDispatcher->dispatch($event, IsFileDirectlyAccessibleEventInterface::class);
-
-        return $event->isFileDirectlyAccessible() || $this->currentUser->hasAnyPermissions(
-            'area_admin_assessmenttable',
-            'field_sign_language_overview_video_edit'
-        );
+        return $this->fileAccessChecker->isDirectlyAccessible();
     }
 
     public function isGetAllowed(): bool
