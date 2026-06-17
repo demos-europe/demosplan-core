@@ -187,6 +187,12 @@ async function handleApply () {
     return
   }
 
+  if (!mainStatementId.value) {
+    dplan.notify.notify('error', Translator.trans('error.mandatoryfields'))
+
+    return
+  }
+
   const payload = {
     type: 'StatementGroup',
     attributes: {
@@ -195,7 +201,6 @@ async function handleApply () {
     },
     relationships: {
       statements: {
-        // API Platform (3.0) identifies resources by IRI, not by plain UUID.
         data: statements.value.map(stmt => ({ id: `${stmt.id}`, type: 'Statement' })),
       },
     },
@@ -210,6 +215,8 @@ async function handleApply () {
     console.error('StatementGroup POST failed:', error)
     success.value = false
   } finally {
+    // Always delete the stored selection so the same statements are not grouped more than once.
+    lscache.remove(`${props.procedureId}:toggledStatements`)
     isBusy.value = false
     step.value = 3
   }
