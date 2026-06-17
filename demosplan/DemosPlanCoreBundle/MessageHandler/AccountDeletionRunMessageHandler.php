@@ -252,17 +252,19 @@ final class AccountDeletionRunMessageHandler
         array $vars = [],
     ): ?MailSend {
         try {
+            $supportEmail = (string) $this->parameterBag->get('account_deletion.support_email');
+
             $body = $this->twig->load($bodyTemplate)->renderBlock(
                 'body_plain',
                 [
                     'templateVars' => array_merge(
                         [
-                            'firstname' => $user->getFirstname(),
-                            'lastname'  => $user->getLastname(),
+                            'firstname'     => $user->getFirstname(),
+                            'lastname'      => $user->getLastname(),
+                            'support_email' => $supportEmail,
                         ],
                         $vars,
                     ),
-                    'projectName'  => $this->globalConfig->getProjectName(),
                 ],
             );
             $subject = $this->translator->trans($subjectKey, $vars);
@@ -271,7 +273,7 @@ final class AccountDeletionRunMessageHandler
                 'dm_stellungnahme',
                 'de_DE',
                 $user->getEmail(),
-                '',
+                $supportEmail,
                 '',
                 '',
                 MailSend::MAIL_SCOPE_EXTERN,

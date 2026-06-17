@@ -63,6 +63,9 @@ parameters:
     account_deletion.first_warning_days: ~
     account_deletion.warning_step_days: 30
     account_deletion.additional_protected_user_ids: []
+    # Support e-mail shown in warning mails and used as replyTo.
+    # Override per project in parameters_default_project.yml.
+    account_deletion.support_email: 'youtrack.helpdesk@demos-deutschland.de'
 
     # Route and parameters for the public index page
     #
