@@ -248,7 +248,7 @@ async function fetchStatements () {
   do {
     const response = await dpApi.get(
       Routing.generate('api_resource_list', { resourceType: 'Statement' }),
-      { ...selectionCriteria.value, filter, fields, page: { number, size } },
+      { ...selectionCriteria.value, filter, fields, include: 'assignee', page: { number, size } },
     )
 
     collected.push(...response.data.data)
