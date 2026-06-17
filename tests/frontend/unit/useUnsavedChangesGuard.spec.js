@@ -50,7 +50,7 @@ describe('useUnsavedChangesGuard', () => {
 
   afterEach(() => {
     if (dialogElement && dialogElement.parentNode) {
-      document.body.removeChild(dialogElement)
+      dialogElement.remove()
     }
 
     jest.clearAllMocks()
@@ -171,7 +171,7 @@ describe('useUnsavedChangesGuard', () => {
 
       expect(preventDefaultSpy).not.toHaveBeenCalled()
 
-      document.body.removeChild(link)
+      link.remove()
     })
 
     it('should prevent navigation and show dialog when link clicked with unsaved changes', async () => {
@@ -200,7 +200,7 @@ describe('useUnsavedChangesGuard', () => {
       await flushPromises()
 
       expect(dialogShowListener).toHaveBeenCalled()
-      document.body.removeChild(link)
+      link.remove()
       document.removeEventListener('unsaved-changes-dialog:show', dialogShowListener)
     })
 
@@ -223,7 +223,7 @@ describe('useUnsavedChangesGuard', () => {
 
       expect(preventDefaultSpy).not.toHaveBeenCalled()
 
-      document.body.removeChild(button)
+      button.remove()
     })
   })
 
@@ -255,7 +255,7 @@ describe('useUnsavedChangesGuard', () => {
       await flushPromises()
 
       expect(mockComponent1.saveUnsavedChanges).toHaveBeenCalled()
-      document.body.removeChild(link)
+      link.remove()
     })
 
     it('should call onDiscardChanges when discard action is chosen', async () => {
@@ -281,7 +281,33 @@ describe('useUnsavedChangesGuard', () => {
       await flushPromises()
 
       expect(mockComponent1.onDiscardChanges).toHaveBeenCalled()
-      document.body.removeChild(link)
+      link.remove()
+    })
+
+    it('should navigate after discarding changes', async () => {
+      const { init } = useUnsavedChangesGuard()
+
+      init({
+        hasUnsavedChanges: mockComponent1.hasUnsavedChanges,
+        onDiscardChanges: mockComponent1.onDiscardChanges,
+        componentId: 'test-component-1',
+      })
+
+      const link = document.createElement('a')
+      link.href = 'https://example.com/discard-test'
+      document.body.appendChild(link)
+
+      const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true })
+      link.dispatchEvent(clickEvent)
+
+      document.dispatchEvent(new CustomEvent('unsaved-changes-dialog:result', {
+        detail: { action: 'discard' },
+      }))
+
+      await flushPromises()
+
+      expect(globalThis.location.href).toBe('https://example.com/discard-test')
+      link.remove()
     })
 
     it('should call onCancelNavigation when cancel action is chosen', async () => {
@@ -307,7 +333,34 @@ describe('useUnsavedChangesGuard', () => {
       await flushPromises()
 
       expect(mockComponent1.onCancelNavigation).toHaveBeenCalled()
-      document.body.removeChild(link)
+      link.remove()
+    })
+
+    it('should NOT navigate after cancel action', async () => {
+      const { init } = useUnsavedChangesGuard()
+
+      init({
+        hasUnsavedChanges: mockComponent1.hasUnsavedChanges,
+        onCancelNavigation: mockComponent1.onCancelNavigation,
+        componentId: 'test-component-1',
+      })
+
+      const link = document.createElement('a')
+      link.href = 'https://example.com/cancel-test'
+      document.body.appendChild(link)
+
+      const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true })
+      link.dispatchEvent(clickEvent)
+
+      document.dispatchEvent(new CustomEvent('unsaved-changes-dialog:result', {
+        detail: { action: 'cancel' },
+      }))
+
+      await flushPromises()
+
+      // Location should remain empty (not navigate)
+      expect(globalThis.location.href).toBe('')
+      link.remove()
     })
 
     it('should save all components with unsaved changes', async () => {
@@ -344,7 +397,7 @@ describe('useUnsavedChangesGuard', () => {
 
       expect(mockComponent1.saveUnsavedChanges).toHaveBeenCalled()
       expect(mockComponent2.saveUnsavedChanges).toHaveBeenCalled()
-      document.body.removeChild(link)
+      link.remove()
     })
 
     it('should navigate after successful save', async () => {
@@ -370,7 +423,7 @@ describe('useUnsavedChangesGuard', () => {
       await flushPromises()
 
       expect(globalThis.location.href).toBe('https://example.com/test')
-      document.body.removeChild(link)
+      link.remove()
     })
   })
 

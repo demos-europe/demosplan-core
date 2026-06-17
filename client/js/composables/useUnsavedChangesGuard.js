@@ -64,16 +64,19 @@ function handleSaveAllAndNavigate (link) {
 }
 
 /**
- * Handle discard action for all components with unsaved changes
+ * Handle discard action for all components with unsaved changes and navigate
  */
-function handleDiscardAll () {
+function handleDiscardAllAndNavigate (link) {
   const componentsWithChanges = Array.from(registeredComponents.values()).filter(
     component => component.hasUnsavedChanges(),
   )
 
   const discardPromises = componentsWithChanges.map(component => component.onDiscardChanges())
 
-  return Promise.all(discardPromises).then(() => {})
+  return Promise.all(discardPromises).then(() => {
+    isNavigationConfirmed = true
+    globalThis.location.href = link.href
+  })
 }
 
 /**
@@ -95,7 +98,7 @@ function handleDialogResult (action, link) {
   }
 
   if (action === 'discard') {
-    return handleDiscardAll()
+    return handleDiscardAllAndNavigate(link)
   }
 
   if (action === 'cancel') {
