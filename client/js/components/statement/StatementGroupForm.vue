@@ -169,6 +169,12 @@ function handleConfirmStep1 () {
     return
   }
 
+  if (statements.value.some(stmt => !stmt.relationships?.assignee?.data?.id)) {
+    dplan.notify.notify('error', Translator.trans('confirm.consolidation.not.assigned'))
+
+    return
+  }
+
   step.value = 2
 }
 
@@ -190,7 +196,7 @@ async function handleApply () {
     relationships: {
       statements: {
         // API Platform (3.0) identifies resources by IRI, not by plain UUID.
-        data: statements.value.map(stmt => ({ id: `/api/3.0/Statement/${stmt.id}`, type: 'Statement' })),
+        data: statements.value.map(stmt => ({ id: `${stmt.id}`, type: 'Statement' })),
       },
     },
   }
@@ -198,9 +204,10 @@ async function handleApply () {
   isBusy.value = true
 
   try {
-    await dpApi.post(Routing.generate('_api_/3.0/StatementGroup_post'), {}, { data: payload })
+    await dpApi.post('/api/3.0/StatementGroup', {}, { data: payload })
     success.value = true
-  } catch {
+  } catch(error) {
+    console.error('StatementGroup POST failed:', error)
     success.value = false
   } finally {
     isBusy.value = false
@@ -213,7 +220,7 @@ async function fetchStatements () {
     return
   }
 
-  const fields = { Statement: 'externId,authorName,initialOrganisationName,isSubmittedByCitizen' }
+  const fields = { Statement: 'externId,authorName,initialOrganisationName,isSubmittedByCitizen, assignee' }
   const size = 100
   const collected = []
   let number = 1
