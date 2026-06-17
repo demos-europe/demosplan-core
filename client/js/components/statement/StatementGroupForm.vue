@@ -220,7 +220,7 @@ async function fetchStatements () {
     return
   }
 
-  const fields = { Statement: 'externId,authorName,initialOrganisationName,isSubmittedByCitizen,assignee' }
+  const fields = { Statement: 'externId,authorName,initialOrganisationName,isSubmittedByCitizen,assignee,synchronized,isCluster' }
   const size = 100
   const collected = []
   let number = 1
@@ -249,7 +249,11 @@ async function fetchStatements () {
     number++
   } while (number <= totalPages)
 
-  statements.value = collected
+  /*
+   * "Select all" resolves criteria server-side and bypasses the list's checkbox locks,
+   * so exclude non-groupable statements (synchronized / group heads) here.
+   */
+  statements.value = collected.filter(stmt => !stmt.attributes.synchronized && !stmt.attributes.isCluster)
 }
 
 function removeStatement (id) {
