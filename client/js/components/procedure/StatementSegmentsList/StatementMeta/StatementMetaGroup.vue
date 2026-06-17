@@ -44,8 +44,8 @@ All rights reserved
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
-import { DpInput } from '@demos-europe/demosplan-ui'
+import { computed, onMounted, ref } from 'vue'
+import { dpApi, DpInput } from '@demos-europe/demosplan-ui'
 import SelectedStatementsList from '@DpJs/components/statement/SelectedStatementsList'
 
 const props = defineProps({
@@ -60,7 +60,20 @@ const groupName = ref('')
 // TODO(DPLAN-17748): populate with the backend's grouped statements
 const groupStatements = ref([])
 
+async function fetchGroup () {
+  const response = await dpApi.get(
+    Routing.generate('_api_/3.0/StatementGroup/{id}_get', { id: props.statement.id })
+  )
+  console.log('StatementGroup response', response.data)
+}
+
 function removeGroupStatement (id) {
   groupStatements.value = groupStatements.value.filter(stmt => stmt.id !== id)
 }
+
+onMounted(() => {
+  if (isCluster.value) {
+    fetchGroup()
+  }
+})
 </script>
