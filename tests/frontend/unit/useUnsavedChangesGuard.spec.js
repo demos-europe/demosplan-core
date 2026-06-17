@@ -39,9 +39,13 @@ describe('useUnsavedChangesGuard', () => {
       onCancelNavigation: jest.fn(() => Promise.resolve()),
     }
 
-    // Reset location mock
-    delete globalThis.location
-    globalThis.location = { href: '' }
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      writable: true,
+      value: {
+        href: '',
+      },
+    })
   })
 
   afterEach(() => {
@@ -369,6 +373,57 @@ describe('useUnsavedChangesGuard', () => {
 
       expect(globalThis.location.href).toBe('https://example.com/test')
       document.body.removeChild(link)
+    })
+  })
+
+  describe('cleanup', () => {
+    it('should stop checking component after cleanup', () => {
+      const { init, cleanup } = useUnsavedChangesGuard()
+      mockComponent1.hasUnsavedChanges.mockReturnValue(true)
+
+      init({
+        componentId: 'test',
+        hasUnsavedChanges: mockComponent1.hasUnsavedChanges,
+      })
+
+      cleanup()
+
+      const event = new Event('beforeunload', {
+        cancelable: true,
+      })
+
+      window.dispatchEvent(event)
+
+      expect(mockComponent1.hasUnsavedChanges).not.toHaveBeenCalled()
+    })
+
+    it('should only cleanup the specific component, not others', () => {
+      const { init: init1, cleanup: cleanup1 } = useUnsavedChangesGuard()
+      const { init: init2 } = useUnsavedChangesGuard()
+
+      mockComponent1.hasUnsavedChanges.mockReturnValue(true)
+      mockComponent2.hasUnsavedChanges.mockReturnValue(true)
+
+      init1({
+        componentId: 'component-1',
+        hasUnsavedChanges: mockComponent1.hasUnsavedChanges,
+      })
+
+      init2({
+        componentId: 'component-2',
+        hasUnsavedChanges: mockComponent2.hasUnsavedChanges,
+      })
+
+      // Cleanup only component-1
+      cleanup1()
+
+      const event = new Event('beforeunload', { cancelable: true })
+      window.dispatchEvent(event)
+
+      // Component 1 should NOT be checked (cleaned up)
+      expect(mockComponent1.hasUnsavedChanges).not.toHaveBeenCalled()
+      // Component 2 should still be checked (still registered)
+      expect(mockComponent2.hasUnsavedChanges).toHaveBeenCalled()
     })
   })
 })
