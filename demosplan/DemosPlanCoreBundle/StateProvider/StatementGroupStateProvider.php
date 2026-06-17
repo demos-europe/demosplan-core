@@ -64,6 +64,6 @@ class StatementGroupStateProvider implements ProviderInterface
 
     public function isAvailable(): bool
     {
-        return $this->currentUser->hasPermission('feature_json_api_statement_group');
+        return $this->currentUser->hasPermission('feature_statement_cluster');
     }
 }

@@ -1124,15 +1124,6 @@ feature_json_api_statement:
     expose: true
     label: 'Allows access to Statement resources using the JSON:API.'
     loginRequired: false
-feature_json_api_statement_group:
-    descriptions: |-
-        When enabled then access to the StatementGroup resources using the JSON:API is granted.
-        The read and write access to its fields is whitelisted, hence even if this
-        permission is enabled the access may still be restricted. Also note that additional
-        permissions are needed to access the JSON:API at all, eg. feature_json_api_list.
-    expose: true
-    label: 'Allows access to StatementGroup resources using the JSON:API.'
-    loginRequired: false
 feature_json_api_statement_segment:
     descriptions: |-
         When enabled then access to the StatementSegment resources using the JSON:API is granted.
