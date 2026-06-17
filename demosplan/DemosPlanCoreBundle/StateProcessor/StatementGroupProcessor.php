@@ -44,6 +44,11 @@ class StatementGroupProcessor implements ProcessorInterface
             throw new BadRequestHttpException('headStatementId is required to create a statement group.');
         }
 
+        $headStatement = $this->statementHandler->getStatement($data->headStatementId);
+        if (!$headStatement instanceof Statement) {
+            throw new BadRequestHttpException(sprintf('Statement "%s" not found.', $data->headStatementId));
+        }
+
         $statementIds = array_map(static fn (StatementResource $s): string => $s->id, $data->statements);
 
         try {
