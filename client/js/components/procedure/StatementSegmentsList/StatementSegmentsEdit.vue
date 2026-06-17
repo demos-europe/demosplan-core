@@ -505,9 +505,11 @@ export default {
     reset (segmentId) {
       delete this._localSegmentTexts[segmentId]
 
-      if (this.$refs[`editField_${segmentId}`][0]) {
-        this.$refs[`editField_${segmentId}`][0].loading = false
-        this.$refs[`editField_${segmentId}`][0].editingEnabled = false
+      const editField = this.$refs[`editField_${segmentId}`]?.[0]
+
+      if (editField) {
+        editField.loading = false
+        editField.editingEnabled = false
       }
 
       const segmentIdIndex = this.editingSegmentIds.indexOf(segmentId)
