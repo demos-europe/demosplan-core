@@ -15,12 +15,7 @@ const filenameFromSrc = (src) => {
   try {
     const path = src.split(/[?#]/)[0]
     const slashIndex = path.lastIndexOf('/')
-
-    if (slashIndex === -1) {
-      return ''
-    }
-
-    const segment = path.substring(slashIndex + 1)
+    const segment = slashIndex === -1 ? path : path.substring(slashIndex + 1)
 
     if (segment === '' || !segment.includes('.')) {
       return ''
@@ -34,7 +29,7 @@ const filenameFromSrc = (src) => {
   }
 }
 
-const resolveLinkLabel = (altText, src, fallback) => {
+export const resolveLinkLabel = (altText, src, fallback) => {
   const alt = (altText ?? '').trim()
 
   if (alt !== '') {
@@ -49,6 +44,14 @@ const resolveLinkLabel = (altText, src, fallback) => {
 
   return fallback
 }
+
+/**
+ * Resolve the translated default link label. Falls back to the bare key when no
+ * `Translator` global is available (e.g. isolated unit usage) so callers never
+ * hit a ReferenceError.
+ */
+export const defaultInlineImageLabel = () =>
+  (typeof Translator !== 'undefined') ? Translator.trans(DEFAULT_FALLBACK_LABEL_KEY) : DEFAULT_FALLBACK_LABEL_KEY
 
 const ensureBlockClass = (img) => {
   const existingClasses = (img.getAttribute('class') || '').split(/\s+/).filter(Boolean)
@@ -91,6 +94,26 @@ const createLink = (doc, { href, target, rel, label }) => {
   return anchor
 }
 
+/**
+ * Build the canonical inline-image structure shared by the display transform
+ * and the segmentation editor: a wrapper holding the image and a visible link.
+ *
+ * Pass `label: null` to leave the link text empty so a ProseMirror markView can
+ * supply the marked document text via the returned `link` as its `contentDOM`.
+ *
+ * @returns {{ wrapper: HTMLElement, img: HTMLElement, link: HTMLElement }}
+ */
+export function buildInlineImageFigure (doc, { src, alt = '', href = src, label = null, target = DEFAULT_TARGET, rel = DEFAULT_REL }) {
+  const wrapper = createWrapper(doc)
+  const img = createImg(doc, { src, alt })
+  const link = createLink(doc, { href, target, rel, label: label ?? '' })
+
+  wrapper.appendChild(img)
+  wrapper.appendChild(link)
+
+  return { wrapper, img, link }
+}
+
 const isInsideWrapper = (element) =>
   element.closest(`.${WRAPPER_CLASS}`) !== null
 
@@ -107,7 +130,7 @@ const isInsideWrapper = (element) =>
  * only. The result is idempotent: re-running on already-wrapped HTML is a
  * no-op.
  */
-export function inlineImageAnchors (html, className = DEFAULT_CLASS, fallbackLabel = Translator.trans(DEFAULT_FALLBACK_LABEL_KEY)) {
+export function inlineImageAnchors (html, className = DEFAULT_CLASS, fallbackLabel = null) {
   if (typeof html !== 'string') {
     return html
   }
@@ -133,13 +156,12 @@ export function inlineImageAnchors (html, className = DEFAULT_CLASS, fallbackLab
     const target = anchor.getAttribute('target') || DEFAULT_TARGET
     const rel = anchor.getAttribute('rel') || DEFAULT_REL
 
-    const wrapper = createWrapper(doc)
-
-    wrapper.appendChild(createImg(doc, { src: href, alt: label }))
-    wrapper.appendChild(createLink(doc, { href, target, rel, label }))
+    const { wrapper } = buildInlineImageFigure(doc, { src: href, alt: label, href, target, rel, label })
 
     anchor.replaceWith(wrapper)
   })
+
+  const resolvedFallback = fallbackLabel ?? defaultInlineImageLabel()
 
   root.querySelectorAll('img').forEach((img) => {
     if (isInsideWrapper(img)) {
@@ -152,36 +174,71 @@ export function inlineImageAnchors (html, className = DEFAULT_CLASS, fallbackLab
       return
     }
 
-    const sibling = img.nextElementSibling
-    const orphanLink = (sibling?.tagName === 'A' && sibling?.getAttribute('href') === src) ?
-      sibling :
-      null
-
-    const altLabel = resolveLinkLabel(img.getAttribute('alt'), src, fallbackLabel)
+    const label = resolveLinkLabel(img.getAttribute('alt'), src, resolvedFallback)
     const wrapper = createWrapper(doc)
 
     img.replaceWith(wrapper)
     ensureBlockClass(img)
     wrapper.appendChild(img)
+    wrapper.appendChild(createLink(doc, { href: src, target: DEFAULT_TARGET, rel: DEFAULT_REL, label }))
+  })
 
-    if (orphanLink) {
-      orphanLink.remove()
-      orphanLink.setAttribute('class', LINK_UTILITY_CLASSES)
-      orphanLink.setAttribute('target', orphanLink.getAttribute('target') || DEFAULT_TARGET)
-      orphanLink.setAttribute('rel', orphanLink.getAttribute('rel') || DEFAULT_REL)
-      if (orphanLink.textContent.trim() === '') {
-        orphanLink.textContent = altLabel
-      }
+  return root.innerHTML
+}
 
-      wrapper.appendChild(orphanLink)
-    } else {
-      wrapper.appendChild(createLink(doc, {
-        href: src,
-        target: DEFAULT_TARGET,
-        rel: DEFAULT_REL,
-        label: altLabel,
-      }))
-    }
+/**
+ * Editable-context variant: convert PDF-importer anchors to plain `<img>` tags
+ * so an editor (e.g. DpEditor) renders them as images. Unlike
+ * {@link inlineImageAnchors}, this adds no wrapper and no visible link, keeping
+ * editor content — and the HTML persisted from it — free of display-only markup.
+ */
+export function inlineImageAnchorsForEditing (html, className = DEFAULT_CLASS) {
+  if (typeof html !== 'string' || !html.includes(className)) {
+    return html
+  }
+
+  const doc = new DOMParser().parseFromString(`<div>${html}</div>`, 'text/html')
+  const root = doc.body.firstElementChild
+
+  if (!root) {
+    return html
+  }
+
+  root.querySelectorAll(`a.${className}[href]`).forEach((anchor) => {
+    const img = doc.createElement('img')
+
+    img.setAttribute('src', anchor.getAttribute('href'))
+    img.setAttribute('alt', anchor.textContent.trim())
+    img.setAttribute('loading', 'lazy')
+    anchor.replaceWith(img)
+  })
+
+  return root.innerHTML
+}
+
+/**
+ * Text-only variant for truncated previews: replace image references with their
+ * label as plain text so no image or link renders. Importer anchors become their
+ * inner text; bare `<img>` tags become their `alt`.
+ */
+export function stripInlineImageAnchors (html, className = DEFAULT_CLASS) {
+  if (typeof html !== 'string' || (!html.includes(className) && !html.includes('<img'))) {
+    return html
+  }
+
+  const doc = new DOMParser().parseFromString(`<div>${html}</div>`, 'text/html')
+  const root = doc.body.firstElementChild
+
+  if (!root) {
+    return html
+  }
+
+  root.querySelectorAll(`a.${className}[href]`).forEach((anchor) => {
+    anchor.replaceWith(doc.createTextNode(anchor.textContent ?? ''))
+  })
+
+  root.querySelectorAll('img').forEach((img) => {
+    img.replaceWith(doc.createTextNode(img.getAttribute('alt') ?? ''))
   })
 
   return root.innerHTML
