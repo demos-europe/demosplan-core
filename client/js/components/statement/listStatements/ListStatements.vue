@@ -916,11 +916,14 @@ export default {
      */
     fetchGroupMemberCounts () {
       Object.values(this.statementsObject)
-        .filter(statement => statement.attributes.isCluster)
+        .filter(statement => statement.attributes.isCluster && this.groupMemberCounts[statement.id] == null)
         .forEach(head => {
           dpApi.get(Routing.generate('_api_/3.0/StatementGroup/{id}_get', { id: head.id }))
             .then(response => {
               this.groupMemberCounts[head.id] = response.data.data.attributes.statementsCount
+            })
+            .catch(error => {
+              console.error('Failed to fetch group member count for', head.id, error)
             })
         })
     },
