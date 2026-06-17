@@ -249,7 +249,12 @@ abstract class SegmentsExporter
 
     protected function addFooter(Section $section, Statement $statement, bool $censored = false): void
     {
-        $footer = $section->addFooter();
+        $this->fillFooter($section->addFooter(), $statement, $censored);
+        $this->fillFooter($section->addFooter(Footer::FIRST), $statement, $censored);
+    }
+
+    private function fillFooter(Footer $footer, Statement $statement, bool $censored): void
+    {
         $table = $footer->addTable();
         $row = $table->addRow();
 
@@ -342,9 +347,11 @@ abstract class SegmentsExporter
 
         if ([] !== $exportTagTitles) {
             $pageInfoText .= $this->translator->trans('docx.export.filtered');
+            $pageInfoText .= '<ul>';
             foreach ($exportTagTitles as $tagTopicContainer) {
-                $pageInfoText .= '- '.$tagTopicContainer[0].' [Thema: '.$tagTopicContainer[1].'] <br>';
+                $pageInfoText .= '<li>'.$tagTopicContainer[0].' [Thema: '.$tagTopicContainer[1].']</li>';
             }
+            $pageInfoText .= '</ul>';
         }
         $pageInfoText .= '<br>'.$this->translator->trans('layout.info');
         Html::addHtml($section, $this->htmlHelper->getHtmlValidText($pageInfoText), false, false);
