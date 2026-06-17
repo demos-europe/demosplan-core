@@ -20,13 +20,12 @@
         {{ place }}
       </span>
     </div>
-    <p v-cleanhtml="displayText" />
+    <p v-cleanhtml="comment.attributes.text" />
   </div>
 </template>
 
 <script>
 import { CleanHtml, formatDate } from '@demos-europe/demosplan-ui'
-import { inlineImageAnchors } from '@DpJs/lib/shared/inlineImageAnchors'
 import { mapState } from 'vuex'
 
 export default {
@@ -57,10 +56,6 @@ export default {
     ...mapState('StatementSegment', {
       segments: 'items',
     }),
-
-    displayText () {
-      return inlineImageAnchors(this.comment.attributes.text || '')
-    },
 
     place () {
       if (this.comment && this.comment?.relationships?.place?.data && Object.keys(this.comment.relationships.place.data).length) {
