@@ -6813,10 +6813,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"caniuse-lite@npm:^1.0.30001787":
-  version: 1.0.30001787
-  resolution: "caniuse-lite@npm:1.0.30001787"
-  checksum: 10c0/93a6975afbf07f49c9077b348948bbc25b6a82596ccd07b4b6503e48f6f968e1a1e057cc25004db8a2d1d4f35f0c792739e33634edfcefc88ff184c9a2f7a036
+"caniuse-lite@npm:^1.0.30001799":
+  version: 1.0.30001799
+  resolution: "caniuse-lite@npm:1.0.30001799"
+  checksum: 10c0/f24f9834edc7b60188f368ce44714695c3901bc4acb7f2a977dd9b7b697e39ddc0f9947fad6224a955b789f36a73432cb888d620aa7280d728f582d3bd8927a7
   languageName: node
   linkType: hard
 
@@ -7964,7 +7964,7 @@ __metadata:
     assets-webpack-plugin: "npm:^7.1.1"
     babel-jest: "npm:^29.7.0"
     babel-loader: "npm:^10.0.0"
-    caniuse-lite: "npm:^1.0.30001787"
+    caniuse-lite: "npm:^1.0.30001799"
     carbon-components: "npm:10.58.15"
     cesium: "npm:^1.126.0"
     chalk: "npm:4.1.2"
