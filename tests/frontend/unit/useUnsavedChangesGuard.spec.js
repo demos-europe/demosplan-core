@@ -67,8 +67,8 @@ describe('useUnsavedChangesGuard', () => {
     it('should register global listeners only once', () => {
       const addEventListenerSpy = jest.spyOn(window, 'addEventListener')
 
-      const { init: init1, cleanup: cleanup1 } = useUnsavedChangesGuard()
-      const { init: init2, cleanup: cleanup2 } = useUnsavedChangesGuard()
+      const { init: init1 } = useUnsavedChangesGuard()
+      const { init: init2 } = useUnsavedChangesGuard()
 
       init1({
         componentId: 'component-1',
@@ -123,8 +123,8 @@ describe('useUnsavedChangesGuard', () => {
     })
 
     it('should check all registered components for unsaved changes', () => {
-      const { init: init1, cleanup: cleanup1 } = useUnsavedChangesGuard()
-      const { init: init2, cleanup: cleanup2 } = useUnsavedChangesGuard()
+      const { init: init1 } = useUnsavedChangesGuard()
+      const { init: init2 } = useUnsavedChangesGuard()
 
       mockComponent1.hasUnsavedChanges.mockReturnValue(false)
       mockComponent2.hasUnsavedChanges.mockReturnValue(true)
