@@ -9,7 +9,7 @@
 
 globalThis.Translator = { trans: jest.fn(key => key === 'image.open' ? 'Bild öffnen' : key) }
 
-import { inlineImageAnchors } from '@DpJs/lib/shared/inlineImageAnchors'
+import { inlineImageAnchors, inlineImageAnchorsForEditing, stripInlineImageAnchors } from '@DpJs/lib/shared/inlineImageAnchors'
 
 describe('inlineImageAnchors', () => {
   it('replaces a pdf_importer_image anchor with an img and a visible link', () => {
@@ -20,8 +20,8 @@ describe('inlineImageAnchors', () => {
     expect(result).toContain('src="http://example.com/hash.jpg"')
     expect(result).toContain('alt="Label"')
     expect(result).toContain('loading="lazy"')
-    expect(result).toContain('class="pdf-importer-image-wrapper inline-block text-center"')
-    expect(result).toContain('class="pdf-importer-image-link block mt-1"')
+    expect(result).toMatch(/<span class="pdf-importer-image-wrapper[^"]*"><img[^>]*><a[^>]*>Label<\/a><\/span>/)
+    expect(result).toContain('pdf-importer-image-link')
     expect(result).toMatch(/<a[^>]*href="http:\/\/example\.com\/hash\.jpg"[^>]*>Label<\/a>/)
   })
 
@@ -94,11 +94,11 @@ describe('inlineImageAnchors', () => {
     expect(result).toMatch(/<a[^>]*href="x"[^>]*>L<\/a>/)
   })
 
-  it('wraps a bare img tag with a link below using its alt as label', () => {
+  it('adds a link below a bare img tag using its alt as label', () => {
     const html = '<p><img src="http://example.com/photo.jpg" alt="My photo" loading="lazy"></p>'
     const result = inlineImageAnchors(html)
 
-    expect(result).toContain('class="pdf-importer-image-wrapper inline-block text-center"')
+    expect(result).toMatch(/<span class="pdf-importer-image-wrapper[^"]*"><img[^>]*><a[^>]*>My photo<\/a><\/span>/)
     expect(result).toContain('<img')
     expect(result).toContain('src="http://example.com/photo.jpg"')
     expect(result).toContain('alt="My photo"')
@@ -109,6 +109,13 @@ describe('inlineImageAnchors', () => {
 
   it('falls back to filename when bare img has no alt', () => {
     const html = '<img src="https://files.example.com/folder/screenshot.png">'
+    const result = inlineImageAnchors(html)
+
+    expect(result).toMatch(/<a[^>]*>screenshot\.png<\/a>/)
+  })
+
+  it('uses a filename-only src as the link label', () => {
+    const html = '<img src="screenshot.png">'
     const result = inlineImageAnchors(html)
 
     expect(result).toMatch(/<a[^>]*>screenshot\.png<\/a>/)
@@ -145,17 +152,7 @@ describe('inlineImageAnchors', () => {
     expect(result).toContain('src="b.jpg"')
   })
 
-  it('absorbs an orphan sibling link with the same href instead of duplicating it', () => {
-    const html = '<img src="http://example.com/a.jpg" alt="Darstellung_Stell_001" width="255" height="362"><a class="pdf-importer-image-link block mt-1" href="http://example.com/a.jpg" target="_blank" rel="noopener">Darstellung_Stell_001</a>'
-    const result = inlineImageAnchors(html)
-
-    expect(result.match(/pdf-importer-image-wrapper/g)).toHaveLength(1)
-    expect(result.match(/pdf-importer-image-link/g)).toHaveLength(1)
-    expect(result.match(/<a /g)).toHaveLength(1)
-    expect(result).toMatch(/<span class="pdf-importer-image-wrapper[^"]*"><img[^>]*><a[^>]*>Darstellung_Stell_001<\/a><\/span>/)
-  })
-
-  it('still wraps a bare img when the next sibling link points elsewhere', () => {
+  it('wraps a bare img and leaves an unrelated sibling link untouched', () => {
     const html = '<img src="a.jpg" alt="A"><a href="b.jpg">other</a>'
     const result = inlineImageAnchors(html)
 
@@ -171,5 +168,64 @@ describe('inlineImageAnchors', () => {
     expect(result).not.toContain('pdf-importer-image-wrapper')
     expect(result).toContain('<img')
     expect(result).toContain('alt="broken"')
+  })
+})
+
+describe('inlineImageAnchorsForEditing', () => {
+  it('converts a pdf_importer_image anchor to a plain img without wrapper or link', () => {
+    const html = '<p><a class="pdf_importer_image" href="http://example.com/hash.jpg">Label</a></p>'
+    const result = inlineImageAnchorsForEditing(html)
+
+    expect(result).toContain('<img')
+    expect(result).toContain('src="http://example.com/hash.jpg"')
+    expect(result).toContain('alt="Label"')
+    expect(result).toContain('loading="lazy"')
+    expect(result).not.toContain('pdf-importer-image-wrapper')
+    expect(result).not.toContain('pdf-importer-image-link')
+    expect(result).not.toContain('<a')
+  })
+
+  it('leaves bare img tags untouched', () => {
+    const html = '<p><img src="http://example.com/photo.jpg" alt="My photo"></p>'
+
+    expect(inlineImageAnchorsForEditing(html)).toBe(html)
+  })
+
+  it('returns the input unchanged when the importer class is absent', () => {
+    const html = '<p>no importer images here</p>'
+
+    expect(inlineImageAnchorsForEditing(html)).toBe(html)
+  })
+
+  it('returns non-string input unchanged', () => {
+    expect(inlineImageAnchorsForEditing(null)).toBeNull()
+  })
+})
+
+describe('stripInlineImageAnchors', () => {
+  it('replaces a pdf_importer_image anchor with its label as plain text', () => {
+    const html = '<p><a class="pdf_importer_image" href="http://example.com/a.jpg">Darstellung_Stell_001</a></p>'
+    const result = stripInlineImageAnchors(html)
+
+    expect(result).toBe('<p>Darstellung_Stell_001</p>')
+    expect(result).not.toContain('<a')
+    expect(result).not.toContain('<img')
+  })
+
+  it('replaces a bare img with its alt as plain text', () => {
+    const html = '<p>before <img src="x" alt="My photo"> after</p>'
+    const result = stripInlineImageAnchors(html)
+
+    expect(result).toBe('<p>before My photo after</p>')
+  })
+
+  it('leaves text without image references unchanged', () => {
+    const html = '<p>plain text</p>'
+
+    expect(stripInlineImageAnchors(html)).toBe(html)
+  })
+
+  it('returns non-string input unchanged', () => {
+    expect(stripInlineImageAnchors(null)).toBeNull()
   })
 })
