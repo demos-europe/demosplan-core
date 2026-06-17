@@ -187,7 +187,6 @@ describe('useUnsavedChangesGuard', () => {
       link.href = 'https://example.com'
       document.body.appendChild(link)
 
-      // Listen for dialog show event
       const dialogShowListener = jest.fn()
       document.addEventListener('unsaved-changes-dialog:show', dialogShowListener)
 
@@ -222,7 +221,6 @@ describe('useUnsavedChangesGuard', () => {
 
       button.dispatchEvent(event)
 
-      // Should not prevent default on non-link elements
       expect(preventDefaultSpy).not.toHaveBeenCalled()
 
       document.body.removeChild(button)
@@ -414,15 +412,12 @@ describe('useUnsavedChangesGuard', () => {
         hasUnsavedChanges: mockComponent2.hasUnsavedChanges,
       })
 
-      // Cleanup only component-1
       cleanup1()
 
       const event = new Event('beforeunload', { cancelable: true })
       window.dispatchEvent(event)
 
-      // Component 1 should NOT be checked (cleaned up)
       expect(mockComponent1.hasUnsavedChanges).not.toHaveBeenCalled()
-      // Component 2 should still be checked (still registered)
       expect(mockComponent2.hasUnsavedChanges).toHaveBeenCalled()
     })
   })
