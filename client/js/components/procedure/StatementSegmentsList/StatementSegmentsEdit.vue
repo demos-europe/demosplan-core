@@ -555,16 +555,21 @@ export default {
 
       return this.saveSegmentAction(segmentId)
         .then(() => {
+          this.reset(segmentId)
+
           return true
         })
         .catch(() => {
           this.restoreSegmentAction(segmentId)
           dplan.notify.error(Translator.trans('error.api.generic'))
 
+          const editField = this.$refs[`editField_${segmentId}`]?.[0]
+
+          if (editField) {
+            editField.loading = false
+          }
+
           return false
-        })
-        .finally(() => {
-          this.reset(segmentId)
         })
     },
 
@@ -677,6 +682,7 @@ export default {
 
     transformObscureTag (segmentId, val) {
       this._localSegmentTexts[segmentId] = val
+      this.checkForUnsavedChanges()
     },
 
     transformObscureStatementTag (val) {
