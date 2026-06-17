@@ -253,7 +253,8 @@ abstract class SegmentsExporter
         $this->fillFooter($section->addFooter(Footer::FIRST), $statement, $censored);
     }
 
-    private function fillFooter(Footer $footer, Statement $statement, bool $censored): void {
+    private function fillFooter(Footer $footer, Statement $statement, bool $censored): void
+    {
         $table = $footer->addTable();
         $row = $table->addRow();
 
