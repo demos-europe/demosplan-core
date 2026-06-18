@@ -96,6 +96,7 @@ All rights reserved
           <dp-label
             for="mainStatement"
             bold
+            required
             :text="Translator.trans('statement.main')"
             :hint="Translator.trans('statement.cluster.create.help')"
           />

@@ -57,7 +57,6 @@
         <dp-button
           data-cy="statementsBulkGroup"
           :text="Translator.trans('selection.group')"
-          variant="outline"
           @click.prevent="handleBulkGroup"
         />
       </dp-bulk-edit-header>
