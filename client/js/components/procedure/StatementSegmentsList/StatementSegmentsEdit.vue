@@ -376,6 +376,7 @@ export default {
 
     ...mapActions('Statement', {
       restoreStatementAction: 'restoreFromInitial',
+      saveStatementAction: 'save',
     }),
 
     ...mapActions('AssignableUser', {
@@ -401,9 +402,12 @@ export default {
     },
 
     checkForUnsavedChanges () {
-      this.hasUnsavedChanges = this.editingSegmentIds.some(segmentId =>
+      const hasSegmentChanges = this.editingSegmentIds.some(segmentId =>
         this.hasSegmentUnsavedChanges(segmentId),
       )
+      const hasStatementChanges = this.hasStatementUnsavedChanges()
+
+      this.hasUnsavedChanges = hasSegmentChanges || hasStatementChanges
     },
 
     getSegmentInitialText (segmentId) {
@@ -413,6 +417,17 @@ export default {
     hasSegmentUnsavedChanges (segmentId) {
       const originalText = this.segments[segmentId]?.attributes?.text || ''
       const currentText = this._localSegmentTexts[segmentId] || ''
+
+      return originalText !== currentText
+    },
+
+    hasStatementUnsavedChanges () {
+      if (this._localStatementText === null) {
+        return false
+      }
+
+      const originalText = this.statement.attributes?.fullText || ''
+      const currentText = this._localStatementText || ''
 
       return originalText !== currentText
     },
@@ -498,6 +513,10 @@ export default {
         this.reset(segmentId)
       })
 
+      if (this._localStatementText !== null) {
+        this.resetStatement()
+      }
+
       return Promise.resolve()
     },
 
@@ -523,8 +542,8 @@ export default {
 
     resetStatement () {
       this.restoreStatementAction(this.statement.id)
-
       this._localStatementText = null
+      this.checkForUnsavedChanges()
     },
 
     saveSegment (segmentId) {
@@ -575,7 +594,7 @@ export default {
 
     /**
      * Required by useUnsavedChangesGuard composable
-     * Save all segments that have unsaved changes
+     * Save all segments and/or statement that have unsaved changes
      * @returns {Promise} Resolves if all saves succeed, rejects if any save fails
      */
     async saveUnsavedChanges () {
@@ -583,17 +602,26 @@ export default {
         this.hasSegmentUnsavedChanges(segmentId),
       )
 
-      if (segmentsToSave.length === 0) {
+      const shouldSaveStatement = this.hasStatementUnsavedChanges()
+
+      if (segmentsToSave.length === 0 && !shouldSaveStatement) {
         return
       }
 
-      const savePromises = segmentsToSave.map(segmentId => this.saveSegment(segmentId))
+      const savePromises = [
+        ...segmentsToSave.map(segmentId => this.saveSegment(segmentId)),
+      ]
+
+      if (shouldSaveStatement) {
+        savePromises.push(this.saveStatement())
+      }
+
       const results = await Promise.all(savePromises)
 
       const allSucceeded = results.every(result => result === true)
 
       if (!allSucceeded) {
-        throw new Error('One or more segments failed to save')
+        throw new Error('One or more segments/statement failed to save')
       }
     },
 
@@ -609,7 +637,21 @@ export default {
       }
 
       this.setStatement({ ...updatedStatement, id: this.statement.id })
-      this.$emit('saveStatement', updatedStatement)
+
+      return this.saveStatementAction(this.statement.id)
+        .then(() => {
+          this._localStatementText = null
+          this.checkForUnsavedChanges()
+          this.$emit('statementText:updated')
+
+          return true
+        })
+        .catch(() => {
+          this.restoreStatementAction(this.statement.id)
+          dplan.notify.error(Translator.trans('error.api.generic'))
+
+          return false
+        })
     },
 
     scrollToSegment () {
@@ -678,6 +720,7 @@ export default {
 
     updateStatementText (val) {
       this._localStatementText = val
+      this.checkForUnsavedChanges()
     },
 
     transformObscureTag (segmentId, val) {
@@ -687,6 +730,7 @@ export default {
 
     transformObscureStatementTag (val) {
       this._localStatementText = val
+      this.checkForUnsavedChanges()
     },
 
     async fetchSegments (page = 1) {
