@@ -48,7 +48,11 @@ const dplan = {
   },
   debug: false,
   notify: {
+    confirm: jest.fn(),
+    error: jest.fn(),
+    info: jest.fn(),
     notify: jest.fn(),
+    warning: jest.fn(),
   },
 }
 
