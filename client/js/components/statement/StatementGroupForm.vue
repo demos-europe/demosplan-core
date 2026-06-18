@@ -136,14 +136,14 @@ const props = defineProps({
   },
 })
 
+const groupName = ref('')
+const headStatement = ref(null)
 const isBusy = ref(false)
 const isLoading = ref(true)
-const headStatement = ref(null)
-const groupName = ref('')
 const returnLink = ref(Routing.generate('dplan_procedure_statement_list', { procedureId: props.procedureId }))
 const selectedAction = ref('createGroup')
-const statements = ref([])
 const selectionCriteria = ref(null)
+const statements = ref([])
 const step = ref(1)
 const success = ref(true)
 
