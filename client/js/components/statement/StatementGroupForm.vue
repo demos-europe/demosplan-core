@@ -226,6 +226,8 @@ async function handleApply () {
 
 async function fetchStatements () {
   if (!selectionCriteria.value) {
+    isLoading.value = false
+
     return
   }
 
@@ -246,24 +248,31 @@ async function fetchStatements () {
     },
   }
 
-  // Page through the whole selected set so "select all" covers every matching statement.
-  do {
-    const response = await dpApi.get(
-      Routing.generate('api_resource_list', { resourceType: 'Statement' }),
-      { ...selectionCriteria.value, filter, fields, include: 'assignee', page: { number, size } },
-    )
+  try {
+    // Page through the whole selected set so "select all" covers every matching statement.
+    do {
+      const response = await dpApi.get(
+        Routing.generate('api_resource_list', { resourceType: 'Statement' }),
+        { ...selectionCriteria.value, filter, fields, include: 'assignee', page: { number, size } },
+      )
 
-    collected.push(...response.data.data)
-    totalPages = response.data.meta?.pagination?.totalPages ?? 1
-    number++
-  } while (number <= totalPages)
+      collected.push(...response.data.data)
+      totalPages = response.data.meta?.pagination?.totalPages ?? 1
+      number++
+    } while (number <= totalPages)
 
-  /*
-   * "Select all" resolves criteria server-side and bypasses the list's checkbox locks,
-   * so exclude group heads here. (Synchronized statements only exist in coupled procedures,
-   * where `synchronized` is readable — not requested here to avoid faulty fieldset errors.)
-   */
-  statements.value = collected.filter(stmt => !stmt.attributes.isCluster)
+    /*
+     * "Select all" resolves criteria server-side and bypasses the list's checkbox locks,
+     * so exclude group heads here. (Synchronized statements only exist in coupled procedures,
+     * where `synchronized` is readable — not requested here to avoid faulty fieldset errors.)
+     */
+    statements.value = collected.filter(stmt => !stmt.attributes.isCluster)
+  } catch (error) {
+    console.error('Failed to load selected statements for grouping:', error)
+    dplan.notify.notify('error', Translator.trans('error.api.generic'))
+  } finally {
+    isLoading.value = false
+  }
 }
 
 function removeStatement (id) {
@@ -274,17 +283,9 @@ function setStatements () {
   selectionCriteria.value = lscache.get(`${props.procedureId}:toggledStatements`)
 }
 
-onMounted(async () => {
+onMounted(() => {
   setStatements()
-
-  try {
-    await fetchStatements()
-  } catch (error) {
-    console.error('Failed to load selected statements for grouping:', error)
-    dplan.notify.notify('error', Translator.trans('error.api.generic'))
-  } finally {
-    isLoading.value = false
-  }
+  fetchStatements()
 })
 
 </script>
