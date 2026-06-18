@@ -162,7 +162,7 @@ const translations = computed(() => ({
   ],
 }))
 
-function handleConfirmStep1 () {
+const handleConfirmStep1 = () => {
   // Creating a group needs at least two statements; adding to an existing group (action "addToGroup") later allows one.
   if (selectedAction.value === 'createGroup' && statements.value.length < 2) {
     dplan.notify.notify('error', Translator.trans('confirm.consolidation.not.enough.statements'))
@@ -179,7 +179,7 @@ function handleConfirmStep1 () {
   step.value = 2
 }
 
-async function handleApply () {
+const handleApply = async () => {
   const { valid } = validateForm(document.querySelector('[data-dp-validate=groupForm]'))
 
   if (!valid) {
@@ -224,7 +224,7 @@ async function handleApply () {
   }
 }
 
-async function fetchStatements () {
+const fetchStatements = async () => {
   if (!selectionCriteria.value) {
     isLoading.value = false
 
@@ -275,11 +275,11 @@ async function fetchStatements () {
   }
 }
 
-function removeStatement (id) {
+const removeStatement = (id) => {
   statements.value = statements.value.filter(stmt => stmt.id !== id)
 }
 
-function setStatements () {
+const setStatements = () => {
   selectionCriteria.value = lscache.get(`${props.procedureId}:toggledStatements`)
 }
 
