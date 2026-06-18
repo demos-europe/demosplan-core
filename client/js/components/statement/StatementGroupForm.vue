@@ -17,22 +17,22 @@ All rights reserved
       :total-steps="3"
       :translations="translations"
       :valid="isValid"
+      @apply="handleApply"
       @confirm="handleConfirmStep1"
       @edit="step = 1"
-      @apply="handleApply"
     >
       <template v-slot:step-1>
         <div class="mt-5 mb-6">
           <dp-radio
             id="action-create"
-            class="mb-3"
-            name="groupAction"
-            value="createGroup"
             :checked="selectedAction === 'createGroup'"
             :label="{
               text: Translator.trans('statement.cluster.create'),
               hint: Translator.trans('statement.cluster.create.hint'),
             }"
+            class="mb-3"
+            name="groupAction"
+            value="createGroup"
             @change="selectedAction = 'createGroup'"
           />
         </div>
@@ -66,9 +66,9 @@ All rights reserved
                 >{{ stmt.attributes.initialOrganisationName }}
                 </span>
                 <button
-                  type="button"
-                  class="btn--blank o-link--default ml-auto"
                   :data-cy="`statementGroupForm:removeStatement:${stmt.id}`"
+                  class="btn--blank o-link--default ml-auto"
+                  type="button"
                   @click="removeStatement(stmt.id)"
                 >
                   <dp-icon
@@ -86,27 +86,27 @@ All rights reserved
           <dp-input
             id="groupName"
             v-model="groupName"
-            class="mb-5"
             :label="{
               text: Translator.trans('statement.cluster.name'),
               hint: Translator.trans('statement.cluster.name.hint'),
             }"
+            class="mb-5"
             required
           />
           <dp-label
+            :hint="Translator.trans('statement.cluster.create.help')"
+            :text="Translator.trans('statement.main')"
             for="mainStatement"
             bold
             required
-            :text="Translator.trans('statement.main')"
-            :hint="Translator.trans('statement.cluster.create.help')"
           />
           <dp-multiselect
             id="mainStatement"
             v-model="mainStatementId"
             :custom-label="stmt => stmt.attributes.externId"
             :options="statements"
-            required
             track-by="id"
+            required
             searchable
           />
         </div>
@@ -202,7 +202,8 @@ async function handleApply () {
     },
     relationships: {
       statements: {
-        data: statements.value.map(stmt => ({ id: `${stmt.id}`, type: 'Statement' })),
+        // API Platform (3.0) resolves relationships by IRI, not by plain UUID.
+        data: statements.value.map(stmt => ({ id: `/api/3.0/Statement/${stmt.id}`, type: 'Statement' })),
       },
     },
   }

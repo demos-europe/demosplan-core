@@ -10,9 +10,9 @@
 <template>
   <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-surface': isFullscreen }">
     <dp-sticky-element
-      border
-      class="pt-2 pb-3"
       :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }"
+      class="pt-2 pb-3"
+      border
     >
       <div class="flex items-center justify-between mb-2">
         <div class="flex">
@@ -25,24 +25,24 @@
           />
         </div>
         <dp-button
-          data-cy="editorFullscreen"
           :icon="isFullscreen ? 'compress' : 'expand'"
-          icon-size="medium"
-          hide-text
           :text="isFullscreen ? Translator.trans('editor.fullscreen.close') : Translator.trans('editor.fullscreen')"
+          data-cy="editorFullscreen"
+          icon-size="medium"
           variant="outline"
+          hide-text
           @click="handleFullscreenMode()"
         />
       </div>
       <dp-bulk-edit-header
         v-if="selectedItemsCount > 0 && hasPermission('feature_statements_sync_to_procedure')"
-        class="layout__item u-12-of-12 u-mt-0_5"
         :selected-items-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
+        class="layout__item u-12-of-12 u-mt-0_5"
         @reset-selection="resetSelection"
       >
         <dp-button
-          data-cy="statementsBulkShare"
           :text="Translator.trans('procedure.share_statements.bulk.share')"
+          data-cy="statementsBulkShare"
           variant="outline"
           @click.prevent="handleBulkShare"
         />
@@ -50,21 +50,21 @@
 
       <dp-bulk-edit-header
         v-if="selectedItemsCount > 0 && hasPermission('feature_statement_cluster')"
-        class="layout__item u-12-of-12 u-mt-0_5"
         :selected-items-text="Translator.trans('statements.selected', { count: selectedItemsCount })"
+        class="layout__item u-12-of-12 u-mt-0_5"
         @reset-selection="resetSelection"
       >
         <dp-button
-          data-cy="statementsBulkGroup"
           :text="Translator.trans('selection.group')"
+          data-cy="statementsBulkGroup"
           @click.prevent="handleBulkGroup"
         />
       </dp-bulk-edit-header>
       <statement-export-modal
-        data-cy="listStatements:export"
         :has-permission-adjust-preamble="hasPermission('feature_adjust_preamble_export_file')"
         :procedure-id="procedureId"
         :procedure-name="procedureName"
+        data-cy="listStatements:export"
         @export="showHintAndDoExport"
       />
       <div
@@ -78,8 +78,8 @@
           :current-page="pagination.currentPage"
           :limits="pagination.limits"
           :per-page="pagination.perPage"
-          :total-pages="pagination.totalPages"
           :total-items="pagination.total"
+          :total-pages="pagination.totalPages"
           @page-change="getItemsByPage"
           @size-change="handleSizeChange"
         />
@@ -108,23 +108,23 @@
     <template v-else>
       <dp-data-table
         v-if="items.length > 0"
-        data-cy="listStatements"
         :class="{ 'px-2 overflow-y-scroll grow': isFullscreen }"
-        has-flyout
         :header-fields="headerFields"
-        is-expandable
         :is-selectable="(isSourceAndCoupledProcedure && hasPermission('feature_statements_sync_to_procedure')) || hasPermission('feature_statement_cluster')"
         :items="items"
+        :multi-page-all-selected="allSelectedVisually"
+        :multi-page-selection-items-toggled="toggledItems.length"
+        :multi-page-selection-items-total="allItemsCount"
+        :should-be-selected-items="currentlySelectedItems"
+        :translations="{ lockedForSelection: Translator.trans('item.lockedForSelection') }"
+        data-cy="listStatements"
         lock-checkbox-by="lockedForSelection"
         lock-message-by="lockedForSelectionMessage"
-        :multi-page-all-selected="allSelectedVisually"
-        :multi-page-selection-items-total="allItemsCount"
-        :multi-page-selection-items-toggled="toggledItems.length"
-        :should-be-selected-items="currentlySelectedItems"
         track-by="id"
-        :translations="{ lockedForSelection: Translator.trans('item.lockedForSelection') }"
-        @select-all="handleSelectAll"
+        has-flyout
+        is-expandable
         @items-toggled="handleToggleItem"
+        @select-all="handleSelectAll"
       >
         <template v-slot:externId="{ assignee = {}, externId, id: statementId, isCluster, synchronized }">
           <dp-icon
@@ -139,12 +139,12 @@
           />
           <dp-claim
             v-if="!synchronized"
-            entity-type="statement"
             :assigned-id="assignee.id || ''"
             :assigned-name="assignee.name || ''"
             :assigned-organisation="assignee.orgaName || ''"
             :current-user-id="currentUserId"
             :is-loading="claimLoadingIds.indexOf(statementId) >= 0"
+            entity-type="statement"
             @click="toggleClaimStatement(assignee.id, statementId)"
           />
         </template>
@@ -177,8 +177,8 @@
         </template>
         <template v-slot:status="{ status }">
           <status-badge
-            class="mt-0.5"
             :status="status"
+            class="mt-0.5"
           />
         </template>
         <template v-slot:internId="{ internId }">
@@ -200,21 +200,21 @@
           <dp-flyout data-cy="listStatements:statementActionsMenu">
             <button
               v-if="hasPermission('area_statement_segmentation')"
-              class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
               :class="{
                 'is-disabled': segmentsCount > 0 && segmentsCount !== '-',
                 'hover:underline active:underline': segmentsCount <= 0 || segmentsCount === '-' }"
-              data-cy="listStatements:statementSplit"
               :disabled="segmentsCount > 0 && segmentsCount !== '-'"
+              class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
+              data-cy="listStatements:statementSplit"
               rel="noopener"
               @click.prevent="handleStatementSegmentation(id, assignee, segmentsCount)"
             >
               {{ Translator.trans('split') }}
             </button>
             <a
+              :href="Routing.generate('dplan_statement_segments_list', { statementId: id, procedureId: procedureId })"
               class="block leading-[2] whitespace-nowrap"
               data-cy="listStatements:statementDetailsAndRecommendation"
-              :href="Routing.generate('dplan_statement_segments_list', { statementId: id, procedureId: procedureId })"
               rel="noopener"
               @click="storeNavigationContextInLocalStorage"
             >
@@ -222,10 +222,10 @@
             </a>
             <a
               v-if="hasPermission('feature_read_source_statement_via_api') && hasPermission('area_admin_import')"
-              class="block leading-[2] whitespace-nowrap"
               :class="{'is-disabled': !originalPdf}"
-              data-cy="listStatements:originalPDF"
               :href="Routing.generate('core_file_procedure', { hash: originalPdf, procedureId: procedureId })"
+              class="block leading-[2] whitespace-nowrap"
+              data-cy="listStatements:originalPDF"
               rel="noreferrer noopener"
               target="_blank"
             >
@@ -233,21 +233,21 @@
             </a>
             <a
               v-if="hasPermission('area_admin_original_statement_list')"
-              class="block leading-[2] whitespace-nowrap"
               :class="{'is-disabled': !originalId}"
-              data-cy="listStatements:originalStatement"
               :href="Routing.generate('dplan_procedure_original_statement_list', { procedureId: procedureId })"
+              class="block leading-[2] whitespace-nowrap"
+              data-cy="listStatements:originalStatement"
               rel="noreferrer noopener"
             >
               {{ Translator.trans('statement.original') }}
             </a>
             <button
-              class="btn--blank o-link--default block leading-[2] whitespace-nowrap"
               :class="{
                 'is-disabled': synchronized || assignee.id !== currentUserId,
                 'hover:underline active:underline': !(synchronized || assignee.id !== currentUserId) }"
-              data-cy="listStatements:statementDelete"
               :disabled="synchronized || assignee.id !== currentUserId"
+              class="btn--blank o-link--default block leading-[2] whitespace-nowrap"
+              data-cy="listStatements:statementDelete"
               type="button"
               @click="triggerStatementDeletion(id)"
             >
@@ -258,9 +258,9 @@
         <template v-slot:expandedContent="{ text, fullText, id }">
           <!-- Statement meta data -->
           <statement-meta-data
-            class="u-pt-0_5"
             :statement="statementsObject[id]"
             :submit-type-options="submitTypeOptions"
+            class="u-pt-0_5"
           >
             <template
               v-slot:default="{
@@ -332,8 +332,8 @@
             <p v-cleanhtml="displayedText(id)" />
             <a
               v-if="statementsObject[id].attributes.textIsTruncated"
-              class="cursor-pointer"
               :class="{ 'show-more': !statementsObject[id].attributes.isFulltextDisplayed }"
+              class="cursor-pointer"
               rel="noopener"
               @click.prevent="handleFullTextAction(id)"
             >

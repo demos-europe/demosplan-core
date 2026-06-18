@@ -28,10 +28,10 @@
           icon="arrow-left"
         />
         <dp-button
-          class="float-right"
           :disabled="!valid"
-          icon-after="arrow-right"
           :text="mergedTranslations.confirm"
+          class="float-right"
+          icon-after="arrow-right"
           @click="$emit('confirm')"
         />
       </div>
@@ -42,16 +42,16 @@
 
       <div class="u-mt flow-root">
         <dp-button
+          :text="mergedTranslations.edit"
           color="secondary"
           icon="arrow-left"
-          :text="mergedTranslations.edit"
           @click="$emit('edit')"
         />
         <dp-button
-          class="float-right"
           :busy="busy"
-          icon-after="arrow-right"
           :text="mergedTranslations.apply"
+          class="float-right"
+          icon-after="arrow-right"
           @click="$emit('apply')"
         />
       </div>
@@ -62,10 +62,10 @@
 
       <div class="u-mt flow-root">
         <dp-button
-          class="float-right"
-          icon-after="arrow-right"
           :href="sanitizedReturnLink"
           :text="mergedTranslations.backToList"
+          class="float-right"
+          icon-after="arrow-right"
         />
       </div>
     </template>
