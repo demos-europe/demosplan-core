@@ -227,7 +227,7 @@ async function fetchStatements () {
     return
   }
 
-  const fields = { Statement: 'externId,authorName,initialOrganisationName,isSubmittedByCitizen,assignee,synchronized,isCluster' }
+  const fields = { Statement: 'externId,authorName,initialOrganisationName,isSubmittedByCitizen,assignee,isCluster' }
   const size = 100
   const collected = []
   let number = 1
@@ -258,9 +258,10 @@ async function fetchStatements () {
 
   /*
    * "Select all" resolves criteria server-side and bypasses the list's checkbox locks,
-   * so exclude non-groupable statements (synchronized / group heads) here.
+   * so exclude group heads here. (Synchronized statements only exist in coupled procedures,
+   * where `synchronized` is readable — not requested here to avoid faulty fieldset errors.)
    */
-  statements.value = collected.filter(stmt => !stmt.attributes.synchronized && !stmt.attributes.isCluster)
+  statements.value = collected.filter(stmt => !stmt.attributes.isCluster)
 }
 
 function removeStatement (id) {
