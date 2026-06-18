@@ -8,6 +8,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it } from '@jest/globals'
+import { sharedEditableModeTests, sharedEmptyValueTests, sharedReadonlyModeTests } from './helpers/customFieldSharedTests'
 import { enableAutoUnmount } from '@vue/test-utils'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 import TextCustomField from '@DpJs/components/customFields/TextCustomField'
@@ -32,6 +33,11 @@ describe('TextCustomField', () => {
     },
   }
 
+  const requiredField = {
+    ...defaultField,
+    attributes: { ...defaultField.attributes, isRequired: true },
+  }
+
   enableAutoUnmount(afterEach)
 
   describe('readonly mode with label (showLabel=true)', () => {
@@ -53,41 +59,11 @@ describe('TextCustomField', () => {
       expect(wrapper.find('dd').text()).toContain('Some text content')
     })
 
-    it('should show a required marker when isRequired is true', () => {
-      const requiredField = {
-        ...defaultField,
-        attributes: { ...defaultField.attributes, isRequired: true },
-      }
-      wrapper = shallowMountWithGlobalMocks(TextCustomField, {
-        props: { field: requiredField },
-      })
-
-      expect(wrapper.find('dt').text()).toContain('*')
-    })
-
-    it('should not show a required marker when isRequired is false', () => {
-      expect(wrapper.find('dt').text()).not.toContain('*')
-    })
-
-    it('should render DpContextualHelp when description is set', () => {
-      const fieldWithDesc = {
-        ...defaultField,
-        attributes: { ...defaultField.attributes, description: 'Help text' },
-      }
-      wrapper = shallowMountWithGlobalMocks(TextCustomField, {
-        props: { field: fieldWithDesc },
-      })
-
-      expect(wrapper.findComponent({ name: 'DpContextualHelp' }).exists()).toBe(true)
-    })
-
-    it('should not render DpContextualHelp when description is empty', () => {
-      expect(wrapper.findComponent({ name: 'DpContextualHelp' }).exists()).toBe(false)
-    })
-
     it('should not render DpTextArea', () => {
       expect(wrapper.findComponent({ name: 'DpTextArea' }).exists()).toBe(false)
     })
+
+    sharedReadonlyModeTests(TextCustomField, defaultField)
   })
 
   describe('readonly mode without label (showLabel=false)', () => {
@@ -131,17 +107,7 @@ describe('TextCustomField', () => {
       expect(wrapper.find('dd').text()).toContain('-')
     })
 
-    it('should show a dash when field.value is null', () => {
-      const nullValueField = {
-        ...defaultField,
-        value: null,
-      }
-      wrapper = shallowMountWithGlobalMocks(TextCustomField, {
-        props: { field: nullValueField },
-      })
-
-      expect(wrapper.find('dd').text()).toContain('-')
-    })
+    sharedEmptyValueTests(TextCustomField, defaultField)
   })
 
   describe('editable mode', () => {
@@ -158,23 +124,7 @@ describe('TextCustomField', () => {
       expect(textarea.props('value')).toBe('Some text content')
     })
 
-    it('should render DpLabel when showLabel is true', () => {
-      expect(wrapper.findComponent({ name: 'DpLabel' }).exists()).toBe(true)
-    })
-
-    it('should not render DpLabel when showLabel is false', () => {
-      wrapper = shallowMountWithGlobalMocks(TextCustomField, {
-        props: { field: defaultField, mode: 'editable', showLabel: false },
-      })
-
-      expect(wrapper.findComponent({ name: 'DpLabel' }).exists()).toBe(false)
-    })
-
     it('should pass isRequired to DpLabel', () => {
-      const requiredField = {
-        ...defaultField,
-        attributes: { ...defaultField.attributes, isRequired: true },
-      }
       wrapper = shallowMountWithGlobalMocks(TextCustomField, {
         props: { field: requiredField, mode: 'editable' },
       })
@@ -182,9 +132,7 @@ describe('TextCustomField', () => {
       expect(wrapper.findComponent({ name: 'DpLabel' }).props('required')).toBe(true)
     })
 
-    it('should not render a definition list', () => {
-      expect(wrapper.find('dl').exists()).toBe(false)
-    })
+    sharedEditableModeTests(TextCustomField, defaultField)
   })
 
   describe('update:value emit', () => {

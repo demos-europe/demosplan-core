@@ -8,6 +8,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it } from '@jest/globals'
+import { sharedEditableModeTests, sharedEmptyValueTests, sharedMultiselectBasedEditableModeTests, sharedReadonlyModeTests } from './helpers/customFieldSharedTests'
 import { enableAutoUnmount } from '@vue/test-utils'
 import SingleselectCustomField from '@DpJs/components/customFields/SingleselectCustomField'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
@@ -54,41 +55,11 @@ describe('SingleselectCustomField', () => {
       expect(wrapper.find('dd').text()).toContain('Active')
     })
 
-    it('should show a required marker when isRequired is true', () => {
-      const requiredField = {
-        ...defaultField,
-        attributes: { ...defaultField.attributes, isRequired: true },
-      }
-      wrapper = shallowMountWithGlobalMocks(SingleselectCustomField, {
-        props: { field: requiredField },
-      })
-
-      expect(wrapper.find('dt').text()).toContain('*')
-    })
-
-    it('should not show a required marker when isRequired is false', () => {
-      expect(wrapper.find('dt').text()).not.toContain('*')
-    })
-
-    it('should render DpContextualHelp when description is set', () => {
-      const fieldWithDesc = {
-        ...defaultField,
-        attributes: { ...defaultField.attributes, description: 'Help text' },
-      }
-      wrapper = shallowMountWithGlobalMocks(SingleselectCustomField, {
-        props: { field: fieldWithDesc },
-      })
-
-      expect(wrapper.findComponent({ name: 'DpContextualHelp' }).exists()).toBe(true)
-    })
-
-    it('should not render DpContextualHelp when description is empty', () => {
-      expect(wrapper.findComponent({ name: 'DpContextualHelp' }).exists()).toBe(false)
-    })
-
     it('should not render DpMultiselect', () => {
       expect(wrapper.findComponent({ name: 'DpMultiselect' }).exists()).toBe(false)
     })
+
+    sharedReadonlyModeTests(SingleselectCustomField, defaultField)
   })
 
   describe('readonly mode – empty value', () => {
@@ -104,17 +75,7 @@ describe('SingleselectCustomField', () => {
       expect(wrapper.find('dd').text()).toContain('-')
     })
 
-    it('should show a dash when field.value is null', () => {
-      const nullValueField = {
-        ...defaultField,
-        value: null,
-      }
-      wrapper = shallowMountWithGlobalMocks(SingleselectCustomField, {
-        props: { field: nullValueField },
-      })
-
-      expect(wrapper.find('dd').text()).toContain('-')
-    })
+    sharedEmptyValueTests(SingleselectCustomField, defaultField)
   })
 
   describe('editable mode', () => {
@@ -132,34 +93,8 @@ describe('SingleselectCustomField', () => {
       expect(multiselect.props('value')).toEqual({ id: 'opt-1', label: 'Active' })
     })
 
-    it('should render DpLabel when showLabel is true', () => {
-      expect(wrapper.findComponent({ name: 'DpLabel' }).exists()).toBe(true)
-    })
-
-    it('should not render DpLabel when showLabel is false', () => {
-      wrapper = shallowMountWithGlobalMocks(SingleselectCustomField, {
-        props: { field: defaultField, mode: 'editable', showLabel: false },
-      })
-
-      expect(wrapper.findComponent({ name: 'DpLabel' }).exists()).toBe(false)
-    })
-
-    it('should pass isRequired to DpMultiselect and DpLabel', () => {
-      const requiredField = {
-        ...defaultField,
-        attributes: { ...defaultField.attributes, isRequired: true },
-      }
-      wrapper = shallowMountWithGlobalMocks(SingleselectCustomField, {
-        props: { field: requiredField, mode: 'editable' },
-      })
-
-      expect(wrapper.findComponent({ name: 'DpMultiselect' }).props('required')).toBe(true)
-      expect(wrapper.findComponent({ name: 'DpLabel' }).props('required')).toBe(true)
-    })
-
-    it('should not render a definition list', () => {
-      expect(wrapper.find('dl').exists()).toBe(false)
-    })
+    sharedEditableModeTests(SingleselectCustomField, defaultField)
+    sharedMultiselectBasedEditableModeTests(SingleselectCustomField, defaultField)
   })
 
   describe('update:value emit', () => {
