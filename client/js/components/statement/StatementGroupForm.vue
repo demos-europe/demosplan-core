@@ -96,13 +96,13 @@ All rights reserved
           <dp-label
             :hint="Translator.trans('statement.cluster.create.help')"
             :text="Translator.trans('statement.main')"
-            for="mainStatement"
+            for="headStatement"
             bold
             required
           />
           <dp-multiselect
-            id="mainStatement"
-            v-model="mainStatementId"
+            id="headStatement"
+            v-model="headStatement"
             :custom-label="stmt => stmt.attributes.externId"
             :options="statements"
             track-by="id"
@@ -138,7 +138,7 @@ const props = defineProps({
 
 const isBusy = ref(false)
 const isLoading = ref(true)
-const mainStatementId = ref(null)
+const headStatement = ref(null)
 const groupName = ref('')
 const returnLink = ref(Routing.generate('dplan_procedure_statement_list', { procedureId: props.procedureId }))
 const selectedAction = ref('createGroup')
@@ -188,7 +188,7 @@ async function handleApply () {
     return
   }
 
-  if (!mainStatementId.value) {
+  if (!headStatement.value) {
     dplan.notify.notify('error', Translator.trans('error.mandatoryfields'))
 
     return
@@ -198,7 +198,7 @@ async function handleApply () {
     type: 'StatementGroup',
     attributes: {
       groupName: groupName.value,
-      headStatementId: mainStatementId.value.id,
+      headStatementId: headStatement.value.id,
     },
     relationships: {
       statements: {
