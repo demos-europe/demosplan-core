@@ -655,6 +655,31 @@ export default {
     },
 
     handleBulkGroup () {
+      // A group needs at least two statements.
+      if (this.selectedItemsCount < 2) {
+        dplan.notify.notify('error', Translator.trans('confirm.consolidation.not.enough.statements'))
+
+        return
+      }
+
+      /*
+       * Statements must be assigned to the current user. On "select all" the full set is not loaded
+       * here, so this check runs again on the group-creation page (handleConfirmStep1).
+       */
+      if (!this.allSelectedVisually) {
+        const allAssigned = this.toggledItems.every(item => {
+          const statement = this.statementsObject[item.id]
+
+          return statement && this.assigneeId(statement) === this.currentUserId
+        })
+
+        if (!allAssigned) {
+          dplan.notify.notify('error', Translator.trans('confirm.consolidation.not.assigned'))
+
+          return
+        }
+      }
+
       this.storeToggledStatements()
       /*
        * Store the selection first, then navigate to the dedicated group-creation page,
