@@ -704,6 +704,7 @@ export default {
 
       if (this.actions.addDeadline.checked && this.actions.addDeadline.value) {
         const isoDate = reformatDateString(this.actions.addDeadline.value)
+
         params.deadline = isoDate
       }
 

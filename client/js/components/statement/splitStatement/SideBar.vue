@@ -466,6 +466,7 @@ export default {
 
       if (hasPermission('field_statement_deadline') && this.deadlineNeedsUpdate) {
         const isoDate = reformatDateString(this.deadline)
+
         segment.deadline = isoDate
       }
 
