@@ -321,7 +321,7 @@ export default {
       { label: Translator.trans('permissionset.write'), value: 'write' },
     ]
 
-    // const flyoutWidth = ref('80px')
+    //  Uncomment once delete functionality implemented: const flyoutWidth = ref('80px')
     const hasAttemptedSubmit = ref(false)
 
     const isNewPhaseNameInvalid = computed(() =>
@@ -837,7 +837,7 @@ export default {
       draftCoreRowValue,
       editingRowId,
       findPermissionSetOption,
-      // flyoutWidth,
+      // Uncomment once delete functionality implemented: flyoutWidth,
       handleAddonEditChange,
       handleAddonEditStart,
       handleSaveEditClick,
