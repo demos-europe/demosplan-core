@@ -47,6 +47,9 @@ const dplan = {
     publicCSSClassPrefix: 'dp-',
   },
   debug: false,
+  notify: {
+    notify: jest.fn(),
+  },
 }
 
 const dpApi = jest.fn(() => Promise.resolve())
