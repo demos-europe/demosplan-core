@@ -205,7 +205,7 @@ describe('useUnsavedChangesGuard', () => {
     })
 
     it('should ignore clicks on non-link elements', () => {
-      const { init, cleanup } = useUnsavedChangesGuard()
+      const { init } = useUnsavedChangesGuard()
       mockComponent1.hasUnsavedChanges.mockReturnValue(true)
 
       init({
