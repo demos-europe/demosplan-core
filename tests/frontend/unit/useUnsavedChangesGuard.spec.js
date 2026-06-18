@@ -49,10 +49,7 @@ describe('useUnsavedChangesGuard', () => {
   })
 
   afterEach(() => {
-    if (dialogElement && dialogElement.parentNode) {
-      dialogElement.remove()
-    }
-
+    dialogElement?.remove()
     jest.clearAllMocks()
   })
 
