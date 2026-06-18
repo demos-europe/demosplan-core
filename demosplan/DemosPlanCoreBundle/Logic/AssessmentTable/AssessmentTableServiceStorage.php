@@ -33,6 +33,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PrepareReportFromProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDateOrderValidator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementEmailSender;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
@@ -108,6 +109,7 @@ class AssessmentTableServiceStorage
         private readonly StatementDeleter $statementDeleter,
         FileService $fileService,
         UserService $userService, private readonly StatementEmailSender $statementEmailSender,
+        private readonly StatementDateOrderValidator $statementDateOrderValidator,
     ) {
         $this->config = $config;
         $this->mailService = $mailService;
@@ -416,7 +418,7 @@ class AssessmentTableServiceStorage
             return false;
         }
 
-        return $proposedAuthored->format('Ymd') > $proposedSubmitted->format('Ymd');
+        return $this->statementDateOrderValidator->isAuthoredAfterSubmitted($proposedAuthored, $proposedSubmitted);
     }
 
     /**
