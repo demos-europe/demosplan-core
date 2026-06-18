@@ -825,6 +825,24 @@ export default {
       return formatDate(d)
     },
 
+    /**
+     * Fetch the member count for each group head on the current page from the 3.0 StatementGroup
+     * endpoint. The 2.0 statement list does not carry the count, so it is loaded per head.
+     */
+    fetchGroupMemberCounts () {
+      Object.values(this.statementsObject)
+        .filter(statement => statement.attributes.isCluster && this.groupMemberCounts[statement.id] == null)
+        .forEach(head => {
+          dpApi.get(`/api/3.0/StatementGroup/${head.id}`)
+            .then(response => {
+              this.groupMemberCounts[head.id] = response.data.data.attributes.statementsCount
+            })
+            .catch(error => {
+              console.error('Failed to fetch group member count for', head.id, error)
+            })
+        })
+    },
+
     getItemsByPage (page) {
       const statementFields = [
         // Attributes:
@@ -907,24 +925,6 @@ export default {
         this.updatePagination(data.meta.pagination)
         this.fetchGroupMemberCounts()
       })
-    },
-
-    /**
-     * Fetch the member count for each group head on the current page from the 3.0 StatementGroup
-     * endpoint. The 2.0 statement list does not carry the count, so it is loaded per head.
-     */
-    fetchGroupMemberCounts () {
-      Object.values(this.statementsObject)
-        .filter(statement => statement.attributes.isCluster && this.groupMemberCounts[statement.id] == null)
-        .forEach(head => {
-          dpApi.get(`/api/3.0/StatementGroup/${head.id}`)
-            .then(response => {
-              this.groupMemberCounts[head.id] = response.data.data.attributes.statementsCount
-            })
-            .catch(error => {
-              console.error('Failed to fetch group member count for', head.id, error)
-            })
-        })
     },
 
     /**
