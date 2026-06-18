@@ -12,7 +12,7 @@
     :id="`segment_${segment.id}`"
     ref="statementSegment"
     class="segment-list-row"
-    :class="{'segment-list-row--assigned': isAssignedToMe, 'fullscreen': isFullscreen, 'rounded-lg': !isFullscreen}"
+    :class="{'segment-list-row--assigned': isAssignedToMe && !isLocked, 'fullscreen': isFullscreen, 'rounded-lg': !isFullscreen}"
     @mouseenter="isHover = true"
     @mouseleave="isHover = false"
   >
@@ -72,7 +72,40 @@
         </template>
       </v-popover>
 
+      <div
+        v-if="isLocked"
+        class="flex items-center space-x-1 mt-1 mr-2"
+      >
+        <dp-button
+          v-if="hasPermission('feature_administrate_segment_lock')"
+          :text="lockTooltipText"
+          icon="prohibit"
+          icon-weight="fill"
+          variant="subtle"
+          hide-text
+          @click="$emit('unlock', segment)"
+        />
+        <dp-tooltip
+          v-else
+          :text="lockTooltipText"
+        >
+          <dp-icon
+            class="text-interactive ml-0.5"
+            icon="prohibit"
+            size="small"
+            weight="fill"
+          />
+        </dp-tooltip>
+        <dp-badge
+          class="inline-flex items-center leading-none py-1"
+          color="info"
+          size="small"
+          :text="Translator.trans('segment.locked')"
+        />
+      </div>
       <dp-claim
+        v-else
+        class="ml-[5px] mt-1"
         entity-type="segment"
         :assigned-id="assignee.id || ''"
         :assigned-name="assignee.name || ''"
@@ -192,7 +225,7 @@
           {{ `${Translator.trans('version')}: ${recommendationVersionNumber}` }}
         </span>
       </div>
-      <div v-if="isAssignedToMe">
+      <div v-if="isAssignedToMe && !isLocked">
         <dp-checkbox
           :id="'showWorkflowFields_' + segment.id"
           v-model="showWorkflowFields"
@@ -330,8 +363,9 @@
       </div>
       <dp-button-row
         v-if="isAssignedToMe && (isEditing || showWorkflowFields || showAdditionalFields)"
-        align="left"
+        :busy="isSaving"
         class="mt-3"
+        :disabled="isSaving"
         primary
         secondary
         @primary-action="save"
@@ -361,7 +395,7 @@
         </button>
 
         <button
-          v-if="isAssignedToMe"
+          v-if="isAssignedToMe && !isLocked"
           v-tooltip="{
             container: `#segment_${segment.id}`,
             content: Translator.trans('edit')
@@ -448,6 +482,8 @@
 import {
   CleanHtml,
   dpApi,
+  DpBadge,
+  DpButton,
   DpButtonRow,
   DpCheckbox,
   DpContextualHelp,
@@ -455,6 +491,7 @@ import {
   DpIcon,
   DpLabel,
   DpMultiselect,
+  DpTooltip,
   formatDate,
   prefixClassMixin,
   reformatDateString,
@@ -482,6 +519,8 @@ export default {
     CustomField,
     CustomFieldsList,
     DpBoilerPlateModal,
+    DpBadge,
+    DpButton,
     DpButtonRow,
     DpCheckbox,
     DpContextualHelp,
@@ -495,6 +534,7 @@ export default {
     DpIcon,
     DpLabel,
     DpMultiselect,
+    DpTooltip,
     ImageModal,
     RecommendationModal,
     TextContentRenderer,
@@ -552,6 +592,8 @@ export default {
     },
   },
 
+  emits: ['unlock'],
+
   data () {
     return {
       claimLoading: false,
@@ -563,6 +605,8 @@ export default {
       isEditing: false,
       isFullscreen: false,
       isHover: false,
+      isSaving: false,
+      lockedBeforeSave: false,
       selectedAssignee: {},
       selectedPlace: { id: '', type: 'Place' },
       showAdditionalFields: false,
@@ -635,6 +679,22 @@ export default {
 
     isAssignedToMe () {
       return this.assignee.id === this.currentUserId
+    },
+
+    isLocked () {
+      if (this.isSaving) {
+        return this.lockedBeforeSave
+      }
+
+      const placeId = this.segment.relationships?.place?.data?.id
+
+      return !!this.placeItems[placeId]?.attributes?.locked
+    },
+
+    lockTooltipText () {
+      return hasPermission('feature_administrate_segment_lock') ?
+        Translator.trans('segment.unlock.click.hint') :
+        Translator.trans('segment.lock.hint')
     },
 
     places () {
@@ -859,6 +919,13 @@ export default {
           'submitter',
           'text',
         ].join(','),
+        Place: [
+          'description',
+          ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+          'name',
+          'solved',
+          'sortIndex',
+        ].join(','),
         StatementSegment: statementSegmentFields.join(','),
         ...(hasRecommendationVersions && {
           RecommendationVersion: [
@@ -965,6 +1032,7 @@ export default {
             'description',
             'name',
             'solved',
+            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
             'sortIndex',
           ].join(),
         },
@@ -1087,6 +1155,9 @@ export default {
       this.excludeComments(relations)
       this.excludeRecommendationVersion(relations)
 
+      this.lockedBeforeSave = this.isLocked
+      this.isSaving = true
+
       return this.saveSegmentAction({ id: this.segment.id })
         .then((response) => {
           if (response && (response.status >= 400 || response.ok === false)) {
@@ -1097,6 +1168,61 @@ export default {
           }
 
           return this.handleSuccessfulSave(comments)
+        })
+        .then(() => {
+          /*
+           * Clearing the assignee ("nicht zugewiesen") is sent as a separate explicit PATCH because the
+           * vuex-json-api diff drops a to-one relationship set to `{ data: null }` (it diffs against a
+           * stale `initial` baseline that setSegment never updates), so an unassign would be silently
+           * omitted from saveSegmentAction's request body. Mirrors the explicit payload already used by
+           * claimSegment()/unclaimSegment(). It must complete before fetchUpdatedSegment, which would
+           * otherwise re-store the stale assignee.
+           */
+          const isUnassigning = !this.selectedAssignee?.id || this.selectedAssignee.id === 'noAssigneeId'
+
+          return isUnassigning ?
+            dpApi.patch(
+              Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }),
+              {},
+              { data: { type: 'StatementSegment', id: this.segment.id, relationships: { assignee: { data: null } } } },
+            ) :
+            Promise.resolve()
+        })
+        .then(() => {
+          return Promise.all([
+            this.fetchUpdatedSegment().catch((err) => {
+              console.error('Failed to fetch updated segment:', err)
+
+              return null
+            }),
+            this.saveCustomFields(),
+          ])
+        })
+        .then(() => {
+          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+
+          this.isFullscreen = false
+
+          this.toggleAssignableUsersSelect()
+
+          this.$nextTick(() => {
+            if (this.$refs.recommendationContainer) {
+              this.$refs.imageModal.addClickListener(
+                this.$refs.recommendationContainer.querySelectorAll('img'),
+              )
+            }
+          })
+        })
+        .catch((err) => {
+          console.error('Save failed:', err)
+          dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
+        })
+        .catch(() => {
+          this.restoreSegmentAction(this.segment.id)
+        })
+        .finally(() => {
+          this.isSaving = false
+          this.finalizeSave(comments)
         })
     },
 

@@ -873,6 +873,9 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureCategoryService:
         lazy: true
 
+    demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeletionLogService:
+        lazy: true
+
     demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureProposalService:
         lazy: true
 

@@ -13,13 +13,10 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
-use DemosEurope\DemosplanAddon\Contracts\Events\IsFileAvailableEventInterface;
-use DemosEurope\DemosplanAddon\Contracts\Events\IsFileDirectlyAccessibleEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\FileResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
-use demosplan\DemosPlanCoreBundle\Event\IsFileAvailableEvent;
-use demosplan\DemosPlanCoreBundle\Event\IsFileDirectlyAccessibleEvent;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceAccess\FileAccessChecker;
 use EDT\PathBuilding\End;
 
 /**
@@ -31,9 +28,15 @@ use EDT\PathBuilding\End;
  * @property-read End $hash
  * @property-read End $created
  * @property-read End $mimetype
+ * @property-read ProcedureResourceType $procedure
  */
 final class FileResourceType extends DplanResourceType implements FileResourceTypeInterface
 {
+    public function __construct(
+        private readonly FileAccessChecker $fileAccessChecker,
+    ) {
+    }
+
     public function getEntityClass(): string
     {
         return File::class;
@@ -51,38 +54,17 @@ final class FileResourceType extends DplanResourceType implements FileResourceTy
 
     public function isAvailable(): bool
     {
-        // Currently the File resource needs to be exposed for statement import and assessment table.
-        $event = new IsFileAvailableEvent();
-        $this->eventDispatcher->dispatch($event, IsFileAvailableEventInterface::class);
-
-        return $event->isFileAvailable() || $this->currentUser->hasAnyPermissions(
-            'area_admin_assessmenttable',
-            'area_admin_globalnews',
-            'feature_platform_logo_edit',
-            'feature_read_source_statement_via_api',
-            'field_sign_language_overview_video_edit',
-        );
+        return $this->fileAccessChecker->isAvailable();
     }
 
-    /**
-     * This method does not check for {@link File::$procedure}, because it depends on where
-     * the file is used if access should be restricted. Also note that this property is
-     * checked when the actual file bytes are requested.
-     */
     protected function getAccessConditions(): array
     {
-        return [$this->conditionFactory->propertyHasValue(false, $this->deleted)];
+        return $this->fileAccessChecker->getAccessConditions();
     }
 
     protected function isDirectlyAccessible(): bool
     {
-        $event = new IsFileDirectlyAccessibleEvent();
-        $this->eventDispatcher->dispatch($event, IsFileDirectlyAccessibleEventInterface::class);
-
-        return $event->isFileDirectlyAccessible() || $this->currentUser->hasAnyPermissions(
-            'area_admin_assessmenttable',
-            'field_sign_language_overview_video_edit'
-        );
+        return $this->fileAccessChecker->isDirectlyAccessible();
     }
 
     public function isGetAllowed(): bool
