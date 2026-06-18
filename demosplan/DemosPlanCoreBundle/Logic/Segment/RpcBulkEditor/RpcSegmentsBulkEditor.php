@@ -289,6 +289,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
         return json_decode(json_encode($rawCustomFields), true);
     }
 
+    // for deadline field
     private function extractDeadline(object $rpcRequest): ?DateTime
     {
         if (!$this->currentUser->hasPermission('field_statement_deadline')) {
