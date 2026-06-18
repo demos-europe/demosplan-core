@@ -202,8 +202,7 @@ const handleApply = async () => {
     },
     relationships: {
       statements: {
-        // API Platform (3.0) resolves relationships by IRI, not by plain UUID.
-        data: statements.value.map(stmt => ({ id: `/api/3.0/Statement/${stmt.id}`, type: 'Statement' })),
+        data: statements.value.map(stmt => ({ id: `${stmt.id}`, type: 'Statement' })),
       },
     },
   }
