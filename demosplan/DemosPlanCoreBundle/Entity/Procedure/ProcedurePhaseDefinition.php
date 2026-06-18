@@ -96,6 +96,12 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
     protected bool $closingPhase = false;
 
     /**
+     * Indicates if a ProcedurePhaseDefinition is deleted or not.
+     */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
+    protected bool $isDeleted = false;
+
+    /**
      * Sort order within the audience.
      * The order is independent per audience: both internal and external phases start at 0.
      */
@@ -113,6 +119,9 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
     #[ORM\Column(type: 'datetime', nullable: false)]
     #[Gedmo\Timestampable(on: 'update')]
     private DateTime $modificationDate;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?DateTime $deletedDate = null;
 
     public function getId(): ?string
     {
@@ -174,6 +183,16 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
         $this->closingPhase = $closingPhase;
     }
 
+    public function isDeleted(): bool
+    {
+        return $this->isDeleted;
+    }
+
+    public function setDeleted(bool $deleted): void
+    {
+        $this->isDeleted = $deleted;
+    }
+
     public function getOrderInAudience(): int
     {
         return $this->orderInAudience;
@@ -220,5 +239,15 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
         }
 
         return $this->modificationDate;
+    }
+
+    public function setDeletedDate(DateTime $deletedDate): void
+    {
+        $this->deletedDate = $deletedDate;
+    }
+
+    public function getDeletedDate(): ?DateTime
+    {
+        return $this->deletedDate;
     }
 }
