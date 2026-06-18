@@ -253,6 +253,7 @@ final class AccountDeletionRunMessageHandler
     ): ?MailSend {
         try {
             $supportEmail = (string) $this->parameterBag->get('account_deletion.support_email');
+            $replyTo = '' !== $supportEmail ? $supportEmail : $this->globalConfig->getEmailSystem();
 
             $body = $this->twig->load($bodyTemplate)->renderBlock(
                 'body_plain',
@@ -273,7 +274,7 @@ final class AccountDeletionRunMessageHandler
                 'dm_stellungnahme',
                 'de_DE',
                 $user->getEmail(),
-                $supportEmail,
+                $replyTo,
                 '',
                 '',
                 MailSend::MAIL_SCOPE_EXTERN,
