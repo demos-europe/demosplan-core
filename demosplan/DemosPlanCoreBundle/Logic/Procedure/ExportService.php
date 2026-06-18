@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use Carbon\Carbon;
 use Cocur\Slugify\Slugify;
+use DemosEurope\DemosplanAddon\Contracts\CurrentContextProviderInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -29,14 +30,19 @@ use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphExporter;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\News\ServiceOutput as NewsOutput;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput as ProcedureOutput;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ExportReportService;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplate;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportType;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RequiresTranslatorTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
@@ -49,6 +55,7 @@ use Monolog\Logger;
 use PhpOffice\PhpWord\Settings;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\String\UnicodeString;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -117,17 +124,21 @@ class ExportService
         private readonly ElementsService $elementsService,
         private readonly ExportReportService $exportReportService,
         FileService $serviceFile,
+        private readonly JsonApiActionService $jsonApiActionService,
         LoggerInterface $logger,
         NewsOutput $newsOutput,
         ParagraphExporter $paragraphExporter,
         PermissionsInterface $permissions,
         ProcedureOutput $procedureOutput,
         private readonly ProcedureService $procedureService,
+        private readonly SegmentsByStatementsExporter $segmentsByStatementsExporter,
+        private readonly StatementResourceType $statementResourceType,
         private readonly StatementService $statementService,
         TranslatorInterface $translator,
         private readonly ZipExportService $zipExportService,
         private readonly string $rendererName,
         private readonly string $rendererPath,
+        private readonly CurrentContextProviderInterface $currentContextProvider,
     ) {
         $this->assessmentTableOutput = $assessmentTableServiceOutput;
         $this->draftStatementService = $draftStatementService;
@@ -229,20 +240,20 @@ class ExportService
 
                 // Abwägungstabelle mit Namen
                 if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table')) {
-                    $zip = $this->addAssessmentTableToZip($procedureId, $procedureName, 'statementsOnly', $zip);
+                    $zip = $this->addAssessmentTableToZip($procedureId, $procedureName, ExportType::STATEMENTS_ONLY->value, $zip);
                 }
 
                 if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_fragments')) {
-                    $zip = $this->addAssessmentTableToZip($procedureId, $procedureName, 'statementsAndFragments', $zip);
+                    $zip = $this->addAssessmentTableToZip($procedureId, $procedureName, ExportType::STATEMENTS_AND_FRAGMENTS->value, $zip);
                 }
 
                 // Abwägungstabelle ohne Namen (anonym)
                 if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_anonymous')) {
-                    $zip = $this->addAssessmentTableAnonymousToZip($procedureId, $procedureName, 'statementsOnly', $zip);
+                    $zip = $this->addAssessmentTableAnonymousToZip($procedureId, $procedureName, ExportType::STATEMENTS_ONLY->value, $zip);
                 }
 
                 if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_fragments_anonymous')) {
-                    $zip = $this->addAssessmentTableAnonymousToZip($procedureId, $procedureName, 'statementsAndFragments', $zip);
+                    $zip = $this->addAssessmentTableAnonymousToZip($procedureId, $procedureName, ExportType::STATEMENTS_AND_FRAGMENTS->value, $zip);
                 }
 
                 // OriginalStellungnahmen
@@ -274,6 +285,10 @@ class ExportService
                 // reports
                 if ($this->permissions->hasPermission('feature_export_protocol')) {
                     $zip = $this->addReportToZip($procedureId, $procedureName, $zip);
+                }
+                // Stellungnahmen Abschnitte (Statement Segments DOCX)
+                if ($this->permissions->hasPermission('feature_procedure_export_include_segments')) {
+                    $zip = $this->addStatementSegmentsToZip($procedureId, $procedureName, $zip);
                 }
             }
         }
@@ -398,7 +413,7 @@ class ExportService
             'anonymous'        => false,
             'numberStatements' => false,
             'exportType'       => $exportType,
-            'template'         => 'condensed',
+            'template'         => ExportTemplate::CONDENSED->value,
             'sortType'         => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
         ];
 
@@ -410,16 +425,7 @@ class ExportService
                 AssessmentTableViewMode::DEFAULT_VIEW,
                 false
             );
-            $filename = $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['considerationtable'].'/%s.docx';
-            switch ($exportType) {
-                case 'statementsOnly':
-                    $filename = sprintf($filename, $this->literals['considerationtable'].'_Liste');
-                    break;
-
-                case 'statementsAndFragments':
-                    $filename = sprintf($filename, $this->literals['considerationtable'].'_Liste_mit_Datensaetzen');
-                    break;
-            }
+            $filename = $this->buildConsiderationTableDocxFilename($procedureName, $exportType, false);
 
             $this->addDocxToZip($exportResult, $zip, $filename);
             $this->logger->info('abwaegung_list created',
@@ -441,7 +447,7 @@ class ExportService
             'anonymous'        => true,
             'numberStatements' => false,
             'exportType'       => $exportType,
-            'template'         => 'condensed',
+            'template'         => ExportTemplate::CONDENSED->value,
             'sortType'         => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
         ];
 
@@ -460,16 +466,7 @@ class ExportService
                 AssessmentTableViewMode::DEFAULT_VIEW,
                 false
             );
-            $filename = $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['considerationtable'].'/%s.docx';
-            switch ($exportType) {
-                case 'statementsOnly':
-                    $filename = sprintf($filename, $this->literals['considerationtable'].'_Liste_Anonym');
-                    break;
-
-                case 'statementsAndFragments':
-                    $filename = sprintf($filename, $this->literals['considerationtable'].'_Liste_mit_Datensaetzen_Anonym');
-                    break;
-            }
+            $filename = $this->buildConsiderationTableDocxFilename($procedureName, $exportType, true);
 
             $this->addDocxToZip($exportResult, $zip, $filename);
 
@@ -489,6 +486,18 @@ class ExportService
         }
 
         return $zip;
+    }
+
+    private function buildConsiderationTableDocxFilename(string $procedureName, string $exportType, bool $anonymous): string
+    {
+        $anonymSuffix = $anonymous ? '_Anonym' : '';
+        $filename = $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['considerationtable'].'/%s.docx';
+
+        return match ($exportType) {
+            ExportType::STATEMENTS_ONLY->value            => sprintf($filename, $this->literals['considerationtable'].'_Liste'.$anonymSuffix),
+            ExportType::STATEMENTS_AND_FRAGMENTS->value   => sprintf($filename, $this->literals['considerationtable'].'_Liste_mit_Datensaetzen'.$anonymSuffix),
+            default                                       => $filename,
+        };
     }
 
     public function addAssessmentTableOriginalToZip(
@@ -714,13 +723,13 @@ class ExportService
             );
             $statementsCitizenPdf = $draftStatementService->generatePdf($outputResult->getResult(), 'list_final_group_citizen', $procedureId);
             $this->zipExportService->addStringToZipStream(
-                $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['finals'].'_Buerger/Freigaben_Buerger_Liste.pdf', $statementsCitizenPdf->getContent(),
+                $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['finals'].'_Privatperson/Freigaben_Privatperson_Liste.pdf', $statementsCitizenPdf->getContent(),
                 $zip
             );
-            $this->attachStatementFilesToZip($statementEntities, $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['finals'].'_Buerger/'.$this->literals['attachment'].'/', $zip);
-            $this->logger->info('Endfassungen_Buerger created', ['id' => $procedureId, 'name' => $procedureName]);
+            $this->attachStatementFilesToZip($statementEntities, $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['finals'].'_Privatperson/'.$this->literals['attachment'].'/', $zip);
+            $this->logger->info('Privatperson created', ['id' => $procedureId, 'name' => $procedureName]);
         } catch (Exception $e) {
-            $this->logger->warning('Endfassungen_Buerger could not be created. ', [$e]);
+            $this->logger->warning('Privatperson could not be created. ', [$e]);
         }
 
         return $zip;
@@ -743,7 +752,11 @@ class ExportService
             ];
             Settings::setPdfRendererPath($this->rendererPath);
             Settings::setPdfRendererName($this->rendererName);
-            $reportInfo = $this->exportReportService->getReportInfo($procedureId, $this->permissions);
+            $reportInfo = $this->exportReportService->getReportInfo(
+                $procedureId,
+                $this->permissions,
+                $this->currentContextProvider->getCurrentCustomer()->getId()
+            );
             $pdfReport = $this->exportReportService->generateProcedureReport($procedureId, $reportInfo, $reportMeta);
             $this->zipExportService->addWriterToZipStream(
                 $pdfReport,
@@ -756,6 +769,84 @@ class ExportService
             $this->logger->info('Verfahrensprotokoll created', ['id' => $procedureId, 'name' => $procedureName]);
         } catch (Exception $e) {
             $this->logger->warning('Verfahrensprotokoll could not be created. ', [$e]);
+        }
+
+        return $zip;
+    }
+
+    public function addStatementSegmentsToZip(string $procedureId, string $procedureName, ZipStream $zip): ZipStream
+    {
+        try {
+            // Set current procedure (required by StatementResourceType)
+            $procedure = $this->procedureService->getProcedure($procedureId);
+            $this->currentProcedureService->setProcedure($procedure);
+
+            // Build query params exactly like SegmentsExportController does
+            $queryParams = new ParameterBag([
+                'filter' => [
+                    'procedureId' => [
+                        'condition' => [
+                            'path'  => 'procedure.id',
+                            'value' => $procedureId,
+                        ],
+                    ],
+                ],
+                'sort' => '-submitDate',
+            ]);
+
+            // Get statement entities using JSON:API (same as controller)
+            /** @var Statement[] $statementEntities */
+            $statementEntities = array_values(
+                $this->jsonApiActionService->getObjectsByQueryParams(
+                    $queryParams,
+                    $this->statementResourceType
+                )->getList()
+            );
+
+            if (empty($statementEntities)) {
+                $this->logger->info('No statements found for segments export', ['id' => $procedureId, 'name' => $procedureName]);
+
+                return $zip;
+            }
+
+            // Generate DOCX with segments grouped by statement
+            $tableHeaders = [
+                'col1' => $this->translator->trans('segments.export.segment.id'),
+                'col2' => $this->translator->trans('segments.export.statement.label'),
+                'col3' => $this->translator->trans('segment.recommendation'),
+            ];
+
+            $exportResult = $this->segmentsByStatementsExporter->exportAll(
+                $tableHeaders,
+                $this->procedureService->getProcedure($procedureId),
+                false, // obscure
+                [],    // exportFilteredByTags
+                false, // censorCitizenData
+                false, // censorInstitutionData
+                ...$statementEntities
+            );
+
+            // Add DOCX to ZIP
+            $segmentsFolder = $procedureName.'/Abschnitte';
+            $docxFilename = $segmentsFolder.'/Abschnitte_Gruppiert.docx';
+
+            // Create temp file and add to ZIP
+            $internalFilename = 'tmp_export_segments_'.Uuid::uuid().'.docx';
+            $filepath = DemosPlanPath::getTemporaryPath($internalFilename);
+            $exportResult->save($filepath);
+            $this->zipExportService->addFileToZipStream($filepath, $docxFilename, $zip);
+
+            // Cleanup temp file
+            $fs = new Filesystem();
+            $fs->remove($filepath);
+
+            // Add attachments to separate Anhang folder
+            $attachmentFolder = $segmentsFolder.'/Anhang/';
+            $this->attachStatementFilesToZip($statementEntities, $attachmentFolder, $zip);
+
+            $this->logger->info('Statement segments export created', ['id' => $procedureId, 'name' => $procedureName]);
+        } catch (Exception $e) {
+            $this->logger->warning('Statement segments export could not be created. ', [$e]);
         }
 
         return $zip;
@@ -793,7 +884,6 @@ class ExportService
      */
     protected function attachStatementFilesToZip(array $statements, string $folder, ZipStream $zip): void
     {
-        $fs = new DemosFilesystem();
         foreach ($statements as $statement) {
             if ($statement instanceof Statement) {
                 $fileNamePrefix = $statement->getExternId().'_';
@@ -805,8 +895,9 @@ class ExportService
 
             if ($statement instanceof Statement) {
                 $this->addSourceStatementAttachments($folder, $zip, $fileNamePrefix, $statement->getAttachments());
+                $this->addStatementFileContainers($folder, $zip, $fileNamePrefix, $statement);
             }
-            $this->zipExportService->addFiles($fileNamePrefix, $fs, $folder, $zip, ...($statement->getFiles() ?? []));
+            $this->zipExportService->addFiles($fileNamePrefix, $folder, $zip, ...($statement->getFiles() ?? []));
         }
     }
 
@@ -824,6 +915,39 @@ class ExportService
                     $attachment->getFile()->getId()
                 )
             )->each(
+                function (FileInfo $fileInfo) use ($fileFolderPath, $zip, $fileNamePrefix): void {
+                    $this->zipExportService->addFileToZip(
+                        $fileFolderPath,
+                        $fileInfo,
+                        $zip,
+                        $fileNamePrefix
+                    );
+                }
+            );
+    }
+
+    /**
+     * Add FileContainer files for a statement to the ZIP export.
+     * Uses $statement->getFiles() which is populated by DoctrineStatementListener.
+     * Adds files using the same method as attachments (addFileToZip with FileInfo objects).
+     *
+     * @param string    $fileFolderPath The folder path within the ZIP where files will be placed
+     * @param ZipStream $zip            The ZIP stream to add files to
+     * @param string    $fileNamePrefix Prefix to prepend to each file name (e.g., statement externId)
+     * @param Statement $statement      The statement whose FileContainer files should be exported
+     */
+    private function addStatementFileContainers(
+        string $fileFolderPath,
+        ZipStream $zip,
+        string $fileNamePrefix,
+        Statement $statement,
+    ): void {
+        $files = $statement->getFiles() ?? [];
+        collect($files)
+            ->map(
+                fn (string $fileString): FileInfo => $this->fileService->getFileInfoFromFileString($fileString)
+            )
+            ->each(
                 function (FileInfo $fileInfo) use ($fileFolderPath, $zip, $fileNamePrefix): void {
                     $this->zipExportService->addFileToZip(
                         $fileFolderPath,

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -14,18 +16,12 @@ class DuplicateSlugException extends InvalidArgumentException
 {
     private $duplicatedSlug;
 
-    /**
-     * @return mixed
-     */
     public function getDuplicatedSlug()
     {
         return $this->duplicatedSlug;
     }
 
-    /**
-     * @param mixed $duplicatedSlug
-     */
-    public function setDuplicatedSlug($duplicatedSlug)
+    public function setDuplicatedSlug(mixed $duplicatedSlug)
     {
         $this->duplicatedSlug = $duplicatedSlug;
     }

@@ -32,6 +32,7 @@ export default {
     DpUnfoldToolbarControl,
     DpVideoPlayer: defineAsyncComponent(async () => {
       const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
+
       return DpVideoPlayer
     }),
     ElementsList: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList')),
@@ -93,6 +94,7 @@ export default {
           event.preventDefault()
           const eventTargetIndex = this.focusableElements.findIndex(el => el === event.target)
           const last = this.focusableElements.length - 1
+
           if (this.focusableElements.length < 2) {
             // Do nothing if only 1 or no elements to focus
           } else if (event.shiftKey === false && event.target === this.focusableElements[last]) {
@@ -103,6 +105,7 @@ export default {
             this.focusableElements[last].focus()
           } else {
             const idxToFocus = event.shiftKey ? eventTargetIndex - 1 : eventTargetIndex + 1
+
             this.focusableElements[idxToFocus].focus()
           }
         }
@@ -143,6 +146,7 @@ export default {
       const isInDom = el.offsetParent !== null
       const style = window.getComputedStyle(el)
       const isDisplayed = style.display !== 'none' && style.opacity !== '0'
+
       return isInDom && isDisplayed
     },
 
@@ -173,6 +177,7 @@ export default {
 
   mounted () {
     const currentHash = window.document.location.hash.split('?')[0]
+
     if (['#procedureDetailsMap', '#procedureDetailsDocumentlist', '#procedureDetailsStatementsPublic'].includes(currentHash)) {
       this.toggleTabs(currentHash)
     }

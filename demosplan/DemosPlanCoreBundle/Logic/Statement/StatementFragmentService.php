@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -78,6 +79,7 @@ use Exception;
 use Pagerfanta\Elastica\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class StatementFragmentService
@@ -144,6 +146,10 @@ class StatementFragmentService
         private readonly LoggerInterface $logger,
         private readonly ManagerRegistry $doctrine,
         private readonly ProfilerService $profilerService,
+        #[Autowire(param: 'elasticsearch_max_result_window')]
+        private readonly int $elasticsearchMaxResultWindow,
+        #[Autowire(param: 'elasticsearch_search_after_batch_size')]
+        private readonly int $searchAfterBatchSize,
     ) {
         $this->assignService = $assignService;
         $this->elementService = $elementService;
@@ -543,7 +549,7 @@ class StatementFragmentService
         // get variables
         $assignee = $fragmentObject->getAssignee();
         $currentUserLayerObject = $this->currentUser->getUser();
-        if (null === $currentUserLayerObject) {
+        if (!$currentUserLayerObject instanceof UserInterface) {
             throw new NullPointerException('Current user is null.');
         }
         $currentUserUserObject = $this->userRepository->get($currentUserLayerObject->getId());
@@ -922,7 +928,7 @@ class StatementFragmentService
 
         // Wenn das Fragment einen Absatz hat lege eine Version an, wenn sich der Absatz verändert hat
         if (array_key_exists('paragraphId', $fragmentArray)
-            && 0 < \strlen((string) $fragmentArray['paragraphId'])
+            && '' !== (string) $fragmentArray['paragraphId']
             && $fragmentArray['paragraphId'] != $currentFragment->getParagraphId()) {
             $paragraphVersion = $em->find(
                 Paragraph::class,
@@ -1015,7 +1021,7 @@ class StatementFragmentService
             }
             $fragmentList = $this->getStatementFragmentsDepartment($esQuery, $requestValues);
 
-            if (0 === count((array) $fragmentList)) {
+            if ([] === (array) $fragmentList) {
                 return $result;
             }
 
@@ -1143,7 +1149,7 @@ class StatementFragmentService
             $this->profilerService->profilerStart(ProfilerService::ELASTICSEARCH_PROFILER);
 
             // if a Searchterm is set use it
-            if (is_string($search) && 0 < \strlen($search)) {
+            if (is_string($search) && '' !== $search) {
                 $availableSearchfields = [
                     'fragment_text'           => 'text',
                     'municipalityNames'       => 'municipalityNames.raw',
@@ -1167,7 +1173,7 @@ class StatementFragmentService
                         }
                     }
                     // if no searchfields match User does not want to search in fragments
-                    if (0 === count($usedSearchfields)) {
+                    if ([] === $usedSearchfields) {
                         return $this->searchService->getESEmptyResult()->lock();
                     }
                 }
@@ -1241,7 +1247,7 @@ class StatementFragmentService
                     if ('statementId' === $filterName) {
                         // special handling for the statement IDs to avoid errors regarding max clause count
                         // and query length problems for many statement
-                        $boolMustFilter[] = new Terms($filterName, $filterKeys);
+                        $boolMustFilter[] = new Terms($filterName, \array_values($filterKeys));
                     } else {
                         // for each filter with multiple options we need a distinct should
                         // query as filters should only be ORed within one field
@@ -1264,7 +1270,7 @@ class StatementFragmentService
                             }
                         }
                         // user wants to see not existent query as well as some filter
-                        if (0 < count($shouldNotFilter)) {
+                        if ([] !== $shouldNotFilter) {
                             $shouldNotBool = new BoolQuery();
                             array_map($shouldNotBool->addMustNot(...), $shouldNotFilter);
                             $shouldQuery->addShould($shouldNotBool);
@@ -1409,17 +1415,25 @@ class StatementFragmentService
                 $paginator->setCurrentPage(1);
             }
             try {
-                // When we click on a dropdown filter (just to open it) we come here and get statement ids
-                /** @var ResultSet $resultSet */
-                $resultSet = $paginator->getCurrentPageResults();
-                $result = $resultSet->getResponse()->getData();
-                $elasticsearchResultStatement->setHits($result['hits']);
+                if ((int) $limit > $this->elasticsearchMaxResultWindow) {
+                    // "Fetch everything" path (e.g. all fragment assignments): a single from+size
+                    // query would exceed index.max_result_window, so page via search_after.
+                    $batch = $this->searchService->fetchAllHitsViaSearchAfter($search, $query, $this->searchAfterBatchSize);
+                    $result = $batch['result'];
+                    $elasticsearchResultStatement->setHits($result['hits']);
+                    $aggregations = $batch['aggregations'];
+                } else {
+                    // When we click on a dropdown filter (just to open it) we come here and get statement ids
+                    /** @var ResultSet $resultSet */
+                    $resultSet = $paginator->getCurrentPageResults();
+                    $result = $resultSet->getResponse()->getData();
+                    $elasticsearchResultStatement->setHits($result['hits']);
+                    $aggregations = $resultSet->getAggregations();
+                }
             } catch (ClientException $e) {
                 $this->logger->warning('Elasticsearch probably hit a timeout: ', [$e]);
                 throw $e;
             }
-
-            $aggregations = $resultSet->getAggregations();
 
             $voteAdviceLabelMap = $this->getVoteLabelMap();
 
@@ -1549,7 +1563,7 @@ class StatementFragmentService
             $permissionEnabled = $this->permissions->hasPermission('feature_statement_assignment');
             $statement = $this->statementService->getStatement($data['statementId']);
 
-            if (null === $statement) {
+            if (!$statement instanceof Statement) {
                 $this->logger->error('Create StatementFragment failed: Related Statement not found.', ['id' => $data['statementId']]);
                 throw new EntityNotFoundException('Create StatementFragment failed: Statement not found.');
             }
@@ -1675,7 +1689,7 @@ class StatementFragmentService
                 );
 
                 $updateResult = $this->updateStatementFragment($statementFragment);
-                if (!($updateResult instanceof StatementFragment)) {
+                if (!$updateResult instanceof StatementFragment) {
                     throw new InvalidArgumentException(sprintf('could not update statementFragment wtih ID %s', $statementFragment->getId()));
                 }
 
@@ -1686,7 +1700,7 @@ class StatementFragmentService
                 );
 
                 $updateResult = $this->updateStatementFragment($updateResult, true);
-                if (!($updateResult instanceof StatementFragment)) {
+                if (!$updateResult instanceof StatementFragment) {
                     throw new InvalidArgumentException(sprintf('could not update statementFragment wtih ID %s', $statementFragment->getId()));
                 }
             }

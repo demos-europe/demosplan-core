@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -27,12 +29,7 @@ class DraftsInfoTransformerPass
     {
     }
 
-    /**
-     * @param mixed $data
-     *
-     * @return mixed
-     */
-    public function transform($data, string $format)
+    public function transform(mixed $data, string $format)
     {
         /** @var DraftsInfoTransformerInterface $transformer */
         foreach ($this->transformers as $transformer) {

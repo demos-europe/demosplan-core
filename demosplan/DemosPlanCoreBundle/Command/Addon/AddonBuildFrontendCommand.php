@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -14,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Exception;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Exception\LogicException;
@@ -26,20 +29,9 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-/**
- * Builds the frontend assets of an installed addon.
- *
- * Runs `yarn install --immutable` in the addon's directory so its runtime
- * dependencies become resolvable for core's webpack, then runs the addon's
- * `dev` or `prod` script (selected via the `--env` option) if one exists.
- * Addons that ship no own build (because core compiles their sources
- * directly) may omit the script entirely.
- */
+#[AsCommand(name: 'dplan:addon:build-frontend', description: 'Build frontend assets for an addon')]
 class AddonBuildFrontendCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:addon:build-frontend';
-    protected static $defaultDescription = 'Build frontend assets for an addon';
-
     /**
      * @param AddonRegistry         $registry     registry used to look up the addon's install path
      * @param ParameterBagInterface $parameterBag forwarded to the parent CoreCommand
@@ -82,7 +74,7 @@ class AddonBuildFrontendCommand extends CoreCommand
 
         if (null === $addonName) {
             $enabledAddons = $this->registry->getEnabledAddons();
-            if (0 === count($enabledAddons)) {
+            if ([] === $enabledAddons) {
                 $output->warning('No addons enabled, nothing to do.');
 
                 return self::SUCCESS;

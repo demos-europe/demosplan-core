@@ -13,16 +13,19 @@ namespace demosplan\DemosPlanCoreBundle\Controller\User;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
+use demosplan\DemosPlanCoreBundle\Entity\User\CustomerOAuthConfig;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakClientFactory;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHasher;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Repository\CustomerOAuthConfigRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\LoginFormAuthenticator;
 use Doctrine\ORM\EntityManagerInterface;
@@ -38,7 +41,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -77,14 +80,13 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     /**
      * Passwort ändern.
      *
-     * @DplanPermissions("area_mydata_password")
-     *
      * @return Response
      *
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_user_change_password', path: '/password/change', options: ['expose' => true])]
-    public function changePasswordAction(Request $request)
+    #[DplanPermissions('area_mydata_password')]
+    #[Route(path: '/password/change', name: 'DemosPlan_user_change_password', options: ['expose' => true])]
+    public function changePassword(Request $request): RedirectResponse
     {
         $requestPostFields = collect($request->request->all())->only(
             [
@@ -104,14 +106,13 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      * Request change of email.
      * Send Mail to verify change of E-Mail-Address.
      *
-     * @DplanPermissions("feature_change_own_email")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_user_change_email_request', path: '/email/change')]
-    public function changeEmailRequestAction(Request $request, PasswordHasherFactoryInterface $hasherFactory)
+    #[DplanPermissions('feature_change_own_email')]
+    #[Route(path: '/email/change', name: 'DemosPlan_user_change_email_request')]
+    public function changeEmailRequest(Request $request, PasswordHasherFactoryInterface $hasherFactory): RedirectResponse
     {
         $requestPostFields = collect($request->request->all())->only(
             ['userId', 'password', 'newEmail'])->toArray();
@@ -127,8 +128,8 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     }
 
     #[Route(path: '/authentication/2fa/qr-code', name: 'DemosPlan_user_qr_code')]
-    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_2fa')]
-    public function displayGoogleAuthenticatorQrCode(BuilderInterface $builder, TotpAuthenticatorInterface $totpAuthenticator)
+    #[DplanPermissions('feature_2fa')]
+    public function displayGoogleAuthenticatorQrCode(BuilderInterface $builder, TotpAuthenticatorInterface $totpAuthenticator): QrCodeResponse
     {
         $qrCodeContent = $totpAuthenticator->getQRContent($this->getUser());
         $result = $builder
@@ -142,7 +143,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     }
 
     #[Route(path: '/authentication/2fa/enable', name: 'DemosPlan_user_2fa_enable')]
-    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_2fa')]
+    #[DplanPermissions('feature_2fa')]
     public function enable2fa(
         CurrentUserInterface $currentUser,
         EntityManagerInterface $entityManager,
@@ -158,7 +159,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     }
 
     #[Route(path: '/authentication/2faemail/enable', name: 'DemosPlan_user_2fa_email_enable')]
-    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_2fa')]
+    #[DplanPermissions('feature_2fa')]
     public function enable2faemail(
         CodeGeneratorInterface $codeGenerator,
         CurrentUserInterface $currentUser,
@@ -172,7 +173,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     }
 
     #[Route(path: '/authentication/2faemail/send', name: 'DemosPlan_user_2fa_email_send')]
-    #[\demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions('feature_2fa')]
+    #[DplanPermissions('feature_2fa')]
     public function send2faemail(
         CodeGeneratorInterface $codeGenerator,
         CurrentUserInterface $currentUser,
@@ -184,11 +185,10 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
 
     /**
      * Set email address of user. Called via link which was sent to user via email.
-     *
-     * @DplanPermissions("feature_change_own_email")
      */
-    #[Route(name: 'DemosPlan_user_doubleoptin_change_email', path: 'email/change/doubleoptin/{uId}/{key}')]
-    public function changeEmailConfirmationAction(string $uId, string $key): RedirectResponse
+    #[DplanPermissions('feature_change_own_email')]
+    #[Route(path: 'email/change/doubleoptin/{uId}/{key}', name: 'DemosPlan_user_doubleoptin_change_email')]
+    public function changeEmailConfirmation(string $uId, string $key): RedirectResponse
     {
         try {
             // the actual change of the email address:
@@ -217,14 +217,13 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     }
 
     /**
-     *  @DplanPermissions({"area_demosplan","feature_password_recovery"})
-     *
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException
      */
-    #[Route(name: 'DemosPlan_user_password_recover', path: '/password/recover', options: ['expose' => true])]
-    public function recoverPasswordAction(RateLimiterFactory $userRegisterLimiter, Request $request)
+    #[DplanPermissions(['area_demosplan', 'feature_password_recovery'])]
+    #[Route(path: '/password/recover', name: 'DemosPlan_user_password_recover', options: ['expose' => true])]
+    public function recoverPassword(RateLimiterFactory $userRegisterLimiter, Request $request)
     {
         $requestPost = $request->request;
 
@@ -261,7 +260,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             }
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/password_recover.html.twig',
             [
                 'title'        => 'user.password.recover',
@@ -274,10 +273,10 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      * This Action is only needed to define the routes.
      * Authentication is handled via guards located in Security/Authentication.
      */
-    #[Route(name: 'DemosPlan_user_login_gateway', path: '/redirect/')]
-    #[Route(name: 'DemosPlan_user_login_osi_legacy', path: '/user/login/osi/legacy')]
-    #[Route(name: 'DemosPlan_user_login', path: '/user/login', options: ['expose' => true])]
-    public function loginAction(CurrentUserInterface $currentUser, LoggerInterface $logger): RedirectResponse
+    #[Route(path: '/redirect/', name: 'DemosPlan_user_login_gateway')]
+    #[Route(path: '/user/login/osi/legacy', name: 'DemosPlan_user_login_osi_legacy')]
+    #[Route(path: '/user/login', name: 'DemosPlan_user_login', options: ['expose' => true])]
+    public function login(CurrentUserInterface $currentUser, LoggerInterface $logger): RedirectResponse
     {
         // this possibly never is never reached, but better safe than sorry
         $this->logger->warning('Something weird happened, is guard authentication up and running?');
@@ -295,21 +294,22 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     /**
      * Alternatives Loginform auf einer ganzen Seite.
      *
-     * @DplanPermissions("area_demosplan")
-     *
      * @return Response
      *
      * @throws AccessDeniedException|Exception
      */
-    #[Route(name: 'DemosPlan_user_login_alternative', path: '/dplan/login', options: ['expose' => true])]
-    public function alternativeLoginAction(
+    #[DplanPermissions('area_demosplan')]
+    #[Route(path: '/dplan/login', name: 'DemosPlan_user_login_alternative', options: ['expose' => true])]
+    public function alternativeLogin(
         CacheInterface $cache,
         CurrentUserInterface $currentUser,
         CustomerService $customerService,
+        CustomerOAuthConfigRepository $customerOAuthConfigRepository,
+        OzgKeycloakClientFactory $ozgKeycloakClientFactory,
         ParameterBagInterface $parameterBag,
         Request $request,
     ) {
-        if (!($currentUser->getUser() instanceof AnonymousUser)) {
+        if (!$currentUser->getUser() instanceof AnonymousUser) {
             return $this->redirectToRoute('core_home_loggedin');
         }
 
@@ -351,21 +351,36 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             });
         }
 
+        $currentCustomerEntity = $customerService->getCurrentCustomer();
         $useIdp = false;
         // this check needs to be reworked once we know better how to save oauth parameters by customer
         if ('' !== $parameterBag->get('oauth_client')
-            && 'bb' === $customerService->getCurrentCustomer()->getSubdomain()) {
+            && 'bb' === $currentCustomerEntity->getSubdomain()) {
             $useIdp = true;
         }
 
+        $hasDynamicOAuthConfig = $customerOAuthConfigRepository->findByCustomer($currentCustomerEntity) instanceof CustomerOAuthConfig;
         $useAzureSso = $parameterBag->get('azure_sso_enabled');
+        $useAzureCustomers = $parameterBag->get('azure_sso_customers');
+        if ($useAzureSso && is_array($useAzureCustomers)) {
+            $useAzureSso = in_array($currentCustomer, $useAzureCustomers, true);
+        }
+        $useSso = $useAzureSso || $hasDynamicOAuthConfig;
+        if ($hasDynamicOAuthConfig && $ozgKeycloakClientFactory->isCurrentCustomerAzure()) {
+            $ssoRoute = 'connect_azure_start';
+        } elseif ($hasDynamicOAuthConfig) {
+            $ssoRoute = 'connect_keycloak_ozg_start';
+        } else {
+            $ssoRoute = 'connect_azure_start';
+        }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/alternative_login.html.twig',
             [
                 'title'           => 'user.login',
                 'useIdp'          => $useIdp,
-                'useAzureSso'     => $useAzureSso,
+                'useSso'          => $useSso,
+                'ssoRoute'        => $ssoRoute,
                 'customers'       => $customers,
                 'currentCustomer' => $currentCustomer,
                 'loginList'       => [
@@ -381,8 +396,8 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     /**
      * Logout via security system.
      */
-    #[Route(name: 'DemosPlan_user_logout', path: '/user/logout', options: ['expose' => true])]
-    public function logoutAction(): void
+    #[Route(path: '/user/logout', name: 'DemosPlan_user_logout', options: ['expose' => true])]
+    public function logout(): void
     {
         // special cases are handled by the LogoutSubscriber
     }
@@ -390,35 +405,33 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     /**
      * Dislay logout landing page.
      *
-     * @DplanPermissions("area_demosplan")
-     *
      * @return RedirectResponse|Response
      *
      * @throws MessageBagException
      */
-    #[Route(name: 'DemosPlan_user_logout_success', path: '/user/logout/success')]
-    public function logoutSuccessAction(PermissionsInterface $permissions)
+    #[DplanPermissions('area_demosplan')]
+    #[Route(path: '/user/logout/success', name: 'DemosPlan_user_logout_success')]
+    public function logoutSuccess(PermissionsInterface $permissions)
     {
         try {
             if (!$permissions->hasPermission('feature_has_logout_landing_page')) {
                 return $this->redirectToRoute('core_home');
             }
 
-            return $this->renderTemplate('@DemosPlanCore/DemosPlanUser/logout_success.html.twig');
+            return $this->render('@DemosPlanCore/DemosPlanUser/logout_success.html.twig');
         } catch (Exception $e) {
             return $this->handleError($e);
         }
     }
 
     /**
-     * @DplanPermissions("area_demosplan")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_user_doubleoptin_invite_confirmation', path: '/doubleoptin/{uId}/{token}')]
-    public function confirmInvitationAction(UserHasher $userHasher, string $token, string $uId)
+    #[DplanPermissions('area_demosplan')]
+    #[Route(path: '/doubleoptin/{uId}/{token}', name: 'DemosPlan_user_doubleoptin_invite_confirmation')]
+    public function confirmInvitation(UserHasher $userHasher, string $token, string $uId)
     {
         try {
             $user = $this->getUserWithCertainty($uId);
@@ -427,7 +440,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             return $this->redirectToRoute('DemosPlan_user_login_alternative');
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/user_set_password.html.twig',
             [
                 'token' => $token,
@@ -437,14 +450,13 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     }
 
     /**
-     * @DplanPermissions("area_demosplan")
-     *
      * @return RedirectResponse|Response
      *
      * @throws Exception
      */
-    #[Route(name: 'DemosPlan_user_password_set', path: '/user/{uId}/setpass/{token}', options: ['expose' => true])]
-    public function setPasswordAction(
+    #[DplanPermissions('area_demosplan')]
+    #[Route(path: '/user/{uId}/setpass/{token}', name: 'DemosPlan_user_password_set', options: ['expose' => true])]
+    public function setPassword(
         FlashMessageHandler $flashMessageHandler,
         LoginFormAuthenticator $loginFormAuthenticator,
         Request $request,

@@ -18,7 +18,7 @@ class AccessDeniedException extends \Symfony\Component\Security\Core\Exception\A
     /**
      * @param array<int, string> $permissions
      */
-    public static function missingPermissions(User $user = null, array $permissions = []): self
+    public static function missingPermissions(?User $user = null, array $permissions = []): self
     {
         $additionalUserData = '';
 
@@ -37,18 +37,19 @@ class AccessDeniedException extends \Symfony\Component\Security\Core\Exception\A
 
         return new self("Der Zugriff ist nicht gestattet $additionalUserData");
     }
+
     /**
      * @param non-empty-string $permissionName
      * @param non-empty-string $addonIdentifier
      */
-    public static function missingAddonPermission(string $permissionName, string $addonIdentifier, User $user = null): self
+    public static function missingAddonPermission(string $permissionName, string $addonIdentifier, ?User $user = null): self
     {
         $additionalUserData = self::collectAdditionalUserData($user);
 
         return new self("Der Zugriff auf $permissionName im Addon $addonIdentifier ist nicht gestattet. $additionalUserData");
     }
 
-    public static function unknownAddonPermission(string $permissionName, string $addonIdentifier, User $user = null): self
+    public static function unknownAddonPermission(string $permissionName, string $addonIdentifier, ?User $user = null): self
     {
         $additionalUserData = self::collectAdditionalUserData($user);
 
@@ -74,7 +75,7 @@ class AccessDeniedException extends \Symfony\Component\Security\Core\Exception\A
     /**
      * @param non-empty-string $permission
      */
-    public static function missingPermission(string $permission, User $user = null): self
+    public static function missingPermission(string $permission, ?User $user = null): self
     {
         $additionalUserData = self::collectAdditionalUserData($user);
 

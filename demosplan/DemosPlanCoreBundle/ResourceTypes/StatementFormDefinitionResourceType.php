@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
@@ -41,7 +42,7 @@ final class StatementFormDefinitionResourceType extends DplanResourceType
 
         // If no edit permission for ProcedureType and not authenticated for any procedure, deny any reads.
         $currentProcedure = $this->currentProcedureService->getProcedure();
-        if (null === $currentProcedure) {
+        if (!$currentProcedure instanceof Procedure) {
             return [$this->conditionFactory->false()];
         }
 

@@ -31,8 +31,8 @@ use Psr\Log\LoggerInterface;
 use Twig\Environment;
 
 /**
- * Tests for ServiceOutput logic
- * 
+ * Tests for ServiceOutput logic.
+ *
  * @group UnitTest
  */
 class ServiceOutputTest extends TestCase
@@ -109,7 +109,7 @@ class ServiceOutputTest extends TestCase
     }
 
     /**
-     * Test getProcedureBySlug when user has permissions (hasPermissionsetRead returns true)
+     * Test getProcedureBySlug when user has permissions (hasPermissionsetRead returns true).
      */
     public function testGetProcedureBySlugWithPermissionsetRead(): void
     {
@@ -151,7 +151,7 @@ class ServiceOutputTest extends TestCase
     }
 
     /**
-     * Test getProcedureBySlug when user doesn't have permissions but owns the procedure
+     * Test getProcedureBySlug when user doesn't have permissions but owns the procedure.
      */
     public function testGetProcedureBySlugWithOwnsProcedure(): void
     {
@@ -194,7 +194,7 @@ class ServiceOutputTest extends TestCase
     }
 
     /**
-     * Test getProcedureBySlug when user doesn't have permissions and doesn't own the procedure
+     * Test getProcedureBySlug when user doesn't have permissions and doesn't own the procedure.
      */
     public function testGetProcedureBySlugWithoutPermissions(): void
     {
@@ -237,7 +237,7 @@ class ServiceOutputTest extends TestCase
     }
 
     /**
-     * Test getProcedureBySlug with public user
+     * Test getProcedureBySlug with public user.
      */
     public function testGetProcedureBySlugWithPublicUser(): void
     {

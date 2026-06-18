@@ -33,11 +33,10 @@ class ValueObject implements JsonSerializable, ValueObjectInterface
 
     /**
      * @param string $name
-     * @param mixed  $value
      *
      * @return $this
      */
-    public function setProperty($name, $value): self
+    public function setProperty($name, mixed $value): self
     {
         $this->verifySettability($name);
 
@@ -46,9 +45,6 @@ class ValueObject implements JsonSerializable, ValueObjectInterface
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
     protected function getProperty(?string $name)
     {
         $this->checkIfLocked();
@@ -92,7 +88,7 @@ class ValueObject implements JsonSerializable, ValueObjectInterface
 
         // if we're called from inside a twig template, only allow getting values
         if (0 < strpos($backTrace[0]['file'], self::TWIG_LOCATION)) {
-            if (0 < strlen($match[1])) {
+            if ('' !== $match[1]) {
                 throw ValueObjectException::noAccessorAllowedFromTwig();
             }
 
@@ -140,7 +136,7 @@ class ValueObject implements JsonSerializable, ValueObjectInterface
 
             return collect($reflection->getProperties(ReflectionProperty::IS_PROTECTED))
                 ->flatMap(
-                    fn(ReflectionProperty $property) => [$property->getName() => $this->{$property->getName()}]
+                    fn (ReflectionProperty $property) => [$property->getName() => $this->{$property->getName()}]
                 )
                 ->toArray();
         } catch (ReflectionException) {

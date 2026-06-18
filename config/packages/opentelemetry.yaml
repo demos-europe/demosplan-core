@@ -1,0 +1,11 @@
+# OpenTelemetry Logging Configuration
+# Sends Monolog logs to an OTLP Collector endpoint (e.g., OpenTelemetry Collector, Grafana Agent)
+# Configure via parameters: otel_exporter_endpoint, otel_service_name, otel_loglevel
+
+when@prod:
+    monolog:
+        handlers:
+            otlp:
+                type: service
+                id: demosplan\DemosPlanCoreBundle\Monolog\Handler\OtlpHandler
+                level: '%otel_loglevel%'

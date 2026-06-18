@@ -177,6 +177,7 @@ export default {
     ExportModal,
     DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
+
       return DpInlineNotification
     }),
     DpMapModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal')),
@@ -301,6 +302,7 @@ export default {
         current_page: newPage,
         count: this.pagination.per_page,
       })
+
       this.updatePagination(tmpPager)
       this.changeUrl(tmpPager)
       this.setProperty({
@@ -332,6 +334,7 @@ export default {
             isCluster: statements[statementId].isCluster,
           }
         }
+
         payload.statements = statements
       }
 
@@ -357,6 +360,7 @@ export default {
       if (hash.length === 12) {
         this.filterHash = hash
         const url = window.location.href.split('?')
+
         url[0] = url[0].substring(0, url[0].length - 12) + hash
         window.history.pushState({ html: url.join('?'), pageTitle: document.title }, document.title, url.join('?'))
       }

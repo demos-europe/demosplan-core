@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Query;
 use Exception;
 
 /**
@@ -328,32 +329,74 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
     /**
      * Updates all gisLayers, which are use the given gisLayer as globalLayer.
      *
-     * @param GisLayer $item
-     * @param array    $data
-     *
      * @throws Exception
      */
-    private function updateRelatedGis($item, $data)
+    private function updateRelatedGis(GisLayer $item, array $data): GisLayer
     {
         try {
-            $dataWithoutPId = $data;
-            if (array_key_exists('procedureId', $data)) {
-                unset($dataWithoutPId['procedureId']);
+            // Translate legacy aliases to canonical property names, canonical key wins if both present
+            if (array_key_exists('default', $data)) {
+                $data['defaultVisibility'] ??= $data['default'];
+            }
+            if (array_key_exists('territory', $data)) {
+                $data['scope'] ??= $data['territory'];
+            }
+            if (array_key_exists('mapOrder', $data)) {
+                $data['order'] ??= $data['mapOrder'];
+            }
+            if (array_key_exists('visible', $data)) {
+                $data['enabled'] ??= $data['visible'];
+            }
+            if (array_key_exists('isMinimap', $data)) {
+                $data['isMiniMap'] ??= $data['isMinimap'];
             }
 
-            if (array_key_exists('globalGisId', $data)) {
-                unset($dataWithoutPId['globalGisId']);
+            // Derive propagatable fields from Doctrine metadata so new GisLayer columns
+            // automatically propagate to copies without requiring a manual whitelist update.
+            // Excluded fields must never be overwritten on copies: each copy owns its own
+            // identity (ident), procedure membership (procedureId), pointer to the global
+            // master (gId), and auto-managed timestamps (createDate/modifyDate/deleteDate).
+            $allMappedFields = $this->getEntityManager()
+                ->getClassMetadata(GisLayer::class)
+                ->getFieldNames();
+            $neverPropagate = ['ident', 'gId', 'procedureId', 'createDate', 'modifyDate', 'deleteDate'];
+            $updates = array_intersect_key(
+                $data,
+                array_flip(array_diff($allMappedFields, $neverPropagate))
+            );
+
+            // Must be set together — setting one without the other leaves copies with a
+            // mismatched label/value pair, mirroring the guard in updateGisFromHash().
+            if (!isset($updates['projectionLabel'], $updates['projectionValue'])) {
+                unset($updates['projectionLabel'], $updates['projectionValue']);
             }
 
-            if (array_key_exists('ident', $data)) {
-                unset($dataWithoutPId['ident']);
+            if ([] !== $updates) {
+                $qb = $this->getEntityManager()->createQueryBuilder()
+                    ->update(GisLayer::class, 'g')
+                    ->where('g.gId = :globalId')
+                    ->setParameter('globalId', $item->getId());
+
+                foreach ($updates as $property => $value) {
+                    $qb->set('g.'.$property, ':p_'.$property)
+                        ->setParameter('p_'.$property, $value);
+                }
+
+                $qb->getQuery()->execute();
+
+                // DQL UPDATE bypasses Doctrine's identity map. Re-select copies with
+                // HINT_REFRESH so any copies already loaded in this request reflect
+                // the new DB values instead of stale in-memory state.
+                $this->getEntityManager()
+                    ->createQuery('SELECT g FROM '.GisLayer::class.' g WHERE g.gId = :gid')
+                    ->setParameter('gid', $item->getId())
+                    ->setHint(Query::HINT_REFRESH, true)
+                    ->getResult();
+
+                $this->getEntityManager()->refresh($item);
             }
 
-            $listToUpdate = $this->findBy(['gId' => $item->getIdent()]);
-
-            foreach ($listToUpdate as $layer) {
-                $this->updateGisFromHash($layer, $dataWithoutPId);
-            }
+            return $item;
         } catch (Exception $e) {
             $this->logger->warning('Related gisLayer of global gisLayer could not be updated. ', [$e]);
             throw $e;
@@ -375,7 +418,7 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
             } else {
                 $toUpdate = $this->get($data['id']);
                 if ($this->isGlobal($toUpdate)) {
-                    $this->updateRelatedGis($toUpdate, $data);
+                    $toUpdate = $this->updateRelatedGis($toUpdate, $data);
                 }
             }
 
@@ -476,11 +519,7 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
     {
         try {
             $checkSum = 0;
-            if (array_key_exists('idents', $gisLayerIds)) {
-                $idents = $gisLayerIds['idents'];
-            } else {
-                $idents = $gisLayerIds;
-            }
+            $idents = array_key_exists('idents', $gisLayerIds) ? $gisLayerIds['idents'] : $gisLayerIds;
 
             $size = is_countable($idents) ? count($idents) : 0;
             for ($i = 0; $i < $size; ++$i) {
@@ -641,8 +680,8 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
      */
     public function addObject($entity): GisLayer
     {
-        $this->_em->persist($entity);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($entity);
+        $this->getEntityManager()->flush();
 
         return $entity;
     }
@@ -657,8 +696,8 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
     public function updateObject($gisLayer)
     {
         try {
-            $this->_em->persist($gisLayer);
-            $this->_em->flush();
+            $this->getEntityManager()->persist($gisLayer);
+            $this->getEntityManager()->flush();
 
             return $gisLayer;
         } catch (Exception $e) {

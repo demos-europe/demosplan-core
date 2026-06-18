@@ -54,7 +54,7 @@ class ForumHandler extends CoreHandler
         MessageBagInterface $messageBag,
         private readonly OrgaService $orgaService,
         private readonly TranslatorInterface $translator,
-        UserService $userService
+        UserService $userService,
     ) {
         parent::__construct($messageBag);
         $this->forumService = $forumService;
@@ -208,13 +208,7 @@ class ForumHandler extends CoreHandler
         $data = [];
         $data['anonymise'] = true;
 
-        if (true == $threadEntry['editableByUser']) {
-            // falls Autor, dann gebe Platzhaltertext für Autor aus
-            $data['text'] = 'Verfasser';
-        } else {
-            // ansonsten  Platzhaltertext für Moderation
-            $data['text'] = 'Moderator';
-        }
+        $data['text'] = true == $threadEntry['editableByUser'] ? 'Verfasser' : 'Moderator';
 
         // die Beiträge  werden mit leeren Variablen überschrieben um einen Platzhalter zu generieren
         return $this->forumService->updateThreadEntry($threadEntry['ident'], $data);
@@ -278,31 +272,27 @@ class ForumHandler extends CoreHandler
                 ]),
             ];
         }
-        if (0 < count($mandatoryErrors)) {
+        if ([] !== $mandatoryErrors) {
             return [
                 'mandatoryfieldwarning' => $mandatoryErrors,
             ];
         }
 
-        if (array_key_exists('r_title', $data) && 0 < strlen((string) $data['r_title'])) {
+        if (array_key_exists('r_title', $data) && '' !== (string) $data['r_title']) {
             $release['title'] = $data['r_title'];
         }
-        if (array_key_exists('r_phase', $data) && 0 < strlen((string) $data['r_phase'])) {
+        if (array_key_exists('r_phase', $data) && '' !== (string) $data['r_phase']) {
             $release['phase'] = $data['r_phase'];
         }
 
-        if (array_key_exists('r_description', $data) && 0 < strlen((string) $data['r_description'])) {
+        if (array_key_exists('r_description', $data) && '' !== (string) $data['r_description']) {
             $release['description'] = $data['r_description'];
         }
-        if (array_key_exists('r_startdate', $data)) {
-            if ('' != $data['r_startdate']) {
-                $release['startDate'] = strtotime((string) $data['r_startdate']);
-            }
+        if (array_key_exists('r_startdate', $data) && '' != $data['r_startdate']) {
+            $release['startDate'] = strtotime((string) $data['r_startdate']);
         }
-        if (array_key_exists('r_enddate', $data)) {
-            if ('' != $data['r_enddate']) {
-                $release['endDate'] = strtotime((string) $data['r_enddate']);
-            }
+        if (array_key_exists('r_enddate', $data) && '' != $data['r_enddate']) {
+            $release['endDate'] = strtotime((string) $data['r_enddate']);
         }
 
         return $this->forumService->newRelease($release);
@@ -337,31 +327,27 @@ class ForumHandler extends CoreHandler
                 ]),
             ];
         }
-        if (0 < count($mandatoryErrors)) {
+        if ([] !== $mandatoryErrors) {
             return [
                 'mandatoryfieldwarning' => $mandatoryErrors,
             ];
         }
 
-        if (array_key_exists('r_title', $data) && 0 < strlen((string) $data['r_title'])) {
+        if (array_key_exists('r_title', $data) && '' !== (string) $data['r_title']) {
             $release['title'] = $data['r_title'];
         }
-        if (array_key_exists('r_phase', $data) && 0 < strlen((string) $data['r_phase'])) {
+        if (array_key_exists('r_phase', $data) && '' !== (string) $data['r_phase']) {
             $release['phase'] = $data['r_phase'];
         }
 
-        if (array_key_exists('r_description', $data) && 0 < strlen((string) $data['r_description'])) {
+        if (array_key_exists('r_description', $data) && '' !== (string) $data['r_description']) {
             $release['description'] = $data['r_description'];
         }
-        if (array_key_exists('r_startdate', $data)) {
-            if ('' != $data['r_startdate']) {
-                $release['startDate'] = strtotime((string) $data['r_startdate']);
-            }
+        if (array_key_exists('r_startdate', $data) && '' != $data['r_startdate']) {
+            $release['startDate'] = strtotime((string) $data['r_startdate']);
         }
-        if (array_key_exists('r_enddate', $data)) {
-            if ('' != $data['r_enddate']) {
-                $release['endDate'] = strtotime((string) $data['r_enddate']);
-            }
+        if (array_key_exists('r_enddate', $data) && '' != $data['r_enddate']) {
+            $release['endDate'] = strtotime((string) $data['r_enddate']);
         }
 
         return $this->forumService->updateRelease($releaseId, $release);
@@ -430,7 +416,7 @@ class ForumHandler extends CoreHandler
                 ];
                 $this->logger->warning(sprintf('Fehler beim Speichern der offlineVotes für eine Usertory. EntryId: %s Exceptionmessage: %s', $key, $e->getMessage()));
             }
-            if (0 < count($errorMessages)) {
+            if ([] !== $errorMessages) {
                 return [
                     'errorMessages' => $errorMessages,
                 ];
@@ -484,11 +470,11 @@ class ForumHandler extends CoreHandler
             ];
         }
 
-        if (array_key_exists('r_title', $data) && 0 < strlen((string) $data['r_title'])) {
+        if (array_key_exists('r_title', $data) && '' !== (string) $data['r_title']) {
             $userStory['title'] = $data['r_title'];
         }
 
-        if (array_key_exists('r_description', $data) && 0 < strlen((string) $data['r_description'])) {
+        if (array_key_exists('r_description', $data) && '' !== (string) $data['r_description']) {
             $userStory['description'] = $data['r_description'];
         }
         if (array_key_exists('r_onlineVotes', $data)) {
@@ -527,11 +513,11 @@ class ForumHandler extends CoreHandler
             ];
         }
 
-        if (array_key_exists('r_title', $data) && 0 < strlen((string) $data['r_title'])) {
+        if (array_key_exists('r_title', $data) && '' !== (string) $data['r_title']) {
             $userStory['title'] = $data['r_title'];
         }
 
-        if (array_key_exists('r_description', $data) && 0 < strlen((string) $data['r_description'])) {
+        if (array_key_exists('r_description', $data) && '' !== (string) $data['r_description']) {
             $userStory['description'] = $data['r_description'];
         }
 
@@ -605,7 +591,7 @@ class ForumHandler extends CoreHandler
             // Generiere eine Teaser vom ersten Beitragstext
             // bereinige die Textvariable von Tags
             $entryTextNoTags = strip_tags((string) $firstEntry['text']);
-            if (0 < strlen($entryTextNoTags)) {
+            if ('' !== $entryTextNoTags) {
                 // Kürze den Text und speicher das Ergebnis in der MailVariable
                 $shortText = substr($entryTextNoTags, 0, 150).'...';
                 $data['firstEntryText'] = $shortText;
@@ -620,7 +606,7 @@ class ForumHandler extends CoreHandler
         // generiere eine Teaser vom Beitragstext
         // bereinige die Textvariable von Tags
         $entryTextNoTags = strip_tags((string) $data['text']);
-        if (0 < strlen($entryTextNoTags)) {
+        if ('' !== $entryTextNoTags) {
             // Kürze den Text und speicher das Ergebnis in der MailVariable
             $shortText = substr($entryTextNoTags, 0, 150).'...';
             $data['text'] = $shortText;
@@ -638,7 +624,7 @@ class ForumHandler extends CoreHandler
         );
 
         // Schicke eine Email an den Autor des StarterEntry, wenn er Benachrichtigungen aktiviert hat und wenn Beitrag nicht zu einer UserStory geschrieben wurde
-        if (isset($data['starterEntryAuthor']) && true == $notificationForAuthor && !isset($data['userStory'])) {
+        if (isset($data['starterEntryAuthor']) && $notificationForAuthor && !isset($data['userStory'])) {
             $this->sendNotificationEmailToAuthor($data, $mailTemplateVars, $vars);
         }
     }
@@ -665,7 +651,7 @@ class ForumHandler extends CoreHandler
     protected function sendNotificationEmailToModerator(
         $mailTemplateVars,
         $vars,
-        $allUsersWithRole
+        $allUsersWithRole,
     ) {
         // Wenn ein Bezug zur User Story übergeben wird,  hole dieses template
         if (isset($mailTemplateVars['userStory'])) {
@@ -722,7 +708,7 @@ class ForumHandler extends CoreHandler
     protected function sendNotificationEmailToAuthor(
         $data,
         $mailTemplateVars,
-        $vars
+        $vars,
     ) {
         // Besorge dir auch die Flags des Users
         /** @var User $starterEntryAuthor */

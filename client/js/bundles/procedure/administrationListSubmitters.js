@@ -16,4 +16,6 @@ import { initialize } from '@DpJs/InitVue'
 
 const components = { DpSubmitterList }
 
-initialize(components)
+const apiStores = ['Statement']
+
+initialize(components, {}, apiStores)

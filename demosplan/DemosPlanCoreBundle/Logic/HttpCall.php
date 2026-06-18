@@ -42,7 +42,7 @@ class HttpCall
     public function __construct(
         GlobalConfigInterface $globalConfig,
         private readonly HttpClientInterface $client,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ) {
         $this->logger = $logger;
         $this->proxyEnabled = $globalConfig->isProxyEnabled();
@@ -67,7 +67,7 @@ class HttpCall
 
         $options = [];
 
-        if (is_array($data) && 0 < count($data) && 'GET' === strtoupper($method)) {
+        if (is_array($data) && [] !== $data && 'GET' === strtoupper($method)) {
             $options['query'] = $data;
         }
 
@@ -77,12 +77,12 @@ class HttpCall
         }
 
         // Set request content type if specified
-        if (0 < strlen($this->contentType)) {
+        if ('' !== (string) $this->contentType) {
             $options['headers']['Content-Type'] = $this->contentType;
         }
 
         // set proxy
-        if (true === $this->isProxyEnabled()) {
+        if ($this->isProxyEnabled()) {
             $proxy = trim($this->proxyHost).':'.trim($this->proxyPort);
             $options['proxy'] = $proxy;
             $this->logger->info('Use Proxy', [$proxy]);

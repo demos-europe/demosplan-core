@@ -12,6 +12,12 @@
     class="c-publicindex__drawer absolute u-top-0 z-above-zero shadow-md"
     :class="{ 'is-open': isDrawerOpened }"
   >
+    <div
+      aria-live="polite"
+      class="sr-only"
+    >
+      {{ screenReaderAnnouncement }}
+    </div>
     <div class="bg-color--grey-light-2 u-p-0_5">
       <dp-search
         :show-suggestions="false"
@@ -26,7 +32,6 @@
         <div class="c-publicindex__drawer-nav">
           <strong
             v-if="currentView !== 'DpDetailView'"
-            aria-live="assertive"
             class="inline-block"
             data-cy="participationProcedures"
           >
@@ -92,8 +97,18 @@ export default {
       if (!this.currentProcedureId) {
         return null
       }
+
       const curr = this.procedures.find(el => el.id === this.currentProcedureId)
+
       return curr || null
+    },
+
+    screenReaderAnnouncement () {
+      if (this.currentView === 'DpDetailView') {
+        return ''
+      }
+
+      return `${this.procedureCount} ${Translator.trans('participation.procedures')}`
     },
   },
 
@@ -108,6 +123,7 @@ export default {
 
     toggleList () {
       const val = this.currentView !== 'DpList' ? 'DpList' : ''
+
       this.setProperty({ prop: 'currentView', val })
     },
   },
@@ -115,6 +131,7 @@ export default {
   created () {
     const matchMedia = new MatchMedia()
     const currentBreakpoint = matchMedia.getCurrentBreakpoint()
+
     // Don't show the procedure list on mobile by default
     if (currentBreakpoint === 'palm') {
       this.setProperty({ prop: 'isDrawerOpened', val: false })

@@ -171,11 +171,7 @@ class SqlQueriesService
 
         $tableColumns = $this->dbConnection->createSchemaManager()->listTableColumns($tableName);
 
-        if (in_array($columnName, $tableColumns)) {
-            return true;
-        }
-
-        return false;
+        return in_array($columnName, $tableColumns);
     }
 
     /**

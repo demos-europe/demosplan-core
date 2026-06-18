@@ -13,6 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureBehaviorDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -40,12 +42,12 @@ final class PriorityAreaResourceType extends DplanResourceType
     public function isAvailable(): bool
     {
         $procedure = $this->currentProcedureService->getProcedure();
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             return false;
         }
 
         $behaviorDefinition = $procedure->getProcedureBehaviorDefinition();
-        if (null === $behaviorDefinition) {
+        if (!$behaviorDefinition instanceof ProcedureBehaviorDefinition) {
             return false;
         }
 
@@ -54,7 +56,7 @@ final class PriorityAreaResourceType extends DplanResourceType
         }
         if (!$this->currentUser->hasPermission('area_admin_assessmenttable')) {
             $formDefinition = $procedure->getStatementFormDefinition();
-            if (null === $formDefinition) {
+            if (!$formDefinition instanceof StatementFormDefinition) {
                 return false;
             }
 

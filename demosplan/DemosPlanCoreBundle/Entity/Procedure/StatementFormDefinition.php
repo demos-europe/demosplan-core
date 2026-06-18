@@ -16,12 +16,13 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementFormDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\ExclusiveProcedureOrProcedureTypeConstraint;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Exception\ExclusiveProcedureOrProcedureTypeException;
+use demosplan\DemosPlanCoreBundle\Repository\StatementFormDefinitionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\JoinColumn;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
@@ -29,56 +30,40 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * to define the availability of customizable fields on a statement (participation).
  * A StatementFormDefinition should never have an direct relationship to a Procedure and to a ProcedureType.
  *
- * @ORM\Table
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementFormDefinitionRepository")
- *
  * @ExclusiveProcedureOrProcedureTypeConstraint()
  */
+#[ORM\Table]
+#[ORM\Entity(repositoryClass: StatementFormDefinitionRepository::class)]
 class StatementFormDefinition extends CoreEntity implements UuidEntityInterface, StatementFormDefinitionInterface
 {
     /**
      * @var string|null
-     *
-     * @ORM\Column(type="string", length=36, nullable=false, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     private $id;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
+    #[ORM\Column(type: 'datetime', nullable: false, options: ['default' => 'CURRENT_TIMESTAMP'])]
+    #[Gedmo\Timestampable(on: 'create')]
     private $creationDate;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
+    #[ORM\Column(type: 'datetime', nullable: false, options: ['default' => 'CURRENT_TIMESTAMP'])]
+    #[Gedmo\Timestampable(on: 'update')]
     private $modificationDate;
 
     /**
      * @var Collection<int, StatementFieldDefinition>
-     *
-     * @ORM\OneToMany(
-     *      targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFieldDefinition",
-     *      mappedBy="statementFormDefinition",
-     *      cascade={"persist", "remove"}
-     *     )
-     *
-     * @ORM\OrderBy({"orderNumber" = "ASC"})
      */
+    #[ORM\OneToMany(targetEntity: StatementFieldDefinition::class, mappedBy: 'statementFormDefinition', cascade: ['persist', 'remove'])]
+    #[ORM\OrderBy(['orderNumber' => 'ASC'])]
     private $fieldDefinitions;
 
     /**
@@ -89,11 +74,8 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
      * as well as a direct relation to a ProcedureType, indicates invalid data.
      *
      * @var Procedure|null
-     *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", mappedBy="statementFormDefinition")
-     *
-     * @JoinColumn(referencedColumnName="_p_id")
      */
+    #[ORM\OneToOne(targetEntity: Procedure::class, mappedBy: 'statementFormDefinition')]
     private $procedure;
 
     /**
@@ -102,12 +84,17 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
      * Therefore a StatementFormDefinition without a ProcedureType will have a related Procedure.
      *
      * @var ProcedureType|null
-     *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType", mappedBy="statementFormDefinition")
-     *
-     * @JoinColumn()
      */
+    #[ORM\OneToOne(targetEntity: ProcedureType::class, mappedBy: 'statementFormDefinition')]
     private $procedureType;
+
+    /**
+     * Back-reference to the owning Procedure's id, populated when this definition is copied
+     * from a master template during procedure creation. Has a UNIQUE index but no FK constraint;
+     * the relational link is owned by Procedure::$statementFormDefinition.
+     */
+    #[ORM\Column(name: 'procedure_id', type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
+    private ?string $procedureId = null;
 
     public function __construct()
     {
@@ -173,15 +160,11 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
     public function isFieldDefinitionEnabled(string $name)
     {
         $fieldDefinition = $this->getFieldDefinitionByName($name);
-        if (null === $fieldDefinition) {
+        if (!$fieldDefinition instanceof StatementFieldDefinition) {
             return false;
         }
 
-        if (!$fieldDefinition->isEnabled()) {
-            return false;
-        }
-
-        return true;
+        return $fieldDefinition->isEnabled();
     }
 
     public function getId(): ?string
@@ -209,6 +192,7 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
                 A StatementFormDefinition can not be set to a Procedure and to a ProcedureType');
         }
         $this->procedure = $procedure;
+        $this->procedureId = $procedure->getId();
     }
 
     public function getProcedureType(): ?ProcedureType
@@ -226,6 +210,16 @@ class StatementFormDefinition extends CoreEntity implements UuidEntityInterface,
                 A StatementFormDefinition can not be set to a Procedure and to a ProcedureType');
         }
         $this->procedureType = $procedureType;
+    }
+
+    public function getProcedureId(): ?string
+    {
+        return $this->procedureId;
+    }
+
+    public function setProcedureId(?string $procedureId): void
+    {
+        $this->procedureId = $procedureId;
     }
 
     public function getCreationDate(): DateTime

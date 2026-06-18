@@ -12,6 +12,7 @@ export default () => {
     if (checked) {
       // Disable all radio-options
       const allRadioOptionsElements = Array.from(document.querySelectorAll('[name=r_type]'))
+
       allRadioOptionsElements.forEach((el) => {
         el.disabled = true
       })
@@ -20,11 +21,13 @@ export default () => {
       document.querySelector(requiredElements).disabled = false
       // Uncheck correlating options
       const allCheckedBoxElements = Array.from(document.querySelectorAll(toDisable))
+
       allCheckedBoxElements.forEach((el) => {
         el.checked = false
       })
     } else {
       const allDisabledElements = Array.from(document.querySelectorAll('[name=r_type]'))
+
       allDisabledElements.forEach((el) => {
         el.disabled = false
       })
@@ -32,6 +35,7 @@ export default () => {
   }
 
   const allDataRequiresElements = Array.from(document.querySelectorAll('[data-requires]'))
+
   allDataRequiresElements.forEach((el) => {
     // Register eventListener for scope and bPlan
     el.addEventListener('change', () => {
@@ -44,10 +48,31 @@ export default () => {
     }
   })
 
+  // Handle scope checkbox hint visibility
+  const scopeCheckbox = document.querySelector('#scope')
+  const bPlanCheckbox = document.querySelector('#bPlan')
+  const scopeHint = document.querySelector('#scopeHint')
+
+  if (scopeCheckbox && scopeHint) {
+    scopeCheckbox.addEventListener('change', (e) => {
+      scopeHint.classList.toggle('hidden', !e.target.checked)
+    })
+  }
+
+  // Hide scope hint when bPlan is checked (since it unchecks scope)
+  if (bPlanCheckbox && scopeHint) {
+    bPlanCheckbox.addEventListener('change', (e) => {
+      if (e.target.checked) {
+        scopeHint.classList.add('hidden')
+      }
+    })
+  }
+
   const elementsHiddenForBaseMap = [
     {
       node: document.querySelector('input[name="r_user_toggle_visibility"]'),
       defaultValue: true,
+      hideParent: true,
     },
     {
       node: document.querySelector('input[name="r_opacity"]'),
@@ -55,53 +80,132 @@ export default () => {
     },
   ]
 
-  // Check if base layer and disable user toggling on load
-  if (document.querySelector('input[name="r_type"][value="base"]')?.checked) {
+  // Get references to default visibility elements
+  const defaultVisibilityCheckbox = document.querySelector('input[name="r_default_visibility"]')
+  const defaultVisibilityHint = document.getElementById('defaultVisibilityHint')
+
+  // Detect if we're in edit mode
+  const isEditMode = defaultVisibilityCheckbox?.dataset.cy === 'editMapLayerDefaultVisibility'
+
+  // If base layer, hide toggleVisibility checkbox and its parent (the label)
+  const isBaseLayerSelected = document.querySelector('input[name="r_type"][value="base"]')?.checked
+
+  if (isBaseLayerSelected) {
     elementsHiddenForBaseMap.forEach((element) => {
-      disableNode(element.node, element.defaultValue)
+      disableNode(element.node, element.defaultValue, element.hideParent)
     })
+    if (isEditMode) {
+      // Show hint, don't change checkbox status
+      if (defaultVisibilityCheckbox && defaultVisibilityHint && !defaultVisibilityCheckbox.disabled) {
+        defaultVisibilityHint.classList.remove('hidden')
+      }
+    }
+
+    // If 'create' view, show hint + uncheck checkbox
+    if (!isEditMode) {
+      updateDefaultVisibility(true)
+    }
+  }
+
+  // If overlay selected and 'create' view, hide hint + check checkbox
+  if (!isBaseLayerSelected && !isEditMode) {
+    updateDefaultVisibility(false)
   }
 
   // Add event listener to handle checkbox change
   Array.from(document.querySelectorAll('input[name="r_type"]')).forEach(el => el.addEventListener('change', handleUserToggle))
 
-  function createHiddenNode (node) {
-    const hiddenElement = node.cloneNode()
-    hiddenElement.setAttribute('hidden', true)
+  function createHiddenNode (node, defaultValue) {
+    const hiddenElement = document.createElement('input')
+
+    hiddenElement.setAttribute('type', 'hidden')
+    hiddenElement.setAttribute('name', node.getAttribute('name'))
     hiddenElement.setAttribute('id', `hidden_${node.getAttribute('id')}`)
+
+    // For checkboxes, only set value if checked (defaultValue is true)
+    if (node.type === 'checkbox') {
+      if (defaultValue) {
+        hiddenElement.setAttribute('value', '1')
+      }
+    } else {
+      hiddenElement.setAttribute('value', defaultValue)
+    }
 
     return hiddenElement
   }
 
-  function disableNode (node, defaultValue) {
+  function disableNode (node, defaultValue, hideParent = false) {
     if (node.type === 'checkbox') {
       node.checked = defaultValue
     } else {
       node.value = defaultValue
     }
-    document.getElementById('form').appendChild(createHiddenNode(node))
+
+    document.getElementById('form').appendChild(createHiddenNode(node, defaultValue))
     node.setAttribute('disabled', 'true')
+
+    if (hideParent) {
+      const parentLabel = node.closest('label')
+
+      if (parentLabel) {
+        parentLabel.style.display = 'none'
+      }
+    }
   }
 
-  function enableNode (node) {
+  function enableNode (node, hideParent = false) {
     node.removeAttribute('disabled')
     const hidden = document.getElementById(`hidden_${node.getAttribute('id')}`)
+
     if (hidden) {
-      document.getElementById('form').removeChild(hidden)
+      hidden.remove()
+    }
+
+    if (hideParent) {
+      const parentLabel = node.closest('label')
+
+      if (parentLabel) {
+        parentLabel.style.display = ''
+      }
+    }
+  }
+
+  function updateDefaultVisibility (isBaseLayer) {
+    if (defaultVisibilityCheckbox && defaultVisibilityHint) {
+      // Don't show hint or change checkbox if it's disabled (e.g., in visibility group)
+      if (defaultVisibilityCheckbox.disabled) {
+        defaultVisibilityHint.classList.add('hidden')
+
+        return
+      }
+
+      if (isBaseLayer) {
+        defaultVisibilityCheckbox.checked = false
+        defaultVisibilityHint.classList.remove('hidden')
+      } else {
+        defaultVisibilityCheckbox.checked = true
+        defaultVisibilityHint.classList.add('hidden')
+      }
     }
   }
 
   function handleUserToggle (e) {
     const radioVal = e.target.value
-    if (radioVal === 'base') {
+
+    const isBaseLayer = radioVal === 'base'
+
+    if (isBaseLayer) {
       elementsHiddenForBaseMap.forEach((element) => {
-        disableNode(element.node, element.defaultValue)
+        disableNode(element.node, element.defaultValue, element.hideParent)
       })
     } else {
       elementsHiddenForBaseMap.forEach((element) => {
-        enableNode(element.node)
+        enableNode(element.node, element.hideParent)
       })
     }
+
+    // Update default visibility based on layer type
+    updateDefaultVisibility(isBaseLayer)
   }
 
   // Xplan default layer checkbox handling
@@ -116,6 +220,7 @@ export default () => {
     // Toggle defaultLayer checkbox
     const xPlanDefaultLayersVisibility = function (show) {
       const inputXplanDefaultLayers = document.querySelector('input[name="r_xplanDefaultlayers"]')
+
       if (show === false) {
         inputXplanDefaultLayers.parentNode.setAttribute('style', 'display: none')
         inputXplanDefaultLayers.checked = false

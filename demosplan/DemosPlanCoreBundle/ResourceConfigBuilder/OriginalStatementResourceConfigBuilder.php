@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseStatementResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
@@ -33,13 +34,14 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $submitterAndAuthorMetaDataAnonymized
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $textPassagesAnonymized
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $textIsTruncated
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,Statement> $procedurePhase
+ * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement, ProcedurePhaseDefinition> $procedurePhase
  *
  * An Statement has only one source attachment, that is why the property is named singular even though it is a to-many relationship
  * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,StatementInterface,StatementAttachment> $sourceAttachment
  * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,StatementInterface,FileContainer> $genericAttachments
  * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement, Elements> $elements
  * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, Statement, Statement> $parentStatementOfSegment
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,Statement> $customFields
  */
 class OriginalStatementResourceConfigBuilder extends BaseStatementResourceConfigBuilder
 {

@@ -35,16 +35,34 @@
         v-for="segment in segments"
         :id="'segmentTextEdit_' + segment.id"
         :key="segment.id"
-        class="u-ph-0_25"
-        :class="{ 'bg-color--grey-light-2': hoveredSegment === segment.id }"
-        @mouseenter="hoveredSegment = segment.id"
-        @mouseleave="hoveredSegment = null"
+        class="px-1 hover:bg-interactive-secondary-subtle-hover"
       >
-        <div
-          class="inline-block"
-          style="width: 5%"
-        >
+        <div class="inline-block w-[5%]">
+          <template v-if="isSegmentLocked(segment)">
+            <dp-button
+              v-if="hasPermission('feature_administrate_segment_lock')"
+              :text="lockTooltip"
+              class="text-interactive inline-block ml-0.5 align-middle bg-transparent! border-transparent! hover:bg-interactive-subtle-hover!"
+              icon="prohibit"
+              icon-weight="fill"
+              variant="subtle"
+              hide-text
+              @click="openUnlockModal(segment)"
+            />
+            <dp-tooltip
+              v-else
+              :text="lockTooltip"
+            >
+              <dp-icon
+                class="text-interactive inline-block ml-1"
+                icon="prohibit"
+                size="small"
+                weight="fill"
+              />
+            </dp-tooltip>
+          </template>
           <dp-claim
+            v-else
             class="c-at-item__row-icon inline-block"
             :assigned-id="assigneeBySegment(segment.id).id"
             :assigned-name="assigneeBySegment(segment.id).name"
@@ -56,10 +74,7 @@
             @click="() => toggleClaimSegment(segment)"
           />
         </div><!--
-     --><div
-          class="inline-block break-words"
-          style="width: 95%"
-        >
+     --><div class="inline-block break-words w-[95%]">
           <dp-edit-field
             :ref="`editField_${segment.id}`"
             class="c-styled-html"
@@ -80,10 +95,12 @@
             </template>
             <template v-slot:edit>
               <dp-editor
-                class="u-mr u-pt-0_25"
-                :toolbar-items="{ linkButton: true, obscure: hasPermission('feature_obscure_text') }"
-                :value="segment.attributes.text"
-                @transform-obscure-tag="transformObscureTag"
+                class="mr-4 pt-1"
+                :routes="{ getFileByHash: (hash) => Routing.generate('core_file_procedure', { procedureId, hash }) }"
+                :toolbar-items="{ imageButton: true, linkButton: true, obscure: hasPermission('feature_obscure_text') }"
+                :tus-endpoint="dplan.paths.tusEndpoint"
+                :value="getSegmentInitialText(segment.id)"
+                @transform-obscure-tag="(val) => transformObscureTag(segment.id, val)"
                 @input="(val) => updateSegmentText(segment.id, val)"
               />
             </template>
@@ -117,8 +134,8 @@
           hidden-input="statementText"
           required
           :toolbar-items="{ linkButton: true}"
-          :value="statement.attributes.fullText || ''"
-          @transform-obscure-tag="transformObscureTag"
+          :value="getStatementInitialText()"
+          @transform-obscure-tag="transformObscureStatementTag"
           @input="updateStatementText"
         />
         <dp-button-row
@@ -140,12 +157,19 @@
           :message="Translator.trans('warning.statement.in.segmentation.cannot.be.edited')"
           type="warning"
         />
-        <p class="weight--bold">
+        <p class="font-semibold">
           {{ Translator.trans('statement.text.short') }}
         </p>
         <div v-cleanhtml="statement.attributes.fullText || ''" />
       </div>
     </template>
+    <segment-unlock-modal
+      v-if="hasPermission('feature_administrate_segment_lock')"
+      ref="unlockModal"
+      :assignable-users="assignableUsers"
+      :places="places"
+      @unlock="payload => unlockSegment(payload, () => fetchSegments(pagination?.currentPage || 1))"
+    />
   </div>
 </template>
 
@@ -153,34 +177,45 @@
 import {
   CleanHtml,
   dpApi,
+  DpButton,
   DpButtonRow,
+  DpIcon,
   DpInlineNotification,
   DpLoading,
   DpPager,
+  DpTooltip,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpEditField from '@DpJs/components/statement/assessmentTable/DpEditField'
-import { scrollTo } from 'vue-scrollto'
-import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import { handleSegmentNavigation } from '@DpJs/lib/segment/handleSegmentNavigation'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
+import { scrollTo } from 'vue-scrollto'
+import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
+import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
 
 export default {
   name: 'StatementSegmentsEdit',
 
   components: {
+    DpButton,
     DpButtonRow,
     DpClaim,
     DpEditField,
+    DpIcon,
     DpLoading,
     DpPager,
+    DpTooltip,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
+
       return DpEditor
     }),
     DpInlineNotification,
+    SegmentUnlockModal,
     TextContentRenderer,
   },
 
@@ -189,6 +224,8 @@ export default {
   },
 
   mixins: [dpValidateMixin, paginationMixin],
+
+  inject: ['procedureId'],
 
   props: {
     currentUser: {
@@ -219,13 +256,17 @@ export default {
     'statementText:updated',
   ],
 
+  setup () {
+    const { unlockModal, openUnlockModal, unlockSegment } = useSegmentUnlock()
+
+    return { unlockModal, openUnlockModal, unlockSegment }
+  },
+
   data () {
     return {
       claimLoading: null,
       editingSegmentIds: [],
-      hoveredSegment: null,
       isLoading: false,
-      obscuredText: '',
       defaultPagination: {
         currentPage: 1,
         limits: [10, 20, 50],
@@ -233,6 +274,7 @@ export default {
       },
       pagination: {},
       storageKeyPagination: `segmentsEdit_${this.statementId}_pagination`,
+      segmentNavigation: null,
     }
   },
 
@@ -245,32 +287,43 @@ export default {
       statements: 'items',
     }),
 
+    ...mapState('Place', {
+      placeItems: 'items',
+    }),
+
+    ...mapState('AssignableUser', {
+      assignableUsersObject: 'items',
+    }),
+
+    assignableUsers () {
+      const users = Object.values(this.assignableUsersObject).map(user => ({
+        name: user.attributes.firstname + ' ' + user.attributes.lastname,
+        id: user.id,
+      }))
+
+      return [{ name: Translator.trans('not.assigned'), id: 'noAssigneeId' }, ...users]
+    },
+
     assigneeBySegment () {
       return segmentId => {
         const segment = this.segments[segmentId]
-        try {
-          const assignee = segment.rel('assignee')
-          const orga = assignee ? assignee.rel('orga') : ''
 
+        // Bypass segment.rel() to avoid library crash on null relationships
+        if (!segment.hasRelationship('assignee') || !segment.relationships?.assignee?.data) {
           return {
-            id: assignee.id,
-            name: assignee.attributes.firstname + ' ' + assignee.attributes.lastname,
-            orgaName: orga ? orga.attributes.name : '',
+            id: '',
+            name: '',
+            orgaName: '',
           }
-        } catch (err) {
-          if (segment.hasRelationship('assignee') && segment.relationships.assignee.data.id === this.currentUser.id) {
-            return {
-              id: this.currentUser.id,
-              name: this.currentUser.firstname + ' ' + this.currentUser.lastname,
-              orgaName: this.currentUser.orgaName,
-            }
-          } else {
-            return {
-              id: '',
-              name: '',
-              orgaName: '',
-            }
-          }
+        }
+
+        const assignee = segment.rel('assignee')
+        const orga = assignee.rel('orga')
+
+        return {
+          id: assignee.id || '',
+          name: (assignee.attributes?.firstname || '') + ' ' + (assignee.attributes?.lastname || ''),
+          orgaName: orga?.attributes?.name || '',
         }
       }
     },
@@ -279,9 +332,24 @@ export default {
       return Object.keys(this.segments).length > 0 && hasPermission('area_statement_segmentation')
     },
 
+    lockTooltip () {
+      return hasPermission('feature_administrate_segment_lock') ?
+        Translator.trans('segment.unlock.click.hint') :
+        Translator.trans('segment.lock.hint')
+    },
+
+    places () {
+      return Object.values(this.placeItems).map(place => ({
+        name: place.attributes.name,
+        id: place.id,
+        locked: place.attributes.locked,
+      }))
+    },
+
     statement () {
       return this.statements[this.statementId] || null
     },
+
   },
 
   methods: {
@@ -301,16 +369,33 @@ export default {
       restoreStatementAction: 'restoreFromInitial',
     }),
 
+    ...mapActions('AssignableUser', {
+      fetchAssignableUsers: 'list',
+    }),
+
+    ...mapActions('Place', {
+      fetchPlaces: 'list',
+    }),
+
     ...mapMutations('Statement', {
       setStatement: 'setItem',
     }),
 
     addToEditing (id) {
-      this.editingSegmentIds.push(id)
+      this._localSegmentTexts[id] = this.segments[id]?.attributes?.text || ''
+
+      if (!this.editingSegmentIds.includes(id)) {
+        this.editingSegmentIds.push(id)
+      }
+    },
+
+    getSegmentInitialText (segmentId) {
+      return this.segments[segmentId]?.attributes?.text ?? ''
     },
 
     claimSegment (segment) {
       const dataToUpdate = { ...segment, ...{ relationships: { ...segment.relationships, ...{ assignee: { data: { type: 'AssignableUser', id: this.currentUser.id } } } } } }
+
       this.setSegment({ ...dataToUpdate, id: segment.id })
 
       const payload = {
@@ -361,31 +446,62 @@ export default {
     },
 
     isAssigneeEditable (segment) {
+      if (this.isSegmentLocked(segment)) {
+        return false
+      }
+
       return segment?.relationships?.assignee?.data?.id === this.currentUser.id
     },
 
+    isSegmentLocked (segment) {
+      if (!hasPermission('feature_segment_lock_by_workflow_place')) {
+        return false
+      }
+
+      const placeId = segment?.relationships?.place?.data?.id
+
+      return !!this.placeItems[placeId]?.attributes?.locked
+    },
+
     reset (segmentId) {
-      // Restore initial text value
-      const initText = this.$store.state.StatementSegment.initial[segmentId].attributes.text
-      this.updateSegmentText(segmentId, initText)
+      delete this._localSegmentTexts[segmentId]
+
       if (this.$refs[`editField_${segmentId}`][0]) {
         this.$refs[`editField_${segmentId}`][0].loading = false
         this.$refs[`editField_${segmentId}`][0].editingEnabled = false
       }
+
       const segmentIdIndex = this.editingSegmentIds.indexOf(segmentId)
-      this.editingSegmentIds.splice(segmentIdIndex, 1)
+
+      if (segmentIdIndex > -1) {
+        this.editingSegmentIds.splice(segmentIdIndex, 1)
+      }
     },
 
     resetStatement () {
       this.restoreStatementAction(this.statement.id)
+
+      this._localStatementText = null
     },
 
     saveSegment (segmentId) {
-      // Use the transformed text if available
-      const textToSave = this.obscuredText || this.segments[segmentId].attributes.text
+      const textToSave = this._localSegmentTexts[segmentId] ?? ''
 
-      // Update the segment text with the transformed text
-      this.updateSegmentText(segmentId, textToSave)
+      if (!textToSave) {
+        this.$refs[`editField_${segmentId}`][0].loading = false
+
+        return dplan.notify.error(Translator.trans('error.segment.empty.text'))
+      }
+
+      const updated = {
+        ...this.segments[segmentId],
+        attributes: {
+          ...this.segments[segmentId].attributes,
+          text: textToSave,
+        },
+      }
+
+      this.setSegment({ ...updated, id: segmentId })
 
       this.saveSegmentAction(segmentId)
         .catch(() => {
@@ -394,7 +510,12 @@ export default {
         })
         .finally(() => {
           const segmentIdIndex = this.editingSegmentIds.indexOf(segmentId)
-          this.editingSegmentIds.splice(segmentIdIndex, 1)
+
+          if (segmentIdIndex > -1) {
+            this.editingSegmentIds.splice(segmentIdIndex, 1)
+          }
+
+          delete this._localSegmentTexts[segmentId]
 
           if (this.$refs[`editField_${segmentId}`][0]) {
             this.$refs[`editField_${segmentId}`][0].loading = false
@@ -404,7 +525,18 @@ export default {
     },
 
     saveStatement () {
-      this.$emit('saveStatement', this.statement)
+      const textToSave = this._localStatementText ?? this.statement.attributes.fullText
+
+      const updatedStatement = {
+        ...this.statement,
+        attributes: {
+          ...this.statement.attributes,
+          fullText: textToSave,
+        },
+      }
+
+      this.setStatement({ ...updatedStatement, id: this.statement.id })
+      this.$emit('saveStatement', updatedStatement)
     },
 
     scrollToSegment () {
@@ -423,7 +555,8 @@ export default {
      */
     toggleClaimSegment (segment) {
       this.claimLoading = segment.id
-      const userIdToSet = segment.hasRelationship('assignee') && segment.relationships.assignee.data.id === this.currentUser.id ? null : this.currentUser.id
+      const assigneeData = segment.relationships?.assignee?.data
+      const userIdToSet = (segment.hasRelationship('assignee') && assigneeData?.id === this.currentUser.id) ? null : this.currentUser.id
       const isClaim = userIdToSet !== null
 
       if (isClaim) {
@@ -445,9 +578,11 @@ export default {
           },
         },
       }
+
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: segment.id }), {}, payload)
         .then(() => {
           const dataToUpdate = JSON.parse(JSON.stringify(segment))
+
           delete dataToUpdate.relationships.assignee
           // Set segment in store without the assignee
           this.setSegment({ ...dataToUpdate, id: segment.id })
@@ -460,38 +595,43 @@ export default {
     },
 
     updateSegmentText (segmentId, val) {
-      const fullText = this.obscuredText && this.obscuredText !== val ? this.obscuredText : val
-      const updated = {
-        ...this.segments[segmentId],
-        attributes: {
-          ...this.segments[segmentId].attributes,
-          text: fullText,
-        },
-      }
-      this.setSegment({ ...updated, id: segmentId })
+      this._localSegmentTexts[segmentId] = val
+    },
+
+    getStatementInitialText () {
+      return this.statement?.attributes?.fullText || ''
     },
 
     updateStatementText (val) {
-      const fullText = this.obscuredText && this.obscuredText !== val ? this.obscuredText : val
-
-      this.$emit('statementText:updated')
-
-      const updated = {
-        ...this.statement,
-        attributes: {
-          ...this.statement.attributes,
-          fullText,
-        },
-      }
-      this.setStatement({ ...updated, id: this.statement.id })
+      this._localStatementText = val
     },
 
-    transformObscureTag (val) {
-      this.obscuredText = val
+    transformObscureTag (segmentId, val) {
+      this._localSegmentTexts[segmentId] = val
+    },
+
+    transformObscureStatementTag (val) {
+      this._localStatementText = val
     },
 
     async fetchSegments (page = 1) {
       this.isLoading = true
+
+      // Calculate correct page for segment parameter (only runs once)
+      const { calculatedPage, perPage } = await this.segmentNavigation.calculatePageForSegment()
+      let shouldRemoveSegmentParam = false
+
+      if (calculatedPage) {
+        page = calculatedPage
+        this.pagination.currentPage = calculatedPage
+
+        if (perPage) {
+          this.pagination.perPage = perPage
+        }
+
+        // Mark that we need to remove segment param after scroll completes
+        shouldRemoveSegmentParam = true
+      }
 
       const statementSegmentFields = [
         'tags',
@@ -514,7 +654,11 @@ export default {
         include: ['assignee', 'comments', 'place', 'tags', 'assignee.orga', 'comments.submitter', 'comments.place'].join(),
         sort: 'orderInProcedure',
         fields: {
-          Place: ['name', 'sortIndex'].join(),
+          Place: [
+            'name',
+            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+            'sortIndex',
+          ].join(),
           SegmentComment: ['creationDate', 'place', 'submitter', 'text'].join(),
           StatementSegment: statementSegmentFields.join(),
           User: ['lastname', 'firstname', 'orga'].join(),
@@ -542,9 +686,14 @@ export default {
 
       this.isLoading = false
 
-      await this.$nextTick(() => {
-        this.scrollToSegment()
-      })
+      await this.$nextTick()
+
+      this.scrollToSegment()
+
+      // Remove segment parameter after scroll completes to prevent re-navigation on tab toggle
+      if (shouldRemoveSegmentParam) {
+        this.segmentNavigation.removeSegmentParameter()
+      }
     },
 
     handlePageChange (page) {
@@ -556,25 +705,71 @@ export default {
         // Prevent division by zero or negative page size
         return
       }
+
       // Compute new page with current page for changed number of items per page
       const page = Math.floor((this.pagination?.perPage * (this.pagination?.currentPage - 1) / newSize) + 1)
+
       this.pagination.perPage = newSize
       this.fetchSegments(page)
     },
   },
 
+  created () {
+    // Non-reactive buffers for editor content (avoid controlled component issues)
+    this._localSegmentTexts = {}
+    this._localStatementText = null
+
+    this.segmentNavigation = handleSegmentNavigation({
+      statementId: this.statementId,
+      storageKey: this.storageKeyPagination,
+      currentPerPage: this.pagination?.perPage,
+      defaultPagination: this.defaultPagination,
+    })
+  },
+
   mounted () {
     if (hasPermission('area_statement_segmentation')) {
-      this.initPagination()
+      /**
+       * Check if the user navigated here from a specific segment in the segments list; if so, navigate to the page on which
+       * that segment is found (i.e., override pagination)
+       */
+      const paginationOverride = this.segmentNavigation.initializeSegmentPagination(() => this.initPagination())
+
+      if (paginationOverride) {
+        this.pagination = paginationOverride
+      }
+
+      /**
+       * Fetch segments for current page from pagination (either based on the segment the user navigated from or on localStorage),
+       * default to 1st page
+       */
       this.fetchSegments(this.pagination?.currentPage || 1)
+
+      // Assignable users and places are needed to populate the unlock modal
+      if (hasPermission('feature_administrate_segment_lock')) {
+        this.fetchAssignableUsers()
+        this.fetchPlaces({
+          fields: {
+            Place: [
+              'description',
+              ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+              'name',
+              'solved',
+              'sortIndex',
+            ].join(),
+          },
+          sort: 'sortIndex',
+        })
+      }
     }
   },
 
   beforeUnmount () {
     if (this.editingSegmentIds.length > 0 && hasPermission('area_statement_segmentation')) {
-      this.editingSegmentIds.forEach(segment => this.reset(segment.id))
+      this.editingSegmentIds.forEach(segmentId => this.reset(segmentId))
     }
-    if (this.hasSegments === false && this.segment) {
+
+    if (this.hasSegments === false && this.statement) {
       this.resetStatement()
     }
   },

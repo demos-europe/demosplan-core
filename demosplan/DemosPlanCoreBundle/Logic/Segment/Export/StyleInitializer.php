@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Export;
 
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplate;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
 use PhpOffice\PhpWord\Shared\Converter;
 use PhpOffice\PhpWord\SimpleType\Jc;
@@ -24,8 +25,9 @@ class StyleInitializer
      */
     private array $styles;
 
-    public function __construct(private readonly DocumentWriterSelector $writerSelector)
-    {
+    public function __construct(
+        private readonly DocumentWriterSelector $writerSelector,
+    ) {
     }
 
     /**
@@ -44,7 +46,7 @@ class StyleInitializer
     private function initializeGlobalStyles(): void
     {
         $this->styles['globalSection'] = [
-            'orientation'  => 'landscape',
+            'orientation'  => ExportTemplate::LANDSCAPE->value,
             'marginLeft'   => Converter::cmToTwip(1.27),
             'marginRight'  => Converter::cmToTwip(1.27),
         ];
@@ -71,6 +73,7 @@ class StyleInitializer
     private function initializeSegmentStyles(int $smallColumnWidth, int $wideColumnWidth): void
     {
         $this->styles['noInfoMessageFont'] = ['size' => 12];
+
         $headerCellStyle = ['borderSize'  => 5, 'borderColor' => '000000', 'bold' => true];
         $headerCellStyle = $this->writerSelector->getCellStyleForFormat($headerCellStyle);
         $headerPargraphStyle = ['spaceBefore' => Converter::cmToTwip(0.15), 'spaceAfter' => Converter::cmToTwip(0.15)];

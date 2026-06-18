@@ -38,7 +38,7 @@
         />
         <!-- display if user is not the assignee of all fragments of this statement or if any fragments of this statement are currently assigned to departments -->
         <dp-inline-notification
-          v-if="!userIsAssigneeOfAllFragments && !fragmentsAreNotAssignedToDepartments"
+          v-if="!userIsAssigneeOfAllFragments || isAnyFragmentAssignedToDepartment"
           class="mb-2"
           :message="Translator.trans('statement.moveto.procedure.fragments.not.claimed.warning')"
           type="warning"
@@ -116,7 +116,7 @@
         <button
           type="button"
           class="btn btn--primary float-right"
-          :disabled="!userIsAssigneeOfAllFragments || !fragmentsAreNotAssignedToDepartments"
+          :disabled="!userIsAssigneeOfAllFragments || isAnyFragmentAssignedToDepartment"
           @click.prevent.stop="moveStatement"
         >
           {{ Translator.trans('statement.moveto.procedure.action') }}
@@ -187,13 +187,13 @@ export default {
       return this.statementFragments.filter(fragment => this.currentUserId === fragment.assigneeId).length === this.statementFragments.length
     },
 
-    fragmentsAreNotAssignedToDepartments () {
-      /*
-       * DepartmentId is set when a fragment is assigned to a department. If it is assigned to a department, the user can't move the statement despite being the assignee of the fragment.
-       ** The check prevents failure of moveStatement due to fragments being assigned to departments.
-       ** departmentId is either set to null or to '' (empty string) when the fragment is not assigned to any departments.
-       */
-      return this.statementFragments.filter(fragment => (fragment.departmentId === null || fragment.departmentId === '')).length === this.statementFragments.length
+    /*
+     * DepartmentId is set when a fragment is assigned to a department. If it is assigned to a department, the user can't move the statement despite being the assignee of the fragment.
+     ** The check prevents failure of moveStatement due to fragments being assigned to departments.
+     ** departmentId is either set to null or to '' (empty string) when the fragment is not assigned to any departments.
+     */
+    isAnyFragmentAssignedToDepartment () {
+      return this.statementFragments.some(fragment => fragment.departmentId)
     },
 
     availableProcedures () {
@@ -242,7 +242,9 @@ export default {
 
     handleFragments () {
       if (this.statementId) {
-        this.setFragments(this.statementId).then(() => { this.isLoading = false })
+        this.setFragments(this.statementId).then(() => {
+          this.isLoading = false
+        })
       } else {
         this.resetFragments()
       }
@@ -251,6 +253,7 @@ export default {
     setFragments (statementId) {
       const setFragmentsInComponent = () => {
         const fragments = this.fragmentsByStatement(statementId).fragments
+
         this.statementFragments = fragments.map(fragment => {
           return {
             id: fragment.id,
@@ -263,6 +266,7 @@ export default {
       // If fragments are already loaded don't load them again
       if (this.statement.fragmentsTotal === this.fragmentsByStatement(statementId).fragments.length) {
         setFragmentsInComponent()
+
         return Promise.resolve(true)
       } else {
         return this.loadFragments({ procedureId: this.procedureId, statementId })
@@ -285,6 +289,7 @@ export default {
       //  Return when no procedure is selected
       if (this.selectedProcedureId === '') {
         dplan.notify.notify('error', Translator.trans('warning.select.entry'))
+
         return
       }
 
@@ -316,6 +321,7 @@ export default {
             // Handle update of assessment table ui from TableCard.vue
             this.$root.$emit('statement:moveToProcedure', moveToProcedureParams)
           }
+
           this.toggleModal()
         })
         .catch(() => {

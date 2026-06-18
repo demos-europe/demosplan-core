@@ -49,6 +49,9 @@
       </dp-bulk-edit-header>
       <statement-export-modal
         data-cy="listStatements:export"
+        :has-permission-adjust-preamble="hasPermission('feature_adjust_preamble_export_file')"
+        :procedure-id="procedureId"
+        :procedure-name="procedureName"
         @export="showHintAndDoExport"
       />
       <div
@@ -95,7 +98,7 @@
         data-cy="listStatements"
         :class="{ 'px-2 overflow-y-scroll grow': isFullscreen }"
         has-flyout
-        :is-selectable="isSourceAndCoupledProcedure"
+        :is-selectable="isSourceAndCoupledProcedure && hasPermission('feature_statements_sync_to_procedure')"
         :header-fields="headerFields"
         is-expandable
         :items="items"
@@ -193,6 +196,7 @@
               data-cy="listStatements:statementDetailsAndRecommendation"
               :href="Routing.generate('dplan_statement_segments_list', { statementId: id, procedureId: procedureId })"
               rel="noopener"
+              @click="storeNavigationContextInLocalStorage"
             >
               {{ Translator.trans('statement.details_and_recommendation') }}
             </a>
@@ -292,27 +296,16 @@
           <!-- Statement text -->
           <div class="u-pt-0_5 c-styled-html">
             <strong>{{ Translator.trans('statement.text.short') }}:</strong>
-            <template v-if="typeof fullText === 'undefined'">
-              <div v-cleanhtml="text" />
-              <a
-                v-if="statementsObject[id].attributes.textIsTruncated"
-                class="show-more cursor-pointer"
-                rel="noopener"
-                @click.prevent.stop="() => getStatementsFullText(id)"
-              >
-                {{ Translator.trans('show.more') }}
-              </a>
-            </template>
-            <template v-else>
-              <div v-cleanhtml="statementsObject[id].attributes.isFulltextDisplayed ? fullText : text" />
-              <a
-                class="cursor-pointer"
-                rel="noopener"
-                @click="() => toggleFulltext(id)"
-              >
-                {{ Translator.trans(statementsObject[id].attributes.isFulltextDisplayed ? 'show.less' : 'show.more') }}
-              </a>
-            </template>
+            <p v-cleanhtml="displayedText(id)" />
+            <a
+              v-if="statementsObject[id].attributes.textIsTruncated"
+              class="cursor-pointer"
+              :class="{ 'show-more': !statementsObject[id].attributes.isFulltextDisplayed }"
+              rel="noopener"
+              @click.prevent="handleFullTextAction(id)"
+            >
+              {{ toggleFullTextLabel(id) }}
+            </a>
           </div>
         </template>
       </dp-data-table>
@@ -348,6 +341,8 @@ import {
 import { mapActions, mapMutations, mapState } from 'vuex'
 import CustomSearchStatements from './CustomSearchStatements'
 import DpClaim from '@DpJs/components/statement/DpClaim'
+import { inlineImageAnchors } from '@DpJs/lib/shared/inlineImageAnchors'
+import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
@@ -398,6 +393,12 @@ export default {
     procedureId: {
       required: true,
       type: String,
+    },
+
+    procedureName: {
+      required: false,
+      type: String,
+      default: '',
     },
 
     submitTypeOptions: {
@@ -481,7 +482,7 @@ export default {
     },
 
     exportRoute: function () {
-      return (exportRoute, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored) => {
+      return (exportRoute, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds, customHeaderText) => {
         const parameters = {
           filter: {
             procedureId: {
@@ -497,6 +498,9 @@ export default {
             ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {},
           },
           sort: this.selectedSort,
+          tagsFilter: {
+            tagIds: tagFilterIds,
+          },
           isObscured,
           isInstitutionDataCensored,
           isCitizenDataCensored,
@@ -514,6 +518,10 @@ export default {
           parameters.fileNameTemplate = fileNameTemplate
         }
 
+        if (customHeaderText) {
+          parameters.customHeaderText = customHeaderText
+        }
+
         return Routing.generate(exportRoute, parameters)
       }
     },
@@ -523,6 +531,7 @@ export default {
         .map(statement => {
           const { segmentsCount = 0 } = statement.attributes
           const originalPdf = this.getOriginalPdfAttachmentHash(statement)
+
           return {
             ...statement.attributes,
             assignee: this.getAssignee(statement),
@@ -561,6 +570,16 @@ export default {
       }
     },
 
+    displayedText (statementId) {
+      const { attributes } = this.statementsObject[statementId]
+
+      if (!attributes) {
+        return ''
+      }
+
+      return inlineImageAnchors(attributes.isFulltextDisplayed ? attributes.fullText : attributes.text)
+    },
+
     getAssignee (statement) {
       if (this.assigneeId(statement)) {
         const assignee = this.assignableUsersObject[this.assigneeId(statement)]
@@ -589,8 +608,25 @@ export default {
       }
     },
 
+    handleFullTextAction (statementId) {
+      const attributes = this.statementsObject[statementId].attributes
+
+      if (!attributes) {
+        return
+      }
+
+      if (!attributes.isFulltextDisplayed) {
+        this.getStatementsFullText(statementId)
+
+        return
+      }
+
+      this.toggleFulltext(statementId)
+    },
+
     handleSizeChange (newSize) {
       const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
+
       this.pagination.perPage = newSize
       this.getItemsByPage(page)
     },
@@ -647,8 +683,10 @@ export default {
      */
     claimStatement (statementId) {
       const statement = this.statementsObject[statementId]
+
       if (typeof statement !== 'undefined') {
         const dataToUpdate = { ...statement, ...{ relationships: { ...statement.relationships, ...{ assignee: { data: { type: 'Claim', id: this.currentUserId } } } } } }
+
         this.setStatement({ ...dataToUpdate, id: statementId })
 
         const payload = {
@@ -696,6 +734,7 @@ export default {
     unclaimStatement (statementId) {
       const statement = this.statementsObject[statementId]
       const dataToUpdate = { ...statement, ...{ relationships: { ...statement.relationships, ...{ assignee: { data: { type: 'Claim', id: null } } } } } }
+
       this.setStatement({ ...dataToUpdate, id: statementId })
 
       const payload = {
@@ -709,6 +748,7 @@ export default {
           },
         },
       }
+
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: statementId }), {}, payload)
         .catch((err) => {
           this.restoreStatementAction(statementId)
@@ -752,9 +792,11 @@ export default {
         'assignee',
         'sourceAttachment',
       ]
+
       if (this.isSourceAndCoupledProcedure) {
         statementFields.push('synchronized')
       }
+
       if (hasPermission('area_statement_segmentation')) {
         statementFields.push('segmentDraftList')
       }
@@ -849,6 +891,7 @@ export default {
        * That's why `AND` is used as conjunction, and `<>` (not equal) as operator, in that case.
        */
       const filterForToggledItems = {}
+
       if (this.toggledItems.length > 0) {
         filterForToggledItems.statementFilterGroup = {
           group: {
@@ -903,6 +946,7 @@ export default {
           const oldStatement = Object.values(this.statementsObject).find(el => el.id === statementId)
           const fullText = response.data.data.attributes.fullText
           const updatedStatement = { ...oldStatement, attributes: { ...oldStatement.attributes, fullText, isFulltextDisplayed: true } }
+
           this.setStatement({ ...updatedStatement, id: statementId })
         })
     },
@@ -973,11 +1017,16 @@ export default {
       }
     },
 
-    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, shouldConfirm, isObscured, isInstitutionDataCensored, isCitizenDataCensored }) {
-      const url = this.exportRoute(route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored)
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, shouldConfirm, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds, customHeaderText }) {
+      const url = this.exportRoute(route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds, customHeaderText)
+
       if (!shouldConfirm || window.dpconfirm(Translator.trans('export.statements.hint'))) {
         window.location.href = url
       }
+    },
+
+    storeNavigationContextInLocalStorage () {
+      lscache.set(`${this.procedureId}:navigation:source`, 'StatementsList')
     },
 
     triggerStatementDeletion (id) {
@@ -1000,7 +1049,18 @@ export default {
     toggleFulltext (statementId) {
       const statement = this.statementsObject[statementId]
       const isFulltext = statement.attributes.isFulltextDisplayed
+
       this.setStatement({ ...{ ...statement, attributes: { ...statement.attributes, isFulltextDisplayed: !isFulltext }, id: statementId } })
+    },
+
+    toggleFullTextLabel (statementId) {
+      const { attributes } = this.statementsObject[statementId]
+
+      if (!attributes) {
+        return ''
+      }
+
+      return Translator.trans(attributes.isFulltextDisplayed ? 'show.less' : 'show.more')
     },
 
     updateSearchFields (selectedFields) {
@@ -1009,6 +1069,10 @@ export default {
   },
 
   mounted () {
+    if (lscache.get(`${this.procedureId}:navigation:source`)) {
+      lscache.remove(`${this.procedureId}:navigation:source`)
+    }
+
     this.fetchAssignableUsers({
       include: 'orga',
       fields: {

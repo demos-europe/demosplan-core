@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -12,22 +14,20 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeDisplayHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService;
 use demosplan\DemosPlanCoreBundle\Transformers\HistoryDayTransformer;
 use Exception;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 class SegmentHistoryAPIController extends APIController
 {
-    /**
-     * @DplanPermissions("feature_segment_content_changes_view")
-     */
-    #[Route(path: '/api/1.0/SegmentHistory/{segmentId}', methods: ['GET'], name: 'dplan_api_segment_history_get', options: ['expose' => true])]
+    #[DplanPermissions('feature_segment_content_changes_view')]
+    #[Route(path: '/api/1.0/SegmentHistory/{segmentId}', name: 'dplan_api_segment_history_get', options: ['expose' => true], methods: ['GET'])]
     public function getAction(
         CurrentProcedureService $currentProcedureService,
         EntityContentChangeDisplayHandler $displayHandler,

@@ -72,7 +72,7 @@ final class PackageInformation
         $path = $this->getInstallPath($addonName).'/demosplan-addon.y*ml';
         $globResult = glob($path);
 
-        if (false === $globResult || 0 === count($globResult)) {
+        if (false === $globResult || [] === $globResult) {
             throw AddonException::invalidManifest($addonName);
         }
 

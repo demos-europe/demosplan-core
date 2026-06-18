@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -12,15 +14,13 @@ namespace demosplan\DemosPlanCoreBundle\Services\Elasticsearch;
 
 class FilterMissing implements FilterInterface
 {
-    /** @var mixed */
-    protected $value;
+    protected $value = [''];
 
     /**
      * @param string $field
      */
     public function __construct(protected $field)
     {
-        $this->value = [''];
     }
 
     /**
@@ -31,9 +31,6 @@ class FilterMissing implements FilterInterface
         return $this->field;
     }
 
-    /**
-     * @return mixed
-     */
     public function getValue()
     {
         return $this->value;

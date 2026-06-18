@@ -28,8 +28,8 @@ class HeaderSanitizerService
         $sanitized = preg_replace('/[\x00-\x08\x0B-\x1F\x7F]/', '', $header);
 
         // Remove everything after newlines to prevent header injection
-        if (str_contains($sanitized, "\r") || str_contains($sanitized, "\n")) {
-            $parts = preg_split('/[\r\n]+/', $sanitized);
+        if (str_contains((string) $sanitized, "\r") || str_contains((string) $sanitized, "\n")) {
+            $parts = preg_split('/[\r\n]+/', (string) $sanitized);
 
             return $parts[0];
         }
@@ -53,7 +53,7 @@ class HeaderSanitizerService
         // We specifically exclude < and > and other characters that could be used for XSS
         $sanitized = preg_replace('/<[^>]*>/', '', $sanitized); // Remove anything between < and >
 
-        return preg_replace('/[^a-zA-Z0-9 \-_\.~\+\/=]/', '', $sanitized);
+        return preg_replace('/[^a-zA-Z0-9 \-_\.~\+\/=]/', '', (string) $sanitized);
     }
 
     /**
@@ -72,7 +72,7 @@ class HeaderSanitizerService
         $sanitized = preg_replace('/<[^>]*>/', '', $sanitized);
 
         // Only allow alphanumeric characters and a limited set of special characters for CSRF tokens
-        return preg_replace('/[^a-zA-Z0-9\-_]/', '', $sanitized);
+        return preg_replace('/[^a-zA-Z0-9\-_]/', '', (string) $sanitized);
     }
 
     /**

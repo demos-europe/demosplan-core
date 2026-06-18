@@ -20,6 +20,7 @@
 
     {% if selectedPublicAgencies|length == 0 %}
         <dp-inline-notification
+            class="mb-2"
             message="{{ 'invitable_institutions.select.explanation'|trans }}"
             type="warning"></dp-inline-notification>
     {% else %}
@@ -32,15 +33,16 @@
         {% endif %}
 
         <dp-inline-notification
+            class="mb-2"
             message="{{ message }}"
             type="{{ type }}"></dp-inline-notification>
 
         <dp-accordion
             data-cy="administrationMemberEmail:recipients"
             title="{{ 'recipients'|trans }}"
-            class="u-mb"
+            class="mb-2"
             compressed>
-            <div class="u-mt-0_5">
+            <div class="mt-2">
                 <table class="c-table">
                     <thead>
                         <tr>
@@ -66,6 +68,7 @@
     {% endif %}
 
     <dp-inline-notification
+        class="mb-2"
         message="{{ 'invitable_institutions.invitation.hint'|trans }}"
         type="warning"></dp-inline-notification>
 

@@ -38,6 +38,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
@@ -102,6 +103,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         private readonly MasterTemplateService $masterTemplateService,
         private readonly MessageBagInterface $messageBag,
         private readonly NotificationReceiverRepository $notificationReceiverRepository,
+        private readonly ProcedurePhaseDefinitionRepository $procedurePhaseDefinitionRepository,
         private readonly OrgaService $orgaService,
         private readonly PermissionsInterface $permissions,
         ProcedureCategoryService $procedureCategoryService,
@@ -163,13 +165,10 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
         // check for mandatory fields which should be programmatically added
         $mandatoryFields = ['orgaId', 'orgaName', 'r_copymaster'];
-        if (array_key_exists('r_copymaster', $data)
-            && $this->masterTemplateService->getMasterTemplateId() !== $data['r_copymaster']) {
-            // r_procedure_type is only required if an actual procedure is created,
-            // procedure blueprints do not need a procedure type.
-            if (!array_key_exists('r_master', $data) || 'true' !== $data['r_master']) {
-                $mandatoryFields[] = 'r_procedure_type';
-            }
+        // r_procedure_type is only required if an actual procedure is created,
+        // procedure blueprints do not need a procedure type.
+        if (array_key_exists('r_copymaster', $data) && $this->masterTemplateService->getMasterTemplateId() !== $data['r_copymaster'] && (!array_key_exists('r_master', $data) || 'true' !== $data['r_master'])) {
+            $mandatoryFields[] = 'r_procedure_type';
         }
         foreach ($mandatoryFields as $mandatoryField) {
             if (!array_key_exists($mandatoryField, $data) || '' === trim((string) $data[$mandatoryField])) {
@@ -246,7 +245,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             ];
         }
 
-        if (0 < count($mandatoryErrors)) {
+        if ([] !== $mandatoryErrors) {
             $this->legacyFlashMessageCreator->setFlashMessages($mandatoryErrors);
 
             $messages = collect($mandatoryErrors)->map(
@@ -271,8 +270,10 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         $procedureData['orgaId'] = $data['orgaId'];
         $procedureData['orgaName'] = $data['orgaName'];
 
-        // Phase Konfiguration der Öffentlichkeit
-        $procedureData['publicParticipationPhase'] = $this->masterProcedurePhase;
+        // Phase configuration: set both internal and external phase to the initial phase definition
+        $currentCustomer = $this->customerService->getCurrentCustomer();
+        $procedureData['phaseDefinition'] = $this->procedurePhaseDefinitionRepository->findInitialDefinition('internal', $currentCustomer);
+        $procedureData['publicParticipationPhaseDefinition'] = $this->procedurePhaseDefinitionRepository->findInitialDefinition('external', $currentCustomer);
         $procedureData['copymaster'] = $data['r_copymaster'];
         $procedureData['procedureCoupleToken'] = $this->handleTokenField($data['procedureCoupleToken'] ?? null);
 
@@ -321,7 +322,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
                     ),
                 ];
             }
-            if (!array_key_exists('r_phase', $data) || '' === trim((string) $data['r_phase'])) {
+            if (!array_key_exists('r_phaseDefinitionId', $data) || '' === trim((string) $data['r_phaseDefinitionId'])) {
                 $mandatoryErrors[] = [
                     'type'    => 'error',
                     'message' => $this->legacyFlashMessageCreator->createFlashMessage(
@@ -336,30 +337,34 @@ class ServiceStorage implements ProcedureServiceStorageInterface
 
         $currentProcedure = $this->procedureHandler->getProcedureWithCertainty($data['r_ident']);
         $isBlueprint = $currentProcedure->getMaster();
-        $isNotInConfiguration = array_key_exists('r_phase', $data) && 'configuration' !== $data['r_phase'];
-        $isNotInPublicConfiguration = array_key_exists('r_publicParticipationPhase', $data) && 'configuration' !== $data['r_publicParticipationPhase'];
-        if ($this->permissions->hasPermission('feature_procedure_require_location') && !$isBlueprint && ($isNotInPublicConfiguration || $isNotInConfiguration)) {
-            if ((array_key_exists('r_coordinate', $data) && '' == $data['r_coordinate']) || !array_key_exists('r_coordinate', $data)) {
-                $mandatoryErrors[] = [
-                    'type'    => 'error',
-                    'message' => $this->legacyFlashMessageCreator->createFlashMessage(
-                        'mandatoryError',
-                        [
-                            'fieldLabel' => $this->translator->trans('wizard.topic.location'),
-                        ]
-                    ),
-                ];
-            }
+        $internalDefinition = array_key_exists('r_phaseDefinitionId', $data)
+            ? $this->procedurePhaseDefinitionRepository->find($data['r_phaseDefinitionId'])
+            : null;
+        $externalDefinition = array_key_exists('r_publicParticipationPhaseDefinitionId', $data)
+            ? $this->procedurePhaseDefinitionRepository->find($data['r_publicParticipationPhaseDefinitionId'])
+            : null;
+        $isNotInConfiguration = null !== $internalDefinition && 0 !== $internalDefinition->getOrderInAudience();
+        $isNotInPublicConfiguration = null !== $externalDefinition && 0 !== $externalDefinition->getOrderInAudience();
+        if ($this->permissions->hasPermission('feature_procedure_require_location') && !$isBlueprint && ($isNotInPublicConfiguration || $isNotInConfiguration) && ((array_key_exists('r_coordinate', $data) && '' == $data['r_coordinate']) || !array_key_exists('r_coordinate', $data))) {
+            $mandatoryErrors[] = [
+                'type'    => 'error',
+                'message' => $this->legacyFlashMessageCreator->createFlashMessage(
+                    'mandatoryError',
+                    [
+                        'fieldLabel' => $this->translator->trans('wizard.topic.location'),
+                    ]
+                ),
+            ];
         }
 
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'phase_iteration');
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'public_participation_phase_iteration');
         $phaseErrorMessage = $this->validatePhaseIteration($procedure, 'phase_iteration', 'error.phaseIteration.invalid');
-        if (!empty($phaseErrorMessage)) {
+        if ([] !== $phaseErrorMessage) {
             $mandatoryErrors[] = $phaseErrorMessage;
         }
         $phaseErrorMessage = $this->validatePhaseIteration($procedure, 'public_participation_phase_iteration', 'error.publicPhaseIteration.invalid');
-        if (!empty($phaseErrorMessage)) {
+        if ([] !== $phaseErrorMessage) {
             $mandatoryErrors[] = $phaseErrorMessage;
         }
 
@@ -378,15 +383,13 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             if (array_key_exists('r_customerMasterBlueprint', $data)) {
                 $currentCustomer->setDefaultProcedureBlueprint($currentProcedure);
                 $this->customerService->updateCustomer($currentCustomer);
-            } else {
+            } elseif ($isBlueprint) {
                 // T15644 & T34551 if the key 'r_customerMasterBlueprint' is not set within the $data array,
                 // - the assumption is that the procedure shall not be the default-customer-blueprint
                 // if the procedure is currently the default-customer-blueprint uncheck it as requested
-                if ($isBlueprint) {
-                    if ($currentProcedure === $currentCustomer->getDefaultProcedureBlueprint()) {
-                        $currentCustomer->setDefaultProcedureBlueprint(null);
-                        $this->customerService->updateCustomer($currentCustomer);
-                    }
+                if ($currentProcedure === $currentCustomer->getDefaultProcedureBlueprint()) {
+                    $currentCustomer->setDefaultProcedureBlueprint(null);
+                    $this->customerService->updateCustomer($currentCustomer);
                 }
             }
         }
@@ -407,13 +410,13 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             $procedure['settings'] = $this->arrayHelper->addToArrayIfKeyExists($procedure['settings'], $data, 'legalNotice');
         }
 
-        if (array_key_exists('r_phase', $data)) {
-            $procedure['phase'] = $data['r_phase'];
-            $procedure['closed'] = 'closed' === $data['r_phase'];
+        if (null !== $internalDefinition) {
+            $procedure['phaseDefinition'] = $internalDefinition;
 
-            // T9581 T9838: remove legal notice on change r_phase (toeb phase)
-            // check for change of toeb phase
-            if ($this->permissions->hasPermission('feature_procedure_legal_notice_write') && $currentProcedure->getPhase() != $procedure['phase']) {
+            // T9581 T9838: remove legal notice on phase change (toeb phase)
+            if ($this->permissions->hasPermission('feature_procedure_legal_notice_write')
+                && $currentProcedure->getPhaseObject()->getPhaseDefinition()->getId() !== $internalDefinition->getId()
+            ) {
                 $procedure['settings']['legalNotice'] = ''; // '' == default value
                 $this->messageBag->add('warning', 'procedure.legalnotice.cleared');
             }
@@ -432,11 +435,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             $procedure['logo'] = '';
         }
 
-        if (array_key_exists('r_dataInputOrga', $data)) {
-            $procedure['dataInputOrga'] = $data['r_dataInputOrga'];
-        } else {
-            $procedure['dataInputOrga'] = [];
-        }
+        $procedure['dataInputOrga'] = array_key_exists('r_dataInputOrga', $data) ? $data['r_dataInputOrga'] : [];
         $procedure = $this->arrayHelper->addToArrayIfKeyExists($procedure, $data, 'externalName');
         // Falls keine Verfahrensname für die Öffentlichkeit angelegt wird, dann speicher den allgem. Name als external Name
         if (empty($data['r_externalName']) && array_key_exists('name', $procedure) && '' !== $procedure['name']) {
@@ -467,15 +466,10 @@ class ServiceStorage implements ProcedureServiceStorageInterface
                 transformProcedureCategoryIdsToObjects($data['r_procedure_categories']);
         }
 
-        if (array_key_exists('r_publicParticipationPhase', $data)) {
-            $procedure['publicParticipationPhase'] = $data['r_publicParticipationPhase'];
-            // Das Backend benötigt die Info, ob Beteiligugnsphase aktiv ist für das Steuern der Rechte und Aktionen
-            $publicParticipationPhases = $this->globalConfig->getExternalPhasesAssoc('read||write');
-            if (array_key_exists($data['r_publicParticipationPhase'], $publicParticipationPhases)) {
-                $procedure['publicParticipation'] = true;
-            } else {
-                $procedure['publicParticipation'] = false;
-            }
+        if (null !== $externalDefinition) {
+            $procedure['publicParticipationPhaseDefinition'] = $externalDefinition;
+            // Das Backend benötigt die Info, ob Beteiligungsphase aktiv ist für das Steuern der Rechte und Aktionen
+            $procedure['publicParticipation'] = 'hidden' !== $externalDefinition->getPermissionSet();
         }
 
         if (array_key_exists('r_publicParticipationStartDate', $data) && '----' !== $data['r_publicParticipationStartDate']) {
@@ -556,12 +550,16 @@ class ServiceStorage implements ProcedureServiceStorageInterface
                 $procedure['settings'] = $this->arrayHelper->addToArrayIfKeyExists($procedure['settings'], $data, 'designatedSwitchDate');
                 $procedure['settings'] = $this->arrayHelper->addToArrayIfKeyExists($procedure['settings'], $data, 'designatedPhase');
                 $procedure['settings'] = $this->arrayHelper->addToArrayIfKeyExists($procedure['settings'], $data, 'designatedEndDate');
+                if (array_key_exists('r_designatedPhase', $data) && null !== $data['r_designatedPhase']) {
+                    $procedure['settings']['designatedPhaseDefinition'] = $this->procedurePhaseDefinitionRepository->find($data['r_designatedPhase']);
+                }
             }
         } else {
             // no autoswitchdate set, remove all Fields
             $procedure['settings']['designatedSwitchDate'] = null;
             $procedure['settings']['designatedPhase'] = null;
             $procedure['settings']['designatedEndDate'] = null;
+            $procedure['settings']['designatedPhaseDefinition'] = null;
         }
 
         // check for autoswitch mandatory fields public phase
@@ -591,12 +589,16 @@ class ServiceStorage implements ProcedureServiceStorageInterface
                 $procedure['settings'] = $this->arrayHelper->addToArrayIfKeyExists($procedure['settings'], $data, 'designatedPublicSwitchDate');
                 $procedure['settings'] = $this->arrayHelper->addToArrayIfKeyExists($procedure['settings'], $data, 'designatedPublicPhase');
                 $procedure['settings'] = $this->arrayHelper->addToArrayIfKeyExists($procedure['settings'], $data, 'designatedPublicEndDate');
+                if (array_key_exists('r_designatedPublicPhase', $data) && null !== $data['r_designatedPublicPhase']) {
+                    $procedure['settings']['designatedPublicPhaseDefinition'] = $this->procedurePhaseDefinitionRepository->find($data['r_designatedPublicPhase']);
+                }
             }
         } else {
             // no autoswitchdate set, remove all Fields
             $procedure['settings']['designatedPublicSwitchDate'] = null;
             $procedure['settings']['designatedPublicPhase'] = null;
             $procedure['settings']['designatedPublicEndDate'] = null;
+            $procedure['settings']['designatedPublicPhaseDefinition'] = null;
         }
 
         if ($this->permissions->hasPermission('feature_statement_notify_counties')) {
@@ -659,11 +661,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
         }
 
         if ($this->permissions->hasPermission('field_submit_anonymous_statements')) {
-            if (array_key_exists('allowAnonymousStatements', $data)) {
-                $procedure['settings']['allowAnonymousStatements'] = true;
-            } else {
-                $procedure['settings']['allowAnonymousStatements'] = false;
-            }
+            $procedure['settings']['allowAnonymousStatements'] = array_key_exists('allowAnonymousStatements', $data);
         }
 
         if ($this->permissions->hasPermission('field_expand_procedure_description')) {
@@ -700,7 +698,7 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             $path = $this->fileService->ensureLocalFile($pictogramFileInfo->getAbsolutePath());
             $imageInfo = getimagesize($path);
         } catch (Exception $e) {
-            throw new InvalidArgumentException($e->getMessage());
+            throw new InvalidArgumentException($e->getMessage(), $e->getCode(), $e);
         }
         Assert::isArray($imageInfo);
         Assert::keyExists($imageInfo, 0, 'Unable to get pictogram image width');
@@ -898,11 +896,9 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             }
         }
 
-        if (array_key_exists('r_planDrawDelete', $data)) {
-            // check, ob eine neue Datei hochgeladen werden soll
-            if (array_key_exists('r_planDrawPDF', $data) && !isset($data['r_planDrawPDF'])) {
-                $procedure['settings']['planDrawPDF'] = '';
-            }
+        // check, ob eine neue Datei hochgeladen werden soll
+        if (array_key_exists('r_planDrawDelete', $data) && (array_key_exists('r_planDrawPDF', $data) && !isset($data['r_planDrawPDF']))) {
+            $procedure['settings']['planDrawPDF'] = '';
         }
 
         return $this->procedureService->updateProcedure($procedure);

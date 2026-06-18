@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -16,13 +18,8 @@ use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 
 class ClaimedStatementsActivityChecker implements UserActivityInterface
 {
-    private StatementRepository $statementRepository;
-    private int $dayThreshold;
-
-    public function __construct(StatementRepository $statementRepository, int $dayThreshold = 180)
+    public function __construct(private readonly StatementRepository $statementRepository, private int $dayThreshold = 180)
     {
-        $this->statementRepository = $statementRepository;
-        $this->dayThreshold = $dayThreshold;
     }
 
     public function isUserActive(UserInterface $user): bool
@@ -34,7 +31,7 @@ class ClaimedStatementsActivityChecker implements UserActivityInterface
             'assignee' => $user,
         ]);
 
-        if (empty($claimedStatements)) {
+        if ([] === $claimedStatements) {
             return false;
         }
 

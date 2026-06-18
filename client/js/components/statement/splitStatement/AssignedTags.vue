@@ -83,6 +83,7 @@ export default {
         }
 
         const isNextTagShort = !this.isTagNameLongerThanLimit(this.segment.tags[idx + 1])
+
         if (isNextTagShort || this.isEven(idx + 1)) {
           classes.push('flex-1')
         }
@@ -117,6 +118,7 @@ export default {
 
     removeTag (id) {
       const tagToBeDeleted = this.availableTags.find(tag => tag.id === id)
+
       this.$emit('remove', { id, tagName: tagToBeDeleted.attributes.title })
     },
   },

@@ -62,7 +62,7 @@
         data-cy="map:informationUrl"
         :label="{
           text: Translator.trans('url.information'),
-          hint: Translator.trans('url.information.hint', { buttonlabel: 'map.getfeatureinfo.label' })
+          hint: Translator.trans('url.information.hint', { buttonlabel: Translator.trans('map.getfeatureinfo.label') })
         }"
       />
 
@@ -298,8 +298,6 @@ export default {
       dpApi.patch(url, {}, payload)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('text.mapsection.updated'))
-          this.$refs.mapView.$refs.map.getMapOptions()
-
           if (returnToOverview) {
             window.location.href = Routing.generate('DemosPlan_element_administration', { procedure: this.procedureId })
           }
@@ -313,6 +311,7 @@ export default {
 
   async mounted () {
     const settings = await this.fetchProcedureMapSettings({ procedureId: this.procedureId, isMaster: this.isMaster })
+
     this.procedureMapSettings = JSON.parse(JSON.stringify(settings))
     this.mapSettingsLoaded = true
   },

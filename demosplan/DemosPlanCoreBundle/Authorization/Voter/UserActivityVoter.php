@@ -51,7 +51,7 @@ class UserActivityVoter extends Voter
         }
 
         // If no activity checkers are configured, consider all users as active
-        if (empty($this->activityCheckers)) {
+        if ([] === $this->activityCheckers) {
             return true;
         }
 

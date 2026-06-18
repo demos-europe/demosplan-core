@@ -12,11 +12,11 @@
     :id="`segment_${segment.id}`"
     ref="statementSegment"
     class="segment-list-row"
-    :class="{'segment-list-row--assigned': isAssignedToMe, 'fullscreen': isFullscreen, 'rounded-lg': !isFullscreen}"
+    :class="{'segment-list-row--assigned': isAssignedToMe && !isLocked, 'fullscreen': isFullscreen, 'rounded-lg': !isFullscreen}"
     @mouseenter="isHover = true"
     @mouseleave="isHover = false"
   >
-    <div class="flex flex-col justify-start basis-1/5 u-pt-0_5 u-pl-0_5">
+    <div class="flex flex-col justify-start basis-1/5 pt-2 pl-2">
       <v-popover
         :container="$refs.statementSegment"
         trigger="hover focus"
@@ -28,9 +28,9 @@
         />
         <span>{{ segment.attributes.externId }}</span>
         <template v-slot:popover>
-          <div class="c-statement-meta-tooltip u-ph-0 u-pv-0">
+          <div class="c-statement-meta-tooltip px-0 py-0">
             <dl>
-              <div class="weight--bold u-pb-0_5 u-pr-0_5">
+              <div class="weight--bold pb-2 pr-2">
                 {{ Translator.trans('segment') }} {{ segment.attributes.externId }}
               </div>
               <div v-if="segment.attributes.externId">
@@ -57,25 +57,55 @@
                 </dt>
                 <dd>{{ assignee.name }}</dd>
               </div>
-              <template v-if="hasPermission('field_segments_custom_fields')">
-                <div
-                  v-for="customField in segment.attributes.customFields"
-                  :key="customField.id"
-                >
-                  <dt class="weight--bold">
-                    {{ Object.values(customFields).find(field => field.id === customField.id)?.attributes?.name || '' }}:
-                  </dt>
-                  <dd>
-                    {{ customField.value ? customField.value : Translator.trans('not.assigned') }}
-                  </dd>
-                </div>
-              </template>
             </dl>
+            <custom-fields-list
+              v-if="hasPermission('field_segments_custom_fields')"
+              :definition-source-id="procedureId"
+              :resource-id="segment.id"
+              :show-title="false"
+              mode="readonly"
+              resource-type="StatementSegment"
+              source-entity="PROCEDURE"
+              target-entity="SEGMENT"
+            />
           </div>
         </template>
       </v-popover>
 
+      <div
+        v-if="isLocked"
+        class="flex items-center space-x-1 mt-1 mr-2"
+      >
+        <dp-button
+          v-if="hasPermission('feature_administrate_segment_lock')"
+          :text="lockTooltipText"
+          icon="prohibit"
+          icon-weight="fill"
+          variant="subtle"
+          hide-text
+          @click="$emit('unlock', segment)"
+        />
+        <dp-tooltip
+          v-else
+          :text="lockTooltipText"
+        >
+          <dp-icon
+            class="text-interactive ml-0.5"
+            icon="prohibit"
+            size="small"
+            weight="fill"
+          />
+        </dp-tooltip>
+        <dp-badge
+          class="inline-flex items-center leading-none py-1"
+          color="info"
+          size="small"
+          :text="Translator.trans('segment.locked')"
+        />
+      </div>
       <dp-claim
+        v-else
+        class="ml-[5px] mt-1"
         entity-type="segment"
         :assigned-id="assignee.id || ''"
         :assigned-name="assignee.name || ''"
@@ -93,7 +123,7 @@
     <div class="segment-list-col--s">
       <button
         v-if="!isFullscreen"
-        class="segment-list-toggle-button btn--blank u-mh-auto"
+        class="segment-list-toggle-button btn--blank mx-auto"
         :class="{'reverse': !isCollapsed}"
         :aria-label="Translator.trans('aria.expand')"
         @click="isCollapsed = !isCollapsed"
@@ -125,13 +155,12 @@
           v-if="visibleRecommendation !== ''"
           ref="recommendationContainer"
           v-cleanhtml="visibleRecommendation"
-          class="u-mb-0_5"
+          class="mb-2"
         />
       </div>
       <div v-else>
         <dp-editor
-          :basic-auth="dplan.settings.basicAuth"
-          class="u-mb-0_5"
+          class="mb-2"
           editor-id="recommendationText"
           :routes="{
             getFileByHash: (hash) => Routing.generate('core_file_procedure', { procedureId: procedureId, hash: hash })
@@ -152,58 +181,17 @@
               boiler-plate-type="consideration"
               editor-id="recommendationText"
               :procedure-id="procedureId"
+              :preview-segment-id="segment.id"
               @insert="text => modalProps.handleInsertText(text)"
             />
-            <dp-modal
+            <recommendation-modal
               ref="recommendationModal"
-              class="recommendation-modal"
-              content-classes="u-2-of-3"
-            >
-              <div class="flex w-full">
-                <h3 class="u-mb">
-                  {{ Translator.trans('segment.recommendation.insert.similar') }}
-                </h3>
-                <dp-contextual-help
-                  v-if="activeId === 'oracleRec'"
-                  class="u-ml-0_25"
-                  icon="ai"
-                  size="large"
-                  :text="Translator.trans('segment.oracle.tooltip')"
-                />
-                <dp-badge
-                  v-if="activeId === 'oracleRec'"
-                  v-tooltip="Translator.trans('segment.oracle.beta.tooltip')"
-                  class="absolute right-4"
-                  size="smaller"
-                  :text="Translator.trans('segment.oracle.beta')"
-                />
-              </div>
-              <dp-tabs
-                v-if="recommendationTabAddonsLoaded"
-                :active-id="activeId"
-                @change="handleTabChange"
-              >
-                <dp-tab
-                  v-for="addon in recommendationModalAddons"
-                  :id="addon.options.id"
-                  :key="addon.options.id"
-                  :is-active="activeId === addon.options.id"
-                  :label="Translator.trans(addon.options.title)"
-                >
-                  <slot>
-                    <component
-                      :is="addon.component"
-                      class="u-mt"
-                      :data-cy="`addon:${addon.name}`"
-                      :demosplan-ui="demosplanUi"
-                      :procedure-id="addonProps.procedureId"
-                      :segment-id="addonProps.segmentId"
-                      @recommendation:insert="closeRecommendationModalAfterInsert"
-                    />
-                  </slot>
-                </dp-tab>
-              </dp-tabs>
-            </dp-modal>
+              :procedure-id="procedureId"
+              :segment-data-loaded="true"
+              :segment-id="segment.id"
+              @addons:loaded="hasRecommendationTabs = true"
+              @recommendation:insert="closeRecommendationModalAfterInsert"
+            />
           </template>
           <template v-slot:button>
             <button
@@ -229,7 +217,15 @@
           </template>
         </dp-editor>
       </div>
-      <div v-if="isAssignedToMe">
+      <div
+        v-if="hasPermission('feature_enable_recommendation_versions') && recommendationVersionNumber"
+        class="mb-2"
+      >
+        <span class="text-neutral-dark-1">
+          {{ `${Translator.trans('version')}: ${recommendationVersionNumber}` }}
+        </span>
+      </div>
+      <div v-if="isAssignedToMe && !isLocked">
         <dp-checkbox
           :id="'showWorkflowActions_' + segment.id"
           v-model="showWorkflowActions"
@@ -239,7 +235,7 @@
         />
         <div
           v-if="showWorkflowActions"
-          class="u-mv-0_5"
+          class="my-2"
         >
           <dp-label
             class="mb-0.5 mt-2"
@@ -251,7 +247,7 @@
             id="assignableUsersSegment"
             v-model="selectedAssignee"
             :options="assignableUsers"
-            class="u-1-of-1"
+            class="w-full"
             label="name"
             track-by="id"
           />
@@ -265,7 +261,7 @@
             id="segmentPlace"
             v-model="selectedPlace"
             :allow-empty="false"
-            class="u-1-of-1"
+            class="w-full"
             label="name"
             :options="places"
             :sub-slots="['option', 'singleLabel', 'tag']"
@@ -304,41 +300,54 @@
               </div>
             </template>
           </dp-multiselect>
-          <template v-if="hasPermission('field_segments_custom_fields')">
-            <template
-              v-for="field in Object.values(customFields)"
+          <custom-fields-list
+            v-if="hasPermission('field_segments_custom_fields')"
+            v-slot:default="{ fieldsWithDefinitions }"
+            :definition-source-id="procedureId"
+            :resource-id="segment.id"
+            :show-empty="true"
+            :show-title="false"
+            mode="editable"
+            resource-type="StatementSegment"
+            source-entity="PROCEDURE"
+            target-entity="SEGMENT"
+            @loaded="onCustomFieldsLoaded"
+          >
+            <div
+              v-for="{ field, definition } in fieldsWithDefinitions"
               :key="field.id"
             >
               <dp-label
                 :bold="false"
+                :for="`custom-field-${field.id}`"
+                :text="definition?.attributes?.name || ''"
                 class="mb-0.5 mt-2"
-                :for="field.id"
-                :text="field.attributes.name"
               />
-              <dp-multiselect
-                :id="field.id"
-                allow-empty
-                :value="customFieldValues[field.id]"
-                label="name"
-                :options="customFieldsOptions[field.id]"
-                track-by="id"
-                @select="(value) => setCustomFieldValue(value)"
+              <custom-field
+                :definition="definition"
+                :field-data="{ id: field.id, value: customFieldValueForId(field.id) }"
+                :resource-id="segment.id"
+                :show-label="false"
+                mode="editable"
+                resource-type="StatementSegment"
+                @update:value="newValue => onCustomFieldValueUpdate({ fieldId: field.id, value: newValue })"
               />
-            </template>
-          </template>
+            </div>
+          </custom-fields-list>
         </div>
       </div>
       <dp-button-row
         v-if="isAssignedToMe && (isEditing || showWorkflowActions)"
-        align="left"
-        class="u-mt-0_75"
+        :busy="isSaving"
+        class="mt-3"
+        :disabled="isSaving"
         primary
         secondary
         @primary-action="save"
         @secondary-action="abort"
       />
     </div>
-    <div class="segment-list-col--m text-right shrink-2 u-ph-0_5">
+    <div class="segment-list-col--m text-right shrink-2 px-2">
       <div
         class="segment-list-toolbar"
         :class=" isAssignedToMe ? '' : 'segment-list-toolbar--dark'"
@@ -361,12 +370,13 @@
         </button>
 
         <button
-          v-if="isAssignedToMe"
+          v-if="isAssignedToMe && !isLocked"
           v-tooltip="{
             container: `#segment_${segment.id}`,
             content: Translator.trans('edit')
           }"
-          class="segment-list-toolbar__button btn btn--primary icon-only"
+          class="segment-list-toolbar__button btn--blank"
+          :class="{ 'is-active' : isEditing}"
           data-cy="segmentEdit"
           :aria-label="Translator.trans('edit')"
           @click="startEditing"
@@ -414,7 +424,7 @@
           />
           <span
             v-if="commentCount > 0"
-            class="segment-list-toolbar__badge o-badge--darker block absolute u-ml u-n-mt"
+            class="segment-list-toolbar__badge o-badge--darker block absolute ml-4 -mt-4"
           >
             {{ commentCount }}
           </span>
@@ -444,32 +454,33 @@
 </template>
 
 <script>
-import * as demosplanUi from '@demos-europe/demosplan-ui'
 import {
   CleanHtml,
   dpApi,
   DpBadge,
+  DpButton,
   DpButtonRow,
   DpCheckbox,
   DpContextualHelp,
   DpIcon,
   DpLabel,
-  DpModal,
   DpMultiselect,
-  DpTab,
-  DpTabs,
+  DpTooltip,
   prefixClassMixin,
   Tooltip,
   VPopover,
 } from '@demos-europe/demosplan-ui'
-import { defineAsyncComponent, shallowRef } from 'vue'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import { defineAsyncComponent } from 'vue'
+import CustomField from '@DpJs/components/customFields/CustomField'
+import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import ImageModal from '@DpJs/components/shared/ImageModal'
-import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
+import RecommendationModal from '../Shared/RecommendationModal'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import { useCustomFields } from '@DpJs/composables/useCustomFields'
+import { useUnsavedChangesGuard } from '@DpJs/composables/useUnsavedChangesGuard'
 
 export default {
   name: 'StatementSegment',
@@ -477,24 +488,26 @@ export default {
   inject: ['procedureId'],
 
   components: {
-    AddonWrapper,
-    DpBadge,
+    CustomField,
+    CustomFieldsList,
     DpBoilerPlateModal,
+    DpBadge,
+    DpButton,
     DpButtonRow,
     DpCheckbox,
     DpContextualHelp,
     DpClaim,
-    DpIcon,
-    DpLabel,
-    DpModal,
-    DpMultiselect,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
+
       return DpEditor
     }),
-    DpTab,
-    DpTabs,
+    DpIcon,
+    DpLabel,
+    DpMultiselect,
+    DpTooltip,
     ImageModal,
+    RecommendationModal,
     TextContentRenderer,
     VPopover,
   },
@@ -505,6 +518,15 @@ export default {
   },
 
   mixins: [prefixClassMixin],
+
+  setup () {
+    const { init, cleanup } = useUnsavedChangesGuard()
+
+    return {
+      initUnsavedChangesGuard: init,
+      cleanupUnsavedChangesGuard: cleanup,
+    }
+  },
 
   props: {
     currentUserFirstName: {
@@ -541,24 +563,21 @@ export default {
     },
   },
 
+  emits: ['unlock'],
+
   data () {
     return {
-      activeId: '',
-      addonProps: {
-        segmentId: this.segment.id,
-        procedureId: this.procedureId,
-      },
       claimLoading: false,
-      customFieldValues: {},
+      customFieldsChanged: false,
+      customFieldValues: [],
       currentUserName: this.currentUserFirstName + ' ' + this.currentUserLastName,
-      demosplanUi: shallowRef(demosplanUi),
+      hasRecommendationTabs: false,
       isCollapsed: !(this.segment.relationships?.assignee?.data && this.segment.relationships.assignee.data.id === this.currentUserId),
       isEditing: false,
       isFullscreen: false,
       isHover: false,
-      recommendationModalAddons: [],
-      recommendationTabAddonsLoaded: false,
-      refRecModal: 'recommendationModal',
+      isSaving: false,
+      lockedBeforeSave: false,
       selectedAssignee: {},
       selectedPlace: { id: '', type: 'Place' },
       showWorkflowActions: false,
@@ -566,10 +585,6 @@ export default {
   },
 
   computed: {
-    ...mapState('SegmentSlidebar', [
-      'slidebar',
-    ]),
-
     ...mapState('AssignableUser', {
       assignableUserItems: 'items',
     }),
@@ -578,9 +593,13 @@ export default {
       placeItems: 'items',
     }),
 
-    ...mapState('CustomField', {
-      customFields: 'items',
+    ...mapState('RecommendationVersion', {
+      recommendationVersions: 'items',
     }),
+
+    ...mapState('SegmentSlidebar', [
+      'slidebar',
+    ]),
 
     assignableUsers () {
       const assigneeOptions = Object.values({ ...this.assignableUserItems })
@@ -590,6 +609,7 @@ export default {
             id: assignableUser.id,
           }
         })
+
       assigneeOptions.unshift({
         name: Translator.trans('not.assigned'),
         id: 'noAssigneeId',
@@ -614,36 +634,35 @@ export default {
       return this.segment.relationships.comments?.data?.length || 0
     },
 
-    /**
-     * @returns {Object} - Custom fields options by custom field id
-     */
-    customFieldsOptions () {
-      return Object.values(this.customFields).reduce((acc, el) => {
-        const opts = [...el.attributes.options].map(opt => ({
-          fieldId: el.id,
-          id: `${el.id}:${opt.label}`,
-          name: opt.label,
-        }))
-
-        opts.unshift({ name: Translator.trans('not.assigned'), id: 'unset', fieldId: el.id, value: 'UNASSIGNED' })
-
-        return {
-          ...acc,
-          [el.id]: opts,
-        }
-      }, {})
-    },
-
     displayEditableFieldsLabel () {
       return Translator.trans(hasPermission('field_segments_custom_fields') ? 'fields.more.edit' : 'workflow.change.assignee.place')
+    },
+
+    /**
+     * Required by useUnsavedChangesGuard composable
+     */
+    hasUnsavedChanges () {
+      return this.$store.state.StatementSegment.initial[this.segment.id].attributes.recommendation !== this.segment.attributes.recommendation
     },
 
     isAssignedToMe () {
       return this.assignee.id === this.currentUserId
     },
 
-    hasRecommendationTabs () {
-      return this.recommendationModalAddons.length > 0
+    isLocked () {
+      if (this.isSaving) {
+        return this.lockedBeforeSave
+      }
+
+      const placeId = this.segment.relationships?.place?.data?.id
+
+      return !!this.placeItems[placeId]?.attributes?.locked
+    },
+
+    lockTooltipText () {
+      return hasPermission('feature_administrate_segment_lock') ?
+        Translator.trans('segment.unlock.click.hint') :
+        Translator.trans('segment.lock.hint')
     },
 
     places () {
@@ -651,6 +670,20 @@ export default {
         Object.values(this.$store.state.Place.items)
           .map(pl => ({ ...pl.attributes, id: pl.id })) :
         []
+    },
+
+    recommendationVersionNumber () {
+      const currentVersionId = this.segment.relationships.recommendationVersions?.data?.[0]?.id
+
+      if (!currentVersionId) {
+        return ''
+      }
+
+      const versionNumber = this.recommendationVersions[currentVersionId]?.attributes?.versionNumber
+
+      return versionNumber ?
+        String(versionNumber).padStart(3, '0') :
+        ''
     },
 
     segmentPlace () {
@@ -669,11 +702,13 @@ export default {
 
     visibleRecommendation () {
       const shortText = this.segment.attributes.recommendation.length > 40 ? this.segment.attributes.recommendation.slice(0, 40) + '...' : this.segment.attributes.recommendation
+
       return this.isCollapsed ? shortText : this.segment.attributes.recommendation
     },
 
     visibleSegmentText () {
       const shortText = this.segment.attributes.text.length > 40 ? this.segment.attributes.text.slice(0, 40) + '...' : this.segment.attributes.text
+
       return this.isCollapsed ? shortText : this.segment.attributes.text
     },
   },
@@ -704,6 +739,7 @@ export default {
     ]),
 
     ...mapActions('StatementSegment', {
+      getStatementSegmentAction: 'get',
       restoreSegmentAction: 'restoreFromInitial',
       saveSegmentAction: 'save',
     }),
@@ -716,6 +752,7 @@ export default {
     abort () {
       // Restore initial recommendation value, set it also in tiptap
       const initText = this.$store.state.StatementSegment.initial[this.segment.id].attributes.recommendation
+
       this.updateSegment('recommendation', initText)
       // Update interface
       this.isFullscreen = false
@@ -745,6 +782,7 @@ export default {
           },
         },
       }
+
       this.setSegment({ ...dataToUpdate, id: this.segment.id })
 
       const payload = {
@@ -784,20 +822,74 @@ export default {
       dplan.notify.notify('confirm', Translator.trans('recommendation.pasted'))
     },
 
-    getCurrentSelectedOption (fieldId) {
-      const selectedOption = this.customFields[fieldId].attributes.options?.find(
-        option => option.id === this.segment.attributes.customFields?.find(
-          customFieldIdValue => customFieldIdValue.id === fieldId)?.value)
+    customFieldsSaveError (definitions) {
+      const fieldNames = this.customFieldValues
+        .map(({ id }) => definitions.find(def => def.id === id)?.attributes?.name)
+        .filter(Boolean)
+        .join(', ')
 
-      if (!selectedOption) {
-        return
-      }
-
-      return selectedOption
+      return Translator.trans('error.custom_fields.save', { fields: fieldNames })
     },
 
-    handleTabChange (id) {
-      this.activeId = id
+    customFieldValueForId (fieldId) {
+      const entry = this.customFieldValues.find(valueEntry => valueEntry.id === fieldId)
+
+      return entry?.value ?? null
+    },
+
+    fetchUpdatedSegment () {
+      if (!hasPermission('feature_enable_recommendation_versions')) {
+        return Promise.resolve()
+      }
+
+      const include = [
+        'recommendationVersions',
+        'assignee',
+        'comments',
+        'comments.place',
+        'comments.submitter',
+        'place',
+        'tags',
+      ]
+
+      const statementSegmentFields = [
+        'tags',
+        'text',
+        'assignee',
+        'place',
+        'comments',
+        'externId',
+        'internId',
+        'orderInProcedure',
+        'polygon',
+        'recommendation',
+        'recommendationVersions',
+      ]
+
+      return this.getStatementSegmentAction({
+        id: this.segment.id,
+        include: include.join(','),
+        fields: {
+          StatementSegment: statementSegmentFields.join(','),
+          SegmentComment: [
+            'creationDate',
+            'text',
+            'submitter',
+            'place',
+          ].join(','),
+          RecommendationVersion: [
+            'versionNumber',
+            'recommendationText',
+            'createdAt',
+          ].join(','),
+        },
+      })
+    },
+
+    finalizeSave (comments) {
+      this.restoreComments(comments)
+      this.setProperty({ prop: 'isLoading', val: false })
+      this.isEditing = false
     },
 
     hasPolygonFeatures () {
@@ -831,21 +923,6 @@ export default {
         })
     },
 
-    initCustomFieldValues () {
-      Object.values(this.customFields)
-        .forEach(field => {
-          const selectedOption = this.getCurrentSelectedOption(field.id)
-
-          if (selectedOption) {
-            this.customFieldValues[field.id] = {
-              fieldId: field.id,
-              id: `${selectedOption.id}:${selectedOption.label}`,
-              name: selectedOption.label,
-            }
-          }
-        })
-    },
-
     initPlaces () {
       const placeItemsLoaded = Object.keys(this.placeItems).length
 
@@ -861,6 +938,7 @@ export default {
             'description',
             'name',
             'solved',
+            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
             'sortIndex',
           ].join(),
         },
@@ -869,6 +947,33 @@ export default {
         .then(() => {
           this.setSelectedPlace()
         })
+    },
+
+    onCustomFieldsLoaded (values) {
+      this.customFieldValues = values
+      this.customFieldsChanged = false
+    },
+
+    onCustomFieldValueUpdate ({ fieldId, value }) {
+      this.customFieldsChanged = true
+      const fieldIndex = this.customFieldValues.findIndex(field => field.id === fieldId)
+
+      if (fieldIndex === -1) {
+        this.customFieldValues = [...this.customFieldValues, { id: fieldId, value }]
+      } else {
+        this.customFieldValues = this.customFieldValues.map((field, index) =>
+          index === fieldIndex ?
+            { ...field, value } :
+            field,
+        )
+      }
+    },
+
+    /**
+     * Required by useUnsavedChangesGuard composable
+     */
+    onDiscardChanges () {
+      this.abort()
     },
 
     openBoilerPlate () {
@@ -881,10 +986,20 @@ export default {
      * Remove non-updatable comments from segments relationships for update request
      * @param relations {Object}
      */
-    removeComments (relations) {
+    excludeComments (relations) {
       if (relations.comments) {
         this.setProperty({ prop: 'isLoading', val: true })
         delete relations.comments
+      }
+    },
+
+    /**
+     * Remove non-updatable recommendationVersions from segments relationships for update request
+     * @param relations {Object}
+     */
+    excludeRecommendationVersion (relations) {
+      if (relations.recommendationVersions) {
+        delete relations.recommendationVersions
       }
     },
 
@@ -897,135 +1012,106 @@ export default {
             comments,
           },
         }
+
         this.setSegment({ ...segmentWithComments, id: this.segment.id })
       }
     },
 
+    saveCustomFields () {
+      /*
+       * Custom fields are saved via a separate PATCH using the composable's updateCustomFields,
+       * which bypasses the vuex-json-api diff mechanism (unreliable for array attributes)
+       * and properly invalidates the composable's value cache.
+       */
+      if (!this.customFieldsChanged || !hasPermission('field_segments_custom_fields')) {
+        return Promise.resolve()
+      }
+
+      return useCustomFields()
+        .updateCustomFields('StatementSegment', this.segment.id, this.customFieldValues)
+        .then(() => {
+          this.customFieldsChanged = false
+        })
+        .catch(() => {
+          const { getCustomFieldsDefinitions } = useCustomFields()
+          const definitions = getCustomFieldsDefinitions(this.procedureId, {
+            targetEntity: 'SEGMENT',
+            sourceEntity: 'PROCEDURE',
+          }) || []
+
+          const errorMessage = this.customFieldsSaveError(definitions)
+
+          dplan.notify.error(errorMessage)
+          throw new Error(errorMessage)
+        })
+    },
+
     save () {
-      const comments = this.segment.relationships.comments ? { ...this.segment.relationships.comments } : null
-      const { assignee, place } = this.updateRelationships()
-      const hasCustomFields = hasPermission('field_segments_custom_fields') && Object.values(this.customFieldValues).length > 0
-      let attributes = null
+      const comments = this.segment.relationships.comments ?
+        { ...this.segment.relationships.comments } :
+        null
 
-      if (hasCustomFields) {
-        attributes = {
-          customFields: Object.values(this.customFieldValues).map(option => ({
-            id: option.fieldId,
-            value: this.getCustomFieldValueForPayload(option),
-          })).filter(option => option.value !== 'undefined'),
-        }
-      }
-
-      const payload = {
-        data: {
-          id: this.segment.id,
-          type: 'StatementSegment',
-          attributes: {
-            recommendation: this.segment.attributes.recommendation,
-          },
-          relationships: {
-            assignee,
-            place,
-          },
-        },
-      }
-
-      if (attributes) {
-        payload.data.attributes = attributes
-      }
-
-      const updatedSegment = {
-        id: this.segment.id,
-        type: 'StatementSegment',
-        attributes: {
-          ...this.segment.attributes,
-          ...(hasCustomFields ?
-            {
-              customFields: {
-                ...this.segment.attributes.customFields,
-                ...payload.data.attributes?.customFields,
-              },
-            } :
-            {}),
-        },
-        relationships: {
-          ...this.segment.relationships,
-          ...payload.data.relationships,
-        },
-      }
-
-      this.removeComments(updatedSegment.relationships)
-
-      this.setSegment({
-        ...updatedSegment,
-        id: this.segment.id,
-      })
+      // Update relationships (assignee/place)
+      const relations = this.updateRelationships()
 
       /**
-       * By default, the `saveAction` method (from vuex-json-api) only sends changed properties.
-       * Since the `id` inside `customFields` has not changed, it is excluded from the update payload.
-       * Using the `full` option forces the entire `customFields` object to be included in the PATCH request.
+       *  Comments and recommendationVersions need to be removed from the PATCH payload
+       *  as updating them is technically not supported
        */
-      const savePayload = hasCustomFields ?
-        {
-          id: this.segment.id,
-          options: {
-            attributes: {
-              full: 'customFields',
-            },
-          },
-        } :
-        { id: this.segment.id }
+      this.excludeComments(relations)
+      this.excludeRecommendationVersion(relations)
 
-      this.saveSegmentAction(savePayload)
+      this.lockedBeforeSave = this.isLocked
+      this.isSaving = true
+
+      return this.saveSegmentAction({ id: this.segment.id })
+        .then(() => {
+          return Promise.all([
+            this.fetchUpdatedSegment().catch((err) => {
+              console.error('Failed to fetch updated segment:', err)
+
+              return null
+            }),
+            this.saveCustomFields(),
+          ])
+        })
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-          this.isFullscreen = false
-          this.isEditing = false
 
-          this.restoreComments(comments)
-          this.setProperty({ prop: 'isLoading', val: false })
+          this.isFullscreen = false
 
           this.toggleAssignableUsersSelect()
+
           this.$nextTick(() => {
             if (this.$refs.recommendationContainer) {
-              this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
+              this.$refs.imageModal.addClickListener(
+                this.$refs.recommendationContainer.querySelectorAll('img'),
+              )
             }
           })
         })
-        .catch(() => {
-          this.restoreComments(comments)
-          this.setProperty({ prop: 'isLoading', val: false })
-          this.isEditing = false
+        .catch((err) => {
+          console.error('Save failed:', err)
+          dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
         })
+        .catch(() => {
+          this.restoreSegmentAction(this.segment.id)
+        })
+        .finally(() => {
+          this.isSaving = false
+          this.finalizeSave(comments)
+        })
+    },
+
+    /**
+     * Required by useUnsavedChangesGuard composable
+     */
+    saveUnsavedChanges () {
+      return this.save()
     },
 
     setActiveTabId (id) {
       this.activeId = id
-    },
-
-    /**
-     * Add custom field to custom fields with selected option
-     * @param {Object} value
-     * @param {string} value.id   id of the selected option
-     * @param {string} value.fieldId   id of the custom field
-     * @param {string} value.name   name of the selected option
-     * @param {string} value.value   optional explicit value to use ('UNASSIGNED' for unassigned)
-     */
-    setCustomFieldValue (value) {
-      // Store the value directly, the unset option already has value: 'UNASSIGNED'
-      this.customFieldValues[value.fieldId] = value
-    },
-
-    setInitiallySelectedCustomFieldValues () {
-      this.segment.attributes.customFields.forEach(field => {
-        const fieldId = field.id
-        const selectedOption = this.customFieldsOptions[fieldId].find(option => option.name === field.value)
-
-        if (selectedOption) {
-          this.customFieldValues[fieldId] = selectedOption
-        }
-      })
     },
 
     setSelectedAssignee () {
@@ -1132,6 +1218,7 @@ export default {
           this.isEditing = false
           this.isCollapsed = true
           const dataToUpdate = JSON.parse(JSON.stringify(this.segment))
+
           delete dataToUpdate.relationships.assignee
           // Reset recommendation text in store (segment might have been in edit mode with some changes)
           dataToUpdate.attributes.recommendation = this.$store.state.StatementSegment.initial[this.segment.id].attributes.recommendation
@@ -1148,12 +1235,6 @@ export default {
 
     updateRelationships () {
       let relations = { ...this.segment.relationships }
-
-      /**
-       *  Comments need to be removed as updating them is technically not supported
-       *  After completing the request, they are added again to the store to be able to display them
-       */
-      this.removeComments(relations)
 
       if (this.showWorkflowActions) {
         let assignee = { assignee: { data: null } }
@@ -1197,46 +1278,27 @@ export default {
 
     updateSegment (key, val) {
       const updated = { ...this.segment, ...{ attributes: { ...this.segment.attributes, ...{ [key]: val } } } }
+
       this.setSegment({ ...updated, id: this.segment.id })
-    },
-
-    // Helper to get the custom field value from an option
-    getCustomFieldValueForPayload (customFieldValue) {
-      const selectedOption = this.customFields[customFieldValue.fieldId]?.attributes.options.find(option => option.label === customFieldValue.name)
-
-      // Return null for unassigned options instead of 'UNASSIGNED'
-      return customFieldValue.value === 'UNASSIGNED' ? null : selectedOption?.id
     },
   },
 
   mounted () {
     this.initPlaces()
     this.initAssignableUsers()
-    this.initCustomFieldValues()
 
-    if (hasPermission('field_segments_custom_fields') && this.segment.attributes.customFields?.length > 0) {
-      this.setInitiallySelectedCustomFieldValues()
-    }
 
-    loadAddonComponents('segment.recommendationModal.tab')
-      .then(addons => {
-        if (!addons.length) {
-          return
-        }
+    // Initialize unsaved changes guard
+    this.initUnsavedChangesGuard({
+      hasUnsavedChanges: () => this.hasUnsavedChanges,
+      saveUnsavedChanges: () => this.saveUnsavedChanges(),
+      onDiscardChanges: () => this.onDiscardChanges(),
+      componentId: `segment-${this.segment.id}`,
+    })
+  },
 
-        this.activeId = (addons[0].options && addons[0].options.id) || ''
-        this.recommendationTabAddonsLoaded = true
-
-        this.recommendationModalAddons = addons.map(addon => {
-          const { name, options } = addon
-
-          return {
-            component: shallowRef(window[name].default),
-            name,
-            options,
-          }
-        })
-      })
+  beforeUnmount () {
+    this.cleanupUnsavedChangesGuard()
   },
 }
 </script>

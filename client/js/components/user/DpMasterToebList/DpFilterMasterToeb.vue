@@ -89,6 +89,7 @@ export default {
       const filteredItems = this.items.filter(item => {
         let filteredByDocuments = true
         let filteredByDistricts = true
+
         if (this.selectedDocument !== 'all') {
           filteredByDocuments = item[this.selectedDocument]
         }
@@ -108,6 +109,7 @@ export default {
         if (field.field.match(pattern) !== null) {
           acc.push(field)
         }
+
         return acc
       }, [])
     },

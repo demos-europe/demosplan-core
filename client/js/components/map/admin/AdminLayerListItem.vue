@@ -26,10 +26,10 @@
       'cursor-pointer' : (!layer.attributes.isBaseLayer && layer.type !== 'GisLayerCategory' && !isChildOfCategoryThatAppearsAsLayer),
     }"
     data-cy="adminLayerListItem:setLayerActive"
-    :disabled="layer.attributes.isBaseLayer || layer.type === 'GisLayerCategory' || isChildOfCategoryThatAppearsAsLayer"
+    :aria-disabled="isDisabled"
     :aria-pressed="isActive"
     :aria-label="layer.attributes.name + (isActive ? ' (active)' : ' (inactive)')"
-    @click="setActiveState"
+    @click="handleClick"
     @mouseover="mouseOverElement"
     @mouseout="mouseOutElement"
     @focus="mouseOverElement"
@@ -293,6 +293,8 @@ export default {
     },
   },
 
+  emits: ['visibilityToggled'],
+
   data () {
     return {
       drag: false,
@@ -303,15 +305,23 @@ export default {
   },
 
   computed: {
+    isDisabled () {
+      return this.layer.attributes.isBaseLayer ||
+        this.layer.type === 'GisLayerCategory' ||
+        this.isChildOfCategoryThatAppearsAsLayer
+    },
+
     parentCategory () {
       // Get parentLayer and check if it hides its children
       const parentLayer = this.$store.getters['Layers/element']({
         id: this.layer.attributes.categoryId,
         type: 'GisLayerCategory',
       })
+
       if (typeof parentLayer !== 'undefined') {
         return parentLayer
       }
+
       return {}
     },
 
@@ -319,6 +329,7 @@ export default {
       if (hasOwnProp(this.parentCategory, 'attributes')) {
         return this.parentCategory.attributes.layerWithChildrenHidden
       }
+
       return false
     },
 
@@ -366,7 +377,7 @@ export default {
        *
        */
       const toggleMyIconInSameGroup = (this.isLinkedWithCurrentlyHovered && this.showCurrentIconState)
-      const toggleMyIconWithoutGroup = (this.showCurrentIconState && this.visibilityGroupIdOfHoveredLayer === '')
+      const toggleMyIconWithoutGroup = (this.showCurrentIconState && !this.visibilityGroupIdOfHoveredLayer)
 
       if (this.isActive) {
         if (this.hasSettingsThatPreventGrouping) {
@@ -394,6 +405,7 @@ export default {
         if (this.hasSettingsThatPreventGrouping) {
           return 'fa fa-lock color--grey cursor-help'
         }
+
         if (this.hasGroupId) {
           if (this.showCurrentIconState) {
             return 'fa fa-unlink color-highlight'
@@ -417,6 +429,7 @@ export default {
         if (this.hasSettingsThatPreventGrouping || this.hasDifferentDefaultVisibility || this.isInAnotherGroupThatsNotEmpty) {
           return 'fa fa-lock color--grey cursor-help'
         }
+
         if (this.hasGroupId) {
           if (this.showCurrentIconState) {
             return 'fa fa-unlink color-highlight'
@@ -488,7 +501,7 @@ export default {
     },
 
     hasGroupId () {
-      return this.layer.attributes.visibilityGroupId !== ''
+      return !!this.layer.attributes.visibilityGroupId
     },
 
     /**
@@ -612,7 +625,7 @@ export default {
         return Translator.trans('explanation.gislayer.visibility.group.locked.different.not.togglable')
       }
 
-      if (this.layer.attributes.visibilityGroupId !== this.activeLayerVisibilityGroupId || this.layer.attributes.visibilityGroupId !== '') {
+      if (this.layer.attributes.visibilityGroupId !== this.activeLayerVisibilityGroupId && !!this.layer.attributes.visibilityGroupId) {
         return Translator.trans('explanation.gislayer.visibility.group.locked.different.group')
       }
 
@@ -629,7 +642,7 @@ export default {
      * returns Boolean
      */
     isLinkedWithCurrentlyActive () {
-      return (this.layer.attributes.visibilityGroupId === this.activeLayerVisibilityGroupId && this.layer.attributes.visibilityGroupId !== '')
+      return (this.layer.attributes.visibilityGroupId === this.activeLayerVisibilityGroupId && !!this.layer.attributes.visibilityGroupId)
     },
     /**
      * Checks if this element is in the same visibility-group as the hovered Layer
@@ -637,7 +650,7 @@ export default {
      * returns Boolean
      */
     isLinkedWithCurrentlyHovered () {
-      return (this.layer.attributes.visibilityGroupId === this.visibilityGroupIdOfHoveredLayer && this.layer.attributes.visibilityGroupId !== '' && this.hoverLayerId !== this.layer.id)
+      return (this.layer.attributes.visibilityGroupId === this.visibilityGroupIdOfHoveredLayer && !!this.layer.attributes.visibilityGroupId && this.hoverLayerId !== this.layer.id)
     },
 
     /**
@@ -756,6 +769,7 @@ export default {
       if (this.childElements.length < 1) {
         return
       }
+
       this.showChildren = !this.showChildren
     },
 
@@ -764,12 +778,15 @@ export default {
      */
     deleteElement () {
       let deleteData = {}
+
       if (this.isLoading) {
         return false
       }
+
       if (!dpconfirm(Translator.trans('check.item.delete'))) {
         return
       }
+
       if (this.layer.type === 'GisLayerCategory') {
         deleteData = {
           id: this.layer.id,
@@ -784,7 +801,36 @@ export default {
           route: 'layer',
           relationshipType: 'gisLayers',
         }
+
+        const groupId = this.layer.attributes?.visibilityGroupId
+
+        if (groupId) {
+          const groupMembers = this.$store.getters['Layers/elementsListByAttribute']({
+            type: 'visibilityGroupId',
+            value: groupId,
+          })
+
+          if (groupMembers.length <= 2) {
+            const dissolvePromises = groupMembers
+              .filter(member => member.id !== this.layer.id)
+              .map(member => this.$store.dispatch('Layers/save', {
+                ...member,
+                attributes: { ...member.attributes, visibilityGroupId: null },
+              }))
+
+            Promise.all(dissolvePromises)
+              .then(() => {
+                this.$store.dispatch('Layers/deleteElement', deleteData)
+              })
+              .catch(() => {
+                dplan.notify.notify('error', Translator.trans('error.gislayer.visibility.group.dissolve'))
+              })
+
+            return
+          }
+        }
       }
+
       this.$store.dispatch('Layers/deleteElement', deleteData)
     },
 
@@ -825,9 +871,23 @@ export default {
         this.setAttributeForLayer({
           id: el.id,
           attribute: 'visibilityGroupId',
-          value: '',
+          value: null,
         })
       })
+    },
+
+    /**
+     * For base layers, categories, and children of categories that appear as layers (= isDisabled), it should not be
+     * possible to set them to 'active' for the visibility group feature
+     * Since disabling the button also removes the drag+drop functionality (which should not be disabled!) in firefox (in
+     * chrome, drag+drop still works), we need to handle it like this + via styling of the button
+     */
+    handleClick () {
+      if (this.isDisabled) {
+        return
+      }
+
+      this.setActiveState()
     },
 
     /**
@@ -864,6 +924,7 @@ export default {
       if (this.isLoading || this.layer.attributes.layerType !== 'overlay') {
         return false
       }
+
       this.$store.commit('Layers/setHoverLayerId', this.layer.id)
     },
 
@@ -878,6 +939,7 @@ export default {
       if (this.isLoading) {
         return false
       }
+
       if (this.layer.attributes.layerType === 'overlay' && typeof this.activeLayer.id !== 'undefined') {
         this.setHoverLayerIconIsHovered(true)
       } else {
@@ -899,11 +961,18 @@ export default {
         return
       }
 
+      const newValue = !this.layer.attributes.hasDefaultVisibility
+
       this.setAttributeForLayer({
         id: this.layer.id,
         attribute: 'hasDefaultVisibility',
-        value: (this.layer.attributes.hasDefaultVisibility === false),
+        value: newValue,
       })
+
+      // If this is a base layer being set to visible, emit event to parent
+      if (this.layer.attributes.isBaseLayer && newValue === true) {
+        this.$emit('visibilityToggled', this.layer.id)
+      }
 
       // If the Category hides his children we have to change the Value for the Children too so it will work in public detail
       if (this.layer.attributes.layerWithChildrenHidden) {
@@ -920,19 +989,20 @@ export default {
        * so we set the clicked one as active instead
        * base-layer can't be grouped at all
        */
-      let newVisibilityGroupId = (typeof this.activeLayer.attributes === 'undefined') ? '' : this.activeLayer.attributes.visibilityGroupId
+      let newVisibilityGroupId = (typeof this.activeLayer.attributes === 'undefined') ? null : this.activeLayer.attributes.visibilityGroupId
+
       this.preventActiveFromToggeling = true
 
       if (typeof this.activeLayer.id === 'undefined' ||
         this.layerType === 'base' ||
         this.isActive ||
-        (this.layer.attributes.visibilityGroupId !== newVisibilityGroupId && this.layer.attributes.visibilityGroupId !== '') ||
+        (this.layer.attributes.visibilityGroupId !== newVisibilityGroupId && !!this.layer.attributes.visibilityGroupId) ||
         this.hasSettingsThatPreventGrouping ||
         this.isLoading) {
         return false
       }
 
-      if (newVisibilityGroupId === '' || typeof newVisibilityGroupId === 'undefined') {
+      if (!newVisibilityGroupId) {
         // If the active Layer has no visibilitygroupId, create one and attach it to the active and the clicked Layer
         newVisibilityGroupId = uuid()
         this.setAttributeForLayer({
@@ -954,6 +1024,7 @@ export default {
           type: 'visibilityGroupId',
           value: newVisibilityGroupId,
         })
+
         if (relatedLayers.length <= 2) {
           for (let i = 0; i < relatedLayers.length; i++) {
             this.setAttributeForLayer({

@@ -103,20 +103,20 @@ export default {
 
   props: {
     elements: {
-      required: true,
       type: Array,
+      required: false,
       default: () => [],
     },
 
     paragraphs: {
       type: Object,
-      required: true,
+      required: false,
       default: () => ({}),
     },
 
     documents: {
       type: Object,
-      required: true,
+      required: false,
       default: () => ({}),
     },
 

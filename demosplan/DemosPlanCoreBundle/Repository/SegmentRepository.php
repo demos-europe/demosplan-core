@@ -12,7 +12,11 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-use Doctrine\ORM\ORMException;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\RecommendationVersionService;
+use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 use Exception;
 
 /**
@@ -20,6 +24,9 @@ use Exception;
  */
 class SegmentRepository extends CoreRepository
 {
+    private const ORDER_IN_PROCEDURE_IS_NOT_NULL = 'segment.orderInProcedure IS NOT NULL';
+    private const PARENT_STATEMENT_CONDITION = 'segment.parentStatementOfSegment = :statementId';
+
     /**
      * @return array<Segment>
      */
@@ -69,6 +76,48 @@ class SegmentRepository extends CoreRepository
     public function findByIds(array $ids): array
     {
         return $this->findBy(['id' => $ids]);
+    }
+
+    /**
+     * Returns the subset of given IDs that belong to `$procedureId` AND
+     * whose current workflow place has `locked = true`. One round-trip
+     * with an explicit JOIN — the lock state is read at query time instead
+     * of triggering N lazy place fetches when the caller iterates the
+     * result.
+     *
+     * The procedure filter prevents an out-of-procedure segment ID from
+     * triggering a "your batch contains locked segments" response that
+     * would also leak the existence and lock state of segments belonging
+     * to a different procedure.
+     *
+     * Note: the JOIN does not `addSelect('p')`, so the `place` association
+     * on each returned `Segment` remains a lazy proxy. Fine for the
+     * current caller (which only counts the result); future callers that
+     * need to walk `$segment->getPlace()->...` should add the select to
+     * avoid reintroducing N+1.
+     *
+     * Used by {{ @see SegmentBulkEditorService::findLockedSegments }} to
+     * pre-validate batches against the segment-lock feature.
+     *
+     * @param list<string> $ids
+     *
+     * @return list<Segment>
+     */
+    public function findLockedByIds(array $ids, string $procedureId): array
+    {
+        if ([] === $ids) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('s')
+            ->innerJoin('s.place', 'p')
+            ->where('s.id IN (:ids)')
+            ->andWhere('s.procedure = :procedureId')
+            ->andWhere('p.locked = true')
+            ->setParameter('ids', $ids)
+            ->setParameter('procedureId', $procedureId)
+            ->getQuery()
+            ->getResult();
     }
 
     /**
@@ -122,7 +171,71 @@ class SegmentRepository extends CoreRepository
     }
 
     /**
+     * Get the position of a segment within its parent statement.
+     *
+     * @return array{segmentId: string, position: int, total: int}|null Returns null if segment not found
+     */
+    public function getSegmentPosition(string $segmentId, string $statementId): ?array
+    {
+        $em = $this->getEntityManager();
+
+        // First, get the target segment's orderInProcedure
+        $targetQuery = $em->createQueryBuilder()
+            ->select('segment.id', 'segment.orderInProcedure')
+            ->from(Segment::class, 'segment')
+            ->where('segment.id = :segmentId')
+            ->andWhere(self::PARENT_STATEMENT_CONDITION)
+            ->setParameter('segmentId', $segmentId)
+            ->setParameter('statementId', $statementId)
+            ->getQuery();
+
+        $targetResult = $targetQuery->getOneOrNullResult();
+
+        if (null === $targetResult) {
+            return null;
+        }
+
+        $targetOrder = $targetResult['orderInProcedure'];
+
+        // Count how many segments in this statement have orderInProcedure <= target
+        $positionQuery = $em->createQueryBuilder()
+            ->select('COUNT(segment.id)')
+            ->from(Segment::class, 'segment')
+            ->where(self::PARENT_STATEMENT_CONDITION)
+            ->andWhere(self::ORDER_IN_PROCEDURE_IS_NOT_NULL)
+            ->andWhere('segment.orderInProcedure <= :targetOrder')
+            ->setParameter('statementId', $statementId)
+            ->setParameter('targetOrder', $targetOrder)
+            ->getQuery();
+
+        $position = (int) $positionQuery->getSingleScalarResult();
+
+        // Get total count of segments in this statement
+        $totalQuery = $em->createQueryBuilder()
+            ->select('COUNT(segment.id)')
+            ->from(Segment::class, 'segment')
+            ->where(self::PARENT_STATEMENT_CONDITION)
+            ->andWhere(self::ORDER_IN_PROCEDURE_IS_NOT_NULL)
+            ->setParameter('statementId', $statementId)
+            ->getQuery();
+
+        $total = (int) $totalQuery->getSingleScalarResult();
+
+        return [
+            'segmentId' => $segmentId,
+            'position'  => $position,
+            'total'     => $total,
+        ];
+    }
+
+    /**
      * Change the recommendation in all segments with the given ID *if* they are in the given procedure.
+     *
+     * WARNING: This method uses raw DQL and bypasses {@see Statement::setRecommendation()}.
+     * Recommendation version recording is NOT handled here — the caller
+     * ({@see SegmentService::editSegmentRecommendations()}) is responsible for calling
+     * {@see RecommendationVersionService::recordVersion()} before invoking this method.
+     * Do not call this method from new contexts without considering version tracking.
      *
      * @param array<int, string> $segmentIds
      * @param bool               $attach     use true to attach the given text to the existing recommendation, otherwise it will be replaced
@@ -163,5 +276,16 @@ class SegmentRepository extends CoreRepository
             }
             $this->getEntityManager()->refresh($segment);
         }
+    }
+
+    /**
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function deleteSegmentObject(Segment $segment): void
+    {
+        $em = $this->getEntityManager();
+        $em->remove($segment);
+        $em->flush();
     }
 }

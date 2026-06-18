@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -15,11 +17,8 @@ use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 
 class ExcelImporterHandleSegmentsEvent extends DPlanEvent implements ExcelImporterHandleSegmentsEventInterface
 {
-    protected array $segments;
-
-    public function __construct(array $segments)
+    public function __construct(protected array $segments)
     {
-        $this->segments = $segments;
     }
 
     public function getSegments(): array

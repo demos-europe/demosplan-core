@@ -53,7 +53,8 @@
           ref="annotatedPdfForm"
           :allow-file-upload="false"
           :csrf-token="csrfToken"
-          :current-procedure-phase="currentProcedurePhase"
+          :current-external-phase-definition-id="currentExternalPhaseDefinitionId"
+          :current-internal-phase-definition-id="currentInternalPhaseDefinitionId"
           :document-id="documentId"
           :expand-all="false"
           fields-full-width
@@ -87,6 +88,7 @@
 import { dpApi, DpButton, DpLoading } from '@demos-europe/demosplan-ui'
 import DpSendBeacon from './DpSendBeacon'
 import DpSimplifiedNewStatementForm from '@DpJs/components/procedure/DpSimplifiedNewStatementForm'
+import { inlineImageAnchors } from '@DpJs/lib/shared/inlineImageAnchors'
 
 export default {
   name: 'DpConvertAnnotatedPdf',
@@ -104,10 +106,16 @@ export default {
       required: true,
     },
 
-    currentProcedurePhase: {
+    currentExternalPhaseDefinitionId: {
       type: String,
       required: false,
-      default: 'analysis',
+      default: '',
+    },
+
+    currentInternalPhaseDefinitionId: {
+      type: String,
+      required: false,
+      default: '',
     },
 
     documentId: {
@@ -185,10 +193,12 @@ export default {
       const date = new Date()
       let day = date.getDate()
       let month = date.getMonth()
+
       month = month + 1
       if ((String(day)).length === 1) {
         day = '0' + day
       }
+
       if ((String(month)).length === 1) {
         month = '0' + month
       }
@@ -221,11 +231,12 @@ export default {
         include: 'annotatedStatementPdfPages',
       }
       const documentResponse = await dpApi.get(url, params)
+
       this.document = documentResponse.data.data.find(el => el.type === 'AnnotatedStatementPdf')
       this.formValues = {
         ...this.formValues,
         quickSave: this.document.attributes.quickSave,
-        text: this.document.attributes.quickSave ?? this.document.attributes.text,
+        text: inlineImageAnchors(this.document.attributes.quickSave ?? this.document.attributes.text),
       }
       this.pages = documentResponse.data.included.filter(el => el.type === 'AnnotatedStatementPdfPage')
       this.isLoading = false
@@ -262,9 +273,11 @@ export default {
       const container = this.$refs.container
       const containerBounding = container.getBoundingClientRect()
       const absoluteWidth = containerBounding.width
+
       this.onePixelInPercent = 1 / (absoluteWidth / 100)
       this.cursorStart = e.pageX
       const bodyEl = document.getElementsByTagName('body')[0]
+
       bodyEl.addEventListener('mousemove', this.doResize)
       bodyEl.addEventListener('mouseup', this.stopResize)
     },
@@ -272,6 +285,7 @@ export default {
     doResize (e) {
       const cursor = e.pageX
       const moved = cursor - this.cursorStart
+
       if (moved < 0 && this.currentSmallColumnWidth <= 80) {
         this.currentSmallColumnWidth = this.smallColumnWidth + (moved * this.onePixelInPercent) * -1
         this.largeColumnWidth = 100 - this.currentSmallColumnWidth
@@ -284,6 +298,7 @@ export default {
     stopResize () {
       this.smallColumnWidth = this.currentSmallColumnWidth
       const bodyEl = document.getElementsByTagName('body')[0]
+
       bodyEl.removeEventListener('mousemove', this.doResize)
       bodyEl.removeEventListener('mouseup', this.stopResize)
     },

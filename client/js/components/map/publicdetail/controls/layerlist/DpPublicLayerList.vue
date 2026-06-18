@@ -106,12 +106,14 @@ export default {
 
       let i = 0
       let layer
+
       for (; i < l; i++) {
         layer = layers[i]
         if (layer.attributes.hasDefaultVisibility && layer.attributes.layerType === 'base') {
           return layer.id
         }
       }
+
       return ''
     },
 
@@ -126,7 +128,9 @@ export default {
   watch: {
     isMapAndLayersReady: {
       handler () {
-        if (!this.isLoading) return
+        if (!this.isLoading) {
+          return
+        }
 
         this.isLoading = false
         this.$store.commit('Layers/setInitialLayerState')
@@ -134,7 +138,9 @@ export default {
         this.$nextTick(() => {
           const firstActiveBaseLayerId = this.getFirstActiveBaseLayerId()
 
-          if (!firstActiveBaseLayerId) return
+          if (!firstActiveBaseLayerId) {
+            return
+          }
 
           this.$store.dispatch('Layers/toggleBaselayer', { id: firstActiveBaseLayerId, setToVisible: true })
         })
@@ -155,6 +161,7 @@ export default {
 
       let i = 0
       let layer
+
       for (; i < l; i++) {
         layer = layers[i]
 

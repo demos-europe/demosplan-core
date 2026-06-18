@@ -26,7 +26,7 @@ class ParagraphHandler extends CoreHandler implements ParagraphHandlerInterface
         protected readonly ParagraphRepository $paragraphRepository,
         private readonly FlashMessageHandler $flashMessageHandler,
         MessageBag $messageBag,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         parent::__construct($messageBag);
     }
@@ -71,7 +71,7 @@ class ParagraphHandler extends CoreHandler implements ParagraphHandlerInterface
             ];
         }
 
-        if (0 < count($mandatoryErrors)) {
+        if ([] !== $mandatoryErrors) {
             $this->flashMessageHandler->setFlashMessages($mandatoryErrors);
 
             return [
@@ -88,24 +88,20 @@ class ParagraphHandler extends CoreHandler implements ParagraphHandlerInterface
         }
 
         if (array_key_exists('r_visible', $data)) {
-            if ('1' === $data['r_visible']) {
-                $document['visible'] = true;
-            } else {
-                $document['visible'] = false;
-            }
+            $document['visible'] = '1' === $data['r_visible'];
         }
 
         if (array_key_exists('r_elementId', $data)) {
             $document['elementId'] = $data['r_elementId'];
             // set max possible order only if no parent paragraph is set
-            if (!array_key_exists('r_parentId', $data) && 0 < strlen((string) $data['r_parentId'])) {
+            if (!array_key_exists('r_parentId', $data) && '' !== (string) $data['r_parentId']) {
                 $document['order'] = $this->paragraphService->getMaxOrderFromElement(
                     $document['elementId']
                 ) + 1;
             }
         }
 
-        if (array_key_exists('r_parentId', $data) && 0 < strlen((string) $data['r_parentId'])) {
+        if (array_key_exists('r_parentId', $data) && '' !== (string) $data['r_parentId']) {
             $document = $this->prepareParagraphParentTree(
                 $data,
                 $elementId,
@@ -221,30 +217,29 @@ class ParagraphHandler extends CoreHandler implements ParagraphHandlerInterface
             // First condition deactivates this for newly created chapters.
 
             return $document;
-        } else {
-            $document['parentId'] = $parentParagraphId;
-            // get max order of new parent level
-            if (null === $parentParagraphId) {
-                $maxOrder = $this->paragraphService->getMaxOrderFromElement($elementId);
-            } else {
-                $maxOrder = $this->paragraphService->calculateLastOrder($parentParagraphId);
-            }
-
-            $document['order'] = $maxOrder + 1;
-
-            $offset = $this->paragraphService->incrementChildrenOrders(
-                $documentId,
-                $maxOrder + 1
-            );
-
-            // update paragraph ordering for subsequent paragraphs
-            $this->paragraphService->incrementSubsequentOrders(
-                $maxOrder,
-                $elementId,
-                $offset + 1
-            );
-
-            return $document;
         }
+        $document['parentId'] = $parentParagraphId;
+        // get max order of new parent level
+        if (null === $parentParagraphId) {
+            $maxOrder = $this->paragraphService->getMaxOrderFromElement($elementId);
+        } else {
+            $maxOrder = $this->paragraphService->calculateLastOrder($parentParagraphId);
+        }
+
+        $document['order'] = $maxOrder + 1;
+
+        $offset = $this->paragraphService->incrementChildrenOrders(
+            $documentId,
+            $maxOrder + 1
+        );
+
+        // update paragraph ordering for subsequent paragraphs
+        $this->paragraphService->incrementSubsequentOrders(
+            $maxOrder,
+            $elementId,
+            $offset + 1
+        );
+
+        return $document;
     }
 }

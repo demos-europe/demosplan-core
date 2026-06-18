@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class AddonDoctrineMigrationsPass implements CompilerPassInterface
 {
-    public function process(ContainerBuilder $container)
+    public function process(ContainerBuilder $container): void
     {
         $addons = AddonManifestCollection::load();
         // Check if the Doctrine Migrations bundle is registered

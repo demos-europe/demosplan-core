@@ -14,8 +14,11 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BasePlaceResourceConfigBuilder;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentLockEnforcementService;
 use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
@@ -30,6 +33,7 @@ use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
  * @property-read End                   $name
  * @property-read End                   $description
  * @property-read End                   $solved
+ * @property-read End                   $locked
  * @property-read End                   $sortIndex
  * @property-read ProcedureResourceType $procedure
  */
@@ -37,6 +41,8 @@ final class PlaceResourceType extends DplanResourceType
 {
     public function __construct(
         private readonly PlaceRepository $placeRepository,
+        private readonly SegmentLockEnforcementService $segmentLockEnforcementService,
+        private readonly EntityContentChangeService $entityContentChangeService,
     ) {
     }
 
@@ -59,7 +65,7 @@ final class PlaceResourceType extends DplanResourceType
     protected function getAccessConditions(): array
     {
         $procedure = $this->currentProcedureService->getProcedure();
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             return [$this->conditionFactory->false()];
         }
 
@@ -97,6 +103,11 @@ final class PlaceResourceType extends DplanResourceType
         $configBuilder->solved
             ->readable()
             ->updatable();
+        if ($this->segmentLockEnforcementService->isFeatureEnabled()) {
+            $configBuilder->locked
+                ->readable()
+                ->filterable();
+        }
         $configBuilder->sortIndex
             ->readable(true)
             ->filterable()
@@ -112,6 +123,28 @@ final class PlaceResourceType extends DplanResourceType
             $configBuilder->name->updatable()->initializable(false, null, true);
             $configBuilder->solved->updatable()->initializable(true);
             $configBuilder->description->updatable()->initializable(true);
+        }
+
+        if ($this->segmentLockEnforcementService->isFeatureEnabled()
+            && $this->currentUser->hasPermission(SegmentLockEnforcementService::PERMISSION_ADMINISTRATE)
+        ) {
+            // Custom write callback — applies the setter ourselves, then emits
+            // Versionsverlauf entries for every segment currently on this place
+            // whose effective lock state just flipped.
+            $configBuilder->locked
+                ->updatable([], function (Place $place, bool $newLocked): array {
+                    $oldLocked = $place->isLocked();
+                    $place->setLocked($newLocked);
+                    $this->entityContentChangeService
+                        ->createSegmentLockedChangeEntriesForPlaceToggle(
+                            $place,
+                            $oldLocked,
+                            $newLocked,
+                        );
+
+                    return [];
+                })
+                ->initializable(true);
         }
 
         $configBuilder->addConstructorBehavior(

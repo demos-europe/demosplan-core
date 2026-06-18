@@ -25,6 +25,7 @@ use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
 use RuntimeException;
 use SplFileInfo;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -36,11 +37,9 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
+#[AsCommand(name: 'dplan:addon:uninstall', description: 'Uninstall installed addons')]
 class AddonUninstallCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:addon:uninstall';
-    protected static $defaultDescription = 'Uninstall installed addons';
-
     public function __construct(
         private readonly AddonRegistry $registry,
         private readonly Registrator $registrator,
@@ -58,6 +57,7 @@ class AddonUninstallCommand extends CoreCommand
             'Name of the addon to uninstall. May be omitted to receive a list of installed addons.',
         );
         $this->addOption('all', 'a', InputOption::VALUE_NONE, 'Uninstall all Addons');
+        $this->addOption('skip-cache-clear', '', InputOption::VALUE_NONE, 'Skip cache clear after uninstallation (for batch operations)');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -65,8 +65,9 @@ class AddonUninstallCommand extends CoreCommand
         $output = new SymfonyStyle($input, $output);
         $addonsInfos = $this->registry->getAddonInfos();
         $all = $input->getOption('all');
+        $skipCacheClear = $input->getOption('skip-cache-clear');
 
-        if (empty($addonsInfos)) {
+        if ([] === $addonsInfos) {
             $output->info('No addons installed, nothing to uninstall');
 
             return self::SUCCESS;
@@ -78,8 +79,10 @@ class AddonUninstallCommand extends CoreCommand
                 $this->uninstallAddon($addonInfo, $output);
             }
 
-            // clear cache
-            $this->clearCache($output);
+            // clear cache unless skipped
+            if (!$skipCacheClear) {
+                $this->clearCache($output);
+            }
             $output->success('All addons successfully uninstalled.');
 
             return self::SUCCESS;
@@ -110,8 +113,10 @@ class AddonUninstallCommand extends CoreCommand
 
         $this->uninstallAddon($addonInfo, $output);
 
-        // clear cache
-        $this->clearCache($output);
+        // clear cache unless skipped
+        if (!$skipCacheClear) {
+            $this->clearCache($output);
+        }
 
         $output->success("Addon {$name} successfully uninstalled");
 
@@ -142,6 +147,8 @@ class AddonUninstallCommand extends CoreCommand
 
             return self::FAILURE;
         }
+
+        return null;
     }
 
     /**
@@ -216,10 +223,10 @@ class AddonUninstallCommand extends CoreCommand
         $environment = $kernel->getEnvironment();
         /** @var DemosPlanKernel $kernel */
         $activeProject = $kernel->getActiveProject();
-        $cacheClearCommand = ["bin/{$activeProject}", 'cache:clear', '-e', $environment];
+        $cacheClearCommand = ['bin/console', 'cache:clear', '-e', $environment];
 
         $batchReturn = Batch::create($this->getApplication(), $output)
-            ->addShell($cacheClearCommand)
+            ->addShell($cacheClearCommand, null, ['ACTIVE_PROJECT' => $activeProject])
             ->run();
 
         if (0 !== $batchReturn) {

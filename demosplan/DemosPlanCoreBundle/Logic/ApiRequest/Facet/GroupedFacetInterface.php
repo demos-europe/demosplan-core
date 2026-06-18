@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Facet;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\JsonApi\ResourceTypes\ResourceTypeInterface;
 use EDT\Querying\Contracts\FunctionInterface;
+use EDT\Querying\Contracts\SortMethodInterface;
 
 /**
  * @template TItem of object
@@ -58,4 +59,11 @@ interface GroupedFacetInterface extends FacetInterface
      * @return array<int,FunctionInterface<bool>>
      */
     public function getGroupsLoadConditions(): array;
+
+    /**
+     * Sort methods to apply when loading groups for the facet.
+     *
+     * @return array<int, SortMethodInterface>
+     */
+    public function getGroupsSortMethods(): array;
 }

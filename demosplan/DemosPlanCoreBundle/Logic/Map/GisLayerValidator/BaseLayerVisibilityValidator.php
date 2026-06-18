@@ -1,0 +1,90 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace demosplan\DemosPlanCoreBundle\Logic\Map\GisLayerValidator;
+
+use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
+use Exception;
+use Psr\Log\LoggerInterface;
+
+class BaseLayerVisibilityValidator
+{
+    public function __construct(
+        private readonly LoggerInterface $logger,
+        private readonly MapService $mapService,
+        private readonly MapHandler $mapHandler,
+    ) {
+    }
+
+    public function ensureOnlyOneBaseLayerIsVisible(?string $procedureId, array $gisLayer): void
+    {
+        if (!$this->shouldDisableOtherBaseLayers($gisLayer)) {
+            return;
+        }
+
+        // Global layers have no procedure; the DB stores them with procedureId='' (NOT NULL column default)
+        if (null === $procedureId) {
+            $procedureId = '';
+        }
+
+        $this->disableOtherBaseLayersDefaultVisibility($procedureId, $gisLayer['id']);
+    }
+
+    private function shouldDisableOtherBaseLayers(array $gisLayer)
+    {
+        return isset($gisLayer['type']) && GisLayerInterface::TYPE_BASE === $gisLayer['type']
+            && isset($gisLayer['defaultVisibility']) && true === $gisLayer['defaultVisibility'];
+    }
+
+    /**
+     * Disable default visibility for all base layers except the given one.
+     *
+     * @param string $procedureId   The procedure ID
+     * @param string $exceptLayerId The layer ID to exclude from disabling
+     */
+    private function disableOtherBaseLayersDefaultVisibility(string $procedureId, string $exceptLayerId): void
+    {
+        try {
+            if ('' === $procedureId) {
+                $this->mapHandler->disableDefaultVisibilityForOtherGlobalBaseLayers($exceptLayerId);
+
+                return;
+            }
+
+            $allLayers = $this->mapService->getGisAdminList($procedureId);
+            $layerObjects = $this->mapService->getLayerObjects($allLayers);
+
+            foreach ($layerObjects as $layer) {
+                if (!$layer->isBaseLayer() || $layer->getId() === $exceptLayerId) {
+                    continue;
+                }
+
+                if (!$layer->hasDefaultVisibility()) {
+                    continue;
+                }
+
+                $this->mapHandler->updateGis([
+                    'id'                => $layer->getId(),
+                    'defaultVisibility' => false,
+                ]);
+            }
+        } catch (Exception $e) {
+            $this->logger->error('Failed to disable other base layers default visibility', [
+                'exception'     => $e,
+                'procedureId'   => $procedureId,
+                'exceptLayerId' => $exceptLayerId,
+            ]);
+        }
+    }
+}

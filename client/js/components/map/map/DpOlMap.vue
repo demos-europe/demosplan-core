@@ -150,6 +150,7 @@
 <script>
 import { Attribution, FullScreen, MousePosition, ScaleLine, Zoom } from 'ol/control'
 import {
+  debounce,
   deepMerge,
   dpApi,
   DpAutocomplete,
@@ -269,6 +270,7 @@ export default {
       // Copying of the array is necessary since when bound values are sorted strange things happen performance wise
       const resolutions = this.resolutions.slice()
       const compareToResolution = this.publicSearchAutozoom
+
       return resolutions.sort((a, b) => Math.abs(compareToResolution - a) - Math.abs(compareToResolution - b))[0]
     },
 
@@ -293,12 +295,25 @@ export default {
       return function (response) {
         const parsedResponse = JSON.parse(response)
         const projection = this._options.projection.code
+
         parsedResponse.data.suggestions = parsedResponse.data.suggestions.filter(suggestion => {
           const coordinate = suggestion.data[projection]
+
           return containsXY(maxExtent, coordinate.x, coordinate.y)
         })
+
         return parsedResponse.data
       }
+    },
+  },
+
+  watch: {
+    'mapOptions.baseLayer' (newVal) {
+      this.debouncedUpdateBaselayer(newVal)
+    },
+
+    'mapOptions.baseLayerLayers' (newVal) {
+      this.debouncedUpdateBaselayerLayers(newVal)
     },
   },
 
@@ -330,6 +345,14 @@ export default {
       return MasterportalApi.createMap(config, '2D', { mapParams: { controls } })
     },
 
+    debouncedUpdateBaselayer: debounce(function (newVal) {
+      this.baselayer = newVal
+    }, 1000),
+
+    debouncedUpdateBaselayerLayers: debounce(function (newVal) {
+      this.baselayerLayers = newVal
+    }, 1000),
+
     /**
      * Define extent for map
      * @param mapOptions
@@ -356,6 +379,7 @@ export default {
      */
     getColorByClassName (selector) {
       const element = this.$refs.mapDrawStyles.querySelector(this.prefixClass(selector))
+
       return window.getComputedStyle(element).color
     },
 
@@ -375,6 +399,7 @@ export default {
       if (this.procedureId === '') {
         return this.mapOptions
       }
+
       return dpApi({
         method: 'GET',
         url: Routing.generate(this.mapOptionsRoute, { procedureId: this.procedureId }),
@@ -394,6 +419,7 @@ export default {
     registerFullscreenChangeHandler () {
       const html = document.getElementsByTagName('html')[0]
       const events = ['webkitfullscreenchange', 'mozfullscreenchange', 'fullscreenchange', 'MSFullscreenChange']
+
       events.forEach(event => {
         document.addEventListener(event, () => {
           //  Toggle class `fullscreen-mode` on html element to change canvas size dynamically via CSS
@@ -447,6 +473,7 @@ export default {
     //  Animate map to given coordinate when user selects an item from search-location
     zoomToSuggestion (suggestion) {
       const coordinate = [suggestion.data[this._options.projection.code].x, suggestion.data[this._options.projection.code].y]
+
       this.panToCoordinate(coordinate)
     },
   },
@@ -469,13 +496,14 @@ export default {
     this.baselayer = mapOptions.baseLayer
     this.baseLayerProjection = mapOptions.baseLayerProjection
 
-    if (this.mapOptions.scales) {
+    if (this.mapOptions.scales?.length > 0) {
       this.scales = this.mapOptions.scales
-    } else if (mapOptions.procedureScales.length > 0) {
+    } else if (mapOptions.procedureScales?.length > 0) {
       this.scales = mapOptions.procedureScales
     } else {
       this.scales = mapOptions.globalAvailableScales
     }
+
     //  Calculate resolutions from given scales
     this.resolutions = getResolutionsFromScales(this.scales, this._options.projection.units)
 
@@ -546,7 +574,7 @@ export default {
   },
 }
 
-// DO NOT pass this as Prop if you are not exactly know what you are doing!
+// DO NOT pass this as prop unless you know exactly what you are doing!
 const _defaults = {
   hideDefaultLayer: false,
   procedureExtent: false,
@@ -567,6 +595,7 @@ const _defaults = {
       coordinateFormat: (coordinate) => {
         const x = coordinate[0]
         const y = coordinate[1]
+
         return `${x.toFixed(10)} ${y.toFixed(10)}`
       },
     }),

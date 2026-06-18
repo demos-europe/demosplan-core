@@ -15,6 +15,7 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -157,7 +158,7 @@ class PrepareReportFromProcedureService
      *
      * @throws Exception
      */
-    public function createReportEntry(Procedure $sourceProcedure, Procedure $destinationProcedure)
+    public function createReportEntry(Procedure $sourceProcedure, Procedure $destinationProcedure, bool $isSystem = false): void
     {
         $sourceProcedureSettings = $sourceProcedure->getSettings();
         $destinationProcedureSettings = $destinationProcedure->getSettings();
@@ -208,14 +209,18 @@ class PrepareReportFromProcedureService
             $update['newDesignatedCitizenSwitchEndDate'] = $this->getTimestamp($destinationEndDateOfPublicSwitchPhase);
         }
 
-        if (0 !== strcmp((string) $sourceProcedure->getSettings()->getDesignatedPublicPhase(), (string) $destinationProcedure->getSettings()->getDesignatedPublicPhase())) {
-            $update['oldDesignatedCitizenPhase'] = $sourceProcedure->getSettings()->getDesignatedPublicPhase();
-            $update['newDesignatedCitizenPhase'] = $destinationProcedure->getSettings()->getDesignatedPublicPhase();
+        $sourcePublicPhaseName = $sourceProcedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition()?->getName();
+        $destinationPublicPhaseName = $destinationProcedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition()?->getName();
+        if ($sourcePublicPhaseName !== $destinationPublicPhaseName) {
+            $update['oldDesignatedCitizenPhase'] = $sourcePublicPhaseName;
+            $update['newDesignatedCitizenPhase'] = $destinationPublicPhaseName;
         }
 
-        if (0 !== strcmp((string) $sourceProcedure->getSettings()->getDesignatedPhase(), (string) $destinationProcedure->getSettings()->getDesignatedPhase())) {
-            $update['oldDesignatedAgencyPhase'] = $sourceProcedure->getSettings()->getDesignatedPhase();
-            $update['newDesignatedAgencyPhase'] = $destinationProcedure->getSettings()->getDesignatedPhase();
+        $sourcePhaseName = $sourceProcedure->getPhaseObject()->getDesignatedPhaseDefinition()?->getName();
+        $destinationPhaseName = $destinationProcedure->getPhaseObject()->getDesignatedPhaseDefinition()?->getName();
+        if ($sourcePhaseName !== $destinationPhaseName) {
+            $update['oldDesignatedAgencyPhase'] = $sourcePhaseName;
+            $update['newDesignatedAgencyPhase'] = $destinationPhaseName;
         }
 
         if (0 !== strcmp((string) $sourceProcedure->getName(), (string) $destinationProcedure->getName())) {
@@ -232,8 +237,12 @@ class PrepareReportFromProcedureService
             // compare Users using custom function instead of just casting a User instance to a string
             $dstProcedureAuthorizedUsersArray = $destinationProcedure->getAuthorizedUsers()->toArray();
             $srcProcedureAuthorizedUsersArray = $sourceProcedure->getAuthorizedUsers()->toArray();
-            $changes = array_udiff($dstProcedureAuthorizedUsersArray, $srcProcedureAuthorizedUsersArray, fn (User $user1, User $user2) => strcmp((string) $user1->getId(), (string) $user2->getId()));
-            if (0 !== count($changes)) {
+            $userComparator = fn (User $user1, User $user2) => strcmp((string) $user1->getId(), (string) $user2->getId());
+            // Check for users added (in destination but not in source)
+            $usersAdded = array_udiff($dstProcedureAuthorizedUsersArray, $srcProcedureAuthorizedUsersArray, $userComparator);
+            // Check for users removed (in source but not in destination)
+            $usersRemoved = array_udiff($srcProcedureAuthorizedUsersArray, $dstProcedureAuthorizedUsersArray, $userComparator);
+            if ([] !== $usersAdded || [] !== $usersRemoved) {
                 $update['oldAuthorizedUsers'] = implode(', ', $sourceProcedure->getAuthorizedUserNames());
                 $update['newAuthorizedUsers'] = implode(', ', $destinationProcedure->getAuthorizedUserNames());
             }
@@ -274,13 +283,13 @@ class PrepareReportFromProcedureService
             $sourceProcedure,
             $destinationProcedure,
             $this->getUserForReportEntry(),
-            false
+            $isSystem
         );
-        if (null !== $phaseChangeEntry) {
+        if ($phaseChangeEntry instanceof ReportEntry) {
             $this->reportService->persistAndFlushReportEntries($phaseChangeEntry);
         }
 
-        if (0 !== count($update)) {
+        if ([] !== $update) {
             $updateReportEntry = $this->procedureReportEntryFactory->createUpdateEntry(
                 $sourceProcedure,
                 $update
@@ -300,7 +309,7 @@ class PrepareReportFromProcedureService
         } catch (UserNotFoundException $e) {
             $this->logger->info('No user found for report entry creation, falling back to default.', [$e]);
         }
-        if (null !== $user && '' !== $user->getFullname()) {
+        if ($user instanceof UserInterface && '' !== $user->getFullname()) {
             return $user;
         }
 
@@ -322,8 +331,11 @@ class PrepareReportFromProcedureService
         if ($this->hasPhaseChanged($sourceProcedure, $destinationProcedure)) {
             $phaseChangeMessage = $this->createPhaseChangeMessageData($sourceProcedure, $destinationProcedure);
 
-            if (0 !== count($phaseChangeMessage)) {
+            if ([] !== $phaseChangeMessage) {
                 $phaseChangeMessage['createdBySystem'] = $createdBySystem;
+                if ($createdBySystem) {
+                    $phaseChangeMessage['autoSwitchExecutedAt'] = (new DateTime())->getTimestamp();
+                }
 
                 return $this->procedureReportEntryFactory->createPhaseChangeEntry(
                     $sourceProcedure,
@@ -348,7 +360,7 @@ class PrepareReportFromProcedureService
      */
     public function addReportsOnProcedureCouple(ProcedureCoupleToken $token, User $user): void
     {
-        if (null === $token->getTargetProcedure()) {
+        if (!$token->getTargetProcedure() instanceof Procedure) {
             throw new ProcedureNotFoundException('Target procedure must be set to generate report entries on procedure coupling');
         }
 
@@ -382,11 +394,11 @@ class PrepareReportFromProcedureService
 
         $oldInternPhase = $sourceProcedure->getPhaseObject();
         $newInternPhase = $destinationProcedure->getPhaseObject();
-        if ($oldInternPhase->getKey() !== $newInternPhase->getKey()
+        if ($oldInternPhase->getPhaseDefinition()->getId() !== $newInternPhase->getPhaseDefinition()->getId()
             || $oldInternPhase->getIteration() !== $newInternPhase->getIteration()
         ) {
-            $changes['oldPhase'] = $oldInternPhase->getKey();
-            $changes['newPhase'] = $newInternPhase->getKey();
+            $changes['oldPhase'] = $oldInternPhase->getPhaseDefinition()->getName();
+            $changes['newPhase'] = $newInternPhase->getPhaseDefinition()->getName();
             $changes['oldPhaseStart'] = $oldInternPhase->getStartDate()->getTimestamp();
             $changes['newPhaseStart'] = $newInternPhase->getStartDate()->getTimestamp();
             $changes['oldPhaseEnd'] = $oldInternPhase->getEndDate()->getTimestamp();
@@ -397,10 +409,10 @@ class PrepareReportFromProcedureService
 
         $oldExternPhase = $sourceProcedure->getPublicParticipationPhaseObject();
         $newExternPhase = $destinationProcedure->getPublicParticipationPhaseObject();
-        if ($oldExternPhase->getKey() !== $newExternPhase->getKey()
+        if ($oldExternPhase->getPhaseDefinition()->getId() !== $newExternPhase->getPhaseDefinition()->getId()
             || $oldExternPhase->getIteration() !== $newExternPhase->getIteration()) {
-            $changes['oldPublicPhase'] = $oldExternPhase->getKey();
-            $changes['newPublicPhase'] = $newExternPhase->getKey();
+            $changes['oldPublicPhase'] = $oldExternPhase->getPhaseDefinition()->getName();
+            $changes['newPublicPhase'] = $newExternPhase->getPhaseDefinition()->getName();
             $changes['oldPublicPhaseStart'] = $oldExternPhase->getStartDate()->getTimestamp();
             $changes['newPublicPhaseStart'] = $newExternPhase->getStartDate()->getTimestamp();
             $changes['oldPublicPhaseEnd'] = $oldExternPhase->getEndDate()->getTimestamp();
@@ -455,11 +467,11 @@ class PrepareReportFromProcedureService
             }
         }
 
-        if (0 !== count($elements)) {
+        if ([] !== $elements) {
             $changes['elements'] = $elements;
         }
 
-        if (0 !== count($paragraphs)) {
+        if ([] !== $paragraphs) {
             $changes['paragraphs'] = $paragraphs;
         }
 
@@ -473,12 +485,12 @@ class PrepareReportFromProcedureService
         $oldPublicPhase = $sourceProcedure->getPublicParticipationPhaseObject();
         $newPublicPhase = $destinationProcedure->getPublicParticipationPhaseObject();
 
-        $internKeyHasChanged = 0 !== strcmp($oldPhase->getKey(), $newPhase->getKey());
-        $externKeyHasChanged = 0 !== strcmp($oldPublicPhase->getKey(), $newPublicPhase->getKey());
+        $internDefinitionHasChanged = $oldPhase->getPhaseDefinition()->getId() !== $newPhase->getPhaseDefinition()->getId();
+        $externDefinitionHasChanged = $oldPublicPhase->getPhaseDefinition()->getId() !== $newPublicPhase->getPhaseDefinition()->getId();
         $internIterationHasChanged = $oldPhase->getIteration() !== $newPhase->getIteration();
         $externIterationHasChanged = $oldPublicPhase->getIteration() !== $newPublicPhase->getIteration();
 
-        return $internKeyHasChanged || $externKeyHasChanged || $internIterationHasChanged || $externIterationHasChanged;
+        return $internDefinitionHasChanged || $externDefinitionHasChanged || $internIterationHasChanged || $externIterationHasChanged;
     }
 
     /**
@@ -517,7 +529,7 @@ class PrepareReportFromProcedureService
 
     private function getTimestamp(?DateTime $dateTime): ?int
     {
-        if (null === $dateTime) {
+        if (!$dateTime instanceof DateTime) {
             return null;
         }
 
@@ -559,7 +571,7 @@ class PrepareReportFromProcedureService
         }
 
         // add entry to report data
-        if (0 < count($elementEntry)) {
+        if ([] !== $elementEntry) {
             $elements[$element->getTitle()] = $elementEntry;
         }
 
@@ -589,7 +601,7 @@ class PrepareReportFromProcedureService
                 $documents[$document->getTitle()] = $document->getDocument();
             }
         }
-        if (0 !== count($documents)) {
+        if ([] !== $documents) {
             $elementEntry['files'] = $documents;
         }
 
@@ -598,13 +610,13 @@ class PrepareReportFromProcedureService
                 $access[] = $orga->getName();
             }
 
-            if (0 !== count($access)) {
+            if ([] !== $access) {
                 $elementEntry['access'] = $access;
             }
         }
 
         // add entry to report data
-        if (0 < count($elementEntry)) {
+        if ([] !== $elementEntry) {
             $elements[$element->getTitle()] = $elementEntry;
         }
 

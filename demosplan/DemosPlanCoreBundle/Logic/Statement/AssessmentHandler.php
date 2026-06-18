@@ -14,6 +14,7 @@ use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -28,6 +29,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\UserFilterSetService;
 use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplate;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementHandlingResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DocxExportResult;
@@ -138,7 +140,7 @@ class AssessmentHandler extends CoreHandler
         );
 
         $procedure = $this->procedureService->getProcedure($procedureId);
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             throw ProcedureNotFoundException::createFromId($procedureId);
         }
 
@@ -245,7 +247,7 @@ class AssessmentHandler extends CoreHandler
              * Keine Gliederung
              * {"anonymous":true,"exportType":"statementsOnly","sortType":"default","template":"landscape"}
              */
-            $viewOrientation = str_contains((string) $exportChoice['template'], 'landscape')
+            $viewOrientation = str_contains((string) $exportChoice['template'], ExportTemplate::LANDSCAPE->value)
                 ? ViewOrientation::createLandscape()
                 : ViewOrientation::createPortrait();
             $objWriter = $this->assessmentTableServiceOutput->generateDocx(
@@ -323,7 +325,7 @@ class AssessmentHandler extends CoreHandler
         );
 
         $statements = $outputResult->getStatements();
-        $statements = $this->statementService->addSourceStatementAttachments($statements);
+        $statements = $this->statementService->addStatementAttachments($statements);
 
         // TODO: this seems to do nothing as the statement changed seems to be just a copy, please verify and delete code or falsify and explain with comment
         foreach ($statements as $statement) {

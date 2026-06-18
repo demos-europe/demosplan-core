@@ -37,6 +37,7 @@ function buildUserFeedbackFunction (options) {
  */
 function configureBundleAnalysis (options, project, webpackConfig) {
   let analysisType = 'html'
+
   if (options.json && options.json.length > 0) {
     analysisType = 'json'
   }
@@ -73,6 +74,7 @@ function configureProgressBar (options, webpackRunner) {
 
     // Register an exit handler to not mess up the terminal after watch
     const termSignals = ['SIGINT', 'SIGTERM']
+
     termSignals.forEach(
       signal => {
         process.on(signal, () => {
@@ -140,6 +142,7 @@ function runWebpack (mode) {
 
     // Create the webpack runner object
     let webpackRunner = null
+
     try {
       webpackRunner = webpack(webpackConfig)
     } catch (e) {
@@ -173,6 +176,21 @@ function runWebpack (mode) {
  * @param {Object} stats Webpack Stats object
  */
 function showErrorMessage (err, stats) {
+  // Handle case where stats is undefined (early webpack failure)
+  if (!stats) {
+    if (err) {
+      log(chalk.red('Build failed'))
+      log(chalk.red(err.stack || err))
+      if (err.details) {
+        log(err.details)
+      }
+    } else {
+      log(chalk.red('Build failed: Unknown error (no stats or error information available)'))
+    }
+
+    return
+  }
+
   const info = stats.toJson()
 
   if (err || stats.hasErrors() || stats.hasWarnings()) {
@@ -225,7 +243,7 @@ function showWebpackRunMessage (userFeedbackCallback, mode, project, webpackConf
 }
 
 function showWebpackStatisticsMessage (options, stats) {
-  if (options.stats) {
+  if (options.stats && stats) {
     const webpackStatisticsOptions = {
       chunks: false,
     }
@@ -233,6 +251,7 @@ function showWebpackStatisticsMessage (options, stats) {
     if (options.json && options.json.length > 0) {
       log(chalk.yellow(`Writing webpack build statistics to ${options.json}`))
       const json = stats.toJson(webpackStatisticsOptions)
+
       fs.writeFileSync(options.json, JSON.stringify(json))
     } else {
       log(stats.toString({
@@ -245,10 +264,12 @@ function showWebpackStatisticsMessage (options, stats) {
 
 function webpackConfiguration (options) {
   let webpackConfig = null
+
   try {
     webpackConfig = require(resolveDir('config.webpack'))
   } catch (e) {
     console.error(e.message)
+
     return 1
   }
 

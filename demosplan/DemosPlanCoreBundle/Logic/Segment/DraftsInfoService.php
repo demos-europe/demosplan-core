@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -10,6 +12,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use Psr\Log\LoggerInterface;
@@ -31,7 +34,7 @@ class DraftsInfoService
     public function save(string $statementId, string $data): void
     {
         $statement = $this->statementHandler->getStatement($statementId);
-        if (null === $statement) {
+        if (!$statement instanceof Statement) {
             $this->logger->error('Error: No Statement found for Id: '.$statementId);
             throw StatementNotFoundException::createFromId($statementId);
         }

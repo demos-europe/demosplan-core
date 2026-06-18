@@ -75,6 +75,7 @@
           :current-user-first-name="currentUser.firstname"
           :current-user-last-name="currentUser.lastname"
           :current-user-orga="currentUser.orgaName"
+          @unlock="openUnlockModal"
         />
 
         <!-- Pagination below segments list -->
@@ -95,6 +96,13 @@
           />
         </div>
       </div>
+      <segment-unlock-modal
+        v-if="hasPermission('feature_administrate_segment_lock')"
+        ref="unlockModal"
+        :assignable-users="unlockAssignableUsers"
+        :places="places"
+        @unlock="payload => unlockSegment(payload, () => fetchSegments(pagination?.currentPage || 1))"
+      />
     </div>
   </div>
 </template>
@@ -102,9 +110,12 @@
 <script>
 import { dpApi, DpButton, DpLoading, DpPager } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import { scrollTo } from 'vue-scrollto'
-import StatementSegment from './StatementSegment'
+import { handleSegmentNavigation } from '@DpJs/lib/segment/handleSegmentNavigation'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
+import { scrollTo } from 'vue-scrollto'
+import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
+import StatementSegment from './StatementSegment'
+import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
 
 export default {
   name: 'SegmentsRecommendations',
@@ -115,6 +126,7 @@ export default {
     DpButton,
     DpLoading,
     DpPager,
+    SegmentUnlockModal,
     StatementSegment,
   },
 
@@ -132,6 +144,12 @@ export default {
     },
   },
 
+  setup () {
+    const { unlockModal, openUnlockModal, unlockSegment } = useSegmentUnlock()
+
+    return { unlockModal, openUnlockModal, unlockSegment }
+  },
+
   data () {
     return {
       isAllCollapsed: true,
@@ -143,6 +161,7 @@ export default {
       },
       pagination: {},
       storageKeyPagination: `segmentsRecommendations_${this.statementId}_pagination`,
+      segmentNavigation: null,
     }
   },
 
@@ -151,12 +170,38 @@ export default {
       segments: 'items',
     }),
 
+    ...mapState('Place', {
+      placeItems: 'items',
+    }),
+
+    ...mapState('AssignableUser', {
+      assignableUsersObject: 'items',
+    }),
+
     hasSegments () {
       return Object.keys(this.segments).length > 0
     },
 
+    places () {
+      return Object.values(this.placeItems).map(place => ({
+        name: place.attributes.name,
+        id: place.id,
+        locked: place.attributes.locked,
+      }))
+    },
+
     statement () {
       return this.$store.state.Statement.items[this.statementId] || null
+    },
+
+    // Assignable users including the "not assigned" option, used as the unlock modal default
+    unlockAssignableUsers () {
+      const users = Object.values(this.assignableUsersObject).map(user => ({
+        name: user.attributes.firstname + ' ' + user.attributes.lastname,
+        id: user.id,
+      }))
+
+      return [{ name: Translator.trans('not.assigned'), id: 'noAssigneeId' }, ...users]
     },
   },
 
@@ -186,16 +231,22 @@ export default {
      * - if statement has assignee and assignee is not currentUser, ask if statement should be claimed and if so, continue
      * - if statement is claimed by currentUser, continue
      * - if statement has no assignee, assign it to currentUser and continue
+     *
+     * setTimeout is used to slightly delay the redirect so the success notification is visible
+     * and the claimed status is correctly reflected when navigating back in the browser
      */
     claimAndRedirect () {
       if (this.statement.hasRelationship('assignee')) {
-        if (this.statement.relationships.assignee.data.id !== this.currentUserId) {
-          if (window.dpconfirm(Translator.trans('warning.statement.needLock.generic'))) {
+        if (this.statement.relationships.assignee.data.id !== this.currentUser.id) {
+          if (globalThis.dpconfirm(Translator.trans('warning.statement.needLock.generic'))) {
             this.claimStatement()
-              .then(err => {
-                if (typeof err === 'undefined') {
+              .then(() => {
+                setTimeout(() => {
                   this.goToSplitStatementView()
-                }
+                }, 1000)
+              })
+              .catch(() => {
+                dplan.notify.notify('error', Translator.trans('error.statement.assignment.assigned'))
               })
           }
         } else {
@@ -203,10 +254,13 @@ export default {
         }
       } else {
         this.claimStatement()
-          .then(err => {
-            if (typeof err === 'undefined') {
+          .then(() => {
+            setTimeout(() => {
               this.goToSplitStatementView()
-            }
+            }, 1000)
+          })
+          .catch(() => {
+            dplan.notify.notify('error', Translator.trans('error.statement.assignment.assigned'))
           })
       }
     },
@@ -217,6 +271,7 @@ export default {
      */
     claimStatement () {
       const dataToUpdate = { ...this.statement, ...{ relationships: { ...this.statement.relationships, ...{ assignee: { data: { type: 'Claim', id: this.currentUser.id } } } } } }
+
       this.setStatement({ ...dataToUpdate, id: this.statementId })
 
       const payload = {
@@ -253,7 +308,7 @@ export default {
         .catch((err) => {
           // Restore statement in store in case request failed
           this.restoreStatementAction(this.statementId)
-          return err
+          throw err
         })
     },
 
@@ -271,16 +326,47 @@ export default {
         'recommendation',
       ]
 
+      const statementSegmentInclude = [
+        'assignee',
+        'comments',
+        'comments.place',
+        'comments.submitter',
+        'place',
+        'tags',
+      ]
+
+      if (hasPermission('feature_enable_recommendation_versions')) {
+        statementSegmentInclude.push('recommendationVersions')
+        statementSegmentFields.push('recommendationVersions')
+      }
+
       if (hasPermission('field_segments_custom_fields')) {
         statementSegmentFields.push('customFields')
       }
 
       this.isLoading = true
 
+      // Calculate correct page for segment parameter (only runs once)
+      const { calculatedPage, perPage } = await this.segmentNavigation.calculatePageForSegment()
+      let shouldRemoveSegmentParam = false
+
+      if (calculatedPage) {
+        page = calculatedPage
+        this.pagination.currentPage = calculatedPage
+
+        if (perPage) {
+          this.pagination.perPage = perPage
+        }
+
+        // Mark that we need to remove segment param after scroll completes
+        shouldRemoveSegmentParam = true
+      }
+
       await this.fetchPlaces({
         fields: {
           Place: [
             'description',
+            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
             'name',
             'solved',
             'sortIndex',
@@ -294,30 +380,42 @@ export default {
           AssignableUser: [
             'firstname',
             'lastname',
+            'orga',
           ].join(),
+          Orga: ['name'].join(),
         },
-        include: 'department',
+        include: 'orga',
         sort: 'lastname',
       })
 
-      const response = await this.listSegments({
-        include: [
-          'assignee',
-          'comments',
-          'comments.place',
-          'comments.submitter',
+      const fields = {
+        StatementSegment: statementSegmentFields.join(),
+        SegmentComment: [
+          'creationDate',
+          'text',
+          'submitter',
           'place',
-          'tags',
         ].join(),
-        fields: {
-          StatementSegment: statementSegmentFields.join(),
-          SegmentComment: [
-            'creationDate',
-            'text',
-            'submitter',
-            'place',
-          ].join(),
-        },
+        Place: [
+          'description',
+          ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+          'name',
+          'solved',
+          'sortIndex',
+        ].join(),
+      }
+
+      if (hasPermission('feature_enable_recommendation_versions')) {
+        fields.RecommendationVersion = [
+          'versionNumber',
+          'recommendationText',
+          'createdAt',
+        ].join()
+      }
+
+      const response = await this.listSegments({
+        include: statementSegmentInclude.join(),
+        fields,
         page: {
           number: page,
           size: this.pagination?.perPage || this.defaultPagination.perPage,
@@ -347,23 +445,28 @@ export default {
 
       this.isLoading = false
 
-      await this.$nextTick(() => {
-        const queryParams = new URLSearchParams(window.location.search)
-        const segmentId = queryParams.get('segment') || ''
+      await this.$nextTick()
 
-        if (segmentId) {
-          scrollTo('#segment_' + segmentId, { offset: -110 })
-          const segmentComponent = this.$refs.segment.find(el => el.segment.id === segmentId)
+      const queryParams = new URLSearchParams(globalThis.location.search)
+      const segmentId = queryParams.get('segment') || ''
 
-          if (segmentComponent) {
-            segmentComponent.isCollapsed = false
-          }
+      if (segmentId) {
+        scrollTo('#segment_' + segmentId, { offset: -110 })
+        const segmentComponent = this.$refs.segment.find(el => el.segment.id === segmentId)
+
+        if (segmentComponent) {
+          segmentComponent.isCollapsed = false
         }
-      })
+
+        // Remove segment parameter after scroll completes to prevent re-navigation on tab toggle
+        if (shouldRemoveSegmentParam) {
+          this.segmentNavigation.removeSegmentParameter()
+        }
+      }
     },
 
     goToSplitStatementView () {
-      window.location.href = Routing.generate('dplan_drafts_list_edit', { statementId: this.statementId, procedureId: this.procedureId })
+      globalThis.location.href = Routing.generate('dplan_drafts_list_edit', { statementId: this.statementId, procedureId: this.procedureId })
     },
 
     toggleAll () {
@@ -385,15 +488,39 @@ export default {
         // Prevent division by zero or negative page size
         return
       }
+
       // Compute new page with current page for changed number of items per page
       const page = Math.floor((this.pagination?.perPage * (this.pagination?.currentPage - 1) / newSize) + 1)
+
       this.pagination.perPage = newSize
       this.fetchSegments(page)
     },
   },
 
+  created () {
+    this.segmentNavigation = handleSegmentNavigation({
+      statementId: this.statementId,
+      storageKey: this.storageKeyPagination,
+      currentPerPage: this.pagination?.perPage,
+      defaultPagination: this.defaultPagination,
+    })
+  },
+
   mounted () {
-    this.initPagination()
+    /**
+     * Check if the user navigated here from a specific segment in the segments list; if so, navigate to the page on which
+     * that segment is found (i.e., override pagination)
+     */
+    const paginationOverride = this.segmentNavigation.initializeSegmentPagination(() => this.initPagination())
+
+    if (paginationOverride) {
+      this.pagination = paginationOverride
+    }
+
+    /**
+     * Fetch segments for current page from pagination (either based on the segment the user navigated from or on localStorage),
+     * default to 1st page
+     */
     this.fetchSegments(this.pagination?.currentPage || 1)
   },
 }

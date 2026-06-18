@@ -248,7 +248,7 @@ class StatementGeoService
             }
             $this->logger->info('Time for parsing Objects from Georequest: '.DemosPlanTools::varExport(microtime(true) - $microtime, true));
 
-            if (0 < count($statementData)) {
+            if ([] !== $statementData) {
                 // update statement, explicitly allow editing original statement
                 $statements[$key] = $this->statementService->updateStatement($statementData, true, true, true);
                 $original = $statement->getOriginal();
@@ -365,27 +365,26 @@ class StatementGeoService
                 $priorityAreasXpath = $item->xpath('child::app:vorranggebiete');
                 $priorityAreas2Xpath = $item->xpath('child::app:potentialflaechen');
                 // viva SimpleXML
-                if (isset($municipalitiesXpath[0]) && strlen((string) $municipalitiesXpath[0]) > 0) {
+                if (isset($municipalitiesXpath[0]) && '' !== (string) $municipalitiesXpath[0]) {
                     $geoResults['municipalities'] = $geoResults['municipalities']->merge(explode(';', (string) $municipalitiesXpath[0]));
                 }
-                if (isset($countiesXpath[0]) && strlen((string) $countiesXpath[0]) > 0) {
+                if (isset($countiesXpath[0]) && '' !== (string) $countiesXpath[0]) {
                     $geoResults['counties'] = $geoResults['counties']->merge(explode(';', (string) $countiesXpath[0]));
                 }
-                if (isset($priorityAreasXpath[0]) && strlen((string) $priorityAreasXpath[0]) > 0) {
+                if (isset($priorityAreasXpath[0]) && '' !== (string) $priorityAreasXpath[0]) {
                     $geoResults['priorityAreas'] = $geoResults['priorityAreas']->merge(explode(';', (string) $priorityAreasXpath[0]));
                 }
-                if (isset($priorityAreas2Xpath[0]) && strlen((string) $priorityAreas2Xpath[0]) > 0) {
+                if (isset($priorityAreas2Xpath[0]) && '' !== (string) $priorityAreas2Xpath[0]) {
                     $geoResults['priorityAreas'] = $geoResults['priorityAreas']->merge(explode(';', (string) $priorityAreas2Xpath[0]));
                 }
             }
             $this->logger->info('Parsed Georesults: '.DemosPlanTools::varExport($geoResults, true));
 
             return $geoResults;
-        } else {
-            $this->logger->warning('Abruf der Daten vom Geoserver fehlgeschlagen. Typ: '.$type.' Response: '.DemosPlanTools::varExport($responseGet, true));
-
-            return $geoResults;
         }
+        $this->logger->warning('Abruf der Daten vom Geoserver fehlgeschlagen. Typ: '.$type.' Response: '.DemosPlanTools::varExport($responseGet, true));
+
+        return $geoResults;
     }
 
     /**
@@ -406,7 +405,7 @@ class StatementGeoService
 
         foreach ($polygons as $wktItem) {
             preg_match('/POLYGON[\s]*\({1,2}([0-9\. ,]*)/', (string) $wktItem, $coords);
-            if (0 < count($coords)) {
+            if ([] !== $coords) {
                 // leerzeichen zu komma, komma zu Leerzeichen mit Zwischenschritt über |
                 $coordinates->push(str_replace('|', ' ', str_replace(' ', ',', str_replace(',', '|', $coords[1]))));
             }
@@ -464,7 +463,7 @@ class StatementGeoService
 
         foreach ($linestrings as $wktItem) {
             preg_match('/LINESTRING[\s]*\((.*)\)/', (string) $wktItem, $coords);
-            if (0 < count($coords)) {
+            if ([] !== $coords) {
                 // leerzeichen zu komma, komma zu Leerzeichen mit Zwischenschritt über |
                 $coordinates->push(str_replace('|', ' ', str_replace(' ', ',', str_replace(',', '|', $coords[1]))));
             }
@@ -527,7 +526,7 @@ class StatementGeoService
 
         foreach ($points as $wktItem) {
             preg_match('/POINT[\s]*\((.*)\)/', (string) $wktItem, $coords);
-            if (0 < count($coords)) {
+            if ([] !== $coords) {
                 $coordinates->push(str_replace(' ', ',', $coords[1]));
             }
         }

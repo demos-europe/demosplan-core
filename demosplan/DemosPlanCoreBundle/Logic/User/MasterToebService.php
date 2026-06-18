@@ -224,6 +224,7 @@ class MasterToebService
             $addedMasterToeb = $this->masterToebRepository
                 ->add($data);
             try {
+                $data['id'] = $addedMasterToeb->getId();
                 $this->addReportAddMasterToeb($data);
             } catch (Exception $e) {
                 $this->logger->warning('Add Report in addMasterToeb() failed Message: ', [$e]);
@@ -271,7 +272,7 @@ class MasterToebService
                 $data[$key] = (int) $value;
             } elseif (in_array($key, $stringToBooleanValues)) {
                 $data[$key] = false;
-                if (0 < strlen($value)) {
+                if ('' !== (string) $value) {
                     $data[$key] = true;
                 }
             } elseif (in_array($key, $stringToIntValues)) {
@@ -311,7 +312,7 @@ class MasterToebService
             if (isset($data['orgaName']) && !is_null($orga) && $data['orgaName'] != $orga->getName()) {
                 $orgaUpdate['name'] = $data['orgaName'];
             }
-            if (0 < count($orgaUpdate) && !is_null($orga)) {
+            if ([] !== $orgaUpdate && !is_null($orga)) {
                 $this->serviceUser->updateOrga($orga->getIdent(), $orgaUpdate, false);
             }
 

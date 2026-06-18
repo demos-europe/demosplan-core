@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -11,13 +13,13 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
-use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\AttachedChildException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * Class DemosPlanProcedureLayerCategoryAPIController.
@@ -28,14 +30,13 @@ class DemosPlanProcedureLayerCategoryAPIController extends APIController
     /**
      * Delete a specific GisLayerCategory.
      *
-     * @DplanPermissions({"area_admin_map","feature_map_category"})
-     *
      * @return $this|JsonResponse
      *
      * @throws MessageBagException
      */
-    #[Route(path: '/{layerCategoryId}', methods: ['DELETE'], name: 'dplan_api_procedure_layer_category_delete')]
-    public function layerCategoryDeleteAction(string $layerCategoryId, MapService $mapService)
+    #[DplanPermissions(['area_admin_map', 'feature_map_category'])]
+    #[Route(path: '/{layerCategoryId}', name: 'dplan_api_procedure_layer_category_delete', methods: ['DELETE'])]
+    public function layerCategoryDelete(string $layerCategoryId, MapService $mapService)
     {
         try {
             $mapService->deleteGisLayerCategory($layerCategoryId);

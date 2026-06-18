@@ -10,10 +10,11 @@
     {# meta #}
     <div class="{{ 'flow-root u-mv-0_25 o-hellip'|prefixClass }}">
 
-        {# creation date #}
-        {% if news.createDate is defined %}
+        {# modification date if edited, otherwise creation date #}
+        {% set displayDate = news.modifyDate is defined ? news.modifyDate : news.createDate %}
+        {% if displayDate is defined %}
             <span class="{{ 'font-size-smaller float-left'|prefixClass }}">
-                {{ news.createDate|default|dplanDateAnnotated }}
+                {{ displayDate|dplanDateAnnotated }}
             </span>
         {% endif %}
 

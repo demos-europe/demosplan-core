@@ -128,7 +128,7 @@ class MapService
         // transform object and date times to array/timestamp
         foreach ($listOfGisLayers as $gisLayer) {
             $gisLayer = $this->convertToLegacy($gisLayer);
-            if (isset($gisLayer['gId']) && 0 < strlen((string) $gisLayer['gId'])) {
+            if (isset($gisLayer['gId']) && '' !== (string) $gisLayer['gId']) {
                 $globalLayer = $this->mapRepository->get($gisLayer['gId']);
                 $gisLayer['globalGis'] = $this->convertToLegacy($globalLayer);
                 $gisLayer['globalLayer'] = true;
@@ -169,7 +169,7 @@ class MapService
         foreach ($listOfGisLayers as $gisLayer) {
             $gisLayer = $this->convertToLegacy($gisLayer);
 
-            if (isset($gisLayer['gId']) && 0 < strlen((string) $gisLayer['gId'])) {
+            if (isset($gisLayer['gId']) && '' !== (string) $gisLayer['gId']) {
                 $globalLayer = $this->mapRepository->get($gisLayer['gId']);
                 $gisLayer['globalGis'] = $this->convertToLegacy($globalLayer);
                 $gisLayer['globalLayer'] = true;
@@ -222,7 +222,7 @@ class MapService
             $singleGis = $this->mapRepository->get($ident);
             $singleGis = $this->convertToLegacy($singleGis);
 
-            if (isset($singleGis['gId']) && 0 < strlen((string) $singleGis['gId'])) {
+            if (isset($singleGis['gId']) && '' !== (string) $singleGis['gId']) {
                 $globalLayer = $this->mapRepository->get($singleGis['gId']);
                 $singleGis['globalGis'] = $this->convertToLegacy($globalLayer);
                 $singleGis['globalLayer'] = true;
@@ -337,7 +337,7 @@ class MapService
             return $this->mapRepository->reOrderGisLayers($gisLayerIds);
         } catch (Exception $e) {
             $this->logger->error('ReOrder gis  failed ', ['idents' => Json::encode($gisLayerIds), 'exception' => $e]);
-            throw new Exception('ContentService error', 5012);
+            throw new Exception('ContentService error', 5012, $e);
         }
     }
 
@@ -439,7 +439,7 @@ class MapService
 
             // check what kind of statement and save
             $statement = $this->statementService->getStatement($draftStatementOrStatementId);
-            if (null === $statement) {
+            if (!$statement instanceof Statement) {
                 $this->getServiceDraftStatement()->updateDraftStatement($update, true, false);
             } else {
                 $this->statementService->updateStatement($update, true, true, true);
@@ -495,7 +495,7 @@ class MapService
                             if ('VERSION' === $keyToRemove && isset($urlParameterSplit[1])) {
                                 $version = $urlParameterSplit[1];
                             }
-                            if (array_key_exists($keyToRemove, $defaultValues) && '' != $keyToRemove) {
+                            if (array_key_exists($keyToRemove, $defaultValues) && '' !== $keyToRemove) {
                                 unset($defaultValues[$keyToRemove]);
                             }
                         }
@@ -826,7 +826,7 @@ class MapService
 
     private function ifNoPrintLayerRemainsThenResortToParametersYml(array $gisLayerList): array
     {
-        if (0 === count($gisLayerList)) {
+        if ([] === $gisLayerList) {
             $defaultBasePrintLayer = new GisLayer();
             $defaultBasePrintLayer->set(
                 [

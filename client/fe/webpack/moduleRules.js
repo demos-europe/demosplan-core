@@ -9,7 +9,7 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const config = require('../config/config').config
 const resolveDir = require('./util').resolveDir
-const { purgeCSSPlugin } = require('@fullhuman/postcss-purgecss')
+const purgeCSSPlugin = require('@fullhuman/postcss-purgecss')
 const sass = require('sass-embedded')
 
 /**
@@ -19,6 +19,7 @@ const sass = require('sass-embedded')
  */
 let transpiledModules = [
   // Core modules first
+  resolveDir('client'),
   resolveDir('demosplan'),
   resolveDir('projects'),
 ]
@@ -79,6 +80,7 @@ const postcssPurgeCss = purgeCSSPlugin({
   ...config.purgeCss,
   defaultExtractor (content) {
     const contentWithoutStyleBlocks = content.replace(/<style[^]+?<\/style>/gi, '')
+
     return contentWithoutStyleBlocks.match(/[A-Za-z0-9-_/:]*[A-Za-z0-9-_/.[\]%]+/g) || []
   },
 })
@@ -120,6 +122,7 @@ const moduleRules =
             postcssOptions: (loaderContext) => {
               // Do not pass 3rd party css through postCss in dev mode to gain some speed
               const skipPostCss = /node_modules/.test(loaderContext.resourcePath) && config.isProduction === false
+
               return {
                 plugins: skipPostCss ? [] : postCssPlugins,
               }
@@ -136,7 +139,6 @@ const moduleRules =
               quietDeps: true,
               additionalData: `$url-path-prefix: '${config.urlPathPrefix}';`,
               loadPaths: [
-                config.projectRoot + 'web/',
                 config.publicPath,
               ],
             },
@@ -170,6 +172,7 @@ const moduleRules =
       test: /\.vue$/,
       loader: 'vue-loader',
       options: {
+        enableTsInTemplate: false,
         compilerOptions: {
           compatConfig: {
             MODE: 2,
@@ -179,7 +182,7 @@ const moduleRules =
       },
     },
     {
-      test: /\.js$/,
+      test: /\.(js|ts)$/,
       include: transpiledModules,
       exclude: [
         resolveDir('demosplan/DemosPlanCoreBundle/Resources/client/js/legacy'),

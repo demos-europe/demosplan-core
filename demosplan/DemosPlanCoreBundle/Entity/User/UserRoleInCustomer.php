@@ -15,65 +15,46 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserRoleInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\UserRoleInCustomerRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Links the user, the role and the customer (currently only relevant for the CustomerMasterUser).
  *
  * @see for Details https://yaits.demos-deutschland.de/w/demosplan/functions/user_roles/
- *
- * @ORM\Table(name="relation_role_user_customer",
- *    uniqueConstraints={
- *
- *        @ORM\UniqueConstraint(name="role_customer_user_unique_constraint",
- *            columns={"role", "customer", "user"})
- *    }
- * )
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\UserRoleInCustomerRepository")
  */
+#[ORM\Table(name: 'relation_role_user_customer')]
+#[ORM\UniqueConstraint(name: 'role_customer_user_unique_constraint', columns: ['role', 'customer', 'user'])]
+#[ORM\Entity(repositoryClass: UserRoleInCustomerRepository::class)]
 class UserRoleInCustomer extends CoreEntity implements UuidEntityInterface, UserRoleInCustomerInterface
 {
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="id", type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: 'id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * Foreign key, User object.
      *
      * @var UserInterface
-     *
-     * @ORM\ManyToOne(
-     *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\User",
-     *     inversedBy="roleInCustomers",
-     * )
-     *
-     * @ORM\JoinColumn(name="user", referencedColumnName="_u_id", nullable=false)
      */
+    #[ORM\JoinColumn(name: 'user', referencedColumnName: '_u_id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'roleInCustomers')]
     protected $user;
 
     /**
      * Foreign key, Role object.
      *
      * @var RoleInterface
-     *
-     * @ORM\ManyToOne(
-     *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Role",
-     *     inversedBy="userRoleInCustomers"
-     * )
-     *
-     * @ORM\JoinColumn(name="role", referencedColumnName="_r_id", nullable=false)
      */
+    #[ORM\JoinColumn(name: 'role', referencedColumnName: '_r_id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Role::class, inversedBy: 'userRoleInCustomers')]
     protected $role;
 
     /**
@@ -82,14 +63,9 @@ class UserRoleInCustomer extends CoreEntity implements UuidEntityInterface, User
      * @var CustomerInterface|null
      *
      * @see https://yaits.demos-deutschland.de/w/demosplan/functions/permissions/
-     *
-     * @ORM\ManyToOne(
-     *     targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Customer",
-     *     inversedBy="userRoles"
-     * )
-     *
-     * @ORM\JoinColumn(name="customer", referencedColumnName="_c_id", nullable=true)
      */
+    #[ORM\JoinColumn(name: 'customer', referencedColumnName: '_c_id', nullable: true)]
+    #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'userRoles')]
     protected $customer;
 
     public function getId(): ?string
@@ -136,7 +112,7 @@ class UserRoleInCustomer extends CoreEntity implements UuidEntityInterface, User
     public function setCustomer(?CustomerInterface $customer): self
     {
         $this->customer = $customer;
-        if (null !== $customer && !$customer->getUserRoles()->contains($this)) {
+        if ($customer instanceof CustomerInterface && !$customer->getUserRoles()->contains($this)) {
             $customer->getUserRoles()->add($this);
         }
 

@@ -66,6 +66,7 @@ describe('AdminLayerList', () => {
         plugins: [store],
       },
     })
+
     expect(wrapper.html()).toMatchSnapshot()
   })
 })

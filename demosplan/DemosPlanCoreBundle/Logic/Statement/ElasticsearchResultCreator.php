@@ -37,6 +37,7 @@ use Exception;
 use Pagerfanta\Elastica\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Traversable;
 
@@ -118,6 +119,10 @@ class ElasticsearchResultCreator
         private readonly DepartmentRepository $departmentRepository,
         private readonly ProfilerService $profilerService,
         private readonly LoggerInterface $logger,
+        #[Autowire(param: 'elasticsearch_max_result_window')]
+        private readonly int $elasticsearchMaxResultWindow,
+        #[Autowire(param: 'elasticsearch_search_after_batch_size')]
+        private readonly int $searchAfterBatchSize,
     ) {
     }
 
@@ -162,7 +167,7 @@ class ElasticsearchResultCreator
             $userFragmentFilters = $this->statementService->mapRequestFiltersToESFragmentFilters($userFilters);
             $fragmentEsResult = (new ElasticsearchResult())->lock();
 
-            if ((null !== $search && '' !== $search) || 0 < count($userFragmentFilters)) {
+            if ((null !== $search && '' !== $search) || [] !== $userFragmentFilters) {
                 $userFragmentFilters['procedureId'] = $procedureId;
                 $fragmentEsResult = $this->statementFragmentService->getElasticsearchStatementFragmentResult(
                     $userFragmentFilters,
@@ -184,7 +189,8 @@ class ElasticsearchResultCreator
                 } else {
                     $statementMustIds[] = 'not_existent';
                 }
-                $statementMustIds = \array_unique($statementMustIds);
+                // Re-index array after array_unique to prevent associative array JSON encoding
+                $statementMustIds = \array_values(\array_unique($statementMustIds));
                 $shouldQuery = new BoolQuery();
                 // Use a single terms query with all IDs to avoid exceeding maxClauseCount
                 $shouldQuery->addShould(
@@ -203,10 +209,8 @@ class ElasticsearchResultCreator
                     1
                 );
                 $boolMustFilter[] = $shouldQuery;
-            } else {
-                if ($searchQuery instanceof Query) {
-                    $boolMustFilter[] = $searchQuery;
-                }
+            } elseif ($searchQuery instanceof Query) {
+                $boolMustFilter[] = $searchQuery;
             }
 
             foreach ($userFilters as $filterName => $filterValues) {
@@ -214,7 +218,8 @@ class ElasticsearchResultCreator
                     continue;
                 }
 
-                $filterValues = \is_array($filterValues) ? \array_unique($filterValues) : $filterValues;
+                // Re-index array after array_unique to prevent associative array JSON encoding
+                $filterValues = \is_array($filterValues) ? \array_values(\array_unique($filterValues)) : $filterValues;
 
                 if (\is_array($filterValues) && 1 < count($filterValues)) {
                     // for each filter with multiple options we need a distinct should
@@ -250,7 +255,7 @@ class ElasticsearchResultCreator
 
                     array_map($shouldQuery->addShould(...), $shouldFilter);
                     // user wants to see not existent query as well as some filter
-                    if (0 < count($shouldNotFilter)) {
+                    if ([] !== $shouldNotFilter) {
                         $shouldNotBool = new BoolQuery();
                         array_map($shouldNotBool->addMustNot(...), $boolMustNotFilter);
                         $shouldQuery->addShould($shouldNotBool);
@@ -328,9 +333,9 @@ class ElasticsearchResultCreator
                 );
                 $query = $this->elasticSearchService->addEsMissingAggregation($query, 'dName.raw');
             }
-            // Verfahrensschritt - phase - phase
-            if ($addAllAggregations || \array_key_exists('phase', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, 'phase');
+            // Verfahrensschritt - phaseDefinitionId
+            if ($addAllAggregations || \array_key_exists('phaseDefinitionId', $userFilters)) {
+                $query = $this->elasticSearchService->addEsAggregation($query, 'phaseDefinitionId');
             }
             // Verschobene Stellungnahmen in dieses Verfahren - movedFromProcedureId - movedFromProcedureId
             if ($addAllAggregations || \array_key_exists('movedFromProcedureId', $userFilters)) {
@@ -677,16 +682,25 @@ class ElasticsearchResultCreator
             }
 
             try {
-                /** @var array|Traversable $resultSet */
-                $resultSet = $paginator->getCurrentPageResults();
-                $result = $resultSet->getResponse()->getData();
-                $elasticsearchResultStatement->setHits($result['hits']);
+                if ((int) $limit > $this->elasticsearchMaxResultWindow) {
+                    // "Fetch everything" path (exports, no-pager lists): a single from+size query
+                    // would exceed index.max_result_window, so page through all hits via search_after.
+                    $batch = $this->elasticSearchService->fetchAllHitsViaSearchAfter($search, $query, $this->searchAfterBatchSize);
+                    $result = $batch['result'];
+                    $elasticsearchResultStatement->setHits($result['hits']);
+                    $esResultAggregations = $batch['aggregations'];
+                } else {
+                    /** @var array|Traversable $resultSet */
+                    $resultSet = $paginator->getCurrentPageResults();
+                    $result = $resultSet->getResponse()->getData();
+                    $elasticsearchResultStatement->setHits($result['hits']);
+                    $esResultAggregations = $resultSet->getAggregations();
+                }
             } catch (ClientException $e) {
                 $this->logger->error('Elasticsearch probably hit a timeout: ', [$e]);
                 throw $e;
             }
 
-            $esResultAggregations = $resultSet->getAggregations();
             $totalHits = $result['hits']['total'];
             if (is_array($totalHits) && array_key_exists('value', $totalHits) && 0 === $totalHits['value']) {
                 $esResultAggregations = $this->addFilterToAggregationsWhenCausedResultIsEmpty(
@@ -749,11 +763,11 @@ class ElasticsearchResultCreator
                     $processedAggregation
                 );
             }
-            // Verfahrensschritt - phase - phase
-            if ($addAllAggregations || \array_key_exists('phase', $userFilters)) {
+            // Verfahrensschritt - phaseDefinitionId
+            if ($addAllAggregations || \array_key_exists('phaseDefinitionId', $userFilters)) {
                 $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
-                    'phase',
-                    'phase',
+                    'phaseDefinitionId',
+                    'phaseDefinitionId',
                     $esResultAggregations,
                     $processedAggregation
                 );
@@ -1301,10 +1315,10 @@ class ElasticsearchResultCreator
             }
             $useEsResult2 = isset($fragmentAggregations['departmentId']);
             $useAggregationResult2 = isset($esResultAggregations['fragments_reviewerName']);
-            if (true === $useEsResult2 || true === $useAggregationResult2) {
-                $countKey2 = true === $useEsResult2 ? 'count' : 'doc_count';
-                $valueKey2 = true === $useEsResult2 ? 'value' : 'key';
-                $listToUse2 = true === $useEsResult2 ?
+            if ($useEsResult2 || $useAggregationResult2) {
+                $countKey2 = $useEsResult2 ? 'count' : 'doc_count';
+                $valueKey2 = $useEsResult2 ? 'value' : 'key';
+                $listToUse2 = $useEsResult2 ?
                     $fragmentAggregations['departmentId'] : $esResultAggregations['fragments_reviewerName']['buckets'];
                 if ($useEsResult2) {
                     foreach ($listToUse2 as $agg) {
@@ -1358,7 +1372,7 @@ class ElasticsearchResultCreator
         $this->profilerService->profilerStart(ProfilerService::ELASTICSEARCH_PROFILER);
         //
         // if a Searchterm is set use it
-        if (\is_string($search) && 0 < \strlen($search)) {
+        if (\is_string($search) && '' !== $search) {
             $usedSearchfields = [];
             if ([] === $searchFields) {
                 $usedSearchfields = \array_values(self::AVAILABLE_SEARCH_FIELDS);
@@ -1370,7 +1384,7 @@ class ElasticsearchResultCreator
                 }
             }
             // do not create search query if only fragment fields are chosen
-            if (0 < count($usedSearchfields)) {
+            if ([] !== $usedSearchfields) {
                 $searchQuery = $this->elasticSearchService->createSearchQuery(
                     $search,
                     $usedSearchfields
@@ -1624,7 +1638,7 @@ class ElasticsearchResultCreator
      */
     private function getParagraphMap($bucket, $idKey = 'key'): array
     {
-        if (!\is_array($bucket) || 0 === count($bucket)) {
+        if (!\is_array($bucket) || [] === $bucket) {
             return [];
         }
         $ids = [];

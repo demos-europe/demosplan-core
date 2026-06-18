@@ -16,9 +16,9 @@ use Carbon\Carbon;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Export\XlsxExporter;
+use Illuminate\Support\Collection;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use Illuminate\Support\Collection;
 
 class SubmitterExporter extends XlsxExporter
 {
@@ -141,7 +141,7 @@ class SubmitterExporter extends XlsxExporter
                 .$statement->getMeta()->getSubmitName();
 
             // do not group in case of different location data are given
-            if ('' === $statement->getOrgaPostalCode() || '' === $statement->getOrgaCity() || '' === $statement->getOrgaStreet()) {
+            if (in_array('', [$statement->getOrgaPostalCode(), $statement->getOrgaCity(), $statement->getOrgaStreet()], true)) {
                 $key .= $statement->getId(); // just add the ID to avoid grouping but keep key for sorting alphabetically
             }
 

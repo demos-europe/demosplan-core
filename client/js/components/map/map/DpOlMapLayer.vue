@@ -88,6 +88,7 @@ export default {
      */
     defaultAttributions () {
       const currentYear = formatDate(new Date(), 'YYYY')
+
       return this.attributions ?
         this.attributions.replaceAll('{currentYear}', currentYear) :
         Translator.trans('map.attribution.default', {
@@ -107,6 +108,14 @@ export default {
         this.source.setAttributions(newVal)
       },
       deep: false, // Set default for migrating purpose. To know this occurrence is checked
+    },
+
+    url () {
+      this.updateLayer()
+    },
+
+    layers () {
+      this.updateLayer()
     },
   },
 
@@ -136,6 +145,14 @@ export default {
 
       //  Insert layer at pos 0, making it the background layer
       this.map.getLayers().insertAt(this.order, this.layer)
+    },
+
+    updateLayer () {
+      if (this.layer && this.map) {
+        this.map.removeLayer(this.layer)
+      }
+
+      this.addLayer()
     },
   },
 

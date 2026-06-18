@@ -180,7 +180,7 @@
                 }"
                 required
                 :model-value="rowData.submitterName"
-                @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterName = val"
+                @update:model-value="val => updateUserField(rowData.tokenId, 'submitterName', val)"
               />
               <div
                 v-if="!rowData.authorName || rowData.anonymous"
@@ -203,7 +203,7 @@
                 }"
                 type="email"
                 :model-value="rowData.submitterEmailAddress"
-                @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterEmailAddress = val"
+                @update:model-value="val => updateUserField(rowData.tokenId, 'submitterEmailAddress', val)"
               />
               <div class="flex flex-row mb-2 mt-3">
                 <dp-input
@@ -214,7 +214,7 @@
                     text: Translator.trans('street')
                   }"
                   :model-value="rowData.submitterStreet"
-                  @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterStreet = val"
+                  @update:model-value="val => updateUserField(rowData.tokenId, 'submitterStreet', val)"
                 />
                 <dp-input
                   :id="`houseNumber:${rowData.tokenId}`"
@@ -225,7 +225,7 @@
                   :model-value="rowData.submitterHouseNumber"
                   :size="5"
                   width="auto"
-                  @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterHouseNumber = val"
+                  @update:model-value="val => updateUserField(rowData.tokenId, 'submitterHouseNumber', val)"
                 />
               </div>
               <div class="flex flex-row mb-2 mt-3">
@@ -240,7 +240,7 @@
                   pattern="^[0-9]{5}$"
                   :size="5"
                   width="auto"
-                  @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterPostalCode = val"
+                  @update:model-value="val => updateUserField(rowData.tokenId, 'submitterPostalCode', val)"
                 />
                 <dp-input
                   :id="`city:${rowData.tokenId}`"
@@ -250,7 +250,7 @@
                     text: Translator.trans('city')
                   }"
                   :model-value="rowData.submitterCity"
-                  @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).submitterCity = val"
+                  @update:model-value="val => updateUserField(rowData.tokenId, 'submitterCity', val)"
                 />
               </div>
             </div>
@@ -289,7 +289,7 @@
                 :label="Translator.trans('memo')"
                 :maxlength="rowData.isEditable ? '1000' : false"
                 :value="rowData.note"
-                @input="val => localUsers.find(user => user.tokenId === rowData.tokenId).note = val"
+                @input="val => updateUserField(rowData.tokenId, 'note', val)"
               />
               <dp-button-row
                 v-if="rowData.isEditable"
@@ -401,6 +401,7 @@ export default {
     user () {
       return tokenId => {
         const currentUser = this.tokens.find(user => user.tokenId === tokenId)
+
         return currentUser ? { ...currentUser } : null
       }
     },
@@ -412,8 +413,17 @@ export default {
       this.closeCreateForm()
     },
 
+    updateUserField (tokenId, fieldName, value) {
+      const user = this.localUsers.find(user => user.tokenId === tokenId)
+
+      if (user) {
+        user[fieldName] = value
+      }
+    },
+
     copyTokenToClipboard (tokenId) {
       const range = document.createRange()
+
       range.selectNode(document.getElementById('userToken:' + tokenId))
       window.getSelection().removeAllRanges()
       window.getSelection().addRange(range)
@@ -451,7 +461,9 @@ export default {
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.generic'))
         })
-        .finally(() => { this.isSaving = false })
+        .finally(() => {
+          this.isSaving = false
+        })
     },
 
     fetchConsultationTokens () {
@@ -472,11 +484,13 @@ export default {
           ].join(),
         },
       }
+
       return dpApi.get(url, params)
         .then(response => {
           this.consultationTokens = [...response.data.data].map(token => {
             if (token.relationships && token.relationships.statement) {
               const statement = response.data.included.find(el => el.id === token.relationships.statement.data.id) || null
+
               if (statement) {
                 token = {
                   ...statement.attributes,
@@ -487,6 +501,7 @@ export default {
                 }
               }
             }
+
             return token
           })
           this.isLoading = false
@@ -499,8 +514,12 @@ export default {
       }
 
       this.fetchConsultationTokens()
-        .then(() => { this.localUsers = [...this.tokens] })
-        .then(() => { this.isLoading = false })
+        .then(() => {
+          this.localUsers = [...this.tokens]
+        })
+        .then(() => {
+          this.isLoading = false
+        })
     },
 
     resetCreateForm () {
@@ -512,6 +531,7 @@ export default {
 
     resetValidity () {
       const inputsWithErrors = this.$el.querySelector('[data-dp-validate]').querySelectorAll('.is-invalid')
+
       Array.from(inputsWithErrors).forEach(input => {
         input.classList.remove('is-invalid')
       })
@@ -519,16 +539,19 @@ export default {
 
     saveEditAuthorisedUser (args) {
       const token = this.tokens.find(el => el.tokenId === args.tokenId)
+
       this.updateToken(args.tokenId)
 
       if (token.isManual) {
         this.updateStatement(args.statementId)
       }
+
       this.toggleIsRowEditable({ id: args.tokenId, isEditable: false })
     },
 
     toggleIsRowEditable ({ id: tokenId, isEditable = true }) {
       const token = this.tokens.find(el => el.tokenId === tokenId)
+
       if (token) {
         token.isEditable = isEditable
       }
@@ -547,9 +570,11 @@ export default {
         submitterPostalCode: user.submitterPostalCode,
         submitterCity: user.submitterCity,
       }
+
       if (user.submitterEmailAddress) {
         statementAttributes.submitterEmailAddress = user.submitterEmailAddress
       }
+
       const payload = {
         data: {
           id: statementId,
