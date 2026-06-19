@@ -7,7 +7,7 @@
         "tools": [
             {
                 "name": "composer",
-                "version": "2.10.0"
+                "version": "2.10.1"
             },
             {
                 "vendor": "cyclonedx",
@@ -80,10 +80,10 @@
             }
         ],
         "component": {
-            "bom-ref": "demos-europe/demosplan-core-4.42.0.0",
+            "bom-ref": "demos-europe/demosplan-core-4.44.0.0",
             "type": "application",
             "name": "demosplan-core",
-            "version": "v4.42.0",
+            "version": "v4.44.0",
             "group": "demos-europe",
             "description": "demosplan is a web application for public participation in planning processes",
             "licenses": [
@@ -93,7 +93,7 @@
                     }
                 }
             ],
-            "purl": "pkg:composer/demos-europe/demosplan-core@v4.42.0",
+            "purl": "pkg:composer/demos-europe/demosplan-core@v4.44.0",
             "properties": [
                 {
                     "name": "cdx:composer:package:type",
@@ -1122,10 +1122,10 @@
             ]
         },
         {
-            "bom-ref": "composer/composer-2.10.0.0",
+            "bom-ref": "composer/composer-2.10.1.0",
             "type": "library",
             "name": "composer",
-            "version": "2.10.0",
+            "version": "2.10.1",
             "group": "composer",
             "description": "Composer helps you declare, manage and install dependencies of PHP projects. It ensures you have the right stack everywhere.",
             "author": "Nils Adermann, Jordi Boggiano",
@@ -1136,17 +1136,17 @@
                     }
                 }
             ],
-            "purl": "pkg:composer/composer/composer@2.10.0",
+            "purl": "pkg:composer/composer/composer@2.10.1",
             "externalReferences": [
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/composer/composer/zipball/c13824d95608b15913a7c0def0a3dea4474b71fc",
-                    "comment": "dist reference: c13824d95608b15913a7c0def0a3dea4474b71fc"
+                    "url": "https://api.github.com/repos/composer/composer/zipball/4120703b9bda8795075047b40361d7ec4d2abe49",
+                    "comment": "dist reference: 4120703b9bda8795075047b40361d7ec4d2abe49"
                 },
                 {
                     "type": "vcs",
                     "url": "https://github.com/composer/composer.git",
-                    "comment": "source reference: c13824d95608b15913a7c0def0a3dea4474b71fc"
+                    "comment": "source reference: 4120703b9bda8795075047b40361d7ec4d2abe49"
                 },
                 {
                     "type": "website",
@@ -1170,18 +1170,18 @@
                 },
                 {
                     "type": "vcs",
-                    "url": "https://github.com/composer/composer/tree/2.10.0",
+                    "url": "https://github.com/composer/composer/tree/2.10.1",
                     "comment": "as detected from Composer manifest 'support.source'"
                 }
             ],
             "properties": [
                 {
                     "name": "cdx:composer:package:distReference",
-                    "value": "c13824d95608b15913a7c0def0a3dea4474b71fc"
+                    "value": "4120703b9bda8795075047b40361d7ec4d2abe49"
                 },
                 {
                     "name": "cdx:composer:package:sourceReference",
-                    "value": "c13824d95608b15913a7c0def0a3dea4474b71fc"
+                    "value": "4120703b9bda8795075047b40361d7ec4d2abe49"
                 },
                 {
                     "name": "cdx:composer:package:type",
@@ -1652,10 +1652,10 @@
             ]
         },
         {
-            "bom-ref": "demos-europe/demosplan-addon-0.73.0.0",
+            "bom-ref": "demos-europe/demosplan-addon-0.75.0.0",
             "type": "library",
             "name": "demosplan-addon",
-            "version": "v0.73",
+            "version": "v0.75",
             "group": "demos-europe",
             "description": "This is the base package for all demosplan addons",
             "licenses": [
@@ -1665,32 +1665,32 @@
                     }
                 }
             ],
-            "purl": "pkg:composer/demos-europe/demosplan-addon@v0.73",
+            "purl": "pkg:composer/demos-europe/demosplan-addon@v0.75",
             "externalReferences": [
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/ac68f661bcebea281bc0a80e6a5a20b495d67dc7",
-                    "comment": "dist reference: ac68f661bcebea281bc0a80e6a5a20b495d67dc7"
+                    "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/7fb043bc40ba198dc9a65d342aff7fd87bd47bd0",
+                    "comment": "dist reference: 7fb043bc40ba198dc9a65d342aff7fd87bd47bd0"
                 },
                 {
                     "type": "vcs",
                     "url": "https://github.com/demos-europe/demosplan-addon.git",
-                    "comment": "source reference: ac68f661bcebea281bc0a80e6a5a20b495d67dc7"
+                    "comment": "source reference: 7fb043bc40ba198dc9a65d342aff7fd87bd47bd0"
                 },
                 {
                     "type": "vcs",
-                    "url": "https://github.com/demos-europe/demosplan-addon/tree/v0.73",
+                    "url": "https://github.com/demos-europe/demosplan-addon/tree/v0.75",
                     "comment": "as detected from Composer manifest 'support.source'"
                 }
             ],
             "properties": [
                 {
                     "name": "cdx:composer:package:distReference",
-                    "value": "ac68f661bcebea281bc0a80e6a5a20b495d67dc7"
+                    "value": "7fb043bc40ba198dc9a65d342aff7fd87bd47bd0"
                 },
                 {
                     "name": "cdx:composer:package:sourceReference",
-                    "value": "ac68f661bcebea281bc0a80e6a5a20b495d67dc7"
+                    "value": "7fb043bc40ba198dc9a65d342aff7fd87bd47bd0"
                 },
                 {
                     "name": "cdx:composer:package:type",
@@ -4637,10 +4637,10 @@
             ]
         },
         {
-            "bom-ref": "friendsofphp/php-cs-fixer-3.95.3.0",
+            "bom-ref": "friendsofphp/php-cs-fixer-3.95.5.0",
             "type": "library",
             "name": "php-cs-fixer",
-            "version": "v3.95.3",
+            "version": "v3.95.5",
             "group": "friendsofphp",
             "description": "A tool to automatically fix PHP code style",
             "author": "Fabien Potencier, Dariusz Rumi\u0144ski",
@@ -4651,17 +4651,17 @@
                     }
                 }
             ],
-            "purl": "pkg:composer/friendsofphp/php-cs-fixer@v3.95.3",
+            "purl": "pkg:composer/friendsofphp/php-cs-fixer@v3.95.5",
             "externalReferences": [
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/3d681493acc0e93283481b1c63c263737df78687",
-                    "comment": "dist reference: 3d681493acc0e93283481b1c63c263737df78687"
+                    "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/7f86d8763063f5d2e2e2d0e1e45bb2f15895361d",
+                    "comment": "dist reference: 7f86d8763063f5d2e2e2d0e1e45bb2f15895361d"
                 },
                 {
                     "type": "vcs",
                     "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                    "comment": "source reference: 3d681493acc0e93283481b1c63c263737df78687"
+                    "comment": "source reference: 7f86d8763063f5d2e2e2d0e1e45bb2f15895361d"
                 },
                 {
                     "type": "issue-tracker",
@@ -4670,18 +4670,18 @@
                 },
                 {
                     "type": "vcs",
-                    "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.95.3",
+                    "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.95.5",
                     "comment": "as detected from Composer manifest 'support.source'"
                 }
             ],
             "properties": [
                 {
                     "name": "cdx:composer:package:distReference",
-                    "value": "3d681493acc0e93283481b1c63c263737df78687"
+                    "value": "7f86d8763063f5d2e2e2d0e1e45bb2f15895361d"
                 },
                 {
                     "name": "cdx:composer:package:sourceReference",
-                    "value": "3d681493acc0e93283481b1c63c263737df78687"
+                    "value": "7f86d8763063f5d2e2e2d0e1e45bb2f15895361d"
                 },
                 {
                     "name": "cdx:composer:package:type",
@@ -4752,10 +4752,10 @@
             ]
         },
         {
-            "bom-ref": "friendsofsymfony/elastica-bundle-7.1.0.0",
+            "bom-ref": "friendsofsymfony/elastica-bundle-7.2.0.0",
             "type": "library",
             "name": "elastica-bundle",
-            "version": "v7.1.0",
+            "version": "v7.2.0",
             "group": "friendsofsymfony",
             "description": "Elasticsearch PHP integration for your Symfony project using Elastica",
             "author": "FriendsOfSymfony Community, Tim Nagel, Richard Miller, Jeremy Mikola",
@@ -4766,17 +4766,17 @@
                     }
                 }
             ],
-            "purl": "pkg:composer/friendsofsymfony/elastica-bundle@v7.1.0",
+            "purl": "pkg:composer/friendsofsymfony/elastica-bundle@v7.2.0",
             "externalReferences": [
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/FriendsOfSymfony/FOSElasticaBundle/zipball/58b607f4c74f0d05adce2af4369b17a6b0efad8d",
-                    "comment": "dist reference: 58b607f4c74f0d05adce2af4369b17a6b0efad8d"
+                    "url": "https://api.github.com/repos/FriendsOfSymfony/FOSElasticaBundle/zipball/16ae7e8c0abf6b78e68feb7f9c612a91f8ce0f0d",
+                    "comment": "dist reference: 16ae7e8c0abf6b78e68feb7f9c612a91f8ce0f0d"
                 },
                 {
                     "type": "vcs",
                     "url": "https://github.com/FriendsOfSymfony/FOSElasticaBundle.git",
-                    "comment": "source reference: 58b607f4c74f0d05adce2af4369b17a6b0efad8d"
+                    "comment": "source reference: 16ae7e8c0abf6b78e68feb7f9c612a91f8ce0f0d"
                 },
                 {
                     "type": "website",
@@ -4790,18 +4790,18 @@
                 },
                 {
                     "type": "vcs",
-                    "url": "https://github.com/FriendsOfSymfony/FOSElasticaBundle/tree/v7.1.0",
+                    "url": "https://github.com/FriendsOfSymfony/FOSElasticaBundle/tree/v7.2.0",
                     "comment": "as detected from Composer manifest 'support.source'"
                 }
             ],
             "properties": [
                 {
                     "name": "cdx:composer:package:distReference",
-                    "value": "58b607f4c74f0d05adce2af4369b17a6b0efad8d"
+                    "value": "16ae7e8c0abf6b78e68feb7f9c612a91f8ce0f0d"
                 },
                 {
                     "name": "cdx:composer:package:sourceReference",
-                    "value": "58b607f4c74f0d05adce2af4369b17a6b0efad8d"
+                    "value": "16ae7e8c0abf6b78e68feb7f9c612a91f8ce0f0d"
                 },
                 {
                     "name": "cdx:composer:package:type",
@@ -5142,10 +5142,10 @@
             ]
         },
         {
-            "bom-ref": "guzzlehttp/guzzle-7.10.5.0",
+            "bom-ref": "guzzlehttp/guzzle-7.11.1.0",
             "type": "library",
             "name": "guzzle",
-            "version": "7.10.5",
+            "version": "7.11.1",
             "group": "guzzlehttp",
             "description": "Guzzle is a PHP HTTP client library",
             "author": "Graham Campbell, Michael Dowling, Jeremy Lindblom, George Mponos, Tobias Nyholm, M\u00e1rk S\u00e1gi-Kaz\u00e1r, Tobias Schultze",
@@ -5156,17 +5156,17 @@
                     }
                 }
             ],
-            "purl": "pkg:composer/guzzlehttp/guzzle@7.10.5",
+            "purl": "pkg:composer/guzzlehttp/guzzle@7.11.1",
             "externalReferences": [
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/guzzle/guzzle/zipball/7c8d84b39e680315f687e8662a9d6fb0865c5148",
-                    "comment": "dist reference: 7c8d84b39e680315f687e8662a9d6fb0865c5148"
+                    "url": "https://api.github.com/repos/guzzle/guzzle/zipball/5af96f374e0ab4ebd747b8310888c99d3adb0a8c",
+                    "comment": "dist reference: 5af96f374e0ab4ebd747b8310888c99d3adb0a8c"
                 },
                 {
                     "type": "vcs",
                     "url": "https://github.com/guzzle/guzzle.git",
-                    "comment": "source reference: 7c8d84b39e680315f687e8662a9d6fb0865c5148"
+                    "comment": "source reference: 5af96f374e0ab4ebd747b8310888c99d3adb0a8c"
                 },
                 {
                     "type": "issue-tracker",
@@ -5175,18 +5175,18 @@
                 },
                 {
                     "type": "vcs",
-                    "url": "https://github.com/guzzle/guzzle/tree/7.10.5",
+                    "url": "https://github.com/guzzle/guzzle/tree/7.11.1",
                     "comment": "as detected from Composer manifest 'support.source'"
                 }
             ],
             "properties": [
                 {
                     "name": "cdx:composer:package:distReference",
-                    "value": "7c8d84b39e680315f687e8662a9d6fb0865c5148"
+                    "value": "5af96f374e0ab4ebd747b8310888c99d3adb0a8c"
                 },
                 {
                     "name": "cdx:composer:package:sourceReference",
-                    "value": "7c8d84b39e680315f687e8662a9d6fb0865c5148"
+                    "value": "5af96f374e0ab4ebd747b8310888c99d3adb0a8c"
                 },
                 {
                     "name": "cdx:composer:package:type",
@@ -5195,10 +5195,10 @@
             ]
         },
         {
-            "bom-ref": "guzzlehttp/promises-2.4.1.0",
+            "bom-ref": "guzzlehttp/promises-2.5.0.0",
             "type": "library",
             "name": "promises",
-            "version": "2.4.1",
+            "version": "2.5.0",
             "group": "guzzlehttp",
             "description": "Guzzle promises library",
             "author": "Graham Campbell, Michael Dowling, Tobias Nyholm, Tobias Schultze",
@@ -5209,17 +5209,17 @@
                     }
                 }
             ],
-            "purl": "pkg:composer/guzzlehttp/promises@2.4.1",
+            "purl": "pkg:composer/guzzlehttp/promises@2.5.0",
             "externalReferences": [
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/guzzle/promises/zipball/09e8a212562fb1fb6a512c4156ed71525969d6c2",
-                    "comment": "dist reference: 09e8a212562fb1fb6a512c4156ed71525969d6c2"
+                    "url": "https://api.github.com/repos/guzzle/promises/zipball/4360e982f87f5f258bf872d094647791db2f4c8e",
+                    "comment": "dist reference: 4360e982f87f5f258bf872d094647791db2f4c8e"
                 },
                 {
                     "type": "vcs",
                     "url": "https://github.com/guzzle/promises.git",
-                    "comment": "source reference: 09e8a212562fb1fb6a512c4156ed71525969d6c2"
+                    "comment": "source reference: 4360e982f87f5f258bf872d094647791db2f4c8e"
                 },
                 {
                     "type": "issue-tracker",
@@ -5228,18 +5228,18 @@
                 },
                 {
                     "type": "vcs",
-                    "url": "https://github.com/guzzle/promises/tree/2.4.1",
+                    "url": "https://github.com/guzzle/promises/tree/2.5.0",
                     "comment": "as detected from Composer manifest 'support.source'"
                 }
             ],
             "properties": [
                 {
                     "name": "cdx:composer:package:distReference",
-                    "value": "09e8a212562fb1fb6a512c4156ed71525969d6c2"
+                    "value": "4360e982f87f5f258bf872d094647791db2f4c8e"
                 },
                 {
                     "name": "cdx:composer:package:sourceReference",
-                    "value": "09e8a212562fb1fb6a512c4156ed71525969d6c2"
+                    "value": "4360e982f87f5f258bf872d094647791db2f4c8e"
                 },
                 {
                     "name": "cdx:composer:package:type",
@@ -5248,10 +5248,10 @@
             ]
         },
         {
-            "bom-ref": "guzzlehttp/psr7-2.10.3.0",
+            "bom-ref": "guzzlehttp/psr7-2.11.0.0",
             "type": "library",
             "name": "psr7",
-            "version": "2.10.3",
+            "version": "2.11.0",
             "group": "guzzlehttp",
             "description": "PSR-7 message implementation that also provides common utility methods",
             "author": "Graham Campbell, Michael Dowling, George Mponos, Tobias Nyholm, M\u00e1rk S\u00e1gi-Kaz\u00e1r, Tobias Schultze, M\u00e1rk S\u00e1gi-Kaz\u00e1r",
@@ -5262,17 +5262,17 @@
                     }
                 }
             ],
-            "purl": "pkg:composer/guzzlehttp/psr7@2.10.3",
+            "purl": "pkg:composer/guzzlehttp/psr7@2.11.0",
             "externalReferences": [
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/guzzle/psr7/zipball/7c1472269227dc6f18930bd903d7a88fe6c52130",
-                    "comment": "dist reference: 7c1472269227dc6f18930bd903d7a88fe6c52130"
+                    "url": "https://api.github.com/repos/guzzle/psr7/zipball/bbb5e61349fa5cb822b3e87842b951088b76b81f",
+                    "comment": "dist reference: bbb5e61349fa5cb822b3e87842b951088b76b81f"
                 },
                 {
                     "type": "vcs",
                     "url": "https://github.com/guzzle/psr7.git",
-                    "comment": "source reference: 7c1472269227dc6f18930bd903d7a88fe6c52130"
+                    "comment": "source reference: bbb5e61349fa5cb822b3e87842b951088b76b81f"
                 },
                 {
                     "type": "issue-tracker",
@@ -5281,18 +5281,18 @@
                 },
                 {
                     "type": "vcs",
-                    "url": "https://github.com/guzzle/psr7/tree/2.10.3",
+                    "url": "https://github.com/guzzle/psr7/tree/2.11.0",
                     "comment": "as detected from Composer manifest 'support.source'"
                 }
             ],
             "properties": [
                 {
                     "name": "cdx:composer:package:distReference",
-                    "value": "7c1472269227dc6f18930bd903d7a88fe6c52130"
+                    "value": "bbb5e61349fa5cb822b3e87842b951088b76b81f"
                 },
                 {
                     "name": "cdx:composer:package:sourceReference",
-                    "value": "7c1472269227dc6f18930bd903d7a88fe6c52130"
+                    "value": "bbb5e61349fa5cb822b3e87842b951088b76b81f"
                 },
                 {
                     "name": "cdx:composer:package:type",
@@ -6141,10 +6141,10 @@
             ]
         },
         {
-            "bom-ref": "justinrainbow/json-schema-6.8.2.0",
+            "bom-ref": "justinrainbow/json-schema-6.9.0.0",
             "type": "library",
             "name": "json-schema",
-            "version": "6.8.2",
+            "version": "6.9.0",
             "group": "justinrainbow",
             "description": "A library to validate a json schema.",
             "author": "Bruno Prieto Reis, Justin Rainbow, Igor Wiedler, Robert Sch\u00f6nthal",
@@ -6155,17 +6155,17 @@
                     }
                 }
             ],
-            "purl": "pkg:composer/justinrainbow/json-schema@6.8.2",
+            "purl": "pkg:composer/justinrainbow/json-schema@6.9.0",
             "externalReferences": [
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/jsonrainbow/json-schema/zipball/2c89ebb95ca9cedc9347f780333f7b25792dcb76",
-                    "comment": "dist reference: 2c89ebb95ca9cedc9347f780333f7b25792dcb76"
+                    "url": "https://api.github.com/repos/jsonrainbow/json-schema/zipball/bd1bda2ebfc8bff418565941771ea8f03c557886",
+                    "comment": "dist reference: bd1bda2ebfc8bff418565941771ea8f03c557886"
                 },
                 {
                     "type": "vcs",
                     "url": "https://github.com/jsonrainbow/json-schema.git",
-                    "comment": "source reference: 2c89ebb95ca9cedc9347f780333f7b25792dcb76"
+                    "comment": "source reference: bd1bda2ebfc8bff418565941771ea8f03c557886"
                 },
                 {
                     "type": "website",
@@ -6179,18 +6179,18 @@
                 },
                 {
                     "type": "vcs",
-                    "url": "https://github.com/jsonrainbow/json-schema/tree/6.8.2",
+                    "url": "https://github.com/jsonrainbow/json-schema/tree/6.9.0",
                     "comment": "as detected from Composer manifest 'support.source'"
                 }
             ],
             "properties": [
                 {
                     "name": "cdx:composer:package:distReference",
-                    "value": "2c89ebb95ca9cedc9347f780333f7b25792dcb76"
+                    "value": "bd1bda2ebfc8bff418565941771ea8f03c557886"
                 },
                 {
                     "name": "cdx:composer:package:sourceReference",
-                    "value": "2c89ebb95ca9cedc9347f780333f7b25792dcb76"
+                    "value": "bd1bda2ebfc8bff418565941771ea8f03c557886"
                 },
                 {
                     "name": "cdx:composer:package:type",
@@ -10069,10 +10069,10 @@
             ]
         },
         {
-            "bom-ref": "phpoffice/phpspreadsheet-5.7.0.0",
+            "bom-ref": "phpoffice/phpspreadsheet-5.8.0.0",
             "type": "library",
             "name": "phpspreadsheet",
-            "version": "5.7.0",
+            "version": "5.8.0",
             "group": "phpoffice",
             "description": "PHPSpreadsheet - Read, Create and Write Spreadsheet documents in PHP - Spreadsheet engine",
             "author": "Maarten Balliauw, Mark Baker, Franck Lefevre, Erik Tilt, Adrien Crivelli, Owen Leibman",
@@ -10083,17 +10083,17 @@
                     }
                 }
             ],
-            "purl": "pkg:composer/phpoffice/phpspreadsheet@5.7.0",
+            "purl": "pkg:composer/phpoffice/phpspreadsheet@5.8.0",
             "externalReferences": [
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/9f55d3b9b7bcb1084fda8340e4b7ce4ed10cd0c8",
-                    "comment": "dist reference: 9f55d3b9b7bcb1084fda8340e4b7ce4ed10cd0c8"
+                    "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/01964d92536edf1a3a874b9580a52824bebf6fbb",
+                    "comment": "dist reference: 01964d92536edf1a3a874b9580a52824bebf6fbb"
                 },
                 {
                     "type": "vcs",
                     "url": "https://github.com/PHPOffice/PhpSpreadsheet.git",
-                    "comment": "source reference: 9f55d3b9b7bcb1084fda8340e4b7ce4ed10cd0c8"
+                    "comment": "source reference: 01964d92536edf1a3a874b9580a52824bebf6fbb"
                 },
                 {
                     "type": "website",
@@ -10107,18 +10107,18 @@
                 },
                 {
                     "type": "vcs",
-                    "url": "https://github.com/PHPOffice/PhpSpreadsheet/tree/5.7.0",
+                    "url": "https://github.com/PHPOffice/PhpSpreadsheet/tree/5.8.0",
                     "comment": "as detected from Composer manifest 'support.source'"
                 }
             ],
             "properties": [
                 {
                     "name": "cdx:composer:package:distReference",
-                    "value": "9f55d3b9b7bcb1084fda8340e4b7ce4ed10cd0c8"
+                    "value": "01964d92536edf1a3a874b9580a52824bebf6fbb"
                 },
                 {
                     "name": "cdx:composer:package:sourceReference",
-                    "value": "9f55d3b9b7bcb1084fda8340e4b7ce4ed10cd0c8"
+                    "value": "01964d92536edf1a3a874b9580a52824bebf6fbb"
                 },
                 {
                     "name": "cdx:composer:package:type",
@@ -10295,10 +10295,10 @@
             ]
         },
         {
-            "bom-ref": "phpstan/phpstan-2.2.1.0",
+            "bom-ref": "phpstan/phpstan-2.2.2.0",
             "type": "library",
             "name": "phpstan",
-            "version": "2.2.1",
+            "version": "2.2.2",
             "group": "phpstan",
             "description": "PHPStan - PHP Static Analysis Tool",
             "author": "Ond\u0159ej Mirtes, Markus Staab, Vincent Langlet",
@@ -10309,12 +10309,12 @@
                     }
                 }
             ],
-            "purl": "pkg:composer/phpstan/phpstan@2.2.1",
+            "purl": "pkg:composer/phpstan/phpstan@2.2.2",
             "externalReferences": [
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/phpstan/phpstan/zipball/dea9c8f2d25cc849391042b71e429c1a4bf82660",
-                    "comment": "dist reference: dea9c8f2d25cc849391042b71e429c1a4bf82660"
+                    "url": "https://api.github.com/repos/phpstan/phpstan/zipball/e5cc34d491a90e79c216d824f60fe21fd4d93bd6",
+                    "comment": "dist reference: e5cc34d491a90e79c216d824f60fe21fd4d93bd6"
                 },
                 {
                     "type": "documentation",
@@ -10345,7 +10345,7 @@
             "properties": [
                 {
                     "name": "cdx:composer:package:distReference",
-                    "value": "dea9c8f2d25cc849391042b71e429c1a4bf82660"
+                    "value": "e5cc34d491a90e79c216d824f60fe21fd4d93bd6"
                 },
                 {
                     "name": "cdx:composer:package:type",
@@ -16492,10 +16492,10 @@
             ]
         },
         {
-            "bom-ref": "symfony/polyfill-mbstring-1.38.1.0",
+            "bom-ref": "symfony/polyfill-mbstring-1.38.2.0",
             "type": "library",
             "name": "polyfill-mbstring",
-            "version": "v1.38.1",
+            "version": "v1.38.2",
             "group": "symfony",
             "description": "Symfony polyfill for the Mbstring extension",
             "author": "Nicolas Grekas, Symfony Community",
@@ -16506,17 +16506,17 @@
                     }
                 }
             ],
-            "purl": "pkg:composer/symfony/polyfill-mbstring@v1.38.1",
+            "purl": "pkg:composer/symfony/polyfill-mbstring@v1.38.2",
             "externalReferences": [
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/14c5439eec4ccff081ac14eca2dc57feb2a66d92",
-                    "comment": "dist reference: 14c5439eec4ccff081ac14eca2dc57feb2a66d92"
+                    "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6",
+                    "comment": "dist reference: d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6"
                 },
                 {
                     "type": "vcs",
                     "url": "https://github.com/symfony/polyfill-mbstring.git",
-                    "comment": "source reference: 14c5439eec4ccff081ac14eca2dc57feb2a66d92"
+                    "comment": "source reference: d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6"
                 },
                 {
                     "type": "website",
@@ -16525,18 +16525,18 @@
                 },
                 {
                     "type": "vcs",
-                    "url": "https://github.com/symfony/polyfill-mbstring/tree/v1.38.1",
+                    "url": "https://github.com/symfony/polyfill-mbstring/tree/v1.38.2",
                     "comment": "as detected from Composer manifest 'support.source'"
                 }
             ],
             "properties": [
                 {
                     "name": "cdx:composer:package:distReference",
-                    "value": "14c5439eec4ccff081ac14eca2dc57feb2a66d92"
+                    "value": "d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6"
                 },
                 {
                     "name": "cdx:composer:package:sourceReference",
-                    "value": "14c5439eec4ccff081ac14eca2dc57feb2a66d92"
+                    "value": "d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6"
                 },
                 {
                     "name": "cdx:composer:package:type",
@@ -19430,7 +19430,7 @@
         {
             "ref": "ankitpokhrel/tus-php-2.4.0.0",
             "dependsOn": [
-                "guzzlehttp/guzzle-7.10.5.0",
+                "guzzlehttp/guzzle-7.11.1.0",
                 "nesbot/carbon-2.73.0.0",
                 "predis/predis-2.4.1.0",
                 "ramsey/uuid-4.9.2.0",
@@ -19464,9 +19464,9 @@
             "ref": "aws/aws-sdk-php-3.382.2.0",
             "dependsOn": [
                 "aws/aws-crt-php-1.2.7.0",
-                "guzzlehttp/guzzle-7.10.5.0",
-                "guzzlehttp/promises-2.4.1.0",
-                "guzzlehttp/psr7-2.10.3.0",
+                "guzzlehttp/guzzle-7.11.1.0",
+                "guzzlehttp/promises-2.5.0.0",
+                "guzzlehttp/psr7-2.11.0.0",
                 "mtdowling/jmespath.php-2.8.0.0",
                 "psr/http-message-2.0.0.0",
                 "symfony/filesystem-6.4.39.0"
@@ -19508,7 +19508,7 @@
         {
             "ref": "cebe/php-openapi-1.8.0.0",
             "dependsOn": [
-                "justinrainbow/json-schema-6.8.2.0",
+                "justinrainbow/json-schema-6.9.0.0",
                 "symfony/yaml-6.4.41.0"
             ]
         },
@@ -19535,7 +19535,7 @@
             ]
         },
         {
-            "ref": "composer/composer-2.10.0.0",
+            "ref": "composer/composer-2.10.1.0",
             "dependsOn": [
                 "composer/ca-bundle-1.5.12.0",
                 "composer/class-map-generator-1.7.3.0",
@@ -19544,7 +19544,7 @@
                 "composer/semver-3.4.4.0",
                 "composer/spdx-licenses-1.6.0.0",
                 "composer/xdebug-handler-3.0.5.0",
-                "justinrainbow/json-schema-6.8.2.0",
+                "justinrainbow/json-schema-6.9.0.0",
                 "psr/log-3.0.2.0",
                 "react/promise-3.3.0.0",
                 "seld/jsonlint-1.11.0.0",
@@ -19597,7 +19597,7 @@
             "ref": "dasprid/enum-1.0.7.0"
         },
         {
-            "ref": "demos-europe/demosplan-addon-0.73.0.0",
+            "ref": "demos-europe/demosplan-addon-0.75.0.0",
             "dependsOn": [
                 "api-platform/core-3.4.17.0",
                 "demos-europe/edt-dql-0.28.0.0",
@@ -19885,7 +19885,7 @@
             "ref": "elasticsearch/elasticsearch-8.19.0.0",
             "dependsOn": [
                 "elastic/transport-8.11.0.0",
-                "guzzlehttp/guzzle-7.10.5.0",
+                "guzzlehttp/guzzle-7.11.1.0",
                 "psr/http-client-1.0.3.0",
                 "psr/http-message-2.0.0.0",
                 "psr/log-3.0.2.0"
@@ -19995,7 +19995,7 @@
             "ref": "firebase/php-jwt-7.0.5.0"
         },
         {
-            "ref": "friendsofphp/php-cs-fixer-3.95.3.0",
+            "ref": "friendsofphp/php-cs-fixer-3.95.5.0",
             "dependsOn": [
                 "clue/ndjson-react-1.3.0.0",
                 "composer/semver-3.4.4.0",
@@ -20012,7 +20012,7 @@
                 "symfony/filesystem-6.4.39.0",
                 "symfony/finder-6.4.34.0",
                 "symfony/options-resolver-6.4.30.0",
-                "symfony/polyfill-mbstring-1.38.1.0",
+                "symfony/polyfill-mbstring-1.38.2.0",
                 "symfony/polyfill-php80-1.37.0.0",
                 "symfony/polyfill-php81-1.38.1.0",
                 "symfony/polyfill-php84-1.38.1.0",
@@ -20028,7 +20028,7 @@
             ]
         },
         {
-            "ref": "friendsofsymfony/elastica-bundle-7.1.0.0",
+            "ref": "friendsofsymfony/elastica-bundle-7.2.0.0",
             "dependsOn": [
                 "pagerfanta/pagerfanta-4.8.0.0",
                 "psr/log-3.0.2.0",
@@ -20091,23 +20091,29 @@
             "ref": "google/protobuf-4.33.6.0"
         },
         {
-            "ref": "guzzlehttp/guzzle-7.10.5.0",
+            "ref": "guzzlehttp/guzzle-7.11.1.0",
             "dependsOn": [
-                "guzzlehttp/promises-2.4.1.0",
-                "guzzlehttp/psr7-2.10.3.0",
+                "guzzlehttp/promises-2.5.0.0",
+                "guzzlehttp/psr7-2.11.0.0",
                 "psr/http-client-1.0.3.0",
+                "symfony/deprecation-contracts-3.7.0.0",
+                "symfony/polyfill-php80-1.37.0.0"
+            ]
+        },
+        {
+            "ref": "guzzlehttp/promises-2.5.0.0",
+            "dependsOn": [
                 "symfony/deprecation-contracts-3.7.0.0"
             ]
         },
         {
-            "ref": "guzzlehttp/promises-2.4.1.0"
-        },
-        {
-            "ref": "guzzlehttp/psr7-2.10.3.0",
+            "ref": "guzzlehttp/psr7-2.11.0.0",
             "dependsOn": [
                 "psr/http-factory-1.1.0.0",
                 "psr/http-message-2.0.0.0",
-                "ralouphie/getallheaders-3.0.3.0"
+                "ralouphie/getallheaders-3.0.3.0",
+                "symfony/deprecation-contracts-3.7.0.0",
+                "symfony/polyfill-php80-1.37.0.0"
             ]
         },
         {
@@ -20189,7 +20195,7 @@
             ]
         },
         {
-            "ref": "justinrainbow/json-schema-6.8.2.0",
+            "ref": "justinrainbow/json-schema-6.9.0.0",
             "dependsOn": [
                 "marc-mabe/php-enum-4.7.2.0"
             ]
@@ -20288,7 +20294,7 @@
         {
             "ref": "league/oauth2-client-2.9.0.0",
             "dependsOn": [
-                "guzzlehttp/guzzle-7.10.5.0"
+                "guzzlehttp/guzzle-7.11.1.0"
             ]
         },
         {
@@ -20354,7 +20360,7 @@
         {
             "ref": "mtdowling/jmespath.php-2.8.0.0",
             "dependsOn": [
-                "symfony/polyfill-mbstring-1.38.1.0"
+                "symfony/polyfill-mbstring-1.38.2.0"
             ]
         },
         {
@@ -20394,7 +20400,7 @@
             "dependsOn": [
                 "carbonphp/carbon-doctrine-types-2.1.0.0",
                 "psr/clock-1.0.0.0",
-                "symfony/polyfill-mbstring-1.38.1.0",
+                "symfony/polyfill-mbstring-1.38.2.0",
                 "symfony/polyfill-php80-1.37.0.0",
                 "symfony/translation-6.4.38.0"
             ]
@@ -20462,7 +20468,7 @@
                 "psr/http-message-2.0.0.0",
                 "psr/log-3.0.2.0",
                 "ramsey/uuid-4.9.2.0",
-                "symfony/polyfill-mbstring-1.38.1.0",
+                "symfony/polyfill-mbstring-1.38.2.0",
                 "symfony/polyfill-php82-1.38.1.0",
                 "tbachert/spi-1.0.5.0"
             ]
@@ -20598,7 +20604,7 @@
             "ref": "phpoffice/math-0.3.0.0"
         },
         {
-            "ref": "phpoffice/phpspreadsheet-5.7.0.0",
+            "ref": "phpoffice/phpspreadsheet-5.8.0.0",
             "dependsOn": [
                 "composer/pcre-3.3.2.0",
                 "maennchen/zipstream-php-3.1.1.0",
@@ -20624,12 +20630,12 @@
             "ref": "phpstan/phpdoc-parser-2.3.2.0"
         },
         {
-            "ref": "phpstan/phpstan-2.2.1.0"
+            "ref": "phpstan/phpstan-2.2.2.0"
         },
         {
             "ref": "phpstan/phpstan-symfony-2.0.19.0",
             "dependsOn": [
-                "phpstan/phpstan-2.2.1.0"
+                "phpstan/phpstan-2.2.2.0"
             ]
         },
         {
@@ -20801,7 +20807,7 @@
         {
             "ref": "rector/rector-2.4.5.0",
             "dependsOn": [
-                "phpstan/phpstan-2.2.1.0"
+                "phpstan/phpstan-2.2.2.0"
             ]
         },
         {
@@ -20816,7 +20822,7 @@
             "dependsOn": [
                 "psr/container-2.0.2.0",
                 "symfony/deprecation-contracts-3.7.0.0",
-                "symfony/polyfill-mbstring-1.38.1.0",
+                "symfony/polyfill-mbstring-1.38.2.0",
                 "symfony/translation-6.4.38.0",
                 "symfony/validator-6.4.37.0"
             ]
@@ -20941,7 +20947,7 @@
         {
             "ref": "sentry/sentry-4.27.0.0",
             "dependsOn": [
-                "guzzlehttp/psr7-2.10.3.0",
+                "guzzlehttp/psr7-2.11.0.0",
                 "jean85/pretty-package-versions-2.1.1.0",
                 "psr/log-3.0.2.0",
                 "symfony/options-resolver-6.4.30.0"
@@ -20950,7 +20956,7 @@
         {
             "ref": "sentry/sentry-symfony-5.10.0.0",
             "dependsOn": [
-                "guzzlehttp/psr7-2.10.3.0",
+                "guzzlehttp/psr7-2.11.0.0",
                 "jean85/pretty-package-versions-2.1.1.0",
                 "sentry/sentry-4.27.0.0",
                 "symfony/cache-contracts-3.7.0.0",
@@ -21038,7 +21044,7 @@
             "ref": "symfony/console-6.4.41.0",
             "dependsOn": [
                 "symfony/deprecation-contracts-3.7.0.0",
-                "symfony/polyfill-mbstring-1.38.1.0",
+                "symfony/polyfill-mbstring-1.38.2.0",
                 "symfony/service-contracts-3.7.0.0",
                 "symfony/string-6.4.39.0"
             ]
@@ -21074,7 +21080,7 @@
                 "doctrine/persistence-3.4.4.0",
                 "symfony/deprecation-contracts-3.7.0.0",
                 "symfony/polyfill-ctype-1.37.0.0",
-                "symfony/polyfill-mbstring-1.38.1.0",
+                "symfony/polyfill-mbstring-1.38.2.0",
                 "symfony/service-contracts-3.7.0.0"
             ]
         },
@@ -21083,7 +21089,7 @@
             "dependsOn": [
                 "masterminds/html5-2.10.0.0",
                 "symfony/polyfill-ctype-1.37.0.0",
-                "symfony/polyfill-mbstring-1.38.1.0"
+                "symfony/polyfill-mbstring-1.38.2.0"
             ]
         },
         {
@@ -21120,7 +21126,7 @@
             "ref": "symfony/filesystem-6.4.39.0",
             "dependsOn": [
                 "symfony/polyfill-ctype-1.37.0.0",
-                "symfony/polyfill-mbstring-1.38.1.0"
+                "symfony/polyfill-mbstring-1.38.2.0"
             ]
         },
         {
@@ -21137,7 +21143,7 @@
                 "symfony/options-resolver-6.4.30.0",
                 "symfony/polyfill-ctype-1.37.0.0",
                 "symfony/polyfill-intl-icu-1.38.0.0",
-                "symfony/polyfill-mbstring-1.38.1.0",
+                "symfony/polyfill-mbstring-1.38.2.0",
                 "symfony/property-access-6.4.32.0",
                 "symfony/service-contracts-3.7.0.0"
             ]
@@ -21155,7 +21161,7 @@
                 "symfony/finder-6.4.34.0",
                 "symfony/http-foundation-6.4.41.0",
                 "symfony/http-kernel-6.4.41.0",
-                "symfony/polyfill-mbstring-1.38.1.0",
+                "symfony/polyfill-mbstring-1.38.2.0",
                 "symfony/routing-6.4.41.0"
             ]
         },
@@ -21176,7 +21182,7 @@
             "ref": "symfony/http-foundation-6.4.41.0",
             "dependsOn": [
                 "symfony/deprecation-contracts-3.7.0.0",
-                "symfony/polyfill-mbstring-1.38.1.0",
+                "symfony/polyfill-mbstring-1.38.2.0",
                 "symfony/polyfill-php83-1.38.1.0"
             ]
         },
@@ -21241,7 +21247,7 @@
             "dependsOn": [
                 "symfony/deprecation-contracts-3.7.0.0",
                 "symfony/polyfill-intl-idn-1.38.1.0",
-                "symfony/polyfill-mbstring-1.38.1.0"
+                "symfony/polyfill-mbstring-1.38.2.0"
             ]
         },
         {
@@ -21302,7 +21308,7 @@
             "ref": "symfony/polyfill-intl-normalizer-1.38.0.0"
         },
         {
-            "ref": "symfony/polyfill-mbstring-1.38.1.0"
+            "ref": "symfony/polyfill-mbstring-1.38.2.0"
         },
         {
             "ref": "symfony/polyfill-php56-1.20.0.0"
@@ -21419,7 +21425,7 @@
                 "symfony/deprecation-contracts-3.7.0.0",
                 "symfony/http-foundation-6.4.41.0",
                 "symfony/http-kernel-6.4.41.0",
-                "symfony/polyfill-mbstring-1.38.1.0",
+                "symfony/polyfill-mbstring-1.38.2.0",
                 "symfony/property-access-6.4.32.0",
                 "symfony/security-core-6.4.41.0",
                 "symfony/service-contracts-3.7.0.0"
@@ -21451,14 +21457,14 @@
                 "symfony/polyfill-ctype-1.37.0.0",
                 "symfony/polyfill-intl-grapheme-1.38.1.0",
                 "symfony/polyfill-intl-normalizer-1.38.0.0",
-                "symfony/polyfill-mbstring-1.38.1.0"
+                "symfony/polyfill-mbstring-1.38.2.0"
             ]
         },
         {
             "ref": "symfony/translation-6.4.38.0",
             "dependsOn": [
                 "symfony/deprecation-contracts-3.7.0.0",
-                "symfony/polyfill-mbstring-1.38.1.0",
+                "symfony/polyfill-mbstring-1.38.2.0",
                 "symfony/translation-contracts-3.7.0.0"
             ]
         },
@@ -21489,7 +21495,7 @@
             "dependsOn": [
                 "symfony/deprecation-contracts-3.7.0.0",
                 "symfony/polyfill-ctype-1.37.0.0",
-                "symfony/polyfill-mbstring-1.38.1.0",
+                "symfony/polyfill-mbstring-1.38.2.0",
                 "symfony/polyfill-php83-1.38.1.0",
                 "symfony/translation-contracts-3.7.0.0"
             ]
@@ -21498,7 +21504,7 @@
             "ref": "symfony/var-dumper-6.4.36.0",
             "dependsOn": [
                 "symfony/deprecation-contracts-3.7.0.0",
-                "symfony/polyfill-mbstring-1.38.1.0"
+                "symfony/polyfill-mbstring-1.38.2.0"
             ]
         },
         {
@@ -21554,7 +21560,7 @@
             "ref": "timeweb/phpstan-enum-4.0.0.0",
             "dependsOn": [
                 "myclabs/php-enum-1.8.5.0",
-                "phpstan/phpstan-2.2.1.0"
+                "phpstan/phpstan-2.2.2.0"
             ]
         },
         {
@@ -21562,7 +21568,7 @@
             "dependsOn": [
                 "symfony/deprecation-contracts-3.7.0.0",
                 "symfony/polyfill-ctype-1.37.0.0",
-                "symfony/polyfill-mbstring-1.38.1.0"
+                "symfony/polyfill-mbstring-1.38.2.0"
             ]
         },
         {
@@ -21656,15 +21662,15 @@
             ]
         },
         {
-            "ref": "demos-europe/demosplan-core-4.42.0.0",
+            "ref": "demos-europe/demosplan-core-4.44.0.0",
             "dependsOn": [
                 "babdev/pagerfanta-bundle-4.6.0.0",
                 "bamarni/composer-bin-plugin-1.9.1.0",
                 "beberlei/doctrineextensions-1.5.0.0",
                 "cebe/php-openapi-1.8.0.0",
                 "cocur/slugify-4.7.1.0",
-                "composer/composer-2.10.0.0",
-                "demos-europe/demosplan-addon-0.73.0.0",
+                "composer/composer-2.10.1.0",
+                "demos-europe/demosplan-addon-0.75.0.0",
                 "doctrine/annotations-2.0.2.0",
                 "doctrine/common-3.5.0.0",
                 "doctrine/data-fixtures-1.8.2.0",
@@ -21685,10 +21691,10 @@
                 "erusev/parsedown-1.8.0.0",
                 "exercise/htmlpurifier-bundle-5.2.0.0",
                 "fakerphp/faker-1.24.1.0",
-                "friendsofsymfony/elastica-bundle-7.1.0.0",
+                "friendsofsymfony/elastica-bundle-7.2.0.0",
                 "friendsofsymfony/jsrouting-bundle-3.6.1.0",
                 "geocoder-php/nominatim-provider-5.8.0.0",
-                "guzzlehttp/guzzle-7.10.5.0",
+                "guzzlehttp/guzzle-7.11.1.0",
                 "illuminate/collections-10.49.0.0",
                 "intervention/image-3.11.8.0",
                 "jfcherng/php-diff-6.16.2.0",
@@ -21713,7 +21719,7 @@
                 "openlss/lib-array2xml-1.0.0.0",
                 "php-amqplib/rabbitmq-bundle-2.19.0.0",
                 "phpdocumentor/reflection-docblock-5.6.7.0",
-                "phpoffice/phpspreadsheet-5.7.0.0",
+                "phpoffice/phpspreadsheet-5.8.0.0",
                 "phpoffice/phpword-1.4.0.0",
                 "predis/predis-2.4.1.0",
                 "proj4php/proj4php-2.0.19.0",
@@ -21775,11 +21781,11 @@
                 "willdurand/geocoder-bundle-5.23.0.0",
                 "willdurand/js-translation-bundle-7.0.0.0",
                 "cyclonedx/cyclonedx-php-composer-6.2.0.0",
-                "friendsofphp/php-cs-fixer-3.95.3.0",
+                "friendsofphp/php-cs-fixer-3.95.5.0",
                 "liip/functional-test-bundle-4.16.0.0",
                 "liip/test-fixtures-bundle-3.9.0.0",
                 "php-parallel-lint/php-console-highlighter-1.0.0.0",
-                "phpstan/phpstan-2.2.1.0",
+                "phpstan/phpstan-2.2.2.0",
                 "phpstan/phpstan-symfony-2.0.19.0",
                 "phpunit/phpunit-10.5.63.0",
                 "psalm/plugin-symfony-5.2.6.0",
