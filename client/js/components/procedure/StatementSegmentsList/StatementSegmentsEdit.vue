@@ -620,7 +620,7 @@ export default {
       const allSucceeded = results.every(result => result === true)
 
       if (!allSucceeded) {
-        throw new Error()
+        throw new Error('Failed to save one or more segments/statement')
       }
     },
 
