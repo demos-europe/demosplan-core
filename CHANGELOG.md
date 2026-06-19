@@ -6,6 +6,7 @@
 
 ## UNRELEASED
 
+## v4.46.0 (2026-06-19)
 ## v4.45.0 (2026-06-19)
 ### Added
 - Delete Institution Text CustomFields
