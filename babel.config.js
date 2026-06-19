@@ -24,7 +24,7 @@ const config = {
   ],
   overrides: [
     {
-      test: /\.vue/,
+      test: /\.vue$/,
       presets: [['@babel/preset-typescript', { allExtensions: true }]],
     },
     {
