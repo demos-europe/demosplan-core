@@ -15,10 +15,18 @@ services:
 #            - { name: kernel.event_listener, event: console.command, method: onConsoleCommand, priority: -10 }
 
 
-    # Doctrine Extension listeners to handle behaviors
-     gedmo.listener.timestampable:
+    # Attribute-based metadata reader for Gedmo extensions (replaces the deprecated
+    # Doctrine annotation reader; all entities use #[Gedmo\...] attributes).
+    gedmo.mapping.driver.attribute:
+        class: Gedmo\Mapping\Driver\AttributeReader
+
+    # Doctrine Extension listeners to handle behaviors.
+    # Registered as event listeners (not a subscriber) per the symfony/doctrine-bridge 6.3 deprecation.
+    gedmo.listener.timestampable:
         class: Gedmo\Timestampable\TimestampableListener
         tags:
-            - { name: doctrine.event_subscriber }
+            - { name: doctrine.event_listener, event: prePersist }
+            - { name: doctrine.event_listener, event: onFlush }
+            - { name: doctrine.event_listener, event: loadClassMetadata }
         calls:
-            - [ setAnnotationReader, [ "@annotation_reader" ] ]
+            - [ setAnnotationReader, [ "@gedmo.mapping.driver.attribute" ] ]
