@@ -79,9 +79,6 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
     final public const SEGMENTS_BULK_EDIT_METHOD = 'segment.bulk.edit';
 
-    /** @var SegmentInterface[] */
-    private array $segmentsWithTagChanges = [];
-
     public function __construct(protected CurrentProcedureService $currentProcedure, protected CurrentUserInterface $currentUser, protected LoggerInterface $logger, protected JsonSchemaValidator $jsonValidator, protected PlaceService $placeService, protected ProcedureService $procedureService, protected RpcErrorGenerator $errorGenerator, protected SegmentHandler $segmentHandler, protected SegmentValidator $segmentValidator, protected TagService $tagService, protected TagValidator $tagValidator, private readonly TransactionService $transactionService, protected UserHandler $userHandler, protected SegmentBulkEditorService $segmentBulkEditorService, private readonly EventDispatcherInterface $eventDispatcher)
     {
     }
@@ -96,11 +93,12 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
      */
     public function execute(?ProcedureInterface $procedure, $rpcRequests): array
     {
-        $this->segmentsWithTagChanges = [];
+        $segmentsWithTagChanges = [];
 
         $resultResponse = $this->transactionService->executeAndFlushInTransaction(function (EntityManager $entityManager) use (
             $procedure,
-            $rpcRequests
+            $rpcRequests,
+            &$segmentsWithTagChanges
         ): array {
             $procedureId = $procedure->getId();
 
@@ -168,7 +166,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                     );
 
                     if ([] !== $addTagIds || [] !== $removeTagIds) {
-                        $this->segmentsWithTagChanges = [...$this->segmentsWithTagChanges, ...$segments];
+                        $segmentsWithTagChanges = [...$segmentsWithTagChanges, ...$segments];
                     }
 
                     $resultSegments = [...$resultSegments, ...$segments];
@@ -189,8 +187,12 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
             return $resultResponse;
         });
 
-        if ([] !== $this->segmentsWithTagChanges) {
-            $this->dispatchSegmentTagsChangedEvent($this->segmentsWithTagChanges);
+        if ([] !== $segmentsWithTagChanges) {
+            try {
+                $this->dispatchSegmentTagsChangedEvent($segmentsWithTagChanges);
+            } catch (Exception $e) {
+                $this->logger->error('Failed to dispatch SegmentTagsChangedEvent', ['Exception' => $e]);
+            }
         }
 
         return $resultResponse;
@@ -205,10 +207,6 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
         foreach ($segments as $segment) {
             $statement = $segment->getParentStatementOfSegment();
             $statements[$statement->getId()] = $statement;
-        }
-
-        if ([] === $statements) {
-            return;
         }
 
         $this->eventDispatcher->dispatch(
