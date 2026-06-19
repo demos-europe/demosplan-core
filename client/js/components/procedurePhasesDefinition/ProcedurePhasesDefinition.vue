@@ -119,7 +119,6 @@ All rights reserved
           <div class="overflow-x-auto pb-3 has-scrollable-content">
             <dp-data-table
               :data-cy="`procedurePhases:dataTable:${section.audience}`"
-              :flyout-width="flyoutWidth"
               :header-fields="headerFields"
               :items="section.audiencePhases"
               density="spacious"
@@ -222,7 +221,7 @@ All rights reserved
                       :aria-label="Translator.trans('item.delete')"
                       :data-cy="`procedurePhases:delete:${rowData.id}`"
                       :title="Translator.trans('delete')"
-                      class="btn--blank o-link--default"
+                      class="btn--blank o-link--default hidden"
                       disabled
                     >
                       <dp-icon
@@ -322,7 +321,7 @@ export default {
       { label: Translator.trans('permissionset.write'), value: 'write' },
     ]
 
-    const flyoutWidth = ref('80px')
+    //  Uncomment once delete functionality implemented: const flyoutWidth = ref('80px')
     const hasAttemptedSubmit = ref(false)
 
     const isNewPhaseNameInvalid = computed(() =>
@@ -838,7 +837,7 @@ export default {
       draftCoreRowValue,
       editingRowId,
       findPermissionSetOption,
-      flyoutWidth,
+      // Uncomment once delete functionality implemented: flyoutWidth,
       handleAddonEditChange,
       handleAddonEditStart,
       handleSaveEditClick,
