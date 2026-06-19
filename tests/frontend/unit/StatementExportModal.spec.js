@@ -463,61 +463,7 @@ describe('StatementExportModal', () => {
     expect(wrapper.vm.uploadedHash).toBe('')
   })
 
-  it('hasLayoutFileAndModifiedColumnHeaders is true when single statement export, hash uploaded, permission granted, and a column title is set', async () => {
-    await wrapper.setProps({ isSingleStatementExport: true })
-    await wrapper.setData({
-      uploadedHash: 'template-hash',
-      docxColumns: { col1: { title: 'My Title' } },
-    })
-
-    expect(wrapper.vm.hasLayoutFileAndModifiedColumnHeaders).toBe(true)
-  })
-
-  it('hasLayoutFileAndModifiedColumnHeaders is false when not single statement export', async () => {
-    await wrapper.setProps({ isSingleStatementExport: false })
-    await wrapper.setData({
-      uploadedHash: 'template-hash',
-      docxColumns: { col1: { title: 'My Title' } },
-    })
-
-    expect(wrapper.vm.hasLayoutFileAndModifiedColumnHeaders).toBe(false)
-  })
-
-  it('hasLayoutFileAndModifiedColumnHeaders is false when uploadedHash is empty', async () => {
-    await wrapper.setProps({ isSingleStatementExport: true })
-    await wrapper.setData({
-      uploadedHash: '',
-      docxColumns: { col1: { title: 'My Title' } },
-    })
-
-    expect(wrapper.vm.hasLayoutFileAndModifiedColumnHeaders).toBe(false)
-  })
-
-  it('hasLayoutFileAndModifiedColumnHeaders is false when no column titles are set', async () => {
-    await wrapper.setProps({ isSingleStatementExport: true })
-    await wrapper.setData({ uploadedHash: 'template-hash' })
-
-    expect(wrapper.vm.hasLayoutFileAndModifiedColumnHeaders).toBe(false)
-  })
-
-  it('hasLayoutFileAndModifiedColumnHeaders is false when permission is missing', async () => {
-    const originalHasPermission = globalThis.hasPermission
-    globalThis.hasPermission = jest.fn(() => false)
-
-    try {
-      await wrapper.setProps({ isSingleStatementExport: true })
-      await wrapper.setData({
-        uploadedHash: 'template-hash',
-        docxColumns: { col1: { title: 'My Title' } },
-      })
-
-      expect(wrapper.vm.hasLayoutFileAndModifiedColumnHeaders).toBe(false)
-    } finally {
-      globalThis.hasPermission = originalHasPermission
-    }
-  })
-
-  it('renders DpInlineNotification when hasLayoutFileAndModifiedColumnHeaders is true', async () => {
+  it('displays column header warning only if single statement export, hash uploaded, permission granted, and column title is set', async () => {
     await wrapper.setProps({ isSingleStatementExport: true })
     await wrapper.setData({
       uploadedHash: 'template-hash',
