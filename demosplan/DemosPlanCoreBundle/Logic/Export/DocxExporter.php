@@ -1514,7 +1514,7 @@ class DocxExporter
             } catch (Exception) {
                 $this->getLogger()->warning('Could not find file for hash');
 
-                return '';
+                return null;
             }
 
             return $file->getAbsolutePath();
