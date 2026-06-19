@@ -12,6 +12,42 @@ import { useUnsavedChangesGuard, _resetUnsavedChangesGuard } from '@DpJs/composa
 // Helper to flush all pending promises and timers
 const flushPromises = () => new Promise(resolve => setTimeout(resolve, 0))
 
+const createLink = (href) => {
+  const link = document.createElement('a')
+  link.href = href
+  document.body.appendChild(link)
+
+  return link
+}
+
+const clickLink = (link) => {
+  const event = new MouseEvent('click', { bubbles: true, cancelable: true })
+  const preventDefaultSpy = jest.spyOn(event, 'preventDefault')
+  link.dispatchEvent(event)
+
+  return { event, preventDefaultSpy }
+}
+
+const dispatchDialogResult = (action) => {
+  document.dispatchEvent(new CustomEvent('unsaved-changes-dialog:result', {
+    detail: { action },
+  }))
+}
+
+const dispatchBeforeUnload = () => {
+  const event = new Event('beforeunload', { cancelable: true })
+  const preventDefaultSpy = jest.spyOn(event, 'preventDefault')
+  globalThis.dispatchEvent(event)
+
+  return { event, preventDefaultSpy }
+}
+
+const initGuardedComponent = (componentOptions) => {
+  const { init } = useUnsavedChangesGuard()
+  init(componentOptions)
+  return init
+}
+
 describe('useUnsavedChangesGuard', () => {
   let dialogElement
   let mockComponent1
@@ -54,13 +90,6 @@ describe('useUnsavedChangesGuard', () => {
   })
 
   describe('initialization', () => {
-    it('should return init and cleanup functions', () => {
-      const { init, cleanup } = useUnsavedChangesGuard()
-
-      expect(typeof init).toBe('function')
-      expect(typeof cleanup).toBe('function')
-    })
-
     it('should register global listeners only once', () => {
       const addEventListenerSpy = jest.spyOn(globalThis, 'addEventListener')
 
@@ -85,35 +114,27 @@ describe('useUnsavedChangesGuard', () => {
 
   describe('beforeunload handler', () => {
     it('should not prevent navigation when no unsaved changes', () => {
-      const { init } = useUnsavedChangesGuard()
       mockComponent1.hasUnsavedChanges.mockReturnValue(false)
 
-      init({
+      initGuardedComponent({
         hasUnsavedChanges: mockComponent1.hasUnsavedChanges,
         componentId: 'test-component-1',
       })
 
-      const event = new Event('beforeunload')
-      const preventDefaultSpy = jest.spyOn(event, 'preventDefault')
-
-      globalThis.dispatchEvent(event)
+      const { preventDefaultSpy } = dispatchBeforeUnload()
 
       expect(preventDefaultSpy).not.toHaveBeenCalled()
     })
 
     it('should prevent navigation when component has unsaved changes', () => {
-      const { init } = useUnsavedChangesGuard()
       mockComponent1.hasUnsavedChanges.mockReturnValue(true)
 
-      init({
+      initGuardedComponent({
         hasUnsavedChanges: mockComponent1.hasUnsavedChanges,
         componentId: 'test-component-1',
       })
 
-      const event = new Event('beforeunload', { cancelable: true })
-      const preventDefaultSpy = jest.spyOn(event, 'preventDefault')
-
-      globalThis.dispatchEvent(event)
+      const { preventDefaultSpy } = dispatchBeforeUnload()
 
       expect(mockComponent1.hasUnsavedChanges).toHaveBeenCalled()
       expect(preventDefaultSpy).toHaveBeenCalled()
@@ -149,22 +170,15 @@ describe('useUnsavedChangesGuard', () => {
 
   describe('link click handler', () => {
     it('should not prevent navigation when no unsaved changes', () => {
-      const { init } = useUnsavedChangesGuard()
       mockComponent1.hasUnsavedChanges.mockReturnValue(false)
 
-      init({
+      initGuardedComponent({
         hasUnsavedChanges: mockComponent1.hasUnsavedChanges,
         componentId: 'test-component-1',
       })
 
-      const link = document.createElement('a')
-      link.href = 'https://example.com'
-      document.body.appendChild(link)
-
-      const event = new MouseEvent('click', { bubbles: true, cancelable: true })
-      const preventDefaultSpy = jest.spyOn(event, 'preventDefault')
-
-      link.dispatchEvent(event)
+      const link = createLink('https://example.com')
+      const { preventDefaultSpy } = clickLink(link)
 
       expect(preventDefaultSpy).not.toHaveBeenCalled()
 
@@ -172,25 +186,18 @@ describe('useUnsavedChangesGuard', () => {
     })
 
     it('should prevent navigation and show dialog when link clicked with unsaved changes', async () => {
-      const { init } = useUnsavedChangesGuard()
       mockComponent1.hasUnsavedChanges.mockReturnValue(true)
 
-      init({
+      initGuardedComponent({
         hasUnsavedChanges: mockComponent1.hasUnsavedChanges,
         componentId: 'test-component-1',
       })
 
-      const link = document.createElement('a')
-      link.href = 'https://example.com'
-      document.body.appendChild(link)
-
+      const link = createLink('https://example.com')
       const dialogShowListener = jest.fn()
       document.addEventListener('unsaved-changes-dialog:show', dialogShowListener)
 
-      const event = new MouseEvent('click', { bubbles: true, cancelable: true })
-      const preventDefaultSpy = jest.spyOn(event, 'preventDefault')
-
-      link.dispatchEvent(event)
+      const { preventDefaultSpy } = clickLink(link)
 
       expect(preventDefaultSpy).toHaveBeenCalled()
 
@@ -202,10 +209,9 @@ describe('useUnsavedChangesGuard', () => {
     })
 
     it('should ignore clicks on non-link elements', () => {
-      const { init } = useUnsavedChangesGuard()
       mockComponent1.hasUnsavedChanges.mockReturnValue(true)
 
-      init({
+      initGuardedComponent({
         hasUnsavedChanges: mockComponent1.hasUnsavedChanges,
         componentId: 'test-component-1',
       })
@@ -230,24 +236,15 @@ describe('useUnsavedChangesGuard', () => {
     })
 
     it('should call saveUnsavedChanges when save action is chosen', async () => {
-      const { init } = useUnsavedChangesGuard()
-
-      init({
+      initGuardedComponent({
         hasUnsavedChanges: mockComponent1.hasUnsavedChanges,
         saveUnsavedChanges: mockComponent1.saveUnsavedChanges,
         componentId: 'test-component-1',
       })
 
-      const link = document.createElement('a')
-      link.href = 'https://example.com'
-      document.body.appendChild(link)
-
-      const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true })
-      link.dispatchEvent(clickEvent)
-
-      document.dispatchEvent(new CustomEvent('unsaved-changes-dialog:result', {
-        detail: { action: 'save' },
-      }))
+      const link = createLink('https://example.com')
+      clickLink(link)
+      dispatchDialogResult('save')
 
       await flushPromises()
 
@@ -256,24 +253,15 @@ describe('useUnsavedChangesGuard', () => {
     })
 
     it('should call onDiscardChanges when discard action is chosen', async () => {
-      const { init } = useUnsavedChangesGuard()
-
-      init({
+      initGuardedComponent({
         hasUnsavedChanges: mockComponent1.hasUnsavedChanges,
         onDiscardChanges: mockComponent1.onDiscardChanges,
         componentId: 'test-component-1',
       })
 
-      const link = document.createElement('a')
-      link.href = 'https://example.com'
-      document.body.appendChild(link)
-
-      const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true })
-      link.dispatchEvent(clickEvent)
-
-      document.dispatchEvent(new CustomEvent('unsaved-changes-dialog:result', {
-        detail: { action: 'discard' },
-      }))
+      const link = createLink('https://example.com')
+      clickLink(link)
+      dispatchDialogResult('discard')
 
       await flushPromises()
 
@@ -282,24 +270,15 @@ describe('useUnsavedChangesGuard', () => {
     })
 
     it('should navigate after discarding changes', async () => {
-      const { init } = useUnsavedChangesGuard()
-
-      init({
+      initGuardedComponent({
         hasUnsavedChanges: mockComponent1.hasUnsavedChanges,
         onDiscardChanges: mockComponent1.onDiscardChanges,
         componentId: 'test-component-1',
       })
 
-      const link = document.createElement('a')
-      link.href = 'https://example.com/discard-test'
-      document.body.appendChild(link)
-
-      const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true })
-      link.dispatchEvent(clickEvent)
-
-      document.dispatchEvent(new CustomEvent('unsaved-changes-dialog:result', {
-        detail: { action: 'discard' },
-      }))
+      const link = createLink('https://example.com/discard-test')
+      clickLink(link)
+      dispatchDialogResult('discard')
 
       await flushPromises()
 
@@ -308,24 +287,15 @@ describe('useUnsavedChangesGuard', () => {
     })
 
     it('should call onCancelNavigation when cancel action is chosen', async () => {
-      const { init } = useUnsavedChangesGuard()
-
-      init({
+      initGuardedComponent({
         hasUnsavedChanges: mockComponent1.hasUnsavedChanges,
         onCancelNavigation: mockComponent1.onCancelNavigation,
         componentId: 'test-component-1',
       })
 
-      const link = document.createElement('a')
-      link.href = 'https://example.com'
-      document.body.appendChild(link)
-
-      const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true })
-      link.dispatchEvent(clickEvent)
-
-      document.dispatchEvent(new CustomEvent('unsaved-changes-dialog:result', {
-        detail: { action: 'cancel' },
-      }))
+      const link = createLink('https://example.com')
+      clickLink(link)
+      dispatchDialogResult('cancel')
 
       await flushPromises()
 
@@ -334,24 +304,15 @@ describe('useUnsavedChangesGuard', () => {
     })
 
     it('should NOT navigate after cancel action', async () => {
-      const { init } = useUnsavedChangesGuard()
-
-      init({
+      initGuardedComponent({
         hasUnsavedChanges: mockComponent1.hasUnsavedChanges,
         onCancelNavigation: mockComponent1.onCancelNavigation,
         componentId: 'test-component-1',
       })
 
-      const link = document.createElement('a')
-      link.href = 'https://example.com/cancel-test'
-      document.body.appendChild(link)
-
-      const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true })
-      link.dispatchEvent(clickEvent)
-
-      document.dispatchEvent(new CustomEvent('unsaved-changes-dialog:result', {
-        detail: { action: 'cancel' },
-      }))
+      const link = createLink('https://example.com/cancel-test')
+      clickLink(link)
+      dispatchDialogResult('cancel')
 
       await flushPromises()
 
@@ -361,11 +322,11 @@ describe('useUnsavedChangesGuard', () => {
     })
 
     it('should save all components with unsaved changes', async () => {
-      const { init: init1 } = useUnsavedChangesGuard()
-      const { init: init2 } = useUnsavedChangesGuard()
-
       mockComponent1.hasUnsavedChanges.mockReturnValue(true)
       mockComponent2.hasUnsavedChanges.mockReturnValue(true)
+
+      const { init: init1 } = useUnsavedChangesGuard()
+      const { init: init2 } = useUnsavedChangesGuard()
 
       init1({
         hasUnsavedChanges: mockComponent1.hasUnsavedChanges,
@@ -379,16 +340,9 @@ describe('useUnsavedChangesGuard', () => {
         componentId: 'component-2',
       })
 
-      const link = document.createElement('a')
-      link.href = 'https://example.com'
-      document.body.appendChild(link)
-
-      const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true })
-      link.dispatchEvent(clickEvent)
-
-      document.dispatchEvent(new CustomEvent('unsaved-changes-dialog:result', {
-        detail: { action: 'save' },
-      }))
+      const link = createLink('https://example.com')
+      clickLink(link)
+      dispatchDialogResult('save')
 
       await flushPromises()
 
@@ -398,24 +352,15 @@ describe('useUnsavedChangesGuard', () => {
     })
 
     it('should navigate after successful save', async () => {
-      const { init } = useUnsavedChangesGuard()
-
-      init({
+      initGuardedComponent({
         hasUnsavedChanges: mockComponent1.hasUnsavedChanges,
         saveUnsavedChanges: mockComponent1.saveUnsavedChanges,
         componentId: 'test-component-1',
       })
 
-      const link = document.createElement('a')
-      link.href = 'https://example.com/test'
-      document.body.appendChild(link)
-
-      const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true })
-      link.dispatchEvent(clickEvent)
-
-      document.dispatchEvent(new CustomEvent('unsaved-changes-dialog:result', {
-        detail: { action: 'save' },
-      }))
+      const link = createLink('https://example.com/test')
+      clickLink(link)
+      dispatchDialogResult('save')
 
       await flushPromises()
 
@@ -426,8 +371,9 @@ describe('useUnsavedChangesGuard', () => {
 
   describe('cleanup', () => {
     it('should stop checking component after cleanup', () => {
-      const { init, cleanup } = useUnsavedChangesGuard()
       mockComponent1.hasUnsavedChanges.mockReturnValue(true)
+
+      const { init, cleanup } = useUnsavedChangesGuard()
 
       init({
         componentId: 'test',
@@ -436,21 +382,17 @@ describe('useUnsavedChangesGuard', () => {
 
       cleanup()
 
-      const event = new Event('beforeunload', {
-        cancelable: true,
-      })
-
-      globalThis.dispatchEvent(event)
+      dispatchBeforeUnload()
 
       expect(mockComponent1.hasUnsavedChanges).not.toHaveBeenCalled()
     })
 
     it('should only cleanup the specific component, not others', () => {
-      const { init: init1, cleanup: cleanup1 } = useUnsavedChangesGuard()
-      const { init: init2 } = useUnsavedChangesGuard()
-
       mockComponent1.hasUnsavedChanges.mockReturnValue(true)
       mockComponent2.hasUnsavedChanges.mockReturnValue(true)
+
+      const { init: init1, cleanup: cleanup1 } = useUnsavedChangesGuard()
+      const { init: init2 } = useUnsavedChangesGuard()
 
       init1({
         componentId: 'component-1',
@@ -464,8 +406,7 @@ describe('useUnsavedChangesGuard', () => {
 
       cleanup1()
 
-      const event = new Event('beforeunload', { cancelable: true })
-      globalThis.dispatchEvent(event)
+      dispatchBeforeUnload()
 
       expect(mockComponent1.hasUnsavedChanges).not.toHaveBeenCalled()
       expect(mockComponent2.hasUnsavedChanges).toHaveBeenCalled()

@@ -402,9 +402,7 @@ export default {
     },
 
     checkForUnsavedChanges () {
-      const hasSegmentChanges = this.editingSegmentIds.some(segmentId =>
-        this.hasSegmentUnsavedChanges(segmentId),
-      )
+      const hasSegmentChanges = this.editingSegmentIds.some(segmentId => this.hasSegmentUnsavedChanges(segmentId))
       const hasStatementChanges = this.hasStatementUnsavedChanges()
 
       this.hasUnsavedChanges = hasSegmentChanges || hasStatementChanges
@@ -415,6 +413,10 @@ export default {
     },
 
     hasSegmentUnsavedChanges (segmentId) {
+      if (this._localSegmentTexts[segmentId] === undefined) {
+        return false
+      }
+
       const originalText = this.segments[segmentId]?.attributes?.text || ''
       const currentText = this._localSegmentTexts[segmentId] || ''
 
@@ -598,10 +600,7 @@ export default {
      * @returns {Promise} Resolves if all saves succeed, rejects if any save fails
      */
     async saveUnsavedChanges () {
-      const segmentsToSave = this.editingSegmentIds.filter(segmentId =>
-        this.hasSegmentUnsavedChanges(segmentId),
-      )
-
+      const segmentsToSave = this.editingSegmentIds.filter(segmentId => this.hasSegmentUnsavedChanges(segmentId))
       const shouldSaveStatement = this.hasStatementUnsavedChanges()
 
       if (segmentsToSave.length === 0 && !shouldSaveStatement) {
@@ -621,7 +620,7 @@ export default {
       const allSucceeded = results.every(result => result === true)
 
       if (!allSucceeded) {
-        throw new Error('One or more segments/statement failed to save')
+        throw new Error()
       }
     },
 
