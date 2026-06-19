@@ -7,7 +7,11 @@ Ihr Konto ist seit längerer Zeit inaktiv. Aus datenschutzrechtlichen Gründen w
 
 Um Ihr Konto zu erhalten, melden Sie sich bitte erneut an.{{ templateVars.link_section|raw }}
 
+{% if templateVars.support_email %}
+Bei Fragen stehen wir Ihnen gerne unter <a href="mailto:{{ templateVars.support_email }}">{{ templateVars.support_email }}</a> zur Verfügung.
+
+{% endif %}
 Mit freundlichen Grüßen
-Ihr Support-Team {{ projectName }}
+Ihr DEMOS Support Team
 
 {% endblock body_plain %}
