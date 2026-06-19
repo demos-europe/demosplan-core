@@ -180,7 +180,7 @@
           allowed-file-types="import"
           data-cy="exportModal:uploadTemplate"
           :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash, procedureId })"
-          :max-file-size="5 * 1024 * 1024"
+          :max-file-size="5 * 1024 * 1024 /* 5 MB */"
           :storage-name="templateStorageName"
           :translations="{ dropHereOr: Translator.trans('form.button.upload.docx', { browse: '{browse}', maxUploadSize: '5 MB' }) }"
           :tus-endpoint="dplan.paths.tusEndpoint"
