@@ -6,7 +6,30 @@
 
 ## UNRELEASED
 
+### Added
+- Make procedure phase definitions editable
+- Segment lock feature: workflow places can now be marked as locked, making segments on them read-only for users without the `feature_administrate_segment_lock` permission. Enforced on JSON:API PATCH, `segment.bulk.edit` RPC, and place updates; transitions are recorded in the segment Versionsverlauf.
+- Permission `feature_segment_lock_by_workflow_place` (exposed, login-required) toggles the segment lock feature per project. Grant it in `projects/<name>/.../Permissions.php` to every role that should see the feature. Requires `demos-europe/demosplan-addon` ^0.68.1.
+
+## v4.44.1 (2026-06-12)
+
+### Changed
+- Adjacent statement segments with identical tags are now merged into a single segment during statement segmentation, preserving the original text formatting (DPLAN-12697)
+
+### Fixed
+- Submitting a public statement as an anonymous citizen no longer fails with a Doctrine `MissingIdentifierField` exception (DPLAN-18002)
+- Logging out via Keycloak no longer produces an invalid redirect address when the customer-specific logout route already contains the full host name
+
 ## v4.44.0 (2026-06-05)
+
+## v4.43.1 (2026-06-16)
+
+### Changed
+- Adjacent statement segments with identical tags are now merged into a single segment during statement segmentation, preserving the original text formatting (DPLAN-12697)
+
+### Fixed
+- Submitting a public statement as an anonymous citizen no longer fails with a Doctrine `MissingIdentifierField` exception (DPLAN-18002)
+- Logging out via Keycloak no longer produces an invalid redirect address when the customer-specific logout route already contains the full host name
 
 ## v4.43.0 (2026-06-05)
 
