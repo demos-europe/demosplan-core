@@ -65,6 +65,7 @@
 
 ### Added
 - Tags can be reordered within and between TagTopics via drag and drop in tag administration
+- Add statement export via planner-uploaded DOCX layout template: planners upload a `.docx` via TUS, the backend validates `${…}` placeholders against a whitelist and clones the `${AbschnitteAlsAbsätze}` … `${/AbschnitteAlsAbsätze}` block per segment to render the response letter (permission: `feature_statement_via_template_export`, EWM-only for v1; frontend modal integration pending)
 
 ### Changed
 - Segment transformer extracts segment IDs and text from `<segment-mark>` elements in textualReference instead of charStart/charEnd positions

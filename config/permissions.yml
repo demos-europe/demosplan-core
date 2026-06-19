@@ -2310,6 +2310,16 @@ feature_statement_to_entire_document:
     label: 'Neue Stellungnahme zu gesamten Planungsdokument'
     loginRequired: false
     parent: feature_statement
+feature_statement_via_template_export:
+    description: |-
+        Allows exporting a single statement's segments rendered through a
+        planner-uploaded DOCX layout template. The template is resolved per
+        export from its TUS hash and removed from local disk after the
+        response finishes (success or failure).
+    expose: true
+    label: 'Statement-Export via uploaded DOCX template'
+    loginRequired: true
+    parent: feature_segments_of_statement_list
 feature_statements_custom_fields:
     description: 'Allow statement fields in public view'
     expose: true
