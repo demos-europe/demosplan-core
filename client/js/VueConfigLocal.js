@@ -47,6 +47,9 @@ const dplan = {
     publicCSSClassPrefix: 'dp-',
   },
   debug: false,
+  paths: {
+    tusEndpoint: 'tus-endpoint',
+  },
 }
 
 const dpApi = jest.fn(() => Promise.resolve())
