@@ -210,7 +210,7 @@ const handleApply = async () => {
   isBusy.value = true
 
   try {
-    await dpApi.post('/api/3.0/StatementGroup', {}, { data: payload })
+    await dpApi.post(`${Routing.getBaseUrl()}/api/3.0/StatementGroup`, {}, { data: payload })
     success.value = true
   } catch (error) {
     console.error('StatementGroup POST failed:', error)
