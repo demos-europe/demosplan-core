@@ -78,9 +78,36 @@ async function fetchGroup () {
     console.log('StatementGroup response', response.data)
 
     groupName.value = response.data.data.attributes.groupName
+
+    // The StatementGroup response only carries member IDs, so load the member details separately.
+    const memberIds = response.data.data.relationships.statements.data.map(member => member.id)
+
+    await fetchGroupMembers(memberIds)
   } catch (error) {
     console.error('Failed to load statement group:', error)
   }
+}
+
+async function fetchGroupMembers (ids) {
+  if (0 === ids.length) {
+    groupStatements.value = []
+
+    return
+  }
+
+  const response = await dpApi.get(
+    Routing.generate('api_resource_list', { resourceType: 'Statement' }),
+    {
+      fields: { Statement: 'externId,authorName,initialOrganisationName,isSubmittedByCitizen' },
+      filter: {
+        idIsOneOf: {
+          condition: { path: 'id', value: ids, operator: 'IN' },
+        },
+      },
+    },
+  )
+
+  groupStatements.value = response.data.data
 }
 
 async function saveGroupName () {
