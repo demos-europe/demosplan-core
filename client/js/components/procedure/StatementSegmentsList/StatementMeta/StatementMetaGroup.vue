@@ -9,15 +9,22 @@ All rights reserved
 
 <template>
   <div>
-    <!-- Group name — shown only for cluster (group) heads -->
-    <dp-input
-      v-if="isCluster"
-      id="groupName"
-      v-model="groupName"
-      class="mb-5"
-      :label="{ text: Translator.trans('statement.cluster.name') }"
-    />
-    <!-- TODO(DPLAN-17748): bind/save the group name once the backend exposes it -->
+    <!-- Group name — shown only for cluster (group) heads; editable in edit mode -->
+    <template v-if="isCluster">
+      <dp-input
+        id="groupName"
+        v-model="groupName"
+        :disabled="!editable"
+        :label="{ text: Translator.trans('statement.cluster.name') }"
+        class="mb-2"
+      />
+      <dp-button
+        v-if="editable"
+        :text="Translator.trans('save')"
+        class="mb-5"
+        @click="saveGroupName"
+      />
+    </template>
 
     <span
       v-if="isCluster"
@@ -45,10 +52,14 @@ All rights reserved
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { dpApi, DpInput } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpInput } from '@demos-europe/demosplan-ui'
 import SelectedStatementsList from '@DpJs/components/statement/SelectedStatementsList'
 
 const props = defineProps({
+  editable: {
+    type: Boolean,
+    default: false,
+  },
   statement: {
     type: Object,
     required: true,
@@ -61,10 +72,33 @@ const groupName = ref('')
 const groupStatements = ref([])
 
 async function fetchGroup () {
-  const response = await dpApi.get(
-    Routing.generate('_api_/3.0/StatementGroup/{id}_get', { id: props.statement.id })
-  )
-  console.log('StatementGroup response', response.data)
+  try {
+    const response = await dpApi.get(`/api/3.0/StatementGroup/${props.statement.id}`)
+
+    console.log('StatementGroup response', response.data)
+
+    groupName.value = response.data.data.attributes.groupName
+  } catch (error) {
+    console.error('Failed to load statement group:', error)
+  }
+}
+
+async function saveGroupName () {
+  // TODO(DPLAN-17748): backend PATCH operation not built yet — StatementGroupResource only exposes Get + Post.
+  // Frontend is ahead of backend; this call will work once a Patch operation + update logic exist.
+  try {
+    await dpApi.patch(`/api/3.0/StatementGroup/${props.statement.id}`, {}, {
+      data: {
+        type: 'StatementGroup',
+        id: props.statement.id,
+        attributes: { groupName: groupName.value },
+      },
+    })
+    dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+  } catch (error) {
+    console.error('Failed to save group name:', error)
+    dplan.notify.notify('error', Translator.trans('error.api.generic'))
+  }
 }
 
 function removeGroupStatement (id) {

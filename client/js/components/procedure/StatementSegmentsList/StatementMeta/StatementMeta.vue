@@ -58,7 +58,10 @@
           @save="(data) => save(data)"
         />
 
-        <statement-meta-group :statement="statement">
+        <statement-meta-group
+          :editable="editable"
+          :statement="statement"
+        >
           <statement-submitter
             ref="statementSubmitter"
             :editable="editable"
