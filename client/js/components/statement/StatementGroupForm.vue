@@ -37,12 +37,12 @@ All rights reserved
           />
           <dp-radio
             id="addToGroup"
-            name="groupAction"
             :checked="selectedAction === 'addToGroup'"
             :label="{
               text: Translator.trans('statement.cluster.add'),
               hint: Translator.trans('statement.cluster.add.hint'),
             }"
+            name="groupAction"
             value="addToGroup"
             @change="selectedAction = 'addToGroup'"
           />
@@ -95,19 +95,20 @@ All rights reserved
           </template>
           <template v-else-if="selectedAction === 'addToGroup'">
             <dp-label
+              :hint="Translator.trans('cluster.choose.hint')"
+              :text="Translator.trans('cluster.choose')"
               for="targetGroup"
               bold
-              :text="Translator.trans('cluster.choose')"
-              :hint="Translator.trans('cluster.choose.hint')"
+              required
             />
             <dp-multiselect
               id="targetGroup"
               v-model="targetGroupId"
-              class="mb-5"
               :custom-label="stmt => stmt.attributes.groupName"
               :options="groups"
-              required
+              class="mb-5"
               track-by="id"
+              required
               searchable
             />
             <h4 class="font-semibold mb-0.5">
@@ -202,7 +203,7 @@ const handleApply = async () => {
     return
   }
 
-  if (!headStatement.value) {
+  if (selectedAction.value === 'createGroup' && !headStatement.value) {
     dplan.notify.notify('error', Translator.trans('error.mandatoryfields'))
 
     return
@@ -224,46 +225,50 @@ const handleApply = async () => {
       },
     }
 
-  try {
-    await dpApi.post('/api/3.0/StatementGroup', {}, { data: payload })
-    success.value = true
-  } catch (error) {
-    console.error('StatementGroup POST failed:', error)
-    success.value = false
-  } finally {
+    try {
+      await dpApi.post('/api/3.0/StatementGroup', {}, { data: payload })
+      success.value = true
+    } catch (error) {
+      console.error('StatementGroup POST failed:', error)
+      success.value = false
+    } finally {
     // Always delete the stored selection so the same statements are not grouped more than once.
-    lscache.remove(`${props.procedureId}:toggledStatements`)
-    isBusy.value = false
-    step.value = 3
-  }
-} else {
-  const payload = {
-    type: 'StatementGroup',
-    relationships: {
-      statements: {
-        data: statements.value.map(stmt => ({ id: `${stmt.id}`, type: 'Statement' })),
+      lscache.remove(`${props.procedureId}:toggledStatements`)
+      isBusy.value = false
+      step.value = 3
+    }
+  } else {
+    const payload = {
+      type: 'StatementGroup',
+      relationships: {
+        statements: {
+          data: statements.value.map(stmt => ({ id: `${stmt.id}`, type: 'Statement' })),
+        },
       },
-    },
-  }
+    }
 
-  try {
-    await dpApi.patch(`/api/3.0/StatementGroup/${targetGroupId.value.id}`, {}, { data: payload })
-    success.value = true
-  } catch (error) {
-    console.error('StatementGroup PATCH failed:', error)
-    success.value = false
-  } finally {
-    lscache.remove(`${props.procedureId}:toggledStatements`)
-    isBusy.value = false
-    step.value = 3
+    try {
+      await dpApi.patch(`/api/3.0/StatementGroup/${targetGroupId.value.id}`, {}, { data: payload })
+      success.value = true
+    } catch (error) {
+      console.error('StatementGroup PATCH failed:', error)
+      success.value = false
+    } finally {
+      lscache.remove(`${props.procedureId}:toggledStatements`)
+      isBusy.value = false
+      step.value = 3
     }
   }
 }
 
-async function fetchGroups () {
-  const response = await dpApi.get('/api/3.0/StatementGroup')
+const fetchGroups = async () => {
+  try {
+    const response = await dpApi.get('/api/3.0/StatementGroup')
 
-  groups.value = response.data.data
+    groups.value = response.data.data
+  } catch (error) {
+    console.error('Failed to load statement groups:', error)
+  }
 }
 
 const fetchStatements = async () => {
@@ -328,6 +333,7 @@ const setStatements = () => {
 onMounted(() => {
   setStatements()
   fetchStatements()
+  fetchGroups()
 })
 
 </script>
