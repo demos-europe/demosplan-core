@@ -37,22 +37,36 @@ All rights reserved
     <slot />
 
     <!-- Other statements in this group — shown only for cluster heads -->
-    <template v-if="isCluster">
-      <span class="font-semibold mb-0.5">
-        {{ Translator.trans('statement.cluster.further', { count: groupStatements.length }) }}
-      </span>
-      <!-- TODO(DPLAN-17748): replace placeholder data with the actual grouped statements once the backend provides them -->
+    <dp-accordion
+      v-if="isCluster"
+      :title="Translator.trans('statement.cluster.further', { count: groupStatements.length })"
+      is-open
+    >
+      <!--
+        TODO(DPLAN-17748): the detail link is correct but its target page cannot load cluster members yet.
+        The StatementResourceType access condition (`headStatement IS NULL`) hides members, so the statement
+        detail page returns 400 for them. Works once the backend exposes cluster members for read access.
+      -->
       <selected-statements-list
-        :statements="groupStatements"
+        :procedure-id="procedureId"
+        :statements="paginatedStatements"
+        show-detail-link
         @remove="removeGroupStatement"
       />
-    </template>
+      <dp-sliding-pagination
+        v-if="totalPages > 1"
+        :current="currentPage"
+        :non-sliding-size="10"
+        :total="totalPages"
+        @page-change="currentPage = $event"
+      />
+    </dp-accordion>
   </div>
 </template>
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { dpApi, DpButton, DpInput } from '@demos-europe/demosplan-ui'
+import { dpApi, DpAccordion, DpButton, DpInput, DpSlidingPagination } from '@demos-europe/demosplan-ui'
 import SelectedStatementsList from '@DpJs/components/statement/SelectedStatementsList'
 
 const props = defineProps({
@@ -60,16 +74,26 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  procedureId: {
+    type: String,
+    default: '',
+  },
   statement: {
     type: Object,
     required: true,
   },
 })
 
+const PAGE_SIZE = 15
+
 const isCluster = computed(() => props.statement.attributes.isCluster)
 const groupName = ref('')
-// TODO(DPLAN-17748): populate with the backend's grouped statements
 const groupStatements = ref([])
+const currentPage = ref(1)
+const totalPages = computed(() => Math.ceil(groupStatements.value.length / PAGE_SIZE))
+const paginatedStatements = computed(
+  () => groupStatements.value.slice((currentPage.value - 1) * PAGE_SIZE, currentPage.value * PAGE_SIZE)
+)
 
 async function fetchGroup () {
   try {
@@ -79,35 +103,19 @@ async function fetchGroup () {
 
     groupName.value = response.data.data.attributes.groupName
 
-    // The StatementGroup response only carries member IDs, so load the member details separately.
-    const memberIds = response.data.data.relationships.statements.data.map(member => member.id)
-
-    await fetchGroupMembers(memberIds)
+    /*
+     * TODO(DPLAN-17748): interim id-only rendering. The StatementGroup response carries member IDs only,
+     * and cluster members are not retrievable via any frontend endpoint (the Statement resource hides them
+     * via the `headStatement IS NULL` access condition; the Headstatement resource has GET/LIST disabled).
+     * Once the backend populates member externId/submitter in StatementGroupResource::fromStatement
+     * (or supports ?include=statements), replace the empty attributes with the real member data.
+     */
+    groupStatements.value = response.data.data.relationships.statements.data.map(
+      member => ({ id: member.id, attributes: {} })
+    )
   } catch (error) {
     console.error('Failed to load statement group:', error)
   }
-}
-
-async function fetchGroupMembers (ids) {
-  if (0 === ids.length) {
-    groupStatements.value = []
-
-    return
-  }
-
-  const response = await dpApi.get(
-    Routing.generate('api_resource_list', { resourceType: 'Statement' }),
-    {
-      fields: { Statement: 'externId,authorName,initialOrganisationName,isSubmittedByCitizen' },
-      filter: {
-        idIsOneOf: {
-          condition: { path: 'id', value: ids, operator: 'IN' },
-        },
-      },
-    },
-  )
-
-  groupStatements.value = response.data.data
 }
 
 async function saveGroupName () {

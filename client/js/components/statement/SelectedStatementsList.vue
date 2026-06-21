@@ -21,17 +21,30 @@ All rights reserved
         <span>{{ stmt.attributes.externId }}</span>
         <span v-if="stmt.attributes.isSubmittedByCitizen">{{ stmt.attributes.authorName }}</span>
         <span v-else>{{ stmt.attributes.initialOrganisationName }}</span>
-        <button
-          type="button"
-          class="btn--blank o-link--default ml-auto"
-          :data-cy="`statementGroupForm:removeStatement:${stmt.id}`"
-          @click="$emit('remove', stmt.id)"
-        >
-          <dp-icon
-            icon="close"
-            size="small"
-          />
-        </button>
+        <div class="ml-auto flex items-center gap-2">
+          <a
+            v-if="showDetailLink"
+            :href="Routing.generate('dplan_statement_segments_list', { procedureId, statementId: stmt.id })"
+            :title="Translator.trans('details.show')"
+            class="o-link--default"
+          >
+            <dp-icon
+              icon="arrow-square-out"
+              size="small"
+            />
+          </a>
+          <button
+            :data-cy="`statementGroupForm:removeStatement:${stmt.id}`"
+            class="btn--blank o-link--default"
+            type="button"
+            @click="$emit('remove', stmt.id)"
+          >
+            <dp-icon
+              icon="close"
+              size="small"
+            />
+          </button>
+        </div>
       </div>
     </li>
   </ul>
@@ -41,6 +54,14 @@ All rights reserved
 import { DpIcon } from '@demos-europe/demosplan-ui'
 
 defineProps({
+  procedureId: {
+    type: String,
+    default: '',
+  },
+  showDetailLink: {
+    type: Boolean,
+    default: false,
+  },
   statements: {
     type: Array,
     required: true,

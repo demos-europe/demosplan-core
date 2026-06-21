@@ -60,6 +60,7 @@
 
         <statement-meta-group
           :editable="editable"
+          :procedure-id="procedure.id"
           :statement="statement"
         >
           <statement-submitter
