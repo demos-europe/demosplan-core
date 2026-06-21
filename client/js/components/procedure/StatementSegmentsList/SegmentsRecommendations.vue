@@ -75,6 +75,7 @@
           :current-user-first-name="currentUser.firstname"
           :current-user-last-name="currentUser.lastname"
           :current-user-orga="currentUser.orgaName"
+          @unlock="openUnlockModal"
         />
 
         <!-- Pagination below segments list -->
@@ -95,6 +96,13 @@
           />
         </div>
       </div>
+      <segment-unlock-modal
+        v-if="hasPermission('feature_administrate_segment_lock')"
+        ref="unlockModal"
+        :assignable-users="unlockAssignableUsers"
+        :places="places"
+        @unlock="payload => unlockSegment(payload, () => fetchSegments(pagination?.currentPage || 1))"
+      />
     </div>
   </div>
 </template>
@@ -105,7 +113,9 @@ import { mapActions, mapMutations, mapState } from 'vuex'
 import { handleSegmentNavigation } from '@DpJs/lib/segment/handleSegmentNavigation'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import { scrollTo } from 'vue-scrollto'
+import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
 import StatementSegment from './StatementSegment'
+import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
 
 export default {
   name: 'SegmentsRecommendations',
@@ -116,6 +126,7 @@ export default {
     DpButton,
     DpLoading,
     DpPager,
+    SegmentUnlockModal,
     StatementSegment,
   },
 
@@ -131,6 +142,12 @@ export default {
       type: String,
       required: true,
     },
+  },
+
+  setup () {
+    const { unlockModal, openUnlockModal, unlockSegment } = useSegmentUnlock()
+
+    return { unlockModal, openUnlockModal, unlockSegment }
   },
 
   data () {
@@ -153,12 +170,38 @@ export default {
       segments: 'items',
     }),
 
+    ...mapState('Place', {
+      placeItems: 'items',
+    }),
+
+    ...mapState('AssignableUser', {
+      assignableUsersObject: 'items',
+    }),
+
     hasSegments () {
       return Object.keys(this.segments).length > 0
     },
 
+    places () {
+      return Object.values(this.placeItems).map(place => ({
+        name: place.attributes.name,
+        id: place.id,
+        locked: place.attributes.locked,
+      }))
+    },
+
     statement () {
       return this.$store.state.Statement.items[this.statementId] || null
+    },
+
+    // Assignable users including the "not assigned" option, used as the unlock modal default
+    unlockAssignableUsers () {
+      const users = Object.values(this.assignableUsersObject).map(user => ({
+        name: user.attributes.firstname + ' ' + user.attributes.lastname,
+        id: user.id,
+      }))
+
+      return [{ name: Translator.trans('not.assigned'), id: 'noAssigneeId' }, ...users]
     },
   },
 
@@ -283,6 +326,20 @@ export default {
         'recommendation',
       ]
 
+      const statementSegmentInclude = [
+        'assignee',
+        'comments',
+        'comments.place',
+        'comments.submitter',
+        'place',
+        'tags',
+      ]
+
+      if (hasPermission('feature_enable_recommendation_versions')) {
+        statementSegmentInclude.push('recommendationVersions')
+        statementSegmentFields.push('recommendationVersions')
+      }
+
       if (hasPermission('field_segments_custom_fields')) {
         statementSegmentFields.push('customFields')
       }
@@ -309,6 +366,7 @@ export default {
         fields: {
           Place: [
             'description',
+            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
             'name',
             'solved',
             'sortIndex',
@@ -322,30 +380,42 @@ export default {
           AssignableUser: [
             'firstname',
             'lastname',
+            'orga',
           ].join(),
+          Orga: ['name'].join(),
         },
-        include: 'department',
+        include: 'orga',
         sort: 'lastname',
       })
 
-      const response = await this.listSegments({
-        include: [
-          'assignee',
-          'comments',
-          'comments.place',
-          'comments.submitter',
+      const fields = {
+        StatementSegment: statementSegmentFields.join(),
+        SegmentComment: [
+          'creationDate',
+          'text',
+          'submitter',
           'place',
-          'tags',
         ].join(),
-        fields: {
-          StatementSegment: statementSegmentFields.join(),
-          SegmentComment: [
-            'creationDate',
-            'text',
-            'submitter',
-            'place',
-          ].join(),
-        },
+        Place: [
+          'description',
+          ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+          'name',
+          'solved',
+          'sortIndex',
+        ].join(),
+      }
+
+      if (hasPermission('feature_enable_recommendation_versions')) {
+        fields.RecommendationVersion = [
+          'versionNumber',
+          'recommendationText',
+          'createdAt',
+        ].join()
+      }
+
+      const response = await this.listSegments({
+        include: statementSegmentInclude.join(),
+        fields,
         page: {
           number: page,
           size: this.pagination?.perPage || this.defaultPagination.perPage,

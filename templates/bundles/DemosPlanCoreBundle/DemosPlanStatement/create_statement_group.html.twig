@@ -5,11 +5,11 @@
         heading: 'statement.consolidate'|trans
     } %}
 
-    <statement-group-form :procedure-id="{{ procedure|default|json_encode }}">
+    <statement-group-form :procedure-id="{{ procedure|default('')|json_encode }}">
     </statement-group-form>
-{% endblock %}
+{% endblock component_part %}
 
 {% block javascripts %}
     {{ parent() }}
     {{ webpackBundles(['statement-groupStatements.js']) }}
-{% endblock %}
+{% endblock javascripts %}

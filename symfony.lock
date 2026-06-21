@@ -67,9 +67,6 @@
     "composer/xdebug-handler": {
         "version": "1.4.6"
     },
-    "demos-europe/demosplan-addon": {
-        "version": "v0.73"
-    },
     "dnoegel/php-xdg-base-dir": {
         "version": "v0.1.1"
     },

@@ -79,6 +79,7 @@ use Exception;
 use Pagerfanta\Elastica\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class StatementFragmentService
@@ -145,6 +146,10 @@ class StatementFragmentService
         private readonly LoggerInterface $logger,
         private readonly ManagerRegistry $doctrine,
         private readonly ProfilerService $profilerService,
+        #[Autowire(param: 'elasticsearch_max_result_window')]
+        private readonly int $elasticsearchMaxResultWindow,
+        #[Autowire(param: 'elasticsearch_search_after_batch_size')]
+        private readonly int $searchAfterBatchSize,
     ) {
         $this->assignService = $assignService;
         $this->elementService = $elementService;
@@ -1410,17 +1415,25 @@ class StatementFragmentService
                 $paginator->setCurrentPage(1);
             }
             try {
-                // When we click on a dropdown filter (just to open it) we come here and get statement ids
-                /** @var ResultSet $resultSet */
-                $resultSet = $paginator->getCurrentPageResults();
-                $result = $resultSet->getResponse()->getData();
-                $elasticsearchResultStatement->setHits($result['hits']);
+                if ((int) $limit > $this->elasticsearchMaxResultWindow) {
+                    // "Fetch everything" path (e.g. all fragment assignments): a single from+size
+                    // query would exceed index.max_result_window, so page via search_after.
+                    $batch = $this->searchService->fetchAllHitsViaSearchAfter($search, $query, $this->searchAfterBatchSize);
+                    $result = $batch['result'];
+                    $elasticsearchResultStatement->setHits($result['hits']);
+                    $aggregations = $batch['aggregations'];
+                } else {
+                    // When we click on a dropdown filter (just to open it) we come here and get statement ids
+                    /** @var ResultSet $resultSet */
+                    $resultSet = $paginator->getCurrentPageResults();
+                    $result = $resultSet->getResponse()->getData();
+                    $elasticsearchResultStatement->setHits($result['hits']);
+                    $aggregations = $resultSet->getAggregations();
+                }
             } catch (ClientException $e) {
                 $this->logger->warning('Elasticsearch probably hit a timeout: ', [$e]);
                 throw $e;
             }
-
-            $aggregations = $resultSet->getAggregations();
 
             $voteAdviceLabelMap = $this->getVoteLabelMap();
 

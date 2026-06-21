@@ -17,22 +17,22 @@ All rights reserved
       :total-steps="3"
       :translations="translations"
       :valid="isValid"
+      @apply="handleApply"
       @confirm="handleConfirmStep1"
       @edit="step = 1"
-      @apply="handleApply"
     >
       <template v-slot:step-1>
         <div class="mt-5 mb-6">
           <dp-radio
             id="action-create"
-            class="mb-3"
-            name="groupAction"
-            value="createGroup"
             :checked="selectedAction === 'createGroup'"
             :label="{
               text: Translator.trans('statement.cluster.create'),
               hint: Translator.trans('statement.cluster.create.hint'),
             }"
+            class="mb-3"
+            name="groupAction"
+            value="createGroup"
             @change="selectedAction = 'createGroup'"
           />
           <dp-radio
@@ -77,18 +77,19 @@ All rights reserved
               required
             />
             <dp-label
-              for="mainStatement"
-              bold
-              :text="Translator.trans('statement.main')"
               :hint="Translator.trans('statement.cluster.create.help')"
+              :text="Translator.trans('statement.main')"
+              for="headStatement"
+              bold
+              required
             />
             <dp-multiselect
-              id="mainStatement"
-              v-model="mainStatementId"
+              id="headStatement"
+              v-model="headStatement"
               :custom-label="stmt => stmt.attributes.externId"
               :options="statements"
-              required
               track-by="id"
+              required
               searchable
             />
           </template>
@@ -145,18 +146,18 @@ const props = defineProps({
   },
 })
 
+const groupName = ref('')
+const headStatement = ref(null)
 const isBusy = ref(false)
 const isLoading = ref(true)
-const mainStatementId = ref(null)
-const targetGroupId = ref(null)
-const groupName = ref('')
-const groups = ref([])
 const returnLink = ref(Routing.generate('dplan_procedure_statement_list', { procedureId: props.procedureId }))
 const selectedAction = ref('createGroup')
-const   statements = ref([])
 const selectionCriteria = ref(null)
+const statements = ref([])
 const step = ref(1)
 const success = ref(true)
+const targetGroupId = ref(null)
+const groups = ref([])
 
 const isValid = computed(() => statements.value.length > 0)
 const selectedElementsCount = computed(() => statements.value.length)
@@ -175,7 +176,7 @@ const translations = computed(() => ({
   ],
 }))
 
-function handleConfirmStep1 () {
+const handleConfirmStep1 = () => {
   // Creating a group needs at least two statements; adding to an existing group (action "addToGroup") later allows one.
   if (selectedAction.value === 'createGroup' && statements.value.length < 2) {
     dplan.notify.notify('error', Translator.trans('confirm.consolidation.not.enough.statements'))
@@ -183,13 +184,25 @@ function handleConfirmStep1 () {
     return
   }
 
+  if (statements.value.some(stmt => !stmt.relationships?.assignee?.data?.id)) {
+    dplan.notify.notify('error', Translator.trans('confirm.consolidation.not.assigned'))
+
+    return
+  }
+
   step.value = 2
 }
 
-async function handleApply () {
+const handleApply = async () => {
   const { valid } = validateForm(document.querySelector('[data-dp-validate=groupForm]'))
 
   if (!valid) {
+    dplan.notify.notify('error', Translator.trans('error.mandatoryfields'))
+
+    return
+  }
+
+  if (!headStatement.value) {
     dplan.notify.notify('error', Translator.trans('error.mandatoryfields'))
 
     return
@@ -202,59 +215,65 @@ async function handleApply () {
       type: 'StatementGroup',
       attributes: {
         groupName: groupName.value,
-        headStatementId: mainStatementId.value.id,
+        headStatementId: headStatement.value.id,
       },
       relationships: {
         statements: {
-          // API Platform (3.0) identifies resources by IRI, not by plain UUID.
-          data: statements.value.map(stmt => ({ id: `/api/3.0/Statement/${stmt.id}`, type: 'Statement' })),
+          data: statements.value.map(stmt => ({ id: `${stmt.id}`, type: 'Statement' })),
         },
       },
     }
 
-    try {
-      await dpApi.post(Routing.generate('_api_/3.0/StatementGroup_post'), {}, { data: payload })
-      success.value = true
-    } catch {
-      success.value = false
-    } finally {
-      isBusy.value = false
-      step.value = 3
-    }
-  } else {
-    const payload = {
-      type: 'StatementGroup',
-      relationships: {
-        statements: {
-          data: statements.value.map(stmt => ({ id: `/api/3.0/Statement/${stmt.id}`, type: 'Statement' })),
-        },
+  try {
+    await dpApi.post('/api/3.0/StatementGroup', {}, { data: payload })
+    success.value = true
+  } catch (error) {
+    console.error('StatementGroup POST failed:', error)
+    success.value = false
+  } finally {
+    // Always delete the stored selection so the same statements are not grouped more than once.
+    lscache.remove(`${props.procedureId}:toggledStatements`)
+    isBusy.value = false
+    step.value = 3
+  }
+} else {
+  const payload = {
+    type: 'StatementGroup',
+    relationships: {
+      statements: {
+        data: statements.value.map(stmt => ({ id: `${stmt.id}`, type: 'Statement' })),
       },
-    }
+    },
+  }
 
-    try {
-      await dpApi.patch(Routing.generate('_api_/3.0/StatementGroup_patch', { id: targetGroupId.value.id }), {}, { data: payload })
-      success.value = true
-    } catch {
-      success.value = false
-    } finally {
-      isBusy.value = false
-      step.value = 3
+  try {
+    await dpApi.patch(`/api/3.0/StatementGroup/${targetGroupId.value.id}`, {}, { data: payload })
+    success.value = true
+  } catch (error) {
+    console.error('StatementGroup PATCH failed:', error)
+    success.value = false
+  } finally {
+    lscache.remove(`${props.procedureId}:toggledStatements`)
+    isBusy.value = false
+    step.value = 3
     }
   }
 }
 
 async function fetchGroups () {
-  const response = await dpApi.get(Routing.generate('_api_/3.0/StatementGroup_get_collection'))
+  const response = await dpApi.get('/api/3.0/StatementGroup')
 
   groups.value = response.data.data
 }
 
-async function fetchStatements () {
+const fetchStatements = async () => {
   if (!selectionCriteria.value) {
+    isLoading.value = false
+
     return
   }
 
-  const fields = { Statement: 'externId,authorName,initialOrganisationName,isSubmittedByCitizen' }
+  const fields = { Statement: 'externId,authorName,initialOrganisationName,isSubmittedByCitizen,assignee,isCluster' }
   const size = 100
   const collected = []
   let number = 1
@@ -271,39 +290,44 @@ async function fetchStatements () {
     },
   }
 
-  // Page through the whole selected set so "select all" covers every matching statement.
-  do {
-    const response = await dpApi.get(
-      Routing.generate('api_resource_list', { resourceType: 'Statement' }),
-      { ...selectionCriteria.value, filter, fields, page: { number, size } },
-    )
+  try {
+    // Page through the whole selected set so "select all" covers every matching statement.
+    do {
+      const response = await dpApi.get(
+        Routing.generate('api_resource_list', { resourceType: 'Statement' }),
+        { ...selectionCriteria.value, filter, fields, include: 'assignee', page: { number, size } },
+      )
 
-    collected.push(...response.data.data)
-    totalPages = response.data.meta?.pagination?.totalPages ?? 1
-    number++
-  } while (number <= totalPages)
+      collected.push(...response.data.data)
+      totalPages = response.data.meta?.pagination?.totalPages ?? 1
+      number++
+    } while (number <= totalPages)
 
-  statements.value = collected
+    /*
+     * "Select all" resolves criteria server-side and bypasses the list's checkbox locks,
+     * so exclude group heads here. (Synchronized statements only exist in coupled procedures,
+     * where `synchronized` is readable — not requested here to avoid faulty fieldset errors.)
+     */
+    statements.value = collected.filter(stmt => !stmt.attributes.isCluster)
+  } catch (error) {
+    console.error('Failed to load selected statements for grouping:', error)
+    dplan.notify.notify('error', Translator.trans('error.api.generic'))
+  } finally {
+    isLoading.value = false
+  }
 }
 
-function removeStatement (id) {
+const removeStatement = (id) => {
   statements.value = statements.value.filter(stmt => stmt.id !== id)
 }
 
-function setStatements () {
+const setStatements = () => {
   selectionCriteria.value = lscache.get(`${props.procedureId}:toggledStatements`)
 }
 
-onMounted(async () => {
-  try {
-    await fetchGroups()
-  } catch {
-    // Endpoint not yet available
-  }
-
+onMounted(() => {
   setStatements()
-  await fetchStatements()
-  isLoading.value = false
+  fetchStatements()
 })
 
 </script>

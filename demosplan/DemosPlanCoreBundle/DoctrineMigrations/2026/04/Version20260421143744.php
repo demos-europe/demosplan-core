@@ -17,18 +17,11 @@ use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
-/**
- * Backfill the entity_type discriminator on _statement so that cluster heads and
- * cluster members are distinguishable from plain statements:
- *   - cluster_statement = 1                 -> 'StatementGroup'
- *   - head_statement_id IS NOT NULL         -> 'StatementMember'
- *   - everything else keeps its current value ('Statement' / 'Segment').
- */
-class Version20260527100811 extends AbstractMigration
+class Version20260421143744 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'Backfill _statement.entity_type with StatementGroup / StatementMember for cluster heads and members';
+        return 'refs DPLAN-17492: add locked column to workflow_place for segment lock feature';
     }
 
     /**
@@ -38,13 +31,7 @@ class Version20260527100811 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql(
-            "UPDATE _statement SET entity_type = 'StatementGroup' WHERE cluster_statement = 1"
-        );
-
-        $this->addSql(
-            "UPDATE _statement SET entity_type = 'StatementMember' WHERE head_statement_id IS NOT NULL"
-        );
+        $this->addSql('ALTER TABLE workflow_place ADD locked TINYINT(1) DEFAULT 0 NOT NULL');
     }
 
     /**
@@ -54,9 +41,7 @@ class Version20260527100811 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql(
-            "UPDATE _statement SET entity_type = 'Statement' WHERE entity_type IN ('StatementGroup', 'StatementMember')"
-        );
+        $this->addSql('ALTER TABLE workflow_place DROP locked');
     }
 
     /**

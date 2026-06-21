@@ -16,16 +16,16 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementGroupResource;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementResource;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
-use Doctrine\DBAL\Connection;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use InvalidArgumentException;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Webmozart\Assert\Assert;
 
 class StatementGroupProcessor implements ProcessorInterface
 {
     public function __construct(
-        private readonly Connection $connection,
         private readonly CurrentProcedureService $currentProcedureService,
         private readonly StatementHandler $statementHandler,
     ) {
@@ -34,26 +34,38 @@ class StatementGroupProcessor implements ProcessorInterface
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): StatementGroupResource
     {
         Assert::isInstanceOf($data, StatementGroupResource::class);
-        $procedureId = $this->currentProcedureService->getProcedure()->getId();
-        $groupName = $data->groupName;
-        $headStatementId = $data->headStatementId;
-        $statementIds = array_map(static fn (StatementResource $s): string => $s->id, $data->statements);
 
-        $cluster = $this->statementHandler->createStatementCluster(
-            $procedureId,
-            $statementIds,
-            $headStatementId,
-            $groupName
-        );
-
-        if (false === $cluster) {
-            throw new NotFoundHttpException(sprintf('StatementGroup "%s" not found', $procedureId));
+        $procedure = $this->currentProcedureService->getProcedure();
+        if (null === $procedure) {
+            throw new BadRequestHttpException('A procedure context is required to create a statement group.');
         }
 
-        $group = new StatementGroupResource();
-        $group->id = $cluster->getId();
-        $group->groupName = $cluster->getName();
+        if (null === $data->headStatementId || '' === $data->headStatementId) {
+            throw new BadRequestHttpException('headStatementId is required to create a statement group.');
+        }
 
-        return $group;
+        $headStatement = $this->statementHandler->getStatement($data->headStatementId);
+        if (!$headStatement instanceof Statement) {
+            throw new BadRequestHttpException(sprintf('Statement "%s" not found.', $data->headStatementId));
+        }
+
+        $statementIds = array_map(static fn (StatementResource $s): string => $s->id, $data->statements);
+
+        try {
+            $cluster = $this->statementHandler->createStatementCluster(
+                $procedure->getId(),
+                $statementIds,
+                $data->headStatementId,
+                $data->groupName
+            );
+        } catch (InvalidArgumentException $e) {
+            throw new BadRequestHttpException($e->getMessage(), $e);
+        }
+        Assert::isInstanceOf($cluster, Statement::class);
+
+        $createdGroup = $this->statementHandler->getStatement($cluster->getId());
+        Assert::isInstanceOf($createdGroup, Statement::class);
+
+        return StatementGroupResource::fromStatement($createdGroup);
     }
 }
