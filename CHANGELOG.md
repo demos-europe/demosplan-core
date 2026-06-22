@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+### Fixed
+- Adjust organization type key in platform statistics: Replace 'procedure.agency' with 'municipality' in OrgaService::getAcceptedOrgaCountByType()
+
 ## v4.46.0 (2026-06-19)
 ## v4.45.0 (2026-06-19)
 ### Added
