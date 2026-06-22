@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+### Fixed
+- Adjust organization type key in platform statistics: Replace 'procedure.agency' with 'municipality' in OrgaService::getAcceptedOrgaCountByType()
+
 ## v4.46.0 (2026-06-19)
 ## v4.45.0 (2026-06-19)
 ### Added
@@ -311,9 +314,6 @@
 - Add a back to segments list button to the segment edit and recommendation dialog, that keeps former set filters for segments list
 - Fix missing form fields in procedure basic settings
 - Add anonymous voters column to statement XLSX export
-
-### Fixes
-- Adjust organization type key in platform statistics: Replace 'procedure.agency' with 'municipality' in OrgaService::getAcceptedOrgaCountByType()
 
 ## v4.25.0 (2025-11-06)
 
