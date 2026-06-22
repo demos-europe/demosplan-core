@@ -951,14 +951,9 @@ export default {
       })
     },
 
-    finalizeSuccessfulSave (id, comments) {
+    completeSave (id, comments) {
       return Promise.all([
-        this.fetchUpdatedSegment().catch((err) => {
-          console.error('Failed to fetch updated segment:', err)
-
-          return null
-        }),
-
+        this.fetchUpdatedSegment().catch(() => null),
         this.saveCustomFields(),
       ])
         .then(() => {
@@ -966,6 +961,7 @@ export default {
           this.isFullscreen = false
           this.hideAdditionalFields()
           this.addRecommendationImageListeners()
+          this.isSaving = false
         })
         .catch(() => {
           this.rollbackFailedSave(id, comments)
@@ -986,7 +982,6 @@ export default {
       }
 
       const isoDate = reformatDateString(value)
-
       this.updateSegment('deadline', isoDate)
     },
 
@@ -1177,7 +1172,7 @@ export default {
             return
           }
 
-          return this.finalizeSuccessfulSave(this.segment.id, comments)
+          return this.completeSave(this.segment.id, comments)
         })
         .catch(() => {
           this.rollbackFailedSave(this.segment.id, comments)
