@@ -62,8 +62,8 @@
       :key="field.id"
       :category="{ id: field.id, label: field.attributes.name }"
       class="inline-block"
-      :operator="field.attributes.fieldType === 'multiSelect' ? 'ARRAY_CONTAINS_VALUE' : 'EQUAL'"
-      :path="`customField.${field.id}`"
+      :operator="'CUSTOM_FIELD_CONTAINS'"
+      :path="'customFields'"
       @filter-apply="(conditions) => $emit('filter-apply', conditions)"
       @filterOptions:request="seedFlyoutOptions(field)"
     />
@@ -159,7 +159,7 @@ export default {
     // ── Flyout variant ──────────────────────────────────────────────────────
 
     seedFlyoutOptions (field) {
-      const options = (field.attributes?.options ?? []).map(o => ({ id: o.id, label: o.label, selected: false }))
+      const options = (field.attributes?.options ?? []).map(o => ({ id: `${field.id}__${o.id}`, label: o.label, selected: false }))
       this.$store.commit('FilterFlyout/setUngroupedOptions', { categoryId: field.id, options })
       this.$store.commit('FilterFlyout/setIsLoading', { categoryId: field.id, isLoading: false })
     },

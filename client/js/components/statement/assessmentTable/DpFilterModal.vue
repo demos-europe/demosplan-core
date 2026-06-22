@@ -474,7 +474,6 @@ export default {
 
         this.updateBaseState({ procedureId: this.procedureId, original: this.original })
           .then(() => {
-            console.log('Calling custom fields')
             const promises = [
               this.initFilterList(),
               fetchCustomFields(this.procedureId, { sourceEntity: 'PROCEDURE', targetEntity: 'STATEMENT' })
@@ -540,7 +539,7 @@ export default {
       const customFieldEntries = []
       Object.entries(this.customFieldFilterValue).forEach(([fieldId, optionIds]) => {
         optionIds.forEach(optionId => {
-          customFieldEntries.push({ name: `r_custom_field[${fieldId}][]`, value: optionId })
+          customFieldEntries.push({ name: `filter_customField_${fieldId}[]`, value: optionId })
         })
       })
 
