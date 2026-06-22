@@ -982,6 +982,7 @@ export default {
       }
 
       const isoDate = reformatDateString(value)
+
       this.updateSegment('deadline', isoDate)
     },
 
