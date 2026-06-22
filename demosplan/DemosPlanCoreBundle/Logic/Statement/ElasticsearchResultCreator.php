@@ -36,6 +36,7 @@ use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\BoolQuery;
 use Exception;
+use Illuminate\Support\Collection;
 use Pagerfanta\Elastica\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
 use Psr\Log\LoggerInterface;
@@ -1533,17 +1534,23 @@ class ElasticsearchResultCreator
      */
     private function getCustomFieldFilter(string $procedureId, array $userFilters): array
     {
-        $fieldFilters = [];
-        foreach (array_keys($userFilters) as $key) {
-            if (str_starts_with($key, 'customField_')) {
-                $fieldFilters[substr($key, strlen('customField_'))] = $userFilters[$key];
-                unset($userFilters[$key]);
-            }
-        }
+        $prefix = 'customField_';
 
-        if ([] === $fieldFilters) {
+        /** @var Collection<string, mixed> $customFieldEntries */
+        /** @var Collection<string, mixed> $remainingFilters */
+        [$customFieldEntries, $remainingFilters] = collect($userFilters)->partition(
+            static fn (mixed $value, string $key): bool => str_starts_with($key, $prefix)
+        );
+
+        if ($customFieldEntries->isEmpty()) {
             return [null, $userFilters];
         }
+
+        $fieldFilters = $customFieldEntries
+            ->mapWithKeys(
+                static fn (mixed $value, string $key): array => [substr($key, strlen($prefix)) => $value]
+            )
+            ->toArray();
 
         $matchingIds = $this->customFieldFilterResolver->resolveMatchingIds(
             CustomFieldSupportedEntity::statement,
@@ -1556,7 +1563,7 @@ class ElasticsearchResultCreator
                 'id',
                 [] !== $matchingIds ? $matchingIds : ['__no_match__']
             ),
-            $userFilters,
+            $remainingFilters->toArray(),
         ];
     }
 
