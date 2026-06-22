@@ -162,12 +162,9 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                         $removeTagIds,
                         $assignee,
                         $workflowPlace,
-                        $customFields
+                        $customFields,
+                        $segmentsWithTagChanges
                     );
-
-                    if ([] !== $addTagIds || [] !== $removeTagIds) {
-                        $segmentsWithTagChanges = [...$segmentsWithTagChanges, ...$segments];
-                    }
 
                     $resultSegments = [...$resultSegments, ...$segments];
                     $resultResponse[] = $this->generateMethodResult($rpcRequest);

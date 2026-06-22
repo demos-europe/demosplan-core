@@ -115,12 +115,29 @@ class SegmentBulkEditorService
         throw new SegmentLockedException('Bulk edit batch contains segments locked for the current user.');
     }
 
-    public function updateSegments($segments, $addTagIds, $removeTagIds, $assignee, $workflowPlace, $customFields)
+    public function updateSegments($segments, $addTagIds, $removeTagIds, $assignee, $workflowPlace, $customFields, array &$segmentsWithTagChanges = [])
     {
         foreach ($segments as $segment) {
             /* @var Segment $segment */
-            $segment->addTags($addTagIds);
-            $segment->removeTags($removeTagIds);
+            // Track whether the tag set of this segment actually changes. addTag() already
+            // returns false when the tag is present, and removeElement reflects whether a tag
+            // was really removed, so this needs no extra queries on top of the mutation itself.
+            $tagsChanged = false;
+            foreach ($addTagIds as $tag) {
+                if ($segment->addTag($tag)) {
+                    $tagsChanged = true;
+                }
+            }
+            foreach ($removeTagIds as $tag) {
+                if ($segment->getTags()->contains($tag)) {
+                    $segment->removeTag($tag);
+                    $tagsChanged = true;
+                }
+            }
+
+            if ($tagsChanged) {
+                $segmentsWithTagChanges[] = $segment;
+            }
 
             if ('UNKNOWN' !== $assignee) {
                 $segment->setAssignee($assignee);
