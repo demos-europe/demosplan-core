@@ -663,14 +663,15 @@ export default {
       }
 
       /*
-       * Statements must be assigned to the current user. On "select all" the full set is not loaded
-       * here, so this check runs again on the group-creation page (handleConfirmStep1).
+       * Statements must be assigned to the current user. Only statements loaded on the current page
+       * are present in statementsObject, so items selected on other pages (or via "select all") are
+       * validated server-side on the group-creation page (handleConfirmStep1).
        */
       if (!this.allSelectedVisually) {
         const allAssigned = this.toggledItems.every(item => {
           const statement = this.statementsObject[item.id]
 
-          return statement && this.assigneeId(statement) === this.currentUserId
+          return !statement || this.assigneeId(statement) === this.currentUserId
         })
 
         if (!allAssigned) {
