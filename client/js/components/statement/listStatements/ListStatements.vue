@@ -451,12 +451,8 @@ export default {
         limits: [10, 25, 50, 100],
         perPage: 10,
       },
-      isFullscreen: false,
-      lsKey: {
-        // LocalStorage keys
-        toggledStatements: `${this.procedureId}:toggledStatements`,
-      },
-
+      // Member counts per group head (keyed by head statement id), fetched from the 3.0 StatementGroup endpoint.
+      groupMemberCounts: {},
       headerFields: [
         { field: 'externId', label: Translator.trans('id') },
         { field: 'status', label: Translator.trans('status') },
@@ -465,9 +461,12 @@ export default {
         { field: 'text', label: Translator.trans('text') },
         { field: 'segmentsCount', label: Translator.trans('segments') },
       ],
+      isFullscreen: false,
+      lsKey: {
+        // LocalStorage keys
+        toggledStatements: `${this.procedureId}:toggledStatements`,
+      },
       pagination: {},
-      // Member counts per group head (keyed by head statement id), fetched from the 3.0 StatementGroup endpoint.
-      groupMemberCounts: {},
       searchFields: [
         'authorName',
         'department',
