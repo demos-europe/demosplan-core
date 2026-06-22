@@ -220,10 +220,13 @@ const handleApply = async () => {
     // Always delete the stored selection so the same statements are not grouped more than once.
     lscache.remove(`${props.procedureId}:toggledStatements`)
     if (success.value) {
-      // Grouping shrinks the statement list, so a persisted page may no longer exist.
-      // Tell the list to reopen on page 1 and skip an out-of-range fetch.
+      /*
+       * Grouping shrinks the statement list, so a persisted page may no longer exist.
+       * Tell the list to reopen on page 1 and skip an out-of-range fetch.
+       */
       lscache.set(`${props.procedureId}:statementListResetPage`, true)
     }
+
     isBusy.value = false
     step.value = 3
   }

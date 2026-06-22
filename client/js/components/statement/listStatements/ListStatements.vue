@@ -951,7 +951,7 @@ export default {
         this.fetchGroupMemberCounts()
       }).catch(() => {
         /*
-         * dpApi rejects on HTTP >= 400. Don't let it bubble as an unhandled rejection: a stale
+         * DpApi rejects on HTTP >= 400. Don't let it bubble as an unhandled rejection: a stale
          * stored page can be recovered by falling back to page 1; otherwise inform the user.
          */
         if (page !== 1) {
@@ -1227,6 +1227,7 @@ export default {
       lscache.remove(`${this.procedureId}:statementListResetPage`)
       this.pagination.currentPage = 1
     }
+
     this.restoreSelectedSort()
     this.getItemsByPage(this.pagination.currentPage)
   },
