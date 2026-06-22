@@ -66,6 +66,7 @@ All rights reserved
                 >{{ stmt.attributes.initialOrganisationName }}
                 </span>
                 <button
+                  :aria-label="Translator.trans('remove.from.list')"
                   :data-cy="`statementGroupForm:removeStatement:${stmt.id}`"
                   class="btn--blank o-link--default ml-auto"
                   type="button"
@@ -276,6 +277,10 @@ const fetchStatements = async () => {
 
 const removeStatement = (id) => {
   statements.value = statements.value.filter(stmt => stmt.id !== id)
+  // Reset head selection if the removed statement was the chosen head.
+  if (headStatement.value?.id === id) {
+    headStatement.value = null
+  }
 }
 
 const setStatements = () => {
