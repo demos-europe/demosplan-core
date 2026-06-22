@@ -52,7 +52,6 @@
       <dp-upload-files
         id="videoSrc"
         :allowed-file-types="['video/*']"
-        :basic-auth="dplan.settings.basicAuth"
         :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
         :max-file-size="400 * 1024 * 1024/* 400 MiB */"
         :max-number-of-files="1"
@@ -114,6 +113,7 @@ export default {
     DpUploadFiles,
     DpVideoPlayer: defineAsyncComponent(async () => {
       const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
+
       return DpVideoPlayer
     }),
   },
@@ -202,6 +202,7 @@ export default {
       if (dpconfirm(Translator.trans('check.item.delete')) === false) {
         return
       }
+
       this.isBusy = true
       dpApi.delete(Routing.generate('api_resource_delete', { resourceType: 'SignLanguageOverviewVideo', resourceId: this.video.id }))
         .then(() => this.$emit('deleted'))
@@ -216,6 +217,7 @@ export default {
           signLanguageOverviewDescription: this.signLanguageOverviewDescription,
         },
       }
+
       this.updateCustomer(payload)
       this.saveCustomer(this.currentCustomerId).then(() => {
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
@@ -241,6 +243,7 @@ export default {
           },
         },
       }
+
       return dpApi.post(Routing.generate('api_resource_create', { resourceType: 'SignLanguageOverviewVideo' }), {}, { data: payload })
     },
 

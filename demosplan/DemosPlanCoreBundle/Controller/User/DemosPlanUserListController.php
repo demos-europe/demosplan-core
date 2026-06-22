@@ -35,15 +35,15 @@ class DemosPlanUserListController extends DemosPlanUserController
      * @throws MessageBagException
      */
     #[DplanPermissions('area_main_view_participants')]
-    #[Route(name: 'DemosPlan_informationen_teilnehmende_public', path: '/informationen/teilnehmende/public')]
-    #[Route(name: 'DemosPlan_informationen_teilnehmende', path: '/teilnehmende')]
+    #[Route(path: '/informationen/teilnehmende/public', name: 'DemosPlan_informationen_teilnehmende_public')]
+    #[Route(path: '/teilnehmende', name: 'DemosPlan_informationen_teilnehmende')]
     public function showParticipants(OrgaService $orgaService)
     {
         $templateVars = [];
         // Teilnehmende Organisationen (öffentliche Liste)
         $templateVars['orgas'] = $orgaService->getParticipants();
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/showParticipants.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -60,12 +60,12 @@ class DemosPlanUserListController extends DemosPlanUserController
      * @throws MessageBagException
      */
     #[DplanPermissions('area_manage_users')]
-    #[Route(name: 'DemosPlan_user_list', path: '/user/list')]
+    #[Route(path: '/user/list', name: 'DemosPlan_user_list')]
     public function listUsers()
     {
         $title = 'user.admin.user';
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/list_user.html.twig',
             ['title' => $title]
         );
@@ -79,7 +79,7 @@ class DemosPlanUserListController extends DemosPlanUserController
      * @throws MessageBagException
      */
     #[DplanPermissions('area_admin_orga_address_book')]
-    #[Route(name: 'DemosPlan_get_address_book_entries', path: '/organisation/adressen/liste/{organisationId}', methods: ['GET'])]
+    #[Route(path: '/organisation/adressen/liste/{organisationId}', name: 'DemosPlan_get_address_book_entries', methods: ['GET'])]
     public function getAddressBookEntries(AddressBookEntryService $addressBookEntryService, Request $request, string $organisationId)
     {
         $templateVars = [];
@@ -89,7 +89,7 @@ class DemosPlanUserListController extends DemosPlanUserController
         }
         $templateVars['addressBookEntries'] = $addressBookEntryService->getAddressBookEntriesOfOrganisation($organisationId);
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/unregistered_publicagency_list.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -107,7 +107,7 @@ class DemosPlanUserListController extends DemosPlanUserController
      * @throws MessageBagException
      */
     #[DplanPermissions('area_manage_users')]
-    #[Route(name: 'DemosPlan_user_admin', path: '/user/admin')]
+    #[Route(path: '/user/admin', name: 'DemosPlan_user_admin')]
     public function adminUsers(Request $request, UserHandler $userHandler): RedirectResponse
     {
         $userIdent = '';

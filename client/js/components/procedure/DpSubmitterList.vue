@@ -58,9 +58,9 @@
           <div class="o-hellip__wrapper">
             <div
               v-tooltip="internId"
+              v-cleanhtml="internId"
               class="o-hellip--nowrap text-right"
               dir="rtl"
-              v-cleanhtml="internId"
             />
           </div>
         </template>
@@ -211,13 +211,13 @@ export default {
         fields: {
           Statement: statementFields.join(),
         },
-        ...(hasSimilarSubmitterFeature && { include: 'similarStatementSubmitters' })
+        ...(hasSimilarSubmitterFeature && { include: 'similarStatementSubmitters' }),
       }
 
       this.statementList(params)
         .finally(() => {
           this.isLoading = false
-      })
+        })
     },
 
     getSegmentsListItemUrl (rowData) {
@@ -225,12 +225,12 @@ export default {
     },
 
     getSimilarSubmittersUrl (rowData) {
-      const submittersHash = `#submitter`
+      const submittersHash = '#submitter'
 
       const url = Routing.generate('dplan_statement_segments_list', {
         statementId: rowData.id,
         procedureId: this.procedureId,
-        action: 'editText',
+        action: 'details',
       })
 
       return `${url}${submittersHash}`
@@ -279,8 +279,10 @@ export default {
         if (isSubmittedByCitizen) {
           return organisationName
         }
+
         return departmentName ? organisationName + ', ' + departmentName : organisationName
       }
+
       return departmentName || '-'
     },
 
@@ -288,6 +290,7 @@ export default {
       if (postalCode) {
         return city ? postalCode + ' ' + city : postalCode
       }
+
       return city || '-'
     },
 
@@ -295,6 +298,7 @@ export default {
       if (street) {
         return houseNumber ? street + ' ' + houseNumber : street
       }
+
       return '-'
     },
 

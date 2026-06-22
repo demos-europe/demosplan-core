@@ -42,7 +42,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
      * @throws Exception
      */
     #[DplanPermissions('area_admin_statements_tag')]
-    #[Route(name: 'DemosPlan_statement_administration_tag', path: '/verfahren/{procedure}/tag/{tag}', defaults: ['master' => false], options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedure}/tag/{tag}', name: 'DemosPlan_statement_administration_tag', options: ['expose' => true], defaults: ['master' => false])]
     public function tagView(
         ProcedureService $procedureService,
         Request $request,
@@ -97,7 +97,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
             return $this->redirectToRoute('DemosPlan_statement_administration_tags', ['procedure' => $procedure]);
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/edit_tag.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -116,7 +116,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
      * @throws Exception
      */
     #[DplanPermissions('area_admin_statements_tag')]
-    #[Route(name: 'DemosPlan_statement_administration_tags', path: '/verfahren/{procedure}/schlagworte', defaults: ['master' => false], options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedure}/schlagworte', name: 'DemosPlan_statement_administration_tags', options: ['expose' => true], defaults: ['master' => false])]
     public function tagList(
         TranslatorInterface $translator,
         CurrentProcedureService $currentProcedureService,
@@ -128,7 +128,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         $title = $translator->trans('tag.administration');
         $templateVars['procedureTemplate'] = $currentProcedureService->getProcedure()?->getMaster() ?? false;
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/list_tags.html.twig',
             [
                 'templateVars' => $templateVars,

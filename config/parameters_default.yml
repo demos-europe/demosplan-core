@@ -9,6 +9,10 @@ parameters:
     logging_strategy: "rotating_file"
     # maximum number of log files to keep (aka days to keep)
     logging_max_files: 60
+    # logging path - use "php://stderr" for stream or file path for rotating_file
+    logging_path: "%kernel.logs_dir%/%demosplan_main_logfile%"
+    # logging formatter - use "monolog.formatter.json" for structured logs (recommended for stream)
+    logging_formatter: "monolog.formatter.line"
 
     # Projekttyp, mögliche Werte: portal, gateway
     # #refactor: this variable should be removed
@@ -25,10 +29,12 @@ parameters:
 
     # #refactor: used only once, perhaps there are better ways to achieve this
     # project_short_url_redirect_route, project_short_url_redirect_route_loggedin and procedure_entrypoint_route
-    # Bei Änderungen der Route muss in PlatformController->shortUrlAction() ggf. der Paramter angepasst werden
     project_short_url_redirect_route: "DemosPlan_procedure_public_detail"
     # Wohin soll ein angemeldeter Nutzer nach dem Benutzen einer ShortUrl umgeleitet werden?
     project_short_url_redirect_route_loggedin: "DemosPlan_procedure_public_detail"
+    # Parameter name for procedure ID in short URL redirect (default: "procedure")
+    project_short_url_redirect_param: "procedure"
+    project_short_url_redirect_param_loggedin: "procedure"
 
     # Set procedure entrypoint
     procedure_entrypoint_route: "DemosPlan_procedure_dashboard"
@@ -37,6 +43,8 @@ parameters:
     procedure_public_list_default_sort_key: "publicParticipationEndDate"
     # Purge procedures if deleted
     purge_deleted_procedures: false
+    # Days to keep deleted procedures after deletion to be able to restore them in case of an emergency
+    purge_deleted_retention_period_days: 60
 
     # Defines whether access to procedure is granted by owning organisation (false)
     # or whether it is possible to define specific users withing the organisation
@@ -46,6 +54,15 @@ parameters:
     # User activity checking thresholds (in days)
     user_activity_last_login_threshold_days: 180
     user_activity_claimed_statements_threshold_days: 180
+
+    # Inactivity-based account deletion workflow.
+    # Leave first_warning_days unset (~) to keep the feature disabled per project.
+    # When set, the cron sends a first warning at that day count, a second warning
+    # warning_step_days later, and soft-deletes the user another warning_step_days
+    # after that.
+    account_deletion.first_warning_days: ~
+    account_deletion.warning_step_days: 30
+    account_deletion.additional_protected_user_ids: []
 
     # Route and parameters for the public index page
     #
@@ -81,6 +98,8 @@ parameters:
     url_path_prefix: ""
     # only allow TLS connections
     https_only: true
+    # SameSite attribute for session cookie; none required for cross-site requests (e.g. keycloak)
+    cookie_samesite: lax
 
     # htaccess login data may be given e.g. to be added to callback urls from PI
     htaccess_user: ""
@@ -169,6 +188,11 @@ parameters:
     ratelimit_anonymous_statement_limit: '%env(int:RATELIMIT_ANONYMOUS_STATEMENT_LIMIT)%'
     ratelimit_anonymous_statement_rate_interval: '%env(RATELIMIT_ANONYMOUS_STATEMENT_RATE_INTERVAL)%'
     ratelimit_anonymous_statement_rate_amount: '%env(int:RATELIMIT_ANONYMOUS_STATEMENT_RATE_AMOUNT)%'
+    password_history_max_entries: '%env(int:PASSWORD_HISTORY_MAX_ENTRIES)%'
+
+    # Retention period (in days) for login_audit rows. Cleanup is performed by
+    # `dplan:login-audit:cleanup` and should be wired to a recurring schedule.
+    login_audit_retention_days: '%env(int:LOGIN_AUDIT_RETENTION_DAYS)%'
 
     # GitHub token may be used to download addons directly from github
     github_token: '%env(GITHUB_TOKEN)%'
@@ -231,8 +255,8 @@ parameters:
     # Regex that need to match to send Mails directly from user email
     # instead of system email. email_use_system_mail_as_sender needs to be false
     email_from_domain_valid_regex: ''
-    # Delete any sent emails after this timespan in days from email sent queue. Default 5 Years
-    email_delete_after_days: 1780
+    # Delete any sent emails after this timespan in days from email sent queue. Default 90 days
+    email_delete_after_days: 90
 
     master_procedure_phase: configuration #the default phase for new procedures, see procedurephases.yml
 
@@ -253,6 +277,14 @@ parameters:
     sentry_traces_sample_rate: 0
     sentry_profiles_sample_rate: 0
 
+    # OpenTelemetry OTLP endpoint for logs and traces
+    # Set to empty string to disable, or e.g. "http://otel-collector:4318" to enable
+    otel_exporter_endpoint: ""
+    otel_service_name: "demosplan"
+    otel_loglevel: "info"
+    # Tenant ID for multi-tenancy identification in traces/logs
+    otel_tenant_id: ""
+
     fileservice_filepath: "../../files"
 
     elasticsearch_urls: ["http://localhost:9200"]
@@ -268,6 +300,14 @@ parameters:
     #  Set shard settings to dev settings. When use in cluster with 3 nodes use 3 shards, 2 replicas
     elasticsearch_number_of_shards: "1"
     elasticsearch_number_of_replicas: "1"
+    # Result window applied at index creation (index.max_result_window). The ES default of 10000 is
+    # enough because "fetch everything" paths (exports, no-pager lists) page through results via
+    # search_after instead of a single from+size query. Raise only if a paged query legitimately needs
+    # from+size beyond this; keep batch size <= this value.
+    elasticsearch_max_result_window: 10000
+    # Per-request page size for the search_after batched fetch used when a caller requests more than
+    # max_result_window results at once. Must be <= elasticsearch_max_result_window.
+    elasticsearch_search_after_batch_size: 1000
     # Major version of elasticsearch
     elasticsearch_major_version: 6
     # Number of workers to use during populate in command dplan:elasticsearch:populate
@@ -278,6 +318,9 @@ parameters:
     pictogram_max_file_size: 5000000
     pictogram_min_width: 500
     pictogram_min_height: 300
+
+    # TUS resumable upload cache TTL in seconds (how long incomplete uploads are remembered)
+    tus_cache_ttl: 604800  # 1 week
 
     # Karten
 
@@ -354,6 +397,12 @@ parameters:
 
     # should the azure Authentication be used?
     azure_sso_enabled: false
+    # and if, which customers?
+    azure_sso_customers: []
+    # Subdomains of customers that have completed the IdP migration. For those subdomains the
+    # password/form login rejects users flagged providedByIdentityProvider, so they can only
+    # log in via IdP. Leave empty during the transition to keep form login working.
+    idp_only_subdomains: []
     # knpu_oauth2_client settings
     # oath client referenced by knpu_oauth2_client when oauth is used
     oauth_client: ''
@@ -371,6 +420,32 @@ parameters:
     # Azure AD logout route for Front-Channel logout like
     # https://login.microsoftonline.com/<tenant>/oauth2/v2.0/logout
     oauth_azure_logout_route: ''
+
+    # When enabled, KeyCloak is only used for initial login and logout.
+    # Token refresh and expiry enforcement are skipped — the PHP session governs the session lifetime (default 6 hours).
+    # The FE logout countdown reflects the PHP session lifetime, not the KeyCloak token TTL.
+    # When disabled (false), full token management is active: tokens are refreshed in the background
+    # and the FE countdown reflects the refresh token TTL.
+    # Set to false in parameters_default_project.yml to enable full token management.
+    oauth_keycloak_login_only: true
+
+    # Timezone used for all OAuth token expiry calculations and pending request timestamps.
+    # Must match the DB server timezone to avoid DST drift in token comparisons.
+    # Default: Europe/Berlin. Override via OAUTH_TOKEN_TIMEZONE env var if needed.
+    oauth_token_timezone: '%env(default:oauth_token_timezone_default:OAUTH_TOKEN_TIMEZONE)%'
+    oauth_token_timezone_default: 'Europe/Berlin'
+
+    # Interval in seconds between blocking OAuth token checks (fast-path threshold).
+    # Within this window the kernel.controller listener skips DB queries entirely.
+    # The interval is capped at the token's remaining lifetime, so it never skips past actual expiry.
+    # Default: 180 seconds (3 minutes). Must be less than the access token lifetime (300 s = 5 min).
+    oauth_token_fast_path_interval_seconds: 180
+
+    # Buffer in minutes before access token expiry at which proactive background refresh is triggered.
+    # Must be smaller than oauth_token_fast_path_interval_seconds / 60 — otherwise the fast-path
+    # session threshold would skip the check window and the proactive refresh would never fire.
+    # Default: 2 minutes. Access token lifetime is 5 minutes, fast-path interval is 3 minutes.
+    oauth_token_refresh_buffer_minutes: 2
 
     # Set users with permissions to alter Database
     database_install_user: ""
@@ -394,6 +469,15 @@ parameters:
     honeypot_timeout: 2
     # Key, der für den Aufruf des Maintenancetasks z.B. per Cron mit übergeben werden muss
     maintenance_key: ""
+
+    # nelmio_security: clickjacking paths configuration.
+    # Maps URL patterns to X-Frame-Options values (DENY, SAMEORIGIN, ALLOW).
+    # Set to empty map {} to disable the header entirely (rely on CSP frame-ancestors instead).
+    demosplan_clickjacking_paths:
+        '^/.*': DENY
+    # nelmio_security: Cross-Origin-Resource-Policy header value.
+    # Set to same-origin, same-site, or cross-origin.
+    demosplan_corp_policy: 'same-origin'
 
     demosplan_csp_base_uri: ['self']
     demosplan_csp_font_src:
@@ -500,6 +584,9 @@ parameters:
 
     ai_service_salt: ""
     ai_service_post_url: ""
+
+    languagetool_url: ''
+    languagetool_timeout: 30
 
     # #refactor: used only once, could be constant
     drafts_info_schema_path: "%kernel.project_dir%/config/json-schema/drafts-info-schema.json"

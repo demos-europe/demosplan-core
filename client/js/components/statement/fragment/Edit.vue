@@ -205,20 +205,22 @@ export default {
       this.$emit('closeEditMode')
     },
     save (button) {
-      const form = $(this.$el).closest('form')
+      const form = this.$el.closest('form')
 
       //  Return if not inside a form
-      if (form.length !== 1) {
+      if (!form) {
         return
       }
 
       this.saving = button
 
-      const saveData = form.serializeArray()
+      const formData = new FormData(form)
+      const saveData = Array.from(formData.entries()).map(([name, value]) => ({ name, value }))
 
       if (button === 'notifyButton') {
         if (dpconfirm(Translator.trans('check.fragment.save')) === false) {
           this.saving = ''
+
           return
         } else {
           saveData.push({
@@ -230,9 +232,11 @@ export default {
 
       // Under the hood this is an old post-request, though we have to transform the data
       const dataForRequest = {}
+
       saveData.forEach(el => {
         dataForRequest[el.name] = el.value
       })
+
       return makeFormPost(dataForRequest, Routing.generate('DemosPlan_statement_fragment_edit_reviewer_ajax', { fragmentId: this.fragmentId }))
         .then(({ data }) => {
           /*

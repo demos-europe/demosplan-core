@@ -152,6 +152,7 @@
       >
 
       <dp-input
+        v-if="hasPermission('feature_procedure_agency_email_addresses')"
         id="main-email"
         v-model="mainEmail"
         class="mb-4"
@@ -164,7 +165,12 @@
         required
         type="email"
       />
-
+      <input
+        v-else
+        type="hidden"
+        name="agencyMainEmailAddress[fullAddress]"
+        value=""
+      >
       <dp-text-area
         id="r_desc"
         class="mb-4"
@@ -311,7 +317,6 @@ export default {
     procedureTypes: {
       type: Array,
       required: true,
-      default: () => [],
     },
 
     token: {
@@ -354,6 +359,7 @@ export default {
     async setBlueprintData (payload) {
       // Do not copy mail from master blueprint otherwise fetch mail from selected blueprint
       const blueprintData = payload.value === this.masterBlueprintId ? this.emptyBlueprintData : await this.fetchBlueprintData(payload)
+
       this.description = blueprintData.description
 
       if (blueprintData.agencyMainEmailAddress !== '') {

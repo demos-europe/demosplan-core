@@ -83,6 +83,12 @@
       track-by="id"
       @changed-order="changeManualsort"
     >
+      <template v-slot:header-name="headerData">
+        <span :id="headerData.id">{{ headerData.label }}</span>
+      </template>
+      <template v-slot:header-description="headerData">
+        <span :id="headerData.id">{{ headerData.label }}</span>
+      </template>
       <template v-slot:header-solved="headerData">
         {{ headerData.label }}
         <dp-contextual-help
@@ -99,7 +105,9 @@
           v-else
           id="editPlaceName"
           v-model="newRowData.name"
+          :disabled="isSaving"
           data-cy="places:editPlaceName"
+          aria-labelledby="placeName"
           maxlength="250"
           required
         />
@@ -113,14 +121,16 @@
           v-else
           id="editPlaceDescription"
           v-model="newRowData.description"
+          :disabled="isSaving"
           data-cy="places:editPlaceDescription"
+          aria-labelledby="placeDescription"
           maxlength="250"
         />
       </template>
       <template v-slot:solved="rowData">
         <dp-checkbox
           id="editPlaceSolved"
-          :disabled="!rowData.edit"
+          :disabled="!rowData.edit || isSaving"
           :checked="rowData.edit ? newRowData.solved : rowData.solved"
           @change="checked => newRowData.solved = checked"
         />
@@ -144,6 +154,7 @@
               :aria-label="Translator.trans('save')"
               class="btn--blank o-link--default u-mr-0_25 inline-block"
               data-cy="places:saveEdit"
+              :disabled="isSaving"
               @click="dpValidateAction('placesTable', () => updatePlace(rowData), false)"
             >
               <dp-icon
@@ -155,6 +166,7 @@
               class="btn--blank o-link--default inline-block"
               data-cy="places:abortEdit"
               :aria-label="Translator.trans('abort')"
+              :disabled="isSaving"
               @click="abort(rowData)"
             >
               <dp-icon
@@ -167,6 +179,17 @@
       </template>
     </dp-data-table>
     <dp-loading v-else />
+    <div>
+      <dp-confirm-dialog
+        ref="confirmDialog"
+        :confirm-button-text="Translator.trans('save.anyway')"
+        content-header-classes="text-h2 border-b-0 pb-4"
+        :decline-button-text="Translator.trans('back.to.edit')"
+        :header="Translator.trans('place.change.confirm')"
+        icon="warning"
+        :message="confirmDialogMessage"
+      />
+    </div>
   </div>
 </template>
 
@@ -176,6 +199,7 @@ import {
   DpButton,
   DpButtonRow,
   DpCheckbox,
+  DpConfirmDialog,
   DpContextualHelp,
   DpDataTable,
   DpIcon,
@@ -193,6 +217,7 @@ export default {
     DpButton,
     DpButtonRow,
     DpCheckbox,
+    DpConfirmDialog,
     DpContextualHelp,
     DpDataTable,
     DpIcon,
@@ -230,14 +255,17 @@ export default {
   data () {
     return {
       headerFields: [
-        { field: 'name', label: Translator.trans('name'), colClass: 'u-4-of-12' },
-        { field: 'description', label: Translator.trans('description'), colClass: 'u-5-of-12' },
+        { field: 'name', label: Translator.trans('name'), colClass: 'u-4-of-12', id: 'placeName' },
+        { field: 'description', label: Translator.trans('description'), colClass: 'u-5-of-12', id: 'placeDescription' },
         { field: 'solved', label: Translator.trans('completed'), colClass: 'u-2-of-12' },
       ],
       initialRowData: {},
+      isAnyPlaceSolved: true,
       isInitiallyLoading: false,
       isLoading: false,
       addNewPlace: false,
+      confirmDialogMessage: '',
+      isSaving: false,
       newPlace: {},
       newRowData: {},
       places: [],
@@ -247,6 +275,7 @@ export default {
   computed: {
     helpText () {
       const procedureInfoKey = this.isProcedureTemplate ? 'places.edit.infoProcedureTemplate' : 'places.edit.infoProcedure'
+
       return `${Translator.trans('places.edit.info')} ${Translator.trans(procedureInfoKey)}`
     },
 
@@ -270,6 +299,15 @@ export default {
 
       this.places.splice(newIndex, 0, element)
       this.updateSortOrder({ id: element.id, newIndex })
+    },
+
+    checkIfSolvedPlace (id) {
+      const currentEditIsSolved = !!this.newRowData.solved
+      const otherPlaceIsSolved = this.places.some(place => {
+        return place.solved === true && place.id !== id
+      })
+
+      this.isAnyPlaceSolved = currentEditIsSolved || otherPlaceIsSolved
     },
 
     editPlace (rowData) {
@@ -339,7 +377,14 @@ export default {
      */
     isUniquePlaceName (placeName, placeId = '') {
       const identicalNames = this.places.filter(el => el.name === placeName && el.id !== placeId)
+
       return identicalNames.length === 0
+    },
+
+    openConfirmDialog (message) {
+      this.confirmDialogMessage = message
+
+      return this.$refs.confirmDialog.open()
     },
 
     resetNewPlaceForm () {
@@ -364,6 +409,11 @@ export default {
           solved: this.newPlace.solved,
         },
       }
+
+      if (hasPermission('feature_segment_lock_by_workflow_place') && hasPermission('feature_administrate_segment_lock')) {
+        payload.attributes.locked = this.newPlace.solved
+      }
+
       dpApi.post(Routing.generate('api_resource_create', { resourceType: 'Place' }), {}, { data: payload })
         .then(response => {
           /**
@@ -377,6 +427,7 @@ export default {
             solved: this.newPlace.solved,
             sortIndex: this.places.length,
           }
+
           this.places.push(dataToUpdate)
           dplan.notify.confirm(Translator.trans('confirm.saved'))
         })
@@ -401,9 +452,27 @@ export default {
       this.places[idx].solved = this.newRowData.solved
     },
 
-    updatePlace (rowData) {
+    async updatePlace (rowData) {
       if (!this.isUniquePlaceName(this.newRowData.name, rowData.id)) {
         return dplan.notify.error(Translator.trans('workflow.place.error.duplication'))
+      }
+
+      if (hasPermission('feature_administrate_segment_lock') && this.newRowData.solved && !this.initialRowData.solved) {
+        const isConfirmed = await this.openConfirmDialog(Translator.trans('confirm.places.solved.changed'))
+
+        if (!isConfirmed) {
+          return
+        }
+      }
+
+      this.checkIfSolvedPlace(rowData.id)
+
+      if (!this.isAnyPlaceSolved) {
+        const isConfirmed = await this.openConfirmDialog(Translator.trans('confirm.places.solved.missing'))
+
+        if (!isConfirmed) {
+          return
+        }
       }
 
       const payload = {
@@ -418,6 +487,12 @@ export default {
         },
       }
 
+      if (hasPermission('feature_segment_lock_by_workflow_place') && hasPermission('feature_administrate_segment_lock')) {
+        payload.data.attributes.locked = this.newRowData.solved
+      }
+
+      this.isSaving = true
+
       dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Place', resourceId: rowData.id }), {}, payload)
         .then(() => {
           dplan.notify.confirm(Translator.trans('confirm.saved'))
@@ -426,6 +501,9 @@ export default {
         })
         .catch(err => {
           console.error(err)
+        })
+        .finally(() => {
+          this.isSaving = false
         })
     },
 

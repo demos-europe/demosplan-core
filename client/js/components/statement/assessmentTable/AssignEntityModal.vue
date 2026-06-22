@@ -153,6 +153,7 @@ export default {
         this.entityId = this.assignEntityModal.entityId
         this.entityType = this.assignEntityModal.entityType
         const initialUser = this.users.find(user => user.id === this.assignEntityModal.initialAssigneeId)
+
         this.selected = initialUser || { id: '', name: '-' }
         this.initialAssigneeId = this.assignEntityModal.initialAssigneeId
         this.parentStatementId = this.assignEntityModal.parentStatementId ? this.assignEntityModal.parentStatementId : ''

@@ -170,7 +170,7 @@ class StatementCopier
         $copiedStatement->setName($sourceStatement->getName());
         $copiedStatement->setNegativeStatement($sourceStatement->getNegativeStatement());
         $copiedStatement->setOrganisation($sourceStatement->getOrganisation());
-        $copiedStatement->setPhase($sourceStatement->getPhase());
+        $copiedStatement->setPhaseDefinition($sourceStatement->getPhaseDefinition());
 
         $copiedStatement->setPolygon($sourceStatement->getPolygon());
         $copiedStatement->setPublicUseName($sourceStatement->getPublicUseName());
@@ -365,7 +365,7 @@ class StatementCopier
                 if ($file instanceof File) {
                     $this->fileService->addStatementFileContainer(
                         $copiedStatement->getId(),
-                        $file->getHash(),
+                        $file->getId(),
                         $file->getFileString()
                     );
                 }
@@ -512,6 +512,7 @@ class StatementCopier
         Statement $statement,
         bool $createReport = true,
         bool $copyOnCreateStatement = false,
+        bool $flush = true,
     ): Statement {
         $newStatement = $this->copyStatementObjectWithinProcedure(
             $statement,
@@ -532,7 +533,10 @@ class StatementCopier
 
         // We do have to flush the new copied statement here if the original statement has no FileContainers otherwise
         // the new copied statement is already flushed while copying FileContainers in the previous method 'addFilesToCopiedStatement'.
-        $this->doctrine->getManager()->flush();
+        // NOTE: Can be skipped when using batch processing (Excel import) to avoid individual flushes
+        if ($flush) {
+            $this->doctrine->getManager()->flush();
+        }
 
         return $newStatement;
     }

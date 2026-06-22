@@ -3,6 +3,7 @@
     class="inline-block whitespace-nowrap"
     :color="color"
     :text="Translator.trans(status)"
+    :title="Translator.trans(status)"
   />
 </template>
 
@@ -14,6 +15,7 @@ const statusMap = {
   processing: 'warning',
   completed: 'confirm',
 }
+
 export default {
   name: 'StatusBadge',
 

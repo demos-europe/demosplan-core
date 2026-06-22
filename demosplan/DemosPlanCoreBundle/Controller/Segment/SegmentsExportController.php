@@ -27,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use Doctrine\ORM\Query\QueryException;
+use EDT\JsonApi\RequestHandling\UrlParameter;
 use Exception;
 use PhpOffice\PhpWord\IOFactory;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -42,6 +43,7 @@ class SegmentsExportController extends BaseController
     private const CITIZEN_CENSOR_PARAMETER = 'isCitizenDataCensored';
     private const INSTITUTION_CENSOR_PARAMETER = 'isInstitutionDataCensored';
     private const OBSCURE_PARAMETER = 'isObscured';
+    private const CUSTOM_HEADER_TEXT_PARAMETER = 'customHeaderText';
 
     public function __construct(
         private readonly NameGenerator $nameGenerator,
@@ -129,7 +131,11 @@ class SegmentsExportController extends BaseController
 
         // Apply tag filtering after JsonAPI filtering
         $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
+        $noTagsFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
+
         $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
+        $exportFilteredByTagsWithTopics = $this->statementExportTagFilter->getFilteredTagsWithTitles();
+        $customHeaderText = $this->requestStack->getCurrentRequest()->query->get(self::CUSTOM_HEADER_TEXT_PARAMETER) ?? '';
 
         $censorCitizenData = $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER);
         $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
@@ -144,22 +150,26 @@ class SegmentsExportController extends BaseController
                 $exporter,
                 $censorCitizenData,
                 $censorInstitutionData,
-                $obscureParameter
+                $obscureParameter,
+                $exportFilteredByTagsWithTopics,
+                $customHeaderText
             ) {
                 $exportedDoc = $exporter->exportAll(
                     $tableHeaders,
                     $procedure,
                     $obscureParameter,
-                    $this->statementExportTagFilter->hasAnySupportedFilterSet(),
+                    $exportFilteredByTagsWithTopics,
                     $censorCitizenData,
                     $censorInstitutionData,
+                    $customHeaderText,
                     ...$statementEntities
                 );
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
-
-        $this->setResponseHeaders($response, $fileNameGenerator->getSynopseFileName($procedure, 'docx'));
+        // generating file name based on it being filtered by tags or not
+        0 === count($tagsFilter) && 0 === count($noTagsFilter) ?
+            $this->setResponseHeaders($response, $fileNameGenerator->getSynopseFileName($procedure, 'docx')) : $this->setResponseHeaders($response, $fileNameGenerator->getFilteredSynopseFileName($procedure, 'docx'));
 
         return $response;
     }
@@ -215,9 +225,10 @@ class SegmentsExportController extends BaseController
         );
 
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
-        $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename(
-            $fileNameGenerator->getSynopseFileName($procedure, 'xlsx'))
-        );
+        // generating file name based on it being a filtered export or not
+        $noTagsFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
+        $fileName = 0 === count($tagsFilter) && 0 === count($noTagsFilter) ? $fileNameGenerator->getSynopseFileName($procedure, 'xlsx') : $fileNameGenerator->getFilteredSynopseFileName($procedure, 'xlsx');
+        $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($fileName));
 
         return $response;
     }
@@ -302,7 +313,7 @@ class SegmentsExportController extends BaseController
                             $censorCitizenData,
                             $censorInstitutionData,
                             $obscureParameter,
-                            $this->statementExportTagFilter->hasAnySupportedFilterSet()
+                            $this->statementExportTagFilter->getFilteredTagsWithTitles()
                         );
                         $writer = IOFactory::createWriter($docx);
                         $zipExportService->addWriterToZipStream(

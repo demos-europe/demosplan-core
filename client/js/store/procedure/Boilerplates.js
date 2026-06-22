@@ -30,6 +30,7 @@ const BoilerplatesStore = {
   actions: {
     getBoilerPlates: ({ commit }, procedureId) => {
       commit('getBoilerplatesFired', true)
+
       return dpApi({
         method: 'GET',
         url: Routing.generate('api_resource_list', {
@@ -38,12 +39,15 @@ const BoilerplatesStore = {
         }),
       }).then(response => {
         const normalized = normalize(response.data)
+
         if (normalized.boilerplate) {
           commit('setBoilerplates', normalized.boilerplate)
         }
+
         if (normalized.boilerplateGroup) {
           commit('setGroups', Object.values(normalized.boilerplateGroup))
         }
+
         return Promise.resolve(true)
       }).catch(e => Promise.reject(e))
     },
@@ -60,10 +64,13 @@ const BoilerplatesStore = {
         const boilerplates = Object.values(bpCpy).filter(bp => {
           if (group.id === bp?.relationships?.group?.data?.id) {
             delete bpCpy[bp.id]
+
             return true
           }
+
           return false
         })
+
         return {
           id: group.id,
           groupName: group.attributes.title,

@@ -61,7 +61,7 @@
           :tree-data="tagCategoriesWithTags"
         >
           <template v-slot:header>
-            <div>
+            <div id="categoryOrTagLabel">
               {{ Translator.trans('category_or_tag') }}
             </div>
           </template>
@@ -217,6 +217,7 @@ export default {
 
         if (category) {
           const tag = category.children.find(tag => tag.id === item.id)
+
           tag.name = item.name
         }
       }

@@ -56,12 +56,12 @@ class DemosPlanOrgaController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_demosplan')]
-    #[Route(name: 'DemosPlan_user_verify_orga_switch_or_update', path: '/organisation/verifychanges')]
+    #[Route(path: '/organisation/verifychanges', name: 'DemosPlan_user_verify_orga_switch_or_update')]
     public function verifyOrgaSwitchOrUpdate(AuthenticationUtils $authenticationUtils, Request $request)
     {
         $session = $request->getSession();
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/verify_orga_switch_or_update.html.twig',
             [
                 'templateVars' => [
@@ -107,7 +107,7 @@ class DemosPlanOrgaController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_manage_orgadata')]
-    #[Route(name: 'DemosPlan_orga_edit_view', path: '/organisation/edit/{orgaId}', methods: ['GET'])]
+    #[Route(path: '/organisation/edit/{orgaId}', name: 'DemosPlan_orga_edit_view', methods: ['GET'])]
     public function editOrgaView(CurrentUserService $currentUser, OrgaTypeRepository $orgaTypeRepository, string $orgaId)
     {
         $accessPreventionRedirect = $this->preventInvalidOrgaAccess($orgaId, $currentUser->getUser());
@@ -117,7 +117,7 @@ class DemosPlanOrgaController extends BaseController
 
         $templateVars = $this->getEditOrgaTemplateVars($orgaTypeRepository, $orgaId);
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/edit_orga.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -134,7 +134,7 @@ class DemosPlanOrgaController extends BaseController
      * @throws MessageBagException
      */
     #[DplanPermissions('area_manage_orgadata')]
-    #[Route(name: 'DemosPlan_orga_edit_save', path: '/organisation/edit/{orgaId}', methods: ['POST'], options: ['expose' => true])]
+    #[Route(path: '/organisation/edit/{orgaId}', name: 'DemosPlan_orga_edit_save', options: ['expose' => true], methods: ['POST'])]
     public function editOrgaSave(
         CurrentUserService $currentUser,
         EventDispatcherPostInterface $eventDispatcherPost,
@@ -191,7 +191,7 @@ class DemosPlanOrgaController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions(['area_manage_orgadata', 'feature_orga_logo_edit'])]
-    #[Route(name: 'DemosPlan_orga_branding_edit', path: '/organisation/branding/edit/{orgaId}', options: ['expose' => true])]
+    #[Route(path: '/organisation/branding/edit/{orgaId}', name: 'DemosPlan_orga_branding_edit', options: ['expose' => true])]
     public function editOrgaBranding(Request $request, FileUploadService $fileUploadService, OrgaTypeRepository $orgaTypeRepository, $orgaId)
     {
         $requestPost = $request->request;
@@ -220,7 +220,7 @@ class DemosPlanOrgaController extends BaseController
 
         $templateVars = $this->getEditOrgaTemplateVars($orgaTypeRepository, $orgaId);
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/edit_orga_branding.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -300,7 +300,7 @@ class DemosPlanOrgaController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_organisations')]
-    #[Route(name: 'DemosPlan_orga_list', path: '/organisation/list')]
+    #[Route(path: '/organisation/list', name: 'DemosPlan_orga_list')]
     public function listOrgas(): RedirectResponse|Response
     {
         $templateVars = [];
@@ -312,7 +312,7 @@ class DemosPlanOrgaController extends BaseController
         $templateVars['writableOrgaFields'] = array_keys($this->orgaHandler->getWritableAttributes());
         $templateVars['availableOrgaTypes'] = $this->getFormParameter('orga_types');
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/list_orgas.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -327,7 +327,7 @@ class DemosPlanOrgaController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('feature_switchorga')]
-    #[Route(name: 'DemosPlan_user_switch_orga', path: '/organisation/switch')]
+    #[Route(path: '/organisation/switch', name: 'DemosPlan_user_switch_orga')]
     public function switchOrga(
         CurrentUserInterface $currentUser,
         OsiHHAuthenticator $osiHHAuthenticator,
@@ -394,7 +394,7 @@ class DemosPlanOrgaController extends BaseController
      * @throws CustomerNotFoundException
      */
     #[DplanPermissions('feature_orga_registration')]
-    #[Route(name: 'DemosPlan_orga_register_form', path: '/organisation/register', methods: ['GET'], options: ['expose' => true])]
+    #[Route(path: '/organisation/register', name: 'DemosPlan_orga_register_form', options: ['expose' => true], methods: ['GET'])]
     public function editOrgaRegister(CustomerHandler $customerHandler): Response
     {
         $customer = $customerHandler->getCurrentCustomer();
@@ -402,7 +402,7 @@ class DemosPlanOrgaController extends BaseController
         $templateVars = [];
         $templateVars['customerName'] = $customer->getName();
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanUser/orga_register_form.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -415,7 +415,7 @@ class DemosPlanOrgaController extends BaseController
      * @throws MessageBagException
      */
     #[DplanPermissions('feature_orga_registration')]
-    #[Route(name: 'DemosPlan_orga_register', path: '/organisation/register', methods: ['POST'], options: ['expose' => true])]
+    #[Route(path: '/organisation/register', name: 'DemosPlan_orga_register', options: ['expose' => true], methods: ['POST'])]
     public function createOrgaRegister(
         CsrfTokenManagerInterface $csrfTokenManager,
         EventDispatcherPostInterface $eventDispatcherPost,

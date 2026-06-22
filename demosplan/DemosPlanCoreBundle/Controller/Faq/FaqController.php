@@ -64,7 +64,7 @@ class FaqController extends BaseController
             ]
         );
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanFaq/faqlist.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -108,7 +108,7 @@ class FaqController extends BaseController
 
         $templateVars['list'] = $templateCategories;
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanFaq/public_faqlist.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -161,7 +161,7 @@ class FaqController extends BaseController
             }
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanFaq/faq_admin_list.html.twig',
             [
                 'procedure'                 => $procedure,
@@ -230,7 +230,7 @@ class FaqController extends BaseController
             'roleGroupsFaqVisibility'   => $globalConfig->getRoleGroupsFaqVisibility(),
         ];
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanFaq/faq_admin_edit.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -299,7 +299,7 @@ class FaqController extends BaseController
             'roleGroupsFaqVisibility'   => $globalConfig->getRoleGroupsFaqVisibility(),
         ];
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanFaq/faq_admin_edit.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -434,7 +434,7 @@ class FaqController extends BaseController
             ]
         );
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanFaq/faq_admin_category_edit.html.twig',
             [
                 'templateVars' => $templateVars,

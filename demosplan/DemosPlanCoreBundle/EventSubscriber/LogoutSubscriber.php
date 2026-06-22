@@ -12,9 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Cookie\PreviousRouteCookie;
-use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakLogoutManager;
+use demosplan\DemosPlanCoreBundle\Logic\OAuth\OAuthTokenStorageService;
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -30,10 +32,11 @@ class LogoutSubscriber implements EventSubscriberInterface
 
     public function __construct(
         private readonly LoggerInterface $logger,
+        private readonly OAuthTokenStorageService $oauthTokenStorageService,
         private readonly ParameterBagInterface $parameterBag,
         private readonly PermissionsInterface $permissions,
         private readonly UrlGeneratorInterface $urlGenerator,
-        private readonly OzgKeycloakLogoutManager $ozgKeycloakLogoutManager,
+        private readonly OzgKeycloakSessionManager $ozgKeycloakSessionManager,
     ) {
     }
 
@@ -66,20 +69,28 @@ class LogoutSubscriber implements EventSubscriberInterface
 
         // let oauth identity provider handle logout when defined and user was provided by identity provider
         $user = $event->getToken()?->getUser();
-        if ($user && method_exists($user, 'isProvidedByIdentityProvider') && $user->isProvidedByIdentityProvider()) {
+        if ($user instanceof UserInterface && $user->isProvidedByIdentityProvider()) {
+            // Delete stored OAuth tokens on logout to prevent stale encrypted data in the database
+            try {
+                $this->oauthTokenStorageService->deleteTokensUnlessPendingData($user->getId());
+            } catch (Exception $e) {
+                $this->logger->warning('oauthAuthenticator: Failed to delete OAuth tokens on logout', ['error' => $e->getMessage()]);
+            }
+
             // Keycloak logout
-            if ($this->ozgKeycloakLogoutManager->isKeycloakConfigured()) {
-                $keycloakToken = $event->getRequest()->getSession()->get(OzgKeycloakLogoutManager::KEYCLOAK_TOKEN);
+            $logoutRoute = $this->ozgKeycloakSessionManager->getEffectiveLogoutRoute();
+            if (null !== $logoutRoute) {
+                $keycloakToken = $event->getRequest()->getSession()->get(OzgKeycloakSessionManager::KEYCLOAK_TOKEN);
                 $event->getRequest()->getSession()->invalidate();
-                $logoutRoute = $this->parameterBag->get('oauth_keycloak_logout_route');
-                $this->logger->info('Redirecting to Keycloak for logout initial', [$logoutRoute]);
+
+                $this->logger->info('oauthAuthenticator: Redirecting to Keycloak for logout initial', [$logoutRoute]);
 
                 // add additional parameters to keycloak logout url for redirect
                 try {
-                    $logoutRoute = $this->ozgKeycloakLogoutManager->getLogoutUrl($logoutRoute, $keycloakToken);
-                    $this->logger->info('Redirecting to Keycloak for logout adjusted', [$logoutRoute]);
+                    $logoutRoute = $this->ozgKeycloakSessionManager->getLogoutUrl($logoutRoute, $keycloakToken);
+                    $this->logger->info('oauthAuthenticator: Redirecting to Keycloak for logout adjusted', [$logoutRoute]);
                 } catch (Exception $e) {
-                    $this->logger->error('Could not get current customer', [$e->getMessage()]);
+                    $this->logger->error('oauthAuthenticator: Could not get current customer', [$e->getMessage()]);
                 }
                 $response = $this->redirect($logoutRoute);
             }
@@ -100,6 +111,9 @@ class LogoutSubscriber implements EventSubscriberInterface
         foreach ($this->allowedCookieNames as $cookieName) {
             $response->headers->clearCookie($cookieName);
         }
+
+        // Clear browser prefetch and prerender caches on logout
+        $response->headers->set('Clear-Site-Data', '"prefetchCache", "prerenderCache"');
 
         $event->setResponse($response);
     }

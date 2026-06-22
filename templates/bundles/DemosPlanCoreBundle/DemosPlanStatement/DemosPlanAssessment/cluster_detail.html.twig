@@ -276,11 +276,11 @@
             document.bpform.action = oldAction;
         }
 
-        if (document.querySelector('[data-export-form]')) {
-            document.querySelector('[data-export-form]').addEventListener('click', function (event) {
+        document.addEventListener('click', function (event) {
+            if (event.target.closest('[data-export-form]')) {
                 submitForm(event, 'export')
-            })
-        }
+            }
+        })
     </script>
 
 {% endblock javascripts %}

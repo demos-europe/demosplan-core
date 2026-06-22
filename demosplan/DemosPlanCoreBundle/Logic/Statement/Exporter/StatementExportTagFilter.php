@@ -18,6 +18,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function in_array;
@@ -26,6 +27,7 @@ class StatementExportTagFilter
 {
     public function __construct(
         private readonly TranslatorInterface $translator,
+        private readonly EntityManagerInterface $entityManager,
     ) {
     }
     private const TAG_IDS_FILTER_KEY = 'tagIds';
@@ -36,6 +38,7 @@ class StatementExportTagFilter
     private array $tagsFilter = [];
     private array $tagNamesFound = [];
     private array $topicNamesFound = [];
+    private array $filteredTagsWithTitle = [];
 
     /**
      * Filters statements and their segments based on tag criteria.
@@ -74,17 +77,12 @@ class StatementExportTagFilter
             return $statements;
         }
 
+        // Pre-fetch all relationships to avoid N+1 queries
+        $this->initializeRelationships($statements);
+
         // the goal is to exclude all Segments from the payload that do not match the filter criteria
         // if all Segments from a parentStatement get excluded - the whole statement gets excluded as well.
         return $this->applyTagFilter($statements, $tagIds, $tagTitles, $tagTopicIds, $tagTopicTitles);
-    }
-
-    public function hasAnySupportedFilterSet(): bool
-    {
-        return $this->isTagIdFilterActive()
-            || $this->isTagTitleFilterActive()
-            || $this->isTagTopicIdFilterActive()
-            || $this->isTagTopicTitleFilterActive();
     }
 
     public function isTagIdFilterActive(): bool
@@ -107,46 +105,6 @@ class StatementExportTagFilter
         return !empty($this->tagsFilter[self::TAG_TOPIC_TITLES_FILTER_KEY] ?? []);
     }
 
-    public function getTagIds(): array
-    {
-        return $this->tagsFilter[self::TAG_IDS_FILTER_KEY] ?? [];
-    }
-
-    public function getTagTitles(): array
-    {
-        return $this->tagsFilter[self::TAG_TITLES_FILTER_KEY] ?? [];
-    }
-
-    public function getTagTopicIds(): array
-    {
-        return $this->tagsFilter[self::TAG_TOPIC_IDS_FILTER_KEY] ?? [];
-    }
-
-    public function getTagTopicTitles(): array
-    {
-        return $this->tagsFilter[self::TAG_TOPIC_TITLES_FILTER_KEY] ?? [];
-    }
-
-    /**
-     * Checks if any tag filters were applied and matched segments during filtering.
-     *
-     * @return bool True if tag filters were applied and matched, false otherwise
-     */
-    public function hasTagFiltersApplied(): bool
-    {
-        return !empty($this->tagNamesFound);
-    }
-
-    /**
-     * Checks if any topic filters were applied and matched segments during filtering.
-     *
-     * @return bool True if topic filters were applied and matched, false otherwise
-     */
-    public function hasTopicFiltersApplied(): bool
-    {
-        return !empty($this->topicNamesFound);
-    }
-
     /**
      * Returns a human-readable description of tag names that were matched during filtering.
      * This includes both tags filtered by ID and by title.
@@ -155,7 +113,7 @@ class StatementExportTagFilter
      */
     public function getTagFiltersHumanReadable(): string
     {
-        if (empty($this->tagNamesFound)) {
+        if ([] === $this->tagNamesFound) {
             return $this->translator->trans('export.filter.tags.none');
         }
 
@@ -170,11 +128,47 @@ class StatementExportTagFilter
      */
     public function getTopicFiltersHumanReadable(): string
     {
-        if (empty($this->topicNamesFound)) {
+        if ([] === $this->topicNamesFound) {
             return $this->translator->trans('export.filter.topics.none');
         }
 
         return $this->translator->trans('export.filter.topics.names', ['names' => implode(', ', $this->topicNamesFound)]);
+    }
+
+    public function getFilteredTagsWithTitles(): array
+    {
+        return $this->filteredTagsWithTitle;
+    }
+
+    /**
+     * Pre-fetches segments, tags, and tag topics for given statements to avoid N+1 queries.
+     *
+     * @param Statement[] $statements
+     */
+    private function initializeRelationships(array $statements): void
+    {
+        if ([] === $statements) {
+            return;
+        }
+
+        $statementIds = array_map(
+            static fn (StatementInterface $s): string => $s->getId(),
+            $statements
+        );
+
+        // Fetch all segments with their tags and tag topics in a single query.
+        // Doctrine's identity map will cache all hydrated entities, so subsequent
+        // access to $segment->getTags() and $tag->getTopic() won't trigger additional queries.
+        $this->entityManager->createQueryBuilder()
+            ->select('s', 'seg', 't', 'topic')
+            ->from(Statement::class, 's')
+            ->leftJoin('s.segmentsOfStatement', 'seg')
+            ->leftJoin('seg.tags', 't')
+            ->leftJoin('t.topic', 'topic')
+            ->where('s.id IN (:statementIds)')
+            ->setParameter('statementIds', $statementIds)
+            ->getQuery()
+            ->getResult();
     }
 
     private function applyTagFilter(array $statements, array $tagIds, array $tagTitles, array $tagTopicIds, array $tagTopicTitles): array
@@ -225,6 +219,7 @@ class StatementExportTagFilter
         $matchByTag = $matchByTagId || $matchByTagTitle;
         if ($matchByTag) {
             $this->tagNamesFound[$tag->getId()] = $tag->getTitle();
+            $this->filteredTagsWithTitle[$tag->getId()] = [$tag->getTitle(), $tag->getTopic()->getTitle()];
         }
 
         return $matchByTag;
@@ -245,6 +240,6 @@ class StatementExportTagFilter
 
     private function checkExistence(?string $needle, array $haystack): bool
     {
-        return null !== $needle && !empty($haystack) && in_array($needle, $haystack, true);
+        return null !== $needle && [] !== $haystack && in_array($needle, $haystack, true);
     }
 }

@@ -146,12 +146,12 @@
                     id="r_houseNumber"
                     v-model="values.submitter.housenumber"
                     data-cy="submitterForm:houseNumber"
-                    class="o-form__group-item shrink"
+                    class="o-form__group-item !w-1/7 shrink"
                     :label="{
                       text: Translator.trans('street.number.short')
                     }"
                     name="r_houseNumber"
-                    :size="3"
+                    :size="4"
                   />
                 </div>
 
@@ -161,7 +161,7 @@
                     id="r_orga_postalcode"
                     v-model="values.submitter.plz"
                     data-cy="submitterForm:orgaPostalcode"
-                    class="o-form__group-item shrink"
+                    class="o-form__group-item !w-1/6 shrink"
                     :label="{
                       text: Translator.trans('postalcode')
                     }"
@@ -277,6 +277,7 @@
           >
             <dp-input
               id="r_internId"
+              v-model="values.internId"
               data-cy="submitterForm:internId"
               :data-dp-validate-error="Translator.trans('validation.error.internId')"
               :label="{
@@ -286,15 +287,14 @@
               }"
               name="r_internId"
               :pattern="internIdsPattern"
-              model-value=""
             />
           </div>
 
           <!-- Hidden input for phase -->
           <input
             type="hidden"
-            name="r_phase"
-            :value="currentProcedurePhase"
+            name="r_phaseDefinitionId"
+            :value="currentPhaseDefinitionId"
           >
 
           <!-- Tags -->
@@ -355,7 +355,9 @@
         v-model="values.text"
         :aria-label="Translator.trans('statement.text.short')"
         :procedure-id="procedureId"
-        :toolbar-items="{ linkButton: true }"
+        :routes="{ getFileByHash: (hash) => Routing.generate('core_file_procedure', { procedureId, hash }) }"
+        :toolbar-items="{ linkButton: true, imageButton: true }"
+        :tus-endpoint="dplan.paths.tusEndpoint"
         required
         hidden-input="r_text"
       />
@@ -376,7 +378,6 @@
           :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
           name="r_attachment_original"
           allowed-file-types="all"
-          :basic-auth="dplan.settings.basicAuth"
           :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
           :max-number-of-files="1"
           needs-hidden-input
@@ -394,7 +395,6 @@
         id="r_upload"
         name="r_upload"
         allowed-file-types="all"
-        :basic-auth="dplan.settings.basicAuth"
         :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
         :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
         :max-number-of-files="1000"
@@ -471,6 +471,7 @@ export default {
     DpTextArea,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
+
       return DpEditor
     }),
     DpUploadFiles,
@@ -491,10 +492,16 @@ export default {
       required: true,
     },
 
-    currentProcedurePhase: {
+    currentExternalPhaseDefinitionId: {
       type: String,
       required: false,
-      default: 'analysis',
+      default: '',
+    },
+
+    currentInternalPhaseDefinitionId: {
+      type: String,
+      required: false,
+      default: '',
     },
 
     documentId: {
@@ -576,28 +583,39 @@ export default {
       isSaving: false,
       values: {
         authoredDate: '',
+        internId: '',
         memo: '',
         quickSave: '',
         submittedDate: '',
+        submitter: submitterProperties,
         tags: [],
         text: '',
-        submitter: submitterProperties,
       },
     }
   },
 
   computed: {
+    currentPhaseDefinitionId () {
+      return this.values.submitter.institution ?
+        this.currentInternalPhaseDefinitionId :
+        this.currentExternalPhaseDefinitionId
+    },
+
     escapedUsedInternIds () {
       const specialCharEscaper = /\[|\\|\^|\$|\.|\||\?|\*|\+|\(|\)|\//g
+
       return this.usedInternIds.map(id => id.replace(specialCharEscaper, (specialChar) => `\\${specialChar}`))
     },
 
     internIdsPattern () {
       let pattern = ''
+
       if (this.escapedUsedInternIds.length > 0) {
         pattern = '^(?!(?:' + this.escapedUsedInternIds.join('|') + ')$)'
       }
+
       pattern = pattern + '[0-9a-zA-Z-_ /().?!,+*#äüöß]{1,}$'
+
       return pattern
     },
 
@@ -605,10 +623,12 @@ export default {
       const date = new Date()
       let day = date.getDate()
       let month = date.getMonth()
+
       month = month + 1
       if ((String(day)).length === 1) {
         day = '0' + day
       }
+
       if ((String(month)).length === 1) {
         month = '0' + month
       }
@@ -630,6 +650,7 @@ export default {
   methods: {
     abort () {
       const href = `${Routing.generate('DemosPlan_procedure_import', { procedureId: this.procedureId })}/#import#StatementPdfImport`
+
       window.location.replace(href)
     },
 
@@ -640,7 +661,7 @@ export default {
       if (typeof this.values.submitter !== 'undefined' && typeof this.values.submitter.institution === 'undefined') {
         // Since Data sends us the key toeb instead of institution, we need to transform this for now but keep all init values
         this.values.submitter.institution = this.values.submitter.toeb
-        this.$delete(this.values.submitter, 'toeb')
+        delete this.values.submitter.toeb
       }
 
       if (typeof this.values.submitter === 'undefined' || Object.keys(this.values.submitter).length === 0) {

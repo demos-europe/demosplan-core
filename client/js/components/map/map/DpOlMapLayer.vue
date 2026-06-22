@@ -88,6 +88,7 @@ export default {
      */
     defaultAttributions () {
       const currentYear = formatDate(new Date(), 'YYYY')
+
       return this.attributions ?
         this.attributions.replaceAll('{currentYear}', currentYear) :
         Translator.trans('map.attribution.default', {
@@ -150,6 +151,7 @@ export default {
       if (this.layer && this.map) {
         this.map.removeLayer(this.layer)
       }
+
       this.addLayer()
     },
   },

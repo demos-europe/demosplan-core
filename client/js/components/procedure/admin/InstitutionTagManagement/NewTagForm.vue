@@ -151,6 +151,7 @@ export default {
           },
         },
       }
+
       this.createInstitutionTag(payload)
         .then(() => {
           this.$emit('newTag:created')

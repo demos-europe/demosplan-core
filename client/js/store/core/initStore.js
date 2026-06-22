@@ -30,6 +30,7 @@ function registerPresetModules (store, presetStoreModules) {
       }
     }
   }
+
   return store
 }
 
@@ -76,7 +77,6 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
             router,
             baseUrl,
             headers: {
-              'X-JWT-Authorization': 'Bearer ' + dplan.jwtToken,
               'X-Demosplan-Procedure-Id': dplan.procedureId,
               'X-CSRF-Token': dplan.csrfToken,
             },
@@ -91,9 +91,11 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
             store.api.newStaticRoute = (route) => {
               return new StaticRoute(route)
             }
+
             store.api.newRoute = (route) => {
               return new Route(route)
             }
+
             store.api.handleResponse = handleResponse
           },
         ],

@@ -411,6 +411,8 @@ class DraftStatementHandler extends CoreHandler
     {
         $statement = [];
 
+        $procedureId = $data['procedureId'];
+
         if (!array_key_exists('action', $data)) {
             return false;
         }
@@ -444,7 +446,7 @@ class DraftStatementHandler extends CoreHandler
             $statement['represents'] = $data['r_represents'];
         }
 
-        if (array_key_exists('r_uploaddocument', $data) && ((is_string($data['r_uploaddocument']) && 0 < strlen($data['r_uploaddocument']))
+        if (array_key_exists('r_uploaddocument', $data) && ((is_string($data['r_uploaddocument']) && '' !== $data['r_uploaddocument'])
             || (is_array($data['r_uploaddocument']) && [] !== $data['r_uploaddocument']))) {
             $statement['files'] = $data['r_uploaddocument'];
         }
@@ -482,10 +484,12 @@ class DraftStatementHandler extends CoreHandler
             $statement['uFeedback'] = $data['uFeedback'];
         }
 
+        $statement = $this->draftStatementService->extractCustomFields($data, $statement, $procedureId);
+
         $statement = $this->draftStatementService->extractGeoData($data, $statement);
 
         if (!array_key_exists('r_elementID', $data) || '' != $data['r_elementID']) {
-            $statement['elementId'] = $this->draftStatementService->determineStatementCategory($data['procedureId'], $data);
+            $statement['elementId'] = $this->draftStatementService->determineStatementCategory($procedureId, $data);
         }
 
         return $this->draftStatementService->updateDraftStatement($statement);
@@ -559,6 +563,8 @@ class DraftStatementHandler extends CoreHandler
         if (array_key_exists('r_isNegativeReport', $data) && 1 == $data['r_isNegativeReport']) {
             $statement['negativ'] = true;
         }
+
+        $statement = $this->draftStatementService->extractCustomFields($data, $statement, $procedureId);
 
         $statement['elementId'] = $this->draftStatementService->determineStatementCategory($procedureId, $data);
 
@@ -725,13 +731,11 @@ class DraftStatementHandler extends CoreHandler
     public function createEMailsForUnsubmittedDraftStatementsOfProcedureOfUser(int $exactlyDaysToGo, bool $internal): int
     {
         if ($internal) {
-            $internalWritePhaseKeys = $this->getDemosplanConfig()->getInternalPhaseKeys('write');
             $soonEndingProcedureIds = $this->getProcedureHandler()
-                ->getAllProceduresWithSoonEndingPhases($internalWritePhaseKeys, $exactlyDaysToGo, true);
+                ->getAllProceduresWithSoonEndingPhases($exactlyDaysToGo, true);
         } else {
-            $externalWritePhaseKeys = $this->getDemosplanConfig()->getExternalPhaseKeys('write');
             $soonEndingProcedureIds = $this->getProcedureHandler()
-                ->getAllProceduresWithSoonEndingPhases($externalWritePhaseKeys, $exactlyDaysToGo, true, false);
+                ->getAllProceduresWithSoonEndingPhases($exactlyDaysToGo, true, false);
         }
 
         $draftStatements = $this->draftStatementService

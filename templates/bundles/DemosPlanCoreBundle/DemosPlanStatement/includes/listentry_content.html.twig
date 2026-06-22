@@ -140,3 +140,18 @@
     {{ statement.text|default( "<p>" ~ "notspecified"|trans ~ "</p>" )|dpObscure|wysiwyg }}
 </span>
 
+{% if hasPermission('feature_statements_custom_fields') %}
+    <custom-fields-list
+        :list-title="Translator.trans('statement.data')"
+        :show-empty="false"
+        class="{{ 'w-full mt-4 px-4'|prefixClass }}"
+        definition-source-id="{{ procedure }}"
+        mode="readonly"
+        resource-id="{{ statement.ident }}"
+        resource-type="DraftStatement"
+        source-entity="PROCEDURE"
+        target-entity="STATEMENT"
+        expandable
+    />
+{% endif %}
+

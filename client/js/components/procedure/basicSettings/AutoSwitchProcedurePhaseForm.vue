@@ -37,23 +37,20 @@
           }"
           :name="phaseSelectId"
           :options="phaseOptions"
-          class="layout__item u-1-of-3 u-1-of-1-lap-down"
+          class="layout__item u-1-of-3 u-1-of-1-lap-down mt-4"
         /><!--
 
-     --><div class="layout__item u-1-of-3 u-1-of-1-lap-down">
+     --><div class="layout__item u-1-of-3 u-1-of-1-lap-down mt-4">
           <div class="layout">
             <div class="layout__item w-2/3 pr-2">
-              <dp-label
-                :for="switchDateId"
-                :text="Translator.trans('phase.autoswitch.datetime')"
-                class="mb-0.5"
-                required
-              />
               <dp-datepicker
                 :id="switchDateId"
                 v-model="switchDateOnly"
                 :data-cy="`autoSwitchProcedurePhaseForm:${switchDateId}`"
                 :disabled="!autoSwitchPhase"
+                :label="{
+                  text: Translator.trans('phase.autoswitch.datetime')
+                }"
                 hidden-input
                 :max-date="switchDateMax"
                 :min-date="minSwitchDate"
@@ -88,28 +85,29 @@
         </div><!--
 
      --><div class="layout__item u-1-of-3">
-          <dp-label
-            :text="Translator.trans('period.new')"
-            class="mb-0.5"
-            for="procedurePhasePeriod"
-            required
-          />
-          <dp-date-range-picker
-            id="procedurePhasePeriod"
-            :data-cy="dataCyPhasePeriod"
-            :end-disabled="!autoSwitchPhase"
-            :end-id="endDateId"
-            :end-name="endDateId"
-            :end-value="endDate"
-            :min-date="minSwitchDate"
-            :start-id="startDateId"
-            :start-name="startDateId"
-            :start-value="startDate"
-            enforce-plausible-dates
-            required
-            start-disabled
-            @input:end-date="handleInputEndDate"
-          />
+          <fieldset>
+            <legend class="weight--bold block is-label">
+              {{ Translator.trans('period.new') }}
+            </legend>
+            <dp-date-range-picker
+              id="procedurePhasePeriod"
+              :data-cy="dataCyPhasePeriod"
+              :end-disabled="!autoSwitchPhase"
+              :end-id="endDateId"
+              :end-name="endDateId"
+              :end-label="Translator.trans('end')"
+              :end-value="endDate"
+              :min-date="minSwitchDate"
+              :start-id="startDateId"
+              :start-name="startDateId"
+              :start-value="startDate"
+              enforce-plausible-dates
+              required
+              :start-label="Translator.trans('start')"
+              start-disabled
+              @input:end-date="handleInputEndDate"
+            />
+          </fieldset>
         </div>
 
         <transition
@@ -118,7 +116,7 @@
         >
           <dp-inline-notification
             v-if="showAutoSwitchToAnalysisHint"
-            :message="Translator.trans('period.autoswitch.hint', { phase: Translator.trans(isInternal ? 'procedure.phases.internal.analysis' : 'procedure.phases.external.evaluating')})"
+            :message="Translator.trans('period.autoswitch.hint', { phase: evaluatingPhaseName })"
             class="mt-3 mb-0"
             type="warning"
           />
@@ -127,7 +125,7 @@
 
       <dp-inline-notification
         v-else-if="hasPermission('feature_auto_switch_to_procedure_end_phase') && isParticipationPhaseSelected"
-        :message="Translator.trans('period.autoswitch.hint', { phase: Translator.trans(isInternal ? 'procedure.phases.internal.analysis' : 'procedure.phases.external.evaluating')})"
+        :message="Translator.trans('period.autoswitch.hint', { phase: evaluatingPhaseName })"
         class="mt-3 mb-0"
         type="warning"
       />
@@ -156,6 +154,7 @@ export default {
     DpInput,
     DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
+
       return DpInlineNotification
     }),
     DpLabel,
@@ -214,6 +213,10 @@ export default {
     },
   },
 
+  emits: [
+    'phaseSelected',
+  ],
+
   data () {
     return {
       autoSwitchPhase: false,
@@ -229,6 +232,13 @@ export default {
   computed: {
     checkboxId () {
       return this.isInternal ? 'r_autoSwitch' : 'r_autoSwitchPublic'
+    },
+
+    evaluatingPhaseName () {
+      const finishedPhase = Object.values(this.availableProcedurePhases)
+        .find(phase => phase.participationState === 'finished')
+
+      return finishedPhase?.label ?? ''
     },
 
     /**
@@ -277,6 +287,13 @@ export default {
         this.switchTime = '00:00'
         this.updateSwitchDate()
       }
+
+      // Needed for the addon-modal on form-submit
+      this.$emit('phaseSelected', {
+        phase: this.selectedPhase,
+        enabled: newVal,
+        isInternal: this.isInternal,
+      })
     },
 
     selectedCurrentPhase: {
@@ -292,6 +309,17 @@ export default {
 
     switchDateOnly () {
       this.updateSwitchDate()
+    },
+
+    selectedPhase: {
+      handler (newVal) {
+        this.$emit('phaseSelected', {
+          phase: newVal,
+          enabled: this.autoSwitchPhase,
+          isInternal: this.isInternal,
+        })
+      },
+      immediate: true,
     },
 
     switchDate: {
@@ -424,12 +452,12 @@ export default {
     },
 
     setSelectedPhase () {
-      const evaluationPhase = 'evaluating'
-
       if (this.isParticipationPhaseSelected) {
-        this.selectedPhase = evaluationPhase
+        const evaluatingPhase = this.phaseOptions.find(phase => phase.participationState === 'finished')
+
+        this.selectedPhase = evaluatingPhase ? evaluatingPhase.value : this.phaseOptions[0]?.value ?? ''
       } else {
-        this.selectedPhase = this.phaseOptions[0].value
+        this.selectedPhase = this.phaseOptions[0]?.value ?? ''
       }
     },
   },

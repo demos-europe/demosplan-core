@@ -8,8 +8,8 @@
 </license>
 
 <template>
-  <div class="whitespace-nowrap">
-    <div class="inline-block w-1/2 pr-3 my-3">
+  <div class="whitespace-nowrap py-4">
+    <div class="inline-block w-1/2 pr-3">
       <dp-input
         :id="userId + ':firstName'"
         v-model="localUser.attributes.firstname"
@@ -22,7 +22,7 @@
       />
     </div>
 
-    <div class="inline-block w-1/2 pr-3 my-3">
+    <div class="inline-block w-1/2 pr-3">
       <dp-input
         :id="userId + ':lastName'"
         v-model="localUser.attributes.lastname"
@@ -36,7 +36,7 @@
     </div>
 
     <!-- Email -->
-    <div class="w-1/2 pr-3 mb-3">
+    <div class="w-1/2 pr-3 my-3">
       <dp-input
         :id="userId + ':email'"
         v-model="localUser.attributes.email"
@@ -62,6 +62,7 @@
         :id="userId + ':organisationId'"
         ref="orgasDropdown"
         data-cy="organisation"
+        :data-dp-validate-error-fieldname="Translator.trans('orgaType.invitable_institution')"
         label="name"
         :loading="isLoading"
         :options="initialOrgaSuggestions"
@@ -149,10 +150,16 @@
       </dp-multiselect>
     </div>
   </div>
+  <dp-inline-notification
+    v-if="isCreateItem"
+    class="mt-4"
+    type="info"
+    :message="Translator.trans('user.automated.email.info')"
+  />
 </template>
 
 <script>
-import { dpApi, DpInput, DpMultiselect, DpSelect, hasOwnProp, sortAlphabetically } from '@demos-europe/demosplan-ui'
+import { dpApi, DpInlineNotification, DpInput, DpMultiselect, DpSelect, hasOwnProp, sortAlphabetically } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { nextTick } from 'vue'
 import qs from 'qs'
@@ -161,15 +168,20 @@ export default {
   name: 'DpUserFormFields',
 
   components: {
+    DpInlineNotification,
     DpInput,
     DpMultiselect,
     DpSelect,
   },
 
-  inject: [
-    'presetUserOrgaId',
-    'projectName',
-  ],
+  inject: {
+    isCreateItem: {
+      from: 'isCreateItem',
+      default: false,
+    },
+    presetUserOrgaId: 'presetUserOrgaId',
+    projectName: 'projectName',
+  },
 
   props: {
     user: {
@@ -280,6 +292,7 @@ export default {
 
       if (noDepartmentIdx > -1) {
         const noDepartment = departments.splice(noDepartmentIdx, 1)[0]
+
         departments.unshift(noDepartment)
       }
 
@@ -365,8 +378,10 @@ export default {
       const orgaId = this.user.relationships?.orga?.data?.id ?
         this.user.relationships.orga.data.id :
         this.presetUserOrgaId
+
       if (orgaId !== '') {
         const url = Routing.generate('dplan_api_orga_get', { id: orgaId }) + '?' + qs.stringify({ include: 'departments' })
+
         return dpApi.get(url)
       }
 
@@ -431,6 +446,7 @@ export default {
     resetData () {
       if (!hasPermission('feature_organisation_user_list')) {
         const plainUser = JSON.parse(JSON.stringify(this.user))
+
         delete plainUser.relationships
         plainUser.relationships = this.localUser.relationships
         plainUser.relationships.roles.data = []
@@ -456,6 +472,7 @@ export default {
 
     setDefaultDepartment (organisation) {
       const defaultDepartment = Object.values(organisation.departments).find(dep => dep.name === 'Keine Abteilung') || Object.values(organisation.departments)[0]
+
       this.localUser.relationships.department.data = { id: defaultDepartment.id, type: defaultDepartment.type }
     },
 
@@ -495,6 +512,7 @@ export default {
       const userOrga = { ...response.data.data.attributes, id: response.data.data.id, type: response.data.data.type }
       const relationships = response.data.data.relationships
       const departments = response.data.included
+
       userOrga.departments = this.setOrganisationDepartments(departments)
 
       this.setCurrentUserOrganisation(userOrga, relationships)

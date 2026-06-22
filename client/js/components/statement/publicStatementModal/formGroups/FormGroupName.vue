@@ -22,7 +22,7 @@
         data-cy="firstName"
         name="r_firstname"
         width="u-1-of-2"
-        @input="val => setStatementData({r_firstname: val})"
+        @update:model-value="val => setStatementData({r_firstname: val})"
       /><!--
    --><dp-input
         id="r_lastname"
@@ -36,7 +36,7 @@
         data-cy="familyName"
         name="r_lastname"
         width="u-1-of-2"
-        @input="val => setStatementData({r_lastname: val})"
+        @update:model-value="val => setStatementData({r_lastname: val})"
     />
     </div>
   </div>

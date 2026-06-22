@@ -141,11 +141,7 @@ class SecurityValidationListener implements EventSubscriberInterface
         }
 
         // Raw body
-        if (str_contains($request->getContent(), "\0")) {
-            return true;
-        }
-
-        return false;
+        return str_contains($request->getContent(), "\0");
     }
 
     /**
@@ -182,7 +178,7 @@ class SecurityValidationListener implements EventSubscriberInterface
 
         foreach ($queryParams as $key => $value) {
             // Parameter name too long
-            if (strlen($key) > self::MAX_PARAMETER_NAME_LENGTH) {
+            if (strlen((string) $key) > self::MAX_PARAMETER_NAME_LENGTH) {
                 return true;
             }
 

@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakClientFactory;
 use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
 use Psr\Log\LoggerInterface;
@@ -33,6 +34,7 @@ class AzureAuthenticator extends OAuth2Authenticator implements AuthenticationEn
         private readonly LoggerInterface $logger,
         private readonly RouterInterface $router,
         private readonly AzureUserBadgeCreator $azureUserBadgeCreator,
+        private readonly OzgKeycloakClientFactory $ozgKeycloakClientFactory,
     ) {
     }
 
@@ -44,7 +46,9 @@ class AzureAuthenticator extends OAuth2Authenticator implements AuthenticationEn
 
     public function authenticate(Request $request): Passport
     {
-        $client = $this->clientRegistry->getClient('azure');
+        $client = $this->ozgKeycloakClientFactory->isCurrentCustomerAzure()
+            ? $this->ozgKeycloakClientFactory->createAzureClientForCurrentCustomer()
+            : $this->clientRegistry->getClient('azure');
         $accessToken = $this->fetchAccessToken($client);
         $this->logger->info('Azure OAuth login attempt', ['accessToken' => $accessToken]);
 

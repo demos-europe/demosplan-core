@@ -34,14 +34,14 @@ class APIDocumentationController extends BaseController
             return $this->redirectToRoute('core_home');
         }
 
-        return $this->renderTemplate('@DemosPlanCore/DemosPlanCore/api_documentation.html.twig');
+        return $this->render('@DemosPlanCore/DemosPlanCore/api_documentation.html.twig');
     }
 
     /**
      * @throws TypeErrorException
      */
     #[DplanPermissions('area_demosplan')]
-    #[Route(path: '/api/openapi.json', methods: ['GET', 'HEAD'], options: ['expose' => true], name: 'dplan_api_openapi_json')]
+    #[Route(path: '/api/openapi.json', name: 'dplan_api_openapi_json', options: ['expose' => true], methods: ['GET', 'HEAD'])]
     public function openapi(Manager $manager, RouterInterface $router, TranslatorInterface $translator): Response
     {
         if ('dev' !== $this->globalConfig->getKernelEnvironment()) {

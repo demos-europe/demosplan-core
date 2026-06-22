@@ -12,26 +12,19 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\CustomField;
 
-use Doctrine\ORM\Mapping as ORM;
-
-/**
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\CustomFieldJsonRepository")
- */
 interface CustomFieldInterface
 {
     public const TYPE_CLASSES = [
         'singleSelect' => RadioButtonField::class,
-        // 'dropdown' => DropdownField::class,
-        // Add other custom field types here
+        'multiSelect'  => MultiSelectField::class,
+        'text'         => TextField::class,
     ];
 
     /**
      * The format is a unique identifier which is used by
      * the object to json mapping in the database.
      */
-    public function getFormat(): string;
-
-    public function getType(): string;
+    public function getFieldType(): string;
 
     public function getName(): string;
 
@@ -50,13 +43,21 @@ interface CustomFieldInterface
      */
     public function toJson(): array;
 
-    public function getCustomFieldsList(): ?array;
-
     public function setId($id): void;
 
     public function getId(): string;
 
     public function getOptions(): array;
 
+    public function getRequired(): bool;
+
     public function getCustomOptionValueById(string $customFieldOptionValueId): ?CustomFieldOption;
+
+    public function getApiAttributes(): array;
+
+    /**
+     * Returns the human-readable representation of a stored value for display purposes (e.g. PDF export).
+     * Each field type is responsible for resolving its own value format.
+     */
+    public function formatValueForDisplay(mixed $value): string;
 }

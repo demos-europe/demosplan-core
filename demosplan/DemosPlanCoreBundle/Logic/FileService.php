@@ -45,6 +45,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
@@ -325,7 +326,7 @@ class FileService implements FileServiceInterface
         $finder = new Finder();
         // local file only, no need for flysystem
         $fs = new Filesystem();
-        $finder->files()->in(DemosPlanPath::getProjectPath('web/uploads/files'));
+        $finder->files()->in(DemosPlanPath::getPublicPath('uploads/files'));
 
         $filesDeleted = 0;
         foreach ($finder as $file) {
@@ -358,7 +359,8 @@ class FileService implements FileServiceInterface
     /**
      * Saves a temporary local file to the storage and returns the corresponding File entity.
      * File needs to be accessible for the file system of the current process.
-     * No s3 or other remote storage is used.
+     * Uses the configured default storage backend (maybe S3, local filesystem, or other adapters
+     * depending on the FILES_SOURCE environment variable configuration).
      *
      * @throws VirusFoundException|Throwable
      */
@@ -386,6 +388,69 @@ class FileService implements FileServiceInterface
         }
 
         return $this->handleLocalFileStorage($symfonyFile, $virencheck, $dplanFile, $filePath);
+    }
+
+    /**
+     * Same as {@link saveTemporaryLocalFile} but persists the File entity *before* the
+     * potentially long-running virus scan and flysystem move. The caller-supplied
+     * $afterPersist hook is invoked synchronously with the new entity, allowing the
+     * caller to record the freshly minted file id elsewhere (e.g. in the tus cache,
+     * so retries from a client whose connection died mid-PATCH can still recover the
+     * id). On any error after persistence, the partially created entity is removed.
+     */
+    public function persistAndStoreLocalFile(
+        string $filePath,
+        string $fileName,
+        ?string $userId,
+        ?string $procedureId,
+        string $virencheck,
+        string $hash,
+        callable $afterPersist,
+    ): File {
+        $symfonyFile = new \Symfony\Component\HttpFoundation\File\File($filePath);
+
+        // Reject by mimetype before touching the DB.
+        $this->checkMimeTypeAllowed($symfonyFile->getMimeType(), $symfonyFile->getPathname());
+
+        $path = date('Y').'/'.date('m');
+
+        $dplanFile = new File();
+        $dplanFile->setMimetype($symfonyFile->getMimeType());
+        $dplanFile->setFilename($fileName);
+        $dplanFile->setName($fileName);
+        $dplanFile->setAuthor($userId);
+        $dplanFile->setHash($hash);
+        $dplanFile->setSize($symfonyFile->getSize());
+        $dplanFile->setPath($path);
+        if (null !== $procedureId) {
+            try {
+                $dplanFile->setProcedure($this->entityManager->getReference(Procedure::class, $procedureId));
+            } catch (Throwable) {
+                // Procedure does not exist
+            }
+        }
+
+        $this->addFile($dplanFile);
+
+        try {
+            $afterPersist($dplanFile);
+        } catch (Throwable $hookError) {
+            $this->logger->warning('persistAndStoreLocalFile afterPersist hook failed', [$hookError]);
+        }
+
+        try {
+            if (self::VIRUSCHECK_NONE !== $virencheck && $this->globalConfig->isAvscanEnabled()) {
+                $this->virusCheck($symfonyFile);
+            }
+            $this->moveLocalFile($symfonyFile, $path, $hash);
+        } catch (Throwable $e) {
+            $this->deleteFile($hash);
+            throw $e;
+        }
+
+        (new Filesystem())->remove($filePath);
+
+        return $dplanFile;
     }
 
     /**
@@ -417,6 +482,57 @@ class FileService implements FileServiceInterface
         $filePath = $symfonyFile->getPathname();
 
         return $this->handleLocalFileStorage($symfonyFile, $virencheck, $dplanFile, $filePath);
+    }
+
+    /**
+     * Save file from binary content (e.g., already decoded base64 content).
+     *
+     * This method is useful when you have file content as a string (binary data)
+     * and need to save it. It creates a temporary file internally and cleans it up.
+     *
+     * @param string      $fileName       Original filename
+     * @param string      $fileContent    Binary file content
+     * @param string      $filenamePrefix Optional prefix for the temporary filename
+     * @param string|null $userId         Optional user ID
+     * @param string|null $procedureId    Optional procedure ID
+     *
+     * @return File The saved file entity
+     *
+     * @throws Throwable
+     */
+    public function saveBinaryFileContent(
+        string $fileName,
+        string $fileContent,
+        string $filenamePrefix = '',
+        ?string $userId = null,
+        ?string $procedureId = null,
+    ): File {
+        if ('' === $fileContent) {
+            throw new InvalidArgumentException('File content cannot be empty');
+        }
+
+        if ('' === $fileName) {
+            throw new InvalidArgumentException('Filename cannot be empty');
+        }
+
+        // Sanitize filename to remove invalid characters
+        $sanitizedFileName = $this->sanitizeFileName($fileName);
+
+        // Build temporary filename with optional prefix
+        // Example: prefix_file_67a1b2c3d4e5.12345678_Document.pdf
+        $tempFileName = ('' !== $filenamePrefix ? $filenamePrefix.'_' : '').uniqid('file_', true).'_'.$sanitizedFileName;
+        $tempFilePath = DemosPlanPath::getTemporaryPath($tempFileName);
+
+        try {
+            // Write content to temporary file using Symfony Filesystem
+            $fs = new Filesystem();
+            $fs->dumpFile($tempFilePath, $fileContent);
+
+            return $this->saveTemporaryLocalFile($tempFilePath, $sanitizedFileName, $userId, $procedureId);
+        } finally {
+            // Clean up the temporary file
+            $this->deleteLocalFile($tempFilePath);
+        }
     }
 
     /**
@@ -805,7 +921,9 @@ class FileService implements FileServiceInterface
     protected function virusCheck(\Symfony\Component\HttpFoundation\File\File $file): void
     {
         try {
+            $this->logger->info('Start virus check for file', ['filePath' => $file->getPathname()]);
             $hasVirus = $this->virusChecker->hasVirus($file);
+            $this->logger->info('Finished virus check for file', ['filePath' => $file->getPathname(), 'hasVirus' => $hasVirus]);
             if ($hasVirus) {
                 $this->removeRequestFiles();
 
@@ -1054,7 +1172,7 @@ class FileService implements FileServiceInterface
         try {
             $globalConfig = $this->globalConfig;
             $fileDirectoryFreeSpace = disk_free_space($globalConfig->getFileServiceFilePath());
-            $uploadDirectoryFreeSpace = disk_free_space(DemosPlanPath::getProjectPath('web/uploads/files'));
+            $uploadDirectoryFreeSpace = disk_free_space(DemosPlanPath::getPublicPath('uploads/files'));
             $smallerValue = $uploadDirectoryFreeSpace < $fileDirectoryFreeSpace ? $uploadDirectoryFreeSpace : $fileDirectoryFreeSpace;
         } catch (Exception $e) {
             $this->logger->error('Error on getRemainingDiskSpace(): ', [$e]);
@@ -1124,6 +1242,14 @@ class FileService implements FileServiceInterface
         $path = date('Y').'/'.date('m');
 
         if ($viruscheck && $this->globalConfig->isAvscanEnabled()) {
+            // Release the database session row lock before the blocking socket operation.
+            // Without this, concurrent requests from the same browser will hit a
+            // "Lock wait timeout exceeded" error if the scan takes longer than
+            // innodb_lock_wait_timeout (default 50s).
+            // In CLI/async contexts (e.g. message consumer) there is no HTTP session to save.
+            if ($this->requestStack->getCurrentRequest() instanceof Request) {
+                $this->requestStack->getSession()->save();
+            }
             $this->virusCheck($symfonyFile);
         }
 

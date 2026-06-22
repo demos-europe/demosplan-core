@@ -83,6 +83,7 @@
         />
 
         <dp-input
+          v-if="hasAgencyMailAddressesPermission"
           :id="agencyMainEmailId"
           v-model="mainEmail"
           class="mt-4"
@@ -95,8 +96,15 @@
           name="agencyMainEmailAddress[fullAddress]"
           type="email"
         />
+        <input
+          v-else
+          type="hidden"
+          name="agencyMainEmailAddress[fullAddress]"
+          value=""
+        >
 
         <dp-label
+          v-if="hasAgencyMailAddressesPermission"
           class="mt-4"
           for="emailList"
           :text="Translator.trans('email.address.more')"
@@ -104,6 +112,7 @@
           :tooltip="Translator.trans('email.address.more.explanation.help')"
         />
         <dp-email-list
+          v-if="hasAgencyMailAddressesPermission"
           id="emailList"
           allow-updates-from-outside
           :class="`${mainEmail === '' ? 'opacity-70 pointer-events-none' : '' } mt-2`"
@@ -124,7 +133,7 @@
           v-if="hasPermission('feature_admin_customer_master_procedure_template')"
           id="r_customerMasterBlueprint"
           class="mt-4"
-          :disabled="isCustomerMasterBlueprintExisting"
+          :disabled="customerMasterBlueprintName !== ''"
           :label="{
             hint: Translator.trans('explanation.customer.masterblueprint'),
             text: Translator.trans('master.of.customer.set')
@@ -133,9 +142,13 @@
         />
 
         <dp-inline-notification
-          v-if="isCustomerMasterBlueprintExisting && hasPermission('feature_admin_customer_master_procedure_template')"
-          :message="Translator.trans('explanation.customer.masterblueprint.uncheck.existing')"
-          type="warning"
+          v-if="customerMasterBlueprintName !== '' && hasPermission('feature_admin_customer_master_procedure_template')"
+          class="mt-2 mb-4"
+          :message="Translator.trans('explanation.customer.masterblueprint.uncheck.existing', {
+            procedureName: customerMasterBlueprintName,
+            organisationName: customerMasterBlueprintOrgaName
+          })"
+          type="info"
         />
 
         <div class="text-right space-inline-s">
@@ -213,14 +226,21 @@ export default {
       required: true,
     },
 
+    customerMasterBlueprintName: {
+      type: String,
+      required: false,
+      default: '',
+    },
+
+    customerMasterBlueprintOrgaName: {
+      type: String,
+      required: false,
+      default: '',
+    },
+
     initEmailAddresses: {
       type: Array,
       default: () => [],
-    },
-
-    isCustomerMasterBlueprintExisting: {
-      type: Boolean,
-      required: true,
     },
 
     masterBlueprintId: {
@@ -262,6 +282,12 @@ export default {
     }
   },
 
+  computed: {
+    hasAgencyMailAddressesPermission () {
+      return hasPermission('feature_procedure_agency_email_addresses')
+    },
+  },
+
   methods: {
     fetchSelectedBlueprint (blueprintId) {
       this.isLoading = true
@@ -273,9 +299,11 @@ export default {
         },
         include: 'agencyExtraEmailAddresses',
       }
+
       return dpApi.get(url, params)
         .then(({ data }) => {
           this.isLoading = false
+
           return {
             mainMail: data.data.attributes.agencyMainEmailAddress,
             agencyMailAddresses: data.included.filter(el => el.type === 'AgencyEmailAddress').map(el => ({ mail: el.attributes.fullAddress })),
@@ -290,6 +318,7 @@ export default {
     async setValuesFromSelectedBlueprint (blueprintId) {
       // Do not copy mail from master blueprint otherwise fetch mail from selected blueprint
       const blueprint = await this.fetchSelectedBlueprint(blueprintId)
+
       this.mainEmail = blueprintId === this.masterBlueprintId ? '' : blueprint.mainMail
       this.emailAddresses = blueprintId === this.masterBlueprintId ? [] : blueprint.agencyMailAddresses
     },

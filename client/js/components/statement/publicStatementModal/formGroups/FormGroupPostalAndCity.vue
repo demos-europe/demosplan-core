@@ -12,6 +12,7 @@
     <div :class="prefixClass('layout')">
       <dp-input
         id="r_postalCode"
+        :aria-label="Translator.trans('postalcode.complete')"
         :class="prefixClass('layout__item')"
         :disabled="disabled"
         :label="{
@@ -21,11 +22,11 @@
         :required="required && statement.r_useName === '1'"
         autocomplete="postal-code"
         data-cy="postalCode"
-        data-dp-validate-if="#r_getEvaluation_snailmail, #r_useName_1"
+        :data-dp-validate-if="publicParticipationFeedbackEnabled && hasPermission('feature_statements_feedback_postal') ? '#r_getEvaluation_snailmail,#r_useName_1' : '#r_useName_1'"
         name="r_postalCode"
         pattern="^[0-9]{4,5}$"
         width="u-4-of-12"
-        @input="val => setStatementData({r_postalCode: val})"
+        @update:model-value="val => setStatementData({r_postalCode: val})"
       /><!--
    --><dp-input
         id="r_city"
@@ -40,7 +41,7 @@
         data-cy="city"
         name="r_city"
         width="u-8-of-12"
-        @input="val => setStatementData({r_city: val})"
+        @update:model-value="val => setStatementData({r_city: val})"
     />
     </div>
   </div>
@@ -53,5 +54,13 @@ export default {
   name: 'FormGroupPostalAndCity',
 
   mixins: [formGroupMixin],
+
+  props: {
+    publicParticipationFeedbackEnabled: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+  },
 }
 </script>

@@ -30,7 +30,6 @@ All rights reserved
 
       <dp-upload-files
         allowed-file-types="zip"
-        :basic-auth="dplan.settings.basicAuth"
         data-cy="uploadParticipation"
         :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
         :max-file-size="100 * 1024 * 1024/* 100 MiB */"
@@ -83,6 +82,7 @@ export default {
   methods: {
     removeFileIds (file) {
       const fileIdx = this.fileIds.findIndex(el => el === file.hash)
+
       this.fileIds.splice(fileIdx, 1)
     },
 

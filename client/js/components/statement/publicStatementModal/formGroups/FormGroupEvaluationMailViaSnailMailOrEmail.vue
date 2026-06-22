@@ -61,7 +61,7 @@
           type="email"
           :model-value="statement.r_email"
           width="u-1-of-1-palm u-1-of-2"
-          @input="val => hasPermission('feature_statements_feedback_check_email') ? setStatementData({r_email: val}) : setStatementData({r_email: val, r_email2: val})"
+          @update:model-value="val => hasPermission('feature_statements_feedback_check_email') ? setStatementData({r_email: val}) : setStatementData({r_email: val, r_email2: val})"
         /><!--
 
         if repeating of email input is enforced, display second email field
@@ -83,7 +83,7 @@
           type="email"
           :model-value="statement.r_email2"
           width="u-1-of-1-palm u-1-of-2"
-        @input="val => setStatementData({r_email2: val})"
+          @update:model-value="val => setStatementData({r_email2: val})"
         /><!--
      --><dp-radio
           v-if="hasPermission('feature_statements_feedback_postal')"
@@ -110,6 +110,7 @@
           v-show="statement.r_useName !== '0'"
           :class="prefixClass('layout__item u-1-of-1-palm u-2-of-3 mt-2 u-pl-1_5')"
           :disabled="statement.r_useName === '0'"
+          :public-participation-feedback-enabled="publicParticipationFeedbackEnabled"
           :required="statement.r_getFeedback === 'on' && statement.r_getEvaluation === 'snailmail' && statement.r_useName !== '0'"
         />
       </div>

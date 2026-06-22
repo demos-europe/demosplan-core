@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "strict": false,
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+    "jsx": "preserve",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "paths": {
+      "@DpJs/*": ["./client/js/*"]
+    },
+    "types": ["jest"]
+  },
+  "include": [
+    "client/js/**/*.ts",
+    "client/js/**/*.vue",
+    "tests/frontend/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "client/js/legacy",
+    "client/js/generated"
+  ]
+}

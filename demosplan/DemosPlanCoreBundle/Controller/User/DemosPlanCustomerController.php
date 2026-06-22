@@ -40,7 +40,7 @@ class DemosPlanCustomerController extends BaseController
      * @throws MessageBagException
      */
     #[DplanPermissions('area_customer_settings')]
-    #[Route(path: '/einstellungen/plattform', methods: ['GET'], name: 'dplan_user_customer_showSettingsPage', options: ['expose' => true])]
+    #[Route(path: '/einstellungen/plattform', name: 'dplan_user_customer_showSettingsPage', options: ['expose' => true], methods: ['GET'])]
     public function showSettingsPage(
         CustomerHandler $customerHandler,
         EntityWrapperFactory $wrapperFactory,
@@ -66,7 +66,7 @@ class DemosPlanCustomerController extends BaseController
                 'imprintUrl'    => $router->generate('DemosPlan_misccontent_static_imprint', [], RouterInterface::ABSOLUTE_URL),
             ];
 
-            return $this->renderTemplate(
+            return $this->render(
                 '@DemosPlanCore/DemosPlanUser/customer_settings.html.twig',
                 [
                     'templateVars' => $templateVars,
@@ -87,7 +87,7 @@ class DemosPlanCustomerController extends BaseController
      * @throws MessageBagException
      */
     #[DplanPermissions('area_customer_settings')]
-    #[Route(path: '/einstellungen/plattform', methods: ['POST'], name: 'DemosPlan_user_setting_page_post', options: ['expose' => true])]
+    #[Route(path: '/einstellungen/plattform', name: 'DemosPlan_user_setting_page_post', options: ['expose' => true], methods: ['POST'])]
     public function editSettings(
         CustomerHandler $customerHandler,
         Request $request,
@@ -126,7 +126,7 @@ class DemosPlanCustomerController extends BaseController
      * @throws MessageBagException
      */
     #[DplanPermissions('area_customer_send_mail_to_users')]
-    #[Route(path: '/einstellungen/plattform/send/mail', methods: ['GET', 'POST'], name: 'dplan_customer_mail_send_all_users', options: ['expose' => true])]
+    #[Route(path: '/einstellungen/plattform/send/mail', name: 'dplan_customer_mail_send_all_users', options: ['expose' => true], methods: ['GET', 'POST'])]
     public function sendMailToAllCustomers(
         CustomerHandler $customerHandler,
         HTMLSanitizer $HTMLSanitizer,
@@ -142,7 +142,7 @@ class DemosPlanCustomerController extends BaseController
             $emailAddresses = $userService->getEmailsOfUsersOfOrgas($currentCustomer);
             $templateVars['usersCount'] = count($emailAddresses);
             if ($request->isMethod('GET')) {
-                return $this->renderTemplate(
+                return $this->render(
                     '@DemosPlanCore/DemosPlanUser/customer_settings_update_mail.html.twig',
                     [
                         'templateVars' => $templateVars,
@@ -166,7 +166,7 @@ class DemosPlanCustomerController extends BaseController
             );
             $this->getMessageBag()->add('confirm', 'confirm.email.sent');
 
-            return $this->renderTemplate(
+            return $this->render(
                 '@DemosPlanCore/DemosPlanUser/customer_settings_update_mail.html.twig',
                 [
                     'templateVars' => $templateVars,

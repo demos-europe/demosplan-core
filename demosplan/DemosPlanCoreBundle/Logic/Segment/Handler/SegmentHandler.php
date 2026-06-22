@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -14,16 +16,22 @@ use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Interfaces\SegmentHandlerInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService;
+use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Exception;
+use Psr\Log\LoggerInterface;
 
 class SegmentHandler implements SegmentHandlerInterface
 {
-    public function __construct(private readonly SegmentService $segmentService)
-    {
+    public function __construct(
+        private readonly SegmentService $segmentService,
+        private readonly LoggerInterface $logger,
+        private readonly CurrentProcedureService $currentProcedureService,
+    ) {
     }
 
     /**
@@ -44,7 +52,7 @@ class SegmentHandler implements SegmentHandlerInterface
 
     public function findById(string $entityId): Segment
     {
-        throw new NotYetImplementedException('Method not yet implemented.');
+        return $this->segmentService->findByIdWithCertainty($entityId);
     }
 
     /**
@@ -65,12 +73,43 @@ class SegmentHandler implements SegmentHandlerInterface
 
     public function delete(string $entityId): bool
     {
-        throw new NotYetImplementedException('Method not yet implemented.');
+        try {
+            $segment = $this->segmentService->findByIdWithCertainty($entityId);
+
+            // Check if segment belongs to the current procedure
+            $currentProcedureId = $this->currentProcedureService->getProcedureIdWithCertainty();
+            if ($segment->getParentStatementOfSegment()->getProcedure()->getId() !== $currentProcedureId) {
+                $this->logger->warning('Segment does not belong to current procedure', [
+                    'segmentId'          => $entityId,
+                    'currentProcedureId' => $currentProcedureId,
+                    'segmentProcedureId' => $segment->getParentStatementOfSegment()->getProcedure()->getId(),
+                ]);
+
+                throw new EntityNotFoundException('Segment not available');
+            }
+
+            $this->deleteObject($segment);
+
+            return true;
+        } catch (EntityNotFoundException $e) {
+            $this->logger->warning('Could not find segment for deletion', [
+                'segmentId' => $entityId,
+                'exception' => $e->getMessage(),
+            ]);
+        } catch (Exception $e) {
+            $this->logger->error('Exception occurred while deleting segment', [
+                'segmentId' => $entityId,
+                'exception' => $e->getMessage(),
+                'trace'     => $e->getTraceAsString(),
+            ]);
+        }
+
+        return false;
     }
 
     public function deleteObject(Segment $segment): void
     {
-        throw new NotYetImplementedException('Method not yet implemented.');
+        $this->segmentService->deleteSegment($segment);
     }
 
     /**
@@ -81,6 +120,20 @@ class SegmentHandler implements SegmentHandlerInterface
     public function findByIds(array $ids): array
     {
         return $this->segmentService->findByIds($ids);
+    }
+
+    /**
+     * Returns the subset of given IDs that belong to `$procedureId` AND
+     * whose current workflow place has `locked = true`. Delegates to
+     * {{ @see SegmentService::findLockedByIds }}.
+     *
+     * @param list<string> $ids
+     *
+     * @return list<Segment>
+     */
+    public function findLockedByIds(array $ids, string $procedureId): array
+    {
+        return $this->segmentService->findLockedByIds($ids, $procedureId);
     }
 
     /**

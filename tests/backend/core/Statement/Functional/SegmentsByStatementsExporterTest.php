@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplate;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Shared\Converter;
 use PhpOffice\PhpWord\Style\Table;
@@ -227,7 +228,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
 
         $styles = [
-            'orientation'  => 'landscape',
+            'orientation'  => ExportTemplate::LANDSCAPE->value,
             'marginLeft'   => Converter::cmToTwip(1.27),
             'marginRight'  => Converter::cmToTwip(1.27),
         ];

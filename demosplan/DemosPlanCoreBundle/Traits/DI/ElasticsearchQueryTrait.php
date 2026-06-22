@@ -102,7 +102,7 @@ trait ElasticsearchQueryTrait
             $boolQuery = $this->modifyBoolMustNotFilter($boolQuery, $esQuery);
 
             // if a Searchterm is set use it
-            if (null !== $esQuery->getSearch() && 0 < strlen((string) $esQuery->getSearch()->getSearchTerm())) {
+            if (null !== $esQuery->getSearch() && '' !== (string) $esQuery->getSearch()->getSearchTerm()) {
                 $baseQuery = new QueryString();
                 $baseQuery->setQuery($esQuery->getSearch()->getSearchTerm());
                 $baseQuery->setFields($esQuery->getSearch()->getFieldsArray());
@@ -244,7 +244,7 @@ trait ElasticsearchQueryTrait
     protected function addUserFilterTerms($key, $userFilters, $boolMustFilter)
     {
         if (isset($userFilters[$key])) {
-            $value = is_array($userFilters[$key]) ? $userFilters[$key] : [$userFilters[$key]];
+            $value = is_array($userFilters[$key]) ? \array_values($userFilters[$key]) : [$userFilters[$key]];
             $boolMustFilter[] = new Terms($key, $value);
         }
 
@@ -260,7 +260,7 @@ trait ElasticsearchQueryTrait
      */
     protected function getTermsQuery($filter)
     {
-        $value = is_array($filter->getValue()) ? $filter->getValue() : [$filter->getValue()];
+        $value = is_array($filter->getValue()) ? \array_values($filter->getValue()) : [$filter->getValue()];
 
         return new Terms($filter->getField(), $value);
     }

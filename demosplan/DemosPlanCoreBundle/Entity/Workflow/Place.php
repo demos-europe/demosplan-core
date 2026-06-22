@@ -14,70 +14,52 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Workflow;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\PlaceInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\SortableInterface;
+use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository")
- *
- * @ORM\Table(name="workflow_place", uniqueConstraints={
- *
- *        @ORM\UniqueConstraint(name="unique_workflow_place_name", columns={"name", "procedure_id"}),
- *        @ORM\UniqueConstraint(name="unique_workflow_place_sort_index", columns={"sort_index", "procedure_id"})
- * })
- */
+#[ORM\Table(name: 'workflow_place')]
+#[ORM\UniqueConstraint(name: 'unique_workflow_place_name', columns: ['name', 'procedure_id'])]
+#[ORM\UniqueConstraint(name: 'unique_workflow_place_sort_index', columns: ['sort_index', 'procedure_id'])]
+#[ORM\Entity(repositoryClass: PlaceRepository::class)]
 class Place extends CoreEntity implements SortableInterface, PlaceInterface
 {
     /**
      * The displayed description of this instance.
      *
      * @var string
-     *
-     * @ORM\Column(type="string", length=255, nullable=false, options={"default":""})
      */
     #[Assert\NotNull]
     #[Assert\Length(min: 0, max: 255, normalizer: 'trim')]
+    #[ORM\Column(type: 'string', length: 255, nullable: false, options: ['default' => ''])]
     private $description = '';
-    /**
-     * @ORM\Column(name="solved", type="boolean", nullable=false, options={"default":false, "fixed":true})
-     */
+    #[ORM\Column(name: 'solved', type: 'boolean', nullable: false, options: ['default' => false, 'fixed' => true])]
     private bool $solved = false;
+    #[ORM\Column(name: 'locked', type: 'boolean', nullable: false, options: ['default' => false, 'fixed' => true])]
+    private bool $locked = false;
 
     public function __construct(
-        /**
-         * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure", inversedBy="segmentPlaces")
-         *
-         * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false)
-         */
-        #[Assert\NotNull]
+        #[Assert\NotNull] #[ORM\JoinColumn(referencedColumnName: '_p_id', nullable: false)] #[ORM\ManyToOne(targetEntity: Procedure::class, inversedBy: 'segmentPlaces')]
         private Procedure $procedure,
         /**
          * The displayed name of this instance.
-         *
-         * @ORM\Column(type="string", length=255, nullable=false)
          */
-        #[Assert\NotBlank(normalizer: 'trim', allowNull: false)]
-        #[Assert\Length(min: 1, max: 255, normalizer: 'trim')]
+        #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
+        #[Assert\Length(min: 1, max: 255, normalizer: 'trim')] #[ORM\Column(type: 'string', length: 255, nullable: false)]
         private string $name = '',
-        /**
-         * @ORM\Column(type="integer", nullable=false, options={"unsigned"=true, "default":0})
-         */
-        #[Assert\NotNull]
+        #[Assert\NotNull] #[ORM\Column(type: 'integer', nullable: false, options: ['unsigned' => true, 'default' => 0])]
         private int $sortIndex = 0,
         /**
          * @var string|null `null` if this instance was not persisted yet
-         *
-         * @ORM\Id
-         *
-         * @ORM\GeneratedValue(strategy="CUSTOM")
-         *
-         * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
-         *
-         * @ORM\Column(type="string", length=36, options={"fixed":true})
          */
+        #[ORM\Id]
+        #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+        #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
+        #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
         private ?string $id = null,
     ) {
     }
@@ -136,6 +118,18 @@ class Place extends CoreEntity implements SortableInterface, PlaceInterface
     public function setSolved(bool $solved): self
     {
         $this->solved = $solved;
+
+        return $this;
+    }
+
+    public function isLocked(): bool
+    {
+        return $this->locked;
+    }
+
+    public function setLocked(bool $locked): self
+    {
+        $this->locked = $locked;
 
         return $this;
     }

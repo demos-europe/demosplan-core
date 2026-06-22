@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
@@ -64,7 +65,7 @@ class DemosPlanAssessmentController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('feature_statement_assignment')]
-    #[Route(name: 'DemosPlan_assessment_set_statement_assignment', path: '/assignment/statement/{entityId}/{assignOrUnassign}')]
+    #[Route(path: '/assignment/statement/{entityId}/{assignOrUnassign}', name: 'DemosPlan_assessment_set_statement_assignment')]
     public function setStatementAssignee(
         CurrentUserService $currentUser,
         Request $request,
@@ -113,7 +114,7 @@ class DemosPlanAssessmentController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('feature_statement_data_input_orga')]
-    #[Route(name: 'DemosPlan_statement_orga_list', path: '/statement/manual/list/{procedureId}')]
+    #[Route(path: '/statement/manual/list/{procedureId}', name: 'DemosPlan_statement_orga_list')]
     public function getOrgaStatementList(CurrentUserService $currentUser, StatementHandler $statementHandler, string $procedureId): Response
     {
         $organisationId = $currentUser->getUser()->getOrganisationId();
@@ -129,7 +130,7 @@ class DemosPlanAssessmentController extends BaseController
             'procedureId' => $procedureId,
         ];
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/list_orga_statements.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -145,7 +146,7 @@ class DemosPlanAssessmentController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('feature_statement_data_input_orga')]
-    #[Route(name: 'DemosPlan_statement_new_submitted', path: '/statement/new/manual/{procedureId}', options: ['expose' => true])]
+    #[Route(path: '/statement/new/manual/{procedureId}', name: 'DemosPlan_statement_new_submitted', options: ['expose' => true])]
     public function newManualStatement(
         CurrentUserService $currentUser,
         FileUploadService $fileUploadService,
@@ -203,7 +204,7 @@ class DemosPlanAssessmentController extends BaseController
 
         // atm use Template from DemosPlanAssessmentTableBundle as refactoring it to this Bundle
         // generates quite a hassle as it needs to be done in all projects
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/dhtml/v1/assessment_table_new_statement.html.twig',
             [
                 'procedure'    => $procedureId,
@@ -217,7 +218,7 @@ class DemosPlanAssessmentController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('feature_statement_data_input_orga')]
-    #[Route(name: 'DemosPlan_statement_single_view', path: 'procedure/{procedureId}/statement/{statementId}/dataInput')]
+    #[Route(path: 'procedure/{procedureId}/statement/{statementId}/dataInput', name: 'DemosPlan_statement_single_view')]
     public function viewSingleStatement(
         Breadcrumb $breadcrumb,
         ProcedureService $procedureService,
@@ -249,7 +250,7 @@ class DemosPlanAssessmentController extends BaseController
             ]
         );
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/DemosPlanAssessment/view_statement.html.twig',
             ['title' => $title, 'templateVars' => $templateVars]
         );
@@ -261,7 +262,7 @@ class DemosPlanAssessmentController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_admin_assessmenttable')]
-    #[Route(name: 'DemosPlan_cluster_single_statement_view', path: '/verfahren/{procedure}/cluster/statement/{statementId}')]
+    #[Route(path: '/verfahren/{procedure}/cluster/statement/{statementId}', name: 'DemosPlan_cluster_single_statement_view')]
     public function viewStatementClusterSingleStatement(StatementHandler $statementHandler, string $statementId): Response
     {
         $statement = $statementHandler->getStatement($statementId);
@@ -269,7 +270,7 @@ class DemosPlanAssessmentController extends BaseController
         $templateVars['table']['statement'] = $statement;
         $templateVars['table']['procedure'] = $statement->getProcedure();
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanStatement/DemosPlanAssessment/view_statement.html.twig',
             [
                 'templateVars' => $templateVars,
@@ -284,7 +285,7 @@ class DemosPlanAssessmentController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_admin_assessmenttable')]
-    #[Route(name: 'DemosPlan_cluster_detach_statement', path: '/verfahren/{procedure}/cluster/statement/{statementId}/detach')]
+    #[Route(path: '/verfahren/{procedure}/cluster/statement/{statementId}/detach', name: 'DemosPlan_cluster_detach_statement')]
     public function detachStatementFromCluster(StatementHandler $statementHandler, string $statementId): Response
     {
         try {
@@ -309,7 +310,7 @@ class DemosPlanAssessmentController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_admin_assessmenttable')]
-    #[Route(name: 'DemosPlan_cluster_resolve', path: '/verfahren/{procedure}/cluster/resolve/{headStatementId}')]
+    #[Route(path: '/verfahren/{procedure}/cluster/resolve/{headStatementId}', name: 'DemosPlan_cluster_resolve')]
     public function resolveCluster(StatementHandler $statementHandler, string $headStatementId): Response
     {
         try {
@@ -331,13 +332,14 @@ class DemosPlanAssessmentController extends BaseController
      * Returns the base data for Vue components on the assessment table.
      */
     #[DplanPermissions('feature_procedure_get_base_data')]
-    #[Route(name: 'DemosPlan_assessment_base_ajax', path: '/_ajax/assessment/{procedureId}', options: ['expose' => true])]
+    #[Route(path: '/_ajax/assessment/{procedureId}', name: 'DemosPlan_assessment_base_ajax', options: ['expose' => true])]
     public function assessmentBaseAjax(
         CurrentUserService $currentUser,
         CountyService $countyService,
         MunicipalityService $municipalityService,
         PermissionsInterface $permissions,
         PriorityAreaService $priorityAreaService,
+        ProcedurePhaseDefinitionService $phaseDefinitionService,
         ProcedureService $procedureService,
         StatementHandler $statementHandler,
         string $procedureId): JsonResponse
@@ -375,8 +377,14 @@ class DemosPlanAssessmentController extends BaseController
         }
 
         // Verfahrensschritte
-        $data['internalPhases'] = $this->globalConfig->getInternalPhases();
-        $data['externalPhases'] = $this->globalConfig->getExternalPhases();
+        $data['internalPhases'] = array_map(
+            static fn ($def) => ['id' => $def->getId(), 'name' => $def->getName(), 'permissionSet' => $def->getPermissionSet()],
+            $phaseDefinitionService->getInternalPhaseDefinitionsForCurrentCustomer()
+        );
+        $data['externalPhases'] = array_map(
+            static fn ($def) => ['id' => $def->getId(), 'name' => $def->getName(), 'permissionSet' => $def->getPermissionSet()],
+            $phaseDefinitionService->getExternalPhaseDefinitionsForCurrentCustomer()
+        );
 
         $resElements = $statementHandler->getElementBlock($procedureId);
         $data['elements'] = $resElements['elements'] ?? [];
@@ -464,6 +472,7 @@ class DemosPlanAssessmentController extends BaseController
                 $submitter = new SubmitterValueObject();
                 $submitter->setEntityId($department->getId());
                 $submitter->setList(SubmitterValueObject::LIST_INSTITUTION);
+                $submitter->setOrgaId($orga->getId());
                 $submitter->setSubmitter($orga->getName(), $department->getName(), '', $orga->getPostalcode(), $orga->getCity());
                 // for now there is no need to implement setLastStatementCountyIds &&
                 // setLastStatementMunicipalityIds, as permissions are not used together
@@ -534,6 +543,7 @@ class DemosPlanAssessmentController extends BaseController
             $submitter = new SubmitterValueObject();
             $submitter->setEntityId($statement->getId());
             $submitter->setList($listType);
+            $submitter->setOrgaId($statement->getOrganisation()?->getId());
             $submitter->setSubmitter($orgaName, $departmentName, $authorName, $postalCode, $city);
             $submitter->setLastStatementCountyIds($countyIds);
             $submitter->setLastStatementMunicipalityIds($municipalityIds);

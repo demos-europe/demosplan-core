@@ -45,12 +45,12 @@ class ProcedureProposalController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_procedure_proposal_edit')]
-    #[Route(path: '/procedure_proposal_list', methods: ['GET'], name: 'dplan_procedure_proposals_list')]
+    #[Route(path: '/procedure_proposal_list', name: 'dplan_procedure_proposals_list', methods: ['GET'])]
     public function listProcedureProposal(): Response
     {
         $procedureProposals = $this->procedureProposalService->getProcedureProposals();
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_list_procedure_proposal.html.twig',
             [
                 'title'     => 'procedure.proposal.list',
@@ -65,7 +65,7 @@ class ProcedureProposalController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_procedure_proposal_edit')]
-    #[Route(path: 'proposal/{procedureProposalId}', methods: ['GET'], name: 'dplan_procedure_proposal_view')]
+    #[Route(path: 'proposal/{procedureProposalId}', name: 'dplan_procedure_proposal_view', methods: ['GET'])]
     public function getProcedureProposal(ProcedureProposalHandler $proposalHandler, string $procedureProposalId): Response
     {
         try {
@@ -76,7 +76,7 @@ class ProcedureProposalController extends BaseController
             return $this->redirectToRoute('core_home');
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_edit_procedure_proposal.html.twig',
             [
                 'title'        => 'procedure.proposal.detail',
@@ -118,7 +118,7 @@ class ProcedureProposalController extends BaseController
             $this->getMessageBag()->add('error', 'procedure.proposal.create.error');
         }
 
-        return $this->renderTemplate(
+        return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/public_procedure_proposal.html.twig',
             [
                 'templateVars' => $templateVars,

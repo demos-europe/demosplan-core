@@ -15,23 +15,41 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Constraint\ProcedureWithStatementsCustomFieldConstraint;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-class CustomFieldValidator
+abstract class CustomFieldValidator implements FieldTypeValidatorInterface
 {
+    protected const COMMON_CLASS_NAME_TO_CLASS_PATH_MAP = [
+        'CUSTOMER'           => Customer::class,
+        'ORGA'               => Orga::class,
+        'PROCEDURE'          => Procedure::class,
+        'PROCEDURE_TEMPLATE' => Procedure::class,
+        'SEGMENT'            => Segment::class,
+        'STATEMENT'          => Statement::class,
+    ];
+
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly array $sourceToTargetMap = [
-            'PROCEDURE'          => 'SEGMENT',
-            'PROCEDURE_TEMPLATE' => 'SEGMENT',
-        ],
-        private readonly array $classNameToClassPathtMap = [
-            'PROCEDURE'          => Procedure::class,
-            'PROCEDURE_TEMPLATE' => Procedure::class,
-            'SEGMENT'            => Segment::class,
-        ])
+        private readonly ValidatorInterface $validator)
     {
+    }
+
+    abstract public function getSourceToTargetMapping(): array;
+
+    public function supports(string $fieldType): bool
+    {
+        return $this->getFieldType() === $fieldType;
+    }
+
+    public function getClassNameToClassPathMap(): array
+    {
+        return static::COMMON_CLASS_NAME_TO_CLASS_PATH_MAP;
     }
 
     public function validate(array $attributes): void
@@ -45,6 +63,15 @@ class CustomFieldValidator
             $attributes['sourceEntity'],
             $attributes['sourceEntityId']
         );
+
+        $violations = $this->validator->validate(
+            $attributes,
+            [new ProcedureWithStatementsCustomFieldConstraint()]
+        );
+
+        if ($violations->count() > 0) {
+            throw new InvalidArgumentException((string) $violations);
+        }
     }
 
     private function validateFieldType(?string $fieldType): void
@@ -56,14 +83,23 @@ class CustomFieldValidator
 
     private function validateSourceToTargetMapping(?string $sourceEntity, ?string $targetEntity): void
     {
-        if ($this->sourceToTargetMap[$sourceEntity] !== $targetEntity) {
-            throw new InvalidArgumentException(sprintf('The target entity "%s" does not match the expected target entity "%s" for source entity "%s".', $targetEntity, $this->sourceToTargetMap[$sourceEntity], $sourceEntity));
+        $sourceToTargetMap = $this->getSourceToTargetMapping();
+
+        if (null === $sourceEntity || !array_key_exists($sourceEntity, $sourceToTargetMap)) {
+            throw new InvalidArgumentException(sprintf('No mapping defined for source entity "%s".', $sourceEntity));
+        }
+
+        $allowedTargets = $sourceToTargetMap[$sourceEntity];
+
+        if (!in_array($targetEntity, $allowedTargets, true)) {
+            throw new InvalidArgumentException(sprintf('The target entity "%s" is not valid for source entity "%s". Allowed targets: %s.', $targetEntity, $sourceEntity, implode(', ', $allowedTargets)));
         }
     }
 
     private function validateSourceEntityIdExists(string $sourceEntity, string $sourceEntityId): void
     {
-        $sourceEntityClass = $this->classNameToClassPathtMap[$sourceEntity];
+        $classNameToClassPathMap = $this->getClassNameToClassPathMap();
+        $sourceEntityClass = $classNameToClassPathMap[$sourceEntity];
 
         // Query the repository for the entity
         $repository = $this->entityManager->getRepository($sourceEntityClass);
