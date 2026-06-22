@@ -21,22 +21,24 @@ use InvalidArgumentException;
 class CustomFieldFilterResolver
 {
     public function __construct(
-        private readonly EntityManagerInterface $entityManager
-    ) {}
+        private readonly EntityManagerInterface $entityManager,
+    ) {
+    }
 
     /**
      * Returns IDs of entities whose customFields JSON matches ALL given field/value pairs.
      * AND logic across fields, OR logic across multiple values within one field.
      *
-     * @param array<string, list<string>> $fieldFilters  fieldId → [optionId, …]
+     * @param array<string, list<string>> $fieldFilters fieldId → [optionId, …]
+     *
      * @return list<string>
      */
     public function resolveMatchingIds(
         CustomFieldSupportedEntity $entity,
         string $procedureId,
-        array $fieldFilters
+        array $fieldFilters,
     ): array {
-        if ($fieldFilters === []) {
+        if ([] === $fieldFilters) {
             return [];
         }
 
@@ -54,13 +56,13 @@ class CustomFieldFilterResolver
         foreach ($fieldFilters as $fieldId => $values) {
             $clauses = [];
             foreach ($values as $valIdx => $value) {
-                $idParam  = "cf{$fieldIdx}id";
+                $idParam = "cf{$fieldIdx}id";
                 $valParam = "cf{$fieldIdx}v{$valIdx}";
                 $clauses[] = "JSON_CONTAINS_CUSTOM_FIELD({$alias}.customFields, :{$idParam}, :{$valParam}) = 1";
-                $params[$idParam]  = $fieldId;
+                $params[$idParam] = $fieldId;
                 $params[$valParam] = $value;
             }
-            $dql .= ' AND (' . implode(' OR ', $clauses) . ')';
+            $dql .= ' AND ('.implode(' OR ', $clauses).')';
             ++$fieldIdx;
         }
 
@@ -74,7 +76,7 @@ class CustomFieldFilterResolver
 
     /**
      * @return array{0: string, 1: class-string, 2: string, 3: list<string>}
-     *         [alias, FQCN, procedure DQL expression, extra WHERE conditions]
+     *                                                                       [alias, FQCN, procedure DQL expression, extra WHERE conditions]
      */
     private function entityConfig(CustomFieldSupportedEntity $entity): array
     {
@@ -91,9 +93,7 @@ class CustomFieldFilterResolver
                 'seg.procedure',
                 ['seg.deleted = false'],
             ],
-            default => throw new InvalidArgumentException(
-                "Entity '{$entity->value}' does not support custom field ID resolution"
-            ),
+            default => throw new InvalidArgumentException("Entity '{$entity->value}' does not support custom field ID resolution"),
         };
     }
 }

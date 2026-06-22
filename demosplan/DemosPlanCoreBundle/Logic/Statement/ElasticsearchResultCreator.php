@@ -23,12 +23,12 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Logic\Workflow\ProfilerService;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResult;
 use Elastica\Aggregation\GlobalAggregation;
 use Elastica\Exception\ClientException;
@@ -175,7 +175,7 @@ class ElasticsearchResultCreator
             [$boolMustFilter, $boolMustNotFilter] = $this->getBasicFilters($procedureId, $userFilters);
             $userFilters = $this->getRenamedUserFilters($userFilters);
 
-            if ($customFieldFilters !== []) {
+            if ([] !== $customFieldFilters) {
                 $matchingIds = $this->customFieldFilterResolver->resolveMatchingIds(
                     CustomFieldSupportedEntity::statement,
                     $procedureId,
@@ -183,7 +183,7 @@ class ElasticsearchResultCreator
                 );
                 $boolMustFilter[] = $this->elasticSearchService->getElasticaTermsInstance(
                     'id',
-                    $matchingIds !== [] ? $matchingIds : ['__no_match__']
+                    [] !== $matchingIds ? $matchingIds : ['__no_match__']
                 );
             }
             $fragmentFilters = $this->getFragmentFilters($userFilters);

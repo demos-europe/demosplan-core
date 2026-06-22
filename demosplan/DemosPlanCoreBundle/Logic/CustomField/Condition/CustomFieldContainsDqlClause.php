@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\CustomField\Condition;
 
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
-use EDT\Querying\PropertyPaths\PathInfo;
 use Stringable;
 
 class CustomFieldContainsDqlClause implements ClauseFunctionInterface, Stringable
@@ -22,7 +21,8 @@ class CustomFieldContainsDqlClause implements ClauseFunctionInterface, Stringabl
     public function __construct(
         private readonly string $fieldId,
         private readonly string $optionValue,
-    ) {}
+    ) {
+    }
 
     public function getPropertyPaths(): array
     {
