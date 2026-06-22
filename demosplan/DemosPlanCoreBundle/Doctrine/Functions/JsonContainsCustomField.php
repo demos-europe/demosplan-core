@@ -20,7 +20,7 @@ use Doctrine\ORM\Query\TokenType;
 
 /**
  * DQL: JSON_CONTAINS_CUSTOM_FIELD(column, fieldId, value)
- * SQL: JSON_CONTAINS(column, JSON_OBJECT('id', fieldId, 'value', value))
+ * SQL: JSON_CONTAINS(column, JSON_OBJECT('id', fieldId, 'value', value)).
  */
 class JsonContainsCustomField extends FunctionNode
 {
