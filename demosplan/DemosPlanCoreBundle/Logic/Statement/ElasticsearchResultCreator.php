@@ -164,27 +164,11 @@ class ElasticsearchResultCreator
                 $searchFields,
                 $aggregationsMinDocumentCount
             );
-            $customFieldFilters = [];
-            foreach (array_keys($userFilters) as $key) {
-                if (str_starts_with($key, 'customField_')) {
-                    $customFieldFilters[substr($key, strlen('customField_'))] = $userFilters[$key];
-                    unset($userFilters[$key]);
-                }
-            }
-
+            [$customFieldFilter, $userFilters] = $this->getCustomFieldFilter($procedureId, $userFilters);
             [$boolMustFilter, $boolMustNotFilter] = $this->getBasicFilters($procedureId, $userFilters);
             $userFilters = $this->getRenamedUserFilters($userFilters);
-
-            if ([] !== $customFieldFilters) {
-                $matchingIds = $this->customFieldFilterResolver->resolveMatchingIds(
-                    CustomFieldSupportedEntity::statement,
-                    $procedureId,
-                    $customFieldFilters
-                );
-                $boolMustFilter[] = $this->elasticSearchService->getElasticaTermsInstance(
-                    'id',
-                    [] !== $matchingIds ? $matchingIds : ['__no_match__']
-                );
+            if (null !== $customFieldFilter) {
+                $boolMustFilter[] = $customFieldFilter;
             }
             $fragmentFilters = $this->getFragmentFilters($userFilters);
             $userFragmentFilters = $this->statementService->mapRequestFiltersToESFragmentFilters($userFilters);
@@ -1537,6 +1521,43 @@ class ElasticsearchResultCreator
         }
 
         return $fragmentFilters;
+    }
+
+    /**
+     * Strips customField_* entries from $userFilters, resolves matching statement
+     * IDs via Doctrine and returns the Elastica terms filter alongside the cleaned filters array.
+     *
+     * @param array<string, mixed> $userFilters
+     *
+     * @return array{0: AbstractQuery|null, 1: array<string, mixed>}
+     */
+    private function getCustomFieldFilter(string $procedureId, array $userFilters): array
+    {
+        $fieldFilters = [];
+        foreach (array_keys($userFilters) as $key) {
+            if (str_starts_with($key, 'customField_')) {
+                $fieldFilters[substr($key, strlen('customField_'))] = $userFilters[$key];
+                unset($userFilters[$key]);
+            }
+        }
+
+        if ([] === $fieldFilters) {
+            return [null, $userFilters];
+        }
+
+        $matchingIds = $this->customFieldFilterResolver->resolveMatchingIds(
+            CustomFieldSupportedEntity::statement,
+            $procedureId,
+            $fieldFilters
+        );
+
+        return [
+            $this->elasticSearchService->getElasticaTermsInstance(
+                'id',
+                [] !== $matchingIds ? $matchingIds : ['__no_match__']
+            ),
+            $userFilters,
+        ];
     }
 
     /**
