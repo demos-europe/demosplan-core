@@ -949,6 +949,16 @@ export default {
         this.setNumSelectableItems(data)
         this.updatePagination(data.meta.pagination)
         this.fetchGroupMemberCounts()
+      }).catch(() => {
+        /*
+         * dpApi rejects on HTTP >= 400. Don't let it bubble as an unhandled rejection: a stale
+         * stored page can be recovered by falling back to page 1; otherwise inform the user.
+         */
+        if (page !== 1) {
+          this.getItemsByPage(1)
+        } else {
+          dplan.notify.notify('error', Translator.trans('error.api.generic'))
+        }
       })
     },
 
@@ -1209,6 +1219,14 @@ export default {
       },
     })
     this.initPagination()
+    /*
+     * After grouping, the statement count shrinks, so the persisted page may no longer exist.
+     * Start on page 1 to avoid an out-of-range request (and its slow double-fetch).
+     */
+    if (lscache.get(`${this.procedureId}:statementListResetPage`)) {
+      lscache.remove(`${this.procedureId}:statementListResetPage`)
+      this.pagination.currentPage = 1
+    }
     this.restoreSelectedSort()
     this.getItemsByPage(this.pagination.currentPage)
   },
