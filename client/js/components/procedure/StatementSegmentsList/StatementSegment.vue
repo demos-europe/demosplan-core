@@ -951,6 +951,27 @@ export default {
       })
     },
 
+    finalizeSuccessfulSave (id, comments) {
+      return Promise.all([
+        this.fetchUpdatedSegment().catch((err) => {
+          console.error('Failed to fetch updated segment:', err)
+
+          return null
+        }),
+
+        this.saveCustomFields(),
+      ])
+        .then(() => {
+          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+          this.isFullscreen = false
+          this.hideAdditionalFields()
+          this.addRecommendationImageListeners()
+        })
+        .catch(() => {
+          this.rollbackFailedSave(id, comments)
+        })
+    },
+
     restoreRelationships (comments) {
       this.restoreComments(comments)
       this.setProperty({ prop: 'isLoading', val: false })
@@ -967,33 +988,6 @@ export default {
       const isoDate = reformatDateString(value)
 
       this.updateSegment('deadline', isoDate)
-    },
-
-    handleSuccessfulSave (comments) {
-      return Promise.all([
-        this.fetchUpdatedSegment().catch((err) => {
-          console.error('Failed to fetch updated segment:', err)
-
-          return null
-        }),
-
-        this.saveCustomFields(),
-      ])
-        .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-          this.isFullscreen = false
-          this.hideAdditionalFields()
-          this.addRecommendationImageListeners()
-        })
-        .catch((err) => {
-          console.error('Save failed:', err)
-          dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
-          this.restoreSegmentAction(this.segment.id)
-        })
-        .finally(() => {
-          this.isSaving = false
-          this.restoreRelationships(comments)
-        })
     },
 
     hasPolygonFeatures () {
@@ -1121,6 +1115,13 @@ export default {
       }
     },
 
+    rollbackFailedSave (id, comments) {
+      dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
+      this.restoreSegmentAction(id)
+      this.restoreRelationships(comments)
+      this.isSaving = false
+    },
+
     saveCustomFields () {
       /*
        * Custom fields are saved via a separate PATCH using the composable's updateCustomFields,
@@ -1171,19 +1172,15 @@ export default {
       return this.saveSegmentAction({ id: this.segment.id })
         .then((response) => {
           if (response && (response.status >= 400 || response.ok === false)) {
-            dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
-            this.restoreRelationships(comments)
+            this.rollbackFailedSave(this.segment.id, comments)
 
             return
           }
 
-          return this.handleSuccessfulSave(comments)
+          return this.finalizeSuccessfulSave(this.segment.id, comments)
         })
         .catch(() => {
-          dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
-          this.restoreSegmentAction(this.segment.id)
-          this.isSaving = false
-          this.restoreRelationships(comments)
+          this.rollbackFailedSave(this.segment.id, comments)
         })
     },
 
