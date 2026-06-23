@@ -38,9 +38,12 @@ class ProcedurePhaseDefinitionEditor
         }
     }
 
-    public function setDeleted(ProcedurePhaseDefinition $phaseDefinition, bool $isDeleted): void
+    /**
+     * @throws JsonException
+     */
+    public function setDeleted(ProcedurePhaseDefinition $phaseDefinition, bool $newIsDeleted): void
     {
-        if ($isDeleted && $this->procedurePhaseDefinitionRepository->isReferencedByActiveProcedure($phaseDefinition)) {
+        if ($newIsDeleted && $this->procedurePhaseDefinitionRepository->isReferencedByActiveProcedure($phaseDefinition)) {
             $this->messageBag->add(
                 'error',
                 'error.procedure_phase_definition.delete.referenced',
@@ -49,7 +52,14 @@ class ProcedurePhaseDefinitionEditor
             return;
         }
 
-        $phaseDefinition->setDeleted($isDeleted);
+        $oldIsDeleted = $phaseDefinition->isDeleted();
+        $phaseDefinition->setDeleted($newIsDeleted);
+        $this->addReportEntryUpdate(
+            $phaseDefinition,
+            ProcedurePhaseDefinitionUpdatableField::IS_DELETED,
+            $oldIsDeleted,
+            $newIsDeleted,
+        );
     }
 
     /**
