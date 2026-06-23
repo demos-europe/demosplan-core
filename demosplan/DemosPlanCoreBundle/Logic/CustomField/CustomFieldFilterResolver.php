@@ -62,18 +62,16 @@ class CustomFieldFilterResolver
             ->andWhere('s.original IS NOT NULL')
             ->setParameter('procedureId', $procedureId);
 
-        $fieldIdx = 0;
-        foreach ($fieldFilters as $fieldId => $values) {
+        foreach (array_keys($fieldFilters) as $fieldIdx => $fieldId) {
             $orClauses = [];
-            foreach ($values as $valIdx => $value) {
-                $idParam = "cf{$fieldIdx}id";
+            foreach ($fieldFilters[$fieldId] as $valIdx => $value) {
+                $idParam  = "cf{$fieldIdx}id";
                 $valParam = "cf{$fieldIdx}v{$valIdx}";
                 $orClauses[] = "JSON_CONTAINS_CUSTOM_FIELD(s.customFields, :{$idParam}, :{$valParam}) = 1";
                 $qb->setParameter($idParam, $fieldId);
                 $qb->setParameter($valParam, $value);
             }
             $qb->andWhere($qb->expr()->orX(...$orClauses));
-            ++$fieldIdx;
         }
 
         $matchingIds = array_column($qb->getQuery()->getArrayResult(), 'id');
