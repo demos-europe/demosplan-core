@@ -248,8 +248,10 @@ const handleApply = async () => {
     }
 
     try {
-      // TODO(DPLAN-17748): backend Patch operation not built yet — StatementGroupResource exposes only Get + Post.
-      // Frontend is ahead of backend; this call will work once a Patch operation + update logic exist.
+      /*
+       * TODO(DPLAN-17748): backend Patch operation not built yet — StatementGroupResource exposes only Get + Post.
+       * Frontend is ahead of backend; this call will work once a Patch operation + update logic exist.
+       */
       await dpApi.patch(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${targetGroupId.value.id}`, {}, { data: payload })
       success.value = true
     } catch (error) {
@@ -265,8 +267,10 @@ const handleApply = async () => {
 
 const fetchGroups = async () => {
   try {
-    // TODO(DPLAN-17748): backend GetCollection not built yet — StatementGroupResource exposes only Get(/{id}) + Post,
-    // and the provider has no collection logic. The group list stays empty until the backend adds it.
+    /*
+     * TODO(DPLAN-17748): backend GetCollection not built yet — StatementGroupResource exposes only Get(/{id}) + Post,
+     * and the provider has no collection logic. The group list stays empty until the backend adds it.
+     */
     const response = await dpApi.get(`${Routing.getBaseUrl()}/api/3.0/StatementGroup`)
 
     groups.value = response.data.data

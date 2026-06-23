@@ -66,7 +66,7 @@ All rights reserved
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { dpApi, DpAccordion, DpButton, DpInput, DpSlidingPagination } from '@demos-europe/demosplan-ui'
+import { DpAccordion, dpApi, DpButton, DpInput, DpSlidingPagination } from '@demos-europe/demosplan-ui'
 import SelectedStatementsList from '@DpJs/components/statement/SelectedStatementsList'
 
 const props = defineProps({
@@ -92,12 +92,12 @@ const groupStatements = ref([])
 const currentPage = ref(1)
 const totalPages = computed(() => Math.ceil(groupStatements.value.length / PAGE_SIZE))
 const paginatedStatements = computed(
-  () => groupStatements.value.slice((currentPage.value - 1) * PAGE_SIZE, currentPage.value * PAGE_SIZE)
+  () => groupStatements.value.slice((currentPage.value - 1) * PAGE_SIZE, currentPage.value * PAGE_SIZE),
 )
 
 async function fetchGroup () {
   try {
-    const response = await dpApi.get(`/api/3.0/StatementGroup/${props.statement.id}`)
+    const response = await dpApi.get(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${props.statement.id}`)
 
     console.log('StatementGroup response', response.data)
 
@@ -111,7 +111,7 @@ async function fetchGroup () {
      * (or supports ?include=statements), replace the empty attributes with the real member data.
      */
     groupStatements.value = response.data.data.relationships.statements.data.map(
-      member => ({ id: member.id, attributes: {} })
+      member => ({ id: member.id, attributes: {} }),
     )
   } catch (error) {
     console.error('Failed to load statement group:', error)
@@ -119,10 +119,12 @@ async function fetchGroup () {
 }
 
 async function saveGroupName () {
-  // TODO(DPLAN-17748): backend PATCH operation not built yet — StatementGroupResource only exposes Get + Post.
-  // Frontend is ahead of backend; this call will work once a Patch operation + update logic exist.
+  /*
+   * TODO(DPLAN-17748): backend PATCH operation not built yet — StatementGroupResource only exposes Get + Post.
+   * Frontend is ahead of backend; this call will work once a Patch operation + update logic exist.
+   */
   try {
-    await dpApi.patch(`/api/3.0/StatementGroup/${props.statement.id}`, {}, {
+    await dpApi.patch(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${props.statement.id}`, {}, {
       data: {
         type: 'StatementGroup',
         id: props.statement.id,
