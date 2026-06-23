@@ -80,6 +80,7 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
 
         return [
             $this->conditionFactory->propertyHasValue($customerId, ['customer', 'id']),
+            $this->conditionFactory->propertyHasValue(false, ['isDeleted'])
         ];
     }
 
