@@ -675,11 +675,20 @@ export default {
      * Required by useUnsavedChangesGuard composable
      */
     hasUnsavedChanges () {
-      const initialSegment = this.$store.state.StatementSegment.initial[this.segment.id]
+      if (!this.segment?.id) {
+        return false
+      }
+
+      const initialSegment = this.$store.state.StatementSegment?.initial[this.segment.id]
+
+      if (!initialSegment) {
+        return false
+      }
+
       const hasRecommendationChanges = initialSegment.attributes.recommendation !== this.segment.attributes.recommendation
       const hasDeadlineChanges = initialSegment.attributes.deadline !== this.segment.attributes.deadline
-      const hasPlaceChanges = initialSegment.relationships.place.data.id !== this.selectedPlace.id
-      const hasAssigneeChanges = initialSegment.relationships.assignee.data.id !== this.selectedAssignee.id
+      const hasPlaceChanges = initialSegment.relationships?.place?.data?.id !== this.selectedPlace.id
+      const hasAssigneeChanges = initialSegment.relationships?.assignee?.data?.id !== this.selectedAssignee.id
 
       return (
         hasRecommendationChanges ||
