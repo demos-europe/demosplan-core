@@ -6,7 +6,14 @@
 
 ## UNRELEASED
 
+### Fixed
+- Adjust organization type key in platform statistics: Replace 'procedure.agency' with 'municipality' in OrgaService::getAcceptedOrgaCountByType()
+
+## v4.46.0 (2026-06-19)
+## v4.45.0 (2026-06-19)
 ### Added
+- Delete Institution Text CustomFields
+- Delete Statement multiSelect CustomFields
 - Make procedure phase definitions editable
 - Segment lock feature: workflow places can now be marked as locked, making segments on them read-only for users without the `feature_administrate_segment_lock` permission. Enforced on JSON:API PATCH, `segment.bulk.edit` RPC, and place updates; transitions are recorded in the segment Versionsverlauf.
 - Permission `feature_segment_lock_by_workflow_place` (exposed, login-required) toggles the segment lock feature per project. Grant it in `projects/<name>/.../Permissions.php` to every role that should see the feature. Requires `demos-europe/demosplan-addon` ^0.68.1.
