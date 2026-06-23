@@ -696,11 +696,12 @@ class EntityContentChangeService
             ];
         }
         if ('date' === $this->getMappingValue($fieldName, $entityType, 'fieldType')) {
-            // transform date values, irrespective if new values or old ones (legacy in database)
-            $stringNewInteger = (int) $content;
-            if (1 < $stringNewInteger) {
+            // Values may be stored as a date/datetime string (e.g. "2026-06-27 00:00:00")
+            // or, for legacy fields, as a Unix timestamp. Normalize both to "Y-m-d".
+            $timestamp = is_numeric($content) ? (int) $content : strtotime((string) $content);
+            if (false !== $timestamp && $timestamp > 0) {
                 return [
-                    'content' => date('Y-m-d', $stringNewInteger),
+                    'content' => date('Y-m-d', $timestamp),
                 ];
             }
         }

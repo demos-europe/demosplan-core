@@ -252,7 +252,9 @@ class EntityContentChangeDisplayService
         $service = $this->getEntityContentChangeService();
         $stringRepresentation = '';
         if (null !== $currentThing && 'date' === $service->getMappingValue($fieldName, $entityType, 'fieldType')) {
-            $stringRepresentation = $currentThing instanceof  DateTimeInterface? $currentThing->format('Y-m-d'):date('Y-m-d', $currentThing);
+            $stringRepresentation = $currentThing instanceof DateTimeInterface
+                ? $currentThing->format('Y-m-d')
+                : date('Y-m-d', $currentThing);
         }
 
         if (null !== $currentThing && 'dateTime' === $service->getMappingValue($fieldName, $entityType, 'fieldType')) {
