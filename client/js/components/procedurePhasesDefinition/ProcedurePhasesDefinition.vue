@@ -119,6 +119,7 @@ All rights reserved
           <div class="overflow-x-auto pb-3 has-scrollable-content">
             <dp-data-table
               :data-cy="`procedurePhases:dataTable:${section.audience}`"
+              :flyout-width="flyoutWidth"
               :header-fields="headerFields"
               :items="section.audiencePhases"
               density="spacious"
@@ -221,8 +222,8 @@ All rights reserved
                       :aria-label="Translator.trans('item.delete')"
                       :data-cy="`procedurePhases:delete:${rowData.id}`"
                       :title="Translator.trans('delete')"
-                      class="btn--blank o-link--default hidden"
-                      disabled
+                      class="btn--blank o-link--default"
+                      @click="deletePhase(rowData.id)"
                     >
                       <dp-icon
                         aria-hidden="true"
@@ -267,6 +268,11 @@ All rights reserved
         </dp-accordion>
       </template>
     </div>
+
+    <dp-confirm-dialog
+      ref="confirmDeleteDialog"
+      :message="Translator.trans('procedure.phase.delete.confirm')"
+    />
   </div>
 </template>
 
@@ -277,6 +283,7 @@ import {
   dpApi,
   DpButton,
   DpButtonRow,
+  DpConfirmDialog,
   DpDataTable,
   DpIcon,
   DpInput,
@@ -297,6 +304,7 @@ export default {
     DpAccordion,
     DpButton,
     DpButtonRow,
+    DpConfirmDialog,
     DpDataTable,
     DpIcon,
     DpInput,
@@ -321,7 +329,7 @@ export default {
       { label: Translator.trans('permissionset.write'), value: 'write' },
     ]
 
-    //  Uncomment once delete functionality implemented: const flyoutWidth = ref('80px')
+    const flyoutWidth = ref('80px')
     const hasAttemptedSubmit = ref(false)
 
     const isNewPhaseNameInvalid = computed(() =>
@@ -824,6 +832,31 @@ export default {
         })
     }
 
+    // *** DELETE PHASE LOGIC ***
+    const confirmDeleteDialog = ref(null)
+
+    const deletePhase = async (id) => {
+      const isConfirmed = await confirmDeleteDialog.value.open()
+
+      if (!isConfirmed) {
+        return
+      }
+
+      dpApi.patch(
+        Routing.generate('api_resource_update', { resourceType: 'ProcedurePhaseDefinition', resourceId: id }),
+        {},
+        { data: { type: 'ProcedurePhaseDefinition', id, attributes: { isDeleted: true } } },
+      )
+        .then(() => {
+          phaseDefinitions.value = phaseDefinitions.value.filter(phase => phase.id !== id)
+          dplan.notify.confirm(Translator.trans('procedure.phase.delete.success'))
+        })
+        .catch(err => {
+          console.error(err)
+          dplan.notify.error(Translator.trans('error.api.generic'))
+        })
+    }
+
     onMounted(() => {
       fetchPhaseDefinitions()
       detectPhaseListAddon()
@@ -833,11 +866,13 @@ export default {
       audienceOptions,
       audienceSections,
       cancelEdit,
+      confirmDeleteDialog,
       createPhase,
+      deletePhase,
       draftCoreRowValue,
       editingRowId,
       findPermissionSetOption,
-      // Uncomment once delete functionality implemented: flyoutWidth,
+      flyoutWidth,
       handleAddonEditChange,
       handleAddonEditStart,
       handleSaveEditClick,
