@@ -10,29 +10,30 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
-use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-use Doctrine\ORM\Event\PreUpdateEventArgs;
+use Doctrine\ORM\Event\OnFlushEventArgs;
 
 class DoctrineSegmentListener
 {
-    public function preUpdate(Segment $segment, PreUpdateEventArgs $args): void
+    public function onFlush(OnFlushEventArgs $args): void
     {
-        // Convert it to a DateTime so Doctrine can persist it to the date column.
-        if ($args->hasChangedField('deadline')) {
-            $value = $args->getNewValue('deadline');
-            if (is_string($value)) {
-                $args->setNewValue('deadline', '' === $value ? null : new DateTime($value));
-            }
-        }
+        $entityManager = $args->getObjectManager();
+        $unitOfWork = $entityManager->getUnitOfWork();
+        $metadata = $entityManager->getClassMetadata(Segment::class);
 
-        // Reset the deadline when the workflow place changes, unless this same update
-        // already set a deadline explicitly (then the user's input wins).
-        if ($args->hasChangedField('place')
-            && !$args->hasChangedField('deadline')
-            && null !== $segment->getDeadline()
-        ) {
-            $args->setNewValue('deadline', null);
+        foreach ($unitOfWork->getScheduledEntityUpdates() as $entity) {
+            if (!$entity instanceof Segment) {
+                continue;
+            }
+
+            $changeSet = $unitOfWork->getEntityChangeSet($entity);
+
+            // Reset the deadline when the workflow place changes, unless this same update
+            // already set a deadline explicitly (then the user's input wins).
+            if (isset($changeSet['place']) && !isset($changeSet['deadline']) && null !== $entity->getDeadline()) {
+                $entity->setDeadline(null);
+                $unitOfWork->recomputeSingleEntityChangeSet($metadata, $entity);
+            }
         }
     }
 }

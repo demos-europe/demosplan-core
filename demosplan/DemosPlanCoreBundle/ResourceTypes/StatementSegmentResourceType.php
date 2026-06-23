@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementSegmentResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
@@ -239,7 +240,13 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
         }
 
         if ($this->currentUser->hasPermission('field_statement_deadline')) {
-            $properties[] = $this->createAttribute($this->deadline)->readable(true, fn (Segment $segment): ?string => $this->formatDate($segment->getDeadline()))->updatable();
+            $properties[] = $this->createAttribute($this->deadline)
+                ->readable(true, static fn (Segment $segment): ?string => $segment->getDeadline()?->format('Y-m-d'))
+                ->updatable([], static function (Segment $segment, ?string $value): array {
+                    $segment->setDeadline(('' === ($value ?? '')) ? null : new DateTime($value));
+
+                    return [];
+                });
         }
 
         if ($this->currentUser->hasPermission('feature_enable_recommendation_versions')) {

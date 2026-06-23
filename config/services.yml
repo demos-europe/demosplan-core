@@ -995,7 +995,7 @@ services:
     demosplan\DemosPlanCoreBundle\EventListener\DoctrineSegmentListener:
         lazy: true
         tags:
-            - { name: doctrine.orm.entity_listener, event: preUpdate, entity: demosplan\DemosPlanCoreBundle\Entity\Statement\Segment, lazy: true }
+            - { name: doctrine.event_listener, event: onFlush }
 
     demosplan\DemosPlanCoreBundle\EventListener\IndexFilesListener:
         tags:
