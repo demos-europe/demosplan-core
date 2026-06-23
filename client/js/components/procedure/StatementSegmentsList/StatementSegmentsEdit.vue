@@ -38,7 +38,31 @@
         class="px-1 hover:bg-interactive-secondary-subtle-hover"
       >
         <div class="inline-block w-[5%]">
+          <template v-if="isSegmentLocked(segment)">
+            <dp-button
+              v-if="hasPermission('feature_administrate_segment_lock')"
+              :text="lockTooltip"
+              class="text-interactive inline-block ml-0.5 align-middle bg-transparent! border-transparent! hover:bg-interactive-subtle-hover!"
+              icon="prohibit"
+              icon-weight="fill"
+              variant="subtle"
+              hide-text
+              @click="openUnlockModal(segment)"
+            />
+            <dp-tooltip
+              v-else
+              :text="lockTooltip"
+            >
+              <dp-icon
+                class="text-interactive inline-block ml-1"
+                icon="prohibit"
+                size="small"
+                weight="fill"
+              />
+            </dp-tooltip>
+          </template>
           <dp-claim
+            v-else
             class="c-at-item__row-icon inline-block"
             :assigned-id="assigneeBySegment(segment.id).id"
             :assigned-name="assigneeBySegment(segment.id).name"
@@ -139,6 +163,13 @@
         <div v-cleanhtml="statement.attributes.fullText || ''" />
       </div>
     </template>
+    <segment-unlock-modal
+      v-if="hasPermission('feature_administrate_segment_lock')"
+      ref="unlockModal"
+      :assignable-users="assignableUsers"
+      :places="places"
+      @unlock="payload => unlockSegment(payload, () => fetchSegments(pagination?.currentPage || 1))"
+    />
   </div>
 </template>
 
@@ -146,10 +177,13 @@
 import {
   CleanHtml,
   dpApi,
+  DpButton,
   DpButtonRow,
+  DpIcon,
   DpInlineNotification,
   DpLoading,
   DpPager,
+  DpTooltip,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
@@ -159,23 +193,30 @@ import DpEditField from '@DpJs/components/statement/assessmentTable/DpEditField'
 import { handleSegmentNavigation } from '@DpJs/lib/segment/handleSegmentNavigation'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import { scrollTo } from 'vue-scrollto'
+import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
+import { useUnsavedChangesGuard } from '@DpJs/composables/useUnsavedChangesGuard'
 
 export default {
   name: 'StatementSegmentsEdit',
 
   components: {
+    DpButton,
     DpButtonRow,
     DpClaim,
     DpEditField,
+    DpIcon,
     DpLoading,
     DpPager,
+    DpTooltip,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
 
       return DpEditor
     }),
     DpInlineNotification,
+    SegmentUnlockModal,
     TextContentRenderer,
   },
 
@@ -216,10 +257,24 @@ export default {
     'statementText:updated',
   ],
 
+  setup () {
+    const { unlockModal, openUnlockModal, unlockSegment } = useSegmentUnlock()
+    const { init, cleanup } = useUnsavedChangesGuard()
+
+    return {
+      unlockModal,
+      openUnlockModal,
+      unlockSegment,
+      initUnsavedChangesGuard: init,
+      cleanupUnsavedChangesGuard: cleanup,
+    }
+  },
+
   data () {
     return {
       claimLoading: null,
       editingSegmentIds: [],
+      hasUnsavedChanges: false,
       isLoading: false,
       defaultPagination: {
         currentPage: 1,
@@ -240,6 +295,23 @@ export default {
     ...mapState('Statement', {
       statements: 'items',
     }),
+
+    ...mapState('Place', {
+      placeItems: 'items',
+    }),
+
+    ...mapState('AssignableUser', {
+      assignableUsersObject: 'items',
+    }),
+
+    assignableUsers () {
+      const users = Object.values(this.assignableUsersObject).map(user => ({
+        name: user.attributes.firstname + ' ' + user.attributes.lastname,
+        id: user.id,
+      }))
+
+      return [{ name: Translator.trans('not.assigned'), id: 'noAssigneeId' }, ...users]
+    },
 
     assigneeBySegment () {
       return segmentId => {
@@ -269,9 +341,24 @@ export default {
       return Object.keys(this.segments).length > 0 && hasPermission('area_statement_segmentation')
     },
 
+    lockTooltip () {
+      return hasPermission('feature_administrate_segment_lock') ?
+        Translator.trans('segment.unlock.click.hint') :
+        Translator.trans('segment.lock.hint')
+    },
+
+    places () {
+      return Object.values(this.placeItems).map(place => ({
+        name: place.attributes.name,
+        id: place.id,
+        locked: place.attributes.locked,
+      }))
+    },
+
     statement () {
       return this.statements[this.statementId] || null
     },
+
   },
 
   methods: {
@@ -289,6 +376,15 @@ export default {
 
     ...mapActions('Statement', {
       restoreStatementAction: 'restoreFromInitial',
+      saveStatementAction: 'save',
+    }),
+
+    ...mapActions('AssignableUser', {
+      fetchAssignableUsers: 'list',
+    }),
+
+    ...mapActions('Place', {
+      fetchPlaces: 'list',
     }),
 
     ...mapMutations('Statement', {
@@ -301,10 +397,41 @@ export default {
       if (!this.editingSegmentIds.includes(id)) {
         this.editingSegmentIds.push(id)
       }
+
+      this.checkForUnsavedChanges()
+    },
+
+    checkForUnsavedChanges () {
+      const hasSegmentChanges = this.editingSegmentIds.some(segmentId => this.hasSegmentUnsavedChanges(segmentId))
+      const hasStatementChanges = this.hasStatementUnsavedChanges()
+
+      this.hasUnsavedChanges = hasSegmentChanges || hasStatementChanges
     },
 
     getSegmentInitialText (segmentId) {
       return this.segments[segmentId]?.attributes?.text ?? ''
+    },
+
+    hasSegmentUnsavedChanges (segmentId) {
+      if (this._localSegmentTexts[segmentId] === undefined) {
+        return false
+      }
+
+      const originalText = this.segments[segmentId]?.attributes?.text || ''
+      const currentText = this._localSegmentTexts[segmentId] || ''
+
+      return originalText !== currentText
+    },
+
+    hasStatementUnsavedChanges () {
+      if (this._localStatementText === null) {
+        return false
+      }
+
+      const originalText = this.statement.attributes?.fullText || ''
+      const currentText = this._localStatementText || ''
+
+      return originalText !== currentText
     },
 
     claimSegment (segment) {
@@ -360,15 +487,50 @@ export default {
     },
 
     isAssigneeEditable (segment) {
+      if (this.isSegmentLocked(segment)) {
+        return false
+      }
+
       return segment?.relationships?.assignee?.data?.id === this.currentUser.id
     },
+
+    isSegmentLocked (segment) {
+      if (!hasPermission('feature_segment_lock_by_workflow_place')) {
+        return false
+      }
+
+      const placeId = segment?.relationships?.place?.data?.id
+
+      return !!this.placeItems[placeId]?.attributes?.locked
+    },
+
+    /**
+     * Required by useUnsavedChangesGuard composable
+     * Discard all unsaved changes
+     */
+    onDiscardChanges () {
+      const segmentsToReset = [...this.editingSegmentIds]
+
+      segmentsToReset.forEach(segmentId => {
+        this.reset(segmentId)
+      })
+
+      if (this._localStatementText !== null) {
+        this.resetStatement()
+      }
+
+      return Promise.resolve()
+    },
+
 
     reset (segmentId) {
       delete this._localSegmentTexts[segmentId]
 
-      if (this.$refs[`editField_${segmentId}`][0]) {
-        this.$refs[`editField_${segmentId}`][0].loading = false
-        this.$refs[`editField_${segmentId}`][0].editingEnabled = false
+      const editField = this.$refs[`editField_${segmentId}`]?.[0]
+
+      if (editField) {
+        editField.loading = false
+        editField.editingEnabled = false
       }
 
       const segmentIdIndex = this.editingSegmentIds.indexOf(segmentId)
@@ -376,52 +538,90 @@ export default {
       if (segmentIdIndex > -1) {
         this.editingSegmentIds.splice(segmentIdIndex, 1)
       }
+
+      this.checkForUnsavedChanges()
     },
 
     resetStatement () {
       this.restoreStatementAction(this.statement.id)
-
       this._localStatementText = null
+      this.checkForUnsavedChanges()
     },
 
     saveSegment (segmentId) {
       const textToSave = this._localSegmentTexts[segmentId] ?? ''
 
       if (!textToSave) {
-        this.$refs[`editField_${segmentId}`][0].loading = false
+        const editField = this.$refs[`editField_${segmentId}`]?.[0]
 
-        return dplan.notify.error(Translator.trans('error.segment.empty.text'))
+        if (editField) {
+          editField.loading = false
+        }
+
+        dplan.notify.error(Translator.trans('error.segment.empty.text'))
+
+        return Promise.resolve(false)
       }
 
-      const updated = {
-        ...this.segments[segmentId],
+      const segment = this.segments[segmentId]
+
+      this.setSegment({
+        ...segment,
+        id: segmentId,
         attributes: {
-          ...this.segments[segmentId].attributes,
+          ...segment.attributes,
           text: textToSave,
         },
-      }
+      })
 
-      this.setSegment({ ...updated, id: segmentId })
+      return this.saveSegmentAction(segmentId)
+        .then(() => {
+          this.reset(segmentId)
 
-      this.saveSegmentAction(segmentId)
+          return true
+        })
         .catch(() => {
           this.restoreSegmentAction(segmentId)
           dplan.notify.error(Translator.trans('error.api.generic'))
-        })
-        .finally(() => {
-          const segmentIdIndex = this.editingSegmentIds.indexOf(segmentId)
 
-          if (segmentIdIndex > -1) {
-            this.editingSegmentIds.splice(segmentIdIndex, 1)
+          const editField = this.$refs[`editField_${segmentId}`]?.[0]
+
+          if (editField) {
+            editField.loading = false
           }
 
-          delete this._localSegmentTexts[segmentId]
-
-          if (this.$refs[`editField_${segmentId}`][0]) {
-            this.$refs[`editField_${segmentId}`][0].loading = false
-            this.$refs[`editField_${segmentId}`][0].editingEnabled = false
-          }
+          return false
         })
+    },
+
+    /**
+     * Required by useUnsavedChangesGuard composable
+     * Save all segments and/or statement that have unsaved changes
+     * @returns {Promise} Resolves if all saves succeed, rejects if any save fails
+     */
+    async saveUnsavedChanges () {
+      const segmentsToSave = this.editingSegmentIds.filter(segmentId => this.hasSegmentUnsavedChanges(segmentId))
+      const shouldSaveStatement = this.hasStatementUnsavedChanges()
+
+      if (segmentsToSave.length === 0 && !shouldSaveStatement) {
+        return
+      }
+
+      const savePromises = [
+        ...segmentsToSave.map(segmentId => this.saveSegment(segmentId)),
+      ]
+
+      if (shouldSaveStatement) {
+        savePromises.push(this.saveStatement())
+      }
+
+      const results = await Promise.all(savePromises)
+
+      const allSucceeded = results.every(result => result === true)
+
+      if (!allSucceeded) {
+        throw new Error('Failed to save one or more segments/statement')
+      }
     },
 
     saveStatement () {
@@ -436,7 +636,21 @@ export default {
       }
 
       this.setStatement({ ...updatedStatement, id: this.statement.id })
-      this.$emit('saveStatement', updatedStatement)
+
+      return this.saveStatementAction(this.statement.id)
+        .then(() => {
+          this._localStatementText = null
+          this.checkForUnsavedChanges()
+          this.$emit('statementText:updated')
+
+          return true
+        })
+        .catch(() => {
+          this.restoreStatementAction(this.statement.id)
+          dplan.notify.error(Translator.trans('error.api.generic'))
+
+          return false
+        })
     },
 
     scrollToSegment () {
@@ -496,6 +710,7 @@ export default {
 
     updateSegmentText (segmentId, val) {
       this._localSegmentTexts[segmentId] = val
+      this.checkForUnsavedChanges()
     },
 
     getStatementInitialText () {
@@ -504,14 +719,17 @@ export default {
 
     updateStatementText (val) {
       this._localStatementText = val
+      this.checkForUnsavedChanges()
     },
 
     transformObscureTag (segmentId, val) {
       this._localSegmentTexts[segmentId] = val
+      this.checkForUnsavedChanges()
     },
 
     transformObscureStatementTag (val) {
       this._localStatementText = val
+      this.checkForUnsavedChanges()
     },
 
     async fetchSegments (page = 1) {
@@ -554,7 +772,11 @@ export default {
         include: ['assignee', 'comments', 'place', 'tags', 'assignee.orga', 'comments.submitter', 'comments.place'].join(),
         sort: 'orderInProcedure',
         fields: {
-          Place: ['name', 'sortIndex'].join(),
+          Place: [
+            'name',
+            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+            'sortIndex',
+          ].join(),
           SegmentComment: ['creationDate', 'place', 'submitter', 'text'].join(),
           StatementSegment: statementSegmentFields.join(),
           User: ['lastname', 'firstname', 'orga'].join(),
@@ -640,7 +862,31 @@ export default {
        * default to 1st page
        */
       this.fetchSegments(this.pagination?.currentPage || 1)
+
+      // Assignable users and places are needed to populate the unlock modal
+      if (hasPermission('feature_administrate_segment_lock')) {
+        this.fetchAssignableUsers()
+        this.fetchPlaces({
+          fields: {
+            Place: [
+              'description',
+              ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+              'name',
+              'solved',
+              'sortIndex',
+            ].join(),
+          },
+          sort: 'sortIndex',
+        })
+      }
     }
+
+    this.initUnsavedChangesGuard({
+      hasUnsavedChanges: () => this.hasUnsavedChanges,
+      saveUnsavedChanges: () => this.saveUnsavedChanges(),
+      onDiscardChanges: () => this.onDiscardChanges(),
+      componentId: `statement-segments-edit-${this.statementId}`,
+    })
   },
 
   beforeUnmount () {
@@ -651,6 +897,8 @@ export default {
     if (this.hasSegments === false && this.statement) {
       this.resetStatement()
     }
+
+    this.cleanupUnsavedChangesGuard()
   },
 }
 </script>

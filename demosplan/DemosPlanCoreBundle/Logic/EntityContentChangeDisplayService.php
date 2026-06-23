@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use Carbon\Carbon;
+use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
@@ -19,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\HistoryDay;
 use Doctrine\ORM\PersistentCollection;
 use Exception;
+use Psr\Log\LoggerInterface;
 use ReflectionException;
 use Twig\Environment;
 use Twig\Error\LoaderError;
@@ -47,6 +49,7 @@ class EntityContentChangeDisplayService
         private readonly EntityContentChangeRepository $entityContentChangeRepository,
         Environment $twig,
         private readonly RepositoryHelper $repositoryHelper,
+        private readonly LoggerInterface $logger,
     ) {
         $this->entityContentChangeRollbackVersionService = $entityContentChangeRollbackVersionService;
         $this->entityContentChangeService = $entityContentChangeService;
@@ -112,6 +115,20 @@ class EntityContentChangeDisplayService
             );
         }
 
+        /*
+         * Segment-lock feature: {{ @link Segment::isLocked }} exists and is
+         * wired as the getterMethod for `locked` in the mapping yaml, but it
+         * returns a bool. The stored content_change uses the translated
+         * full-word vocabulary ("Gesperrt"/"Entsperrt") chosen for
+         * readability. Feeding a string-cast bool ("1"/"") into a rollback
+         * walk over translated strings would corrupt the trace, so we bypass
+         * the generic path — see
+         * {{ @link EntityContentChangeDisplayService::renderLockByPlaceSwitchesJson }}.
+         */
+        if ('locked' === $fieldName) {
+            return $this->renderLockByPlaceSwitchesJson($entityContentChange->getContentChange());
+        }
+
         // step 1: get the value stored in the parent entities. for example, assignee id or text
         /** @var CoreEntity $currentObject */
         $currentObject = $this->repositoryHelper->getRepository($entityContentChange->getEntityType())->find($entityContentChange->getEntityId());
@@ -127,28 +144,11 @@ class EntityContentChangeDisplayService
 
         // step 2: even though we have the value, we might not have the actual human-readable string. we still need to get or generate that.
         // this can be anything, a string, an object or an id
-        $currentThing = $currentObject->$currentObjectMethod();
-        if (null !== $currentThing && 'dateTime' === $service->getMappingValue($fieldName, $entityType, 'fieldType')) {
-            $currentText = date('Y-m-d H:i:s', $currentThing);
-        } elseif (null !== $currentThing && 'date' === $service->getMappingValue($fieldName, $entityType, 'fieldType')) {
-            $currentText = date('Y-m-d', $currentThing);
-        } elseif ($currentThing instanceof PersistentCollection) {
-            $objectArray = $currentThing->toArray();
-            $currentThingArray = [];
-            /** @var CoreEntity $coreEntity */
-            foreach ($objectArray as $coreEntity) {
-                $currentThingArray[] = $coreEntity->getEntityContentChangeIdentifier();
-            }
-            sort($currentThingArray);
-            $currentText = $service->convertToVersionString($currentThingArray);
-        } elseif (is_object($currentThing)) {
-            /** @var CoreEntity $currentThing */
-            $currentText = $currentThing->getEntityContentChangeIdentifier();
-        } elseif (null === $currentThing) {
-            $currentText = '';
-        } else { // is string
-            $currentText = $currentThing;
-        }
+        $currentText = $this->renderCurrentValueAsText(
+            $currentObject->$currentObjectMethod(),
+            $fieldName,
+            $entityType,
+        );
 
         // roll back versions
         $changingText = $currentText;
@@ -230,6 +230,109 @@ class EntityContentChangeDisplayService
         );
 
         return $renderedString;
+    }
+
+    /**
+     * Resolves an entity's current field value into the human-readable text
+     * vocabulary used by the rollback walk in
+     * {{ @see EntityContentChangeDisplayService::getContentChangeComparisonString }}.
+     *
+     * Branches on `fieldType` from the mapping yaml plus the runtime type of
+     * the value: dateTime/date are formatted; collections are flattened to a
+     * stable, sorted version string; objects fall back to their
+     * `getEntityContentChangeIdentifier`; null is the empty string; anything
+     * else is taken as-is.
+     */
+    private function renderCurrentValueAsText(
+        mixed $currentThing,
+        string $fieldName,
+        string $entityType,
+    ): string {
+        $service = $this->getEntityContentChangeService();
+        $stringRepresentation = '';
+        if (null !== $currentThing && 'date' === $service->getMappingValue($fieldName, $entityType, 'fieldType')) {
+            $stringRepresentation = date('Y-m-d', $currentThing);
+        }
+
+        if (null !== $currentThing && 'dateTime' === $service->getMappingValue($fieldName, $entityType, 'fieldType')) {
+            $stringRepresentation = date('Y-m-d H:i:s', $currentThing);
+        }
+
+        if ($currentThing instanceof PersistentCollection) {
+            $currentThingArray = [];
+            /** @var CoreEntity $coreEntity */
+            foreach ($currentThing->toArray() as $coreEntity) {
+                $currentThingArray[] = $coreEntity->getEntityContentChangeIdentifier();
+            }
+            sort($currentThingArray);
+
+            $stringRepresentation = $service->convertToVersionString($currentThingArray);
+        } elseif (is_object($currentThing)) {
+            /** @var CoreEntity $currentThing */
+            $stringRepresentation = $currentThing->getEntityContentChangeIdentifier();
+        }
+
+        if ('' === $stringRepresentation && is_scalar($currentThing)) {
+            $stringRepresentation = (string) $currentThing;
+        }
+
+        return $stringRepresentation;
+    }
+
+    /**
+     * Renders a stored `locked` diff JSON directly into the Versionsverlauf
+     * display HTML without going through the rollback path.
+     *
+     * The rollback path needs the current entity value in the same
+     * vocabulary as the stored diffs so it can walk backwards through them.
+     * {{ @see Segment::isLocked }} exists and is mapped as the getter for
+     * `locked`, but it returns a bool — and the stored content_change uses
+     * the translated full-word vocabulary ("Gesperrt"/"Entsperrt") chosen by
+     * {@link EntityContentChangeService::lockedDiffOptions} to keep the
+     * diff readable on a binary toggle. The two don't compose: the rollback
+     * walk would start from "1"/"" and try to apply diffs recorded as
+     * "Gesperrt" → "Entsperrt", silently corrupting the trace.
+     *
+     * Since the stored content_change already embeds old and new strings,
+     * we skip the rollback entirely and only run the same post-processing
+     * the generic path applies at its tail: wrap <ins>/<del> with CSS
+     * classes, decode HTML entities, and render through the html_diff
+     * Twig template.
+     *
+     * Null input (when no diff was generated at emission time) is passed
+     * through unchanged.
+     *
+     * @throws JsonException
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
+     * @throws Exception
+     */
+    private function renderLockByPlaceSwitchesJson(?string $jsonString): ?string
+    {
+        if (null === $jsonString) {
+            return null;
+        }
+
+        try {
+            $diffArray = Json::decodeToArray($jsonString);
+        } catch (Exception $e) {
+            // The column is only written by code we control via
+            // {{ @see EntityContentChangeService::generateActualDiff }}, so a
+            // failure here points at out-of-band data corruption. Skip this
+            // row instead of breaking the whole Versionsverlauf.
+            $this->logger->warning(
+                'Malformed locked-state diff JSON in entity_content_change',
+                ['exception' => $e],
+            );
+
+            return null;
+        }
+
+        return $this->twig->render(
+            '@DemosPlanCore/DemosPlanCore/html_diff.html.twig',
+            ['diffArray' => $diffArray]
+        );
     }
 
     /**
