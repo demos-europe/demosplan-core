@@ -263,7 +263,7 @@ const handleApply = async () => {
 
 const fetchGroups = async () => {
   try {
-    const response = await dpApi.get('/api/3.0/StatementGroup')
+    const response = await dpApi.get(`${Routing.getBaseUrl()}/api/3.0/StatementGroup`)
 
     groups.value = response.data.data
   } catch (error) {
