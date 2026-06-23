@@ -486,6 +486,7 @@ export default {
       scrollTo('#segment_' + segmentId, { offset: -110 })
 
       const segmentComponent = this.$refs.segment.find(el => el.segment.id === segmentId)
+
       if (segmentComponent) {
         segmentComponent.isCollapsed = false
       }

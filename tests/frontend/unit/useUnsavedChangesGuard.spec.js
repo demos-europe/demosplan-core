@@ -7,13 +7,14 @@
  * All rights reserved
  */
 
-import { useUnsavedChangesGuard, _resetUnsavedChangesGuard } from '@DpJs/composables/useUnsavedChangesGuard'
+import { _resetUnsavedChangesGuard, useUnsavedChangesGuard } from '@DpJs/composables/useUnsavedChangesGuard'
 
 // Helper to flush all pending promises and timers
 const flushPromises = () => new Promise(resolve => setTimeout(resolve, 0))
 
 const createLink = (href) => {
   const link = document.createElement('a')
+
   link.href = href
   document.body.appendChild(link)
 
@@ -23,6 +24,7 @@ const createLink = (href) => {
 const clickLink = (link) => {
   const event = new MouseEvent('click', { bubbles: true, cancelable: true })
   const preventDefaultSpy = jest.spyOn(event, 'preventDefault')
+
   link.dispatchEvent(event)
 
   return { event, preventDefaultSpy }
@@ -37,6 +39,7 @@ const dispatchDialogResult = (action) => {
 const dispatchBeforeUnload = () => {
   const event = new Event('beforeunload', { cancelable: true })
   const preventDefaultSpy = jest.spyOn(event, 'preventDefault')
+
   globalThis.dispatchEvent(event)
 
   return { event, preventDefaultSpy }
@@ -44,7 +47,9 @@ const dispatchBeforeUnload = () => {
 
 const initGuardedComponent = (componentOptions) => {
   const { init } = useUnsavedChangesGuard()
+
   init(componentOptions)
+
   return init
 }
 
@@ -195,6 +200,7 @@ describe('useUnsavedChangesGuard', () => {
 
       const link = createLink('https://example.com')
       const dialogShowListener = jest.fn()
+
       document.addEventListener('unsaved-changes-dialog:show', dialogShowListener)
 
       const { preventDefaultSpy } = clickLink(link)
@@ -217,6 +223,7 @@ describe('useUnsavedChangesGuard', () => {
       })
 
       const button = document.createElement('button')
+
       document.body.appendChild(button)
 
       const event = new MouseEvent('click', { bubbles: true, cancelable: true })
@@ -243,6 +250,7 @@ describe('useUnsavedChangesGuard', () => {
       })
 
       const link = createLink('https://example.com')
+
       clickLink(link)
       dispatchDialogResult('save')
 
@@ -260,6 +268,7 @@ describe('useUnsavedChangesGuard', () => {
       })
 
       const link = createLink('https://example.com')
+
       clickLink(link)
       dispatchDialogResult('discard')
 
@@ -277,6 +286,7 @@ describe('useUnsavedChangesGuard', () => {
       })
 
       const link = createLink('https://example.com/discard-test')
+
       clickLink(link)
       dispatchDialogResult('discard')
 
@@ -294,6 +304,7 @@ describe('useUnsavedChangesGuard', () => {
       })
 
       const link = createLink('https://example.com')
+
       clickLink(link)
       dispatchDialogResult('cancel')
 
@@ -311,6 +322,7 @@ describe('useUnsavedChangesGuard', () => {
       })
 
       const link = createLink('https://example.com/cancel-test')
+
       clickLink(link)
       dispatchDialogResult('cancel')
 
@@ -341,6 +353,7 @@ describe('useUnsavedChangesGuard', () => {
       })
 
       const link = createLink('https://example.com')
+
       clickLink(link)
       dispatchDialogResult('save')
 
@@ -359,6 +372,7 @@ describe('useUnsavedChangesGuard', () => {
       })
 
       const link = createLink('https://example.com/test')
+
       clickLink(link)
       dispatchDialogResult('save')
 
