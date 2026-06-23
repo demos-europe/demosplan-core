@@ -778,19 +778,13 @@ export default {
     }),
 
     ...mapMutations('StatementSegment', {
-      updateSegment: 'update',
       setSegment: 'setItem',
     }),
 
     abort () {
-      // Restore initial recommendation value, set it also in tiptap
-      const initText = this.$store.state.StatementSegment.initial[this.segment.id].attributes.recommendation
-
-      this.updateSegment('recommendation', initText)
-      // Update interface
-      this.isFullscreen = false
-      this.isEditing = false
-
+      this.restoreInitialSegmentValues()
+      this.restoreInitialSelections()
+      this.exitEditMode()
       this.hideAdditionalFields()
     },
 
@@ -977,9 +971,30 @@ export default {
         })
     },
 
-    restoreRelationships (comments) {
-      this.restoreComments(comments)
-      this.setProperty({ prop: 'isLoading', val: false })
+    /**
+     * Remove non-updatable comments from segments relationships for update request
+     * @param relations {Object}
+     */
+    excludeComments (relations) {
+      if (relations.comments) {
+        this.setProperty({ prop: 'isLoading', val: true })
+        delete relations.comments
+      }
+    },
+
+    /**
+     * Remove non-updatable recommendationVersions from segments relationships for update request
+     * @param relations {Object}
+     */
+    excludeRecommendationVersion (relations) {
+      if (relations.recommendationVersions) {
+        delete relations.recommendationVersions
+      }
+    },
+
+    exitEditMode () {
+      this.isFullscreen = false
+      this.isEditing = false
     },
 
     handleDeadlineUpdate (value) {
@@ -1084,27 +1099,6 @@ export default {
       }
     },
 
-    /**
-     * Remove non-updatable comments from segments relationships for update request
-     * @param relations {Object}
-     */
-    excludeComments (relations) {
-      if (relations.comments) {
-        this.setProperty({ prop: 'isLoading', val: true })
-        delete relations.comments
-      }
-    },
-
-    /**
-     * Remove non-updatable recommendationVersions from segments relationships for update request
-     * @param relations {Object}
-     */
-    excludeRecommendationVersion (relations) {
-      if (relations.recommendationVersions) {
-        delete relations.recommendationVersions
-      }
-    },
-
     restoreComments (comments) {
       if (comments) {
         const segmentWithComments = {
@@ -1117,6 +1111,23 @@ export default {
 
         this.setSegment({ ...segmentWithComments, id: this.segment.id })
       }
+    },
+
+    restoreInitialSegmentValues () {
+      const initialSegment = this.$store.state.StatementSegment.initial[this.segment.id]
+
+      this.updateSegment('recommendation', initialSegment.attributes.recommendation)
+      this.updateSegment('deadline', initialSegment.attributes.deadline)
+    },
+
+    restoreInitialSelections () {
+      this.setSelectedPlace()
+      this.setSelectedAssignee()
+    },
+
+    restoreRelationships (comments) {
+      this.restoreComments(comments)
+      this.setProperty({ prop: 'isLoading', val: false })
     },
 
     rollbackFailedSave (id, comments) {
@@ -1306,8 +1317,7 @@ export default {
           return this.fetchUpdatedSegment()
         })
         .then(() => {
-          this.isFullscreen = false
-          this.isEditing = false
+          this.exitEditMode()
           this.isCollapsed = true
           this.claimLoading = false
           this.selectedAssignee = { id: '', name: '' }
