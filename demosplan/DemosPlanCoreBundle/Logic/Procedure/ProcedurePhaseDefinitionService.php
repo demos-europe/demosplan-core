@@ -83,8 +83,7 @@ readonly class ProcedurePhaseDefinitionService implements ProcedurePhaseDefiniti
             $phases[] = $currentPhase;
             usort(
                 $phases,
-                static fn (ProcedurePhaseDefinition $a, ProcedurePhaseDefinition $b): int
-                    => $a->getOrderInAudience() <=> $b->getOrderInAudience()
+                static fn (ProcedurePhaseDefinition $a, ProcedurePhaseDefinition $b): int => $a->getOrderInAudience() <=> $b->getOrderInAudience()
             );
         }
 
