@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticSearchService;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Query\AbstractQuery;
+use Elastica\Query\MatchNone;
 use Illuminate\Support\Collection;
 
 class CustomFieldFilterResolver
@@ -76,11 +77,12 @@ class CustomFieldFilterResolver
 
         $matchingIds = array_column($qb->getQuery()->getArrayResult(), 'id');
 
+        if ([] === $matchingIds) {
+            return [new MatchNone(), $remainingFilters->toArray()];
+        }
+
         return [
-            $this->elasticSearchService->getElasticaTermsInstance(
-                'id',
-                [] !== $matchingIds ? $matchingIds : ['__no_match__']
-            ),
+            $this->elasticSearchService->getElasticaTermsInstance('id', $matchingIds),
             $remainingFilters->toArray(),
         ];
     }
