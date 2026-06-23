@@ -655,14 +655,10 @@ export default {
     },
 
     handleBulkGroup () {
-      // A group needs at least two statements.
-      if (this.selectedItemsCount < 2) {
-        dplan.notify.notify('error', Translator.trans('confirm.consolidation.not.enough.statements'))
-
-        return
-      }
-
       /*
+       * The minimum of two statements for creating a group is checked per action on the group page
+       * (handleConfirmStep1), since "add to group" allows a single statement.
+       *
        * Statements must be assigned to the current user. On "select all" the full set is not loaded
        * here, so this check runs again on the group-creation page (handleConfirmStep1).
        */
