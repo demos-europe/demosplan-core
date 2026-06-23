@@ -191,6 +191,7 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
             ->addUpdateBehavior(CallbackAttributeSetBehavior::createFactory(
                 [],
                 function (ProcedurePhaseDefinition $procedurePhaseDefinition, bool $newIsDeleted): array {
+                    $this->procedurePhaseDefinitionEditor->guardConfigurationPhaseNotEditable($procedurePhaseDefinition);
                     $this->procedurePhaseDefinitionEditor->setDeleted($procedurePhaseDefinition, $newIsDeleted);
 
                     return [];
