@@ -25,6 +25,9 @@ class TusCors implements TusMiddleware
     ) {
     }
 
+    /**
+     * @return void
+     */
     public function handle(Request $request, Response $response)
     {
         $headers = $response->getHeaders();
