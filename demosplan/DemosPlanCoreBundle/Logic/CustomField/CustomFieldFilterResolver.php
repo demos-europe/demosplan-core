@@ -12,14 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\CustomField;
 
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticSearchService;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Query\AbstractQuery;
 use Illuminate\Support\Collection;
-use InvalidArgumentException;
 
 class CustomFieldFilterResolver
 {
@@ -27,52 +24,6 @@ class CustomFieldFilterResolver
         private readonly EntityManagerInterface $entityManager,
         private readonly ElasticSearchService $elasticSearchService,
     ) {
-    }
-
-    /**
-     * Returns IDs of entities whose customFields JSON matches ALL given field/value pairs.
-     * AND logic across fields, OR logic across multiple values within one field.
-     *
-     * @param array<string, list<string>> $fieldFilters fieldId → [optionId, …]
-     *
-     * @return list<string>
-     */
-    public function resolveMatchingIds(
-        CustomFieldSupportedEntity $entity,
-        string $procedureId,
-        array $fieldFilters,
-    ): array {
-        if ([] === $fieldFilters) {
-            return [];
-        }
-
-        [$alias, $entityClass, $procedureExpr, $extraConditions] = $this->entityConfig($entity);
-
-        $qb = $this->entityManager->createQueryBuilder()
-            ->select("{$alias}.id")
-            ->from($entityClass, $alias)
-            ->andWhere("{$procedureExpr} = :procedureId")
-            ->setParameter('procedureId', $procedureId);
-
-        foreach ($extraConditions as $condition) {
-            $qb->andWhere($condition);
-        }
-
-        $fieldIdx = 0;
-        foreach ($fieldFilters as $fieldId => $values) {
-            $orClauses = [];
-            foreach ($values as $valIdx => $value) {
-                $idParam = "cf{$fieldIdx}id";
-                $valParam = "cf{$fieldIdx}v{$valIdx}";
-                $orClauses[] = "JSON_CONTAINS_CUSTOM_FIELD({$alias}.customFields, :{$idParam}, :{$valParam}) = 1";
-                $qb->setParameter($idParam, $fieldId);
-                $qb->setParameter($valParam, $value);
-            }
-            $qb->andWhere($qb->expr()->orX(...$orClauses));
-            ++$fieldIdx;
-        }
-
-        return array_column($qb->getQuery()->getArrayResult(), 'id');
     }
 
     /**
@@ -103,11 +54,29 @@ class CustomFieldFilterResolver
             )
             ->toArray();
 
-        $matchingIds = $this->resolveMatchingIds(
-            CustomFieldSupportedEntity::statement,
-            $procedureId,
-            $fieldFilters
-        );
+        $qb = $this->entityManager->createQueryBuilder()
+            ->select('s.id')
+            ->from(Statement::class, 's')
+            ->andWhere('s.procedure = :procedureId')
+            ->andWhere('s.deleted = false')
+            ->andWhere('s.original IS NOT NULL')
+            ->setParameter('procedureId', $procedureId);
+
+        $fieldIdx = 0;
+        foreach ($fieldFilters as $fieldId => $values) {
+            $orClauses = [];
+            foreach ($values as $valIdx => $value) {
+                $idParam  = "cf{$fieldIdx}id";
+                $valParam = "cf{$fieldIdx}v{$valIdx}";
+                $orClauses[] = "JSON_CONTAINS_CUSTOM_FIELD(s.customFields, :{$idParam}, :{$valParam}) = 1";
+                $qb->setParameter($idParam, $fieldId);
+                $qb->setParameter($valParam, $value);
+            }
+            $qb->andWhere($qb->expr()->orX(...$orClauses));
+            ++$fieldIdx;
+        }
+
+        $matchingIds = array_column($qb->getQuery()->getArrayResult(), 'id');
 
         return [
             $this->elasticSearchService->getElasticaTermsInstance(
@@ -116,28 +85,5 @@ class CustomFieldFilterResolver
             ),
             $remainingFilters->toArray(),
         ];
-    }
-
-    /**
-     * @return array{0: string, 1: class-string, 2: string, 3: list<string>}
-     *                                                                       [alias, FQCN, procedure DQL expression, extra WHERE conditions]
-     */
-    private function entityConfig(CustomFieldSupportedEntity $entity): array
-    {
-        return match ($entity) {
-            CustomFieldSupportedEntity::statement => [
-                's',
-                Statement::class,
-                's.procedure',
-                ['s.deleted = false', 's.original IS NOT NULL'],
-            ],
-            CustomFieldSupportedEntity::segment => [
-                'seg',
-                Segment::class,
-                'seg.procedure',
-                ['seg.deleted = false'],
-            ],
-            default => throw new InvalidArgumentException("Entity '{$entity->value}' does not support custom field ID resolution"),
-        };
     }
 }
