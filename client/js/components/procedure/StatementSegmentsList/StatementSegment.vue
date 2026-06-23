@@ -315,6 +315,7 @@
           class="my-2"
         >
           <dp-datepicker
+            v-if="hasPermission('field_statement_deadline')"
             :id="`deadline_${segment.id}`"
             class="mt-2"
             data-cy="statementSegment:deadline"
@@ -807,6 +808,11 @@ export default {
       })
     },
 
+    cancelEditingState () {
+      this.isSaving = false
+      this.isEditing = false
+    },
+
     checkIfToolIsActive (tool) {
       return (this.segment.id === this.slidebar.segmentId && this.slidebar.showTab === tool)
     },
@@ -961,17 +967,19 @@ export default {
           this.isFullscreen = false
           this.hideAdditionalFields()
           this.addRecommendationImageListeners()
-          this.isSaving = false
         })
         .catch(() => {
           this.rollbackFailedSave(id, comments)
+        })
+        .finally(() => {
+          this.restoreRelationships()
+          this.cancelEditingState()
         })
     },
 
     restoreRelationships (comments) {
       this.restoreComments(comments)
       this.setProperty({ prop: 'isLoading', val: false })
-      this.isEditing = false
     },
 
     handleDeadlineUpdate (value) {
