@@ -248,7 +248,9 @@ const handleApply = async () => {
     }
 
     try {
-      await dpApi.patch(`/api/3.0/StatementGroup/${targetGroupId.value.id}`, {}, { data: payload })
+      // TODO(DPLAN-17748): backend Patch operation not built yet — StatementGroupResource exposes only Get + Post.
+      // Frontend is ahead of backend; this call will work once a Patch operation + update logic exist.
+      await dpApi.patch(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${targetGroupId.value.id}`, {}, { data: payload })
       success.value = true
     } catch (error) {
       console.error('StatementGroup PATCH failed:', error)
