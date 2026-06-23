@@ -921,6 +921,7 @@ days.left: |
 days.left.participation.finished: "<strong>Beteiligung beendet</strong>"
 deactivate: "deaktivieren"
 deactivated: "Deaktiviert"
+deadline: "Bearbeitungsfrist"
 deadline.processing.until: "Bearbeitungsfrist bis"
 delete: "Löschen"
 delete.history: "Versionsverlauf löschen"

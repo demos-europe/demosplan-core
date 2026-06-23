@@ -848,6 +848,14 @@ export default {
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
         .then(() => {
+          /*
+           * Fetch the updated segment from API to update vuex-json-api's 'initial' baseline.
+           * Without this, subsequent saves that change the assignee would fail because the diff
+           * is calculated against the stale baseline (before claim).
+           */
+          return this.fetchUpdatedSegment()
+        })
+        .then(() => {
           this.claimLoading = false
           this.isCollapsed = false
           this.selectedAssignee = {
@@ -943,6 +951,23 @@ export default {
       })
     },
 
+    completeSave (id, comments) {
+      return Promise.all([
+        this.fetchUpdatedSegment().catch(() => null),
+        this.saveCustomFields(),
+      ])
+        .then(() => {
+          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+          this.isFullscreen = false
+          this.hideAdditionalFields()
+          this.addRecommendationImageListeners()
+          this.isSaving = false
+        })
+        .catch(() => {
+          this.rollbackFailedSave(id, comments)
+        })
+    },
+
     restoreRelationships (comments) {
       this.restoreComments(comments)
       this.setProperty({ prop: 'isLoading', val: false })
@@ -959,33 +984,6 @@ export default {
       const isoDate = reformatDateString(value)
 
       this.updateSegment('deadline', isoDate)
-    },
-
-    handleSuccessfulSave (comments) {
-      return Promise.all([
-        this.fetchUpdatedSegment().catch((err) => {
-          console.error('Failed to fetch updated segment:', err)
-
-          return null
-        }),
-
-        this.saveCustomFields(),
-      ])
-        .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-          this.isFullscreen = false
-          this.hideAdditionalFields()
-          this.addRecommendationImageListeners()
-        })
-        .catch((err) => {
-          console.error('Save failed:', err)
-          dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
-          this.restoreSegmentAction(this.segment.id)
-        })
-        .finally(() => {
-          this.isSaving = false
-          this.restoreRelationships(comments)
-        })
     },
 
     hasPolygonFeatures () {
@@ -1113,6 +1111,13 @@ export default {
       }
     },
 
+    rollbackFailedSave (id, comments) {
+      dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
+      this.restoreSegmentAction(id)
+      this.restoreRelationships(comments)
+      this.isSaving = false
+    },
+
     saveCustomFields () {
       /*
        * Custom fields are saved via a separate PATCH using the composable's updateCustomFields,
@@ -1161,43 +1166,17 @@ export default {
       this.isSaving = true
 
       return this.saveSegmentAction({ id: this.segment.id })
-      // ToDO: clarify this
-        /*
-         *        .then(() => {
-         *        /!*
-         * Clearing the assignee ("nicht zugewiesen") is sent as a separate explicit PATCH because the
-         * vuex-json-api diff drops a to-one relationship set to `{ data: null }` (it diffs against a
-         * stale `initial` baseline that setSegment never updates), so an unassign would be silently
-         * omitted from saveSegmentAction's request body. Mirrors the explicit payload already used by
-         * claimSegment()/unclaimSegment(). It must complete before fetchUpdatedSegment, which would
-         * otherwise re-store the stale assignee.
-         *!/
-         *        const isUnassigning = !this.selectedAssignee?.id || this.selectedAssignee.id === 'noAssigneeId'
-         *
-         *        return isUnassigning ?
-         *        dpApi.patch(
-         *        Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }),
-         *        {},
-         *        { data: { type: 'StatementSegment', id: this.segment.id, relationships: { assignee: { data: null } } } },
-         *        ) :
-         *        Promise.resolve()
-         *        })
-         */
         .then((response) => {
           if (response && (response.status >= 400 || response.ok === false)) {
-            dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
-            this.restoreRelationships(comments)
+            this.rollbackFailedSave(this.segment.id, comments)
 
             return
           }
 
-          return this.handleSuccessfulSave(comments)
+          return this.completeSave(this.segment.id, comments)
         })
         .catch(() => {
-          dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
-          this.restoreSegmentAction(this.segment.id)
-          this.isSaving = false
-          this.restoreRelationships(comments)
+          this.rollbackFailedSave(this.segment.id, comments)
         })
     },
 
@@ -1312,16 +1291,16 @@ export default {
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
         .then(() => {
+          /*
+           * Fetch the updated segment from API to update vuex-json-api's 'initial' baseline.
+           * This ensures subsequent saves will work correctly when changing the assignee.
+           */
+          return this.fetchUpdatedSegment()
+        })
+        .then(() => {
           this.isFullscreen = false
           this.isEditing = false
           this.isCollapsed = true
-          const dataToUpdate = JSON.parse(JSON.stringify(this.segment))
-
-          delete dataToUpdate.relationships.assignee
-          // Reset recommendation text in store (segment might have been in edit mode with some changes)
-          dataToUpdate.attributes.recommendation = this.$store.state.StatementSegment.initial[this.segment.id].attributes.recommendation
-          // Set segment in store, without the assignee and with resetted recommendation
-          this.setSegment({ ...dataToUpdate, id: this.segment.id })
           this.claimLoading = false
           this.selectedAssignee = { id: '', name: '' }
         })

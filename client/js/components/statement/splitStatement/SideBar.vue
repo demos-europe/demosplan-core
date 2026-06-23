@@ -185,10 +185,10 @@
       v-if="showAdditionalFields"
       aria-labelledby="floatingContextButton_additionalFields"
       class="relative py-1 pl-2 pr-5 -mr-4"
-      @mouseover="showFloatingContextButton.additionalFields = true"
-      @mouseleave="showFloatingContextButton.additionalFields = false"
       @focusin="showFloatingContextButton.additionalFields = true"
       @focusout="showFloatingContextButton.additionalFields = false"
+      @mouseover="showFloatingContextButton.additionalFields = true"
+      @mouseleave="showFloatingContextButton.additionalFields = false"
     >
       <FloatingContextButton
         class="right-0 top-0"
