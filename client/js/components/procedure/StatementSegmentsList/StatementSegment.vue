@@ -675,7 +675,18 @@ export default {
      * Required by useUnsavedChangesGuard composable
      */
     hasUnsavedChanges () {
-      return this.$store.state.StatementSegment.initial[this.segment.id].attributes.recommendation !== this.segment.attributes.recommendation
+      const initialSegment = this.$store.state.StatementSegment.initial[this.segment.id]
+      const hasRecommendationChanges = initialSegment.attributes.recommendation !== this.segment.attributes.recommendation
+      const hasDeadlineChanges = initialSegment.attributes.deadline !== this.segment.attributes.deadline
+      const hasPlaceChanges = initialSegment.relationships.place.data.id !== this.selectedPlace.id
+      const hasAssigneeChanges = initialSegment.relationships.assignee.data.id !== this.selectedAssignee.id
+
+      return (
+        hasRecommendationChanges ||
+        hasDeadlineChanges ||
+        hasPlaceChanges ||
+        hasAssigneeChanges
+      )
     },
 
     isAssignedToMe () {
@@ -782,7 +793,7 @@ export default {
     }),
 
     abort () {
-      this.restoreInitialSegmentValues()
+      this.restoreSegmentAction(this.segment.id)
       this.restoreInitialSelections()
       this.exitEditMode()
       this.hideAdditionalFields()
@@ -951,7 +962,7 @@ export default {
       })
     },
 
-    completeSave (id, comments) {
+    completeSave (comments) {
       return Promise.all([
         this.fetchUpdatedSegment().catch(() => null),
         this.saveCustomFields(),
@@ -963,7 +974,7 @@ export default {
           this.addRecommendationImageListeners()
         })
         .catch(() => {
-          this.rollbackFailedSave(id, comments)
+          this.rollbackFailedSave(comments)
         })
         .finally(() => {
           this.restoreRelationships()
@@ -1113,13 +1124,6 @@ export default {
       }
     },
 
-    restoreInitialSegmentValues () {
-      const initialSegment = this.$store.state.StatementSegment.initial[this.segment.id]
-
-      this.updateSegment('recommendation', initialSegment.attributes.recommendation)
-      this.updateSegment('deadline', initialSegment.attributes.deadline)
-    },
-
     restoreInitialSelections () {
       this.setSelectedPlace()
       this.setSelectedAssignee()
@@ -1130,9 +1134,9 @@ export default {
       this.setProperty({ prop: 'isLoading', val: false })
     },
 
-    rollbackFailedSave (id, comments) {
+    rollbackFailedSave (comments) {
       dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
-      this.restoreSegmentAction(id)
+      this.restoreSegmentAction(this.segment.id)
       this.restoreRelationships(comments)
       this.isSaving = false
     },
@@ -1187,15 +1191,15 @@ export default {
       return this.saveSegmentAction({ id: this.segment.id })
         .then((response) => {
           if (response && (response.status >= 400 || response.ok === false)) {
-            this.rollbackFailedSave(this.segment.id, comments)
+            this.rollbackFailedSave(comments)
 
             return
           }
 
-          return this.completeSave(this.segment.id, comments)
+          return this.completeSave(comments)
         })
         .catch(() => {
-          this.rollbackFailedSave(this.segment.id, comments)
+          this.rollbackFailedSave(comments)
         })
     },
 
