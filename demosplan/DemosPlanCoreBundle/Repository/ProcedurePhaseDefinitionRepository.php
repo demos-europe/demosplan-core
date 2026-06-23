@@ -30,14 +30,19 @@ use Doctrine\ORM\NoResultException;
 class ProcedurePhaseDefinitionRepository extends CoreRepository
 {
     /**
-     * Returns all phase definitions for the given customer, ordered by audience and orderInAudience.
+     * Returns phase definitions for the given customer, ordered by audience and orderInAudience.
      * Falls back to global definitions (customer IS NULL) if no customer-specific definitions exist.
+     * Pass $excludeDeleted = false to include soft-deleted definitions (e.g. for name resolution).
      *
      * @return ProcedurePhaseDefinition[]
      */
-    public function findByCustomerOrderedByAudience(CustomerInterface $customer): array
+    public function findByCustomerOrderedByAudience(CustomerInterface $customer, bool $excludeDeleted = true): array
     {
-        $results = $this->findBy(['customer' => $customer], ['audience' => 'ASC', 'orderInAudience' => 'ASC']);
+        $criteria = ['customer' => $customer];
+        if ($excludeDeleted) {
+            $criteria['isDeleted'] = false;
+        }
+        $results = $this->findBy($criteria, ['audience' => 'ASC', 'orderInAudience' => 'ASC']);
 
         if ([] === $results) {
             $results = $this->findBy(['customer' => null], ['audience' => 'ASC', 'orderInAudience' => 'ASC']);
