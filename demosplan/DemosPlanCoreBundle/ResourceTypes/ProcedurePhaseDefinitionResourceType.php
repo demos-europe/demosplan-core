@@ -197,7 +197,6 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
                 OptionalField::YES
             ));
 
-
         $configBuilder->orderInAudience
             ->setReadableByPath(DefaultField::YES)
             ->setSortable();

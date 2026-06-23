@@ -17,6 +17,11 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 
 /**
  * Coordinates may be stored only in EPSG:3857 Pseudo Mercator.
+ *
+ * @method float getLeft()
+ * @method float getBottom()
+ * @method float getRight()
+ * @method float getTop()
  */
 class CoordinatesViewport extends ValueObject implements CoordinatesViewportInterface
 {
@@ -48,26 +53,6 @@ class CoordinatesViewport extends ValueObject implements CoordinatesViewportInte
         $this->top = $top;
 
         $this->lock();
-    }
-
-    public function getLeft(): float
-    {
-        return $this->getProperty('left');
-    }
-
-    public function getBottom(): float
-    {
-        return $this->getProperty('bottom');
-    }
-
-    public function getRight(): float
-    {
-        return $this->getProperty('right');
-    }
-
-    public function getTop(): float
-    {
-        return $this->getProperty('top');
     }
 
     /**

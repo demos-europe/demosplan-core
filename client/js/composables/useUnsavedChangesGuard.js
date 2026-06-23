@@ -64,19 +64,16 @@ function handleSaveAllAndNavigate (link) {
 }
 
 /**
- * Handle discard action for all components with unsaved changes and navigate
+ * Handle discard action for all components with unsaved changes
  */
-function handleDiscardAllAndNavigate (link) {
+function handleDiscardAll () {
   const componentsWithChanges = Array.from(registeredComponents.values()).filter(
     component => component.hasUnsavedChanges(),
   )
 
   const discardPromises = componentsWithChanges.map(component => component.onDiscardChanges())
 
-  return Promise.all(discardPromises).then(() => {
-    isNavigationConfirmed = true
-    globalThis.location.href = link.href
-  })
+  return Promise.all(discardPromises).then(() => {})
 }
 
 /**
@@ -98,7 +95,7 @@ function handleDialogResult (action, link) {
   }
 
   if (action === 'discard') {
-    return handleDiscardAllAndNavigate(link)
+    return handleDiscardAll()
   }
 
   if (action === 'cancel') {
@@ -162,19 +159,6 @@ function removeGlobalListeners () {
   window.removeEventListener('beforeunload', handleBeforeUnload)
   document.removeEventListener('click', handleLinkClick, true)
   isGuardActive = false
-}
-
-/**
- * Test helper to reset all module-level state.
- * ONLY use this in tests to prevent state pollution between test cases.
- *
- * @private
- */
-export const _resetUnsavedChangesGuard = () => {
-  removeGlobalListeners()
-  isGuardActive = false
-  isNavigationConfirmed = false
-  registeredComponents.clear()
 }
 
 /**

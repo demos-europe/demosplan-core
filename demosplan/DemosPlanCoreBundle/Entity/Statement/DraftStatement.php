@@ -1032,9 +1032,6 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
         return $this->uStreet;
     }
 
-    /**
-     * @return array
-     */
     public function getCategories()
     {
         if ($this->categories instanceof Collection) {

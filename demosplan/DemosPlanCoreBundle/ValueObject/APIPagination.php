@@ -47,9 +47,6 @@ class APIPagination extends ValueObject implements ApiPaginationInterface
         $this->setSortBy($sortString);
     }
 
-    /**
-     * @return array|null
-     */
     public function getSort()
     {
         if ('' === $this->getSortBy() || '' === $this->getSortDirection()) {
