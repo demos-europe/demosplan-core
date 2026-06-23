@@ -191,6 +191,7 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
     public function setDeleted(bool $deleted): void
     {
         $this->isDeleted = $deleted;
+        $this->deletedDate = $deleted ? new DateTime() : null;
     }
 
     public function getOrderInAudience(): int
@@ -239,11 +240,6 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
         }
 
         return $this->modificationDate;
-    }
-
-    public function setDeletedDate(DateTime $deletedDate): void
-    {
-        $this->deletedDate = $deletedDate;
     }
 
     public function getDeletedDate(): ?DateTime

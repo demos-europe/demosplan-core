@@ -13,6 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseDefinitionInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
@@ -101,5 +103,30 @@ class ProcedurePhaseDefinitionRepository extends CoreRepository
             ->getSingleScalarResult();
 
         return $result ?? -1;
+    }
+
+    /**
+     * Returns true if any non-deleted procedure currently references this definition
+     * as its active or designated phase (internal or external audience).
+     */
+    public function isReferencedByActiveProcedure(ProcedurePhaseDefinitionInterface $phaseDefinition): bool
+    {
+        $count = $this->getEntityManager()
+            ->createQuery(
+                'SELECT COUNT(p.id) FROM '.ProcedureInterface::class.' p
+                JOIN p.phase phase
+                LEFT JOIN p.publicParticipationPhase pubPhase
+                WHERE p.deleted = false
+                AND (
+                    phase.phaseDefinition = :def
+                    OR phase.designatedPhaseDefinition = :def
+                    OR pubPhase.phaseDefinition = :def
+                    OR pubPhase.designatedPhaseDefinition = :def
+                    )'
+            )
+            ->setParameter('def', $phaseDefinition)
+            ->getSingleScalarResult();
+
+        return $count > 0;
     }
 }

@@ -185,6 +185,19 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
             ->setFilterable()
             ->addPathCreationBehavior(OptionalField::YES);
 
+        $configBuilder->isDeleted
+            ->setReadableByPath(DefaultField::YES)
+            ->addUpdateBehavior(CallbackAttributeSetBehavior::createFactory(
+                [],
+                function (ProcedurePhaseDefinition $procedurePhaseDefinition, bool $newIsDeleted): array {
+                    $this->procedurePhaseDefinitionEditor->setDeleted($procedurePhaseDefinition, $newIsDeleted);
+
+                    return [];
+                },
+                OptionalField::YES
+            ));
+
+
         $configBuilder->orderInAudience
             ->setReadableByPath(DefaultField::YES)
             ->setSortable();
