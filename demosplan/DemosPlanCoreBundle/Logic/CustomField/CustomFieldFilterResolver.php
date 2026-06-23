@@ -48,34 +48,31 @@ class CustomFieldFilterResolver
 
         [$alias, $entityClass, $procedureExpr, $extraConditions] = $this->entityConfig($entity);
 
-        $dql = "SELECT {$alias}.id FROM {$entityClass} {$alias} WHERE {$procedureExpr} = :procedureId";
+        $qb = $this->entityManager->createQueryBuilder()
+            ->select("{$alias}.id")
+            ->from($entityClass, $alias)
+            ->andWhere("{$procedureExpr} = :procedureId")
+            ->setParameter('procedureId', $procedureId);
 
         foreach ($extraConditions as $condition) {
-            $dql .= " AND {$condition}";
+            $qb->andWhere($condition);
         }
 
-        $params = ['procedureId' => $procedureId];
         $fieldIdx = 0;
-
         foreach ($fieldFilters as $fieldId => $values) {
-            $clauses = [];
+            $orClauses = [];
             foreach ($values as $valIdx => $value) {
-                $idParam = "cf{$fieldIdx}id";
+                $idParam  = "cf{$fieldIdx}id";
                 $valParam = "cf{$fieldIdx}v{$valIdx}";
-                $clauses[] = "JSON_CONTAINS_CUSTOM_FIELD({$alias}.customFields, :{$idParam}, :{$valParam}) = 1";
-                $params[$idParam] = $fieldId;
-                $params[$valParam] = $value;
+                $orClauses[] = "JSON_CONTAINS_CUSTOM_FIELD({$alias}.customFields, :{$idParam}, :{$valParam}) = 1";
+                $qb->setParameter($idParam, $fieldId);
+                $qb->setParameter($valParam, $value);
             }
-            $dql .= ' AND ('.implode(' OR ', $clauses).')';
+            $qb->andWhere($qb->expr()->orX(...$orClauses));
             ++$fieldIdx;
         }
 
-        $query = $this->entityManager->createQuery($dql);
-        foreach ($params as $key => $value) {
-            $query->setParameter($key, $value);
-        }
-
-        return array_column($query->getArrayResult(), 'id');
+        return array_column($qb->getQuery()->getArrayResult(), 'id');
     }
 
     /**
