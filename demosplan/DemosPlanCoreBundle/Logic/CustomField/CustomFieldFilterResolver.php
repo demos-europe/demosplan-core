@@ -66,7 +66,7 @@ class CustomFieldFilterResolver
         foreach ($fieldFilters as $fieldId => $values) {
             $orClauses = [];
             foreach ($values as $valIdx => $value) {
-                $idParam  = "cf{$fieldIdx}id";
+                $idParam = "cf{$fieldIdx}id";
                 $valParam = "cf{$fieldIdx}v{$valIdx}";
                 $orClauses[] = "JSON_CONTAINS_CUSTOM_FIELD(s.customFields, :{$idParam}, :{$valParam}) = 1";
                 $qb->setParameter($idParam, $fieldId);
