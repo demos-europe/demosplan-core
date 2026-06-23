@@ -80,7 +80,6 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
 
         return [
             $this->conditionFactory->propertyHasValue($customerId, ['customer', 'id']),
-            $this->conditionFactory->propertyHasValue(false, ['isDeleted']),
         ];
     }
 
@@ -188,6 +187,7 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
 
         $configBuilder->isDeleted
             ->setReadableByPath(DefaultField::YES)
+            ->setFilterable()
             ->addUpdateBehavior(CallbackAttributeSetBehavior::createFactory(
                 [],
                 function (ProcedurePhaseDefinition $procedurePhaseDefinition, bool $newIsDeleted): array {
