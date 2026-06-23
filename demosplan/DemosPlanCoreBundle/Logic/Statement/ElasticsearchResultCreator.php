@@ -28,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use demosplan\DemosPlanCoreBundle\ValueObject\ElasticsearchResult;
 use Elastica\Aggregation\GlobalAggregation;
 use Elastica\Exception\ClientException;
@@ -165,7 +164,7 @@ class ElasticsearchResultCreator
                 $searchFields,
                 $aggregationsMinDocumentCount
             );
-            [$customFieldFilter, $userFilters] = $this->getCustomFieldFilter($procedureId, $userFilters);
+            [$customFieldFilter, $userFilters] = $this->customFieldFilterResolver->resolveCustomFieldFilter($procedureId, $userFilters);
             [$boolMustFilter, $boolMustNotFilter] = $this->getBasicFilters($procedureId, $userFilters);
             $userFilters = $this->getRenamedUserFilters($userFilters);
             if (null !== $customFieldFilter) {
@@ -1522,49 +1521,6 @@ class ElasticsearchResultCreator
         }
 
         return $fragmentFilters;
-    }
-
-    /**
-     * Strips customField_* entries from $userFilters, resolves matching statement
-     * IDs via Doctrine and returns the Elastica terms filter alongside the cleaned filters array.
-     *
-     * @param array<string, mixed> $userFilters
-     *
-     * @return array{0: AbstractQuery|null, 1: array<string, mixed>}
-     */
-    private function getCustomFieldFilter(string $procedureId, array $userFilters): array
-    {
-        $prefix = 'customField_';
-
-        /** @var Collection<string, mixed> $customFieldEntries */
-        /** @var Collection<string, mixed> $remainingFilters */
-        [$customFieldEntries, $remainingFilters] = collect($userFilters)->partition(
-            static fn (mixed $value, string $key): bool => str_starts_with($key, $prefix)
-        );
-
-        if ($customFieldEntries->isEmpty()) {
-            return [null, $userFilters];
-        }
-
-        $fieldFilters = $customFieldEntries
-            ->mapWithKeys(
-                static fn (mixed $value, string $key): array => [substr($key, strlen($prefix)) => $value]
-            )
-            ->toArray();
-
-        $matchingIds = $this->customFieldFilterResolver->resolveMatchingIds(
-            CustomFieldSupportedEntity::statement,
-            $procedureId,
-            $fieldFilters
-        );
-
-        return [
-            $this->elasticSearchService->getElasticaTermsInstance(
-                'id',
-                [] !== $matchingIds ? $matchingIds : ['__no_match__']
-            ),
-            $remainingFilters->toArray(),
-        ];
     }
 
     /**
