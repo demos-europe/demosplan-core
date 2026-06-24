@@ -312,8 +312,7 @@ class SegmentsExportController extends BaseController
                             $tableHeaders,
                             $censorCitizenData,
                             $censorInstitutionData,
-                            $obscureParameter,
-                            $this->statementExportTagFilter->getFilteredTagsWithTitles()
+                            $obscureParameter
                         );
                         $writer = IOFactory::createWriter($docx);
                         $zipExportService->addWriterToZipStream(

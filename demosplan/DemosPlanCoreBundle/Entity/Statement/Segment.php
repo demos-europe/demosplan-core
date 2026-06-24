@@ -116,10 +116,8 @@ class Segment extends Statement implements SegmentInterface
     }
 
     /**
-     * Referenced as `getterMethod` for the `locked` field in
-     * `entity_content_change_fields_mapping.yml`. The mapping is read
-     * reflectively, so static analysis will not surface a caller — keep this
-     * method even though no PHP code invokes it directly.
+     * Used by the segment lock content change display — no PHP code calls this
+     * directly, so static analysis will not surface a caller.
      */
     public function isLocked(): bool
     {

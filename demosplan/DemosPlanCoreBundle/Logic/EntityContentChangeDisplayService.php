@@ -116,13 +116,11 @@ class EntityContentChangeDisplayService
         }
 
         /*
-         * Segment-lock feature: {{ @link Segment::isLocked }} exists and is
-         * wired as the getterMethod for `locked` in the mapping yaml, but it
-         * returns a bool. The stored content_change uses the translated
-         * full-word vocabulary ("Gesperrt"/"Entsperrt") chosen for
-         * readability. Feeding a string-cast bool ("1"/"") into a rollback
-         * walk over translated strings would corrupt the trace, so we bypass
-         * the generic path — see
+         * Segment-lock feature: {{ @link Segment::isLocked }} returns a bool,
+         * but the stored content_change uses the translated full-word
+         * vocabulary ("Gesperrt"/"Entsperrt"). Feeding a string-cast bool
+         * ("1"/"") into a rollback walk over translated strings would corrupt
+         * the trace, so we bypass the generic path — see
          * {{ @link EntityContentChangeDisplayService::renderLockByPlaceSwitchesJson }}.
          */
         if ('locked' === $fieldName) {
@@ -285,9 +283,9 @@ class EntityContentChangeDisplayService
      *
      * The rollback path needs the current entity value in the same
      * vocabulary as the stored diffs so it can walk backwards through them.
-     * {{ @see Segment::isLocked }} exists and is mapped as the getter for
-     * `locked`, but it returns a bool — and the stored content_change uses
-     * the translated full-word vocabulary ("Gesperrt"/"Entsperrt") chosen by
+     * {{ @see Segment::isLocked }} returns a bool, but the stored
+     * content_change uses the translated full-word vocabulary
+     * ("Gesperrt"/"Entsperrt") chosen by
      * {@link EntityContentChangeService::lockedDiffOptions} to keep the
      * diff readable on a binary toggle. The two don't compose: the rollback
      * walk would start from "1"/"" and try to apply diffs recorded as
