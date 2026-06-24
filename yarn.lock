@@ -7133,6 +7133,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"commander@npm:^14.0.3":
+  version: 14.0.3
+  resolution: "commander@npm:14.0.3"
+  checksum: 10c0/755652564bbf56ff2ff083313912b326450d3f8d8c85f4b71416539c9a05c3c67dbd206821ca72635bf6b160e2afdefcb458e86b317827d5cb333b69ce7f1a24
+  languageName: node
+  linkType: hard
+
 "commander@npm:^7.2.0":
   version: 7.2.0
   resolution: "commander@npm:7.2.0"
@@ -8038,7 +8045,7 @@ __metadata:
     cesium: "npm:^1.126.0"
     chalk: "npm:4.1.2"
     cli-progress: "npm:^3.12.0"
-    commander: "npm:^14.0.2"
+    commander: "npm:^14.0.3"
     copy-webpack-plugin: "npm:^14.0.0"
     core-js: "npm:^3.49.0"
     cross-env: "npm:^10.1.0"
