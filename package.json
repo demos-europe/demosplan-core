@@ -132,7 +132,7 @@
     "@vue/vue3-jest": "^29.2.6",
     "assets-webpack-plugin": "^7.1.1",
     "babel-jest": "^29.7.0",
-    "babel-loader": "^10.0.0",
+    "babel-loader": "^10.1.1",
     "caniuse-lite": "^1.0.30001799",
     "chalk": "4.1.2",
     "cli-progress": "^3.12.0",
