@@ -40,7 +40,7 @@
     "demos-europe/demosplan-addon": "^0.75",
     "doctrine/annotations": "^2.0",
     "doctrine/common": "^3.2",
-    "doctrine/data-fixtures": "^1.8",
+    "doctrine/data-fixtures": "^2.2",
     "doctrine/dbal": "^3",
     "doctrine/doctrine-bundle": "^2",
     "doctrine/doctrine-fixtures-bundle": "^3",
