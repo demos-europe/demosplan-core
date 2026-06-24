@@ -410,8 +410,8 @@ class StatementReportEntryFactory extends AbstractReportEntryFactory
             $statement['procedure'] = [
                 'id'                       => $statement['procedure']['id'],
                 'name'                     => $statement['procedure']['name'],
-                'phase'                    => $statement['procedure']['phaseDefinitionName'] ?? null,
-                'publicParticipationPhase' => $statement['procedure']['publicParticipationPhaseDefinitionName'] ?? null,
+                'phase'                    => $statement['procedure']['phaseDefinitionName'],
+                'publicParticipationPhase' => $statement['procedure']['publicParticipationPhaseDefinitionName'],
             ];
         }
 
