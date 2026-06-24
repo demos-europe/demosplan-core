@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\ApiResources\StatementResource;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use Exception;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Webmozart\Assert\Assert;
@@ -115,7 +116,7 @@ class StatementGroupProcessor implements ProcessorInterface
         if ([] !== $toAdd) {
             try {
                 $this->statementHandler->updateStatementCluster($procedureId, $toAdd, $groupId);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 throw new BadRequestHttpException($e->getMessage(), $e);
             }
         }
