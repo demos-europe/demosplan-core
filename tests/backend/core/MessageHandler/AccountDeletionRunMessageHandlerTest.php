@@ -80,6 +80,7 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
         $this->parameterBag->method('get')->willReturnCallback(
             static fn (string $name) => match ($name) {
                 'account_deletion.first_warning_days' => 30,
+                'account_deletion.support_email'      => 'support@test.example',
                 default                               => null,
             }
         );
@@ -140,7 +141,7 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
                 $this->callback(fn (array $mail) => 'email.subject.account_deletion.warning_first' === ($mail['mailsubject'] ?? null)
                     && str_contains($mail['mailbody'] ?? '', 'Test')
                     && str_contains($mail['mailbody'] ?? '', 'User')
-                    && str_contains($mail['mailbody'] ?? '', 'Support-Team'))
+                    && str_contains($mail['mailbody'] ?? '', 'DEMOS Support Team'))
             )
             ->willReturn($mailSend);
 
