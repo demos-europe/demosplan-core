@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
+use demosplan\DemosPlanCoreBundle\Entity\PersonalDataAuditLog;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
@@ -33,6 +34,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\AddressBookEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\EventListener\PersonalDataAuditListener;
 use demosplan\DemosPlanCoreBundle\Faker\Provider\ApproximateLengthText;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
@@ -58,6 +60,16 @@ use function strlen;
 #[AsCommand(name: 'dplan:data:remove-user-data', description: 'Deletes sensitive/personal data from DB.')]
 class RemoveUserDataCommand extends CoreCommand
 {
+    /**
+     * Visual width of the overall progress bar, intentionally decoupled from the number of steps.
+     */
+    private const PROGRESS_BAR_WIDTH = 40;
+
+    /**
+     * Project keys for which this command is not supported.
+     */
+    private const UNSUPPORTED_PROJECTS = ['BOBHH', 'BOPHH'];
+
     /** @var UserService */
     protected $userService;
 
@@ -115,6 +127,7 @@ class RemoveUserDataCommand extends CoreCommand
         StatementService $statementService,
         DraftStatementService $draftStatementService,
         ManagerRegistry $doctrine,
+        private readonly PersonalDataAuditListener $personalDataAuditListener,
         ?string $name = null,
     ) {
         $this->userService = $userService;
@@ -150,10 +163,14 @@ class RemoveUserDataCommand extends CoreCommand
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->output = $output;
-        $this->totalProgress = $this->initializeProgressBar(22, 22);
+        $wipeSteps = $this->getWipeSteps();
+        $this->totalProgress = $this->initializeProgressBar(count($wipeSteps), self::PROGRESS_BAR_WIDTH);
+
+        // Disable audit listener to prevent logging anonymization changes as new audit entries
+        $this->personalDataAuditListener->disable();
 
         $projectName = strtoupper($this->parameterBag->get('project_name'));
-        if ('BOBHH' === $projectName || 'BOPHH' === $projectName) {
+        if (in_array($projectName, self::UNSUPPORTED_PROJECTS, true)) {
             $this->output->writeln('This command is not supported for the current project');
 
             // in case of this command should be workable for HH too.
@@ -162,42 +179,56 @@ class RemoveUserDataCommand extends CoreCommand
             return (int) Command::FAILURE;
         }
 
-        // #1: independent::
-        $this->removeUserDataFromUsers();
-        $this->removeUserDataFromDepartments();
-        $this->removeUserDataFromOrganisations();
-        $this->removeUserDataFromAddresses();
-        $this->removeUserDataFromEmailAddresses();
-        $this->removeUserDataFromStatementMetas();
-        $this->removeUserDataFromFiles();
-        $this->removeUserDataFromMailSend();
-        $this->removeUserDataFromStatementVersionFields();
-        $this->removeUserDataFromAddressBookEntries();
-        $this->removeUserDataFromNotificationReceivers();
-        $this->removeUserDataFromStatementFragmentVersions();
-        $this->removeUserDataFromStatements();
+        foreach ($wipeSteps as $wipeStep) {
+            $wipeStep();
+        }
 
-        // #2: depended on users:
-        $this->removeUserDataFromStatementVotes();
-        $this->removeUserDataFromReportEntries();
-        $this->removeUserDataFromEntityContentChanges();
-
-        // depended on address + users:
-        $this->removeUserDataFromProcedureSubscriptions();
-
-        // depended on orgas:
-        $this->removeUserDataFromProcedures();
-
-        // depended on departments:
-        $this->removeUserDataFromStatementFragments();
-
-        // depended on users + orgas + departments:
-        $this->removeUserDataFromDraftStatements();
-
-        // depended on draftstatements:
-        $this->removeUserDataFromDraftStatementVersions();
+        $this->personalDataAuditListener->enable();
 
         return (int) Command::SUCCESS;
+    }
+
+    /**
+     * Ordered list of wipe steps; each advances the overall progress bar once.
+     * The order encodes inter-entity dependencies (e.g. statements before procedures),
+     * so it must be preserved. Driving the progress bar off this list keeps the step
+     * count in sync automatically when steps are added or removed.
+     *
+     * @return list<callable>
+     */
+    private function getWipeSteps(): array
+    {
+        return [
+            // independent
+            fn () => $this->removeUserDataFromUsers(),
+            fn () => $this->removeUserDataFromDepartments(),
+            fn () => $this->removeUserDataFromOrganisations(),
+            fn () => $this->removeUserDataFromAddresses(),
+            fn () => $this->removeUserDataFromEmailAddresses(),
+            fn () => $this->removeUserDataFromStatementMetas(),
+            fn () => $this->removeUserDataFromFiles(),
+            fn () => $this->removeUserDataFromMailSend(),
+            fn () => $this->removeUserDataFromStatementVersionFields(),
+            fn () => $this->removeUserDataFromAddressBookEntries(),
+            fn () => $this->removeUserDataFromNotificationReceivers(),
+            fn () => $this->removeUserDataFromStatementFragmentVersions(),
+            fn () => $this->removeUserDataFromStatements(),
+            // depend on users
+            fn () => $this->removeUserDataFromStatementVotes(),
+            fn () => $this->removeUserDataFromReportEntries(),
+            fn () => $this->removeUserDataFromEntityContentChanges(),
+            fn () => $this->removeUserDataFromPersonalDataAuditLogs(),
+            // depends on address + users
+            fn () => $this->removeUserDataFromProcedureSubscriptions(),
+            // depends on orgas
+            fn () => $this->removeUserDataFromProcedures(),
+            // depends on departments
+            fn () => $this->removeUserDataFromStatementFragments(),
+            // depends on users + orgas + departments
+            fn () => $this->removeUserDataFromDraftStatements(),
+            // depends on draftStatements
+            fn () => $this->removeUserDataFromDraftStatementVersions(),
+        ];
     }
 
     protected function removeUserDataFromUsers(): void
@@ -754,6 +785,42 @@ class RemoveUserDataCommand extends CoreCommand
 
         $this->currentProgressBar->finish();
         $this->updateAll(EntityContentChange::class, $allEntityContentChanges);
+    }
+
+    protected function removeUserDataFromPersonalDataAuditLogs(): void
+    {
+        $this->checkForAlreadyProcessedUsers();
+
+        /** @var PersonalDataAuditLog[] $allAuditLogs */
+        $allAuditLogs = $this->initializeRemovingDataForEntity(PersonalDataAuditLog::class);
+
+        $userCache = [];
+        foreach ($allAuditLogs as $auditLog) {
+            $nameToUse = $this->map($auditLog->getUserName(), $this->faker->name);
+
+            $userId = $auditLog->getUserId();
+            if (null !== $userId) {
+                if (!array_key_exists($userId, $userCache)) {
+                    $userCache[$userId] = $this->userService->getSingleUser($userId);
+                }
+                if ($userCache[$userId] instanceof User) {
+                    $nameToUse = $userCache[$userId]->getUserIdentifier();
+                }
+            }
+
+            $auditLog->setUserName($nameToUse);
+
+            // Anonymize the actual personal data values stored in the audit entries
+            if (!$auditLog->isSensitiveField()) {
+                $auditLog->setPreUpdateValue('[anonymized]');
+                $auditLog->setPostUpdateValue('[anonymized]');
+            }
+
+            $this->currentProgressBar->advance();
+        }
+
+        $this->currentProgressBar->finish();
+        $this->updateAll(PersonalDataAuditLog::class, $allAuditLogs);
     }
 
     protected function removeUserDataFromNotificationReceivers(): void

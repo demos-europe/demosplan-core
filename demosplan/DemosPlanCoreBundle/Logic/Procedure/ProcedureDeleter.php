@@ -173,6 +173,9 @@ class ProcedureDeleter
         // delete procedure report entries
         $this->deleteReportEntriesByIdentifierAndType($procedureIds, $isDryRun);
 
+        // delete personal data audit log entries scoped to this procedure
+        $this->queriesService->deleteFromTableByIdentifierArray('personal_data_audit_log', 'procedure_id', $procedureIds, $isDryRun);
+
         // collect referenced procedure_phase ids before deleting the procedures
         $phaseIds = $this->collectProcedurePhaseIds($procedureIds);
 
