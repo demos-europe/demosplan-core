@@ -1061,10 +1061,13 @@ class DemosPlanAssessmentTableController extends BaseController
         $templateVars['filterHash'] = $filterHash;
 
         // Verfahrensschritte
-        $templateVars['internalPhaseDefinitions'] =
-            $this->procedurePhaseDefinitionService->getInternalPhaseDefinitionsForCurrentCustomer();
-        $templateVars['externalPhaseDefinitions'] =
-            $this->procedurePhaseDefinitionService->getExternalPhaseDefinitionsForCurrentCustomer();
+        $currentPhaseAudience = $statement->getPhaseDefinition()->getAudience();
+        $templateVars['internalPhaseDefinitions'] = 'internal' === $currentPhaseAudience
+            ? $this->procedurePhaseDefinitionService->getAvailablePhasesForStatement($statement)
+            : $this->procedurePhaseDefinitionService->getInternalPhaseDefinitionsForCurrentCustomer();
+        $templateVars['externalPhaseDefinitions'] = 'external' === $currentPhaseAudience
+            ? $this->procedurePhaseDefinitionService->getAvailablePhasesForStatement($statement)
+            : $this->procedurePhaseDefinitionService->getExternalPhaseDefinitionsForCurrentCustomer();
 
         $resElements = $this->statementHandler->getElementBlock($procedureId);
         if (isset($resElements['paragraph'])) {
