@@ -793,15 +793,19 @@ export default {
         this.prosemirror.view.dispatch(tr)
         this.updateTextualReference()
       } else {
-        // Prosemirror has no mark for this segment (e.g. it failed to parse a duplicate-ID mark).
-        // Re-serializing from Prosemirror would silently drop any other marks it also missed.
-        // Instead, strip only this segment's <segment-mark> tags directly from the stored HTML.
+        /*
+         * Prosemirror has no mark for this segment (e.g. it failed to parse a duplicate-ID mark).
+         * Re-serializing from Prosemirror would silently drop any other marks it also missed.
+         * Instead, strip only this segment's <segment-mark> tags directly from the stored HTML.
+         */
         const stripped = (this.initText || '').replace(
           new RegExp(`<segment-mark[^>]*data-segment-id="${segmentId}"[^>]*>(.*?)<\\/segment-mark>`, 'gs'),
-          '$1'
+          '$1',
         )
+
         this.setProperty({ prop: 'initText', val: stripped })
       }
+
       this.ignoreProsemirrorUpdates = false
       this.deleteSegmentAction(segmentId)
       this.isSegmentDraftUpdated = true
