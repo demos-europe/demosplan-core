@@ -15,15 +15,18 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
+use demosplan\DemosPlanCoreBundle\Event\ProcedurePhaseDefinitionMarkedAsDeletedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedurePhaseDefinitionReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedurePhaseDefinitionUpdatableField;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProcedurePhaseDefinitionEditor
 {
     public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly MessageBagInterface $messageBag,
         private readonly ProcedurePhaseDefinitionReportEntryFactory $reportEntryFactory,
         private readonly ProcedurePhaseDefinitionRepository $procedurePhaseDefinitionRepository,
@@ -60,6 +63,10 @@ class ProcedurePhaseDefinitionEditor
             $oldIsDeleted,
             $newIsDeleted,
         );
+
+        if ($newIsDeleted) {
+            $this->eventDispatcher->dispatch(new ProcedurePhaseDefinitionMarkedAsDeletedEvent($phaseDefinition));
+        }
     }
 
     /**

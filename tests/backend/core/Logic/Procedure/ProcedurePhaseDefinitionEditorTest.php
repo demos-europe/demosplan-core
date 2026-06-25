@@ -22,11 +22,13 @@ use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedurePhaseDefinitionReportEnt
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedurePhaseDefinitionUpdatableField;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Tests\Base\UnitTestCase;
 
 class ProcedurePhaseDefinitionEditorTest extends UnitTestCase
 {
     private ?ProcedurePhaseDefinitionEditor $sut = null;
+    private ?EventDispatcherInterface $eventDispatcher = null;
     private ?MessageBagInterface $messageBag = null;
     private ?ProcedurePhaseDefinitionReportEntryFactory $reportEntryFactory = null;
     private ?ProcedurePhaseDefinitionRepository $procedurePhaseDefinitionRepository = null;
@@ -36,12 +38,14 @@ class ProcedurePhaseDefinitionEditorTest extends UnitTestCase
     {
         parent::setUp();
 
+        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $this->messageBag = $this->createMock(MessageBagInterface::class);
         $this->reportEntryFactory = $this->createMock(ProcedurePhaseDefinitionReportEntryFactory::class);
         $this->procedurePhaseDefinitionRepository = $this->createMock(ProcedurePhaseDefinitionRepository::class);
         $this->reportService = $this->createMock(ReportService::class);
 
         $this->sut = new ProcedurePhaseDefinitionEditor(
+            $this->eventDispatcher,
             $this->messageBag,
             $this->reportEntryFactory,
             $this->procedurePhaseDefinitionRepository,
@@ -105,6 +109,7 @@ class ProcedurePhaseDefinitionEditorTest extends UnitTestCase
             ->willReturn(false);
 
         $this->messageBag->expects(self::never())->method('add');
+        $this->eventDispatcher->expects(self::once())->method('dispatch');
 
         $this->sut->setDeleted($phaseDefinition, true);
 
@@ -121,6 +126,7 @@ class ProcedurePhaseDefinitionEditorTest extends UnitTestCase
             ->willReturn(true);
 
         $this->messageBag->expects(self::once())->method('add')->with('error', self::anything());
+        $this->eventDispatcher->expects(self::never())->method('dispatch');
 
         $this->sut->setDeleted($phaseDefinition, true);
 
@@ -134,6 +140,7 @@ class ProcedurePhaseDefinitionEditorTest extends UnitTestCase
 
         $this->procedurePhaseDefinitionRepository->expects(self::never())->method('isReferencedByActiveProcedure');
         $this->messageBag->expects(self::never())->method('add');
+        $this->eventDispatcher->expects(self::never())->method('dispatch');
 
         $this->sut->setDeleted($phaseDefinition, false);
 
