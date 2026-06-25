@@ -209,7 +209,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         bool $censorCitizenData,
         bool $censorInstitutionData,
         bool $obscureParameter,
-        array $exportFilteredByTagsWithTopics = [],
     ): PhpWord {
         $censored = $this->needsToBeCensored(
             $statement,
@@ -219,8 +218,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
 
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $section = $phpWord->addSection($this->styles['globalSection']);
-        $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTagsWithTopics);
-        $this->addHeader($section, $procedure, null, $exportFilteredByTagsWithTopics);
+        $this->addHeader($section, $procedure, Footer::FIRST);
+        $this->addHeader($section, $procedure, null);
         $this->exportStatement($section, $statement, $tableHeaders, $censored, $obscureParameter);
 
         return $phpWord;
