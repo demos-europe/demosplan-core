@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
+use DemosEurope\DemosplanAddon\Contracts\Events\ProcedurePhaseDefinitionMarkedAsDeletedEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Event\ProcedurePhaseDefinitionMarkedAsDeletedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
@@ -65,7 +66,10 @@ class ProcedurePhaseDefinitionEditor
         );
 
         if ($newIsDeleted) {
-            $this->eventDispatcher->dispatch(new ProcedurePhaseDefinitionMarkedAsDeletedEvent($phaseDefinition));
+            $this->eventDispatcher->dispatch(
+                new ProcedurePhaseDefinitionMarkedAsDeletedEvent($phaseDefinition),
+                ProcedurePhaseDefinitionMarkedAsDeletedEventInterface::class
+            );
         }
     }
 
