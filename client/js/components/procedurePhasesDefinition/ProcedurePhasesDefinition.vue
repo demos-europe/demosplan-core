@@ -401,6 +401,14 @@ export default {
             'orderInAudience',
           ].join(','),
         },
+        filter: {
+          notDeleted: {
+            condition: {
+              path: 'isDeleted',
+              value: 0,
+            },
+          },
+        },
         sort: 'orderInAudience',
       }))
         .then(({ data }) => {
