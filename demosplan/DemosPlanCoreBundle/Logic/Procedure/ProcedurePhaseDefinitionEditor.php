@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\ProcedurePhaseDefinitionMarkedAsDeletedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
-use DemosEurope\DemosplanAddon\Contracts\Events\ProcedurePhaseDefinitionMarkedAsDeletedEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Event\ProcedurePhaseDefinitionMarkedAsDeletedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
