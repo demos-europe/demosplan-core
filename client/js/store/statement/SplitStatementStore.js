@@ -9,7 +9,6 @@
 
 import { dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { transformJsonApiToPi, transformPiToJsonApi } from './storeHelpers/SplitStatementStore/PiTagsToJSONApi'
-import { transformHTMLPositionsToProsemirrorPositions } from './storeHelpers/SplitStatementStore/HTMLIdxToProsemirrorIdx'
 
 const SplitStatementStore = {
   namespaced: true,
@@ -82,11 +81,6 @@ const SplitStatementStore = {
       const segmentsToCreate = updatedSegments
 
       state.segments = segmentsAfterUpdate.concat(segmentsToCreate)
-    },
-
-    recalculatePositionsInText (state) {
-      // Calculate tiptap positions based on data from PI.
-      state.segments = transformHTMLPositionsToProsemirrorPositions(state.segments, state.initText)
     },
 
     replaceSegment (state, { id, newSegment }) {
@@ -255,18 +249,6 @@ const SplitStatementStore = {
           commit('setProperty', { prop: 'segments', val: segments })
           commit('setProperty', { prop: 'initText', val: initialData.attributes.textualReference })
 
-          /**
-           * Recalculating the indexing of segments should only be done once. As soon as their boundary positions
-           * have been adjusted to the Prosemirror indexing scheme, we don't want to reindex them because this would
-           * cause misalignment of segments.
-           */
-          const haveProsemirrorIndexing = typeof segments.find(segment => segment.hasProsemirrorIndex === true) !== 'undefined'
-
-          if (haveProsemirrorIndexing === false && doUpdate === true) {
-            commit('recalculatePositionsInText')
-            dispatch('persistProsemirrorIndexing')
-          }
-
           const segmentTags = state.segments.reduce((acc, seg) => {
             const tagNames = seg.tags || []
 
@@ -406,21 +388,6 @@ const SplitStatementStore = {
 
           return uncategorizedTags.concat(categorizedTags).map(tag => tag.attributes.title)
         })
-    },
-
-    persistProsemirrorIndexing ({ commit, dispatch, state }) {
-      const segments = JSON.parse(JSON.stringify(state.segments))
-      const indexedSegments = segments.map(segment => {
-        segment.hasProsemirrorIndex = true
-
-        return segment
-      })
-
-      indexedSegments.forEach(segment => {
-        commit('replaceSegment', { id: segment.id, newSegment: segment })
-      })
-
-      dispatch('saveSegmentsDrafts')
     },
 
     saveSegmentsDrafts ({ state, dispatch }, triggerNotifications = false) {
@@ -566,7 +533,7 @@ const SplitStatementStore = {
     isBusy: (state) => state.isBusy,
     procedureId: (state) => state.procedureId,
     segments: (state) => state.segments,
-    sortedSegments: (state) => state.segments.concat().sort((a, b) => a.charStart - b.charStart),
+    sortedSegments: (state) => state.segments,
     statement: (state) => state.statement,
     statementSegmentDraftList: (state) => state.statement?.attributes.segmentDraftList || '',
     segmentById: (state) => (id) => state.segments.find((el) => el.id === id),

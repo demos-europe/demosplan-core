@@ -736,7 +736,6 @@ export default {
       const segment = {
         id: uuid(),
         tags: [],
-        hasProsemirrorIndex: true,
         status: 'confirmed',
       }
 
