@@ -32,8 +32,8 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class FixProcedureFileMismatchesCommandTest extends TestCase
 {
-    private const ELEMENT_DISCOVERY_SQL_FRAGMENT = 'FROM _elements e';
-    private const SINGLE_DOC_DISCOVERY_SQL_FRAGMENT = 'FROM _single_doc sd';
+    private const ELEMENT_DISCOVERY_SQL_FRAGMENT = 'FROM _elements ref';
+    private const SINGLE_DOC_DISCOVERY_SQL_FRAGMENT = 'FROM _single_doc ref';
 
     private Connection&MockObject $connection;
     private EntityManagerInterface&MockObject $entityManager;
@@ -210,8 +210,8 @@ class FixProcedureFileMismatchesCommandTest extends TestCase
             ->expects(self::once())
             ->method('error')
             ->with(
-                self::stringContains('Failed to fix single_doc'),
-                self::callback(static fn (array $ctx) => 'sd1' === ($ctx['_sd_id'] ?? null)
+                self::stringContains('Failed to fix file reference'),
+                self::callback(static fn (array $ctx) => 'sd1' === ($ctx['id'] ?? null)
                     && $ctx['exception'] instanceof RuntimeException)
             );
 
@@ -228,11 +228,8 @@ class FixProcedureFileMismatchesCommandTest extends TestCase
             ->expects(self::exactly(2))
             ->method('fetchFirstColumn')
             ->willReturnCallback(function (string $sql, array $params): array {
-                // First call is the _elements query (alias e), second the _single_doc query (alias sd).
-                self::assertTrue(
-                    str_contains($sql, 'e._p_id = :pid') || str_contains($sql, 'sd._p_id = :pid'),
-                    'Expected procedure filter on either e._p_id or sd._p_id'
-                );
+                // Both discovery queries share the generic alias "ref".
+                self::assertStringContainsString('ref._p_id = :pid', $sql);
                 self::assertSame('only-this-procedure', $params['pid']);
 
                 return [];

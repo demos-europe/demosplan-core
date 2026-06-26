@@ -12,11 +12,14 @@ namespace demosplan\DemosPlanCoreBundle\Command;
 
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
+use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -25,13 +28,16 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Throwable;
 
+#[AsCommand(
+    name: 'dplan:files:fix-procedure-mismatches',
+    description: 'Find and (with --apply) fix _elements/_single_doc references pointing at files owned by a different procedure. Dry-run by default.',
+)]
 class FixProcedureFileMismatchesCommand extends CoreCommand
 {
-    protected static $defaultName = 'dplan:files:fix-procedure-mismatches';
-
-    protected static $defaultDescription = 'Find and (with --apply) fix _elements/_single_doc references pointing at files owned by a different procedure (HDDP-18). Dry-run by default.';
-
     private const BATCH_SIZE = 50;
+
+    private const OUTCOME_FIXED = 'fixed';
+    private const OUTCOME_SKIPPED = 'skipped';
 
     public function __construct(
         ParameterBagInterface $parameterBag,
@@ -82,10 +88,26 @@ class FixProcedureFileMismatchesCommand extends CoreCommand
         $includeDeleted = (bool) $input->getOption('include-deleted-owners');
         $limit = null !== $input->getOption('limit') ? (int) $input->getOption('limit') : null;
 
-        $io->title('HDDP-18 — procedure/file mismatch '.($apply ? 'fix' : 'audit (dry-run)'));
+        $io->title('Procedure/file mismatch '.($apply ? 'fix' : 'audit (dry-run)'));
 
-        $elementIds = $this->findMismatchedElementIds($procedureId, $includeDeleted, $limit);
-        $singleDocIds = $this->findMismatchedSingleDocIds($procedureId, $includeDeleted, $limit);
+        $elementIds = $this->findMismatchedReferenceIds(
+            '_elements',
+            '_e_id',
+            '_e_file',
+            '_e_deleted',
+            $procedureId,
+            $includeDeleted,
+            $limit
+        );
+        $singleDocIds = $this->findMismatchedReferenceIds(
+            '_single_doc',
+            '_sd_id',
+            '_sd_document',
+            '_sd_deleted',
+            $procedureId,
+            $includeDeleted,
+            $limit
+        );
 
         $io->section('Discovery');
         $io->table(
@@ -124,8 +146,8 @@ class FixProcedureFileMismatchesCommand extends CoreCommand
         }
 
         $io->section('Applying fixes');
-        $elementsResult = $this->fixElements($io, $elementIds);
-        $singleDocsResult = $this->fixSingleDocs($io, $singleDocIds);
+        $elementsResult = $this->applyFixes($io, $elementIds, fn (string $id): string => $this->fixElement($id));
+        $singleDocsResult = $this->applyFixes($io, $singleDocIds, fn (string $id): string => $this->fixSingleDoc($id));
 
         $io->section('Summary');
         $io->table(
@@ -148,56 +170,50 @@ class FixProcedureFileMismatchesCommand extends CoreCommand
     }
 
     /**
+     * Finds references in $table whose embedded file ident resolves to a _files
+     * row owned by a different procedure than the reference's own procedure.
+     *
+     * The reference is stored as a colon-delimited file string (see
+     * {@see File::getFileString()}: "filename:ident:size:mimetype"). The nested
+     * SUBSTRING_INDEX calls peel the ident (2nd field) off the right-hand end, so
+     * a filename containing ":" does not shift the result. Keep the extraction in
+     * sync with that format.
+     *
      * @return list<string>
      */
-    private function findMismatchedElementIds(?string $procedureId, bool $includeDeleted, ?int $limit): array
-    {
-        $sql = 'SELECT e._e_id
-                FROM _elements e
-                JOIN _files f
-                  ON f._f_ident = SUBSTRING_INDEX(SUBSTRING_INDEX(e._e_file, ":", -3), ":", 1)
-                JOIN _procedure p
-                  ON p._p_id = e._p_id
-                WHERE e._e_deleted = 0
-                  AND f._f_deleted = 0
-                  AND e._p_id <> f.procedure_id';
+    private function findMismatchedReferenceIds(
+        string $table,
+        string $idColumn,
+        string $fileColumn,
+        string $deletedColumn,
+        ?string $procedureId,
+        bool $includeDeleted,
+        ?int $limit,
+    ): array {
+        // Identifiers are internal constants (never user input); $limit is cast to
+        // int by the caller, so interpolating them is safe.
+        $sql = sprintf(
+            'SELECT ref.%1$s
+             FROM %2$s ref
+             JOIN _files f
+               ON f._f_ident = SUBSTRING_INDEX(SUBSTRING_INDEX(ref.%3$s, ":", -3), ":", 1)
+             JOIN _procedure p
+               ON p._p_id = ref._p_id
+             WHERE ref.%4$s = 0
+               AND f._f_deleted = 0
+               AND ref._p_id <> f.procedure_id',
+            $idColumn,
+            $table,
+            $fileColumn,
+            $deletedColumn
+        );
         $params = [];
 
         if (!$includeDeleted) {
             $sql .= ' AND p._p_deleted = 0';
         }
         if (null !== $procedureId) {
-            $sql .= ' AND e._p_id = :pid';
-            $params['pid'] = $procedureId;
-        }
-        if (null !== $limit) {
-            $sql .= ' LIMIT '.$limit;
-        }
-
-        return $this->connection->fetchFirstColumn($sql, $params);
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function findMismatchedSingleDocIds(?string $procedureId, bool $includeDeleted, ?int $limit): array
-    {
-        $sql = 'SELECT sd._sd_id
-                FROM _single_doc sd
-                JOIN _files f
-                  ON f._f_ident = SUBSTRING_INDEX(SUBSTRING_INDEX(sd._sd_document, ":", -3), ":", 1)
-                JOIN _procedure p
-                  ON p._p_id = sd._p_id
-                WHERE sd._sd_deleted = 0
-                  AND f._f_deleted = 0
-                  AND sd._p_id <> f.procedure_id';
-        $params = [];
-
-        if (!$includeDeleted) {
-            $sql .= ' AND p._p_deleted = 0';
-        }
-        if (null !== $procedureId) {
-            $sql .= ' AND sd._p_id = :pid';
+            $sql .= ' AND ref._p_id = :pid';
             $params['pid'] = $procedureId;
         }
         if (null !== $limit) {
@@ -261,44 +277,32 @@ class FixProcedureFileMismatchesCommand extends CoreCommand
     }
 
     /**
-     * @param list<string> $ids
+     * Runs $fixOne for each id, owning the shared bookkeeping: progress bar,
+     * batched flush/clear, per-reference error isolation and outcome counters.
+     * $fixOne returns self::OUTCOME_FIXED or self::OUTCOME_SKIPPED and may throw
+     * to mark a reference as failed.
      *
-     * @return array{fixed:int,skipped:int,errors:int}
+     * @param list<string>             $ids
+     * @param callable(string): string $fixOne
+     *
+     * @return array{fixed: int, skipped: int, errors: int}
      */
-    private function fixElements(SymfonyStyle $io, array $ids): array
+    private function applyFixes(SymfonyStyle $io, array $ids, callable $fixOne): array
     {
         $fixed = $skipped = $errors = 0;
         $io->progressStart(count($ids));
 
         foreach ($ids as $i => $id) {
             try {
-                /** @var Elements|null $element */
-                $element = $this->entityManager->find(Elements::class, $id);
-                if (null === $element) {
-                    ++$errors;
-                    $this->logger->error('Element not found during HDDP-18 fix', ['_e_id' => $id]);
-                    continue;
-                }
-
-                $newFile = $this->fileService->createCopyOfFile(
-                    $element->getFile(),
-                    $element->getProcedure()->getId()
-                );
-                if (null === $newFile) {
+                if (self::OUTCOME_SKIPPED === $fixOne($id)) {
                     ++$skipped;
-                    $this->logger->warning('Skipped element — source file missing', [
-                        '_e_id'   => $id,
-                        'oldFile' => $element->getFile(),
-                    ]);
-                    continue;
+                } else {
+                    ++$fixed;
                 }
-
-                $element->setFile($newFile->getFileString());
-                ++$fixed;
             } catch (Throwable $e) {
                 ++$errors;
-                $this->logger->error('Failed to fix element', [
-                    '_e_id'     => $id,
+                $this->logger->error('Failed to fix file reference', [
+                    'id'        => $id,
                     'exception' => $e,
                 ]);
             }
@@ -317,60 +321,47 @@ class FixProcedureFileMismatchesCommand extends CoreCommand
         return ['fixed' => $fixed, 'skipped' => $skipped, 'errors' => $errors];
     }
 
-    /**
-     * @param list<string> $ids
-     *
-     * @return array{fixed:int,skipped:int,errors:int}
-     */
-    private function fixSingleDocs(SymfonyStyle $io, array $ids): array
+    private function fixElement(string $id): string
     {
-        $fixed = $skipped = $errors = 0;
-        $io->progressStart(count($ids));
-
-        foreach ($ids as $i => $id) {
-            try {
-                /** @var SingleDocument|null $sd */
-                $sd = $this->entityManager->find(SingleDocument::class, $id);
-                if (null === $sd) {
-                    ++$errors;
-                    $this->logger->error('SingleDocument not found during HDDP-18 fix', ['_sd_id' => $id]);
-                    continue;
-                }
-
-                $newFile = $this->fileService->createCopyOfFile(
-                    $sd->getDocument(),
-                    $sd->getProcedure()->getId()
-                );
-                if (null === $newFile) {
-                    ++$skipped;
-                    $this->logger->warning('Skipped single_doc — source file missing', [
-                        '_sd_id'  => $id,
-                        'oldFile' => $sd->getDocument(),
-                    ]);
-                    continue;
-                }
-
-                $sd->setDocument($newFile->getFileString());
-                ++$fixed;
-            } catch (Throwable $e) {
-                ++$errors;
-                $this->logger->error('Failed to fix single_doc', [
-                    '_sd_id'    => $id,
-                    'exception' => $e,
-                ]);
-            }
-
-            if (0 === ($i + 1) % self::BATCH_SIZE) {
-                $this->entityManager->flush();
-                $this->entityManager->clear();
-            }
-            $io->progressAdvance();
+        $element = $this->entityManager->find(Elements::class, $id);
+        if (!$element instanceof Elements) {
+            throw new RuntimeException(sprintf('Element %s not found', $id));
         }
 
-        $this->entityManager->flush();
-        $this->entityManager->clear();
-        $io->progressFinish();
+        $newFile = $this->fileService->createCopyOfFile($element->getFile(), $element->getProcedure()->getId());
+        if (null === $newFile) {
+            $this->logger->warning('Skipped element — source file missing', [
+                '_e_id'   => $id,
+                'oldFile' => $element->getFile(),
+            ]);
 
-        return ['fixed' => $fixed, 'skipped' => $skipped, 'errors' => $errors];
+            return self::OUTCOME_SKIPPED;
+        }
+
+        $element->setFile($newFile->getFileString());
+
+        return self::OUTCOME_FIXED;
+    }
+
+    private function fixSingleDoc(string $id): string
+    {
+        $singleDoc = $this->entityManager->find(SingleDocument::class, $id);
+        if (!$singleDoc instanceof SingleDocument) {
+            throw new RuntimeException(sprintf('SingleDocument %s not found', $id));
+        }
+
+        $newFile = $this->fileService->createCopyOfFile($singleDoc->getDocument(), $singleDoc->getProcedure()->getId());
+        if (null === $newFile) {
+            $this->logger->warning('Skipped single_doc — source file missing', [
+                '_sd_id'  => $id,
+                'oldFile' => $singleDoc->getDocument(),
+            ]);
+
+            return self::OUTCOME_SKIPPED;
+        }
+
+        $singleDoc->setDocument($newFile->getFileString());
+
+        return self::OUTCOME_FIXED;
     }
 }
