@@ -14,6 +14,7 @@ use demosplan\DemosPlanCoreBundle\Application\ConsoleApplication;
 use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
+use Enqueue\ElasticaBundle\Persister\QueuePagerPersister;
 use Illuminate\Support\Collection;
 use RuntimeException;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -48,11 +49,11 @@ class ElasticsearchPopulateCommand extends CoreCommand
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        // output a message that this commmand does not work without enqueue bundle, which does not yet support elasticsearch 8
-        // and advise to use the fos:elastica:populate command instead
-        if (!class_exists('Enqueue\Symfony\ConsumptionExtension')) {
+        // The multi-worker populate relies on the enqueue elastica bundle. If it is not installed,
+        // advise to use the plain fos:elastica:populate command instead.
+        if (!class_exists(QueuePagerPersister::class)) {
             $io->writeln(
-                '<error>This command does not work without the enqueue bundle. Please use the fos:elastica:populate and fos:elastica:populate command instead.</error>'
+                '<error>This command does not work without the enqueue elastica bundle. Please use the fos:elastica:populate command instead.</error>'
             );
 
             return Command::FAILURE;
@@ -65,14 +66,14 @@ class ElasticsearchPopulateCommand extends CoreCommand
             $this->elasticsearchIndexingPoolSize = $input->getOption('workers');
         }
 
-        $this->startIndexWorker();
-
         $output->writeln('Reset elasticsearch index');
 
         Batch::create($this->getApplication(), $output)
             ->add('fos:elastica:reset')
             ->run();
 
+        // Start the consumers only after the reset, right before populating. Spawning them earlier
+        // would boot a second, leaked set of worker processes (see startWorkers()).
         $this->startWorkers($input, $output);
 
         $output->writeln('Start populating the Elasticsearch index');
