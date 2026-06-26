@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\StateProcessor;
 
 use ApiPlatform\Doctrine\Common\State\PersistProcessor;
 use ApiPlatform\Metadata\Operation;
-use ApiPlatform\Metadata\Patch;
 use ApiPlatform\State\ProcessorInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\ApiResources\DraftStatementResource;
@@ -30,7 +29,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Webmozart\Assert\Assert;
 
-class DraftStatementStateProcessor implements ProcessorInterface
+class DraftStatementPatchProcessor implements ProcessorInterface
 {
     public function __construct(
         private readonly DraftStatementAccessChecker $accessChecker,
@@ -49,15 +48,15 @@ class DraftStatementStateProcessor implements ProcessorInterface
             throw new AccessDeniedHttpException(sprintf('Access denied: insufficient permissions to access %s', $operation->getShortName()));
         }
 
-        if ($operation instanceof Patch && $this->accessChecker->isUpdateAllowed()) {
-            $draftStatement = $this->applyResourceToEntity($data);
-            $this->persistProcessor->process($draftStatement, $operation, $uriVariables, $context);
-            $data->id = $draftStatement->getId();
-
-            return $data;
+        if (!$this->accessChecker->isUpdateAllowed()) {
+            return null;
         }
 
-        return null;
+        $draftStatement = $this->applyResourceToEntity($data);
+        $this->persistProcessor->process($draftStatement, $operation, $uriVariables, $context);
+        $data->id = $draftStatement->getId();
+
+        return $data;
     }
 
     private function applyResourceToEntity(DraftStatementResource $resource): DraftStatement

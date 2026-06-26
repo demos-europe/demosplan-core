@@ -16,7 +16,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
-use demosplan\DemosPlanCoreBundle\StateProcessor\DraftStatementStateProcessor;
+use demosplan\DemosPlanCoreBundle\StateProcessor\DraftStatementPatchProcessor;
 use demosplan\DemosPlanCoreBundle\StateProvider\DraftStatementStateProvider;
 
 #[ApiResource(
@@ -24,12 +24,11 @@ use demosplan\DemosPlanCoreBundle\StateProvider\DraftStatementStateProvider;
     operations: [
         new Get(uriTemplate: '/DraftStatement/{id}'),
         new GetCollection(uriTemplate: '/DraftStatement'),
-        new Patch(uriTemplate: '/DraftStatement/{id}'),
+        new Patch(uriTemplate: '/DraftStatement/{id}', processor: DraftStatementPatchProcessor::class),
     ],
     formats: ['jsonapi'],
-    routePrefix: '/3.0',
+    routePrefix: ApiPlatformConstants::ROUTE_PREFIX_V3,
     provider: DraftStatementStateProvider::class,
-    processor: DraftStatementStateProcessor::class,
 )]
 class DraftStatementResource
 {
