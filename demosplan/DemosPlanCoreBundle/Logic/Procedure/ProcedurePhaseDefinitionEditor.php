@@ -51,9 +51,10 @@ class ProcedurePhaseDefinitionEditor
             $this->messageBag->add(
                 'error',
                 'error.procedure_phase_definition.delete.referenced',
-                ['phase' => $phaseDefinition->getName()]);
+                ['phase' => $phaseDefinition->getName()]
+            );
 
-            return;
+            throw new BadRequestException('Phase definition is still referenced by an active procedure.');
         }
 
         $oldIsDeleted = $phaseDefinition->isDeleted();

@@ -117,7 +117,7 @@ class ProcedurePhaseDefinitionEditorTest extends UnitTestCase
         self::assertNotNull($phaseDefinition->getDeletedDate());
     }
 
-    public function testSetDeletedAddsErrorAndSkipsWhenReferenced(): void
+    public function testSetDeletedAddsErrorAndThrowsWhenReferenced(): void
     {
         $phaseDefinition = new ProcedurePhaseDefinition();
 
@@ -128,9 +128,9 @@ class ProcedurePhaseDefinitionEditorTest extends UnitTestCase
         $this->messageBag->expects(self::once())->method('add')->with('error', self::anything());
         $this->eventDispatcher->expects(self::never())->method('dispatch');
 
-        $this->sut->setDeleted($phaseDefinition, true);
+        $this->expectException(BadRequestException::class);
 
-        self::assertFalse($phaseDefinition->isDeleted());
+        $this->sut->setDeleted($phaseDefinition, true);
     }
 
     public function testSetDeletedToFalseSkipsReferenceCheck(): void
