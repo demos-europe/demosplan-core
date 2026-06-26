@@ -86,7 +86,7 @@ class DraftsListJsonMigratorTest extends TestCase
         $textA = '<p>Sky is blue.</p>';
         $textB = '<p>Grass is green.</p>';
         $data = $this->buildData(
-            $textA . $textB,
+            $textA.$textB,
             [
                 ['id' => 'seg-1', 'charStart' => 0, 'charEnd' => 5, 'text' => $textA],
                 ['id' => 'seg-2', 'charStart' => 6, 'charEnd' => 10, 'text' => $textB],
@@ -99,8 +99,8 @@ class DraftsListJsonMigratorTest extends TestCase
 
         // Assert
         self::assertSame(
-            '<segment-mark data-segment-id="seg-1">' . $textA . '</segment-mark>'
-            . '<segment-mark data-segment-id="seg-2">' . $textB . '</segment-mark>',
+            '<segment-mark data-segment-id="seg-1">'.$textA.'</segment-mark>'
+            .'<segment-mark data-segment-id="seg-2">'.$textB.'</segment-mark>',
             $ref
         );
     }
@@ -112,13 +112,13 @@ class DraftsListJsonMigratorTest extends TestCase
             '<p>Sky is blue.</p>',
             [
                 [
-                    'id'                => 'seg-1',
-                    'charStart'         => 0,
-                    'charEnd'           => 5,
-                    'charStartInit'     => 0,
-                    'charEndInit'       => 5,
+                    'id'                  => 'seg-1',
+                    'charStart'           => 0,
+                    'charEnd'             => 5,
+                    'charStartInit'       => 0,
+                    'charEndInit'         => 5,
                     'hasProsemirrorIndex' => true,
-                    'text'              => '<p>Sky is blue.</p>',
+                    'text'                => '<p>Sky is blue.</p>',
                 ],
             ]
         );
@@ -142,7 +142,7 @@ class DraftsListJsonMigratorTest extends TestCase
         $textA = '<p>First sentence.</p>';
         $textB = '<p>Second sentence.</p>';
         $data = $this->buildData(
-            $textA . $textB,
+            $textA.$textB,
             [
                 ['id' => 'seg-b', 'charStart' => 10, 'charEnd' => 15, 'text' => $textB],
                 ['id' => 'seg-a', 'charStart' => 0,  'charEnd' => 5,  'text' => $textA],
@@ -155,8 +155,8 @@ class DraftsListJsonMigratorTest extends TestCase
 
         // Assert — both marks must be present; ordering them correctly is what prevents
         // substr_replace from shifting offsets and breaking the second lookup
-        self::assertStringContainsString('<segment-mark data-segment-id="seg-a">' . $textA . '</segment-mark>', $ref);
-        self::assertStringContainsString('<segment-mark data-segment-id="seg-b">' . $textB . '</segment-mark>', $ref);
+        self::assertStringContainsString('<segment-mark data-segment-id="seg-a">'.$textA.'</segment-mark>', $ref);
+        self::assertStringContainsString('<segment-mark data-segment-id="seg-b">'.$textB.'</segment-mark>', $ref);
     }
 
     // --- migrate: example 2 — segment text contains a list ---
@@ -168,7 +168,7 @@ class DraftsListJsonMigratorTest extends TestCase
         $textB = '<ol><li>First item.</li><li>Second item.</li></ol>';
         $textC = '<p>Closing paragraph.</p>';
         $data = $this->buildData(
-            $textA . $textB . $textC,
+            $textA.$textB.$textC,
             [
                 ['id' => 'seg-a', 'charStart' => 0, 'charEnd' => 3, 'text' => $textA],
                 ['id' => 'seg-b', 'charStart' => 4, 'charEnd' => 7, 'text' => $textB],
@@ -181,9 +181,9 @@ class DraftsListJsonMigratorTest extends TestCase
         $ref = $result['data']['attributes']['textualReference'];
 
         // Assert
-        self::assertStringContainsString('<segment-mark data-segment-id="seg-a">' . $textA . '</segment-mark>', $ref);
-        self::assertStringContainsString('<segment-mark data-segment-id="seg-b">' . $textB . '</segment-mark>', $ref);
-        self::assertStringContainsString('<segment-mark data-segment-id="seg-c">' . $textC . '</segment-mark>', $ref);
+        self::assertStringContainsString('<segment-mark data-segment-id="seg-a">'.$textA.'</segment-mark>', $ref);
+        self::assertStringContainsString('<segment-mark data-segment-id="seg-b">'.$textB.'</segment-mark>', $ref);
+        self::assertStringContainsString('<segment-mark data-segment-id="seg-c">'.$textC.'</segment-mark>', $ref);
     }
 
     public function testMigrateSkipsSegmentWhenTextNotFoundInTextualReference(): void

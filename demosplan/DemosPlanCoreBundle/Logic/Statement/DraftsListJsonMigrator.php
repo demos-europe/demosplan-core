@@ -3,10 +3,9 @@
 declare(strict_types=1);
 
 /**
- * (c) 2010-present DEMOS plan GmbH.
+ * This file is part of the package demosplan.
  *
- * This file is part of the package demosplan,
- * for more information see the license file.
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
  *
  * All rights reserved
  */
@@ -41,7 +40,7 @@ class DraftsListJsonMigrator
 
         // Process in document order so substr_replace offsets stay valid after each insertion.
         // charStart may be a Prosemirror position (not an HTML offset), but relative order is preserved.
-        usort($segments, static fn(array $a, array $b): int => ($a['charStart'] ?? 0) - ($b['charStart'] ?? 0));
+        usort($segments, static fn (array $a, array $b): int => ($a['charStart'] ?? 0) - ($b['charStart'] ?? 0));
 
         foreach ($segments as $segment) {
             $text = $segment['text'] ?? '';
