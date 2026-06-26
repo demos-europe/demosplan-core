@@ -861,8 +861,11 @@ export default {
           dplan.notify.confirm(Translator.trans('procedure.phase.delete.success'))
         })
         .catch(err => {
-          console.error(err)
-          dplan.notify.error(Translator.trans('error.api.generic'))
+          if (!err.data?.meta) {
+            console.error(err)
+            // Backend already surfaced its specific message via meta.messages; only fall back to a generic toast when it didn't.
+            dplan.notify.error(Translator.trans('error.api.generic'))
+          }
         })
     }
 
