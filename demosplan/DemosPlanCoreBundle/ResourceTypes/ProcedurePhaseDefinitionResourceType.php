@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedurePhaseDefinitionResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
+use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionEditor;
@@ -216,6 +217,13 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
                 // Read audience from request data directly, as property behaviors (initializable)
                 // run after general post-constructor behaviors, so $entity->getAudience() is not set yet.
                 $audience = $entityData->getAttributes()['audience'];
+                $name = $entityData->getAttributes()['name'];
+
+                if (null !== $this->procedurePhaseDefinitionRepository->findByNameAndAudienceAndCustomer($name, $audience, $customer)) {
+                    $this->messageBag->add('error', 'error.procedure_phase_definition.name.duplicate', ['name' => $name]);
+                    throw new BadRequestException('A phase definition with this name already exists for this audience.');
+                }
+
                 $maxOrder = $this->procedurePhaseDefinitionRepository
                     ->getMaxOrderForCustomerAndAudience($customer->getId(), $audience);
                 $entity->setOrderInAudience($maxOrder + 1);

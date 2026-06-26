@@ -21,7 +21,7 @@ class Version20260618140809 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs DPLAN-18064: Add isDeleted and deletedDate columns to procedure_phase_definition table';
+        return 'refs DPLAN-18064: Add isDeleted and deletedDate columns and drop name/customer/audience unique constraint from procedure_phase_definition';
     }
 
     /**
@@ -35,6 +35,7 @@ class Version20260618140809 extends AbstractMigration
                             ADD is_deleted TINYINT(1) DEFAULT 0 NOT NULL,
                             ADD deleted_date DATETIME DEFAULT NULL'
         );
+        $this->addSql('DROP INDEX uniq_name_customer_audience ON procedure_phase_definition');
     }
 
     /**
@@ -45,6 +46,7 @@ class Version20260618140809 extends AbstractMigration
         $this->abortIfNotMysql();
 
         $this->addSql('ALTER TABLE procedure_phase_definition DROP is_deleted, DROP deleted_date');
+        $this->addSql('CREATE UNIQUE INDEX uniq_name_customer_audience ON procedure_phase_definition (name, customer_id, audience)');
     }
 
     /**
