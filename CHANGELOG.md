@@ -5,6 +5,10 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.15.6 (2026-06-26)
+- Reject an authored date later than the submission date when editing or manually changing a statement
+- Sorting the assessment table by submitter no longer hides all statements
+- Assessment table exports in ODT/LibreOffice format now include visible table-cell borders
 ## v4.15.4 (2026-03-06)
 - Fix statement vote on mysql8+, immediately show vote
 - Rate limit new statements only for anonymous users
