@@ -340,6 +340,13 @@
 ## v4.18.1 (2025-10-16)
 ## v4.18.0 (2025-10-13)
 
+## v4.16.5 (2026-06-26)
+### Fixed
+- Sorting the assessment table by submitter no longer produces an empty table.
+- The authored date of a statement can no longer be set after its submission date when creating or editing a statement.
+- ODT exports of the assessment table now include table-cell borders.
+- Procedure archive exports now handle non-ASCII characters in file names correctly.
+
 ## v4.16.3 (2026-02-05)
 
 ## v4.16.1 (2025-10-16)
