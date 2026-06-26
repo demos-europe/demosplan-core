@@ -45,7 +45,7 @@ class StatementGroupResource
     #[ApiProperty(readable: true, writable: true)]
     public ?string $groupName = null;
 
-    #[ApiProperty(readable: true, writable: true)]
+    #[ApiProperty(readable: false, writable: true)]
     public ?string $headStatementId = null;
 
     /** @var StatementResource[] */
