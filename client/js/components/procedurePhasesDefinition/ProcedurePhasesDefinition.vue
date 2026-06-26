@@ -219,6 +219,7 @@ All rights reserved
                     </button>
 
                     <button
+                      v-if="rowData.orderInAudience !== 0"
                       :aria-label="Translator.trans('item.delete')"
                       :data-cy="`procedurePhases:delete:${rowData.id}`"
                       :title="Translator.trans('delete')"
