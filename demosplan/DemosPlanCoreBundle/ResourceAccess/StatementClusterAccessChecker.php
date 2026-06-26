@@ -30,9 +30,7 @@ class StatementClusterAccessChecker
     public function checkClusterAccess(): void
     {
         if (!$this->isClusterAccessAllowed()) {
-            throw new AccessDeniedHttpException(
-                'Access denied: insufficient permissions to access statement groups'
-            );
+            throw new AccessDeniedHttpException('Access denied: insufficient permissions to access statement groups');
         }
     }
 }
