@@ -73,6 +73,7 @@ class ZipExportService
      */
     public function addFileToZipStream(string $filePath, string $zipPath, ZipStream $zip): void
     {
+        $zipPath = (new UnicodeString($zipPath))->ascii()->toString();
         $fs = new Filesystem();
         if ($this->defaultStorage->fileExists($filePath)) {
             $zip->addFileFromStream($zipPath, $this->defaultStorage->readStream($filePath));
