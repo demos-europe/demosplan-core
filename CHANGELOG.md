@@ -5,6 +5,22 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+## v4.6.5 (2026-06-26)
+
+### Fixed
+- When creating or editing a statement, the authoring date can no longer be set later than the submission date
+- The assessment table no longer appears empty when sorting by submitter
+
+## v4.6.4 (2026-05-08)
+
+### Fixed
+- Changing a single FAQ entry from blocked to released directly in the FAQ list now works
+- In the assessment table, fields such as procedure phase, authoring date and submission date can no longer be edited on online-submitted statements; they remain editable only for manually recorded statements
+- The cookie banner is now styled correctly on the start page for logged-in users
+- The project's primary color is used again on the affected buttons and elements, and the procedure search field is restored to its proper width
+- Pagination in the assessment table now responds on the first click, the entries-per-page dropdown works again, and the selected page is retained when changing the page size
+
 ## v4.6.3 (2026-02-18)
 - Allow to configure procedures to accept or not anonymous statements
 - Export Original Statements as docx in the Statement List
