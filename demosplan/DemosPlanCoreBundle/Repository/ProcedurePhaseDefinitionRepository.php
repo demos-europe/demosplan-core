@@ -89,7 +89,7 @@ class ProcedurePhaseDefinitionRepository extends CoreRepository
 
     public function findByNameAndAudienceAndCustomer(string $name, string $audience, CustomerInterface $customer): ?ProcedurePhaseDefinition
     {
-        return $this->findOneBy(['name' => $name, 'audience' => $audience, 'customer' => $customer]);
+        return $this->findOneBy(['name' => $name, 'audience' => $audience, 'customer' => $customer, 'isDeleted' => false]);
     }
 
     /**

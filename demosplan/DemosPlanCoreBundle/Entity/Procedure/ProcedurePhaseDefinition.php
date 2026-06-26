@@ -30,7 +30,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Each customer can define their own set of procedure phases for internal and external audiences.
  */
 #[ORM\Table(name: 'procedure_phase_definition')]
-#[ORM\UniqueConstraint(name: 'uniq_name_customer_audience', columns: ['name', 'customer_id', 'audience'])]
 #[ORM\Entity(repositoryClass: ProcedurePhaseDefinitionRepository::class)]
 class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface, ProcedurePhaseDefinitionInterface
 {

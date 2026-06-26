@@ -1336,6 +1336,7 @@ error.procedure.export.noselection: "Bitte wählen Sie die zu exportierenden Ver
 error.procedure.name: "Bitte Verfahrensnamen eintragen."
 error.procedure.permissions: "Lassen Sie sich von Ihrem Master-User die Rolle Institutions-Koordination oder Institutions-Sachbearbeitung zuweisen, um in Verfahren anderer Verfahrensträger Stellungnahmen anlegen zu können."
 error.procedure_phase_definition.delete.referenced: "Der Verfahrensschritt {phase} kann nicht gelöscht werden, da er in einem oder mehreren Verfahren verwendet wird."
+error.procedure_phase_definition.name.duplicate: "Ein Verfahrensschritt mit dem Namen \"{name}\" existiert bereits."
 error.procedure.proposal.not.found: "Verfahrensvorschlag konnte nicht gefunden werden."
 error.procedure.markParticipated: "Die Markierung konnte nicht gespeichert werden."
 error.procedure.statistics: "Statistikdaten konnten nicht geladen werden."
