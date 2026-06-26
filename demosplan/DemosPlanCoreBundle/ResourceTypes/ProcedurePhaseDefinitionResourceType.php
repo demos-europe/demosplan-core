@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedurePhaseDefinitionRe
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionEditor;
@@ -103,6 +104,10 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
                     [],
                     function (ProcedurePhaseDefinition $procedurePhaseDefinition, string $newName): array {
                         $oldName = $procedurePhaseDefinition->getName();
+                        $customer = $procedurePhaseDefinition->getCustomer();
+                        if ($newName !== $oldName && $customer instanceof CustomerInterface) {
+                            $this->guardNameUnique($newName, $procedurePhaseDefinition->getAudience(), $customer);
+                        }
                         $procedurePhaseDefinition->setName($newName);
                         $this->procedurePhaseDefinitionEditor->addReportEntryUpdate(
                             $procedurePhaseDefinition,
@@ -219,10 +224,7 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
                 $audience = $entityData->getAttributes()['audience'];
                 $name = $entityData->getAttributes()['name'];
 
-                if (null !== $this->procedurePhaseDefinitionRepository->findByNameAndAudienceAndCustomer($name, $audience, $customer)) {
-                    $this->messageBag->add('error', 'error.procedure_phase_definition.name.duplicate', ['name' => $name]);
-                    throw new BadRequestException('A phase definition with this name already exists for this audience.');
-                }
+                $this->guardNameUnique($name, $audience, $customer);
 
                 $maxOrder = $this->procedurePhaseDefinitionRepository
                     ->getMaxOrderForCustomerAndAudience($customer->getId(), $audience);
@@ -236,5 +238,13 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
         );
 
         return $configBuilder;
+    }
+
+    private function guardNameUnique(string $name, string $audience, CustomerInterface $customer): void
+    {
+        if (null !== $this->procedurePhaseDefinitionRepository->findByNameAndAudienceAndCustomer($name, $audience, $customer)) {
+            $this->messageBag->add('error', 'error.procedure_phase_definition.name.duplicate', ['name' => $name]);
+            throw new BadRequestException('A phase definition with this name already exists for this audience.');
+        }
     }
 }
