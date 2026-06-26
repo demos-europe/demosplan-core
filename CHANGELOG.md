@@ -5,6 +5,12 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.14.4 (2026-06-26)
+- Statements no longer accept an authoring date later than the submission date
+- Sorting the assessment table by submitter no longer hides all statements
+- LibreOffice/ODT exports of the assessment table now include table-cell borders
+- Editing the process step, authoring date and submission date is now restricted to manually recorded statements
+- Rate limiting for new statements now applies only to anonymous users
 ## v4.14.3 (2026-02-06)
 ## v4.14.2 (2025-12-02)
 ## v4.14.0 (2025-09-15)
