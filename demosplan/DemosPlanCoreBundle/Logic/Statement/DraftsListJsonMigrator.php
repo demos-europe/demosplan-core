@@ -42,13 +42,14 @@ class DraftsListJsonMigrator
         // charStart may be a Prosemirror position (not an HTML offset), but relative order is preserved.
         usort($segments, static fn (array $a, array $b): int => ($a['charStart'] ?? 0) - ($b['charStart'] ?? 0));
 
+        $offset = 0;
         foreach ($segments as $segment) {
             $text = $segment['text'] ?? '';
             if ('' === $text) {
                 continue;
             }
 
-            $pos = strpos($textualReference, $text);
+            $pos = strpos($textualReference, $text, $offset);
             if (false === $pos) {
                 // Segment text not found verbatim — leave textualReference untouched for this segment
                 // rather than risk corrupting the HTML.
@@ -57,6 +58,7 @@ class DraftsListJsonMigrator
 
             $marked = sprintf('<segment-mark data-segment-id="%s">%s</segment-mark>', $segment['id'], $text);
             $textualReference = substr_replace($textualReference, $marked, $pos, strlen($text));
+            $offset = $pos + strlen($marked);
         }
 
         $data['data']['attributes']['textualReference'] = $textualReference;
