@@ -233,7 +233,7 @@ class DraftsListJsonMigratorTest extends TestCase
         // Without a running offset, the second strpos call finds the substring inside the already-wrapped
         // seg-1 region and produces a nested <segment-mark> inside seg-1's wrapper.
         $short = '<p>Blue.</p>';
-        $long  = '<p>Blue.</p><p>Sky is blue.</p>';
+        $long = '<p>Blue.</p><p>Sky is blue.</p>';
         $data = $this->buildData(
             $long.$short,
             [
