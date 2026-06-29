@@ -29,7 +29,7 @@ class DraftsListJsonMigrator
         $textualReference = $data['data']['attributes']['textualReference'] ?? '';
 
         return !empty($segments)
-            && isset($segments[0]['charStart'])
+            && array_key_exists('charStart', $segments[0])
             && !str_contains($textualReference, '<segment-mark');
     }
 

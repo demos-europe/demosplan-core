@@ -78,6 +78,21 @@ class DraftsListJsonMigratorTest extends TestCase
         self::assertFalse($this->sut->needsMigration($data));
     }
 
+    public function testNeedsMigrationReturnsTrueWhenCharStartIsNull(): void
+    {
+        // Arrange — charStart key exists but is null (legacy draft that serialized a null position);
+        // isset() would return false here, array_key_exists() correctly returns true.
+        $data = $this->buildData(
+            '<p>Sky is blue.</p>',
+            [
+                ['id' => 'seg-1', 'charStart' => null, 'charEnd' => null, 'text' => '<p>Sky is blue.</p>'],
+            ]
+        );
+
+        // Act & Assert
+        self::assertTrue($this->sut->needsMigration($data));
+    }
+
     // --- migrate: example 1 — plain paragraphs ---
 
     public function testMigrateWrapsEachSegmentTextWithSegmentMark(): void
