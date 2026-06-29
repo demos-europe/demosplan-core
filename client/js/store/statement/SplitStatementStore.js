@@ -533,7 +533,6 @@ const SplitStatementStore = {
     isBusy: (state) => state.isBusy,
     procedureId: (state) => state.procedureId,
     segments: (state) => state.segments,
-    sortedSegments: (state) => state.segments,
     statement: (state) => state.statement,
     statementSegmentDraftList: (state) => state.statement?.attributes.segmentDraftList || '',
     segmentById: (state) => (id) => state.segments.find((el) => el.id === id),
