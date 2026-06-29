@@ -851,22 +851,21 @@ export default {
         return
       }
 
-      dpApi.patch(
-        Routing.generate('api_resource_update', { resourceType: 'ProcedurePhaseDefinition', resourceId: id }),
-        {},
-        { data: { type: 'ProcedurePhaseDefinition', id, attributes: { isDeleted: true } } },
-      )
-        .then(() => {
-          phaseDefinitions.value = phaseDefinitions.value.filter(phase => phase.id !== id)
-          dplan.notify.confirm(Translator.trans('procedure.phase.delete.success'))
-        })
-        .catch(err => {
-          if (!err.data?.meta) {
-            console.error(err)
-            // Backend already surfaced its specific message via meta.messages; only fall back to a generic toast when it didn't.
-            dplan.notify.error(Translator.trans('error.api.generic'))
-          }
-        })
+      try {
+        await dpApi.patch(
+          Routing.generate('api_resource_update', { resourceType: 'ProcedurePhaseDefinition', resourceId: id }),
+          {},
+          { data: { type: 'ProcedurePhaseDefinition', id, attributes: { isDeleted: true } } },
+        )
+        phaseDefinitions.value = phaseDefinitions.value.filter(phase => phase.id !== id)
+        dplan.notify.confirm(Translator.trans('procedure.phase.delete.success'))
+      } catch (err) {
+        if (!err.data?.meta) {
+          console.error(err)
+          // Backend already surfaced its specific message via meta.messages; only fall back to a generic toast when it didn't.
+          dplan.notify.error(Translator.trans('error.api.generic'))
+        }
+      }
     }
 
     onMounted(() => {
