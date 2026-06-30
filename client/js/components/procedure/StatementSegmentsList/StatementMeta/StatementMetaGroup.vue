@@ -18,17 +18,20 @@ All rights reserved
         :label="{ text: Translator.trans('statement.cluster.name') }"
         class="mb-2"
       />
-      <dp-button
+
+      <dp-button-row
         v-if="editable"
-        :text="Translator.trans('save')"
-        class="mb-5"
-        @click="saveGroupName"
+        class="mt-2 w-full"
+        primary
+        secondary
+        @primary-action="saveGroupName"
+        @secondary-action="reset"
       />
     </template>
 
     <span
       v-if="isCluster"
-      class="font-semibold mb-0.5"
+      class="font-semibold block mb-0.5"
     >
       {{ Translator.trans('statement.cluster.main') }}
     </span>
@@ -66,7 +69,7 @@ All rights reserved
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { DpAccordion, dpApi, DpButton, DpInput, DpSlidingPagination } from '@demos-europe/demosplan-ui'
+import { DpAccordion, dpApi, DpButtonRow, DpInput, DpSlidingPagination } from '@demos-europe/demosplan-ui'
 import SelectedStatementsList from '@DpJs/components/statement/SelectedStatementsList'
 
 const props = defineProps({
@@ -86,10 +89,11 @@ const props = defineProps({
 
 const PAGE_SIZE = 15
 
+const currentPage = ref(1)
+const initialGroupName = ref('')
 const isCluster = computed(() => props.statement.attributes.isCluster)
 const groupName = ref('')
 const groupStatements = ref([])
-const currentPage = ref(1)
 const totalPages = computed(() => Math.ceil(groupStatements.value.length / PAGE_SIZE))
 const paginatedStatements = computed(
   () => groupStatements.value.slice((currentPage.value - 1) * PAGE_SIZE, currentPage.value * PAGE_SIZE),
@@ -102,6 +106,7 @@ async function fetchGroup () {
     console.log('StatementGroup response', response.data)
 
     groupName.value = response.data.data.attributes.groupName
+    initialGroupName.value = response.data.data.attributes.groupName
 
     /*
      * TODO(DPLAN-17748): interim id-only rendering. The StatementGroup response carries member IDs only,
@@ -118,6 +123,10 @@ async function fetchGroup () {
   }
 }
 
+function reset () {
+  groupName.value = initialGroupName.value
+}
+
 async function saveGroupName () {
   /*
    * TODO(DPLAN-17748): backend PATCH operation not built yet — StatementGroupResource only exposes Get + Post.
@@ -132,6 +141,7 @@ async function saveGroupName () {
       },
     })
     dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+    initialGroupName.value = groupName.value
   } catch (error) {
     console.error('Failed to save group name:', error)
     dplan.notify.notify('error', Translator.trans('error.api.generic'))
