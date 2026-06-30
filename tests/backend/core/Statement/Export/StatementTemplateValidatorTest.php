@@ -12,11 +12,13 @@ declare(strict_types=1);
 
 namespace Tests\Core\Statement\Export;
 
-use demosplan\DemosPlanCoreBundle\Exception\InvalidStatementTemplateException;
+use demosplan\DemosPlanCoreBundle\Exception\IncompleteSegmentMarkersException;
+use demosplan\DemosPlanCoreBundle\Exception\MalformedDocxException;
+use demosplan\DemosPlanCoreBundle\Exception\MissingSegmentBlockException;
+use demosplan\DemosPlanCoreBundle\Exception\UnknownPlaceholdersException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementTemplateValidator;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class StatementTemplateValidatorTest extends AbstractStatementViaTemplateExporterTestCase
 {
@@ -26,21 +28,7 @@ class StatementTemplateValidatorTest extends AbstractStatementViaTemplateExporte
     {
         parent::setUp();
 
-        $translator = $this->createMock(TranslatorInterface::class);
-        $translator->method('trans')
-            ->willReturnCallback(static function (?string $id, array $parameters = []): string {
-                if ([] === $parameters) {
-                    return (string) $id;
-                }
-                $serialized = [];
-                foreach ($parameters as $name => $value) {
-                    $serialized[] = $name.'='.$value;
-                }
-
-                return $id.'|'.implode(',', $serialized);
-            });
-
-        $this->sut = new StatementTemplateValidator($translator);
+        $this->sut = new StatementTemplateValidator();
     }
 
     protected function tempFilePrefix(): string
@@ -80,11 +68,12 @@ class StatementTemplateValidatorTest extends AbstractStatementViaTemplateExporte
             '${notAPlaceholderWeAllow}',
         ]);
 
-        $this->expectException(InvalidStatementTemplateException::class);
-        $this->expectExceptionMessageMatches('/unknown_placeholder/');
-        $this->expectExceptionMessageMatches('/notAPlaceholderWeAllow/');
-
-        $this->sut->validate($path);
+        try {
+            $this->sut->validate($path);
+            self::fail('Expected UnknownPlaceholdersException');
+        } catch (UnknownPlaceholdersException $exception) {
+            self::assertContains('notAPlaceholderWeAllow', $exception->getUnknownPlaceholders());
+        }
     }
 
     public function testThrowsForIncompleteSegmentMarkerPair(): void
@@ -95,9 +84,20 @@ class StatementTemplateValidatorTest extends AbstractStatementViaTemplateExporte
             // Closing marker intentionally omitted.
         ]);
 
-        $this->expectException(InvalidStatementTemplateException::class);
-        $this->expectExceptionMessageMatches('/segments_marker_incomplete/');
+        $this->expectException(IncompleteSegmentMarkersException::class);
+        $this->sut->validate($path);
+    }
 
+    public function testThrowsForDuplicateOpenMarker(): void
+    {
+        $path = $this->createDocxWithParagraphs([
+            '${'.StatementTemplateValidator::MARKER_SEGMENTS_OPEN.'}',
+            '${'.StatementTemplateValidator::PLACEHOLDER_SEGMENT_EXTERN_ID.'}',
+            '${'.StatementTemplateValidator::MARKER_SEGMENTS_CLOSE.'}',
+            '${'.StatementTemplateValidator::MARKER_SEGMENTS_OPEN.'}',
+        ]);
+
+        $this->expectException(IncompleteSegmentMarkersException::class);
         $this->sut->validate($path);
     }
 
@@ -108,9 +108,7 @@ class StatementTemplateValidatorTest extends AbstractStatementViaTemplateExporte
             '${'.StatementTemplateValidator::PLACEHOLDER_SEGMENT_EXTERN_ID.'}',
         ]);
 
-        $this->expectException(InvalidStatementTemplateException::class);
-        $this->expectExceptionMessageMatches('/segment_data_without_block/');
-
+        $this->expectException(MissingSegmentBlockException::class);
         $this->sut->validate($path);
     }
 
@@ -118,9 +116,7 @@ class StatementTemplateValidatorTest extends AbstractStatementViaTemplateExporte
     {
         $path = $this->createTemporaryFile('this is not a valid OOXML zip');
 
-        $this->expectException(InvalidStatementTemplateException::class);
-        $this->expectExceptionMessageMatches('/malformed_docx/');
-
+        $this->expectException(MalformedDocxException::class);
         $this->sut->validate($path);
     }
 

@@ -12,9 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter;
 
+use demosplan\DemosPlanCoreBundle\Exception\IncompleteSegmentMarkersException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidStatementTemplateException;
+use demosplan\DemosPlanCoreBundle\Exception\MalformedDocxException;
+use demosplan\DemosPlanCoreBundle\Exception\MissingSegmentBlockException;
+use demosplan\DemosPlanCoreBundle\Exception\UnknownPlaceholdersException;
 use PhpOffice\PhpWord\TemplateProcessor;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 
 /**
@@ -25,9 +28,9 @@ use Throwable;
  * `${AbschnitteAlsAbsätze}` and `${/AbschnitteAlsAbsätze}` — which PhpWord
  * clones via `cloneBlock` per segment.
  *
- * On any failure the validator composes the user-facing message itself (via the
- * injected {@see TranslatorInterface}) and throws {@see InvalidStatementTemplateException};
- * the caller surfaces `$exception->getMessage()` in the 422 response body.
+ * On any failure the validator throws a typed subclass of
+ * {@see InvalidStatementTemplateException}; the catching boundary translates
+ * the error and surfaces it via the message bag.
  */
 class StatementTemplateValidator
 {
@@ -96,11 +99,6 @@ class StatementTemplateValidator
         self::MARKER_SEGMENTS_CLOSE,
     ];
 
-    public function __construct(
-        private readonly TranslatorInterface $translator,
-    ) {
-    }
-
     /**
      * @param string $absolutePath local-disk path of the uploaded template,
      *                             obtained from {@see \demosplan\DemosPlanCoreBundle\Logic\FileService::ensureLocalFileFromHash()}
@@ -110,29 +108,30 @@ class StatementTemplateValidator
     public function validate(string $absolutePath): void
     {
         $templateProcessor = $this->openTemplate($absolutePath);
-        $variables = array_values($templateProcessor->getVariables());
+        $variableCount = $templateProcessor->getVariableCount();
+        $variables = array_keys($variableCount);
 
         $this->rejectUnknownPlaceholders($variables);
-        $this->rejectIncompleteSegmentMarkerPair($variables);
+        $this->rejectIncompleteSegmentMarkerPair($variableCount);
         $this->rejectSegmentDataWithoutBlock($variables);
     }
 
     /**
-     * @throws InvalidStatementTemplateException
+     * @throws MalformedDocxException
      */
     private function openTemplate(string $absolutePath): TemplateProcessor
     {
         try {
             return new TemplateProcessor($absolutePath);
         } catch (Throwable $exception) {
-            throw new InvalidStatementTemplateException($this->trans('docx.export.via_template.error.malformed_docx'), 0, $exception);
+            throw new MalformedDocxException('', 0, $exception);
         }
     }
 
     /**
      * @param list<string> $variables
      *
-     * @throws InvalidStatementTemplateException
+     * @throws UnknownPlaceholdersException
      */
     private function rejectUnknownPlaceholders(array $variables): void
     {
@@ -140,29 +139,29 @@ class StatementTemplateValidator
         if ([] === $unknown) {
             return;
         }
-        throw new InvalidStatementTemplateException($this->trans('docx.export.via_template.error.unknown_placeholder', ['placeholders' => implode(', ', $unknown)]));
+        throw new UnknownPlaceholdersException($unknown);
     }
 
     /**
-     * @param list<string> $variables
+     * @param array<string, int> $variableCount result of {@see TemplateProcessor::getVariableCount()}
      *
-     * @throws InvalidStatementTemplateException
+     * @throws IncompleteSegmentMarkersException
      */
-    private function rejectIncompleteSegmentMarkerPair(array $variables): void
+    private function rejectIncompleteSegmentMarkerPair(array $variableCount): void
     {
-        $hasOpen = in_array(self::MARKER_SEGMENTS_OPEN, $variables, true);
-        $hasClose = in_array(self::MARKER_SEGMENTS_CLOSE, $variables, true);
-        // either both exist or none exist
-        if ($hasOpen === $hasClose) {
+        $openCount = $variableCount[self::MARKER_SEGMENTS_OPEN] ?? 0;
+        $closeCount = $variableCount[self::MARKER_SEGMENTS_CLOSE] ?? 0;
+        // either both appear exactly once or neither appears
+        if ($openCount === $closeCount && $openCount <= 1) {
             return;
         }
-        throw new InvalidStatementTemplateException($this->trans('docx.export.via_template.error.segments_marker_incomplete'));
+        throw new IncompleteSegmentMarkersException();
     }
 
     /**
      * @param list<string> $variables
      *
-     * @throws InvalidStatementTemplateException
+     * @throws MissingSegmentBlockException
      */
     private function rejectSegmentDataWithoutBlock(array $variables): void
     {
@@ -170,19 +169,18 @@ class StatementTemplateValidator
         if (!$hasSegmentData) {
             return;
         }
-        $hasMarkers = in_array(self::MARKER_SEGMENTS_OPEN, $variables, true)
-            && in_array(self::MARKER_SEGMENTS_CLOSE, $variables, true);
-        if ($hasMarkers) {
+        if ($this->hasCompleteSegmentMarkerPair($variables)) {
             return;
         }
-        throw new InvalidStatementTemplateException($this->trans('docx.export.via_template.error.segment_data_without_block'));
+        throw new MissingSegmentBlockException();
     }
 
     /**
-     * @param array<string, string> $parameters
+     * @param list<string> $variables
      */
-    private function trans(string $key, array $parameters = []): string
+    private function hasCompleteSegmentMarkerPair(array $variables): bool
     {
-        return $this->translator->trans($key, $parameters);
+        return in_array(self::MARKER_SEGMENTS_OPEN, $variables, true)
+            && in_array(self::MARKER_SEGMENTS_CLOSE, $variables, true);
     }
 }

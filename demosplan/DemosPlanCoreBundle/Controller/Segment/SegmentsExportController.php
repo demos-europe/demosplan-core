@@ -15,8 +15,12 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Exception\IncompleteSegmentMarkersException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidStatementTemplateException;
+use demosplan\DemosPlanCoreBundle\Exception\MalformedDocxException;
+use demosplan\DemosPlanCoreBundle\Exception\MissingSegmentBlockException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\UnknownPlaceholdersException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
@@ -33,11 +37,11 @@ use Doctrine\ORM\Query\QueryException;
 use EDT\JsonApi\RequestHandling\UrlParameter;
 use Exception;
 use PhpOffice\PhpWord\IOFactory;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use ZipStream\ZipStream;
 
 class SegmentsExportController extends BaseController
@@ -58,6 +62,7 @@ class SegmentsExportController extends BaseController
         private readonly ProcedureHandler $procedureHandler,
         private readonly RequestStack $requestStack,
         private readonly StatementExportTagFilter $statementExportTagFilter,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -113,9 +118,6 @@ class SegmentsExportController extends BaseController
      * resolved via TUS hash (`uploadedDocxTemplate` query parameter) and
      * removed from local disk as soon as the response finishes (success or
      * failure).
-     *
-     * @throws StatementNotFoundException
-     * @throws Exception
      */
     #[DplanPermissions('feature_statement_via_template_export')]
     #[Route(
@@ -131,48 +133,69 @@ class SegmentsExportController extends BaseController
         StatementViaTemplateExporter $exporter,
         string $procedureId,
         string $statementId,
-    ): StreamedResponse {
+    ): StreamedResponse|RedirectResponse {
         $request = $this->requestStack->getCurrentRequest();
-        $uploadedTemplateHash = $request->query->get(self::UPLOADED_TEMPLATE_HASH);
-        if (null === $uploadedTemplateHash || '' === $uploadedTemplateHash) {
-            throw new BadRequestHttpException('Missing uploaded template hash.');
-        }
-
-        $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
-        $statement = $statementHandler->getStatementWithCertainty($statementId);
-
-        if (self::DOCX_MIME_TYPE !== $fileService->getFileInfo($uploadedTemplateHash)->getContentType()) {
-            throw new BadRequestHttpException('Uploaded file is not a DOCX template.');
-        }
-
-        $absolutePath = $fileService->ensureLocalFileFromHash($uploadedTemplateHash);
-
+        $absolutePath = null;
         try {
+            $uploadedTemplateHash = $request->query->get(self::UPLOADED_TEMPLATE_HASH);
+            if (null === $uploadedTemplateHash || '' === $uploadedTemplateHash) {
+                throw new MalformedDocxException();
+            }
+
+            $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
+            $statement = $statementHandler->getStatementWithCertainty($statementId);
+
+            if (self::DOCX_MIME_TYPE !== $fileService->getFileInfo($uploadedTemplateHash)->getContentType()) {
+                throw new MalformedDocxException();
+            }
+
+            $absolutePath = $fileService->ensureLocalFileFromHash($uploadedTemplateHash);
             $templateProcessor = $exporter->export($procedure, $statement, $absolutePath);
-        } catch (Exception $exception) {
-            $fileService->deleteLocalFile($absolutePath);
-            if ($exception instanceof InvalidStatementTemplateException) {
-                throw new UnprocessableEntityHttpException($exception->getMessage(), $exception);
-            }
-            throw $exception;
-        }
+            $fileNameTemplate = $request->query->get(self::FILE_NAME_TEMPLATE_PARAMETER, '');
 
-        $fileNameTemplate = $request->query->get(self::FILE_NAME_TEMPLATE_PARAMETER, '');
-
-        $response = new StreamedResponse(
-            static function () use ($fileService, $templateProcessor, $absolutePath): void {
-                try {
+            $response = new StreamedResponse(
+                static function () use ($templateProcessor): void {
                     $templateProcessor->saveAs(self::OUTPUT_DESTINATION);
-                } finally {
-                    $fileService->deleteLocalFile($absolutePath);
                 }
+            );
+
+            $this->setResponseHeaders(
+                $response,
+                $fileNameGenerator->getFileName($statement, $fileNameTemplate).self::DOCX_EXTENSION
+            );
+
+            return $response;
+        } catch (InvalidStatementTemplateException $exception) {
+            $this->logger->warning('Statement template export rejected', ['exception' => $exception]);
+            $this->getMessageBag()->add('error', $this->translateTemplateException($exception));
+
+            return $this->redirectBack($request);
+        } catch (Exception $exception) {
+            $this->logger->error('Unexpected error during statement template export', ['exception' => $exception]);
+            $this->getMessageBag()->add('error', $this->translator->trans('error.generic'));
+
+            return $this->redirectBack($request);
+        } finally {
+            if (null !== $absolutePath) {
+                $fileService->deleteLocalFile($absolutePath);
             }
-        );
+        }
+    }
 
-        $fileName = $fileNameGenerator->getFileName($statement, $fileNameTemplate).self::DOCX_EXTENSION;
-        $this->setResponseHeaders($response, $fileName);
+    private function translateTemplateException(InvalidStatementTemplateException $exception): string
+    {
+        $key = match(true) {
+            $exception instanceof UnknownPlaceholdersException      => 'docx.export.via_template.error.unknown_placeholder',
+            $exception instanceof IncompleteSegmentMarkersException => 'docx.export.via_template.error.segments_marker_incomplete',
+            $exception instanceof MissingSegmentBlockException      => 'docx.export.via_template.error.segment_data_without_block',
+            default                                                 => 'docx.export.via_template.error.malformed_docx',
+        };
 
-        return $response;
+        $parameters = $exception instanceof UnknownPlaceholdersException
+            ? ['placeholders' => implode(', ', $exception->getUnknownPlaceholders())]
+            : [];
+
+        return $this->translator->trans($key, $parameters);
     }
 
     /**

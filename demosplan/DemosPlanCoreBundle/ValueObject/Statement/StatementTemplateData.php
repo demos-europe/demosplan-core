@@ -50,28 +50,17 @@ use PhpOffice\PhpWord\TemplateProcessor;
  */
 class StatementTemplateData extends ValueObject
 {
-    /** @var string|null */
-    protected $submitterName;
-    /** @var string|null */
-    protected $submitterOrgaName;
-    /** @var string|null */
-    protected $submitterStreet;
-    /** @var string|null */
-    protected $submitterHouseNumber;
-    /** @var string|null */
-    protected $submitterPostalCode;
-    /** @var string|null */
-    protected $submitterCity;
-    /** @var string|null */
-    protected $statementExternId;
-    /** @var string|null */
-    protected $statementInternId;
-    /** @var string|null */
-    protected $statementSubmitDate;
-    /** @var string|null */
-    protected $procedureName;
-    /** @var string|null */
-    protected $todayDate;
+    protected ?string $submitterName = null;
+    protected ?string $submitterOrgaName = null;
+    protected ?string $submitterStreet = null;
+    protected ?string $submitterHouseNumber = null;
+    protected ?string $submitterPostalCode = null;
+    protected ?string $submitterCity = null;
+    protected ?string $statementExternId = null;
+    protected ?string $statementInternId = null;
+    protected ?string $statementSubmitDate = null;
+    protected ?string $procedureName = null;
+    protected ?string $todayDate = null;
     /** @var Segment[] */
-    protected $segments = [];
+    protected array $segments = [];
 }

@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidStatementTemplateException;
+use demosplan\DemosPlanCoreBundle\Exception\MalformedDocxException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter;
@@ -46,7 +47,7 @@ class StatementViaTemplateExporter
 {
     public function __construct(
         private readonly StatementTemplateValidator $validator,
-        private readonly StatementTemplateDataBuilder $exportTemplateValueObjectBuilder,
+        private readonly StatementTemplateDataBuilder $statementTemplateDataBuilder,
         private readonly HtmlHelper $htmlHelper,
         private readonly LoggerInterface $logger,
     ) {
@@ -64,7 +65,7 @@ class StatementViaTemplateExporter
         string $absolutePath,
     ): TemplateProcessor {
         $this->validator->validate($absolutePath);
-        $allPlaceholdersData = $this->exportTemplateValueObjectBuilder->build($procedure, $statement);
+        $allPlaceholdersData = $this->statementTemplateDataBuilder->build($procedure, $statement);
 
         try {
             $templateProcessor = new TemplateProcessor($absolutePath);
@@ -73,7 +74,7 @@ class StatementViaTemplateExporter
                 'Failed to open uploaded DOCX template for export',
                 ['absolutePath' => $absolutePath, 'exception' => $exception]
             );
-            throw new InvalidStatementTemplateException('docx.export.via_template.error.malformed_docx', 0, $exception);
+            throw new MalformedDocxException('', 0, $exception);
         }
         $this->fillSimplePlaceholders($templateProcessor, $allPlaceholdersData);
         $this->renderSegments($templateProcessor, $allPlaceholdersData->getSegments());
@@ -138,10 +139,10 @@ class StatementViaTemplateExporter
         $count = count($segments);
         $templateProcessor->cloneBlock(StatementTemplateValidator::MARKER_SEGMENTS_OPEN, $count, true, true);
 
-        $index = 0;
+        $index = 1;
         foreach ($segments as $segment) {
-            ++$index;
             $this->fillSegmentPlaceholders($templateProcessor, $segment, $index);
+            ++$index;
         }
     }
 
@@ -150,11 +151,11 @@ class StatementViaTemplateExporter
         $templateProcessor->setValue(StatementTemplateValidator::PLACEHOLDER_SEGMENT_EXTERN_ID.'#'.$index, $segment->getExternId());
         $templateProcessor->setComplexBlock(
             StatementTemplateValidator::PLACEHOLDER_SEGMENT_TEXT.'#'.$index,
-            $this->buildRichTextFromHtml($segment->getText() ?? '')
+            $this->buildRichTextFromHtml($segment->getText())
         );
         $templateProcessor->setComplexBlock(
             StatementTemplateValidator::PLACEHOLDER_SEGMENT_RECOMMENDATION.'#'.$index,
-            $this->buildRichTextFromHtml($segment->getRecommendation() ?? '')
+            $this->buildRichTextFromHtml($segment->getRecommendation())
         );
     }
 
@@ -167,7 +168,7 @@ class StatementViaTemplateExporter
      * {@see Html::addHtml()} because a {@see TextRun} is itself a paragraph
      * and PhpWord refuses to nest a paragraph inside it ("Cannot add TextRun
      * in TextRun"). Inline formatting (bold, italic, color, links) survives;
-     * paragraph breaks become line breaks — acceptable v1 fidelity.
+     * paragraph breaks become line breaks.
      */
     private function buildRichTextFromHtml(string $html): TextRun
     {

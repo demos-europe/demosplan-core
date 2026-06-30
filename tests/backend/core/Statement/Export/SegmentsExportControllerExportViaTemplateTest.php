@@ -12,10 +12,12 @@ declare(strict_types=1);
 
 namespace Tests\Core\Statement\Export;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Controller\Segment\SegmentsExportController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidStatementTemplateException;
+use demosplan\DemosPlanCoreBundle\Exception\MalformedDocxException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
@@ -26,12 +28,12 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use PhpOffice\PhpWord\TemplateProcessor;
 use PHPUnit\Framework\MockObject\MockObject;
-use RuntimeException;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Tests {@see SegmentsExportController::exportViaTemplate()} — the controller
@@ -55,6 +57,7 @@ class SegmentsExportControllerExportViaTemplateTest extends AbstractStatementVia
     private (StatementHandler&MockObject)|null $statementHandler = null;
     private (StatementViaTemplateExporter&MockObject)|null $exporter = null;
     private (ProcedureHandler&MockObject)|null $procedureHandler = null;
+    private (MessageBagInterface&MockObject)|null $messageBag = null;
 
     protected function setUp(): void
     {
@@ -66,18 +69,24 @@ class SegmentsExportControllerExportViaTemplateTest extends AbstractStatementVia
         $this->fileNameGenerator = $this->createMock(FileNameGenerator::class);
         $this->statementHandler = $this->createMock(StatementHandler::class);
         $this->exporter = $this->createMock(StatementViaTemplateExporter::class);
+        $this->messageBag = $this->createMock(MessageBagInterface::class);
 
         $nameGenerator = $this->createMock(NameGenerator::class);
         $nameGenerator->method('generateDownloadFilename')
             ->willReturnCallback(static fn (string $filename): string => 'attachment; filename="'.$filename.'"');
         $tagFilter = $this->createMock(StatementExportTagFilter::class);
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnArgument(0);
 
         $this->sut = new SegmentsExportController(
             $nameGenerator,
             $this->procedureHandler,
             $this->requestStack,
             $tagFilter,
+            $translator,
         );
+        $this->sut->setLogger($this->createMock(LoggerInterface::class));
+        $this->sut->setMessageBag($this->messageBag);
     }
 
     protected function tempFilePrefix(): string
@@ -118,29 +127,33 @@ class SegmentsExportControllerExportViaTemplateTest extends AbstractStatementVia
         ob_end_clean();
     }
 
-    public function testThrowsBadRequestWhenHashIsMissing(): void
+    public function testRedirectsWithMessageBagWhenHashIsMissing(): void
     {
-        $this->requestStack->push(new Request());
+        $this->requestStack->push(new Request([], [], [], [], [], ['HTTP_REFERER' => 'http://localhost/referrer-page']));
+        $this->messageBag->expects(self::once())->method('add')->with('error', self::anything());
 
-        $this->expectException(BadRequestHttpException::class);
-        $this->callExportViaTemplate();
+        $response = $this->callExportViaTemplate();
+
+        self::assertInstanceOf(RedirectResponse::class, $response);
     }
 
-    public function testThrowsBadRequestWhenMimeTypeIsNotDocx(): void
+    public function testRedirectsWithMessageBagWhenMimeTypeIsNotDocx(): void
     {
-        $this->pushRequestWithHash('hash-pdf');
+        $this->pushRequestWithHash('hash-pdf', 'http://localhost/referrer-page');
         $this->fileService->method('getFileInfo')
             ->with('hash-pdf')
             ->willReturn($this->buildFileInfo('hash-pdf', 'application/pdf'));
+        $this->messageBag->expects(self::once())->method('add')->with('error', self::anything());
 
-        $this->expectException(BadRequestHttpException::class);
-        $this->callExportViaTemplate();
+        $response = $this->callExportViaTemplate();
+
+        self::assertInstanceOf(RedirectResponse::class, $response);
     }
 
-    public function testReturnsUnprocessableEntityAndDeletesTemplateOnValidatorFailure(): void
+    public function testRedirectsWithMessageBagAndDeletesTemplateOnValidatorFailure(): void
     {
         $copiedTemplatePath = $this->exampleTemplate;
-        $this->pushRequestWithHash('hash-bad');
+        $this->pushRequestWithHash('hash-bad', 'http://localhost/referrer-page');
         $this->givenFileServiceResolves('hash-bad', self::DOCX_MIME, $copiedTemplatePath);
         $this->fileService->expects(self::once())->method('deleteLocalFile')->with($copiedTemplatePath);
         $this->procedureHandler->method('getProcedureWithCertainty')
@@ -148,34 +161,35 @@ class SegmentsExportControllerExportViaTemplateTest extends AbstractStatementVia
         $this->statementHandler->method('getStatementWithCertainty')
             ->willReturn($this->createMock(Statement::class));
         $this->exporter->method('export')
-            ->willThrowException(new InvalidStatementTemplateException('Unknown placeholder: ${oops}'));
+            ->willThrowException(new MalformedDocxException());
 
-        try {
-            $this->callExportViaTemplate();
-            self::fail('Expected UnprocessableEntityHttpException');
-        } catch (UnprocessableEntityHttpException $exception) {
-            self::assertSame('Unknown placeholder: ${oops}', $exception->getMessage());
-        }
+        $this->messageBag->expects(self::once())->method('add')->with('error', self::anything());
+
+        $response = $this->callExportViaTemplate();
+
+        self::assertInstanceOf(RedirectResponse::class, $response);
     }
 
-    public function testRethrowsAndDeletesTemplateOnGenericException(): void
+    public function testRedirectsWithMessageBagAndDeletesTemplateOnGenericException(): void
     {
         $copiedTemplatePath = $this->exampleTemplate;
-        $this->pushRequestWithHash('hash-boom');
+        $this->pushRequestWithHash('hash-boom', 'http://localhost/referrer-page');
         $this->givenFileServiceResolves('hash-boom', self::DOCX_MIME, $copiedTemplatePath);
         $this->fileService->expects(self::once())->method('deleteLocalFile')->with($copiedTemplatePath);
         $this->procedureHandler->method('getProcedureWithCertainty')
             ->willReturn($this->createMock(Procedure::class));
         $this->statementHandler->method('getStatementWithCertainty')
             ->willReturn($this->createMock(Statement::class));
-        $this->exporter->method('export')->willThrowException(new RuntimeException('boom'));
+        $this->exporter->method('export')->willThrowException(new \Exception('boom'));
 
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('boom');
-        $this->callExportViaTemplate();
+        $this->messageBag->expects(self::once())->method('add')->with('error', self::anything());
+
+        $response = $this->callExportViaTemplate();
+
+        self::assertInstanceOf(RedirectResponse::class, $response);
     }
 
-    private function callExportViaTemplate(): StreamedResponse
+    private function callExportViaTemplate(): StreamedResponse|RedirectResponse
     {
         return $this->sut->exportViaTemplate(
             $this->fileService,
@@ -187,9 +201,10 @@ class SegmentsExportControllerExportViaTemplateTest extends AbstractStatementVia
         );
     }
 
-    private function pushRequestWithHash(string $hash): void
+    private function pushRequestWithHash(string $hash, string $referer = ''): void
     {
-        $this->requestStack->push(new Request(['uploadedDocxTemplate' => $hash]));
+        $server = [] !== $referer ? ['HTTP_REFERER' => $referer] : [];
+        $this->requestStack->push(new Request(['uploadedDocxTemplate' => $hash], [], [], [], [], $server));
     }
 
     private function givenFileServiceResolves(string $hash, string $contentType, string $localPath): void
