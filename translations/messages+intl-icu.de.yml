@@ -978,14 +978,10 @@ docx.export.example_file_name: "Vorschau mit Beispieldaten:"
 docx.export.file_name: "Dateinamen einzelner DOCX-Dateien"
 docx.export.file_name.hint: "Um den Dateinamen dynamisch zu erstellen, verwenden Sie folgende Platzhalter:<br>'{ID}' - die ID der Stellungnahme in EWM<br>'{NAME}' - der Name der einreichenden Person oder Organisation<br>'{EINGANGSNR}' - die vergebene Eingangsnummer<br>Wenn Sie weder '{ID}', '{NAME}' noch '{EINGANGSNR}' verwenden, wird dem Dateinamen eine einzigartige Nummer angehängt."
 docx.export.file_name.placeholder: "'{ID}'_'{NAME}'_'{EINGANGSNR}'"
-docx.export.filtered: "<p>Angewendete Schlagwortfilter: </p> <br>"
+docx.export.filtered: "<br><b>Angewendete Schlagwortfilter:</b><br>"
 docx.export.header.custom: "Titelzusatz vergeben"
 docx.export.header.custom.hint: "Untertitel, der im exportierten docx-Dokument auf allen Seiten rechtsbündig unter dem Verfahrensnamen erscheint. Der Standard-Untertitel kann hier angepasst werden."
-docx.export.header.custom.placeholder: |
-  {isPartialExport, select,
-      true {Teilexport Synopse {procedureName}}
-      other {Export Synopse {procedureName}}
-  }
+docx.export.header.custom.placeholder: "Synopse"
 docx.export.landscape: "Docx Exp. (Querformat)"
 docx: "DOCX"
 done: "erledigt"
@@ -1750,7 +1746,7 @@ export.xlsx.hint: "Achtung: Darstellungen aus Stellungnahmen oder Erwiderungen, 
 export.zip: "ZIP"
 export.zip.censored: "Einzelne DOCX-Dateien (anonymisiert)"
 export.info: "Export-Informationen"
-export.user: "Export ausgelöst von"
+export.user: "Export ausgelöst von "
 export.filter.applied: "Angewendete Schlagwort-Filter"
 export.filter.tags.none: "Dieser Export ist nicht nach Schlagworten gefiltert."
 export.filter.tags.names: "Die Namen der gefilterten Schlagworte lauten: {names}"
@@ -2202,7 +2198,7 @@ layer: "Kartenebene"
 # @TODO refactor everything to use "gislayer..." when referring to "Kartenebenen"
 # and "layer..." when referring to the layer inside of a getCapabilities response
 layers: "Layer"
-layout.info: 'Hinweis zu Darstellungen:<br>Darstellungen werden im Text referenziert und direkt unter der zugehörigen Stellungnahme oder Einwendung angezeigt. Der Verweis im Text enthält die jeweilige Stellungnahme-ID sowie den Typ: „Stel" (Stellungnahme/Einwendung) oder „Erw" (Erwiderung) und eine Nummerierung (z.B. M12_Darstellung_Erw_00). Mit einem Klick auf den Verweis können Sie direkt zur Darstellung springen.'
+layout.info: '<br><b>Hinweis zu Darstellungen:</b><br>Darstellungen werden im Text referenziert und direkt unter der zugehörigen Stellungnahme oder Einwendung angezeigt. Der Verweis im Text enthält die jeweilige Stellungnahme-ID sowie den Typ: „Stel" (Stellungnahme/Einwendung) oder „Erw" (Erwiderung) und eine Nummerierung (z.B. M12_Darstellung_Erw_001). Mit einem Klick auf den Verweis können Sie direkt zur Darstellung springen.'
 legend: "Legende"
 legend.download: "Legende herunterladen"
 legend.not_available: "Legende nicht verfügbar"
@@ -3372,6 +3368,7 @@ segments.export.filter.tags.only: "Nur Abschnitte mit folgenden Schlagworten"
 segments.export.pagination: "Seite {PAGE} von {NUMPAGES}"
 segments.export.segment.id: "Abschnitts-ID"
 segments.export.statement.export.date: "Synopse vom {date}"
+segments.export.statement.export.custom: "Synopse {customHeaderText}"
 segments.export.statement.export.date.filtered: "Teilexport Synopse vom {date}"
 segments.export.statement.extern.id: "ID: {externId}"
 segments.export.statement.intern.id: "Eingangsnummer: {internId}"
