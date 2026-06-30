@@ -571,9 +571,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->availableProcedurePhases
                 ->readable(false, fn (Statement $statement): array => array_map(
                     static fn (ProcedurePhaseDefinition $d): array => ['id' => $d->getId(), 'name' => $d->getName()],
-                    $statement->isSubmittedByCitizen()
-                        ? $this->procedurePhaseDefinitionService->getExternalPhaseDefinitionsForCurrentCustomer()
-                        : $this->procedurePhaseDefinitionService->getInternalPhaseDefinitionsForCurrentCustomer()
+                    $this->procedurePhaseDefinitionService->getAvailablePhasesForStatement($statement)
                 ));
         }
 
