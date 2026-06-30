@@ -24,7 +24,6 @@ use demosplan\DemosPlanCoreBundle\Event\Segment\SegmentXlsxExportDataEvent;
 use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\FileNameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
@@ -57,7 +56,6 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         HtmlHelper $htmlHelper,
         protected ImageManager $imageManager,
         ImageLinkConverter $imageLinkConverter,
-        private readonly FileNameGenerator $fileNameGenerator,
         Slugify $slugify,
         StyleInitializer $styleInitializer,
         TranslatorInterface $translator,
