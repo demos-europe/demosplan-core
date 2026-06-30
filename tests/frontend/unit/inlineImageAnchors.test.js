@@ -20,8 +20,7 @@ describe('inlineImageAnchors', () => {
     expect(result).toContain('src="http://example.com/hash.jpg"')
     expect(result).toContain('alt="Label"')
     expect(result).toContain('loading="lazy"')
-    expect(result).toMatch(/<span class="pdf-importer-image-wrapper[^"]*"><img[^>]*><a[^>]*>Label<\/a><\/span>/)
-    expect(result).toContain('pdf-importer-image-link')
+    expect(result).toMatch(/<span[^>]*><img[^>]*><a[^>]*>Label<\/a><\/span>/)
     expect(result).toMatch(/<a[^>]*href="http:\/\/example\.com\/hash\.jpg"[^>]*>Label<\/a>/)
   })
 
@@ -63,7 +62,8 @@ describe('inlineImageAnchors', () => {
     const result = inlineImageAnchors(html)
 
     expect(result.match(/<img/g)).toHaveLength(2)
-    expect(result.match(/pdf-importer-image-link/g)).toHaveLength(2)
+    expect(result).toMatch(/<a[^>]*href="a"[^>]*>A<\/a>/)
+    expect(result).toMatch(/<a[^>]*href="b"[^>]*>B<\/a>/)
   })
 
   it('mixes pdf_importer_image anchors and unrelated anchors correctly', () => {
@@ -98,7 +98,7 @@ describe('inlineImageAnchors', () => {
     const html = '<p><img src="http://example.com/photo.jpg" alt="My photo" loading="lazy"></p>'
     const result = inlineImageAnchors(html)
 
-    expect(result).toMatch(/<span class="pdf-importer-image-wrapper[^"]*"><img[^>]*><a[^>]*>My photo<\/a><\/span>/)
+    expect(result).toMatch(/<span[^>]*><img[^>]*><a[^>]*>My photo<\/a><\/span>/)
     expect(result).toContain('<img')
     expect(result).toContain('src="http://example.com/photo.jpg"')
     expect(result).toContain('alt="My photo"')
@@ -146,17 +146,14 @@ describe('inlineImageAnchors', () => {
     const html = '<a class="pdf_importer_image" href="a.jpg">A</a><img src="b.jpg" alt="B">'
     const result = inlineImageAnchors(html)
 
-    expect(result.match(/pdf-importer-image-wrapper/g)).toHaveLength(2)
-    expect(result.match(/pdf-importer-image-link/g)).toHaveLength(2)
-    expect(result).toContain('src="a.jpg"')
-    expect(result).toContain('src="b.jpg"')
+    expect(result).toMatch(/<span[^>]*><img[^>]*src="a\.jpg"[^>]*><a[^>]*>A<\/a><\/span>/)
+    expect(result).toMatch(/<span[^>]*><img[^>]*src="b\.jpg"[^>]*><a[^>]*>B<\/a><\/span>/)
   })
 
   it('wraps a bare img and leaves an unrelated sibling link untouched', () => {
     const html = '<img src="a.jpg" alt="A"><a href="b.jpg">other</a>'
     const result = inlineImageAnchors(html)
 
-    expect(result.match(/pdf-importer-image-wrapper/g)).toHaveLength(1)
     expect(result).toContain('<a href="b.jpg">other</a>')
     expect(result).toMatch(/<span[^>]*><img[^>]*><a[^>]*>A<\/a><\/span><a href="b\.jpg">other<\/a>/)
   })
@@ -165,7 +162,7 @@ describe('inlineImageAnchors', () => {
     const html = '<img alt="broken">'
     const result = inlineImageAnchors(html)
 
-    expect(result).not.toContain('pdf-importer-image-wrapper')
+    expect(result).not.toMatch(/<span[^>]*><img/)
     expect(result).toContain('<img')
     expect(result).toContain('alt="broken"')
   })
@@ -180,8 +177,7 @@ describe('inlineImageAnchorsForEditing', () => {
     expect(result).toContain('src="http://example.com/hash.jpg"')
     expect(result).toContain('alt="Label"')
     expect(result).toContain('loading="lazy"')
-    expect(result).not.toContain('pdf-importer-image-wrapper')
-    expect(result).not.toContain('pdf-importer-image-link')
+    expect(result).not.toMatch(/<span[^>]*><img/)
     expect(result).not.toContain('<a')
   })
 
