@@ -198,6 +198,16 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
                 [],
                 function (ProcedurePhaseDefinition $procedurePhaseDefinition, bool $newIsDeleted): array {
                     $this->procedurePhaseDefinitionEditor->guardConfigurationPhaseNotEditable($procedurePhaseDefinition);
+                    if (!$newIsDeleted) {
+                        $customer = $procedurePhaseDefinition->getCustomer();
+                        if ($customer instanceof CustomerInterface) {
+                            $this->guardNameUnique(
+                                $procedurePhaseDefinition->getName(),
+                                $procedurePhaseDefinition->getAudience(),
+                                $customer
+                            );
+                        }
+                    }
                     $this->procedurePhaseDefinitionEditor->setDeleted($procedurePhaseDefinition, $newIsDeleted);
 
                     return [];
