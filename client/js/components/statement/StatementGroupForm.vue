@@ -148,6 +148,7 @@ const props = defineProps({
 })
 
 const groupName = ref('')
+const groups = ref([])
 const headStatement = ref(null)
 const isBusy = ref(false)
 const isLoading = ref(true)
@@ -158,7 +159,6 @@ const statements = ref([])
 const step = ref(1)
 const success = ref(true)
 const targetGroupId = ref(null)
-const groups = ref([])
 
 const isValid = computed(() => statements.value.length > 0)
 const selectedElementsCount = computed(() => statements.value.length)
@@ -225,15 +225,20 @@ const handleApply = async () => {
       },
     }
 
-    try {
-      await dpApi.post('/api/3.0/StatementGroup', {}, { data: payload })
-      success.value = true
-    } catch (error) {
-      console.error('StatementGroup POST failed:', error)
-      success.value = false
-    } finally {
-    // Always delete the stored selection so the same statements are not grouped more than once.
-      lscache.remove(`${props.procedureId}:toggledStatements`)
+  isBusy.value = true
+
+  try {
+    await dpApi.post(`${Routing.getBaseUrl()}/api/3.0/StatementGroup`, {}, { data: payload })
+    success.value = true
+  } catch (error) {
+    console.error('StatementGroup POST failed:', error)
+    success.value = false
+  } finally {
+    /*
+ * Grouping shrinks the statement list, so a persisted page may no longer exist.
+ * Tell the list to reopen on page 1 and skip an out-of-range fetch.
+ */
+    lscache.set(`${props.procedureId}:statementListResetPage`, true)
       isBusy.value = false
       step.value = 3
     }
@@ -332,6 +337,10 @@ const fetchStatements = async () => {
 
 const removeStatement = (id) => {
   statements.value = statements.value.filter(stmt => stmt.id !== id)
+  // Reset head selection if the removed statement was the chosen head.
+  if (headStatement.value?.id === id) {
+    headStatement.value = null
+  }
 }
 
 const setStatements = () => {

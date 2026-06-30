@@ -451,12 +451,8 @@ export default {
         limits: [10, 25, 50, 100],
         perPage: 10,
       },
-      isFullscreen: false,
-      lsKey: {
-        // LocalStorage keys
-        toggledStatements: `${this.procedureId}:toggledStatements`,
-      },
-
+      // Member counts per group head (keyed by head statement id), fetched from the 3.0 StatementGroup endpoint.
+      groupMemberCounts: {},
       headerFields: [
         { field: 'externId', label: Translator.trans('id') },
         { field: 'status', label: Translator.trans('status') },
@@ -465,9 +461,12 @@ export default {
         { field: 'text', label: Translator.trans('text') },
         { field: 'segmentsCount', label: Translator.trans('segments') },
       ],
+      isFullscreen: false,
+      lsKey: {
+        // LocalStorage keys
+        toggledStatements: `${this.procedureId}:toggledStatements`,
+      },
       pagination: {},
-      // Member counts per group head (keyed by head statement id), fetched from the 3.0 StatementGroup endpoint.
-      groupMemberCounts: {},
       searchFields: [
         'authorName',
         'department',
@@ -656,14 +655,15 @@ export default {
 
     handleBulkGroup () {
       /*
-       * Statements must be assigned to the current user. On "select all" the full set is not loaded
-       * here, so this check runs again on the group-creation page (handleConfirmStep1).
+       * Statements must be assigned to the current user. Only statements loaded on the current page
+       * are present in statementsObject, so items selected on other pages (or via "select all") are
+       * validated server-side on the group-creation page (handleConfirmStep1).
        */
       if (!this.allSelectedVisually) {
         const allAssigned = this.toggledItems.every(item => {
           const statement = this.statementsObject[item.id]
 
-          return statement && this.assigneeId(statement) === this.currentUserId
+          return !statement || this.assigneeId(statement) === this.currentUserId
         })
 
         if (!allAssigned) {
@@ -678,7 +678,7 @@ export default {
        * Store the selection first, then navigate to the dedicated group-creation page,
        * whose form reads the selection from localStorage on mount.
        */
-      window.location.href = Routing.generate('dplan_procedure_statement_group_create', { procedureId: this.procedureId })
+      globalThis.location.href = Routing.generate('dplan_procedure_statement_group_create', { procedureId: this.procedureId })
     },
 
     handleFullTextAction (statementId) {
@@ -851,7 +851,7 @@ export default {
       Object.values(this.statementsObject)
         .filter(statement => statement.attributes.isCluster && this.groupMemberCounts[statement.id] == null)
         .forEach(head => {
-          dpApi.get(`/api/3.0/StatementGroup/${head.id}`)
+          dpApi.get(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${head.id}`)
             .then(response => {
               this.groupMemberCounts[head.id] = response.data.data.attributes.statementsCount
             })
@@ -942,6 +942,16 @@ export default {
         this.setNumSelectableItems(data)
         this.updatePagination(data.meta.pagination)
         this.fetchGroupMemberCounts()
+      }).catch(() => {
+        /*
+         * DpApi rejects on HTTP >= 400. Don't let it bubble as an unhandled rejection: a stale
+         * stored page can be recovered by falling back to page 1; otherwise inform the user.
+         */
+        if (page === 1) {
+          dplan.notify.notify('error', Translator.trans('error.api.generic'))
+        } else {
+          this.getItemsByPage(1)
+        }
       })
     },
 
@@ -1202,6 +1212,15 @@ export default {
       },
     })
     this.initPagination()
+    /*
+     * After grouping, the statement count shrinks, so the persisted page may no longer exist.
+     * Start on page 1 to avoid an out-of-range request (and its slow double-fetch).
+     */
+    if (lscache.get(`${this.procedureId}:statementListResetPage`)) {
+      lscache.remove(`${this.procedureId}:statementListResetPage`)
+      this.pagination.currentPage = 1
+    }
+
     this.restoreSelectedSort()
     this.getItemsByPage(this.pagination.currentPage)
   },
