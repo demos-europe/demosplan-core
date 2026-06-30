@@ -15,13 +15,13 @@ const filenameFromSrc = (src) => {
   try {
     const path = src.split(/[?#]/)[0]
     const slashIndex = path.lastIndexOf('/')
-    const segment = slashIndex === -1 ? path : path.substring(slashIndex + 1)
+    const basename = slashIndex === -1 ? path : path.substring(slashIndex + 1)
 
-    if (segment === '' || !segment.includes('.')) {
+    if (basename === '' || !basename.includes('.')) {
       return ''
     }
 
-    return decodeURIComponent(segment)
+    return decodeURIComponent(basename)
   } catch (error) {
     console.error('filenameFromSrc: failed to decode src', error)
 
