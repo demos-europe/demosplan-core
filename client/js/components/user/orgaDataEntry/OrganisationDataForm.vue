@@ -46,7 +46,7 @@
         <dp-input
           id="orga_address_street"
           v-model="organisation.street"
-          :class="!organisation.street.length ? prefixClass('w-4') : ''"
+          :class="prefixClass('flex-1')"
           data-cy="organisationData:address:street"
           :name="`${organisation.id}:address_street`"
           :label="{
@@ -56,24 +56,27 @@
           :disabled="!isOrgaDataEditable"
         />
 
-        <dp-input
+        <div
           v-if="showDetailedInfo"
-          id="orga_addressHouseNumber"
-          v-model="organisation.houseNumber"
-          data-cy="organisationData:address:houseNumber"
-          :name="`${organisation.id}:address_houseNumber`"
-          :label="{
-            text: Translator.trans('street.number.short')
-          }"
-          :size="5"
-          :disabled="!isOrgaDataEditable"
-        />
+          :class="prefixClass('shrink-0')"
+        >
+          <dp-input
+            id="orga_addressHouseNumber"
+            v-model="organisation.houseNumber"
+            data-cy="organisationData:address:houseNumber"
+            :name="`${organisation.id}:address_houseNumber`"
+            :label="{
+              text: Translator.trans('street.number.short')
+            }"
+            :size="5"
+            :disabled="!isOrgaDataEditable"
+          />
+        </div>
 
         <dp-input
           v-if="showDetailedInfo"
           id="orga_address_extension"
           v-model="organisation.addressExtension"
-          :class="!organisation.addressExtension.length ? prefixClass('w-4') : ''"
           data-cy="organisationData:address:extension"
           :name="`${organisation.id}:address_extension`"
           :label="{
@@ -86,24 +89,26 @@
 
       <!-- Postal Code and City -->
       <div :class="[prefixClass(showDetailedInfo ? 'flex-row' : 'flex-col'), prefixClass('flex items-start gap-1 mb-2')]">
-        <dp-input
-          id="orga_address_postalcode"
-          v-model="organisation.postalcode"
-          data-cy="organisationData:address:postalcode"
-          :class="prefixClass('shrink')"
-          :name="`${organisation.id}:address_postalcode`"
-          :label="{
-            text: Translator.trans('postalcode')
-          }"
-          :pattern="isOrgaDataEditable ? '^[0-9]{5}$' : ''"
-          :size="5"
-          :disabled="!isOrgaDataEditable"
-        />
+        <div :class="prefixClass('shrink-0')">
+          <dp-input
+            id="orga_address_postalcode"
+            v-model="organisation.postalcode"
+            data-cy="organisationData:address:postalcode"
+            :name="`${organisation.id}:address_postalcode`"
+            :label="{
+              text: Translator.trans('postalcode')
+            }"
+            :pattern="isOrgaDataEditable ? '^[0-9]{5}$' : ''"
+            :size="5"
+            :disabled="!isOrgaDataEditable"
+          />
+        </div>
 
         <dp-input
           id="orga_address_city"
           v-model="organisation.city"
           data-cy="organisationData:address:city"
+          :class="prefixClass('flex-1')"
           :name="`${organisation.id}:address_city`"
           :label="{
             text: Translator.trans('city')
