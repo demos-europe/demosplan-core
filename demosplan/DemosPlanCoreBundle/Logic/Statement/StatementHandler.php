@@ -3064,6 +3064,8 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
 
     /**
      * Used on create a manual statement.
+     *
+     * @return Statement|bool
      */
     public function newStatement(array $data, bool $isDataInput = false)
     {
@@ -3385,6 +3387,9 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         return $result;
     }
 
+    /**
+     * @return Statement|false|null
+     */
     public function updateStatementObject($statement, $ignoreAssignment = false, $ignoreCluster = false, $ignoreOriginal = false)
     {
         return $this->statementService->updateStatement($statement, $ignoreAssignment, $ignoreCluster, $ignoreOriginal);

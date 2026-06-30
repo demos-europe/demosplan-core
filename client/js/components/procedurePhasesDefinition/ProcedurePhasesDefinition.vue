@@ -219,11 +219,12 @@ All rights reserved
                     </button>
 
                     <button
+                      v-if="rowData.orderInAudience !== 0"
                       :aria-label="Translator.trans('item.delete')"
                       :data-cy="`procedurePhases:delete:${rowData.id}`"
                       :title="Translator.trans('delete')"
                       class="btn--blank o-link--default"
-                      disabled
+                      @click="deletePhase(rowData.id)"
                     >
                       <dp-icon
                         aria-hidden="true"
@@ -268,6 +269,11 @@ All rights reserved
         </dp-accordion>
       </template>
     </div>
+
+    <dp-confirm-dialog
+      ref="confirmDeleteDialog"
+      :message="Translator.trans('procedure.phase.delete.confirm')"
+    />
   </div>
 </template>
 
@@ -278,6 +284,7 @@ import {
   dpApi,
   DpButton,
   DpButtonRow,
+  DpConfirmDialog,
   DpDataTable,
   DpIcon,
   DpInput,
@@ -298,6 +305,7 @@ export default {
     DpAccordion,
     DpButton,
     DpButtonRow,
+    DpConfirmDialog,
     DpDataTable,
     DpIcon,
     DpInput,
@@ -393,6 +401,14 @@ export default {
             'participationState',
             'orderInAudience',
           ].join(','),
+        },
+        filter: {
+          notDeleted: {
+            condition: {
+              path: 'isDeleted',
+              value: 0,
+            },
+          },
         },
         sort: 'orderInAudience',
       }))
@@ -825,6 +841,33 @@ export default {
         })
     }
 
+    // *** DELETE PHASE LOGIC ***
+    const confirmDeleteDialog = ref(null)
+
+    const deletePhase = async (id) => {
+      const isConfirmed = await confirmDeleteDialog.value.open()
+
+      if (!isConfirmed) {
+        return
+      }
+
+      try {
+        await dpApi.patch(
+          Routing.generate('api_resource_update', { resourceType: 'ProcedurePhaseDefinition', resourceId: id }),
+          {},
+          { data: { type: 'ProcedurePhaseDefinition', id, attributes: { isDeleted: true } } },
+        )
+        phaseDefinitions.value = phaseDefinitions.value.filter(phase => phase.id !== id)
+        dplan.notify.confirm(Translator.trans('procedure.phase.delete.success'))
+      } catch (err) {
+        if (!err.data?.meta?.messages) {
+          console.error(err)
+          // Backend already surfaced its specific message via meta.messages; only fall back to a generic toast when it didn't.
+          dplan.notify.error(Translator.trans('error.api.generic'))
+        }
+      }
+    }
+
     onMounted(() => {
       fetchPhaseDefinitions()
       detectPhaseListAddon()
@@ -834,7 +877,9 @@ export default {
       audienceOptions,
       audienceSections,
       cancelEdit,
+      confirmDeleteDialog,
       createPhase,
+      deletePhase,
       draftCoreRowValue,
       editingRowId,
       findPermissionSetOption,

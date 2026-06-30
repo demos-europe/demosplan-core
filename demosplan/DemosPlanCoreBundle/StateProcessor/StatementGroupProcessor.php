@@ -19,13 +19,15 @@ use demosplan\DemosPlanCoreBundle\ApiResources\StatementResource;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
-use InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\ResourceAccess\StatementClusterAccessChecker;
+use Exception;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Webmozart\Assert\Assert;
 
 class StatementGroupProcessor implements ProcessorInterface
 {
     public function __construct(
+        private readonly StatementClusterAccessChecker $clusterAccessChecker,
         private readonly CurrentProcedureService $currentProcedureService,
         private readonly StatementHandler $statementHandler,
     ) {
@@ -34,6 +36,8 @@ class StatementGroupProcessor implements ProcessorInterface
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): StatementGroupResource
     {
         Assert::isInstanceOf($data, StatementGroupResource::class);
+
+        $this->clusterAccessChecker->checkClusterAccess();
 
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
@@ -58,7 +62,7 @@ class StatementGroupProcessor implements ProcessorInterface
                 $data->headStatementId,
                 $data->groupName
             );
-        } catch (InvalidArgumentException $e) {
+        } catch (Exception $e) {
             throw new BadRequestHttpException($e->getMessage(), $e);
         }
         Assert::isInstanceOf($cluster, Statement::class);
