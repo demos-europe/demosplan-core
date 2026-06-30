@@ -8,161 +8,163 @@
 </license>
 
 <template>
-  <div data-dp-validate="segmentsStatementForm">
-    <dp-loading v-if="isLoading" />
+  <div>
+    <div data-dp-validate="segmentsStatementForm">
+      <dp-loading v-if="isLoading" />
 
-    <!-- if statement has segments and user has the permission, display segments -->
-    <template v-else-if="hasSegments">
-      <!-- Pagination above segments list -->
-      <div
-        v-if="pagination && pagination.currentPage"
-        class="flex justify-between items-center mb-4"
-      >
-        <dp-pager
-          :key="`segmentsPagerTopEdit_${pagination.currentPage}_${pagination.count || 0}`"
-          :class="{ 'invisible': isLoading }"
-          :current-page="pagination.currentPage"
-          :limits="pagination.limits || defaultPagination.limits"
-          :per-page="pagination.perPage || defaultPagination.perPage"
-          :total-pages="pagination.totalPages || 1"
-          :total-items="pagination.total || 0"
-          @page-change="handlePageChange"
-          @size-change="handleSizeChange"
-        />
-      </div>
-
-      <div
-        v-for="segment in segments"
-        :id="'segmentTextEdit_' + segment.id"
-        :key="segment.id"
-        class="px-1 hover:bg-interactive-secondary-subtle-hover"
-      >
-        <div class="inline-block w-[5%]">
-          <template v-if="isSegmentLocked(segment)">
-            <dp-button
-              v-if="hasPermission('feature_administrate_segment_lock')"
-              :text="lockTooltip"
-              class="text-interactive inline-block ml-0.5 align-middle bg-transparent! border-transparent! hover:bg-interactive-subtle-hover!"
-              icon="prohibit"
-              icon-weight="fill"
-              variant="subtle"
-              hide-text
-              @click="openUnlockModal(segment)"
-            />
-            <dp-tooltip
-              v-else
-              :text="lockTooltip"
-            >
-              <dp-icon
-                class="text-interactive inline-block ml-1"
-                icon="prohibit"
-                size="small"
-                weight="fill"
-              />
-            </dp-tooltip>
-          </template>
-          <dp-claim
-            v-else
-            class="c-at-item__row-icon inline-block"
-            :assigned-id="assigneeBySegment(segment.id).id"
-            :assigned-name="assigneeBySegment(segment.id).name"
-            :assigned-organisation="assigneeBySegment(segment.id).orgaName"
-            :current-user-id="currentUser.id"
-            :current-user-name="currentUser.firstname + ' ' + currentUser.lastname"
-            entity-type="segment"
-            :is-loading="claimLoading === segment.id"
-            @click="() => toggleClaimSegment(segment)"
+      <!-- if statement has segments and user has the permission, display segments -->
+      <template v-else-if="hasSegments">
+        <!-- Pagination above segments list -->
+        <div
+          v-if="pagination && pagination.currentPage"
+          class="flex justify-between items-center mb-4"
+        >
+          <dp-pager
+            :key="`segmentsPagerTopEdit_${pagination.currentPage}_${pagination.count || 0}`"
+            :class="{ 'invisible': isLoading }"
+            :current-page="pagination.currentPage"
+            :limits="pagination.limits || defaultPagination.limits"
+            :per-page="pagination.perPage || defaultPagination.perPage"
+            :total-pages="pagination.totalPages || 1"
+            :total-items="pagination.total || 0"
+            @page-change="handlePageChange"
+            @size-change="handleSizeChange"
           />
-        </div><!--
-     --><div class="inline-block break-words w-[95%]">
-          <dp-edit-field
-            :ref="`editField_${segment.id}`"
-            class="c-styled-html"
-            :editable="isAssigneeEditable(segment)"
-            label=""
-            :label-grid-cols="0"
-            no-margin
-            persist-icons
-            @reset="() => reset(segment.id)"
-            @toggle-editing="() => addToEditing(segment.id)"
-            @save="() => saveSegment(segment.id)"
-          >
-            <template v-slot:display>
-              <text-content-renderer
-                class="pr-3"
-                :text="segment.attributes.text"
-              />
-            </template>
-            <template v-slot:edit>
-              <dp-editor
-                class="mr-4 pt-1"
-                :routes="{ getFileByHash: (hash) => Routing.generate('core_file_procedure', { procedureId, hash }) }"
-                :toolbar-items="{ imageButton: true, linkButton: true, obscure: hasPermission('feature_obscure_text') }"
-                :tus-endpoint="dplan.paths.tusEndpoint"
-                :value="getSegmentInitialText(segment.id)"
-                @transform-obscure-tag="(val) => transformObscureTag(segment.id, val)"
-                @input="(val) => updateSegmentText(segment.id, val)"
-              />
-            </template>
-          </dp-edit-field>
         </div>
-      </div>
 
-      <!-- Pagination below segments list -->
-      <div
-        v-if="pagination && pagination.currentPage"
-        class="flex justify-between items-center mt-4"
-      >
-        <dp-pager
-          :key="`segmentsPagerBottomEdit_${pagination.currentPage}_${pagination.count || 0}`"
-          :class="{ 'invisible': isLoading }"
-          :current-page="pagination.currentPage"
-          :limits="pagination.limits || defaultPagination.limits"
-          :per-page="pagination.perPage || defaultPagination.perPage"
-          :total-pages="pagination.totalPages || 1"
-          :total-items="pagination.total || 0"
-          @page-change="handlePageChange"
-          @size-change="handleSizeChange"
-        />
-      </div>
-    </template>
+        <div
+          v-for="segment in segments"
+          :id="'segmentTextEdit_' + segment.id"
+          :key="segment.id"
+          class="px-1 hover:bg-interactive-secondary-subtle-hover"
+        >
+          <div class="inline-block w-[5%]">
+            <template v-if="isSegmentLocked(segment)">
+              <dp-button
+                v-if="hasPermission('feature_administrate_segment_lock')"
+                :text="lockTooltip"
+                class="text-interactive inline-block ml-0.5 align-middle bg-transparent! border-transparent! hover:bg-interactive-subtle-hover!"
+                icon="prohibit"
+                icon-weight="fill"
+                variant="subtle"
+                hide-text
+                @click="openUnlockModal(segment)"
+              />
+              <dp-tooltip
+                v-else
+                :text="lockTooltip"
+              >
+                <dp-icon
+                  class="text-interactive inline-block ml-1"
+                  icon="prohibit"
+                  size="small"
+                  weight="fill"
+                />
+              </dp-tooltip>
+            </template>
+            <dp-claim
+              v-else
+              class="c-at-item__row-icon inline-block"
+              :assigned-id="assigneeBySegment(segment.id).id"
+              :assigned-name="assigneeBySegment(segment.id).name"
+              :assigned-organisation="assigneeBySegment(segment.id).orgaName"
+              :current-user-id="currentUser.id"
+              :current-user-name="currentUser.firstname + ' ' + currentUser.lastname"
+              entity-type="segment"
+              :is-loading="claimLoading === segment.id"
+              @click="() => toggleClaimSegment(segment)"
+            />
+          </div><!--
+       --><div class="inline-block break-words w-[95%]">
+            <dp-edit-field
+              :ref="`editField_${segment.id}`"
+              class="c-styled-html"
+              :editable="isAssigneeEditable(segment)"
+              label=""
+              :label-grid-cols="0"
+              no-margin
+              persist-icons
+              @reset="() => reset(segment.id)"
+              @toggle-editing="() => addToEditing(segment.id)"
+              @save="() => saveSegment(segment.id)"
+            >
+              <template v-slot:display>
+                <text-content-renderer
+                  class="pr-3"
+                  :text="segment.attributes.text"
+                />
+              </template>
+              <template v-slot:edit>
+                <dp-editor
+                  class="mr-4 pt-1"
+                  :routes="{ getFileByHash: (hash) => Routing.generate('core_file_procedure', { procedureId, hash }) }"
+                  :toolbar-items="{ imageButton: true, linkButton: true, obscure: hasPermission('feature_obscure_text') }"
+                  :tus-endpoint="dplan.paths.tusEndpoint"
+                  :value="getSegmentInitialText(segment.id)"
+                  @transform-obscure-tag="(val) => transformObscureTag(segment.id, val)"
+                  @input="(val) => updateSegmentText(segment.id, val)"
+                />
+              </template>
+            </dp-edit-field>
+          </div>
+        </div>
 
-    <!-- if statement has no segments, display statement -->
-    <template v-else-if="statement">
-      <template v-if="editable && !hasDraftSegments">
-        <dp-editor
-          hidden-input="statementText"
-          required
-          :toolbar-items="{ linkButton: true}"
-          :value="getStatementInitialText()"
-          @transform-obscure-tag="transformObscureStatementTag"
-          @input="updateStatementText"
-        />
-        <dp-button-row
-          class="u-mv"
-          primary
-          secondary
-          :secondary-text="Translator.trans('discard.changes')"
-          @primary-action="dpValidateAction('segmentsStatementForm', saveStatement, false)"
-          @secondary-action="resetStatement"
-        />
+        <!-- Pagination below segments list -->
+        <div
+          v-if="pagination && pagination.currentPage"
+          class="flex justify-between items-center mt-4"
+        >
+          <dp-pager
+            :key="`segmentsPagerBottomEdit_${pagination.currentPage}_${pagination.count || 0}`"
+            :class="{ 'invisible': isLoading }"
+            :current-page="pagination.currentPage"
+            :limits="pagination.limits || defaultPagination.limits"
+            :per-page="pagination.perPage || defaultPagination.perPage"
+            :total-pages="pagination.totalPages || 1"
+            :total-items="pagination.total || 0"
+            @page-change="handlePageChange"
+            @size-change="handleSizeChange"
+          />
+        </div>
       </template>
-      <div
-        v-else
-        class="border space-inset-s"
-      >
-        <dp-inline-notification
-          v-if="hasDraftSegments"
-          class="mt mb-2"
-          :message="Translator.trans('warning.statement.in.segmentation.cannot.be.edited')"
-          type="warning"
-        />
-        <p class="font-semibold">
-          {{ Translator.trans('statement.text.short') }}
-        </p>
-        <div v-cleanhtml="statement.attributes.fullText || ''" />
-      </div>
-    </template>
+
+      <!-- if statement has no segments, display statement -->
+      <template v-else-if="statement">
+        <template v-if="editable && !hasDraftSegments">
+          <dp-editor
+            hidden-input="statementText"
+            required
+            :toolbar-items="{ linkButton: true}"
+            :value="getStatementInitialText()"
+            @transform-obscure-tag="transformObscureStatementTag"
+            @input="updateStatementText"
+          />
+          <dp-button-row
+            class="u-mv"
+            primary
+            secondary
+            :secondary-text="Translator.trans('discard.changes')"
+            @primary-action="dpValidateAction('segmentsStatementForm', saveStatement, false)"
+            @secondary-action="resetStatement"
+          />
+        </template>
+        <div
+          v-else
+          class="border space-inset-s"
+        >
+          <dp-inline-notification
+            v-if="hasDraftSegments"
+            class="mt mb-2"
+            :message="Translator.trans('warning.statement.in.segmentation.cannot.be.edited')"
+            type="warning"
+          />
+          <p class="font-semibold">
+            {{ Translator.trans('statement.text.short') }}
+          </p>
+          <div v-cleanhtml="statement.attributes.fullText || ''" />
+        </div>
+      </template>
+    </div>
     <segment-unlock-modal
       v-if="hasPermission('feature_administrate_segment_lock')"
       ref="unlockModal"

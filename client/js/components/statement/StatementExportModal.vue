@@ -202,7 +202,7 @@
           tooltip: Translator.trans('docx.export.header.custom.hint')
         }"
         :maxlength="customHeaderMaxLength"
-        :placeholder="customHeaderPlaceholder"
+        :placeholder="Translator.trans('docx.export.header.custom.placeholder')"
         class="mt-2 mb-4"
         data-cy="exportModal:customHeaderText"
         type="text"
@@ -270,12 +270,6 @@ export default {
     procedureId: {
       required: true,
       type: String,
-    },
-
-    procedureName: {
-      required: false,
-      type: String,
-      default: '',
     },
   },
 
@@ -351,13 +345,6 @@ export default {
     ...mapGetters('FilterFlyout', [
       'getIsExpandedByCategoryId',
     ]),
-
-    customHeaderPlaceholder () {
-      return Translator.trans('docx.export.header.custom.placeholder', {
-        isPartialExport: this.selectedTagIds.length > 0,
-        procedureName: this.procedureName,
-      })
-    },
 
     exportModalTitle () {
       return this.isSingleStatementExport ? Translator.trans('statement.export.do') : Translator.trans('export.statements')
