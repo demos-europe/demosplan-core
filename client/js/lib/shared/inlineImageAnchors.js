@@ -114,8 +114,49 @@ export function buildInlineImageFigure (doc, { src, alt = '', href = src, label 
   return { wrapper, img, link }
 }
 
-const isInsideWrapper = (element) =>
-  element.closest(`.${WRAPPER_CLASS}`) !== null
+const isInsideWrapper = (element) => {
+  return element.closest(`.${WRAPPER_CLASS}`) !== null
+}
+
+const wrapImporterAnchors = (root, doc, className) => {
+  root.querySelectorAll(`a.${className}[href]`).forEach((anchor) => {
+    if (isInsideWrapper(anchor)) {
+      return
+    }
+
+    const href = anchor.getAttribute('href')
+    const label = anchor.textContent.trim()
+    const target = anchor.getAttribute('target') || DEFAULT_TARGET
+    const rel = anchor.getAttribute('rel') || DEFAULT_REL
+    const { wrapper } = buildInlineImageFigure(doc, { src: href, alt: label, href, target, rel, label })
+
+    anchor.replaceWith(wrapper)
+  })
+}
+
+const wrapBareImages = (root, doc, fallbackLabel) => {
+  // Run after wrapImporterAnchors so that importer <img> nodes produced by
+  // that pass are already inside a wrapper and skipped by isInsideWrapper.
+  root.querySelectorAll('img').forEach((img) => {
+    if (isInsideWrapper(img)) {
+      return
+    }
+
+    const src = img.getAttribute('src')
+
+    if (!src) {
+      return
+    }
+
+    const label = resolveLinkLabel(img.getAttribute('alt'), src, fallbackLabel)
+    const wrapper = createWrapper(doc)
+
+    img.replaceWith(wrapper)
+    ensureBlockClass(img)
+    wrapper.appendChild(img)
+    wrapper.appendChild(createLink(doc, { href: src, target: DEFAULT_TARGET, rel: DEFAULT_REL, label }))
+  })
+}
 
 /**
  * Replace image references with an inline wrapper that holds the image and a
@@ -146,42 +187,8 @@ export function inlineImageAnchors (html, className = DEFAULT_CLASS, fallbackLab
     return html
   }
 
-  root.querySelectorAll(`a.${className}[href]`).forEach((anchor) => {
-    if (isInsideWrapper(anchor)) {
-      return
-    }
-
-    const href = anchor.getAttribute('href')
-    const label = anchor.textContent.trim()
-    const target = anchor.getAttribute('target') || DEFAULT_TARGET
-    const rel = anchor.getAttribute('rel') || DEFAULT_REL
-
-    const { wrapper } = buildInlineImageFigure(doc, { src: href, alt: label, href, target, rel, label })
-
-    anchor.replaceWith(wrapper)
-  })
-
-  const resolvedFallback = fallbackLabel ?? defaultInlineImageLabel()
-
-  root.querySelectorAll('img').forEach((img) => {
-    if (isInsideWrapper(img)) {
-      return
-    }
-
-    const src = img.getAttribute('src')
-
-    if (!src) {
-      return
-    }
-
-    const label = resolveLinkLabel(img.getAttribute('alt'), src, resolvedFallback)
-    const wrapper = createWrapper(doc)
-
-    img.replaceWith(wrapper)
-    ensureBlockClass(img)
-    wrapper.appendChild(img)
-    wrapper.appendChild(createLink(doc, { href: src, target: DEFAULT_TARGET, rel: DEFAULT_REL, label }))
-  })
+  wrapImporterAnchors(root, doc, className)
+  wrapBareImages(root, doc, fallbackLabel ?? defaultInlineImageLabel())
 
   return root.innerHTML
 }
