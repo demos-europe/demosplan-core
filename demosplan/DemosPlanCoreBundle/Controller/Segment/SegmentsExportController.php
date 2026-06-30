@@ -276,12 +276,11 @@ class SegmentsExportController extends BaseController
         $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
         $statements = $this->statementExportTagFilter->filterStatementsByTags($statements, $tagsFilter);
 
-        $statements = $exporter->mapStatementsToPathInZip(
-            $statements,
-            $censorCitizenData,
-            $censorInstitutionData,
-            $fileNameTemplate
-        );
+        $statementsWithCensoring = [];
+        foreach ($statements as $statement) {
+            $statementsWithCensoring[] = [$statement, $exporter->needsToBeCensored($statement, $censorCitizenData, $censorInstitutionData)];
+        }
+        $statements = $fileNameGenerator->mapStatementsToPathInZip($statementsWithCensoring, $fileNameTemplate);
 
         return $zipExportService->buildZipStreamResponse(
             $fileNameGenerator->getSynopseFileName($procedure, 'zip'),
