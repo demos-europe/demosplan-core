@@ -80,10 +80,10 @@
             }
         ],
         "component": {
-            "bom-ref": "demos-europe/demosplan-core-4.44.0.0",
+            "bom-ref": "demos-europe/demosplan-core-4.47.0.0",
             "type": "application",
             "name": "demosplan-core",
-            "version": "v4.44.0",
+            "version": "v4.47.0",
             "group": "demos-europe",
             "description": "demosplan is a web application for public participation in planning processes",
             "licenses": [
@@ -93,7 +93,7 @@
                     }
                 }
             ],
-            "purl": "pkg:composer/demos-europe/demosplan-core@v4.44.0",
+            "purl": "pkg:composer/demos-europe/demosplan-core@v4.47.0",
             "properties": [
                 {
                     "name": "cdx:composer:package:type",
@@ -1652,10 +1652,10 @@
             ]
         },
         {
-            "bom-ref": "demos-europe/demosplan-addon-0.75.0.0",
+            "bom-ref": "demos-europe/demosplan-addon-0.77.0.0",
             "type": "library",
             "name": "demosplan-addon",
-            "version": "v0.75",
+            "version": "v0.77",
             "group": "demos-europe",
             "description": "This is the base package for all demosplan addons",
             "licenses": [
@@ -1665,32 +1665,32 @@
                     }
                 }
             ],
-            "purl": "pkg:composer/demos-europe/demosplan-addon@v0.75",
+            "purl": "pkg:composer/demos-europe/demosplan-addon@v0.77",
             "externalReferences": [
                 {
                     "type": "distribution",
-                    "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/7fb043bc40ba198dc9a65d342aff7fd87bd47bd0",
-                    "comment": "dist reference: 7fb043bc40ba198dc9a65d342aff7fd87bd47bd0"
+                    "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/ea82b176bc9ea45cb75fffdc65521fb2e77d27fc",
+                    "comment": "dist reference: ea82b176bc9ea45cb75fffdc65521fb2e77d27fc"
                 },
                 {
                     "type": "vcs",
                     "url": "https://github.com/demos-europe/demosplan-addon.git",
-                    "comment": "source reference: 7fb043bc40ba198dc9a65d342aff7fd87bd47bd0"
+                    "comment": "source reference: ea82b176bc9ea45cb75fffdc65521fb2e77d27fc"
                 },
                 {
                     "type": "vcs",
-                    "url": "https://github.com/demos-europe/demosplan-addon/tree/v0.75",
+                    "url": "https://github.com/demos-europe/demosplan-addon/tree/v0.77",
                     "comment": "as detected from Composer manifest 'support.source'"
                 }
             ],
             "properties": [
                 {
                     "name": "cdx:composer:package:distReference",
-                    "value": "7fb043bc40ba198dc9a65d342aff7fd87bd47bd0"
+                    "value": "ea82b176bc9ea45cb75fffdc65521fb2e77d27fc"
                 },
                 {
                     "name": "cdx:composer:package:sourceReference",
-                    "value": "7fb043bc40ba198dc9a65d342aff7fd87bd47bd0"
+                    "value": "ea82b176bc9ea45cb75fffdc65521fb2e77d27fc"
                 },
                 {
                     "name": "cdx:composer:package:type",
@@ -19597,7 +19597,7 @@
             "ref": "dasprid/enum-1.0.7.0"
         },
         {
-            "ref": "demos-europe/demosplan-addon-0.75.0.0",
+            "ref": "demos-europe/demosplan-addon-0.77.0.0",
             "dependsOn": [
                 "api-platform/core-3.4.17.0",
                 "demos-europe/edt-dql-0.28.0.0",
@@ -21662,7 +21662,7 @@
             ]
         },
         {
-            "ref": "demos-europe/demosplan-core-4.44.0.0",
+            "ref": "demos-europe/demosplan-core-4.47.0.0",
             "dependsOn": [
                 "babdev/pagerfanta-bundle-4.6.0.0",
                 "bamarni/composer-bin-plugin-1.9.1.0",
@@ -21670,7 +21670,7 @@
                 "cebe/php-openapi-1.8.0.0",
                 "cocur/slugify-4.7.1.0",
                 "composer/composer-2.10.1.0",
-                "demos-europe/demosplan-addon-0.75.0.0",
+                "demos-europe/demosplan-addon-0.77.0.0",
                 "doctrine/annotations-2.0.2.0",
                 "doctrine/common-3.5.0.0",
                 "doctrine/data-fixtures-1.8.2.0",
