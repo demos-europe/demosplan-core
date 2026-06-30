@@ -283,5 +283,4 @@ class SegmentsByStatementsExporter extends SegmentsExporter
 
         return $this->createTableWithHeader($section, $headerConfigs);
     }
-
 }

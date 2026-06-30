@@ -93,5 +93,4 @@ class FileNameGenerator
 
         return $externId;
     }
-
 }
