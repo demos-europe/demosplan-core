@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\FileNameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\Export\StatementZipPathResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
@@ -249,6 +250,7 @@ class SegmentsExportController extends BaseController
         SegmentsByStatementsExporter $exporter,
         StatementResourceType $statementResourceType,
         JsonApiActionService $requestHandler,
+        StatementZipPathResolver $zipPathResolver,
         ZipExportService $zipExportService,
         string $procedureId,
     ): StreamedResponse {
@@ -280,7 +282,7 @@ class SegmentsExportController extends BaseController
         foreach ($statements as $statement) {
             $statementsWithCensoring[] = [$statement, $exporter->needsToBeCensored($statement, $censorCitizenData, $censorInstitutionData)];
         }
-        $statements = $fileNameGenerator->mapStatementsToPathInZip($statementsWithCensoring, $fileNameTemplate);
+        $statements = $zipPathResolver->resolve($statementsWithCensoring, $fileNameTemplate);
 
         return $zipExportService->buildZipStreamResponse(
             $fileNameGenerator->getSynopseFileName($procedure, 'zip'),
