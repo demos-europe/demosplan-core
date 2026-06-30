@@ -654,13 +654,6 @@ export default {
     },
 
     handleBulkGroup () {
-      // A group needs at least two statements.
-      if (this.selectedItemsCount < 2) {
-        dplan.notify.notify('error', Translator.trans('confirm.consolidation.not.enough.statements'))
-
-        return
-      }
-
       /*
        * Statements must be assigned to the current user. Only statements loaded on the current page
        * are present in statementsObject, so items selected on other pages (or via "select all") are

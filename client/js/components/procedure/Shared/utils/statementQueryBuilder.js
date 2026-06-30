@@ -46,6 +46,7 @@ export function buildDetailedStatementQuery (statementId, options = {}) {
     'initialOrganisationPostalCode',
     'initialOrganisationStreet',
     'internId',
+    'isCluster',
     'isManual',
     'isSubmittedByCitizen',
     'memo',
