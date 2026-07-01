@@ -15,12 +15,14 @@ namespace demosplan\DemosPlanCoreBundle\ApiResources;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\StateProcessor\StatementGroupProcessor;
+use demosplan\DemosPlanCoreBundle\StateProcessor\StatementGroupRelationshipProcessor;
 use demosplan\DemosPlanCoreBundle\StateProvider\StatementGroupStateProvider;
 
 #[ApiResource(
@@ -35,6 +37,29 @@ use demosplan\DemosPlanCoreBundle\StateProvider\StatementGroupStateProvider;
         new Patch(
             uriTemplate: '/StatementGroup/{id}',
             processor: StatementGroupProcessor::class,
+        ),
+        // JSON:API relationship-linkage endpoints: add (POST) / remove (DELETE)
+        // members via a delta of resource identifiers, without deserializing the
+        // body into a resource.
+        //
+        // POST returns 201 with the updated group. DELETE returns 204 No Content
+        // (output: false): API Platform derives a resource's JSON:API "id" from its
+        // canonical item template via getItemUriTemplate(), which Delete does not
+        // implement — serializing the group here would emit "statements" (the last
+        // path segment) as the id. 204 is also the JSON:API-canonical response for a
+        // successful relationship removal.
+        new Post(
+            uriTemplate: '/StatementGroup/{id}/relationships/statements',
+            read: false,
+            deserialize: false,
+            processor: StatementGroupRelationshipProcessor::class,
+        ),
+        new Delete(
+            uriTemplate: '/StatementGroup/{id}/relationships/statements',
+            read: false,
+            deserialize: false,
+            output: false,
+            processor: StatementGroupRelationshipProcessor::class,
         ),
     ],
     formats: ['jsonapi'],
