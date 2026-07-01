@@ -306,13 +306,13 @@ class DraftsListJsonPositionMigratorTest extends TestCase
             $textualReference,
             [
                 [
-                    'id' => '41d2d28e-3110-4563-b39b-187918160033',
-                    'charStart' => 0, 'charEnd' => 560,
+                    'id'            => '41d2d28e-3110-4563-b39b-187918160033',
+                    'charStart'     => 0, 'charEnd' => 560,
                     'charStartInit' => 0, 'charEndInit' => 563,
                 ],
                 [
-                    'id' => '1e85e538-ab51-4ad8-9ae6-b2fa1d9b0608',
-                    'charStart' => 564, 'charEnd' => 620,
+                    'id'            => '1e85e538-ab51-4ad8-9ae6-b2fa1d9b0608',
+                    'charStart'     => 564, 'charEnd' => 620,
                     'charStartInit' => 570, 'charEndInit' => 638,
                 ],
             ]
