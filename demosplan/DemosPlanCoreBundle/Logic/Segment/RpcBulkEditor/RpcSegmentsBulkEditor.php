@@ -15,6 +15,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment\RpcBulkEditor;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\SegmentTagsChangedEventInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
@@ -25,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\EntityValidator\TagValidator;
+use demosplan\DemosPlanCoreBundle\Event\Segment\SegmentTagsChangedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotAssignableException;
@@ -48,6 +51,7 @@ use JsonException;
 use JsonSchema\Exception\InvalidSchemaException;
 use Psr\Log\LoggerInterface;
 use stdClass;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * You find general RPC API usage information
@@ -75,7 +79,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
     final public const SEGMENTS_BULK_EDIT_METHOD = 'segment.bulk.edit';
 
-    public function __construct(protected CurrentProcedureService $currentProcedure, protected CurrentUserInterface $currentUser, protected LoggerInterface $logger, protected JsonSchemaValidator $jsonValidator, protected PlaceService $placeService, protected ProcedureService $procedureService, protected RpcErrorGenerator $errorGenerator, protected SegmentHandler $segmentHandler, protected SegmentValidator $segmentValidator, protected TagService $tagService, protected TagValidator $tagValidator, private readonly TransactionService $transactionService, protected UserHandler $userHandler, protected SegmentBulkEditorService $segmentBulkEditorService)
+    public function __construct(protected CurrentProcedureService $currentProcedure, protected CurrentUserInterface $currentUser, protected LoggerInterface $logger, protected JsonSchemaValidator $jsonValidator, protected PlaceService $placeService, protected ProcedureService $procedureService, protected RpcErrorGenerator $errorGenerator, protected SegmentHandler $segmentHandler, protected SegmentValidator $segmentValidator, protected TagService $tagService, protected TagValidator $tagValidator, private readonly TransactionService $transactionService, protected UserHandler $userHandler, protected SegmentBulkEditorService $segmentBulkEditorService, private readonly EventDispatcherInterface $eventDispatcher)
     {
     }
 
@@ -89,9 +93,12 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
      */
     public function execute(?ProcedureInterface $procedure, $rpcRequests): array
     {
-        return $this->transactionService->executeAndFlushInTransaction(function (EntityManager $entityManager) use (
+        $segmentsWithTagChanges = [];
+
+        $resultResponse = $this->transactionService->executeAndFlushInTransaction(function (EntityManager $entityManager) use (
             $procedure,
-            $rpcRequests
+            $rpcRequests,
+            &$segmentsWithTagChanges
         ): array {
             $procedureId = $procedure->getId();
 
@@ -155,7 +162,8 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                         $removeTagIds,
                         $assignee,
                         $workflowPlace,
-                        $customFields
+                        $customFields,
+                        $segmentsWithTagChanges
                     );
 
                     $resultSegments = [...$resultSegments, ...$segments];
@@ -175,6 +183,33 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
             return $resultResponse;
         });
+
+        if ([] !== $segmentsWithTagChanges) {
+            try {
+                $this->dispatchSegmentTagsChangedEvent($segmentsWithTagChanges);
+            } catch (Exception $e) {
+                $this->logger->error('Failed to dispatch SegmentTagsChangedEvent', ['Exception' => $e]);
+            }
+        }
+
+        return $resultResponse;
+    }
+
+    /**
+     * @param SegmentInterface[] $segments
+     */
+    private function dispatchSegmentTagsChangedEvent(array $segments): void
+    {
+        $statements = [];
+        foreach ($segments as $segment) {
+            $statement = $segment->getParentStatementOfSegment();
+            $statements[$statement->getId()] = $statement;
+        }
+
+        $this->eventDispatcher->dispatch(
+            new SegmentTagsChangedEvent(array_values($statements)),
+            SegmentTagsChangedEventInterface::class
+        );
     }
 
     /**

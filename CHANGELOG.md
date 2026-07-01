@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+- new SegmentTagsChangedEvent implements new interface added to contract layer in:
+- This core version will depend on the contract layer being > v...
+
 ### Added
 - Make procedure phase definitions deletable (condition: not currently in use and not configuration-phase)
 
