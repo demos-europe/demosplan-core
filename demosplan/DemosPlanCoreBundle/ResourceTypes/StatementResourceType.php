@@ -33,6 +33,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Map\CoordinateJsonConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftsListJsonMigrator;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftsListJsonPositionMigrator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
@@ -80,6 +81,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
     public function __construct(
         HTMLSanitizer $htmlSanitizer,
         private readonly DraftsListJsonMigrator $draftsListJsonMigrator,
+        private readonly DraftsListJsonPositionMigrator $draftsListJsonPositionMigrator,
         private readonly JsonApiEsService $jsonApiEsService,
         private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
         private readonly QueryStatement $esQuery,
@@ -403,6 +405,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                     $data = Json::decodeToArray($draftsListJson);
                     if ($this->draftsListJsonMigrator->needsMigration($data)) {
                         $data = $this->draftsListJsonMigrator->migrate($data);
+                    } elseif ($this->draftsListJsonPositionMigrator->needsMigration($data)) {
+                        $data = $this->draftsListJsonPositionMigrator->migrate($data);
                     }
 
                     return $data;
