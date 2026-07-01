@@ -25,6 +25,8 @@ use Zenstruck\Foundry\Persistence\Proxy;
 
 class StatementZipPathResolverTest extends FunctionalTestCase
 {
+    private const DOCX_EXTENSION = '.docx';
+
     private Statement|Proxy|null $testStatement;
 
     private StatementMeta|Proxy|null $testStatementeMeta;
@@ -75,18 +77,18 @@ class StatementZipPathResolverTest extends FunctionalTestCase
         foreach ($statements as $key => $statement) {
             if ($statement->isSubmittedByCitizen()) {
                 if ($censorCitizenData) {
-                    $expectedAKey = $statement->getExternId().'.docx';
+                    $expectedAKey = $statement->getExternId().self::DOCX_EXTENSION;
                     static::assertEquals($expectedAKey, $key);
                 } else {
-                    $expectedAKey = $statement->getExternId().'-einreichende-person-unbekannt-eingangsnummer-unbekannt.docx';
+                    $expectedAKey = $statement->getExternId().'-einreichende-person-unbekannt-eingangsnummer-unbekannt'.self::DOCX_EXTENSION;
                     static::assertEquals($expectedAKey, $key);
                 }
             } elseif ($statement->isSubmittedByOrganisation()) {
                 if ($censorInstitutionData) {
-                    $expectedAKey = $statement->getExternId().'.docx';
+                    $expectedAKey = $statement->getExternId().self::DOCX_EXTENSION;
                     static::assertEquals($expectedAKey, $key);
                 } else {
-                    $expectedAKey = $statement->getExternId().'-einreichende-person-unbekannt-eingangsnummer-unbekannt.docx';
+                    $expectedAKey = $statement->getExternId().'-einreichende-person-unbekannt-eingangsnummer-unbekannt'.self::DOCX_EXTENSION;
                     static::assertEquals($expectedAKey, $key);
                 }
             }
@@ -112,17 +114,17 @@ class StatementZipPathResolverTest extends FunctionalTestCase
         ]);
 
         if ($censoredA) {
-            $expectedAKey = 'statement-extern-id-a.docx';
+            $expectedAKey = 'statement-extern-id-a'.self::DOCX_EXTENSION;
         } else {
-            $expectedAKey = 'statement-extern-id-a-statement-author-name-a-statement-intern-id-a.docx';
+            $expectedAKey = 'statement-extern-id-a-statement-author-name-a-statement-intern-id-a'.self::DOCX_EXTENSION;
         }
         self::assertArrayHasKey($expectedAKey, $statements);
         self::assertSame($statementA->_real(), $statements[$expectedAKey]);
 
         if ($censoredB) {
-            $expectedBKey = 'statement-extern-id-b.docx';
+            $expectedBKey = 'statement-extern-id-b'.self::DOCX_EXTENSION;
         } else {
-            $expectedBKey = 'statement-extern-id-b-statement-author-name-a-statement-intern-id-a.docx';
+            $expectedBKey = 'statement-extern-id-b-statement-author-name-a-statement-intern-id-a'.self::DOCX_EXTENSION;
         }
         self::assertArrayHasKey($expectedBKey, $statements);
         self::assertSame($statementB->_real(), $statements[$expectedBKey]);
@@ -146,11 +148,11 @@ class StatementZipPathResolverTest extends FunctionalTestCase
             [$statementB->_real(), $censoredB],
         ], '');
 
-        $expectedAKey = 'statement-extern-id-xyz-statement-author-name-xyz-statement-intern-id-xyz-'.$statementA->getId().'.docx';
+        $expectedAKey = 'statement-extern-id-xyz-statement-author-name-xyz-statement-intern-id-xyz-'.$statementA->getId().self::DOCX_EXTENSION;
         self::assertArrayHasKey($expectedAKey, $statements);
         self::assertSame($statementA->_real(), $statements[$expectedAKey]);
 
-        $expectedBKey = 'statement-extern-id-xyz-statement-author-name-xyz-statement-intern-id-xyz-'.$statementB->getId().'.docx';
+        $expectedBKey = 'statement-extern-id-xyz-statement-author-name-xyz-statement-intern-id-xyz-'.$statementB->getId().self::DOCX_EXTENSION;
         self::assertArrayHasKey($expectedBKey, $statements);
         self::assertSame($statementB->_real(), $statements[$expectedBKey]);
     }
