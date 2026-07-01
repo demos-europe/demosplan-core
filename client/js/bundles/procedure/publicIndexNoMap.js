@@ -170,9 +170,9 @@ const filterProceduresByPhase = function () {
 }
 
 initialize().then(() => {
+  hideEmptyPhaseOptions()
   setSelectedOption()
   const filterPhasesSelectEl = document.getElementById('filterPhases')
 
-  filterPhasesSelectEl.addEventListener('focus', hideEmptyPhaseOptions)
   filterPhasesSelectEl.addEventListener('change', filterProceduresByPhase)
 })
