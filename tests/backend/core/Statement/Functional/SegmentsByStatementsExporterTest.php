@@ -20,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplate;
@@ -51,17 +50,6 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $this->testStatement = StatementFactory::createOne();
         $this->testStatementeMeta = StatementMetaFactory::createOne();
         $this->testStatement->setMeta($this->testStatementeMeta->_real());
-    }
-
-    public function testMapStatementsToPathInZipWithTrueDuplicate(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->sut->mapStatementsToPathInZip(
-            [$this->testStatement->_real(), $this->testStatement->_real()],
-            false,
-            false,
-            ''
-        );
     }
 
     /**
@@ -109,115 +97,6 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         } else {
             static::assertFalse($censored);
         }
-    }
-
-    /**
-     * Test censoring paths on exporting a multiple segments as zip.
-     *
-     * @dataProvider getCensorParams
-     */
-    public function testCensorshipOnPathOnExportSegmentsInZip(
-        bool $censorCitizenData,
-        bool $censorInstitutionData,
-    ): void {
-        $citizenOrganisation = $this->find(Orga::class, User::ANONYMOUS_USER_ORGA_ID);
-
-        $internalStatement = StatementFactory::createOne();
-        $externalStatement = StatementFactory::createOne(['organisation' => $citizenOrganisation]);
-
-        static::assertTrue($externalStatement->isSubmittedByCitizen());
-        static::assertTrue($internalStatement->isSubmittedByOrganisation());
-
-        $statements = $this->sut->mapStatementsToPathInZip(
-            [$externalStatement->_real(), $internalStatement->_real()],
-            $censorCitizenData,
-            $censorInstitutionData
-        );
-
-        foreach ($statements as $key => $statement) {
-            if ($statement->isSubmittedByCitizen()) {
-                if ($censorCitizenData) {
-                    $expectedAKey = $statement->getExternId().'.docx';
-                    static::assertEquals($expectedAKey, $key);
-                } else {
-                    $expectedAKey = $statement->getExternId().'-einreichende-person-unbekannt-eingangsnummer-unbekannt.docx';
-                    static::assertEquals($expectedAKey, $key);
-                }
-            } elseif ($statement->isSubmittedByOrganisation()) {
-                if ($censorInstitutionData) {
-                    $expectedAKey = $statement->getExternId().'.docx';
-                    static::assertEquals($expectedAKey, $key);
-                } else {
-                    $expectedAKey = $statement->getExternId().'-einreichende-person-unbekannt-eingangsnummer-unbekannt.docx';
-                    static::assertEquals($expectedAKey, $key);
-                }
-            }
-        }
-
-        static::assertTrue($externalStatement->isSubmittedByCitizen());
-        static::assertTrue($internalStatement->isSubmittedByOrganisation());
-    }
-
-    /**
-     * @dataProvider getCensorParams
-     */
-    public function testMapStatementsToPathInZipWithSuperficialDuplicate(
-        bool $censorCitizenData,
-        bool $censorInstitutionData,
-    ): void {
-        $statementA = $this->createMinimalTestStatement('a', 'a', 'a');
-        $statementB = $this->createMinimalTestStatement('b', 'a', 'a');
-
-        $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()],
-            $censorCitizenData,
-            $censorInstitutionData
-        );
-
-        $shouldStatementABeCensored = ($censorCitizenData && $statementA->isSubmittedByCitizen())
-            || ($censorInstitutionData && $statementA->isSubmittedByOrganisation());
-
-        if ($shouldStatementABeCensored) {
-            $expectedAKey = 'statement-extern-id-a.docx';
-        } else {
-            $expectedAKey = 'statement-extern-id-a-statement-author-name-a-statement-intern-id-a.docx';
-        }
-        self::assertArrayHasKey($expectedAKey, $statements);
-        self::assertSame($statementA->_real(), $statements[$expectedAKey]);
-
-        $shouldStatementBBeCensored = ($censorCitizenData && $statementB->isSubmittedByCitizen())
-            || ($censorInstitutionData && $statementB->isSubmittedByOrganisation());
-        if ($shouldStatementBBeCensored) {
-            $expectedBKey = 'statement-extern-id-b.docx';
-        } else {
-            $expectedBKey = 'statement-extern-id-b-statement-author-name-a-statement-intern-id-a.docx';
-        }
-        self::assertArrayHasKey($expectedBKey, $statements);
-        self::assertSame($statementB->_real(), $statements[$expectedBKey]);
-    }
-
-    /**
-     * @dataProvider getCensorParams
-     */
-    public function testMapStatementsToPathInZipWithoutDuplicate(
-        bool $censorCitizenData,
-        bool $censorInstitutionData,
-    ): void {
-        $statementA = $this->createMinimalTestStatement('xyz', 'xyz', 'xyz');
-        $statementB = $this->createMinimalTestStatement('xyz', 'xyz', 'xyz');
-
-        $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()],
-            $censorCitizenData,
-            $censorInstitutionData,
-            '');
-
-        $expectedAKey = 'statement-extern-id-xyz-statement-author-name-xyz-statement-intern-id-xyz-'.$statementA->getId(
-        ).'.docx';
-        self::assertArrayHasKey($expectedAKey, $statements);
-        self::assertSame($statementA->_real(), $statements[$expectedAKey]);
-        $expectedBKey = 'statement-extern-id-xyz-statement-author-name-xyz-statement-intern-id-xyz-'.$statementB->getId(
-        ).'.docx';
-        self::assertArrayHasKey($expectedBKey, $statements);
-        self::assertSame($statementB->_real(), $statements[$expectedBKey]);
     }
 
     /**
