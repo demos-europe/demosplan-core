@@ -280,7 +280,10 @@ class SegmentsExportController extends BaseController
 
         $statementsWithCensoring = [];
         foreach ($statements as $statement) {
-            $statementsWithCensoring[] = [$statement, $exporter->needsToBeCensored($statement, $censorCitizenData, $censorInstitutionData)];
+            $statementsWithCensoring[] = [
+                $statement,
+                $exporter->needsToBeCensored($statement, $censorCitizenData, $censorInstitutionData)
+            ];
         }
         $statements = $zipPathResolver->resolve($statementsWithCensoring, $fileNameTemplate);
 
