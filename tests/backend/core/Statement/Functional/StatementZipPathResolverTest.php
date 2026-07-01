@@ -76,23 +76,18 @@ class StatementZipPathResolverTest extends FunctionalTestCase
 
         foreach ($statements as $key => $statement) {
             if ($statement->isSubmittedByCitizen()) {
-                if ($censorCitizenData) {
-                    $expectedAKey = $statement->getExternId().self::DOCX_EXTENSION;
-                    static::assertEquals($expectedAKey, $key);
-                } else {
-                    $expectedAKey = $statement->getExternId().'-einreichende-person-unbekannt-eingangsnummer-unbekannt'.self::DOCX_EXTENSION;
-                    static::assertEquals($expectedAKey, $key);
-                }
+                static::assertEquals($this->getExpectedFileName($statement, $censorCitizenData), $key);
             } elseif ($statement->isSubmittedByOrganisation()) {
-                if ($censorInstitutionData) {
-                    $expectedAKey = $statement->getExternId().self::DOCX_EXTENSION;
-                    static::assertEquals($expectedAKey, $key);
-                } else {
-                    $expectedAKey = $statement->getExternId().'-einreichende-person-unbekannt-eingangsnummer-unbekannt'.self::DOCX_EXTENSION;
-                    static::assertEquals($expectedAKey, $key);
-                }
+                static::assertEquals($this->getExpectedFileName($statement, $censorInstitutionData), $key);
             }
         }
+    }
+
+    private function getExpectedFileName(Statement $statement, bool $censored): string
+    {
+        return $censored
+            ? $statement->getExternId().self::DOCX_EXTENSION
+            : $statement->getExternId().'-einreichende-person-unbekannt-eingangsnummer-unbekannt'.self::DOCX_EXTENSION;
     }
 
     /**
@@ -105,29 +100,23 @@ class StatementZipPathResolverTest extends FunctionalTestCase
         $statementA = $this->createMinimalTestStatement('a', 'a', 'a');
         $statementB = $this->createMinimalTestStatement('b', 'a', 'a');
 
-        $censoredA = ($censorCitizenData && $statementA->isSubmittedByCitizen()) || ($censorInstitutionData && $statementA->isSubmittedByOrganisation());
-        $censoredB = ($censorCitizenData && $statementB->isSubmittedByCitizen()) || ($censorInstitutionData && $statementB->isSubmittedByOrganisation());
+        $censoredA = $this->isCensored($statementA, $censorCitizenData, $censorInstitutionData);
+        $censoredB = $this->isCensored($statementB, $censorCitizenData, $censorInstitutionData);
 
         $statements = $this->sut->resolve([
             [$statementA->_real(), $censoredA],
             [$statementB->_real(), $censoredB],
         ]);
 
-        if ($censoredA) {
-            $expectedAKey = 'statement-extern-id-a'.self::DOCX_EXTENSION;
-        } else {
-            $expectedAKey = 'statement-extern-id-a-statement-author-name-a-statement-intern-id-a'.self::DOCX_EXTENSION;
-        }
-        self::assertArrayHasKey($expectedAKey, $statements);
-        self::assertSame($statementA->_real(), $statements[$expectedAKey]);
+        $expectedAKey = $censoredA
+            ? 'statement-extern-id-a'.self::DOCX_EXTENSION
+            : 'statement-extern-id-a-statement-author-name-a-statement-intern-id-a'.self::DOCX_EXTENSION;
+        $this->assertStatementAtKey($expectedAKey, $statementA, $statements);
 
-        if ($censoredB) {
-            $expectedBKey = 'statement-extern-id-b'.self::DOCX_EXTENSION;
-        } else {
-            $expectedBKey = 'statement-extern-id-b-statement-author-name-a-statement-intern-id-a'.self::DOCX_EXTENSION;
-        }
-        self::assertArrayHasKey($expectedBKey, $statements);
-        self::assertSame($statementB->_real(), $statements[$expectedBKey]);
+        $expectedBKey = $censoredB
+            ? 'statement-extern-id-b'.self::DOCX_EXTENSION
+            : 'statement-extern-id-b-statement-author-name-a-statement-intern-id-a'.self::DOCX_EXTENSION;
+        $this->assertStatementAtKey($expectedBKey, $statementB, $statements);
     }
 
     /**
@@ -140,8 +129,8 @@ class StatementZipPathResolverTest extends FunctionalTestCase
         $statementA = $this->createMinimalTestStatement('xyz', 'xyz', 'xyz');
         $statementB = $this->createMinimalTestStatement('xyz', 'xyz', 'xyz');
 
-        $censoredA = ($censorCitizenData && $statementA->isSubmittedByCitizen()) || ($censorInstitutionData && $statementA->isSubmittedByOrganisation());
-        $censoredB = ($censorCitizenData && $statementB->isSubmittedByCitizen()) || ($censorInstitutionData && $statementB->isSubmittedByOrganisation());
+        $censoredA = $this->isCensored($statementA, $censorCitizenData, $censorInstitutionData);
+        $censoredB = $this->isCensored($statementB, $censorCitizenData, $censorInstitutionData);
 
         $statements = $this->sut->resolve([
             [$statementA->_real(), $censoredA],
@@ -149,12 +138,10 @@ class StatementZipPathResolverTest extends FunctionalTestCase
         ], '');
 
         $expectedAKey = 'statement-extern-id-xyz-statement-author-name-xyz-statement-intern-id-xyz-'.$statementA->getId().self::DOCX_EXTENSION;
-        self::assertArrayHasKey($expectedAKey, $statements);
-        self::assertSame($statementA->_real(), $statements[$expectedAKey]);
+        $this->assertStatementAtKey($expectedAKey, $statementA, $statements);
 
         $expectedBKey = 'statement-extern-id-xyz-statement-author-name-xyz-statement-intern-id-xyz-'.$statementB->getId().self::DOCX_EXTENSION;
-        self::assertArrayHasKey($expectedBKey, $statements);
-        self::assertSame($statementB->_real(), $statements[$expectedBKey]);
+        $this->assertStatementAtKey($expectedBKey, $statementB, $statements);
     }
 
     public function getCensorParams(): array
@@ -165,5 +152,17 @@ class StatementZipPathResolverTest extends FunctionalTestCase
             [true, false],
             [false, true],
         ];
+    }
+
+    private function isCensored(Statement|Proxy $statement, bool $censorCitizenData, bool $censorInstitutionData): bool
+    {
+        return ($censorCitizenData && $statement->isSubmittedByCitizen())
+            || ($censorInstitutionData && $statement->isSubmittedByOrganisation());
+    }
+
+    private function assertStatementAtKey(string $expectedKey, Statement|Proxy $statement, array $statements): void
+    {
+        self::assertArrayHasKey($expectedKey, $statements);
+        self::assertSame($statement->_real(), $statements[$expectedKey]);
     }
 }
