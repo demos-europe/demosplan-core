@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+### Added
+- Make procedure phase definitions deletable (condition: not currently in use and not configuration-phase)
+
 ### Fixed
 - Adjust organization type key in platform statistics: Replace 'procedure.agency' with 'municipality' in OrgaService::getAcceptedOrgaCountByType()
 

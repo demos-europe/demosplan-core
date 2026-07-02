@@ -12,17 +12,25 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\ProcedurePhaseDefinitionMarkedAsDeletedEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
+use demosplan\DemosPlanCoreBundle\Event\ProcedurePhaseDefinitionMarkedAsDeletedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedurePhaseDefinitionReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedurePhaseDefinitionUpdatableField;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class ProcedurePhaseDefinitionEditor
 {
     public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly MessageBagInterface $messageBag,
         private readonly ProcedurePhaseDefinitionReportEntryFactory $reportEntryFactory,
+        private readonly ProcedurePhaseDefinitionRepository $procedurePhaseDefinitionRepository,
         private readonly ReportService $reportService,
     ) {
     }
@@ -31,6 +39,38 @@ class ProcedurePhaseDefinitionEditor
     {
         if ($phaseDefinition->isConfigurationPhase()) {
             throw new BadRequestException('Only the name of the configuration phase can be changed; permissionSet and participationState are fixed.');
+        }
+    }
+
+    /**
+     * @throws JsonException
+     */
+    public function setDeleted(ProcedurePhaseDefinition $phaseDefinition, bool $newIsDeleted): void
+    {
+        if ($newIsDeleted && $this->procedurePhaseDefinitionRepository->isReferencedByActiveProcedure($phaseDefinition)) {
+            $this->messageBag->add(
+                'error',
+                'error.procedure_phase_definition.delete.referenced',
+                ['phase' => $phaseDefinition->getName()]
+            );
+
+            throw new BadRequestException('Phase definition is still referenced by an active procedure.');
+        }
+
+        $oldIsDeleted = $phaseDefinition->isDeleted();
+        $phaseDefinition->setDeleted($newIsDeleted);
+        $this->addReportEntryUpdate(
+            $phaseDefinition,
+            ProcedurePhaseDefinitionUpdatableField::IS_DELETED,
+            $oldIsDeleted,
+            $newIsDeleted,
+        );
+
+        if ($newIsDeleted) {
+            $this->eventDispatcher->dispatch(
+                new ProcedurePhaseDefinitionMarkedAsDeletedEvent($phaseDefinition),
+                ProcedurePhaseDefinitionMarkedAsDeletedEventInterface::class
+            );
         }
     }
 
