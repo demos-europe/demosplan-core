@@ -528,6 +528,9 @@ class ReportMessageConverter
             ProcedurePhaseDefinitionUpdatableField::NAME->value              => 'text.protocol.phase.definition.name.changed',
             ProcedurePhaseDefinitionUpdatableField::PERMISSION_SET->value    => 'text.protocol.phase.definition.permissionSet.changed',
             ProcedurePhaseDefinitionUpdatableField::PARTICIPANT_STATE->value => 'text.protocol.phase.definition.participantState.changed',
+            ProcedurePhaseDefinitionUpdatableField::IS_DELETED->value        => $newValue
+                ? 'text.protocol.phase.definition.deleted'
+                : 'text.protocol.phase.definition.restored',
             default                                                          => '',
         };
 

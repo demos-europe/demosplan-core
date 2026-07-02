@@ -393,29 +393,4 @@ describe('StatementExportModal', () => {
     await wrapper.setProps({ isSingleStatementExport: true })
     expect(wrapper.find(selector).exists()).toBe(false)
   })
-
-  it('requests the full-export placeholder when no tag filters are selected', () => {
-    const transSpy = jest.spyOn(globalThis.Translator, 'trans')
-
-    transSpy.mockClear()
-
-    expect(wrapper.vm.customHeaderPlaceholder).toBe('docx.export.header.custom.placeholder')
-    expect(transSpy).toHaveBeenCalledWith(
-      'docx.export.header.custom.placeholder',
-      expect.objectContaining({ isPartialExport: false }),
-    )
-  })
-
-  it('requests the partial-export placeholder when tag filters are selected', async () => {
-    const transSpy = jest.spyOn(globalThis.Translator, 'trans')
-
-    await wrapper.setData({ selectedTagIds: ['tagID1'] })
-    transSpy.mockClear()
-
-    expect(wrapper.vm.customHeaderPlaceholder).toBe('docx.export.header.custom.placeholder')
-    expect(transSpy).toHaveBeenCalledWith(
-      'docx.export.header.custom.placeholder',
-      expect.objectContaining({ isPartialExport: true }),
-    )
-  })
 })

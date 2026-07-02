@@ -206,6 +206,7 @@ class ProcedureService implements ProcedureServiceInterface
         private readonly Plis $plis,
         private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,
         private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
+        private readonly ProcedureDeletionLogService $procedureDeletionLogService,
         private readonly ProcedureElasticsearchRepository $procedureElasticsearchRepository,
         private readonly ProcedureRepository $procedureRepository,
         private readonly ProcedureSubscriptionRepository $procedureSubscriptionRepository,
@@ -964,6 +965,7 @@ class ProcedureService implements ProcedureServiceInterface
 
                 try {
                     $this->updateProcedure($data);
+                    $this->procedureDeletionLogService->logSoftDelete($procedure, $this->currentUser->getUser());
                     $this->logger->info('Procedure marked as deleted: '.\var_export($procedureId, true));
                     ++$deletionCount;
                 } catch (Exception $e) {

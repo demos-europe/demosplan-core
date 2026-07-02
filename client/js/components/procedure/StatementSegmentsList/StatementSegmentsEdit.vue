@@ -8,161 +8,163 @@
 </license>
 
 <template>
-  <div data-dp-validate="segmentsStatementForm">
-    <dp-loading v-if="isLoading" />
+  <div>
+    <div data-dp-validate="segmentsStatementForm">
+      <dp-loading v-if="isLoading" />
 
-    <!-- if statement has segments and user has the permission, display segments -->
-    <template v-else-if="hasSegments">
-      <!-- Pagination above segments list -->
-      <div
-        v-if="pagination && pagination.currentPage"
-        class="flex justify-between items-center mb-4"
-      >
-        <dp-pager
-          :key="`segmentsPagerTopEdit_${pagination.currentPage}_${pagination.count || 0}`"
-          :class="{ 'invisible': isLoading }"
-          :current-page="pagination.currentPage"
-          :limits="pagination.limits || defaultPagination.limits"
-          :per-page="pagination.perPage || defaultPagination.perPage"
-          :total-pages="pagination.totalPages || 1"
-          :total-items="pagination.total || 0"
-          @page-change="handlePageChange"
-          @size-change="handleSizeChange"
-        />
-      </div>
-
-      <div
-        v-for="segment in segments"
-        :id="'segmentTextEdit_' + segment.id"
-        :key="segment.id"
-        class="px-1 hover:bg-interactive-secondary-subtle-hover"
-      >
-        <div class="inline-block w-[5%]">
-          <template v-if="isSegmentLocked(segment)">
-            <dp-button
-              v-if="hasPermission('feature_administrate_segment_lock')"
-              :text="lockTooltip"
-              class="text-interactive inline-block ml-0.5 align-middle bg-transparent! border-transparent! hover:bg-interactive-subtle-hover!"
-              icon="prohibit"
-              icon-weight="fill"
-              variant="subtle"
-              hide-text
-              @click="openUnlockModal(segment)"
-            />
-            <dp-tooltip
-              v-else
-              :text="lockTooltip"
-            >
-              <dp-icon
-                class="text-interactive inline-block ml-1"
-                icon="prohibit"
-                size="small"
-                weight="fill"
-              />
-            </dp-tooltip>
-          </template>
-          <dp-claim
-            v-else
-            class="c-at-item__row-icon inline-block"
-            :assigned-id="assigneeBySegment(segment.id).id"
-            :assigned-name="assigneeBySegment(segment.id).name"
-            :assigned-organisation="assigneeBySegment(segment.id).orgaName"
-            :current-user-id="currentUser.id"
-            :current-user-name="currentUser.firstname + ' ' + currentUser.lastname"
-            entity-type="segment"
-            :is-loading="claimLoading === segment.id"
-            @click="() => toggleClaimSegment(segment)"
+      <!-- if statement has segments and user has the permission, display segments -->
+      <template v-else-if="hasSegments">
+        <!-- Pagination above segments list -->
+        <div
+          v-if="pagination && pagination.currentPage"
+          class="flex justify-between items-center mb-4"
+        >
+          <dp-pager
+            :key="`segmentsPagerTopEdit_${pagination.currentPage}_${pagination.count || 0}`"
+            :class="{ 'invisible': isLoading }"
+            :current-page="pagination.currentPage"
+            :limits="pagination.limits || defaultPagination.limits"
+            :per-page="pagination.perPage || defaultPagination.perPage"
+            :total-pages="pagination.totalPages || 1"
+            :total-items="pagination.total || 0"
+            @page-change="handlePageChange"
+            @size-change="handleSizeChange"
           />
-        </div><!--
-     --><div class="inline-block break-words w-[95%]">
-          <dp-edit-field
-            :ref="`editField_${segment.id}`"
-            class="c-styled-html"
-            :editable="isAssigneeEditable(segment)"
-            label=""
-            :label-grid-cols="0"
-            no-margin
-            persist-icons
-            @reset="() => reset(segment.id)"
-            @toggle-editing="() => addToEditing(segment.id)"
-            @save="() => saveSegment(segment.id)"
-          >
-            <template v-slot:display>
-              <text-content-renderer
-                class="pr-3"
-                :text="segment.attributes.text"
-              />
-            </template>
-            <template v-slot:edit>
-              <dp-editor
-                class="mr-4 pt-1"
-                :routes="{ getFileByHash: (hash) => Routing.generate('core_file_procedure', { procedureId, hash }) }"
-                :toolbar-items="{ imageButton: true, linkButton: true, obscure: hasPermission('feature_obscure_text') }"
-                :tus-endpoint="dplan.paths.tusEndpoint"
-                :value="getSegmentInitialText(segment.id)"
-                @transform-obscure-tag="(val) => transformObscureTag(segment.id, val)"
-                @input="(val) => updateSegmentText(segment.id, val)"
-              />
-            </template>
-          </dp-edit-field>
         </div>
-      </div>
 
-      <!-- Pagination below segments list -->
-      <div
-        v-if="pagination && pagination.currentPage"
-        class="flex justify-between items-center mt-4"
-      >
-        <dp-pager
-          :key="`segmentsPagerBottomEdit_${pagination.currentPage}_${pagination.count || 0}`"
-          :class="{ 'invisible': isLoading }"
-          :current-page="pagination.currentPage"
-          :limits="pagination.limits || defaultPagination.limits"
-          :per-page="pagination.perPage || defaultPagination.perPage"
-          :total-pages="pagination.totalPages || 1"
-          :total-items="pagination.total || 0"
-          @page-change="handlePageChange"
-          @size-change="handleSizeChange"
-        />
-      </div>
-    </template>
+        <div
+          v-for="segment in segments"
+          :id="'segmentTextEdit_' + segment.id"
+          :key="segment.id"
+          class="px-1 hover:bg-interactive-secondary-subtle-hover"
+        >
+          <div class="inline-block w-[5%]">
+            <template v-if="isSegmentLocked(segment)">
+              <dp-button
+                v-if="hasPermission('feature_administrate_segment_lock')"
+                :text="lockTooltip"
+                class="text-interactive inline-block ml-0.5 align-middle bg-transparent! border-transparent! hover:bg-interactive-subtle-hover!"
+                icon="prohibit"
+                icon-weight="fill"
+                variant="subtle"
+                hide-text
+                @click="openUnlockModal(segment)"
+              />
+              <dp-tooltip
+                v-else
+                :text="lockTooltip"
+              >
+                <dp-icon
+                  class="text-interactive inline-block ml-1"
+                  icon="prohibit"
+                  size="small"
+                  weight="fill"
+                />
+              </dp-tooltip>
+            </template>
+            <dp-claim
+              v-else
+              class="c-at-item__row-icon inline-block"
+              :assigned-id="assigneeBySegment(segment.id).id"
+              :assigned-name="assigneeBySegment(segment.id).name"
+              :assigned-organisation="assigneeBySegment(segment.id).orgaName"
+              :current-user-id="currentUser.id"
+              :current-user-name="currentUser.firstname + ' ' + currentUser.lastname"
+              entity-type="segment"
+              :is-loading="claimLoading === segment.id"
+              @click="() => toggleClaimSegment(segment)"
+            />
+          </div><!--
+       --><div class="inline-block break-words w-[95%]">
+            <dp-edit-field
+              :ref="`editField_${segment.id}`"
+              class="c-styled-html"
+              :editable="isAssigneeEditable(segment)"
+              label=""
+              :label-grid-cols="0"
+              no-margin
+              persist-icons
+              @reset="() => reset(segment.id)"
+              @toggle-editing="() => addToEditing(segment.id)"
+              @save="() => saveSegment(segment.id)"
+            >
+              <template v-slot:display>
+                <text-content-renderer
+                  class="pr-3"
+                  :text="segment.attributes.text"
+                />
+              </template>
+              <template v-slot:edit>
+                <dp-editor
+                  class="mr-4 pt-1"
+                  :routes="{ getFileByHash: (hash) => Routing.generate('core_file_procedure', { procedureId, hash }) }"
+                  :toolbar-items="{ imageButton: true, linkButton: true, obscure: hasPermission('feature_obscure_text') }"
+                  :tus-endpoint="dplan.paths.tusEndpoint"
+                  :value="getSegmentInitialText(segment.id)"
+                  @transform-obscure-tag="(val) => transformObscureTag(segment.id, val)"
+                  @input="(val) => updateSegmentText(segment.id, val)"
+                />
+              </template>
+            </dp-edit-field>
+          </div>
+        </div>
 
-    <!-- if statement has no segments, display statement -->
-    <template v-else-if="statement">
-      <template v-if="editable && !hasDraftSegments">
-        <dp-editor
-          hidden-input="statementText"
-          required
-          :toolbar-items="{ linkButton: true}"
-          :value="getStatementInitialText()"
-          @transform-obscure-tag="transformObscureStatementTag"
-          @input="updateStatementText"
-        />
-        <dp-button-row
-          class="u-mv"
-          primary
-          secondary
-          :secondary-text="Translator.trans('discard.changes')"
-          @primary-action="dpValidateAction('segmentsStatementForm', saveStatement, false)"
-          @secondary-action="resetStatement"
-        />
+        <!-- Pagination below segments list -->
+        <div
+          v-if="pagination && pagination.currentPage"
+          class="flex justify-between items-center mt-4"
+        >
+          <dp-pager
+            :key="`segmentsPagerBottomEdit_${pagination.currentPage}_${pagination.count || 0}`"
+            :class="{ 'invisible': isLoading }"
+            :current-page="pagination.currentPage"
+            :limits="pagination.limits || defaultPagination.limits"
+            :per-page="pagination.perPage || defaultPagination.perPage"
+            :total-pages="pagination.totalPages || 1"
+            :total-items="pagination.total || 0"
+            @page-change="handlePageChange"
+            @size-change="handleSizeChange"
+          />
+        </div>
       </template>
-      <div
-        v-else
-        class="border space-inset-s"
-      >
-        <dp-inline-notification
-          v-if="hasDraftSegments"
-          class="mt mb-2"
-          :message="Translator.trans('warning.statement.in.segmentation.cannot.be.edited')"
-          type="warning"
-        />
-        <p class="font-semibold">
-          {{ Translator.trans('statement.text.short') }}
-        </p>
-        <text-content-renderer :text="statement?.attributes?.fullText || ''" />
-      </div>
-    </template>
+
+      <!-- if statement has no segments, display statement -->
+      <template v-else-if="statement">
+        <template v-if="editable && !hasDraftSegments">
+          <dp-editor
+            hidden-input="statementText"
+            required
+            :toolbar-items="{ linkButton: true}"
+            :value="getStatementInitialText()"
+            @transform-obscure-tag="transformObscureStatementTag"
+            @input="updateStatementText"
+          />
+          <dp-button-row
+            class="u-mv"
+            primary
+            secondary
+            :secondary-text="Translator.trans('discard.changes')"
+            @primary-action="dpValidateAction('segmentsStatementForm', saveStatement, false)"
+            @secondary-action="resetStatement"
+          />
+        </template>
+        <div
+          v-else
+          class="border space-inset-s"
+        >
+          <dp-inline-notification
+            v-if="hasDraftSegments"
+            class="mt mb-2"
+            :message="Translator.trans('warning.statement.in.segmentation.cannot.be.edited')"
+            type="warning"
+          />
+          <p class="font-semibold">
+            {{ Translator.trans('statement.text.short') }}
+          </p>
+          <text-content-renderer :text="statement?.attributes?.fullText || ''" />
+        </div>
+      </template>
+    </div>
     <segment-unlock-modal
       v-if="hasPermission('feature_administrate_segment_lock')"
       ref="unlockModal"
@@ -196,6 +198,7 @@ import { scrollTo } from 'vue-scrollto'
 import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
+import { useUnsavedChangesGuard } from '@DpJs/composables/useUnsavedChangesGuard'
 
 export default {
   name: 'StatementSegmentsEdit',
@@ -258,14 +261,22 @@ export default {
 
   setup () {
     const { unlockModal, openUnlockModal, unlockSegment } = useSegmentUnlock()
+    const { init, cleanup } = useUnsavedChangesGuard()
 
-    return { unlockModal, openUnlockModal, unlockSegment }
+    return {
+      unlockModal,
+      openUnlockModal,
+      unlockSegment,
+      initUnsavedChangesGuard: init,
+      cleanupUnsavedChangesGuard: cleanup,
+    }
   },
 
   data () {
     return {
       claimLoading: null,
       editingSegmentIds: [],
+      hasUnsavedChanges: false,
       isLoading: false,
       defaultPagination: {
         currentPage: 1,
@@ -367,6 +378,7 @@ export default {
 
     ...mapActions('Statement', {
       restoreStatementAction: 'restoreFromInitial',
+      saveStatementAction: 'save',
     }),
 
     ...mapActions('AssignableUser', {
@@ -387,10 +399,41 @@ export default {
       if (!this.editingSegmentIds.includes(id)) {
         this.editingSegmentIds.push(id)
       }
+
+      this.checkForUnsavedChanges()
+    },
+
+    checkForUnsavedChanges () {
+      const hasSegmentChanges = this.editingSegmentIds.some(segmentId => this.hasSegmentUnsavedChanges(segmentId))
+      const hasStatementChanges = this.hasStatementUnsavedChanges()
+
+      this.hasUnsavedChanges = hasSegmentChanges || hasStatementChanges
     },
 
     getSegmentInitialText (segmentId) {
       return this.segments[segmentId]?.attributes?.text ?? ''
+    },
+
+    hasSegmentUnsavedChanges (segmentId) {
+      if (this._localSegmentTexts[segmentId] === undefined) {
+        return false
+      }
+
+      const originalText = this.segments[segmentId]?.attributes?.text || ''
+      const currentText = this._localSegmentTexts[segmentId] || ''
+
+      return originalText !== currentText
+    },
+
+    hasStatementUnsavedChanges () {
+      if (this._localStatementText === null) {
+        return false
+      }
+
+      const originalText = this.statement.attributes?.fullText || ''
+      const currentText = this._localStatementText || ''
+
+      return originalText !== currentText
     },
 
     claimSegment (segment) {
@@ -463,12 +506,33 @@ export default {
       return !!this.placeItems[placeId]?.attributes?.locked
     },
 
+    /**
+     * Required by useUnsavedChangesGuard composable
+     * Discard all unsaved changes
+     */
+    onDiscardChanges () {
+      const segmentsToReset = [...this.editingSegmentIds]
+
+      segmentsToReset.forEach(segmentId => {
+        this.reset(segmentId)
+      })
+
+      if (this._localStatementText !== null) {
+        this.resetStatement()
+      }
+
+      return Promise.resolve()
+    },
+
+
     reset (segmentId) {
       delete this._localSegmentTexts[segmentId]
 
-      if (this.$refs[`editField_${segmentId}`][0]) {
-        this.$refs[`editField_${segmentId}`][0].loading = false
-        this.$refs[`editField_${segmentId}`][0].editingEnabled = false
+      const editField = this.$refs[`editField_${segmentId}`]?.[0]
+
+      if (editField) {
+        editField.loading = false
+        editField.editingEnabled = false
       }
 
       const segmentIdIndex = this.editingSegmentIds.indexOf(segmentId)
@@ -476,52 +540,90 @@ export default {
       if (segmentIdIndex > -1) {
         this.editingSegmentIds.splice(segmentIdIndex, 1)
       }
+
+      this.checkForUnsavedChanges()
     },
 
     resetStatement () {
       this.restoreStatementAction(this.statement.id)
-
       this._localStatementText = null
+      this.checkForUnsavedChanges()
     },
 
     saveSegment (segmentId) {
       const textToSave = this._localSegmentTexts[segmentId] ?? ''
 
       if (!textToSave) {
-        this.$refs[`editField_${segmentId}`][0].loading = false
+        const editField = this.$refs[`editField_${segmentId}`]?.[0]
 
-        return dplan.notify.error(Translator.trans('error.segment.empty.text'))
+        if (editField) {
+          editField.loading = false
+        }
+
+        dplan.notify.error(Translator.trans('error.segment.empty.text'))
+
+        return Promise.resolve(false)
       }
 
-      const updated = {
-        ...this.segments[segmentId],
+      const segment = this.segments[segmentId]
+
+      this.setSegment({
+        ...segment,
+        id: segmentId,
         attributes: {
-          ...this.segments[segmentId].attributes,
+          ...segment.attributes,
           text: textToSave,
         },
-      }
+      })
 
-      this.setSegment({ ...updated, id: segmentId })
+      return this.saveSegmentAction(segmentId)
+        .then(() => {
+          this.reset(segmentId)
 
-      this.saveSegmentAction(segmentId)
+          return true
+        })
         .catch(() => {
           this.restoreSegmentAction(segmentId)
           dplan.notify.error(Translator.trans('error.api.generic'))
-        })
-        .finally(() => {
-          const segmentIdIndex = this.editingSegmentIds.indexOf(segmentId)
 
-          if (segmentIdIndex > -1) {
-            this.editingSegmentIds.splice(segmentIdIndex, 1)
+          const editField = this.$refs[`editField_${segmentId}`]?.[0]
+
+          if (editField) {
+            editField.loading = false
           }
 
-          delete this._localSegmentTexts[segmentId]
-
-          if (this.$refs[`editField_${segmentId}`][0]) {
-            this.$refs[`editField_${segmentId}`][0].loading = false
-            this.$refs[`editField_${segmentId}`][0].editingEnabled = false
-          }
+          return false
         })
+    },
+
+    /**
+     * Required by useUnsavedChangesGuard composable
+     * Save all segments and/or statement that have unsaved changes
+     * @returns {Promise} Resolves if all saves succeed, rejects if any save fails
+     */
+    async saveUnsavedChanges () {
+      const segmentsToSave = this.editingSegmentIds.filter(segmentId => this.hasSegmentUnsavedChanges(segmentId))
+      const shouldSaveStatement = this.hasStatementUnsavedChanges()
+
+      if (segmentsToSave.length === 0 && !shouldSaveStatement) {
+        return
+      }
+
+      const savePromises = [
+        ...segmentsToSave.map(segmentId => this.saveSegment(segmentId)),
+      ]
+
+      if (shouldSaveStatement) {
+        savePromises.push(this.saveStatement())
+      }
+
+      const results = await Promise.all(savePromises)
+
+      const allSucceeded = results.every(result => result === true)
+
+      if (!allSucceeded) {
+        throw new Error('Failed to save one or more segments/statement')
+      }
     },
 
     saveStatement () {
@@ -536,7 +638,21 @@ export default {
       }
 
       this.setStatement({ ...updatedStatement, id: this.statement.id })
-      this.$emit('saveStatement', updatedStatement)
+
+      return this.saveStatementAction(this.statement.id)
+        .then(() => {
+          this._localStatementText = null
+          this.checkForUnsavedChanges()
+          this.$emit('statementText:updated')
+
+          return true
+        })
+        .catch(() => {
+          this.restoreStatementAction(this.statement.id)
+          dplan.notify.error(Translator.trans('error.api.generic'))
+
+          return false
+        })
     },
 
     scrollToSegment () {
@@ -596,6 +712,7 @@ export default {
 
     updateSegmentText (segmentId, val) {
       this._localSegmentTexts[segmentId] = val
+      this.checkForUnsavedChanges()
     },
 
     getStatementInitialText () {
@@ -604,14 +721,17 @@ export default {
 
     updateStatementText (val) {
       this._localStatementText = val
+      this.checkForUnsavedChanges()
     },
 
     transformObscureTag (segmentId, val) {
       this._localSegmentTexts[segmentId] = val
+      this.checkForUnsavedChanges()
     },
 
     transformObscureStatementTag (val) {
       this._localStatementText = val
+      this.checkForUnsavedChanges()
     },
 
     async fetchSegments (page = 1) {
@@ -762,6 +882,13 @@ export default {
         })
       }
     }
+
+    this.initUnsavedChangesGuard({
+      hasUnsavedChanges: () => this.hasUnsavedChanges,
+      saveUnsavedChanges: () => this.saveUnsavedChanges(),
+      onDiscardChanges: () => this.onDiscardChanges(),
+      componentId: `statement-segments-edit-${this.statementId}`,
+    })
   },
 
   beforeUnmount () {
@@ -772,6 +899,8 @@ export default {
     if (this.hasSegments === false && this.statement) {
       this.resetStatement()
     }
+
+    this.cleanupUnsavedChangesGuard()
   },
 }
 </script>
