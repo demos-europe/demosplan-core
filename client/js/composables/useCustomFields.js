@@ -72,7 +72,8 @@ const pendingIndividualFetches = new Map()
  */
 function buildResourceUrl (action, resourceType, resourceId) {
   if (resourceType === 'DraftStatement') {
-    return `/api/3.0/DraftStatement${resourceId ? `/${resourceId}` : ''}`
+    const pathSuffix = resourceId ? `/${resourceId}` : ''
+    return `/api/3.0/DraftStatement${pathSuffix}`
   }
 
   const routeName = {
