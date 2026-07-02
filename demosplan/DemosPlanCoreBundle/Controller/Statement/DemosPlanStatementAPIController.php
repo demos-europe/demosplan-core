@@ -33,11 +33,13 @@ use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
 use demosplan\DemosPlanCoreBundle\Logic\LinkMessageSerializable;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
+use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementMover;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\HeadStatementResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
@@ -56,6 +58,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Validator\Constraints\Uuid;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -101,8 +104,15 @@ class DemosPlanStatementAPIController extends APIController
      * @throws MessageBagException
      */
     #[DplanPermissions('feature_statement_copy_to_procedure')]
-    #[Route(path: '/api/1.0/statements/{statementId}/copy/{procedureId}', methods: ['POST'], name: 'dplan_api_statement_copy_to_procedure', options: ['expose' => true])]
-    public function copyStatement(ProcedureHandler $procedureHandler, Request $request, StatementHandler $statementHandler, string $statementId): APIResponse
+    #[Route(path: '/api/1.0/statements/{statementId}/copy/{procedureId}', name: 'dplan_api_statement_copy_to_procedure', options: ['expose' => true], methods: ['POST'])]
+    public function copyStatement(
+        CurrentProcedureService $currentProcedureService,
+        CurrentUserService $currentUser,
+        ProcedureAccessEvaluator $procedureAccessEvaluator,
+        ProcedureHandler $procedureHandler,
+        Request $request,
+        StatementHandler $statementHandler,
+        string $statementId): APIResponse
     {
         try {
             $targetProcedureId = $request->query->get('targetProcedureId');
@@ -114,19 +124,24 @@ class DemosPlanStatementAPIController extends APIController
                 throw new Exception('CopyStatement: Could not find Statement ID: '.$statementId);
             }
 
+            // the procedure access check on kernel level only covers the procedure given in the route,
+            // hence the statement to copy must belong to that procedure
+            if ($currentProcedureService->getProcedureIdWithCertainty() !== $statementToCopy->getProcedureId()) {
+                throw new AccessDeniedException('ProcedureId of given Statement is not equal to given procedureId');
+            }
+
+            $ownsTargetProcedure = $procedureAccessEvaluator->isOwningProcedure($currentUser->getUser(), $targetProcedure);
+            if (!$ownsTargetProcedure
+                && !$this->permissions->hasPermission('feature_statement_copy_to_foreign_procedure')) {
+                throw new AccessDeniedException('Current user may not copy statements into the given target procedure');
+            }
+
             // actual copy of statement:
             $copiedStatement = $statementHandler->copyStatementToProcedure($statementToCopy, $targetProcedure);
 
             // generate message + create response:
             if ($copiedStatement instanceof Statement) {
                 // create normal or linked message depending on own or foreign procedure:
-
-                // To check specific procedure with ownsProcedure(), it is necessary to set procedure of permissions,
-                // because ownsProcedure(), use procedure which is set in permissions object.
-                // Reset currentProcedure after check of specific procedure
-                $this->permissions->setProcedure($targetProcedure);
-                $ownsRemoteProcedure = $this->permissions->ownsProcedure();
-
                 $message = 'confirm.statement.copy';
                 $routeName = $copiedStatement->isClusterStatement() ? 'DemosPlan_cluster_view' : 'dm_plan_assessment_single_view';
                 $messageParameters = [
@@ -135,7 +150,7 @@ class DemosPlanStatementAPIController extends APIController
                     'newExternId'     => $copiedStatement->getExternId(),
                 ];
 
-                if ($ownsRemoteProcedure) {
+                if ($ownsTargetProcedure) {
                     $this->messageBag->addObject(
                         LinkMessageSerializable::createLinkMessage(
                             'confirm',
@@ -178,6 +193,8 @@ class DemosPlanStatementAPIController extends APIController
             }
 
             return $this->createResponse($response, 200);
+        } catch (AccessDeniedException $e) {
+            throw $e;
         } catch (Exception $e) {
             $this->messageBag->add('error', 'error.statement.move');
 
@@ -192,9 +209,11 @@ class DemosPlanStatementAPIController extends APIController
      * @throws MessageBagException
      */
     #[DplanPermissions('feature_statement_move_to_procedure')]
-    #[Route(path: '/api/1.0/statements/{statementId}/move/{procedureId}', methods: ['POST'], name: 'dplan_api_statement_move', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/statements/{statementId}/move/{procedureId}', name: 'dplan_api_statement_move', options: ['expose' => true], methods: ['POST'])]
     public function moveStatement(
         CurrentProcedureService $currentProcedureService,
+        CurrentUserService $currentUser,
+        ProcedureAccessEvaluator $procedureAccessEvaluator,
         ProcedureHandler $procedureHandler,
         Request $request,
         StatementHandler $statementHandler,
@@ -212,7 +231,21 @@ class DemosPlanStatementAPIController extends APIController
             $statementToMove = $statementHandler->getStatement($statementId);
             if (!$statementToMove instanceof Statement) {
                 throw new Exception('MoveStatement: Could not find Statement ID: '.$statementId);
-            } // In case of statement will be moved to his "origin" procedure,
+            }
+
+            // the procedure access check on kernel level only covers the procedure given in the route,
+            // hence the statement to move must belong to that procedure
+            if ($currentProcedureService->getProcedureIdWithCertainty() !== $statementToMove->getProcedureId()) {
+                throw new AccessDeniedException('ProcedureId of given Statement is not equal to given procedureId');
+            }
+
+            $ownsTargetProcedure = $procedureAccessEvaluator->isOwningProcedure($currentUser->getUser(), $targetProcedure);
+            if (!$ownsTargetProcedure
+                && !$this->permissions->hasPermission('feature_statement_move_to_foreign_procedure')) {
+                throw new AccessDeniedException('Current user may not move statements into the given target procedure');
+            }
+
+            // In case of statement will be moved to his "origin" procedure,
             // the statement will be not longer marked as moved statement.
             // Therefore there is no placeholder statement and no "former extern Id" to access.
             // To avoid get null value in case of statement is moved "back" to the origin procedure,
@@ -225,12 +258,7 @@ class DemosPlanStatementAPIController extends APIController
                 $storedExternId = $statementToMove->getExternId();
             } // actual move of statement:
             $movedStatement = $statementMover->moveStatementToProcedure($statementToMove, $targetProcedure, $deleteVersionHistory); // generate message + create response:
-            if ($movedStatement instanceof Statement) { // To check specific procedure with ownsProcedure(), it is necessary to set procedure of permissions,
-                // because ownsProcedure(), use procedure which is set in permissions object.
-                // Reset currentProcedure after check of specific procedure
-                $this->permissions->setProcedure($procedureHandler->getProcedure($targetProcedureId));
-                $ownsRemoteProcedure = $this->permissions->ownsProcedure();
-                $this->permissions->setProcedure($currentProcedureService->getProcedure());
+            if ($movedStatement instanceof Statement) {
                 $message = $movedToFirstProcedure ? 'confirm.statement.move.first' : 'confirm.statement.move';
                 $formerExternId = $movedStatement->getFormerExternId(); // In case of movedToFirstProcedure, there is no formerExternId, because statement seems to be never moved.
                 $formerExternId = $movedToFirstProcedure ? $storedExternId : $formerExternId;
@@ -239,7 +267,7 @@ class DemosPlanStatementAPIController extends APIController
                     'externId'        => $formerExternId,
                     'newExternId'     => $movedStatement->getExternId(),
                 ];
-                if ($ownsRemoteProcedure) {
+                if ($ownsTargetProcedure) {
                     $this->messageBag->addObject(
                         LinkMessageSerializable::createLinkMessage(
                             'confirm',
@@ -274,6 +302,8 @@ class DemosPlanStatementAPIController extends APIController
             }
 
             return $this->createResponse($response, 200);
+        } catch (AccessDeniedException $e) {
+            throw $e;
         } catch (Exception $e) {
             $this->messageBag->add('error', 'error.statement.move');
 
@@ -288,7 +318,7 @@ class DemosPlanStatementAPIController extends APIController
      * @return JsonResponse
      */
     #[DplanPermissions('area_admin_assessmenttable')]
-    #[Route(path: '/api/1.0/statements/{procedureId}/{statementId}/edit', methods: ['POST'], name: 'dplan_api_statement_edit', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/statements/{procedureId}/{statementId}/edit', name: 'dplan_api_statement_edit', options: ['expose' => true], methods: ['POST'])]
     public function editStatement(StatementService $statementService, ValidatorInterface $validator, $statementId): APIResponse
     {
         try {
@@ -298,7 +328,7 @@ class DemosPlanStatementAPIController extends APIController
                 throw ViolationsException::fromConstraintViolationList($errors);
             }
 
-            if (!($this->requestData instanceof TopLevel)) {
+            if (!$this->requestData instanceof TopLevel) {
                 throw BadRequestException::normalizerFailed();
             }
 
@@ -383,7 +413,7 @@ class DemosPlanStatementAPIController extends APIController
 
     // @improve T12984
     #[DplanPermissions('area_admin_assessmenttable')]
-    #[Route(path: '/api/1.0/assessmentqueryhash/{filterSetHash}/statements/{procedureId}', methods: ['GET'], name: 'dplan_assessmentqueryhash_get_procedure_statement_list', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/assessmentqueryhash/{filterSetHash}/statements/{procedureId}', name: 'dplan_assessmentqueryhash_get_procedure_statement_list', options: ['expose' => true], methods: ['GET'])]
     public function list(
         AssessmentHandler $assessmentHandler,
         HashedQueryService $filterSetService,
@@ -470,7 +500,7 @@ class DemosPlanStatementAPIController extends APIController
      * @throws MessageBagException
      */
     #[DplanPermissions(['area_admin_assessmenttable', 'feature_statement_cluster'])]
-    #[Route(path: '/api/1.0/statements/{procedureId}/statements/group', methods: ['POST'], name: 'dplan_api_create_group_statement', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/statements/{procedureId}/statements/group', name: 'dplan_api_create_group_statement', options: ['expose' => true], methods: ['POST'])]
     public function createGroupStatement(StatementHandler $statementHandler, string $procedureId): APIResponse
     {
         try {
@@ -513,7 +543,7 @@ class DemosPlanStatementAPIController extends APIController
      * @throws MessageBagException
      */
     #[DplanPermissions(['area_admin_assessmenttable', 'feature_statement_cluster'])]
-    #[Route(path: '/api/1.0/statements/{procedureId}/statements/group', methods: ['PATCH'], name: 'dplan_api_update_group_statement', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/statements/{procedureId}/statements/group', name: 'dplan_api_update_group_statement', options: ['expose' => true], methods: ['PATCH'])]
     public function updateGroupStatement(StatementHandler $statementHandler, string $procedureId): APIResponse
     {
         try {
@@ -563,7 +593,7 @@ class DemosPlanStatementAPIController extends APIController
      * @throws MessageBagException
      */
     #[DplanPermissions(['area_admin_assessmenttable', 'feature_statement_bulk_edit'])]
-    #[Route(path: '/api/1.0/statements/{procedureId}/statements/bulk-edit', methods: ['POST'], name: 'dplan_assessment_table_assessment_table_statement_bulk_edit_api_action', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/statements/{procedureId}/statements/bulk-edit', name: 'dplan_assessment_table_assessment_table_statement_bulk_edit_api_action', options: ['expose' => true], methods: ['POST'])]
     public function statementBulkEditApi(StatementService $statementService, ValidatorInterface $validator, string $procedureId): APIResponse
     {
         try {

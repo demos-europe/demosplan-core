@@ -84,7 +84,7 @@ class GisLayerCategory extends CoreEntity implements GisLayerCategoryInterface
      * If this is null, we have arrived at the root category of a procedure
      */
     #[ORM\JoinColumn(name: 'parent_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: GisLayerCategory::class, inversedBy: 'children', cascade: ['persist'])]
+    #[ORM\ManyToOne(targetEntity: GisLayerCategory::class, cascade: ['persist'], inversedBy: 'children')]
     protected $parent;
 
     /**

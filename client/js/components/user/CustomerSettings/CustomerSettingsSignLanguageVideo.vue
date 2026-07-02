@@ -113,6 +113,7 @@ export default {
     DpUploadFiles,
     DpVideoPlayer: defineAsyncComponent(async () => {
       const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
+
       return DpVideoPlayer
     }),
   },
@@ -201,6 +202,7 @@ export default {
       if (dpconfirm(Translator.trans('check.item.delete')) === false) {
         return
       }
+
       this.isBusy = true
       dpApi.delete(Routing.generate('api_resource_delete', { resourceType: 'SignLanguageOverviewVideo', resourceId: this.video.id }))
         .then(() => this.$emit('deleted'))
@@ -215,6 +217,7 @@ export default {
           signLanguageOverviewDescription: this.signLanguageOverviewDescription,
         },
       }
+
       this.updateCustomer(payload)
       this.saveCustomer(this.currentCustomerId).then(() => {
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
@@ -240,6 +243,7 @@ export default {
           },
         },
       }
+
       return dpApi.post(Routing.generate('api_resource_create', { resourceType: 'SignLanguageOverviewVideo' }), {}, { data: payload })
     },
 

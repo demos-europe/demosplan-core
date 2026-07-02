@@ -98,10 +98,10 @@ class PersonalDataLogEntry extends CoreEntity implements UuidEntityInterface
     #[ORM\Column(type: 'string', length: 32, nullable: true)]
     protected ?string $requestId = null;
 
-    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true], nullable: true)]
+    #[ORM\Column(type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
     protected ?string $procedureId = null;
 
-    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true], nullable: true)]
+    #[ORM\Column(type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
     protected ?string $orgaId = null;
 
     /**

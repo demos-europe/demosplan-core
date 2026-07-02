@@ -16,6 +16,7 @@ use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostNewProcedureCreatedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureDeletedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\PostProcedureUpdatedEventInterface;
@@ -31,6 +32,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\InstitutionMail;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
@@ -200,11 +202,11 @@ class ProcedureService implements ProcedureServiceInterface
         private readonly OrgaService $orgaService,
         private readonly ParagraphRepository $paragraphRepository,
         Permissions $permissions,
-        private readonly PhasePermissionsetLoader $phasePermissionsetLoader,
         private readonly PlaceRepository $placeRepository,
         private readonly Plis $plis,
         private readonly PrepareReportFromProcedureService $prepareReportFromProcedureService,
         private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
+        private readonly ProcedureDeletionLogService $procedureDeletionLogService,
         private readonly ProcedureElasticsearchRepository $procedureElasticsearchRepository,
         private readonly ProcedureRepository $procedureRepository,
         private readonly ProcedureSubscriptionRepository $procedureSubscriptionRepository,
@@ -409,7 +411,7 @@ class ProcedureService implements ProcedureServiceInterface
 
         if ($this->currentUser->hasAllPermissions('feature_use_plis', 'feature_use_xplanbox')) {
             // bei nonJS ist r_name nicht vorhanden
-            $hasName = \array_key_exists('r_name', $inData) && 0 < \strlen((string) $inData['r_name']);
+            $hasName = \array_key_exists('r_name', $inData) && '' !== (string) $inData['r_name'];
 
             // set publicProcedureParticipationEnabled flag to false
             $inData['r_publicParticipationPublicationEnabled'] = 0;
@@ -515,9 +517,9 @@ class ProcedureService implements ProcedureServiceInterface
      *
      * @throws Exception
      */
-    public function getProceduresWithEndedParticipation(array $writePhaseKeys, bool $internal = true): array
+    public function getProceduresWithEndedParticipation(bool $internal = true): array
     {
-        return $this->procedureRepository->getProceduresWithEndedParticipation($writePhaseKeys, $internal);
+        return $this->procedureRepository->getProceduresWithEndedParticipation($internal);
     }
 
     /**
@@ -570,7 +572,7 @@ class ProcedureService implements ProcedureServiceInterface
     public function getDeletedProcedures($limit = 100_000_000, ?DateTimeInterface $deletedBefore = null): array
     {
         try {
-            if (null === $deletedBefore) {
+            if (!$deletedBefore instanceof DateTimeInterface) {
                 return $this->procedureRepository->findBy(['deleted' => true], null, $limit);
             }
 
@@ -733,19 +735,6 @@ class ProcedureService implements ProcedureServiceInterface
         try {
             /** @var Procedure|null $procedure */
             $procedure = $this->procedureRepository->get($procedureId);
-            // set converted phase names for easier use in templates
-            if ($procedure instanceof Procedure) {
-                $procedure->setPhaseName(
-                    $this->globalConfig->getPhaseNameWithPriorityInternal(
-                        $procedure->getPhase()
-                    )
-                );
-                $procedure->setPublicParticipationPhaseName(
-                    $this->globalConfig->getPhaseNameWithPriorityExternal(
-                        $procedure->getPublicParticipationPhase()
-                    )
-                );
-            }
 
             return $procedure;
         } catch (Exception $e) {
@@ -976,6 +965,7 @@ class ProcedureService implements ProcedureServiceInterface
 
                 try {
                     $this->updateProcedure($data);
+                    $this->procedureDeletionLogService->logSoftDelete($procedure, $this->currentUser->getUser());
                     $this->logger->info('Procedure marked as deleted: '.\var_export($procedureId, true));
                     ++$deletionCount;
                 } catch (Exception $e) {
@@ -1176,18 +1166,10 @@ class ProcedureService implements ProcedureServiceInterface
     }
 
     /**
-     * Common post-update operations for procedures: phase loading, event dispatching, and ES reindexing.
+     * Common post-update operations for procedures: event dispatching and ES reindexing.
      */
     private function handleProcedurePostUpdateOperations(Procedure $sourceProcedure, Procedure $updatedProcedure): Procedure
     {
-        // Load phase permission sets and set phase name
-        $updatedProcedure = $this->phasePermissionsetLoader->loadPhasePermissionsets($updatedProcedure);
-        $updatedProcedure->setPublicParticipationPhaseName(
-            $this->globalConfig->getPhaseNameWithPriorityExternal(
-                $updatedProcedure->getPublicParticipationPhase()
-            )
-        );
-
         // Dispatch event
         $this->eventDispatcher->dispatch(
             new PostProcedureUpdatedEvent($sourceProcedure, $updatedProcedure),
@@ -1437,18 +1419,22 @@ class ProcedureService implements ProcedureServiceInterface
 
     private function resetDesignatedPhaseSwitch(ProcedureSettings $procedureSettings): void
     {
-        $procedureSettings->setDesignatedPhase(null);
         $procedureSettings->setDesignatedSwitchDate(null);
         $procedureSettings->setDesignatedEndDate(null);
         $procedureSettings->setDesignatedPhaseChangeUser(null);
+        $procedureSettings->getProcedure()
+            ->getPhaseObject()
+            ->setDesignatedPhaseDefinition(null);
     }
 
     private function resetDesignatedPublicPhaseSwitch(ProcedureSettings $procedureSettings): void
     {
-        $procedureSettings->setDesignatedPublicPhase(null);
         $procedureSettings->setDesignatedPublicSwitchDate(null);
         $procedureSettings->setDesignatedPublicEndDate(null);
         $procedureSettings->setDesignatedPublicPhaseChangeUser(null);
+        $procedureSettings->getProcedure()
+            ->getPublicParticipationPhaseObject()
+            ->setDesignatedPhaseDefinition(null);
     }
 
     private function getUserIdOrNull(?User $user): ?string
@@ -1517,7 +1503,7 @@ class ProcedureService implements ProcedureServiceInterface
 
             return $boilerplateCategory instanceof BoilerplateCategory ? $boilerplateCategory->getBoilerplates()->toArray() : [];
         } catch (Exception $e) {
-            throw new HttpException($e->getCode());
+            throw new HttpException($e->getCode(), $e->getMessage(), $e);
         }
     }
 
@@ -1652,38 +1638,32 @@ class ProcedureService implements ProcedureServiceInterface
      *
      * @param string $procedureId Verfahrens-ID
      * @param string $orga        Organisation
-     * @param string $phase
      *
      * @throws Exception
      */
-    public function addInstitutionMail($procedureId, $orga, $phase): void
+    public function addInstitutionMail(string $procedureId, string $orga, ProcedurePhaseDefinition $phaseDefinition): void
     {
         $procedure = $this->getProcedure($procedureId);
         $data = [
-            'procedure' => $procedure,
-            'orga'      => $orga,
-            'phase'     => $phase,
+            'procedure'       => $procedure,
+            'orga'            => $orga,
+            'phaseDefinition' => $phaseDefinition,
         ];
 
         $this->institutionMailRepository->add($data);
     }
 
     /**
-     * Liefert Liste aller versendeten Einladungs-Emails der angegebenen Phase.
-     *
-     * @param string $procedureId Verfahrens-ID
-     * @param string $phase       Phase des Verfahrens
-     *
-     * @return array
+     * Returns a list of all invitation emails sent for the specified phase.
      *
      * @throws Exception
      */
-    public function getInstitutionMailList($procedureId, $phase = null)
+    public function getInstitutionMailList(string $procedureId, ProcedurePhaseDefinition $phaseDefinition): array
     {
         try {
             $data = [
-                'procedure'      => $procedureId,
-                'procedurePhase' => $phase,
+                'procedure'       => $procedureId,
+                'phaseDefinition' => $phaseDefinition,
             ];
 
             $institutionMailResult = $this->institutionMailRepository->findBy($data);
@@ -1733,9 +1713,7 @@ class ProcedureService implements ProcedureServiceInterface
     public function getProceduresForDataInputOrga(string $orgaId): array
     {
         try {
-            $allowedPhases = $this->globalConfig->getInternalPhaseKeys('read||write');
-
-            return $this->procedureRepository->getProceduresForDataInputOrga($orgaId, $allowedPhases);
+            return $this->procedureRepository->getProceduresForDataInputOrga($orgaId);
         } catch (Exception $e) {
             $this->logger->warning('Fehler beim Abruf der getProceduresForDataInputOrga: ', [$e]);
             throw $e;
@@ -1909,19 +1887,6 @@ class ProcedureService implements ProcedureServiceInterface
     }
 
     /**
-     * Checks if given string is in procedurephases.yml listed as publicPhases and therefore a "valid" phasekey.
-     * Null is also a "valid" phase as "designatedPhase".
-     *
-     * @param string $phaseName - name of the public phase
-     *
-     * @return bool - true if the given $phaseName is null or in the list of public procedurephases of this project
-     */
-    protected function isValidDesignatedPublicPhase($phaseName)
-    {
-        return \in_array($phaseName, $this->globalConfig->getExternalPhaseKeys()) || null === $phaseName;
-    }
-
-    /**
      * Check if the given procedure have a designated public date to switch on AND a public phase to switch to.
      *
      * @return bool true if designated phase and date are not null, otherwise false
@@ -1931,7 +1896,7 @@ class ProcedureService implements ProcedureServiceInterface
         $participationPhase = $procedure->getPublicParticipationPhaseObject();
 
         return $participationPhase->getDesignatedSwitchDate() instanceof DateTime
-            && null !== $participationPhase->getDesignatedPhase()
+            && $participationPhase->getDesignatedPhaseDefinition() instanceof ProcedurePhaseDefinitionInterface
             && $participationPhase->getDesignatedEndDate() instanceof DateTime;
     }
 
@@ -1945,7 +1910,7 @@ class ProcedureService implements ProcedureServiceInterface
         $institutionPhase = $procedure->getPhaseObject();
 
         return $institutionPhase->getDesignatedSwitchDate() instanceof DateTime
-            && null !== $institutionPhase->getDesignatedPhase()
+            && $institutionPhase->getDesignatedPhaseDefinition() instanceof ProcedurePhaseDefinitionInterface
             && $institutionPhase->getDesignatedEndDate() instanceof DateTime;
     }
 
@@ -1966,7 +1931,8 @@ class ProcedureService implements ProcedureServiceInterface
                 [
                     'id'         => $procedure->getId(),
                     'switchDate' => $procedure->getPhaseObject()->getDesignatedSwitchDate(),
-                    'phase'      => $procedure->getPhaseObject()->getDesignatedPhase(),
+                    'phaseId'    => $procedure->getPhaseObject()->getDesignatedPhaseDefinition()?->getId(),
+                    'phaseName'  => $procedure->getPhaseObject()->getDesignatedPhaseDefinition()?->getName(),
                     'endDate'    => $procedure->getPhaseObject()->getDesignatedEndDate(),
                 ]
             );
@@ -1988,7 +1954,8 @@ class ProcedureService implements ProcedureServiceInterface
 
         try {
             $procedure->setStartDate($procedureSettings->getDesignatedSwitchDate());
-            $procedure->setPhase($procedureSettings->getDesignatedPhase());
+            $designatedPhaseDefinition = $procedure->getPhaseObject()->getDesignatedPhaseDefinition();
+            $procedure->getPhaseObject()->setPhaseDefinition($designatedPhaseDefinition);
             $procedure->setEndDate($procedureSettings->getDesignatedEndDate());
 
             $this->resetDesignatedPhaseSwitch($procedureSettings);
@@ -2019,9 +1986,10 @@ class ProcedureService implements ProcedureServiceInterface
             $this->logger->info('Auto switch public phase is not possible',
                 [
                     'id'         => $procedure->getId(),
-                    'switchDate' => $procedure->getPhaseObject()->getDesignatedSwitchDate(),
-                    'phase'      => $procedure->getPhaseObject()->getDesignatedPhase(),
-                    'endDate'    => $procedure->getPhaseObject()->getDesignatedEndDate(),
+                    'switchDate' => $procedure->getPublicParticipationPhaseObject()->getDesignatedSwitchDate(),
+                    'phaseId'    => $procedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition()?->getId(),
+                    'phaseName'  => $procedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition()?->getName(),
+                    'endDate'    => $procedure->getPublicParticipationPhaseObject()->getDesignatedEndDate(),
                 ]
             );
 
@@ -2040,7 +2008,8 @@ class ProcedureService implements ProcedureServiceInterface
 
         try {
             $procedure->setPublicParticipationStartDate($procedureSettings->getDesignatedPublicSwitchDate());
-            $procedure->setPublicParticipationPhase($procedureSettings->getDesignatedPublicPhase());
+            $designatedPublicPhaseDefinition = $procedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition();
+            $procedure->getPublicParticipationPhaseObject()->setPhaseDefinition($designatedPublicPhaseDefinition);
             $procedure->setPublicParticipationEndDate($procedureSettings->getDesignatedPublicEndDate());
 
             $this->resetDesignatedPublicPhaseSwitch($procedureSettings);
@@ -2604,7 +2573,7 @@ class ProcedureService implements ProcedureServiceInterface
         bool $limitProcedureTemplatesToCustomer,
     ): array {
         $conditions = [];
-        if (\is_string($search) && 0 < \strlen($search)) {
+        if (\is_string($search) && '' !== $search) {
             $conditions[] = $this->conditionFactory->propertyHasStringContainingCaseInsensitiveValue(
                 $search,
                 ['name']
@@ -2646,28 +2615,16 @@ class ProcedureService implements ProcedureServiceInterface
         if ($excludeArchived) {
             // todo: use Paths::procedure() here instead of array of strings to define the paths.
             $conditions[] = $this->conditionFactory->anyConditionApplies(
-                $this->conditionFactory->propertyHasNotValue('closed', ['phase', 'key']),
-                $this->conditionFactory->propertyHasNotValue('closed', ['publicParticipationPhase', 'key'])
+                $this->conditionFactory->propertyHasNotValue(true, ['phase', 'phaseDefinition', 'closingPhase']),
+                $this->conditionFactory->propertyHasNotValue(true, ['publicParticipationPhase', 'phaseDefinition', 'closingPhase'])
             );
         }
-
-        // may be simplified
-        $hiddenPhases = \array_unique(
-            \array_merge(
-                $this->globalConfig->getInternalPhaseKeys('hidden'),
-                $this->globalConfig->getExternalPhaseKeys('hidden')
-            )
-        );
 
         if (isset($filters['excludeHiddenPhases'])) {
             // Include only procedures where at least one phase is not hidden
             $conditions[] = $this->conditionFactory->anyConditionApplies(
-                [] === $hiddenPhases
-                    ? $this->conditionFactory->false()
-                    : $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['phase', 'key']),
-                [] === $hiddenPhases
-                    ? $this->conditionFactory->false()
-                    : $this->conditionFactory->propertyHasNotAnyOfValues($hiddenPhases, ['publicParticipationPhase', 'key']),
+                $this->conditionFactory->propertyHasNotValue('hidden', ['phase', 'phaseDefinition', 'permissionSet']),
+                $this->conditionFactory->propertyHasNotValue('hidden', ['publicParticipationPhase', 'phaseDefinition', 'permissionSet']),
             );
         }
 
@@ -2832,6 +2789,7 @@ class ProcedureService implements ProcedureServiceInterface
             );
             $newPlace->setDescription($sourcePlace->getDescription());
             $newPlace->setSolved($sourcePlace->getSolved());
+            $newPlace->setLocked($sourcePlace->isLocked());
             $violations = $this->validator->validate($newPlace);
             if (0 !== $violations->count()) {
                 throw ViolationsException::fromConstraintViolationList($violations);

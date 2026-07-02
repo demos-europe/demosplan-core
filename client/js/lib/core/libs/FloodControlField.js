@@ -14,6 +14,7 @@
 export default function FloodControlField () {
   (function () {
     const field = document.querySelector('[data-enhance-url-field]')
+
     if (field) {
       field.setAttribute('hidden', 'true')
     }

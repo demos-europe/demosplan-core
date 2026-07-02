@@ -131,8 +131,8 @@ export default {
           group: 'metaData',
         },
         {
-          id: 'r_export_settings[r_phase]',
-          name: 'r_export_settings[r_phase]',
+          id: 'r_export_settings[r_phaseDefinitionName]',
+          name: 'r_export_settings[r_phaseDefinitionName]',
           label: Translator.trans('procedure.public.phase'),
           initVal: this.initialSettings.procedurePhaseExportable,
           enabled: true,
@@ -359,18 +359,23 @@ export default {
   methods: {
     addPreventDefault (id) {
       const checkbox = document.getElementById(id)
+
       checkbox.addEventListener('click', this.preventCheck)
     },
 
     getSelectedOptions (options) {
       const entries = {}
+
       options.forEach(option => {
         const entry = Object.entries(this.checkedFields).find(el => el[0] === option.id)
+
         if (entry) {
           const id = entry[0]
+
           entries[id] = entry[1]
         }
       })
+
       return entries
     },
 
@@ -408,6 +413,7 @@ export default {
 
     removePreventDefault (id) {
       const checkbox = document.getElementById(id)
+
       checkbox.removeEventListener('click', this.preventCheck)
     },
 

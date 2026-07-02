@@ -96,6 +96,7 @@ export default {
     DpLoading,
     DpSlidingPagination: defineAsyncComponent(async () => {
       const { DpSlidingPagination } = await import('@demos-europe/demosplan-ui')
+
       return DpSlidingPagination
     }),
     DpTableCardListHeader,
@@ -199,6 +200,7 @@ export default {
         if (successCount > 0) {
           dplan.notify.notify('confirm', Translator.trans('confirm.entries.marked.deleted'))
         }
+
         if (errorCount > 0) {
           dplan.notify.notify('error', Translator.trans('error.delete.user'))
         }
@@ -211,6 +213,7 @@ export default {
      */
     fetchOrganisations () {
       const url = Routing.generate('api_resource_list', { resourceType: 'Orga' })
+
       return dpApi.get(url, {
         include: ['departments', 'masterToeb'].join(),
         fields: {
@@ -228,6 +231,7 @@ export default {
      */
     fetchResources () {
       const reqs = [this.departmentList(), this.fetchOrganisations(), this.roleList()]
+
       Promise.all(reqs)
         .then(() => {
           this.getUsersByPage()
@@ -244,6 +248,7 @@ export default {
           },
         },
       }
+
       this.filterValue.split(' ').forEach((subString, idx) => {
         filter[`firstname_${idx}`] = {
           condition: {
@@ -300,6 +305,7 @@ export default {
         this.getFilteredUsers()
         this.setExpandedCardId('')
       }
+
       this.isFiltered = false
     },
 

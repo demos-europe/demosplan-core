@@ -63,6 +63,7 @@ function getComponentForFieldType (fieldType) {
 
   if (!component) {
     console.warn(`Unknown custom field type "${fieldType}"; falling back to singleSelect renderer.`)
+
     return SingleselectCustomField
   }
 

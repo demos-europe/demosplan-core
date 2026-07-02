@@ -61,7 +61,7 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
      * @var InstitutionTagCategory
      */
     #[ORM\JoinColumn(referencedColumnName: 'id', nullable: false)]
-    #[ORM\ManyToOne(targetEntity: InstitutionTagCategory::class, inversedBy: 'tags', cascade: ['persist'])]
+    #[ORM\ManyToOne(targetEntity: InstitutionTagCategory::class, cascade: ['persist'], inversedBy: 'tags')]
     protected $category;
 
     /**

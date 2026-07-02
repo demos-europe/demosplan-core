@@ -53,7 +53,7 @@ class DemosPlanProcedureTypeController extends BaseController
      * @throws UserNotFoundException
      */
     #[DplanPermissions(['area_procedure_type_edit'])]
-    #[Route(name: 'DemosPlan_procedureType_list', path: 'verfahrenstypen', methods: ['GET'])]
+    #[Route(path: 'verfahrenstypen', name: 'DemosPlan_procedureType_list', methods: ['GET'])]
     public function procedureTypeList(
         ProcedureTypeService $procedureTypeService): Response
     {
@@ -77,7 +77,7 @@ class DemosPlanProcedureTypeController extends BaseController
      * @throws UserNotFoundException
      */
     #[DplanPermissions(['area_procedure_type_edit'])]
-    #[Route(name: 'DemosPlan_procedureType_create_select', path: 'verfahrenstypen/auswahl', methods: ['GET'])]
+    #[Route(path: 'verfahrenstypen/auswahl', name: 'DemosPlan_procedureType_create_select', methods: ['GET'])]
     public function procedureTypeCreateBaseSelect(
         Breadcrumb $breadcrumb,
         FormFactoryInterface $formFactory,
@@ -109,7 +109,7 @@ class DemosPlanProcedureTypeController extends BaseController
                     'procedureTypes' => $procedureTypes,
                     'isCreate'       => true,
                 ],
-                'form'         => $form->createView(),
+                'form'         => $form,
                 'title'        => 'procedure.type.create',
             ]
         );
@@ -122,7 +122,7 @@ class DemosPlanProcedureTypeController extends BaseController
      * @throws ResourceNotFoundException
      */
     #[DplanPermissions(['area_procedure_type_edit'])]
-    #[Route(name: 'DemosPlan_procedureType_duplicate', path: 'verfahrenstypen/{procedureTypeId}/duplicate', methods: ['GET'], options: ['expose' => true])]
+    #[Route(path: 'verfahrenstypen/{procedureTypeId}/duplicate', name: 'DemosPlan_procedureType_duplicate', options: ['expose' => true], methods: ['GET'])]
     public function procedureTypeCreate(
         Breadcrumb $breadcrumb,
         EntityWrapperFactory $entityWrapperFactory,
@@ -162,7 +162,7 @@ class DemosPlanProcedureTypeController extends BaseController
                     'procedureTypes'  => $procedureTypes,
                     'isCreate'        => true,
                 ],
-                'form'         => $form->createView(),
+                'form'         => $form,
                 'title'        => 'procedure.type.create',
             ]
         );
@@ -175,7 +175,7 @@ class DemosPlanProcedureTypeController extends BaseController
      * @throws UserNotFoundException
      */
     #[DplanPermissions(['area_procedure_type_edit'])]
-    #[Route(name: 'DemosPlan_procedureType_edit', path: 'verfahrenstypen/{procedureTypeId}/edit', methods: ['GET'], options: ['expose' => true])]
+    #[Route(path: 'verfahrenstypen/{procedureTypeId}/edit', name: 'DemosPlan_procedureType_edit', options: ['expose' => true], methods: ['GET'])]
     public function procedureTypeEdit(
         Breadcrumb $breadcrumb,
         EntityWrapperFactory $wrapperFactory,
@@ -212,7 +212,7 @@ class DemosPlanProcedureTypeController extends BaseController
                 'templateVars' => [
                     'procedureTypeId' => $procedureTypeId,
                 ],
-                'form'         => $form->createView(),
+                'form'         => $form,
                 'title'        => 'procedure.type.edit',
             ]
         );
@@ -228,7 +228,7 @@ class DemosPlanProcedureTypeController extends BaseController
      * @throws UserNotFoundException
      */
     #[DplanPermissions('area_procedure_type_edit')]
-    #[Route(name: 'DemosPlan_procedureType_create_save', path: 'verfahrenstypen/create', methods: ['POST'], options: ['expose' => false])]
+    #[Route(path: 'verfahrenstypen/create', name: 'DemosPlan_procedureType_create_save', options: ['expose' => false], methods: ['POST'])]
     public function procedureTypeCreateSave(
         EntityWrapperFactory $wrapperFactory,
         FormFactoryInterface $formFactory,
@@ -346,7 +346,7 @@ class DemosPlanProcedureTypeController extends BaseController
                     'isCreate'        => true,
                 ],
                 'title'        => 'procedure.type.create',
-                'form'         => $form->createView(),
+                'form'         => $form,
             ]
         );
     }
@@ -361,7 +361,7 @@ class DemosPlanProcedureTypeController extends BaseController
      * @throws UserNotFoundException
      */
     #[DplanPermissions('area_procedure_type_edit')]
-    #[Route(name: 'DemosPlan_procedureType_edit_save', path: 'verfahrenstypen/{procedureTypeId}/edit', methods: ['POST'], options: ['expose' => false])]
+    #[Route(path: 'verfahrenstypen/{procedureTypeId}/edit', name: 'DemosPlan_procedureType_edit_save', options: ['expose' => false], methods: ['POST'])]
     public function procedureTypeEditSave(
         EntityWrapperFactory $wrapperFactory,
         FormFactoryInterface $formFactory,
@@ -469,7 +469,7 @@ class DemosPlanProcedureTypeController extends BaseController
             [
                 'templateVars' => ['procedureTypeId' => $procedureTypeId],
                 'title'        => 'procedure.type.edit',
-                'form'         => $form->createView(),
+                'form'         => $form,
             ]
         );
     }

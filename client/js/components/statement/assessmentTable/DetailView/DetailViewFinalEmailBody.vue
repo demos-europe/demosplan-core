@@ -51,6 +51,7 @@ export default {
     DpBoilerPlateModal,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
+
       return DpEditor
     }),
   },

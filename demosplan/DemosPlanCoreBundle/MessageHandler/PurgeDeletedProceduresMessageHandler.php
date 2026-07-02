@@ -41,7 +41,7 @@ final class PurgeDeletedProceduresMessageHandler
         $this->logger->info('Purge deleted procedures... ');
         $purgedProcedures = 0;
         try {
-            if (true === $this->globalConfig->getUsePurgeDeletedProcedures()) {
+            if ($this->globalConfig->getUsePurgeDeletedProcedures()) {
                 $retentionDays = (int) $this->parameterBag->get('purge_deleted_retention_period_days');
                 $this->logger->info('PurgeDeletedProcedures', [spl_object_id($message)]);
                 $purgedProcedures = $this->procedureHandler->purgeDeletedProcedures(5, $retentionDays);

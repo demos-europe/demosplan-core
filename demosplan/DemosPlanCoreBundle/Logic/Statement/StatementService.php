@@ -56,7 +56,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\NoTargetsException;
-use demosplan\DemosPlanCoreBundle\Exception\UndefinedPhaseException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedDoctrineResultException;
 use demosplan\DemosPlanCoreBundle\Exception\UnknownIdsException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -69,7 +68,6 @@ use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\KeysAtEndSorter;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\KeysAtStartSorter;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ParagraphOrderSorter;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\TitleGroupsSorter;
-use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
@@ -82,24 +80,19 @@ use demosplan\DemosPlanCoreBundle\Logic\Grouping\EntityGrouper;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGrouper;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
-use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Logic\Workflow\ProfilerService;
-use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
-use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
-use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
-use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementAttributeRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementFragmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
-use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SimilarStatementSubmitterResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
@@ -237,10 +230,8 @@ class StatementService implements StatementServiceInterface
 
     public function __construct(
         AssignService $assignService,
-        private readonly ConsultationTokenService $consultationTokenService,
         private readonly CurrentUserInterface $currentUser,
         private readonly DateHelper $dateHelper,
-        private readonly DepartmentRepository $departmentRepository,
         private readonly DqlConditionFactory $conditionFactory,
         private readonly ElasticsearchResultCreator $elasticsearchResultCreator,
         private readonly EditorService $editorService,
@@ -259,15 +250,12 @@ class StatementService implements StatementServiceInterface
         protected ParagraphService $paragraphService,
         PermissionsInterface $permissions,
         PriorityAreaService $priorityAreaService,
-        private readonly ProcedureRepository $procedureRepository,
+        private readonly ProcedurePhaseDefinitionResolver $procedurePhaseDefinitionResolver,
         ProcedureService $procedureService,
         private readonly ReportService $reportService,
-        private readonly ResourceTypeService $resourceTypeService,
         private readonly RouterInterface $router,
         private readonly SimilarStatementSubmitterResourceType $similarStatementSubmitterResourceType,
-        private readonly SingleDocumentRepository $singleDocumentRepository,
         SingleDocumentService $singleDocumentService,
-        private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository,
         private readonly StatementAttachmentService $statementAttachmentService,
         private readonly StatementAttributeRepository $statementAttributeRepository,
         StatementCopier $statementCopier,
@@ -283,12 +271,9 @@ class StatementService implements StatementServiceInterface
         StatementValidator $statementValidator,
         private readonly StatementVoteRepository $statementVoteRepository,
         private readonly TagRepository $tagRepository,
-        private readonly TagTopicRepository $tagTopicRepository,
         private readonly TranslatorInterface $translator,
         private readonly UserRepository $userRepository,
         UserService $userService,
-        private readonly StatementDeleter $statementDeleter,
-        private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
         private readonly LoggerInterface $logger,
         private readonly ManagerRegistry $doctrine,
         private readonly ProfilerService $profilerService,
@@ -327,13 +312,13 @@ class StatementService implements StatementServiceInterface
         $em = $this->doctrine->getManager();
 
         // Create and use versions of paragraph and SingleDocument
-        if (\array_key_exists('paragraphId', $data) && 0 < \strlen((string) $data['paragraphId']) && '-' != $data['paragraphId']) {
+        if (\array_key_exists('paragraphId', $data) && '' !== (string) $data['paragraphId'] && '-' != $data['paragraphId']) {
             $data['paragraph'] = $this->paragraphService->createParagraphVersion(
                 $em->find(Paragraph::class, $data['paragraphId'])
             );
         }
 
-        if (\array_key_exists('documentId', $data) && 0 < \strlen((string) $data['documentId'])) {
+        if (\array_key_exists('documentId', $data) && '' !== (string) $data['documentId']) {
             $data['document'] = $this->singleDocumentService->createSingleDocumentVersion(
                 $em->find(SingleDocument::class, $data['documentId'])
             );
@@ -408,7 +393,7 @@ class StatementService implements StatementServiceInterface
             if (\array_key_exists('noLocation', $data['statementAttributes'])
                 && true == $data['statementAttributes']['noLocation']) {
                 $attrRepo->setNoLocation($statement);
-            } elseif (\array_key_exists('county', $data['statementAttributes']) && 0 < \strlen((string) $data['statementAttributes']['county'])) {
+            } elseif (\array_key_exists('county', $data['statementAttributes']) && '' !== (string) $data['statementAttributes']['county']) {
                 try {
                     $attrRepo->addCounty($statement, $data['statementAttributes']['county']);
                 } catch (Exception) {
@@ -587,7 +572,7 @@ class StatementService implements StatementServiceInterface
 
             /** @var StatementCreatedEvent $statementCreatedEvent */
             $statementCreatedEvent = $this->eventDispatcher->dispatch(
-                new StatementCreatedEvent($assessableStatement),
+                new StatementCreatedEvent($assessableStatement), // dispatched event
                 StatementCreatedEventInterface::class
             );
 
@@ -1871,7 +1856,7 @@ class StatementService implements StatementServiceInterface
         }
         // Wenn das Statement einen Absatz hat lege eine Version an, wenn sich der Absatz verändert hat
         if (\array_key_exists('paragraphId', $data)
-            && 0 < \strlen((string) $data['paragraphId'])
+            && '' !== (string) $data['paragraphId']
             && $data['paragraphId'] != $currentStatement->getParagraphId()) {
             $data['paragraph'] = $this->paragraphService->createParagraphVersion(
                 $em->find(Paragraph::class, $data['paragraphId'])
@@ -1884,7 +1869,7 @@ class StatementService implements StatementServiceInterface
         }
 
         if (\array_key_exists('documentId', $data)
-            && 0 < \strlen((string) $data['documentId'])
+            && '' !== (string) $data['documentId']
             && $data['documentId'] != $currentStatement->getDocumentId()) {
             $data['document'] = $this->singleDocumentService->createSingleDocumentVersion(
                 $em->find(SingleDocument::class, $data['documentId'])
@@ -2434,9 +2419,12 @@ class StatementService implements StatementServiceInterface
                 'oName.sort'         => $sortDirection,
                 'dName.sort'         => $sortDirection,
                 'uName.sort'         => $sortDirection,
-                'cluster.oName.sort' => $sortDirection,
-                'cluster.dName.sort' => $sortDirection,
-                'cluster.uName.sort' => $sortDirection,
+                // The cluster fields are mapped as a nested type, so Elasticsearch requires
+                // an explicit nested context to sort on them. Without it the whole search is
+                // rejected with HTTP 400 and the assessment table shows no statements.
+                'cluster.oName.sort' => ['order' => $sortDirection, 'nested' => ['path' => 'cluster']],
+                'cluster.dName.sort' => ['order' => $sortDirection, 'nested' => ['path' => 'cluster']],
+                'cluster.uName.sort' => ['order' => $sortDirection, 'nested' => ['path' => 'cluster']],
             ];
         }
 
@@ -2478,7 +2466,7 @@ class StatementService implements StatementServiceInterface
             return $statementAbwaegungstabelle;
         }
 
-        if (!is_null($statementAbwaegungstabelle->getPolygon()) && 0 < \strlen($statementAbwaegungstabelle->getPolygon())) {
+        if (!is_null($statementAbwaegungstabelle->getPolygon()) && '' !== (string) $statementAbwaegungstabelle->getPolygon()) {
             try {
                 $this->statementGeoService->scheduleFetchGeoData($statementAbwaegungstabelle->getId());
             } catch (Exception $e) {
@@ -2763,66 +2751,20 @@ class StatementService implements StatementServiceInterface
     }
 
     /**
-     * Gets the internal or external phase of the given statement depending on
-     * the value set for the 'publicStatement' field.
+     * Gets the phase name of the given statement from its phase definition.
      *
      * @param array $statement The statement entity as array
      *
-     * @return string the internal or external phase of the given statement
-     *
-     * @deprecated use {@link getProcedurePhaseName} instead
+     * @return string the phase name of the given statement
      */
     public function getProcedurePhaseNameFromArray(array $statement): string
     {
-        // Fast path: large exports feed thousands of statement arrays through here,
-        // so avoid the per-statement getStatement() round-trip when publicStatement
-        // is already present on the array (ES- and JSON-sourced statements have it).
-        if (isset($statement['publicStatement'])) {
-            return $this->getProcedurePhaseName(
-                $statement['phase'] ?? '',
-                StatementInterface::EXTERNAL === $statement['publicStatement']
-            );
-        }
-
-        $statementId = $statement['id'] ?? null;
-        $statementObject = null !== $statementId ? $this->getStatement($statementId) : null;
-
-        if (!$statementObject instanceof Statement) {
-            $this->logger->warning('Statement with id '.($statementId ?? '').' not found.');
-
+        $phaseDefinitionId = $statement['phaseDefinitionId'] ?? null;
+        if (null === $phaseDefinitionId) {
             return '';
         }
 
-        if (!$statementObject instanceof Statement) {
-            $this->logger->error('Statement with id '.$statement['id'].' not found.');
-
-            return '';
-        }
-
-        return $this->getProcedurePhaseName(
-            $statement['phase'] ?? '',
-            $statementObject->isSubmittedByCitizen()
-        );
-    }
-
-    public function getProcedurePhaseName(string $phaseKey, bool $isSubmittedByCitizen): string
-    {
-        $phaseName = '';
-        try {
-            $phaseVO = $this->statementProcedurePhaseResolver->getProcedurePhaseVO($phaseKey, $isSubmittedByCitizen);
-            $phaseName = $phaseVO->getName();
-
-            if ('' === $phaseName) {
-                throw new UndefinedPhaseException($phaseKey);
-            }
-        } catch (UndefinedPhaseException $e) {
-            // warning, not error: legacy statements can carry phase keys no longer
-            // defined in the phase config, which floods the error channel on large
-            // exports/listings without representing an actionable runtime fault.
-            $this->logger->warning($e->getMessage());
-        }
-
-        return $phaseName;
+        return $this->procedurePhaseDefinitionResolver->getNameById($phaseDefinitionId);
     }
 
     /**
@@ -3159,8 +3101,8 @@ class StatementService implements StatementServiceInterface
             $statement['memo'] = $data['r_memo'];
         }
 
-        if (\array_key_exists('r_phase', $data)) {
-            $statement['phase'] = $data['r_phase'];
+        if (\array_key_exists('r_phaseDefinitionId', $data) && '' !== $data['r_phaseDefinitionId']) {
+            $statement['phaseDefinitionId'] = $data['r_phaseDefinitionId'];
         }
 
         if (\array_key_exists('r_created_date', $data)) {
@@ -3237,23 +3179,23 @@ class StatementService implements StatementServiceInterface
             }
         }
 
-        if (\array_key_exists('r_userState', $data) && 0 < \strlen((string) $data['r_userState'])) {
+        if (\array_key_exists('r_userState', $data) && '' !== (string) $data['r_userState']) {
             $statement['meta']['userState'] = $data['r_userState'];
         }
-        if (\array_key_exists('r_userGroup', $data) && 0 < \strlen((string) $data['r_userGroup'])) {
+        if (\array_key_exists('r_userGroup', $data) && '' !== (string) $data['r_userGroup']) {
             $statement['meta']['userGroup'] = $data['r_userGroup'];
         }
-        if (\array_key_exists('r_userOrganisation', $data) && 0 < \strlen((string) $data['r_userOrganisation'])) {
+        if (\array_key_exists('r_userOrganisation', $data) && '' !== (string) $data['r_userOrganisation']) {
             $statement['meta']['userOrganisation'] = $data['r_userOrganisation'];
         }
-        if (\array_key_exists('r_userPosition', $data) && 0 < \strlen((string) $data['r_userPosition'])) {
+        if (\array_key_exists('r_userPosition', $data) && '' !== (string) $data['r_userPosition']) {
             $statement['meta']['userPosition'] = $data['r_userPosition'];
         }
-        if (\array_key_exists('r_phone', $data) && 0 < \strlen((string) $data['r_phone'])) {
+        if (\array_key_exists('r_phone', $data) && '' !== (string) $data['r_phone']) {
             $statement['meta'][StatementMeta::USER_PHONE] = $data['r_phone'];
         }
 
-        if (\array_key_exists('r_authored_date', $data) && 0 < \strlen((string) $data['r_authored_date'])) {
+        if (\array_key_exists('r_authored_date', $data) && '' !== (string) $data['r_authored_date']) {
             $statement['authoredDate'] = $data['r_authored_date'];
         }
 

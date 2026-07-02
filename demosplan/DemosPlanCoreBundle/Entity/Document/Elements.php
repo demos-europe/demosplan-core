@@ -42,7 +42,7 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
     /**
      * @var string|null
      */
-    #[ORM\Column(name: '_e_p_id', type: 'string', length: 36, options: ['fixed' => true], nullable: true)]
+    #[ORM\Column(name: '_e_p_id', type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
     protected $elementParentId;
 
     /**
@@ -55,7 +55,7 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
     /**
      * @var string
      */
-    #[ORM\Column(name: '_p_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
+    #[ORM\Column(name: '_p_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     protected $pId;
 
     /**
@@ -65,13 +65,13 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
      * @var Procedure
      */
     #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', onDelete: 'CASCADE')]
-    #[ORM\ManyToOne(targetEntity: Procedure::class, inversedBy: 'elements', cascade: ['persist'])]
+    #[ORM\ManyToOne(targetEntity: Procedure::class, cascade: ['persist'], inversedBy: 'elements')]
     protected $procedure;
 
     /**
      * @var string
      */
-    #[ORM\Column(name: '_e_category', type: 'string', length: 255, options: ['fixed' => true], nullable: false)]
+    #[ORM\Column(name: '_e_category', type: 'string', length: 255, nullable: false, options: ['fixed' => true])]
     protected $category = '';
 
     /**

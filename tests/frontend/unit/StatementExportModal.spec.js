@@ -67,6 +67,7 @@ describe('StatementExportModal', () => {
   it('opens the modal when the button is clicked', async () => {
     const modal = wrapper.findComponent(DpModal)
     const mockEvent = { preventDefault: jest.fn() }
+
     modal.vm.$emit('click', mockEvent)
 
     expect(modal.isVisible()).toBe(true)
@@ -74,6 +75,7 @@ describe('StatementExportModal', () => {
 
   it('sets the initial values correctly', () => {
     const sessionStorageValue = 'Stored Column Title'
+
     window.sessionStorage.setItem('exportModal:docxCol:col1', JSON.stringify(sessionStorageValue))
     wrapper.vm.setInitialValues()
 
@@ -91,6 +93,7 @@ describe('StatementExportModal', () => {
 
       Object.keys(wrapper.vm.docxColumns).forEach(key => {
         const input = wrapper.find(`[datacy="exportModal:input:${key}"]`)
+
         expect(input.exists()).toBe(true)
       })
     })
@@ -278,6 +281,7 @@ describe('StatementExportModal', () => {
     ]
 
     const flyoutRef = wrapper.vm.$refs.filterFlyout
+
     expect(flyoutRef).toBeTruthy()
     flyoutRef.itemsSelected = itemsSelectedMock
 
@@ -311,6 +315,7 @@ describe('StatementExportModal', () => {
     ]
 
     const flyoutRef = wrapper.vm.$refs.filterFlyout
+
     expect(flyoutRef).toBeTruthy()
     flyoutRef.itemsSelected = itemsSelectedMock
 
@@ -357,6 +362,7 @@ describe('StatementExportModal', () => {
 
   it('closes the DpModal after executing the handleExport function', () => {
     const toggleSpy = jest.spyOn(wrapper.vm.$refs.exportModalInner, 'toggle')
+
     wrapper.vm.handleExport()
 
     expect(toggleSpy).toHaveBeenCalled()

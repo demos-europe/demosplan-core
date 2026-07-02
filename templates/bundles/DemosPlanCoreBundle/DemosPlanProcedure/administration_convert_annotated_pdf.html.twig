@@ -24,7 +24,8 @@
 
     <dp-convert-annotated-pdf
         csrf-token="{{ csrf_token('csrf') }}"
-        current-procedure-phase="{{ templateVars.currentProcedurePhase|default('analysis') }}"
+        current-internal-phase-definition-id="{{ templateVars.currentInternalPhaseDefinitionId }}"
+        current-external-phase-definition-id="{{ templateVars.currentExternalPhaseDefinitionId }}"
         document-id="{{ templateVars.documentId }}"
         :init-submitter="{{ templateVars.submitter|default({}) }}"
         newest-intern-id="{{ templateVars.newestInternalId }}"

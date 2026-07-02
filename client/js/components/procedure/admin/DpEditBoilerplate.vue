@@ -24,7 +24,9 @@ export default {
     selectedBoilerplateGroup: {
       required: false,
       type: [String, Object],
-      default: () => { return { id: '', title: '-' } },
+      default: () => {
+        return { id: '', title: '-' }
+      },
     },
   },
 

@@ -197,7 +197,7 @@
     {
         "package": "copy-webpack-plugin",
         "license": "MIT",
-        "website": "https://github.com/webpack-contrib/copy-webpack-plugin"
+        "website": "https://github.com/webpack/copy-webpack-plugin"
     },
     {
         "package": "core-js",
@@ -507,7 +507,7 @@
     {
         "package": "terser-webpack-plugin",
         "license": "MIT",
-        "website": "https://github.com/webpack/terser-webpack-plugin"
+        "website": "https://github.com/webpack/minimizer-webpack-plugin"
     },
     {
         "package": "timers-browserify",

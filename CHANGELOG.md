@@ -7,14 +7,72 @@
 ## UNRELEASED
 
 ### Added
-- Add text custom field definition editing
+- Make procedure phase definitions deletable (condition: not currently in use and not configuration-phase)
 - Add statement export via planner-uploaded DOCX layout template: planners upload a `.docx` via TUS,
   the backend validates `${…}` placeholders against a whitelist and clones the
   `${AbschnitteAlsAbsätze}` … `${/AbschnitteAlsAbsätze}` block per segment to render the response letter
   (permission: `feature_statement_via_template_export`, EWM-only for v1; frontend modal integration pending)
 
 ### Fixed
+- Adjust organization type key in platform statistics: Replace 'procedure.agency' with 'municipality' in OrgaService::getAcceptedOrgaCountByType()
+
+## v4.47.0 (2026-06-24)
+
+## v4.46.0 (2026-06-19)
+## v4.45.0 (2026-06-19)
+### Added
+- Delete Institution Text CustomFields
+- Delete Statement multiSelect CustomFields
+- Make procedure phase definitions editable
+- Segment lock feature: workflow places can now be marked as locked, making segments on them read-only for users without the `feature_administrate_segment_lock` permission. Enforced on JSON:API PATCH, `segment.bulk.edit` RPC, and place updates; transitions are recorded in the segment Versionsverlauf.
+- Permission `feature_segment_lock_by_workflow_place` (exposed, login-required) toggles the segment lock feature per project. Grant it in `projects/<name>/.../Permissions.php` to every role that should see the feature. Requires `demos-europe/demosplan-addon` ^0.68.1.
+
+## v4.44.1 (2026-06-12)
+
+### Changed
+- Adjacent statement segments with identical tags are now merged into a single segment during statement segmentation, preserving the original text formatting (DPLAN-12697)
+
+### Fixed
+- Submitting a public statement as an anonymous citizen no longer fails with a Doctrine `MissingIdentifierField` exception (DPLAN-18002)
+- Logging out via Keycloak no longer produces an invalid redirect address when the customer-specific logout route already contains the full host name
+
+## v4.44.0 (2026-06-05)
+
+## v4.43.1 (2026-06-16)
+
+### Changed
+- Adjacent statement segments with identical tags are now merged into a single segment during statement segmentation, preserving the original text formatting (DPLAN-12697)
+
+### Fixed
+- Submitting a public statement as an anonymous citizen no longer fails with a Doctrine `MissingIdentifierField` exception (DPLAN-18002)
+- Logging out via Keycloak no longer produces an invalid redirect address when the customer-specific logout route already contains the full host name
+
+## v4.43.0 (2026-06-05)
+
+### Added
+- Show text custom fields and its values in manage institutions and add institutions dialogs
+- Add text custom field value editing to institution tag management dialog
+- Set up API Platform infrastructure alongside existing EDT (Entity Definition Toolkit) as part of the gradual API migration (DPLAN-17129)
+- Add dedicated security firewall for API Platform routes (`/api/3.0/`) with shared session authentication
+- Add bridge classes in demosplan-addon for EDT-to-API Platform relationship handling during migration (`PlainIdJsonApiNormalizer`, `ApiPlatformRelationshipConfig`, `ExtendedDynamicTransformer`)
+- Add text custom field definition editing
+- Add customer admin interface for managing procedure phases - displaying and creating new phases
+- Store procedure phase definitions in the database as `ProcedurePhaseDefinition` entities (per customer and audience) instead of in YAML/`GlobalConfig`, with a new `procedure_phase_definition` table and `phase_definition_id` foreign keys on `procedure_phase` (plus `designated_phase_definition_id`), `_statement`, `_draft_statement`, `_draft_statement_versions` and `institution_mail` (DPLAN-17570)
+
+### Changed
+- Widen `_procedure.extern_id` from `VARCHAR(50)` to `VARCHAR(255)` so XBeteiligung planIDs longer than 50 characters can be stored (DPLAN-17455)
+- Tag selection when splitting a statement now lists keywords in the manual sort order from tag administration instead of alphabetically
+- Procedure phase names are now read from the `ProcedurePhaseDefinition` entity in the database everywhere they are displayed, instead of from YAML-based phase translation keys (DPLAN-17570)
+
+### Fixed
+- `AccessProcedureListener` now checks for array controller before accessing index, preventing crashes on API Platform routes
 - `dplan:procedure:delete` now also removes the two associated `procedure_phase` rows; previous runs left orphan rows behind, which are cleaned up by a one-shot migration
+
+### New dependencies
+- `api-platform/core ^3.4`
+
+### New environment variable
+- `CORS_ALLOW_ORIGIN` — Required. Controls which origins are allowed to make cross-origin requests to API Platform endpoints. Default: `'^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$'`
 
 ## v4.42.0 (2026-05-21)
 ## v4.40.1 (2026-05-21)
@@ -36,6 +94,7 @@
 
 ### Added
 - Add text custom field definition to institution tag management dialog
+- Inactivity-based account-deletion workflow: a daily cron sends two warning mails and then soft-deletes accounts that stay inactive past configurable thresholds; the next successful login resets the cascade. Disabled by default — enable per project by setting `account_deletion.first_warning_days` in `parameters_default_project.yml`. Includes the `dplan:account-deletion:prepare-test` console command for QA scenarios.
 - Track recommendation versions for statements and segments with full text snapshots, exposed via API and XLSX export (permission: `feature_enable_recommendation_versions`)
 - Support multiple custom field types and target contexts per project
 - Spellcheck in the Tiptap editor highlights spelling errors and suggests corrections while writing statements
@@ -62,6 +121,8 @@
 - LaTeX PDF exports rendered more reliably (ligature and babel-related gaps)
 
 ### Deployment notes
+- **Migration**: creates the `account_deletion_tracking` table — run `doctrine:migrations:migrate`
+- **New parameters** (with defaults): `account_deletion.first_warning_days` (~ — feature disabled), `account_deletion.warning_step_days` (30), `account_deletion.additional_protected_user_ids` ([])
 - **Migration**: creates `oauth_tokens` table with FK to `_user` and `_orga` — run `doctrine:migrations:migrate`
 - **Required env var**: `OAUTH_SECRET_ENCRYPTION_KEY` — generate with `php -r "echo base64_encode(sodium_crypto_secretbox_keygen());"` and add to `.env.local` on every environment (shared with other encryption features)
 - **New parameters** (with defaults): `oauth_keycloak_login_only` (true — safe default, no behaviour change), `oauth_token_timezone` (Europe/Berlin), `oauth_token_fast_path_interval_seconds` (180), `oauth_token_refresh_buffer_minutes` (2)
@@ -101,6 +162,13 @@
 ### Fixed
 - Various visual and interaction issues in the configurable segment list table
 - Organisation ID was not set when manually creating statements for institutions
+
+## v4.33.2 (2026-05-19)
+
+### Fixed
+- Per-statement DOCX export failed with an error
+- Excel export of statements failed with an error
+- Option to create tags directly when splitting a statement was missing
 
 ## v4.33.0 (2026-04-02)
 
@@ -279,6 +347,13 @@
 ## v4.18.1 (2025-10-16)
 ## v4.18.0 (2025-10-13)
 
+## v4.16.5 (2026-06-26)
+### Fixed
+- Sorting the assessment table by submitter no longer produces an empty table.
+- The authored date of a statement can no longer be set after its submission date when creating or editing a statement.
+- ODT exports of the assessment table now include table-cell borders.
+- Procedure archive exports now handle non-ASCII characters in file names correctly.
+
 ## v4.16.3 (2026-02-05)
 
 ## v4.16.1 (2025-10-16)
@@ -296,6 +371,11 @@
 ### Features
 - Add possibility to delete custom fields and their options
 
+## v4.15.6 (2026-06-26)
+- Reject an authored date later than the submission date when editing or manually changing a statement
+- Sorting the assessment table by submitter no longer hides all statements
+- Assessment table exports in ODT/LibreOffice format now include visible table-cell borders
+
 ## v4.15.4 (2026-03-06)
 - Fix statement vote on mysql8+, immediately show vote
 - Rate limit new statements only for anonymous users
@@ -307,6 +387,13 @@
 - fix zip download for older uploads
 
 ## v4.15.0 (2025-09-15)
+
+## v4.14.4 (2026-06-26)
+- Statements no longer accept an authoring date later than the submission date
+- Sorting the assessment table by submitter no longer hides all statements
+- LibreOffice/ODT exports of the assessment table now include table-cell borders
+- Editing the process step, authoring date and submission date is now restricted to manually recorded statements
+- Rate limiting for new statements now applies only to anonymous users
 
 ## v4.14.3 (2026-02-06)
 ## v4.14.2 (2025-12-02)
@@ -337,6 +424,21 @@
 - Migrate to Tailwind CSS v4
 
 ## v4.7.0 (2025-07-18)
+
+## v4.6.5 (2026-06-26)
+
+### Fixed
+- When creating or editing a statement, the authoring date can no longer be set later than the submission date
+- The assessment table no longer appears empty when sorting by submitter
+
+## v4.6.4 (2026-05-08)
+
+### Fixed
+- Changing a single FAQ entry from blocked to released directly in the FAQ list now works
+- In the assessment table, fields such as procedure phase, authoring date and submission date can no longer be edited on online-submitted statements; they remain editable only for manually recorded statements
+- The cookie banner is now styled correctly on the start page for logged-in users
+- The project's primary color is used again on the affected buttons and elements, and the procedure search field is restored to its proper width
+- Pagination in the assessment table now responds on the first click, the entries-per-page dropdown works again, and the selected page is retained when changing the page size
 
 ## v4.6.3 (2026-02-18)
 - Allow to configure procedures to accept or not anonymous statements

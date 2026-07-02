@@ -44,11 +44,11 @@ parameters:
                     phasePermissionset:
                         titleKey: "procedure.filter.permissionset.label"
                         permission: "feature_procedure_filter_internal_phase_permissionset"
-                    phase:
+                    phaseDefinitionId:
                         contextHelpKey: "explanation.procedure.filter.phase"
                         titleKey: "procedure.public.phase"
                         aggregation:
-                            field: "phase"
+                            field: "phaseDefinitionId"
                             nullValue: null
                         permission: "feature_procedure_filter_internal_phase"
                     orgaName:
@@ -62,13 +62,12 @@ parameters:
                     publicParticipationPhasePermissionset:
                         titleKey: "procedure.filter.permissionset.label"
                         permission: "feature_procedure_filter_external_public_participation_phase_permissionset"
-                    publicParticipationPhase:
+                    publicParticipationPhaseDefinitionId:
                         contextHelpKey: "explanation.procedure.filter.phase"
                         titleKey: "procedure.public.phase"
                         permission: "feature_procedure_filter_external_public_participation_phase"
                         aggregation:
-                            #  If field is not explicitly set, parent name is taken
-                            field: "publicParticipationPhase"
+                            field: "publicParticipationPhaseDefinitionId"
                             nullValue: ""
                     orgaName:
                         titleKey: "procedure.agency"
@@ -80,21 +79,20 @@ parameters:
                 planner:
                     phasePermissionset:
                         titleKey: "procedure.filter.permissionset.label.intern"
-                    phase:
+                    phaseDefinitionId:
                         contextHelpKey: "explanation.procedure.filter.phase"
                         titleKey: "procedure.public.phase.intern"
                         permission: "feature_institution_participation"
                         aggregation:
-                            field: "phase"
+                            field: "phaseDefinitionId"
                             nullValue: null
                     publicParticipationPhasePermissionset:
                         titleKey: "procedure.filter.permissionset.label.extern"
-                    publicParticipationPhase:
+                    publicParticipationPhaseDefinitionId:
                         contextHelpKey: "explanation.procedure.filter.phase"
                         titleKey: "procedure.public.phase.extern"
                         aggregation:
-                            # If field is not explicitly set, parent name is taken
-                            field: "publicParticipationPhase"
+                            field: "publicParticipationPhaseDefinitionId"
                             nullValue: ""
 
             sort:
@@ -115,10 +113,10 @@ parameters:
                         titleKey: "sort.procedurename"
                         fields:
                             name.raw: "asc"
-                    phase:
+                    phaseDefinitionId:
                         titleKey: "sort.phase"
                         fields:
-                            phase: "asc"
+                            phaseOrderInAudience: "asc"
                     endDate:
                         titleKey: "sort.enddate"
                         fields:
@@ -132,10 +130,10 @@ parameters:
                         titleKey: "sort.procedurename"
                         fields:
                             externalName.rawSort: "asc"
-                    publicParticipationPhase:
+                    publicParticipationPhaseDefinitionId:
                         titleKey: "sort.phase"
                         fields:
-                            publicParticipationPhase: "asc"
+                            publicParticipationPhaseOrderInAudience: "asc"
                     publicParticipationEndDate:
                         titleKey: "sort.enddate"
                         fields:
@@ -149,10 +147,10 @@ parameters:
                         titleKey: "sort.enddate"
                         fields:
                             endDate: "asc"
-                    phase:
+                    phaseDefinitionId:
                         titleKey: "sort.phase"
                         fields:
-                            phase: "asc"
+                            phaseOrderInAudience: "asc"
             sort_default:
                 all:
                     field: "name.rawSort"

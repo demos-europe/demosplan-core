@@ -27,4 +27,5 @@ const NewProcedure = {
     },
   },
 }
+
 export default NewProcedure

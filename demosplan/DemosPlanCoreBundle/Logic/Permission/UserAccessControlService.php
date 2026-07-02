@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Permission;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
@@ -70,7 +71,7 @@ class UserAccessControlService extends CoreService implements UserAccessControlS
         $role = $this->entityManager->find($role::class, $role->getId());
         $orga = $this->entityManager->find($orga::class, $orga->getId());
 
-        if (null === $customer || null === $role || null === $orga) {
+        if (in_array(null, [$customer, $role, $orga], true)) {
             throw new InvalidArgumentException('Unable to find required entities in database');
         }
 
@@ -111,7 +112,7 @@ class UserAccessControlService extends CoreService implements UserAccessControlS
         }
         $userPermission = $this->userAccessControlRepository->findOneBy($conditions);
 
-        if ($userPermission) {
+        if ($userPermission instanceof EntityInterface) {
             $this->entityManager->remove($userPermission);
             $this->entityManager->flush();
 

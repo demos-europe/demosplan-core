@@ -86,9 +86,9 @@ class BounceChecker
                 );
                 continue;
             }
-            $mailTo = 0 < strlen($mailEntity->getTo()) ? explode(',', $mailEntity->getTo()) : [];
-            $mailCc = 0 < strlen($mailEntity->getCc()) ? explode(',', $mailEntity->getCc()) : [];
-            $mailBcc = 0 < strlen($mailEntity->getBcc()) ? explode(',', $mailEntity->getBcc()) : [];
+            $mailTo = '' !== (string) $mailEntity->getTo() ? explode(',', $mailEntity->getTo()) : [];
+            $mailCc = '' !== (string) $mailEntity->getCc() ? explode(',', $mailEntity->getCc()) : [];
+            $mailBcc = '' !== (string) $mailEntity->getBcc() ? explode(',', $mailEntity->getBcc()) : [];
 
             // Gibt es nur einen Empänger? Dann wissen wir, welche Email gebounced ist
             if (1 === (count($mailTo) + count($mailCc) + count($mailBcc))) {

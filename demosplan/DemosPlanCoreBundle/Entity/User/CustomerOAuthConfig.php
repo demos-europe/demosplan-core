@@ -36,7 +36,7 @@ class CustomerOAuthConfig extends CoreEntity implements UuidEntityInterface
     #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected string $id;
 
-    #[ORM\JoinColumn(name: 'customer_id', referencedColumnName: '_c_id', nullable: false, onDelete: 'CASCADE', unique: true)]
+    #[ORM\JoinColumn(name: 'customer_id', referencedColumnName: '_c_id', unique: true, nullable: false, onDelete: 'CASCADE')]
     #[ORM\OneToOne(targetEntity: Customer::class)]
     private CustomerInterface $customer;
 

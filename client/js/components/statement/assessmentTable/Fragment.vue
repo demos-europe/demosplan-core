@@ -563,6 +563,7 @@ export default {
      */
     fragmentConsideration () {
       let text = null
+
       if (hasPermission('feature_statements_fragment_consideration')) {
         text = this.fragment.consideration === null ? '' : this.fragment.consideration
       } else if (hasPermission('feature_statements_fragment_consideration_advice')) {
@@ -654,6 +655,7 @@ export default {
         if (this.forwardTags === true) {
           data.forwardTagsStatement = true
         }
+
         this.tagsEditing = false
       }
 
@@ -665,6 +667,7 @@ export default {
           this.$refs.paragraphParentId.$data.selected = ''
           this.$refs.paragraphParentId.$data.selectedBefore = ''
         }
+
         if (this.$refs.documentParentId) {
           this.$refs.documentParentId.$data.selected = ''
           this.$refs.documentParentId.$data.selectedBefore = ''
@@ -676,11 +679,13 @@ export default {
         if (this.notifyOrga === true) {
           data.notifyReviewer = true
         }
+
         // If reviewer is set, we have to correctly update assignment and automatically change fragment status
         if (data.departmentId !== '') {
           data.lastClaimed = this.currentUserId
           data.status = 'fragment.status.assignedToFB'
         }
+
         this.reviewerEditing = false
       }
 
@@ -697,6 +702,7 @@ export default {
             let textToBeAdded = ''
             // First we have to know which field we want to update (which field is visible)
             let fieldToUpdate = ''
+
             if (this.$refs.consideration) {
               fieldToUpdate = this.$refs.consideration
             } else if (this.$refs.considerationAdvice) {
@@ -716,6 +722,7 @@ export default {
                       return false
                     } else {
                       textToBeAdded += '<p>' + data.data.body + '</p>'
+
                       return Promise.resolve(true)
                     }
                   }
@@ -746,17 +753,21 @@ export default {
           if (this.$refs[field]) {
             //  Handle components that use <dp-edit-field>
             const editFieldComponent = this.$refs[field].$children.find(child => child.$options.name === 'DpEditField')
+
             if (editFieldComponent) {
               editFieldComponent.$data.loading = false
               editFieldComponent.$data.editingEnabled = false
             }
+
             //  Handle components that have a loading state by themselves
             if (hasOwnProp(this.$refs[field].$data, 'loading')) {
               this.$refs[field].$data.loading = false
             }
+
             if (hasOwnProp(this.$refs[field].$data, 'editingEnabled')) {
               this.$refs[field].$data.editingEnabled = false
             }
+
             if (hasOwnProp(this.$refs[field].$data, 'isEditing')) {
               this.$refs[field].$data.isEditing = false
             }
@@ -774,14 +785,17 @@ export default {
           // Set the correct loading states even if error occurred
           Object.values(this.$refs).forEach(ref => {
             const editFieldComponent = ref.$children.find(child => child.$options.name === 'DpEditField')
+
             if (editFieldComponent) {
               editFieldComponent.$data.loading = false
               editFieldComponent.$data.editingEnabled = false
             }
+
             //  Handle components that have a loading state by themselves
             if (hasOwnProp(ref.$data, 'loading')) {
               ref.$data.loading = false
             }
+
             if (hasOwnProp(ref.$data, 'isEditing')) {
               ref.$data.isEditing = false
             }

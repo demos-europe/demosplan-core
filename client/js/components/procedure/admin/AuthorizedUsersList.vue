@@ -401,6 +401,7 @@ export default {
     user () {
       return tokenId => {
         const currentUser = this.tokens.find(user => user.tokenId === tokenId)
+
         return currentUser ? { ...currentUser } : null
       }
     },
@@ -422,6 +423,7 @@ export default {
 
     copyTokenToClipboard (tokenId) {
       const range = document.createRange()
+
       range.selectNode(document.getElementById('userToken:' + tokenId))
       window.getSelection().removeAllRanges()
       window.getSelection().addRange(range)
@@ -459,7 +461,9 @@ export default {
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.generic'))
         })
-        .finally(() => { this.isSaving = false })
+        .finally(() => {
+          this.isSaving = false
+        })
     },
 
     fetchConsultationTokens () {
@@ -480,11 +484,13 @@ export default {
           ].join(),
         },
       }
+
       return dpApi.get(url, params)
         .then(response => {
           this.consultationTokens = [...response.data.data].map(token => {
             if (token.relationships && token.relationships.statement) {
               const statement = response.data.included.find(el => el.id === token.relationships.statement.data.id) || null
+
               if (statement) {
                 token = {
                   ...statement.attributes,
@@ -495,6 +501,7 @@ export default {
                 }
               }
             }
+
             return token
           })
           this.isLoading = false
@@ -507,8 +514,12 @@ export default {
       }
 
       this.fetchConsultationTokens()
-        .then(() => { this.localUsers = [...this.tokens] })
-        .then(() => { this.isLoading = false })
+        .then(() => {
+          this.localUsers = [...this.tokens]
+        })
+        .then(() => {
+          this.isLoading = false
+        })
     },
 
     resetCreateForm () {
@@ -520,6 +531,7 @@ export default {
 
     resetValidity () {
       const inputsWithErrors = this.$el.querySelector('[data-dp-validate]').querySelectorAll('.is-invalid')
+
       Array.from(inputsWithErrors).forEach(input => {
         input.classList.remove('is-invalid')
       })
@@ -527,16 +539,19 @@ export default {
 
     saveEditAuthorisedUser (args) {
       const token = this.tokens.find(el => el.tokenId === args.tokenId)
+
       this.updateToken(args.tokenId)
 
       if (token.isManual) {
         this.updateStatement(args.statementId)
       }
+
       this.toggleIsRowEditable({ id: args.tokenId, isEditable: false })
     },
 
     toggleIsRowEditable ({ id: tokenId, isEditable = true }) {
       const token = this.tokens.find(el => el.tokenId === tokenId)
+
       if (token) {
         token.isEditable = isEditable
       }
@@ -555,9 +570,11 @@ export default {
         submitterPostalCode: user.submitterPostalCode,
         submitterCity: user.submitterCity,
       }
+
       if (user.submitterEmailAddress) {
         statementAttributes.submitterEmailAddress = user.submitterEmailAddress
       }
+
       const payload = {
         data: {
           id: statementId,

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -18,7 +20,7 @@ class NewOrgaRegisteredSubscriber extends BaseEventSubscriber
 {
     public function __construct(
         private readonly OrgaChangesNotifier $orgaChangesNotifier,
-        LoggerInterface $logger
+        LoggerInterface $logger,
     ) {
         $this->logger = $logger;
     }

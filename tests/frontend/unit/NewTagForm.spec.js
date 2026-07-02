@@ -28,16 +28,19 @@ describe('NewTagForm', () => {
 
   it('returns false when tag name is not unique within the same category', () => {
     const result = wrapper.vm.isTagNameUnique('Existing Tag', 1)
+
     expect(result).toBe(false)
   })
 
   it('returns true when tag name is unique within the same category', () => {
     const result = wrapper.vm.isTagNameUnique('New Tag', 1)
+
     expect(result).toBe(true)
   })
 
   it('returns true when tag name is not unique but in a different category', () => {
     const result = wrapper.vm.isTagNameUnique('Existing Tag', 2)
+
     expect(result).toBe(true)
   })
 

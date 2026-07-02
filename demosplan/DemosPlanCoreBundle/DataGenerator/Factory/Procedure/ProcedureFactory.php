@@ -55,7 +55,6 @@ class ProcedureFactory extends PersistentProxyObjectFactory
 
         return [
             'ars'                                   => self::faker()->text(12),
-            'closed'                                => false,
             'addSlug'                               => $slug,
             'currentSlug'                           => $slug,
             'deleted'                               => false,
@@ -63,6 +62,8 @@ class ProcedureFactory extends PersistentProxyObjectFactory
             'externId'                              => self::faker()->numberBetween(1000, 9999),
             'externalDesc'                          => self::faker()->text(400),
             'externalName'                          => 'default Procedure',
+            'externalPhaseDefinition'               => ProcedurePhaseDefinitionFactory::new(['audience' => 'external', 'permissionSet' => 'write', 'orderInAudience' => 1]),
+            'internalPhaseDefinition'               => ProcedurePhaseDefinitionFactory::new(['audience' => 'internal', 'permissionSet' => 'write', 'orderInAudience' => 1]),
             'locationName'                          => self::faker()->country(),
             'locationPostCode'                      => self::faker()->text(5),
             'logo'                                  => self::faker()->uuid(),
@@ -71,15 +72,12 @@ class ProcedureFactory extends PersistentProxyObjectFactory
             'municipalCode'                         => self::faker()->countryCode(),
             'name'                                  => 'default Procedure',
             'orgaName'                              => self::faker()->company(),
-            'phase'                                 => $this->globalConfig->getInternalPhaseKeys('write')[0],
             'plisId'                                => self::faker()->uuid(),
             'publicParticipation'                   => true,
             'publicParticipationContact'            => self::faker()->text(255),
-            'publicParticipationPhase'              => $this->globalConfig->getExternalPhaseKeys('write')[0],
             'publicParticipationPublicationEnabled' => false,
             'publicParticipationStep'               => self::faker()->text(10),
             'shortUrl'                              => self::faker()->url(),
-            'step'                                  => self::faker()->text(10),
             'xtaPlanId'                             => self::faker()->uuid(),
         ];
     }
@@ -87,16 +85,16 @@ class ProcedureFactory extends PersistentProxyObjectFactory
     public function inHiddenPhase(): self
     {
         return $this->with([
-            'phase'                    => $this->globalConfig->getInternalPhaseKeys('hidden')[0],
-            'publicParticipationPhase' => $this->globalConfig->getExternalPhaseKeys('hidden')[0],
+            'internalPhaseDefinition' => ProcedurePhaseDefinitionFactory::new(['audience' => 'internal', 'permissionSet' => 'hidden', 'orderInAudience' => 1]),
+            'externalPhaseDefinition' => ProcedurePhaseDefinitionFactory::new(['audience' => 'external', 'permissionSet' => 'hidden', 'orderInAudience' => 1]),
         ]);
     }
 
     public function inReadingPhase(): self
     {
         return $this->with([
-            'phase'                    => $this->globalConfig->getInternalPhaseKeys('read')[0],
-            'publicParticipationPhase' => $this->globalConfig->getExternalPhaseKeys('read')[0],
+            'internalPhaseDefinition' => ProcedurePhaseDefinitionFactory::new(['audience' => 'internal', 'permissionSet' => 'read', 'orderInAudience' => 1]),
+            'externalPhaseDefinition' => ProcedurePhaseDefinitionFactory::new(['audience' => 'external', 'permissionSet' => 'read', 'orderInAudience' => 1]),
         ]);
     }
 

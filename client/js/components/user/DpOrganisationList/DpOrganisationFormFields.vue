@@ -895,7 +895,9 @@ export default {
     initialOrganisation: {
       type: Object,
       required: false,
-      default: () => { return {} },
+      default: () => {
+        return {}
+      },
     },
 
     organisation: {
@@ -1008,6 +1010,7 @@ export default {
   computed: {
     availableRegistrationTypes () {
       const activeTypes = this.registrationStatuses.map(status => status.type) || []
+
       return this.availableOrgaTypes.filter(type => activeTypes.includes(type.value) === false)
     },
 
@@ -1021,11 +1024,13 @@ export default {
       } else if (Object.keys(this.organisation.relationships.customers.data).length && this.organisation.relationships.customers.data[0].id !== '') {
         const allCustomers = Object.values(this.organisation.relationships.customers.list())
         const names = []
+
         allCustomers.forEach(el => {
           if (typeof el !== 'undefined') {
             names.push(el.attributes.name)
           }
         })
+
         return names.join(', ')
       } else {
         return ''
@@ -1110,6 +1115,7 @@ export default {
           this.localOrganisation.attributes[field] !== this.initialOrganisation.attributes[field] :
           false
       }
+
       return false
     },
 
@@ -1171,6 +1177,7 @@ export default {
     if (this.registrationStatuses.length === 0) {
       this.showAddStatusForm = true
     }
+
     this.statusForm.type = this.availableRegistrationTypes.length > 0 ? this.availableRegistrationTypes[0].value : ''
   },
 }

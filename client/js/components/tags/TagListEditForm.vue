@@ -187,6 +187,7 @@ export default {
 
     saveItem () {
       const isTitleChanged = this.nodeElement.attributes.title !== this.unsavedItem.title
+
       this.$emit('save', { id: this.nodeElement.id, attributes: this.unsavedItem, type: this.nodeElement.type, isTitleChanged })
     },
   },

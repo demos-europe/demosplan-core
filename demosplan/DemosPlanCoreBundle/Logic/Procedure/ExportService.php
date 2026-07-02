@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use Carbon\Carbon;
 use Cocur\Slugify\Slugify;
+use DemosEurope\DemosplanAddon\Contracts\CurrentContextProviderInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -35,6 +36,8 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput as ProcedureOutp
 use demosplan\DemosPlanCoreBundle\Logic\Report\ExportReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplate;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportType;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
@@ -135,6 +138,7 @@ class ExportService
         private readonly ZipExportService $zipExportService,
         private readonly string $rendererName,
         private readonly string $rendererPath,
+        private readonly CurrentContextProviderInterface $currentContextProvider,
     ) {
         $this->assessmentTableOutput = $assessmentTableServiceOutput;
         $this->draftStatementService = $draftStatementService;
@@ -236,20 +240,20 @@ class ExportService
 
                 // Abwägungstabelle mit Namen
                 if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table')) {
-                    $zip = $this->addAssessmentTableToZip($procedureId, $procedureName, 'statementsOnly', $zip);
+                    $zip = $this->addAssessmentTableToZip($procedureId, $procedureName, ExportType::STATEMENTS_ONLY->value, $zip);
                 }
 
                 if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_fragments')) {
-                    $zip = $this->addAssessmentTableToZip($procedureId, $procedureName, 'statementsAndFragments', $zip);
+                    $zip = $this->addAssessmentTableToZip($procedureId, $procedureName, ExportType::STATEMENTS_AND_FRAGMENTS->value, $zip);
                 }
 
                 // Abwägungstabelle ohne Namen (anonym)
                 if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_anonymous')) {
-                    $zip = $this->addAssessmentTableAnonymousToZip($procedureId, $procedureName, 'statementsOnly', $zip);
+                    $zip = $this->addAssessmentTableAnonymousToZip($procedureId, $procedureName, ExportType::STATEMENTS_ONLY->value, $zip);
                 }
 
                 if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_fragments_anonymous')) {
-                    $zip = $this->addAssessmentTableAnonymousToZip($procedureId, $procedureName, 'statementsAndFragments', $zip);
+                    $zip = $this->addAssessmentTableAnonymousToZip($procedureId, $procedureName, ExportType::STATEMENTS_AND_FRAGMENTS->value, $zip);
                 }
 
                 // OriginalStellungnahmen
@@ -409,7 +413,7 @@ class ExportService
             'anonymous'        => false,
             'numberStatements' => false,
             'exportType'       => $exportType,
-            'template'         => 'condensed',
+            'template'         => ExportTemplate::CONDENSED->value,
             'sortType'         => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
         ];
 
@@ -421,16 +425,7 @@ class ExportService
                 AssessmentTableViewMode::DEFAULT_VIEW,
                 false
             );
-            $filename = $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['considerationtable'].'/%s.docx';
-            switch ($exportType) {
-                case 'statementsOnly':
-                    $filename = sprintf($filename, $this->literals['considerationtable'].'_Liste');
-                    break;
-
-                case 'statementsAndFragments':
-                    $filename = sprintf($filename, $this->literals['considerationtable'].'_Liste_mit_Datensaetzen');
-                    break;
-            }
+            $filename = $this->buildConsiderationTableDocxFilename($procedureName, $exportType, false);
 
             $this->addDocxToZip($exportResult, $zip, $filename);
             $this->logger->info('abwaegung_list created',
@@ -452,7 +447,7 @@ class ExportService
             'anonymous'        => true,
             'numberStatements' => false,
             'exportType'       => $exportType,
-            'template'         => 'condensed',
+            'template'         => ExportTemplate::CONDENSED->value,
             'sortType'         => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
         ];
 
@@ -471,16 +466,7 @@ class ExportService
                 AssessmentTableViewMode::DEFAULT_VIEW,
                 false
             );
-            $filename = $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['considerationtable'].'/%s.docx';
-            switch ($exportType) {
-                case 'statementsOnly':
-                    $filename = sprintf($filename, $this->literals['considerationtable'].'_Liste_Anonym');
-                    break;
-
-                case 'statementsAndFragments':
-                    $filename = sprintf($filename, $this->literals['considerationtable'].'_Liste_mit_Datensaetzen_Anonym');
-                    break;
-            }
+            $filename = $this->buildConsiderationTableDocxFilename($procedureName, $exportType, true);
 
             $this->addDocxToZip($exportResult, $zip, $filename);
 
@@ -500,6 +486,18 @@ class ExportService
         }
 
         return $zip;
+    }
+
+    private function buildConsiderationTableDocxFilename(string $procedureName, string $exportType, bool $anonymous): string
+    {
+        $anonymSuffix = $anonymous ? '_Anonym' : '';
+        $filename = $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['considerationtable'].'/%s.docx';
+
+        return match ($exportType) {
+            ExportType::STATEMENTS_ONLY->value            => sprintf($filename, $this->literals['considerationtable'].'_Liste'.$anonymSuffix),
+            ExportType::STATEMENTS_AND_FRAGMENTS->value   => sprintf($filename, $this->literals['considerationtable'].'_Liste_mit_Datensaetzen'.$anonymSuffix),
+            default                                       => $filename,
+        };
     }
 
     public function addAssessmentTableOriginalToZip(
@@ -754,7 +752,11 @@ class ExportService
             ];
             Settings::setPdfRendererPath($this->rendererPath);
             Settings::setPdfRendererName($this->rendererName);
-            $reportInfo = $this->exportReportService->getReportInfo($procedureId, $this->permissions);
+            $reportInfo = $this->exportReportService->getReportInfo(
+                $procedureId,
+                $this->permissions,
+                $this->currentContextProvider->getCurrentCustomer()->getId()
+            );
             $pdfReport = $this->exportReportService->generateProcedureReport($procedureId, $reportInfo, $reportMeta);
             $this->zipExportService->addWriterToZipStream(
                 $pdfReport,

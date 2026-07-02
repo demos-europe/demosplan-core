@@ -19,12 +19,14 @@ export default function DeleteFragmentButton () {
        * there should be a way to use it straight away, but i don't know how
        */
       const elem = event.target
+
       event.preventDefault()
 
       // Dpconfirm() is set in window...
       if (dpconfirm(Translator.trans('check.fragment.delete'))) {
         // Prepare the form-data
         const formData = new FormData()
+
         formData.append('delete', true)
 
         //  Post to delete route
@@ -53,6 +55,7 @@ export default function DeleteFragmentButton () {
             if (data.code === 200 && data.success === true) {
               // Remove Item from DOM
               const target = document.querySelector('[data-post-delete-target="' + elem.getAttribute('data-target-id') + '"]')
+
               target.parentNode.removeChild(target)
             }
           })

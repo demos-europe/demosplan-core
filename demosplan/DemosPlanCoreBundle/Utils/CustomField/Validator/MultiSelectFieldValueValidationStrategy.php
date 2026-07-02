@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Validator;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\MultiSelectField;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -55,7 +56,7 @@ class MultiSelectFieldValueValidationStrategy implements CustomFieldValueValidat
             }
 
             // Each element must be a valid option ID
-            if (null === $field->getCustomOptionValueById($singleOptionValueId)) {
+            if (!$field->getCustomOptionValueById($singleOptionValueId) instanceof CustomFieldOption) {
                 throw new InvalidArgumentException('Each element must be a valid option ID');
             }
         }

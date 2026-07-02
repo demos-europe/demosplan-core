@@ -1,0 +1,26 @@
+api_platform:
+    title: demosplan API
+    version: 3.0.0
+    mapping:
+        paths:
+            - '%kernel.project_dir%/demosplan/DemosPlanCoreBundle/ApiResources'
+    formats:
+        jsonld: ['application/ld+json']
+        json: ['application/json']
+        jsonapi: ['application/vnd.api+json']
+    docs_formats:
+        jsonld: ['application/ld+json']
+        jsonopenapi: ['application/vnd.openapi+json']
+        html: ['text/html']
+    defaults:
+        stateless: false
+        cache_headers:
+            vary: ['Content-Type', 'Authorization', 'Origin']
+        extra_properties:
+            standard_put: true
+            rfc_7807_compliant_errors: true
+    keep_legacy_inflector: false
+    use_symfony_listeners: false
+    serializer:
+        # Preserve the current JSON-LD output; the "hydra:" prefix default flips in api-platform 4.0.
+        hydra_prefix: true

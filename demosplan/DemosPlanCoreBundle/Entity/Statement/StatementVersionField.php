@@ -37,7 +37,7 @@ class StatementVersionField implements UuidEntityInterface, StatementVersionFiel
      *
      * @var string
      */
-    #[ORM\Column(name: '_u_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
+    #[ORM\Column(name: '_u_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     protected $userIdent = '';
 
     /**
@@ -49,7 +49,7 @@ class StatementVersionField implements UuidEntityInterface, StatementVersionFiel
     /**
      * @var string
      */
-    #[ORM\Column(name: '_s_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
+    #[ORM\Column(name: '_s_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     protected $sessionIdent = '';
 
     /**

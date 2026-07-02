@@ -37,6 +37,7 @@ use Exception;
 use Pagerfanta\Elastica\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Traversable;
 
@@ -118,6 +119,10 @@ class ElasticsearchResultCreator
         private readonly DepartmentRepository $departmentRepository,
         private readonly ProfilerService $profilerService,
         private readonly LoggerInterface $logger,
+        #[Autowire(param: 'elasticsearch_max_result_window')]
+        private readonly int $elasticsearchMaxResultWindow,
+        #[Autowire(param: 'elasticsearch_search_after_batch_size')]
+        private readonly int $searchAfterBatchSize,
     ) {
     }
 
@@ -328,9 +333,9 @@ class ElasticsearchResultCreator
                 );
                 $query = $this->elasticSearchService->addEsMissingAggregation($query, 'dName.raw');
             }
-            // Verfahrensschritt - phase - phase
-            if ($addAllAggregations || \array_key_exists('phase', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, 'phase');
+            // Verfahrensschritt - phaseDefinitionId
+            if ($addAllAggregations || \array_key_exists('phaseDefinitionId', $userFilters)) {
+                $query = $this->elasticSearchService->addEsAggregation($query, 'phaseDefinitionId');
             }
             // Verschobene Stellungnahmen in dieses Verfahren - movedFromProcedureId - movedFromProcedureId
             if ($addAllAggregations || \array_key_exists('movedFromProcedureId', $userFilters)) {
@@ -677,16 +682,25 @@ class ElasticsearchResultCreator
             }
 
             try {
-                /** @var array|Traversable $resultSet */
-                $resultSet = $paginator->getCurrentPageResults();
-                $result = $resultSet->getResponse()->getData();
-                $elasticsearchResultStatement->setHits($result['hits']);
+                if ((int) $limit > $this->elasticsearchMaxResultWindow) {
+                    // "Fetch everything" path (exports, no-pager lists): a single from+size query
+                    // would exceed index.max_result_window, so page through all hits via search_after.
+                    $batch = $this->elasticSearchService->fetchAllHitsViaSearchAfter($search, $query, $this->searchAfterBatchSize);
+                    $result = $batch['result'];
+                    $elasticsearchResultStatement->setHits($result['hits']);
+                    $esResultAggregations = $batch['aggregations'];
+                } else {
+                    /** @var array|Traversable $resultSet */
+                    $resultSet = $paginator->getCurrentPageResults();
+                    $result = $resultSet->getResponse()->getData();
+                    $elasticsearchResultStatement->setHits($result['hits']);
+                    $esResultAggregations = $resultSet->getAggregations();
+                }
             } catch (ClientException $e) {
                 $this->logger->error('Elasticsearch probably hit a timeout: ', [$e]);
                 throw $e;
             }
 
-            $esResultAggregations = $resultSet->getAggregations();
             $totalHits = $result['hits']['total'];
             if (is_array($totalHits) && array_key_exists('value', $totalHits) && 0 === $totalHits['value']) {
                 $esResultAggregations = $this->addFilterToAggregationsWhenCausedResultIsEmpty(
@@ -749,11 +763,11 @@ class ElasticsearchResultCreator
                     $processedAggregation
                 );
             }
-            // Verfahrensschritt - phase - phase
-            if ($addAllAggregations || \array_key_exists('phase', $userFilters)) {
+            // Verfahrensschritt - phaseDefinitionId
+            if ($addAllAggregations || \array_key_exists('phaseDefinitionId', $userFilters)) {
                 $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
-                    'phase',
-                    'phase',
+                    'phaseDefinitionId',
+                    'phaseDefinitionId',
                     $esResultAggregations,
                     $processedAggregation
                 );
@@ -1358,7 +1372,7 @@ class ElasticsearchResultCreator
         $this->profilerService->profilerStart(ProfilerService::ELASTICSEARCH_PROFILER);
         //
         // if a Searchterm is set use it
-        if (\is_string($search) && 0 < \strlen($search)) {
+        if (\is_string($search) && '' !== $search) {
             $usedSearchfields = [];
             if ([] === $searchFields) {
                 $usedSearchfields = \array_values(self::AVAILABLE_SEARCH_FIELDS);
@@ -1583,9 +1597,12 @@ class ElasticsearchResultCreator
                 'oName.sort'         => $sortDirection,
                 'dName.sort'         => $sortDirection,
                 'uName.sort'         => $sortDirection,
-                'cluster.oName.sort' => $sortDirection,
-                'cluster.dName.sort' => $sortDirection,
-                'cluster.uName.sort' => $sortDirection,
+                // The cluster fields are mapped as a nested type, so Elasticsearch requires
+                // an explicit nested context to sort on them. Without it the whole search is
+                // rejected with HTTP 400 and the assessment table shows no statements.
+                'cluster.oName.sort' => ['order' => $sortDirection, 'nested' => ['path' => 'cluster']],
+                'cluster.dName.sort' => ['order' => $sortDirection, 'nested' => ['path' => 'cluster']],
+                'cluster.uName.sort' => ['order' => $sortDirection, 'nested' => ['path' => 'cluster']],
             ];
         }
 

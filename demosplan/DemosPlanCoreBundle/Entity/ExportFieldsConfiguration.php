@@ -40,7 +40,7 @@ class ExportFieldsConfiguration extends CoreEntity implements UuidEntityInterfac
      * @var ProcedureInterface
      */
     #[ORM\JoinColumn(referencedColumnName: '_p_id', nullable: false)]
-    #[ORM\ManyToOne(targetEntity: Procedure::class, inversedBy: 'exportFieldsConfigurations', cascade: ['persist'])]
+    #[ORM\ManyToOne(targetEntity: Procedure::class, cascade: ['persist'], inversedBy: 'exportFieldsConfigurations')]
     private $procedure;
 
     /**

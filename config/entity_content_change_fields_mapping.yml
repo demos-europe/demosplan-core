@@ -23,6 +23,10 @@ parameters:
             customFields: #special case!
                 fieldType: "json"
                 noHighlighting: true
+            locked:
+                fieldType: "string"
+                translationKey: "segment.locked"
+                noHighlighting: true
             text:
                 fieldType: "tipTapHtmlString"
                 translationKey: "text"
@@ -39,6 +43,9 @@ parameters:
                 translationKey: "segment.tags"
                 noHighlighting: true
         demosplan\DemosPlanCoreBundle\Entity\Statement\Statement:
+            customFields: #special case needs special handling
+                fieldType: "json"
+                noHighlighting: true
             assignee:
                 fieldType: "object"
                 translationKey: "assignment"

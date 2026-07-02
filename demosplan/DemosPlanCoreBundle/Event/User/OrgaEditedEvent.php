@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -30,7 +32,7 @@ class OrgaEditedEvent extends DPlanEvent
 
     public function __construct(
         Orga $organisationBefore,
-        Orga $organisationUpdated
+        Orga $organisationUpdated,
     ) {
         $this->organisationUpdated = $organisationUpdated;
         $this->organisationBefore = $organisationBefore;

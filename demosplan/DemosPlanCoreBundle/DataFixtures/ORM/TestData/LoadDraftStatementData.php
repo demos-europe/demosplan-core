@@ -64,7 +64,7 @@ class LoadDraftStatementData extends TestFixture implements DependentFixtureInte
         $draftStatement->setOName($fachplanerOrganisation->getName());
         $draftStatement->setElement($element);
         $draftStatement->setParagraph($paragraphVersion);
-        $draftStatement->setPhase('participation');
+        $draftStatement->setPhaseDefinition($this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION));
         $draftStatement->setRepresents('representedOrganization');
 
         $this->setReference('testDraftStatement', $draftStatement);
@@ -83,7 +83,7 @@ class LoadDraftStatementData extends TestFixture implements DependentFixtureInte
         $draftStatement2->setOName($fachplanerOrganisation->getName());
         $draftStatement2->setElement($element);
         $draftStatement2->setParagraph($paragraphVersion);
-        $draftStatement2->setPhase('participation');
+        $draftStatement2->setPhaseDefinition($this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION));
 
         $this->setReference('testDraftStatement2', $draftStatement2);
         $manager->persist($draftStatement2);
@@ -99,7 +99,7 @@ class LoadDraftStatementData extends TestFixture implements DependentFixtureInte
         $draftStatement3->setOName($organisation->getName());
         $draftStatement3->setElement($element);
         $draftStatement3->setParagraph($paragraphVersion);
-        $draftStatement3->setPhase('participation');
+        $draftStatement3->setPhaseDefinition($this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION));
         $draftStatement3->setShowToAll(true);
         $draftStatement3->setReleased(true);
         $draftStatement3->setReleasedDate(new DateTime());
@@ -120,7 +120,7 @@ class LoadDraftStatementData extends TestFixture implements DependentFixtureInte
         $draftStatement4->setOName($fachplanerOrganisation->getName());
         $draftStatement4->setElement($element);
         $draftStatement4->setParagraph($paragraphVersion);
-        $draftStatement4->setPhase('participation');
+        $draftStatement4->setPhaseDefinition($this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION));
         $draftStatement4->setShowToAll(true);
         $draftStatement4->setReleased(false);
         $draftStatement4->setReleasedDate(new DateTime());
@@ -140,7 +140,7 @@ class LoadDraftStatementData extends TestFixture implements DependentFixtureInte
         $draftStatement_released->setOrganisation($fachplanerOrganisation);
         $draftStatement_released->setElement($element);
         $draftStatement_released->setParagraph($paragraphVersion);
-        $draftStatement_released->setPhase('participation');
+        $draftStatement_released->setPhaseDefinition($this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION));
         $draftStatement_released->setShowToAll(true);
         $draftStatement_released->setReleased(true);
         $draftStatement_released->setReleasedDate(new DateTime());
@@ -161,7 +161,7 @@ class LoadDraftStatementData extends TestFixture implements DependentFixtureInte
         $draftStatement_submitted->setOName($fachplanerOrganisation->getName());
         $draftStatement_submitted->setElement($element);
         $draftStatement_submitted->setParagraph($paragraphVersion);
-        $draftStatement_submitted->setPhase('participation');
+        $draftStatement_submitted->setPhaseDefinition($this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION));
         $draftStatement_submitted->setShowToAll(true);
         $draftStatement_submitted->setReleased(true);
         $draftStatement_submitted->setReleasedDate(new DateTime());
@@ -182,7 +182,7 @@ class LoadDraftStatementData extends TestFixture implements DependentFixtureInte
         $draftStatement5->setOName($fachplanerOrganisation->getName());
         $draftStatement5->setElement($this->getReference('testElement7'));
         $draftStatement5->setParagraph($paragraphVersion);
-        $draftStatement5->setPhase('participation');
+        $draftStatement5->setPhaseDefinition($this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION));
         $draftStatement5->setShowToAll(true);
         $draftStatement5->setReleased(false);
         $draftStatement5->setReleasedDate(new DateTime());
@@ -200,6 +200,7 @@ class LoadDraftStatementData extends TestFixture implements DependentFixtureInte
         return [
             LoadElementsData::class,
             LoadProcedureData::class,
+            LoadProcedurePhaseDefinitionData::class,
             LoadUserData::class,
         ];
     }

@@ -159,6 +159,7 @@ export default {
             ].join(),
           },
         }
+
         if (this.searchIn === 'selected') {
           params.filter.idIsOneOf = {
             condition: {
@@ -168,6 +169,7 @@ export default {
             },
           }
         }
+
         dpApi.get(url, params)
           .then(response => {
             this.results = response.data.data

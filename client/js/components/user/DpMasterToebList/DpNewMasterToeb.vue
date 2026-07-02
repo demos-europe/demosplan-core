@@ -60,6 +60,7 @@ export default {
   methods: {
     addOrga (newOrga) {
       const newOrgaCpy = { ...newOrga }
+
       this.boolToStringFields.forEach(field => {
         // Set true if boolToStringFields where set with any string.
         newOrgaCpy[field] = typeof newOrgaCpy[field] !== 'undefined'

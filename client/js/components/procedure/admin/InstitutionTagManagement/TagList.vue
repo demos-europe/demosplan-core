@@ -217,6 +217,7 @@ export default {
 
         if (category) {
           const tag = category.children.find(tag => tag.id === item.id)
+
           tag.name = item.name
         }
       }

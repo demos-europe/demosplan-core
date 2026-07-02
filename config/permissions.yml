@@ -179,6 +179,17 @@ area_admin_invitable_institution:
 area_combined_participation_area:
     label: 'Nutze die Beteiligungsebene auch für Institutionen'
     loginRequired: false
+area_customer_procedure_phase_definitions:
+    description: 'Allows to view and manage procedure phase definitions for the current customer.'
+    label: 'Manage customer procedure phase definitions'
+    loginRequired: true
+    parent: area_customer_settings
+area_customer_procedure_phase_participation_token:
+    description: 'Allows to use "participate with token" as a participation state option in procedure phase definition.'
+    expose: 'true'
+    label: 'Enable participation state "participate with token" in procedure phase definition'
+    loginRequired: true
+    parent: area_customer_settings
 area_customer_send_mail_to_users:
     description: 'See parent for longer description.'
     label: 'Allows to send an E-Mail with free editable html body to all users of the customer.'
@@ -668,6 +679,32 @@ feature_admin_new_procedure:
     label: 'Create a new procedure'
     loginRequired: true
     parent: feature_admin
+feature_administrate_segment_lock:
+    description: |-
+        Grants write access to the segment lock mechanism. Holders may toggle the
+        `locked` flag on workflow places, edit segments whose current place is locked,
+        and move segments into or out of a locked place. Users without this permission
+        can still read the lock state of segments but cannot perform any of the above
+        writes. The whole feature is additionally gated per project via the
+        `feature_segment_lock_by_workflow_place` permission — if that is not granted
+        for the current user this permission has no effect.
+    expose: true
+    label: 'Allows to administrate the segment lock (toggle locked places, edit or move locked segments).'
+    loginRequired: true
+    parent: area_statement_segmentation
+feature_segment_lock_by_workflow_place:
+    description: |-
+        Project-wide feature flag for the segment-lock-by-workflow-place mechanism.
+        When granted, workflow places expose a `locked` flag, locked places make
+        their segments read-only for users without the `feature_administrate_segment_lock`
+        permission, and the Versionsverlauf records lock transitions on segments.
+        When not granted nothing locks anything and the rest of the enforcement
+        chain becomes a no-op. Typically granted to every role that has
+        `area_statement_segmentation` in projects that opt in to the feature.
+    expose: true
+    label: 'Enables the segment-lock-by-workflow-place feature for the current project / user.'
+    loginRequired: true
+    parent: area_statement_segmentation
 feature_adjust_preamble_export_file:
     expose: true
     label: 'alters the preamble header of an exported doc to include the procedure name instead of the export-date'
@@ -754,6 +791,7 @@ feature_auto_switch_procedure_news:
     loginRequired: true
 feature_auto_switch_procedure_phase:
     description: 'Switch the procedure phase on chosen day.'
+    expose: true
     label: 'Automatically toggle the procedure phase'
     loginRequired: true
 feature_auto_switch_to_procedure_end_phase:
@@ -2709,6 +2747,11 @@ field_organisation_paper_copy_spec:
 field_organisation_phone:
     expose: true
     label: 'Telefon des Verfahrensträger'
+    loginRequired: false
+    parent: field_organisation
+field_organisations_custom_fields:
+    expose: true
+    label: 'Anzeige der eigenen Werte für Custom Fields der Organisation'
     loginRequired: false
     parent: field_organisation
 field_paragraph_lock_statement:

@@ -74,7 +74,7 @@ class Department extends CoreEntity implements UuidEntityInterface, DepartmentIn
     /**
      * @var string
      */
-    #[ORM\Column(name: '_d_gw_id', type: 'string', length: 36, options: ['fixed' => true], nullable: true)]
+    #[ORM\Column(name: '_d_gw_id', type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
     protected $gwId;
 
     /**

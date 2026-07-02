@@ -37,7 +37,7 @@ class ForumThread extends CoreEntity implements UuidEntityInterface, ForumThread
     /**
      * @var string
      */
-    #[ORM\Column(name: '_ft_url', type: 'string', length: 255, nullable: true, unique: true)]
+    #[ORM\Column(name: '_ft_url', type: 'string', length: 255, unique: true, nullable: true)]
     protected $url;
 
     /**

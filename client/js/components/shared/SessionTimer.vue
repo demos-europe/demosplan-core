@@ -115,6 +115,7 @@ export default {
 
     initializeTimer () {
       const timestampInMsecs = this.dplan.expirationTimestamp * millisecondsPerSecond
+
       this.tenMinutesThreshold = timestampInMsecs - (10 * millisecondsPerMinute)
       this.threeMinutesThreshold = timestampInMsecs - (3 * millisecondsPerMinute)
       this.updateTimer()
@@ -135,6 +136,7 @@ export default {
       }
 
       const sessionExpiration = this.dplan.expirationTimestamp * millisecondsPerSecond
+
       this.timeLeft = sessionExpiration - Date.now()
 
       if (this.timeLeft <= 0) {

@@ -113,7 +113,7 @@ class StatementExportTagFilter
      */
     public function getTagFiltersHumanReadable(): string
     {
-        if (empty($this->tagNamesFound)) {
+        if ([] === $this->tagNamesFound) {
             return $this->translator->trans('export.filter.tags.none');
         }
 
@@ -128,7 +128,7 @@ class StatementExportTagFilter
      */
     public function getTopicFiltersHumanReadable(): string
     {
-        if (empty($this->topicNamesFound)) {
+        if ([] === $this->topicNamesFound) {
             return $this->translator->trans('export.filter.topics.none');
         }
 
@@ -147,7 +147,7 @@ class StatementExportTagFilter
      */
     private function initializeRelationships(array $statements): void
     {
-        if (empty($statements)) {
+        if ([] === $statements) {
             return;
         }
 
@@ -240,6 +240,6 @@ class StatementExportTagFilter
 
     private function checkExistence(?string $needle, array $haystack): bool
     {
-        return null !== $needle && !empty($haystack) && in_array($needle, $haystack, true);
+        return null !== $needle && [] !== $haystack && in_array($needle, $haystack, true);
     }
 }

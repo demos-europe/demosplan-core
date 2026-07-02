@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -25,7 +27,7 @@ class FaqApiController extends APIController
      * @deprecated use `api_resource_update` route instead
      */
     #[DplanPermissions('area_admin_faq')]
-    #[Route(path: '/api/1.0/faq/{faqId}', methods: ['PATCH'], name: 'dp_api_admin_faq_update', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/faq/{faqId}', name: 'dp_api_admin_faq_update', options: ['expose' => true], methods: ['PATCH'])]
     public function update(ApiLogger $apiLogger, string $faqId): Response
     {
         try {
@@ -44,7 +46,7 @@ class FaqApiController extends APIController
     }
 
     #[DplanPermissions('area_admin_faq')]
-    #[Route(path: '/api/1.0/faq/{faqId}', methods: ['DELETE'], name: 'dp_api_admin_faq_delete', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/faq/{faqId}', name: 'dp_api_admin_faq_delete', options: ['expose' => true], methods: ['DELETE'])]
     public function delete(string $faqId, FaqHandler $faqHandler): APIResponse
     {
         try {

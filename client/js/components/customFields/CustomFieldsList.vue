@@ -199,7 +199,7 @@ export default {
     },
 
     definitionSourceId: {
-      type: String,
+      type: [String, null],
       required: true,
     },
 
@@ -321,6 +321,7 @@ export default {
 
     effectiveTitleTag () {
       const allowed = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'dt']
+
       return allowed.includes(this.titleTag) ? this.titleTag : 'p'
     },
 
@@ -333,6 +334,7 @@ export default {
     fieldsToRender () {
       const allFields = this.definitions.map(definition => {
         const matchingValue = this.values.find(value => value.id === definition.id)
+
         return {
           id: definition.id,
           value: matchingValue?.value ?? null,
@@ -381,6 +383,7 @@ export default {
         horizontal: this.prefixClass('flex flex-row flex-wrap gap-4'),
         grid: this.prefixClass('grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-4'),
       }
+
       return baseClasses[this.layout] || baseClasses.vertical
     },
   },
@@ -391,6 +394,7 @@ export default {
       if (this.expandable && this.batchFilterPath === null) {
         return
       }
+
       this.fetchCustomFieldsData()
     },
 
@@ -399,6 +403,7 @@ export default {
       if (this.expandable && this.batchFilterPath === null) {
         return
       }
+
       this.fetchCustomFieldsData()
     },
 
@@ -407,6 +412,7 @@ export default {
       if (this.expandable && this.batchFilterPath === null) {
         return
       }
+
       this.fetchCustomFieldsData()
     },
   },
@@ -422,6 +428,7 @@ export default {
       if (!areDefinitionsCached || !areValuesCached) {
         this.isLoading = true
       }
+
       this.error = null
 
       // 1. Fetch definitions (gets array of field definitions with IDs)
@@ -455,6 +462,7 @@ export default {
 
     handleDetailsOpen () {
       const isTriggerNeeded = this.expandable && this.batchFilterPath === null && !this.isLoaded && !this.isLoading
+
       if (isTriggerNeeded) {
         this.fetchCustomFieldsData()
       }
@@ -480,6 +488,7 @@ export default {
 
     handleValueUpdate (fieldId, newValue) {
       const valueIndex = this.values.findIndex(valueEntry => valueEntry.id === fieldId)
+
       if (valueIndex === -1) {
         this.values = [...this.values, { id: fieldId, value: newValue }]
       } else {
@@ -487,6 +496,7 @@ export default {
           index === valueIndex ? { ...valueEntry, value: newValue } : valueEntry,
         )
       }
+
       this.$emit('update:value', { fieldId, value: newValue })
     },
   },
@@ -495,6 +505,7 @@ export default {
     if (this.expandable && this.batchFilterPath === null) {
       return
     }
+
     this.fetchCustomFieldsData()
   },
 }

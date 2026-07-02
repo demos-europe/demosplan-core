@@ -72,8 +72,8 @@ class ServiceStorageTest extends FunctionalTestCase
         static::assertSame($procedureData['r_enddate'], $procedure->getEndDate()->format('d.m.Y'));
         static::assertSame($procedureData['orgaId'], $procedure->getOrgaId());
         static::assertSame($procedureData['orgaName'], $procedure->getOrgaName());
-        static::assertSame($procedureData['phase'], $procedure->getPhase());
-        static::assertSame($procedureData['publicParticipationPhase'], $procedure->getPublicParticipationPhase());
+        static::assertSame('hidden', $procedure->getPhaseObject()->getPhaseDefinition()->getPermissionSet());
+        static::assertSame('hidden', $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getPermissionSet());
         static::assertSame($procedureData['r_procedure_type'], $this->procedureType->getId());
     }
 
@@ -230,8 +230,6 @@ class ServiceStorageTest extends FunctionalTestCase
             'r_master'                 => false,
             'orgaId'                   => $this->testUser->getOrganisationId(),
             'orgaName'                 => $this->testUser->getOrgaName(),
-            'phase'                       => 'configuration',
-            'publicParticipationPhase' => 'configuration',
             'r_procedure_type'         => $this->procedureType->getId(),
         ];
     }
@@ -292,12 +290,12 @@ class ServiceStorageTest extends FunctionalTestCase
     private function getBaseEditData(array $additionalData = []): array
     {
         return array_merge([
-            'action'            => 'edit',
-            'r_ident'           => $this->testProcedure->getId(),
-            'r_phase_iteration' => '1',
-            'r_name'            => 'testAdded',
-            'r_phase'           => 'configuration',
-            'mandatoryError'    => [],
+            'action'              => 'edit',
+            'r_ident'             => $this->testProcedure->getId(),
+            'r_phase_iteration'   => '1',
+            'r_name'              => 'testAdded',
+            'r_phaseDefinitionId' => $this->testProcedure->getPhaseObject()->getPhaseDefinition()->getId(),
+            'mandatoryError'      => [],
         ], $additionalData);
     }
 

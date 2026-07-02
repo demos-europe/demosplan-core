@@ -37,7 +37,7 @@ class ManualListSort extends CoreEntity implements UuidEntityInterface, ManualLi
     /**
      * @var string
      */
-    #[ORM\Column(name: '_p_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
+    #[ORM\Column(name: '_p_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     protected $pId;
 
     /**
@@ -52,7 +52,7 @@ class ManualListSort extends CoreEntity implements UuidEntityInterface, ManualLi
     #[ORM\Column(name: '_mls_namespace', type: 'string', length: 255, nullable: false)]
     protected $namespace;
 
-    #[ORM\JoinColumn(name: 'customer_id', referencedColumnName: '_c_id', onDelete: 'CASCADE', nullable: true)]
+    #[ORM\JoinColumn(name: 'customer_id', referencedColumnName: '_c_id', nullable: true, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Customer::class, cascade: ['persist'])]
     protected ?CustomerInterface $customer = null;
 

@@ -302,6 +302,7 @@ export default {
         municipalCode: '',
         ...this.filters.reduce((acc, filter) => {
           acc[filter.name] = ''
+
           return acc
         }, {}),
       },
@@ -385,6 +386,7 @@ export default {
       setTimeout(() => {
         if (window.markersLayer.getLayers().length > 0) {
           const bounds = window.markersLayer.getBounds().pad(0.2)
+
           window.map.fitBounds(bounds)
 
           if (window.map.getZoom() > 16) {
@@ -397,7 +399,9 @@ export default {
     getSelectedFilterOption (filter) {
       const selectedValue = this.form[filter.name]
 
-      if (!selectedValue) return null
+      if (!selectedValue) {
+        return null
+      }
 
       return filter.options.find(option => option.value === selectedValue) || null
     },
@@ -417,6 +421,7 @@ export default {
         this.form.phasePermissionset = ''
         this.setFilterSelectValue('phasePermissionset', '')
       }
+
       if (this.form.publicParticipationPhasePermissionset) {
         this.form.publicParticipationPhasePermissionset = ''
         this.setFilterSelectValue('publicParticipationPhasePermissionset', '')
@@ -431,6 +436,7 @@ export default {
     resetFilterSelects () {
       this.filters.forEach((_, idx) => {
         const filter = this.$refs[`filter_${idx}`]
+
         // As per the docs the result of $refs here will be an array because ref was used in a v-for https://vuejs.org/v2/api/#ref
         filter[0].selectedIndex = 0
       })
@@ -448,6 +454,7 @@ export default {
 
     resetURL () {
       const noFilterURL = window.location.href.split('?')[0]
+
       window.history.pushState({ html: noFilterURL, pageTitle: document.title }, document.title, noFilterURL)
     },
 
@@ -456,6 +463,7 @@ export default {
         this.form.phasePermissionset = 'write'
         this.setFilterSelectValue('phasePermissionset', 'write')
       }
+
       if (hasPermission('feature_procedure_default_filter_extern')) {
         this.form.publicParticipationPhasePermissionset = 'write'
         this.setFilterSelectValue('publicParticipationPhasePermissionset', 'write')
@@ -464,6 +472,7 @@ export default {
 
     setFilterSelectValue (filterName, value) {
       const filterSelect = document.getElementById(filterName)
+
       filterSelect.value = value
     },
 
@@ -498,6 +507,7 @@ export default {
     submitForm () {
       return makeFormPost(this.form, Routing.generate('DemosPlan_procedure_public_list_json')).then(({ data }) => {
         const parsedData = JSON.parse(data)
+
         if (parsedData.code === 100 && parsedData.success === true) {
           // The response contains a html snippet to be directly rendered inside the procedure list container
           document.querySelector('[data-procedurelist-content]').innerHTML = parsedData.responseHtml
@@ -507,6 +517,7 @@ export default {
             this.updateMapFeatures(parsedData.mapVars)
           }
         }
+
         this.isLoading = false
       })
     },
@@ -520,6 +531,7 @@ export default {
       if (mapVars.length === 0) {
         // If there are no procedures found, don't show the info that there are no procedures in the shown bounding box - the hint, that there are no procedures for the filter/search is below the filters
         const noProcedureNotification = document.getElementById('noProcedureNotification')
+
         if (noProcedureNotification.classList.contains(this.prefixClass('hidden')) === false) {
           noProcedureNotification.classList.add(this.prefixClass('hidden'))
         }
@@ -541,6 +553,7 @@ export default {
         `<p class="${this.prefixClass('font-size-smaller u-m-0')}">` +
         `<a href="___procedureUrl___" class="${this.prefixClass('btn btn--primary')}">${Translator.trans('detail.view')}</a>` +
         '</p>' + '</div>'
+
       window.markersLayer.clearLayers()
       let index
 
@@ -549,11 +562,14 @@ export default {
         // Test both coordinates for int or float, skip item if not
         const coordinateX = mapVars[index].coordinateX
         const coordinateY = mapVars[index].coordinateY
+
         if (isNaN(coordinateX) || isNaN(coordinateY)) {
           continue
         }
+
         const LMarker = window.L.marker
         const marker = new LMarker(proj4(window.dplan.defaultProjectionLabel, 'WGS84', [parseFloat(coordinateX), parseFloat(coordinateY)]).reverse())
+
         marker.bindPopup(
           replaceAll(markerTemplate
             .replace('___title___', mapVars[index].externalName)

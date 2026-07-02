@@ -42,7 +42,9 @@ const UserFormFields = {
           const inclDepartments = {}
 
           response.data.included.forEach(dep => {
-            if (dep.type === 'Department') inclDepartments[dep.id] = { id: dep.id, type: dep.type, ...dep.attributes }
+            if (dep.type === 'Department') {
+              inclDepartments[dep.id] = { id: dep.id, type: dep.type, ...dep.attributes }
+            }
           })
 
           response.data.data.forEach(org => {
@@ -51,11 +53,13 @@ const UserFormFields = {
             if (org.relationships && org.relationships.departments) {
               const departments = org.relationships.departments.data
               const orgaDepartments = {}
+
               departments.forEach(dep => {
                 orgaDepartments[dep.id] = inclDepartments[dep.id]
               })
               newOrg.departments = orgaDepartments
             }
+
             organisations.push(newOrg)
           })
 

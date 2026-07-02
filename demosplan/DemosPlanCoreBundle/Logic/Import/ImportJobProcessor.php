@@ -16,6 +16,8 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Import\ImportJob;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\ImportJobNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ImportJobUserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -58,7 +60,7 @@ class ImportJobProcessor
             // Find pending jobs (limit 1 to avoid concurrent processing issues)
             $pendingJobs = $this->importJobRepository->findPendingJobs(1);
 
-            if (empty($pendingJobs)) {
+            if ([] === $pendingJobs) {
                 $this->entityManager->commit();
 
                 return 0;
@@ -172,7 +174,7 @@ class ImportJobProcessor
 
         // Use the actual user who created the import job
         $user = $job->getUser();
-        if (null === $user) {
+        if (!$user instanceof User) {
             throw ImportJobUserNotFoundException::create($job->getId());
         }
 
@@ -182,7 +184,7 @@ class ImportJobProcessor
 
         // Restore organisation context if one was stored with the job
         $organisation = $job->getOrganisation();
-        if (null !== $organisation) {
+        if ($organisation instanceof Orga) {
             $user->setCurrentOrganisation($organisation);
         }
 

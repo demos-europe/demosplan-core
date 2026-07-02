@@ -45,7 +45,6 @@ class ProcedureToLegacyConverter
         if (!$procedure instanceof Procedure) {
             // Legacy returnvalues if no procedure found
             return [
-                'closed'              => false,
                 'deleted'             => false,
                 'master'              => false,
                 'publicParticipation' => false,
@@ -61,10 +60,13 @@ class ProcedureToLegacyConverter
 
         // When using objects this is not needed any more
 
+        $procedureArray['phaseObject'] = $this->entityHelper->toArray($procedure->getPhaseObject());
+        $procedureArray['phaseObject']['phaseDefinition'] = $this->entityHelper->toArray($procedure->getPhaseObject()->getPhaseDefinition());
+        $procedureArray['publicParticipationPhaseObject'] = $this->entityHelper->toArray($procedure->getPublicParticipationPhaseObject());
+        $procedureArray['publicParticipationPhaseObject']['phaseDefinition'] = $this->entityHelper->toArray($procedure->getPublicParticipationPhaseObject()->getPhaseDefinition());
+
         if (null !== $procedureArray['settings']) {
             $procedureArray['settings'] = $this->entityHelper->toArray($procedureArray['settings']);
-            $procedureArray['phaseObject'] = $this->entityHelper->toArray($procedure->getPhaseObject());
-            $procedureArray['publicParticipationPhaseObject'] = $this->entityHelper->toArray($procedure->getPublicParticipationPhaseObject());
             $procedureArray['pictogram'] = $procedureArray['settings']['pictogram'];
             $procedureArray['pictogramCopyright'] = $procedureArray['settings']['pictogramCopyright'];
             $procedureArray['pictogramAltText'] = $procedureArray['settings']['pictogramAltText'];
@@ -133,8 +135,6 @@ class ProcedureToLegacyConverter
             'ars'                                   => $procedure->getArs(),
             'authorizedUsers'                       => $procedure->getAuthorizedUsers(),
             'authorizedUserIds'                     => $authorizedUserIds,
-            'closed'                                => $procedure->getClosed(),
-            'closedDate'                            => $procedure->getClosedDate(),
             'coordinate'                            => $procedure->getCoordinate(),
             'createdDate'                           => $procedure->getCreatedDate(),
             'currentSlug'                           => $procedure->getCurrentSlug(),
@@ -165,9 +165,6 @@ class ProcedureToLegacyConverter
             'orgaName'                              => $procedure->getOrgaName(),
             'organisation'                          => $nonPlanningOfficeOrganisationIds,
             'organisationIds'                       => $nonPlanningOfficeOrganisationIds,
-            'phase'                                 => $procedure->getPhase(),
-            'phaseName'                             => $procedure->getPhaseName(),
-            'phasePermissionset'                    => $procedure->getPhasePermissionset(),
             'planningOffices'                       => $planningOfficeOrganisations,
             'planningOfficesIds'                    => $planningOfficeIds,
             'plisId'                                => $procedure->getPlisId(),
@@ -178,9 +175,6 @@ class ProcedureToLegacyConverter
             'publicParticipation'                   => $procedure->getPublicParticipation(),
             'publicParticipationContact'            => $procedure->getPublicParticipationContact(),
             'publicParticipationEndDate'            => $procedure->getPublicParticipationEndDate(),
-            'publicParticipationPhase'              => $procedure->getPublicParticipationPhase(),
-            'publicParticipationPhaseName'          => $procedure->getPublicParticipationPhaseName(),
-            'publicParticipationPhasePermissionset' => $procedure->getPublicParticipationPhasePermissionset(),
             'publicParticipationPublicationEnabled' => $procedure->getPublicParticipationPublicationEnabled(),
             'publicParticipationStartDate'          => $procedure->getPublicParticipationStartDate(),
             'publicParticipationStep'               => $procedure->getPublicParticipationStep(),
@@ -190,7 +184,6 @@ class ProcedureToLegacyConverter
             'startDate'                             => $procedure->getStartDate(),
             'statementFormDefinition'               => $procedure->getStatementFormDefinition(),
             'statements'                            => $procedure->getStatements(),
-            'step'                                  => $procedure->getStep(),
             'topics'                                => $procedure->getTopics(),
         ];
     }

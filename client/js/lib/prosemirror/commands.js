@@ -127,6 +127,7 @@ const removeMarkByName = (state, markName, markAttr, tr = false) => {
 
   Object.values(marks).forEach(mark => {
     const { from, to } = mark
+
     transaction.removeMark(from, to, markType)
   })
 
@@ -147,6 +148,7 @@ const setRangeEditingState = (view, rangeTrackerKey, editingDecorationsKey) => (
   }
 
   let tr = replaceRange(state, from, to, { segmentId, isConfirmed, isActive: editingState })
+
   tr = tr.setMeta(editingDecorationsKey, { editing: editingState, from, to, id })
 
   dispatch(tr)
@@ -182,6 +184,7 @@ const replaceMarkInRange = (state, from, to, markKey, markAttrs, tr = false) => 
     from = transaction.doc.content.size
     console.warn(`Range ${JSON.stringify(newAttrs)} was truncated from the start because it exceeded the document size.`)
   }
+
   if (to > transaction.doc.content.size) {
     to = transaction.doc.content.size
     console.warn(`Range ${JSON.stringify(newAttrs)} was truncated at the end because it exceeded the document size.`)
@@ -190,6 +193,7 @@ const replaceMarkInRange = (state, from, to, markKey, markAttrs, tr = false) => 
   transaction = transaction.removeMark(from, to, markType)
 
   const newMark = markType.create(newAttrs)
+
   transaction = transaction.addMark(from, to, newMark)
   const markCollection = getMarks(flattenNode(transaction.doc), markKey, 'pmId')
   const currentMarkCollection = markCollection[pmId]
@@ -197,6 +201,7 @@ const replaceMarkInRange = (state, from, to, markKey, markAttrs, tr = false) => 
   currentMarkCollection.marks.forEach(m => {
     transaction = transaction.removeMark(m.from, m.to, markType)
     const uniqueMark = markType.create({ ...newAttrs, pmId: uuidv4() })
+
     transaction = transaction.addMark(m.from, m.to, uniqueMark)
   })
 
@@ -229,6 +234,7 @@ const setRange = (view) => (from, to, rangeAttrs) => {
  */
 const makeDecoration = (id, pos, isActive = false) => {
   const el = document.createElement('span')
+
   el.setAttribute('data-range-widget', id)
   el.setAttribute('data-range-widget-pos', pos)
 
@@ -305,6 +311,7 @@ const activateRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, segmentId
 const disableRangeEdit = (view, editStateTrackerKey, tr = null) => {
   const { state } = view
   let transaction = tr || state.tr
+
   transaction = transaction.setMeta(editStateTrackerKey, 'stop-editing')
 
   return transaction

@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\DraftStatementVersionInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -21,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -87,7 +89,7 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
     /**
      * @var string
      */
-    #[ORM\Column(name: '_ds_text', type: 'text', nullable: false, length: 15000000)]
+    #[ORM\Column(name: '_ds_text', type: 'text', length: 15000000, nullable: false)]
     protected $text = '';
 
     /**
@@ -338,9 +340,16 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
 
     /**
      * @var string
+     *
+     * @deprecated Will be removed once all consumers are migrated to phaseDefinition.
+     *             Kept on the entity to avoid data loss; value is synced from phaseDefinition->getName().
      */
-    #[ORM\Column(name: '_ds_phase', type: 'string', length: 50, nullable: false)]
+    #[ORM\Column(name: '_ds_phase', type: 'string', length: 255, nullable: false)]
     protected $phase = '';
+
+    #[ORM\ManyToOne(targetEntity: ProcedurePhaseDefinition::class)]
+    #[ORM\JoinColumn(name: 'phase_definition_id', referencedColumnName: 'id', nullable: true, onDelete: 'RESTRICT')]
+    protected ?ProcedurePhaseDefinitionInterface $phaseDefinition = null;
 
     /**
      * @var DateTime
@@ -1298,28 +1307,16 @@ class DraftStatementVersion extends CoreEntity implements UuidEntityInterface, D
         return $this->publicDraftStatement;
     }
 
-    /**
-     * Set phase.
-     *
-     * @param string $phase
-     *
-     * @return DraftStatementVersion
-     */
-    public function setPhase($phase)
+    public function getPhaseDefinition(): ?ProcedurePhaseDefinitionInterface
     {
-        $this->phase = $phase;
-
-        return $this;
+        return $this->phaseDefinition;
     }
 
-    /**
-     * Get phase.
-     *
-     * @return string
-     */
-    public function getPhase()
+    public function setPhaseDefinition(ProcedurePhaseDefinitionInterface $phaseDefinition): void
     {
-        return $this->phase;
+        $this->phaseDefinition = $phaseDefinition;
+        // @deprecated $phase will be removed once all consumers are migrated to phaseDefinition
+        $this->phase = $phaseDefinition->getName();
     }
 
     /**

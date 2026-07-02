@@ -12,29 +12,16 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
-use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 
 class ProcedurePhaseService
 {
-    public function __construct(private readonly GlobalConfigInterface $globalConfig)
-    {
-    }
-
     /**
      * Check whether procedure is currently in a public consultation phase.
      */
     public function isPublicConsultationPhase(Procedure $procedure): bool
     {
-        $externalPhases = collect($this->globalConfig->getExternalPhases());
-        $currentPhase = $externalPhases->where('key', $procedure->getPublicParticipationPhase());
-        if (1 === $currentPhase->count()) {
-            $phase = $currentPhase->first();
-
-            return array_key_exists(Procedure::PARTICIPATIONSTATE_KEY, $phase)
-                && Procedure::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN === $phase[Procedure::PARTICIPATIONSTATE_KEY];
-        }
-
-        return false;
+        return Procedure::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN
+            === $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getParticipationState();
     }
 }

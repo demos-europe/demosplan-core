@@ -58,6 +58,7 @@ export default {
      * and parsed to prevent a flash of missing content.
      */
     const placeholder = document.getElementById('registerFlyoutPlaceholder')
+
     if (placeholder) {
       placeholder.remove()
     }

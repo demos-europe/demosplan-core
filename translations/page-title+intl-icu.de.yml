@@ -112,6 +112,7 @@ paragraph.reason: Begründung
 paragraph.reason.edit: Begründung bearbeiten
 paragraph.reason.export: Begruendung
 
+phases.definition: Verfahrensschritte definieren
 
 procedure: Verfahren
 procedure.public: Verfahren
@@ -121,6 +122,7 @@ procedure.analysis: Auswertung
 procedure.boilerplates: Textbausteine
 procedure.boilerplate.edit: Textbaustein bearbeiten
 procedure.boilerplateGroup.edit: Textbausteingruppe bearbeiten
+procedure.custom.fields: Konfigurierbare Felder
 procedure.list: Beteiligung
 procedure.mail.submitters.send: E-Mail an alle Einreichenden verfassen
 procedure.mail.submitters.send.confirm: E-Mail an alle Einreichenden versenden
@@ -178,6 +180,7 @@ statement.vote: Stellungnahme mitzeichnen
 statement.bulk.edit: Stellungnahmen bearbeiten
 
 statements: Stellungnahmen
+statement.cluster.create: Gruppe erstellen
 statements.drafts: Entwürfe
 statements.final.group: Einreichungen der Organisation
 statements.final.own: Meine Einreichungen

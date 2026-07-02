@@ -3,7 +3,7 @@
 	\begin{longtable}{|p{6cm}p{11cm}|}
 		\hline
 			% Caption-Zeile - der doppelte Backslah setzt das Ende der Tabellenzeile, das & trennt die Spalten auf, \textbf setzt den Text in den geschweiften Klammern Bold (=<b></b> oder <strong></strong>)
-            {{ "procedure.public.phase"|trans|latex|raw }}: & {{ getProcedurePhase(statement.procedure, 'external', statement.phase|default())|latex|raw }}\\
+            {{ "procedure.public.phase"|trans|latex|raw }}: & {{ statement.phaseDefinition.name|latex|raw }}\\
             {{ "authored.by"|trans|latex|raw }}: & {% if statement.uName is defined %}{{ statement.uName|latex|raw }}{% endif %}\\
 
             {% if templateVars.globalOrganisationName is not defined and templateVars.citizenOrganisationId != statement.oId %}

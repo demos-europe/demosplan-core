@@ -27,10 +27,12 @@ export default {
     DpMapModal: defineAsyncComponent(() => import('@DpJs/components/statement/assessmentTable/DpMapModal')),
     DpSelect: defineAsyncComponent(async () => {
       const { DpSelect } = await import('@demos-europe/demosplan-ui')
+
       return DpSelect
     }),
     DpVideoPlayer: defineAsyncComponent(async () => {
       const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
+
       return DpVideoPlayer
     }),
     ElementsList: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList')),
@@ -82,6 +84,7 @@ export default {
 
     submitForm (formId, hiddenFieldName) {
       const form = this.$el.querySelector(`[data-dp-validate="${formId}"]`)
+
       if (hiddenFieldName) {
         addFormHiddenField(form, hiddenFieldName)
       }
@@ -133,6 +136,7 @@ export default {
 
   mounted () {
     const currentHash = window.document.location.hash.split('?')[0]
+
     if (['#openStatementForm'].includes(currentHash)) {
       this.toggleStatementModal(true, {})
     } else if (['#procedureDetailsMap', '#procedureDetailsDocumentlist', '#procedureDetailsStatementsPublic'].includes(currentHash)) {

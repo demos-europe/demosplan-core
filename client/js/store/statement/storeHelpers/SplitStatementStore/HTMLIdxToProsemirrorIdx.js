@@ -9,11 +9,13 @@
 
 function recalculateIndexPositions (segmentPositions, segmentPositionChanges, matches, offset) {
   const updatedSegmentPositionChanges = [...segmentPositionChanges]
+
   matches.forEach(match => {
     const fullMatch = match[0]
     const matchLength = fullMatch.length
     const matchStart = match.index
     const matchEnd = matchStart + matchLength
+
     segmentPositions.forEach((segmentPosition, idx) => {
       if (matchEnd <= segmentPosition) {
         // We subtract the length of the matched tag and add 1 because this is a prosemirror node.
@@ -21,6 +23,7 @@ function recalculateIndexPositions (segmentPositions, segmentPositionChanges, ma
       }
     })
   })
+
   return updatedSegmentPositionChanges
 }
 
@@ -61,6 +64,7 @@ function transformHTMLPositionsToProsemirrorPositions (segments, initialText, al
 
   // We construct a flat array of positions to easily run calculations later.
   const segmentPositions = []
+
   segments.forEach(segment => {
     segmentPositions.push(segment.charStart)
     segmentPositions.push(segment.charEnd)
@@ -76,9 +80,11 @@ function transformHTMLPositionsToProsemirrorPositions (segments, initialText, al
   const nodeMatches = [...initialText.matchAll(nodeRegex)]
   const entityMatches = [...initialText.matchAll(entitiesRegex)]
   const sizeOneMatches = nodeMatches.concat(entityMatches)
+
   segmentPositionChanges = recalculateIndexPositions(segmentPositions, segmentPositionChanges, sizeOneMatches, PROSEMIRROR_NODE_SIZE)
 
   const markMatches = [...initialText.matchAll(markRegex)]
+
   segmentPositionChanges = recalculateIndexPositions(segmentPositions, segmentPositionChanges, markMatches, PROSEMIRROR_MARK_SIZE)
 
   // We now apply all position changes at once.
@@ -96,6 +102,7 @@ function transformHTMLPositionsToProsemirrorPositions (segments, initialText, al
       segment.charEndInit = segment.charEnd
       segment.charEnd = changedSegmentPositions.shift()
     }
+
     return segment
   })
 

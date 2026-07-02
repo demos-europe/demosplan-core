@@ -214,12 +214,14 @@ export default {
       }
 
       let initialExtent
+
       if (this.procedureInitialExtent.length !== 0 &&
         JSON.stringify(this.procedureInitialExtent) !== JSON.stringify(this.procedureDefaultInitialExtent)) {
         initialExtent = this.procedureInitialExtent
       } else {
         initialExtent = this.maxExtent
       }
+
       return typeof initialExtent === 'string' ? JSON.parse(initialExtent) : initialExtent
     },
 
@@ -237,11 +239,13 @@ export default {
       }
 
       let maxExtent
+
       if (this.procedureMaxExtent.length !== 0 && JSON.stringify(this.procedureMaxExtent) !== JSON.stringify(this.procedureDefaultMaxExtent)) {
         maxExtent = this.procedureMaxExtent
       } else {
         maxExtent = this.procedureDefaultMaxExtent
       }
+
       return typeof maxExtent === 'string' ? JSON.parse(maxExtent) : maxExtent
     },
 
@@ -288,6 +292,7 @@ export default {
       // Copying of the array is necessary since when bound values are sorted strange things happen performance wise
       const resolutions = this.resolutions.slice()
       const compareToResolution = JSON.parse(this.projectMapSettings.publicSearchAutozoom)
+
       return resolutions.sort((a, b) => Math.abs(compareToResolution - a) - Math.abs(compareToResolution - b))[0]
     },
 
@@ -312,6 +317,7 @@ export default {
 
           if (!layer) {
             console.warn(`Layer with id ${id} not found in map`)
+
             return
           }
 
@@ -328,6 +334,7 @@ export default {
 
             if (this.overviewMapLayer === false || this.overviewMapLayer.length > 1) {
               const overviewLayer = this.overviewMapTileLayers.find(layer => id === layer.get('name'))
+
               // Only toggle baselayer
               if (typeof overviewLayer !== 'undefined') {
                 this.setLayerSource(overviewLayer)
@@ -353,6 +360,7 @@ export default {
 
     addCustomLayerToggleButton ({ id, layerName, activated }) {
       const element = document.getElementById(id)
+
       //  Add click handler if button is present in DOM
       if (element) {
         //  Set button state to active
@@ -378,6 +386,7 @@ export default {
         infotype: 'vorranggebietId',
       }).then(response => {
         const parsedData = JSON.parse(response.data)
+
         if (parsedData.code === 100 && parsedData.success && parsedData.body !== null) {
           // Silently store priority area data for statement form submission
           this.statementActionFields = {
@@ -402,6 +411,7 @@ export default {
             title: title,
             text: `${parsedData.body.key}`,
           }
+
           this.resetPopup()
           this.showPopup('contentPopup', priorityAreaContent, coordinate)
         }
@@ -503,6 +513,7 @@ export default {
 
     addGetCapabilityParamToUrl (url) {
       const param = 'REQUEST=GetCapabilities'
+
       if (url.toLowerCase().includes(param.toLowerCase())) {
         return url
       }
@@ -562,6 +573,7 @@ export default {
             const lastPoint = evt.feature.getGeometry().getLastCoordinate()
             const radiusGeometry = new GLineString([center, lastPoint])
             const radiusFeature = new Feature({ geometry: radiusGeometry })
+
             this.measureSource.addFeature(radiusFeature)
             unByKey(doubleClickListener)
             unByKey(listener)
@@ -590,6 +602,7 @@ export default {
             }),
           }),
         })
+
         territoryLayer.id = 'territoryLayer'
         this.map.addLayer(territoryLayer)
 
@@ -627,6 +640,7 @@ export default {
       if (!(source instanceof TileWMS || source instanceof WMTS)) {
         return
       }
+
       source.on('tileloadstart', () => {
         this.progress.addLoading()
       })
@@ -680,6 +694,7 @@ export default {
       if (window.measureTooltipElement && !!this.measureTooltipElement) {
         this.measureTooltipElement.parentNode.removeChild(this.measureTooltipElement)
       }
+
       this.measureTooltipElement = document.createElement('div')
       this.measureTooltipElement.className = this.prefixClass('c-map__measure-output pointer-events-none')
 
@@ -799,11 +814,13 @@ export default {
       popupCloser.onclick = () => {
         this.popupoverlay.setPosition(undefined)
         !popupCloser.blur || popupCloser.blur()
+
         return false
       }
 
       if (hasPermission('feature_map_new_statement') && document.getElementById('popupAction') !== null) {
         const popupAction = document.getElementById('popupAction')
+
         popupAction.onclick = event => this.doStatementAction(event)
       }
 
@@ -964,9 +981,11 @@ export default {
             dpApi.get(Routing.generate('DemosPlan_map_get_feature_info', { procedure: this.procedureId }), getData)
               .then(response => {
                 const parsedData = JSON.parse(response.data)
+
                 if (parsedData.code === 100 && parsedData.success) {
                   if (parsedData.body !== null) {
                     let popupContent = ''
+
                     popupContent = parsedData.body
 
                     if (popupContent.length === 0 || popupContent.match(/<table[^>]*?>[\s↵]*<\/table>/mg) !== null) {
@@ -1024,6 +1043,7 @@ export default {
           if (event.type === 'keydown' && event.keyCode !== 13) {
             return
           }
+
           this.handleButtonInteraction('criteria', '#criteriaButton', () => {
             this.mapSingleClickListener = this.map.on('singleclick', queryCriteria)
           })
@@ -1037,6 +1057,7 @@ export default {
           if (event.type === 'keydown' && event.keyCode !== 13) {
             return
           }
+
           this.handleButtonInteraction('layerfeatureinfo', '#layerFeatureInfoButton', () => {
             if (this.$refs.wmsGetFeatureInfo) {
               this.mapSingleClickListener = this.map.on('singleclick', (evt) => {
@@ -1110,6 +1131,7 @@ export default {
         type: 'draw',
         style: this.drawDoneStyle(),
       })
+
       this.map.addLayer(mapdrawvector)
 
       //  Define vars to init interactions
@@ -1142,6 +1164,7 @@ export default {
           if (event.type === 'keydown' && event.keyCode !== 13) {
             return
           }
+
           this.handleButtonInteraction(drawTool.active, drawTool.button, () => {
             this.map.addInteraction(drawing)
             $('#saveStatementButton').removeClass(this.prefixClass('hidden')).addClass(this.prefixClass('is-visible')).prop('disabled', true)
@@ -1160,6 +1183,7 @@ export default {
         if (event.type === 'keydown' && event.keyCode !== 13) {
           return
         }
+
         window.dplan.clearMapDrawings()
         const resetData = {
           r_location: 'notLocated',
@@ -1167,6 +1191,7 @@ export default {
           r_location_point: '',
           location_is_set: '',
         }
+
         this.$root.$emit('updateStatementFormMapData', resetData, false)
       })
 
@@ -1209,6 +1234,7 @@ export default {
             if (!printLayer.getSource()) {
               this.setLayerSource(printLayer)
             }
+
             const printLayerName = printLayer.getProperties().name
             const source = printLayer.getSource()
 
@@ -1228,10 +1254,12 @@ export default {
             const [minX, minY, maxX, maxY] = extent
             let bottomLeft = [minX, minY]
             let topRight = [maxX, maxY]
+
             if (this.mapprojection.getCode() !== layerProjection) {
               bottomLeft = transform([minX, minY], this.mapprojection, layerProjection)
               topRight = transform([maxX, maxY], this.mapprojection, layerProjection)
             }
+
             const transposedExtent = [...bottomLeft, ...topRight]
 
             const tilesInfo = []
@@ -1239,6 +1267,7 @@ export default {
             tileGrid.forEachTileCoord(transposedExtent, zoom, tileCoord => {
               // TileCoord is an array of [z, x, y]
               const url = tileUrlFunction(tileCoord, olHas.DEVICE_PIXEL_RATIO, source.getProjection())
+
               tilesInfo.push({
                 position: {
                   z: isWmts ? tileCoord[0] : 0,
@@ -1288,6 +1317,7 @@ export default {
           r_location_point: '',
           location_is_set: 'geometry',
         }
+
         this.$root.$emit('updateStatementFormMapData', statementFormGeometryData, false)
 
         saveStatementButton
@@ -1310,6 +1340,7 @@ export default {
         if (event.type === 'keydown' && event.keyCode !== 13) {
           return
         }
+
         if (drawingexists === true) {
           const statementFormGeometryData = {
             r_location: 'point',
@@ -1319,6 +1350,7 @@ export default {
             r_location_point: '',
             location_is_set: 'geometry',
           }
+
           this.$root.$emit('updateStatementFormMapData', statementFormGeometryData)
         } else {
           alert('Bitte nehmen Sie zuerst eine Einzeichnung vor!')
@@ -1348,6 +1380,7 @@ export default {
       //  Handle mark location
       const mapMarkLocation = evt => {
         const coordinate = evt.coordinate
+
         this.resetPopup()
 
         // @todo remove code (almost) duplication with queryArea
@@ -1399,6 +1432,7 @@ export default {
                       '<a class="' + this.prefixClass('btn btn--primary float-right u-mt-0_5') + '" href="' + Routing.generate('core_home') + '">' +
                       Translator.trans('procedures.all.show') +
                       '</a>'
+
                       this.showPopup('contentPopup', {
                         title: Translator.trans('procedure.not.in.scope'),
                         text: popUpContent,
@@ -1421,6 +1455,7 @@ export default {
         if (event.type === 'keydown' && event.keyCode !== 13) {
           return
         }
+
         this.activateMarkLocationButton($(this))
         this.handleButtonInteraction('marklocation', '#markLocationButton, [data-maptools-id="markLocationButtonResponsive"]', () => {
           this.mapSingleClickListener = this.map.on('singleclick', mapMarkLocation)
@@ -1464,9 +1499,11 @@ export default {
 
         // Create source
         let source
+
         if (serviceType === 'wms') {
           //  Remove everything from the beginning to first match of `SERVICE` - if the term is found in string
           const indexOfService = url.indexOf('SERVICE')
+
           if (indexOfService > 0) {
             url = url.slice(0, indexOfService)
           }
@@ -1484,6 +1521,7 @@ export default {
             layer: layers[0] || '',
             matrixSet: tileMatrixSet,
           })
+
           source = new WMTS({ ...options, layers })
         }
 
@@ -1563,6 +1601,7 @@ export default {
       if (layer.get(key) === value) {
         return layer
       }
+
       if (layer.getLayers) {
         const layers = layer.getLayers().getArray()
         const len = layers.length; let result
@@ -1574,6 +1613,7 @@ export default {
           }
         }
       }
+
       return null
     },
 
@@ -1590,17 +1630,20 @@ export default {
       } else {
         output = Math.round(area * 100) / 100 + ' ' + 'm<sup>2</sup>'
       }
+
       return output
     },
 
     formatLength (line) {
       const length = getLength(line)
       let output
+
       if (length > 100) {
         output = Math.round((length / 1000) * 100) / 100 + ' ' + 'km'
       } else {
         output = Math.round(length * 100) / 100 + ' ' + 'm'
       }
+
       return output
     },
 
@@ -1617,6 +1660,7 @@ export default {
           layers.push(layer)
         }
       }
+
       return layers
     },
 
@@ -1627,6 +1671,7 @@ export default {
       let xml
 
       const xhr = new XMLHttpRequest()
+
       xhr.open('GET', url, false)
       xhr.send(null)
 
@@ -1648,9 +1693,11 @@ export default {
     getWMSSource (layer) {
       // @TODO find out why 'SERVICE=WMS&' is added twice to url
       let url = layer.attributes.url || null
+
       if (url) {
         //  Remove everything from the beginning to first match of `SERVICE` - if the term is found in string
         const indexOfService = url.indexOf('SERVICE')
+
         if (indexOfService > 0) {
           url = url.slice(0, indexOfService)
         }
@@ -1685,6 +1732,7 @@ export default {
       if (active !== 'queryarea' && dplan.procedureStatementPriorityArea) {
         window.dplan.statement.activateQueryAreaButton($('#queryAreaButton'), true)
       }
+
       if (this.activeclickcontrol !== active) {
         callback()
         $(element).addClass(this.prefixClass('is-active'))
@@ -1696,6 +1744,7 @@ export default {
           this.mapSingleClickListener = this.map.on('singleclick', this.queryArea)
         }
       }
+
       this.$root.$emit('changeActive')
     },
 
@@ -1733,6 +1782,7 @@ export default {
           this.measureTooltipsArray.forEach(tt => this.map.removeOverlay(tt))
           this.measureTooltipsArray = []
         }
+
         this.$root.$emit('changeActive')
       }
     },
@@ -1758,6 +1808,7 @@ export default {
     //  Animate map to given coordinate when user selects an item from search-location
     zoomToSuggestion (suggestion) {
       const coordinate = [suggestion.data[this.projectionName].x, suggestion.data[this.projectionName].y]
+
       this.panToCoordinate(coordinate)
       this.resetPopup()
       this.selectedValue = suggestion.value
@@ -1770,21 +1821,27 @@ export default {
       this.map.updateSize()
       // On FullScreen Mode, focus for all elements in Map Container.
       const fullScreenMode = document.getElementsByClassName('fullscreen-mode')
+
       this.$emit('fullscreen:toggle', fullScreenMode.length > 0)
     },
 
     handleZoom (delta, duration) {
       const view = this.map.getView()
+
       if (!view) {
         return
       }
+
       const currentZoom = view.getZoom()
+
       if (currentZoom !== undefined) {
         const newZoom = view.getConstrainedZoom(currentZoom + delta)
+
         if (duration > 0) {
           if (view.getAnimating()) {
             view.cancelAnimations()
           }
+
           view.animate({
             zoom: newZoom,
             duration,
@@ -1801,6 +1858,7 @@ export default {
         new FullScreen({ className: this.prefixClass('c-map__fullscreen'), source: 'procedureDetailsMap' }),
         new ScaleLine({ className: this.prefixClass('c-map__scale-line') + ' ol-scale-line' }),
       ]
+
       if (PROJECT && PROJECT !== 'robobsh') {
         controls.push(new MousePosition({ className: this.prefixClass('c-map__mouseposition') }))
       }
@@ -1851,6 +1909,7 @@ export default {
 
     registerFullscreenChangeHandler () {
       const events = ['webkitfullscreenchange', 'mozfullscreenchange', 'fullscreenchange', 'MSFullscreenChange']
+
       events.forEach((e) => {
         document.addEventListener(e, this.handleFullscreenChange, false)
       })
@@ -1861,6 +1920,7 @@ export default {
         proj4.defs(projection.label, projection.value)
         register(proj4)
         let projToAdd = null
+
         if (idx === 0) {
           // Set as map projection
           this.mapprojection = new Projection({
@@ -1872,12 +1932,14 @@ export default {
           projToAdd = this.mapprojection
         } else {
           const projectionExtent = transform(this.mapProjectionExtent, 'EPSG:3857', projection.label)
+
           projToAdd = new Projection({
             code: projection.label,
             units: this.projectionUnits,
             extent: projectionExtent,
           })
         }
+
         addProjection(projToAdd)
       })
     },
@@ -1895,6 +1957,7 @@ export default {
       const scaleElement = document.getElementsByClassName(this.prefixClass('c-map__scale-line'))[0]
       const hintElement = document.getElementsByClassName(this.prefixClass('c-map__hint__show'))[0]
       const miniMapContainer = document.getElementsByClassName('ol-overviewmap')[0]
+
       if (mapWidth > 642) {
         scaleElement.style.bottom = '11px'
         miniMapContainer.style.bottom = '42px'
@@ -2030,9 +2093,11 @@ export default {
       if (templateId === 'contentPopup' && window.statementActionState === 'locationPriorityAreaAdded') {
         // Ensure popup action button is visible and has correct content
         const actionButton = $popup.find('#popupAction')
+
         if (actionButton.length > 0) {
           actionButton.html(Translator.trans('statement.new')).show()
         }
+
         // Also remove the hide-action class if present
         $popup.removeClass(this.prefixClass('c-map__popup--hide-action'))
       }
@@ -2048,6 +2113,7 @@ export default {
         empty: 'warning.featureinfo.empty',
       }
       const errorMessage = '<span>' + Translator.trans(messageKeys[result]) + '</span>'
+
       this.showPopup('errorPopup', errorMessage, coordinate)
     },
 
@@ -2064,8 +2130,10 @@ export default {
           if (a.data.postcode === b.data.postcode) {
             const x = a.data.name.toLowerCase()
             const y = b.data.name.toLowerCase()
+
             return x.localeCompare(y, 'de', { sensitivity: 'base' })
           }
+
           return a.data.postcode - b.data.postcode
         })
 

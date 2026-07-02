@@ -49,6 +49,7 @@ const SplitStatementStore = {
   mutations: {
     deleteSegment (state, id) {
       const index = state.segments.findIndex((el) => el.id === id)
+
       if (index >= 0) {
         state.segments.splice(index, 1)
       }
@@ -56,6 +57,7 @@ const SplitStatementStore = {
 
     locallyDeleteSegments (state, deletedSegmentIds) {
       const updatedSegments = state.segments.filter(segment => !deletedSegmentIds.includes(segment.id))
+
       state.segments = updatedSegments
     },
 
@@ -89,8 +91,9 @@ const SplitStatementStore = {
 
     replaceSegment (state, { id, newSegment }) {
       const oldSegmentIndex = state.segments.findIndex((el) => el.id === id)
+
       if (oldSegmentIndex >= 0) {
-        state.segments.oldSegmentIndex = newSegment
+        state.segments[oldSegmentIndex] = newSegment
       }
     },
 
@@ -131,8 +134,10 @@ const SplitStatementStore = {
   actions: {
     acceptSegmentProposal ({ state, commit, dispatch }) {
       const id = state.currentlyHighlightedSegmentId
+
       if (id) {
         const segment = state.segments.find((el) => el.id === id)
+
         if (typeof segment !== 'undefined') {
           const segmentCopy = JSON.parse(JSON.stringify(segment))
 
@@ -230,6 +235,7 @@ const SplitStatementStore = {
           if (!hasOwnProp(data.data.attributes.segmentDraftList, 'data')) {
             return []
           }
+
           const initialData = data.data.attributes.segmentDraftList.data
           const segments = initialData.attributes.segments
 
@@ -255,6 +261,7 @@ const SplitStatementStore = {
            * cause misalignment of segments.
            */
           const haveProsemirrorIndexing = typeof segments.find(segment => segment.hasProsemirrorIndex === true) !== 'undefined'
+
           if (haveProsemirrorIndexing === false && doUpdate === true) {
             commit('recalculatePositionsInText')
             dispatch('persistProsemirrorIndexing')
@@ -262,6 +269,7 @@ const SplitStatementStore = {
 
           const segmentTags = state.segments.reduce((acc, seg) => {
             const tagNames = seg.tags || []
+
             return [...acc, ...tagNames]
           }, [])
 
@@ -283,6 +291,7 @@ const SplitStatementStore = {
 
       return Promise.all([segments, tags]).then(([segmentTags, tags]) => {
         let pendingPiTags = []
+
         segmentTags.forEach(tag => {
           if (tags.indexOf(tag.tagName) === -1) {
             pendingPiTags.push(tag)
@@ -293,6 +302,7 @@ const SplitStatementStore = {
           // We need to replace PI generated tag ids with dplan tag ids
           segment.tags = segment.tags.map(tag => {
             const dplanTag = state.categorizedTags.find(t => t.attributes.title === tag.tagName)
+
             if (dplanTag) {
               return {
                 ...tag,
@@ -302,6 +312,7 @@ const SplitStatementStore = {
               return tag
             }
           })
+
           return segment
         })
 
@@ -362,14 +373,17 @@ const SplitStatementStore = {
 
     fetchTags ({ commit }) {
       const url = Routing.generate('api_resource_list', { resourceType: 'Tag' })
-      return dpApi.get(url, { include: 'topic' })
+
+      return dpApi.get(url, { include: 'topic', sort: 'sortIndex' })
         .then(response => {
           const tags = response.data
+
           commit('setProperty', { prop: 'availableTags', val: tags.data })
 
           const sortByTitle = (a, b) => a.attributes.title.localeCompare(b.attributes.title, undefined, { numeric: true, sensitivity: 'base' })
 
           const tagTopics = tags.included.filter((el) => el.type === 'TagTopic')
+
           tagTopics.sort(sortByTitle)
 
           commit('setProperty', { prop: 'tagTopics', val: tagTopics })
@@ -380,11 +394,12 @@ const SplitStatementStore = {
             } else if (tag.relationships) {
               return { ...acc, uncategorizedTags: [...acc.uncategorizedTags, tag] }
             }
+
             return acc
           }, { uncategorizedTags: [], categorizedTags: [] })
 
+          // Categorized tags keep the backend sortIndex order; only uncategorized tags fall back to alphabetical
           uncategorizedTags.sort(sortByTitle)
-          categorizedTags.sort(sortByTitle)
 
           commit('setProperty', { prop: 'uncategorizedTags', val: uncategorizedTags })
           commit('setProperty', { prop: 'categorizedTags', val: categorizedTags })
@@ -397,6 +412,7 @@ const SplitStatementStore = {
       const segments = JSON.parse(JSON.stringify(state.segments))
       const indexedSegments = segments.map(segment => {
         segment.hasProsemirrorIndex = true
+
         return segment
       })
 
@@ -409,6 +425,7 @@ const SplitStatementStore = {
 
     saveSegmentsDrafts ({ state, dispatch }, triggerNotifications = false) {
       const dataToSend = JSON.parse(JSON.stringify(state.initialData))
+
       dataToSend.attributes.textualReference = state.initText
       dataToSend.attributes.segments = state.segments
       const payload = {
@@ -416,9 +433,11 @@ const SplitStatementStore = {
         type: 'Statement',
         attributes: {},
       }
+
       payload.attributes.segmentDraftList = {
         data: dataToSend,
       }
+
       return dpApi.patch(Routing.generate('api_resource_update', {
         resourceType: 'Statement',
         resourceId: state.statementId,
@@ -437,6 +456,7 @@ const SplitStatementStore = {
 
     saveSegmentsFinal ({ dispatch, state, commit }) {
       const dataToSend = JSON.parse(JSON.stringify(state.initialData))
+
       dataToSend.attributes.segments = state.segmentsWithText
       dataToSend.attributes.statementText = state.statementText
 
@@ -512,9 +532,11 @@ const SplitStatementStore = {
       } else if (idIdx >= 0 && titleIdx >= 0) {
         // If id and tagName exist, delete tag
         const tags = [...newEditingSegment.tags]
+
         tags.splice(idIdx, 1)
         newEditingSegment.tags = tags
       }
+
       commit('setProperty', { prop: 'editingSegment', val: newEditingSegment })
       commit('locallyUpdateSegments', [newEditingSegment])
     },

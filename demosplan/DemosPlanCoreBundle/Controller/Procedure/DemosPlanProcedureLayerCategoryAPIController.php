@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -33,7 +35,7 @@ class DemosPlanProcedureLayerCategoryAPIController extends APIController
      * @throws MessageBagException
      */
     #[DplanPermissions(['area_admin_map', 'feature_map_category'])]
-    #[Route(path: '/{layerCategoryId}', methods: ['DELETE'], name: 'dplan_api_procedure_layer_category_delete')]
+    #[Route(path: '/{layerCategoryId}', name: 'dplan_api_procedure_layer_category_delete', methods: ['DELETE'])]
     public function layerCategoryDelete(string $layerCategoryId, MapService $mapService)
     {
         try {

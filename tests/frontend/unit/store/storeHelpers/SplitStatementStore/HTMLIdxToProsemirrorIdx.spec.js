@@ -18,6 +18,7 @@ describe('It should transform html char references to prosemirror indices.', () 
     ]
 
     const transformedSegments = transformHTMLPositionsToProsemirrorPositions(segments, initText)
+
     expect(transformedSegments[0].charStart).toBe(1)
     expect(transformedSegments[0].charEnd).toBe(6)
     expect(transformedSegments[1].charStart).toBe(9)
@@ -32,6 +33,7 @@ describe('It should transform html char references to prosemirror indices.', () 
     ]
 
     const transformedSegments = transformHTMLPositionsToProsemirrorPositions(segments, initText)
+
     expect(transformedSegments[0].charStart).toBe(0)
     expect(transformedSegments[0].charEnd).toBe(5)
     expect(transformedSegments[1].charStart).toBe(7)
@@ -46,6 +48,7 @@ describe('It should transform html char references to prosemirror indices.', () 
     ]
 
     const transformedSegments = transformHTMLPositionsToProsemirrorPositions(segments, initText)
+
     expect(transformedSegments[0].charStart).toBe(0)
     expect(transformedSegments[0].charEnd).toBe(5)
     expect(transformedSegments[1].charStart).toBe(5)
@@ -60,6 +63,7 @@ describe('It should transform html char references to prosemirror indices.', () 
     ]
 
     const transformedSegments = transformHTMLPositionsToProsemirrorPositions(segments, initText, ['div'])
+
     expect(transformedSegments[0].charStart).toBe(3)
     expect(transformedSegments[0].charEnd).toBe(8)
     expect(transformedSegments[1].charStart).toBe(20)
@@ -74,6 +78,7 @@ describe('It should transform html char references to prosemirror indices.', () 
     ]
 
     const transformedSegments = transformHTMLPositionsToProsemirrorPositions(segments, initText, ['div'], ['strong'])
+
     expect(transformedSegments[0].charStart).toBe(4)
     expect(transformedSegments[0].charEnd).toBe(9)
     expect(transformedSegments[1].charStart).toBe(21)

@@ -114,6 +114,7 @@ const Filter = {
       if (!state.filters[filterId]) {
         state.filters[filterId] = {}
       }
+
       state.filters[filterId].isLoading = isLoading
     },
 
@@ -286,6 +287,7 @@ const Filter = {
       })
         .then(response => {
           let filtersToUpdateInStore
+
           // Update only options for one filter
           if (data.filterId) {
             filtersToUpdateInStore = response.data.data.filter(filter => filter.id === data.filterId)
@@ -319,6 +321,7 @@ const Filter = {
           FilterSet: ['hash', 'name'].join(),
         },
       }
+
       return dpApi.get(url, params)
         .then(({ data }) => commit('updateUserFilterSets', data))
         .catch((err) => {
@@ -422,6 +425,7 @@ const Filter = {
           return Object.values(allOptions).filter(option => option.count !== 0)
         }
       }
+
       return []
     },
 
@@ -448,6 +452,7 @@ const Filter = {
 
         return selectedFilterOptions.length ? selectedFilterOptions : []
       }
+
       return []
     },
 

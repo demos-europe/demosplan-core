@@ -315,6 +315,7 @@ export default {
       const extentLine = this.$refs.drawLine.getExtent()
 
       let completeExtend = extend(extentPolygon, extentPoint)
+
       completeExtend = extend(completeExtend, extentLine)
 
       this.$refs.map.map.updateSize()
@@ -352,6 +353,7 @@ export default {
         },
         id: this.segment.id,
       }
+
       this.setItem(storePayload)
     },
   },

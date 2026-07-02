@@ -332,9 +332,11 @@ export default {
 
     serviceTypeOptions () {
       const serviceTypeOptions = [{ value: 'wms', label: 'WMS' }]
+
       if (hasPermission('feature_map_wmts')) {
         serviceTypeOptions.push({ value: 'wmts', label: 'WMTS' })
       }
+
       return serviceTypeOptions
     },
   },
@@ -345,6 +347,7 @@ export default {
         if (layer[identifier]) {
           this.layersOptions.push({ value: layer[identifier], label: layer[identifier] })
         }
+
         if (Array.isArray(layer.Layer)) {
           this.addLayerToOptions(layer.Layer, identifier)
         }
@@ -364,6 +367,7 @@ export default {
       // Filter available projections by crs in capabilities
       if (this.currentCapabilities.Capability.Layer.CRS) {
         const availableCRS = this.currentCapabilities.Capability.Layer.CRS
+
         this.projectionOptions = this.projectionOptions.filter(el => availableCRS.includes(el.value))
 
         if (this.projectionOptions.length === 0) {
@@ -406,22 +410,26 @@ export default {
       if (this.serviceType === 'wms') {
         return
       }
+
       this.$nextTick(() => {
         try {
           if (this.layers.length === 0) {
             this.matrixSet = ''
             this.projection = ''
+
             return
           }
 
           if (this.currentCapabilities === null) {
             dplan.notify.warning(Translator.trans('error.generic'))
+
             return
           }
 
           // Make array of arrays with supported tileMatrixSets for each selected layer
           const arrays = this.layers.map(layer => {
             const layerInCapabilities = this.currentCapabilities.Contents.Layer.find(l => l.Identifier === layer.label)
+
             return [...layerInCapabilities.TileMatrixSetLink.map(el => el.TileMatrixSet)]
           })
 
@@ -438,6 +446,7 @@ export default {
             if (this.initialLoad === false) {
               this.matrixSet = this.matrixSetOptions[0].label
             }
+
             this.filterProjectionsByMatrixSet()
           }
         } catch (err) {
@@ -454,10 +463,12 @@ export default {
       this.$nextTick(() => {
         if (!this.matrixSet) {
           this.projection = ''
+
           return
         }
 
         const supportedCRSOfCurrentMatrixSet = this.currentCapabilities.Contents.TileMatrixSet.find(el => el.Identifier === this.matrixSet).SupportedCRS
+
         if (supportedCRSOfCurrentMatrixSet) {
           this.projectionOptions = this.availableProjections.filter(projection => projection.value === supportedCRSOfCurrentMatrixSet)
           if (this.projectionOptions.length > 0 || this.initialLoad === false) {
@@ -489,6 +500,7 @@ export default {
 
       if (hasWMTSType && !hasPermission('feature_map_wmts')) {
         const urlInput = document.getElementById('r_url')
+
         urlInput.classList.add('is-invalid')
 
         return dplan.notify.notify('error', Translator.trans('maplayer.capabilities.invalid.type'))
@@ -525,18 +537,21 @@ export default {
       let separator = url.includes('?') ? '&' : '?'
 
       const serviceKey = 'SERVICE='
+
       if (upperUrl.includes(serviceKey) === false) {
         url = `${url}${separator}${serviceKey}${this.serviceType.toUpperCase()}`
         this.url = url
         separator = '&'
       } else {
         const serviceMatch = upperUrl.match(new RegExp(serviceKey + '(\\w*)', 'i'))[1]
+
         if (serviceMatch !== 'WMS' && serviceMatch !== 'WMTS') {
           dplan.notify.warning(Translator.trans('error.map.layer.service.unknown', { type: serviceMatch }))
         }
       }
 
       const getCapParam = 'REQUEST=GetCapabilities'
+
       if (upperUrl.includes(getCapParam) === false) {
         url = `${url}${separator}${getCapParam}`
       }
@@ -555,6 +570,7 @@ export default {
       if (this.initialLoad) {
         return
       }
+
       // After changing the URL, the fetched Layer won't match the previous selection
       if (this.layersOptions.length === 1) {
         // If there is just one option available, select it by default
@@ -582,6 +598,7 @@ export default {
         this.url = this.url.replace(serviceParam, `${serviceKey}${this.serviceType.toUpperCase()}`)
       } else {
         const separator = this.url.includes('?') ? '&' : '?'
+
         this.url = `${this.url}${separator}${serviceKey}${this.serviceType.toUpperCase()}`
       }
 

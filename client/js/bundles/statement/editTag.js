@@ -20,6 +20,7 @@ initialize(components).then(() => {
   dpValidate()
   const radios = Array.from(document.getElementsByName('r_attachmode'))
   const newBoilerplateForm = document.getElementById('newBoilerplateForm')
+
   radios.forEach(radio => {
     radio.addEventListener('change', (e) => {
       if (radio.value === 'new') {

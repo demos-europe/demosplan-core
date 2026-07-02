@@ -31,6 +31,7 @@ export default function AssessmentTable () {
   window.updateFilterHash = function (procedureId, filterOptions = []) {
     // Get inputfields from assessment table (filters not included)
     let inputFields = $('form[name=bpform]').serializeArray()
+
     inputFields = inputFields.filter(inputField => inputField.name.includes('filter') === false)
 
     // Add currently selected filters
@@ -91,6 +92,7 @@ export default function AssessmentTable () {
         } else {
           return false
         }
+
         break
 
       case 'copy':
@@ -102,6 +104,7 @@ export default function AssessmentTable () {
         } else {
           return false
         }
+
         break
 
       case 'search':

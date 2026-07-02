@@ -149,7 +149,9 @@ export default {
       this.query = query
       this.isLoading = true
       this.getLocationSuggestions({ query })
-        .then(() => { this.isLoading = false })
+        .then(() => {
+          this.isLoading = false
+        })
     }, 500),
 
     /*
@@ -157,7 +159,9 @@ export default {
      * otherwise - in case the explicitOriginalTarget is an autosuggestion item - 'asyncFind' wouldn't get triggered
      */
     onBlur () {
-      setTimeout(() => { this.focused = false }, 300)
+      setTimeout(() => {
+        this.focused = false
+      }, 300)
     },
 
     onFocus () {
@@ -173,6 +177,7 @@ export default {
     search (e) {
       const key = e.key
       const value = e.target.value
+
       if (key === 'Enter') {
         this.submit(value)
       } else if (this.showSuggestions) {

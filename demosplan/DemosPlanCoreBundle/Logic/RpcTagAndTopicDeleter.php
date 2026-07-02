@@ -198,7 +198,7 @@ class RpcTagAndTopicDeleter implements RpcMethodSolverInterface
                 'An unexpected error occurred trying to delete Topic(s) and its includec Tag(s) via RpcDeleteTags',
                 ['ExceptionMessage' => $e->getMessage(), 'Exception' => $e]
             );
-            throw new TagTopicNotFoundException($e->getMessage());
+            throw new TagTopicNotFoundException($e->getMessage(), $e->getCode(), $e);
         }
     }
 

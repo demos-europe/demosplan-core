@@ -49,7 +49,7 @@ class DraftsInfoApiController extends APIController
      * @throws StatementNotFoundException
      */
     #[DplanPermissions('area_statement_segmentation')]
-    #[Route(name: 'dplan_drafts_list_edit_ajax', methods: 'GET', path: '/_ajax/verfahren/{procedureId}/statements/{statementId}/drafts-list', options: ['expose' => true])]
+    #[Route(path: '/_ajax/verfahren/{procedureId}/statements/{statementId}/drafts-list', name: 'dplan_drafts_list_edit_ajax', options: ['expose' => true], methods: 'GET')]
     public function edit(
         StatementToDraftsInfoTransformer $transformer,
         string $procedureId,
@@ -82,7 +82,7 @@ class DraftsInfoApiController extends APIController
      * @throws StatementNotFoundException
      */
     #[DplanPermissions('area_statement_segmentation')]
-    #[Route(name: 'dplan_drafts_list_save', methods: 'PATCH', path: '/_ajax/verfahren/{procedureId}/drafts-list/save/{statementId}', options: ['expose' => true])]
+    #[Route(path: '/_ajax/verfahren/{procedureId}/drafts-list/save/{statementId}', name: 'dplan_drafts_list_save', options: ['expose' => true], methods: 'PATCH')]
     public function save(
         DraftsInfoHandler $draftsInfoHandler,
         Request $request,
@@ -117,7 +117,7 @@ class DraftsInfoApiController extends APIController
      * @throws Exception
      */
     #[DplanPermissions('area_statement_segmentation')]
-    #[Route(name: 'dplan_drafts_list_confirm', methods: 'POST', path: '/verfahren/{procedureId}/drafts-list/confirm', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedureId}/drafts-list/confirm', name: 'dplan_drafts_list_confirm', options: ['expose' => true], methods: 'POST')]
     public function confirmDrafts(
         CurrentUserService $currentUserProvider,
         DraftsInfoHandler $draftsInfoHandler,

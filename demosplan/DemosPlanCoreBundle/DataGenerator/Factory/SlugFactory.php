@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -45,7 +47,7 @@ final class SlugFactory extends PersistentProxyObjectFactory
     protected function defaults(): array
     {
         return [
-            'name' => self::faker()->streetName(),
+            'name' => self::faker()->unique()->streetName(),
         ];
     }
 

@@ -22,6 +22,7 @@ export default async function loadAddonComponents (hookName) {
 
       for (const key of Object.keys(result)) {
         const addon = result[key]
+
         if (addon === undefined) {
           /*
            * If for some reason we don't receive a valid response object from the backend
@@ -30,6 +31,7 @@ export default async function loadAddonComponents (hookName) {
           console.debug('Skipping addon hook response evaluation for ' + key)
           continue
         }
+
         const contentKey = addon.entry + '.umd.js'
         const content = addon.content[contentKey]
 

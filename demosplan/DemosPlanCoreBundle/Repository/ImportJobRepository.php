@@ -60,7 +60,7 @@ class ImportJobRepository extends CoreRepository
             ->orderBy('ij.createdAt', 'DESC')
             ->setMaxResults(20);
 
-        if (null !== $user) {
+        if ($user instanceof User) {
             $qb->andWhere('ij.user = :user')
                 ->setParameter('user', $user);
         }

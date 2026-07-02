@@ -17,6 +17,8 @@
 
     <administration-import
         class="u-mb-2"
+        current-internal-phase-definition-id="{{ templateVars.currentInternalPhaseDefinitionId }}"
+        current-external-phase-definition-id="{{ templateVars.currentExternalPhaseDefinitionId }}"
         procedure-id="{{ procedureId }}"
         {% if templateVars.initValues is defined  %}
             :init-values="JSON.parse('{{ templateVars.initValues|json_encode|e('js', 'utf-8') }}')"

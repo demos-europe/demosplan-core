@@ -93,6 +93,7 @@ export default {
           }],
           toDOM (node) {
             const { href, class: className } = node.attrs
+
             return ['a', { href, class: className }, 0]
           },
         },
@@ -119,6 +120,7 @@ export default {
         marks: this.getExtendedMarks(),
       })
       const wrapper = document.createElement('div')
+
       wrapper.innerHTML = this.initStatementText ?? ''
       const rangePlugin = initRangePlugin(proseSchema, this.rangeChangeCallback, this.editToggleCallback)
       const parsedContent = DOMParser.fromSchema(rangePlugin.schema).parse(wrapper, { preserveWhitespace: true })
@@ -137,22 +139,27 @@ export default {
 
             if (!className.split(/\s+/).includes('pdf_importer_image')) {
               const anchor = document.createElement('a')
+
               anchor.setAttribute('href', mark.attrs.href)
               if (className) {
                 anchor.setAttribute('class', className)
               }
+
               return { dom: anchor, contentDOM: anchor }
             }
 
             const wrapper = document.createElement('span')
             const img = document.createElement('img')
+
             img.setAttribute('src', mark.attrs.href)
             img.setAttribute('alt', '')
             img.setAttribute('loading', 'lazy')
             const label = document.createElement('span')
+
             label.className = 'sr-only'
             wrapper.appendChild(img)
             wrapper.appendChild(label)
+
             return { dom: wrapper, contentDOM: label }
           },
         },
@@ -161,6 +168,7 @@ export default {
       const getContent = (schema) => (state) => {
         const container = document.createElement('div')
         const serialized = DOMSerializer.fromSchema(schema).serializeFragment(state.doc.content, { document: window.document }, container)
+
         return serialized.innerHTML
       }
 

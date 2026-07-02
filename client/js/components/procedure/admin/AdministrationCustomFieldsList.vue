@@ -873,6 +873,7 @@ export default {
           updateCustomFieldDefinition(this.newRowData.id, updatedPayload, this.definitionSourceId)
             .then(() => {
               const idx = this.customFieldItems.findIndex(item => item.id === sourceDefinition.id)
+
               this.customFieldItems[idx] = { ...this.newRowData }
               this.setEditMode(sourceDefinition, false)
             })
@@ -959,6 +960,7 @@ export default {
 
     setFieldBeingEdited (rowData) {
       const newRowData = JSON.parse(JSON.stringify(rowData))
+
       this.setInitialRowData(rowData)
       this.setNewRowData(newRowData)
       this.setEditMode(rowData)
@@ -1005,6 +1007,7 @@ export default {
       }
 
       let isAnyOptionNameDuplicated = false
+
       customFieldOptions.forEach(option => {
         if (!isAnyOptionNameDuplicated && option.label !== '') {
           isAnyOptionNameDuplicated = !this.checkIfOptionNameIsUnique(customFieldOptions, option.label)

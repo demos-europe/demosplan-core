@@ -224,6 +224,7 @@ export default {
 
     itemResource () {
       const type = this.entity === 'user' ? 'AdministratableUser' : this.entity
+
       return {
         type,
         ...this.item,
@@ -297,6 +298,7 @@ export default {
       if (this.entity === 'user') {
         return this.saveUserForm()
       }
+
       if (this.entity === 'organisation') {
         return this.saveOrganisationForm()
       }
@@ -314,11 +316,14 @@ export default {
 
       // The Types for relationships should be sent as PascalCase
       const payload = this.changeTypeToPascalCase(this.itemResource)
+
       this.createOrganisation(payload)
         .then(() => {
           this.$root.$emit('items:get')
         })
-        .catch(err => { console.error(err) })
+        .catch(err => {
+          console.error(err)
+        })
         .finally(() => {
           // Confirm notification is done in BE
           this.reset()

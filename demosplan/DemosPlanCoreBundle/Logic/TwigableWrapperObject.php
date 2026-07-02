@@ -20,8 +20,6 @@ use EDT\Querying\Contracts\SortException;
 use EDT\Wrapping\Contracts\Types\TransferableTypeInterface;
 use EDT\Wrapping\WrapperFactories\WrapperObject;
 
-use function strlen;
-
 use const DEBUG_BACKTRACE_IGNORE_ARGS;
 
 class TwigableWrapperObject extends WrapperObject
@@ -49,7 +47,7 @@ class TwigableWrapperObject extends WrapperObject
 
         // if we're called from inside a twig template, only allow getting values
         if (0 < strpos($backTrace[0]['file'], ValueObject::TWIG_LOCATION)) {
-            if (0 < strlen($match[1])) {
+            if ('' !== $match[1]) {
                 throw ValueObjectException::noAccessorAllowedFromTwig();
             }
 

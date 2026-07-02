@@ -81,7 +81,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface, ParagraphInte
     /**
      * @var string
      */
-    #[ORM\Column(name: '_pd_category', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
+    #[ORM\Column(name: '_pd_category', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     protected $category;
 
     /**
@@ -117,7 +117,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface, ParagraphInte
     /**
      * @var string
      */
-    #[ORM\Column(name: '_pd_lockreason', type: 'string', nullable: false, length: 300, options: ['default' => ''])]
+    #[ORM\Column(name: '_pd_lockreason', type: 'string', length: 300, nullable: false, options: ['default' => ''])]
     protected $lockReason = '';
 
     /**

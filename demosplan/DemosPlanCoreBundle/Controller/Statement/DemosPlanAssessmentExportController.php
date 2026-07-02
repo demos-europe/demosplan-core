@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -11,6 +13,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
@@ -20,11 +23,12 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidPostParameterTypeException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
-use demosplan\DemosPlanCoreBundle\Logic\Export\DocxExporter;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentExportOptions;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableExporterStrategy;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplate;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportType;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Exception;
 use Psr\Log\InvalidArgumentException;
@@ -73,11 +77,11 @@ class DemosPlanAssessmentExportController extends BaseController
     ): ?Response {
         $exportFormat = $request->request->get('r_export_format');
         $docxTemplates = $this->assessmentExportOptions->get('assessment_table')['docx']['templates'] ?? [];
-        $hasPortraitWithPrioritization = is_array($docxTemplates) && array_key_exists(DocxExporter::TEMPLATE_PORTRAIT_WITH_PRIORITIZATION, $docxTemplates);
+        $hasPortraitWithPrioritization = is_array($docxTemplates) && array_key_exists(ExportTemplate::PORTRAIT_WITH_PRIORITIZATION->value, $docxTemplates);
         $exportParameters = $this->getExportParameters($request, $procedureId, $original);
         // switch to elements view for the dedicated portraitWithPrioritization template if permission allows:
         if ('docx' === $exportFormat && $permissions->hasPermission('feature_export_docx_elements_view_mode_only')) {
-            $shouldOverride = $hasPortraitWithPrioritization ? DocxExporter::TEMPLATE_PORTRAIT_WITH_PRIORITIZATION === $exportParameters['template'] : 'portrait' !== $exportParameters['template'];
+            $shouldOverride = $hasPortraitWithPrioritization ? ExportTemplate::PORTRAIT_WITH_PRIORITIZATION->value === $exportParameters['template'] : ExportTemplate::PORTRAIT->value !== $exportParameters['template'];
             if ($shouldOverride) {
                 $exportParameters['viewMode'] = AssessmentTableViewMode::ELEMENTS_VIEW;
             }
@@ -101,6 +105,7 @@ class DemosPlanAssessmentExportController extends BaseController
 
     /**
      * @throws InvalidPostParameterTypeException
+     * @throws JsonException
      */
     private function getExportParameters(Request $request, string $procedureId, bool $original): array
     {
@@ -122,10 +127,10 @@ class DemosPlanAssessmentExportController extends BaseController
             : false;
         $parameters['exportType'] = array_key_exists('exportType', $exportChoice)
             ? $exportChoice['exportType']
-            : 'statementsOnly';
+            : ExportType::STATEMENTS_ONLY->value;
         $parameters['template'] = array_key_exists('template', $exportChoice)
             ? $exportChoice['template']
-            : 'portrait';
+            : ExportTemplate::PORTRAIT->value;
         $parameters['sortType'] = array_key_exists('sortType', $exportChoice)
             ? $exportChoice['sortType']
             : AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT;

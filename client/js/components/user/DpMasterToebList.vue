@@ -324,6 +324,7 @@ export default {
       filteredItems: {},
       filters: this.fields.reduce((obj, item) => {
         obj[item.field] = true
+
         return obj
       }, {}),
       isFullscreen: false,
@@ -344,6 +345,7 @@ export default {
     currentItems () {
       // Remove deleted items which are still in this.items because the page wasn't reloaded yet
       const updatedItems = this.updatedItems.filter(item => typeof this.deletedItems[item.ident] === 'undefined')
+
       return updatedItems
     },
 
@@ -358,6 +360,7 @@ export default {
     headerFields () {
       const deletionField = this.isEditable ? { field: 'deletion', value: 'delete' } : null
       let filteredFields = this.filteredFields.filter(el => this.filters[el.field])
+
       filteredFields = deletionField ? [deletionField, ...filteredFields] : filteredFields
 
       return filteredFields
@@ -366,7 +369,9 @@ export default {
     onPageItems () {
       let last = this.currentPage * this.itemsPerPage
       const first = last - this.itemsPerPage
+
       last = last <= this.rowItems.length ? last : this.rowItems.length
+
       return this.rowItems.slice(first, last)
     },
 
@@ -385,6 +390,7 @@ export default {
      */
     addCellIdsAndFields (table, currentItems) {
       const rows = Array.prototype.slice.call(table.getElementsByTagName('tr'))
+
       rows.forEach((row, idx) => {
         row.setAttribute('data-index', idx)
         this.addCellAttributes(Array.prototype.slice.call(row.children), currentItems[idx])
@@ -416,6 +422,7 @@ export default {
     generateItemMap (items) {
       return items.reduce((acc, item) => {
         acc[item.ident] = 'in'
+
         return acc
       }, {})
     },
@@ -427,6 +434,7 @@ export default {
 
     handleSizeChange (newSize) {
       const page = Math.floor((this.itemsPerPage * (this.currentPage - 1) / newSize) + 1)
+
       this.itemsPerPage = newSize
       this.currentPage = page
       this.updateFields()
@@ -457,10 +465,12 @@ export default {
     searchItems () {
       if (this.searchString.length > 0) {
         const searchResultItems = dataTableSearch(this.searchString, this.currentItems, this.fields.map(el => el.field))
+
         this.searchedItems = this.generateItemMap(searchResultItems)
       } else {
         this.searchedItems = this.generateItemMap(this.currentItems)
       }
+
       this.currentPage = 1
       this.updateFields()
     },
@@ -483,6 +493,7 @@ export default {
         // Otherwise reset the direction and set the field
         this.sortOrder = { key: field, direction: -1 }
       }
+
       this.updateFields()
     },
 
@@ -506,7 +517,9 @@ export default {
     },
 
     toggleAllCols (ev) {
-      Object.keys(this.filters).forEach(key => { this.filters[key] = ev.target.checked })
+      Object.keys(this.filters).forEach(key => {
+        this.filters[key] = ev.target.checked
+      })
     },
 
     /**
@@ -551,6 +564,7 @@ export default {
         this.editModeElementId = id
         this.editModeElementField = field
         const isBoolToString = this.boolToStringFields.includes(field)
+
         this.$nextTick(() => {
           el.children[0].focus()
         })
@@ -558,6 +572,7 @@ export default {
         const runCellUpdate = (e) => {
           if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'textarea') {
             const newValue = e.target.value
+
             updateCell(e)
               .then(() => {
                 this.$emit('orga:updated', id, { [field]: newValue }, 'confirm')
@@ -574,6 +589,7 @@ export default {
             this.editModeElementField = ''
           }
         }
+
         el.addEventListener('focusout', runCellUpdate)
       } else if (this.editModeElementId === 0) {
         dplan.notify.error(Translator.trans('error.api.generic'))
@@ -585,6 +601,7 @@ export default {
         if (item.ident === ident) {
           return { ...item, ...updatedField }
         }
+
         return item
       })
     },
@@ -595,6 +612,7 @@ export default {
 
       if (status === 'confirm') {
         const fieldName = this.fields.filter(el => el.field === Object.keys(updatedField)[0])[0].value
+
         dplan.notify.notify(status, Translator.trans('confirm.field.changes.saved', { fieldName }))
       } else {
         dplan.notify.notify(status, Translator.trans('error.api.generic'))
@@ -607,7 +625,9 @@ export default {
       this.rowItems = sortedItems.filter(item => this.searchedItems[item.ident] === 'in' && this.filteredItems[item.ident] === 'in')
 
       this.$nextTick(() => {
-        if (this.isEditable) this.addCellIdsAndFields(this.dataTableElement.getElementsByTagName('tbody')[0], this.onPageItems)
+        if (this.isEditable) {
+          this.addCellIdsAndFields(this.dataTableElement.getElementsByTagName('tbody')[0], this.onPageItems)
+        }
       })
     },
 
@@ -627,6 +647,7 @@ export default {
     this.dataTableContainerElement = this.$refs.dataTable.$el
     this.dataTableElement = this.$refs.dataTable.$refs.tableEl
     const tableBody = this.dataTableElement.getElementsByTagName('tbody')[0]
+
     this.checkForUnreadChanges()
 
     /*
@@ -637,6 +658,7 @@ export default {
       this.addCellIdsAndFields(tableBody, this.onPageItems)
       tableBody.addEventListener('click', this.triggerEditMode)
     }
+
     this.$on('orga:updated', this.updateOrga)
 
     // The code below forces reflow therefore it should be executed once all other code from mounted has run (perf gains)

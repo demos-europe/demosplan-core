@@ -42,6 +42,7 @@ const setTabFromHash = () => {
     titles[1].classList.remove(prefixClass('is-active-tab'))
   }
 }
+
 initialize(components, stores).then(() => {
   Tabs()
 

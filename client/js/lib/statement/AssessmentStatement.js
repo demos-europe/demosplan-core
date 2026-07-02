@@ -27,6 +27,7 @@ export default function AssessmentStatement () {
   //  Paragraph selection
   const $elementSelect = $('#elementSelect')
   const elementSelectValue = $elementSelect.val()
+
   $elementSelect.on('change', function () {
     $('.js-paragraph').hide()
     $('#js-paragraph_' + $(this).val()).show()

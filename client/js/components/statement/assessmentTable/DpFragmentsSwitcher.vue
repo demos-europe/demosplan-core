@@ -132,6 +132,7 @@ export default {
       } else if (this.fragments[this.statementId] && !this.fragments[this.statementId].filteredFragments) {
         return 0
       }
+
       return 0
     },
 
@@ -141,15 +142,19 @@ export default {
     fragmentsButtonText () {
       let text = Translator.trans('fragments')
       const selectedFragmentsLength = Object.values(this.selectedFragments).filter(frag => frag.statementId === this.statementId).length
+
       text += ' ('
       if (this.isFiltered && this.showFragmentResults) {
         text += `${this.filteredFragmentsLength}/`
       }
+
       text += `${this.totalFragmentsLength}`
       if (Object.values(this.selectedFragments).filter(frag => frag.statementId === this.statementId).length > 0) {
         text += `, ${selectedFragmentsLength} ${Translator.trans('chosen.lowercase')}`
       }
+
       text += ')'
+
       return text
     },
 

@@ -343,6 +343,7 @@ export default {
       // TO DO: Do we need this?
       if (this.checkIfEmpty() === false) {
         let voteId = ''
+
         if (index === 'new') {
           voteId = `newItem${uuid()}`
         } else {
@@ -374,11 +375,13 @@ export default {
           isEmpty = false
         }
       }
+
       return isEmpty
     },
 
     deleteVote (voteId) {
       const name = this.votes[voteId]?.attributes?.name ? this.votes[voteId].attributes.name : false
+
       if (dpconfirm(Translator.trans('statement_vote.delete_vote', { name }))) {
         this.removeVote(voteId)
         this.resetForm()
@@ -390,6 +393,7 @@ export default {
       if (!id.includes('newItem')) {
         this.votesToDelete.push(this.votes[id])
       }
+
       /*
        * The Vuex-json-Api has a bug, where the store is not updated correctly,
        * so we have to remove the item from the store and the local data
@@ -463,6 +467,7 @@ export default {
 
     sendCreateVote () {
       const votesToCreate = Object.values(this.votes).filter(vote => vote.id.includes('newItem'))
+
       /*
        * We need a loading state here, because the added voter in store with fake id gets replaced with the real one after
        * BE response, otherwise UI blinks
@@ -470,6 +475,7 @@ export default {
       if (votesToCreate.length > 0) {
         this.isLoading = true
       }
+
       const promises = votesToCreate.map(vote => {
         const payload = {
           type: 'StatementVote',
@@ -483,14 +489,17 @@ export default {
             },
           },
         }
+
         return this.createStatementVoteAction(payload)
           .then(() => {
             this.$emit('updatedVoters')
             this.removeStatementVote(vote.id)
+
             return true
           })
           .catch(() => {
             dplan.notify.error(Translator.trans('error.api.generic'))
+
             return false
           })
           .finally(() => {
@@ -535,6 +544,7 @@ export default {
               })
               .catch(() => {
                 dplan.notify.error(Translator.trans('error.api.generic'))
+
                 return false
               })
           }

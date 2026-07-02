@@ -77,7 +77,7 @@ final class RpcTagListReorderer implements RpcMethodSolverInterface
         }
 
         // both source and target topic must belong to the current procedure
-        if (null !== $procedure
+        if ($procedure instanceof ProcedureInterface
             && ($tag->getTopic()->getProcedure()->getId() !== $procedure->getId()
                 || $newTopic->getProcedure()->getId() !== $procedure->getId())
         ) {

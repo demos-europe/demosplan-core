@@ -84,6 +84,7 @@ export default {
 
     handleCardHighlighting (segmentId, highlight) {
       const card = document.querySelector(`div[data-segment-id="${segmentId}"]`)
+
       if (card) {
         if (highlight) {
           card.classList.add('highlighted')
@@ -112,6 +113,7 @@ export default {
         if (highlight && !part.classList.contains('highlighted')) {
           part.classList.add('highlighted')
         }
+
         if (!highlight && part.classList.contains('highlighted')) {
           part.classList.remove('highlighted')
         }
@@ -123,12 +125,14 @@ export default {
     positionCards () {
       // Check offset of other cards. if it is same, position it left-right
       const groupedCards = {}
+
       if (typeof this.$refs.card === 'undefined') {
         return false
       }
 
       this.$refs.card.forEach((card) => {
         const style = card.offsetTop
+
         if (groupedCards[style]) {
           groupedCards[style].push(card)
         } else {
@@ -157,6 +161,7 @@ export default {
       const cardBottomValues = this.$refs.card.map((card) => card.$el.getBoundingClientRect().bottom)
       const maxBottom = Math.max(...cardBottomValues)
       const containerBounds = this.getContainerBounds()
+
       this.containerMinHeight = `${maxBottom + containerBounds.height - containerBounds.bottom}px`
     },
 

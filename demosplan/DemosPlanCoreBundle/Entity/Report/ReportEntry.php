@@ -36,6 +36,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntryInterface
 {
     final public const GROUP_PROCEDURE = 'procedure';
+    final public const GROUP_PROCEDURE_PHASE_DEFINITION = 'procedurePhaseDefinition';
     final public const GROUP_SINGLE_DOCUMENT = 'singleDocument';
     final public const GROUP_PLAN_DRAW = 'planDraw';
     final public const GROUP_PARAGRAPH = 'paragraph';
@@ -67,6 +68,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
     final public const LEVEL_INFO = 'INFO';
 
     final public const IDENTIFIER_TYPE_PROCEDURE = 'procedure';
+    final public const IDENTIFIER_TYPE_PROCEDURE_PHASE_DEFINITION = 'procedurePhaseDefinition';
     final public const IDENTIFIER_TYPE_STATEMENT = 'statement';
     final public const IDENTIFIER_TYPE_FINAL_MAIL = 'finalMail';
     final public const IDENTIFIER_TYPE_MASTER_PUBLIC_AGENCY = 'masterToeb';
@@ -99,12 +101,12 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
      * @var string
      */
     #[ORM\Column(name: '_re_level', type: 'string', length: 255, nullable: false, options: ['fixed' => true])]
-    protected $level = 'INFO';
+    protected $level = ReportEntry::LEVEL_INFO;
 
     /**
      * @var string
      */
-    #[ORM\Column(name: '_u_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
+    #[ORM\Column(name: '_u_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     protected $userId;
 
     /**
@@ -119,7 +121,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
      *
      * @deprecated this property doesn't seem to be in use anymore
      */
-    #[ORM\Column(name: '_s_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
+    #[ORM\Column(name: '_s_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     protected $sessionId = '';
 
     /**
@@ -133,7 +135,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
      * @var string
      */
     #[Assert\NotBlank]
-    #[ORM\Column(name: '_re_identifier', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
+    #[ORM\Column(name: '_re_identifier', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     protected $identifier;
 
     /**
@@ -148,13 +150,13 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
      * @var string always in JSON format (a simple string is considered valid JSON)
      */
     #[Assert\NotBlank]
-    #[ORM\Column(name: '_re_message', type: 'text', nullable: false, length: 15000000)]
+    #[ORM\Column(name: '_re_message', type: 'text', length: 15000000, nullable: false)]
     protected $message;
 
     /**
      * @var string
      */
-    #[ORM\Column(name: '_re_incoming', type: 'text', nullable: false, length: 15000000)]
+    #[ORM\Column(name: '_re_incoming', type: 'text', length: 15000000, nullable: false)]
     protected $incoming = '';
 
     /**

@@ -177,10 +177,10 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     #[ORM\Column(name: '_ps_pictogram', type: 'string', length: 256, nullable: true)]
     protected $pictogram;
 
-    #[ORM\Column(name: '_ps_pictogram_copyright', type: 'string', nullable: false, length: 512, options: ['default' => ''])]
+    #[ORM\Column(name: '_ps_pictogram_copyright', type: 'string', length: 512, nullable: false, options: ['default' => ''])]
     protected string $pictogramCopyright = '';
 
-    #[ORM\Column(name: '_ps_pictogram_alt_text', type: 'string', nullable: false, length: 512, options: ['default' => ''])]
+    #[ORM\Column(name: '_ps_pictogram_alt_text', type: 'string', length: 512, nullable: false, options: ['default' => ''])]
     protected string $pictogramAltText = '';
 
     /**
@@ -258,7 +258,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      * Enable publication of Feedback possibility.
      */
     #[ORM\Column(name: '_p_public_participation_feedback_enabled', type: 'boolean', nullable: false, options: ['default' => true])]
-    protected bool $publicParticipationFeedbackEnabled = false;
+    protected bool $publicParticipationFeedbackEnabled = true;
 
     public function __construct()
     {
@@ -824,48 +824,6 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     public function getPictogramAltText(): string
     {
         return $this->pictogramAltText;
-    }
-
-    /**
-     * Returns the internal phase to which will be switch, when the time(dateOfSwitchPhase) has come.
-     *
-     * @return string
-     */
-    public function getDesignatedPhase()
-    {
-        return $this->procedure->getPhaseObject()->getDesignatedPhase();
-    }
-
-    /**
-     * @param string $designatedPhase
-     *
-     * @return $this
-     */
-    public function setDesignatedPhase($designatedPhase)
-    {
-        $this->procedure->getPhaseObject()->setDesignatedPhase($designatedPhase);
-
-        return $this;
-    }
-
-    /**
-     * Returns the external phase to which will be switch, when the time(dateOfSwitchPublicPhase) has come.
-     *
-     * @return string
-     */
-    public function getDesignatedPublicPhase()
-    {
-        return $this->procedure->getPublicParticipationPhaseObject()->getDesignatedPhase();
-    }
-
-    /**
-     * @param string $designatedPublicPhase
-     */
-    public function setDesignatedPublicPhase($designatedPublicPhase): self
-    {
-        $this->procedure->getPublicParticipationPhaseObject()->setDesignatedPhase($designatedPublicPhase);
-
-        return $this;
     }
 
     /**

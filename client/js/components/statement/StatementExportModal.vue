@@ -239,7 +239,7 @@
           tooltip: Translator.trans('docx.export.header.custom.hint')
         }"
         :maxlength="customHeaderMaxLength"
-        :placeholder="customHeaderPlaceholder"
+        :placeholder="Translator.trans('docx.export.header.custom.placeholder')"
         class="mt-2 mb-4"
         data-cy="exportModal:customHeaderText"
         type="text"
@@ -320,12 +320,6 @@ export default {
       required: true,
       type: String,
     },
-
-    procedureName: {
-      required: false,
-      type: String,
-      default: '',
-    },
   },
 
   emits: [
@@ -402,13 +396,6 @@ export default {
       'getIsExpandedByCategoryId',
     ]),
 
-    customHeaderPlaceholder () {
-      return Translator.trans('docx.export.header.custom.placeholder', {
-        isPartialExport: this.selectedTagIds.length > 0,
-        procedureName: this.procedureName,
-      })
-    },
-
     exportModalTitle () {
       return this.isSingleStatementExport ? Translator.trans('statement.export.do') : Translator.trans('export.statements')
     },
@@ -430,6 +417,7 @@ export default {
         if (exampleFileName === this.fileName) {
           exampleFileName += '-837474df23'
         }
+
         exampleFileName += '.docx'
       }
 
@@ -473,11 +461,13 @@ export default {
 
       result.included?.forEach(resource => {
         const group = this.getGroupedOptions(resource, filter, result)
+
         if (group) {
           groupedOptions.push(group)
         }
 
         const item = this.getUngroupedOptions(resource, filter)
+
         if (item) {
           ungroupedOptions.push(item)
         }
@@ -519,6 +509,7 @@ export default {
         return result || null
       } catch (error) {
         console.error('Failed to fetch filter options', error)
+
         return null
       }
     },
@@ -672,6 +663,7 @@ export default {
       // Load filter options only when no filters are active. If filters are active, skip loading and scroll to the flyout.
       if (currentQuery && currentQuery.length > 0) {
         this.scrollModalToBottom()
+
         return
       }
 
@@ -683,11 +675,13 @@ export default {
       })
 
       const result = await this.fetchFilterOptions(requestParams)
+
       if (!result) {
         return
       }
 
       const filterDefinition = this.findFilterDefinition(result, path)
+
       if (!filterDefinition) {
         return
       }
@@ -763,6 +757,7 @@ export default {
       Object.keys(this.docxColumns).forEach(key => {
         const storageKey = `exportModal:docxCol:${key}`
         const storedColumnTitle = this.getItemFromSessionStorage(storageKey)
+
         this.docxColumns[key].title = storedColumnTitle || null /** Setting the value to null will display the placeholder titles of the column */
       })
 
@@ -798,6 +793,7 @@ export default {
 
       if (!filterFlyout || !Array.isArray(filterFlyout.itemsSelected)) {
         this.selectedTags = []
+
         return
       }
 
@@ -824,6 +820,7 @@ export default {
     updateSelectedTags () {
       if (this.selectedTagIds.length === 0) {
         this.selectedTags = []
+
         return
       }
 

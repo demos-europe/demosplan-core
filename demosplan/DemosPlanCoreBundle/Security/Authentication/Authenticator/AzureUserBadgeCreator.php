@@ -49,7 +49,7 @@ class AzureUserBadgeCreator
                     'userData'  => $this->azureUserData->__toString(),
                     'exception' => $e->getMessage(),
                 ]);
-                throw new AuthenticationException('Azure OAuth authentication failed: '.$e->getMessage());
+                throw new AuthenticationException('Azure OAuth authentication failed: '.$e->getMessage(), $e->getCode(), $e);
             }
         });
     }

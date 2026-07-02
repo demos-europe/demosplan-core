@@ -29,15 +29,18 @@ const chalk = require('chalk')
  */
 function bundleEntryPoints (config) {
   const entries = {}
+
   glob.sync(config.clientBundleGlob).forEach(filename => {
     const baseFilename = filename.replace(path.resolve(__dirname, config.relativeRoot), '')
     const projectBundlePath = path.resolve(__dirname, config.relativeRoot, `./projects/${config.project}${baseFilename}`)
 
     let addedProjectBundles = false
+
     if (fs.existsSync(projectBundlePath)) {
       if (!addedProjectBundles) {
         log(chalk.bold(`Project "${config.project}" overrides some bundles:\n`))
       }
+
       addedProjectBundles = true
       log(`\t- ${projectBundlePath}`)
 

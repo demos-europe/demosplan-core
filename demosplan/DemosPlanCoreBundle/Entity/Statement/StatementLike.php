@@ -43,7 +43,7 @@ class StatementLike implements UuidEntityInterface, StatementLikeInterface
     /**
      * @var UserInterface|null
      */
-    #[ORM\JoinColumn(name: '_u_id', referencedColumnName: '_u_id', onDelete: 'RESTRICT', nullable: true)]
+    #[ORM\JoinColumn(name: '_u_id', referencedColumnName: '_u_id', nullable: true, onDelete: 'RESTRICT')]
     #[ORM\ManyToOne(targetEntity: User::class)]
     protected $user;
 

@@ -82,6 +82,7 @@ export default {
   methods: {
     removeFileIds (file) {
       const fileIdx = this.fileIds.findIndex(el => el === file.hash)
+
       this.fileIds.splice(fileIdx, 1)
     },
 

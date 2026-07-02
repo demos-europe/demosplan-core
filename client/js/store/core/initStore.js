@@ -30,6 +30,7 @@ function registerPresetModules (store, presetStoreModules) {
       }
     }
   }
+
   return store
 }
 
@@ -90,9 +91,11 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
             store.api.newStaticRoute = (route) => {
               return new StaticRoute(route)
             }
+
             store.api.newRoute = (route) => {
               return new Route(route)
             }
+
             store.api.handleResponse = handleResponse
           },
         ],

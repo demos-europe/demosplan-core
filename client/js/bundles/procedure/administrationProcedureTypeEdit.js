@@ -23,6 +23,7 @@ import ProcedureTypeSelect from '@DpJs/components/procedure/admin/ProcedureTypeS
 const components = {
   DpEditor: defineAsyncComponent(async () => {
     const { DpEditor } = await import('@demos-europe/demosplan-ui')
+
     return DpEditor
   }),
   ProcedureTypeSelect,
@@ -39,6 +40,7 @@ initialize(components, stores, apiStores).then(() => {
       el.addEventListener('change', e => {
         if (e.target.checked === true) {
           const notClickedElements = array.filter(el => el !== e.target)
+
           notClickedElements.forEach(el => {
             el.checked = false
           })

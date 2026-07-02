@@ -23,13 +23,16 @@ function flattenNode (node, descend = true) {
   if (!node) {
     throw new Error('Invalid "node" parameter')
   }
+
   const result = []
+
   node.descendants((child, pos) => {
     result.push({ node: child, pos })
     if (!descend) {
       return false
     }
   })
+
   return result
 }
 
@@ -84,12 +87,14 @@ const getMarks = (nodes, markName, attrId) => {
 const rangesEqual = (ranges, cmpRanges) => {
   // Check if there are any segmentIds in ranges that are not in cmpRanges (= were ranges deleted?)
   const keysEqual = Object.keys(ranges).filter(key => cmpRanges[key]).length === Object.keys(ranges).length
+
   if (!keysEqual) {
     return false
   }
 
   // Check if there are any segmentIds in cmpRanges that are not in ranges (= were ranges added?)
   const cmpKeysEqual = Object.keys(cmpRanges).filter(key => ranges[key]).length === Object.keys(cmpRanges).length
+
   if (!cmpKeysEqual) {
     return false
   }
@@ -97,8 +102,10 @@ const rangesEqual = (ranges, cmpRanges) => {
   // Check if to, from or isConfirmed have changed
   const attributesEqual = Object.entries(ranges).filter(([key, val]) => {
     const cmpRange = cmpRanges[key]
+
     return cmpRange.from === val.from && cmpRange.to === val.to && cmpRange.isConfirmed === val.isConfirmed
   }).length === Object.keys(ranges).length
+
   if (!attributesEqual) {
     return false
   }
@@ -118,6 +125,7 @@ const rangesEqual = (ranges, cmpRanges) => {
 const splitsExistingRange = (from, to, doc) => {
   const existingMarks = getMarks(flattenNode(doc), 'segmentMark', 'segmentId')
   const doesSplit = Object.values(existingMarks).filter((mark) => from > mark.from && to < mark.to)
+
   return doesSplit.length !== 0
 }
 
@@ -133,18 +141,22 @@ const splitsExistingRange = (from, to, doc) => {
 const getMinMax = (num1, num2) => {
   const from = Math.min(num1, num2)
   const to = Math.max(num1, num2)
+
   return { from, to }
 }
 
 const range = (start, end, step = 1) => {
   const output = []
+
   if (typeof end === 'undefined') {
     end = start
     start = 0
   }
+
   for (let i = start; i < end; i += step) {
     output.push(i)
   }
+
   return output
 }
 
@@ -154,6 +166,7 @@ const isSuperset = (set, subset) => {
       return false
     }
   }
+
   return true
 }
 
@@ -168,12 +181,15 @@ const isSuperset = (set, subset) => {
  */
 const createCreatorMenu = (view, anchor, head) => {
   const wrapper = document.createElement('div')
+
   wrapper.setAttribute('class', 'editor-menububble__wrapper is-active')
 
   const addBtn = document.createElement('button')
+
   addBtn.setAttribute('class', 'editor-menububble__button')
   addBtn.setAttribute('data-cy', 'menuBubbleButton')
   const icon = document.createElement('i')
+
   icon.setAttribute('class', 'fa fa-plus')
   addBtn.appendChild(icon)
 
@@ -181,9 +197,11 @@ const createCreatorMenu = (view, anchor, head) => {
     e.preventDefault()
     const from = Math.min(anchor, head)
     const to = Math.max(anchor, head)
+
     setRange(view)(from, to, { segmentId: `${from}_${to}` })
     const { state, dispatch } = view
     let { tr } = state
+
     view.focus()
     tr = tr.setSelection(new TextSelection(state.doc.resolve(to)))
     dispatch(tr)
@@ -245,6 +263,7 @@ const generateRangeChangeMap = (oldRanges, newRanges) => {
       if (!newRanges[key]) {
         return false
       }
+
       const originalRange = oldRanges[key]
       const rangeToCompare = newRanges[key]
       const hasChangedPositions = originalRange.from !== rangeToCompare.from || originalRange.to !== rangeToCompare.to

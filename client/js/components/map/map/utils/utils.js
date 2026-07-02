@@ -77,5 +77,6 @@ export function getResolutionFromScale (scale, units) {
  */
 export function getScaleFromResolution (resolution, units) {
   const scale = _INCHES_PER_UNIT[units] * _DPI * resolution
+
   return Math.round(scale)
 }

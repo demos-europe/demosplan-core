@@ -73,7 +73,7 @@ class ProcedureType extends CoreEntity implements UuidEntityInterface, Procedure
         /**
          * This column have to have a fixed length to allow uniqueness.
          */
-        #[Assert\NotBlank] #[ORM\Column(type: 'string', length: 255, options: ['fixed' => true], nullable: false, unique: true)]
+        #[Assert\NotBlank] #[ORM\Column(type: 'string', length: 255, unique: true, nullable: false, options: ['fixed' => true])]
         private string $name,
         #[ORM\Column(type: 'text', nullable: false)]
         private string $description,

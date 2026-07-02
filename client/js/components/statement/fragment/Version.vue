@@ -146,9 +146,11 @@ export default {
      */
     fixCompoundVotes (vote) {
       let decompoundVote = vote
+
       if (vote.match(/fragment\.vote\./)) {
         decompoundVote = vote.replace(/fragment\.vote\./, '')
       }
+
       return decompoundVote
     },
 

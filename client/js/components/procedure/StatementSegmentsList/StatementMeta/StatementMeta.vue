@@ -286,6 +286,7 @@ export default {
       const yyyy = today.getFullYear()
 
       today = dd + '.' + mm + '.' + yyyy
+
       return today
     },
 
@@ -309,6 +310,7 @@ export default {
       if (this.storageStatement[this.statement.id].relationships.assignee.data) {
         return this.currentUserId === this.storageStatement[this.statement.id].relationships.assignee.data.id
       }
+
       return false
     },
 
@@ -333,7 +335,9 @@ export default {
       if (!this.statement.attributes.submitType) {
         return '-'
       }
+
       const option = this.submitTypeOptions.find(option => option.value === this.statement.attributes.submitType)
+
       return option ? Translator.trans(option.label) : ''
     },
   },
@@ -358,13 +362,16 @@ export default {
     },
 
     handleScroll () {
-      if (this.isScrolling) return
+      if (this.isScrolling) {
+        return
+      }
 
       const sections = this.menuEntries.map(entry => document.querySelector(`#${entry.id}`))
       const scrollPosition = window.scrollY + 62
 
       for (let i = sections.length - 1; i >= 0; i--) {
         const section = sections[i]
+
         if (section && section.offsetTop <= scrollPosition) {
           this.activeItem = this.menuEntries[i].id
           break
@@ -423,6 +430,7 @@ export default {
     scrollToItem (id) {
       this.isScrolling = true
       const element = document.querySelector(`#${id}`)
+
       if (element) {
         const headerOffset = 62
         const elementPosition = element.getBoundingClientRect().top + window.pageYOffset

@@ -57,6 +57,7 @@ const Scroller = {
      * ResizeObserver does not trigger anymore even if its content changes.
      */
     const contextMutationObserver = new MutationObserver(updateElement.bind(null, element))
+
     contextMutationObserver.observe(element, {
       childList: true,
       subtree: true,

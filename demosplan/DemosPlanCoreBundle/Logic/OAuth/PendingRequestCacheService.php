@@ -41,7 +41,7 @@ class PendingRequestCacheService
         private readonly CacheInterface $cache,
         private readonly LoggerInterface $logger,
         private readonly SecretEncryptor $encryptionService,
-        #[Autowire('%oauth_token_timezone%')]
+        #[Autowire(param: 'oauth_token_timezone')]
         string $tokenTimezone,
     ) {
         $this->tokenTimezone = new DateTimeZone($tokenTimezone);

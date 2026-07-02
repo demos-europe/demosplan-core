@@ -112,6 +112,7 @@ const emptyCustomer = {
   text: '',
   visible: false,
 }
+
 export default {
   name: 'CustomerSettingsSupport',
 

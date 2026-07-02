@@ -18,6 +18,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ParagraphVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SingleDocumentVersionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttributeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
@@ -30,6 +31,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -93,7 +95,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     /**
      * @var string
      */
-    #[ORM\Column(name: '_ds_text', type: 'text', nullable: false, length: 15000000)]
+    #[ORM\Column(name: '_ds_text', type: 'text', length: 15000000, nullable: false)]
     protected $text = '';
 
     /**
@@ -166,7 +168,7 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     /**
      * @var Collection<int, DraftStatementFileInterface>
      */
-    #[ORM\OneToMany(targetEntity: DraftStatementFile::class, mappedBy: 'draftStatement', orphanRemoval: true, fetch: 'EAGER', cascade: ['persist'])]
+    #[ORM\OneToMany(targetEntity: DraftStatementFile::class, mappedBy: 'draftStatement', cascade: ['persist'], fetch: 'EAGER', orphanRemoval: true)]
     protected $files;
 
     /**
@@ -364,9 +366,16 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
 
     /**
      * @var string
+     *
+     * @deprecated Will be removed once all consumers are migrated to phaseDefinition.
+     *              Kept on the entity to avoid data loss; value is synced from phaseDefinition->getName().
      */
-    #[ORM\Column(name: '_ds_phase', type: 'string', length: 50, nullable: false)]
+    #[ORM\Column(name: '_ds_phase', type: 'string', length: 255, nullable: false)]
     protected $phase = '';
+
+    #[ORM\ManyToOne(targetEntity: ProcedurePhaseDefinition::class)]
+    #[ORM\JoinColumn(name: 'phase_definition_id', referencedColumnName: 'id', nullable: false, onDelete: 'RESTRICT')]
+    protected ProcedurePhaseDefinitionInterface $phaseDefinition;
 
     /**
      * @var DateTime
@@ -1023,6 +1032,9 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
         return $this->uStreet;
     }
 
+    /**
+     * @return array
+     */
     public function getCategories()
     {
         if ($this->categories instanceof Collection) {
@@ -1459,28 +1471,16 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
         return $this;
     }
 
-    /**
-     * Set phase.
-     *
-     * @param string $phase
-     *
-     * @return DraftStatementInterface
-     */
-    public function setPhase($phase)
+    public function getPhaseDefinition(): ProcedurePhaseDefinitionInterface
     {
-        $this->phase = $phase;
-
-        return $this;
+        return $this->phaseDefinition;
     }
 
-    /**
-     * Get phase.
-     *
-     * @return string
-     */
-    public function getPhase()
+    public function setPhaseDefinition(ProcedurePhaseDefinitionInterface $phaseDefinition): void
     {
-        return $this->phase;
+        $this->phaseDefinition = $phaseDefinition;
+        // @deprecated $phase will be removed once all consumers are migrated to phaseDefinition
+        $this->phase = $phaseDefinition->getName();
     }
 
     /**

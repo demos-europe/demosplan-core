@@ -679,7 +679,9 @@ export default {
       optGroup = options[optGroupKey]
       data[optGroupKey] = {}
 
-      if (!optGroup) continue
+      if (!optGroup) {
+        continue
+      }
 
       for (optKey in optGroup._defaults) {
         data[optGroupKey][optKey] = optGroup._defaults[optKey]
@@ -720,6 +722,7 @@ export default {
           return key
         }
       }
+
       return false
     },
 
@@ -727,14 +730,19 @@ export default {
       const optionsDocxFilter = Object.entries(this.options.docx.templates).filter(([key, value]) => {
         return value ? this.hasVisibleTemplate({ [key]: value }) : false
       })
+
       return Object.fromEntries(optionsDocxFilter)
     },
 
     odtTemplateOptions () {
-      if (!this.options.odt?.templates) return {}
+      if (!this.options.odt?.templates) {
+        return {}
+      }
+
       const optionsOdtFilter = Object.entries(this.options.odt.templates).filter(([key, value]) => {
         return value ? this.hasVisibleTemplate({ [key]: value }) : false
       })
+
       return Object.fromEntries(optionsOdtFilter)
     },
 
@@ -758,7 +766,10 @@ export default {
     },
 
     isOdtSortTypeByParagraphChecked () {
-      if (!this.exportChoice.odt) return false
+      if (!this.exportChoice.odt) {
+        return false
+      }
+
       return this.exportChoice.odt.exportType === 'statementsAndFragments' ?
         this.exportChoice.odt.sortType === 'byParagraphFragmentsOnly' :
         this.exportChoice.odt.sortType === 'byParagraph'
@@ -806,6 +817,7 @@ export default {
         .filter(option => this.options[option])
         .reduce((obj, key) => {
           obj[key] = this.options[key]
+
           return obj
         }, {})
     },
@@ -849,13 +861,19 @@ export default {
     },
 
     handleOdtExportTypeChange (value) {
-      if (!this.exportChoice.odt) return
+      if (!this.exportChoice.odt) {
+        return
+      }
+
       this.exportChoice.odt.exportType = value
       this.exportChoice.odt.sortType = 'default'
     },
 
     handleOdtSortTypeByParagraphChange () {
-      if (!this.exportChoice.odt) return
+      if (!this.exportChoice.odt) {
+        return
+      }
+
       this.exportChoice.odt.sortType = this.exportChoice.odt.exportType === 'statementsAndFragments' ?
         'byParagraphFragmentsOnly' :
         'byParagraph'
@@ -875,6 +893,7 @@ export default {
      */
     hasVisibleTemplate (templateInfo) {
       const hideForViewModes = templateInfo.hideForViewModes || false
+
       if (hideForViewModes) {
         return !templateInfo.hideForViewModes.includes(this.viewMode)
       } else {
@@ -889,12 +908,14 @@ export default {
     getSearchFields () {
       const allSearchFields = Array.from(document.getElementsByName('search_fields[]'))
       const checkedSearchFields = []
+
       allSearchFields.forEach(function (searchField) {
         if (searchField.checked) {
           checkedSearchFields.push(searchField.id)
         }
       },
       )
+
       return checkedSearchFields.join()
     },
 
@@ -936,6 +957,7 @@ export default {
           break
         }
       }
+
       if (!hasContent) {
         this.switchTab(tab)
         this.submit()
@@ -951,10 +973,12 @@ export default {
     setBodyMaxHeight () {
       const contentHeights = []
       const tabs = this.$refs.exportModalContent.querySelectorAll('.tab-content')
+
       tabs.forEach(tabContent => {
         if (!tabContent.classList.contains('active')) {
           tabContent.style.display = 'block'
         }
+
         contentHeights.push(tabContent.clientHeight)
         tabContent.style.display = ''
       })

@@ -39,6 +39,8 @@ class Place extends CoreEntity implements SortableInterface, PlaceInterface
     private $description = '';
     #[ORM\Column(name: 'solved', type: 'boolean', nullable: false, options: ['default' => false, 'fixed' => true])]
     private bool $solved = false;
+    #[ORM\Column(name: 'locked', type: 'boolean', nullable: false, options: ['default' => false, 'fixed' => true])]
+    private bool $locked = false;
 
     public function __construct(
         #[Assert\NotNull] #[ORM\JoinColumn(referencedColumnName: '_p_id', nullable: false)] #[ORM\ManyToOne(targetEntity: Procedure::class, inversedBy: 'segmentPlaces')]
@@ -46,7 +48,7 @@ class Place extends CoreEntity implements SortableInterface, PlaceInterface
         /**
          * The displayed name of this instance.
          */
-        #[Assert\NotBlank(normalizer: 'trim', allowNull: false)]
+        #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
         #[Assert\Length(min: 1, max: 255, normalizer: 'trim')] #[ORM\Column(type: 'string', length: 255, nullable: false)]
         private string $name = '',
         #[Assert\NotNull] #[ORM\Column(type: 'integer', nullable: false, options: ['unsigned' => true, 'default' => 0])]
@@ -116,6 +118,18 @@ class Place extends CoreEntity implements SortableInterface, PlaceInterface
     public function setSolved(bool $solved): self
     {
         $this->solved = $solved;
+
+        return $this;
+    }
+
+    public function isLocked(): bool
+    {
+        return $this->locked;
+    }
+
+    public function setLocked(bool $locked): self
+    {
+        $this->locked = $locked;
 
         return $this;
     }

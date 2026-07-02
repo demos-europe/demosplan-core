@@ -40,6 +40,7 @@ export default class SankeyDiagram {
       .linkTitle(d => {
         return d.linkTitle
       })
+
     // Create the Diagram
     select(this.target).append('svg')
       .attr('class', 'sankey-diagram')

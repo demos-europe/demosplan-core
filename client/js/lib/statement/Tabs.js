@@ -49,6 +49,7 @@ export default function Tabs () {
           makeInactive(tabs, tabContent)
 
           const target = tabLink.getAttribute('href')
+
           document.querySelector(target).classList.add(activeTabClass)
           tabLink.parentNode.classList.add(activeTabClass)
 

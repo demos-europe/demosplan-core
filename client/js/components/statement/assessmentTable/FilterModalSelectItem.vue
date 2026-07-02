@@ -247,6 +247,7 @@ export default {
                 this.sortFilterOptions({ id: this.filterItem.id, sortingType: 'alphabetic' })
                 this.isInitialLoad = false
               }
+
               // Used in DpFilterModal to enable submit-button after updating
               this.$emit('updatedFilters')
               this.setLoading({ filterId: this.filterItem.id, isLoading: false })
