@@ -40,10 +40,13 @@
 
     <!-- Tags Section -->
     <div
+      role="group"
       aria-labelledby="floatingContextButton_tags"
       :class="['flex-1', 'flex', 'pl-2', 'pr-5', '-mr-4', { 'overflow-y-scroll': availableTags.length && tagTopics.length > 8 }]"
       @mouseover="showFloatingContextButton.tags = true"
       @mouseleave="showFloatingContextButton.tags = false"
+      @focusin="showFloatingContextButton.tags = true"
+      @focusout="showFloatingContextButton.tags = false"
     >
       <button
         v-if="!isCollapsed.tags"
@@ -103,10 +106,13 @@
 
     <!-- Places and Assignee Section -->
     <div
+      role="group"
       aria-labelledby="floatingContextButton_placesAndAssignee"
       class="relative py-1 pl-2 pr-5 -mr-4"
       @mouseover="showFloatingContextButton.placesAndAssignee = true"
       @mouseleave="showFloatingContextButton.placesAndAssignee = false"
+      @focusin="showFloatingContextButton.placesAndAssignee = true"
+      @focusout="showFloatingContextButton.placesAndAssignee = false"
     >
       <FloatingContextButton
         class="right-0 top-0"
@@ -174,6 +180,46 @@
       </div>
     </div>
 
+    <!-- Additional Fields Section -->
+    <div
+      v-if="showAdditionalFields"
+      aria-labelledby="floatingContextButton_additionalFields"
+      class="relative py-1 pl-2 pr-5 -mr-4"
+      @focusin="showFloatingContextButton.additionalFields = true"
+      @focusout="showFloatingContextButton.additionalFields = false"
+      @mouseover="showFloatingContextButton.additionalFields = true"
+      @mouseleave="showFloatingContextButton.additionalFields = false"
+    >
+      <FloatingContextButton
+        class="right-0 top-0"
+        section="additionalFields"
+        :is-visible="showFloatingContextButton.additionalFields"
+        :is-content-collapsed="isCollapsed.additionalFields"
+        @toggle-content-visibility="toggleVisibility"
+        @show="showFloatingContextButton.additionalFields = true"
+        @hide="showFloatingContextButton.additionalFields = false"
+      />
+      <button
+        v-if="!isCollapsed.additionalFields"
+        data-cy="sidebar:toggleVisibility:additionalFields"
+        class="relative btn--blank o-link--default font-semibold text-left w-full"
+        @click="toggleVisibility"
+      >
+        {{ Translator.trans('fields.more.edit') }}
+      </button>
+      <div v-else>
+        <dp-datepicker
+          id="deadline"
+          v-model="deadline"
+          class="mt-1"
+          data-cy="selectedDeadline"
+          :label="{
+            text: Translator.trans('deadline.processing.until')
+          }"
+        />
+      </div>
+    </div>
+
     <dp-button-row
       class="p-2"
       data-cy="assignedTags"
@@ -191,9 +237,12 @@
 import {
   DpButtonRow,
   DpContextualHelp,
+  DpDatepicker,
   DpLabel,
   DpMultiselect,
+  formatDate,
   hasOwnProp,
+  reformatDateString,
   Tooltip,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
@@ -211,6 +260,7 @@ export default {
     DpButtonRow,
     DpCreateTag,
     DpContextualHelp,
+    DpDatepicker,
     DpLabel,
     DpMultiselect,
     FloatingContextButton,
@@ -237,9 +287,11 @@ export default {
 
   data () {
     return {
+      deadline: '',
       isCollapsed: {
         tags: true,
         placesAndAssignee: false,
+        additionalFields: false,
       },
       selectedAssignee: null,
       selectedPlace: null,
@@ -247,6 +299,7 @@ export default {
       showFloatingContextButton: {
         tags: false,
         placesAndAssignee: false,
+        additionalFields: false,
       },
     }
   },
@@ -278,6 +331,10 @@ export default {
       return null
     },
 
+    deadlineNeedsUpdate () {
+      return this.deadline !== this.initialDeadline
+    },
+
     initialAssignee () {
       if (this.currentSegment && hasOwnProp(this.currentSegment, 'assigneeId')) {
         return this.getAssignableUserById(this.currentSegment.assigneeId)
@@ -286,6 +343,12 @@ export default {
       const noAssignee = this.getAssignableUserById('noAssigneeId')
 
       return noAssignee || null
+    },
+
+    initialDeadline () {
+      const deadline = this.currentSegment?.deadline ?? ''
+
+      return formatDate(deadline)
     },
 
     initialPlace () {
@@ -297,7 +360,9 @@ export default {
     },
 
     needsUpdate () {
-      return this.assigneeNeedsUpdate || this.placeNeedsUpdate
+      return this.assigneeNeedsUpdate ||
+        this.placeNeedsUpdate ||
+        this.deadlineNeedsUpdate
     },
 
     placeNeedsUpdate () {
@@ -306,6 +371,12 @@ export default {
       return !hasPlace ||
           this.selectedPlace.id !== this.initialPlace.id ||
           this.editingSegment === null
+    },
+
+    showAdditionalFields () {
+      const hasDeadline = hasPermission('field_statement_deadline')
+
+      return hasDeadline
     },
 
     searchableTags () {
@@ -377,6 +448,7 @@ export default {
     },
 
     setInitialValues () {
+      this.deadline = this.initialDeadline
       this.selectedAssignee = this.initialAssignee
       this.selectedPlace = this.initialPlace || this.availablePlaces[0]
     },
@@ -390,6 +462,12 @@ export default {
         } else {
           segment.assigneeId = this.selectedAssignee.id
         }
+      }
+
+      if (hasPermission('field_statement_deadline') && this.deadlineNeedsUpdate) {
+        const isoDate = reformatDateString(this.deadline)
+
+        segment.deadline = isoDate
       }
 
       if (this.placeNeedsUpdate) {

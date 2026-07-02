@@ -149,13 +149,16 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
                     $customFields = $this->extractCustomFields($rpcRequest);
 
+                    $deadline = $this->extractDeadline($rpcRequest);
+
                     $segments = $this->segmentBulkEditorService->updateSegments(
                         $segments,
                         $addTagIds,
                         $removeTagIds,
                         $assignee,
                         $workflowPlace,
-                        $customFields
+                        $customFields,
+                        $deadline
                     );
 
                     $resultSegments = [...$resultSegments, ...$segments];
@@ -284,6 +287,21 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
         }
 
         return json_decode(json_encode($rawCustomFields), true);
+    }
+
+    // for deadline field
+    private function extractDeadline(object $rpcRequest): ?DateTime
+    {
+        if (!$this->currentUser->hasPermission('field_statement_deadline')) {
+            return null;
+        }
+        $deadline = data_get($rpcRequest, 'params.deadline', null);
+        if (!is_string($deadline)) {
+            return null;
+        }
+        $deadline = trim($deadline);
+
+        return '' !== $deadline ? new DateTime($deadline) : null;
     }
 
     /**
