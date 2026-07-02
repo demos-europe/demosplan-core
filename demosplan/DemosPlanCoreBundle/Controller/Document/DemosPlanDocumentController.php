@@ -45,6 +45,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
 use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
+use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
@@ -1794,12 +1795,12 @@ class DemosPlanDocumentController extends BaseController
      * @throws MessageBagException
      */
     #[Route(name: 'DemosPlan_document_zip_files', path: '/verfahren/{procedureId}/planunterlagen/zipfiles', options: ['expose' => true])]
-    public function zipFilesAction(Request $request, TranslatorInterface $translator, string $procedureId)
+    public function zipFilesAction(Request $request, TranslatorInterface $translator, ZipExportService $zipExportService, string $procedureId)
     {
         try {
             $filesInfo = $this->getFilesInfo($request, $procedureId);
 
-            return new StreamedResponse(function () use ($filesInfo, $translator) {
+            return new StreamedResponse(function () use ($filesInfo, $translator, $zipExportService) {
                 $zip = new ZipStream(
                     sendHttpHeaders: true,
                     outputName: $translator->trans('plandocument.zip.file.name'),
@@ -1809,7 +1810,7 @@ class DemosPlanDocumentController extends BaseController
                 foreach ($filesInfo as $fileInfo) {
                     try {
                         $streamRead = $this->defaultStorage->readStream($fileInfo['fullPath']);
-                        $zip->addFileFromStream((new UnicodeString($fileInfo['namedPath']))->ascii()->toString(), $streamRead);
+                        $zip->addFileFromStream($zipExportService->sanitizeZipPath($fileInfo['namedPath']), $streamRead);
                     } catch (Exception $e) {
                         $this->getLogger()->error($e->getMessage(), $e->getTrace());
                     }
