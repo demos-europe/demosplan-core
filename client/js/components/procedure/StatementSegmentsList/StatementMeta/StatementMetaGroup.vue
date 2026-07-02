@@ -123,10 +123,6 @@ async function fetchGroup () {
   }
 }
 
-function reset () {
-  groupName.value = initialGroupName.value
-}
-
 async function saveGroupName () {
   try {
     await dpApi.patch(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${props.statement.id}`, {}, {
@@ -144,8 +140,47 @@ async function saveGroupName () {
   }
 }
 
-function removeGroupStatement (id) {
+async function removeGroupStatement (id) {
+  // Snapshot for rollback if the PATCH fails, so UI and backend stay in sync.
+  const previous = [...groupStatements.value]
+  const removed = previous.find(stmt => stmt.id === id)
+
   groupStatements.value = groupStatements.value.filter(stmt => stmt.id !== id)
+
+  /*
+   * TODO(DPLAN-17748): remove the `?.attributes?.externId ||` fallback once the backend delivers
+   * member externId (StatementGroupResource::fromStatement). Until then the toast shows the member UUID.
+   */
+  const removedLabel = removed?.attributes?.externId || removed?.id
+
+  try {
+    // Reconcile: send the reduced set; the backend detaches members no longer present. No groupName → name untouched.
+    await dpApi.patch(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${props.statement.id}`, {}, {
+      data: {
+        type: 'StatementGroup',
+        id: props.statement.id,
+        relationships: {
+          statements: {
+            data: groupStatements.value.map(stmt => ({ type: 'Statement', id: stmt.id })),
+          },
+        },
+      },
+    })
+    dplan.notify.notify('confirm', Translator.trans('confirm.statement.detach.cluster.element', {
+      statementId: removedLabel,
+      clusterId: props.statement.attributes.externId,
+    }))
+  } catch (error) {
+    console.error('Failed to remove statement from group:', error)
+    groupStatements.value = previous
+    dplan.notify.notify('error', Translator.trans('error.statement.detach.cluster.element', {
+      statementId: removedLabel,
+    }))
+  }
+}
+
+function reset () {
+  groupName.value = initialGroupName.value
 }
 
 onMounted(() => {
