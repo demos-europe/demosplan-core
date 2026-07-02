@@ -136,6 +136,31 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
         self::assertNull($this->segment2->getAssignee());
     }
 
+    public function testUpdateSegmentsSetsDeadline(): void
+    {
+        self::assertNull($this->segment1->getDeadline());
+        self::assertNull($this->segment2->getDeadline());
+
+        $deadline = new DateTime('2026-06-27');
+
+        // 'UNKNOWN' assignee sentinel leaves the assignee untouched, isolating the deadline.
+        $this->sut->updateSegments([$this->segment1, $this->segment2], [], [], 'UNKNOWN', null, [], $deadline);
+
+        self::assertSame('2026-06-27', $this->segment1->getDeadline()?->format('Y-m-d'));
+        self::assertSame('2026-06-27', $this->segment2->getDeadline()?->format('Y-m-d'));
+    }
+
+    public function testUpdateSegmentsWithNullDeadlineLeavesExistingDeadlineUntouched(): void
+    {
+        $this->segment1->setDeadline(new DateTime('2026-06-01'));
+        $this->segment2->setDeadline(new DateTime('2026-06-01'));
+
+        $this->sut->updateSegments([$this->segment1, $this->segment2], [], [], 'UNKNOWN', null, [], null);
+
+        self::assertSame('2026-06-01', $this->segment1->getDeadline()?->format('Y-m-d'));
+        self::assertSame('2026-06-01', $this->segment2->getDeadline()?->format('Y-m-d'));
+    }
+
     public function testDetectValidAssignee(): void
     {
         $user = $this->loginTestUser();
