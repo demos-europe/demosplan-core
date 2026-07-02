@@ -295,7 +295,11 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
         if (!$this->currentUser->hasPermission('field_statement_deadline')) {
             return null;
         }
-        $deadline = data_get($rpcRequest, 'params.deadline', '');
+        $deadline = data_get($rpcRequest, 'params.deadline', null);
+        if (!is_string($deadline)) {
+            return null;
+        }
+        $deadline = trim($deadline);
 
         return '' !== $deadline ? new DateTime($deadline) : null;
     }
