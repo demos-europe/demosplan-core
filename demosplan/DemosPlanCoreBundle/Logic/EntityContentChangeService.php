@@ -539,7 +539,7 @@ class EntityContentChangeService
         $originalDeadline = $originalData['deadline'] ?? null;
 
         // Only act when the workflow place actually changed.
-        if (($originalPlace?->getId()) === ($segment->getPlace()?->getId())) {
+        if ($originalPlace?->getId() === $segment->getPlace()?->getId()) {
             return;
         }
 
