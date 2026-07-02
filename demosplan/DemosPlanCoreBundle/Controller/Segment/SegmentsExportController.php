@@ -185,7 +185,7 @@ class SegmentsExportController extends BaseController
 
     private function translateTemplateException(InvalidStatementTemplateException $exception): string
     {
-        $key = match(true) {
+        $key = match (true) {
             $exception instanceof UnknownPlaceholdersException      => 'docx.export.via_template.error.unknown_placeholder',
             $exception instanceof IncompleteSegmentMarkersException => 'docx.export.via_template.error.segments_marker_incomplete',
             $exception instanceof MissingSegmentBlockException      => 'docx.export.via_template.error.segment_data_without_block',

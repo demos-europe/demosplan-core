@@ -16,7 +16,6 @@ use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Controller\Segment\SegmentsExportController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidStatementTemplateException;
 use demosplan\DemosPlanCoreBundle\Exception\MalformedDocxException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
@@ -26,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFil
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementViaTemplateExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
+use Exception;
 use PhpOffice\PhpWord\TemplateProcessor;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
@@ -181,7 +181,7 @@ class SegmentsExportControllerExportViaTemplateTest extends AbstractStatementVia
             ->willReturn($this->createMock(Procedure::class));
         $this->statementHandler->method('getStatementWithCertainty')
             ->willReturn($this->createMock(Statement::class));
-        $this->exporter->method('export')->willThrowException(new \Exception('boom'));
+        $this->exporter->method('export')->willThrowException(new Exception('boom'));
 
         $this->messageBag->expects(self::once())->method('add')->with('error', self::anything());
 
