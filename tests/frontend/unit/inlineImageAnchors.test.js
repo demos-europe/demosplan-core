@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-globalThis.Translator = { trans: jest.fn(key => key === 'image.open' ? 'Bild öffnen' : key) }
+global.Translator = { trans: jest.fn(key => key === 'image.open' ? 'Bild öffnen' : key) }
 
 import { inlineImageAnchors, inlineImageAnchorsForEditing, stripInlineImageAnchors } from '@DpJs/lib/shared/inlineImageAnchors'
 
