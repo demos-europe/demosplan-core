@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+### Fixed 
+- Manual drag-and-drop reordering of documents in the plan document category admin now saves correctly
+
 ## v4.45.0 (2026-06-19)
 ### Added
 - Delete Institution Text CustomFields
