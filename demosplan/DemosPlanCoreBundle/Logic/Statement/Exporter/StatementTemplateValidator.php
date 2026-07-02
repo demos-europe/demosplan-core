@@ -155,7 +155,7 @@ class StatementTemplateValidator
         if ($openCount === $closeCount && $openCount <= 1) {
             return;
         }
-        throw new IncompleteSegmentMarkersException();
+        throw new IncompleteSegmentMarkersException('Incomplete segment markers in template detected.');
     }
 
     /**
