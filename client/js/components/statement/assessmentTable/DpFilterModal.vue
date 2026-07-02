@@ -444,11 +444,25 @@ export default {
       // Initially, only load empty filters without options
       return this.getFilterListAction()
         .then(() => {
-          // Load selected options into store
           if (this.appliedFilterOptions.length > 0) {
-            this.selectedOptions = this.appliedFilterOptions
-            this.loadSelectedFilterOptions(this.appliedFilterOptions)
-            this.loadAppliedFilterOptions(this.appliedFilterOptions)
+            // Restore custom field selections from applied options
+            const customFieldOptions = this.appliedFilterOptions.filter(opt => opt.type === 'customField')
+            if (customFieldOptions.length > 0) {
+              const restored = {}
+              customFieldOptions.forEach(({ fieldId, value }) => {
+                if (!restored[fieldId]) restored[fieldId] = []
+                restored[fieldId].push(value)
+              })
+              this.customFieldFilterValue = restored
+            }
+
+            // Load only standard options into the Filter store
+            const standardOptions = this.appliedFilterOptions.filter(opt => opt.type !== 'customField')
+            if (standardOptions.length > 0) {
+              this.selectedOptions = standardOptions
+              this.loadSelectedFilterOptions(standardOptions)
+              this.loadAppliedFilterOptions(standardOptions)
+            }
           }
         })
     },
