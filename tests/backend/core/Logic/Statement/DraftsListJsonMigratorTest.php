@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Tests\Core\Logic\Statement;
 
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftsListJsonMigrator;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftsListJsonSegmentFields;
 use PHPUnit\Framework\TestCase;
 
 class DraftsListJsonMigratorTest extends TestCase
@@ -21,7 +22,7 @@ class DraftsListJsonMigratorTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->sut = new DraftsListJsonMigrator();
+        $this->sut = new DraftsListJsonMigrator(new DraftsListJsonSegmentFields());
     }
 
     // --- needsMigration ---
@@ -86,6 +87,22 @@ class DraftsListJsonMigratorTest extends TestCase
             '<p>Sky is blue.</p>',
             [
                 ['id' => 'seg-1', 'charStart' => null, 'charEnd' => null, 'text' => '<p>Sky is blue.</p>'],
+            ]
+        );
+
+        // Act & Assert
+        self::assertTrue($this->sut->needsMigration($data));
+    }
+
+    public function testNeedsMigrationReturnsTrueWhenOnlyALaterSegmentHasText(): void
+    {
+        // Arrange — segment[0] has no text snapshot, but seg-2 does; must still be routed here
+        // rather than to DraftsListJsonPositionMigrator, which would ignore seg-2's reliable text.
+        $data = $this->buildData(
+            '<p>Sky is blue.</p><p>Grass is green.</p>',
+            [
+                ['id' => 'seg-1', 'charStart' => 0, 'charEnd' => 5, 'text' => ''],
+                ['id' => 'seg-2', 'charStart' => 6, 'charEnd' => 10, 'text' => '<p>Grass is green.</p>'],
             ]
         );
 
