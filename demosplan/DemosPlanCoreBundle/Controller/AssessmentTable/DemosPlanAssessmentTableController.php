@@ -278,15 +278,6 @@ class DemosPlanAssessmentTableController extends BaseController
             $table->getFilterSet()['filters']
         );
 
-        foreach ($assessmentTableQuery->getFilters() as $filterKey => $filterValues) {
-            if (str_starts_with($filterKey, 'customField_')) {
-                $fieldId = substr($filterKey, strlen('customField_'));
-                foreach ((array) $filterValues as $value) {
-                    $usedFilters[] = ['type' => 'customField', 'fieldId' => $fieldId, 'value' => $value];
-                }
-            }
-        }
-
         return $this->render(
             '@DemosPlanCore/DemosPlanAssessmentTable/DemosPlan/dhtml/v1/assessment_table_view.html.twig',
             [

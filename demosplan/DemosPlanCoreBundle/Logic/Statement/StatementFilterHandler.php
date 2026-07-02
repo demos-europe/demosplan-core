@@ -731,6 +731,15 @@ class StatementFilterHandler extends CoreHandler
             }
         }
 
+        foreach ($requestedFilters as $filterKey => $filterValues) {
+            if (str_starts_with($filterKey, 'customField_')) {
+                $fieldId = substr($filterKey, strlen('customField_'));
+                foreach ((array) $filterValues as $value) {
+                    $requestedfiltersInfo[] = ['type' => 'customField', 'fieldId' => $fieldId, 'value' => $value];
+                }
+            }
+        }
+
         return $requestedfiltersInfo;
     }
 }
