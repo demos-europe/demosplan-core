@@ -16,6 +16,7 @@ use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -29,6 +30,10 @@ use demosplan\DemosPlanCoreBundle\StateProvider\StatementGroupStateProvider;
         new Post(
             uriTemplate: '/StatementGroup',
             read: false,
+            processor: StatementGroupProcessor::class,
+        ),
+        new Patch(
+            uriTemplate: '/StatementGroup/{id}',
             processor: StatementGroupProcessor::class,
         ),
     ],
