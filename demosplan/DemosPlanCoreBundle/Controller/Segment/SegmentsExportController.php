@@ -139,14 +139,14 @@ class SegmentsExportController extends BaseController
         try {
             $uploadedTemplateHash = $request->query->get(self::UPLOADED_TEMPLATE_HASH);
             if (null === $uploadedTemplateHash || '' === $uploadedTemplateHash) {
-                throw new MalformedDocxException();
+                throw new MalformedDocxException('Invalid template hash provided.');
             }
 
             $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
             $statement = $statementHandler->getStatementWithCertainty($statementId);
 
             if (self::DOCX_MIME_TYPE !== $fileService->getFileInfo($uploadedTemplateHash)->getContentType()) {
-                throw new MalformedDocxException();
+                throw new MalformedDocxException('Invalid mime type provided, only docx allowed.');
             }
 
             $absolutePath = $fileService->ensureLocalFileFromHash($uploadedTemplateHash);
