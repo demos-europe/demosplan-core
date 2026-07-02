@@ -48,6 +48,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class SegmentsExportControllerExportViaTemplateTest extends AbstractStatementViaTemplateExporterTestCase
 {
     private const DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    private const REFERRER_URL = 'http://localhost/referrer-page';
 
     protected ?SegmentsExportController $sut = null;
 
@@ -129,7 +130,7 @@ class SegmentsExportControllerExportViaTemplateTest extends AbstractStatementVia
 
     public function testRedirectsWithMessageBagWhenHashIsMissing(): void
     {
-        $this->requestStack->push(new Request([], [], [], [], [], ['HTTP_REFERER' => 'http://localhost/referrer-page']));
+        $this->requestStack->push(new Request([], [], [], [], [], ['HTTP_REFERER' => self::REFERRER_URL]));
         $this->messageBag->expects(self::once())->method('add')->with('error', self::anything());
 
         $response = $this->callExportViaTemplate();
@@ -139,7 +140,7 @@ class SegmentsExportControllerExportViaTemplateTest extends AbstractStatementVia
 
     public function testRedirectsWithMessageBagWhenMimeTypeIsNotDocx(): void
     {
-        $this->pushRequestWithHash('hash-pdf', 'http://localhost/referrer-page');
+        $this->pushRequestWithHash('hash-pdf', self::REFERRER_URL);
         $this->fileService->method('getFileInfo')
             ->with('hash-pdf')
             ->willReturn($this->buildFileInfo('hash-pdf', 'application/pdf'));
@@ -153,7 +154,7 @@ class SegmentsExportControllerExportViaTemplateTest extends AbstractStatementVia
     public function testRedirectsWithMessageBagAndDeletesTemplateOnValidatorFailure(): void
     {
         $copiedTemplatePath = $this->exampleTemplate;
-        $this->pushRequestWithHash('hash-bad', 'http://localhost/referrer-page');
+        $this->pushRequestWithHash('hash-bad', self::REFERRER_URL);
         $this->givenFileServiceResolves('hash-bad', self::DOCX_MIME, $copiedTemplatePath);
         $this->fileService->expects(self::once())->method('deleteLocalFile')->with($copiedTemplatePath);
         $this->procedureHandler->method('getProcedureWithCertainty')
@@ -173,7 +174,7 @@ class SegmentsExportControllerExportViaTemplateTest extends AbstractStatementVia
     public function testRedirectsWithMessageBagAndDeletesTemplateOnGenericException(): void
     {
         $copiedTemplatePath = $this->exampleTemplate;
-        $this->pushRequestWithHash('hash-boom', 'http://localhost/referrer-page');
+        $this->pushRequestWithHash('hash-boom', self::REFERRER_URL);
         $this->givenFileServiceResolves('hash-boom', self::DOCX_MIME, $copiedTemplatePath);
         $this->fileService->expects(self::once())->method('deleteLocalFile')->with($copiedTemplatePath);
         $this->procedureHandler->method('getProcedureWithCertainty')
