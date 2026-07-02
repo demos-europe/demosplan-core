@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\CustomField\CustomFieldFilterResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
@@ -119,6 +120,7 @@ class ElasticsearchResultCreator
         private readonly DepartmentRepository $departmentRepository,
         private readonly ProfilerService $profilerService,
         private readonly LoggerInterface $logger,
+        private readonly CustomFieldFilterResolver $customFieldFilterResolver,
         #[Autowire(param: 'elasticsearch_max_result_window')]
         private readonly int $elasticsearchMaxResultWindow,
         #[Autowire(param: 'elasticsearch_search_after_batch_size')]
@@ -161,8 +163,12 @@ class ElasticsearchResultCreator
                 $searchFields,
                 $aggregationsMinDocumentCount
             );
+            [$customFieldFilter, $userFilters] = $this->customFieldFilterResolver->resolveCustomFieldFilter($procedureId, $userFilters);
             [$boolMustFilter, $boolMustNotFilter] = $this->getBasicFilters($procedureId, $userFilters);
             $userFilters = $this->getRenamedUserFilters($userFilters);
+            if (null !== $customFieldFilter) {
+                $boolMustFilter[] = $customFieldFilter;
+            }
             $fragmentFilters = $this->getFragmentFilters($userFilters);
             $userFragmentFilters = $this->statementService->mapRequestFiltersToESFragmentFilters($userFilters);
             $fragmentEsResult = (new ElasticsearchResult())->lock();

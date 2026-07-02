@@ -52,6 +52,13 @@
             @filter-apply="sendFilterQuery"
             @filter-options:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }})"
           />
+          <dp-custom-fields-filter
+            v-if="filterableCustomFieldDefinitions.length > 0"
+            :custom-field-definitions="customFieldDefinitions"
+            class="inline-block"
+            variant="flyout"
+            @filter-apply="sendFilterQuery"
+          />
         </div>
         <dp-button
           v-tooltip="Translator.trans('search.filter.reset')"
@@ -435,6 +442,7 @@ import {
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CustomSearch from './CustomSearch'
+import DpCustomFieldsFilter from '@DpJs/components/shared/DpCustomFieldsFilter'
 import FilterFlyout from './FilterFlyout'
 import fullscreenModeMixin from '@DpJs/components/shared/mixins/fullscreenModeMixin'
 import ImageModal from '@DpJs/components/shared/ImageModal'
@@ -456,6 +464,7 @@ export default {
     AddonWrapper,
     CustomSearch,
     DpBulkEditHeader,
+    DpCustomFieldsFilter,
     DpButton,
     DpColumnSelector,
     DpDataTable,
@@ -611,6 +620,12 @@ export default {
     ...mapState('Tag', {
       tagsObject: 'items',
     }),
+
+    filterableCustomFieldDefinitions () {
+      return this.customFieldDefinitions.filter(f =>
+        ['singleSelect', 'multiSelect'].includes(f.attributes?.fieldType)
+      )
+    },
 
     assignableUsers () {
       return Object.keys(this.assignableUsersObject).length ?
