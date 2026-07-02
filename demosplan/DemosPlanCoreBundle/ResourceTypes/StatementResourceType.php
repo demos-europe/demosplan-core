@@ -32,6 +32,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\CoordinateJsonConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftsListJsonMigrator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
@@ -78,6 +79,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
 {
     public function __construct(
         HTMLSanitizer $htmlSanitizer,
+        private readonly DraftsListJsonMigrator $draftsListJsonMigrator,
         private readonly JsonApiEsService $jsonApiEsService,
         private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
         private readonly QueryStatement $esQuery,
@@ -392,10 +394,17 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                     return [];
                 })
                 ->aliasedPath(Paths::statement()->draftsListJson)
-                ->readable(false, static function (Statement $statement): ?array {
+                ->readable(false, function (Statement $statement): ?array {
                     $draftsListJson = $statement->getDraftsListJson();
+                    if ('' === $draftsListJson) {
+                        return null;
+                    }
+                    $data = Json::decodeToArray($draftsListJson);
+                    if ($this->draftsListJsonMigrator->needsMigration($data)) {
+                        $data = $this->draftsListJsonMigrator->migrate($data);
+                    }
 
-                    return '' === $draftsListJson ? null : Json::decodeToArray($draftsListJson);
+                    return $data;
                 });
             $configBuilder->status->readable(true, fn (Statement $statement) => $this->statementService->getProcessingStatus($statement))->filterable();
         }

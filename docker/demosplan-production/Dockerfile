@@ -40,7 +40,7 @@ RUN --mount=type=cache,target=/root/.npm,sharing=locked \
     --mount=type=cache,target=/var/www/.cache,sharing=locked \
     npm install --ignore-scripts -g n && \
 # Install specific node version first \
-    n 24.11.1 && \
+    n 24.15.0 && \
     npm install --ignore-scripts -g corepack && \
     corepack enable && yarn set version 4.2.2
 
