@@ -32,8 +32,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 use Webmozart\Assert\Assert;
 use ZipStream\ZipStream;
 
-use function Symfony\Component\String\u;
-
 class ZipResponseGenerator extends FileResponseGeneratorAbstract
 {
     private const FIILE_NOT_FOUND_OR_READABLE = 'Unable to load or read file from path.';
@@ -107,7 +105,7 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
         foreach ($file['originalStatementsAsPdfs'] as $pdf) {
             $pdf['name'] = str_replace('Originalstellungnahmen', 'Originalstellungnahme', $pdf['name']);
             $zipStream->addFile(
-                $file['zipFileName'].'/'.$pdf['externId'].$pdf['name'],
+                $this->zipExportService->sanitizeZipPath($file['zipFileName'].'/'.$pdf['externId'].$pdf['name']),
                 $pdf['content']
             );
         }
@@ -160,11 +158,10 @@ class ZipResponseGenerator extends FileResponseGeneratorAbstract
                     );
                 }
                 if (is_array($originalAttachment)) {
-                    $content = u(
-                        $file['zipFileName'].'/'.$originalAttachment['fileHash'].'_'.$originalAttachment['name']
-                    )->ascii();
                     $zipStream->addFile(
-                        $content->toString(),
+                        $this->zipExportService->sanitizeZipPath(
+                            $file['zipFileName'].'/'.$originalAttachment['fileHash'].'_'.$originalAttachment['name']
+                        ),
                         $originalAttachment['content']
                     );
                 }
