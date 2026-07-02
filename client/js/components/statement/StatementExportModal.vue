@@ -763,6 +763,7 @@ export default {
 
       /** DpUploadFiles restores its file list from sessionStorage on reload; mirror that hash so the export still routes via template. */
       const storedTemplate = this.getItemFromSessionStorage(this.templateStorageName)
+
       this.uploadedHash = Array.isArray(storedTemplate) ? storedTemplate[storedTemplate.length - 1]?.hash ?? '' : ''
     },
 
