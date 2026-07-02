@@ -51,7 +51,7 @@ export const resolveLinkLabel = (altText, src, fallback) => {
  * hit a ReferenceError.
  */
 export const defaultInlineImageLabel = () =>
-  (typeof Translator !== 'undefined') ? Translator.trans(DEFAULT_FALLBACK_LABEL_KEY) : DEFAULT_FALLBACK_LABEL_KEY
+  (typeof Translator === 'undefined') ? DEFAULT_FALLBACK_LABEL_KEY : Translator.trans(DEFAULT_FALLBACK_LABEL_KEY)
 
 const ensureBlockClass = (img) => {
   const existingClasses = (img.getAttribute('class') || '').split(/\s+/).filter(Boolean)
@@ -135,8 +135,10 @@ const wrapImporterAnchors = (root, doc, className) => {
 }
 
 const wrapBareImages = (root, doc, fallbackLabel) => {
-  // Run after wrapImporterAnchors so that importer <img> nodes produced by
-  // that pass are already inside a wrapper and skipped by isInsideWrapper.
+  /*
+   * Run after wrapImporterAnchors so that importer <img> nodes produced by
+   * that pass are already inside a wrapper and skipped by isInsideWrapper.
+   */
   root.querySelectorAll('img').forEach((img) => {
     if (isInsideWrapper(img)) {
       return
