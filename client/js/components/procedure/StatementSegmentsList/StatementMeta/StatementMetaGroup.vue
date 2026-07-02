@@ -128,10 +128,6 @@ function reset () {
 }
 
 async function saveGroupName () {
-  /*
-   * TODO(DPLAN-17748): backend PATCH operation not built yet — StatementGroupResource only exposes Get + Post.
-   * Frontend is ahead of backend; this call will work once a Patch operation + update logic exist.
-   */
   try {
     await dpApi.patch(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${props.statement.id}`, {}, {
       data: {
