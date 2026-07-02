@@ -119,4 +119,4 @@ webpack-bundle-analyzer: MIT
 webpack-manifest-plugin: MIT
 webpack-merge: MIT
 
-As of 08.06.2026 08:33
+As of 02.07.2026 08:02
