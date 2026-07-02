@@ -248,7 +248,6 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         // currently updates are only needed for "normal" statements
         $simpleStatementCondition = $this->conditionFactory->allConditionsApply(
             $this->conditionFactory->propertyHasValue(false, Paths::statement()->deleted),
-            $this->conditionFactory->propertyHasValue(false, Paths::statement()->clusterStatement),
             $this->conditionFactory->propertyIsNull(Paths::statement()->headStatement->id),
             $this->conditionFactory->propertyIsNotNull(Paths::statement()->original->id),
             // all segments must have a segment set, hence the following check is used to ensure this resource type does not return segments
@@ -572,9 +571,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->availableProcedurePhases
                 ->readable(false, fn (Statement $statement): array => array_map(
                     static fn (ProcedurePhaseDefinition $d): array => ['id' => $d->getId(), 'name' => $d->getName()],
-                    $statement->isSubmittedByCitizen()
-                        ? $this->procedurePhaseDefinitionService->getExternalPhaseDefinitionsForCurrentCustomer()
-                        : $this->procedurePhaseDefinitionService->getInternalPhaseDefinitionsForCurrentCustomer()
+                    $this->procedurePhaseDefinitionService->getAvailablePhasesForStatement($statement)
                 ));
         }
 
