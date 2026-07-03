@@ -52,8 +52,8 @@ class ElasticsearchPopulateCommand extends CoreCommand
         // The multi-worker populate relies on the enqueue elastica bundle. If it is not installed,
         // advise to use the plain fos:elastica:populate command instead.
         if (!class_exists(QueuePagerPersister::class)) {
-            $io->writeln(
-                '<error>This command does not work without the enqueue elastica bundle. Please use the fos:elastica:populate command instead.</error>'
+            $io->error(
+                'This command does not work without the enqueue elastica bundle. Please use the fos:elastica:populate command instead.'
             );
 
             return Command::FAILURE;
