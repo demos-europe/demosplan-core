@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Exception\IncompleteSegmentMarkersException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidStatementTemplateException;
 use demosplan\DemosPlanCoreBundle\Exception\MalformedDocxException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingSegmentBlockException;
+use demosplan\DemosPlanCoreBundle\Exception\SegmentDataOutsideBlockException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UnknownPlaceholdersException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -189,6 +190,7 @@ class SegmentsExportController extends BaseController
             $exception instanceof UnknownPlaceholdersException      => 'docx.export.via_template.error.unknown_placeholder',
             $exception instanceof IncompleteSegmentMarkersException => 'docx.export.via_template.error.segments_marker_incomplete',
             $exception instanceof MissingSegmentBlockException      => 'docx.export.via_template.error.segment_data_without_block',
+            $exception instanceof SegmentDataOutsideBlockException  => 'docx.export.via_template.error.segment_data_outside_block',
             default                                                 => 'docx.export.via_template.error.malformed_docx',
         };
 

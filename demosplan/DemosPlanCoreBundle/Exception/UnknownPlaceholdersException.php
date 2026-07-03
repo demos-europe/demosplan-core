@@ -25,7 +25,7 @@ class UnknownPlaceholdersException extends InvalidStatementTemplateException
     /** @param list<string> $unknownPlaceholders */
     public function __construct(array $unknownPlaceholders)
     {
-        parent::__construct();
+        parent::__construct('Template contains unknown placeholders.');
         $this->unknownPlaceholders = $unknownPlaceholders;
     }
 

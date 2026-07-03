@@ -16,7 +16,9 @@ use demosplan\DemosPlanCoreBundle\Exception\IncompleteSegmentMarkersException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidStatementTemplateException;
 use demosplan\DemosPlanCoreBundle\Exception\MalformedDocxException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingSegmentBlockException;
+use demosplan\DemosPlanCoreBundle\Exception\SegmentDataOutsideBlockException;
 use demosplan\DemosPlanCoreBundle\Exception\UnknownPlaceholdersException;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use PhpOffice\PhpWord\TemplateProcessor;
 use Throwable;
 
@@ -101,7 +103,7 @@ class StatementTemplateValidator
 
     /**
      * @param string $absolutePath local-disk path of the uploaded template,
-     *                             obtained from {@see \demosplan\DemosPlanCoreBundle\Logic\FileService::ensureLocalFileFromHash()}
+     *                             obtained from {@see FileService::ensureLocalFileFromHash()}
      *
      * @throws InvalidStatementTemplateException
      */
@@ -114,6 +116,11 @@ class StatementTemplateValidator
         $this->rejectUnknownPlaceholders($variables);
         $this->rejectIncompleteSegmentMarkerPair($variableCount);
         $this->rejectSegmentDataWithoutBlock($variables);
+
+        // Remove the segment block from a copy of the document to isolate variables outside it.
+        $templateProcessor->cloneBlock(self::MARKER_SEGMENTS_OPEN, 0);
+        $variablesOutsideSegmentBlock = $templateProcessor->getVariables();
+        $this->rejectSegmentDataOutsideBlock($variablesOutsideSegmentBlock);
     }
 
     /**
@@ -124,7 +131,7 @@ class StatementTemplateValidator
         try {
             return new TemplateProcessor($absolutePath);
         } catch (Throwable $exception) {
-            throw new MalformedDocxException('', 0, $exception);
+            throw new MalformedDocxException('Template file could not be opened as a valid DOCX.', 0, $exception);
         }
     }
 
@@ -172,7 +179,19 @@ class StatementTemplateValidator
         if ($this->hasCompleteSegmentMarkerPair($variables)) {
             return;
         }
-        throw new MissingSegmentBlockException();
+        throw new MissingSegmentBlockException('Per-segment placeholders used without the surrounding segment-block markers.');
+    }
+
+    /**
+     * @param list<string> $variables
+     *
+     * @throws SegmentDataOutsideBlockException
+     */
+    private function rejectSegmentDataOutsideBlock(array $variables): void
+    {
+        if ([] !== array_intersect(self::SEGMENT_DATA_PLACEHOLDERS, $variables)) {
+            throw new SegmentDataOutsideBlockException('Per-segment placeholders found outside the segment-block markers.');
+        }
     }
 
     /**
