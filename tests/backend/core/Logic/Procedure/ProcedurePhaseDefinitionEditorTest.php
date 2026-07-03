@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedurePhase
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
+use demosplan\DemosPlanCoreBundle\Exception\PersistResourceException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionEditor;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedurePhaseDefinitionReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedurePhaseDefinitionUpdatableField;
@@ -128,7 +129,7 @@ class ProcedurePhaseDefinitionEditorTest extends UnitTestCase
         $this->messageBag->expects(self::once())->method('add')->with('error', self::anything());
         $this->eventDispatcher->expects(self::never())->method('dispatch');
 
-        $this->expectException(BadRequestException::class);
+        $this->expectException(PersistResourceException::class);
 
         $this->sut->setDeleted($phaseDefinition, true);
     }
