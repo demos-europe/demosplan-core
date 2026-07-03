@@ -45,6 +45,7 @@ class ProcedurePhaseDefinitionEditor
 
     /**
      * @throws JsonException
+     * @throws PersistResourceException
      */
     public function setDeleted(ProcedurePhaseDefinition $phaseDefinition, bool $newIsDeleted): void
     {
