@@ -97,18 +97,17 @@ class ZipExportService
         ZipStream $zip,
         string $fileNamePrefix,
     ): void {
-        // Hash the sanitized path so the dedup guard matches the entry name that
-        // is actually written. Otherwise two titles differing only by a trailing
-        // space (or dot) would hash differently, both pass this guard, then
+        // Dedup on the sanitized path so the guard matches the entry name that is
+        // actually written. Otherwise two titles differing only by a trailing
+        // space (or dot) would compare as distinct, both pass this guard, then
         // sanitize to the same entry name and collide as a duplicate ZIP entry.
         $path = $this->sanitizeZipPath($folderPath.$fileNamePrefix.$fileInfo->getFileName());
-        $pathHash = md5($path);
-        if (in_array($pathHash, $this->filesAdded, true)) {
+        if (in_array($path, $this->filesAdded, true)) {
             $this->logger->warning('File already present in Zip', ['path' => $path]);
 
             return;
         }
-        $this->filesAdded[] = $pathHash;
+        $this->filesAdded[] = $path;
 
         $this->logger->info(
             'Try to add File to Zip',
