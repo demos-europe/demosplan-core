@@ -5,6 +5,12 @@
   "version": "v4.47.0",
   "license": "EUPL-1.2",
   "minimum-stability": "stable",
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/demos-europe/enqueue-elastica-bundle"
+    }
+  ],
   "require": {
     "php": "^8.2 || ^8.3 || ^8.4",
     "ext-ctype": "*",
@@ -53,6 +59,7 @@
     "efrane/tus-bundle": "^0.6",
     "egulias/email-validator": "^4.0",
     "endroid/qr-code-bundle": "^5.0",
+    "enqueue/elastica-bundle": "dev-master",
     "enqueue/enqueue-bundle": "^0.10",
     "enqueue/fs": "^0.10",
     "erusev/parsedown": "^1.7",

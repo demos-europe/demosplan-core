@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ed07a8236ee3a522ce6dd830b386d7c2",
+    "content-hash": "ea74f38c6df2d6ac524d3f34f9c1042a",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -4343,6 +4343,57 @@
                 "source": "https://github.com/php-enqueue/enqueue-dev"
             },
             "time": "2025-12-21T18:13:12+00:00"
+        },
+        {
+            "name": "enqueue/elastica-bundle",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/demos-europe/enqueue-elastica-bundle.git",
+                "reference": "1cae9d0cee480b40c008ac8ca803ca306545cac6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/demos-europe/enqueue-elastica-bundle/zipball/1cae9d0cee480b40c008ac8ca803ca306545cac6",
+                "reference": "1cae9d0cee480b40c008ac8ca803ca306545cac6",
+                "shasum": ""
+            },
+            "require": {
+                "enqueue/enqueue-bundle": "^0.10",
+                "friendsofsymfony/elastica-bundle": "^7.0",
+                "php": "^8.1",
+                "symfony/framework-bundle": "^6.0|^7.0"
+            },
+            "require-dev": {
+                "doctrine/orm": "^2.0",
+                "phpunit/phpunit": "^10.5"
+            },
+            "default-branch": true,
+            "type": "symfony-bundle",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.10.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Enqueue\\ElasticaBundle\\": ""
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "description": "The bundle adds extra features to FOSElasticaBundle bundle",
+            "keywords": [
+                "elastica",
+                "elasticsearch",
+                "fos",
+                "performance"
+            ],
+            "support": {
+                "source": "https://github.com/demos-europe/enqueue-elastica-bundle/tree/master"
+            },
+            "time": "2026-07-03T09:34:41+00:00"
         },
         {
             "name": "enqueue/enqueue",
@@ -25070,7 +25121,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "enqueue/elastica-bundle": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
