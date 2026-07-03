@@ -55,7 +55,7 @@ class CustomFieldFilterResolver
             )
             ->toArray();
 
-        $isOriginalStatementView = $remainingFilters->get('original') === 'IS NULL';
+        $isOriginalStatementView = 'IS NULL' === $remainingFilters->get('original');
 
         $qb = $this->entityManager->createQueryBuilder()
             ->select('s.id')
