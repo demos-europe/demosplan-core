@@ -252,7 +252,7 @@ class ZipExportService
         $zipPath = (new UnicodeString($zipPath))->ascii()->toString();
 
         $segments = array_map(
-            static fn (string $segment): string => rtrim(trim($segment), " ."),
+            static fn (string $segment): string => rtrim(trim($segment), ' .'),
             explode('/', $zipPath)
         );
 
