@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2a1c88522176ea4b27a881f1918b8564",
+    "content-hash": "e8aa246909d040c3ea534d7aded6f2de",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -4356,13 +4356,13 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/mussbach/enqueue-elastica-bundle.git",
-                "reference": "ea8eced2a81476a1002078a78de419e71786fcd1"
+                "url": "https://github.com/demos-europe/enqueue-elastica-bundle.git",
+                "reference": "1cae9d0cee480b40c008ac8ca803ca306545cac6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mussbach/enqueue-elastica-bundle/zipball/ea8eced2a81476a1002078a78de419e71786fcd1",
-                "reference": "ea8eced2a81476a1002078a78de419e71786fcd1",
+                "url": "https://api.github.com/repos/demos-europe/enqueue-elastica-bundle/zipball/1cae9d0cee480b40c008ac8ca803ca306545cac6",
+                "reference": "1cae9d0cee480b40c008ac8ca803ca306545cac6",
                 "shasum": ""
             },
             "require": {
@@ -4398,9 +4398,9 @@
                 "performance"
             ],
             "support": {
-                "source": "https://github.com/mussbach/enqueue-elastica-bundle/tree/master"
+                "source": "https://github.com/demos-europe/enqueue-elastica-bundle/tree/master"
             },
-            "time": "2026-06-26T08:54:36+00:00"
+            "time": "2026-07-03T09:34:41+00:00"
         },
         {
             "name": "enqueue/enqueue",
@@ -25158,9 +25158,9 @@
         "ext-zip": "*",
         "ext-zlib": "*"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "platform-overrides": {
         "php": "8.2.0"
     },
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.9.0"
 }

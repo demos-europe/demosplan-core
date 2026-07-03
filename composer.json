@@ -8,7 +8,7 @@
   "repositories": [
     {
       "type": "vcs",
-      "url": "https://github.com/mussbach/enqueue-elastica-bundle"
+      "url": "https://github.com/demos-europe/enqueue-elastica-bundle"
     }
   ],
   "require": {
