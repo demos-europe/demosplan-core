@@ -6,6 +6,7 @@
 
 ## UNRELEASED
 
+## v4.45.1 (2026-07-03)
 ### Fixed 
 - Manual drag-and-drop reordering of documents in the plan document category admin now saves correctly
 
