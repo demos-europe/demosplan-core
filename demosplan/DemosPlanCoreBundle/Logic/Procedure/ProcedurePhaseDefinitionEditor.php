@@ -18,6 +18,7 @@ use DemosEurope\DemosplanAddon\Exception\JsonException;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Event\ProcedurePhaseDefinitionMarkedAsDeletedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
+use demosplan\DemosPlanCoreBundle\Exception\PersistResourceException;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedurePhaseDefinitionReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedurePhaseDefinitionUpdatableField;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
@@ -54,7 +55,7 @@ class ProcedurePhaseDefinitionEditor
                 ['phase' => $phaseDefinition->getName()]
             );
 
-            throw new BadRequestException('Phase definition is still referenced by an active procedure.');
+            throw new PersistResourceException('Phase definition is still referenced by an active procedure.');
         }
 
         $oldIsDeleted = $phaseDefinition->isDeleted();
