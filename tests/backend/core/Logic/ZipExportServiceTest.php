@@ -77,4 +77,28 @@ class ZipExportServiceTest extends FunctionalTestCase
             $this->sut->sanitizeZipPath('procedure/Planungsdokumente/file.pdf')
         );
     }
+
+    public function testDropsSegmentConsistingOnlyOfSpacesOrDots(): void
+    {
+        // A title of only spaces ("   ") or dots ("...") trims to an empty
+        // segment; keeping it would yield a "proc//file.pdf" double slash, the
+        // very malformed entry name Windows rejects. The empty segment is dropped.
+        self::assertSame(
+            'proc/file.pdf',
+            $this->sut->sanitizeZipPath('proc/   /file.pdf')
+        );
+        self::assertSame(
+            'proc/file.pdf',
+            $this->sut->sanitizeZipPath('proc/.../file.pdf')
+        );
+    }
+
+    public function testKeepsSegmentNamedZero(): void
+    {
+        // Guard against a naive array_filter dropping the falsy "0" segment.
+        self::assertSame(
+            'proc/0/file.pdf',
+            $this->sut->sanitizeZipPath('proc/0/file.pdf')
+        );
+    }
 }

@@ -97,8 +97,12 @@ class ZipExportService
         ZipStream $zip,
         string $fileNamePrefix,
     ): void {
-        $path = (new UnicodeString($folderPath.$fileNamePrefix.$fileInfo->getFileName()))->ascii()->toString();
-        $pathHash = md5((string) $path);
+        // Hash the sanitized path so the dedup guard matches the entry name that
+        // is actually written. Otherwise two titles differing only by a trailing
+        // space (or dot) would hash differently, both pass this guard, then
+        // sanitize to the same entry name and collide as a duplicate ZIP entry.
+        $path = $this->sanitizeZipPath($folderPath.$fileNamePrefix.$fileInfo->getFileName());
+        $pathHash = md5($path);
         if (in_array($pathHash, $this->filesAdded, true)) {
             $this->logger->warning('File already present in Zip', ['path' => $path]);
 
@@ -250,6 +254,16 @@ class ZipExportService
         $segments = array_map(
             static fn (string $segment): string => rtrim(trim($segment), " ."),
             explode('/', $zipPath)
+        );
+
+        // Drop segments that trimmed to nothing (e.g. a title of only spaces or
+        // dots). Keeping them would re-introduce empty path components such as
+        // "proc//file.pdf", which is exactly the kind of malformed entry name
+        // Windows rejects on extraction. Compared explicitly against '' so a
+        // legitimate segment named "0" is not dropped by array_filter.
+        $segments = array_filter(
+            $segments,
+            static fn (string $segment): bool => '' !== $segment
         );
 
         return implode('/', $segments);
