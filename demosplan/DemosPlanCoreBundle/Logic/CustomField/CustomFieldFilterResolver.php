@@ -55,12 +55,14 @@ class CustomFieldFilterResolver
             )
             ->toArray();
 
+        $isOriginalStatementView = $remainingFilters->get('original') === 'IS NULL';
+
         $qb = $this->entityManager->createQueryBuilder()
             ->select('s.id')
             ->from(Statement::class, 's')
             ->andWhere('s.procedure = :procedureId')
             ->andWhere('s.deleted = false')
-            ->andWhere('s.original IS NOT NULL')
+            ->andWhere($isOriginalStatementView ? 's.original IS NULL' : 's.original IS NOT NULL')
             ->setParameter('procedureId', $procedureId);
 
         foreach (array_keys($fieldFilters) as $fieldIdx => $fieldId) {
