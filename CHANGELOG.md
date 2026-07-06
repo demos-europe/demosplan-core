@@ -6,6 +6,11 @@
 
 ## UNRELEASED
 
+## v4.47.1 (2026-07-06)
+
+### Fixed
+- Statements that were split under the previous exchange format could no longer be edited or deleted in the split view; such drafts are now converted to the current segment-mark format when opened
+
 ## v4.47.0 (2026-06-24)
 
 ### Added
