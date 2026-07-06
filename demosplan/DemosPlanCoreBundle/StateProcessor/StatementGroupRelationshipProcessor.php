@@ -19,10 +19,13 @@ use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementGroupResource;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssignService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use Exception;
 use JsonException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -54,10 +57,11 @@ class StatementGroupRelationshipProcessor implements ProcessorInterface
         private readonly CurrentProcedureService $currentProcedureService,
         private readonly CurrentUserInterface $currentUser,
         private readonly StatementHandler $statementHandler,
+        private readonly AssignService $assignService,
     ) {
     }
 
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): StatementGroupResource
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): StatementGroupResource|Response
     {
         if (!$this->currentUser->hasPermission('feature_statement_cluster')) {
             throw new AccessDeniedHttpException('Access denied: insufficient permissions to access statement groups');
@@ -81,7 +85,14 @@ class StatementGroupRelationshipProcessor implements ProcessorInterface
         if ($this->isRemoval($operation)) {
             $this->detachMembers(array_values(array_intersect($memberIds, $currentIds)));
         } else {
-            $this->addMembers($procedure->getId(), $groupId, array_values(array_diff($memberIds, $currentIds)));
+            $toAdd = array_values(array_diff($memberIds, $currentIds));
+            $blockers = $this->findAddBlockers($toAdd, $procedure->getId());
+            if ([] !== $blockers) {
+                // Adding is atomic: reject the whole request with a JSON:API error
+                // document (one error per statement) and change nothing.
+                return $this->unprocessableEntity($blockers);
+            }
+            $this->addMembers($procedure->getId(), $groupId, $toAdd);
         }
 
         $updatedGroup = $this->statementHandler->getStatement($groupId);
@@ -164,6 +175,78 @@ class StatementGroupRelationshipProcessor implements ProcessorInterface
                 $this->statementHandler->detachStatementFromCluster($member);
             }
         }
+    }
+
+    /**
+     * Checks every statement in $toAddIds for eligibility to join the cluster, without
+     * mutating anything. Mirrors the guards in StatementHandler::addStatementToCluster,
+     * which would otherwise drop ineligible statements silently while returning success.
+     *
+     * @param string[] $toAddIds
+     *
+     * @return array<string, string> map of statement id => reason it cannot be added (empty if all eligible)
+     */
+    private function findAddBlockers(array $toAddIds, string $procedureId): array
+    {
+        $assignmentEnforced = $this->currentUser->hasPermission('feature_statement_assignment');
+
+        $blockers = [];
+        foreach ($toAddIds as $id) {
+            $reason = $this->addBlockReason($id, $procedureId, $assignmentEnforced);
+            if (null !== $reason) {
+                $blockers[$id] = $reason;
+            }
+        }
+
+        return $blockers;
+    }
+
+    /**
+     * Builds a JSON:API error document (one error object per rejected statement) and
+     * returns it as a 422 response. Returning a Response bypasses API Platform's
+     * serialization, so the client gets JSON regardless of the environment's error
+     * rendering (in dev, thrown exceptions would render as an HTML debug page).
+     *
+     * @param array<string, string> $blockers statement id => reason
+     */
+    private function unprocessableEntity(array $blockers): JsonResponse
+    {
+        $errors = array_map(
+            static fn (string $id, string $reason): array => [
+                'status' => (string) Response::HTTP_UNPROCESSABLE_ENTITY,
+                'title'  => 'Statement cannot be added to the group',
+                'detail' => ucfirst($reason),
+                'source' => ['pointer' => '/data'],
+                'meta'   => ['statementId' => $id],
+            ],
+            array_keys($blockers),
+            array_values($blockers)
+        );
+
+        $response = new JsonResponse(['errors' => $errors], Response::HTTP_UNPROCESSABLE_ENTITY);
+        $response->headers->set('Content-Type', 'application/vnd.api+json');
+
+        return $response;
+    }
+
+    /**
+     * Returns the reason a statement cannot be added, or null if it is eligible.
+     */
+    private function addBlockReason(string $id, string $procedureId, bool $assignmentEnforced): ?string
+    {
+        $statement = $this->statementHandler->getStatement($id);
+        if (!$statement instanceof Statement) {
+            return 'statement not found.';
+        }
+
+        return match (true) {
+            $statement->getProcedureId() !== $procedureId    => 'statement belongs to a different procedure.',
+            $statement->isPlaceholder()                      => 'statement is a placeholder and cannot be grouped.',
+            $statement->isInCluster()                        => sprintf('statement is already a member of group "%s".', $statement->getHeadStatement()?->getExternId() ?? 'another group'),
+            $assignmentEnforced
+                && !$this->assignService->isStatementObjectAssignedToCurrentUser($statement) => 'statement is not assigned to you.',
+            default                                          => null,
+        };
     }
 
     /**
