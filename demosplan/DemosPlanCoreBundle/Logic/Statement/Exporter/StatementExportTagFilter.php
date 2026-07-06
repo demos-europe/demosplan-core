@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -156,16 +157,36 @@ class StatementExportTagFilter
             $statements
         );
 
-        // Fetch all segments with their tags and tag topics in a single query.
-        // Doctrine's identity map will cache all hydrated entities, so subsequent
-        // access to $segment->getTags() and $tag->getTopic() won't trigger additional queries.
+        // Pre-warm Doctrine's identity map so the in-PHP tag filter (applyTagFilter)
+        // can call $segment->getTags() and $tag->getTopic() without triggering N+1 queries.
+        //
+        // This is intentionally split into two queries instead of a single fetch-join.
+        // Joining two independent to-many collections (segmentsOfStatement AND tags) in
+        // one query produces a cartesian product (rows = segments x tags-per-segment),
+        // and each row carries the full, wide _statement columns of both the parent
+        // statement and the segment. On large procedures that buffered result set
+        // exhausts memory (OutOfMemoryError in the DBAL PDO layer). Two single-collection
+        // queries keep the row counts additive and avoid repeating the wide parent row
+        // once per tag. Both share the same identity map, so the second query enriches
+        // the segments hydrated by the first.
+
+        // Query 1: statements with their segments (single to-many join).
         $this->entityManager->createQueryBuilder()
-            ->select('s', 'seg', 't', 'topic')
+            ->select('s', 'seg')
             ->from(Statement::class, 's')
             ->leftJoin('s.segmentsOfStatement', 'seg')
+            ->where('s.id IN (:statementIds)')
+            ->setParameter('statementIds', $statementIds)
+            ->getQuery()
+            ->getResult();
+
+        // Query 2: those segments with their tags and tag topics (single to-many join).
+        $this->entityManager->createQueryBuilder()
+            ->select('seg', 't', 'topic')
+            ->from(Segment::class, 'seg')
             ->leftJoin('seg.tags', 't')
             ->leftJoin('t.topic', 'topic')
-            ->where('s.id IN (:statementIds)')
+            ->where('seg.parentStatementOfSegment IN (:statementIds)')
             ->setParameter('statementIds', $statementIds)
             ->getQuery()
             ->getResult();
