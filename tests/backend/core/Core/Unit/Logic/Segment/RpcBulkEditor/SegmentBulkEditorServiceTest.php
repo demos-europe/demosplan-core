@@ -29,6 +29,9 @@ use Tests\Base\RpcApiTest;
 
 class SegmentBulkEditorServiceTest extends RpcApiTest
 {
+    private const DEADLINE_DATE = '2026-06-27';
+    private const EXISTING_DEADLINE_DATE = '2026-06-01';
+
     /** @var SegmentBulkEditorService */
     protected $sut;
     private $procedure;
@@ -141,24 +144,24 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
         self::assertNull($this->segment1->getDeadline());
         self::assertNull($this->segment2->getDeadline());
 
-        $deadline = new DateTime('2026-06-27');
+        $deadline = new DateTime(self::DEADLINE_DATE);
 
         // 'UNKNOWN' assignee sentinel leaves the assignee untouched, isolating the deadline.
         $this->sut->updateSegments([$this->segment1, $this->segment2], [], [], 'UNKNOWN', null, [], $deadline);
 
-        self::assertSame('2026-06-27', $this->segment1->getDeadline()?->format('Y-m-d'));
-        self::assertSame('2026-06-27', $this->segment2->getDeadline()?->format('Y-m-d'));
+        self::assertSame(self::DEADLINE_DATE, $this->segment1->getDeadline()?->format('Y-m-d'));
+        self::assertSame(self::DEADLINE_DATE, $this->segment2->getDeadline()?->format('Y-m-d'));
     }
 
     public function testUpdateSegmentsWithNullDeadlineLeavesExistingDeadlineUntouched(): void
     {
-        $this->segment1->setDeadline(new DateTime('2026-06-01'));
-        $this->segment2->setDeadline(new DateTime('2026-06-01'));
+        $this->segment1->setDeadline(new DateTime(self::EXISTING_DEADLINE_DATE));
+        $this->segment2->setDeadline(new DateTime(self::EXISTING_DEADLINE_DATE));
 
         $this->sut->updateSegments([$this->segment1, $this->segment2], [], [], 'UNKNOWN', null, [], null);
 
-        self::assertSame('2026-06-01', $this->segment1->getDeadline()?->format('Y-m-d'));
-        self::assertSame('2026-06-01', $this->segment2->getDeadline()?->format('Y-m-d'));
+        self::assertSame(self::EXISTING_DEADLINE_DATE, $this->segment1->getDeadline()?->format('Y-m-d'));
+        self::assertSame(self::EXISTING_DEADLINE_DATE, $this->segment2->getDeadline()?->format('Y-m-d'));
     }
 
     public function testDetectValidAssignee(): void
