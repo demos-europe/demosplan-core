@@ -752,20 +752,38 @@ class EntityContentChangeService
                 'content' => $this->translator->trans($completeContent),
             ];
         }
-        if ('date' === $this->getMappingValue($fieldName, $entityType, 'fieldType')) {
-            // Values may be stored as a date/datetime string (e.g. "2026-06-27 00:00:00")
-            // or, for legacy fields, as a Unix timestamp. Normalize both to "Y-m-d".
-            $timestamp = is_numeric($content) ? (int) $content : strtotime((string) $content);
-            if (false !== $timestamp && $timestamp > 0) {
-                return [
-                    'content' => date('Y-m-d', $timestamp),
-                ];
-            }
+        $dateContent = $this->prepareDateContentForDiffing($content, $fieldName, $entityType);
+        if (null !== $dateContent) {
+            return $dateContent;
         }
 
         return [
             'content' => $content,
         ];
+    }
+
+    /**
+     * Normalizes a "date" field value to "Y-m-d" for diffing. Values may be stored as a
+     * date/datetime string (e.g. "2026-06-27 00:00:00") or, for legacy fields, as a Unix
+     * timestamp. Returns null when the field is not a date type or the value is unparseable,
+     * so the caller falls back to the raw content.
+     *
+     * @param string|null $content
+     *
+     * @return array{content: string}|null
+     */
+    private function prepareDateContentForDiffing($content, string $fieldName, string $entityType): ?array
+    {
+        if ('date' !== $this->getMappingValue($fieldName, $entityType, 'fieldType')) {
+            return null;
+        }
+
+        $timestamp = is_numeric($content) ? (int) $content : strtotime((string) $content);
+        if (false === $timestamp || $timestamp <= 0) {
+            return null;
+        }
+
+        return ['content' => date('Y-m-d', $timestamp)];
     }
 
     /**
