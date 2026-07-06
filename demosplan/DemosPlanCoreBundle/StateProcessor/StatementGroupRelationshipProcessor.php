@@ -74,7 +74,13 @@ class StatementGroupRelationshipProcessor implements ProcessorInterface
 
         $groupId = (string) ($uriVariables['id'] ?? '');
         $group = $this->statementHandler->getStatement($groupId);
-        if (!$group instanceof Statement || !$group->isClusterStatement()) {
+        // Scope to the current procedure: these operations are read:false, so the
+        // procedure-scoped state provider never runs. Without this check a user could
+        // mutate/dissolve a cluster in another procedure. A foreign-procedure group is
+        // reported as "not found" so its existence is not disclosed.
+        if (!$group instanceof Statement
+            || !$group->isClusterStatement()
+            || $group->getProcedureId() !== $procedure->getId()) {
             throw new BadRequestHttpException(sprintf('Statement group "%s" not found.', $groupId));
         }
 
