@@ -107,9 +107,9 @@ class JsonApiActionService
 
     /**
      * @param array<int, ClauseFunctionInterface<bool>> $additionalConditions extra conditions merged
-     *                                                                         into the parsed request
-     *                                                                         filters; applied on both the
-     *                                                                         Doctrine and Elasticsearch paths
+     *                                                                        into the parsed request
+     *                                                                        filters; applied on both the
+     *                                                                        Doctrine and Elasticsearch paths
      *
      * @throws QueryException
      * @throws UserNotFoundException
