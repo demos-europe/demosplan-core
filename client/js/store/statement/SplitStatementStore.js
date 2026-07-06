@@ -210,7 +210,7 @@ const SplitStatementStore = {
     deleteSegmentAction ({ state, commit, dispatch }, id) {
       // Remove segment from all segments (styling deletion is handled in textSegment component)
       commit('deleteSegment', id)
-      dispatch('saveSegmentsDrafts', false)
+      dispatch('saveSegmentsDrafts', { triggerNotifications: false, trustLocalState: true })
     },
 
     async fetchInitialData ({ state, commit, dispatch }, doUpdate = true) {
@@ -390,7 +390,35 @@ const SplitStatementStore = {
         })
     },
 
-    saveSegmentsDrafts ({ state, dispatch }, triggerNotifications = false) {
+    updateSegmentDraftListFromServer ({ state, commit }) {
+      return dpApi.get(Routing.generate('api_resource_get', {
+        resourceType: 'Statement',
+        resourceId: state.statementId,
+        fields: {
+          Statement: ['segmentDraftList'].join(),
+        },
+      }))
+        .then(({ data }) => {
+          if (!hasOwnProp(data.data.attributes.segmentDraftList, 'data')) {
+            return
+          }
+
+          const initialData = data.data.attributes.segmentDraftList.data
+          const segments = initialData.attributes.segments
+
+          commit('setProperty', { prop: 'initialData', val: initialData })
+          commit('setProperty', { prop: 'initialSegments', val: segments })
+          commit('setProperty', { prop: 'segments', val: segments })
+          commit('setProperty', { prop: 'initText', val: initialData.attributes.textualReference })
+        })
+    },
+
+    saveSegmentsDrafts ({ state, commit, dispatch }, options = {}) {
+      // Support both old boolean parameter and new options object for backwards compatibility
+      const { triggerNotifications = false, trustLocalState = false } = typeof options === 'boolean'
+        ? { triggerNotifications: options, trustLocalState: false }
+        : options
+
       const dataToSend = JSON.parse(JSON.stringify(state.initialData))
 
       dataToSend.attributes.textualReference = state.initText
@@ -410,7 +438,14 @@ const SplitStatementStore = {
         resourceId: state.statementId,
       }), {}, { data: payload })
         .then((response) => {
-          dispatch('fetchInitialData', false)
+          if (trustLocalState) {
+            // For delete operations: trust local state to avoid race conditions
+            commit('setProperty', { prop: 'initialData', val: dataToSend })
+            commit('setProperty', { prop: 'initialSegments', val: JSON.parse(JSON.stringify(state.segments)) })
+          } else {
+            dispatch('updateSegmentDraftListFromServer')
+          }
+
           if (triggerNotifications) {
             if (response.status === 204) {
               dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
