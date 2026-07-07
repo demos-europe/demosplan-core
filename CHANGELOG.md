@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.48.0 (2026-07-07)
 
 ### Added
 - Make procedure phase definitions deletable (condition: not currently in use and not configuration-phase)

@@ -17,8 +17,8 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedurePhaseDefinitionResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
-use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\PersistResourceException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionEditor;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedurePhaseDefinitionUpdatableField;
@@ -250,11 +250,14 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
         return $configBuilder;
     }
 
+    /**
+     * @throws PersistResourceException
+     */
     private function guardNameUnique(string $name, string $audience, CustomerInterface $customer): void
     {
         if (null !== $this->procedurePhaseDefinitionRepository->findByNameAndAudienceAndCustomer($name, $audience, $customer)) {
             $this->messageBag->add('error', 'error.procedure_phase_definition.name.duplicate', ['name' => $name]);
-            throw new BadRequestException('A phase definition with this name already exists for this audience.');
+            throw new PersistResourceException('A phase definition with this name already exists for this audience.');
         }
     }
 }
