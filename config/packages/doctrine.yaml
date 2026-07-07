@@ -48,6 +48,9 @@ doctrine:
                 query_cache_driver:
                     type: pool
                     pool: doctrine.cache_pool
+                dql:
+                    numeric_functions:
+                        JSON_CONTAINS_CUSTOM_FIELD: demosplan\DemosPlanCoreBundle\Doctrine\Function\JsonContainsCustomField
             install:
                 naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
                 connection: dplan_install

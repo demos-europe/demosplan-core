@@ -24,17 +24,20 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceLinkageFactory;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
+use demosplan\DemosPlanCoreBundle\Logic\CustomField\CustomFieldStatementCounter;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\UserFilterSetService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFilterHandler;
+use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\HashedQueryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
 use demosplan\DemosPlanCoreBundle\Transformers\Procedure\AssessmentTableFilterTransformer;
 use demosplan\DemosPlanCoreBundle\Transformers\Procedure\ProcedureArrayTransformer;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\AssessmentTableFilter;
 use EDT\JsonApi\RequestHandling\MessageFormatter;
 use EDT\JsonApi\Validation\FieldsValidator;
@@ -174,6 +177,8 @@ class DemosPlanProcedureAPIController extends APIController
         PermissionsInterface $permissions,
         Request $request,
         StatementFilterHandler $statementFilterHandler,
+        CustomFieldStatementCounter $customFieldStatementCounter,
+        CustomFieldConfigurationRepository $cfConfigRepository,
         $procedureId,
         $filterHash = '',
     ) {
@@ -184,6 +189,8 @@ class DemosPlanProcedureAPIController extends APIController
             $permissions,
             $request,
             $statementFilterHandler,
+            $customFieldStatementCounter,
+            $cfConfigRepository,
             $procedureId,
             $filterHash,
             true
@@ -205,6 +212,8 @@ class DemosPlanProcedureAPIController extends APIController
         PermissionsInterface $permissions,
         Request $request,
         StatementFilterHandler $statementFilterHandler,
+        CustomFieldStatementCounter $customFieldStatementCounter,
+        CustomFieldConfigurationRepository $cfConfigRepository,
         $procedureId,
         $filterHash = '',
     ) {
@@ -215,6 +224,8 @@ class DemosPlanProcedureAPIController extends APIController
             $permissions,
             $request,
             $statementFilterHandler,
+            $customFieldStatementCounter,
+            $cfConfigRepository,
             $procedureId,
             $filterHash,
             false
@@ -297,6 +308,8 @@ class DemosPlanProcedureAPIController extends APIController
         PermissionsInterface $permissions,
         Request $request,
         StatementFilterHandler $statementFilterHandler,
+        CustomFieldStatementCounter $customFieldStatementCounter,
+        CustomFieldConfigurationRepository $cfConfigRepository,
         $procedureId,
         $filterHash,
         $original,
@@ -381,6 +394,66 @@ class DemosPlanProcedureAPIController extends APIController
             $assessmentTableFilter->setSelectedOptions($selected);
             $assessmentTableFilter->lock();
             $responseData[] = $assessmentTableFilter;
+        }
+
+        // Append custom field filter items with filter-aware counts
+        $cfPrefix = 'customField_';
+        $activeCfFilters = [];
+        foreach ($rParams['filters'] as $key => $values) {
+            if (str_starts_with($key, $cfPrefix)) {
+                $activeCfFilters[substr($key, strlen($cfPrefix))] = (array) $values;
+            }
+        }
+
+        $cfConfigs = $cfConfigRepository->findCustomFieldConfigurationByCriteria(
+            CustomFieldSupportedEntity::procedure->value,
+            $procedureId,
+            CustomFieldSupportedEntity::statement->value,
+        );
+
+        foreach ($cfConfigs ?? [] as $config) {
+            $fieldId = $config->getId();
+            $field = $config->getConfiguration();
+            $field->setId($fieldId);
+
+            if (!in_array($field->getFieldType(), ['singleSelect', 'multiSelect'], true)) {
+                continue;
+            }
+
+            // Facet exclusion: scope counts to all OTHER active CF filters, not this field's own
+            $constraintFilters = array_filter(
+                $activeCfFilters,
+                static fn (string $id): bool => $id !== $fieldId,
+                ARRAY_FILTER_USE_KEY
+            );
+
+            $counts = $customFieldStatementCounter->countByField($procedureId, $fieldId, $original, $constraintFilters);
+            $options = [];
+            foreach ($field->getOptions() as $option) {
+                $count = $counts[$option->getId()] ?? 0;
+                if (0 === $count) {
+                    continue;
+                }
+                $options[] = ['count' => $count, 'label' => $option->getLabel(), 'value' => $option->getId()];
+            }
+
+            if ([] === $options) {
+                continue;
+            }
+
+            $selectedOptionIds = $activeCfFilters[$fieldId] ?? [];
+            $selected = array_values(
+                array_filter($options, static fn (array $o): bool => in_array($o['value'], $selectedOptionIds, true))
+            );
+
+            $cfFilter = new AssessmentTableFilter();
+            $cfFilter->setName("filter_customField_{$fieldId}");
+            $cfFilter->setLabel($field->getName());
+            $cfFilter->setType('customField');
+            $cfFilter->setAvailableOptions($options);
+            $cfFilter->setSelectedOptions($selected);
+            $cfFilter->lock();
+            $responseData[] = $cfFilter;
         }
 
         return $this->renderCollection($responseData, AssessmentTableFilterTransformer::class);

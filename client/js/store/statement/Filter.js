@@ -36,6 +36,8 @@ const Filter = {
     filterList: [],
     // Available options for filters
     filterListOptions: {},
+    // Available options for custom field filters, keyed by fieldId (UUID)
+    customFieldFilterListOptions: {},
     filters: {},
     original: false,
     procedureId: null,
@@ -60,10 +62,18 @@ const Filter = {
     loadAvailableFilterListOptions (state, updatedFilters) {
       if (updatedFilters.length) {
         updatedFilters.forEach(filter => {
-          state.filterListOptions[filter.id] = filter.attributes.options
+          if ('customField' === filter.attributes?.type && filter.attributes?.fieldId) {
+            state.customFieldFilterListOptions = {
+              ...state.customFieldFilterListOptions,
+              [filter.attributes.fieldId]: filter.attributes.options ?? [],
+            }
+          } else {
+            state.filterListOptions[filter.id] = filter.attributes.options
+          }
         })
       } else {
         state.filterListOptions = {}
+        state.customFieldFilterListOptions = {}
       }
     },
 
@@ -363,6 +373,17 @@ const Filter = {
   },
 
   getters: {
+    // { [fieldId]: { [optionId]: count } } — built from CF items returned by the filter options endpoint
+    customFieldOptionCounts: (state) => {
+      const counts = {}
+
+      Object.entries(state.customFieldFilterListOptions).forEach(([fieldId, options]) => {
+        counts[fieldId] = Object.fromEntries((options ?? []).map(o => [o.value, o.count]))
+      })
+
+      return counts
+    },
+
     // Get all selected filter options with corresponding filterName, needed for updateFilterHash
     allSelectedFilterOptionsWithFilterName: state => {
       const optionsForFilterHash = []
