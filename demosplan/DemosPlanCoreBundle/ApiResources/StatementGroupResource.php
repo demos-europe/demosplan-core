@@ -38,16 +38,6 @@ use demosplan\DemosPlanCoreBundle\StateProvider\StatementGroupStateProvider;
             uriTemplate: '/StatementGroup/{id}',
             processor: StatementGroupProcessor::class,
         ),
-        // JSON:API relationship-linkage endpoints: add (POST) / remove (DELETE)
-        // members via a delta of resource identifiers, without deserializing the
-        // body into a resource.
-        //
-        // POST returns 201 with the updated group. DELETE returns 204 No Content
-        // (output: false): API Platform derives a resource's JSON:API "id" from its
-        // canonical item template via getItemUriTemplate(), which Delete does not
-        // implement — serializing the group here would emit "statements" (the last
-        // path segment) as the id. 204 is also the JSON:API-canonical response for a
-        // successful relationship removal.
         new Post(
             uriTemplate: '/StatementGroup/{id}/relationships/statements',
             read: false,
@@ -98,6 +88,13 @@ class StatementGroupResource
             static function (Statement $member): StatementResource {
                 $statementResource = new StatementResource();
                 $statementResource->id = $member->getId();
+                $statementResource->externId = $member->getExternId();
+                $statementResource->isSubmittedByCitizen = $member->isSubmittedByCitizen();
+                // Meta snapshots captured at submission time (mirrors the EDT
+                // StatementResourceType attributes used by SegmentsList.vue), not the
+                // live linked organisation. These return '' rather than null.
+                $statementResource->authorName = $member->getMeta()->getAuthorName();
+                $statementResource->initialOrganisationName = $member->getMeta()->getOrgaName();
 
                 return $statementResource;
             },
