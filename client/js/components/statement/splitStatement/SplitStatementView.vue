@@ -202,25 +202,27 @@ import { v4 as uuid } from 'uuid'
 /**
  * Merges ProseMirror segmentMark data with segment metadata from the store.
  *
- * SegmentMarks are ProseMirror marks that track segment positions and confirmation status in the editor.
- * This function synchronizes that state with the segment metadata (tags, place, assignee) stored in Vuex.
+ * SegmentMarks are ProseMirror marks that track segment positions in the editor.
+ * This function synchronizes segment metadata (tags, place, assignee, status) from the Vuex store
+ * with the ProseMirror marks. The store is the source of truth for segment metadata.
  *
  * @param {Array} segmentMarks - Array of segmentMark objects from ProseMirror with {segmentId, isConfirmed}
- * @param {Array} segments - Array of segment metadata objects from Vuex store
- * @return {Array} Array of merged segment objects with updated status
+ * @param {Array} segments - Array of segment metadata objects from Vuex store (source of truth)
+ * @return {Array} Array of merged segment objects preserving store status
  */
 const mergeSegmentMarksAndSegments = (segmentMarks, segments) => {
   const mergedSegments = []
 
   segmentMarks.forEach(mark => {
     const segment = segments.find(seg => seg.id === mark.segmentId)
-    const mergedSegment = { ...segment }
 
     if (!segment) {
       console.warn('A segment was updated in Prosemirror but no corresponding segment found in store.')
 
       return
     }
+
+    const mergedSegment = { ...segment }
 
     mergedSegment.status = mark.isConfirmed ? 'confirmed' : false
     mergedSegments.push(mergedSegment)
@@ -826,7 +828,8 @@ export default {
      * Post-initialization tasks after ProseMirror editor is ready:
      * 1. Store prosemirror instance and plugin states for component access
      * 2. Synchronize segment metadata with segmentMarks parsed from HTML
-     * 3. Enable prosemirror change listeners by setting ignoreProsemirrorUpdates to false
+     * 3. Update ProseMirror marks with correct isConfirmed values from store
+     * 4. Enable prosemirror change listeners by setting ignoreProsemirrorUpdates to false
      */
     runPostInitTasks (prosemirrorState) {
       this.prosemirror = prosemirrorState
@@ -836,6 +839,37 @@ export default {
 
       this.locallyUpdateSegments(updatedSegments)
       this.ignoreProsemirrorUpdates = false
+
+      /*this.ignoreProsemirrorUpdates = true
+      this.syncSegmentMarkStatus(segmentMarks)
+      this.ignoreProsemirrorUpdates = false*/
+    },
+
+    /**
+     * Update ProseMirror marks with correct isConfirmed values from segments array (source of truth)
+     */
+    syncSegmentMarkStatus (segmentMarks) {
+      const segmentsById = Object.fromEntries(
+        this.segments.map(segment => [segment.id, segment])
+      )
+      console.log('segmentsById', segmentsById)
+
+      segmentMarks.forEach(mark => {
+        const segment = segmentsById[mark.segmentId]
+
+        if (!segment) {
+          return
+        }
+
+        const isConfirmed = segment.status === 'confirmed'
+
+        if (mark.isConfirmed !== isConfirmed) {
+          setRange(this.prosemirror.view)(mark.from, mark.to, {
+            segmentId: mark.segmentId,
+            isConfirmed,
+          })
+        }
+      })
     },
 
     // Matomo Tracking Event Tagging & Slicing
