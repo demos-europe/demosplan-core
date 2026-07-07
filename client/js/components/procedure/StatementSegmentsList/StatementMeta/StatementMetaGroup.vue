@@ -141,7 +141,7 @@ async function saveGroupName () {
 }
 
 async function removeGroupStatement (id) {
-  // Snapshot for rollback if the PATCH fails, so UI and backend stay in sync.
+  // Snapshot for rollback if the request fails, so UI and backend stay in sync.
   const previous = [...groupStatements.value]
   const removed = previous.find(stmt => stmt.id === id)
 
@@ -154,17 +154,13 @@ async function removeGroupStatement (id) {
   const removedLabel = removed?.attributes?.externId || removed?.id
 
   try {
-    // Reconcile: send the reduced set; the backend detaches members no longer present. No groupName → name untouched.
-    await dpApi.patch(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${props.statement.id}`, {}, {
-      data: {
-        type: 'StatementGroup',
-        id: props.statement.id,
-        relationships: {
-          statements: {
-            data: groupStatements.value.map(stmt => ({ type: 'Statement', id: stmt.id })),
-          },
-        },
-      },
+    /*
+     * Detach a single member via the JSON:API relationship endpoint. The backend applies an
+     * idempotent delta, so we send only the removed member — not the remaining set. PATCH no
+     * longer changes membership; it renames the group only.
+     */
+    await dpApi.delete(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${props.statement.id}/relationships/statements`, {}, {}, {
+      data: [{ type: 'Statement', id }],
     })
     dplan.notify.notify('confirm', Translator.trans('confirm.statement.detach.cluster.element', {
       statementId: removedLabel,
