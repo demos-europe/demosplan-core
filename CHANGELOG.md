@@ -12,6 +12,11 @@
 ### Fixed
 - Adjust organization type key in platform statistics: Replace 'procedure.agency' with 'municipality' in OrgaService::getAcceptedOrgaCountByType()
 
+## v4.47.1 (2026-07-06)
+
+### Fixed
+- Statements that were split under the previous exchange format could no longer be edited or deleted in the split view; such drafts are now converted to the current segment-mark format when opened
+
 ## v4.47.0 (2026-06-24)
 
 ## v4.46.0 (2026-06-19)
