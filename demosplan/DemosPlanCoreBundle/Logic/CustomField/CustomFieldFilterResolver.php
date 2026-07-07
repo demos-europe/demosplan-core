@@ -17,7 +17,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticSearchService;
 use Doctrine\ORM\EntityManagerInterface;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\MatchNone;
-use Illuminate\Support\Collection;
 
 class CustomFieldFilterResolver
 {
@@ -37,23 +36,15 @@ class CustomFieldFilterResolver
      */
     public function resolveCustomFieldFilter(string $procedureId, array $userFilters): array
     {
-        $prefix = 'customField_';
+        $fieldFilters = $this->extractActiveCfFilters($userFilters);
 
-        /** @var Collection<string, mixed> $customFieldEntries */
-        /** @var Collection<string, mixed> $remainingFilters */
-        [$customFieldEntries, $remainingFilters] = collect($userFilters)->partition(
-            static fn (mixed $value, string $key): bool => str_starts_with($key, $prefix)
-        );
-
-        if ($customFieldEntries->isEmpty()) {
+        if ([] === $fieldFilters) {
             return [null, $userFilters];
         }
 
-        $fieldFilters = $customFieldEntries
-            ->mapWithKeys(
-                static fn (mixed $value, string $key): array => [substr($key, strlen($prefix)) => $value]
-            )
-            ->toArray();
+        $remainingFilters = collect($userFilters)->reject(
+            static fn (mixed $value, string $key): bool => str_starts_with($key, 'customField_')
+        );
 
         $isOriginalStatementView = 'IS NULL' === $remainingFilters->get('original');
 
@@ -87,5 +78,24 @@ class CustomFieldFilterResolver
             $this->elasticSearchService->getElasticaTermsInstance('id', $matchingIds),
             $remainingFilters->toArray(),
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $userFilters
+     *
+     * @return array<string, string[]> fieldId => selected option IDs
+     */
+    private function extractActiveCfFilters(array $userFilters): array
+    {
+        $prefix = 'customField_';
+        $active = [];
+
+        foreach ($userFilters as $key => $values) {
+            if (str_starts_with($key, $prefix)) {
+                $active[substr($key, strlen($prefix))] = (array) $values;
+            }
+        }
+
+        return $active;
     }
 }
