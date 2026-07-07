@@ -42,6 +42,7 @@
           label="label"
           track-by="value"
           @input="(val) => handleModalChange(field.id, val)"
+          @open="$emit('open')"
         >
           <template v-slot:option="{ props }">
             {{ props.option.label }} ({{ props.option.count }})
@@ -90,7 +91,7 @@ export default {
     },
   },
 
-  emits: ['input'],
+  emits: ['input', 'open'],
 
   computed: {
     filterableFields () {

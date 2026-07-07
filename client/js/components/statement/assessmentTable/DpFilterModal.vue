@@ -118,10 +118,12 @@
             />
             <dp-custom-fields-filter
               v-if="filterGroup.type === 'statement' && customFieldDefinitions.length > 0"
-              v-model="customFieldFilterValue"
               :custom-field-definitions="customFieldDefinitions"
               :field-option-counts="customFieldOptionCounts"
+              :value="customFieldFilterValue"
               variant="modal"
+              @input="updateCustomFieldFilter"
+              @open="refreshCustomFieldCounts"
             />
           </dp-tab>
         </dp-tabs>
@@ -453,6 +455,7 @@ export default {
             this.loadAppliedFilterOptions(this.appliedFilterOptions)
           }
         })
+        .then(() => this.getFilterOptionsAction({ filterHash: this.filterHash }))
     },
 
     initUserFilterSets () {
@@ -554,15 +557,10 @@ export default {
        * it first updates the filterHash and then submits the form with a new
        * hash set in the action
        */
-      const customFieldEntries = []
+      const allEntries = this.buildAllEntries()
+      const hasCfEntries = allEntries.some(e => e.name.startsWith('filter_customField_'))
 
-      Object.entries(this.customFieldFilterValue).forEach(([fieldId, optionIds]) => {
-        optionIds.forEach(optionId => {
-          customFieldEntries.push({ name: `filter_customField_${fieldId}[]`, value: optionId })
-        })
-      })
-
-      if (customFieldEntries.length === 0) {
+      if (!hasCfEntries) {
         window.submitForm(event, 'filters')
 
         return
@@ -573,12 +571,39 @@ export default {
         event.preventDefault()
       }
 
-      const allEntries = [...this.allSelectedFilterOptionsWithFilterName, ...customFieldEntries]
-
       window.updateFilterHash(this.procedureId, allEntries)
         .then(filterHash => {
           document.bpform.action = Routing.generate(this.route, { procedureId: this.procedureId, filterHash })
           document.bpform.submit()
+        })
+    },
+
+    buildAllEntries (cfValueOverride = null) {
+      const cfValue = cfValueOverride ?? this.customFieldFilterValue
+      const cfEntries = []
+
+      Object.entries(cfValue).forEach(([fieldId, optionIds]) => {
+        optionIds.forEach(optionId => {
+          cfEntries.push({ name: `filter_customField_${fieldId}[]`, value: optionId })
+        })
+      })
+
+      return [...this.allSelectedFilterOptionsWithFilterName, ...cfEntries]
+    },
+
+    refreshCustomFieldCounts () {
+      window.updateFilterHash(this.procedureId, this.buildAllEntries())
+        .then(filterHash => {
+          this.getFilterOptionsAction({ filterHash })
+        })
+    },
+
+    updateCustomFieldFilter (newValue) {
+      this.customFieldFilterValue = newValue
+
+      window.updateFilterHash(this.procedureId, this.buildAllEntries(newValue))
+        .then(filterHash => {
+          this.getFilterOptionsAction({ filterHash })
         })
     },
 
@@ -587,7 +612,7 @@ export default {
      * emit event to FilterModalSelectItem which then loads updated options from store
      */
     updateSelectedOptions (filterItemId = false) {
-      window.updateFilterHash(this.procedureId, this.allSelectedFilterOptionsWithFilterName)
+      window.updateFilterHash(this.procedureId, this.buildAllEntries())
         .then((filterHash) => {
           // Get updated options for selected filters
           this.getFilterOptionsAction({ filterHash })
