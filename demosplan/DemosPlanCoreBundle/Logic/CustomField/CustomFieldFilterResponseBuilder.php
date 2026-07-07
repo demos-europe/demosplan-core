@@ -92,7 +92,9 @@ class CustomFieldFilterResponseBuilder
         $field = $config->getConfiguration();
         $field->setId($fieldId);
 
-        if (!in_array($field->getFieldType(), ['singleSelect', 'multiSelect'], true)) {
+        $fieldOptions = $field->getOptions();
+
+        if ([] === $fieldOptions) {
             return null;
         }
 
@@ -111,7 +113,7 @@ class CustomFieldFilterResponseBuilder
             $constraintFilters
         );
 
-        $options = $this->buildOptions($field->getOptions(), $counts);
+        $options = $this->buildOptions($fieldOptions, $counts);
 
         if ([] === $options) {
             return null;
