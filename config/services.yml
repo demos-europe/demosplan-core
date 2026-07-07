@@ -10,6 +10,10 @@ services:
 
     Cocur\Slugify\Slugify: ~
 
+    demosplan\DemosPlanCoreBundle\ApiDocumentation\OpenApiSpecGenerator:
+        arguments:
+            $resourceTypes: !tagged_iterator dplan.resourceType
+
     demosplan\DemosPlanCoreBundle\Transformers\AssessmentTable\StatementBulkEditTransformer:
         tags:
             - name: dplan.json_api_transformer
