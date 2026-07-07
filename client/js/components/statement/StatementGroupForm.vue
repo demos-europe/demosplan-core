@@ -244,23 +244,18 @@ const handleApply = async () => {
     }
   } else {
     const payload = {
-      type: 'StatementGroup',
-      relationships: {
-        statements: {
-          data: statements.value.map(stmt => ({ id: `${stmt.id}`, type: 'Statement' })),
-        },
-      },
+      data: statements.value.map(stmt => ({ type: 'Statement', id: `${stmt.id}` })),
     }
 
     try {
       /*
-       * TODO(DPLAN-17748): backend Patch operation not built yet — StatementGroupResource exposes only Get + Post.
-       * Frontend is ahead of backend; this call will work once a Patch operation + update logic exist.
+       * Membership is managed via the JSON:API relationship endpoint; PATCH on the group renames
+       * only. POST adds the given statements as an idempotent delta.
        */
-      await dpApi.patch(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${targetGroupId.value.id}`, {}, { data: payload })
+      await dpApi.post(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${targetGroupId.value.id}/relationships/statements`, {}, payload)
       success.value = true
     } catch (error) {
-      console.error('StatementGroup PATCH failed:', error)
+      console.error('StatementGroup add-members POST failed:', error)
       success.value = false
     } finally {
       lscache.remove(`${props.procedureId}:toggledStatements`)
