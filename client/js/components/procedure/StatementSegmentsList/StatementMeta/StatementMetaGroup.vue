@@ -101,22 +101,18 @@ const paginatedStatements = computed(
 
 async function fetchGroup () {
   try {
-    const response = await dpApi.get(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${props.statement.id}`)
+    const response = await dpApi.get(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${props.statement.id}?include=statements`)
 
     console.log('StatementGroup response', response.data)
 
     groupName.value = response.data.data.attributes.groupName
     initialGroupName.value = response.data.data.attributes.groupName
 
-    /*
-     * TODO(DPLAN-17748): interim id-only rendering. The StatementGroup response carries member IDs only,
-     * and cluster members are not retrievable via any frontend endpoint (the Statement resource hides them
-     * via the `headStatement IS NULL` access condition; the Headstatement resource has GET/LIST disabled).
-     * Once the backend populates member externId/submitter in StatementGroupResource::fromStatement
-     * (or supports ?include=statements), replace the empty attributes with the real member data.
-     */
+    // Member attributes (externId, submitter) arrive as JSON:API included resources; look them up by id
+    // while keeping the relationship order. SelectedStatementsList reads them from `attributes`.
+    const includedById = new Map((response.data.included ?? []).map(resource => [resource.id, resource.attributes]))
     groupStatements.value = response.data.data.relationships.statements.data.map(
-      member => ({ id: member.id, attributes: {} }),
+      member => ({ id: member.id, attributes: includedById.get(member.id) ?? {} }),
     )
   } catch (error) {
     console.error('Failed to load statement group:', error)
