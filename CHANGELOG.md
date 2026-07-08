@@ -9,6 +9,10 @@
 
 ### Added
 - Make procedure phase definitions deletable (condition: not currently in use and not configuration-phase)
+- Add statement export via planner-uploaded DOCX layout template: planners upload a `.docx` via TUS,
+  the backend validates `${…}` placeholders against a whitelist and clones the
+  `${AbschnitteAlsAbsätze}` … `${/AbschnitteAlsAbsätze}` block per segment to render the response letter
+  (permission: `feature_statement_via_template_export`, EWM-only for v1; frontend modal integration pending)
 
 ### Fixed
 - Adjust organization type key in platform statistics: Replace 'procedure.agency' with 'municipality' in OrgaService::getAcceptedOrgaCountByType()
