@@ -270,11 +270,12 @@ const genEditingDecorations = (state, from, to, id, activePosition = null) => {
  * @param {prosemirror-view} view
  * @param {prosemirror-pluginkey} rangeTrackerKey
  * @param {prosemirror-pluginkey} editStateTrackerKey
- * @param {String} rangeId
- * @param {Number} activationPosition
+ * @param {String} segmentId
+ * @param {{active: Number, fixed: Number}|null} positions The active (movable) and fixed handle positions.
+ *        Defaults to activating the end handle and fixing the start handle when omitted.
  *
  */
-const activateRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, segmentId) => {
+const activateRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, segmentId, positions = null) => {
   const { state, dispatch } = view
   let tr = state.tr
 
@@ -283,10 +284,15 @@ const activateRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, segmentId
    * the editStateTracker-plugin via a meta message.
    */
   const range = rangeTrackerKey.getState(state)[segmentId]
-  const positions = { active: range.to, fixed: range.from }
 
-  tr = tr.setSelection(TextSelection.near(state.doc.resolve(range.to)))
-  tr = tr.setMeta(editStateTrackerKey, { id: segmentId, pos: positions.active, moving: true, positions })
+  /**
+   * `positions.active` is the handle that follows the cursor, `positions.fixed` stays put. When no positions are
+   * provided (edit mode is first entered), default to activating the end handle and fixing the start handle.
+   */
+  const resolvedPositions = positions ?? { active: range.to, fixed: range.from }
+
+  tr = tr.setSelection(TextSelection.near(state.doc.resolve(resolvedPositions.active)))
+  tr = tr.setMeta(editStateTrackerKey, { id: segmentId, pos: resolvedPositions.active, moving: true, positions: resolvedPositions })
   dispatch(tr)
 
   /**
@@ -330,7 +336,7 @@ const toggleRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, decorationT
   if (rangeId) {
     const { state } = view
     const pos = parseInt(target.getAttribute('data-range-widget-pos'))
-    const currentlyActivePosition = decorationTrackerKey.getState(state).activeDecorationPosition
+    const { position, activeDecorationPosition: currentlyActivePosition } = decorationTrackerKey.getState(state)
 
     /**
      * If the handle position equals the position of the currently active handle, the user clicked on the same handle
@@ -342,9 +348,15 @@ const toggleRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, decorationT
 
     /**
      * This code block is called whenever the user clicks a handle that is not already active. It moves the activation
-     * state from the handle that is currently active to the handle which was just clicked.
+     * state from the handle that is currently active to the handle which was just clicked. The active/fixed positions
+     * are derived from the *current* (possibly edited) range so that an in-progress adjustment of the other handle is
+     * preserved when switching handles.
      */
-    activateRangeEdit(view, rangeTrackerKey, editStateTrackerKey, rangeId)
+    const { from, to } = position
+    const activationPosition = currentlyActivePosition === from ? to : from
+    const fixedPosition = currentlyActivePosition === from ? from : to
+
+    activateRangeEdit(view, rangeTrackerKey, editStateTrackerKey, rangeId, { active: activationPosition, fixed: fixedPosition })
   }
 }
 
