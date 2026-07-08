@@ -71,6 +71,7 @@ All rights reserved
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { DpAccordion, dpApi, DpButtonRow, DpInput, DpSlidingPagination } from '@demos-europe/demosplan-ui'
+import lscache from 'lscache'
 import SelectedStatementsList from '@DpJs/components/statement/SelectedStatementsList'
 
 const props = defineProps({
@@ -95,10 +96,11 @@ const initialGroupName = ref('')
 const isCluster = computed(() => props.statement.attributes.isCluster)
 const groupName = ref('')
 const groupStatements = ref([])
-const totalPages = computed(() => Math.ceil(groupStatements.value.length / PAGE_SIZE))
 const paginatedStatements = computed(
   () => groupStatements.value.slice((currentPage.value - 1) * PAGE_SIZE, currentPage.value * PAGE_SIZE),
 )
+const statementsCount = ref(0)
+const totalPages = computed(() => Math.ceil(groupStatements.value.length / PAGE_SIZE))
 
 async function fetchGroup () {
   try {
@@ -158,6 +160,21 @@ async function removeGroupStatement (id) {
     await dpApi.delete(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${props.statement.id}/relationships/statements`, {}, {}, {
       data: [{ type: 'Statement', id }],
     })
+
+    /*
+     * Removing the last member dissolves the group (the backend deletes the head statement),
+     * so this head detail page no longer exists — go back to the statement list. The group externId
+     * travels via lscache so the list can show the "group resolved" toast on mount (URL stays clean).
+     */
+    if (0 === groupStatements.value.length) {
+      lscache.set(`${props.procedureId}:clusterResolved`, props.statement.attributes.externId)
+      globalThis.location.href = Routing.generate('dplan_procedure_statement_list', {
+        procedureId: props.procedureId,
+      })
+
+      return
+    }
+
     dplan.notify.notify('confirm', Translator.trans('confirm.statement.detach.cluster.element', {
       statementId: removedLabel,
       clusterId: props.statement.attributes.externId,

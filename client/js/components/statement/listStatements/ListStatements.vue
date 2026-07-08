@@ -681,6 +681,19 @@ export default {
       globalThis.location.href = Routing.generate('dplan_procedure_statement_group_create', { procedureId: this.procedureId })
     },
 
+    // Show the "group resolved" toast once when arriving here after the last group member was detached
+    notifyClusterResolved () {
+      const clusterId = lscache.get(`${this.procedureId}:clusterResolved`)
+
+      if (!clusterId) {
+        return
+      }
+
+      // One-shot flag: remove it so a reload does not re-trigger the toast
+      lscache.remove(`${this.procedureId}:clusterResolved`)
+      dplan.notify.notify('confirm', Translator.trans('confirm.statement.cluster.resolved', { clusterId }))
+    },
+
     handleFullTextAction (statementId) {
       const attributes = this.statementsObject[statementId].attributes
 
@@ -1201,6 +1214,12 @@ export default {
   },
 
   mounted () {
+    /*
+     * Defer to after the whole tree (incl. the root app) is mounted, since dplan.notify is only
+     * set in the root's mounted hook, which runs after this child's mounted.
+     */
+    this.$nextTick(() => this.notifyClusterResolved())
+
     if (lscache.get(`${this.procedureId}:navigation:source`)) {
       lscache.remove(`${this.procedureId}:navigation:source`)
     }
