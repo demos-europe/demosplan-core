@@ -41,8 +41,9 @@
           :value="selectedForField(field.id)"
           label="label"
           track-by="value"
-          @input="(val) => handleModalChange(field.id, val)"
-          @open="$emit('open')"
+          @open="$emit('open', field.id)"
+          @remove="option => onOptionRemove(field.id, option)"
+          @select="option => onOptionSelect(field.id, option)"
         >
           <template v-slot:option="{ props }">
             {{ props.option.label }} ({{ props.option.count }})
@@ -123,12 +124,17 @@ export default {
       return field.attributes.fieldType === 'multiSelect' ? matched : (matched[0] ?? null)
     },
 
-    handleModalChange (fieldId, selected) {
-      const ids = Array.isArray(selected) ?
-        selected.map(o => o.value) :
-        (selected ? [selected.value] : [])
+    onOptionSelect (fieldId, option) {
+      const current = Array.isArray(this.value[fieldId]) ? [...this.value[fieldId]] : []
+      if (!current.includes(option.value)) {
+        current.push(option.value)
+      }
+      this.$emit('input', { ...this.value, [fieldId]: current })
+    },
 
-      this.$emit('input', { ...this.value, [fieldId]: ids })
+    onOptionRemove (fieldId, option) {
+      const current = (this.value[fieldId] ?? []).filter(id => id !== option.value)
+      this.$emit('input', { ...this.value, [fieldId]: current })
     },
   },
 }

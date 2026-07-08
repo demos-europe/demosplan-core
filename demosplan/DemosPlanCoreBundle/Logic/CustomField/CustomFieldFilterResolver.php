@@ -81,9 +81,13 @@ class CustomFieldFilterResolver
     }
 
     /**
+     * Returns CF field filters with real (non-sentinel) values only.
+     * Empty-string sentinels posted when a dropdown opens are stripped so they
+     * do not produce ES filter clauses.
+     *
      * @param array<string, mixed> $userFilters
      *
-     * @return array<string, string[]> fieldId => selected option IDs
+     * @return array<string, string[]> fieldId => selected option IDs (never empty arrays)
      */
     private function extractActiveCfFilters(array $userFilters): array
     {
@@ -92,7 +96,12 @@ class CustomFieldFilterResolver
 
         foreach ($userFilters as $key => $values) {
             if (str_starts_with($key, $prefix)) {
-                $active[substr($key, strlen($prefix))] = (array) $values;
+                $nonEmpty = array_values(
+                    array_filter((array) $values, static fn (string $v): bool => '' !== $v)
+                );
+                if ([] !== $nonEmpty) {
+                    $active[substr($key, strlen($prefix))] = $nonEmpty;
+                }
             }
         }
 

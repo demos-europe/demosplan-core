@@ -47,9 +47,17 @@ class CustomFieldFilterResponseBuilder
             CustomFieldSupportedEntity::statement->value,
         );
 
+        if ([] === $activeCfFilters) {
+            return [];
+        }
+
         $filterItems = [];
 
         foreach ($cfConfigs ?? [] as $config) {
+            if (!array_key_exists($config->getId(), $activeCfFilters)) {
+                continue;
+            }
+
             $item = $this->buildSingleFilterItem(
                 $config,
                 $procedureId,
@@ -104,6 +112,17 @@ class CustomFieldFilterResponseBuilder
             $activeCfFilters,
             static fn (string $id): bool => $id !== $fieldId,
             ARRAY_FILTER_USE_KEY
+        );
+
+        // Strip sentinel empty values so they don't act as constraints when counting.
+        $constraintFilters = array_filter(
+            array_map(
+                static fn (array $vals): array => array_values(
+                    array_filter($vals, static fn (string $v): bool => '' !== $v)
+                ),
+                $constraintFilters
+            ),
+            static fn (array $vals): bool => [] !== $vals
         );
 
         $counts = $this->customFieldStatementCounter->countByField(

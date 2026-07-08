@@ -591,8 +591,28 @@ export default {
       return [...this.allSelectedFilterOptionsWithFilterName, ...cfEntries]
     },
 
-    refreshCustomFieldCounts () {
-      window.updateFilterHash(this.procedureId, this.buildAllEntries())
+    refreshCustomFieldCounts (fieldId) {
+      // Mirror FilterModalSelectItem's sentinel pattern: post an empty-value entry for the
+      // opened field so the backend knows to return its options with counts.
+      const sentinel = { name: `filter_customField_${fieldId}[]`, value: '' }
+
+      // Include active selections for OTHER CF fields; opened field gets only the sentinel.
+      const otherCfEntries = []
+      Object.entries(this.customFieldFilterValue).forEach(([fId, optionIds]) => {
+        if (fId !== fieldId) {
+          optionIds.forEach(optionId => {
+            otherCfEntries.push({ name: `filter_customField_${fId}[]`, value: optionId })
+          })
+        }
+      })
+
+      const entries = [
+        ...this.allSelectedFilterOptionsWithFilterName,
+        sentinel,
+        ...otherCfEntries,
+      ]
+
+      window.updateFilterHash(this.procedureId, entries)
         .then(filterHash => {
           this.getFilterOptionsAction({ filterHash })
         })
