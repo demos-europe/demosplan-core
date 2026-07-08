@@ -835,14 +835,10 @@ export default {
       this.prosemirror = prosemirrorState
       const { state } = this.prosemirror.view
       const segmentMarks = Object.values(this.prosemirror.keyAccess.rangeTrackerKey.getState(state))
-      const updatedSegments = mergeSegmentMarksAndSegments(segmentMarks, this.segments)
 
-      this.locallyUpdateSegments(updatedSegments)
-      this.ignoreProsemirrorUpdates = false
-
-      /*this.ignoreProsemirrorUpdates = true
+      this.ignoreProsemirrorUpdates = true
       this.syncSegmentMarkStatus(segmentMarks)
-      this.ignoreProsemirrorUpdates = false*/
+      this.ignoreProsemirrorUpdates = false
     },
 
     /**
@@ -852,7 +848,6 @@ export default {
       const segmentsById = Object.fromEntries(
         this.segments.map(segment => [segment.id, segment])
       )
-      console.log('segmentsById', segmentsById)
 
       segmentMarks.forEach(mark => {
         const segment = segmentsById[mark.segmentId]

@@ -210,7 +210,7 @@ const SplitStatementStore = {
     deleteSegmentAction ({ state, commit, dispatch }, id) {
       // Remove segment from all segments (styling deletion is handled in textSegment component)
       commit('deleteSegment', id)
-      dispatch('saveSegmentsDrafts', { triggerNotifications: false, trustLocalState: true })
+      dispatch('saveSegmentsDrafts', false)
     },
 
     async fetchInitialData ({ state, commit, dispatch }, doUpdate = true) {
@@ -413,12 +413,7 @@ const SplitStatementStore = {
         })
     },
 
-    saveSegmentsDrafts ({ state, commit, dispatch }, options = {}) {
-      // Support both old boolean parameter and new options object for backwards compatibility
-      const { triggerNotifications = false, trustLocalState = false } = typeof options === 'boolean'
-        ? { triggerNotifications: options, trustLocalState: false }
-        : options
-
+    saveSegmentsDrafts ({ state, commit, dispatch }, triggerNotifications = false) {
       const dataToSend = JSON.parse(JSON.stringify(state.initialData))
 
       dataToSend.attributes.textualReference = state.initText
@@ -437,22 +432,18 @@ const SplitStatementStore = {
         resourceType: 'Statement',
         resourceId: state.statementId,
       }), {}, { data: payload })
-        .then((response) => {
-          if (trustLocalState) {
-            // For delete operations: trust local state to avoid race conditions
-            commit('setProperty', { prop: 'initialData', val: dataToSend })
-            commit('setProperty', { prop: 'initialSegments', val: JSON.parse(JSON.stringify(state.segments)) })
-          } else {
-            dispatch('updateSegmentDraftListFromServer')
-          }
+        .then(() => {
+          commit('setProperty', { prop: 'initialData', val: dataToSend })
+          commit('setProperty', { prop: 'initialSegments', val: JSON.parse(JSON.stringify(state.segments)) })
 
           if (triggerNotifications) {
-            if (response.status === 204) {
-              dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-            } else {
-              dplan.notify.notify('error', Translator.trans('error.api.generic'))
-            }
+            dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
           }
+        })
+        .catch(() => {
+          dplan.notify.notify('error', Translator.trans('error.api.generic'))
+
+          return dispatch('fetchInitialData')
         })
     },
 
