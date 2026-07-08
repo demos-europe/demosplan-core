@@ -38,7 +38,6 @@ const SplitStatementStore = {
      */
     recalculatedSegments: null,
     segments: [],
-    segmentsWithText: null,
     statement: null,
     statementText: null,
     statementId: '',
@@ -453,7 +452,7 @@ const SplitStatementStore = {
     saveSegmentsFinal ({ dispatch, state, commit }) {
       const dataToSend = JSON.parse(JSON.stringify(state.initialData))
 
-      dataToSend.attributes.segments = state.segmentsWithText
+      dataToSend.attributes.segments = state.segments
       dataToSend.attributes.statementText = state.statementText
 
       return dpApi.post(Routing.generate('dplan_drafts_list_confirm', {
