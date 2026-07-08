@@ -109,9 +109,12 @@ async function fetchGroup () {
     groupName.value = response.data.data.attributes.groupName
     initialGroupName.value = response.data.data.attributes.groupName
 
-    // Member attributes (externId, submitter) arrive as JSON:API included resources; look them up by id
-    // while keeping the relationship order. SelectedStatementsList reads them from `attributes`.
+    /*
+     * Member attributes (externId, submitter) arrive as JSON:API included resources; look them up by id
+     * while keeping the relationship order. SelectedStatementsList reads them from `attributes`.
+     */
     const includedById = new Map((response.data.included ?? []).map(resource => [resource.id, resource.attributes]))
+
     groupStatements.value = response.data.data.relationships.statements.data.map(
       member => ({ id: member.id, attributes: includedById.get(member.id) ?? {} }),
     )
@@ -144,11 +147,7 @@ async function removeGroupStatement (id) {
 
   groupStatements.value = groupStatements.value.filter(stmt => stmt.id !== id)
 
-  /*
-   * TODO(DPLAN-17748): remove the `?.attributes?.externId ||` fallback once the backend delivers
-   * member externId (StatementGroupResource::fromStatement). Until then the toast shows the member UUID.
-   */
-  const removedLabel = removed?.attributes?.externId || removed?.id
+  const removedLabel = removed?.attributes?.externId
 
   try {
     /*
