@@ -765,7 +765,9 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
     /**
      * Returns active users whose effective inactivity reference (`lastLogin` if set,
      * else `createdDate`) is at or before the cutoff. Excludes deleted users, the
-     * AI API user (by login — its row ID is random per project), and any further
+     * AI API user (by login — its row ID is random per project), users provisioned
+     * by an external identity provider (their lifecycle is owned by the IdP, so they
+     * must never be soft-deleted by the inactivity cascade), and any further
      * protected IDs supplied by the caller (typically the anonymous-user constant
      * plus project-specific protected accounts).
      *
@@ -783,6 +785,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
             ->where(self::WHERE_NOT_DELETED)
             ->andWhere('COALESCE(u.lastLogin, u.createdDate) <= :cutoff')
             ->andWhere('u.login != :aiApiUserLogin')
+            ->andWhere('u.providedByIdentityProvider = false')
             ->setParameter('cutoff', $cutoff)
             ->setParameter('aiApiUserLogin', AiApiUser::AI_API_USER_LOGIN);
 
