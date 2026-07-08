@@ -250,9 +250,11 @@
     span[data-range-active='true'],
     span[data-range-selected],
     span[data-range-selected] > span {
-        // Vertical padding fills the empty space (leading) that line-height adds above and below the text
-        // (line-height 24px, font 16px) so the highlight has no gap between wrapped lines. Combined with
-        // box-decoration-break: clone, the padding is applied to each line fragment.
+        // Vertical padding fills the leading (empty space line-height adds around the text) so the highlight
+        // has no gap between wrapped lines. The leading is line-height minus the font's glyph box, which is
+        // ~14px here (smaller than the 16px font-size), i.e. ~10px total; ~5px per side is needed to reach the
+        // full 24px line-height. 4px leaves a ~2px gap. box-decoration-break: clone applies the padding to
+        // each wrapped line fragment.
         padding: 5px 0;
         background-color: $segment-highlight-bg-color;
         box-decoration-break: clone;
