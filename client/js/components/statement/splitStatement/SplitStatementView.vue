@@ -927,7 +927,7 @@ export default {
      */
     syncSegmentMarkStatus (segmentMarks) {
       const segmentsById = Object.fromEntries(
-        this.segments.map(segment => [segment.id, segment])
+        this.segments.map(segment => [segment.id, segment]),
       )
 
       segmentMarks.forEach(mark => {
