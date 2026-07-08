@@ -100,6 +100,7 @@ export default {
         segmentMark,
       },
       maxRange: 0,
+      view: null,
     }
   },
 
@@ -184,6 +185,9 @@ export default {
        */
       prosemirrorStateWrapper = Object.freeze(prosemirrorStateWrapper)
 
+      // Store view reference for cleanup on unmount
+      this.view = view
+
       this.$emit('prosemirror:maxRange', this.maxRange)
       this.$emit('prosemirror:initialized', prosemirrorStateWrapper)
     },
@@ -191,6 +195,14 @@ export default {
 
   mounted () {
     this.initialize()
+  },
+
+  unmounted () {
+    // Clean up ProseMirror instance to prevent memory leaks
+    if (this.view) {
+      this.view.destroy()
+      this.view = null
+    }
   },
 }
 </script>
