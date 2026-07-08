@@ -174,14 +174,43 @@ class StatementViaTemplateExporter
     {
         $textRun = new TextRun();
         $cleaned = str_replace([chr(2), chr(3)], '', $html);
-        $cleaned = $this->flattenParagraphsToBr($cleaned);
+        $cleaned = $this->flattenBlockElementsToBr($cleaned);
         Html::addHtml($textRun, $this->htmlHelper->getHtmlValidText($cleaned), false, false);
 
         return $textRun;
     }
 
-    private function flattenParagraphsToBr(string $html): string
+    /**
+     * Converts block-level HTML elements to inline-safe markup before handing HTML
+     * to {@see Html::addHtml()} with a {@see TextRun} container.
+     *
+     * PhpWord's HTML parser calls {@see AbstractContainer::addTable()},
+     * {@see AbstractContainer::addListItem()}, and {@see AbstractContainer::addTextRun()}
+     * when it encounters `<table>`, list, and heading nodes respectively.
+     * {@see TextRun} is an inline element — those element types are not in its valid-container
+     * list and throw {@see BadMethodCallException} at runtime. Lists additionally call
+     * {@see PhpWord\PhpWord::addNumberingStyle()} via {@see AbstractContainer::getPhpWord()},
+     * which returns null on a TextRun and causes a fatal error.
+     *
+     * Inline formatting (bold, italic, underline, strikethrough, links) is handled purely
+     * as font style on Text elements and is unaffected.
+     */
+    private function flattenBlockElementsToBr(string $html): string
     {
+        // Lists: each item becomes a bullet line; wrapper tags are stripped.
+        $html = preg_replace('#<li[^>]*>#i', '<br/>• ', $html) ?? $html;
+        $html = preg_replace('#</li>|</?[uo]l[^>]*>#i', '', $html) ?? $html;
+
+        // Tables: cell boundaries become spaces, row boundaries become line breaks, wrapper tags stripped.
+        $html = preg_replace('#</t[dh]>#i', ' ', $html) ?? $html;
+        $html = preg_replace('#</tr>#i', '<br/>', $html) ?? $html;
+        $html = preg_replace('#</?t(?:able|head|body|foot|r|[dh])[^>]*>#i', '', $html) ?? $html;
+
+        // Headings: closing tag becomes a line break to separate content; opening tag is stripped.
+        $html = preg_replace('#</h[1-6]>#i', '<br/>', $html) ?? $html;
+        $html = preg_replace('#<h[1-6][^>]*>#i', '', $html) ?? $html;
+
+        // Paragraphs: adjacent paragraph boundary becomes a line break; remaining tags stripped.
         $html = preg_replace('#</p>\s*<p[^>]*>#i', '<br/>', $html) ?? $html;
 
         return preg_replace('#</?p[^>]*>#i', '', $html) ?? $html;
