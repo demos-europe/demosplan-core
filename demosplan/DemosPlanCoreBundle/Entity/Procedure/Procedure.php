@@ -229,8 +229,8 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *
      * @var bool
      */
-    #[ORM\Column(name: '_p_public_participation_publication_enabled', type: 'boolean', nullable: false, options: ['default' => true])]
-    protected $publicParticipationPublicationEnabled = true;
+    #[ORM\Column(name: '_p_public_participation_publication_enabled', type: 'boolean', nullable: false, options: ['default' => false])]
+    protected $publicParticipationPublicationEnabled = false;
 
     /**
      * @var string
