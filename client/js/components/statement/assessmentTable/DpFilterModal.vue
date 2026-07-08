@@ -410,6 +410,7 @@ export default {
       'loadAppliedFilterOptions',
       'loadSelectedFilterOptions',
       'resetSelectedOptions',
+      'setActiveCfFilterEntries',
       'setLoading',
     ]),
 
@@ -512,6 +513,7 @@ export default {
         })
 
       this.customFieldFilterValue = cfValue
+      this.setActiveCfFilterEntries(this.buildCfEntries(cfValue))
     },
 
     /**
@@ -578,17 +580,19 @@ export default {
         })
     },
 
-    buildAllEntries (cfValueOverride = null) {
-      const cfValue = cfValueOverride ?? this.customFieldFilterValue
-      const cfEntries = []
-
+    buildCfEntries (cfValue) {
+      const entries = []
       Object.entries(cfValue).forEach(([fieldId, optionIds]) => {
         optionIds.forEach(optionId => {
-          cfEntries.push({ name: `filter_customField_${fieldId}[]`, value: optionId })
+          entries.push({ name: `filter_customField_${fieldId}[]`, value: optionId })
         })
       })
+      return entries
+    },
 
-      return [...this.allSelectedFilterOptionsWithFilterName, ...cfEntries]
+    buildAllEntries (cfValueOverride = null) {
+      const cfValue = cfValueOverride ?? this.customFieldFilterValue
+      return [...this.allSelectedFilterOptionsWithFilterName, ...this.buildCfEntries(cfValue)]
     },
 
     refreshCustomFieldCounts (fieldId) {
@@ -620,6 +624,7 @@ export default {
 
     updateCustomFieldFilter (newValue) {
       this.customFieldFilterValue = newValue
+      this.setActiveCfFilterEntries(this.buildCfEntries(newValue))
 
       window.updateFilterHash(this.procedureId, this.buildAllEntries(newValue))
         .then(filterHash => {

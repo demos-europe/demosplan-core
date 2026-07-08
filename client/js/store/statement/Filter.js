@@ -38,6 +38,8 @@ const Filter = {
     filterListOptions: {},
     // Available options for custom field filters, keyed by fieldId (UUID)
     customFieldFilterListOptions: {},
+    // Active CF filter entries in { name, value } shape for use by FilterModalSelectItem
+    activeCfFilterEntries: [],
     filters: {},
     original: false,
     procedureId: null,
@@ -53,6 +55,10 @@ const Filter = {
   mutations: {
     loadAppliedFilterOptions (state, options) {
       state.appliedOptions = options
+    },
+
+    setActiveCfFilterEntries (state, entries) {
+      state.activeCfFilterEntries = entries
     },
 
     /**
@@ -373,6 +379,8 @@ const Filter = {
   },
 
   getters: {
+    activeCfFilterEntries: state => state.activeCfFilterEntries,
+
     // { [fieldId]: { [optionId]: count } } — built from CF items returned by the filter options endpoint
     customFieldOptionCounts: (state) => {
       const counts = {}
