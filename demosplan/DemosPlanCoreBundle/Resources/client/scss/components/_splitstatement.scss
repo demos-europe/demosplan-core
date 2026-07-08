@@ -161,6 +161,8 @@
         .range-handle {
             position: relative;
             font-size: $dp-font-size-large;
+            // Cap the line-height at the handle's own font-size so its larger glyph does not stretch the text line it sits on
+            line-height: 1;
             color: $dp-color-interactive-default;
 
             &::before {
