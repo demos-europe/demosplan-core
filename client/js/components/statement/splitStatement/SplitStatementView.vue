@@ -109,6 +109,7 @@
             class="container pt-2"
           >
             <segmentation-editor
+              :key="editorKey"
               :init-statement-text="initText ?? ''"
               :segments="segments"
               :range-change-callback="handleSegmentChanges"
@@ -291,6 +292,7 @@ export default {
 
   data () {
     return {
+      editorKey: 0,
       assignableUsers: [],
       bubblePosition: { x: 0, y: 0 },
       bubbleVisible: false,
@@ -325,6 +327,7 @@ export default {
       'initialData',
       'initText',
       'isBusy',
+      'needsEditorRefresh',
       'segmentById',
       'segments',
       'statement',
@@ -377,6 +380,13 @@ export default {
         }
       },
       deep: false, // Set default for migrating purpose. To know this occurrence is checked
+    },
+
+    needsEditorRefresh (shouldRerender) {
+      if (shouldRerender && this.prosemirror) {
+        this.editorKey++
+        this.setProperty({ prop: 'needsEditorRefresh', val: false })
+      }
     },
   },
 

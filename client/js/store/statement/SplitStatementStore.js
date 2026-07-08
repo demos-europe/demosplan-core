@@ -29,6 +29,7 @@ const SplitStatementStore = {
     initText: '',
     // Loading state for save+finish button
     isBusy: false,
+    needsEditorRefresh: false,
     procedureId: '',
     /**
      *If the new selection in editor intersects with existing segments we set recalculatedSegments to
@@ -434,7 +435,7 @@ const SplitStatementStore = {
       }), {}, { data: payload })
         .then(() => {
           commit('setProperty', { prop: 'initialData', val: dataToSend })
-          commit('setProperty', { prop: 'initialSegments', val: JSON.parse(JSON.stringify(state.segments)) })
+          commit('setProperty', { prop: 'initialSegments', val: state.segments })
 
           if (triggerNotifications) {
             dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
@@ -443,7 +444,9 @@ const SplitStatementStore = {
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.api.generic'))
 
-          return dispatch('fetchInitialData')
+          return dispatch('fetchInitialData').then(() => {
+            commit('setProperty', { prop: 'needsEditorRefresh', val: true })
+          })
         })
     },
 
@@ -557,6 +560,7 @@ const SplitStatementStore = {
     initialSegments: (state) => state.initialSegments,
     initText: (state) => state.initText,
     isBusy: (state) => state.isBusy,
+    needsEditorRefresh: (state) => state.needsEditorRefresh,
     procedureId: (state) => state.procedureId,
     segments: (state) => state.segments,
     statement: (state) => state.statement,
