@@ -92,7 +92,7 @@ const SplitStatementStore = {
     },
 
     resetSegments (state) {
-      state.segments = JSON.parse(JSON.stringify(state.initialSegments))
+      state.segments = structuredClone(state.initialSegments)
     },
 
     setProperty (state, { prop, val }) {
@@ -402,7 +402,7 @@ const SplitStatementStore = {
         attributes: {
           segmentDraftList: {
             data: dataToSend,
-          }
+          },
         },
       }
 
@@ -412,7 +412,7 @@ const SplitStatementStore = {
       }), {}, { data: payload })
         .then(() => {
           commit('setProperty', { prop: 'initialData', val: dataToSend })
-          commit('setProperty', { prop: 'initialSegments', val: dataToSend.attributes.segments })
+          commit('setProperty', { prop: 'initialSegments', val: structuredClone(state.segments) })
 
           if (triggerNotifications) {
             dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
@@ -421,9 +421,7 @@ const SplitStatementStore = {
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.api.generic'))
 
-          const initialSegments = JSON.parse(JSON.stringify(state.initialSegments))
-
-          commit('setProperty', { prop: 'segments', val: initialSegments })
+          commit('setProperty', { prop: 'segments', val: structuredClone(state.initialSegments) })
           commit('setProperty', { prop: 'initText', val: state.initialData.attributes.textualReference })
           commit('setProperty', { prop: 'needsEditorRefresh', val: true })
         })
