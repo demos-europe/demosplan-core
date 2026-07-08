@@ -194,7 +194,7 @@
         </ul>
       </fieldset>
       <dp-input
-        v-if="active === 'docx_normal' && !isSingleStatementExport && hasPermissionAdjustPreamble"
+        v-if="['docx_normal', 'zip_normal'].includes(active) && !isSingleStatementExport && hasPermissionAdjustPreamble"
         id="customHeaderText"
         v-model="customHeaderText"
         :label="{
