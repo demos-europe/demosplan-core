@@ -99,7 +99,7 @@
     "proj4php/proj4php": "^2.0",
     "ramsey/uuid": "^4",
     "rollerworks/password-strength-bundle": "^2.2",
-    "ruflin/elastica": "^8.0",
+    "ruflin/elastica": "^9.0",
     "scheb/2fa-bundle": "^6.0",
     "scheb/2fa-email": "^6.0",
     "scheb/2fa-totp": "^6.0",
