@@ -347,14 +347,24 @@ const toggleRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, decorationT
     }
 
     /**
-     * This code block is called whenever the user clicks a handle that is not already active. It moves the activation
-     * state from the handle that is currently active to the handle which was just clicked. The active/fixed positions
-     * are derived from the *current* (possibly edited) range so that an in-progress adjustment of the other handle is
-     * preserved when switching handles.
+     * If the current range positions are not available, fall back to the default activation
+     * (end handle active) rather than resolving an undefined position.
      */
     const { from, to } = position
-    const activationPosition = currentlyActivePosition === from ? to : from
-    const fixedPosition = currentlyActivePosition === from ? from : to
+
+    if (from === undefined || to === undefined) {
+      activateRangeEdit(view, rangeTrackerKey, editStateTrackerKey, rangeId)
+
+      return true
+    }
+
+    /**
+     * This code block is called whenever the user clicks a handle that is not already active. It activates the handle
+     * that was just clicked and fixes the opposite boundary. Both positions are taken from the *current* (possibly
+     * edited) range so that an in-progress adjustment of the other handle is preserved when switching handles.
+     */
+    const activationPosition = pos === from ? from : to
+    const fixedPosition = pos === from ? to : from
 
     activateRangeEdit(view, rangeTrackerKey, editStateTrackerKey, rangeId, { active: activationPosition, fixed: fixedPosition })
   }
