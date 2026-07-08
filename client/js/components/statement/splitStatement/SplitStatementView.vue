@@ -109,7 +109,6 @@
             class="container pt-2"
           >
             <segmentation-editor
-              :key="editorKey"
               :init-statement-text="initText ?? ''"
               :segments="segments"
               :range-change-callback="handleSegmentChanges"
@@ -193,13 +192,14 @@ import { mapActions, mapGetters, mapMutations } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CardPane from './CardPane'
 import dayjs from 'dayjs'
-import { DOMSerializer } from 'prosemirror-model'
+import { DOMParser, DOMSerializer } from 'prosemirror-model'
+import { EditorState } from 'prosemirror-state'
 import { generateRangeChangeMap } from '@DpJs/lib/prosemirror/utilities'
+import { v4 as uuid } from 'uuid'
 import SegmentationEditor from './SegmentationEditor'
 import SideBar from './SideBar'
 import StatementMeta from '@DpJs/components/procedure/StatementSegmentsList/StatementMeta/StatementMeta'
 import StatementMetaTooltip from '../StatementMetaTooltip'
-import { v4 as uuid } from 'uuid'
 /**
  * Merges ProseMirror segmentMark data with segment metadata from the store.
  *
@@ -297,7 +297,6 @@ export default {
       bubbleVisible: false,
       createdSegmentProsemirrorId: null,
       displayScrollButton: false,
-      editorKey: 0,
       ignoreProsemirrorUpdates: true,
       isLoading: !this.initialData,
       isSegmentDraftUpdated: false,
@@ -384,7 +383,7 @@ export default {
 
     needsEditorRefresh (shouldRerender) {
       if (shouldRerender && this.prosemirror) {
-        this.editorKey++
+        this.refreshEditorContent()
         this.setProperty({ prop: 'needsEditorRefresh', val: false })
       }
     },
@@ -880,6 +879,26 @@ export default {
         dplan.notify.error(Translator.trans('error.statement.missing.segment.drafts'))
         this.setProperty({ prop: 'isBusy', val: false })
       }
+    },
+
+    /**
+     *  Parse restored initText into ProseMirror document
+     */
+    refreshEditorContent () {
+      const wrapper = document.createElement('div')
+
+      wrapper.innerHTML = this.initText
+      const parser = DOMParser.fromSchema(this.prosemirror.view.state.schema)
+      const newDoc = parser.parse(wrapper, { preserveWhitespace: true })
+
+      const newState = EditorState.create({
+        doc: newDoc,
+        plugins: this.prosemirror.view.state.plugins,
+      })
+
+      this.ignoreProsemirrorUpdates = true
+      this.prosemirror.view.updateState(newState)
+      this.ignoreProsemirrorUpdates = false
     },
 
     /**
