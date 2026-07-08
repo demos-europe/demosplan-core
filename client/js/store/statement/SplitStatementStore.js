@@ -92,7 +92,7 @@ const SplitStatementStore = {
     },
 
     resetSegments (state) {
-      state.segments = state.initialSegments
+      state.segments = JSON.parse(JSON.stringify(state.initialSegments))
     },
 
     setProperty (state, { prop, val }) {
@@ -390,42 +390,20 @@ const SplitStatementStore = {
         })
     },
 
-    updateSegmentDraftListFromServer ({ state, commit }) {
-      return dpApi.get(Routing.generate('api_resource_get', {
-        resourceType: 'Statement',
-        resourceId: state.statementId,
-        fields: {
-          Statement: ['segmentDraftList'].join(),
-        },
-      }))
-        .then(({ data }) => {
-          if (!hasOwnProp(data.data.attributes.segmentDraftList, 'data')) {
-            return
-          }
-
-          const initialData = data.data.attributes.segmentDraftList.data
-          const segments = initialData.attributes.segments
-
-          commit('setProperty', { prop: 'initialData', val: initialData })
-          commit('setProperty', { prop: 'initialSegments', val: segments })
-          commit('setProperty', { prop: 'segments', val: segments })
-          commit('setProperty', { prop: 'initText', val: initialData.attributes.textualReference })
-        })
-    },
-
     saveSegmentsDrafts ({ state, commit, dispatch }, triggerNotifications = false) {
       const dataToSend = JSON.parse(JSON.stringify(state.initialData))
 
       dataToSend.attributes.textualReference = state.initText
       dataToSend.attributes.segments = state.segments
+
       const payload = {
         id: state.statementId,
         type: 'Statement',
-        attributes: {},
-      }
-
-      payload.attributes.segmentDraftList = {
-        data: dataToSend,
+        attributes: {
+          segmentDraftList: {
+            data: dataToSend,
+          }
+        },
       }
 
       return dpApi.patch(Routing.generate('api_resource_update', {
@@ -434,7 +412,7 @@ const SplitStatementStore = {
       }), {}, { data: payload })
         .then(() => {
           commit('setProperty', { prop: 'initialData', val: dataToSend })
-          commit('setProperty', { prop: 'initialSegments', val: state.segments })
+          commit('setProperty', { prop: 'initialSegments', val: dataToSend.attributes.segments })
 
           if (triggerNotifications) {
             dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
@@ -443,9 +421,11 @@ const SplitStatementStore = {
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.api.generic'))
 
-          return dispatch('fetchInitialData').then(() => {
-            commit('setProperty', { prop: 'needsEditorRefresh', val: true })
-          })
+          const initialSegments = JSON.parse(JSON.stringify(state.initialSegments))
+
+          commit('setProperty', { prop: 'segments', val: initialSegments })
+          commit('setProperty', { prop: 'initText', val: state.initialData.attributes.textualReference })
+          commit('setProperty', { prop: 'needsEditorRefresh', val: true })
         })
     },
 
