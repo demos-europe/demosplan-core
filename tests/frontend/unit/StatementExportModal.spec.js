@@ -420,7 +420,7 @@ describe('StatementExportModal', () => {
       const exportEvent = wrapper.emitted('export')[0][0]
 
       expect(exportEvent.route).toBe('dplan_segments_export')
-      expect(exportEvent.uploadedDocxTemplate).toBe(null)
+      expect(exportEvent.uploadedDocxTemplate).toBeNull()
     } finally {
       globalThis.hasPermission = originalHasPermission
     }
