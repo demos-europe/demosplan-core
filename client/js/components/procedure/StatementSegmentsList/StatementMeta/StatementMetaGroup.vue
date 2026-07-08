@@ -43,6 +43,7 @@ All rights reserved
     <dp-accordion
       v-if="isCluster"
       :title="Translator.trans('statement.cluster.further', { count: groupStatements.length })"
+      class="mb-4"
       is-open
     >
       <!--
