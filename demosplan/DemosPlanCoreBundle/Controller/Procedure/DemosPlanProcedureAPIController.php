@@ -334,10 +334,12 @@ class DemosPlanProcedureAPIController extends APIController
         $res = $assessmentTableServiceOutput->getStatementListHandler(
             $procedureId,
             $rParams,
-            true,
+            false,
             0,
             false
         );
+
+        $esFilteredIds = array_column((array) $res->getStatements(), 'id');
 
         $responseData = [];
         $esFilters = $res->getFilterSet()['filters'];
@@ -389,8 +391,15 @@ class DemosPlanProcedureAPIController extends APIController
             $responseData[] = $assessmentTableFilter;
         }
 
-        $cfFilterItems = $cfFilterResponseBuilder->buildFilterItems($procedureId, $original, $rParams['filters']);
-        array_push($responseData, ...$cfFilterItems);
+        if ($request->query->getBoolean('includeCf', true)) {
+            $cfFilterItems = $cfFilterResponseBuilder->buildFilterItems(
+                $procedureId,
+                $original,
+                $rParams['filters'],
+                $esFilteredIds
+            );
+            array_push($responseData, ...$cfFilterItems);
+        }
 
         return $this->renderCollection($responseData, AssessmentTableFilterTransformer::class);
     }

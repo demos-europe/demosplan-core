@@ -33,11 +33,16 @@ class CustomFieldStatementCounter
      *
      * @return array<string, int> optionId => count
      */
+    /**
+     * @param string[] $esFilteredIds When non-empty, counts are scoped to this set of statement IDs
+     *                                (i.e. statements that already matched the active regular ES filters).
+     */
     public function countByField(
         string $procedureId,
         string $fieldId,
         bool $isOriginalStatementView,
         array $otherCfFilters = [],
+        array $esFilteredIds = [],
     ): array {
         $configs = $this->customFieldConfigurationRepository->findCustomFieldConfigurationByCriteria(
             CustomFieldSupportedEntity::procedure->value,
@@ -65,6 +70,7 @@ class CustomFieldStatementCounter
                 $option->getId(),
                 $isOriginalStatementView,
                 $otherCfFilters,
+                $esFilteredIds,
             );
         }
 
@@ -80,6 +86,7 @@ class CustomFieldStatementCounter
         string $optionValue,
         bool $isOriginalStatementView,
         array $otherCfFilters,
+        array $esFilteredIds = [],
     ): int {
         $qb = $this->entityManager->createQueryBuilder()
             ->select('COUNT(s.id)')
@@ -91,6 +98,11 @@ class CustomFieldStatementCounter
             ->setParameter('procedureId', $procedureId)
             ->setParameter('fieldId', $fieldId)
             ->setParameter('optionValue', $optionValue);
+
+        if ([] !== $esFilteredIds) {
+            $qb->andWhere('s.id IN (:esFilteredIds)')
+               ->setParameter('esFilteredIds', $esFilteredIds);
+        }
 
         $idx = 0;
         foreach ($otherCfFilters as $otherFieldId => $selectedOptionIds) {

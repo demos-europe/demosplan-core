@@ -34,10 +34,15 @@ class CustomFieldFilterResponseBuilder
      *
      * @return AssessmentTableFilter[]
      */
+    /**
+     * @param string[] $esFilteredIds Statement IDs that matched the active regular ES filters.
+     *                                When provided, CF option counts are scoped to this set.
+     */
     public function buildFilterItems(
         string $procedureId,
         bool $isOriginalStatementView,
         array $userFilters,
+        array $esFilteredIds = [],
     ): array {
         $activeCfFilters = $this->extractActiveCfFilters($userFilters);
 
@@ -62,7 +67,8 @@ class CustomFieldFilterResponseBuilder
                 $config,
                 $procedureId,
                 $isOriginalStatementView,
-                $activeCfFilters
+                $activeCfFilters,
+                $esFilteredIds
             );
 
             if (null !== $item) {
@@ -95,6 +101,7 @@ class CustomFieldFilterResponseBuilder
         string $procedureId,
         bool $isOriginalStatementView,
         array $activeCfFilters,
+        array $esFilteredIds = [],
     ): ?AssessmentTableFilter {
         $fieldId = $config->getId();
         $field = $config->getConfiguration();
@@ -129,7 +136,8 @@ class CustomFieldFilterResponseBuilder
             $procedureId,
             $fieldId,
             $isOriginalStatementView,
-            $constraintFilters
+            $constraintFilters,
+            $esFilteredIds
         );
 
         $options = $this->buildOptions($fieldOptions, $counts);
