@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomField
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
@@ -215,6 +216,52 @@ class CustomFieldDeleterTest extends UnitTestCase
         self::assertNull(
             $refreshedOrga2->getCustomFields()?->findById($customFieldId),
             'Orga 2 should no longer have the custom field value'
+        );
+    }
+
+    public function testDeleteStatementCustomFieldThrowsWhenProcedureHasStatements(): void
+    {
+        // Arrange: procedure with statements
+        $procedure = ProcedureFactory::createOne();
+        $statementOriginal = StatementFactory::createOne(['procedure' => $procedure->_real()]);
+        StatementFactory::createOne([
+            'procedure' => $procedure->_real(),
+            'original'  => $statementOriginal->_real(),
+        ]);
+
+        $customField = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($procedure->_real())
+            ->withRelatedTargetEntity('STATEMENT')
+            ->asMultiSelect('Color1')
+            ->create();
+
+        // Assert & Act
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('CustomField cannot be deleted: Procedure with statements');
+
+        $this->sut->deleteCustomField($customField->getId());
+    }
+
+    public function testDeleteStatementCustomFieldSucceedsWhenProcedureHasNoStatements(): void
+    {
+        // Arrange: procedure with no statements
+        $procedure = ProcedureFactory::createOne();
+
+        $customField = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($procedure->_real())
+            ->withRelatedTargetEntity('STATEMENT')
+            ->asMultiSelect('Color1')
+            ->create();
+
+        $entityId = $customField->getId();
+
+        // Act
+        $this->sut->deleteCustomField($entityId);
+
+        // Assert
+        self::assertNull(
+            $this->repository->find($entityId),
+            'CustomFieldConfiguration should be deleted when procedure has no statements'
         );
     }
 }

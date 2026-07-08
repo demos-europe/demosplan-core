@@ -1,7 +1,7 @@
 <template>
   <form
     :class="prefixClass('u-mt')"
-    :action="Routing.generate('DemosPlan_orga_edit_save', { orgaId: organisation.id })"
+    :action="Routing.generate('DemosPlan_orga_edit_save', { orgaId: localOrganisation.id })"
     method="post"
     data-dp-validate="orgadata"
   >
@@ -9,13 +9,13 @@
       data-cy="editOrga:organisationId"
       type="hidden"
       name="organisation_ident"
-      :value="organisation.id"
+      :value="localOrganisation.id"
     >
     <input
       data-cy="editOrga:addressIdent"
       type="hidden"
       name="address_ident"
-      :value="organisation.addressId"
+      :value="localOrganisation.addressId"
     >
     <input
       type="hidden"
@@ -30,10 +30,10 @@
       <!-- Name -->
       <dp-input
         id="orga_name"
-        v-model="organisation.name"
+        v-model="localOrganisation.name"
         :class="prefixClass('mb-2')"
         data-cy="organisationData:name"
-        :name="`${organisation.id}:name`"
+        :name="`${localOrganisation.id}:name`"
         :label="{
           text: Translator.trans('name.legal')
         }"
@@ -45,66 +45,71 @@
       <div :class="prefixClass('flex items-start gap-1 mb-2')">
         <dp-input
           id="orga_address_street"
-          v-model="organisation.street"
-          :class="!organisation.street.length ? prefixClass('w-4') : ''"
+          v-model="localOrganisation.street"
+          :class="prefixClass('flex-1')"
           data-cy="organisationData:address:street"
-          :name="`${organisation.id}:address_street`"
+          :name="`${localOrganisation.id}:address_street`"
           :label="{
             text: Translator.trans('street')
           }"
-          :size="!isOrgaDataEditable ? organisation.street.length : null"
+          :size="!isOrgaDataEditable ? localOrganisation.street.length : null"
           :disabled="!isOrgaDataEditable"
         />
 
-        <dp-input
+        <div
           v-if="showDetailedInfo"
-          id="orga_addressHouseNumber"
-          v-model="organisation.houseNumber"
-          data-cy="organisationData:address:houseNumber"
-          :name="`${organisation.id}:address_houseNumber`"
-          :label="{
-            text: Translator.trans('street.number.short')
-          }"
-          :size="5"
-          :disabled="!isOrgaDataEditable"
-        />
+          :class="prefixClass('shrink-0')"
+        >
+          <dp-input
+            id="orga_addressHouseNumber"
+            v-model="localOrganisation.houseNumber"
+            data-cy="organisationData:address:houseNumber"
+            :name="`${localOrganisation.id}:address_houseNumber`"
+            :label="{
+              text: Translator.trans('street.number.short')
+            }"
+            :size="5"
+            :disabled="!isOrgaDataEditable"
+          />
+        </div>
 
         <dp-input
           v-if="showDetailedInfo"
           id="orga_address_extension"
-          v-model="organisation.addressExtension"
-          :class="!organisation.addressExtension.length ? prefixClass('w-4') : ''"
+          v-model="localOrganisation.addressExtension"
           data-cy="organisationData:address:extension"
-          :name="`${organisation.id}:address_extension`"
+          :name="`${localOrganisation.id}:address_extension`"
           :label="{
             text: Translator.trans('address.extension')
           }"
-          :size="!isOrgaDataEditable ? organisation.addressExtension.length : null"
+          :size="!isOrgaDataEditable ? localOrganisation.addressExtension.length : null"
           :disabled="!isOrgaDataEditable"
         />
       </div>
 
       <!-- Postal Code and City -->
       <div :class="[prefixClass(showDetailedInfo ? 'flex-row' : 'flex-col'), prefixClass('flex items-start gap-1 mb-2')]">
-        <dp-input
-          id="orga_address_postalcode"
-          v-model="organisation.postalcode"
-          data-cy="organisationData:address:postalcode"
-          :class="prefixClass('shrink')"
-          :name="`${organisation.id}:address_postalcode`"
-          :label="{
-            text: Translator.trans('postalcode')
-          }"
-          :pattern="isOrgaDataEditable ? '^[0-9]{5}$' : ''"
-          :size="5"
-          :disabled="!isOrgaDataEditable"
-        />
+        <div :class="prefixClass('shrink-0')">
+          <dp-input
+            id="orga_address_postalcode"
+            v-model="localOrganisation.postalcode"
+            data-cy="organisationData:address:postalcode"
+            :name="`${localOrganisation.id}:address_postalcode`"
+            :label="{
+              text: Translator.trans('postalcode')
+            }"
+            :pattern="isOrgaDataEditable ? '^[0-9]{5}$' : ''"
+            :size="5"
+            :disabled="!isOrgaDataEditable"
+          />
+        </div>
 
         <dp-input
           id="orga_address_city"
-          v-model="organisation.city"
+          v-model="localOrganisation.city"
           data-cy="organisationData:address:city"
-          :name="`${organisation.id}:address_city`"
+          :class="prefixClass('flex-1')"
+          :name="`${localOrganisation.id}:address_city`"
           :label="{
             text: Translator.trans('city')
           }"
@@ -116,10 +121,10 @@
       <dp-input
         v-if="hasPermission('field_organisation_phone')"
         id="orga_address_phone"
-        v-model="organisation.phone"
+        v-model="localOrganisation.phone"
         :class="prefixClass('mb-2')"
         data-cy="organisationData:phone"
-        :name="`${organisation.id}:address_phone`"
+        :name="`${localOrganisation.id}:address_phone`"
         :label="{
           text: Translator.trans('phone')
         }"
@@ -132,7 +137,7 @@
         id="orga_type"
         :class="prefixClass('mb-2')"
         data-cy="organisationData:type"
-        :name="`${organisation.id}:type`"
+        :name="`${localOrganisation.id}:type`"
         :options="orgaTypes"
         :selected="orgaTypes[0]"
         :label="{
@@ -159,25 +164,25 @@
           </span>
           <dp-input
             id="orga_slug"
-            v-model="organisation.currentSlugName"
+            v-model="localOrganisation.currentSlugName"
             data-cy="organisationData:currentSlugName"
-            :data-organisation-id="organisation.id"
-            :name="`${organisation.id}:slug`"
+            :data-organisation-id="localOrganisation.id"
+            :name="`${localOrganisation.id}:slug`"
           />
         </div>
 
         <div>
           <label
-            :for="`${organisation.id}:urlPreview`"
+            :for="`${localOrganisation.id}:urlPreview`"
             :class="prefixClass('o-form__label')"
           >
             {{ Translator.trans('preview') }}
           </label>
           <p
-            :id="`${organisation.id}:urlPreview`"
+            :id="`${localOrganisation.id}:urlPreview`"
             :data-shorturl="proceduresDirectlinkPrefix + '/'"
           >
-            {{ proceduresDirectlinkPrefix }}/{{ organisation.currentSlugName || '' }}
+            {{ proceduresDirectlinkPrefix }}/{{ localOrganisation.currentSlugName || '' }}
           </p>
         </div>
       </div>
@@ -193,7 +198,7 @@
               {{ Translator.trans('organisation.procedurelist.slug') }}
             </dt>
             <dd :class="prefixClass('color--grey')">
-              {{ proceduresDirectlinkPrefix }}/{{ organisation.currentSlugName }}
+              {{ proceduresDirectlinkPrefix }}/{{ localOrganisation.currentSlugName }}
             </dd>
           </div>
 
@@ -224,12 +229,12 @@
       </legend>
       <input
         type="hidden"
-        :name="`${organisation.id}:current_submission_type`"
-        :value="organisation.submissionType"
+        :name="`${localOrganisation.id}:current_submission_type`"
+        :value="localOrganisation.submissionType"
       >
       <dp-radio
         id="submission_type_short"
-        :name="`${organisation.id}:submission_type`"
+        :name="`${localOrganisation.id}:submission_type`"
         :value="submissionTypeShort"
         data-cy="organisationData:submissionType:short"
         :label="{
@@ -237,11 +242,11 @@
           bold: true,
           hint: Translator.trans('explanation.statement.submit.process.short')
         }"
-        :checked="organisation.submissionType === submissionTypeShort"
+        :checked="localOrganisation.submissionType === submissionTypeShort"
       />
       <dp-radio
         id="submission_type_default"
-        :name="`${organisation.id}:submission_type`"
+        :name="`${localOrganisation.id}:submission_type`"
         :value="submissionTypeDefault"
         data-cy="organisationData:submissionType:default"
         :label="{
@@ -249,7 +254,7 @@
           bold: true,
           hint: Translator.trans('explanation.statement.submit.process.default')
         }"
-        :checked="organisation.submissionType === submissionTypeDefault"
+        :checked="localOrganisation.submissionType === submissionTypeDefault"
       />
     </fieldset>
 
@@ -413,6 +418,7 @@ export default {
       hasPaperCopyPermission: hasPermission('field_organisation_paper_copy') ||
         hasPermission('field_organisation_paper_copy_spec') ||
         hasPermission('field_organisation_competence'),
+      localOrganisation: { ...this.organisation },
     }
   },
 
@@ -429,7 +435,7 @@ export default {
   methods: {
     handleSubmit () {
       if (hasPermission('feature_change_submission_type') &&
-        this.organisation.submissionType === this.submissionTypeShort &&
+        this.localOrganisation.submissionType === this.submissionTypeShort &&
         !window.dpconfirm(Translator.trans('confirm.statement.orgaedit.change'))) {
         this.$el.reset()
 

@@ -1090,6 +1090,9 @@ class FileService implements FileServiceInterface
         return $this->fileRepository->findBy(['ident' => $fileIds]);
     }
 
+    /**
+     * @return File|null
+     */
     public function getFileById($fileId)
     {
         return $this->fileRepository->findOneBy(['ident' => $fileId]);
