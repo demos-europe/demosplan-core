@@ -394,7 +394,7 @@ const SplitStatementStore = {
       const dataToSend = JSON.parse(JSON.stringify(state.initialData))
 
       dataToSend.attributes.textualReference = state.initText
-      dataToSend.attributes.segments = state.segments
+      dataToSend.attributes.segments = structuredClone(state.segments)
 
       const payload = {
         id: state.statementId,
@@ -412,7 +412,7 @@ const SplitStatementStore = {
       }), {}, { data: payload })
         .then(() => {
           commit('setProperty', { prop: 'initialData', val: dataToSend })
-          commit('setProperty', { prop: 'initialSegments', val: structuredClone(state.segments) })
+          commit('setProperty', { prop: 'initialSegments', val: dataToSend.attributes.segments })
 
           if (triggerNotifications) {
             dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
