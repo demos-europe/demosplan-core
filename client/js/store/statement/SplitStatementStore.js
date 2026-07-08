@@ -391,7 +391,7 @@ const SplitStatementStore = {
     },
 
     saveSegmentsDrafts ({ state, commit, dispatch }, triggerNotifications = false) {
-      const dataToSend = JSON.parse(JSON.stringify(state.initialData))
+      const dataToSend = structuredClone(state.initialData)
 
       dataToSend.attributes.textualReference = state.initText
       dataToSend.attributes.segments = structuredClone(state.segments)
@@ -428,9 +428,9 @@ const SplitStatementStore = {
     },
 
     saveSegmentsFinal ({ dispatch, state, commit }) {
-      const dataToSend = JSON.parse(JSON.stringify(state.initialData))
+      const dataToSend = structuredClone(state.initialData)
 
-      dataToSend.attributes.segments = state.segments
+      dataToSend.attributes.segments = structuredClone(state.segments)
       dataToSend.attributes.statementText = state.statementText
 
       return dpApi.post(Routing.generate('dplan_drafts_list_confirm', {
@@ -458,7 +458,7 @@ const SplitStatementStore = {
         })
         .catch((err) => {
           // Reset view to last saved data - set segments from last initial data
-          commit('setProperty', { prop: 'segments', val: state.initialSegments })
+          commit('setProperty', { prop: 'segments', val: structuredClone(state.initialSegments) })
 
           return Promise.reject(err)
         })

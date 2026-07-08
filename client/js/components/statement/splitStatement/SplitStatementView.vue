@@ -200,37 +200,6 @@ import SegmentationEditor from './SegmentationEditor'
 import SideBar from './SideBar'
 import StatementMeta from '@DpJs/components/procedure/StatementSegmentsList/StatementMeta/StatementMeta'
 import StatementMetaTooltip from '../StatementMetaTooltip'
-/**
- * Merges ProseMirror segmentMark data with segment metadata from the store.
- *
- * SegmentMarks are ProseMirror marks that track segment positions in the editor.
- * This function synchronizes segment metadata (tags, place, assignee, status) from the Vuex store
- * with the ProseMirror marks.
- *
- * @param {Array} segmentMarks - Array of segmentMark objects from ProseMirror with {segmentId, isConfirmed}
- * @param {Array} segments - Array of segment metadata objects from Vuex store
- * @return {Array} Array of merged segment objects preserving store status
- */
-const mergeSegmentMarksAndSegments = (segmentMarks, segments) => {
-  const mergedSegments = []
-
-  segmentMarks.forEach(mark => {
-    const segment = segments.find(seg => seg.id === mark.segmentId)
-
-    if (!segment) {
-      console.warn('A segment was updated in Prosemirror but no corresponding segment found in store.')
-
-      return
-    }
-
-    const mergedSegment = { ...segment }
-
-    mergedSegment.status = mark.isConfirmed ? 'confirmed' : false
-    mergedSegments.push(mergedSegment)
-  })
-
-  return mergedSegments
-}
 
 export default {
   name: 'SplitStatementView',
@@ -723,7 +692,7 @@ export default {
       }
 
       if (updatedRanges.length) {
-        this.updateSegments(updatedRanges)
+        this.locallyUpdateSegments(updatedRanges)
       }
 
       if (deletedRanges.length) {
@@ -986,12 +955,6 @@ export default {
         prop: 'initText',
         val: textualReference,
       })
-    },
-
-    updateSegments (updatedSegments) {
-      const newSegments = mergeSegmentMarksAndSegments(updatedSegments, this.segments)
-
-      this.locallyUpdateSegments(newSegments)
     },
   },
 
