@@ -261,6 +261,7 @@ class SegmentsExportController extends BaseController
         $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
         $censorCitizenData = $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER);
         $obscureParameter = $this->getBooleanQueryParameter(self::OBSCURE_PARAMETER);
+        $customHeaderText = $this->requestStack->getCurrentRequest()->query->get(self::CUSTOM_HEADER_TEXT_PARAMETER) ?? '';
 
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         // This method applies mostly the same restrictions as the generic API access to retrieve statements.
@@ -297,7 +298,8 @@ class SegmentsExportController extends BaseController
                 $tableHeaders,
                 $censorCitizenData,
                 $censorInstitutionData,
-                $obscureParameter
+                $obscureParameter,
+                $customHeaderText,
             ): void {
                 array_map(
                     function (Statement $statement, string $filePathInZip) use (
@@ -308,7 +310,8 @@ class SegmentsExportController extends BaseController
                         $tableHeaders,
                         $censorCitizenData,
                         $censorInstitutionData,
-                        $obscureParameter
+                        $obscureParameter,
+                        $customHeaderText,
                     ): void {
                         $docx = $exporter->exportStatementSegmentsInSeparateDocx(
                             $statement,
@@ -316,7 +319,8 @@ class SegmentsExportController extends BaseController
                             $tableHeaders,
                             $censorCitizenData,
                             $censorInstitutionData,
-                            $obscureParameter
+                            $obscureParameter,
+                            $customHeaderText,
                         );
                         $writer = IOFactory::createWriter($docx);
                         $zipExportService->addWriterToZipStream(
