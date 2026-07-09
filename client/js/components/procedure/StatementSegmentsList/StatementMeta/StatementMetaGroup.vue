@@ -105,8 +105,6 @@ async function fetchGroup () {
   try {
     const response = await dpApi.get(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${props.statement.id}?include=statements`)
 
-    console.log('StatementGroup response', response.data)
-
     groupName.value = response.data.data.attributes.groupName
     initialGroupName.value = response.data.data.attributes.groupName
 
