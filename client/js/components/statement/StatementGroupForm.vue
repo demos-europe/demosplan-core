@@ -267,10 +267,6 @@ const handleApply = async () => {
 
 const fetchGroups = async () => {
   try {
-    /*
-     * TODO(DPLAN-17748): backend GetCollection not built yet — StatementGroupResource exposes only Get(/{id}) + Post,
-     * and the provider has no collection logic. The group list stays empty until the backend adds it.
-     */
     const response = await dpApi.get(`${Routing.getBaseUrl()}/api/3.0/StatementGroup`)
 
     groups.value = response.data.data
