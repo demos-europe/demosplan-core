@@ -31,10 +31,10 @@ class CustomFieldStatementCounter
      *
      * @param array<string, string[]> $otherCfFilters fieldId => selectedOptionIds[]
      * @param string[]|null           $esFilteredIds  Statement IDs that matched the active regular ES
-     *                                                 filters. `null` means "don't scope" (count across
-     *                                                 all statements); an empty array means the active
-     *                                                 regular filters matched nothing, so every option
-     *                                                 count must be 0.
+     *                                                filters. `null` means "don't scope" (count across
+     *                                                all statements); an empty array means the active
+     *                                                regular filters matched nothing, so every option
+     *                                                count must be 0.
      *
      * @return array<string, int> optionId => count
      */
