@@ -127,17 +127,17 @@ class StatementViaTemplateExporter
     private function fillSimplePlaceholders(TemplateProcessor $templateProcessor, StatementTemplateData $data): void
     {
         $values = [
-            StatementTemplateValidator::PLACEHOLDER_NAME                 => $data->getSubmitterName(),
-            StatementTemplateValidator::PLACEHOLDER_INSTITUTION          => $data->getSubmitterOrgaName(),
-            StatementTemplateValidator::PLACEHOLDER_STREET               => $data->getSubmitterStreet(),
-            StatementTemplateValidator::PLACEHOLDER_HOUSE_NUMBER         => $data->getSubmitterHouseNumber(),
-            StatementTemplateValidator::PLACEHOLDER_POSTAL_CODE          => $data->getSubmitterPostalCode(),
-            StatementTemplateValidator::PLACEHOLDER_CITY                 => $data->getSubmitterCity(),
-            StatementTemplateValidator::PLACEHOLDER_STATEMENT_EXTERN_ID  => $data->getStatementExternId(),
-            StatementTemplateValidator::PLACEHOLDER_STATEMENT_INTERN_ID  => $data->getStatementInternId(),
+            StatementTemplateValidator::PLACEHOLDER_NAME                  => $data->getSubmitterName(),
+            StatementTemplateValidator::PLACEHOLDER_INSTITUTION           => $data->getSubmitterOrgaName(),
+            StatementTemplateValidator::PLACEHOLDER_STREET                => $data->getSubmitterStreet(),
+            StatementTemplateValidator::PLACEHOLDER_HOUSE_NUMBER          => $data->getSubmitterHouseNumber(),
+            StatementTemplateValidator::PLACEHOLDER_POSTAL_CODE           => $data->getSubmitterPostalCode(),
+            StatementTemplateValidator::PLACEHOLDER_CITY                  => $data->getSubmitterCity(),
+            StatementTemplateValidator::PLACEHOLDER_STATEMENT_EXTERN_ID   => $data->getStatementExternId(),
+            StatementTemplateValidator::PLACEHOLDER_STATEMENT_INTERN_ID   => $data->getStatementInternId(),
             StatementTemplateValidator::PLACEHOLDER_STATEMENT_SUBMIT_DATE => $data->getStatementSubmitDate(),
-            StatementTemplateValidator::PLACEHOLDER_PROCEDURE_NAME       => $data->getProcedureName(),
-            StatementTemplateValidator::PLACEHOLDER_TODAY_DATE           => $data->getTodayDate(),
+            StatementTemplateValidator::PLACEHOLDER_PROCEDURE_NAME        => $data->getProcedureName(),
+            StatementTemplateValidator::PLACEHOLDER_TODAY_DATE            => $data->getTodayDate(),
         ];
         foreach ($values as $placeholder => $value) {
             $templateProcessor->setValue($placeholder, $value ?? '');
@@ -217,7 +217,7 @@ class StatementViaTemplateExporter
             function (array $matches) use (&$imageInfoList): string {
                 $imageInfo = $this->resolveImageInfo($matches[0]);
                 if (null === $imageInfo) {
-                    return '<br>' . $this->translator->trans('export.image.load.error') . '<br>';
+                    return '<br>'.$this->translator->trans('export.image.load.error').'<br>';
                 }
                 $imageInfoList[] = $imageInfo;
 
@@ -268,9 +268,9 @@ class StatementViaTemplateExporter
 
         return [
             'imageData' => $rawImage['imageData'],
-            'mimeType' => $rawImage['mimeType'],
-            'widthPt' => $widthPt,
-            'heightPt' => $heightPt
+            'mimeType'  => $rawImage['mimeType'],
+            'widthPt'   => $widthPt,
+            'heightPt'  => $heightPt,
         ];
     }
 
@@ -369,31 +369,31 @@ class StatementViaTemplateExporter
      * @return array{0: string, 1: string} width and height as CSS pt strings (e.g. "300pt")
      */
     private function computeDocumentDimensions(
-        array|null $imageInfo,
+        ?array $imageInfo,
         float $imageMaxWidthCm,
         float $imageMaxHeightCm,
     ): array {
-        $maxWidthPt  = $imageMaxWidthCm * 72 / 2.54;
+        $maxWidthPt = $imageMaxWidthCm * 72 / 2.54;
         $maxHeightPt = $imageMaxHeightCm * 72 / 2.54;
 
         if (null === $imageInfo || $imageInfo[0] <= 0 || $imageInfo[1] <= 0) {
-            return [(int) round($maxWidthPt) . 'pt', (int) round($maxWidthPt / 2) . 'pt'];
+            return [(int) round($maxWidthPt).'pt', (int) round($maxWidthPt / 2).'pt'];
         }
 
-        $widthPt  = (int) round((int) $imageInfo[0] * 72 / 96);
+        $widthPt = (int) round((int) $imageInfo[0] * 72 / 96);
         $heightPt = (int) round((int) $imageInfo[1] * 72 / 96);
 
         if ($widthPt > $maxWidthPt) {
             $heightPt = (int) round($heightPt * $maxWidthPt / $widthPt);
-            $widthPt  = (int) round($maxWidthPt);
+            $widthPt = (int) round($maxWidthPt);
         }
 
         if ($heightPt > $maxHeightPt) {
-            $widthPt  = (int) round($widthPt * $maxHeightPt / $heightPt);
+            $widthPt = (int) round($widthPt * $maxHeightPt / $heightPt);
             $heightPt = (int) round($maxHeightPt);
         }
 
-        return [$widthPt . 'pt', $heightPt . 'pt'];
+        return [$widthPt.'pt', $heightPt.'pt'];
     }
 
     /**

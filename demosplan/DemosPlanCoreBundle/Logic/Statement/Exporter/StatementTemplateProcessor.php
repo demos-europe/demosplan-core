@@ -76,12 +76,12 @@ class StatementTemplateProcessor extends TemplateProcessor
         // and returns the next free integer, ensuring no collision with pre-existing entries.
         $mainPartName = $this->getMainPartName();
         $rId = $this->getNextRelationsIndex($mainPartName);
-        $imgFilename = 'image' . $rId . '.' . $extension;
+        $imgFilename = 'image'.$rId.'.'.$extension;
 
         // 1. Write the raw image bytes into the ZIP archive at word/media/{filename}.
         //    TemplateProcessor keeps the DOCX open as a ZipArchive until saveAs() is called,
         //    so addFromString() writes into the in-memory ZIP without touching the disk yet.
-        $this->zipClass->addFromString('word/media/' . $imgFilename, $imageData);
+        $this->zipClass->addFromString('word/media/'.$imgFilename, $imageData);
 
         // 2. Register a content-type override in [Content_Types].xml so that Word knows
         //    which MIME type to associate with this media file. Without this entry the file
@@ -93,11 +93,11 @@ class StatementTemplateProcessor extends TemplateProcessor
         //        <Override PartName="/word/document.xml" ContentType="…"/>
         //        …
         //      </Types>
-        $contentTypeEntry = '<Override PartName="/word/media/' . $imgFilename
-            . '" ContentType="' . $mimeType . '"/>';
+        $contentTypeEntry = '<Override PartName="/word/media/'.$imgFilename
+            .'" ContentType="'.$mimeType.'"/>';
         $this->tempDocumentContentTypes = str_replace(
             '</Types>',
-            $contentTypeEntry . '</Types>',
+            $contentTypeEntry.'</Types>',
             $this->tempDocumentContentTypes,
         );
 
@@ -111,12 +111,12 @@ class StatementTemplateProcessor extends TemplateProcessor
         //        <Relationship Id="rId2" Type="…/styles"         Target="styles.xml"/>
         //        …
         //      </Relationships>
-        $relationEntry = '<Relationship Id="rId' . $rId
-            . '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"'
-            . ' Target="media/' . $imgFilename . '"/>';
+        $relationEntry = '<Relationship Id="rId'.$rId
+            .'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image"'
+            .' Target="media/'.$imgFilename.'"/>';
         $this->tempDocumentRelations[$mainPartName] = str_replace(
             '</Relationships>',
-            $relationEntry . '</Relationships>',
+            $relationEntry.'</Relationships>',
             $this->tempDocumentRelations[$mainPartName],
         );
 
@@ -128,19 +128,19 @@ class StatementTemplateProcessor extends TemplateProcessor
         //    The style attribute carries the display dimensions in points; r:id points to the
         //    relationship registered above so the renderer knows which file to load.
         $vmlRunXml = '<w:r>'
-            . '<w:pict>'
-            . '<v:shape'
-            . ' xmlns:v="urn:schemas-microsoft-com:vml"'
-            . ' xmlns:o="urn:schemas-microsoft-com:office:office"'
-            . ' type="#_x0000_t75"'
-            . ' style="width:' . $widthPt . ';height:' . $heightPt . '">'
-            . '<v:imagedata'
-            . ' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"'
-            . ' r:id="rId' . $rId . '"'
-            . ' o:title=""/>'
-            . '</v:shape>'
-            . '</w:pict>'
-            . '</w:r>';
+            .'<w:pict>'
+            .'<v:shape'
+            .' xmlns:v="urn:schemas-microsoft-com:vml"'
+            .' xmlns:o="urn:schemas-microsoft-com:office:office"'
+            .' type="#_x0000_t75"'
+            .' style="width:'.$widthPt.';height:'.$heightPt.'">'
+            .'<v:imagedata'
+            .' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"'
+            .' r:id="rId'.$rId.'"'
+            .' o:title=""/>'
+            .'</v:shape>'
+            .'</w:pict>'
+            .'</w:r>';
 
         // 5. Locate the sentinel left by buildRichTextAndImageRuns() and replace it with
         //    the VML run. The limit of 1 replacement ensures images are consumed in the
@@ -199,7 +199,7 @@ class StatementTemplateProcessor extends TemplateProcessor
         //
         //   <\/w:t>\s*<\/w:r>
         //     Closing tags with optional whitespace between them.
-        $pattern = '/<w:r(?P<runAttributes>[^>]*)>\s*(?P<runProperties><w:rPr(?:[^>]*\/>|[^>]*>.*?<\/w:rPr>))?\s*<w:t(?P<textAttributes>[^>]*)>(?P<textBefore>[^<]*)' . $sentinel . '(?P<textAfter>[^<]*)<\/w:t>\s*<\/w:r>/s';
+        $pattern = '/<w:r(?P<runAttributes>[^>]*)>\s*(?P<runProperties><w:rPr(?:[^>]*\/>|[^>]*>.*?<\/w:rPr>))?\s*<w:t(?P<textAttributes>[^>]*)>(?P<textBefore>[^<]*)'.$sentinel.'(?P<textAfter>[^<]*)<\/w:t>\s*<\/w:r>/s';
 
         $this->tempDocumentMainPart = preg_replace_callback(
             $pattern,
@@ -208,8 +208,8 @@ class StatementTemplateProcessor extends TemplateProcessor
                 // <w:r> with the same properties — otherwise it would be lost.
                 $result = '';
                 if ('' !== $match['textBefore']) {
-                    $result .= '<w:r' . $match['runAttributes'] . '>' . $match['runProperties']
-                        . '<w:t' . $match['textAttributes'] . '>' . $match['textBefore'] . '</w:t></w:r>';
+                    $result .= '<w:r'.$match['runAttributes'].'>'.$match['runProperties']
+                        .'<w:t'.$match['textAttributes'].'>'.$match['textBefore'].'</w:t></w:r>';
                 }
 
                 // The image run replaces exactly the sentinel position.
@@ -219,8 +219,8 @@ class StatementTemplateProcessor extends TemplateProcessor
                 // xml:space="preserve" is added unconditionally here because trailing spaces
                 // (e.g. after the sentinel in a mixed run) would otherwise be collapsed by XML parsers.
                 if ('' !== $match['textAfter']) {
-                    $result .= '<w:r' . $match['runAttributes'] . '>' . $match['runProperties']
-                        . '<w:t xml:space="preserve">' . $match['textAfter'] . '</w:t></w:r>';
+                    $result .= '<w:r'.$match['runAttributes'].'>'.$match['runProperties']
+                        .'<w:t xml:space="preserve">'.$match['textAfter'].'</w:t></w:r>';
                 }
 
                 return $result;
