@@ -1443,6 +1443,48 @@ class ElasticsearchResultCreator
     }
 
     /**
+     * Returns every statement ID matching the currently active *regular* (non custom-field) ES
+     * filters for a procedure — the complete match set, not one page of it — using only the `id`
+     * source field. Unlike getElasticsearchResult(), this never goes through
+     * StatementService::getStatementsByProcedureId(), so it does not hydrate full statement
+     * documents, run fragment/adjustment post-processing, or log statement views.
+     *
+     * customField_* filter keys are deliberately excluded: custom-field facet counting happens via
+     * Doctrine in CustomFieldStatementCounter, which already re-applies "other active CF filters"
+     * itself when computing option counts.
+     *
+     * @param array<string, mixed> $userFilters
+     *
+     * @return string[]
+     */
+    public function getMatchingStatementIds(string $procedureId, array $userFilters): array
+    {
+        $regularFilters = array_filter(
+            $userFilters,
+            static fn (string $key): bool => !str_starts_with($key, 'customField_'),
+            ARRAY_FILTER_USE_KEY
+        );
+
+        [$boolMustFilter, $boolMustNotFilter] = $this->getBasicFilters($procedureId, $regularFilters);
+
+        $boolQuery = new BoolQuery();
+        array_map($boolQuery->addMust(...), $boolMustFilter);
+        array_map($boolQuery->addMustNot(...), $boolMustNotFilter);
+
+        $query = new Query();
+        $query->setQuery($boolQuery);
+        $query->setSource(['id']);
+
+        $batch = $this->elasticSearchService->fetchAllHitsViaSearchAfter(
+            $this->statementService->getEsStatementType(),
+            $query,
+            $this->searchAfterBatchSize
+        );
+
+        return array_column(array_column($batch['result']['hits']['hits'], '_source'), 'id');
+    }
+
+    /**
      * Mapping from filter names frontend / ES.
      */
     private function getRenamedUserFilters(array $userFilters): array

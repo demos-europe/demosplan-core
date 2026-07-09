@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\CustomField;
 
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticsearchResultCreator;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\AssessmentTableFilter;
@@ -22,6 +23,7 @@ class CustomFieldFilterResponseBuilder
     public function __construct(
         private readonly CustomFieldConfigurationRepository $cfConfigRepository,
         private readonly CustomFieldStatementCounter $customFieldStatementCounter,
+        private readonly ElasticsearchResultCreator $elasticsearchResultCreator,
     ) {
     }
 
@@ -34,17 +36,16 @@ class CustomFieldFilterResponseBuilder
      *
      * @return AssessmentTableFilter[]
      */
-    /**
-     * @param string[] $esFilteredIds Statement IDs that matched the active regular ES filters.
-     *                                When provided, CF option counts are scoped to this set.
-     */
     public function buildFilterItems(
         string $procedureId,
         bool $isOriginalStatementView,
         array $userFilters,
-        array $esFilteredIds = [],
     ): array {
         $activeCfFilters = $this->extractActiveCfFilters($userFilters);
+
+        if ([] === $activeCfFilters) {
+            return [];
+        }
 
         $cfConfigs = $this->cfConfigRepository->findCustomFieldConfigurationByCriteria(
             CustomFieldSupportedEntity::procedure->value,
@@ -52,9 +53,7 @@ class CustomFieldFilterResponseBuilder
             CustomFieldSupportedEntity::statement->value,
         );
 
-        if ([] === $activeCfFilters) {
-            return [];
-        }
+        $esFilteredIds = $this->elasticsearchResultCreator->getMatchingStatementIds($procedureId, $userFilters);
 
         $filterItems = [];
 

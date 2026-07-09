@@ -334,12 +334,10 @@ class DemosPlanProcedureAPIController extends APIController
         $res = $assessmentTableServiceOutput->getStatementListHandler(
             $procedureId,
             $rParams,
-            false,
+            true,
             0,
             false
         );
-
-        $esFilteredIds = array_column((array) $res->getStatements(), 'id');
 
         $responseData = [];
         $esFilters = $res->getFilterSet()['filters'];
@@ -396,7 +394,6 @@ class DemosPlanProcedureAPIController extends APIController
                 $procedureId,
                 $original,
                 $rParams['filters'],
-                $esFilteredIds
             );
             array_push($responseData, ...$cfFilterItems);
         }
