@@ -44,8 +44,14 @@ class OdtBorderedWriter implements WriterInterface
     public function save(string $filename): void
     {
         $targetIsOutputStream = 'php://output' === $filename || 'php://stdout' === $filename;
-        $workFile = $targetIsOutputStream ? DemosPlanPath::getTemporaryPath('odtb_') : $filename;
 
+        try {
+            $tempDir = DemosPlanPath::getTemporaryPath();
+        } catch (\Throwable) {
+            throw OdtProcessingException::processingFailed('Could not allocate temp file for ODT writer.');
+        }
+
+        $workFile = $targetIsOutputStream ? \tempnam($tempDir, 'odtb_') : $filename;
         if (false === $workFile) {
             throw OdtProcessingException::processingFailed('Could not allocate temp file for ODT writer.');
         }
