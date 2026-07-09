@@ -143,9 +143,9 @@ class ElasticsearchResultCreator
      * @param bool                    $addAllAggregations
      * @param list<GlobalAggregation> $customAggregations
      * @param bool                    $idsOnly                      When true, restricts the ES response to the
-     *                                                               `id` source field and fetches the complete
-     *                                                               match set (bypassing pagination) instead of
-     *                                                               a single page. Used by getMatchingStatementIds().
+     *                                                              `id` source field and fetches the complete
+     *                                                              match set (bypassing pagination) instead of
+     *                                                              a single page. Used by getMatchingStatementIds().
      */
     public function getElasticsearchResult(
         $userFilters,
