@@ -436,7 +436,7 @@ class StatementViaTemplateExporter
 
         // Tables: cell boundaries become spaces, row boundaries become line breaks, wrapper tags stripped.
         $html = preg_replace('#</t[dh]>#i', ' ', $html) ?? $html;
-        $html = preg_replace('#</tr>#i', '<br/>', $html) ?? $html;
+        $html = str_ireplace('</tr>', '<br/>', $html);
         $html = preg_replace('#</?t(?:able|head|body|foot|r|[dh])[^>]*>#i', '', $html) ?? $html;
 
         // Headings: closing tag becomes a line break to separate content; opening tag is stripped.
