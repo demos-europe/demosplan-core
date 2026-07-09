@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Export\Odt;
 
 use demosplan\DemosPlanCoreBundle\Exception\OdtProcessingException;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Writer\ODText;
 use PhpOffice\PhpWord\Writer\WriterInterface;
@@ -43,7 +44,7 @@ class OdtBorderedWriter implements WriterInterface
     public function save(string $filename): void
     {
         $targetIsOutputStream = 'php://output' === $filename || 'php://stdout' === $filename;
-        $workFile = $targetIsOutputStream ? \tempnam(\sys_get_temp_dir(), 'odtb_') : $filename;
+        $workFile = $targetIsOutputStream ? DemosPlanPath::getTemporaryPath('odtb_') : $filename;
 
         if (false === $workFile) {
             throw OdtProcessingException::processingFailed('Could not allocate temp file for ODT writer.');
