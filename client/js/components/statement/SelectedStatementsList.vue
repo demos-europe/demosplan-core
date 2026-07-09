@@ -33,17 +33,15 @@ All rights reserved
               size="small"
             />
           </a>
-          <button
+          <dp-button
             :data-cy="`statementGroupForm:removeStatement:${stmt.id}`"
-            class="btn--blank o-link--default"
-            type="button"
+            :text="Translator.trans('remove')"
+            icon="close"
+            icon-size="small"
+            variant="subtle"
+            hide-text
             @click="$emit('remove', stmt.id)"
-          >
-            <dp-icon
-              icon="close"
-              size="small"
-            />
-          </button>
+          />
         </div>
       </div>
     </li>
@@ -51,7 +49,7 @@ All rights reserved
 </template>
 
 <script setup>
-import { DpIcon } from '@demos-europe/demosplan-ui'
+import { DpButton, DpIcon } from '@demos-europe/demosplan-ui'
 
 defineProps({
   procedureId: {
