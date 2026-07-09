@@ -14,7 +14,7 @@
   >
     <card-pane-card
       v-for="segment in segments"
-      :key="'card' + segment.id + Math.random()"
+      :key="'card' + segment.id"
       ref="card"
       :segment="segment"
       :data-segment-id="segment.id"
