@@ -15,6 +15,7 @@ namespace Tests\Core\Statement\Export;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use DemosEurope\DemosplanAddon\Contracts\FileServiceInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementTemplateDataBuilder;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementTemplateValidator;
@@ -52,12 +53,12 @@ class StatementViaTemplateExporterIntegrationTest extends AbstractStatementViaTe
         $translator->method('trans')
             ->willReturnCallback(static fn (?string $id, array $parameters = []): string => (string) $id);
 
-        $validator = new StatementTemplateValidator($translator);
+        $validator = new StatementTemplateValidator();
         $htmlHelper = $this->getContainer()->get(HtmlHelper::class);
 
         $this->dataBuilder = $this->createMock(StatementTemplateDataBuilder::class);
 
-        $this->sut = new StatementViaTemplateExporter($validator, $this->dataBuilder, $htmlHelper, $this->createMock(LoggerInterface::class));
+        $this->sut = new StatementViaTemplateExporter($validator, $this->dataBuilder, $htmlHelper, $this->createMock(LoggerInterface::class), $translator, $this->createMock(FileServiceInterface::class));
     }
 
     protected function tempFilePrefix(): string

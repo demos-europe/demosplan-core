@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidStatementTemplateException;
+use DemosEurope\DemosplanAddon\Contracts\FileServiceInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementTemplateDataBuilder;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementTemplateValidator;
@@ -25,6 +26,7 @@ use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class StatementViaTemplateExporterTest extends AbstractStatementViaTemplateExporterTestCase
 {
@@ -50,7 +52,9 @@ class StatementViaTemplateExporterTest extends AbstractStatementViaTemplateExpor
             $this->validator,
             $this->dataBuilder,
             $htmlHelper,
-            $this->createMock(LoggerInterface::class)
+            $this->createMock(LoggerInterface::class),
+            $this->createMock(TranslatorInterface::class),
+            $this->createMock(FileServiceInterface::class),
         );
     }
 
