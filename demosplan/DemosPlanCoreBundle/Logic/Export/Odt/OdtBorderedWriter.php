@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Writer\ODText;
 use PhpOffice\PhpWord\Writer\WriterInterface;
+use Throwable;
 use ZipArchive;
 
 /**
@@ -47,7 +48,7 @@ class OdtBorderedWriter implements WriterInterface
 
         try {
             $tempDir = DemosPlanPath::getTemporaryPath();
-        } catch (\Throwable) {
+        } catch (Throwable) {
             throw OdtProcessingException::processingFailed('Could not allocate temp file for ODT writer.');
         }
 
