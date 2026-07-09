@@ -225,20 +225,20 @@ const handleApply = async () => {
       },
     }
 
-  isBusy.value = true
+    isBusy.value = true
 
-  try {
-    await dpApi.post(`${Routing.getBaseUrl()}/api/3.0/StatementGroup`, {}, { data: payload })
-    success.value = true
-  } catch (error) {
-    console.error('StatementGroup POST failed:', error)
-    success.value = false
-  } finally {
+    try {
+      await dpApi.post(`${Routing.getBaseUrl()}/api/3.0/StatementGroup`, {}, { data: payload })
+      success.value = true
+    } catch (error) {
+      console.error('StatementGroup POST failed:', error)
+      success.value = false
+    } finally {
     /*
- * Grouping shrinks the statement list, so a persisted page may no longer exist.
- * Tell the list to reopen on page 1 and skip an out-of-range fetch.
- */
-    lscache.set(`${props.procedureId}:statementListResetPage`, true)
+     * Grouping shrinks the statement list, so a persisted page may no longer exist.
+     * Tell the list to reopen on page 1 and skip an out-of-range fetch.
+     */
+      lscache.set(`${props.procedureId}:statementListResetPage`, true)
       isBusy.value = false
       step.value = 3
     }

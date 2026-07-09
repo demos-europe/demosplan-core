@@ -99,7 +99,6 @@ const groupStatements = ref([])
 const paginatedStatements = computed(
   () => groupStatements.value.slice((currentPage.value - 1) * PAGE_SIZE, currentPage.value * PAGE_SIZE),
 )
-const statementsCount = ref(0)
 const totalPages = computed(() => Math.ceil(groupStatements.value.length / PAGE_SIZE))
 
 async function fetchGroup () {
