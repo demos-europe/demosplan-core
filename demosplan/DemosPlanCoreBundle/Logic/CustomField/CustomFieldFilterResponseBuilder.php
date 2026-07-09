@@ -40,6 +40,7 @@ class CustomFieldFilterResponseBuilder
         string $procedureId,
         bool $isOriginalStatementView,
         array $userFilters,
+        ?string $search = null,
     ): array {
         $activeCfFilters = $this->extractActiveCfFilters($userFilters);
 
@@ -53,7 +54,7 @@ class CustomFieldFilterResponseBuilder
             CustomFieldSupportedEntity::statement->value,
         );
 
-        $esFilteredIds = $this->elasticsearchResultCreator->getMatchingStatementIds($procedureId, $userFilters);
+        $esFilteredIds = $this->elasticsearchResultCreator->getMatchingStatementIds($procedureId, $userFilters, $search);
 
         $filterItems = [];
 
@@ -140,10 +141,6 @@ class CustomFieldFilterResponseBuilder
         );
 
         $options = $this->buildOptions($fieldOptions, $counts);
-
-        if ([] === $options) {
-            return null;
-        }
 
         $selectedOptionIds = $activeCfFilters[$fieldId] ?? [];
         $selected = array_values(

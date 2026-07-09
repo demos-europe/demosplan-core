@@ -1476,7 +1476,7 @@ class ElasticsearchResultCreator
      *
      * @return string[]
      */
-    public function getMatchingStatementIds(string $procedureId, array $userFilters): array
+    public function getMatchingStatementIds(string $procedureId, array $userFilters, ?string $search = null): array
     {
         $regularFilters = array_filter(
             $userFilters,
@@ -1487,7 +1487,7 @@ class ElasticsearchResultCreator
         $result = $this->getElasticsearchResult(
             $regularFilters,
             $procedureId,
-            null,
+            $search,
             null,
             0,
             1,

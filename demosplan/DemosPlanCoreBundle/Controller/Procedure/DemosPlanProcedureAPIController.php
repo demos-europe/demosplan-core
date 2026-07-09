@@ -394,6 +394,7 @@ class DemosPlanProcedureAPIController extends APIController
                 $procedureId,
                 $original,
                 $rParams['filters'],
+                $rParams['search'] ?? null,
             );
             array_push($responseData, ...$cfFilterItems);
         }
