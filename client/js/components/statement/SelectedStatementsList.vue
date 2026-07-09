@@ -22,17 +22,15 @@ All rights reserved
         <span v-if="stmt.attributes.isSubmittedByCitizen">{{ stmt.attributes.authorName }}</span>
         <span v-else>{{ stmt.attributes.initialOrganisationName }}</span>
         <div class="ml-auto flex items-center gap-2">
-          <a
+          <dp-button
             v-if="showDetailLink"
             :href="Routing.generate('dplan_statement_segments_list', { procedureId, statementId: stmt.id })"
-            :title="Translator.trans('details.show')"
-            class="o-link--default"
-          >
-            <dp-icon
-              icon="arrow-square-out"
-              size="small"
-            />
-          </a>
+            :text="Translator.trans('details.show')"
+            icon="arrow-square-out"
+            icon-size="small"
+            variant="subtle"
+            hide-text
+          />
           <dp-button
             :data-cy="`statementGroupForm:removeStatement:${stmt.id}`"
             :text="Translator.trans('remove')"
@@ -49,7 +47,7 @@ All rights reserved
 </template>
 
 <script setup>
-import { DpButton, DpIcon } from '@demos-europe/demosplan-ui'
+import { DpButton } from '@demos-europe/demosplan-ui'
 
 defineProps({
   procedureId: {
