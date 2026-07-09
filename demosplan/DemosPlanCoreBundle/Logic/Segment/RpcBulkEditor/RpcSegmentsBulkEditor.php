@@ -300,8 +300,19 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
             return null;
         }
         $deadline = trim($deadline);
+        if ('' === $deadline) {
+            return null;
+        }
+        // validate the format so a invalid value surfaces as an invalidParams error instead of an uncaught exception from the DateTime constructor.
+        $date = DateTime::createFromFormat('!Y-m-d', $deadline);
+        $errors = DateTime::getLastErrors();
+        if (!$date instanceof DateTime
+            || (is_array($errors) && ($errors['warning_count'] > 0 || $errors['error_count'] > 0))
+        ) {
+            throw new InvalidArgumentException('Invalid deadline provided; expected format YYYY-MM-DD.');
+        }
 
-        return '' !== $deadline ? new DateTime($deadline) : null;
+        return $date;
     }
 
     /**

@@ -35,6 +35,7 @@ use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathException;
 use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
 use Elastica\Index;
+use InvalidArgumentException;
 
 /**
  * @template-implements ReadableEsResourceTypeInterface<SegmentInterface>
@@ -243,7 +244,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
             $properties[] = $this->createAttribute($this->deadline)
                 ->readable(true, static fn (Segment $segment): ?string => $segment->getDeadline()?->format('Y-m-d'))
                 ->updatable([], static function (Segment $segment, ?string $value): array {
-                    $segment->setDeadline(('' === ($value ?? '')) ? null : new DateTime($value));
+                    $segment->setDeadline(self::parseDeadline($value));
 
                     return [];
                 });
@@ -266,5 +267,31 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
     public function getUpdateValidationGroups(): array
     {
         return [ResourceTypeService::VALIDATION_GROUP_DEFAULT, SegmentInterface::VALIDATION_GROUP_SEGMENT_MANDATORY];
+    }
+
+    /**
+     * Parses an incoming deadline value (ISO date "Y-m-d") into a DateTime, or null when empty.
+     *
+     * Strictly validates the format so a malformed value surfaces as a client error
+     * (400) instead of an uncaught exception (500) from the DateTime constructor.
+     *
+     * @throws InvalidArgumentException on a non-empty value that is not a valid "Y-m-d" date
+     */
+    private static function parseDeadline(?string $value): ?DateTime
+    {
+        $value = trim($value ?? '');
+        if ('' === $value) {
+            return null;
+        }
+
+        $date = DateTime::createFromFormat('!Y-m-d', $value);
+        $errors = DateTime::getLastErrors();
+        if (!$date instanceof DateTime
+            || (is_array($errors) && ($errors['warning_count'] > 0 || $errors['error_count'] > 0))
+        ) {
+            throw new InvalidArgumentException('Invalid deadline provided; expected format YYYY-MM-DD.');
+        }
+
+        return $date;
     }
 }
