@@ -659,7 +659,7 @@ export default {
        * are present in statementsObject, so items selected on other pages (or via "select all") are
        * validated server-side on the group-creation page (handleConfirmStep1).
        */
-      if (!this.allSelectedVisually) {
+      if (hasPermission('feature_statement_assignment') && !this.allSelectedVisually) {
         const allAssigned = this.toggledItems.every(item => {
           const statement = this.statementsObject[item.id]
 
