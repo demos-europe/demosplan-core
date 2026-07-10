@@ -96,11 +96,13 @@ RUN mkdir -p /srv/www/public/js && \
     mkdir -p /srv/www/var/cache && \
     mkdir -p /srv/www/var/log && \
     mkdir -p /srv/www/var/certs && \
+    mkdir -p /srv/www/var/tmp && \
     mkdir -p /srv/www/client/css/generated && \
     chown -R www-data /srv/www/public && \
     chown -R www-data /srv/www/var/cache && \
     chown -R www-data /srv/www/var/log && \
     chown -R www-data /srv/www/var/certs && \
+    chown -R www-data /srv/www/var/tmp && \
     chown -R www-data /srv/www/client/css/generated && \
 # define doctrine in memory database for the asset build \
     mv /srv/www/config/packages/doctrine.yaml /tmp/doctrine.yaml
@@ -202,6 +204,8 @@ RUN rm -rf /srv/www/var/cache/* && \
     # ensure tmp directory exists and is writable for Symfony XML schema validation \
     mkdir -p /srv/www/tmp && \
     chown -R www-data:www-data /srv/www/tmp && \
+    # sys_get_temp_dir() points here (see sys_temp_dir in zzz-dplan.ini) \
+    mkdir -p /srv/www/var/tmp && \
     chown -R www-data:www-data /srv/www/var && \
     # link the custom squid root ca to the system that is mounted as a secret \
     # use a dummy file during link creation to prevent the error if the secret is not mounted \
