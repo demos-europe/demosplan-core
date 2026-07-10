@@ -21,12 +21,12 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssignService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\ResourceAccess\StatementClusterAccessChecker;
 use Exception;
 use JsonException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
@@ -56,6 +56,7 @@ class StatementGroupRelationshipProcessor implements ProcessorInterface
     public function __construct(
         private readonly CurrentProcedureService $currentProcedureService,
         private readonly CurrentUserInterface $currentUser,
+        private readonly StatementClusterAccessChecker $clusterAccessChecker,
         private readonly StatementHandler $statementHandler,
         private readonly AssignService $assignService,
     ) {
@@ -63,9 +64,7 @@ class StatementGroupRelationshipProcessor implements ProcessorInterface
 
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): StatementGroupResource|Response
     {
-        if (!$this->currentUser->hasPermission('feature_statement_cluster')) {
-            throw new AccessDeniedHttpException('Access denied: insufficient permissions to access statement groups');
-        }
+        $this->clusterAccessChecker->checkClusterAccess();
 
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {

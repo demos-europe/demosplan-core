@@ -86,7 +86,7 @@ class StatementGroupResource
     #[ApiProperty(readable: true, writable: false)]
     public string $initialOrganisationName = '';
 
-    #[ApiProperty(readable: true, writable: true)]
+    #[ApiProperty(readable: false, writable: true)]
     public ?string $headStatementId = null;
 
     /** @var StatementResource[] */
