@@ -151,11 +151,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         $conditions = [
             // Statement resources can never be deleted
             $this->conditionFactory->propertyHasValue(false, $pathStartResourceType->deleted),
-            $this->conditionFactory->propertyIsNull($pathStartResourceType->headStatement->id),
-            // statement placeholders are not considered actual statement resources.
-            // Use the ->id leaf so the condition resolves under Elasticsearch too, which
-            // only maps 'movedStatement.id', not the bare relationship path.
-            $this->conditionFactory->propertyIsNull($pathStartResourceType->movedStatement->id),
+            // Disabled the condition: Statements that are part of a cluster statement are not accessible
+            // $this->conditionFactory->propertyIsNull($pathStartResourceType->headStatement->id),
             [] === $allowedProcedureIds
                 ? $this->conditionFactory->false()
                 : $this->conditionFactory->propertyHasAnyOfValues($allowedProcedureIds, $pathStartResourceType->procedure->id),
