@@ -187,7 +187,15 @@ import {
   setRange,
   setRangeEditingState,
 } from '@DpJs/lib/prosemirror/commands'
-import { dpApi, DpButton, DpFlyout, DpInlineNotification, DpLoading, DpStickyElement } from '@demos-europe/demosplan-ui'
+import {
+  dpApi,
+  DpButton,
+  DpFlyout,
+  DpInlineNotification,
+  DpLoading,
+  DpStickyElement,
+  hasOwnProp
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import { DOMParser, DOMSerializer } from 'prosemirror-model'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
@@ -807,6 +815,17 @@ export default {
       this.setCurrentTime()
     },
 
+    initializeSegmentStatus (segment, mark) {
+      if (hasOwnProp(segment, 'status')) {
+        return segment
+      }
+
+      return {
+        ...segment,
+        status: mark.isConfirmed ? 'confirmed' : false,
+      }
+    },
+
     resetProsemirrorState () {
       this.ignoreProsemirrorUpdates = true
       const { state } = this.prosemirror.view
@@ -834,11 +853,10 @@ export default {
     },
 
     /**
-     * Post-initialization tasks after ProseMirror editor is ready:
-     * 1. Store prosemirror instance and plugin states for component access
-     * 2. Synchronize segment metadata with segmentMarks parsed from HTML
-     * 3. Update ProseMirror marks with correct isConfirmed values from store
-     * 4. Enable prosemirror change listeners by setting ignoreProsemirrorUpdates to false
+     * Performs post-initialization setup once the ProseMirror editor is ready.
+     *
+     * Stores the ProseMirror instance and synchronizes the confirmation state
+     * between segments and ProseMirror marks.
      */
     runPostInitTasks (prosemirrorState) {
       this.prosemirror = prosemirrorState
@@ -846,7 +864,7 @@ export default {
       const segmentMarks = Object.values(this.prosemirror.keyAccess.rangeTrackerKey.getState(state))
 
       this.ignoreProsemirrorUpdates = true
-      this.syncSegmentMarkStatus(segmentMarks)
+      this.syncSegmentMarkStatuses(segmentMarks)
       this.ignoreProsemirrorUpdates = false
     },
 
@@ -899,7 +917,7 @@ export default {
       this.ignoreProsemirrorUpdates = true
       this.prosemirror.view.updateState(newState)
       const segmentMarks = Object.values(this.prosemirror.keyAccess.rangeTrackerKey.getState(this.prosemirror.view.state))
-      this.syncSegmentMarkStatus(segmentMarks)
+      this.syncSegmentMarkStatuses(segmentMarks)
       this.ignoreProsemirrorUpdates = false
     },
 
@@ -939,14 +957,32 @@ export default {
       this.maxRange = range
     },
 
+    setSegmentMarkConfirmStatus (mark, segment) {
+      const isConfirmed = segment.status === 'confirmed'
+
+      if (mark.isConfirmed === isConfirmed) {
+        return
+      }
+
+      setRange(this.prosemirror.view)(mark.from, mark.to, {
+        segmentId: mark.segmentId,
+        isConfirmed,
+      })
+    },
+
     setSegmentationStatus (status) {
       this.segmentationStatus = status
     },
 
     /**
-     * Update ProseMirror marks with correct isConfirmed values from segments array
+     * Synchronizes segment confirmation state between the store and ProseMirror.
+     *
+     * If a segment has no `status` property (e.g. AI-generated segments), it is initialized from the corresponding ProseMirror mark.
+     * Afterwards, the store becomes the source of truth and ProseMirror marks are
+     * updated to match it.
      */
-    syncSegmentMarkStatus (segmentMarks) {
+    syncSegmentMarkStatuses (segmentMarks) {
+      const segmentsToUpdate = []
       const segmentsById = Object.fromEntries(
         this.segments.map(segment => [segment.id, segment]),
       )
@@ -958,15 +994,19 @@ export default {
           return
         }
 
-        const isConfirmed = segment.status === 'confirmed'
+        const updatedSegment = this.initializeSegmentStatus(segment, mark)
 
-        if (mark.isConfirmed !== isConfirmed) {
-          setRange(this.prosemirror.view)(mark.from, mark.to, {
-            segmentId: mark.segmentId,
-            isConfirmed,
-          })
+        if (updatedSegment !== segment) {
+          segmentsToUpdate.push(updatedSegment)
+          segmentsById[segment.id] = updatedSegment
         }
+
+        this.setSegmentMarkConfirmStatus(mark, updatedSegment)
       })
+
+      if (segmentsToUpdate.length) {
+        this.locallyUpdateSegments(segmentsToUpdate)
+      }
     },
 
     toggleInfobox () {
