@@ -41,14 +41,6 @@ All rights reserved
 import { DpButton } from '@demos-europe/demosplan-ui'
 
 defineProps({
-  procedureId: {
-    type: String,
-    default: '',
-  },
-  showDetailLink: {
-    type: Boolean,
-    default: false,
-  },
   statements: {
     type: Array,
     required: true,
