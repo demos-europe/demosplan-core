@@ -67,6 +67,18 @@ class StatementGroupResource
     #[ApiProperty(readable: true, writable: true)]
     public ?string $groupName = null;
 
+    #[ApiProperty(readable: true, writable: false)]
+    public ?string $externId = null;
+
+    #[ApiProperty(readable: true, writable: false)]
+    public bool $isSubmittedByCitizen = false;
+
+    #[ApiProperty(readable: true, writable: false)]
+    public string $authorName = '';
+
+    #[ApiProperty(readable: true, writable: false)]
+    public string $initialOrganisationName = '';
+
     #[ApiProperty(readable: true, writable: true)]
     public ?string $headStatementId = null;
 
@@ -86,6 +98,13 @@ class StatementGroupResource
         $resource = new self();
         $resource->id = $statement->getId();
         $resource->groupName = $statement->getName();
+        $resource->externId = $statement->getExternId();
+        $resource->isSubmittedByCitizen = $statement->isSubmittedByCitizen();
+        // Meta snapshots captured at submission time (mirrors the member mapping
+        // below and the EDT StatementResourceType attributes), not the live linked
+        // organisation. These return '' rather than null.
+        $resource->authorName = $statement->getMeta()->getAuthorName();
+        $resource->initialOrganisationName = $statement->getMeta()->getOrgaName();
         $resource->statements = array_map(
             static function (Statement $member): StatementResource {
                 $statementResource = new StatementResource();
