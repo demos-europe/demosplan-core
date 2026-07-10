@@ -46,15 +46,8 @@ All rights reserved
       class="mb-4"
       is-open
     >
-      <!--
-        TODO(DPLAN-17748): the detail link is correct but its target page cannot load cluster members yet.
-        The StatementResourceType access condition (`headStatement IS NULL`) hides members, so the statement
-        detail page returns 400 for them. Works once the backend exposes cluster members for read access.
-      -->
       <selected-statements-list
-        :procedure-id="procedureId"
         :statements="paginatedStatements"
-        show-detail-link
         @remove="removeGroupStatement"
       />
       <dp-sliding-pagination
