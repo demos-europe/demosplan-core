@@ -422,6 +422,15 @@ export default {
 
     determineDisplayScrollButton () {
       const segmentSpans = document.querySelectorAll('span[data-range-active="true"]')
+
+      /**
+       * Without an active segment span in the document (e.g. a segment without a mark is being
+       * edited), there is nothing to scroll to, so no scroll button is shown.
+       */
+      if (!segmentSpans.length) {
+        return false
+      }
+
       const lastSegmentSpan = segmentSpans[segmentSpans.length - 1]
       const segmentBottom = lastSegmentSpan.getBoundingClientRect().bottom
       const headerHeight = document.getElementById('header').getBoundingClientRect().height
@@ -483,11 +492,18 @@ export default {
         this.stateBeforeEditing = null
       }
 
-      this.ignoreProsemirrorUpdates = true
       const { rangeTrackerKey, editingDecorationsKey } = this.prosemirror.keyAccess
 
-      setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(this.editingSegment.id, false)
-      this.ignoreProsemirrorUpdates = false
+      /**
+       * Only reset the range editing state for segments that actually have a range in the document.
+       * Segments without a mark (metadata-only edits) have nothing to reset.
+       */
+      if (this.editingSegment && rangeTrackerKey.getState(this.prosemirror.view.state)[this.editingSegment.id]) {
+        this.ignoreProsemirrorUpdates = true
+        setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(this.editingSegment.id, false)
+        this.ignoreProsemirrorUpdates = false
+      }
+
       this.setProperty({ prop: 'editingSegment', val: null })
       this.setProperty({ prop: 'editModeActive', val: false })
     },
@@ -506,6 +522,14 @@ export default {
       this.stateBeforeEditing = rangeTrackerKey.getState(state)
       this.setProperty({ prop: 'editingSegment', val: this.segmentById(id) })
       this.setProperty({ prop: 'editModeActive', val: true })
+
+      /**
+       * Segments whose mark is missing from the document have no range to edit. Allow editing their
+       * metadata (tags, place, assignee) but skip range activation, which requires an existing range.
+       */
+      if (!rangeTrackerKey.getState(state)[id]) {
+        return
+      }
 
       this.ignoreProsemirrorUpdates = true
       setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(id, true)
