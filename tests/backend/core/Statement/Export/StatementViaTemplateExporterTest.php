@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Statement\Export;
 
-use DemosEurope\DemosplanAddon\Contracts\FileServiceInterface;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -54,7 +54,7 @@ class StatementViaTemplateExporterTest extends AbstractStatementViaTemplateExpor
             $htmlHelper,
             $this->createMock(LoggerInterface::class),
             $this->createMock(TranslatorInterface::class),
-            $this->createMock(FileServiceInterface::class),
+            $this->createMock(FileService::class),
         );
     }
 

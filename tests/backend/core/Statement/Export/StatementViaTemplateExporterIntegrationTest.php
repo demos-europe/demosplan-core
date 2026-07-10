@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Statement\Export;
 
-use DemosEurope\DemosplanAddon\Contracts\FileServiceInterface;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -58,7 +58,7 @@ class StatementViaTemplateExporterIntegrationTest extends AbstractStatementViaTe
 
         $this->dataBuilder = $this->createMock(StatementTemplateDataBuilder::class);
 
-        $this->sut = new StatementViaTemplateExporter($validator, $this->dataBuilder, $htmlHelper, $this->createMock(LoggerInterface::class), $translator, $this->createMock(FileServiceInterface::class));
+        $this->sut = new StatementViaTemplateExporter($validator, $this->dataBuilder, $htmlHelper, $this->createMock(LoggerInterface::class), $translator, $this->createMock(FileService::class));
     }
 
     protected function tempFilePrefix(): string
