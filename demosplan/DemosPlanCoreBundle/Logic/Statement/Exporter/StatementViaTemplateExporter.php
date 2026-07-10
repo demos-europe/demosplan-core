@@ -243,7 +243,10 @@ class StatementViaTemplateExporter
      *
      * Only dplan file-hash URLs (`/file/{procedureId}/{hash}`) are supported — the editor
      * produces exclusively this format when images are inserted via "Bild einfügen".
-     * Tags with any other src (e.g. external URLs pasted as raw HTML) are skipped with a warning.
+     * Tags with any other src (e.g. external URLs pasted as raw HTML) are skipped with a warning,
+     * as is a hash-shaped src that {@see FileService::ensureLocalFileFromHash()} fails to resolve
+     * (deleted file, storage failure, …). In both cases the caller falls back to a visible
+     * "image could not be loaded" line instead of the export failing outright.
      *
      * @return array{localPath: string, widthPx: int, heightPx: int}|null
      */
@@ -264,7 +267,19 @@ class StatementViaTemplateExporter
             return null;
         }
 
-        $localPath = $this->fileService->ensureLocalFileFromHash($hashMatch[1]);
+        try {
+            $localPath = $this->fileService->ensureLocalFileFromHash($hashMatch[1]);
+        } catch (Exception $exception) {
+            // The hash-shaped src looked valid but the file is gone (deleted, storage
+            // failure, …). Fall back the same way as an unrecognised src, rather than
+            // letting the exception abort the whole export.
+            $this->logger->warning(
+                'Failed to resolve local file for image src in segment HTML',
+                ['src' => $srcMatches[1], 'exception' => $exception]
+            );
+
+            return null;
+        }
         $sizeInfo = getimagesize($localPath);
 
         [$widthPx, $heightPx] = $this->computeDocumentDimensions(
