@@ -197,7 +197,7 @@
     {
         "package": "copy-webpack-plugin",
         "license": "MIT",
-        "website": "https://github.com/webpack-contrib/copy-webpack-plugin"
+        "website": "https://github.com/webpack/copy-webpack-plugin"
     },
     {
         "package": "core-js",

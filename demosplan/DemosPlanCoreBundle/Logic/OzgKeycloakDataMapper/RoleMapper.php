@@ -62,23 +62,23 @@ class RoleMapper
     {
         // If no client ID is configured, skip resource_access extraction (fallback to groups)
         if ('' === $keycloakClientId) {
-            $this->logger->info('No oauth_keycloak_client_id configured, skipping resource_access extraction');
+            $this->logger->info('oauthAuthenticator: No oauth_keycloak_client_id configured, skipping resource_access extraction');
 
             return [];
         }
 
         // Check if the configured client ID exists in resource_access
         if (!isset($resourceAccess[$keycloakClientId])) {
-            $this->logger->warning("Configured client ID '{$keycloakClientId}' not found in resource_access");
+            $this->logger->warning("oauthAuthenticator: Configured client ID '{$keycloakClientId}' not found in resource_access");
 
             return [];
         }
 
         $clientData = $resourceAccess[$keycloakClientId];
-        $this->logger->info("Found configured client '{$keycloakClientId}' in resource_access");
+        $this->logger->info("oauthAuthenticator: Found configured client '{$keycloakClientId}' in resource_access");
 
         if (!isset($clientData['roles']) || !is_array($clientData['roles'])) {
-            $this->logger->warning("No roles array found in resource_access for client: {$keycloakClientId}");
+            $this->logger->warning("oauthAuthenticator: No roles array found in resource_access for client: {$keycloakClientId}");
 
             return [];
         }
@@ -88,9 +88,9 @@ class RoleMapper
             if (array_key_exists($technicalRole, self::TECHNICAL_ROLE_TO_READABLE)) {
                 $readableRoleName = self::TECHNICAL_ROLE_TO_READABLE[$technicalRole];
                 $customerRoleRelations[$customerSubdomain][] = $readableRoleName;
-                $this->logger->info("Mapped technical role {$technicalRole} to {$readableRoleName} for customer subdomain {$customerSubdomain}");
+                $this->logger->info("oauthAuthenticator: Mapped technical role {$technicalRole} to {$readableRoleName} for customer subdomain {$customerSubdomain}");
             } else {
-                $this->logger->warning("Unknown technical role in resource_access: {$technicalRole}");
+                $this->logger->warning("oauthAuthenticator: Unknown technical role in resource_access: {$technicalRole}");
             }
         }
 

@@ -19,7 +19,7 @@
     <dp-modal
       ref="exportModalInner"
       content-classes="w-11/12 sm:w-10/12 md:w-10/12 lg:w-8/12 xl:w-7/12 h-fit"
-      content-body-classes="flex flex-col h-16"
+      content-body-classes="flex flex-col"
       @modal:toggled="onModalToggle"
     >
       <h2 class="mb-5">
@@ -103,7 +103,10 @@
         </div>
       </fieldset>
 
-      <fieldset v-if="['docx_normal', 'zip_normal'].includes(active)">
+      <fieldset
+        v-if="['docx_normal', 'zip_normal'].includes(active)"
+        class="py-0"
+      >
         <legend
           id="docxColumnTitles"
           class="font-semibold text-base float-left mr-1"
@@ -142,7 +145,7 @@
             :placeholder="Translator.trans('docx.export.file_name.placeholder')"
             type="text"
           />
-          <div class="text-sm mt-2">
+          <div class="text-sm mt-4">
             <span
               class="font-bold"
               v-text="Translator.trans('docx.export.example_file_name')"
@@ -151,6 +154,40 @@
           </div>
         </fieldset>
       </fieldset>
+
+      <div
+        v-if="isSingleStatementExport && hasPermission('feature_statement_via_template_export')"
+        class="border-t border-neutral pt-4 mb-4"
+      >
+        <dp-label
+          :hint="Translator.trans('docx.export.via_template.upload.hint')"
+          :text="Translator.trans('docx.export.via_template.upload.label')"
+          :tooltip="Translator.trans('docx.export.via_template.upload.tooltip')"
+          class="mb-1"
+          for="uploadTemplate"
+        />
+        <dp-button
+          :text="Translator.trans('docx.export.via_template.example.label')"
+          class="mb-2"
+          data-cy="exportModal:downloadExampleTemplate"
+          href="/files/statement_template_example_export.docx"
+          icon="download"
+          icon-size="medium"
+          variant="subtle"
+        />
+        <dp-upload-files
+          id="uploadTemplate"
+          allowed-file-types="import"
+          data-cy="exportModal:uploadTemplate"
+          :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash, procedureId })"
+          :max-file-size="5 * 1024 * 1024 /* 5 MB */"
+          :storage-name="templateStorageName"
+          :translations="{ dropHereOr: Translator.trans('form.button.upload.docx', { browse: '{browse}', maxUploadSize: '5 MB' }) }"
+          :tus-endpoint="dplan.paths.tusEndpoint"
+          @file-remove="uploadedHash = ''"
+          @upload-success="file => { uploadedHash = file.hash }"
+        />
+      </div>
 
       <fieldset v-if="!isSingleStatementExport">
         <legend
@@ -194,7 +231,7 @@
         </ul>
       </fieldset>
       <dp-input
-        v-if="active === 'docx_normal' && !isSingleStatementExport && hasPermissionAdjustPreamble"
+        v-if="['docx_normal', 'zip_normal'].includes(active) && !isSingleStatementExport && hasPermissionAdjustPreamble"
         id="customHeaderText"
         v-model="customHeaderText"
         :label="{
@@ -202,10 +239,16 @@
           tooltip: Translator.trans('docx.export.header.custom.hint')
         }"
         :maxlength="customHeaderMaxLength"
-        :placeholder="customHeaderPlaceholder"
+        :placeholder="Translator.trans('docx.export.header.custom.placeholder')"
         class="mt-2 mb-4"
         data-cy="exportModal:customHeaderText"
         type="text"
+      />
+      <dp-inline-notification
+        v-if="hasLayoutFileAndModifiedColumnHeaders"
+        class="mb-4"
+        :message="Translator.trans('docx.export.via_template.column.headers.warning')"
+        type="warning"
       />
 
       <dp-button-row
@@ -228,10 +271,13 @@ import {
   DpButtonRow,
   DpCheckbox,
   DpContextualHelp,
+  DpInlineNotification,
   DpInput,
+  DpLabel,
   DpModal,
   DpRadio,
   dpRpc,
+  DpUploadFiles,
   hasOwnProp,
   sessionStorageMixin,
 } from '@demos-europe/demosplan-ui'
@@ -246,9 +292,12 @@ export default {
     DpButtonRow,
     DpCheckbox,
     DpContextualHelp,
+    DpInlineNotification,
     DpInput,
+    DpLabel,
     DpModal,
     DpRadio,
+    DpUploadFiles,
     FilterFlyout,
   },
 
@@ -270,12 +319,6 @@ export default {
     procedureId: {
       required: true,
       type: String,
-    },
-
-    procedureName: {
-      required: false,
-      type: String,
-      default: '',
     },
   },
 
@@ -344,6 +387,7 @@ export default {
       selectedTags: [],
       selectedTagIds: [],
       singleStatementExportPath: 'dplan_segments_export', /** Used in the statements detail page */
+      uploadedHash: '',
     }
   },
 
@@ -351,13 +395,6 @@ export default {
     ...mapGetters('FilterFlyout', [
       'getIsExpandedByCategoryId',
     ]),
-
-    customHeaderPlaceholder () {
-      return Translator.trans('docx.export.header.custom.placeholder', {
-        isPartialExport: this.selectedTagIds.length > 0,
-        procedureName: this.procedureName,
-      })
-    },
 
     exportModalTitle () {
       return this.isSingleStatementExport ? Translator.trans('statement.export.do') : Translator.trans('export.statements')
@@ -385,6 +422,17 @@ export default {
       }
 
       return exampleFileName
+    },
+
+    hasLayoutFileAndModifiedColumnHeaders () {
+      return this.isSingleStatementExport &&
+        hasPermission('feature_statement_via_template_export') &&
+        this.uploadedHash !== '' &&
+        Object.values(this.docxColumns).some(col => col.title)
+    },
+
+    templateStorageName () {
+      return `templateHash_${this.procedureId}`
     },
   },
 
@@ -539,6 +587,11 @@ export default {
     handleExport () {
       const columnTitles = {}
       const shouldConfirm = /^(docx|zip)_/.test(this.active)
+      const exportViaTemplate = this.isSingleStatementExport &&
+        this.uploadedHash !== '' &&
+        hasPermission('feature_statement_via_template_export')
+      const defaultRoute = this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath
+      const route = exportViaTemplate ? 'dplan_statement_via_template_export' : defaultRoute
 
       Object.keys(this.docxColumns).forEach(key => {
         const columnTitle = this.docxColumns[key].title
@@ -560,9 +613,10 @@ export default {
         isCitizenDataCensored: this.isCitizenDataCensored,
         isInstitutionDataCensored: this.isInstitutionDataCensored,
         isObscured: this.isObscure,
-        route: this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath,
+        route,
         shouldConfirm,
         tagFilterIds: this.selectedTagIds,
+        uploadedDocxTemplate: exportViaTemplate ? this.uploadedHash : null,
       })
       this.closeModal()
     },
@@ -679,6 +733,7 @@ export default {
       this.isObscure = false
       this.selectedTagIds = []
       this.selectedTags = []
+      this.uploadedHash = ''
     },
 
     scrollModalToBottom () {
@@ -705,6 +760,11 @@ export default {
 
         this.docxColumns[key].title = storedColumnTitle || null /** Setting the value to null will display the placeholder titles of the column */
       })
+
+      /** DpUploadFiles restores its file list from sessionStorage on reload; mirror that hash so the export still routes via template. */
+      const storedTemplate = this.getItemFromSessionStorage(this.templateStorageName)
+
+      this.uploadedHash = Array.isArray(storedTemplate) ? storedTemplate[storedTemplate.length - 1]?.hash ?? '' : ''
     },
 
     setRequestParams ({ additionalQueryParams, filter, path, currentQuery }) {

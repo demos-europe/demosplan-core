@@ -67,6 +67,7 @@ All rights reserved
           :class="{ 'color--grey': active === false }"
         >
           <dp-label
+            class="mb-0.5"
             required
             :text="Translator.trans('on')"
             :for="dateId"

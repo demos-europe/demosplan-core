@@ -8,9 +8,17 @@ updates:
       time: "02:00"
       timezone: Europe/Berlin
     open-pull-requests-limit: 20
+    # Cooldown applies to version updates only - security updates (triggered by security alerts) bypass it and are
+    # opened immediately.
+    # See https://docs.github.com/en/code-security/dependabot/working-with-dependabot/dependabot-options-reference
+    cooldown:
+      default-days: 7
+      semver-major-days: 30
+      semver-minor-days: 7
+      semver-patch-days: 3
     ignore:
       # D3 Upgrades are blocked because 8.x is not installing propperly
-      # my guess: soething with fsevents 2.0
+      # my guess: something with fsevents 2.0
       - dependency-name: d3-sankey-diagram
         versions:
           - ">= 0.8.0"
@@ -39,6 +47,9 @@ updates:
       sentry:
         patterns:
           - "@sentry/*"
+      stylelint:
+        patterns:
+          - "stylelint*"
       uppy:
         patterns:
           - "@uppy/*"

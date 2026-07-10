@@ -12,7 +12,7 @@
     :id="`segment_${segment.id}`"
     ref="statementSegment"
     class="segment-list-row"
-    :class="{'segment-list-row--assigned': isAssignedToMe, 'fullscreen': isFullscreen, 'rounded-lg': !isFullscreen}"
+    :class="{'segment-list-row--assigned': isAssignedToMe && !isLocked, 'fullscreen': isFullscreen, 'rounded-lg': !isFullscreen}"
     @mouseenter="isHover = true"
     @mouseleave="isHover = false"
   >
@@ -72,7 +72,40 @@
         </template>
       </v-popover>
 
+      <div
+        v-if="isLocked"
+        class="flex items-center space-x-1 mt-1 mr-2"
+      >
+        <dp-button
+          v-if="hasPermission('feature_administrate_segment_lock')"
+          :text="lockTooltipText"
+          icon="prohibit"
+          icon-weight="fill"
+          variant="subtle"
+          hide-text
+          @click="$emit('unlock', segment)"
+        />
+        <dp-tooltip
+          v-else
+          :text="lockTooltipText"
+        >
+          <dp-icon
+            class="text-interactive ml-0.5"
+            icon="prohibit"
+            size="small"
+            weight="fill"
+          />
+        </dp-tooltip>
+        <dp-badge
+          class="inline-flex items-center leading-none py-1"
+          color="info"
+          size="small"
+          :text="Translator.trans('segment.locked')"
+        />
+      </div>
       <dp-claim
+        v-else
+        class="ml-[5px] mt-1"
         entity-type="segment"
         :assigned-id="assignee.id || ''"
         :assigned-name="assignee.name || ''"
@@ -184,7 +217,15 @@
           </template>
         </dp-editor>
       </div>
-      <div v-if="isAssignedToMe">
+      <div
+        v-if="hasPermission('feature_enable_recommendation_versions') && recommendationVersionNumber"
+        class="mb-2"
+      >
+        <span class="text-neutral-dark-1">
+          {{ `${Translator.trans('version')}: ${recommendationVersionNumber}` }}
+        </span>
+      </div>
+      <div v-if="isAssignedToMe && !isLocked">
         <dp-checkbox
           :id="'showWorkflowActions_' + segment.id"
           v-model="showWorkflowActions"
@@ -297,8 +338,9 @@
       </div>
       <dp-button-row
         v-if="isAssignedToMe && (isEditing || showWorkflowActions)"
-        align="left"
+        :busy="isSaving"
         class="mt-3"
+        :disabled="isSaving"
         primary
         secondary
         @primary-action="save"
@@ -328,7 +370,7 @@
         </button>
 
         <button
-          v-if="isAssignedToMe"
+          v-if="isAssignedToMe && !isLocked"
           v-tooltip="{
             container: `#segment_${segment.id}`,
             content: Translator.trans('edit')
@@ -415,12 +457,15 @@
 import {
   CleanHtml,
   dpApi,
+  DpBadge,
+  DpButton,
   DpButtonRow,
   DpCheckbox,
   DpContextualHelp,
   DpIcon,
   DpLabel,
   DpMultiselect,
+  DpTooltip,
   prefixClassMixin,
   Tooltip,
   VPopover,
@@ -446,6 +491,8 @@ export default {
     CustomField,
     CustomFieldsList,
     DpBoilerPlateModal,
+    DpBadge,
+    DpButton,
     DpButtonRow,
     DpCheckbox,
     DpContextualHelp,
@@ -458,6 +505,7 @@ export default {
     DpIcon,
     DpLabel,
     DpMultiselect,
+    DpTooltip,
     ImageModal,
     RecommendationModal,
     TextContentRenderer,
@@ -515,6 +563,8 @@ export default {
     },
   },
 
+  emits: ['unlock'],
+
   data () {
     return {
       claimLoading: false,
@@ -526,6 +576,8 @@ export default {
       isEditing: false,
       isFullscreen: false,
       isHover: false,
+      isSaving: false,
+      lockedBeforeSave: false,
       selectedAssignee: {},
       selectedPlace: { id: '', type: 'Place' },
       showWorkflowActions: false,
@@ -533,10 +585,6 @@ export default {
   },
 
   computed: {
-    ...mapState('SegmentSlidebar', [
-      'slidebar',
-    ]),
-
     ...mapState('AssignableUser', {
       assignableUserItems: 'items',
     }),
@@ -544,6 +592,14 @@ export default {
     ...mapState('Place', {
       placeItems: 'items',
     }),
+
+    ...mapState('RecommendationVersion', {
+      recommendationVersions: 'items',
+    }),
+
+    ...mapState('SegmentSlidebar', [
+      'slidebar',
+    ]),
 
     assignableUsers () {
       const assigneeOptions = Object.values({ ...this.assignableUserItems })
@@ -593,11 +649,41 @@ export default {
       return this.assignee.id === this.currentUserId
     },
 
+    isLocked () {
+      if (this.isSaving) {
+        return this.lockedBeforeSave
+      }
+
+      const placeId = this.segment.relationships?.place?.data?.id
+
+      return !!this.placeItems[placeId]?.attributes?.locked
+    },
+
+    lockTooltipText () {
+      return hasPermission('feature_administrate_segment_lock') ?
+        Translator.trans('segment.unlock.click.hint') :
+        Translator.trans('segment.lock.hint')
+    },
+
     places () {
       return this.$store.state.Place ?
         Object.values(this.$store.state.Place.items)
           .map(pl => ({ ...pl.attributes, id: pl.id })) :
         []
+    },
+
+    recommendationVersionNumber () {
+      const currentVersionId = this.segment.relationships.recommendationVersions?.data?.[0]?.id
+
+      if (!currentVersionId) {
+        return ''
+      }
+
+      const versionNumber = this.recommendationVersions[currentVersionId]?.attributes?.versionNumber
+
+      return versionNumber ?
+        String(versionNumber).padStart(3, '0') :
+        ''
     },
 
     segmentPlace () {
@@ -653,6 +739,7 @@ export default {
     ]),
 
     ...mapActions('StatementSegment', {
+      getStatementSegmentAction: 'get',
       restoreSegmentAction: 'restoreFromInitial',
       saveSegmentAction: 'save',
     }),
@@ -750,6 +837,62 @@ export default {
       return entry?.value ?? null
     },
 
+    fetchUpdatedSegment () {
+      if (!hasPermission('feature_enable_recommendation_versions')) {
+        return Promise.resolve()
+      }
+
+      const include = [
+        'recommendationVersions',
+        'assignee',
+        'comments',
+        'comments.place',
+        'comments.submitter',
+        'place',
+        'tags',
+      ]
+
+      const statementSegmentFields = [
+        'tags',
+        'text',
+        'assignee',
+        'place',
+        'comments',
+        'externId',
+        'internId',
+        'orderInProcedure',
+        'polygon',
+        'recommendation',
+        'recommendationVersions',
+      ]
+
+      return this.getStatementSegmentAction({
+        id: this.segment.id,
+        include: include.join(','),
+        fields: {
+          StatementSegment: statementSegmentFields.join(','),
+          SegmentComment: [
+            'creationDate',
+            'text',
+            'submitter',
+            'place',
+          ].join(','),
+          Place: [
+            'description',
+            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+            'name',
+            'solved',
+            'sortIndex',
+          ].join(','),
+          RecommendationVersion: [
+            'versionNumber',
+            'recommendationText',
+            'createdAt',
+          ].join(','),
+        },
+      })
+    },
+
     finalizeSave (comments) {
       this.restoreComments(comments)
       this.setProperty({ prop: 'isLoading', val: false })
@@ -802,6 +945,7 @@ export default {
             'description',
             'name',
             'solved',
+            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
             'sortIndex',
           ].join(),
         },
@@ -849,10 +993,20 @@ export default {
      * Remove non-updatable comments from segments relationships for update request
      * @param relations {Object}
      */
-    removeComments (relations) {
+    excludeComments (relations) {
       if (relations.comments) {
         this.setProperty({ prop: 'isLoading', val: true })
         delete relations.comments
+      }
+    },
+
+    /**
+     * Remove non-updatable recommendationVersions from segments relationships for update request
+     * @param relations {Object}
+     */
+    excludeRecommendationVersion (relations) {
+      if (relations.recommendationVersions) {
+        delete relations.recommendationVersions
       }
     },
 
@@ -870,69 +1024,107 @@ export default {
       }
     },
 
-    save () {
-      const comments = this.segment.relationships.comments ? { ...this.segment.relationships.comments } : null
-      const { assignee, place } = this.updateRelationships()
-
-      const updatedSegment = {
-        id: this.segment.id,
-        type: 'StatementSegment',
-        attributes: {
-          ...this.segment.attributes,
-        },
-        relationships: {
-          ...this.segment.relationships,
-          assignee,
-          place,
-        },
+    saveCustomFields () {
+      /*
+       * Custom fields are saved via a separate PATCH using the composable's updateCustomFields,
+       * which bypasses the vuex-json-api diff mechanism (unreliable for array attributes)
+       * and properly invalidates the composable's value cache.
+       */
+      if (!this.customFieldsChanged || !hasPermission('field_segments_custom_fields')) {
+        return Promise.resolve()
       }
 
-      this.removeComments(updatedSegment.relationships)
+      return useCustomFields()
+        .updateCustomFields('StatementSegment', this.segment.id, this.customFieldValues)
+        .then(() => {
+          this.customFieldsChanged = false
+        })
+        .catch(() => {
+          const { getCustomFieldsDefinitions } = useCustomFields()
+          const definitions = getCustomFieldsDefinitions(this.procedureId, {
+            targetEntity: 'SEGMENT',
+            sourceEntity: 'PROCEDURE',
+          }) || []
 
-      this.setSegment({
-        ...updatedSegment,
-        id: this.segment.id,
-      })
+          const errorMessage = this.customFieldsSaveError(definitions)
+
+          dplan.notify.error(errorMessage)
+          throw new Error(errorMessage)
+        })
+    },
+
+    save () {
+      const comments = this.segment.relationships.comments ?
+        { ...this.segment.relationships.comments } :
+        null
+
+      // Update relationships (assignee/place)
+      const relations = this.updateRelationships()
+
+      /**
+       *  Comments and recommendationVersions need to be removed from the PATCH payload
+       *  as updating them is technically not supported
+       */
+      this.excludeComments(relations)
+      this.excludeRecommendationVersion(relations)
+
+      this.lockedBeforeSave = this.isLocked
+      this.isSaving = true
 
       return this.saveSegmentAction({ id: this.segment.id })
         .then(() => {
           /*
-           * Custom fields are saved via a separate PATCH using the composable's updateCustomFields,
-           * which bypasses the vuex-json-api diff mechanism (unreliable for array attributes)
-           * and properly invalidates the composable's value cache.
+           * Clearing the assignee ("nicht zugewiesen") is sent as a separate explicit PATCH because the
+           * vuex-json-api diff drops a to-one relationship set to `{ data: null }` (it diffs against a
+           * stale `initial` baseline that setSegment never updates), so an unassign would be silently
+           * omitted from saveSegmentAction's request body. Mirrors the explicit payload already used by
+           * claimSegment()/unclaimSegment(). It must complete before fetchUpdatedSegment, which would
+           * otherwise re-store the stale assignee.
            */
-          const saveCustomFields = this.customFieldsChanged && hasPermission('field_segments_custom_fields') ?
-            useCustomFields().updateCustomFields('StatementSegment', this.segment.id, this.customFieldValues).then(() => {
-              this.customFieldsChanged = false
-            }) :
+          const isUnassigning = !this.selectedAssignee?.id || this.selectedAssignee.id === 'noAssigneeId'
+
+          return isUnassigning ?
+            dpApi.patch(
+              Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }),
+              {},
+              { data: { type: 'StatementSegment', id: this.segment.id, relationships: { assignee: { data: null } } } },
+            ) :
             Promise.resolve()
+        })
+        .then(() => {
+          return Promise.all([
+            this.fetchUpdatedSegment().catch((err) => {
+              console.error('Failed to fetch updated segment:', err)
 
-          return saveCustomFields
-            .then(() => {
-              dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-              this.isFullscreen = false
+              return null
+            }),
+            this.saveCustomFields(),
+          ])
+        })
+        .then(() => {
+          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
 
-              this.finalizeSave(comments)
+          this.isFullscreen = false
 
-              this.toggleAssignableUsersSelect()
-              this.$nextTick(() => {
-                if (this.$refs.recommendationContainer) {
-                  this.$refs.imageModal.addClickListener(this.$refs.recommendationContainer.querySelectorAll('img'))
-                }
-              })
-            })
-            .catch(() => {
-              const { getCustomFieldsDefinitions } = useCustomFields()
-              const definitions = getCustomFieldsDefinitions(this.procedureId, {
-                targetEntity: 'SEGMENT',
-                sourceEntity: 'PROCEDURE',
-              }) || []
+          this.toggleAssignableUsersSelect()
 
-              dplan.notify.error(this.customFieldsSaveError(definitions))
-              this.finalizeSave(comments)
-            })
+          this.$nextTick(() => {
+            if (this.$refs.recommendationContainer) {
+              this.$refs.imageModal.addClickListener(
+                this.$refs.recommendationContainer.querySelectorAll('img'),
+              )
+            }
+          })
+        })
+        .catch((err) => {
+          console.error('Save failed:', err)
+          dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
         })
         .catch(() => {
+          this.restoreSegmentAction(this.segment.id)
+        })
+        .finally(() => {
+          this.isSaving = false
           this.finalizeSave(comments)
         })
     },
@@ -1070,12 +1262,6 @@ export default {
     updateRelationships () {
       let relations = { ...this.segment.relationships }
 
-      /**
-       *  Comments need to be removed as updating them is technically not supported
-       *  After completing the request, they are added again to the store to be able to display them
-       */
-      this.removeComments(relations)
-
       if (this.showWorkflowActions) {
         let assignee = { assignee: { data: null } }
 
@@ -1121,7 +1307,6 @@ export default {
 
       this.setSegment({ ...updated, id: this.segment.id })
     },
-
   },
 
   mounted () {

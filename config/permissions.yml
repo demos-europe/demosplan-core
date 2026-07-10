@@ -679,6 +679,32 @@ feature_admin_new_procedure:
     label: 'Create a new procedure'
     loginRequired: true
     parent: feature_admin
+feature_administrate_segment_lock:
+    description: |-
+        Grants write access to the segment lock mechanism. Holders may toggle the
+        `locked` flag on workflow places, edit segments whose current place is locked,
+        and move segments into or out of a locked place. Users without this permission
+        can still read the lock state of segments but cannot perform any of the above
+        writes. The whole feature is additionally gated per project via the
+        `feature_segment_lock_by_workflow_place` permission — if that is not granted
+        for the current user this permission has no effect.
+    expose: true
+    label: 'Allows to administrate the segment lock (toggle locked places, edit or move locked segments).'
+    loginRequired: true
+    parent: area_statement_segmentation
+feature_segment_lock_by_workflow_place:
+    description: |-
+        Project-wide feature flag for the segment-lock-by-workflow-place mechanism.
+        When granted, workflow places expose a `locked` flag, locked places make
+        their segments read-only for users without the `feature_administrate_segment_lock`
+        permission, and the Versionsverlauf records lock transitions on segments.
+        When not granted nothing locks anything and the rest of the enforcement
+        chain becomes a no-op. Typically granted to every role that has
+        `area_statement_segmentation` in projects that opt in to the feature.
+    expose: true
+    label: 'Enables the segment-lock-by-workflow-place feature for the current project / user.'
+    loginRequired: true
+    parent: area_statement_segmentation
 feature_adjust_preamble_export_file:
     expose: true
     label: 'alters the preamble header of an exported doc to include the procedure name instead of the export-date'
@@ -2284,6 +2310,16 @@ feature_statement_to_entire_document:
     label: 'Neue Stellungnahme zu gesamten Planungsdokument'
     loginRequired: false
     parent: feature_statement
+feature_statement_via_template_export:
+    description: |-
+        Allows exporting a single statement's segments rendered through a
+        planner-uploaded DOCX layout template. The template is resolved per
+        export from its TUS hash and removed from local disk after the
+        response finishes (success or failure).
+    expose: true
+    label: 'Statement-Export via uploaded DOCX template'
+    loginRequired: true
+    parent: feature_segments_of_statement_list
 feature_statements_custom_fields:
     description: 'Allow statement fields in public view'
     expose: true
