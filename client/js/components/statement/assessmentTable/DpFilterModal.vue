@@ -256,9 +256,9 @@ export default {
   components: {
     DpCustomFieldsFilter,
     DpFilterModalSelectItem,
-    DpMultiselect,
-    DpModal,
     DpLoading,
+    DpModal,
+    DpMultiselect,
     DpTab,
     DpTabs,
   },
