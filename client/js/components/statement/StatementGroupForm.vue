@@ -134,7 +134,7 @@ All rights reserved
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { dpApi, DpInput, DpLabel, DpLoading, DpMultiselect, DpRadio, validateForm } from '@demos-europe/demosplan-ui'
+import { dpApi, DpInput, DpLabel, DpLoading, DpMultiselect, DpRadio, hasPermission, validateForm } from '@demos-europe/demosplan-ui'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
 import lscache from 'lscache'
@@ -185,7 +185,7 @@ const handleConfirmStep1 = () => {
     return
   }
 
-  if (statements.value.some(stmt => !stmt.relationships?.assignee?.data?.id)) {
+  if (hasPermission('feature_statement_assignment') && statements.value.some(stmt => !stmt.relationships?.assignee?.data?.id)) {
     dplan.notify.notify('error', Translator.trans('confirm.consolidation.not.assigned'))
 
     return
@@ -267,7 +267,7 @@ const handleApply = async () => {
 
 const fetchGroups = async () => {
   try {
-    const response = await dpApi.get(`${Routing.getBaseUrl()}/api/3.0/StatementGroup`)
+    const response = await dpApi.get(`${Routing.getBaseUrl()}/api/3.0/StatementGroup?properties[]=externId&properties[]=groupName`)
 
     groups.value = response.data.data
   } catch (error) {
