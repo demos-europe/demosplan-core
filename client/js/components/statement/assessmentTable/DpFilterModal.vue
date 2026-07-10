@@ -116,15 +116,18 @@
               @updating-filters="disabledInteractions = true"
               @updated-filters="disabledInteractions = false"
             />
-            <dp-custom-fields-filter
-              v-if="filterGroup.type === 'statement' && customFieldDefinitions.length > 0"
-              :custom-field-definitions="customFieldDefinitions"
-              :field-option-counts="customFieldOptionCounts"
-              :value="customFieldFilterValue"
-              variant="modal"
-              @input="updateCustomFieldFilter"
-              @open="refreshCustomFieldCounts"
-            />
+            <template v-if="filterGroup.type === 'statement'">
+              <dp-custom-fields-filter
+                v-for="definition in filterableCustomFieldDefinitions"
+                :key="definition.id"
+                :filter-definition="{ id: definition.id, name: definition.attributes.name, fieldType: definition.attributes.fieldType }"
+                :options="customFieldOptions(definition)"
+                :value="selectedCustomFieldValue(definition.id)"
+                @close="commitCustomFieldFilter"
+                @input="handleCustomFieldInput(definition.id, $event)"
+                @open="refreshCustomFieldCounts(definition.id)"
+              />
+            </template>
           </dp-tab>
         </dp-tabs>
 
