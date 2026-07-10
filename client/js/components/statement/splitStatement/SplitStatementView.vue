@@ -194,7 +194,7 @@ import {
   DpInlineNotification,
   DpLoading,
   DpStickyElement,
-  hasOwnProp
+  hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import { DOMParser, DOMSerializer } from 'prosemirror-model'
