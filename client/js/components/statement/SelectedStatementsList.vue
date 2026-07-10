@@ -21,16 +21,7 @@ All rights reserved
         <span>{{ stmt.attributes.externId }}</span>
         <span v-if="stmt.attributes.isSubmittedByCitizen">{{ stmt.attributes.authorName }}</span>
         <span v-else>{{ stmt.attributes.initialOrganisationName }}</span>
-        <div class="ml-auto flex items-center gap-2">
-          <dp-button
-            v-if="showDetailLink"
-            :href="Routing.generate('dplan_statement_segments_list', { procedureId, statementId: stmt.id })"
-            :text="Translator.trans('details.show')"
-            icon="arrow-square-out"
-            icon-size="small"
-            variant="subtle"
-            hide-text
-          />
+        <div class="ml-auto">
           <dp-button
             :data-cy="`statementGroupForm:removeStatement:${stmt.id}`"
             :text="Translator.trans('remove')"
