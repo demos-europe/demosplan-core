@@ -17,4 +17,6 @@ enum ProcedurePhaseDefinitionUpdatableField: string
     case NAME = 'name';
     case PERMISSION_SET = 'permissionSet';
     case PARTICIPANT_STATE = 'participantState';
+
+    case IS_DELETED = 'isDeleted';
 }

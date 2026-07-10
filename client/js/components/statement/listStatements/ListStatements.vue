@@ -685,7 +685,7 @@ export default {
        * Store the selection first, then navigate to the dedicated group-creation page,
        * whose form reads the selection from localStorage on mount.
        */
-      window.location.href = Routing.generate('dplan_procedure_statement_group_create', { procedureId: this.procedureId })
+      globalThis.location.href = Routing.generate('dplan_procedure_statement_group_create', { procedureId: this.procedureId })
     },
 
     handleFullTextAction (statementId) {
@@ -954,10 +954,10 @@ export default {
          * DpApi rejects on HTTP >= 400. Don't let it bubble as an unhandled rejection: a stale
          * stored page can be recovered by falling back to page 1; otherwise inform the user.
          */
-        if (page !== 1) {
-          this.getItemsByPage(1)
-        } else {
+        if (page === 1) {
           dplan.notify.notify('error', Translator.trans('error.api.generic'))
+        } else {
+          this.getItemsByPage(1)
         }
       })
     },

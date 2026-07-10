@@ -13,7 +13,7 @@
     :style="{ 'min-height': containerMinHeight }"
   >
     <card-pane-card
-      v-for="segment in sortedSegments"
+      v-for="segment in segments"
       :key="'card' + segment.id + Math.random()"
       ref="card"
       :segment="segment"
@@ -73,7 +73,7 @@ export default {
   computed: {
     ...mapGetters('SplitStatement', [
       'currentlyHighlightedSegmentId',
-      'sortedSegments',
+      'segments',
     ]),
   },
 

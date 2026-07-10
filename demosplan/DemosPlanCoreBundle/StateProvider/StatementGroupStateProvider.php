@@ -14,19 +14,19 @@ namespace demosplan\DemosPlanCoreBundle\StateProvider;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementGroupResource;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementClusterConditions;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
+use demosplan\DemosPlanCoreBundle\ResourceAccess\StatementClusterAccessChecker;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Webmozart\Assert\Assert;
 
 class StatementGroupStateProvider implements ProviderInterface
 {
     public function __construct(
-        private readonly CurrentUserInterface $currentUser,
+        private readonly StatementClusterAccessChecker $clusterAccessChecker,
         private readonly StatementClusterConditions $clusterConditions,
         private readonly StatementRepository $statementRepository,
         private readonly CurrentProcedureService $currentProcedureService,
@@ -86,6 +86,6 @@ class StatementGroupStateProvider implements ProviderInterface
 
     public function isAvailable(): bool
     {
-        return $this->currentUser->hasPermission('feature_statement_cluster');
+        return $this->clusterAccessChecker->isClusterAccessAllowed();
     }
 }

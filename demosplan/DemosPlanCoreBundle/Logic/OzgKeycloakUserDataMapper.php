@@ -494,15 +494,16 @@ class OzgKeycloakUserDataMapper
         }
 
         $userData = [
-            'firstname'     => $this->ozgKeycloakUserData->getFirstName(),
-            'lastname'      => $this->ozgKeycloakUserData->getLastName(),
-            'email'         => $this->ozgKeycloakUserData->getEmailAddress(),
-            'login'         => $this->ozgKeycloakUserData->getUserName(),
-            'gwId'          => $this->ozgKeycloakUserData->getUserId(),
-            'customer'      => $this->customerService->getCurrentCustomer(),
-            'organisation'  => $userOrga,
-            'department'    => $this->departmentMapper->findOrCreateDepartment($userOrga, $this->ozgKeycloakUserData->getCompanyDepartment()),
-            'roles'         => $requestedRoles,
+            'firstname'                 => $this->ozgKeycloakUserData->getFirstName(),
+            'lastname'                  => $this->ozgKeycloakUserData->getLastName(),
+            'email'                     => $this->ozgKeycloakUserData->getEmailAddress(),
+            'login'                     => $this->ozgKeycloakUserData->getUserName(),
+            'gwId'                      => $this->ozgKeycloakUserData->getUserId(),
+            'providedByIdentityProvider' => true,
+            'customer'                  => $this->customerService->getCurrentCustomer(),
+            'organisation'              => $userOrga,
+            'department'                => $this->departmentMapper->findOrCreateDepartment($userOrga, $this->ozgKeycloakUserData->getCompanyDepartment()),
+            'roles'                     => $requestedRoles,
         ];
 
         $newUser = $this->userService->addUser($userData);

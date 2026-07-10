@@ -12,11 +12,13 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedurePhaseDefinitionResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\PersistResourceException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionEditor;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedurePhaseDefinitionUpdatableField;
@@ -102,6 +104,10 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
                     [],
                     function (ProcedurePhaseDefinition $procedurePhaseDefinition, string $newName): array {
                         $oldName = $procedurePhaseDefinition->getName();
+                        $customer = $procedurePhaseDefinition->getCustomer();
+                        if ($newName !== $oldName && $customer instanceof CustomerInterface) {
+                            $this->guardNameUnique($newName, $procedurePhaseDefinition->getAudience(), $customer);
+                        }
                         $procedurePhaseDefinition->setName($newName);
                         $this->procedurePhaseDefinitionEditor->addReportEntryUpdate(
                             $procedurePhaseDefinition,
@@ -185,6 +191,30 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
             ->setFilterable()
             ->addPathCreationBehavior(OptionalField::YES);
 
+        $configBuilder->isDeleted
+            ->setReadableByPath(DefaultField::YES)
+            ->setFilterable()
+            ->addUpdateBehavior(CallbackAttributeSetBehavior::createFactory(
+                [],
+                function (ProcedurePhaseDefinition $procedurePhaseDefinition, bool $newIsDeleted): array {
+                    $this->procedurePhaseDefinitionEditor->guardConfigurationPhaseNotEditable($procedurePhaseDefinition);
+                    if (!$newIsDeleted) {
+                        $customer = $procedurePhaseDefinition->getCustomer();
+                        if ($customer instanceof CustomerInterface) {
+                            $this->guardNameUnique(
+                                $procedurePhaseDefinition->getName(),
+                                $procedurePhaseDefinition->getAudience(),
+                                $customer
+                            );
+                        }
+                    }
+                    $this->procedurePhaseDefinitionEditor->setDeleted($procedurePhaseDefinition, $newIsDeleted);
+
+                    return [];
+                },
+                OptionalField::YES
+            ));
+
         $configBuilder->orderInAudience
             ->setReadableByPath(DefaultField::YES)
             ->setSortable();
@@ -202,6 +232,10 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
                 // Read audience from request data directly, as property behaviors (initializable)
                 // run after general post-constructor behaviors, so $entity->getAudience() is not set yet.
                 $audience = $entityData->getAttributes()['audience'];
+                $name = $entityData->getAttributes()['name'];
+
+                $this->guardNameUnique($name, $audience, $customer);
+
                 $maxOrder = $this->procedurePhaseDefinitionRepository
                     ->getMaxOrderForCustomerAndAudience($customer->getId(), $audience);
                 $entity->setOrderInAudience($maxOrder + 1);
@@ -214,5 +248,16 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
         );
 
         return $configBuilder;
+    }
+
+    /**
+     * @throws PersistResourceException
+     */
+    private function guardNameUnique(string $name, string $audience, CustomerInterface $customer): void
+    {
+        if (null !== $this->procedurePhaseDefinitionRepository->findByNameAndAudienceAndCustomer($name, $audience, $customer)) {
+            $this->messageBag->add('error', 'error.procedure_phase_definition.name.duplicate', ['name' => $name]);
+            throw new PersistResourceException('A phase definition with this name already exists for this audience.');
+        }
     }
 }
