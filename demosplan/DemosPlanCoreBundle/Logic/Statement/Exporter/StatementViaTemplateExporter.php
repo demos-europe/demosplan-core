@@ -12,12 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter;
 
-use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidStatementTemplateException;
 use demosplan\DemosPlanCoreBundle\Exception\MalformedDocxException;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\StatementTemplateData;
 use Exception;
@@ -295,23 +295,23 @@ class StatementViaTemplateExporter
         float $imageMaxWidthCm,
         float $imageMaxHeightCm,
     ): array {
-        $maxWidthPx  = (int) round($imageMaxWidthCm * 96 / 2.54);
+        $maxWidthPx = (int) round($imageMaxWidthCm * 96 / 2.54);
         $maxHeightPx = (int) round($imageMaxHeightCm * 96 / 2.54);
 
         if (null === $imageInfo || $imageInfo[0] <= 0 || $imageInfo[1] <= 0) {
             return [$maxWidthPx, (int) round($maxWidthPx / 2)];
         }
 
-        $widthPx  = (int) $imageInfo[0];
+        $widthPx = (int) $imageInfo[0];
         $heightPx = (int) $imageInfo[1];
 
         if ($widthPx > $maxWidthPx) {
             $heightPx = (int) round($heightPx * $maxWidthPx / $widthPx);
-            $widthPx  = $maxWidthPx;
+            $widthPx = $maxWidthPx;
         }
 
         if ($heightPx > $maxHeightPx) {
-            $widthPx  = (int) round($widthPx * $maxHeightPx / $heightPx);
+            $widthPx = (int) round($widthPx * $maxHeightPx / $heightPx);
             $heightPx = $maxHeightPx;
         }
 
