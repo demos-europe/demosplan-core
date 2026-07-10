@@ -104,7 +104,7 @@ All rights reserved
             <dp-multiselect
               id="targetGroup"
               v-model="targetGroupId"
-              :custom-label="stmt => stmt.attributes.groupName"
+              :custom-label="stmt => `${stmt.attributes.externId} ${stmt.attributes.groupName}`"
               :options="groups"
               class="mb-5"
               track-by="id"
