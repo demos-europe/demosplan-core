@@ -151,8 +151,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         $conditions = [
             // Statement resources can never be deleted
             $this->conditionFactory->propertyHasValue(false, $pathStartResourceType->deleted),
-            // Disabled: cluster members must stay accessible.
-            // $this->conditionFactory->propertyIsNull($pathStartResourceType->headStatement->id),
+            $this->conditionFactory->propertyIsNull($pathStartResourceType->headStatement->id),
             // statement placeholders are not considered actual statement resources
             $this->conditionFactory->propertyIsNull($pathStartResourceType->movedStatement),
             [] === $allowedProcedureIds
