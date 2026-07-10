@@ -71,6 +71,9 @@
                   class="fa fa-trash"
                   aria-hidden="true"
                 />
+                <span class="sr-only">
+                  {{ Translator.trans('delete') }}
+                </span>
               </a>
               {{ hasOwnProp(props.option, 'attributes') ? props.option.attributes.name : '' }}
             </template>
