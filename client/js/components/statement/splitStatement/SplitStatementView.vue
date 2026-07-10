@@ -917,6 +917,7 @@ export default {
       this.ignoreProsemirrorUpdates = true
       this.prosemirror.view.updateState(newState)
       const segmentMarks = Object.values(this.prosemirror.keyAccess.rangeTrackerKey.getState(this.prosemirror.view.state))
+
       this.syncSegmentMarkStatuses(segmentMarks)
       this.ignoreProsemirrorUpdates = false
     },
