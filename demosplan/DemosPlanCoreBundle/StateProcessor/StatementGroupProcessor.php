@@ -12,19 +12,20 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\StateProcessor;
 
+use ApiPlatform\Metadata\HttpOperation;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementGroupResource;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementResource;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\NotAllStatementsGroupableException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\ResourceAccess\StatementClusterAccessChecker;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Webmozart\Assert\Assert;
 
@@ -32,30 +33,58 @@ class StatementGroupProcessor implements ProcessorInterface
 {
     public function __construct(
         private readonly CurrentProcedureService $currentProcedureService,
-        private readonly CurrentUserInterface $currentUser,
+        private readonly StatementClusterAccessChecker $clusterAccessChecker,
         private readonly StatementHandler $statementHandler,
     ) {
     }
 
-    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): StatementGroupResource|Response
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): StatementGroupResource|Response|null
     {
-        Assert::isInstanceOf($data, StatementGroupResource::class);
-
-        if (!$this->currentUser->hasPermission('feature_statement_cluster')) {
-            throw new AccessDeniedHttpException('Access denied: insufficient permissions to access statement groups');
-        }
+        $this->clusterAccessChecker->checkClusterAccess();
 
         $procedure = $this->currentProcedureService->getProcedure();
         if (null === $procedure) {
             throw new BadRequestHttpException('A procedure context is required for statement group operations.');
         }
 
-        // POST has no {id}; PATCH carries the group id in the URL.
+        // DELETE has no body, so $data is null: handle it before the assert.
+        if ($operation instanceof HttpOperation && Request::METHOD_DELETE === $operation->getMethod()) {
+            return $this->delete((string) ($uriVariables['id'] ?? ''), $procedure->getId());
+        }
+
+        Assert::isInstanceOf($data, StatementGroupResource::class);
+
+        // POST has no {id}; PATCH carries it in the URL.
         if (isset($uriVariables['id'])) {
             return $this->update((string) $uriVariables['id'], $data);
         }
 
         return $this->create($data, $procedure->getId());
+    }
+
+    /**
+     * Dissolves the group by detaching every member from the cluster.
+     *
+     * Detaching the last member deletes the (cloned) head statement automatically
+     * (see StatementHandler::detachStatementFromCluster), so the group ceases to exist.
+     * Returns null: the operation is declared output: false, so API Platform responds 204.
+     */
+    private function delete(string $groupId, string $procedureId): ?Response
+    {
+        $group = $this->statementHandler->getStatement($groupId);
+        // Scope to the current procedure; foreign group reported as "not found".
+        if (!$group instanceof Statement
+            || !$group->isClusterStatement()
+            || $group->getProcedureId() !== $procedureId) {
+            throw new BadRequestHttpException(sprintf('Statement group "%s" not found.', $groupId));
+        }
+
+        // Snapshot: detaching mutates the collection.
+        foreach ($group->getCluster()->toArray() as $member) {
+            $this->statementHandler->detachStatementFromCluster($member);
+        }
+
+        return null;
     }
 
     private function create(StatementGroupResource $data, string $procedureId): StatementGroupResource|Response

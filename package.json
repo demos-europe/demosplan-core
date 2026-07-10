@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "demosplan-core",
-  "version": "v4.47.0",
+  "version": "v4.48.0",
   "scripts": {
     "dev:blp": "cross-env ./fe build blp",
     "dev:bimschgsh": "cross-env ./fe build bimschgsh",
@@ -178,7 +178,7 @@
   },
   "engines": {
     "npm": ">= 10.5.0",
-    "node": ">= 24.11.1"
+    "node": ">= 24.15.0"
   },
   "browserslist": [
     "last 5 versions",

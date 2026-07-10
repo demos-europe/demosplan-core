@@ -54,7 +54,10 @@ class AddonResolveTargetEntity implements CompilerPassInterface
                 }
             }
         }
-        $definition->addTag('doctrine.event_subscriber', ['connection' => 'dplan']);
+        // Register as event listeners (not a subscriber) per the symfony/doctrine-bridge 6.3 deprecation.
+        // ResolveTargetEntityListener subscribes to exactly these two events.
+        $definition->addTag('doctrine.event_listener', ['event' => 'loadClassMetadata', 'connection' => 'dplan']);
+        $definition->addTag('doctrine.event_listener', ['event' => 'onClassMetadataNotFound', 'connection' => 'dplan']);
     }
 
     /**

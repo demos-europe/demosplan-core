@@ -40,6 +40,13 @@ use demosplan\DemosPlanCoreBundle\StateProvider\StatementGroupStateProvider;
             uriTemplate: '/StatementGroup/{id}',
             processor: StatementGroupProcessor::class,
         ),
+        new Delete(
+            uriTemplate: '/StatementGroup/{id}',
+            read: false,
+            deserialize: false,
+            output: false,
+            processor: StatementGroupProcessor::class,
+        ),
         new Post(
             uriTemplate: '/StatementGroup/{id}/relationships/statements',
             read: false,
@@ -100,9 +107,7 @@ class StatementGroupResource
         $resource->groupName = $statement->getName();
         $resource->externId = $statement->getExternId();
         $resource->isSubmittedByCitizen = $statement->isSubmittedByCitizen();
-        // Meta snapshots captured at submission time (mirrors the member mapping
-        // below and the EDT StatementResourceType attributes), not the live linked
-        // organisation. These return '' rather than null.
+        // Submission-time snapshots, not the live org; return '' not null.
         $resource->authorName = $statement->getMeta()->getAuthorName();
         $resource->initialOrganisationName = $statement->getMeta()->getOrgaName();
         $resource->statements = array_map(
@@ -111,9 +116,7 @@ class StatementGroupResource
                 $statementResource->id = $member->getId();
                 $statementResource->externId = $member->getExternId();
                 $statementResource->isSubmittedByCitizen = $member->isSubmittedByCitizen();
-                // Meta snapshots captured at submission time (mirrors the EDT
-                // StatementResourceType attributes used by SegmentsList.vue), not the
-                // live linked organisation. These return '' rather than null.
+                // Submission-time snapshots, not the live org; return '' not null.
                 $statementResource->authorName = $member->getMeta()->getAuthorName();
                 $statementResource->initialOrganisationName = $member->getMeta()->getOrgaName();
 

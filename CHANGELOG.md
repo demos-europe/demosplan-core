@@ -5,16 +5,30 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.48.0 (2026-07-07)
 
 ### Added
 - Make procedure phase definitions deletable (condition: not currently in use and not configuration-phase)
+- Add statement export via planner-uploaded DOCX layout template: planners upload a `.docx` via TUS,
+  the backend validates `${…}` placeholders against a whitelist and clones the
+  `${AbschnitteAlsAbsätze}` … `${/AbschnitteAlsAbsätze}` block per segment to render the response letter
+  (permission: `feature_statement_via_template_export`, EWM-only for v1; frontend modal integration pending)
 
 ### Fixed
 - Adjust organization type key in platform statistics: Replace 'procedure.agency' with 'municipality' in OrgaService::getAcceptedOrgaCountByType()
 
+## v4.47.1 (2026-07-06)
+
+### Fixed
+- Statements that were split under the previous exchange format could no longer be edited or deleted in the split view; such drafts are now converted to the current segment-mark format when opened
+
 ## v4.47.0 (2026-06-24)
 
 ## v4.46.0 (2026-06-19)
+## v4.45.1 (2026-07-03)
+### Fixed 
+- Manual drag-and-drop reordering of documents in the plan document category admin now saves correctly
+
 ## v4.45.0 (2026-06-19)
 ### Added
 - Delete Institution Text CustomFields
