@@ -244,7 +244,7 @@ class StatementGroupRelationshipProcessor implements ProcessorInterface
             $statement->isInCluster()                        => sprintf('statement is already a member of group "%s".', $statement->getHeadStatement()?->getExternId() ?? 'another group'),
             $assignmentEnforced
                 && !$this->assignService->isStatementObjectAssignedToCurrentUser($statement) => 'statement is not assigned to you.',
-            default                                          => null,
+            default                                                                          => null,
         };
     }
 
