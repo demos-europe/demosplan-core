@@ -153,6 +153,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $this->conditionFactory->propertyHasValue(false, $pathStartResourceType->deleted),
             // Disabled the condition: Statements that are part of a cluster statement are not accessible
             // $this->conditionFactory->propertyIsNull($pathStartResourceType->headStatement->id),
+            // statement placeholders are not considered actual statement resources
+            $this->conditionFactory->propertyIsNull($pathStartResourceType->movedStatement),
             [] === $allowedProcedureIds
                 ? $this->conditionFactory->false()
                 : $this->conditionFactory->propertyHasAnyOfValues($allowedProcedureIds, $pathStartResourceType->procedure->id),
