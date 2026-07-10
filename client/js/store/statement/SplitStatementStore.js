@@ -61,7 +61,7 @@ const SplitStatementStore = {
     },
 
     locallyUpdateSegments (state, updatedSegments) {
-      const segments = JSON.parse(JSON.stringify(state.segments))
+      const segments = structuredClone(state.segments)
 
       // We want to update all segments at once to avoid triggering multiple view updates.
       const segmentsAfterUpdate = segments.map(segment => {
@@ -133,7 +133,7 @@ const SplitStatementStore = {
         const segment = state.segments.find((el) => el.id === id)
 
         if (typeof segment !== 'undefined') {
-          const segmentCopy = JSON.parse(JSON.stringify(segment))
+          const segmentCopy = structuredClone(segment)
 
           // Set segment status to confirmed
           segmentCopy.status = 'confirmed'
@@ -280,7 +280,7 @@ const SplitStatementStore = {
           }
         })
 
-        const segments = JSON.parse(JSON.stringify(state.segments)).map(segment => {
+        const segments = structuredClone(state.segments).map(segment => {
           // We need to replace PI generated tag ids with dplan tag ids
           segment.tags = segment.tags.map(tag => {
             const dplanTag = state.categorizedTags.find(t => t.attributes.title === tag.tagName)
