@@ -263,6 +263,12 @@ export default {
     DpTabs,
   },
 
+  setup () {
+    const { fetchCustomFields } = useCustomFields()
+
+    return { fetchCustomFields }
+  },
+
   props: {
     appliedFilterOptions: {
       required: false,
