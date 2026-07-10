@@ -153,7 +153,8 @@ class SegmentsExportController extends BaseController
 
             $absolutePath = $fileService->ensureLocalFileFromHash($uploadedTemplateHash);
             $templateProcessor = $exporter->export($procedure, $statement, $absolutePath);
-            $fileNameTemplate = $request->query->get(self::FILE_NAME_TEMPLATE_PARAMETER, '');
+            $fileNameTemplate = $request->query->get(self::FILE_NAME_TEMPLATE_PARAMETER, '')
+                ?: FileNameGenerator::PLACEHOLDER_ID.'-'.FileNameGenerator::PLACEHOLDER_NAME;
 
             $response = new StreamedResponse(
                 static function () use ($templateProcessor): void {
