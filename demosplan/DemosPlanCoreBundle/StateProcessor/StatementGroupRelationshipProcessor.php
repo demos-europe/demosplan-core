@@ -74,10 +74,7 @@ class StatementGroupRelationshipProcessor implements ProcessorInterface
 
         $groupId = (string) ($uriVariables['id'] ?? '');
         $group = $this->statementHandler->getStatement($groupId);
-        // Scope to the current procedure: these operations are read:false, so the
-        // procedure-scoped state provider never runs. Without this check a user could
-        // mutate/dissolve a cluster in another procedure. A foreign-procedure group is
-        // reported as "not found" so its existence is not disclosed.
+        // Scope to the current procedure; foreign group reported as "not found".
         if (!$group instanceof Statement
             || !$group->isClusterStatement()
             || $group->getProcedureId() !== $procedure->getId()) {
@@ -87,15 +84,14 @@ class StatementGroupRelationshipProcessor implements ProcessorInterface
         $memberIds = $this->readMemberIds($context, $groupId);
         $currentIds = array_map(static fn (Statement $s): string => $s->getId(), $group->getCluster()->toArray());
 
-        // Reduce to the effective delta so the operation is idempotent and concurrency-safe.
+        // Apply only the delta: idempotent and concurrency-safe.
         if ($this->isRemoval($operation)) {
             $this->detachMembers(array_values(array_intersect($memberIds, $currentIds)));
         } else {
             $toAdd = array_values(array_diff($memberIds, $currentIds));
             $blockers = $this->findAddBlockers($toAdd, $procedure->getId());
             if ([] !== $blockers) {
-                // Adding is atomic: reject the whole request with a JSON:API error
-                // document (one error per statement) and change nothing.
+                // Adding is atomic: reject the whole request, change nothing.
                 return $this->unprocessableEntity($blockers);
             }
             $this->addMembers($procedure->getId(), $groupId, $toAdd);
@@ -103,10 +99,8 @@ class StatementGroupRelationshipProcessor implements ProcessorInterface
 
         $updatedGroup = $this->statementHandler->getStatement($groupId);
         if (!$updatedGroup instanceof Statement) {
-            // Detaching the last member dissolves the cluster: the group is deleted
-            // (see StatementHandler::detachStatementFromCluster). Only reachable on
-            // removal; the DELETE response is 204 (output: false), so this resource is
-            // never serialized — return a minimal representation to stay type-safe.
+            // Last member detached: cluster dissolved and group deleted. Reachable
+            // only on removal (204, output: false), so return a minimal type-safe stub.
             $resource = new StatementGroupResource();
             $resource->id = $groupId;
             $resource->statements = [];
