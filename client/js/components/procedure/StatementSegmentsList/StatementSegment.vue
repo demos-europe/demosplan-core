@@ -363,7 +363,7 @@
         </div>
       </div>
       <dp-button-row
-        v-if="isAssignedToMe && (isEditing || showWorkflowFields || showAdditionalFields)"
+        v-if="shouldShowButtonRow"
         :busy="isSaving"
         class="mt-3"
         :disabled="isSaving"
@@ -598,10 +598,10 @@ export default {
   data () {
     return {
       claimLoading: false,
-      customFieldsChanged: false,
       customFieldValues: [],
       currentUserName: this.currentUserFirstName + ' ' + this.currentUserLastName,
       hasRecommendationTabs: false,
+      initialCustomFieldValues: [],
       isCollapsed: !(this.segment.relationships?.assignee?.data && this.segment.relationships.assignee.data.id === this.currentUserId),
       isEditing: false,
       isFullscreen: false,
@@ -671,6 +671,22 @@ export default {
       return deadline ? formatDate(deadline) : ''
     },
 
+    hasCustomFieldChanges () {
+      if (this.customFieldValues.length !== this.initialCustomFieldValues.length) {
+        return true
+      }
+
+      const initialFieldsById = Object.fromEntries(
+        this.initialCustomFieldValues.map(field => [field.id, field])
+      )
+
+      return this.customFieldValues.some((currentField) => {
+        const initialField = initialFieldsById[currentField.id]
+
+        return !initialField || currentField.value !== initialField.value
+      })
+    },
+
     /**
      * Required by useUnsavedChangesGuard composable
      */
@@ -694,7 +710,8 @@ export default {
         hasRecommendationChanges ||
         hasDeadlineChanges ||
         hasPlaceChanges ||
-        hasAssigneeChanges
+        hasAssigneeChanges ||
+        this.hasCustomFieldChanges
       )
     },
 
@@ -743,6 +760,13 @@ export default {
       return this.segment.relationships.place ?
         this.places.find(place => place.id === this.segment.relationships.place.data.id) :
         {}
+    },
+
+    shouldShowButtonRow () {
+      return this.isAssignedToMe &&
+        !this.isLocked &&
+        this.hasUnsavedChanges &&
+        (this.isEditing || this.showWorkflowFields || this.showAdditionalFields)
     },
 
     tagsAsString () {
@@ -804,6 +828,7 @@ export default {
     abort () {
       this.restoreSegmentAction(this.segment.id)
       this.restoreInitialSelections()
+      this.restoreInitialCustomFields()
       this.exitEditMode()
       this.hideAdditionalFields()
     },
@@ -1087,12 +1112,11 @@ export default {
     },
 
     onCustomFieldsLoaded (values) {
+      this.initialCustomFieldValues = values
       this.customFieldValues = values
-      this.customFieldsChanged = false
     },
 
     onCustomFieldValueUpdate ({ fieldId, value }) {
-      this.customFieldsChanged = true
       const fieldIndex = this.customFieldValues.findIndex(field => field.id === fieldId)
 
       if (fieldIndex === -1) {
@@ -1133,6 +1157,10 @@ export default {
       }
     },
 
+    restoreInitialCustomFields () {
+      this.customFieldValues = JSON.parse(JSON.stringify(this.initialCustomFieldValues))
+    },
+
     restoreInitialSelections () {
       this.setSelectedPlace()
       this.setSelectedAssignee()
@@ -1156,14 +1184,14 @@ export default {
        * which bypasses the vuex-json-api diff mechanism (unreliable for array attributes)
        * and properly invalidates the composable's value cache.
        */
-      if (!this.customFieldsChanged || !hasPermission('field_segments_custom_fields')) {
+      if (!this.hasCustomFieldChanges || !hasPermission('field_segments_custom_fields')) {
         return Promise.resolve()
       }
 
       return useCustomFields()
         .updateCustomFields('StatementSegment', this.segment.id, this.customFieldValues)
         .then(() => {
-          this.customFieldsChanged = false
+          this.initialCustomFieldValues = JSON.parse(JSON.stringify(this.customFieldValues))
         })
         .catch(() => {
           const { getCustomFieldsDefinitions } = useCustomFields()

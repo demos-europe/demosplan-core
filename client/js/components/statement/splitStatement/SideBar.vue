@@ -203,7 +203,7 @@
         v-if="!isCollapsed.additionalFields"
         data-cy="sidebar:toggleVisibility:additionalFields"
         class="relative btn--blank o-link--default font-semibold text-left w-full"
-        @click="toggleVisibility"
+        @click="toggleVisibility('additionalFields')"
       >
         {{ Translator.trans('fields.more.edit') }}
       </button>
