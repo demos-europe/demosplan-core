@@ -27,7 +27,7 @@ use Tests\Base\FunctionalTestCase;
 
 class RpcSegmentsBulkEditorDispatchTest extends FunctionalTestCase
 {
-    protected $sut = null;
+    protected $sut;
 
     protected function setUp(): void
     {
