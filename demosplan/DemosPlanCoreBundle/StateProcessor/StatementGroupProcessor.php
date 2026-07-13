@@ -27,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ResourceAccess\StatementClusterAccessChecker;
 use InvalidArgumentException;
+use LogicException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -66,6 +67,14 @@ class StatementGroupProcessor implements ProcessorInterface
         if ($operation instanceof Post) {
             return $this->create($data, $procedure->getId());
         }
+
+        throw new LogicException(sprintf(
+            '%s is wired as the processor for unsupported operation "%s"; only Post, Patch, and Delete are handled.',
+            self::class,
+            $operation::class
+        ));
+
+
     }
 
     /**
