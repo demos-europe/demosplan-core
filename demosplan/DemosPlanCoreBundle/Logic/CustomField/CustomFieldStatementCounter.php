@@ -59,55 +59,60 @@ class CustomFieldStatementCounter
         $field = $configs[0]->getConfiguration();
         $field->setId($configs[0]->getId());
 
-        if ([] === $field->getOptions()) {
+        $optionIds = array_map(static fn ($option) => $option->getId(), $field->getOptions());
+
+        if ([] === $optionIds) {
             return [];
         }
 
         if (null !== $esFilteredIds && [] === $esFilteredIds) {
             // Active regular filters matched no statements — every option necessarily has zero.
-            return array_fill_keys(
-                array_map(static fn ($option) => $option->getId(), $field->getOptions()),
-                0
-            );
+            return array_fill_keys($optionIds, 0);
         }
 
-        $counts = [];
-        foreach ($field->getOptions() as $option) {
-            $counts[$option->getId()] = $this->countForOption(
-                $procedureId,
-                $fieldId,
-                $option->getId(),
-                $isOriginalStatementView,
-                $otherCfFilters,
-                $esFilteredIds,
-            );
-        }
-
-        return $counts;
+        return $this->countAllOptions(
+            $procedureId,
+            $fieldId,
+            $optionIds,
+            $isOriginalStatementView,
+            $otherCfFilters,
+            $esFilteredIds,
+        );
     }
 
     /**
+     * Counts, in a single query, how many statements match each of $optionIds for $fieldId —
+     * one SUM(CASE WHEN ...) column per option instead of one COUNT query per option.
+     *
+     * @param string[]                $optionIds
      * @param array<string, string[]> $otherCfFilters
      * @param string[]|null           $esFilteredIds
+     *
+     * @return array<string, int> optionId => count
      */
-    private function countForOption(
+    private function countAllOptions(
         string $procedureId,
         string $fieldId,
-        string $optionValue,
+        array $optionIds,
         bool $isOriginalStatementView,
         array $otherCfFilters,
         ?array $esFilteredIds = null,
-    ): int {
+    ): array {
         $qb = $this->entityManager->createQueryBuilder()
-            ->select('COUNT(s.id)')
             ->from(Statement::class, 's')
             ->andWhere('s.procedure = :procedureId')
             ->andWhere('s.deleted = false')
             ->andWhere($isOriginalStatementView ? 's.original IS NULL' : 's.original IS NOT NULL')
-            ->andWhere('JSON_CONTAINS_CUSTOM_FIELD(s.customFields, :fieldId, :optionValue) = 1')
             ->setParameter('procedureId', $procedureId)
-            ->setParameter('fieldId', $fieldId)
-            ->setParameter('optionValue', $optionValue);
+            ->setParameter('fieldId', $fieldId);
+
+        $selectExpressions = [];
+        foreach ($optionIds as $optIdx => $optionId) {
+            $valParam = "optv{$optIdx}";
+            $selectExpressions[] = "SUM(CASE WHEN JSON_CONTAINS_CUSTOM_FIELD(s.customFields, :fieldId, :{$valParam}) = 1 THEN 1 ELSE 0 END) AS cnt{$optIdx}";
+            $qb->setParameter($valParam, $optionId);
+        }
+        $qb->select(implode(', ', $selectExpressions));
 
         if (null !== $esFilteredIds) {
             $qb->andWhere('s.id IN (:esFilteredIds)')
@@ -128,6 +133,13 @@ class CustomFieldStatementCounter
             ++$idx;
         }
 
-        return (int) $qb->getQuery()->getSingleScalarResult();
+        $row = $qb->getQuery()->getArrayResult()[0] ?? [];
+
+        $counts = [];
+        foreach ($optionIds as $optIdx => $optionId) {
+            $counts[$optionId] = (int) ($row["cnt{$optIdx}"] ?? 0);
+        }
+
+        return $counts;
     }
 }
