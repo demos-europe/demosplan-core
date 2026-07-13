@@ -149,13 +149,16 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
                     $customFields = $this->extractCustomFields($rpcRequest);
 
+                    $deadline = $this->extractDeadline($rpcRequest);
+
                     $segments = $this->segmentBulkEditorService->updateSegments(
                         $segments,
                         $addTagIds,
                         $removeTagIds,
                         $assignee,
                         $workflowPlace,
-                        $customFields
+                        $customFields,
+                        $deadline
                     );
 
                     $resultSegments = [...$resultSegments, ...$segments];
@@ -284,6 +287,32 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
         }
 
         return json_decode(json_encode($rawCustomFields), true);
+    }
+
+    // for deadline field
+    private function extractDeadline(object $rpcRequest): ?DateTime
+    {
+        if (!$this->currentUser->hasPermission('field_statement_deadline')) {
+            return null;
+        }
+        $deadline = data_get($rpcRequest, 'params.deadline', null);
+        if (!is_string($deadline)) {
+            return null;
+        }
+        $deadline = trim($deadline);
+        if ('' === $deadline) {
+            return null;
+        }
+        // validate the format so a invalid value surfaces as an invalidParams error instead of an uncaught exception from the DateTime constructor.
+        $date = DateTime::createFromFormat('!Y-m-d', $deadline);
+        $errors = DateTime::getLastErrors();
+        if (!$date instanceof DateTime
+            || (is_array($errors) && ($errors['warning_count'] > 0 || $errors['error_count'] > 0))
+        ) {
+            throw new InvalidArgumentException('Invalid deadline provided; expected format YYYY-MM-DD.');
+        }
+
+        return $date;
     }
 
     /**
