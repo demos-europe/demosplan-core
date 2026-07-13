@@ -93,6 +93,7 @@ class StatementGroupResource
 
     #[ApiProperty(readable: false, writable: true)]
     #[Assert\NotBlank(groups: ['statementgroup:create'], message: 'headStatementId is required to create a statement group.')]
+    #[Assert\IsNull(groups: ['statementgroup:update'], message: 'headStatementId cannot be changed via PATCH.')]
     public ?string $headStatementId = null;
 
     /** @var StatementResource[] */
