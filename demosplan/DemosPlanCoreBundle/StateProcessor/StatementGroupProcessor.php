@@ -17,6 +17,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProcessorInterface;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementGroupResource;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementResource;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\NotAllStatementsGroupableException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -46,13 +47,13 @@ class StatementGroupProcessor implements ProcessorInterface
         $this->clusterAccessChecker->checkClusterAccess();
 
         $procedure = $this->currentProcedureService->getProcedure();
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             throw new BadRequestHttpException('A procedure context is required for statement group operations.');
         }
 
         // DELETE has no body, so $data is null: handle it before the assert.
         if ($operation instanceof HttpOperation && Request::METHOD_DELETE === $operation->getMethod()) {
-            return $this->delete((string) ($uriVariables['id'] ?? ''), $procedure->getId());
+            return $this->delete((string) ($uriVariables['id'] ?? ''));
         }
 
         Assert::isInstanceOf($data, StatementGroupResource::class);
@@ -72,15 +73,18 @@ class StatementGroupProcessor implements ProcessorInterface
      * (see StatementHandler::detachStatementFromCluster), so the group ceases to exist.
      * Returns null: the operation is declared output: false, so API Platform responds 204.
      */
-    private function delete(string $groupId, string $procedureId): ?Response
+    private function delete(string $groupId): ?Response
     {
-        $group = $this->statementHandler->getStatement($groupId);
-        // Scope to the current procedure; foreign group reported as "not found".
-        if (!$group instanceof Statement
-            || !$group->isClusterStatement()
-            || $group->getProcedureId() !== $procedureId) {
+        try {
+            $group = $this->statementRepository->getEntityByIdentifier(
+                $groupId,
+                $this->clusterAccessChecker->getAccessConditions(),
+                ['id']
+            );
+        } catch (InvalidArgumentException) {
             throw new NotFoundHttpException(sprintf('Statement group "%s" not found.', $groupId));
         }
+        Assert::isInstanceOf($group, Statement::class);
 
         // Snapshot: detaching mutates the collection.
         foreach ($group->getCluster()->toArray() as $member) {

@@ -18,7 +18,6 @@ use ApiPlatform\State\ProcessorInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementGroupResource;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssignService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
@@ -58,7 +57,6 @@ class StatementGroupRelationshipProcessor implements ProcessorInterface
     private const MEMBER_TYPE = 'Statement';
 
     public function __construct(
-        private readonly CurrentProcedureService $currentProcedureService,
         private readonly CurrentUserInterface $currentUser,
         private readonly StatementClusterAccessChecker $clusterAccessChecker,
         private readonly StatementRepository $statementRepository,
@@ -70,11 +68,6 @@ class StatementGroupRelationshipProcessor implements ProcessorInterface
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): StatementGroupResource|Response
     {
         $this->clusterAccessChecker->checkClusterAccess();
-
-        $procedure = $this->currentProcedureService->getProcedure();
-        if (null === $procedure) {
-            throw new BadRequestHttpException('A procedure context is required for statement group operations.');
-        }
 
         $groupId = (string) ($uriVariables['id'] ?? '');
 
@@ -97,12 +90,12 @@ class StatementGroupRelationshipProcessor implements ProcessorInterface
             $this->detachMembers(array_values(array_intersect($memberIds, $currentIds)));
         } else {
             $toAdd = array_values(array_diff($memberIds, $currentIds));
-            $blockers = $this->findAddBlockers($toAdd, $procedure->getId());
+            $blockers = $this->findAddBlockers($toAdd, $group->getProcedureId());
             if ([] !== $blockers) {
                 // Adding is atomic: reject the whole request, change nothing.
                 return $this->unprocessableEntity($blockers);
             }
-            $this->addMembers($procedure->getId(), $groupId, $toAdd);
+            $this->addMembers($group->getProcedureId(), $groupId, $toAdd);
         }
 
         $updatedGroup = $this->statementHandler->getStatement($groupId);
