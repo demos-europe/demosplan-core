@@ -98,7 +98,7 @@ const totalPages = computed(() => Math.ceil(groupStatements.value.length / PAGE_
 
 async function fetchGroup () {
   try {
-    const response = await dpApi.get(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${props.statement.id}?include=statements`)
+    const response = await dpApi.get(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${props.statement.id}`, { include: 'statements' })
 
     groupName.value = response.data.data.attributes.groupName
     initialGroupName.value = response.data.data.attributes.groupName

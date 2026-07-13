@@ -864,7 +864,7 @@ export default {
       Object.values(this.statementsObject)
         .filter(statement => statement.attributes.isCluster && this.groupMemberCounts[statement.id] == null)
         .forEach(head => {
-          dpApi.get(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${head.id}?properties[]=statementsCount`)
+          dpApi.get(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${head.id}`, { properties: ['statementsCount'] })
             .then(response => {
               this.groupMemberCounts[head.id] = response.data.data.attributes.statementsCount
             })

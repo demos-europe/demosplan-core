@@ -265,7 +265,7 @@ const handleApply = async () => {
 
 const fetchGroups = async () => {
   try {
-    const response = await dpApi.get(`${Routing.getBaseUrl()}/api/3.0/StatementGroup?properties[]=externId&properties[]=groupName`)
+    const response = await dpApi.get(`${Routing.getBaseUrl()}/api/3.0/StatementGroup`, { properties: ['externId', 'groupName'] })
 
     groups.value = response.data.data
   } catch (error) {
