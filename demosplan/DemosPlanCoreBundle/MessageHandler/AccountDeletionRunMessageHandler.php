@@ -108,6 +108,15 @@ final class AccountDeletionRunMessageHandler
 
     private function processCandidate(UserInterface $user): void
     {
+        // Accounts provisioned by an external identity provider are never soft-deleted
+        // by the inactivity cascade — their lifecycle is owned by the IdP. They are
+        // already excluded from the candidate query; this guard is the defensive belt
+        // in case such a user reaches the handler by another path. Removal of these
+        // accounts, if ever needed, is handled manually via the deletion command.
+        if ($user->isProvidedByIdentityProvider()) {
+            return;
+        }
+
         $tracking = $this->trackingRepository->findOneByUser($user);
         $step = $this->activityChecker->evaluateInactivityStep($user, $tracking);
 
