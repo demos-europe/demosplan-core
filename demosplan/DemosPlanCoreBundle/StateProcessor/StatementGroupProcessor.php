@@ -89,9 +89,9 @@ class StatementGroupProcessor implements ProcessorInterface
 
     private function create(StatementGroupResource $data, string $procedureId): StatementGroupResource|Response
     {
-        if (null === $data->headStatementId || '' === $data->headStatementId) {
-            throw new BadRequestHttpException('headStatementId is required to create a statement group.');
-        }
+        // Presence is enforced by StatementGroupResource's NotBlank constraint
+        // (statementgroup:create validation group); narrow the type for static analysis.
+        Assert::stringNotEmpty($data->headStatementId);
 
         $headStatement = $this->statementHandler->getStatement($data->headStatementId);
         if (!$headStatement instanceof Statement) {

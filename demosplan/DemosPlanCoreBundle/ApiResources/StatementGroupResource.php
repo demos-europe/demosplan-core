@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\StateProcessor\StatementGroupProcessor;
 use demosplan\DemosPlanCoreBundle\StateProcessor\StatementGroupRelationshipProcessor;
 use demosplan\DemosPlanCoreBundle\StateProvider\StatementGroupStateProvider;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'StatementGroup',
@@ -35,10 +36,12 @@ use demosplan\DemosPlanCoreBundle\StateProvider\StatementGroupStateProvider;
             uriTemplate: '/StatementGroup',
             read: false,
             processor: StatementGroupProcessor::class,
+            validationContext: ['groups' => ['statementgroup:create']],
         ),
         new Patch(
             uriTemplate: '/StatementGroup/{id}',
             processor: StatementGroupProcessor::class,
+            validationContext: ['groups' => ['statementgroup:update']],
         ),
         new Delete(
             uriTemplate: '/StatementGroup/{id}',
@@ -62,7 +65,7 @@ use demosplan\DemosPlanCoreBundle\StateProvider\StatementGroupStateProvider;
         ),
     ],
     formats: ['jsonapi'],
-    routePrefix: '/3.0',
+    routePrefix: ApiPlatformConstants::ROUTE_PREFIX_V3,
     provider: StatementGroupStateProvider::class,
 )]
 #[ApiFilter(PropertyFilter::class)]
@@ -87,10 +90,12 @@ class StatementGroupResource
     public string $initialOrganisationName = '';
 
     #[ApiProperty(readable: false, writable: true)]
+    #[Assert\NotBlank(groups: ['statementgroup:create'], message: 'headStatementId is required to create a statement group.')]
     public ?string $headStatementId = null;
 
     /** @var StatementResource[] */
     #[ApiProperty(readable: true, writable: true)]
+    #[Assert\Count(max: 0, groups: ['statementgroup:update'], maxMessage: 'Statements cannot be modified via PATCH; use the relationships endpoint instead.')]
     public array $statements = [];
 
     #[ApiProperty(readable: true, writable: false)]
