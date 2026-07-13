@@ -104,6 +104,7 @@
     </div>
 
     <!-- Places and Assignee Section -->
+    <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
     <div
       aria-labelledby="floatingContextButton_placesAndAssignee"
       class="relative py-1 pl-2 pr-5 -mr-4"
@@ -179,6 +180,7 @@
     </div>
 
     <!-- Additional Fields Section -->
+    <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
     <div
       v-if="showAdditionalFields"
       aria-labelledby="floatingContextButton_additionalFields"
