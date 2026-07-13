@@ -66,8 +66,6 @@ class StatementGroupProcessor implements ProcessorInterface
         if ($operation instanceof Post) {
             return $this->create($data, $procedure->getId());
         }
-
-
     }
 
     /**
