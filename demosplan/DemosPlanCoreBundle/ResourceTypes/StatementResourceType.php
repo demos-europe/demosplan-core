@@ -34,6 +34,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionServic
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftsListJsonMigrator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftsListJsonPositionMigrator;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftsListJsonSegmentFields;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
@@ -82,6 +83,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         HTMLSanitizer $htmlSanitizer,
         private readonly DraftsListJsonMigrator $draftsListJsonMigrator,
         private readonly DraftsListJsonPositionMigrator $draftsListJsonPositionMigrator,
+        private readonly DraftsListJsonSegmentFields $draftsListJsonSegmentFields,
         private readonly JsonApiEsService $jsonApiEsService,
         private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
         private readonly QueryStatement $esQuery,
@@ -403,10 +405,30 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                         return null;
                     }
                     $data = Json::decodeToArray($draftsListJson);
-                    if ($this->draftsListJsonMigrator->needsMigration($data)) {
+
+                    $needsMigration = $this->draftsListJsonMigrator->needsMigration($data);
+                    $needsPositionMigration = $this->draftsListJsonPositionMigrator->needsMigration($data);
+
+                    if ($needsMigration) {
                         $data = $this->draftsListJsonMigrator->migrate($data);
-                    } elseif ($this->draftsListJsonPositionMigrator->needsMigration($data)) {
+                    } elseif ($needsPositionMigration) {
                         $data = $this->draftsListJsonPositionMigrator->migrate($data);
+                    }
+
+                    // A legacy draft that neither migrator could fully convert to the new
+                    // <segment-mark> format is dropped: a partially wrapped document desyncs the
+                    // segment editor (a card without a matching mark crashes on delete). The stale
+                    // draft is also reset to null in the database so the statement matches one that
+                    // never had a draft — the segmentation pipeline (demospipes) only requests fresh
+                    // proposals when the stored draft is empty, and its request guard reads the raw
+                    // column, not this migrated view. Returning null then lets the frontend request
+                    // those fresh proposals in the new format.
+                    if (($needsMigration || $needsPositionMigration)
+                        && !$this->draftsListJsonSegmentFields->allSegmentsWrapped($data)) {
+                        $statement->setDraftsListJson(null);
+                        $this->getEntityManager()->flush();
+
+                        return null;
                     }
 
                     return $data;

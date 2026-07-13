@@ -35,6 +35,24 @@ class DraftsListJsonSegmentFields
         return false;
     }
 
+    /**
+     * True if every segment ended up wrapped in a <segment-mark> in textualReference, i.e. the
+     * legacy draft was fully converted to the new format. A migrator leaves a segment unwrapped
+     * when its text no longer matches textualReference verbatim, or its positions are missing /
+     * out of bounds / overlapping. A partially converted draft is treated as a conversion failure
+     * by callers, which then drop it rather than render a document the segment editor can't sync
+     * with. Each wrapped segment contributes exactly one `<segment-mark data-segment-id=` opener,
+     * and textualReference is guaranteed mark-free before migration, so counting openers against
+     * the segment count is exact.
+     */
+    public function allSegmentsWrapped(array $data): bool
+    {
+        $segments = $data['data']['attributes']['segments'] ?? [];
+        $textualReference = $data['data']['attributes']['textualReference'] ?? '';
+
+        return count($segments) === substr_count($textualReference, '<segment-mark data-segment-id=');
+    }
+
     public function stripPositionFields(array $segment): array
     {
         unset(
