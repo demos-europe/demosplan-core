@@ -5,11 +5,37 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.48.0 (2026-07-07)
 
 - new SegmentTagsChangedEvent implements new interface added to contract layer in:
 - This core version will depend on the contract layer being > v...
 
 ### Added
+- Make procedure phase definitions deletable (condition: not currently in use and not configuration-phase)
+- Add statement export via planner-uploaded DOCX layout template: planners upload a `.docx` via TUS,
+  the backend validates `${…}` placeholders against a whitelist and clones the
+  `${AbschnitteAlsAbsätze}` … `${/AbschnitteAlsAbsätze}` block per segment to render the response letter
+  (permission: `feature_statement_via_template_export`, EWM-only for v1; frontend modal integration pending)
+
+### Fixed
+- Adjust organization type key in platform statistics: Replace 'procedure.agency' with 'municipality' in OrgaService::getAcceptedOrgaCountByType()
+
+## v4.47.1 (2026-07-06)
+
+### Fixed
+- Statements that were split under the previous exchange format could no longer be edited or deleted in the split view; such drafts are now converted to the current segment-mark format when opened
+
+## v4.47.0 (2026-06-24)
+
+## v4.46.0 (2026-06-19)
+## v4.45.1 (2026-07-03)
+### Fixed 
+- Manual drag-and-drop reordering of documents in the plan document category admin now saves correctly
+
+## v4.45.0 (2026-06-19)
+### Added
+- Delete Institution Text CustomFields
+- Delete Statement multiSelect CustomFields
 - Make procedure phase definitions editable
 - Segment lock feature: workflow places can now be marked as locked, making segments on them read-only for users without the `feature_administrate_segment_lock` permission. Enforced on JSON:API PATCH, `segment.bulk.edit` RPC, and place updates; transitions are recorded in the segment Versionsverlauf.
 - Permission `feature_segment_lock_by_workflow_place` (exposed, login-required) toggles the segment lock feature per project. Grant it in `projects/<name>/.../Permissions.php` to every role that should see the feature. Requires `demos-europe/demosplan-addon` ^0.68.1.
@@ -334,6 +360,13 @@
 ## v4.18.1 (2025-10-16)
 ## v4.18.0 (2025-10-13)
 
+## v4.16.5 (2026-06-26)
+### Fixed
+- Sorting the assessment table by submitter no longer produces an empty table.
+- The authored date of a statement can no longer be set after its submission date when creating or editing a statement.
+- ODT exports of the assessment table now include table-cell borders.
+- Procedure archive exports now handle non-ASCII characters in file names correctly.
+
 ## v4.16.3 (2026-02-05)
 
 ## v4.16.1 (2025-10-16)
@@ -351,6 +384,11 @@
 ### Features
 - Add possibility to delete custom fields and their options
 
+## v4.15.6 (2026-06-26)
+- Reject an authored date later than the submission date when editing or manually changing a statement
+- Sorting the assessment table by submitter no longer hides all statements
+- Assessment table exports in ODT/LibreOffice format now include visible table-cell borders
+
 ## v4.15.4 (2026-03-06)
 - Fix statement vote on mysql8+, immediately show vote
 - Rate limit new statements only for anonymous users
@@ -362,6 +400,13 @@
 - fix zip download for older uploads
 
 ## v4.15.0 (2025-09-15)
+
+## v4.14.4 (2026-06-26)
+- Statements no longer accept an authoring date later than the submission date
+- Sorting the assessment table by submitter no longer hides all statements
+- LibreOffice/ODT exports of the assessment table now include table-cell borders
+- Editing the process step, authoring date and submission date is now restricted to manually recorded statements
+- Rate limiting for new statements now applies only to anonymous users
 
 ## v4.14.3 (2026-02-06)
 ## v4.14.2 (2025-12-02)
@@ -392,6 +437,21 @@
 - Migrate to Tailwind CSS v4
 
 ## v4.7.0 (2025-07-18)
+
+## v4.6.5 (2026-06-26)
+
+### Fixed
+- When creating or editing a statement, the authoring date can no longer be set later than the submission date
+- The assessment table no longer appears empty when sorting by submitter
+
+## v4.6.4 (2026-05-08)
+
+### Fixed
+- Changing a single FAQ entry from blocked to released directly in the FAQ list now works
+- In the assessment table, fields such as procedure phase, authoring date and submission date can no longer be edited on online-submitted statements; they remain editable only for manually recorded statements
+- The cookie banner is now styled correctly on the start page for logged-in users
+- The project's primary color is used again on the affected buttons and elements, and the procedure search field is restored to its proper width
+- Pagination in the assessment table now responds on the first click, the entries-per-page dropdown works again, and the selected page is retained when changing the page size
 
 ## v4.6.3 (2026-02-18)
 - Allow to configure procedures to accept or not anonymous statements

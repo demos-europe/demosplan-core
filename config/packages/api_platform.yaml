@@ -21,3 +21,10 @@ api_platform:
             rfc_7807_compliant_errors: true
     keep_legacy_inflector: false
     use_symfony_listeners: false
+    serializer:
+        # Preserve the current JSON-LD output; the "hydra:" prefix default flips in api-platform 4.0.
+        hydra_prefix: true
+    validator:
+        # Opt out of the deprecated query-parameter validation system (removed in api-platform 4.0).
+        # We declare no ApiResource query parameters, so the legacy ParameterValidator is unused.
+        legacy_query_parameter_validation: false

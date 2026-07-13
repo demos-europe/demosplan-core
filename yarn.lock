@@ -2899,9 +2899,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@demos-europe/demosplan-ui@npm:0.24.0":
-  version: 0.24.0
-  resolution: "@demos-europe/demosplan-ui@npm:0.24.0"
+"@demos-europe/demosplan-ui@npm:0.25.0":
+  version: 0.25.0
+  resolution: "@demos-europe/demosplan-ui@npm:0.25.0"
   dependencies:
     "@braintree/sanitize-url": "npm:^7.0.0"
     "@floating-ui/dom": "npm:^1.6.0"
@@ -2954,7 +2954,7 @@ __metadata:
     vue-click-outside: "npm:^1.1.0"
     vue-multiselect: "npm:^3.1.0"
     vue-sliding-pagination: "npm:^v2.0.0-alpha-1"
-  checksum: 10c0/10ba6fcea4e10c904b0207965a9a6c461358bff5fb3edcdcb30b0c4fb90334f9f1d4f7f75c2ccb98999a059548b1bf894e3ddc8a311be149433a34687ebd4fa1
+  checksum: 10c0/9b201eb76aa1b932380deb23dfa23c58edff9adeb57ae47c27fa8ff57bb37f56bac6603f376645285286901fc3e96559b966e41a8e60f9d8e01be5e412c4c966
   languageName: node
   linkType: hard
 
@@ -8011,7 +8011,7 @@ __metadata:
     "@carbon/icons-vue": "npm:10.99.1"
     "@carbon/vue": "npm:^3.0.27"
     "@cesium/engine": "npm:^20.0.1"
-    "@demos-europe/demosplan-ui": "npm:0.24.0"
+    "@demos-europe/demosplan-ui": "npm:0.25.0"
     "@demos-europe/dp-consent": "npm:^1.3"
     "@efrane/vuex-json-api": "npm:^0.1.3"
     "@eslint/js": "npm:^9.39.1"
@@ -11065,14 +11065,14 @@ __metadata:
   linkType: hard
 
 "js-yaml@npm:^3.13.1":
-  version: 3.14.2
-  resolution: "js-yaml@npm:3.14.2"
+  version: 3.15.0
+  resolution: "js-yaml@npm:3.15.0"
   dependencies:
     argparse: "npm:^1.0.7"
     esprima: "npm:^4.0.0"
   bin:
     js-yaml: bin/js-yaml.js
-  checksum: 10c0/3261f25912f5dd76605e5993d0a126c2b6c346311885d3c483706cd722efe34f697ea0331f654ce27c00a42b426e524518ec89d65ed02ea47df8ad26dcc8ce69
+  checksum: 10c0/ca966bd354ac5b1b7a4694ebdba46526796aa3a6a99529fa540af2abf85918bd155a50ccc0166b413130a00622999973754458ec01e7095bc902177bfdbd5b64
   languageName: node
   linkType: hard
 
