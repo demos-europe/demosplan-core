@@ -90,6 +90,7 @@ class StatementGroupRelationshipProcessor implements ProcessorInterface
         if ($operation instanceof Delete) {
             // Apply only the delta: idempotent and concurrency-safe.
             $this->detachMembers(array_values(array_intersect($memberIds, $currentIds)));
+
             return $this->buildResponse($groupId);
         }
 
@@ -101,14 +102,15 @@ class StatementGroupRelationshipProcessor implements ProcessorInterface
                 return $this->unprocessableEntity($blockers);
             }
             $this->addMembers($group->getProcedureId(), $groupId, $toAdd);
+
             return $this->buildResponse($groupId);
         }
 
         throw new LogicException(sprintf('%s is wired as the processor for unsupported operation "%s"; only Post and Delete are handled.', self::class, $operation::class));
-
     }
 
-    private function buildResponse(string $groupId):StatementGroupResource {
+    private function buildResponse(string $groupId): StatementGroupResource
+    {
         $updatedGroup = $this->statementHandler->getStatement($groupId);
         if (!$updatedGroup instanceof Statement) {
             // Last member detached: cluster dissolved and group deleted. Reachable
