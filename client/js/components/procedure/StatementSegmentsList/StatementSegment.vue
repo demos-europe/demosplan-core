@@ -677,7 +677,7 @@ export default {
       }
 
       const initialFieldsById = Object.fromEntries(
-        this.initialCustomFieldValues.map(field => [field.id, field])
+        this.initialCustomFieldValues.map(field => [field.id, field]),
       )
 
       return this.customFieldValues.some((currentField) => {
