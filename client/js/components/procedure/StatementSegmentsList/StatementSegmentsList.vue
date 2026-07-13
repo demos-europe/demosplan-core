@@ -159,6 +159,16 @@
               @click="detachFromGroup"
             />
           </li>
+          <li v-if="isCluster">
+            <dp-button
+              :text="Translator.trans('cluster.release')"
+              class="h-fit"
+              color="warning"
+              data-cy="statementSegmentsList:dissolveGroup"
+              variant="subtle"
+              @click="dissolveGroup"
+            />
+          </li>
         </ul>
       </header>
     </dp-sticky-element>
@@ -468,6 +478,11 @@ export default {
       return Object.keys(this.segments).length > 0
     },
 
+    // A statement is a group head when it is itself a cluster
+    isCluster () {
+      return Boolean(this.statement?.attributes?.isCluster)
+    },
+
     isCurrentUserAssigned () {
       if (this.statement.relationships && this.statement?.relationships?.assignee?.data !== null) {
         return this.currentUser.id === this.statement.relationships.assignee.data.id
@@ -650,6 +665,30 @@ export default {
         dplan.notify.notify('error', Translator.trans('error.statement.detach.cluster.element', {
           statementId: this.statementExternId,
         }))
+      }
+    },
+
+    async dissolveGroup () {
+      if (!globalThis.dpconfirm(Translator.trans('check.cluster.release'))) {
+        return
+      }
+
+      try {
+        // No body needed: the operation is declared deserialize:false/output:false, backend responds 204.
+        await dpApi.delete(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${this.statement.id}`)
+
+        /*
+         * This head detail page no longer exists once the group is dissolved — go back to the
+         * statement list. The externId travels via lscache so the list can show the "group resolved"
+         * toast on mount (URL stays clean).
+         */
+        lscache.set(`${this.procedure.id}:clusterResolved`, this.statementExternId)
+        globalThis.location.href = Routing.generate('dplan_procedure_statement_list', {
+          procedureId: this.procedure.id,
+        })
+      } catch (error) {
+        console.error('Failed to dissolve statement group:', error)
+        dplan.notify.notify('error', Translator.trans('error.api.generic'))
       }
     },
 

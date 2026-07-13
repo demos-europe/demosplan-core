@@ -134,6 +134,18 @@ async function saveGroupName () {
   }
 }
 
+/*
+ * Both dissolving the group and detaching its last member end the same way: this head detail
+ * page no longer exists, so send the user back to the statement list. The group externId travels
+ * via lscache so the list can show the "group resolved" toast on mount (URL stays clean).
+ */
+function redirectToListWithResolvedToast () {
+  lscache.set(`${props.procedureId}:clusterResolved`, props.statement.attributes.externId)
+  globalThis.location.href = Routing.generate('dplan_procedure_statement_list', {
+    procedureId: props.procedureId,
+  })
+}
+
 async function removeGroupStatement (id) {
   // Snapshot for rollback if the request fails, so UI and backend stay in sync.
   const previous = [...groupStatements.value]
@@ -153,16 +165,9 @@ async function removeGroupStatement (id) {
       data: [{ type: 'Statement', id }],
     })
 
-    /*
-     * Removing the last member dissolves the group (the backend deletes the head statement),
-     * so this head detail page no longer exists — go back to the statement list. The group externId
-     * travels via lscache so the list can show the "group resolved" toast on mount (URL stays clean).
-     */
+    // Removing the last member dissolves the group (the backend deletes the head statement).
     if (0 === groupStatements.value.length) {
-      lscache.set(`${props.procedureId}:clusterResolved`, props.statement.attributes.externId)
-      globalThis.location.href = Routing.generate('dplan_procedure_statement_list', {
-        procedureId: props.procedureId,
-      })
+      redirectToListWithResolvedToast()
 
       return
     }
