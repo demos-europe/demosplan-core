@@ -72,10 +72,12 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+
   procedureId: {
     type: String,
     default: '',
   },
+
   statement: {
     type: Object,
     required: true,

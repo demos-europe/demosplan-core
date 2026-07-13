@@ -457,6 +457,13 @@ export default {
       }
     },
 
+    // The group is identified by the head statement's externId (e.g. "GM7"), reachable via the headStatement relationship
+    groupName () {
+      return this.statement?.relationships?.headStatement?.data ?
+        this.statement.relationships.headStatement.get()?.attributes?.externId || '' :
+        ''
+    },
+
     hasSegments () {
       return Object.keys(this.segments).length > 0
     },
@@ -476,6 +483,11 @@ export default {
       }
 
       return !this.originalAttachment.hash && this.additionalAttachments.length === 0
+    },
+
+    // A statement is a group member when it points to a head statement
+    isGroupMember () {
+      return Boolean(this.statement?.relationships?.headStatement?.data)
     },
 
     navigationSource () {
@@ -512,18 +524,6 @@ export default {
 
     statement () {
       return this.statements[this.statementId] || null
-    },
-
-    // The group is identified by the head statement's externId (e.g. "GM7"), reachable via the headStatement relationship
-    groupName () {
-      return this.statement?.relationships?.headStatement?.data ?
-        this.statement.relationships.headStatement.get()?.attributes?.externId || '' :
-        ''
-    },
-
-    // A statement is a group member when it points to a head statement
-    isGroupMember () {
-      return Boolean(this.statement?.relationships?.headStatement?.data)
     },
   },
 
