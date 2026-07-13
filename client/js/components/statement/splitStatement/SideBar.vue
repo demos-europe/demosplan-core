@@ -40,7 +40,6 @@
 
     <!-- Tags Section -->
     <div
-      role="group"
       aria-labelledby="floatingContextButton_tags"
       :class="['flex-1', 'flex', 'pl-2', 'pr-5', '-mr-4', { 'overflow-y-scroll': availableTags.length && tagTopics.length > 8 }]"
       @mouseover="showFloatingContextButton.tags = true"
@@ -106,7 +105,6 @@
 
     <!-- Places and Assignee Section -->
     <div
-      role="group"
       aria-labelledby="floatingContextButton_placesAndAssignee"
       class="relative py-1 pl-2 pr-5 -mr-4"
       @mouseover="showFloatingContextButton.placesAndAssignee = true"

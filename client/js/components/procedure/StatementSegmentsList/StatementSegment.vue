@@ -1157,7 +1157,7 @@ export default {
     },
 
     restoreInitialCustomFields () {
-      this.customFieldValues = JSON.parse(JSON.stringify(this.initialCustomFieldValues))
+      this.customFieldValues = structuredClone(this.initialCustomFieldValues)
     },
 
     restoreInitialSelections () {
@@ -1190,7 +1190,7 @@ export default {
       return useCustomFields()
         .updateCustomFields('StatementSegment', this.segment.id, this.customFieldValues)
         .then(() => {
-          this.initialCustomFieldValues = JSON.parse(JSON.stringify(this.customFieldValues))
+          this.initialCustomFieldValues = structuredClone(this.customFieldValues)
         })
         .catch(() => {
           const { getCustomFieldsDefinitions } = useCustomFields()
