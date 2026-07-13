@@ -62,7 +62,7 @@ use demosplan\DemosPlanCoreBundle\StateProvider\StatementGroupStateProvider;
         ),
     ],
     formats: ['jsonapi'],
-    routePrefix: '/3.0',
+    routePrefix: ApiPlatformConstants::ROUTE_PREFIX_V3,
     provider: StatementGroupStateProvider::class,
 )]
 #[ApiFilter(PropertyFilter::class)]

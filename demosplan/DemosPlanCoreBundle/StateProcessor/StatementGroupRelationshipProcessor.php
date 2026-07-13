@@ -21,13 +21,17 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssignService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ResourceAccess\StatementClusterAccessChecker;
 use Exception;
+use InvalidArgumentException;
 use JsonException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Webmozart\Assert\Assert;
 
 /**
  * Adds (POST) or removes (DELETE) statements from a group's membership via the
@@ -57,6 +61,7 @@ class StatementGroupRelationshipProcessor implements ProcessorInterface
         private readonly CurrentProcedureService $currentProcedureService,
         private readonly CurrentUserInterface $currentUser,
         private readonly StatementClusterAccessChecker $clusterAccessChecker,
+        private readonly StatementRepository $statementRepository,
         private readonly StatementHandler $statementHandler,
         private readonly AssignService $assignService,
     ) {
@@ -72,13 +77,17 @@ class StatementGroupRelationshipProcessor implements ProcessorInterface
         }
 
         $groupId = (string) ($uriVariables['id'] ?? '');
-        $group = $this->statementHandler->getStatement($groupId);
-        // Scope to the current procedure; foreign group reported as "not found".
-        if (!$group instanceof Statement
-            || !$group->isClusterStatement()
-            || $group->getProcedureId() !== $procedure->getId()) {
-            throw new BadRequestHttpException(sprintf('Statement group "%s" not found.', $groupId));
+
+        try {
+            $group = $this->statementRepository->getEntityByIdentifier(
+                $groupId,
+                $this->clusterAccessChecker->getAccessConditions(),
+                ['id']
+            );
+        } catch (InvalidArgumentException) {
+            throw new NotFoundHttpException(sprintf('Statement group "%s" not found.', $groupId));
         }
+        Assert::isInstanceOf($group, Statement::class);
 
         $memberIds = $this->readMemberIds($context, $groupId);
         $currentIds = array_map(static fn (Statement $s): string => $s->getId(), $group->getCluster()->toArray());
