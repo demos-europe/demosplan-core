@@ -823,7 +823,7 @@ class ExportService
                 [],    // exportFilteredByTags
                 false, // censorCitizenData
                 false, // censorInstitutionData
-                '', //customHeaderText
+                '', // customHeaderText
                 ...$statementEntities
             );
 
