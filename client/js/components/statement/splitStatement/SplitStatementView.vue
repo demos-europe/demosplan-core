@@ -187,18 +187,28 @@ import {
   setRange,
   setRangeEditingState,
 } from '@DpJs/lib/prosemirror/commands'
-import { dpApi, DpButton, DpFlyout, DpInlineNotification, DpLoading, DpStickyElement } from '@demos-europe/demosplan-ui'
+import {
+  dpApi,
+  DpButton,
+  DpFlyout,
+  DpInlineNotification,
+  DpLoading,
+  DpStickyElement,
+  hasOwnProp,
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
+import { DOMParser, DOMSerializer } from 'prosemirror-model'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CardPane from './CardPane'
 import dayjs from 'dayjs'
-import { DOMSerializer } from 'prosemirror-model'
+import { EditorState } from 'prosemirror-state'
 import { generateRangeChangeMap } from '@DpJs/lib/prosemirror/utilities'
+import { v4 as uuid } from 'uuid'
 import SegmentationEditor from './SegmentationEditor'
 import SideBar from './SideBar'
 import StatementMeta from '@DpJs/components/procedure/StatementSegmentsList/StatementMeta/StatementMeta'
 import StatementMetaTooltip from '../StatementMetaTooltip'
-import { v4 as uuid } from 'uuid'
+
 /**
  * Merges ProseMirror segmentMark data with segment metadata from the store.
  *
@@ -214,13 +224,14 @@ const mergeSegmentMarksAndSegments = (segmentMarks, segments) => {
 
   segmentMarks.forEach(mark => {
     const segment = segments.find(seg => seg.id === mark.segmentId)
-    const mergedSegment = { ...segment }
 
     if (!segment) {
       console.warn('A segment was updated in Prosemirror but no corresponding segment found in store.')
 
       return
     }
+
+    const mergedSegment = { ...segment }
 
     mergedSegment.status = mark.isConfirmed ? 'confirmed' : false
     mergedSegments.push(mergedSegment)
@@ -323,6 +334,7 @@ export default {
       'initialData',
       'initText',
       'isBusy',
+      'needsEditorRefresh',
       'segmentById',
       'segments',
       'statement',
@@ -375,6 +387,13 @@ export default {
         }
       },
       deep: false, // Set default for migrating purpose. To know this occurrence is checked
+    },
+
+    needsEditorRefresh (shouldRerender) {
+      if (shouldRerender && this.prosemirror) {
+        this.refreshEditorContent()
+        this.setProperty({ prop: 'needsEditorRefresh', val: false })
+      }
     },
   },
 
@@ -796,6 +815,17 @@ export default {
       this.setCurrentTime()
     },
 
+    initializeSegmentStatus (segment, mark) {
+      if (hasOwnProp(segment, 'status')) {
+        return segment
+      }
+
+      return {
+        ...segment,
+        status: mark.isConfirmed ? 'confirmed' : false,
+      }
+    },
+
     resetProsemirrorState () {
       this.ignoreProsemirrorUpdates = true
       const { state } = this.prosemirror.view
@@ -823,18 +853,18 @@ export default {
     },
 
     /**
-     * Post-initialization tasks after ProseMirror editor is ready:
-     * 1. Store prosemirror instance and plugin states for component access
-     * 2. Synchronize segment metadata with segmentMarks parsed from HTML
-     * 3. Enable prosemirror change listeners by setting ignoreProsemirrorUpdates to false
+     * Performs post-initialization setup once the ProseMirror editor is ready.
+     *
+     * Stores the ProseMirror instance and synchronizes the confirmation state
+     * between segments and ProseMirror marks.
      */
     runPostInitTasks (prosemirrorState) {
       this.prosemirror = prosemirrorState
       const { state } = this.prosemirror.view
       const segmentMarks = Object.values(this.prosemirror.keyAccess.rangeTrackerKey.getState(state))
-      const updatedSegments = mergeSegmentMarksAndSegments(segmentMarks, this.segments)
 
-      this.locallyUpdateSegments(updatedSegments)
+      this.ignoreProsemirrorUpdates = true
+      this.syncSegmentMarkStatuses(segmentMarks)
       this.ignoreProsemirrorUpdates = false
     },
 
@@ -852,10 +882,6 @@ export default {
         if (window.dpconfirm(Translator.trans('statement.split.complete.confirm'))) {
           this.setProperty({ prop: 'isBusy', val: true })
           try {
-            const segmentMarks = this.prosemirror.keyAccess.rangeTrackerKey.getState(this.prosemirror.view.state)
-            const segmentsWithText = this.segments.filter(segment => !!segmentMarks[segment.id])
-
-            this.setProperty({ prop: 'segmentsWithText', val: segmentsWithText })
             const currentStatementText = this.prosemirror.getContent(this.prosemirror.view.state)
 
             this.setProperty({ prop: 'statementText', val: currentStatementText })
@@ -871,6 +897,29 @@ export default {
         dplan.notify.error(Translator.trans('error.statement.missing.segment.drafts'))
         this.setProperty({ prop: 'isBusy', val: false })
       }
+    },
+
+    /**
+     *  Parse restored initText into ProseMirror document
+     */
+    refreshEditorContent () {
+      const wrapper = document.createElement('div')
+
+      wrapper.innerHTML = this.initText
+      const parser = DOMParser.fromSchema(this.prosemirror.view.state.schema)
+      const newDoc = parser.parse(wrapper, { preserveWhitespace: true })
+
+      const newState = EditorState.create({
+        doc: newDoc,
+        plugins: this.prosemirror.view.state.plugins,
+      })
+
+      this.ignoreProsemirrorUpdates = true
+      this.prosemirror.view.updateState(newState)
+      const segmentMarks = Object.values(this.prosemirror.keyAccess.rangeTrackerKey.getState(this.prosemirror.view.state))
+
+      this.syncSegmentMarkStatuses(segmentMarks)
+      this.ignoreProsemirrorUpdates = false
     },
 
     /**
@@ -909,8 +958,56 @@ export default {
       this.maxRange = range
     },
 
+    setSegmentMarkConfirmStatus (mark, segment) {
+      const isConfirmed = segment.status === 'confirmed'
+
+      if (mark.isConfirmed === isConfirmed) {
+        return
+      }
+
+      setRange(this.prosemirror.view)(mark.from, mark.to, {
+        segmentId: mark.segmentId,
+        isConfirmed,
+      })
+    },
+
     setSegmentationStatus (status) {
       this.segmentationStatus = status
+    },
+
+    /**
+     * Synchronizes segment confirmation state between the store and ProseMirror.
+     *
+     * If a segment has no `status` property (e.g. AI-generated segments), it is initialized from the corresponding ProseMirror mark.
+     * Afterwards, the store becomes the source of truth and ProseMirror marks are
+     * updated to match it.
+     */
+    syncSegmentMarkStatuses (segmentMarks) {
+      const segmentsToUpdate = []
+      const segmentsById = Object.fromEntries(
+        this.segments.map(segment => [segment.id, segment]),
+      )
+
+      segmentMarks.forEach(mark => {
+        const segment = segmentsById[mark.segmentId]
+
+        if (!segment) {
+          return
+        }
+
+        const updatedSegment = this.initializeSegmentStatus(segment, mark)
+
+        if (updatedSegment !== segment) {
+          segmentsToUpdate.push(updatedSegment)
+          segmentsById[segment.id] = updatedSegment
+        }
+
+        this.setSegmentMarkConfirmStatus(mark, updatedSegment)
+      })
+
+      if (segmentsToUpdate.length) {
+        this.locallyUpdateSegments(segmentsToUpdate)
+      }
     },
 
     toggleInfobox () {
