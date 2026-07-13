@@ -67,7 +67,7 @@
 
         <!-- Add deadline -->
         <action-stepper-action
-          v-if="hasPermission('field_statement_deadline')"
+          v-if="!hasLockedSelection && hasPermission('field_statement_deadline')"
           id="addDeadlineAction"
           v-model="actions.addDeadline.checked"
           :label="Translator.trans('segments.bulk.edit.deadline.description')"

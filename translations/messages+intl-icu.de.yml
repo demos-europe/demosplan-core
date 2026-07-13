@@ -3327,7 +3327,7 @@ segments.assigned.now: |
     }
 segments.bulk.edit: "Abschnitte bearbeiten"
 segments.bulk.edit.customFields.description: "\"{label}\" wird für die ausgewählten Abschnitte auf folgenden Wert gesetzt:"
-segments.bulk.edit.deadline.assigned.description: "Die Bearbeitungsfrist wurde bei {count} Abschnitten geändert auf:"
+segments.bulk.edit.deadline.assigned.description: "Die Bearbeitungsfrist wurde bei {count} Abschnitten gesetzt auf:"
 segments.bulk.edit.deadline.assigned.error: "Bei {count} Abschnitten konnte die Bearbeitungsfrist nicht geändert werden."
 segments.bulk.edit.deadline.assigned.success: "Bei {count} Abschnitten wurde die Bearbeitungsfrist gesetzt."
 segments.bulk.edit.deadline.description: "Bearbeitungsfrist setzen..."
