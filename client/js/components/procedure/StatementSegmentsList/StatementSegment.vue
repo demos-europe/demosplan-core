@@ -366,7 +366,7 @@
         v-if="shouldShowButtonRow"
         :busy="isSaving"
         class="mt-3"
-        :disabled="isSaving"
+        :disabled="!hasUnsavedChanges || isSaving"
         primary
         secondary
         @primary-action="save"
@@ -765,7 +765,6 @@ export default {
     shouldShowButtonRow () {
       return this.isAssignedToMe &&
         !this.isLocked &&
-        this.hasUnsavedChanges &&
         (this.isEditing || this.showWorkflowFields || this.showAdditionalFields)
     },
 
