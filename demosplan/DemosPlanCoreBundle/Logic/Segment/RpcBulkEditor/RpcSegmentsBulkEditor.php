@@ -65,7 +65,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
  *   "recommendationTextEdit": <JSON object: "text" (string) and "attach" (boolean)>,
  *   "assigneeId": <JSON string user ID, or null to unassign — omit the key to leave the assignee unchanged>,
  *   "placeId": <JSON string: 36-char workflow place UUID>,
- *   "customFields": <JSON array of {id, value} objects, e.g. [{"id": "f3a8…", "value": "high"}]>
+ *   "customFields": <JSON array of {id, value} objects, e.g. [{"id": "f3a8…", "value": "high"}]>,
+ *   "deadline": <JSON string: date in YYYY-MM-DD format, omit to leave unchanged>
  * }
  * ```
  * `addTagIds`, `removeTagIds`, `segmentIds` and `recommendationTextEdit` are
@@ -78,6 +79,11 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
     final public const RPC_JSON_SCHEMA_PATH = 'json-schemas/segment/rpc-segment-bulk-edit-schema.json';
 
     final public const SEGMENTS_BULK_EDIT_METHOD = 'segment.bulk.edit';
+
+    final public const SEGMNETS_BULK_ERROR_MESSAGE = 'Problem while segments bulk editing';
+
+    /** @var SegmentInterface[] */
+    private array $segmentsWithTagChanges = [];
 
     public function __construct(protected CurrentProcedureService $currentProcedure, protected CurrentUserInterface $currentUser, protected LoggerInterface $logger, protected JsonSchemaValidator $jsonValidator, protected PlaceService $placeService, protected ProcedureService $procedureService, protected RpcErrorGenerator $errorGenerator, protected SegmentHandler $segmentHandler, protected SegmentValidator $segmentValidator, protected TagService $tagService, protected TagValidator $tagValidator, private readonly TransactionService $transactionService, protected UserHandler $userHandler, protected SegmentBulkEditorService $segmentBulkEditorService, private readonly EventDispatcherInterface $eventDispatcher)
     {
@@ -93,12 +99,11 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
      */
     public function execute(?ProcedureInterface $procedure, $rpcRequests): array
     {
-        $segmentsWithTagChanges = [];
+        $this->setSegmentsWithTagChanges([]);
 
         $resultResponse = $this->transactionService->executeAndFlushInTransaction(function (EntityManager $entityManager) use (
             $procedure,
             $rpcRequests,
-            &$segmentsWithTagChanges
         ): array {
             $procedureId = $procedure->getId();
 
@@ -158,7 +163,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
                     $deadline = $this->extractDeadline($rpcRequest);
 
-                    $segments = $this->segmentBulkEditorService->updateSegments(
+                    [$segments, $segmentsWithChangedTags] = $this->segmentBulkEditorService->updateSegments(
                         $segments,
                         $addTagIds,
                         $removeTagIds,
@@ -166,19 +171,19 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                         $workflowPlace,
                         $customFields,
                         $deadline,
-                        $segmentsWithTagChanges
                     );
+                    $this->segmentsWithTagChanges = [...$this->segmentsWithTagChanges, ...$segmentsWithChangedTags];
 
                     $resultSegments = [...$resultSegments, ...$segments];
                     $resultResponse[] = $this->generateMethodResult($rpcRequest);
                 } catch (InvalidArgumentException|InvalidSchemaException|UserNotAssignableException $e) {
-                    $this->logger->error('Problem while segments bulk editing', ['Exception' => $e]);
+                    $this->logger->error(self::SEGMNETS_BULK_ERROR_MESSAGE, ['Exception' => $e]);
                     $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
                 } catch (AccessDeniedException|UserNotFoundException $e) {
-                    $this->logger->error('Problem while segments bulk editing', ['Exception' => $e]);
+                    $this->logger->error(self::SEGMNETS_BULK_ERROR_MESSAGE, ['Exception' => $e]);
                     $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
                 } catch (Exception $e) {
-                    $this->logger->error('Problem while segments bulk editing', ['Exception' => $e]);
+                    $this->logger->error(self::SEGMNETS_BULK_ERROR_MESSAGE, ['Exception' => $e]);
                     $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
                 }
             }
@@ -187,15 +192,31 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
             return $resultResponse;
         });
 
-        if ([] !== $segmentsWithTagChanges) {
+        if ([] !== $this->getSegmentsWithTagChanges()) {
             try {
-                $this->dispatchSegmentTagsChangedEvent($segmentsWithTagChanges);
+                $this->dispatchSegmentTagsChangedEvent($this->getSegmentsWithTagChanges());
             } catch (Exception $e) {
                 $this->logger->error('Failed to dispatch SegmentTagsChangedEvent', ['Exception' => $e]);
             }
         }
 
         return $resultResponse;
+    }
+
+    /**
+     * @return SegmentInterface[]
+     */
+    private function getSegmentsWithTagChanges(): array
+    {
+        return $this->segmentsWithTagChanges;
+    }
+
+    /**
+     * @param SegmentInterface[] $segments
+     */
+    private function setSegmentsWithTagChanges(array $segments): void
+    {
+        $this->segmentsWithTagChanges = $segments;
     }
 
     /**

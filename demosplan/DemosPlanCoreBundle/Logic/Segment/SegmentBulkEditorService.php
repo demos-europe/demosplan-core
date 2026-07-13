@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\EntityValidator\TagValidator;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -115,10 +116,26 @@ class SegmentBulkEditorService
         throw new SegmentLockedException('Bulk edit batch contains segments locked for the current user.');
     }
 
-    public function updateSegments($segments, $addTagIds, $removeTagIds, $assignee, $workflowPlace, $customFields, ?DateTime $deadline = null, array &$segmentsWithTagChanges = [])
-    {
+    /**
+     * @param Segment[] $segments
+     * @param Tag[]     $addTagIds
+     * @param Tag[]     $removeTagIds
+     * @param UserInterface|'UNKNOWN'|null $assignee
+     *
+     * @return array{0: Segment[], 1: Segment[]} updated segments and segments whose tags changed
+     */
+    public function updateSegments(
+        array $segments,
+        array $addTagIds,
+        array $removeTagIds,
+        UserInterface|string|null $assignee,
+        ?Place $workflowPlace,
+        array $customFields,
+        ?DateTime $deadline = null
+    ): array {
+        $segmentsWithTagChanges = [];
+
         foreach ($segments as $segment) {
-            /* @var Segment $segment */
             // Track whether the tag set of this segment actually changes. addTag() already
             // returns false when the tag is present, and removeElement reflects whether a tag
             // was really removed, so this needs no extra queries on top of the mutation itself.
@@ -173,7 +190,7 @@ class SegmentBulkEditorService
             }
         }
 
-        return $segments;
+        return [$segments, $segmentsWithTagChanges];
     }
 
     /**
