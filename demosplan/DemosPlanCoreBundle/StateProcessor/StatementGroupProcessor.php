@@ -68,13 +68,7 @@ class StatementGroupProcessor implements ProcessorInterface
             return $this->create($data, $procedure->getId());
         }
 
-        throw new LogicException(sprintf(
-            '%s is wired as the processor for unsupported operation "%s"; only Post, Patch, and Delete are handled.',
-            self::class,
-            $operation::class
-        ));
-
-
+        throw new LogicException(sprintf('%s is wired as the processor for unsupported operation "%s"; only Post, Patch, and Delete are handled.', self::class, $operation::class));
     }
 
     /**
