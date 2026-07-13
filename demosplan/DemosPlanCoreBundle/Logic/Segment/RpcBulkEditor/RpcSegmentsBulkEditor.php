@@ -83,9 +83,9 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
     final public const SEGMNETS_BULK_ERROR_MESSAGE = 'Problem while segments bulk editing';
 
     /** @var SegmentInterface[] */
-    private array $segmentsWithTagChanges = [];
+    protected array $segmentsWithTagChanges = [];
 
-    public function __construct(protected CurrentProcedureService $currentProcedure, protected CurrentUserInterface $currentUser, protected LoggerInterface $logger, protected JsonSchemaValidator $jsonValidator, protected PlaceService $placeService, protected ProcedureService $procedureService, protected RpcErrorGenerator $errorGenerator, protected SegmentHandler $segmentHandler, protected SegmentValidator $segmentValidator, protected TagService $tagService, protected TagValidator $tagValidator, private readonly TransactionService $transactionService, protected UserHandler $userHandler, protected SegmentBulkEditorService $segmentBulkEditorService, private readonly EventDispatcherInterface $eventDispatcher)
+    public function __construct(protected CurrentProcedureService $currentProcedure, protected CurrentUserInterface $currentUser, protected LoggerInterface $logger, protected JsonSchemaValidator $jsonValidator, protected PlaceService $placeService, protected ProcedureService $procedureService, protected RpcErrorGenerator $errorGenerator, protected SegmentHandler $segmentHandler, protected SegmentValidator $segmentValidator, protected TagService $tagService, protected TagValidator $tagValidator, protected readonly TransactionService $transactionService, protected UserHandler $userHandler, protected SegmentBulkEditorService $segmentBulkEditorService, protected readonly EventDispatcherInterface $eventDispatcher)
     {
     }
 
