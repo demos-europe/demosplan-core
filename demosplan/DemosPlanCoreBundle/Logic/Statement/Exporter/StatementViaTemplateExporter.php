@@ -261,7 +261,7 @@ class StatementViaTemplateExporter
         // Two legacy-compatible forms exist:
         //   /file/{hash}                  (old format — no procedureId)
         //   /file/{procedureId}/{hash}    (current format)
-        if (!preg_match('#/file/(?:[^/]+/)?([0-9a-f]{32,64})(?:[/?#]|$)#', $srcMatches[1], $hashMatch)) {
+        if (!preg_match('~/file/(?:[^/]+/)?([0-9a-f]{32,64})(?:[/?#]|$)~', $srcMatches[1], $hashMatch)) {
             $this->logger->warning(
                 'Unrecognised image src in segment HTML — only dplan file-hash URLs are supported',
                 ['src' => $srcMatches[1]]
