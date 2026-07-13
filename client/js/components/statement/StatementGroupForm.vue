@@ -225,8 +225,6 @@ const handleApply = async () => {
       },
     }
 
-    isBusy.value = true
-
     try {
       await dpApi.post(`${Routing.getBaseUrl()}/api/3.0/StatementGroup`, {}, { data: payload })
       success.value = true

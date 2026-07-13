@@ -18,9 +18,15 @@ All rights reserved
       class="py-2 border-b border-neutral-light-2"
     >
       <div class="flex items-center gap-2 px-1.5">
-        <span>{{ stmt.attributes.externId }}</span>
-        <span v-if="stmt.attributes.isSubmittedByCitizen">{{ stmt.attributes.authorName }}</span>
-        <span v-else>{{ stmt.attributes.initialOrganisationName }}</span>
+        <span>
+          {{ stmt.attributes.externId }}
+        </span>
+        <span v-if="stmt.attributes.isSubmittedByCitizen">
+          {{ stmt.attributes.authorName }}
+        </span>
+        <span v-else>
+          {{ stmt.attributes.initialOrganisationName }}
+        </span>
         <div class="ml-auto">
           <dp-button
             :data-cy="`statementGroupForm:removeStatement:${stmt.id}`"
