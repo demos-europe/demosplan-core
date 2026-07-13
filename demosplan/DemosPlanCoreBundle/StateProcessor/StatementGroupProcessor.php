@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\NotAllStatementsGroupableException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ResourceAccess\StatementClusterAccessChecker;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -35,6 +36,7 @@ class StatementGroupProcessor implements ProcessorInterface
     public function __construct(
         private readonly CurrentProcedureService $currentProcedureService,
         private readonly StatementClusterAccessChecker $clusterAccessChecker,
+        private readonly StatementRepository $statementRepository,
         private readonly StatementHandler $statementHandler,
     ) {
     }
@@ -130,10 +132,16 @@ class StatementGroupProcessor implements ProcessorInterface
      */
     private function update(string $groupId, StatementGroupResource $data): StatementGroupResource
     {
-        $group = $this->statementHandler->getStatement($groupId);
-        if (!$group instanceof Statement || !$group->isClusterStatement()) {
-            throw new BadRequestHttpException(sprintf('Statement group "%s" not found.', $groupId));
+        try {
+            $group = $this->statementRepository->getEntityByIdentifier(
+                $groupId,
+                $this->clusterAccessChecker->getAccessConditions(),
+                ['id']
+            );
+        } catch (InvalidArgumentException) {
+            throw new NotFoundHttpException(sprintf('Statement group "%s" not found.', $groupId));
         }
+        Assert::isInstanceOf($group, Statement::class);
 
         if (null !== $data->groupName) {
             $group->setName($data->groupName);
