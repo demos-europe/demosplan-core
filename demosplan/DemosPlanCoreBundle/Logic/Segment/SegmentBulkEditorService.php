@@ -117,9 +117,9 @@ class SegmentBulkEditorService
     }
 
     /**
-     * @param Segment[] $segments
-     * @param Tag[]     $addTagIds
-     * @param Tag[]     $removeTagIds
+     * @param Segment[]                    $segments
+     * @param Tag[]                        $addTagIds
+     * @param Tag[]                        $removeTagIds
      * @param UserInterface|'UNKNOWN'|null $assignee
      *
      * @return array{0: Segment[], 1: Segment[]} updated segments and segments whose tags changed
@@ -131,7 +131,7 @@ class SegmentBulkEditorService
         UserInterface|string|null $assignee,
         ?Place $workflowPlace,
         array $customFields,
-        ?DateTime $deadline = null
+        ?DateTime $deadline = null,
     ): array {
         $segmentsWithTagChanges = [];
 
