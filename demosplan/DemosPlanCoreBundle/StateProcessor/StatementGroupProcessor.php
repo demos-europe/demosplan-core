@@ -12,8 +12,10 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\StateProcessor;
 
-use ApiPlatform\Metadata\HttpOperation;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\State\ProcessorInterface;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementGroupResource;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementResource;
@@ -26,7 +28,6 @@ use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ResourceAccess\StatementClusterAccessChecker;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -52,18 +53,21 @@ class StatementGroupProcessor implements ProcessorInterface
         }
 
         // DELETE has no body, so $data is null: handle it before the assert.
-        if ($operation instanceof HttpOperation && Request::METHOD_DELETE === $operation->getMethod()) {
+        if ($operation instanceof Delete) {
             return $this->delete((string) ($uriVariables['id'] ?? ''));
         }
 
         Assert::isInstanceOf($data, StatementGroupResource::class);
 
-        // POST has no {id}; PATCH carries it in the URL.
-        if (isset($uriVariables['id'])) {
+        if ($operation instanceof Patch) {
             return $this->update((string) $uriVariables['id'], $data);
         }
 
-        return $this->create($data, $procedure->getId());
+        if ($operation instanceof Post) {
+            return $this->create($data, $procedure->getId());
+        }
+
+
     }
 
     /**
