@@ -27,6 +27,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Webmozart\Assert\Assert;
 
 class StatementGroupProcessor implements ProcessorInterface
@@ -76,7 +77,7 @@ class StatementGroupProcessor implements ProcessorInterface
         if (!$group instanceof Statement
             || !$group->isClusterStatement()
             || $group->getProcedureId() !== $procedureId) {
-            throw new BadRequestHttpException(sprintf('Statement group "%s" not found.', $groupId));
+            throw new NotFoundHttpException(sprintf('Statement group "%s" not found.', $groupId));
         }
 
         // Snapshot: detaching mutates the collection.
