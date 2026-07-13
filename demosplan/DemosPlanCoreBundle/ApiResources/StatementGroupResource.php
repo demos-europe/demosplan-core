@@ -31,7 +31,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     shortName: 'StatementGroup',
     operations: [
         new GetCollection(uriTemplate: '/StatementGroup'),
-        new Get(uriTemplate: '/StatementGroup/{id}'),
+        new Get(uriTemplate: self::ITEM_URI_TEMPLATE),
         new Post(
             uriTemplate: '/StatementGroup',
             read: false,
@@ -39,12 +39,12 @@ use Symfony\Component\Validator\Constraints as Assert;
             validationContext: ['groups' => ['statementgroup:create']],
         ),
         new Patch(
-            uriTemplate: '/StatementGroup/{id}',
+            uriTemplate: self::ITEM_URI_TEMPLATE,
             processor: StatementGroupProcessor::class,
             validationContext: ['groups' => ['statementgroup:update']],
         ),
         new Delete(
-            uriTemplate: '/StatementGroup/{id}',
+            uriTemplate: self::ITEM_URI_TEMPLATE,
             read: false,
             deserialize: false,
             output: false,
@@ -71,6 +71,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiFilter(PropertyFilter::class)]
 class StatementGroupResource
 {
+    private const ITEM_URI_TEMPLATE = '/StatementGroup/{id}';
+
     #[ApiProperty(readable: false, identifier: true)]
     public string $id;
 
