@@ -12,8 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\StateProcessor;
 
-use ApiPlatform\Metadata\HttpOperation;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\State\ProcessorInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementGroupResource;
@@ -25,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\ResourceAccess\StatementClusterAccessChecker;
 use Exception;
 use InvalidArgumentException;
 use JsonException;
+use LogicException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -85,10 +87,13 @@ class StatementGroupRelationshipProcessor implements ProcessorInterface
         $memberIds = $this->readMemberIds($context, $groupId);
         $currentIds = array_map(static fn (Statement $s): string => $s->getId(), $group->getCluster()->toArray());
 
-        // Apply only the delta: idempotent and concurrency-safe.
-        if ($this->isRemoval($operation)) {
+        if ($operation instanceof Delete) {
+            // Apply only the delta: idempotent and concurrency-safe.
             $this->detachMembers(array_values(array_intersect($memberIds, $currentIds)));
-        } else {
+            return $this->buildResponse($groupId);
+        }
+
+        if ($operation instanceof Post) {
             $toAdd = array_values(array_diff($memberIds, $currentIds));
             $blockers = $this->findAddBlockers($toAdd, $group->getProcedureId());
             if ([] !== $blockers) {
@@ -96,8 +101,14 @@ class StatementGroupRelationshipProcessor implements ProcessorInterface
                 return $this->unprocessableEntity($blockers);
             }
             $this->addMembers($group->getProcedureId(), $groupId, $toAdd);
+            return $this->buildResponse($groupId);
         }
 
+        throw new LogicException(sprintf('%s is wired as the processor for unsupported operation "%s"; only Post and Delete are handled.', self::class, $operation::class));
+
+    }
+
+    private function buildResponse(string $groupId):StatementGroupResource {
         $updatedGroup = $this->statementHandler->getStatement($groupId);
         if (!$updatedGroup instanceof Statement) {
             // Last member detached: cluster dissolved and group deleted. Reachable
@@ -111,11 +122,6 @@ class StatementGroupRelationshipProcessor implements ProcessorInterface
         }
 
         return StatementGroupResource::fromStatement($updatedGroup);
-    }
-
-    private function isRemoval(Operation $operation): bool
-    {
-        return $operation instanceof HttpOperation && Request::METHOD_DELETE === $operation->getMethod();
     }
 
     /**
