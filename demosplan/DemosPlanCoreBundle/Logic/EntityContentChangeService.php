@@ -515,6 +515,63 @@ class EntityContentChangeService
     }
 
     /**
+     * Deadline feature — Versionsverlauf entry for a segment whose workflow
+     * place changed and thereby triggered the automatic deadline reset.
+     *
+     * The reset itself is performed later during flush by
+     * {@see \demosplan\DemosPlanCoreBundle\EventListener\DoctrineSegmentListener}.
+     * Because that runs after the generic change tracker
+     * ({@see StatementSegmentEventSubscriber::saveChangeHistory}), the reset
+     * would otherwise never appear in the version history, so it is recorded
+     * explicitly here — mirroring {@see self::createSegmentLockedChangeEntryOnPlaceChange}.
+     *
+     * No-op unless the place actually changed, a deadline existed, and the same
+     * request did not change the deadline explicitly (an explicit change is
+     * already covered by the standard change history). The entry is persisted
+     * without flushing; the surrounding flush commits it alongside the update.
+     */
+    public function createDeadlineResetChangeEntryOnPlaceChange(Segment $segment): void
+    {
+        // Values as loaded from the database, before the pending update — independent
+        // of whether the Doctrine change set has been computed yet.
+        $originalData = $this->repositoryHelper->getRepository(Segment::class)->getOriginalEntityData($segment);
+        $originalPlace = $originalData['place'] ?? null;
+        $originalDeadline = $originalData['deadline'] ?? null;
+
+        // Only act when the workflow place actually changed.
+        if ($originalPlace?->getId() === $segment->getPlace()?->getId()) {
+            return;
+        }
+
+        // Only when a deadline existed and the same request did NOT change it explicitly.
+        if (!$originalDeadline instanceof DateTime || $originalDeadline != $segment->getDeadline()) {
+            return;
+        }
+
+        // Reset diff: old date -> empty (rendered as "nicht angegeben" in the Versionsverlauf).
+        $contentChange = $this->generateActualDiff(
+            $originalDeadline->format('Y-m-d'),
+            '',
+            'deadline',
+            Segment::class,
+            ['differOptions' => ['context' => 0], 'rendererOptions' => ['detailLevel' => 'none']],
+        );
+        if (null === $contentChange) {
+            return;
+        }
+
+        $entry = $this->createEntityContentChangeEntity(
+            $segment,
+            'deadline',
+            $contentChange,
+            $this->determineChanger(false),
+            $this->doctrine->getManager()->getClassMetadata(Segment::class)->getName(),
+            new DateTime(),
+        );
+        $this->entityContentChangeRepository->persistEntities([$entry]);
+    }
+
+    /**
      * Segment lock feature — Versionsverlauf entries for every segment
      * currently on $place when its `locked` flag toggled.
      *
@@ -695,19 +752,38 @@ class EntityContentChangeService
                 'content' => $this->translator->trans($completeContent),
             ];
         }
-        if ('date' === $this->getMappingValue($fieldName, $entityType, 'fieldType')) {
-            // transform date values, irrespective if new values or old ones (legacy in database)
-            $stringNewInteger = (int) $content;
-            if (1 < $stringNewInteger) {
-                return [
-                    'content' => date('Y-m-d', $stringNewInteger),
-                ];
-            }
+        $dateContent = $this->prepareDateContentForDiffing($content, $fieldName, $entityType);
+        if (null !== $dateContent) {
+            return $dateContent;
         }
 
         return [
             'content' => $content,
         ];
+    }
+
+    /**
+     * Normalizes a "date" field value to "Y-m-d" for diffing. Values may be stored as a
+     * date/datetime string (e.g. "2026-06-27 00:00:00") or, for legacy fields, as a Unix
+     * timestamp. Returns null when the field is not a date type or the value is unparseable,
+     * so the caller falls back to the raw content.
+     *
+     * @param string|null $content
+     *
+     * @return array{content: string}|null
+     */
+    private function prepareDateContentForDiffing($content, string $fieldName, string $entityType): ?array
+    {
+        if ('date' !== $this->getMappingValue($fieldName, $entityType, 'fieldType')) {
+            return null;
+        }
+
+        $timestamp = is_numeric($content) ? (int) $content : strtotime((string) $content);
+        if (false === $timestamp || $timestamp <= 0) {
+            return null;
+        }
+
+        return ['content' => date('Y-m-d', $timestamp)];
     }
 
     /**
