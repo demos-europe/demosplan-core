@@ -136,23 +136,7 @@ class SegmentBulkEditorService
         $segmentsWithTagChanges = [];
 
         foreach ($segments as $segment) {
-            // Track whether the tag set of this segment actually changes. addTag() already
-            // returns false when the tag is present, and removeElement reflects whether a tag
-            // was really removed, so this needs no extra queries on top of the mutation itself.
-            $tagsChanged = false;
-            foreach ($addTagIds as $tag) {
-                if ($segment->addTag($tag)) {
-                    $tagsChanged = true;
-                }
-            }
-            foreach ($removeTagIds as $tag) {
-                if ($segment->getTags()->contains($tag)) {
-                    $segment->removeTag($tag);
-                    $tagsChanged = true;
-                }
-            }
-
-            if ($tagsChanged) {
+            if ($this->applyTagChanges($segment, $addTagIds, $removeTagIds)) {
                 $segmentsWithTagChanges[] = $segment;
             }
 
@@ -191,6 +175,35 @@ class SegmentBulkEditorService
         }
 
         return [$segments, $segmentsWithTagChanges];
+    }
+
+    /**
+     * Adds and removes tags on the segment, returning true when the tag set actually changed.
+     *
+     * addTag() returns false when the tag is already present; removeElement reflects whether
+     * the tag was actually removed — so no extra queries are needed on top of the mutations.
+     *
+     * @param Tag[] $addTags
+     * @param Tag[] $removeTags
+     */
+    private function applyTagChanges(Segment $segment, array $addTags, array $removeTags): bool
+    {
+        $tagsChanged = false;
+
+        foreach ($addTags as $tag) {
+            if ($segment->addTag($tag)) {
+                $tagsChanged = true;
+            }
+        }
+
+        foreach ($removeTags as $tag) {
+            if ($segment->getTags()->contains($tag)) {
+                $segment->removeTag($tag);
+                $tagsChanged = true;
+            }
+        }
+
+        return $tagsChanged;
     }
 
     /**
