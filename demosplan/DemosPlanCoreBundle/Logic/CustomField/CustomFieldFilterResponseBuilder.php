@@ -24,6 +24,7 @@ class CustomFieldFilterResponseBuilder
         private readonly CustomFieldConfigurationRepository $cfConfigRepository,
         private readonly CustomFieldStatementCounter $customFieldStatementCounter,
         private readonly ElasticsearchResultCreator $elasticsearchResultCreator,
+        private readonly CustomFieldFilterResolver $customFieldFilterResolver,
     ) {
     }
 
@@ -56,6 +57,10 @@ class CustomFieldFilterResponseBuilder
 
         $esFilteredIds = $this->elasticsearchResultCreator->getMatchingStatementIds($procedureId, $userFilters, $search);
 
+        // Sentinel-free values only, shared across all fields below when building each
+        // field's "other active CF filters" constraint (see buildSingleFilterItem()).
+        $strippedCfFilters = $this->customFieldFilterResolver->extractActiveCfFilters($userFilters);
+
         $filterItems = [];
 
         foreach ($cfConfigs ?? [] as $config) {
@@ -68,6 +73,7 @@ class CustomFieldFilterResponseBuilder
                 $procedureId,
                 $isOriginalStatementView,
                 $activeCfFilters,
+                $strippedCfFilters,
                 $esFilteredIds
             );
 
@@ -80,6 +86,13 @@ class CustomFieldFilterResponseBuilder
     }
 
     /**
+     * Deliberately does NOT strip sentinel empty values (unlike
+     * CustomFieldFilterResolver::extractActiveCfFilters()) — a field opened via its
+     * empty-value sentinel must still be treated as "active" here so its filter item
+     * (with fresh option counts) is included in the response. Sentinels are stripped
+     * separately, only where they'd otherwise act as query constraints (see
+     * $strippedCfFilters in buildFilterItems()).
+     *
      * @return array<string, string[]> fieldId => selected option IDs
      */
     private function extractActiveCfFilters(array $userFilters): array
@@ -96,11 +109,18 @@ class CustomFieldFilterResponseBuilder
         return $active;
     }
 
+    /**
+     * @param array<string, string[]> $activeCfFilters   fieldId => raw values (sentinels included), used
+     *                                                    to determine selected options for $config's own field
+     * @param array<string, string[]> $strippedCfFilters fieldId => real values only, used to constrain
+     *                                                    counts by the OTHER active CF fields
+     */
     private function buildSingleFilterItem(
         CustomFieldConfiguration $config,
         string $procedureId,
         bool $isOriginalStatementView,
         array $activeCfFilters,
+        array $strippedCfFilters,
         array $esFilteredIds = [],
     ): ?AssessmentTableFilter {
         $fieldId = $config->getId();
@@ -116,20 +136,9 @@ class CustomFieldFilterResponseBuilder
         // Facet exclusion: count options for this field with all OTHER CF filters applied,
         // but not this field's own active selection (mirrors ES aggregation behaviour).
         $constraintFilters = array_filter(
-            $activeCfFilters,
+            $strippedCfFilters,
             static fn (string $id): bool => $id !== $fieldId,
             ARRAY_FILTER_USE_KEY
-        );
-
-        // Strip sentinel empty values so they don't act as constraints when counting.
-        $constraintFilters = array_filter(
-            array_map(
-                static fn (array $vals): array => array_values(
-                    array_filter($vals, static fn (string $v): bool => '' !== $v)
-                ),
-                $constraintFilters
-            ),
-            static fn (array $vals): bool => [] !== $vals
         );
 
         $optionIds = array_map(static fn ($option) => $option->getId(), $fieldOptions);
