@@ -224,18 +224,26 @@ class SegmentsExportController extends BaseController
         /** @var array<string, string> $tableHeaders */
         $tableHeaders = $this->requestStack->getCurrentRequest()->query->all(self::TABLE_HEADERS_PARAMETER);
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
+
+        // Push the tag filter into the query so only statements carrying a matching tag are
+        // loaded, instead of loading every statement of the procedure and discarding the rest
+        // in PHP.
+        $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
+        $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions($tagsFilter, $statementResourceType);
+
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
             $requestHandler->getObjectsByQueryParams(
                 $this->requestStack->getCurrentRequest()->query,
-                $statementResourceType
+                $statementResourceType,
+                $tagConditions
             )->getList()
         );
 
-        // Apply tag filtering after JsonAPI filtering
-        $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
         $noTagsFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
 
+        // Trim each loaded statement to only its matching segments and collect the matched tag
+        // titles for the export header. Runs on the already-narrowed statement set.
         $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
         $exportFilteredByTagsWithTopics = $this->statementExportTagFilter->getFilteredTagsWithTitles();
         $customHeaderText = $this->requestStack->getCurrentRequest()->query->get(self::CUSTOM_HEADER_TEXT_PARAMETER) ?? '';
@@ -298,16 +306,22 @@ class SegmentsExportController extends BaseController
         StatementResourceType $statementResourceType,
         string $procedureId,
     ): StreamedResponse {
+        // Push the tag filter into the query so only statements carrying a matching tag are
+        // loaded, instead of loading every statement of the procedure and discarding the rest
+        // in PHP.
+        $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
+        $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions($tagsFilter, $statementResourceType);
+
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
             $jsonApiActionService->getObjectsByQueryParams(
                 $this->requestStack->getCurrentRequest()->query,
-                $statementResourceType
+                $statementResourceType,
+                $tagConditions
             )->getList()
         );
 
-        // Apply tag filtering after JsonAPI filtering
-        $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
+        // Trim each loaded statement to only its matching segments. Runs on the already-narrowed set.
         $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
 
         $response = new StreamedResponse(
@@ -370,15 +384,21 @@ class SegmentsExportController extends BaseController
         // It validates filter and search parameters and limits the returned statement entities to those
         // the user is allowed to see. The actual exporter hardcodes which segments of the statements are included
         // in the export and which properties of the statements and segments are exposed.
+        // Push the tag filter into the query so only statements carrying a matching tag are
+        // loaded, instead of loading every statement of the procedure and discarding the rest
+        // in PHP.
+        $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
+        $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions($tagsFilter, $statementResourceType);
+
         $statementResult = $requestHandler->getObjectsByQueryParams(
             $this->requestStack->getCurrentRequest()->query,
-            $statementResourceType
+            $statementResourceType,
+            $tagConditions
         );
         /** @var Statement[] $statements */
         $statements = array_values($statementResult->getList());
 
-        // Apply tag filtering after JsonAPI filtering
-        $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
+        // Trim each loaded statement to only its matching segments. Runs on the already-narrowed set.
         $statements = $this->statementExportTagFilter->filterStatementsByTags($statements, $tagsFilter);
 
         $statementsWithCensoring = [];
