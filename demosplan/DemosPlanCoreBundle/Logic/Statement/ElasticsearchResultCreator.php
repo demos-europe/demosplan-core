@@ -156,7 +156,7 @@ class ElasticsearchResultCreator
         $aggregationsOnly = false,
         $aggregationsMinDocumentCount = 1,
         $addAllAggregations = true,
-        array $customAggregations = []
+        array $customAggregations = [],
     ): ElasticsearchResult {
         $elasticsearchResultStatement = new ElasticsearchResult();
         try {

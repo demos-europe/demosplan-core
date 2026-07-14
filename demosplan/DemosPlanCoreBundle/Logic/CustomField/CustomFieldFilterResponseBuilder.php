@@ -42,7 +42,7 @@ class CustomFieldFilterResponseBuilder
         bool $isOriginalStatementView,
         array $userFilters,
         ?string $search = null,
-        $esResultStatements
+        $esResultStatements,
     ): array {
         $activeCfFilters = $this->extractActiveCfFilters($userFilters);
 
