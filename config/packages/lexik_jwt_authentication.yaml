@@ -4,8 +4,6 @@ lexik_jwt_authentication:
         signature_algorithm: HS256
     # recipe wants this, we currently use our passphrase
     #secret_key: '%env(resolve:JWT_SECRET_KEY)%'
-    # HS256 uses this directly as the HMAC secret, so JWT_PASSPHRASE MUST be at
-    # least 32 characters (256 bits)
     secret_key: '%env(JWT_PASSPHRASE)%'
     public_key: '%env(resolve:JWT_PUBLIC_KEY)%'
     pass_phrase: '%env(JWT_PASSPHRASE)%'
