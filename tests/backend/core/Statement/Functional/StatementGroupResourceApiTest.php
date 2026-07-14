@@ -94,7 +94,7 @@ class StatementGroupResourceApiTest extends AbstractApiTest
                 'type'       => 'StatementGroup',
                 'id'         => $group->getId(),
                 'attributes' => [
-                    'groupName'      => 'New Name',
+                    'groupName'       => 'New Name',
                     'headStatementId' => $member2->getId(),
                 ],
             ]]
