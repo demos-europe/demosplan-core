@@ -144,6 +144,10 @@ class ElasticsearchResultCreator
      * @param int                     $aggregationsMinDocumentCount
      * @param bool                    $addAllAggregations
      * @param list<GlobalAggregation> $customAggregations
+     * @param bool                    $idsOnly                      When true, restricts the ES response to the
+     *                                                              `id` source field and fetches the complete
+     *                                                              match set (bypassing pagination) instead of
+     *                                                              a single page. Used by getMatchingStatementIds().
      */
     public function getElasticsearchResult(
         $userFilters,
@@ -157,6 +161,7 @@ class ElasticsearchResultCreator
         $aggregationsMinDocumentCount = 1,
         $addAllAggregations = true,
         array $customAggregations = [],
+        bool $idsOnly = false,
     ): ElasticsearchResult {
         $elasticsearchResultStatement = new ElasticsearchResult();
         try {
@@ -308,6 +313,10 @@ class ElasticsearchResultCreator
 
             if ($aggregationsOnly) {
                 $query->setSize(0);
+            }
+
+            if ($idsOnly) {
+                $query->setSource(['id']);
             }
 
             // GET QUERY (END)
@@ -685,6 +694,11 @@ class ElasticsearchResultCreator
             if (0 === $limit) {
                 $defaultLimits = $this->statementService->getPaginatorLimits();
                 $limit = $defaultLimits[0];
+            }
+
+            if ($idsOnly) {
+                // Force the search_after "fetch everything" branch below instead of a single page.
+                $limit = $this->elasticsearchMaxResultWindow + 1;
             }
 
             $paginator->setMaxPerPage((int) $limit);
@@ -1446,6 +1460,52 @@ class ElasticsearchResultCreator
         }
 
         return [$boolMustFilter, $boolMustNotFilter];
+    }
+
+    /**
+     * Returns every statement ID matching the currently active *regular* (non custom-field) ES
+     * filters for a procedure — the complete match set, not one page of it. Reuses
+     * getElasticsearchResult() so the matching logic (basic filters, per-field filter clauses,
+     * fragment filters, ...) stays identical to the main statement query; the `idsOnly` flag only
+     * restricts the ES response to the `id` source field and fetches the complete match set
+     * instead of one page.
+     *
+     * Unlike a call routed through StatementService::getStatementsByProcedureId(), this never
+     * hydrates full statement documents, runs fragment/adjustment post-processing, or logs
+     * statement views.
+     *
+     * customField_* filter keys are stripped before querying: custom-field facet counting happens
+     * via Doctrine in CustomFieldStatementCounter, which already re-applies "other active CF
+     * filters" itself when computing option counts.
+     *
+     * @param array<string, mixed> $userFilters
+     *
+     * @return string[]
+     */
+    public function getMatchingStatementIds(string $procedureId, array $userFilters, ?string $search = null): array
+    {
+        $regularFilters = array_filter(
+            $userFilters,
+            static fn (string $key): bool => !str_starts_with($key, 'customField_'),
+            ARRAY_FILTER_USE_KEY
+        );
+
+        $result = $this->getElasticsearchResult(
+            $regularFilters,
+            $procedureId,
+            $search,
+            null,
+            0,
+            1,
+            [],
+            false,
+            1,
+            false,
+            [],
+            true
+        );
+
+        return array_column(array_column($result->getHits()['hits'] ?? [], '_source'), 'id');
     }
 
     /**

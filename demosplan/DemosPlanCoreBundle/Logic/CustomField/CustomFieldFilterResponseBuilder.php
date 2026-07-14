@@ -42,7 +42,6 @@ class CustomFieldFilterResponseBuilder
         bool $isOriginalStatementView,
         array $userFilters,
         ?string $search = null,
-        $esResultStatements,
     ): array {
         $activeCfFilters = $this->extractActiveCfFilters($userFilters);
 
@@ -56,7 +55,7 @@ class CustomFieldFilterResponseBuilder
             CustomFieldSupportedEntity::statement->value,
         );
 
-        $esFilteredIds = array_column($esResultStatements, 'id');
+        $esFilteredIds = $this->elasticsearchResultCreator->getMatchingStatementIds($procedureId, $userFilters, $search);
 
         // Sentinel-free values only, shared across all fields below when building each
         // field's "other active CF filters" constraint (see buildSingleFilterItem()).

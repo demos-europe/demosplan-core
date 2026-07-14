@@ -390,13 +390,11 @@ class DemosPlanProcedureAPIController extends APIController
         }
 
         if ($permissions->hasPermission('feature_statements_custom_fields')) {
-            $esResultStatements = $res->getStatements();
             $cfFilterItems = $cfFilterResponseBuilder->buildFilterItems(
                 $procedureId,
                 $original,
                 $rParams['filters'],
                 $rParams['search'] ?? null,
-                $esResultStatements
             );
             array_push($responseData, ...$cfFilterItems);
         }
