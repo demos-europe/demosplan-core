@@ -26,7 +26,7 @@ class CustomFieldStatementCounter
      * Returns statement counts per option for a single custom field.
      * Optionally scoped to statements matching other active CF filters (facet awareness).
      *
-     * @param string[]                $optionIds      Option IDs of the field, as already known by the caller.
+     * @param string[]                $optionIds      option IDs of the field, as already known by the caller
      * @param array<string, string[]> $otherCfFilters fieldId => selectedOptionIds[]
      * @param string[]|null           $esFilteredIds  Statement IDs that matched the active regular ES
      *                                                filters. `null` means "don't scope" (count across
