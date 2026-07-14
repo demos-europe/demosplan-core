@@ -141,6 +141,11 @@ import lscache from 'lscache'
 import SelectedStatementsList from '@DpJs/components/statement/SelectedStatementsList'
 
 const props = defineProps({
+  currentUserId: {
+    type: String,
+    required: true,
+  },
+
   procedureId: {
     type: String,
     required: true,
@@ -185,7 +190,7 @@ const handleConfirmStep1 = () => {
     return
   }
 
-  if (hasPermission('feature_statement_assignment') && statements.value.some(stmt => !stmt.relationships?.assignee?.data?.id)) {
+  if (hasPermission('feature_statement_assignment') && statements.value.some(stmt => stmt.relationships?.assignee?.data?.id !== props.currentUserId)) {
     dplan.notify.notify('error', Translator.trans('confirm.consolidation.not.assigned'))
 
     return
