@@ -22,6 +22,27 @@
             ]
         }) }}
 
+        {% if permissions.feature_tag_default_assignee is defined and permissions.feature_tag_default_assignee.enabled == true %}
+            {% set assigneeOptions = [{ value: '', selected: templateVars.tag.defaultAssignee is null, label: 'not.assigned'|trans }] %}
+            {% for user in templateVars.authorizedUsers %}
+                {% set assigneeOptions = assigneeOptions|merge([{
+                    value: user.id,
+                    selected: templateVars.tag.defaultAssignee is not null and user.id == templateVars.tag.defaultAssignee.id,
+                    label: user.firstname ~ ' ' ~ user.lastname
+                }]) %}
+            {% endfor %}
+            {{ uiComponent('form.row', {
+                elements: [
+                    {
+                        label: { text: 'assignee'|trans, id: 'r_defaultAssigneeId' },
+                        control: { name: 'r_defaultAssigneeId', options: assigneeOptions, class: 'u-mb' },
+                        id: 'r_defaultAssigneeId',
+                        type: 'select'
+                    }
+                ]
+            }) }}
+        {% endif %}
+
         {% if permissions.area_admin_boilerplates is defined and permissions.area_admin_boilerplates.enabled == true %}
 
             {{ uiComponent('form.row', {

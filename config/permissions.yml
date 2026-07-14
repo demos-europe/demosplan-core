@@ -2589,6 +2589,15 @@ feature_spellcheck:
 feature_switchorga:
     label: 'Organisation Fachplanung und Institution wechseln'
     loginRequired: true
+feature_tag_default_assignee:
+    description: |-
+        Allows linking a default assignee to a tag. The assignee can be managed in the tag
+        administration. When such a tag is added to a segment during statement segmentation,
+        the linked user is automatically suggested as the segment's assignee.
+    expose: true
+    label: 'Standard-Bearbeiter*in für Schlagworte'
+    loginRequired: true
+    parent: feature_statements_tag
 feature_toggle_public_participation_publication:
     description: |-
         This permission enables planners to opt out of publishing statements per procedure.

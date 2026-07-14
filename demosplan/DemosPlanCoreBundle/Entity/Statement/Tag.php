@@ -16,10 +16,12 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -80,6 +82,13 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
 
     #[ORM\Column(name: '_t_sort_index', type: 'integer', nullable: false, options: ['default' => 0])]
     protected int $sortIndex = 0;
+
+    /**
+     * User that is automatically set as assignee of a segment when this tag is added to it.
+     */
+    #[ORM\JoinColumn(name: 'default_assignee_id', referencedColumnName: '_u_id', onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    protected ?UserInterface $defaultAssignee = null;
 
     /**
      * Create a Tag-Entity.
@@ -262,6 +271,18 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     public function getSortIndex(): int
     {
         return $this->sortIndex;
+    }
+
+    public function getDefaultAssignee(): ?UserInterface
+    {
+        return $this->defaultAssignee;
+    }
+
+    public function setDefaultAssignee(?UserInterface $defaultAssignee): self
+    {
+        $this->defaultAssignee = $defaultAssignee;
+
+        return $this;
     }
 
     public function setSortIndex(int $sortIndex): self

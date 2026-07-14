@@ -356,7 +356,9 @@ const SplitStatementStore = {
     fetchTags ({ commit }) {
       const url = Routing.generate('api_resource_list', { resourceType: 'Tag' })
 
-      return dpApi.get(url, { include: 'topic', sort: 'sortIndex' })
+      const include = hasPermission('feature_tag_default_assignee') ? 'topic,defaultAssignee' : 'topic'
+
+      return dpApi.get(url, { include, sort: 'sortIndex' })
         .then(response => {
           const tags = response.data
 

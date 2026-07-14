@@ -16,6 +16,11 @@
       :addon-props="{ tag: nodeElement }"
       hook-name="tag.edit.form"
     />
+    <div
+      v-if="hasPermission('feature_tag_default_assignee')"
+      class="ml-1 flex-0 w-1/4 break-words"
+      v-text="defaultAssigneeName"
+    />
     <div class="text-center w-9">
       <dp-contextual-help
         v-if="nodeElement.relationships?.boilerplate"
@@ -151,6 +156,14 @@ export default {
         title: '',
       },
     }
+  },
+
+  computed: {
+    defaultAssigneeName () {
+      const assignee = this.nodeElement.relationships?.defaultAssignee
+
+      return assignee ? `${assignee.attributes.firstname} ${assignee.attributes.lastname}` : ''
+    },
   },
 
   methods: {
