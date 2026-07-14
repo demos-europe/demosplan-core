@@ -12,21 +12,26 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\StateProcessor;
 
-use ApiPlatform\Metadata\HttpOperation;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\State\ProcessorInterface;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementGroupResource;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementResource;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\NotAllStatementsGroupableException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ResourceAccess\StatementClusterAccessChecker;
 use InvalidArgumentException;
+use LogicException;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Webmozart\Assert\Assert;
 
 class StatementGroupProcessor implements ProcessorInterface
@@ -34,6 +39,7 @@ class StatementGroupProcessor implements ProcessorInterface
     public function __construct(
         private readonly CurrentProcedureService $currentProcedureService,
         private readonly StatementClusterAccessChecker $clusterAccessChecker,
+        private readonly StatementRepository $statementRepository,
         private readonly StatementHandler $statementHandler,
     ) {
     }
@@ -43,23 +49,26 @@ class StatementGroupProcessor implements ProcessorInterface
         $this->clusterAccessChecker->checkClusterAccess();
 
         $procedure = $this->currentProcedureService->getProcedure();
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             throw new BadRequestHttpException('A procedure context is required for statement group operations.');
         }
 
         // DELETE has no body, so $data is null: handle it before the assert.
-        if ($operation instanceof HttpOperation && Request::METHOD_DELETE === $operation->getMethod()) {
-            return $this->delete((string) ($uriVariables['id'] ?? ''), $procedure->getId());
+        if ($operation instanceof Delete) {
+            return $this->delete((string) ($uriVariables['id'] ?? ''));
         }
 
         Assert::isInstanceOf($data, StatementGroupResource::class);
 
-        // POST has no {id}; PATCH carries it in the URL.
-        if (isset($uriVariables['id'])) {
+        if ($operation instanceof Patch) {
             return $this->update((string) $uriVariables['id'], $data);
         }
 
-        return $this->create($data, $procedure->getId());
+        if ($operation instanceof Post) {
+            return $this->create($data, $procedure->getId());
+        }
+
+        throw new LogicException(sprintf('%s is wired as the processor for unsupported operation "%s"; only Post, Patch, and Delete are handled.', self::class, $operation::class));
     }
 
     /**
@@ -69,15 +78,18 @@ class StatementGroupProcessor implements ProcessorInterface
      * (see StatementHandler::detachStatementFromCluster), so the group ceases to exist.
      * Returns null: the operation is declared output: false, so API Platform responds 204.
      */
-    private function delete(string $groupId, string $procedureId): ?Response
+    private function delete(string $groupId): ?Response
     {
-        $group = $this->statementHandler->getStatement($groupId);
-        // Scope to the current procedure; foreign group reported as "not found".
-        if (!$group instanceof Statement
-            || !$group->isClusterStatement()
-            || $group->getProcedureId() !== $procedureId) {
-            throw new BadRequestHttpException(sprintf('Statement group "%s" not found.', $groupId));
+        try {
+            $group = $this->statementRepository->getEntityByIdentifier(
+                $groupId,
+                $this->clusterAccessChecker->getAccessConditions(),
+                ['id']
+            );
+        } catch (InvalidArgumentException) {
+            throw new NotFoundHttpException(sprintf('Statement group "%s" not found.', $groupId));
         }
+        Assert::isInstanceOf($group, Statement::class);
 
         // Snapshot: detaching mutates the collection.
         foreach ($group->getCluster()->toArray() as $member) {
@@ -89,9 +101,9 @@ class StatementGroupProcessor implements ProcessorInterface
 
     private function create(StatementGroupResource $data, string $procedureId): StatementGroupResource|Response
     {
-        if (null === $data->headStatementId || '' === $data->headStatementId) {
-            throw new BadRequestHttpException('headStatementId is required to create a statement group.');
-        }
+        // Presence is enforced by StatementGroupResource's NotBlank constraint
+        // (statementgroup:create validation group); narrow the type for static analysis.
+        Assert::stringNotEmpty($data->headStatementId);
 
         $headStatement = $this->statementHandler->getStatement($data->headStatementId);
         if (!$headStatement instanceof Statement) {
@@ -129,10 +141,16 @@ class StatementGroupProcessor implements ProcessorInterface
      */
     private function update(string $groupId, StatementGroupResource $data): StatementGroupResource
     {
-        $group = $this->statementHandler->getStatement($groupId);
-        if (!$group instanceof Statement || !$group->isClusterStatement()) {
-            throw new BadRequestHttpException(sprintf('Statement group "%s" not found.', $groupId));
+        try {
+            $group = $this->statementRepository->getEntityByIdentifier(
+                $groupId,
+                $this->clusterAccessChecker->getAccessConditions(),
+                ['id']
+            );
+        } catch (InvalidArgumentException) {
+            throw new NotFoundHttpException(sprintf('Statement group "%s" not found.', $groupId));
         }
+        Assert::isInstanceOf($group, Statement::class);
 
         if (null !== $data->groupName) {
             $group->setName($data->groupName);

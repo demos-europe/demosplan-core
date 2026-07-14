@@ -25,23 +25,26 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\StateProcessor\StatementGroupProcessor;
 use demosplan\DemosPlanCoreBundle\StateProcessor\StatementGroupRelationshipProcessor;
 use demosplan\DemosPlanCoreBundle\StateProvider\StatementGroupStateProvider;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'StatementGroup',
     operations: [
         new GetCollection(uriTemplate: '/StatementGroup'),
-        new Get(uriTemplate: '/StatementGroup/{id}'),
+        new Get(uriTemplate: self::ITEM_URI_TEMPLATE),
         new Post(
             uriTemplate: '/StatementGroup',
             read: false,
             processor: StatementGroupProcessor::class,
+            validationContext: ['groups' => ['statementgroup:create']],
         ),
         new Patch(
-            uriTemplate: '/StatementGroup/{id}',
+            uriTemplate: self::ITEM_URI_TEMPLATE,
             processor: StatementGroupProcessor::class,
+            validationContext: ['groups' => ['statementgroup:update']],
         ),
         new Delete(
-            uriTemplate: '/StatementGroup/{id}',
+            uriTemplate: self::ITEM_URI_TEMPLATE,
             read: false,
             deserialize: false,
             output: false,
@@ -62,12 +65,14 @@ use demosplan\DemosPlanCoreBundle\StateProvider\StatementGroupStateProvider;
         ),
     ],
     formats: ['jsonapi'],
-    routePrefix: '/3.0',
+    routePrefix: ApiPlatformConstants::ROUTE_PREFIX_V3,
     provider: StatementGroupStateProvider::class,
 )]
 #[ApiFilter(PropertyFilter::class)]
 class StatementGroupResource
 {
+    private const ITEM_URI_TEMPLATE = '/StatementGroup/{id}';
+
     #[ApiProperty(readable: false, identifier: true)]
     public string $id;
 
@@ -87,10 +92,13 @@ class StatementGroupResource
     public string $initialOrganisationName = '';
 
     #[ApiProperty(readable: false, writable: true)]
+    #[Assert\NotBlank(groups: ['statementgroup:create'], message: 'headStatementId is required to create a statement group.')]
+    #[Assert\IsNull(groups: ['statementgroup:update'], message: 'headStatementId cannot be changed via PATCH.')]
     public ?string $headStatementId = null;
 
     /** @var StatementResource[] */
     #[ApiProperty(readable: true, writable: true)]
+    #[Assert\Count(max: 0, groups: ['statementgroup:update'], maxMessage: 'Statements cannot be modified via PATCH; use the relationships endpoint instead.')]
     public array $statements = [];
 
     #[ApiProperty(readable: true, writable: false)]

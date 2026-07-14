@@ -12,22 +12,27 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\StateProcessor;
 
-use ApiPlatform\Metadata\HttpOperation;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Metadata\Post;
 use ApiPlatform\State\ProcessorInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementGroupResource;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssignService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ResourceAccess\StatementClusterAccessChecker;
 use Exception;
+use InvalidArgumentException;
 use JsonException;
+use LogicException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Webmozart\Assert\Assert;
 
 /**
  * Adds (POST) or removes (DELETE) statements from a group's membership via the
@@ -54,9 +59,9 @@ class StatementGroupRelationshipProcessor implements ProcessorInterface
     private const MEMBER_TYPE = 'Statement';
 
     public function __construct(
-        private readonly CurrentProcedureService $currentProcedureService,
         private readonly CurrentUserInterface $currentUser,
         private readonly StatementClusterAccessChecker $clusterAccessChecker,
+        private readonly StatementRepository $statementRepository,
         private readonly StatementHandler $statementHandler,
         private readonly AssignService $assignService,
     ) {
@@ -66,36 +71,46 @@ class StatementGroupRelationshipProcessor implements ProcessorInterface
     {
         $this->clusterAccessChecker->checkClusterAccess();
 
-        $procedure = $this->currentProcedureService->getProcedure();
-        if (null === $procedure) {
-            throw new BadRequestHttpException('A procedure context is required for statement group operations.');
-        }
-
         $groupId = (string) ($uriVariables['id'] ?? '');
-        $group = $this->statementHandler->getStatement($groupId);
-        // Scope to the current procedure; foreign group reported as "not found".
-        if (!$group instanceof Statement
-            || !$group->isClusterStatement()
-            || $group->getProcedureId() !== $procedure->getId()) {
-            throw new BadRequestHttpException(sprintf('Statement group "%s" not found.', $groupId));
+
+        try {
+            $group = $this->statementRepository->getEntityByIdentifier(
+                $groupId,
+                $this->clusterAccessChecker->getAccessConditions(),
+                ['id']
+            );
+        } catch (InvalidArgumentException) {
+            throw new NotFoundHttpException(sprintf('Statement group "%s" not found.', $groupId));
         }
+        Assert::isInstanceOf($group, Statement::class);
 
         $memberIds = $this->readMemberIds($context, $groupId);
         $currentIds = array_map(static fn (Statement $s): string => $s->getId(), $group->getCluster()->toArray());
 
-        // Apply only the delta: idempotent and concurrency-safe.
-        if ($this->isRemoval($operation)) {
+        if ($operation instanceof Delete) {
+            // Apply only the delta: idempotent and concurrency-safe.
             $this->detachMembers(array_values(array_intersect($memberIds, $currentIds)));
-        } else {
+
+            return $this->buildResponse($groupId);
+        }
+
+        if ($operation instanceof Post) {
             $toAdd = array_values(array_diff($memberIds, $currentIds));
-            $blockers = $this->findAddBlockers($toAdd, $procedure->getId());
+            $blockers = $this->findAddBlockers($toAdd, $group->getProcedureId());
             if ([] !== $blockers) {
                 // Adding is atomic: reject the whole request, change nothing.
                 return $this->unprocessableEntity($blockers);
             }
-            $this->addMembers($procedure->getId(), $groupId, $toAdd);
+            $this->addMembers($group->getProcedureId(), $groupId, $toAdd);
+
+            return $this->buildResponse($groupId);
         }
 
+        throw new LogicException(sprintf('%s is wired as the processor for unsupported operation "%s"; only Post and Delete are handled.', self::class, $operation::class));
+    }
+
+    private function buildResponse(string $groupId): StatementGroupResource
+    {
         $updatedGroup = $this->statementHandler->getStatement($groupId);
         if (!$updatedGroup instanceof Statement) {
             // Last member detached: cluster dissolved and group deleted. Reachable
@@ -109,11 +124,6 @@ class StatementGroupRelationshipProcessor implements ProcessorInterface
         }
 
         return StatementGroupResource::fromStatement($updatedGroup);
-    }
-
-    private function isRemoval(Operation $operation): bool
-    {
-        return $operation instanceof HttpOperation && Request::METHOD_DELETE === $operation->getMethod();
     }
 
     /**
