@@ -479,7 +479,7 @@ export default {
       return Object.keys(this.segments).length > 0
     },
 
-    // A statement is a group head when it is itself a cluster
+    // This statement is the group's head (the cluster statement itself), not one of its members
     isCluster () {
       return Boolean(this.statement?.attributes?.isCluster)
     },
