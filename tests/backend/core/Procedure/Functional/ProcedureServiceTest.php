@@ -2763,6 +2763,48 @@ Email:',
         static::assertEquals($exprectedBoilerplates, $boilerplates);
     }
 
+    public function testCopyBoilerplatesSetsVerified(): void
+    {
+        /** @var Procedure $blueprintWithBoilerplates */
+        $blueprintWithBoilerplates = $this->getReference('testmasterProcedureWithBoilerplates');
+
+        // create new + fresh testing procedure
+        $procedureData = [
+            'copymaster'   => $blueprintWithBoilerplates->getId(),
+            'desc'         => '',
+            'startDate'    => '01.02.2012',
+            'endDate'      => '01.02.2012',
+            'externalName' => 'testVerified',
+            'name'         => 'testVerified',
+            'master'       => false,
+            'orgaId'       => $this->testProcedure->getOrgaId(),
+            'orgaName'     => $this->testProcedure->getOrga()->getName(),
+            'logo'         => 'some:logodata:string',
+            'shortUrl'     => 'myShortUrlVerified',
+            'customer'     => $this->getCustomerReference(LoadCustomerData::DEMOS),
+        ];
+        $procedureRepository = $this->getEntityManager()->getRepository(Procedure::class);
+        $newProcedure = $procedureRepository->add($procedureData);
+
+        $this->sut->copyBoilerplates($blueprintWithBoilerplates->getId(), $newProcedure);
+
+        // copied boilerplates are marked as verified
+        /** @var Boilerplate[] $newBoilerplates */
+        $newBoilerplates = $this->getEntries(Boilerplate::class, ['procedure' => $newProcedure->getId()]);
+        static::assertNotEmpty($newBoilerplates);
+        foreach ($newBoilerplates as $newBoilerplate) {
+            static::assertTrue($newBoilerplate->isVerified());
+        }
+
+        // boilerplates of the blueprint itself remain untouched
+        /** @var Boilerplate[] $sourceBoilerplates */
+        $sourceBoilerplates = $this->getEntries(Boilerplate::class, ['procedure' => $blueprintWithBoilerplates->getId()]);
+        static::assertNotEmpty($sourceBoilerplates);
+        foreach ($sourceBoilerplates as $sourceBoilerplate) {
+            static::assertFalse($sourceBoilerplate->isVerified());
+        }
+    }
+
     public function testCopyBoilerplatesWithReference(): void
     {
         /** @var Procedure $blueprintWit$blueprinthBoilerplates */

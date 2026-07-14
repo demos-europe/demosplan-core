@@ -2201,6 +2201,12 @@ class ProcedureService implements ProcedureServiceInterface
             throw new Exception('Boilerplate with id: '.$boilerplateVO->getId().' not found');
         }
 
+        // an actual content change means the boilerplate no longer matches the blueprint original
+        if ($boilerplate->getTitle() !== $boilerplateVO->getTitle()
+            || $boilerplate->getText() !== $boilerplateVO->getText()) {
+            $boilerplate->setVerified(false);
+        }
+
         $boilerplate->setTitle($boilerplateVO->getTitle());
         $boilerplate->setText($boilerplateVO->getText());
 

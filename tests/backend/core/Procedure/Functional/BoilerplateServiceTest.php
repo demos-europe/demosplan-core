@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\BoilerplateVO;
 use Exception;
 use Tests\Base\FunctionalTestCase;
 
@@ -179,6 +180,35 @@ class BoilerplateServiceTest extends FunctionalTestCase
         $updatedBoilerplate = $this->sut->getBoilerplate($toUpdate->getIdent());
         static::assertEquals($update['text'], $updatedBoilerplate->getText());
         static::assertEquals($toUpdate->getTitle(), $updatedBoilerplate->getTitle());
+    }
+
+    public function testUpdateBoilerplateVOResetsVerifiedOnContentChange()
+    {
+        /** @var Boilerplate $boilerplate */
+        $boilerplate = $this->fixtures->getReference('testBoilerplate1');
+        $boilerplate->setVerified(true);
+        $this->getEntityManager()->flush();
+
+        $boilerplateVO = new BoilerplateVO($boilerplate);
+        $boilerplateVO->setText('this text differs from the blueprint original');
+
+        $updatedBoilerplate = $this->sut->updateBoilerplateVO($boilerplateVO);
+
+        static::assertFalse($updatedBoilerplate->isVerified());
+    }
+
+    public function testUpdateBoilerplateVOKeepsVerifiedWithoutContentChange()
+    {
+        /** @var Boilerplate $boilerplate */
+        $boilerplate = $this->fixtures->getReference('testBoilerplate1');
+        $boilerplate->setVerified(true);
+        $this->getEntityManager()->flush();
+
+        $boilerplateVO = new BoilerplateVO($boilerplate);
+
+        $updatedBoilerplate = $this->sut->updateBoilerplateVO($boilerplateVO);
+
+        static::assertTrue($updatedBoilerplate->isVerified());
     }
 
     /**

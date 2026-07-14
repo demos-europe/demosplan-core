@@ -13,11 +13,20 @@
             data-checkable-item="{{ boilerplateGroup.id|default }}">
     </td>
     <td class="o-hellip--td">
-        <label
-            class="lbl--text inline-block u-mb-0 o-hellip max-w-[90%] u-ml"
-            for="boilerplateGroupChildren:{{ boilerplate.ident|default }}">
-            {{ boilerplate.title|default('Titel') }}
-        </label>
+        <div class="flex items-center">
+            <label
+                class="lbl--text inline-block u-mb-0 o-hellip max-w-[90%] u-ml"
+                for="boilerplateGroupChildren:{{ boilerplate.ident|default }}">
+                {{ boilerplate.title|default('Titel') }}
+            </label>
+            {% if boilerplate.verified|default(false) and hasPermission('feature_boilerplate_verified_marker') %}
+                <span
+                    class="badge rounded-md text-default bg-surface-medium text-xs py-0.5 px-1.5 ml-auto mr-2 shrink-0"
+                    data-cy="administrationListBoilerplate:verifiedBadge">
+                    {{ 'verified'|trans }}
+                </span>
+            {% endif %}
+        </div>
     </td>
     <td>
         {% for cat in boilerplate.categories %}

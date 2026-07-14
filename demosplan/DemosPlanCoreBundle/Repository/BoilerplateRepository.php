@@ -99,6 +99,7 @@ class BoilerplateRepository extends FluentRepository implements ArrayInterface, 
                 $newBoilerplate->setModifyDate(null);
                 $newBoilerplate->setCategories([]);
                 $newBoilerplate->detachGroup();
+                $newBoilerplate->setVerified(true);
 
                 $this->getEntityManager()->persist($newBoilerplate);
 
