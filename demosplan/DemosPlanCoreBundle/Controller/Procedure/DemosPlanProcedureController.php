@@ -2492,12 +2492,14 @@ class DemosPlanProcedureController extends BaseController
     {
         $boilerplateValueObject = new BoilerplateVO();
         $updatedBoilerplate = null;
+        $verified = false;
         $procedureService = $this->procedureService;
 
         if ('new' !== $boilerplateId) {
             $boilerplate = $procedureService->getBoilerplateById($boilerplateId);
             if (null !== $boilerplate) {
                 $boilerplateValueObject = new BoilerplateVO($boilerplate);
+                $verified = $boilerplate->isVerified();
             } else {
                 $this->logger->warning('no Boilerplate found for ID '.$boilerplateId);
             }
@@ -2514,8 +2516,9 @@ class DemosPlanProcedureController extends BaseController
             BoilerplateType::class,
             $boilerplateValueObject,
             [
-                'csrf_protection'    => true,
-                'allow_extra_fields' => true, // action field (input, not the one from form)
+                'csrf_protection'     => true,
+                'allow_extra_fields'  => true, // action field (input, not the one from form)
+                'allow_verified_edit' => $this->permissions->hasPermission('feature_boilerplate_verified_edit'),
             ]
         );
         $form->handleRequest($request);
@@ -2583,6 +2586,7 @@ class DemosPlanProcedureController extends BaseController
                 'selectedGroup'                => '',
                 'title'                        => 'procedure.boilerplate.edit',
                 'procedure'                    => $procedure,
+                'verified'                     => $verified,
             ]
         );
     }

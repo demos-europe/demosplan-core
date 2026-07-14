@@ -2207,6 +2207,11 @@ class ProcedureService implements ProcedureServiceInterface
             $boilerplate->setVerified(false);
         }
 
+        // an explicitly given verified state (permission-gated in the edit form) wins over the automatic reset
+        if (null !== $boilerplateVO->getVerified()) {
+            $boilerplate->setVerified($boilerplateVO->getVerified());
+        }
+
         $boilerplate->setTitle($boilerplateVO->getTitle());
         $boilerplate->setText($boilerplateVO->getText());
 

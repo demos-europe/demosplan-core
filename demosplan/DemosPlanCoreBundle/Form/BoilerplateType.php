@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Form;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\BoilerplateVO;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\DataMapperInterface;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -68,7 +69,20 @@ class BoilerplateType extends AbstractType implements DataMapperInterface
                     'required' => false,
                     'label'    => 'group',
                 ]
-            )
+            );
+
+        if ($options['allow_verified_edit']) {
+            $builder->add(
+                'r_verified',
+                CheckboxType::class,
+                [
+                    'required' => false,
+                    'label'    => 'verified',
+                ]
+            );
+        }
+
+        $builder
             ->add(
                 'saveBoilerplate',
                 SubmitType::class,
@@ -80,7 +94,11 @@ class BoilerplateType extends AbstractType implements DataMapperInterface
 
     public function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setDefaults(['data_class' => BoilerplateVO::class]);
+        $resolver->setDefaults([
+            'data_class'          => BoilerplateVO::class,
+            'allow_verified_edit' => false,
+        ]);
+        $resolver->setAllowedTypes('allow_verified_edit', 'bool');
     }
 
     /**
@@ -95,6 +113,9 @@ class BoilerplateType extends AbstractType implements DataMapperInterface
         $forms['r_boilerplateCategory']->setData($data ? $data->getCategories() : '');
         $forms['r_boilerplateGroup']->setData($data ? $data->getGroup() : '');
         $forms['r_text']->setData($data ? $data->getText() : '');
+        if (isset($forms['r_verified'])) {
+            $forms['r_verified']->setData((bool) $data?->getVerified());
+        }
     }
 
     /**
@@ -112,6 +133,9 @@ class BoilerplateType extends AbstractType implements DataMapperInterface
         }
         $boilerplateVO->setGroup($forms['r_boilerplateGroup']->getData());
         $boilerplateVO->setText($forms['r_text']->getData());
+        if (isset($forms['r_verified'])) {
+            $boilerplateVO->setVerified((bool) $forms['r_verified']->getData());
+        }
         $boilerplateVO->lock();
     }
 }

@@ -211,6 +211,51 @@ class BoilerplateServiceTest extends FunctionalTestCase
         static::assertTrue($updatedBoilerplate->isVerified());
     }
 
+    public function testUpdateBoilerplateVOExplicitVerifiedWinsOverContentChange()
+    {
+        /** @var Boilerplate $boilerplate */
+        $boilerplate = $this->fixtures->getReference('testBoilerplate1');
+        $boilerplate->setVerified(true);
+        $this->getEntityManager()->flush();
+
+        $boilerplateVO = new BoilerplateVO($boilerplate);
+        $boilerplateVO->setText('this text differs from the blueprint original');
+        $boilerplateVO->setVerified(true);
+
+        $updatedBoilerplate = $this->sut->updateBoilerplateVO($boilerplateVO);
+
+        static::assertTrue($updatedBoilerplate->isVerified());
+    }
+
+    public function testUpdateBoilerplateVOExplicitVerifiedUnsetsVerified()
+    {
+        /** @var Boilerplate $boilerplate */
+        $boilerplate = $this->fixtures->getReference('testBoilerplate1');
+        $boilerplate->setVerified(true);
+        $this->getEntityManager()->flush();
+
+        $boilerplateVO = new BoilerplateVO($boilerplate);
+        $boilerplateVO->setVerified(false);
+
+        $updatedBoilerplate = $this->sut->updateBoilerplateVO($boilerplateVO);
+
+        static::assertFalse($updatedBoilerplate->isVerified());
+    }
+
+    public function testUpdateBoilerplateVOExplicitVerifiedSetsVerified()
+    {
+        /** @var Boilerplate $boilerplate */
+        $boilerplate = $this->fixtures->getReference('testBoilerplate1');
+        static::assertFalse($boilerplate->isVerified());
+
+        $boilerplateVO = new BoilerplateVO($boilerplate);
+        $boilerplateVO->setVerified(true);
+
+        $updatedBoilerplate = $this->sut->updateBoilerplateVO($boilerplateVO);
+
+        static::assertTrue($updatedBoilerplate->isVerified());
+    }
+
     /**
      * @throws Exception
      */

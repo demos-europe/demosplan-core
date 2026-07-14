@@ -800,6 +800,12 @@ feature_auto_switch_to_procedure_end_phase:
     expose: true
     label: 'Automatically toggle into procedure evaluating-phase in case of current reading phase has ended.'
     loginRequired: false
+feature_boilerplate_verified_edit:
+    description: 'Allow changing the verified state of a boilerplate in the boilerplate edit form.'
+    expose: true
+    label: 'Edit the verified state of boilerplates'
+    loginRequired: true
+    parent: feature_boilerplate_verified_marker
 feature_boilerplate_verified_marker:
     description: 'Show a badge on boilerplates that were copied from a blueprint procedure and have not been edited since.'
     expose: true

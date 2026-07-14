@@ -102,6 +102,22 @@
                     </dp-editor>
                 </div>
 
+                {% if not isNew and hasPermission('feature_boilerplate_verified_edit') %}
+                    <label class="layout__item u-1-of-4" for="r_verified">
+                        {{ "verified"|trans }}
+                    </label><!--
+                 --><div class="layout__item u-3-of-4 u-pl-0">
+                        <input
+                            type="checkbox"
+                            id="r_verified"
+                            data-cy="boilerplateVerified"
+                            name="r_verified"
+                            value="1"
+                            {% if verified|default(false) %}checked{% endif %}/>
+                        <label for="r_verified" class="inline-block">{{ 'boilerplate.verified.hint'|trans }}</label>
+                    </div>
+                {% endif %}
+
                 <div class="text-right u-mt-0_5 space-inline-s">
                     <button
                         class="btn btn--primary"
