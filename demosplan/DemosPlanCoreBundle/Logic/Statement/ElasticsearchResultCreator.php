@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
@@ -121,6 +122,7 @@ class ElasticsearchResultCreator
         private readonly ProfilerService $profilerService,
         private readonly LoggerInterface $logger,
         private readonly CustomFieldFilterResolver $customFieldFilterResolver,
+        private readonly PermissionsInterface $permissions,
         #[Autowire(param: 'elasticsearch_max_result_window')]
         private readonly int $elasticsearchMaxResultWindow,
         #[Autowire(param: 'elasticsearch_search_after_batch_size')]
@@ -169,13 +171,17 @@ class ElasticsearchResultCreator
                 $aggregationsMinDocumentCount
             );
             [$boolMustFilter, $boolMustNotFilter] = $this->getBasicFilters($procedureId, $userFilters);
-            [$customFieldQuery, $userFilters] = $this->customFieldFilterResolver->resolveCustomFieldFilter(
-                $procedureId,
-                $userFilters
-            );
-            if (null !== $customFieldQuery) {
-                $boolMustFilter[] = $customFieldQuery;
+
+            if ($this->permissions->hasPermission('feature_statements_custom_fields')) {
+                [$customFieldQuery, $userFilters] = $this->customFieldFilterResolver->resolveCustomFieldFilter(
+                    $procedureId,
+                    $userFilters
+                );
+                if (null !== $customFieldQuery) {
+                    $boolMustFilter[] = $customFieldQuery;
+                }
             }
+
             $userFilters = $this->getRenamedUserFilters($userFilters);
             $fragmentFilters = $this->getFragmentFilters($userFilters);
             $userFragmentFilters = $this->statementService->mapRequestFiltersToESFragmentFilters($userFilters);
