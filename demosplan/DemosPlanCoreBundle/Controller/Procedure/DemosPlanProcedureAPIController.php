@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceLinkageFactory;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
+use demosplan\DemosPlanCoreBundle\Logic\CustomField\CustomFieldFilterResponseBuilder;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
@@ -174,6 +175,7 @@ class DemosPlanProcedureAPIController extends APIController
         PermissionsInterface $permissions,
         Request $request,
         StatementFilterHandler $statementFilterHandler,
+        CustomFieldFilterResponseBuilder $cfFilterResponseBuilder,
         $procedureId,
         $filterHash = '',
     ) {
@@ -184,6 +186,7 @@ class DemosPlanProcedureAPIController extends APIController
             $permissions,
             $request,
             $statementFilterHandler,
+            $cfFilterResponseBuilder,
             $procedureId,
             $filterHash,
             true
@@ -205,6 +208,7 @@ class DemosPlanProcedureAPIController extends APIController
         PermissionsInterface $permissions,
         Request $request,
         StatementFilterHandler $statementFilterHandler,
+        CustomFieldFilterResponseBuilder $cfFilterResponseBuilder,
         $procedureId,
         $filterHash = '',
     ) {
@@ -215,6 +219,7 @@ class DemosPlanProcedureAPIController extends APIController
             $permissions,
             $request,
             $statementFilterHandler,
+            $cfFilterResponseBuilder,
             $procedureId,
             $filterHash,
             false
@@ -297,6 +302,7 @@ class DemosPlanProcedureAPIController extends APIController
         PermissionsInterface $permissions,
         Request $request,
         StatementFilterHandler $statementFilterHandler,
+        CustomFieldFilterResponseBuilder $cfFilterResponseBuilder,
         $procedureId,
         $filterHash,
         $original,
@@ -381,6 +387,16 @@ class DemosPlanProcedureAPIController extends APIController
             $assessmentTableFilter->setSelectedOptions($selected);
             $assessmentTableFilter->lock();
             $responseData[] = $assessmentTableFilter;
+        }
+
+        if ($request->query->getBoolean('includeCf', true)) {
+            $cfFilterItems = $cfFilterResponseBuilder->buildFilterItems(
+                $procedureId,
+                $original,
+                $rParams['filters'],
+                $rParams['search'] ?? null,
+            );
+            array_push($responseData, ...$cfFilterItems);
         }
 
         return $this->renderCollection($responseData, AssessmentTableFilterTransformer::class);
