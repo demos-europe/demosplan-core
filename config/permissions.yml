@@ -2891,6 +2891,11 @@ field_statement_county:
     label: 'Show field "county" (Kreis) and save its value'
     loginRequired: false
     parent: field_statement
+field_statement_deadline:
+    description: 'Adds a deadline field  (Bearbeitungsfrist).'
+    label: 'Statement deadline'
+    expose: true
+    loginRequired: true
 field_statement_extern_id:
     expose: true
     label: 'Name des Verfahrens'
