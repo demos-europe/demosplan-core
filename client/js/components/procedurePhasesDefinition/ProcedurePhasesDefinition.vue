@@ -118,6 +118,7 @@ All rights reserved
         >
           <div class="overflow-x-auto pb-3 has-scrollable-content">
             <dp-data-table
+              :column-width-storage-key="`procedurePhases:${section.audience}`"
               :data-cy="`procedurePhases:dataTable:${section.audience}`"
               :flyout-width="flyoutWidth"
               :header-fields="headerFields"
@@ -394,7 +395,7 @@ export default {
       { field: 'permissionSet', label: Translator.trans('permissionset.label'), colWidth: '270px', initialMinWidth: 270 },
       { field: 'participationState', label: Translator.trans('participation.state.finished'), colWidth: '160px', initialMinWidth: 160 },
       ...(isAddonActive.value ? [{ field: 'phaseCode', label: Translator.trans('procedure.phase.code'), colWidth: '160px', initialMinWidth: 160 }] : []),
-      ...(isAddonActive.value ? [{ field: 'portalPhase', label: Translator.trans('portal.procedure.phase'), colWidth: '160px', initialMinWidth: 160 }] : []),
+      ...(isAddonActive.value ? [{ field: 'portalPhase', label: Translator.trans('portal.procedure.phase'), colWidth: '240px', initialMinWidth: 240 }] : []),
     ])
 
     const detectPhaseListAddon = () => {
