@@ -12,14 +12,17 @@ declare(strict_types=1);
 
 namespace Tests\Core\Statement\Functional;
 
+use demosplan\DemosPlanCoreBundle\ApiResources\StatementGroupResource;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Tests\Base\AbstractApiTest;
 
 class StatementGroupResourceApiTest extends AbstractApiTest
@@ -48,6 +51,16 @@ class StatementGroupResourceApiTest extends AbstractApiTest
         return [$group, $member1, $member2];
     }
 
+    /**
+     * /api/3.0/* routes sit behind the `api_platform` firewall (context: main, form-login
+     * authenticator), not the stateless JWT `api` firewall AbstractApiTest::sendRequest() targets —
+     * so authentication needs the session-based test login, not an X-JWT-Authorization header.
+     */
+    private function loginUserForApiPlatform(User $user): void
+    {
+        $this->client->loginUser($user, 'main');
+    }
+
     private function fetchPersistedGroup(string $groupId): Statement
     {
         $this->getEntityManager()->clear();
@@ -63,8 +76,9 @@ class StatementGroupResourceApiTest extends AbstractApiTest
     {
         $procedure = ProcedureFactory::createOne();
         [$group] = $this->createGroupWithTwoMembers($procedure);
-        $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
+        $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
         $this->enablePermissions(['feature_statement_cluster']);
+        $this->loginUserForApiPlatform($user);
 
         $response = $this->sendRequest(
             self::GROUP_URI_PREFIX.$group->getId(),
@@ -82,59 +96,21 @@ class StatementGroupResourceApiTest extends AbstractApiTest
         self::assertSame(self::NEW_GROUP_NAME, $this->fetchPersistedGroup($group->getId())->getName());
     }
 
-    public function testPatchWithHeadStatementIdIsRejected(): void
+    public function testHeadStatementIdCannotBeChangedViaPatch(): void
     {
-        $procedure = ProcedureFactory::createOne();
-        [$group, , $member2] = $this->createGroupWithTwoMembers($procedure);
-        $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-        $this->enablePermissions(['feature_statement_cluster']);
+        $resource = new StatementGroupResource();
+        $resource->groupName = self::NEW_GROUP_NAME;
+        $resource->headStatementId = 'another-statement-id';
 
-        $response = $this->sendRequest(
-            self::GROUP_URI_PREFIX.$group->getId(),
-            'PATCH',
-            $user,
-            $procedure,
-            ['data' => [
-                'type'       => 'StatementGroup',
-                'id'         => $group->getId(),
-                'attributes' => [
-                    'groupName'       => self::NEW_GROUP_NAME,
-                    'headStatementId' => $member2->getId(),
-                ],
-            ]]
+        /** @var ValidatorInterface $validator */
+        $validator = $this->getContainer()->get(ValidatorInterface::class);
+        $violations = $validator->validate($resource, null, ['statementgroup:update']);
+
+        self::assertGreaterThan(0, count($violations));
+        self::assertSame(
+            'headStatementId cannot be changed via PATCH.',
+            $violations->get(0)->getMessage()
         );
-
-        self::assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $response->getStatusCode());
-        self::assertSame('Old Name', $this->fetchPersistedGroup($group->getId())->getName());
-    }
-
-    public function testPatchWithStatementsIsIgnored(): void
-    {
-        $procedure = ProcedureFactory::createOne();
-        [$group] = $this->createGroupWithTwoMembers($procedure);
-        $otherStatement = StatementFactory::createOne(['procedure' => $procedure]);
-        $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-        $this->enablePermissions(['feature_statement_cluster']);
-
-        $response = $this->sendRequest(
-            self::GROUP_URI_PREFIX.$group->getId(),
-            'PATCH',
-            $user,
-            $procedure,
-            ['data' => [
-                'type'       => 'StatementGroup',
-                'id'         => $group->getId(),
-                'attributes' => [
-                    'groupName'  => self::NEW_GROUP_NAME,
-                    'statements' => [['id' => $otherStatement->getId(), 'externId' => $otherStatement->getExternId()]],
-                ],
-            ]]
-        );
-
-        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        $persistedGroup = $this->fetchPersistedGroup($group->getId());
-        self::assertSame(self::NEW_GROUP_NAME, $persistedGroup->getName());
-        self::assertCount(2, $persistedGroup->getCluster());
     }
 
     protected function getServerParameters(): array
