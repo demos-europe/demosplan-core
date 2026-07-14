@@ -826,6 +826,10 @@ export default {
     const confirmDeleteDialog = ref(null)
 
     const deletePhase = async (id) => {
+      if (isCreating.value) {
+        resetForm()
+      }
+
       const isConfirmed = await confirmDeleteDialog.value.open()
 
       if (!isConfirmed) {
