@@ -24,7 +24,6 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceLinkageFactory;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
-use demosplan\DemosPlanCoreBundle\Logic\CustomField\CustomFieldFilterResponseBuilder;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
@@ -175,7 +174,6 @@ class DemosPlanProcedureAPIController extends APIController
         PermissionsInterface $permissions,
         Request $request,
         StatementFilterHandler $statementFilterHandler,
-        CustomFieldFilterResponseBuilder $cfFilterResponseBuilder,
         $procedureId,
         $filterHash = '',
     ) {
@@ -186,7 +184,6 @@ class DemosPlanProcedureAPIController extends APIController
             $permissions,
             $request,
             $statementFilterHandler,
-            $cfFilterResponseBuilder,
             $procedureId,
             $filterHash,
             true
@@ -208,7 +205,6 @@ class DemosPlanProcedureAPIController extends APIController
         PermissionsInterface $permissions,
         Request $request,
         StatementFilterHandler $statementFilterHandler,
-        CustomFieldFilterResponseBuilder $cfFilterResponseBuilder,
         $procedureId,
         $filterHash = '',
     ) {
@@ -219,7 +215,6 @@ class DemosPlanProcedureAPIController extends APIController
             $permissions,
             $request,
             $statementFilterHandler,
-            $cfFilterResponseBuilder,
             $procedureId,
             $filterHash,
             false
@@ -302,7 +297,6 @@ class DemosPlanProcedureAPIController extends APIController
         PermissionsInterface $permissions,
         Request $request,
         StatementFilterHandler $statementFilterHandler,
-        CustomFieldFilterResponseBuilder $cfFilterResponseBuilder,
         $procedureId,
         $filterHash,
         $original,
