@@ -132,4 +132,12 @@ class StatementGroupResourceApiTest extends AbstractApiTest
         self::assertSame('New Name', $persistedGroup->getName());
         self::assertCount(2, $persistedGroup->getCluster());
     }
+
+    protected function getServerParameters(): array
+    {
+        return [
+            'HTTP_ACCEPT'  => 'application/vnd.api+json',
+            'CONTENT_TYPE' => 'application/vnd.api+json',
+        ];
+    }
 }
