@@ -13,14 +13,11 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\CustomField;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use Doctrine\ORM\EntityManagerInterface;
 
 class CustomFieldStatementCounter
 {
     public function __construct(
-        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
         private readonly EntityManagerInterface $entityManager,
     ) {
     }
@@ -29,6 +26,7 @@ class CustomFieldStatementCounter
      * Returns statement counts per option for a single custom field.
      * Optionally scoped to statements matching other active CF filters (facet awareness).
      *
+     * @param string[]                $optionIds      Option IDs of the field, as already known by the caller.
      * @param array<string, string[]> $otherCfFilters fieldId => selectedOptionIds[]
      * @param string[]|null           $esFilteredIds  Statement IDs that matched the active regular ES
      *                                                filters. `null` means "don't scope" (count across
@@ -41,26 +39,11 @@ class CustomFieldStatementCounter
     public function countByField(
         string $procedureId,
         string $fieldId,
+        array $optionIds,
         bool $isOriginalStatementView,
         array $otherCfFilters = [],
         ?array $esFilteredIds = null,
     ): array {
-        $configs = $this->customFieldConfigurationRepository->findCustomFieldConfigurationByCriteria(
-            CustomFieldSupportedEntity::procedure->value,
-            $procedureId,
-            CustomFieldSupportedEntity::statement->value,
-            $fieldId
-        );
-
-        if (null === $configs || [] === $configs) {
-            return [];
-        }
-
-        $field = $configs[0]->getConfiguration();
-        $field->setId($configs[0]->getId());
-
-        $optionIds = array_map(static fn ($option) => $option->getId(), $field->getOptions());
-
         if ([] === $optionIds) {
             return [];
         }
