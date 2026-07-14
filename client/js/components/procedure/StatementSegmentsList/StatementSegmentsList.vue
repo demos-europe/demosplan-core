@@ -149,6 +149,16 @@
               />
             </dp-flyout>
           </li>
+          <li v-if="isGroupMember">
+            <dp-button
+              :text="Translator.trans('cluster.element.release', { groupName })"
+              class="ml-2 h-fit"
+              color="warning"
+              data-cy="statementSegmentsList:detachFromGroup"
+              variant="subtle"
+              @click="detachFromGroup"
+            />
+          </li>
         </ul>
       </header>
     </dp-sticky-element>
@@ -447,6 +457,13 @@ export default {
       }
     },
 
+    // The group is identified by the head statement's externId (e.g. "GM7"), reachable via the headStatement relationship
+    groupName () {
+      return this.statement?.relationships?.headStatement?.data ?
+        this.statement.relationships.headStatement.get()?.attributes?.externId || '' :
+        ''
+    },
+
     hasSegments () {
       return Object.keys(this.segments).length > 0
     },
@@ -466,6 +483,11 @@ export default {
       }
 
       return !this.originalAttachment.hash && this.additionalAttachments.length === 0
+    },
+
+    // A statement is a group member when it points to a head statement
+    isGroupMember () {
+      return Boolean(this.statement?.relationships?.headStatement?.data)
     },
 
     navigationSource () {
@@ -600,6 +622,35 @@ export default {
         .finally(() => {
           this.isLoading = false
         })
+    },
+
+    async detachFromGroup () {
+      const groupId = this.statement?.relationships?.headStatement?.data?.id
+
+      if (!groupId) {
+        return
+      }
+
+      try {
+        /*
+         * Detach this member from its group via the idempotent JSON:API relationship endpoint.
+         * Only the removed member is sent (delta); PATCH renames the group and no longer changes membership.
+         */
+        await dpApi.delete(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${groupId}/relationships/statements`, {}, {}, {
+          data: [{ type: 'Statement', id: this.statement.id }],
+        })
+        dplan.notify.notify('confirm', Translator.trans('confirm.statement.detach.cluster.element', {
+          statementId: this.statementExternId,
+          clusterId: this.groupName,
+        }))
+        // Refetch so the headStatement relationship clears and the button hides
+        this.getStatement()
+      } catch (error) {
+        console.error('Failed to remove statement from group:', error)
+        dplan.notify.notify('error', Translator.trans('error.statement.detach.cluster.element', {
+          statementId: this.statementExternId,
+        }))
+      }
     },
 
     getActionFromQueryParams (queryParams) {

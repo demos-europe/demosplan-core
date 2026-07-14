@@ -35,6 +35,17 @@ All rights reserved
             value="createGroup"
             @change="selectedAction = 'createGroup'"
           />
+          <dp-radio
+            id="addToGroup"
+            :checked="selectedAction === 'addToGroup'"
+            :label="{
+              text: Translator.trans('statement.cluster.add'),
+              hint: Translator.trans('statement.cluster.add.hint'),
+            }"
+            name="groupAction"
+            value="addToGroup"
+            @change="selectedAction = 'addToGroup'"
+          />
         </div>
         <div v-if="isLoading">
           <dp-loading />
@@ -46,70 +57,68 @@ All rights reserved
           <p class="mb-3">
             {{ Translator.trans('statements.selected.adjust.hint') }}
           </p>
-          <ul
-            :class="statements.length > 5 ? 'max-h-[255px] overflow-y-auto' : ''"
-            class="border rounded-md pb-2 px-1"
-          >
-            <li
-              v-for="stmt in statements"
-              :key="stmt.id"
-              class="py-2 border-b border-neutral-light-2"
-            >
-              <div class="flex items-center gap-2 px-1.5">
-                <span>{{ stmt.attributes.externId }}</span>
-                <span
-                  v-if="stmt.attributes.isSubmittedByCitizen"
-                >{{ stmt.attributes.authorName }}
-                </span>
-                <span
-                  v-else
-                >{{ stmt.attributes.initialOrganisationName }}
-                </span>
-                <button
-                  :aria-label="Translator.trans('remove.from.list')"
-                  :data-cy="`statementGroupForm:removeStatement:${stmt.id}`"
-                  class="btn--blank o-link--default ml-auto"
-                  type="button"
-                  @click="removeStatement(stmt.id)"
-                >
-                  <dp-icon
-                    icon="close"
-                    size="small"
-                  />
-                </button>
-              </div>
-            </li>
-          </ul>
+          <selected-statements-list
+            :statements="statements"
+            @remove="removeStatement"
+          />
         </div>
       </template>
       <template v-slot:step-2>
         <div data-dp-validate="groupForm">
-          <dp-input
-            id="groupName"
-            v-model="groupName"
-            :label="{
-              text: Translator.trans('statement.cluster.name'),
-              hint: Translator.trans('statement.cluster.name.hint'),
-            }"
-            class="mb-5"
-            required
-          />
-          <dp-label
-            :hint="Translator.trans('statement.cluster.create.help')"
-            :text="Translator.trans('statement.main')"
-            for="headStatement"
-            bold
-            required
-          />
-          <dp-multiselect
-            id="headStatement"
-            v-model="headStatement"
-            :custom-label="stmt => stmt.attributes.externId"
-            :options="statements"
-            track-by="id"
-            required
-            searchable
-          />
+          <template v-if="selectedAction === 'createGroup'">
+            <dp-input
+              id="groupName"
+              v-model="groupName"
+              :label="{
+                text: Translator.trans('statement.cluster.name'),
+                hint: Translator.trans('statement.cluster.name.hint'),
+              }"
+              class="mb-5"
+              required
+            />
+            <dp-label
+              :hint="Translator.trans('statement.cluster.create.help')"
+              :text="Translator.trans('statement.main')"
+              for="headStatement"
+              bold
+              required
+            />
+            <dp-multiselect
+              id="headStatement"
+              v-model="headStatement"
+              :custom-label="stmt => stmt.attributes.externId"
+              :options="statements"
+              track-by="id"
+              required
+              searchable
+            />
+          </template>
+          <template v-else-if="selectedAction === 'addToGroup'">
+            <dp-label
+              :hint="Translator.trans('cluster.choose.hint')"
+              :text="Translator.trans('cluster.choose')"
+              for="targetGroup"
+              bold
+              required
+            />
+            <dp-multiselect
+              id="targetGroup"
+              v-model="targetGroupId"
+              :custom-label="stmt => `${stmt.attributes.externId} ${stmt.attributes.groupName}`"
+              :options="groups"
+              class="mb-5"
+              track-by="id"
+              required
+              searchable
+            />
+            <h4 class="font-semibold mb-0.5">
+              {{ Translator.trans('statements.selected.no.count') }}
+            </h4>
+            <selected-statements-list
+              :statements="statements"
+              @remove="removeStatement"
+            />
+          </template>
         </div>
       </template>
       <template v-slot:step-3>
@@ -125,10 +134,11 @@ All rights reserved
 
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { dpApi, DpIcon, DpInput, DpLabel, DpLoading, DpMultiselect, DpRadio, validateForm } from '@demos-europe/demosplan-ui'
+import { dpApi, DpInput, DpLabel, DpLoading, DpMultiselect, DpRadio, hasPermission, validateForm } from '@demos-europe/demosplan-ui'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
 import lscache from 'lscache'
+import SelectedStatementsList from '@DpJs/components/statement/SelectedStatementsList'
 
 const props = defineProps({
   procedureId: {
@@ -138,6 +148,7 @@ const props = defineProps({
 })
 
 const groupName = ref('')
+const groups = ref([])
 const headStatement = ref(null)
 const isBusy = ref(false)
 const isLoading = ref(true)
@@ -147,6 +158,7 @@ const selectionCriteria = ref(null)
 const statements = ref([])
 const step = ref(1)
 const success = ref(true)
+const targetGroupId = ref(null)
 
 const isValid = computed(() => statements.value.length > 0)
 const selectedElementsCount = computed(() => statements.value.length)
@@ -158,7 +170,9 @@ const translations = computed(() => ({
   edit: Translator.trans('back.to.action.selection'),
   stepTitles: [
     Translator.trans('bulk.edit.title.actions.choose', { count: selectedElementsCount.value }),
-    Translator.trans('statement.cluster.create'),
+    selectedAction.value === 'addToGroup' ?
+      Translator.trans('statement.cluster.add') :
+      Translator.trans('statement.cluster.create'),
     Translator.trans('confirm.saved.plural'),
   ],
 }))
@@ -171,7 +185,7 @@ const handleConfirmStep1 = () => {
     return
   }
 
-  if (statements.value.some(stmt => !stmt.relationships?.assignee?.data?.id)) {
+  if (hasPermission('feature_statement_assignment') && statements.value.some(stmt => !stmt.relationships?.assignee?.data?.id)) {
     dplan.notify.notify('error', Translator.trans('confirm.consolidation.not.assigned'))
 
     return
@@ -189,46 +203,73 @@ const handleApply = async () => {
     return
   }
 
-  if (!headStatement.value) {
+  if (selectedAction.value === 'createGroup' && !headStatement.value) {
     dplan.notify.notify('error', Translator.trans('error.mandatoryfields'))
 
     return
   }
 
-  const payload = {
-    type: 'StatementGroup',
-    attributes: {
-      groupName: groupName.value,
-      headStatementId: headStatement.value.id,
-    },
-    relationships: {
-      statements: {
-        data: statements.value.map(stmt => ({ id: `${stmt.id}`, type: 'Statement' })),
-      },
-    },
-  }
-
   isBusy.value = true
 
-  try {
-    await dpApi.post(`${Routing.getBaseUrl()}/api/3.0/StatementGroup`, {}, { data: payload })
-    success.value = true
-  } catch (error) {
-    console.error('StatementGroup POST failed:', error)
-    success.value = false
-  } finally {
-    // Always delete the stored selection so the same statements are not grouped more than once.
-    lscache.remove(`${props.procedureId}:toggledStatements`)
-    if (success.value) {
-      /*
-       * Grouping shrinks the statement list, so a persisted page may no longer exist.
-       * Tell the list to reopen on page 1 and skip an out-of-range fetch.
-       */
-      lscache.set(`${props.procedureId}:statementListResetPage`, true)
+  if (selectedAction.value === 'createGroup') {
+    const payload = {
+      type: 'StatementGroup',
+      attributes: {
+        groupName: groupName.value,
+        headStatementId: headStatement.value.id,
+      },
+      relationships: {
+        statements: {
+          data: statements.value.map(stmt => ({ id: `${stmt.id}`, type: 'Statement' })),
+        },
+      },
     }
 
-    isBusy.value = false
-    step.value = 3
+    try {
+      await dpApi.post(`${Routing.getBaseUrl()}/api/3.0/StatementGroup`, {}, { data: payload })
+      success.value = true
+    } catch (error) {
+      console.error('StatementGroup POST failed:', error)
+      success.value = false
+    } finally {
+    /*
+     * Grouping shrinks the statement list, so a persisted page may no longer exist.
+     * Tell the list to reopen on page 1 and skip an out-of-range fetch.
+     */
+      lscache.set(`${props.procedureId}:statementListResetPage`, true)
+      isBusy.value = false
+      step.value = 3
+    }
+  } else {
+    const payload = {
+      data: statements.value.map(stmt => ({ type: 'Statement', id: `${stmt.id}` })),
+    }
+
+    try {
+      /*
+       * Membership is managed via the JSON:API relationship endpoint; PATCH on the group renames
+       * only. POST adds the given statements as an idempotent delta.
+       */
+      await dpApi.post(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${targetGroupId.value.id}/relationships/statements`, {}, payload)
+      success.value = true
+    } catch (error) {
+      console.error('StatementGroup add-members POST failed:', error)
+      success.value = false
+    } finally {
+      lscache.remove(`${props.procedureId}:toggledStatements`)
+      isBusy.value = false
+      step.value = 3
+    }
+  }
+}
+
+const fetchGroups = async () => {
+  try {
+    const response = await dpApi.get(`${Routing.getBaseUrl()}/api/3.0/StatementGroup`, { properties: ['externId', 'groupName'] })
+
+    groups.value = response.data.data
+  } catch (error) {
+    console.error('Failed to load statement groups:', error)
   }
 }
 
@@ -298,6 +339,7 @@ const setStatements = () => {
 onMounted(() => {
   setStatements()
   fetchStatements()
+  fetchGroups()
 })
 
 </script>
