@@ -24,6 +24,10 @@ use Tests\Base\AbstractApiTest;
 
 class StatementGroupResourceApiTest extends AbstractApiTest
 {
+    private const GROUP_URI_PREFIX = '/api/3.0/StatementGroup/';
+
+    private const NEW_GROUP_NAME = 'New Name';
+
     /**
      * @return array{Statement, Statement, Statement}
      */
@@ -63,19 +67,19 @@ class StatementGroupResourceApiTest extends AbstractApiTest
         $this->enablePermissions(['feature_statement_cluster']);
 
         $response = $this->sendRequest(
-            '/api/3.0/StatementGroup/'.$group->getId(),
+            self::GROUP_URI_PREFIX.$group->getId(),
             'PATCH',
             $user,
             $procedure,
             ['data' => [
                 'type'       => 'StatementGroup',
                 'id'         => $group->getId(),
-                'attributes' => ['groupName' => 'New Name'],
+                'attributes' => ['groupName' => self::NEW_GROUP_NAME],
             ]]
         );
 
         self::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        self::assertSame('New Name', $this->fetchPersistedGroup($group->getId())->getName());
+        self::assertSame(self::NEW_GROUP_NAME, $this->fetchPersistedGroup($group->getId())->getName());
     }
 
     public function testPatchWithHeadStatementIdIsRejected(): void
@@ -86,7 +90,7 @@ class StatementGroupResourceApiTest extends AbstractApiTest
         $this->enablePermissions(['feature_statement_cluster']);
 
         $response = $this->sendRequest(
-            '/api/3.0/StatementGroup/'.$group->getId(),
+            self::GROUP_URI_PREFIX.$group->getId(),
             'PATCH',
             $user,
             $procedure,
@@ -94,7 +98,7 @@ class StatementGroupResourceApiTest extends AbstractApiTest
                 'type'       => 'StatementGroup',
                 'id'         => $group->getId(),
                 'attributes' => [
-                    'groupName'       => 'New Name',
+                    'groupName'       => self::NEW_GROUP_NAME,
                     'headStatementId' => $member2->getId(),
                 ],
             ]]
@@ -113,7 +117,7 @@ class StatementGroupResourceApiTest extends AbstractApiTest
         $this->enablePermissions(['feature_statement_cluster']);
 
         $response = $this->sendRequest(
-            '/api/3.0/StatementGroup/'.$group->getId(),
+            self::GROUP_URI_PREFIX.$group->getId(),
             'PATCH',
             $user,
             $procedure,
@@ -121,7 +125,7 @@ class StatementGroupResourceApiTest extends AbstractApiTest
                 'type'       => 'StatementGroup',
                 'id'         => $group->getId(),
                 'attributes' => [
-                    'groupName'  => 'New Name',
+                    'groupName'  => self::NEW_GROUP_NAME,
                     'statements' => [['id' => $otherStatement->getId(), 'externId' => $otherStatement->getExternId()]],
                 ],
             ]]
@@ -129,7 +133,7 @@ class StatementGroupResourceApiTest extends AbstractApiTest
 
         self::assertSame(Response::HTTP_OK, $response->getStatusCode());
         $persistedGroup = $this->fetchPersistedGroup($group->getId());
-        self::assertSame('New Name', $persistedGroup->getName());
+        self::assertSame(self::NEW_GROUP_NAME, $persistedGroup->getName());
         self::assertCount(2, $persistedGroup->getCluster());
     }
 
