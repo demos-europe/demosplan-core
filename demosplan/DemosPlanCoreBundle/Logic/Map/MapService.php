@@ -430,6 +430,8 @@ class MapService
                 )->getId();
             } catch (Exception $e) {
                 $this->logger->error('Could not write ScreenshotFile: ', [$e]);
+
+                return '';
             }
 
             $update = [
