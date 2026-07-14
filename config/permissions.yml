@@ -800,6 +800,14 @@ feature_auto_switch_to_procedure_end_phase:
     expose: true
     label: 'Automatically toggle into procedure evaluating-phase in case of current reading phase has ended.'
     loginRequired: false
+feature_boilerplate_usage_list:
+    description: |-
+        Track in which segment recommendations a boilerplate was inserted and
+        list these segments on the boilerplate edit page.
+    expose: true
+    label: 'List segments a boilerplate was inserted into'
+    loginRequired: true
+    parent: area_admin_boilerplates
 feature_change_own_email:
     description: 'Enable user to change the email address in the system.'
     label: 'User can change their email address'

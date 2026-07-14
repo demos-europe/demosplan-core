@@ -182,7 +182,7 @@
               editor-id="recommendationText"
               :procedure-id="procedureId"
               :preview-segment-id="segment.id"
-              @insert="text => modalProps.handleInsertText(text)"
+              @insert="(text, boilerplateId) => insertBoilerplateText(text, boilerplateId, modalProps.handleInsertText)"
             />
             <recommendation-modal
               ref="recommendationModal"
@@ -1134,6 +1134,22 @@ export default {
      */
     onDiscardChanges () {
       this.abort()
+    },
+
+    /**
+     * Inserts the boilerplate text into the recommendation editor and records
+     * the usage of the boilerplate in this segment in the backend.
+     */
+    insertBoilerplateText (text, boilerplateId, handleInsertText) {
+      handleInsertText(text)
+
+      if (boilerplateId && hasPermission('feature_boilerplate_usage_list')) {
+        dpApi.post(
+          Routing.generate('dplan_boilerplate_usage_create', { procedureId: this.procedureId, boilerplateId }),
+          {},
+          { segmentId: this.segment.id },
+        )
+      }
     },
 
     openBoilerPlate () {

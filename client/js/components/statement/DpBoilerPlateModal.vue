@@ -111,6 +111,8 @@ export default {
     return {
       // Needed to make sure boilerplates are loaded from the BE before <dp-boiler-plate> component is mounted
       boilerPlatesLoaded: false,
+      // The id of the boilerplate the text was taken from, emitted alongside the text on click of 'insert' button
+      boilerplateIdToBeAdded: '',
       // The boilerplate text emitted from dp-boiler-plate, then emitted to TipTapTextEditor.vue on click of 'insert' button
       textToBeAdded: '',
     }
@@ -161,18 +163,20 @@ export default {
   methods: {
     ...mapActions('Boilerplates', ['getBoilerPlates']),
 
-    addBoilerplateText (textFromTextArea) {
+    addBoilerplateText (textFromTextArea, boilerplateId) {
       this.textToBeAdded = textFromTextArea
+      this.boilerplateIdToBeAdded = boilerplateId || ''
     },
 
     insertBoilerPlate () {
-      this.$emit('insert', this.textToBeAdded)
+      this.$emit('insert', this.textToBeAdded, this.boilerplateIdToBeAdded)
       this.resetAndClose()
     },
 
     resetAndClose () {
       this.$refs.boilerplateDropdown.resetBoilerPlateMultiSelect()
       this.textToBeAdded = ''
+      this.boilerplateIdToBeAdded = ''
       this.toggleModal()
     },
 
