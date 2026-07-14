@@ -132,9 +132,12 @@ class CustomFieldFilterResponseBuilder
             static fn (array $vals): bool => [] !== $vals
         );
 
+        $optionIds = array_map(static fn ($option) => $option->getId(), $fieldOptions);
+
         $counts = $this->customFieldStatementCounter->countByField(
             $procedureId,
             $fieldId,
+            $optionIds,
             $isOriginalStatementView,
             $constraintFilters,
             $esFilteredIds
