@@ -389,16 +389,6 @@ class DemosPlanProcedureAPIController extends APIController
             $responseData[] = $assessmentTableFilter;
         }
 
-        if ($request->query->getBoolean('includeCf', true)) {
-            $cfFilterItems = $cfFilterResponseBuilder->buildFilterItems(
-                $procedureId,
-                $original,
-                $rParams['filters'],
-                $rParams['search'] ?? null,
-            );
-            array_push($responseData, ...$cfFilterItems);
-        }
-
         return $this->renderCollection($responseData, AssessmentTableFilterTransformer::class);
     }
 
