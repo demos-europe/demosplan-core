@@ -155,7 +155,7 @@ async function removeGroupStatement (id) {
 
     // Removing the last member dissolves the group (the backend deletes the head statement).
     if (0 === groupStatements.value.length) {
-      redirectToStatementListWithResolvedToast(props.procedureId, props.statement.attributes.externId)
+      redirectToStatementListWithResolvedToast(props.procedureId, props.statement.attributes.externId, removedLabel)
 
       return
     }
