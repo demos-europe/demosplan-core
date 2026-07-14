@@ -19,6 +19,7 @@ class CustomFieldStatementCounter
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
+        private readonly CustomFieldFilterResolver $customFieldFilterResolver,
     ) {
     }
 
@@ -102,19 +103,7 @@ class CustomFieldStatementCounter
                ->setParameter('esFilteredIds', $esFilteredIds);
         }
 
-        $idx = 0;
-        foreach ($otherCfFilters as $otherFieldId => $selectedOptionIds) {
-            $orClauses = [];
-            foreach ($selectedOptionIds as $valIdx => $selectedOptionId) {
-                $idParam = "ocf{$idx}id";
-                $valParam = "ocf{$idx}v{$valIdx}";
-                $orClauses[] = "JSON_CONTAINS_CUSTOM_FIELD(s.customFields, :{$idParam}, :{$valParam}) = 1";
-                $qb->setParameter($idParam, $otherFieldId)
-                   ->setParameter($valParam, $selectedOptionId);
-            }
-            $qb->andWhere($qb->expr()->orX(...$orClauses));
-            ++$idx;
-        }
+        $this->customFieldFilterResolver->applyFieldConstraints($qb, $otherCfFilters, 'ocf');
 
         $row = $qb->getQuery()->getArrayResult()[0] ?? [];
 

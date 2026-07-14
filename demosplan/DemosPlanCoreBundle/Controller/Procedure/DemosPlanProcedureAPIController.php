@@ -389,7 +389,7 @@ class DemosPlanProcedureAPIController extends APIController
             $responseData[] = $assessmentTableFilter;
         }
 
-        if ($request->query->getBoolean('includeCf', true)) {
+        if ($permissions->hasPermission('feature_statements_custom_fields')) {
             $cfFilterItems = $cfFilterResponseBuilder->buildFilterItems(
                 $procedureId,
                 $original,

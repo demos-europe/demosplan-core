@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\CustomField;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticSearchService;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\QueryBuilder;
 use Elastica\Query\AbstractQuery;
 use Elastica\Query\MatchNone;
 
@@ -56,17 +57,7 @@ class CustomFieldFilterResolver
             ->andWhere($isOriginalStatementView ? 's.original IS NULL' : 's.original IS NOT NULL')
             ->setParameter('procedureId', $procedureId);
 
-        foreach (array_keys($fieldFilters) as $fieldIdx => $fieldId) {
-            $orClauses = [];
-            foreach ($fieldFilters[$fieldId] as $valIdx => $value) {
-                $idParam = "cf{$fieldIdx}id";
-                $valParam = "cf{$fieldIdx}v{$valIdx}";
-                $orClauses[] = "JSON_CONTAINS_CUSTOM_FIELD(s.customFields, :{$idParam}, :{$valParam}) = 1";
-                $qb->setParameter($idParam, $fieldId);
-                $qb->setParameter($valParam, $value);
-            }
-            $qb->andWhere($qb->expr()->orX(...$orClauses));
-        }
+        $this->applyFieldConstraints($qb, $fieldFilters, 'cf');
 
         $matchingIds = array_column($qb->getQuery()->getArrayResult(), 'id');
 
@@ -89,7 +80,7 @@ class CustomFieldFilterResolver
      *
      * @return array<string, string[]> fieldId => selected option IDs (never empty arrays)
      */
-    private function extractActiveCfFilters(array $userFilters): array
+    public function extractActiveCfFilters(array $userFilters): array
     {
         $prefix = 'customField_';
         $active = [];
@@ -106,5 +97,27 @@ class CustomFieldFilterResolver
         }
 
         return $active;
+    }
+
+    /**
+     * ANDs across fields, ORs across a field's selected values, one JSON_CONTAINS_CUSTOM_FIELD
+     * clause per value. $paramPrefix keeps bound parameter names unique when a caller combines
+     * this with its own query parameters (e.g. per-option SUM(CASE) columns).
+     *
+     * @param array<string, string[]> $fieldFilters fieldId => selected option IDs
+     */
+    public function applyFieldConstraints(QueryBuilder $qb, array $fieldFilters, string $paramPrefix): void
+    {
+        foreach (array_keys($fieldFilters) as $fieldIdx => $fieldId) {
+            $orClauses = [];
+            foreach ($fieldFilters[$fieldId] as $valIdx => $value) {
+                $idParam = "{$paramPrefix}{$fieldIdx}id";
+                $valParam = "{$paramPrefix}{$fieldIdx}v{$valIdx}";
+                $orClauses[] = "JSON_CONTAINS_CUSTOM_FIELD(s.customFields, :{$idParam}, :{$valParam}) = 1";
+                $qb->setParameter($idParam, $fieldId);
+                $qb->setParameter($valParam, $value);
+            }
+            $qb->andWhere($qb->expr()->orX(...$orClauses));
+        }
     }
 }
