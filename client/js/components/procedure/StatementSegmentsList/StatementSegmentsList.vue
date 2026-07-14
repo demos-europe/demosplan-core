@@ -32,6 +32,11 @@
       />
     </dp-slidebar>
 
+    <dp-confirm-dialog
+      ref="dissolveGroupConfirmDialog"
+      :message="Translator.trans('check.cluster.release')"
+    />
+
     <dp-sticky-element>
       <header class="border--bottom u-pv-0_5 flow-root">
         <div class="inline-flex space-inline-m">
@@ -224,6 +229,7 @@
 import {
   dpApi,
   DpButton,
+  DpConfirmDialog,
   DpFlyout,
   DpSlidebar,
   DpStickyElement,
@@ -251,6 +257,7 @@ export default {
   components: {
     DpButton,
     DpClaim,
+    DpConfirmDialog,
     DpFlyout,
     DpSlidebar,
     DpStickyElement,
@@ -670,7 +677,9 @@ export default {
     },
 
     async dissolveGroup () {
-      if (!globalThis.dpconfirm(Translator.trans('check.cluster.release'))) {
+      const isConfirmed = await this.$refs.dissolveGroupConfirmDialog.open()
+
+      if (!isConfirmed) {
         return
       }
 
