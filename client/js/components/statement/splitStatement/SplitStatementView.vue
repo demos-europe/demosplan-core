@@ -424,8 +424,9 @@ export default {
       const segmentSpans = document.querySelectorAll('span[data-range-active="true"]')
 
       /**
-       * Without an active segment span in the document (e.g. a segment without a mark is being
-       * edited), there is nothing to scroll to, so no scroll button is shown.
+       * Normally every segment is marked in the document, but broken drafts can contain a segment
+       * without a mark. While such a segment is being edited there is no active span to scroll to,
+       * so no scroll button is shown.
        */
       if (!segmentSpans.length) {
         return false
@@ -453,9 +454,7 @@ export default {
         }
       }
 
-      return segmentSpans.length ?
-        segmentIsAtTop || segmentIsAtBottom :
-        false
+      return segmentIsAtTop || segmentIsAtBottom
     },
 
     determineIfStatementReady (counter = 0) {
@@ -495,8 +494,9 @@ export default {
       const { rangeTrackerKey, editingDecorationsKey } = this.prosemirror.keyAccess
 
       /**
-       * Only reset the range editing state for segments that actually have a range in the document.
-       * Segments without a mark (metadata-only edits) have nothing to reset.
+       * Normally every segment has a range in the document, but a broken draft can contain a segment
+       * without a mark. Only reset the range editing state for segments that actually have a range;
+       * mark-less segments (metadata-only edits) have nothing to reset.
        */
       if (this.editingSegment && rangeTrackerKey.getState(this.prosemirror.view.state)[this.editingSegment.id]) {
         this.ignoreProsemirrorUpdates = true
@@ -524,8 +524,9 @@ export default {
       this.setProperty({ prop: 'editModeActive', val: true })
 
       /**
-       * Segments whose mark is missing from the document have no range to edit. Allow editing their
-       * metadata (tags, place, assignee) but skip range activation, which requires an existing range.
+       * Normally every segment is marked in the document. When a broken draft contains a segment
+       * whose mark is missing, it has no range to edit: allow editing its metadata (tags, place,
+       * assignee) but skip range activation, which requires an existing range.
        */
       if (!rangeTrackerKey.getState(state)[id]) {
         return
