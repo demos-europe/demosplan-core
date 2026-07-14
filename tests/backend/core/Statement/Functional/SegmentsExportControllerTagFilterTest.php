@@ -29,7 +29,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFil
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
-use EDT\DqlQuerying\Functions\AnyTrue;
 use EDT\DqlQuerying\Functions\OneOf;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
@@ -376,23 +375,32 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
         static::assertSame([], $conditions);
     }
 
-    public function testBuildStatementTagConditionsWithSingleCriterionReturnsRawCondition(): void
+    public function testBuildStatementTagConditionsWithSingleCriterionReturnsStatementIdCondition(): void
     {
+        // Arrange: statement1 owns a segment carrying tag1, so the id resolution finds a match
+        $this->segment1->addTag($this->tag1->_real());
+        $this->getEntityManager()->flush();
+
         // Act: exactly one criterion
         $conditions = $this->sut->buildStatementTagConditions(
             ['tagIds' => [$this->tag1->getId()]],
             $this->statementResourceType
         );
 
-        // Assert: the single condition is returned raw, not wrapped in an OR
+        // Assert: a single `statement.id IN (...)` condition (OneOf), rather than a to-many
+        // condition on segments.tags.* (which would fetch-join and exhaust memory on large procedures)
         static::assertCount(1, $conditions);
         static::assertInstanceOf(OneOf::class, $conditions[0]);
-        static::assertNotInstanceOf(AnyTrue::class, $conditions[0]);
     }
 
-    public function testBuildStatementTagConditionsWithMultipleCriteriaWrapsInOr(): void
+    public function testBuildStatementTagConditionsWithMultipleCriteriaReturnsSingleStatementIdCondition(): void
     {
-        // Act: two criteria, mirroring the OR logic of applyTagFilter()
+        // Arrange: statement1 matched by tag id, statement3 matched by topic title
+        $this->segment1->addTag($this->tag1->_real()); // Topic 1
+        $this->segment3->addTag($this->tag3->_real()); // Topic 2
+        $this->getEntityManager()->flush();
+
+        // Act: two criteria, OR-combined while resolving the matching statement ids
         $conditions = $this->sut->buildStatementTagConditions(
             [
                 'tagIds'         => [$this->tag1->getId()],
@@ -401,9 +409,23 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
             $this->statementResourceType
         );
 
-        // Assert: still a single top-level condition, but an OR-combination (AnyTrue)
+        // Assert: still a single `statement.id IN (...)` condition covering the union of both criteria
         static::assertCount(1, $conditions);
-        static::assertInstanceOf(AnyTrue::class, $conditions[0]);
+        static::assertInstanceOf(OneOf::class, $conditions[0]);
+    }
+
+    public function testBuildStatementTagConditionsWithNoMatchForcesEmptyResult(): void
+    {
+        // Act: criteria present but no segment carries the tag
+        $conditions = $this->sut->buildStatementTagConditions(
+            ['tagIds' => ['non-existent-id']],
+            $this->statementResourceType
+        );
+
+        // Assert: a single condition that matches nothing is returned, so the export yields an
+        // empty result instead of silently falling back to an unfiltered full export
+        static::assertCount(1, $conditions);
+        static::assertCount(0, $this->statementResourceType->getEntities($conditions, []));
     }
 
     public function testPushedDownFilterReturnsSameStatementsAsInPhpFilter(): void
@@ -439,8 +461,8 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
     public function testStatementWithTwoMatchingSegmentsIsReturnedOnce(): void
     {
         // Arrange: a single statement whose TWO segments both carry the filtered tag.
-        // The pushed-down condition joins segments+tags without DISTINCT; this asserts the
-        // to-many join does not surface the statement more than once.
+        // The statement-id resolution joins segments+tags; this asserts the to-many join
+        // does not surface the statement more than once (the id query is DISTINCT).
         $statement = $this->createVisibleStatement();
         $segmentA = SegmentFactory::createOne(['parentStatementOfSegment' => $statement])->_real();
         $segmentB = SegmentFactory::createOne(['parentStatementOfSegment' => $statement])->_real();

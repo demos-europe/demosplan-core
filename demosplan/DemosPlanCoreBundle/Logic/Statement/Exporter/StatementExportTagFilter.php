@@ -82,9 +82,6 @@ class StatementExportTagFilter
             return $statements;
         }
 
-        // Pre-fetch all relationships to avoid N+1 queries
-        $this->initializeRelationships($statements);
-
         // the goal is to exclude all Segments from the payload that do not match the filter criteria
         // if all Segments from a parentStatement get excluded - the whole statement gets excluded as well.
         return $this->applyTagFilter($statements, $tagIds, $tagTitles, $tagTopicIds, $tagTopicTitles);
@@ -112,25 +109,77 @@ class StatementExportTagFilter
         $tagTopicIds = $tagsFilter[self::TAG_TOPIC_IDS_FILTER_KEY] ?? [];
         $tagTopicTitles = $tagsFilter[self::TAG_TOPIC_TITLES_FILTER_KEY] ?? [];
 
-        $criteria = [];
-        if ([] !== $tagIds) {
-            $criteria[] = $this->conditionFactory->propertyHasAnyOfValues($tagIds, $statementResourceType->segments->tags->id);
-        }
-        if ([] !== $tagTitles) {
-            $criteria[] = $this->conditionFactory->propertyHasAnyOfValues($tagTitles, $statementResourceType->segments->tags->title);
-        }
-        if ([] !== $tagTopicIds) {
-            $criteria[] = $this->conditionFactory->propertyHasAnyOfValues($tagTopicIds, $statementResourceType->segments->tags->topic->id);
-        }
-        if ([] !== $tagTopicTitles) {
-            $criteria[] = $this->conditionFactory->propertyHasAnyOfValues($tagTopicTitles, $statementResourceType->segments->tags->topic->title);
-        }
-
-        if ([] === $criteria) {
+        $noSupportedFilter = [] === $tagIds && [] === $tagTitles && [] === $tagTopicIds && [] === $tagTopicTitles;
+        if ($noSupportedFilter) {
             return [];
         }
 
-        return [1 === count($criteria) ? $criteria[0] : $this->conditionFactory->anyConditionApplies(...$criteria)];
+        // Resolve the IDs of the matching statements with a lean scalar query that selects ONLY the
+        // parent statement ID, then narrow the statement load with a plain `id IN (...)` condition.
+        //
+        // Expressing the criteria directly as a to-many condition on the Statement resource
+        // (segments.tags.*) makes the main statement query fetch-join through segments AND tags, so
+        // the buffered result explodes to statements x segments x tags rows, each repeating the wide
+        // Statement columns. On large procedures that exhausts memory during loading (the export dies
+        // before it even starts). A scalar id query cannot explode that way - one short UUID per row -
+        // and the `id IN (...)` condition loads the statements as leanly as the unfiltered export does.
+        $matchingStatementIds = $this->findStatementIdsMatchingTags($tagIds, $tagTitles, $tagTopicIds, $tagTopicTitles);
+
+        if ([] === $matchingStatementIds) {
+            // Criteria were given but nothing matched: force an empty result instead of
+            // silently falling back to an unfiltered full export.
+            return [$this->conditionFactory->false()];
+        }
+
+        return [$this->conditionFactory->propertyHasAnyOfValues($matchingStatementIds, $statementResourceType->id)];
+    }
+
+    /**
+     * Runs a lean scalar query returning the IDs of all statements owning at least one segment that
+     * carries a tag (or tag topic) matching any of the given criteria. Selecting only the parent
+     * statement ID keeps memory bounded even when the segment/tag join multiplies rows.
+     *
+     * @param list<string> $tagIds
+     * @param list<string> $tagTitles
+     * @param list<string> $tagTopicIds
+     * @param list<string> $tagTopicTitles
+     *
+     * @return list<string>
+     */
+    private function findStatementIdsMatchingTags(
+        array $tagIds,
+        array $tagTitles,
+        array $tagTopicIds,
+        array $tagTopicTitles,
+    ): array {
+        $queryBuilder = $this->entityManager->createQueryBuilder()
+            ->select('DISTINCT IDENTITY(seg.parentStatementOfSegment) AS statementId')
+            ->from(Segment::class, 'seg')
+            ->join('seg.tags', 't')
+            ->leftJoin('t.topic', 'topic');
+
+        $orConditions = $queryBuilder->expr()->orX();
+        if ([] !== $tagIds) {
+            $orConditions->add('t.id IN (:tagIds)');
+            $queryBuilder->setParameter('tagIds', $tagIds);
+        }
+        if ([] !== $tagTitles) {
+            $orConditions->add('t.title IN (:tagTitles)');
+            $queryBuilder->setParameter('tagTitles', $tagTitles);
+        }
+        if ([] !== $tagTopicIds) {
+            $orConditions->add('topic.id IN (:tagTopicIds)');
+            $queryBuilder->setParameter('tagTopicIds', $tagTopicIds);
+        }
+        if ([] !== $tagTopicTitles) {
+            $orConditions->add('topic.title IN (:tagTopicTitles)');
+            $queryBuilder->setParameter('tagTopicTitles', $tagTopicTitles);
+        }
+        $queryBuilder->where($orConditions);
+
+        $rows = $queryBuilder->getQuery()->getScalarResult();
+
+        return array_map(static fn (array $row): string => (string) $row['statementId'], $rows);
     }
 
     public function isTagIdFilterActive(): bool
@@ -186,57 +235,6 @@ class StatementExportTagFilter
     public function getFilteredTagsWithTitles(): array
     {
         return $this->filteredTagsWithTitle;
-    }
-
-    /**
-     * Pre-fetches segments, tags, and tag topics for given statements to avoid N+1 queries.
-     *
-     * @param Statement[] $statements
-     */
-    private function initializeRelationships(array $statements): void
-    {
-        if ([] === $statements) {
-            return;
-        }
-
-        $statementIds = array_map(
-            static fn (StatementInterface $s): string => $s->getId(),
-            $statements
-        );
-
-        // Pre-warm Doctrine's identity map so the in-PHP tag filter (applyTagFilter)
-        // can call $segment->getTags() and $tag->getTopic() without triggering N+1 queries.
-        //
-        // This is intentionally split into two queries instead of a single fetch-join.
-        // Joining two independent to-many collections (segmentsOfStatement AND tags) in
-        // one query produces a cartesian product (rows = segments x tags-per-segment),
-        // and each row carries the full, wide _statement columns of both the parent
-        // statement and the segment. On large procedures that buffered result set
-        // exhausts memory (OutOfMemoryError in the DBAL PDO layer). Two single-collection
-        // queries keep the row counts additive and avoid repeating the wide parent row
-        // once per tag. Both share the same identity map, so the second query enriches
-        // the segments hydrated by the first.
-
-        // Query 1: statements with their segments (single to-many join).
-        $this->entityManager->createQueryBuilder()
-            ->select('s', 'seg')
-            ->from(Statement::class, 's')
-            ->leftJoin('s.segmentsOfStatement', 'seg')
-            ->where('s.id IN (:statementIds)')
-            ->setParameter('statementIds', $statementIds)
-            ->getQuery()
-            ->getResult();
-
-        // Query 2: those segments with their tags and tag topics (single to-many join).
-        $this->entityManager->createQueryBuilder()
-            ->select('seg', 't', 'topic')
-            ->from(Segment::class, 'seg')
-            ->leftJoin('seg.tags', 't')
-            ->leftJoin('t.topic', 'topic')
-            ->where('seg.parentStatementOfSegment IN (:statementIds)')
-            ->setParameter('statementIds', $statementIds)
-            ->getQuery()
-            ->getResult();
     }
 
     private function applyTagFilter(array $statements, array $tagIds, array $tagTitles, array $tagTopicIds, array $tagTopicTitles): array
