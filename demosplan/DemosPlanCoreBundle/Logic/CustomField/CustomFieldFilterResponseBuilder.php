@@ -111,9 +111,9 @@ class CustomFieldFilterResponseBuilder
 
     /**
      * @param array<string, string[]> $activeCfFilters   fieldId => raw values (sentinels included), used
-     *                                                    to determine selected options for $config's own field
+     *                                                   to determine selected options for $config's own field
      * @param array<string, string[]> $strippedCfFilters fieldId => real values only, used to constrain
-     *                                                    counts by the OTHER active CF fields
+     *                                                   counts by the OTHER active CF fields
      */
     private function buildSingleFilterItem(
         CustomFieldConfiguration $config,
