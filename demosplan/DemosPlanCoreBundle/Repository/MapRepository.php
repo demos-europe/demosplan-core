@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Repositories\MapRepositoryInterface;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
@@ -17,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
@@ -26,12 +26,40 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query;
 use Exception;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @template-extends FluentRepository<GisLayer>
  */
 class MapRepository extends FluentRepository implements ArrayInterface, ObjectInterface, MapRepositoryInterface
 {
+    /**
+     * Fields that must never be copied from a global GisLayer to its per-procedure
+     * copies: each copy owns its own identity, procedure membership, pointer to
+     * the global master, and auto-managed timestamps. Shared by the create
+     * (bulkInsertCopiesForGlobalLayer) and update (updateRelatedGis) paths so the
+     * two cannot drift on what counts as copyable.
+     */
+    private const COPY_EXCLUDED_FIELDS = [
+        'ident', 'gId', 'procedureId',
+        'createDate', 'modifyDate', 'deleteDate',
+    ];
+
+    /**
+     * Scalar fields on GisLayer that propagate from a global layer to its
+     * per-procedure copies. Derived from Doctrine metadata so newly added
+     * scalar columns propagate automatically — exclusions stay explicit.
+     *
+     * @return list<string>
+     */
+    private function getCopyablePropertyNames(): array
+    {
+        return array_values(array_diff(
+            $this->getEntityManager()->getClassMetadata(GisLayer::class)->getFieldNames(),
+            self::COPY_EXCLUDED_FIELDS,
+        ));
+    }
+
     /**
      * Get single GisLayer form DB by id.
      *
@@ -103,26 +131,11 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
                 $newGisLayer->setContextualHelp($help);
             }
 
-            if ($this->isGlobal($newGisLayer)) {
-                $allProcedures = $this->getEntityManager()->getRepository(Procedure::class)->findAll();
-                $gisLayerCategoryRepository = $this->getEntityManager()->getRepository(GisLayerCategory::class);
-
-                foreach ($allProcedures as $singleProcedure) {
-                    $copyOfGisLayer = clone $newGisLayer;
-                    $copyOfGisLayer->setIdent(null);
-                    $copyOfGisLayer->setCreateDate(null);
-                    $copyOfGisLayer->setModifyDate(null);
-                    $copyOfGisLayer->setDeleteDate(null);
-                    $copyOfGisLayer->setGId($newGisLayer->getIdent());
-                    $copyOfGisLayer->setProcedureId($singleProcedure->getId());
-                    $rootCategory = $gisLayerCategoryRepository->getRootLayerCategory($singleProcedure->getId());
-                    if ($rootCategory instanceof GisLayerCategory) {
-                        $copyOfGisLayer->setCategory($rootCategory);
-                    }
-                    $em->persist($copyOfGisLayer);
-                }
-            }
             $em->flush();
+
+            if ($this->isGlobal($newGisLayer)) {
+                $this->bulkInsertCopiesForGlobalLayer($newGisLayer);
+            }
 
             return $newGisLayer;
         } catch (Exception $e) {
@@ -351,18 +364,9 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
                 $data['isMiniMap'] ??= $data['isMinimap'];
             }
 
-            // Derive propagatable fields from Doctrine metadata so new GisLayer columns
-            // automatically propagate to copies without requiring a manual whitelist update.
-            // Excluded fields must never be overwritten on copies: each copy owns its own
-            // identity (ident), procedure membership (procedureId), pointer to the global
-            // master (gId), and auto-managed timestamps (createDate/modifyDate/deleteDate).
-            $allMappedFields = $this->getEntityManager()
-                ->getClassMetadata(GisLayer::class)
-                ->getFieldNames();
-            $neverPropagate = ['ident', 'gId', 'procedureId', 'createDate', 'modifyDate', 'deleteDate'];
             $updates = array_intersect_key(
                 $data,
-                array_flip(array_diff($allMappedFields, $neverPropagate))
+                array_flip($this->getCopyablePropertyNames())
             );
 
             // Must be set together — setting one without the other leaves copies with a
@@ -399,6 +403,83 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
             return $item;
         } catch (Exception $e) {
             $this->logger->warning('Related gisLayer of global gisLayer could not be updated. ', [$e]);
+            throw $e;
+        }
+    }
+
+    /**
+     * Insert one per-procedure copy of a newly created global GisLayer for every
+     * existing procedure, in a small constant number of statements (one prefetch
+     * SELECT plus ceil(N/500) multi-row INSERTs).
+     *
+     * Counterpart of updateRelatedGis() on the create path: bypasses the Doctrine
+     * UnitOfWork to avoid the N INSERT round-trips that hydrating and flushing one
+     * entity per procedure would cost at thousands of procedures.
+     *
+     * @throws Exception
+     */
+    private function bulkInsertCopiesForGlobalLayer(GisLayer $parent): void
+    {
+        try {
+            $em = $this->getEntityManager();
+            $conn = $em->getConnection();
+            $meta = $em->getClassMetadata(GisLayer::class);
+
+            // procedure -> root category in one round-trip; LEFT JOIN preserves
+            // procedures without a root category (their copies get category_id = NULL,
+            // matching the previous loop's `instanceof GisLayerCategory` guard).
+            $pairs = $conn->fetchAllAssociative(
+                'SELECT p._p_id AS pid, c.id AS cat_id
+                   FROM _procedure p
+              LEFT JOIN gis_layer_category c
+                     ON c.procedure_id = p._p_id AND c.parent_id IS NULL'
+            );
+            if ([] === $pairs) {
+                return;
+            }
+
+            $copyableValues = [];
+            foreach ($this->getCopyablePropertyNames() as $field) {
+                $copyableValues[$meta->getColumnName($field)] = $meta->getFieldValue($parent, $field);
+            }
+
+            $columns = array_merge(
+                ['_g_id', '_g_global_id', '_p_id', 'category_id',
+                    '_g_create_date', '_g_modify_date', '_g_delete_date'],
+                array_keys($copyableValues),
+            );
+            $now = (new DateTime())->format('Y-m-d H:i:s');
+            $rowPlaceholder = '('.implode(',', array_fill(0, count($columns), '?')).')';
+            $columnList = implode(',', array_map(static fn ($c) => '`'.$c.'`', $columns));
+
+            // Chunk size keeps parameter count well below MariaDB's 65535 limit
+            // (~30 columns * 500 rows = ~15000 params).
+            foreach (array_chunk($pairs, 500) as $chunk) {
+                $rowPlaceholders = [];
+                $params = [];
+                foreach ($chunk as $row) {
+                    $rowPlaceholders[] = $rowPlaceholder;
+                    array_push(
+                        $params,
+                        Uuid::uuid4()->toString(),
+                        $parent->getIdent(),
+                        $row['pid'],
+                        $row['cat_id'],
+                        $now,
+                        $now,
+                        $now,
+                    );
+                    foreach ($copyableValues as $value) {
+                        $params[] = $value;
+                    }
+                }
+                $conn->executeStatement(
+                    'INSERT INTO _gis ('.$columnList.') VALUES '.implode(',', $rowPlaceholders),
+                    $params
+                );
+            }
+        } catch (Exception $e) {
+            $this->logger->warning('Per-procedure copies of global gisLayer could not be inserted. ', [$e]);
             throw $e;
         }
     }
