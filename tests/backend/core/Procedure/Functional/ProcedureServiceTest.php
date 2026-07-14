@@ -2763,28 +2763,35 @@ Email:',
         static::assertEquals($exprectedBoilerplates, $boilerplates);
     }
 
+    /**
+     * Create a new + fresh testing procedure based on the given blueprint.
+     */
+    private function createProcedureFromBlueprint(Procedure $blueprint, string $name, string $shortUrl): Procedure
+    {
+        $procedureData = [
+            'copymaster'   => $blueprint->getId(),
+            'desc'         => '',
+            'startDate'    => '01.02.2012',
+            'endDate'      => '01.02.2012',
+            'externalName' => $name,
+            'name'         => $name,
+            'master'       => false,
+            'orgaId'       => $this->testProcedure->getOrgaId(),
+            'orgaName'     => $this->testProcedure->getOrga()->getName(),
+            'logo'         => 'some:logodata:string',
+            'shortUrl'     => $shortUrl,
+            'customer'     => $this->getCustomerReference(LoadCustomerData::DEMOS),
+        ];
+
+        return $this->getEntityManager()->getRepository(Procedure::class)->add($procedureData);
+    }
+
     public function testCopyBoilerplatesSetsVerified(): void
     {
         /** @var Procedure $blueprintWithBoilerplates */
         $blueprintWithBoilerplates = $this->getReference('testmasterProcedureWithBoilerplates');
 
-        // create new + fresh testing procedure
-        $procedureData = [
-            'copymaster'   => $blueprintWithBoilerplates->getId(),
-            'desc'         => '',
-            'startDate'    => '01.02.2012',
-            'endDate'      => '01.02.2012',
-            'externalName' => 'testVerified',
-            'name'         => 'testVerified',
-            'master'       => false,
-            'orgaId'       => $this->testProcedure->getOrgaId(),
-            'orgaName'     => $this->testProcedure->getOrga()->getName(),
-            'logo'         => 'some:logodata:string',
-            'shortUrl'     => 'myShortUrlVerified',
-            'customer'     => $this->getCustomerReference(LoadCustomerData::DEMOS),
-        ];
-        $procedureRepository = $this->getEntityManager()->getRepository(Procedure::class);
-        $newProcedure = $procedureRepository->add($procedureData);
+        $newProcedure = $this->createProcedureFromBlueprint($blueprintWithBoilerplates, 'testVerified', 'myShortUrlVerified');
 
         $this->sut->copyBoilerplates($blueprintWithBoilerplates->getId(), $newProcedure);
 
@@ -2807,7 +2814,7 @@ Email:',
 
     public function testCopyBoilerplatesWithReference(): void
     {
-        /** @var Procedure $blueprintWit$blueprinthBoilerplates */
+        /** @var Procedure $blueprintWithBoilerplates */
         $blueprintWithBoilerplates = $this->getReference('testmasterProcedureWithBoilerplates');
 
         $sourceBoilerplates = $this->getEntries(Boilerplate::class, ['procedure' => $blueprintWithBoilerplates->getId()]);
@@ -2826,23 +2833,7 @@ Email:',
         $numberOfAllCategoriesBefore = $this->countEntries(BoilerplateCategory::class);
         $numberOfAllGroupesBefore = $this->countEntries(BoilerplateGroup::class);
 
-        // create new + fresh testing procedure
-        $procedureData = [
-            'copymaster'   => $blueprintWithBoilerplates->getId(),
-            'desc'         => '',
-            'startDate'    => '01.02.2012',
-            'endDate'      => '01.02.2012',
-            'externalName' => 'testAdded',
-            'name'         => 'testAdded',
-            'master'       => false,
-            'orgaId'       => $this->testProcedure->getOrgaId(),
-            'orgaName'     => $this->testProcedure->getOrga()->getName(),
-            'logo'         => 'some:logodata:string',
-            'shortUrl'     => 'myShortUrl',
-            'customer'     => $this->getCustomerReference(LoadCustomerData::DEMOS),
-        ];
-        $procedureRepository = $this->getEntityManager()->getRepository(Procedure::class);
-        $newProcedure = $procedureRepository->add($procedureData);
+        $newProcedure = $this->createProcedureFromBlueprint($blueprintWithBoilerplates, 'testAdded', 'myShortUrl');
         $newProcedureId = $newProcedure->getId();
         $sourceProcedure = $blueprintWithBoilerplates;
 
