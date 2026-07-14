@@ -16,9 +16,13 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function in_array;
@@ -28,6 +32,7 @@ class StatementExportTagFilter
     public function __construct(
         private readonly TranslatorInterface $translator,
         private readonly EntityManagerInterface $entityManager,
+        private readonly DqlConditionFactory $conditionFactory,
     ) {
     }
     private const TAG_IDS_FILTER_KEY = 'tagIds';
@@ -83,6 +88,49 @@ class StatementExportTagFilter
         // the goal is to exclude all Segments from the payload that do not match the filter criteria
         // if all Segments from a parentStatement get excluded - the whole statement gets excluded as well.
         return $this->applyTagFilter($statements, $tagIds, $tagTitles, $tagTopicIds, $tagTopicTitles);
+    }
+
+    /**
+     * Translates the {@see filterStatementsByTags()} criteria into query conditions on the
+     * Statement resource, so the tag filter can be pushed into the DB/Elasticsearch query
+     * instead of loading every statement of the procedure and discarding non-matching ones
+     * in PHP.
+     *
+     * The conditions target the already-filterable path `segments.tags.*`. Multiple criteria
+     * are OR-combined, mirroring the OR logic of {@see applyTagFilter()}: a statement matches
+     * if any of its segments carries a tag (or tag topic) matching any criterion.
+     *
+     * Returns an empty array when no supported criteria are present, leaving the query
+     * unchanged (full export).
+     *
+     * @return list<ClauseFunctionInterface<bool>>
+     */
+    public function buildStatementTagConditions(array $tagsFilter, StatementResourceType $statementResourceType): array
+    {
+        $tagIds = $tagsFilter[self::TAG_IDS_FILTER_KEY] ?? [];
+        $tagTitles = $tagsFilter[self::TAG_TITLES_FILTER_KEY] ?? [];
+        $tagTopicIds = $tagsFilter[self::TAG_TOPIC_IDS_FILTER_KEY] ?? [];
+        $tagTopicTitles = $tagsFilter[self::TAG_TOPIC_TITLES_FILTER_KEY] ?? [];
+
+        $criteria = [];
+        if ([] !== $tagIds) {
+            $criteria[] = $this->conditionFactory->propertyHasAnyOfValues($tagIds, $statementResourceType->segments->tags->id);
+        }
+        if ([] !== $tagTitles) {
+            $criteria[] = $this->conditionFactory->propertyHasAnyOfValues($tagTitles, $statementResourceType->segments->tags->title);
+        }
+        if ([] !== $tagTopicIds) {
+            $criteria[] = $this->conditionFactory->propertyHasAnyOfValues($tagTopicIds, $statementResourceType->segments->tags->topic->id);
+        }
+        if ([] !== $tagTopicTitles) {
+            $criteria[] = $this->conditionFactory->propertyHasAnyOfValues($tagTopicTitles, $statementResourceType->segments->tags->topic->title);
+        }
+
+        if ([] === $criteria) {
+            return [];
+        }
+
+        return [1 === count($criteria) ? $criteria[0] : $this->conditionFactory->anyConditionApplies(...$criteria)];
     }
 
     public function isTagIdFilterActive(): bool
@@ -156,16 +204,36 @@ class StatementExportTagFilter
             $statements
         );
 
-        // Fetch all segments with their tags and tag topics in a single query.
-        // Doctrine's identity map will cache all hydrated entities, so subsequent
-        // access to $segment->getTags() and $tag->getTopic() won't trigger additional queries.
+        // Pre-warm Doctrine's identity map so the in-PHP tag filter (applyTagFilter)
+        // can call $segment->getTags() and $tag->getTopic() without triggering N+1 queries.
+        //
+        // This is intentionally split into two queries instead of a single fetch-join.
+        // Joining two independent to-many collections (segmentsOfStatement AND tags) in
+        // one query produces a cartesian product (rows = segments x tags-per-segment),
+        // and each row carries the full, wide _statement columns of both the parent
+        // statement and the segment. On large procedures that buffered result set
+        // exhausts memory (OutOfMemoryError in the DBAL PDO layer). Two single-collection
+        // queries keep the row counts additive and avoid repeating the wide parent row
+        // once per tag. Both share the same identity map, so the second query enriches
+        // the segments hydrated by the first.
+
+        // Query 1: statements with their segments (single to-many join).
         $this->entityManager->createQueryBuilder()
-            ->select('s', 'seg', 't', 'topic')
+            ->select('s', 'seg')
             ->from(Statement::class, 's')
             ->leftJoin('s.segmentsOfStatement', 'seg')
+            ->where('s.id IN (:statementIds)')
+            ->setParameter('statementIds', $statementIds)
+            ->getQuery()
+            ->getResult();
+
+        // Query 2: those segments with their tags and tag topics (single to-many join).
+        $this->entityManager->createQueryBuilder()
+            ->select('seg', 't', 'topic')
+            ->from(Segment::class, 'seg')
             ->leftJoin('seg.tags', 't')
             ->leftJoin('t.topic', 'topic')
-            ->where('s.id IN (:statementIds)')
+            ->where('seg.parentStatementOfSegment IN (:statementIds)')
             ->setParameter('statementIds', $statementIds)
             ->getQuery()
             ->getResult();
