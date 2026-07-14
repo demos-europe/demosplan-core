@@ -102,7 +102,7 @@ class StatementExportTagFilter
      *
      * @return list<ClauseFunctionInterface<bool>>
      */
-    public function buildStatementTagConditions(array $tagsFilter, StatementResourceType $statementResourceType): array
+    public function buildStatementTagConditions(array $tagsFilter, StatementResourceType $statementResourceType, string $procedureId): array
     {
         $tagIds = $tagsFilter[self::TAG_IDS_FILTER_KEY] ?? [];
         $tagTitles = $tagsFilter[self::TAG_TITLES_FILTER_KEY] ?? [];
@@ -123,7 +123,12 @@ class StatementExportTagFilter
         // Statement columns. On large procedures that exhausts memory during loading (the export dies
         // before it even starts). A scalar id query cannot explode that way - one short UUID per row -
         // and the `id IN (...)` condition loads the statements as leanly as the unfiltered export does.
-        $matchingStatementIds = $this->findStatementIdsMatchingTags($tagIds, $tagTitles, $tagTopicIds, $tagTopicTitles);
+        //
+        // The scalar query is scoped to the current procedure so its result (and the resulting
+        // `id IN (...)` list) stays bounded to this procedure's statements. Tag/topic titles are not
+        // unique across procedures, so an unscoped title filter could otherwise resolve statement IDs
+        // from every procedure sharing that title before the downstream procedure filter trims them.
+        $matchingStatementIds = $this->findStatementIdsMatchingTags($tagIds, $tagTitles, $tagTopicIds, $tagTopicTitles, $procedureId);
 
         if ([] === $matchingStatementIds) {
             // Criteria were given but nothing matched: force an empty result instead of
@@ -135,9 +140,11 @@ class StatementExportTagFilter
     }
 
     /**
-     * Runs a lean scalar query returning the IDs of all statements owning at least one segment that
-     * carries a tag (or tag topic) matching any of the given criteria. Selecting only the parent
-     * statement ID keeps memory bounded even when the segment/tag join multiplies rows.
+     * Runs a lean scalar query returning the IDs of all statements of the given procedure owning at
+     * least one segment that carries a tag (or tag topic) matching any of the given criteria.
+     * Selecting only the parent statement ID keeps memory bounded even when the segment/tag join
+     * multiplies rows. Scoping on the parent statement's procedure mirrors the downstream procedure
+     * filter, so the resolved ID list stays bounded to this procedure.
      *
      * @param list<string> $tagIds
      * @param list<string> $tagTitles
@@ -151,12 +158,16 @@ class StatementExportTagFilter
         array $tagTitles,
         array $tagTopicIds,
         array $tagTopicTitles,
+        string $procedureId,
     ): array {
         $queryBuilder = $this->entityManager->createQueryBuilder()
             ->select('DISTINCT IDENTITY(seg.parentStatementOfSegment) AS statementId')
             ->from(Segment::class, 'seg')
+            ->join('seg.parentStatementOfSegment', 'parentStatement')
             ->join('seg.tags', 't')
-            ->leftJoin('t.topic', 'topic');
+            ->leftJoin('t.topic', 'topic')
+            ->where('parentStatement.procedure = :procedureId')
+            ->setParameter('procedureId', $procedureId);
 
         $orConditions = $queryBuilder->expr()->orX();
         if ([] !== $tagIds) {
@@ -175,7 +186,7 @@ class StatementExportTagFilter
             $orConditions->add('topic.title IN (:tagTopicTitles)');
             $queryBuilder->setParameter('tagTopicTitles', $tagTopicTitles);
         }
-        $queryBuilder->where($orConditions);
+        $queryBuilder->andWhere($orConditions);
 
         $rows = $queryBuilder->getQuery()->getScalarResult();
 
