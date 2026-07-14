@@ -992,6 +992,9 @@ services:
         tags:
             - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\Statement\Statement, lazy: true }
 
+    demosplan\DemosPlanCoreBundle\EventListener\DoctrineSegmentListener:
+        tags:
+            - { name: doctrine.event_listener, event: onFlush }
 
     demosplan\DemosPlanCoreBundle\EventListener\IndexFilesListener:
         tags:

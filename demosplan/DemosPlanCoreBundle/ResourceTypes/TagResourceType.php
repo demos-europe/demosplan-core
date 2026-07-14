@@ -40,8 +40,9 @@ use InvalidArgumentException;
 /**
  * @template-extends DplanResourceType<Tag>
  *
- * @property-read End $title
- * @property-read End $sortIndex
+ * @property-read End                  $title
+ * @property-read End                  $sortIndex
+ * @property-read TagTopicResourceType $topic
  */
 final class TagResourceType extends DplanResourceType implements TagResourceTypeInterface
 {

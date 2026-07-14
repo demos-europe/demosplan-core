@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use Carbon\Carbon;
+use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -249,7 +250,9 @@ class EntityContentChangeDisplayService
         $service = $this->getEntityContentChangeService();
         $stringRepresentation = '';
         if (null !== $currentThing && 'date' === $service->getMappingValue($fieldName, $entityType, 'fieldType')) {
-            $stringRepresentation = date('Y-m-d', $currentThing);
+            $stringRepresentation = $currentThing instanceof DateTimeInterface
+                ? $currentThing->format('Y-m-d')
+                : date('Y-m-d', $currentThing);
         }
 
         if (null !== $currentThing && 'dateTime' === $service->getMappingValue($fieldName, $entityType, 'fieldType')) {
@@ -265,7 +268,7 @@ class EntityContentChangeDisplayService
             sort($currentThingArray);
 
             $stringRepresentation = $service->convertToVersionString($currentThingArray);
-        } elseif (is_object($currentThing)) {
+        } elseif (is_object($currentThing) && !$currentThing instanceof DateTimeInterface) {
             /** @var CoreEntity $currentThing */
             $stringRepresentation = $currentThing->getEntityContentChangeIdentifier();
         }
