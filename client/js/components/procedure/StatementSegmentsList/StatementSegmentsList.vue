@@ -32,6 +32,11 @@
       />
     </dp-slidebar>
 
+    <dp-confirm-dialog
+      ref="dissolveGroupConfirmDialog"
+      :message="Translator.trans('check.cluster.release')"
+    />
+
     <dp-sticky-element>
       <header class="border--bottom u-pv-0_5 flow-root">
         <div class="inline-flex space-inline-m">
@@ -159,6 +164,16 @@
               @click="detachFromGroup"
             />
           </li>
+          <li v-if="isCluster">
+            <dp-button
+              :text="Translator.trans('cluster.release')"
+              class="h-fit"
+              color="warning"
+              data-cy="statementSegmentsList:dissolveGroup"
+              variant="subtle"
+              @click="dissolveGroup"
+            />
+          </li>
         </ul>
       </header>
     </dp-sticky-element>
@@ -214,6 +229,7 @@
 import {
   dpApi,
   DpButton,
+  DpConfirmDialog,
   DpFlyout,
   DpSlidebar,
   DpStickyElement,
@@ -223,6 +239,7 @@ import { buildDetailedStatementQuery } from '../Shared/utils/statementQueryBuild
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
 import lscache from 'lscache'
+import { redirectToStatementListWithResolvedToast } from '../Shared/utils/redirectToStatementListWithResolvedToast'
 import { sanitizeUrl } from '@braintree/sanitize-url'
 import SegmentCommentsList from './SegmentCommentsList'
 import SegmentLocationMap from './SegmentLocationMap'
@@ -240,6 +257,7 @@ export default {
   components: {
     DpButton,
     DpClaim,
+    DpConfirmDialog,
     DpFlyout,
     DpSlidebar,
     DpStickyElement,
@@ -468,6 +486,11 @@ export default {
       return Object.keys(this.segments).length > 0
     },
 
+    // This statement is the group's head (the cluster statement itself), not one of its members
+    isCluster () {
+      return Boolean(this.statement?.attributes?.isCluster)
+    },
+
     isCurrentUserAssigned () {
       if (this.statement.relationships && this.statement?.relationships?.assignee?.data !== null) {
         return this.currentUser.id === this.statement.relationships.assignee.data.id
@@ -650,6 +673,25 @@ export default {
         dplan.notify.notify('error', Translator.trans('error.statement.detach.cluster.element', {
           statementId: this.statementExternId,
         }))
+      }
+    },
+
+    async dissolveGroup () {
+      const isConfirmed = await this.$refs.dissolveGroupConfirmDialog.open()
+
+      if (!isConfirmed) {
+        return
+      }
+
+      try {
+        // No body needed: the operation is declared deserialize:false/output:false, backend responds 204.
+        await dpApi.delete(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${this.statement.id}`)
+
+        // This head detail page no longer exists once the group is dissolved — go back to the statement list.
+        redirectToStatementListWithResolvedToast(this.procedure.id, this.statementExternId)
+      } catch (error) {
+        console.error('Failed to dissolve statement group:', error)
+        dplan.notify.notify('error', Translator.trans('error.api.generic'))
       }
     },
 

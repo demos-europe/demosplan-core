@@ -5,7 +5,9 @@
         heading: title|trans
     } %}
 
-    <statement-group-form :procedure-id="{{ procedure|default('')|json_encode }}">
+    <statement-group-form
+        :procedure-id="{{ procedure|default('')|json_encode }}"
+        current-user-id="{{ currentUser.ident }}">
     </statement-group-form>
 {% endblock component_part %}
 
