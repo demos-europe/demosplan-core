@@ -441,6 +441,16 @@ export default {
 
     determineDisplayScrollButton () {
       const segmentSpans = document.querySelectorAll('span[data-range-active="true"]')
+
+      /**
+       * Normally every segment is marked in the document, but broken drafts can contain a segment
+       * without a mark. While such a segment is being edited there is no active span to scroll to,
+       * so no scroll button is shown.
+       */
+      if (!segmentSpans.length) {
+        return false
+      }
+
       const lastSegmentSpan = segmentSpans[segmentSpans.length - 1]
       const segmentBottom = lastSegmentSpan.getBoundingClientRect().bottom
       const headerHeight = document.getElementById('header').getBoundingClientRect().height
@@ -463,9 +473,7 @@ export default {
         }
       }
 
-      return segmentSpans.length ?
-        segmentIsAtTop || segmentIsAtBottom :
-        false
+      return segmentIsAtTop || segmentIsAtBottom
     },
 
     determineIfStatementReady (counter = 0) {
@@ -502,11 +510,19 @@ export default {
         this.stateBeforeEditing = null
       }
 
-      this.ignoreProsemirrorUpdates = true
       const { rangeTrackerKey, editingDecorationsKey } = this.prosemirror.keyAccess
 
-      setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(this.editingSegment.id, false)
-      this.ignoreProsemirrorUpdates = false
+      /**
+       * Normally every segment has a range in the document, but a broken draft can contain a segment
+       * without a mark. Only reset the range editing state for segments that actually have a range;
+       * mark-less segments (metadata-only edits) have nothing to reset.
+       */
+      if (this.editingSegment && rangeTrackerKey.getState(this.prosemirror.view.state)[this.editingSegment.id]) {
+        this.ignoreProsemirrorUpdates = true
+        setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(this.editingSegment.id, false)
+        this.ignoreProsemirrorUpdates = false
+      }
+
       this.setProperty({ prop: 'editingSegment', val: null })
       this.setProperty({ prop: 'editModeActive', val: false })
     },
@@ -525,6 +541,15 @@ export default {
       this.stateBeforeEditing = rangeTrackerKey.getState(state)
       this.setProperty({ prop: 'editingSegment', val: this.segmentById(id) })
       this.setProperty({ prop: 'editModeActive', val: true })
+
+      /**
+       * Normally every segment is marked in the document. When a broken draft contains a segment
+       * whose mark is missing, it has no range to edit: allow editing its metadata (tags, place,
+       * assignee) but skip range activation, which requires an existing range.
+       */
+      if (!rangeTrackerKey.getState(state)[id]) {
+        return
+      }
 
       this.ignoreProsemirrorUpdates = true
       setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(id, true)
