@@ -2398,9 +2398,13 @@ class DemosPlanProcedureController extends BaseController
             return new JsonResponse(null, Response::HTTP_NOT_FOUND);
         }
 
-        $requestContent = Json::decodeToArray($request->getContent());
-        $segmentId = $requestContent['segmentId'] ?? '';
-        $segment = is_string($segmentId) && '' !== $segmentId ? $segmentRepository->get($segmentId) : null;
+        try {
+            $requestContent = Json::decodeToArray($request->getContent());
+            $segmentId = $requestContent['segmentId'] ?? '';
+            $segment = is_string($segmentId) && '' !== $segmentId ? $segmentRepository->get($segmentId) : null;
+        } catch (Exception) {
+            $segment = null;
+        }
         if (null === $segment || $segment->getProcedure()->getId() !== $procedureId) {
             return new JsonResponse(null, Response::HTTP_BAD_REQUEST);
         }
@@ -2609,29 +2613,37 @@ class DemosPlanProcedureController extends BaseController
         }
         $boilerplateGroups = $procedureService->getBoilerplateGroups($procedure);
 
-        $boilerplateUsages = [];
-        if ('new' !== $boilerplateId && $this->permissions->hasPermission('feature_boilerplate_usage_list')) {
-            $boilerplateUsages = array_map(
-                static fn (BoilerplateUsage $usage): array => [
-                    'externId'    => $usage->getSegment()->getExternId(),
-                    'segmentId'   => $usage->getSegment()->getId(),
-                    'statementId' => $usage->getSegment()->getParentStatementOfSegment()->getId(),
-                ],
-                $boilerplateUsageRepository->getUsagesForBoilerplate($boilerplateId)
-            );
-        }
-
         return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_edit_boilerplate.html.twig',
             [
                 'form'                         => $form,
                 'boilerplateCategories'        => $boilerplateCategories,
                 'boilerplateGroupsOfProcedure' => $boilerplateGroups,
-                'boilerplateUsages'            => $boilerplateUsages,
+                'boilerplateUsages'            => $this->getBoilerplateUsages($boilerplateUsageRepository, $boilerplateId),
                 'selectedGroup'                => '',
                 'title'                        => 'procedure.boilerplate.edit',
                 'procedure'                    => $procedure,
             ]
+        );
+    }
+
+    /**
+     * Segments whose recommendation the given boilerplate was inserted into,
+     * prepared for display on the boilerplate edit page.
+     */
+    private function getBoilerplateUsages(BoilerplateUsageRepository $boilerplateUsageRepository, string $boilerplateId): array
+    {
+        if ('new' === $boilerplateId || !$this->permissions->hasPermission('feature_boilerplate_usage_list')) {
+            return [];
+        }
+
+        return array_map(
+            static fn (BoilerplateUsage $usage): array => [
+                'externId'    => $usage->getSegment()->getExternId(),
+                'segmentId'   => $usage->getSegment()->getId(),
+                'statementId' => $usage->getSegment()->getParentStatementOfSegment()->getId(),
+            ],
+            $boilerplateUsageRepository->getUsagesForBoilerplate($boilerplateId)
         );
     }
 
