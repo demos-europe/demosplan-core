@@ -101,9 +101,6 @@ function createProgressPlugin (options, progressBar, webpackRunner) {
 
     if (percentage === 1.0 && options.mode !== 'watch') {
       progressBar.stop()
-
-      // Yay, we done
-      log(chalk.green('\\o/'))
     }
   }).apply(webpackRunner)
 }
@@ -231,7 +228,24 @@ function printStatsMessageList (messageList, colorFunction) {
 function showWebpackRunMessage (userFeedbackCallback, mode, project, webpackConfig, webpackRunner) {
   if (mode === 'build') {
     log(chalk.green(`Begin ${chalk.bold('building')} frontend assets for ${chalk.bold(project)} in ${chalk.bold(webpackConfig[0].mode)} mode`))
-    webpackRunner.run(userFeedbackCallback)
+    webpackRunner.run((err, stats) => {
+      userFeedbackCallback(err, stats)
+
+      // Yay, we done - printed once for the whole (multi-compiler) build
+      if (!err && stats && !stats.hasErrors()) {
+        log(chalk.green(String.raw`\o/`))
+      }
+
+      /*
+       * Close the compiler once the build has finished so webpack fires its shutdown
+       * hooks and loaders/plugins can dispose their resources.
+       */
+      webpackRunner.close(closeError => {
+        if (closeError) {
+          log(chalk.red(closeError.stack || closeError))
+        }
+      })
+    })
   }
 
   if (mode === 'watch') {
