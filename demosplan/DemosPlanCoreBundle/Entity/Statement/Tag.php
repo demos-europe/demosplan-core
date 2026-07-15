@@ -278,17 +278,13 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
         return $this->defaultAssignee;
     }
 
-    public function setDefaultAssignee(?UserInterface $defaultAssignee): self
+    public function setDefaultAssignee(?UserInterface $defaultAssignee): void
     {
         $this->defaultAssignee = $defaultAssignee;
-
-        return $this;
     }
 
-    public function setSortIndex(int $sortIndex): self
+    public function setSortIndex(int $sortIndex): void
     {
         $this->sortIndex = $sortIndex;
-
-        return $this;
     }
 }
