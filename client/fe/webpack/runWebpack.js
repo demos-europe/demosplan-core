@@ -239,10 +239,7 @@ function showWebpackRunMessage (userFeedbackCallback, mode, project, webpackConf
         process.exitCode = 1
       }
 
-      // Yay, we done - printed once for the whole (multi-compiler) build; warnings do not count as a failed build
-      if (!err && stats && !stats.hasErrors()) {
-        log(chalk.green(String.raw`\o/`))
-      }
+      const buildSucceeded = !err && stats && !stats.hasErrors()
 
       /*
        * Close the compiler once the build has finished so webpack fires its shutdown
@@ -253,6 +250,16 @@ function showWebpackRunMessage (userFeedbackCallback, mode, project, webpackConf
           // Surface cleanup failures instead of exiting 0 and hiding them
           process.exitCode = 1
           log(chalk.red(closeError.stack ?? String(closeError)))
+
+          return
+        }
+
+        /*
+         * Yay, we done - printed once for the whole (multi-compiler) build, and only  after a clean shutdown, so a
+         * failed close() is never reported as success. Warnings do not count as a failed build.
+         */
+        if (buildSucceeded) {
+          log(chalk.green(String.raw`\o/`))
         }
       })
     })
