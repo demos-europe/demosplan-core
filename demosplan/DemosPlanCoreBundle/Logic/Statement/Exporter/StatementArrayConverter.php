@@ -32,7 +32,6 @@ class StatementArrayConverter
 {
     public function __construct(
         private readonly EntityHelper $entityHelper,
-        private readonly StatementService $statementService,
     ) {
     }
 
