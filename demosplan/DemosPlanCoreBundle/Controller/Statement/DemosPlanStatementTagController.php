@@ -97,7 +97,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         $templateVars['boilerplates'] = $procedureService->getBoilerplateList($procedure);
         if ($permissions->hasPermission('feature_tag_default_assignee')) {
             $templateVars['authorizedUsers'] = $procedureService->getAuthorizedUsers($procedure)
-                ->sortBy(static fn (User $user): string => $user->getLastname().' '.$user->getFirstname())
+                ->sortBy(static fn (User $user): string => $user->getFullname())
                 ->values();
         }
         if (null !== $data['action']) {
