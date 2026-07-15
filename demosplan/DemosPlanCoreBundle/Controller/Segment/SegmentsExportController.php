@@ -228,7 +228,7 @@ class SegmentsExportController extends BaseController
         // loaded, instead of loading every statement of the procedure and discarding the rest
         // in PHP.
         $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
-        $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions($tagsFilter, $statementResourceType);
+        $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions($tagsFilter, $statementResourceType, $procedureId);
 
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
@@ -309,7 +309,7 @@ class SegmentsExportController extends BaseController
         // loaded, instead of loading every statement of the procedure and discarding the rest
         // in PHP.
         $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
-        $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions($tagsFilter, $statementResourceType);
+        $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions($tagsFilter, $statementResourceType, $procedureId);
 
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
@@ -387,7 +387,7 @@ class SegmentsExportController extends BaseController
         // loaded, instead of loading every statement of the procedure and discarding the rest
         // in PHP.
         $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
-        $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions($tagsFilter, $statementResourceType);
+        $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions($tagsFilter, $statementResourceType, $procedureId);
 
         $statementResult = $requestHandler->getObjectsByQueryParams(
             $this->requestStack->getCurrentRequest()->query,
