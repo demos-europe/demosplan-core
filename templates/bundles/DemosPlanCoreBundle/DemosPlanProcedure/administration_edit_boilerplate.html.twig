@@ -30,7 +30,7 @@
                 <label class="layout__item u-1-of-4" for="r_title">
                     {{ "title"|trans }}*
                 </label><!--
-             --><div class="layout__item u-3-of-4 u-pl-0">
+             --><div class="layout__item u-3-of-4 pl-0 mb-1">
                     {{ uiComponent('form.row', {
                         elements: [
                             {
@@ -69,7 +69,7 @@
                 <label class="layout__item u-1-of-4" for="r_boilerplateGroup">
                     {{ "group"|trans }}
                 </label><!--
-             --><div class="layout__item u-3-of-4 u-pl-0">
+             --><div class="layout__item u-3-of-4 pl-0">
                     {% set boilerplatesGroups = [{ id: '', title: '-'}] %}
                     {% set boilerplatesGroups = boilerplatesGroups|merge(boilerplateGroupsOfProcedure|map(group => { id: group.id, title: group.title })) %}
                     <dp-multiselect
@@ -92,7 +92,7 @@
          --><label class="layout__item u-1-of-4" for="r_text">
                     {{ "text"|trans }}*
                 </label><!--
-         --><div class="layout__item u-3-of-4 u-pl-0">
+         --><div class="layout__item u-3-of-4 pl-0">
                     <dp-editor
                         editor-id="boilerplateText"
                         hidden-input="r_text"
@@ -103,10 +103,10 @@
                 </div>
 
                 {% if not isNew and hasPermission('feature_boilerplate_verified_edit') and not bluePrintIsTarget %}
-                    <label class="layout__item u-1-of-4" for="r_verified">
+                    <label class="layout__item u-1-of-4 mt-4" for="r_verified">
                         {{ "verified"|trans }}
                     </label><!--
-                 --><div class="layout__item u-3-of-4 u-pl-0">
+                 --><div class="layout__item u-3-of-4 pl-0 mt-4">
                         <input
                             type="checkbox"
                             id="r_verified"
@@ -118,7 +118,7 @@
                     </div>
                 {% endif %}
 
-                <div class="text-right u-mt-0_5 space-inline-s">
+                <div class="text-right mt-2 space-inline-s">
                     <button
                         class="btn btn--primary"
                         data-cy="saveBoilerplate"
