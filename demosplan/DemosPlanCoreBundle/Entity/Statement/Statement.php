@@ -3999,7 +3999,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return null;
     }
 
-    public function setDraftsListJson(string $json): void
+    public function setDraftsListJson(?string $json): void
     {
         $this->draftsListJson = $json;
     }
