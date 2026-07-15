@@ -14,6 +14,8 @@ namespace Tests\Core\Logic\Export;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
+use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\Writer\Word2007;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -303,5 +305,24 @@ class DocumentWriterSelectorTest extends UnitTestCase
 
         // Assert
         self::assertSame('Word2007', $result);
+    }
+
+    public function testCreateWriterEnablesDiskCachingForWord2007(): void
+    {
+        // Arrange - DOCX path: no ODT permission, so createWriter builds a Word2007 writer
+        $this->requestAttributes->method('get')
+            ->with('export_format')
+            ->willReturn(null);
+        $this->permissions->method('hasPermission')
+            ->with('feature_export_odt_instead_of_docx')
+            ->willReturn(false);
+
+        // Act
+        $writer = $this->sut->createWriter(new PhpWord());
+
+        // Assert - disk caching keeps large document.xml out of memory so the
+        // streamed procedure export stays under the PHP memory_limit
+        self::assertInstanceOf(Word2007::class, $writer);
+        self::assertTrue($writer->isUseDiskCaching());
     }
 }

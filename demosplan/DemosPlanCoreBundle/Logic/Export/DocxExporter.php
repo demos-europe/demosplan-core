@@ -466,6 +466,11 @@ class DocxExporter
             }
         }
 
+        // The writer keeps its own PhpWord reference; drop the shared one so the
+        // previous document's object graph is releasable before the next export
+        // builds another PhpWord in this singleton service.
+        $this->currentPhpWord = null;
+
         return $objWriter;
     }
 

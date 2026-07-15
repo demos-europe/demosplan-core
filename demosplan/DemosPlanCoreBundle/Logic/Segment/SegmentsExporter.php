@@ -30,7 +30,6 @@ use PhpOffice\PhpWord\Element\Row;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\Exception\Exception;
-use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Shared\Html;
 use PhpOffice\PhpWord\Writer\WriterInterface;
@@ -90,7 +89,7 @@ abstract class SegmentsExporter
         $this->addContent($section, $statement, $tableHeaders, $isObscure);
         $this->addFooter($section, $statement);
 
-        return IOFactory::createWriter($phpWord, $this->writerSelector->getWriterType());
+        return $this->writerSelector->createWriter($phpWord);
     }
 
     protected function addSimilarStatementSubmitters(Section $section, Statement $statement): void
@@ -332,7 +331,7 @@ abstract class SegmentsExporter
         $noEntriesMessage = $this->translator->trans('statements.filtered.none');
         $section->addText($noEntriesMessage, $this->styles['noInfoMessageFont']);
 
-        return IOFactory::createWriter($phpWord, $this->writerSelector->getWriterType());
+        return $this->writerSelector->createWriter($phpWord);
     }
 
     public function exportStatement(
@@ -377,7 +376,7 @@ abstract class SegmentsExporter
             $section = $this->getNewSectionIfNeeded($phpWord, $section, $index, $statements);
         }
 
-        return IOFactory::createWriter($phpWord, $this->writerSelector->getWriterType());
+        return $this->writerSelector->createWriter($phpWord);
     }
 
     /**

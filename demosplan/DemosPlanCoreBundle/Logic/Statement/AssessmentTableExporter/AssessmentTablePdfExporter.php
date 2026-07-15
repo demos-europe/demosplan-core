@@ -161,7 +161,9 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             }
             $outputResult = $this->assessmentTableOutput->getStatementListHandler(
                 $procedureId,
-                $parameters
+                $parameters,
+                // this is an export, not a display of statements to a user
+                logStatementViews: false
             );
             $statements = $outputResult->getStatements();
 

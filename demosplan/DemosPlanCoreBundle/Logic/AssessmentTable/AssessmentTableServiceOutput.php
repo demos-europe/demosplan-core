@@ -181,6 +181,7 @@ class AssessmentTableServiceOutput
         $aggregationsOnly = false,
         $aggregationsMinDocumentCount = 1,
         $addAllAggregations = true,
+        bool $logStatementViews = true,
     ): StatementHandlingResult {
         $orgaId = $this->currentUser->getUser()->getOrganisationId();
 
@@ -222,7 +223,7 @@ class AssessmentTableServiceOutput
             $rParams['searchFields'],
             $aggregationsOnly,
             $aggregationsMinDocumentCount,
-            true,
+            $logStatementViews,
             $addAllAggregations
         );
 

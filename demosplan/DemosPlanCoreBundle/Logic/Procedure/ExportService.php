@@ -48,6 +48,7 @@ use Faker\Provider\Uuid;
 use Monolog\Logger;
 use PhpOffice\PhpWord\Settings;
 use Psr\Log\LoggerInterface;
+use Symfony\Bridge\Monolog\Processor\DebugProcessor;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\String\UnicodeString;
@@ -179,20 +180,9 @@ class ExportService
     {
         $this->loadLiterals();
 
-        // Create Zip Archive
-        $zipFolderAbsolute = $this->fileService->getFilesPathAbsolute().'/export';
-        $hash = md5(random_int(0, 9999).time());
-        $zipPath = $zipFolderAbsolute.'/'.$hash.'.zip';
-        $this->logger->info('createProcedureExportJob $zipPath: '.$zipPath);
-        // Check if Folder exists, if not, create
-        if (!is_dir($zipFolderAbsolute)) {
-            $fs = new DemosFilesystem();
-            try {
-                $fs->mkdir($zipFolderAbsolute);
-            } catch (Exception $e) {
-                $this->logger->warning('Could not create Directory: ', [$e]);
-            }
-        }
+        // The ZIP is streamed directly to the response via ZipStream, so there
+        // is no archive file written to disk here. The previous temporary
+        // export directory was never actually used.
 
         // should be empty, because this method is triggered from procedure list.
         $storedProcedure = $this->currentProcedureService->getProcedure();
@@ -230,24 +220,29 @@ class ExportService
                 // Abwägungstabelle mit Namen
                 if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table')) {
                     $zip = $this->addAssessmentTableToZip($procedureId, $procedureName, 'statementsOnly', $zip);
+                    $this->freeAssessmentTableMemory();
                 }
 
                 if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_fragments')) {
                     $zip = $this->addAssessmentTableToZip($procedureId, $procedureName, 'statementsAndFragments', $zip);
+                    $this->freeAssessmentTableMemory();
                 }
 
                 // Abwägungstabelle ohne Namen (anonym)
                 if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_anonymous')) {
                     $zip = $this->addAssessmentTableAnonymousToZip($procedureId, $procedureName, 'statementsOnly', $zip);
+                    $this->freeAssessmentTableMemory();
                 }
 
                 if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_fragments_anonymous')) {
                     $zip = $this->addAssessmentTableAnonymousToZip($procedureId, $procedureName, 'statementsAndFragments', $zip);
+                    $this->freeAssessmentTableMemory();
                 }
 
                 // OriginalStellungnahmen
                 if ($this->permissions->hasPermission('feature_procedure_export_include_assessment_table_original')) {
                     $zip = $this->addAssessmentTableOriginalToZip($procedureId, $procedureName, $zip);
+                    $this->freeAssessmentTableMemory();
                 }
 
                 // Paragraph Elements
@@ -283,6 +278,34 @@ class ExportService
         $this->logger->info('Time needed to create ProcedureZip: '.number_format(microtime(true) - $startTime, 2).'s');
 
         return $zip;
+    }
+
+    /**
+     * Release the memory held by a single assessment-table DOCX build.
+     *
+     * The procedure export builds several large assessment-table DOCX files
+     * in sequence; each one fetches all statements of the procedure and
+     * builds a multi-MB PhpWord graph (circular references, hence the
+     * explicit gc cycle collection).
+     */
+    private function freeAssessmentTableMemory(): void
+    {
+        // In debug mode (dev kernel) a single shared DebugProcessor instance is
+        // pushed onto every channel logger and retains every log record incl.
+        // context objects for the profiler — e.g. the full PSR-7 responses the
+        // elastica channel logs, which for an assessment-table build contain
+        // the complete statement set. gc_collect_cycles() can never reclaim
+        // those; reset the processor so each build's records are released.
+        // No-op in prod, where the processor is not registered.
+        if ($this->logger instanceof Logger) {
+            foreach ($this->logger->getProcessors() as $processor) {
+                if ($processor instanceof DebugProcessor) {
+                    $processor->reset();
+                }
+            }
+        }
+
+        gc_collect_cycles();
     }
 
     protected function getProcedureOutput(): ?ProcedureOutput
@@ -474,7 +497,8 @@ class ExportService
             $this->addDocxToZip($exportResult, $zip, $filename);
 
             // Save Files
-            $outputResult = $this->assessmentTableOutput->getStatementListHandler($procedureId, $rParams);
+            // this is an export, not a display of statements to a user
+            $outputResult = $this->assessmentTableOutput->getStatementListHandler($procedureId, $rParams, logStatementViews: false);
             $statementEntities = $this->arrayFormatsToEntities(
                 $outputResult->getStatements(),
                 $this->statementService->getStatementsByIds(...)
@@ -506,7 +530,8 @@ class ExportService
             $exportResult = $this->assessmentHandler->generateOriginalStatementsDocx($procedureId);
             $filename = $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['originals'].'/'.$this->literals['originals'].'_Liste.docx';
             $this->addDocxToZip($exportResult, $zip, $filename);
-            $outputResult = $this->assessmentTableOutput->getStatementListHandler($procedureId, $rParams);
+            // this is an export, not a display of statements to a user
+            $outputResult = $this->assessmentTableOutput->getStatementListHandler($procedureId, $rParams, logStatementViews: false);
             $statementEntities = $this->arrayFormatsToEntities(
                 $outputResult->getStatements(),
                 $this->statementService->getStatementsByIds(...)

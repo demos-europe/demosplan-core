@@ -32,7 +32,6 @@ use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementHandlingResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DocxExportResult;
 use Exception;
-use PhpOffice\PhpWord\IOFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -134,7 +133,9 @@ class AssessmentHandler extends CoreHandler
 
         $outputResult = $this->assessmentTableServiceOutput->getStatementListHandler(
             $procedureId,
-            $rParams
+            $rParams,
+            // this is an export, not a display of statements to a user
+            logStatementViews: false
         );
 
         $procedure = $this->procedureService->getProcedure($procedureId);
@@ -156,7 +157,7 @@ class AssessmentHandler extends CoreHandler
 
         return new DocxExportResult(
             'Originalstellungnahmen_'.$procedureName.'.pdf',
-            IOFactory::createWriter($phpWord, $this->writerSelector->getWriterType())
+            $this->writerSelector->createWriter($phpWord)
         );
     }
 
@@ -264,13 +265,19 @@ class AssessmentHandler extends CoreHandler
             throw HandlerException::assessmentExportFailedException('docx');
         }
 
-        return new DocxExportResult(
+        $result = new DocxExportResult(
             sprintf(
                 $this->translator->trans('considerationtable').'-%s.docx',
                 Carbon::now('Europe/Berlin')->format('d-m-Y-H:i')
             ),
             $objWriter
         );
+        // The writer keeps its own PhpWord reference; release the ES statement
+        // arrays and the output result graph so they don't linger until the
+        // caller frees $result, which would overlap with the next DOCX build.
+        unset($objWriter, $outputResult);
+
+        return $result;
     }
 
     /**
@@ -319,7 +326,9 @@ class AssessmentHandler extends CoreHandler
         }
         $outputResult = $this->assessmentTableServiceOutput->getStatementListHandler(
             $procedureId,
-            $requestPost
+            $requestPost,
+            // this is an export, not a display of statements to a user
+            logStatementViews: false
         );
 
         $statements = $outputResult->getStatements();

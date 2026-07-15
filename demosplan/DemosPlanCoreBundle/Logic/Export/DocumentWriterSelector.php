@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Export;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Export\Odt\OdtBorderedWriter;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Writer\WriterInterface;
@@ -44,7 +45,27 @@ class DocumentWriterSelector
             return new OdtBorderedWriter($phpWord);
         }
 
-        return IOFactory::createWriter($phpWord, $this->getWriterType());
+        return $this->createDiskCachedWriter($phpWord);
+    }
+
+    /**
+     * Build a PhpWord writer with disk-backed XML caching: while an OOXML
+     * part (notably the multi-MB word/document.xml of large exports) is being
+     * written, its XML buffer lives in a temp file instead of growing in
+     * memory. The final string is still materialized once per part on save,
+     * so this reduces (not eliminates) the writer's memory footprint.
+     *
+     * The XMLWriter temp files are removed by their own __destruct when the
+     * writer falls out of scope after save(), so no manual cleanup is needed.
+     */
+    private function createDiskCachedWriter(PhpWord $phpWord): WriterInterface
+    {
+        $writer = IOFactory::createWriter($phpWord, $this->getWriterType());
+        if (method_exists($writer, 'setUseDiskCaching')) {
+            $writer->setUseDiskCaching(true, DemosPlanPath::getTemporaryPath());
+        }
+
+        return $writer;
     }
 
     public function getFileExtension(): string
