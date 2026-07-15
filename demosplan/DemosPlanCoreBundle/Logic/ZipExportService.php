@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Exception;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
+use League\Flysystem\UnableToReadFile;
 use PhpOffice\PhpWord\Writer\PDF;
 use PhpOffice\PhpWord\Writer\WriterInterface;
 use Psr\Log\LoggerInterface;
@@ -55,8 +56,12 @@ class ZipExportService
     {
         return new StreamedResponse(function () use ($name, $fillZipFunction): void {
             $zip = new ZipStream(
-                // do not compress files
-                defaultDeflateLevel: -1,
+                // do not compress files: the payload is almost exclusively
+                // DOCX/PDF, which is already compressed — deflating it again
+                // costs CPU without shrinking the download. Note that
+                // defaultDeflateLevel alone does NOT disable compression,
+                // it only tunes the level of the (default) DEFLATE method.
+                defaultCompressionMethod: CompressionMethod::STORE,
                 sendHttpHeaders: true,
                 outputName: $name,
                 contentDisposition: 'attachment',
@@ -75,11 +80,19 @@ class ZipExportService
     {
         $zipPath = $this->sanitizeZipPath($zipPath);
         $fs = new Filesystem();
-        if ($this->defaultStorage->fileExists($filePath)) {
+        try {
+            // try to read directly instead of checking existence first:
+            // this halves the storage round trips (HEAD + GET -> GET) per
+            // file, which adds up in exports streaming many attachments
             $zip->addFileFromStream($zipPath, $this->defaultStorage->readStream($filePath));
             $this->logger->info('Added File to Zip from stream');
+
+            return;
+        } catch (UnableToReadFile) {
+            // not in flysystem storage, fall through to the local check
+        }
         // file may be stored temporarily locally
-        } elseif ($fs->exists($filePath)) {
+        if ($fs->exists($filePath)) {
             try {
                 $zip->addFileFromPath($zipPath, $filePath, compressionMethod: CompressionMethod::STORE);
                 $this->logger->info('Added File to Zip from local stream');
