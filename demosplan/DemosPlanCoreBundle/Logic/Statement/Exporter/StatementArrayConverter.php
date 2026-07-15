@@ -18,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use Doctrine\Common\Collections\ArrayCollection;
 use ReflectionException;
 
@@ -32,7 +31,6 @@ class StatementArrayConverter
 {
     public function __construct(
         private readonly EntityHelper $entityHelper,
-        private readonly StatementService $statementService,
     ) {
     }
 
