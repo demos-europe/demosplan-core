@@ -239,7 +239,7 @@ import { buildDetailedStatementQuery } from '../Shared/utils/statementQueryBuild
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
 import lscache from 'lscache'
-import { redirectToStatementListWithResolvedToast } from '../Shared/utils/redirectToStatementListWithResolvedToast'
+import { redirectToStatementListWithGroupResolvedToast } from '../Shared/utils/redirectToStatementListWithGroupResolvedToast'
 import { sanitizeUrl } from '@braintree/sanitize-url'
 import SegmentCommentsList from './SegmentCommentsList'
 import SegmentLocationMap from './SegmentLocationMap'
@@ -688,7 +688,7 @@ export default {
         await dpApi.delete(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${this.statement.id}`)
 
         // This head detail page no longer exists once the group is dissolved — go back to the statement list.
-        redirectToStatementListWithResolvedToast(this.procedure.id, this.statementExternId)
+        redirectToStatementListWithGroupResolvedToast(this.procedure.id, this.statementExternId)
       } catch (error) {
         console.error('Failed to dissolve statement group:', error)
         dplan.notify.notify('error', Translator.trans('error.api.generic'))

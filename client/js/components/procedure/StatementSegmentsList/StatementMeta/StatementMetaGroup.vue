@@ -64,7 +64,7 @@ All rights reserved
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { DpAccordion, dpApi, DpButtonRow, DpInput, DpSlidingPagination } from '@demos-europe/demosplan-ui'
-import { redirectToStatementListWithResolvedToast } from '../../Shared/utils/redirectToStatementListWithResolvedToast'
+import { redirectToStatementListWithGroupResolvedToast } from '../../Shared/utils/redirectToStatementListWithGroupResolvedToast'
 import SelectedStatementsList from '@DpJs/components/statement/SelectedStatementsList'
 
 const props = defineProps({
@@ -155,7 +155,7 @@ async function removeGroupStatement (id) {
 
     // Removing the last member dissolves the group (the backend deletes the head statement).
     if (0 === groupStatements.value.length) {
-      redirectToStatementListWithResolvedToast(props.procedureId, props.statement.attributes.externId)
+      redirectToStatementListWithGroupResolvedToast(props.procedureId, props.statement.attributes.externId, removedLabel)
 
       return
     }

@@ -683,6 +683,20 @@ export default {
 
     // Show the "group resolved" toast once when arriving here after the last group member was detached
     notifyClusterResolved () {
+      const detachedToastData = lscache.get(`${this.procedureId}:clusterElementDetached`)
+
+      if (detachedToastData) {
+        // One-shot flag: remove it so a reload does not re-trigger the toast
+        lscache.remove(`${this.procedureId}:clusterElementDetached`)
+
+        const { statementId, clusterId: detachedClusterId } = JSON.parse(detachedToastData)
+
+        dplan.notify.notify('confirm', Translator.trans('confirm.statement.detach.cluster.element', {
+          statementId,
+          clusterId: detachedClusterId,
+        }))
+      }
+
       const clusterId = lscache.get(`${this.procedureId}:clusterResolved`)
 
       if (!clusterId) {
