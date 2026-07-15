@@ -54,11 +54,17 @@
             </div>
         </div>
 
+        {% set showVerifiedColumn = hasPermission('feature_boilerplate_verified_marker') and not bluePrintIsTarget %}
         <table class="c-table o-toggle o-toggle--not-animated u-mb u-mt-0_5">
             <colgroup>
                 <col class="w-[5%]">
                 <col class="w-2/5">
-                <col class="w-2/5">
+                {% if showVerifiedColumn %}
+                    <col class="w-[10%]">
+                    <col class="w-[30%]">
+                {% else %}
+                    <col class="w-2/5">
+                {% endif %}
                 <col class="w-[10%]">
                 <col class="w-[5%]">
             </colgroup>
@@ -69,6 +75,9 @@
                     <th>
                         {{ "boilerplates.in.group" |trans }}
                     </th>
+                    {% if showVerifiedColumn %}
+                        <th></th>
+                    {% endif %}
                     <th>
                         {{ "area.category.show" |trans }}
                     </th>
@@ -87,26 +96,32 @@
                         class="o-animate--bg-color">
                         <td>
                             <input
-                                id="boilerplate_delete:{{ boilerplate.ident|default('') }}"
+                                id="boilerplate_delete:{{ boilerplate.ident|default }}"
                                 data-cy="administrationListBoilerplate:boilerplateDelete"
                                 name="boilerplate_delete[]"
                                 class="u-ml-0_5"
                                 type="checkbox"
-                                value="{{ boilerplate.ident|default('') }}"
+                                value="{{ boilerplate.ident|default }}"
                                 data-checkable-item="">
                         </td>
                         <td class="o-hellip--td">
-                            <div class="flex items-center">
-                                <label
-                                    class="lbl--text inline o-hellip"
-                                    for="boilerplate_delete:{{ boilerplate.ident|default('') }}">
-                                    {{ boilerplate.title|default('Titel') }}
-                                </label>
-                                {% if not bluePrintIsTarget %}
-                                    {% include '@DemosPlanCore/DemosPlanProcedure/includes/boilerplate_verified_badge.html.twig' %}
-                                {% endif %}
-                            </div>
+                            <label
+                                class="lbl--text inline o-hellip"
+                                for="boilerplate_delete:{{ boilerplate.ident|default }}">
+                                {{ boilerplate.title|default('title'|trans) }}
+                            </label>
                         </td>
+                        {% if showVerifiedColumn %}
+                            <td class="whitespace-nowrap">
+                                {% if boilerplate.verified|default(false) %}
+                                    <dp-badge
+                                        data-cy="administrationListBoilerplate:verifiedBadge"
+                                        size="small"
+                                        text="{{ 'verified'|trans }}">
+                                    </dp-badge>
+                                {% endif %}
+                            </td>
+                        {% endif %}
                         <td>
                             {% for cat in boilerplate.categories %}
                                 {{ cat.title|trans }}{% if cat != boilerplate.categories|last %}, {% endif %}
@@ -114,7 +129,7 @@
                         </td>
                         <td class="text-center">
                             <a
-                                href="{{ path('DemosPlan_procedure_boilerplate_edit',{procedure: procedure, 'boilerplateId': boilerplate.ident }) }}"
+                                href="{{ path('DemosPlan_procedure_boilerplate_edit',{ procedure: procedure, 'boilerplateId': boilerplate.ident }) }}"
                                 data-cy="administrationListBoilerplate:boilerplateEdit"
                                 class="o-toggle__trigger u-mr-0_5 align-middle js__toggleAnything"
                                 aria-label="{{ 'boilerplate.edit'|trans }}">
@@ -176,6 +191,7 @@
                             {{ boilerplateGroup.title }}
                         </label>
                     </td>
+                    {% if showVerifiedColumn %}<td></td>{% endif %}
                     <td></td>
                     <td class="text-center">
                         <dp-flyout>

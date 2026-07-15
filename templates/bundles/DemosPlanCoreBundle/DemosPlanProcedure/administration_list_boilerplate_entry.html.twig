@@ -13,15 +13,23 @@
             data-checkable-item="{{ boilerplateGroup.id|default }}">
     </td>
     <td class="o-hellip--td">
-        <div class="flex items-center">
-            <label
-                class="lbl--text inline-block u-mb-0 o-hellip max-w-[90%] u-ml"
-                for="boilerplateGroupChildren:{{ boilerplate.ident|default }}">
-                {{ boilerplate.title|default('Titel') }}
-            </label>
-            {% include '@DemosPlanCore/DemosPlanProcedure/includes/boilerplate_verified_badge.html.twig' %}
-        </div>
+        <label
+            class="lbl--text inline-block u-mb-0 o-hellip max-w-[90%] u-ml"
+            for="boilerplateGroupChildren:{{ boilerplate.ident|default }}">
+            {{ boilerplate.title|default('title'|trans) }}
+        </label>
     </td>
+    {% if showVerifiedColumn %}
+        <td class="whitespace-nowrap">
+            {% if boilerplate.verified|default(false) %}
+                <dp-badge
+                    data-cy="administrationListBoilerplate:verifiedBadge"
+                    size="small"
+                    text="{{ 'verified'|trans }}">
+                </dp-badge>
+            {% endif %}
+        </td>
+    {% endif %}
     <td>
         {% for cat in boilerplate.categories %}
             {{ cat.title|trans }}{% if cat != boilerplate.categories|last %}, {% endif %}
