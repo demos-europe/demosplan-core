@@ -2291,6 +2291,12 @@ class ProcedureService implements ProcedureServiceInterface
             $boilerplate->setTitle($boilerplateVO->getTitle());
             $boilerplate->setText($boilerplateVO->getText());
 
+            // an explicitly given verified state (permission-gated in the create form) is applied,
+            // otherwise the new boilerplate keeps the default (not verified)
+            if (null !== $boilerplateVO->getVerified()) {
+                $boilerplate->setVerified($boilerplateVO->getVerified());
+            }
+
             // resolve & set categories:
             $categories = [];
             /** @var BoilerplateCategoryVO $boilerplateCategoryVO */

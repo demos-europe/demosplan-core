@@ -256,6 +256,35 @@ class BoilerplateServiceTest extends FunctionalTestCase
         static::assertTrue($updatedBoilerplate->isVerified());
     }
 
+    public function testAddBoilerplateVOSetsVerifiedWhenExplicit()
+    {
+        $procedureId = $this->fixtures->getReference('testProcedure')->getId();
+
+        $boilerplateVO = new BoilerplateVO();
+        $boilerplateVO->setTitle('verified on create');
+        $boilerplateVO->setText('some text');
+        $boilerplateVO->setVerified(true);
+
+        $createdBoilerplate = $this->sut->addBoilerplateVO($procedureId, $boilerplateVO);
+
+        static::assertInstanceOf(Boilerplate::class, $createdBoilerplate);
+        static::assertTrue($createdBoilerplate->isVerified());
+    }
+
+    public function testAddBoilerplateVODefaultsToUnverified()
+    {
+        $procedureId = $this->fixtures->getReference('testProcedure')->getId();
+
+        $boilerplateVO = new BoilerplateVO();
+        $boilerplateVO->setTitle('unverified on create');
+        $boilerplateVO->setText('some text');
+
+        $createdBoilerplate = $this->sut->addBoilerplateVO($procedureId, $boilerplateVO);
+
+        static::assertInstanceOf(Boilerplate::class, $createdBoilerplate);
+        static::assertFalse($createdBoilerplate->isVerified());
+    }
+
     /**
      * @throws Exception
      */
