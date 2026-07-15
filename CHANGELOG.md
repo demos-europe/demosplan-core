@@ -5,6 +5,9 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+### Added
+- Boilerplate edit page lists the segments in which a boilerplate is used as deep links
+
 ## v4.48.0 (2026-07-07)
 
 ### Added
