@@ -21,7 +21,7 @@ import lscache from 'lscache'
  * one — a plain location.href change would otherwise unload the page before a toast fired
  * here could ever be seen.
  */
-export function redirectToStatementListWithGroupResolvedToast(procedureId, externId, detachedStatementExternId = null) {
+export function redirectToStatementListWithGroupResolvedToast (procedureId, externId, detachedStatementExternId = null) {
   if (null !== detachedStatementExternId) {
     lscache.set(`${procedureId}:clusterElementDetached`, JSON.stringify({ statementId: detachedStatementExternId, clusterId: externId }))
   }
