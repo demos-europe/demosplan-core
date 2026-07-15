@@ -573,7 +573,7 @@ export default {
         })
         .then(() => {
           if (addonMappingFailed) {
-            dplan.notify.error(Translator.trans('procedure.phase.mapping.create.failedd'))
+            dplan.notify.error(Translator.trans('procedure.phase.mapping.create.failed'))
           } else {
             dplan.notify.confirm(Translator.trans('procedure.phase.create.success'))
           }
