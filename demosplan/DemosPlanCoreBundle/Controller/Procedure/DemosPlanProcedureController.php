@@ -2369,9 +2369,9 @@ class DemosPlanProcedureController extends BaseController
         return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_list_boilerplate.html.twig',
             [
-                'templateVars' => $templateVars,
-                'title'        => 'procedure.boilerplates',
-                'procedure'    => $procedure,
+                'templateVars'      => $templateVars,
+                'title'             => 'procedure.boilerplates',
+                'procedure'         => $procedure,
                 'bluePrintIsTarget' => $bluePrintIsTarget,
             ]
         );
