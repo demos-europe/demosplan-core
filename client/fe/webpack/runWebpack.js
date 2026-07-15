@@ -190,7 +190,7 @@ function showErrorMessage (err, stats) {
 
   const info = stats.toJson()
 
-  if (err || stats.hasErrors() || stats.hasWarnings()) {
+  if (err || stats.hasErrors()) {
     log(chalk.red('Build failed'))
   }
 
@@ -231,7 +231,15 @@ function showWebpackRunMessage (userFeedbackCallback, mode, project, webpackConf
     webpackRunner.run((err, stats) => {
       userFeedbackCallback(err, stats)
 
-      // Yay, we done - printed once for the whole (multi-compiler) build
+      /*
+       * A failed compile must break the build; webpack's Node API does not set an exit code itself, so an errored build
+       * would otherwise exit 0. Warnings are intentionally not treated as a failure.
+       */
+      if (err || (stats?.hasErrors())) {
+        process.exitCode = 1
+      }
+
+      // Yay, we done - printed once for the whole (multi-compiler) build; warnings do not count as a failed build
       if (!err && stats && !stats.hasErrors()) {
         log(chalk.green(String.raw`\o/`))
       }
@@ -242,7 +250,9 @@ function showWebpackRunMessage (userFeedbackCallback, mode, project, webpackConf
        */
       webpackRunner.close(closeError => {
         if (closeError) {
-          log(chalk.red(closeError.stack || closeError))
+          // Surface cleanup failures instead of exiting 0 and hiding them
+          process.exitCode = 1
+          log(chalk.red(closeError.stack ?? String(closeError)))
         }
       })
     })
