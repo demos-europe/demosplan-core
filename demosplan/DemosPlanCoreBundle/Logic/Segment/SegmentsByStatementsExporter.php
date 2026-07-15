@@ -32,7 +32,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementArrayConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
-use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ConvertedSegment;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpWord\Element\Footer;
 use PhpOffice\PhpWord\Element\Section;
