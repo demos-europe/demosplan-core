@@ -102,7 +102,7 @@
                     </dp-editor>
                 </div>
 
-                {% if not isNew and hasPermission('feature_boilerplate_verified_edit') %}
+                {% if not isNew and hasPermission('feature_boilerplate_verified_edit') and not bluePrintIsTarget %}
                     <label class="layout__item u-1-of-4" for="r_verified">
                         {{ "verified"|trans }}
                     </label><!--

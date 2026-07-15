@@ -102,7 +102,9 @@
                                     for="boilerplate_delete:{{ boilerplate.ident|default('') }}">
                                     {{ boilerplate.title|default('Titel') }}
                                 </label>
-                                {% include '@DemosPlanCore/DemosPlanProcedure/includes/boilerplate_verified_badge.html.twig' %}
+                                {% if not bluePrintIsTarget %}
+                                    {% include '@DemosPlanCore/DemosPlanProcedure/includes/boilerplate_verified_badge.html.twig' %}
+                                {% endif %}
                             </div>
                         </td>
                         <td>
