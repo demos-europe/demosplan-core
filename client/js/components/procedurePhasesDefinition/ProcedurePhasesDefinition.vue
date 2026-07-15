@@ -831,6 +831,10 @@ export default {
         resetForm()
       }
 
+      if (editingRowId.value !== null) {
+        cancelEdit()
+      }
+
       const isConfirmed = await confirmDeleteDialog.value.open()
 
       if (!isConfirmed) {
