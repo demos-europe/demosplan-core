@@ -5,6 +5,15 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+## v4.49.0 (2026-07-15)
+
+### Added
+- Statement groups are editable
+
+### Fixed
+- Institution coordinators without a second organisation email address are now redirected to the welcome page until they provide it.
+
 ## v4.48.0 (2026-07-07)
 
 ### Added
