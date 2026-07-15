@@ -6,6 +6,16 @@
 
 ## UNRELEASED
 
+## v4.50.0 (2026-07-15)
+
+### Added
+- Statements with identical or similar content can be grouped together in the statement list and treated as a single statement. Groups can be created, edited, and dissolved; removing the last member of a group dissolves the group and returns to the statement list.
+- A date field for setting a processing deadline is available when assigning sections (statement split, section list, and response drafting). The deadline resets automatically when the processing step changes.
+
+### Fixed
+- Institution coordinators without a second organisation email address are now redirected to the welcome page until they provide it.
+- When the last member of a statement group is removed, both notifications ("statement detached" and "group dissolved") are now shown in the correct order.
+
 ## v4.49.0 (2026-07-15)
 
 ### Added
