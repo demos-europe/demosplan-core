@@ -374,6 +374,9 @@
                 </a>
               </dp-flyout>
             </template>
+            <template v-slot:deadline="rowData">
+              {{ formatDate(rowData.attributes.deadline) }}
+            </template>
           </dp-data-table>
         </div>
         <div
@@ -428,6 +431,7 @@ import {
   DpPager,
   dpRpc,
   DpStickyElement,
+  formatDate,
   hasOwnProp,
   tableSelectAllItems,
   VPopover,
@@ -554,6 +558,7 @@ export default {
         { field: 'externId', label: Translator.trans('id'), colWidth: '120px', initialMinWidth: 120, fixed: true },
         { field: 'statementStatus', label: Translator.trans('statement.status'), colWidth: '180px', initialMinWidth: 180 },
         { field: 'internId', label: Translator.trans('internId.shortened'), colWidth: '120px', initialMinWidth: 120 },
+        { field: 'deadline', label: Translator.trans('deadline'), colWidth: '150px', initialMinWidth: 180 },
         { field: 'submitter', label: Translator.trans('submitter'), colWidth: '180px', initialMinWidth: 180 },
         { field: 'address', label: Translator.trans('address'), colWidth: '180px', initialMinWidth: 180 },
         { field: 'text', label: Translator.trans('text'), colWidth: '270px', initialMinWidth: 270 },
@@ -625,7 +630,7 @@ export default {
     // Passed as headerFields to DpDataTable
     availableHeaderFields () {
       const externIdField = this.headerFieldsAvailable.find(el => el.field === 'externId')
-      const userHeaderFields = this.headerFields.filter(el => el.field !== 'externId')
+      const userHeaderFields = this.headerFields.filter(el => el.field !== 'externId'  && (el.field !== 'deadline' || hasPermission('field_statement_deadline')))
 
       if (!hasPermission('field_segments_custom_fields')) {
         return [
@@ -745,7 +750,8 @@ export default {
      */
     selectableColumns () {
       const staticColumns = this.headerFieldsAvailable
-        .filter(el => el.field !== 'externId') // ExternId should always be displayed, so it shouldn't be selectable
+        // ExternId should always be displayed, so it shouldn't be selectable
+        .filter(el => el.field !== 'externId' && (el.field !== 'deadline' || hasPermission('field_statement_deadline')))
         .map(headerField => ([headerField.field, headerField.label]))
 
       if (!hasPermission('field_segments_custom_fields')) {
@@ -779,6 +785,7 @@ export default {
   },
 
   methods: {
+    formatDate,
     ...mapActions('AssignableUser', {
       fetchAssignableUsers: 'list',
     }),
@@ -826,6 +833,10 @@ export default {
         'text',
         'recommendation',
       ]
+
+      if (hasPermission('field_statement_deadline')) {
+        statementSegmentFields.push('deadline')
+      }
 
       const statementSegmentInclude = [
         'assignee',
