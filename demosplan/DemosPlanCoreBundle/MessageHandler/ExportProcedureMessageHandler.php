@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\MessageHandler;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureExportJob;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -63,7 +64,7 @@ class ExportProcedureMessageHandler
         }
 
         $job->setStatus(ProcedureExportJob::STATUS_PROCESSING);
-        $job->setModifiedDate(new \DateTime());
+        $job->setModifiedDate(new DateTime());
         $this->entityManager->flush();
 
         $requestPushed = false;
@@ -93,7 +94,7 @@ class ExportProcedureMessageHandler
             if ($requestPushed) {
                 $this->requestStack->pop();
             }
-            $job->setModifiedDate(new \DateTime());
+            $job->setModifiedDate(new DateTime());
             $this->entityManager->flush();
         }
     }
