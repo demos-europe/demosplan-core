@@ -196,7 +196,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
                 if ($procedure->getMaster()) {
                     $statements = [];
                 } else {
-                    $filterHash = $this->session->get(
+                    $filterHash = $this->getSession()->get(
                         'hashList'
                     )[$procedureId]['assessment']['hash'];
 
