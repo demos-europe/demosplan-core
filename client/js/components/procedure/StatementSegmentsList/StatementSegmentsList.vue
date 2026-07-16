@@ -847,7 +847,9 @@ export default {
       isInstitutionDataCensored && (parameters.isInstitutionDataCensored = isInstitutionDataCensored)
       isCitizenDataCensored && (parameters.isCitizenDataCensored = isCitizenDataCensored)
 
-      if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
+      const hintKey = uploadedDocxTemplate ? 'export.statements.hint.via_template' : 'export.statements.hint'
+
+      if (window.dpconfirm(Translator.trans(hintKey))) {
         window.location.href = Routing.generate(route, parameters)
       }
     },
