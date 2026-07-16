@@ -775,6 +775,19 @@ export default {
       return null
     },
 
+    //  Return the asynchronous (background) export start route for the current view
+    asyncRoute () {
+      if (this.view === 'assessment_table') {
+        return 'DemosPlan_assessment_table_export_async_start'
+      }
+
+      if (this.view === 'original_statements') {
+        return 'DemosPlan_assessment_table_original_export_async_start'
+      }
+
+      return null
+    },
+
     submitLabel () {
       let transKey
 
@@ -882,13 +895,12 @@ export default {
     },
 
     submit () {
-      const oldAction = document.bpform.action
+      if (null === this.asyncRoute) {
+        return
+      }
 
-      document.bpform.action = Routing.generate(this.route, {
-        procedureId: this.procedureId,
-      })
-
-      // Set data params
+      // Populate the shared form fields exactly as the synchronous export did; these carry the
+      // export choice that the server reads from the POST body.
       document.bpform.r_export_format.value = this.currentTab
       document.bpform.r_export_choice.value = JSON.stringify(this.format)
       document.bpform.searchFields.value = this.getSearchFields()
@@ -898,11 +910,55 @@ export default {
         document.bpform.currentTableSort.value = this.currentTableSort
       }
 
-      //  Submit form
-      document.bpform.submit()
+      const startUrl = Routing.generate(this.asyncRoute, {
+        procedureId: this.procedureId,
+      })
+      const formData = new FormData(document.bpform)
 
-      //  Restore original form action
-      document.bpform.action = oldAction
+      // The export runs in the background to avoid gateway timeouts on large procedures. Start the
+      // job, then poll for completion and trigger the download automatically once it is ready.
+      dplan.notify.notify('info', Translator.trans('export.processing'))
+
+      fetch(startUrl, {
+        method: 'POST',
+        body: formData,
+        credentials: 'same-origin',
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data && data.jobId) {
+            this.pollExportStatus(data.jobId)
+          } else {
+            dplan.notify.error(Translator.trans('error.export'))
+          }
+        })
+        .catch(() => dplan.notify.error(Translator.trans('error.export')))
+    },
+
+    /**
+     * Poll the background export job until it is finished, then trigger the file download.
+     * @param jobId {String}
+     */
+    pollExportStatus (jobId) {
+      const statusUrl = Routing.generate('DemosPlan_assessment_table_export_status', { procedureId: this.procedureId, jobId })
+      const downloadUrl = Routing.generate('DemosPlan_assessment_table_export_download', { procedureId: this.procedureId, jobId })
+
+      const poll = () => {
+        fetch(statusUrl, { credentials: 'same-origin' })
+          .then(response => response.json())
+          .then(data => {
+            if (data.status === 'completed') {
+              window.location.href = downloadUrl
+            } else if (data.status === 'failed' || data.status === 'not_found') {
+              dplan.notify.error(Translator.trans('error.export'))
+            } else {
+              setTimeout(poll, 3000)
+            }
+          })
+          .catch(() => dplan.notify.error(Translator.trans('error.export')))
+      }
+
+      setTimeout(poll, 3000)
     },
 
     toggleModal (tab) {
