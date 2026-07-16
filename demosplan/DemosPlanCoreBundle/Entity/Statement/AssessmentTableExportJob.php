@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use Doctrine\ORM\Mapping as ORM;
@@ -89,14 +90,14 @@ class AssessmentTableExportJob extends CoreEntity implements UuidEntityInterface
     protected $errorMessage;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="created_date", type="datetime", nullable=false)
      */
     protected $createdDate;
 
     /**
-     * @var \DateTime
+     * @var DateTime
      *
      * @ORM\Column(name="modified_date", type="datetime", nullable=false)
      */
@@ -104,8 +105,8 @@ class AssessmentTableExportJob extends CoreEntity implements UuidEntityInterface
 
     public function __construct()
     {
-        $this->createdDate = new \DateTime();
-        $this->modifiedDate = new \DateTime();
+        $this->createdDate = new DateTime();
+        $this->modifiedDate = new DateTime();
     }
 
     public function getId(): ?string
@@ -173,17 +174,17 @@ class AssessmentTableExportJob extends CoreEntity implements UuidEntityInterface
         $this->errorMessage = $errorMessage;
     }
 
-    public function getCreatedDate(): \DateTime
+    public function getCreatedDate(): DateTime
     {
         return $this->createdDate;
     }
 
-    public function getModifiedDate(): \DateTime
+    public function getModifiedDate(): DateTime
     {
         return $this->modifiedDate;
     }
 
-    public function setModifiedDate(\DateTime $modifiedDate): void
+    public function setModifiedDate(DateTime $modifiedDate): void
     {
         $this->modifiedDate = $modifiedDate;
     }

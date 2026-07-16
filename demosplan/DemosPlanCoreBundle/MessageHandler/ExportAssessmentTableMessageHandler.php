@@ -12,15 +12,16 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\MessageHandler;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\AssessmentTableExportJob;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableExporterStrategy;
-use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Message\ExportAssessmentTableMessage;
 use Doctrine\ORM\EntityManagerInterface;
@@ -70,7 +71,7 @@ class ExportAssessmentTableMessageHandler
         }
 
         $job->setStatus(AssessmentTableExportJob::STATUS_PROCESSING);
-        $job->setModifiedDate(new \DateTime());
+        $job->setModifiedDate(new DateTime());
         $this->entityManager->flush();
 
         $requestPushed = false;
@@ -97,7 +98,7 @@ class ExportAssessmentTableMessageHandler
             if ($requestPushed) {
                 $this->requestStack->pop();
             }
-            $job->setModifiedDate(new \DateTime());
+            $job->setModifiedDate(new DateTime());
             $this->entityManager->flush();
         }
     }
