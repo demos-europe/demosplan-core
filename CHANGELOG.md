@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.49.0 (2026-07-15)
 ## v4.48.0 (2026-07-07)
 
 ### Added
@@ -16,6 +17,21 @@
 
 ### Fixed
 - Adjust organization type key in platform statistics: Replace 'procedure.agency' with 'municipality' in OrgaService::getAcceptedOrgaCountByType()
+
+## v4.47.4 (2026-07-15)
+
+### Added
+- Statement import errors now report the offending column and value, and aborted imports are logged with per-row error details
+
+### Changed
+- In the split statement view, both the start and end handles of a segment range can now be dragged to adjust the selection
+- Users provisioned by an external identity provider are no longer deleted by the inactivity cascade; their lifecycle is managed by the identity provider
+
+### Fixed
+- Ghost segment boxes could appear when deleting multiple segments in quick succession in the split statement view
+- The segmentation editor could crash when opening, saving or scrolling segments that have no document mark
+- Tag-filtered statement and segment export could fail with an out-of-memory error on large procedures; the export is also significantly faster now
+- Spellcheck requests could block other requests from the same session, surfacing as lock wait timeouts
 
 ## v4.47.1 (2026-07-06)
 
