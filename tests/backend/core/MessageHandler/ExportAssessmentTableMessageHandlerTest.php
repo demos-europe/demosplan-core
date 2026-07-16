@@ -106,7 +106,7 @@ class ExportAssessmentTableMessageHandlerTest extends UnitTestCase
         $user = $this->createMock(User::class);
         $this->entityManagerMock->method('find')->willReturnCallback(
             static fn (string $class) => match ($class) {
-                AssessmentTableExportJob::class => $job,
+                AssessmentTableExportJob::class  => $job,
                 User::class                      => $user,
                 default                          => null,
             }
