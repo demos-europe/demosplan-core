@@ -43,7 +43,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVersionField;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementVote;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
-use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualOriginalStatementCreatedEvent;
@@ -1653,13 +1652,15 @@ class StatementService implements StatementServiceInterface
      */
     public function addSourceStatementAttachments(array $statements): array
     {
-        $entities = $this->elasticsearchStatementsToObjects($statements);
+        // fetch all source attachments with one query instead of hydrating
+        // every statement entity and lazy-loading its attachment collection
+        // (an N+1 that also kept thousands of statement entities in the
+        // identity map during large exports)
+        $attachmentsByStatementId = $this->statementAttachmentService
+            ->getSourceAttachmentsByStatementIds(array_column($statements, 'id'));
 
-        return \array_map(static function (array $statement) use ($entities): array {
-            $statement['attachments'] = array_filter(
-                $entities[$statement['id']]->getAttachments()->getValues(),
-                static fn (StatementAttachment $attachment) => StatementAttachment::SOURCE_STATEMENT === $attachment->getType()
-            );
+        return \array_map(static function (array $statement) use ($attachmentsByStatementId): array {
+            $statement['attachments'] = $attachmentsByStatementId[$statement['id']] ?? [];
 
             return $statement;
         }, $statements);

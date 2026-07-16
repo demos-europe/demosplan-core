@@ -157,7 +157,8 @@ class AssessmentHandler extends CoreHandler
 
         return new DocxExportResult(
             'Originalstellungnahmen_'.$procedureName.'.pdf',
-            $this->writerSelector->createWriter($phpWord)
+            $this->writerSelector->createWriter($phpWord),
+            array_column($statementsAsArrays, 'id')
         );
     }
 
@@ -270,7 +271,8 @@ class AssessmentHandler extends CoreHandler
                 $this->translator->trans('considerationtable').'-%s.docx',
                 Carbon::now('Europe/Berlin')->format('d-m-Y-H:i')
             ),
-            $objWriter
+            $objWriter,
+            array_column($outputResult->getStatements(), 'id')
         );
         // The writer keeps its own PhpWord reference; release the ES statement
         // arrays and the output result graph so they don't linger until the

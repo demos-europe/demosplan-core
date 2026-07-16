@@ -496,13 +496,9 @@ class ExportService
 
             $this->addDocxToZip($exportResult, $zip, $filename);
 
-            // Save Files
-            // this is an export, not a display of statements to a user
-            $outputResult = $this->assessmentTableOutput->getStatementListHandler($procedureId, $rParams, logStatementViews: false);
-            $statementEntities = $this->arrayFormatsToEntities(
-                $outputResult->getStatements(),
-                $this->statementService->getStatementsByIds(...)
-            );
+            // Save Files: reuse the statement ids of the DOCX build instead of
+            // fetching the complete Elasticsearch result a second time
+            $statementEntities = $this->statementService->getStatementsByIds($exportResult->getStatementIds());
             $folderName = $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['considerationtable'].'/'.$this->literals['attachment'].'/';
             $this->attachStatementFilesToZip($statementEntities, $folderName, $zip);
 
@@ -520,22 +516,13 @@ class ExportService
         string $procedureName,
         ZipStream $zip,
     ): ZipStream {
-        $rParams = [
-            'filters' => ['original' => 'IS NULL'],
-            'request' => ['limit' => 1_000_000],
-            'items'   => [],
-        ];
-
         try {
             $exportResult = $this->assessmentHandler->generateOriginalStatementsDocx($procedureId);
             $filename = $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['originals'].'/'.$this->literals['originals'].'_Liste.docx';
             $this->addDocxToZip($exportResult, $zip, $filename);
-            // this is an export, not a display of statements to a user
-            $outputResult = $this->assessmentTableOutput->getStatementListHandler($procedureId, $rParams, logStatementViews: false);
-            $statementEntities = $this->arrayFormatsToEntities(
-                $outputResult->getStatements(),
-                $this->statementService->getStatementsByIds(...)
-            );
+            // Save Files: reuse the statement ids of the DOCX build instead of
+            // fetching the complete Elasticsearch result a second time
+            $statementEntities = $this->statementService->getStatementsByIds($exportResult->getStatementIds());
             $this->attachStatementFilesToZip($statementEntities, $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['originals'].'/Anhang/', $zip);
             $this->logger->info('abwaegung_list_original created', ['id' => $procedureId, 'name' => $procedureName]);
         } catch (Exception $e) {

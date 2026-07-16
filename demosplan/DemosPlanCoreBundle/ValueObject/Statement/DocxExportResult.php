@@ -16,6 +16,7 @@ use PhpOffice\PhpWord\Writer\WriterInterface;
 /**
  * @method string          getFilename()
  * @method WriterInterface getWriter()
+ * @method string[]        getStatementIds()
  */
 class DocxExportResult extends ValueObject
 {
@@ -23,11 +24,20 @@ class DocxExportResult extends ValueObject
     protected $filename;
     /** @var WriterInterface */
     protected $writer;
+    /**
+     * Ids of the statements contained in the document. Allows consumers (e.g.
+     * the procedure export collecting statement attachments) to reuse the
+     * already fetched result instead of re-querying Elasticsearch.
+     *
+     * @var string[]
+     */
+    protected $statementIds;
 
-    public function __construct(string $filename, WriterInterface $writer)
+    public function __construct(string $filename, WriterInterface $writer, array $statementIds = [])
     {
         $this->filename = $filename;
         $this->writer = $writer;
+        $this->statementIds = $statementIds;
         $this->lock();
     }
 }

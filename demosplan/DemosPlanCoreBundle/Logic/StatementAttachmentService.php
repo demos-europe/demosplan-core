@@ -110,4 +110,14 @@ class StatementAttachmentService
 
         return $attachment;
     }
+
+    /**
+     * @param string[] $statementIds
+     *
+     * @return array<string, StatementAttachment[]> source attachments keyed by statement id
+     */
+    public function getSourceAttachmentsByStatementIds(array $statementIds): array
+    {
+        return $this->attachmentRepository->findSourceAttachmentsByStatementIds($statementIds);
+    }
 }
