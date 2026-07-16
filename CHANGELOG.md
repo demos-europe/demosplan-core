@@ -5,6 +5,26 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+## v4.50.0 (2026-07-15)
+
+### Added
+- Statements with identical or similar content can be grouped together in the statement list and treated as a single statement. Groups can be created, edited, and dissolved; removing the last member of a group dissolves the group and returns to the statement list.
+- A date field for setting a processing deadline is available when assigning sections (statement split, section list, and response drafting). The deadline resets automatically when the processing step changes.
+
+### Fixed
+- Institution coordinators without a second organisation email address are now redirected to the welcome page until they provide it.
+- When the last member of a statement group is removed, both notifications ("statement detached" and "group dissolved") are now shown in the correct order.
+
+## v4.49.0 (2026-07-15)
+
+### Added
+- Statement groups are editable
+
+### Fixed
+- Institution coordinators without a second organisation email address are now redirected to the welcome page until they provide it.
+
+## v4.49.0 (2026-07-15)
 ## v4.48.0 (2026-07-07)
 
 ### Added
@@ -16,6 +36,21 @@
 
 ### Fixed
 - Adjust organization type key in platform statistics: Replace 'procedure.agency' with 'municipality' in OrgaService::getAcceptedOrgaCountByType()
+
+## v4.47.4 (2026-07-15)
+
+### Added
+- Statement import errors now report the offending column and value, and aborted imports are logged with per-row error details
+
+### Changed
+- In the split statement view, both the start and end handles of a segment range can now be dragged to adjust the selection
+- Users provisioned by an external identity provider are no longer deleted by the inactivity cascade; their lifecycle is managed by the identity provider
+
+### Fixed
+- Ghost segment boxes could appear when deleting multiple segments in quick succession in the split statement view
+- The segmentation editor could crash when opening, saving or scrolling segments that have no document mark
+- Tag-filtered statement and segment export could fail with an out-of-memory error on large procedures; the export is also significantly faster now
+- Spellcheck requests could block other requests from the same session, surfacing as lock wait timeouts
 
 ## v4.47.1 (2026-07-06)
 
