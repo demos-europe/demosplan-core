@@ -29,6 +29,7 @@ const SplitStatementStore = {
     initText: '',
     // Loading state for save+finish button
     isBusy: false,
+    needsEditorRefresh: false,
     procedureId: '',
     /**
      *If the new selection in editor intersects with existing segments we set recalculatedSegments to
@@ -37,7 +38,6 @@ const SplitStatementStore = {
      */
     recalculatedSegments: null,
     segments: [],
-    segmentsWithText: null,
     statement: null,
     statementText: null,
     statementId: '',
@@ -61,7 +61,7 @@ const SplitStatementStore = {
     },
 
     locallyUpdateSegments (state, updatedSegments) {
-      const segments = JSON.parse(JSON.stringify(state.segments))
+      const segments = structuredClone(state.segments)
 
       // We want to update all segments at once to avoid triggering multiple view updates.
       const segmentsAfterUpdate = segments.map(segment => {
@@ -92,7 +92,7 @@ const SplitStatementStore = {
     },
 
     resetSegments (state) {
-      state.segments = state.initialSegments
+      state.segments = structuredClone(state.initialSegments)
     },
 
     setProperty (state, { prop, val }) {
@@ -133,7 +133,7 @@ const SplitStatementStore = {
         const segment = state.segments.find((el) => el.id === id)
 
         if (typeof segment !== 'undefined') {
-          const segmentCopy = JSON.parse(JSON.stringify(segment))
+          const segmentCopy = structuredClone(segment)
 
           // Set segment status to confirmed
           segmentCopy.status = 'confirmed'
@@ -280,7 +280,7 @@ const SplitStatementStore = {
           }
         })
 
-        const segments = JSON.parse(JSON.stringify(state.segments)).map(segment => {
+        const segments = structuredClone(state.segments).map(segment => {
           // We need to replace PI generated tag ids with dplan tag ids
           segment.tags = segment.tags.map(tag => {
             const dplanTag = state.categorizedTags.find(t => t.attributes.title === tag.tagName)
@@ -390,41 +390,47 @@ const SplitStatementStore = {
         })
     },
 
-    saveSegmentsDrafts ({ state, dispatch }, triggerNotifications = false) {
-      const dataToSend = JSON.parse(JSON.stringify(state.initialData))
+    saveSegmentsDrafts ({ state, commit, dispatch }, triggerNotifications = false) {
+      const dataToSend = structuredClone(state.initialData)
 
       dataToSend.attributes.textualReference = state.initText
-      dataToSend.attributes.segments = state.segments
+      dataToSend.attributes.segments = structuredClone(state.segments)
+
       const payload = {
         id: state.statementId,
         type: 'Statement',
-        attributes: {},
-      }
-
-      payload.attributes.segmentDraftList = {
-        data: dataToSend,
+        attributes: {
+          segmentDraftList: {
+            data: dataToSend,
+          },
+        },
       }
 
       return dpApi.patch(Routing.generate('api_resource_update', {
         resourceType: 'Statement',
         resourceId: state.statementId,
       }), {}, { data: payload })
-        .then((response) => {
-          dispatch('fetchInitialData', false)
+        .then(() => {
+          commit('setProperty', { prop: 'initialData', val: dataToSend })
+          commit('setProperty', { prop: 'initialSegments', val: dataToSend.attributes.segments })
+
           if (triggerNotifications) {
-            if (response.status === 204) {
-              dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-            } else {
-              dplan.notify.notify('error', Translator.trans('error.api.generic'))
-            }
+            dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
           }
+        })
+        .catch(() => {
+          dplan.notify.notify('error', Translator.trans('error.api.generic'))
+
+          commit('setProperty', { prop: 'segments', val: structuredClone(state.initialSegments) })
+          commit('setProperty', { prop: 'initText', val: state.initialData.attributes.textualReference })
+          commit('setProperty', { prop: 'needsEditorRefresh', val: true })
         })
     },
 
     saveSegmentsFinal ({ dispatch, state, commit }) {
-      const dataToSend = JSON.parse(JSON.stringify(state.initialData))
+      const dataToSend = structuredClone(state.initialData)
 
-      dataToSend.attributes.segments = state.segmentsWithText
+      dataToSend.attributes.segments = structuredClone(state.segments)
       dataToSend.attributes.statementText = state.statementText
 
       return dpApi.post(Routing.generate('dplan_drafts_list_confirm', {
@@ -452,7 +458,7 @@ const SplitStatementStore = {
         })
         .catch((err) => {
           // Reset view to last saved data - set segments from last initial data
-          commit('setProperty', { prop: 'segments', val: state.initialSegments })
+          commit('setProperty', { prop: 'segments', val: structuredClone(state.initialSegments) })
 
           return Promise.reject(err)
         })
@@ -531,6 +537,7 @@ const SplitStatementStore = {
     initialSegments: (state) => state.initialSegments,
     initText: (state) => state.initText,
     isBusy: (state) => state.isBusy,
+    needsEditorRefresh: (state) => state.needsEditorRefresh,
     procedureId: (state) => state.procedureId,
     segments: (state) => state.segments,
     statement: (state) => state.statement,
