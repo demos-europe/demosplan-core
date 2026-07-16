@@ -103,6 +103,20 @@
           @page-change="applyQuery"
           @size-change="handleSizeChange"
         />
+        <div class="ml-auto flex items-center space-inline-xs">
+          <label
+            class="u-mb-0"
+            for="applySortSelection"
+          >
+            {{ Translator.trans('sorting') }}
+          </label>
+          <dp-select
+            id="applySortSelection"
+            :options="sortOptions"
+            :selected="selectedSort"
+            @select="applySort"
+          />
+        </div>
       </div>
       <div
         v-show="!isLoading"
@@ -378,7 +392,7 @@
               </dp-flyout>
             </template>
             <template v-slot:deadline="rowData">
-              {{ formatDate(rowData.attributes.deadline) }}
+              {{ rowData.attributes.deadline ? formatDate(rowData.attributes.deadline) : '' }}
             </template>
           </dp-data-table>
         </div>
@@ -433,9 +447,11 @@ import {
   DpLoading,
   DpPager,
   dpRpc,
+  DpSelect,
   DpStickyElement,
   formatDate,
   hasOwnProp,
+  sessionStorageMixin,
   tableSelectAllItems,
   VPopover,
 } from '@demos-europe/demosplan-ui'
@@ -470,6 +486,7 @@ export default {
     DpInlineNotification,
     DpLoading,
     DpPager,
+    DpSelect,
     DpStickyElement,
     FilterFlyout,
     ImageModal,
@@ -484,7 +501,7 @@ export default {
     cleanhtml: CleanHtml,
   },
 
-  mixins: [fullscreenModeMixin, paginationMixin, tableScrollbarMixin, tableSelectAllItems],
+  mixins: [fullscreenModeMixin, paginationMixin, tableScrollbarMixin, tableSelectAllItems, sessionStorageMixin],
 
   props: {
     currentUserId: {
@@ -579,6 +596,21 @@ export default {
       pagination: {},
       searchTerm: this.initialSearchTerm,
       searchFieldsSelected: [],
+      selectedSort: '-externId',
+      sortOptions: [
+        { value: '-externId', label: Translator.trans('sort.id.descending') },
+        { value: 'externId', label: Translator.trans('sort.id.ascending') },
+        { value: '-parentStatement.submitName', label: Translator.trans('sort.author.descending') },
+        { value: 'parentStatement.submitName', label: Translator.trans('sort.author.ascending') },
+        { value: '-parentStatement.internId', label: Translator.trans('sort.internId.descending') },
+        { value: 'parentStatement.internId', label: Translator.trans('sort.internId.ascending') },
+        { value: '-deadline', label: Translator.trans('sort.deadline.descending')},
+        { value: 'deadline', label: Translator.trans('sort.deadline.ascending')},
+        { value: '-tag', label: Translator.trans('sort.tag.descending')},
+        { value: 'tag', label: Translator.trans('sort.tag.ascending')},
+        { value: '-place.name', label: Translator.trans('sort.place.descending')},
+        { value: 'place.name', label: Translator.trans('sort.place.ascending')},
+      ],
     }
   },
 
@@ -812,6 +844,12 @@ export default {
       setUngroupedFilterOptions: 'setUngroupedOptions',
     }),
 
+    applySort (sortValue) {
+      this.selectedSort = sortValue
+      this.updateSessionStorage('selectedSort', sortValue)
+      this.applyQuery(1)
+    },
+
     applyQuery (page) {
       lscache.remove(this.lsKey.allSegments)
       lscache.remove(this.lsKey.toggledSegments)
@@ -864,7 +902,7 @@ export default {
           number: page,
           size: this.pagination.perPage,
         },
-        sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
+        sort: this.selectedSort,
         filter,
         fields: {
           File: [
