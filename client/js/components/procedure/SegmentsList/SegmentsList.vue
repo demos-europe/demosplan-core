@@ -14,6 +14,18 @@
       class="pt-2 pb-3"
       :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }"
     >
+      <div class="flex justify-end gap-2 py-2">
+        <dp-button
+          v-if="hasPermission('feature_segments_import_excel')"
+          :href="Routing.generate('DemosPlan_procedure_import', { procedureId: procedureId }) + '#ExcelImport'"
+          :text="Translator.trans('import.options.xls')"
+          class="mr-0 h-fit"
+          data-cy="segmentsList:importOptionsXLS"
+          icon="download"
+          icon-size="medium"
+          variant="subtle"
+        />
+      </div>
       <div class="flex items-start mb-2">
         <custom-search
           id="customSearch"
@@ -90,15 +102,6 @@
           :total-items="pagination.total"
           @page-change="applyQuery"
           @size-change="handleSizeChange"
-        />
-        <dp-button
-          v-if="hasPermission('feature_segments_import_excel')"
-          :href="Routing.generate('DemosPlan_procedure_import', { procedureId: procedureId }) + '#ExcelImport'"
-          :text="Translator.trans('import.options.xls')"
-          data-cy="segmentsList:importOptionsXLS"
-          icon="download"
-          icon-size="medium"
-          variant="subtle"
         />
       </div>
       <div
