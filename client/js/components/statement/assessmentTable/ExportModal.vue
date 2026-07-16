@@ -948,6 +948,7 @@ export default {
           .then(response => response.json())
           .then(data => {
             if (data.status === 'completed') {
+              dplan.notify.confirm(Translator.trans('export.done'))
               window.location.href = downloadUrl
             } else if (data.status === 'failed' || data.status === 'not_found') {
               dplan.notify.error(Translator.trans('error.export'))

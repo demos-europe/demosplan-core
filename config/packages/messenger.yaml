@@ -17,6 +17,7 @@ framework:
         routing:
             # Route your messages to the transports
             demosplan\DemosPlanCoreBundle\Message\ExportAssessmentTableMessage: async
+            demosplan\DemosPlanCoreBundle\Message\ExportProcedureMessage: async
 
 # when@test:
 #    framework:

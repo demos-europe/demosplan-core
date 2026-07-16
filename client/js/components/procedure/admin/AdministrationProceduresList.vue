@@ -284,12 +284,62 @@ export default {
     },
 
     exportProcedures (event) {
-      if (dpconfirm(Translator.trans('check.entries.marked.export'))) {
-        this.$refs.procedureForm.method = 'post'
-        this.$refs.procedureForm.action = Routing.generate('DemosPlan_procedures_export')
-      } else {
-        event.preventDefault()
+      // The export now runs as a background job to avoid gateway timeouts on large selections.
+      // Prevent the native form submit, start the job, then poll and trigger the download.
+      event.preventDefault()
+
+      if (!dpconfirm(Translator.trans('check.entries.marked.export'))) {
+        return
       }
+
+      const startUrl = Routing.generate('DemosPlan_procedures_export_async_start')
+      const formData = new FormData(this.$refs.procedureForm)
+
+      dplan.notify.notify('info', Translator.trans('export.processing'))
+
+      fetch(startUrl, {
+        method: 'POST',
+        body: formData,
+        credentials: 'same-origin',
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data && data.jobId) {
+            this.pollProcedureExportStatus(data.jobId)
+          } else if (data && data.error === 'noselection') {
+            dplan.notify.error(Translator.trans('error.procedure.export.noselection'))
+          } else {
+            dplan.notify.error(Translator.trans('error.export'))
+          }
+        })
+        .catch(() => dplan.notify.error(Translator.trans('error.export')))
+    },
+
+    /**
+     * Poll the background procedure export job until it is finished, then trigger the file download.
+     * @param jobId {String}
+     */
+    pollProcedureExportStatus (jobId) {
+      const statusUrl = Routing.generate('DemosPlan_procedures_export_status', { jobId })
+      const downloadUrl = Routing.generate('DemosPlan_procedures_export_download', { jobId })
+
+      const poll = () => {
+        fetch(statusUrl, { credentials: 'same-origin' })
+          .then(response => response.json())
+          .then(data => {
+            if (data.status === 'completed') {
+              dplan.notify.confirm(Translator.trans('export.done'))
+              window.location.href = downloadUrl
+            } else if (data.status === 'failed' || data.status === 'not_found') {
+              dplan.notify.error(Translator.trans('error.export'))
+            } else {
+              setTimeout(poll, 3000)
+            }
+          })
+          .catch(() => dplan.notify.error(Translator.trans('error.export')))
+      }
+
+      setTimeout(poll, 3000)
     },
 
     fetchAdministrationProceduresList (sort = '-creationDate') {

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\MessageHandler;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\AssessmentTableExportJob;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -22,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Assess
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Message\ExportAssessmentTableMessage;
-use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -54,7 +54,7 @@ class ExportAssessmentTableMessageHandler
         private readonly FileResponseGeneratorStrategy $responseGenerator,
         private readonly FileService $fileService,
         private readonly LoggerInterface $logger,
-        private readonly Permissions $permissions,
+        private readonly PermissionsInterface $permissions,
         private readonly ProcedureService $procedureService,
         private readonly RequestStack $requestStack,
     ) {
