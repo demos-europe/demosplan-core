@@ -30,7 +30,7 @@
                 <label class="layout__item u-1-of-4" for="r_title">
                     {{ "title"|trans }}*
                 </label><!--
-             --><div class="layout__item u-3-of-4 u-pl-0">
+             --><div class="layout__item u-3-of-4 pl-0 mb-1">
                     {{ uiComponent('form.row', {
                         elements: [
                             {
@@ -69,7 +69,7 @@
                 <label class="layout__item u-1-of-4" for="r_boilerplateGroup">
                     {{ "group"|trans }}
                 </label><!--
-             --><div class="layout__item u-3-of-4 u-pl-0">
+             --><div class="layout__item u-3-of-4 pl-0">
                     {% set boilerplatesGroups = [{ id: '', title: '-'}] %}
                     {% set boilerplatesGroups = boilerplatesGroups|merge(boilerplateGroupsOfProcedure|map(group => { id: group.id, title: group.title })) %}
                     <dp-multiselect
@@ -92,7 +92,7 @@
          --><label class="layout__item u-1-of-4" for="r_text">
                     {{ "text"|trans }}*
                 </label><!--
-         --><div class="layout__item u-3-of-4 u-pl-0">
+         --><div class="layout__item u-3-of-4 pl-0">
                     <dp-editor
                         editor-id="boilerplateText"
                         hidden-input="r_text"
@@ -102,7 +102,44 @@
                     </dp-editor>
                 </div>
 
-                <div class="text-right u-mt-0_5 space-inline-s">
+                {% if not bluePrintIsTarget and hasPermission('feature_boilerplate_verified_marker') and (not isNew or hasPermission('feature_boilerplate_verified_edit')) %}
+                    <span class="layout__item u-1-of-4 mt-4 font-bold">
+                        {{ "status"|trans }}
+                    </span><!--
+                 --><div class="layout__item u-3-of-4 pl-0 mt-4">
+                        {% if hasPermission('feature_boilerplate_verified_edit') %}
+                            <div class="flex">
+                                <dp-radio
+                                    id="r_verified_true"
+                                    class="mr-6"
+                                    data-cy="boilerplateVerified"
+                                    :checked="Boolean({{ verified|default(false) ? 1 : 0 }})"
+                                    :label="{
+                                        bold: false,
+                                        text: Translator.trans('verified')
+                                    }"
+                                    name="r_verified"
+                                    value="1">
+                                </dp-radio>
+                                <dp-radio
+                                    id="r_verified_false"
+                                    data-cy="boilerplateNotVerified"
+                                    :checked="Boolean({{ verified|default(false) ? 0 : 1 }})"
+                                    :label="{
+                                        bold: false,
+                                        text: Translator.trans('not.verified')
+                                    }"
+                                    name="r_verified"
+                                    value="0">
+                                </dp-radio>
+                            </div>
+                        {% else %}
+                            {{ (verified|default(false) ? 'verified' : 'not.verified')|trans }}
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <div class="text-right mt-2 space-inline-s">
                     <button
                         class="btn btn--primary"
                         data-cy="saveBoilerplate"

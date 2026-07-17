@@ -808,6 +808,18 @@ feature_boilerplate_usage_list:
     label: 'List segments a boilerplate was inserted into'
     loginRequired: true
     parent: area_admin_boilerplates
+feature_boilerplate_verified_edit:
+    description: 'Allow changing the verified state of a boilerplate in the boilerplate edit form.'
+    expose: true
+    label: 'Edit the verified state of boilerplates'
+    loginRequired: true
+    parent: feature_boilerplate_verified_marker
+feature_boilerplate_verified_marker:
+    description: 'Show a badge on boilerplates that were copied from a blueprint procedure and have not been edited since.'
+    expose: true
+    label: 'Mark boilerplates originating from a blueprint as verified'
+    loginRequired: true
+    parent: area_admin_boilerplates
 feature_change_own_email:
     description: 'Enable user to change the email address in the system.'
     label: 'User can change their email address'

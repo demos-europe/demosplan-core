@@ -24,16 +24,46 @@
         :group-label="groupLabel"
         :group-select="groupSelect"
         :group-values="groupValues"
-        label="title"
         :options="boilerPlates"
+        :sub-slots="['option', 'singleLabel', 'tag']"
+        label="title"
         track-by="id"
         @input="addToTextArea"
       >
         <template v-slot:option="{ props }">
-          {{ props.option.title }}
           <span v-if="props.option.$isLabel">
             {{ props.option.$groupLabel }}
           </span>
+          <div
+            v-else
+            class="flex items-center gap-1"
+          >
+            <span
+              v-tooltip="props.option.title"
+              class="o-hellip min-w-0 grow"
+            >
+              {{ props.option.title }}
+            </span>
+            <dp-badge
+              v-if="showVerifiedBadge(props.option)"
+              class="shrink-0"
+              size="small"
+              :text="Translator.trans('verified')"
+            />
+          </div>
+        </template>
+        <template v-slot:singleLabel="{ props }">
+          <div class="flex items-center gap-1">
+            <span class="o-hellip min-w-0 grow">
+              {{ props.option.title }}
+            </span>
+            <dp-badge
+              v-if="showVerifiedBadge(props.option)"
+              class="shrink-0"
+              size="small"
+              :text="Translator.trans('verified')"
+            />
+          </div>
         </template>
       </dp-multiselect>
     </div>
@@ -54,11 +84,12 @@
 </template>
 
 <script>
-import { CleanHtml, DpLabel, DpMultiselect, Tooltip } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpBadge, DpLabel, DpMultiselect, Tooltip } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'DpBoilerPlate',
   components: {
+    DpBadge,
     DpLabel,
     DpMultiselect,
   },
@@ -135,6 +166,10 @@ export default {
     resetBoilerPlateMultiSelect () {
       this.selectedBoilerPlate = ''
       this.previewValue = ''
+    },
+
+    showVerifiedBadge (option) {
+      return option.verified === true && hasPermission('feature_boilerplate_verified_marker')
     },
   },
 }
