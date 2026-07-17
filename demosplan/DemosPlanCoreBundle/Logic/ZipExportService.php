@@ -32,6 +32,13 @@ use ZipStream\ZipStream;
 class ZipExportService
 {
     /**
+     * Keeps generated ZIP entry paths well under Windows' ~260 character
+     * MAX_PATH, leaving headroom for whatever destination folder the user
+     * extracts the archive into.
+     */
+    private const MAX_ZIP_ENTRY_PATH_LENGTH = 200;
+
+    /**
      * @var array<int,string>
      */
     private $filesAdded = [];
@@ -260,11 +267,57 @@ class ZipExportService
         // "proc//file.pdf", which is exactly the kind of malformed entry name
         // Windows rejects on extraction. Compared explicitly against '' so a
         // legitimate segment named "0" is not dropped by array_filter.
-        $segments = array_filter(
+        $segments = array_values(array_filter(
             $segments,
             static fn (string $segment): bool => '' !== $segment
-        );
+        ));
+
+        $segments = $this->truncateLastSegmentToFitPathLength($segments);
 
         return implode('/', $segments);
+    }
+
+    /**
+     * Truncates only the last path segment (the entry's file name) so the
+     * joined entry path stays within MAX_ZIP_ENTRY_PATH_LENGTH.
+     *
+     * Directory/file names built from user content -- a procedure title or an
+     * uploaded attachment's original filename -- are effectively unbounded in
+     * length and can otherwise produce entry paths that Windows Explorer
+     * refuses to extract (MAX_PATH ~260, shared with the destination folder
+     * path), even though the archive itself is perfectly valid. The extension
+     * is preserved so the file type stays recognizable.
+     *
+     * @param array<int,string> $segments
+     *
+     * @return array<int,string>
+     */
+    private function truncateLastSegmentToFitPathLength(array $segments): array
+    {
+        if ([] === $segments) {
+            return $segments;
+        }
+
+        $lastIndex = count($segments) - 1;
+        $precedingLength = array_sum(array_map('strlen', array_slice($segments, 0, $lastIndex)))
+            + $lastIndex; // one '/' separator per preceding segment
+
+        $availableLength = max(1, self::MAX_ZIP_ENTRY_PATH_LENGTH - $precedingLength);
+        $segments[$lastIndex] = $this->truncateFileName($segments[$lastIndex], $availableLength);
+
+        return $segments;
+    }
+
+    private function truncateFileName(string $fileName, int $maxLength): string
+    {
+        if (strlen($fileName) <= $maxLength) {
+            return $fileName;
+        }
+
+        $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+        $extensionSuffix = '' === $extension ? '' : '.'.$extension;
+        $baseNameLength = max(1, $maxLength - strlen($extensionSuffix));
+
+        return substr($fileName, 0, $baseNameLength).$extensionSuffix;
     }
 }

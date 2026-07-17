@@ -101,4 +101,58 @@ class ZipExportServiceTest extends FunctionalTestCase
             $this->sut->sanitizeZipPath('proc/0/file.pdf')
         );
     }
+
+    public function testLeavesFileNameAtExactMaxLengthUntouched(): void
+    {
+        $fileName = str_repeat('d', 196).'.pdf';
+        self::assertSame(200, strlen($fileName));
+
+        self::assertSame(
+            $fileName,
+            $this->sut->sanitizeZipPath($fileName)
+        );
+    }
+
+    public function testTruncatesOverlongFileNamePreservingExtension(): void
+    {
+        $fileName = str_repeat('a', 250).'.pdf';
+
+        $result = $this->sut->sanitizeZipPath($fileName);
+
+        self::assertSame(str_repeat('a', 196).'.pdf', $result);
+        self::assertSame(200, strlen($result));
+    }
+
+    public function testTruncatesOverlongFileNameWithoutExtension(): void
+    {
+        $fileName = str_repeat('c', 250);
+
+        $result = $this->sut->sanitizeZipPath($fileName);
+
+        self::assertSame(str_repeat('c', 200), $result);
+    }
+
+    public function testTruncationAccountsForPrecedingDirectorySegments(): void
+    {
+        $fileName = str_repeat('b', 300).'.txt';
+
+        $result = $this->sut->sanitizeZipPath('procedure1/'.$fileName);
+
+        self::assertSame('procedure1/'.str_repeat('b', 185).'.txt', $result);
+        self::assertSame(200, strlen($result));
+    }
+
+    public function testTruncationPreservesUniquenessPrefix(): void
+    {
+        // The extern-id/hash that keeps entries unique is always prefixed to
+        // the file name in this codebase (e.g. "STN-42_..."), so truncating
+        // the tail instead of the head must not clip it.
+        $fileName = 'STN-42_'.str_repeat('x', 300).'.pdf';
+
+        $result = $this->sut->sanitizeZipPath($fileName);
+
+        self::assertSame('STN-42_'.str_repeat('x', 189).'.pdf', $result);
+        self::assertStringStartsWith('STN-42_', $result);
+        self::assertStringEndsWith('.pdf', $result);
+    }
 }
