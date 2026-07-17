@@ -26,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -2412,6 +2413,70 @@ class DemosPlanProcedureController extends BaseController
         $boilerplateUsageRepository->addUsage($boilerplate, $segment);
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * Records the usage of a boilerplate in the recommendations of multiple
+     * segments at once (bulk edit). Idempotent per boilerplate/segment pair.
+     */
+    #[DplanPermissions('feature_boilerplate_usage_list')]
+    #[Route(path: '/verfahren/{procedureId}/textbaustein/{boilerplateId}/verwendungen', name: 'dplan_boilerplate_usage_create_bulk', options: ['expose' => true], methods: ['POST'])]
+    public function createBoilerplateUsages(
+        BoilerplateUsageRepository $boilerplateUsageRepository,
+        Request $request,
+        SegmentRepository $segmentRepository,
+        string $procedureId,
+        string $boilerplateId,
+    ): JsonResponse {
+        $boilerplate = $this->procedureService->getBoilerplateById($boilerplateId);
+        if (!$boilerplate instanceof Boilerplate || $boilerplate->getProcedureId() !== $procedureId) {
+            return new JsonResponse(null, Response::HTTP_NOT_FOUND);
+        }
+
+        $segments = $this->resolveSegmentsForProcedure($request, $segmentRepository, $procedureId);
+        if ([] === $segments) {
+            return new JsonResponse(null, Response::HTTP_BAD_REQUEST);
+        }
+
+        $boilerplateUsageRepository->addUsages($boilerplate, $segments);
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+    }
+
+    /**
+     * Resolves the segments referenced by the request's `segmentIds` payload,
+     * keeping only those that exist and belong to the given procedure.
+     *
+     * @return Segment[]
+     */
+    private function resolveSegmentsForProcedure(Request $request, SegmentRepository $segmentRepository, string $procedureId): array
+    {
+        try {
+            $segmentIds = Json::decodeToArray($request->getContent())['segmentIds'] ?? [];
+        } catch (Exception) {
+            return [];
+        }
+
+        if (!is_array($segmentIds)) {
+            return [];
+        }
+
+        $segments = [];
+        foreach ($segmentIds as $segmentId) {
+            if (!is_string($segmentId) || '' === $segmentId) {
+                continue;
+            }
+            try {
+                $segment = $segmentRepository->get($segmentId);
+            } catch (Exception) {
+                continue;
+            }
+            if ($segment instanceof Segment && $segment->getProcedure()->getId() === $procedureId) {
+                $segments[] = $segment;
+            }
+        }
+
+        return $segments;
     }
 
     private function processBoilerplateActions(ProcedureHandler $procedureHandler, ParameterBag $requestPost, string $procedureId): void

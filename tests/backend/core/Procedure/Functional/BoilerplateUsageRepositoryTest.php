@@ -62,6 +62,54 @@ class BoilerplateUsageRepositoryTest extends FunctionalTestCase
         static::assertSame(1, $this->countEntries(BoilerplateUsage::class, ['boilerplate' => $boilerplate]));
     }
 
+    public function testAddUsagesPersistsUsageForEachSegment(): void
+    {
+        // arrange
+        $segmentA = SegmentFactory::createOne()->_real();
+        $segmentB = SegmentFactory::createOne([
+            'parentStatementOfSegment' => $segmentA->getParentStatementOfSegment(),
+            'procedure'                => $segmentA->getProcedure(),
+        ])->_real();
+        $boilerplate = $this->createBoilerplate($segmentA);
+
+        // act
+        $usages = $this->sut->addUsages($boilerplate, [$segmentA, $segmentB]);
+
+        // assert
+        static::assertCount(2, $usages);
+        static::assertSame(2, $this->countEntries(BoilerplateUsage::class, ['boilerplate' => $boilerplate]));
+    }
+
+    public function testAddUsagesIsIdempotentPerPair(): void
+    {
+        // arrange
+        $segment = SegmentFactory::createOne()->_real();
+        $boilerplate = $this->createBoilerplate($segment);
+        $existingUsage = $this->sut->addUsage($boilerplate, $segment);
+
+        // act
+        $usages = $this->sut->addUsages($boilerplate, [$segment]);
+
+        // assert
+        static::assertCount(1, $usages);
+        static::assertSame($existingUsage->getId(), $usages[0]->getId());
+        static::assertSame(1, $this->countEntries(BoilerplateUsage::class, ['boilerplate' => $boilerplate]));
+    }
+
+    public function testAddUsagesDeduplicatesRepeatedSegmentsInInput(): void
+    {
+        // arrange
+        $segment = SegmentFactory::createOne()->_real();
+        $boilerplate = $this->createBoilerplate($segment);
+
+        // act
+        $usages = $this->sut->addUsages($boilerplate, [$segment, $segment]);
+
+        // assert
+        static::assertCount(1, $usages);
+        static::assertSame(1, $this->countEntries(BoilerplateUsage::class, ['boilerplate' => $boilerplate]));
+    }
+
     public function testGetUsagesForBoilerplateReturnsUsagesOrderedByExternId(): void
     {
         // arrange

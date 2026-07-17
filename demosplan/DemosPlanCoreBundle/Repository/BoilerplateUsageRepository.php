@@ -25,16 +25,42 @@ class BoilerplateUsageRepository extends CoreRepository
      */
     public function addUsage(Boilerplate $boilerplate, Segment $segment): BoilerplateUsage
     {
-        $existingUsage = $this->findOneBy(['boilerplate' => $boilerplate, 'segment' => $segment]);
-        if ($existingUsage instanceof BoilerplateUsage) {
-            return $existingUsage;
-        }
+        return $this->addUsages($boilerplate, [$segment])[0];
+    }
 
-        $usage = new BoilerplateUsage($boilerplate, $segment);
-        $this->getEntityManager()->persist($usage);
+    /**
+     * Records that the given boilerplate was inserted into the recommendations
+     * of the given segments. Idempotent per boilerplate/segment pair and per
+     * call: duplicate segments in the input yield a single usage entry.
+     *
+     * @param Segment[] $segments
+     *
+     * @return BoilerplateUsage[]
+     */
+    public function addUsages(Boilerplate $boilerplate, array $segments): array
+    {
+        $usages = [];
+        $processedSegmentIds = [];
+        foreach ($segments as $segment) {
+            $segmentId = $segment->getId();
+            if (isset($processedSegmentIds[$segmentId])) {
+                continue;
+            }
+            $processedSegmentIds[$segmentId] = true;
+
+            $existingUsage = $this->findOneBy(['boilerplate' => $boilerplate, 'segment' => $segment]);
+            if ($existingUsage instanceof BoilerplateUsage) {
+                $usages[] = $existingUsage;
+                continue;
+            }
+
+            $usage = new BoilerplateUsage($boilerplate, $segment);
+            $this->getEntityManager()->persist($usage);
+            $usages[] = $usage;
+        }
         $this->getEntityManager()->flush();
 
-        return $usage;
+        return $usages;
     }
 
     /**

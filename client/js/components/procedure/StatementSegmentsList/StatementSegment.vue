@@ -1144,12 +1144,16 @@ export default {
       handleInsertText(text)
 
       if (boilerplateId && hasPermission('feature_boilerplate_usage_list')) {
-        dpApi.post(
+        return dpApi.post(
           Routing.generate('dplan_boilerplate_usage_create', { procedureId: this.procedureId, boilerplateId }),
           {},
           { segmentId: this.segment.id },
-        )
+        ).catch(() => {
+          // Recording the usage is non-critical: the text was inserted regardless.
+        })
       }
+
+      return Promise.resolve()
     },
 
     openBoilerPlate () {
