@@ -364,8 +364,8 @@ class ExcelValidationService
      *
      * @param array<string, array<SegmentImportDTO>> $segmentsByStatementId
      * @param array<string, bool>                    $statementIdsSeen
-     * @param array<string, string>                  $existingInternIds internIds already used in the procedure
-     * @param array<string, int>                     $internIdsSeen     Eingangsnummern already seen in this file
+     * @param array<string, string>                  $existingInternIds     internIds already used in the procedure
+     * @param array<string, int>                     $internIdsSeen         Eingangsnummern already seen in this file
      */
     private function validateSingleStatement(
         array $values,
