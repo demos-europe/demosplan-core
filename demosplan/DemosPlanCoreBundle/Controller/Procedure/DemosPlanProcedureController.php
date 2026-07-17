@@ -2363,14 +2363,16 @@ class DemosPlanProcedureController extends BaseController
             return $this->redirectBack($request);
         }
 
-        $templateVars = $this->prepareBoilerplateTemplateVars($procedure, $procedureId);
+        $templateVars = $this->prepareBoilerplateTemplateVars($procedureId);
+        $bluePrintIsTarget = $this->procedureService->getProcedure($procedureId)?->getMaster() ?? false;
 
         return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_list_boilerplate.html.twig',
             [
-                'templateVars' => $templateVars,
-                'title'        => 'procedure.boilerplates',
-                'procedure'    => $procedure,
+                'templateVars'      => $templateVars,
+                'title'             => 'procedure.boilerplates',
+                'procedure'         => $procedure,
+                'bluePrintIsTarget' => $bluePrintIsTarget,
             ]
         );
     }
@@ -2437,10 +2439,10 @@ class DemosPlanProcedureController extends BaseController
         }
     }
 
-    private function prepareBoilerplateTemplateVars(string $procedure, string $procedureId): array
+    private function prepareBoilerplateTemplateVars(string $procedureId): array
     {
         return [
-            'list'              => $this->procedureService->getBoilerplateList($procedure),
+            'list'              => $this->procedureService->getBoilerplateList($procedureId),
             'boilerplateGroups' => $this->procedureService->getBoilerplateGroups($procedureId),
         ];
     }
@@ -2492,12 +2494,15 @@ class DemosPlanProcedureController extends BaseController
     {
         $boilerplateValueObject = new BoilerplateVO();
         $updatedBoilerplate = null;
+        $verified = false;
         $procedureService = $this->procedureService;
+        $isBluePrintTarget = $procedureService->getProcedure($procedure)?->getMaster() ?? false;
 
         if ('new' !== $boilerplateId) {
             $boilerplate = $procedureService->getBoilerplateById($boilerplateId);
             if (null !== $boilerplate) {
                 $boilerplateValueObject = new BoilerplateVO($boilerplate);
+                $verified = $boilerplate->isVerified();
             } else {
                 $this->logger->warning('no Boilerplate found for ID '.$boilerplateId);
             }
@@ -2514,8 +2519,9 @@ class DemosPlanProcedureController extends BaseController
             BoilerplateType::class,
             $boilerplateValueObject,
             [
-                'csrf_protection'    => true,
-                'allow_extra_fields' => true, // action field (input, not the one from form)
+                'csrf_protection'     => true,
+                'allow_extra_fields'  => true, // action field (input, not the one from form)
+                'allow_verified_edit' => $this->permissions->hasPermission('feature_boilerplate_verified_edit'),
             ]
         );
         $form->handleRequest($request);
@@ -2583,6 +2589,8 @@ class DemosPlanProcedureController extends BaseController
                 'selectedGroup'                => '',
                 'title'                        => 'procedure.boilerplate.edit',
                 'procedure'                    => $procedure,
+                'verified'                     => $verified,
+                'bluePrintIsTarget'            => $isBluePrintTarget,
             ]
         );
     }
