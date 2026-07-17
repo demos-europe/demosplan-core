@@ -604,12 +604,13 @@ export default {
         { value: 'parentStatement.submitName', label: Translator.trans('sort.author.ascending') },
         { value: '-parentStatement.internId', label: Translator.trans('sort.internId.descending') },
         { value: 'parentStatement.internId', label: Translator.trans('sort.internId.ascending') },
-        { value: '-deadline', label: Translator.trans('sort.deadline.descending')},
-        { value: 'deadline', label: Translator.trans('sort.deadline.ascending')},
-        { value: '-tag', label: Translator.trans('sort.tag.descending')},
-        { value: 'tag', label: Translator.trans('sort.tag.ascending')},
-        { value: '-place.name', label: Translator.trans('sort.place.descending')},
-        { value: 'place.name', label: Translator.trans('sort.place.ascending')},
+        { value: '-deadline', label: Translator.trans('sort.deadline.descending') },
+        { value: 'deadline', label: Translator.trans('sort.deadline.ascending') },
+        // ToDo: add sorting key for tags when backend provides it.
+        { value: '-tags.name', label: Translator.trans('sort.tag.descending') },
+        { value: 'tags.name', label: Translator.trans('sort.tag.ascending') },
+        { value: '-place.name', label: Translator.trans('sort.place.descending') },
+        { value: 'place.name', label: Translator.trans('sort.place.ascending') },
       ],
     }
   },
@@ -846,7 +847,7 @@ export default {
 
     applySort (sortValue) {
       this.selectedSort = sortValue
-      this.updateSessionStorage('selectedSort', sortValue)
+      this.updateSessionStorage('segmentsListSelectedSort', sortValue)
       this.applyQuery(1)
     },
 
