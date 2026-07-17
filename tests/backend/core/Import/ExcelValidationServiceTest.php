@@ -138,6 +138,85 @@ class ExcelValidationServiceTest extends FunctionalTestCase
         self::assertStringContainsString('bereits vergeben', $errorMessages);
     }
 
+    public function testAttachModeTargetStatementExists(): void
+    {
+        // Arrange - the assessable statement targeted via "Zielstellungnahme" exists in the procedure
+        $this->createAssessableStatement('ATTACH-TARGET');
+
+        $fileInfo = $this->createSplFileInfo('attach_to_existing_statement.xlsx');
+
+        // Act
+        $result = $this->sut->validateExcelFile($fileInfo);
+
+        // Assert - attach mode with a resolvable target validates cleanly
+        self::assertFalse($result->hasErrors());
+    }
+
+    public function testAttachModeTargetStatementMissing(): void
+    {
+        // Arrange - the procedure has an assessable statement, but not the targeted externId
+        $this->createAssessableStatement('SOME-OTHER-STATEMENT');
+
+        $fileInfo = $this->createSplFileInfo('attach_to_existing_statement.xlsx');
+
+        // Act
+        $result = $this->sut->validateExcelFile($fileInfo);
+
+        // Assert
+        self::assertTrue($result->hasErrors());
+
+        $errorMessages = implode(' ', array_column($result->getErrors(), 'message'));
+        self::assertStringContainsString('ATTACH-TARGET', $errorMessages);
+        self::assertStringContainsString('existiert in diesem Verfahren nicht', $errorMessages);
+    }
+
+    public function testAttachModeStillReportsDuplicateEingangsnummer(): void
+    {
+        // Arrange - the target exists, but the attach row also reuses an already taken
+        // Eingangsnummer. The duplicate must still be reported (the DS-586 check always applies).
+        $procedure = ProcedureFactory::createOne();
+        $original = StatementFactory::createOne(['procedure' => $procedure]);
+        StatementFactory::createOne([
+            'procedure' => $procedure,
+            'externId'  => 'ATTACH-TARGET',
+            'original'  => $original,
+        ]);
+        StatementFactory::createOne([
+            'procedure' => $procedure,
+            'internId'  => 'TAKEN-INTERN',
+        ]);
+        self::getContainer()->get(CurrentProcedureService::class)->setProcedure($procedure->_real());
+
+        $fileInfo = $this->createSplFileInfo('attach_skips_eingangsnummer.xlsx');
+
+        // Act
+        $result = $this->sut->validateExcelFile($fileInfo);
+
+        // Assert - the Eingangsnummer collision is reported despite the attach id being valid
+        self::assertTrue($result->hasErrors());
+
+        $errorMessages = implode(' ', array_column($result->getErrors(), 'message'));
+        self::assertStringContainsString('TAKEN-INTERN', $errorMessages);
+        self::assertStringContainsString('bereits vergeben', $errorMessages);
+    }
+
+    /**
+     * Create an assessable (working copy) statement with the given externId in a fresh
+     * procedure and set that procedure as the current one, mirroring what an import target
+     * looks like in production.
+     */
+    private function createAssessableStatement(string $externId): void
+    {
+        $procedure = ProcedureFactory::createOne();
+        $original = StatementFactory::createOne(['procedure' => $procedure]);
+        StatementFactory::createOne([
+            'procedure' => $procedure,
+            'externId'  => $externId,
+            'original'  => $original,
+        ]);
+        self::getContainer()->get(CurrentProcedureService::class)->setProcedure($procedure->_real());
+    }
+
     public function testStatementWithoutSegments(): void
     {
         // Arrange

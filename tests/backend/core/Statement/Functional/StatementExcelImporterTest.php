@@ -17,6 +17,10 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -48,6 +52,57 @@ class StatementExcelImporterTest extends FunctionalTestCase
         $currentProcedureService = self::getContainer()->get(CurrentProcedureService::class);
         $currentProcedureService->setProcedure($this->getProcedureReference(LoadProcedureData::TESTPROCEDURE));
         $this->logIn($this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY));
+    }
+
+    /**
+     * Attach mode: a Metadaten row with a filled "Zielstellungnahme" appends its segments
+     * to the existing statement carrying that externId instead of creating a new statement.
+     * The appended segment externId continues after the statement's existing segments.
+     */
+    public function testAttachSegmentsToExistingStatement(): void
+    {
+        // Arrange - assessable target statement 'ATTACH-TARGET' with two existing segments
+        $procedure = ProcedureFactory::createOne();
+        PlaceFactory::createOne(['procedure' => $procedure, 'sortIndex' => 0]);
+        $original = StatementFactory::createOne(['procedure' => $procedure]);
+        $target = StatementFactory::createOne([
+            'procedure' => $procedure,
+            'externId'  => 'ATTACH-TARGET',
+            'original'  => $original,
+        ]);
+        SegmentFactory::createOne([
+            'procedure'                 => $procedure,
+            'parentStatementOfSegment'  => $target,
+            'externId'                  => 'ATTACH-TARGET-1',
+        ]);
+        SegmentFactory::createOne([
+            'procedure'                 => $procedure,
+            'parentStatementOfSegment'  => $target,
+            'externId'                  => 'ATTACH-TARGET-2',
+        ]);
+
+        self::getContainer()->get(CurrentProcedureService::class)->setProcedure($procedure->_real());
+        $this->logIn($this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY));
+
+        $fileInfo = new SplFileInfo(
+            \dirname(__DIR__, 2).'/Import/res/excel_validation/attach_persist.xlsx',
+            '',
+            'attach_persist.xlsx'
+        );
+
+        // Act
+        $result = $this->sut->processSegments($fileInfo);
+
+        // Assert - no new statement created, one segment appended to the existing statement,
+        // externId continuing after the existing '-1' and '-2' segments
+        static::assertFalse($result->hasErrors());
+        static::assertCount(1, $result->getUpdatedStatements());
+        static::assertCount(0, $result->getStatements());
+        static::assertCount(1, $result->getSegments());
+
+        $appendedSegment = $result->getSegments()[0];
+        static::assertSame('ATTACH-TARGET-3', $appendedSegment->getExternId());
+        static::assertSame('ATTACH-TARGET', $appendedSegment->getParentStatementOfSegment()->getExternId());
     }
 
     /**

@@ -524,6 +524,67 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
     }
 
     /**
+     * Fetch the externIds of the assessable (working copy) statements in the procedure.
+     *
+     * Only assessable statements qualify as an import target: originals
+     * (original IS NULL) and segments (which never carry an original) are excluded,
+     * so the result mirrors what {@link findAssessableStatementByExternId()} can resolve.
+     *
+     * @param non-empty-string $procedureId
+     *
+     * @return array<non-empty-string, non-empty-string>
+     */
+    public function getAssessableExternIdsInUse(string $procedureId): array
+    {
+        $query = $this->getEntityManager()
+            ->createQueryBuilder()
+            ->select('statement.externId')
+            ->from(Statement::class, 'statement')
+            ->where('statement.procedure = :procedureId')
+            ->andWhere('statement.original IS NOT NULL')
+            ->andWhere('statement.deleted = false')
+            ->setParameter('procedureId', $procedureId)
+            ->getQuery();
+        $externIds = array_column($query->getScalarResult(), 'externId');
+
+        return array_combine($externIds, $externIds);
+    }
+
+    /**
+     * Resolve the assessable (working copy) statement identified by its externId within a procedure.
+     *
+     * externId uniqueness per procedure is only maintained by convention
+     * (via {@link getNextValidExternalIdForProcedure()}), not by a database constraint,
+     * so an ambiguous match is treated as "not resolvable" (returns null) rather than
+     * silently picking one. Segments and originals are excluded by the original filter.
+     *
+     * @param non-empty-string $procedureId
+     */
+    public function findAssessableStatementByExternId(string $procedureId, string $externId): ?Statement
+    {
+        $statements = $this->getEntityManager()
+            ->createQueryBuilder()
+            ->select('statement')
+            ->from(Statement::class, 'statement')
+            ->where('statement.procedure = :procedureId')
+            ->andWhere('statement.externId = :externId')
+            ->andWhere('statement.original IS NOT NULL')
+            ->andWhere('statement.deleted = false')
+            ->setParameter('procedureId', $procedureId)
+            ->setParameter('externId', $externId)
+            ->getQuery()
+            ->getResult();
+
+        if (1 !== count($statements)) {
+            return null;
+        }
+
+        $statement = $statements[0];
+
+        return $statement instanceof Statement ? $statement : null;
+    }
+
+    /**
      * @param non-empty-string $procedureId
      *
      * @return array<non-empty-string, non-empty-string>

@@ -24,6 +24,15 @@ final class SegmentExcelImportResult
     private $statements = [];
 
     /**
+     * Existing statements that received appended segments (attach mode).
+     * Kept separate from newly created statements so they are flushed and indexed
+     * but not reported or eventful as "created".
+     *
+     * @var Statement[]
+     */
+    private $updatedStatements = [];
+
+    /**
      * @var Segment[]
      */
     private $segments = [];
@@ -67,6 +76,19 @@ final class SegmentExcelImportResult
         $this->statements[] = $statement;
 
         ++$this->statementCount;
+    }
+
+    /**
+     * @return Statement[]
+     */
+    public function getUpdatedStatements(): array
+    {
+        return $this->updatedStatements;
+    }
+
+    public function addUpdatedStatement(Statement $statement): void
+    {
+        $this->updatedStatements[] = $statement;
     }
 
     public function addSegment(Segment $segment): void

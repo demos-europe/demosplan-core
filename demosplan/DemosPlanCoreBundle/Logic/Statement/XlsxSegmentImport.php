@@ -235,6 +235,34 @@ class XlsxSegmentImport
     }
 
     /**
+     * Flush segments that were appended to already-existing statements (attach mode).
+     *
+     * The segments are already persisted by the importer; a single flush is enough to
+     * write them (and their cascade-persisted relations) to the database. This runs
+     * even when no new statements were created (pure attach import), which would
+     * otherwise leave the appended segments unflushed. No "created" events or report
+     * entries are produced, since the target statements already existed.
+     *
+     * @param Statement[] $updatedStatements
+     *
+     * @throws Exception
+     */
+    private function persistAppendedSegments(array $updatedStatements): void
+    {
+        if ([] === $updatedStatements) {
+            return;
+        }
+
+        $phaseStart = microtime(true);
+        $this->entityManager->flush();
+        $this->logger->info('Phase 4b: Appended segments persisted', [
+            'duration_sec'            => round(microtime(true) - $phaseStart, 2),
+            'updated_statement_count' => count($updatedStatements),
+            'memory_mb'               => round(memory_get_usage(true) / 1024 / 1024, 2),
+        ]);
+    }
+
+    /**
      * Process a batch of statements: flush, dispatch events, and call progress callback.
      *
      * @throws Exception
@@ -580,6 +608,8 @@ class XlsxSegmentImport
             'statements_count' => count($importResult->getStatements()),
             'memory_mb'        => round(memory_get_usage(true) / 1024 / 1024, 2),
         ]);
+
+        $this->persistAppendedSegments($importResult->getUpdatedStatements());
 
         $this->collectSegmentIdsForIndexing($importResult);
 

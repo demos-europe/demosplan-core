@@ -56,6 +56,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType;
 use demosplan\DemosPlanCoreBundle\Validator\StatementValidator;
 use demosplan\DemosPlanCoreBundle\ValueObject\Import\StatementProcessingContext;
@@ -93,6 +94,9 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     private const SUBMIT_TYPE_UNKNOWN_TRANSLATED_LC = 'unbekannt';
     private const SUBMIT_TYPE_COLUMN = 'Art der Einreichung';
     final public const STATEMENT_ID = 'Stellungnahme ID';
+    // When filled, the segments of this row are attached to the existing statement with
+    // this externId instead of creating a new statement ("attach mode").
+    final public const TARGET_STATEMENT_EXTERN_ID = 'Zielstellungnahme';
     private const PUBLIC_STATEMENT = 'publicStatement';
     private const STATEMENT_TEXT = 'Stellungnahmetext';
 
@@ -154,6 +158,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         private readonly PlaceService $placeService,
         private readonly SegmentValidator $segmentValidator,
         StatementService $statementService,
+        private readonly StatementRepository $statementRepository,
         private readonly StatementValidator $statementValidator,
         private readonly TagResourceType $tagResourceType,
         private readonly TagService $tagService,
@@ -1057,6 +1062,19 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
             return 0;
         }
 
+        // Attach mode: append the segments to an existing statement instead of creating one.
+        $targetExternId = trim((string) ($statement[self::TARGET_STATEMENT_EXTERN_ID] ?? ''));
+        if ('' !== $targetExternId) {
+            return $this->attachSegmentsToExistingStatement(
+                $targetExternId,
+                $correspondingSegments,
+                $context,
+                $miscTopic,
+                $statementLine,
+                $result
+            );
+        }
+
         $text = $this->htmlSanitizerService->escapeDisallowedTags(implode(' ', array_column($correspondingSegments, 'Einwand')));
         $statement[self::STATEMENT_TEXT] = $text;
 
@@ -1092,6 +1110,88 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
     }
 
     /**
+     * Append the imported segments to an existing statement identified by its externId.
+     *
+     * Used for "attach mode": instead of creating a new statement, the segments become
+     * additional segments of a statement that already exists in the procedure. The
+     * statement is recorded as an updated (not created) statement so it is flushed and
+     * indexed without producing a "statement created" report or event.
+     *
+     * Returns the number of segments successfully created (0 if the target cannot be
+     * resolved, which is already guarded against in the validation pass).
+     *
+     * @param array<int, array<string, mixed>> $correspondingSegments
+     */
+    private function attachSegmentsToExistingStatement(
+        string $targetExternId,
+        array $correspondingSegments,
+        StatementProcessingContext $context,
+        TagTopic $miscTopic,
+        int $statementLine,
+        SegmentExcelImportResult $result,
+    ): int {
+        $currentProcedure = $this->currentProcedureService->getProcedure();
+        if (!$currentProcedure instanceof Procedure) {
+            throw new MissingPostParameterException('Current procedure is missing.');
+        }
+
+        $targetStatement = $this->statementRepository->findAssessableStatementByExternId(
+            $currentProcedure->getId(),
+            $targetExternId
+        );
+
+        if (!$targetStatement instanceof Statement) {
+            $result->addError(
+                "Die Zielstellungnahme '{$targetExternId}' existiert in diesem Verfahren nicht.",
+                $statementLine,
+                $context->statementWorksheetTitle
+            );
+
+            return 0;
+        }
+
+        $result->addUpdatedStatement($targetStatement);
+
+        return $this->createAndValidateSegmentsForStatement(
+            $targetStatement,
+            $correspondingSegments,
+            $context->segmentWorksheetTitle,
+            $miscTopic,
+            $result,
+            $this->getNextSegmentCounter($targetStatement)
+        );
+    }
+
+    /**
+     * Determine the next segment counter for a statement so appended segment externIds
+     * (`<statementExternId>-<counter>`) continue after the statement's existing segments
+     * instead of colliding with them.
+     */
+    private function getNextSegmentCounter(Statement $statement): int
+    {
+        $prefix = $statement->getExternId().'-';
+        $highestCounter = 0;
+
+        foreach ($statement->getSegmentsOfStatement() as $existingSegment) {
+            if (!$existingSegment instanceof Segment) {
+                continue;
+            }
+
+            $externId = (string) $existingSegment->getExternId();
+            if (!str_starts_with($externId, $prefix)) {
+                continue;
+            }
+
+            $suffix = substr($externId, strlen($prefix));
+            if (ctype_digit($suffix)) {
+                $highestCounter = max($highestCounter, (int) $suffix);
+            }
+        }
+
+        return $highestCounter + 1;
+    }
+
+    /**
      * Create and validate all segments for a given statement.
      * Returns the number of segments successfully created.
      */
@@ -1101,8 +1201,9 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         string $segmentWorksheetTitle,
         TagTopic $miscTopic,
         SegmentExcelImportResult $result,
+        int $startCounter = 1,
     ): int {
-        $counter = 1;
+        $counter = $startCounter;
         $segmentsCreated = 0;
 
         foreach ($correspondingSegments as $segmentData) {

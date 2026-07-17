@@ -72,8 +72,11 @@ class ExcelValidationService
             // internIds (Eingangsnummer) already used by statements in the target procedure
             $existingInternIds = $this->getExistingProcedureInternIds();
 
+            // externIds of assessable statements that a row may target for segment attachment
+            $existingExternIds = $this->getExistingProcedureExternIds();
+
             // Parse and validate statements
-            $this->validateStatementsWorksheet($metaDataWorksheet, $segmentsByStatementId, $result, $existingInternIds);
+            $this->validateStatementsWorksheet($metaDataWorksheet, $segmentsByStatementId, $result, $existingInternIds, $existingExternIds);
 
             $this->logger->info('[ExcelValidation] Pass 1: Validation complete', [
                 'duration_sec' => round(microtime(true) - $startTime, 2),
@@ -265,6 +268,61 @@ class ExcelValidationService
     }
 
     /**
+     * Fetch the externIds of the assessable statements that segments may be attached to.
+     *
+     * Returns an empty list when no procedure context is available (e.g. isolated tests),
+     * so the target-existence check is simply skipped in that case.
+     *
+     * @return array<string, string>
+     */
+    private function getExistingProcedureExternIds(): array
+    {
+        $procedure = $this->currentProcedureService->getProcedure();
+        if (!$procedure instanceof Procedure) {
+            return [];
+        }
+
+        $procedureId = $procedure->getId();
+        if ('' === $procedureId) {
+            return [];
+        }
+
+        return $this->statementRepository->getAssessableExternIdsInUse($procedureId);
+    }
+
+    /**
+     * Check that a targeted statement (attach mode) actually exists in the procedure.
+     *
+     * When the "Zielstellungnahme" column holds an externId, the imported segments are
+     * appended to that existing statement instead of creating a new one. The target must
+     * therefore resolve to an assessable statement in the current procedure.
+     *
+     * The check is skipped when no procedure context is available (empty $existingExternIds),
+     * mirroring {@link checkStatementInternId()}.
+     *
+     * @param array<string, string> $existingExternIds externIds of assessable statements in the procedure
+     */
+    private function checkTargetStatement(
+        string $targetExternId,
+        int $lineNumber,
+        string $worksheetTitle,
+        ImportValidationResult $result,
+        array $existingExternIds,
+    ): void {
+        if ([] === $existingExternIds) {
+            return;
+        }
+
+        if (!isset($existingExternIds[$targetExternId])) {
+            $result->addError(
+                "Die Zielstellungnahme '{$targetExternId}' existiert in diesem Verfahren nicht.",
+                $lineNumber,
+                $worksheetTitle
+            );
+        }
+    }
+
+    /**
      * Check the statement Eingangsnummer (= statement internId) for uniqueness.
      *
      * The Eingangsnummer is stored as the statement internId, which carries a unique
@@ -316,12 +374,14 @@ class ExcelValidationService
      *
      * @param array<string, array<SegmentImportDTO>> $segmentsByStatementId
      * @param array<string, string>                  $existingInternIds     internIds already used in the procedure
+     * @param array<string, string>                  $existingExternIds     externIds of assessable statements in the procedure
      */
     private function validateStatementsWorksheet(
         Worksheet $worksheet,
         array $segmentsByStatementId,
         ImportValidationResult $result,
         array $existingInternIds = [],
+        array $existingExternIds = [],
     ): void {
         $worksheetTitle = $worksheet->getTitle() ?? 'Metadaten';
 
@@ -346,7 +406,8 @@ class ExcelValidationService
                 $result,
                 $statementIdsSeen,
                 $existingInternIds,
-                $internIdsSeen
+                $internIdsSeen,
+                $existingExternIds
             );
         }
 
@@ -366,6 +427,7 @@ class ExcelValidationService
      * @param array<string, bool>                    $statementIdsSeen
      * @param array<string, string>                  $existingInternIds     internIds already used in the procedure
      * @param array<string, int>                     $internIdsSeen         Eingangsnummern already seen in this file
+     * @param array<string, string>                  $existingExternIds     externIds of assessable statements in the procedure
      */
     private function validateSingleStatement(
         array $values,
@@ -377,12 +439,14 @@ class ExcelValidationService
         array &$statementIdsSeen,
         array $existingInternIds = [],
         array &$internIdsSeen = [],
+        array $existingExternIds = [],
     ): void {
         $data = array_combine($columnNames, $values);
         $statementId = (string) ($data['Stellungnahme ID'] ?? '');
 
-        // The Eingangsnummer becomes the statement's internId, which must be unique per
-        // procedure. Reject values that are already taken or repeated within the file.
+        // The Eingangsnummer becomes a statement internId, which must be unique per procedure.
+        // This check always applies - a duplicate Eingangsnummer is rejected regardless of
+        // attach mode, so the usual error is shown even when a "Zielstellungnahme" is set.
         $eingangsnummer = array_key_exists('Eingangsnummer', $data) ? (string) $data['Eingangsnummer'] : '';
         $this->checkStatementInternId(
             $eingangsnummer,
@@ -392,6 +456,15 @@ class ExcelValidationService
             $existingInternIds,
             $internIdsSeen
         );
+
+        // A filled "Zielstellungnahme" column switches this row to attach mode: the segments
+        // are appended to that existing statement instead of creating a new one. Attaching
+        // only happens when the target resolves to an existing statement in the procedure.
+        $targetExternId = trim((string) ($data[ExcelImporter::TARGET_STATEMENT_EXTERN_ID] ?? ''));
+        $isAttachMode = '' !== $targetExternId;
+        if ($isAttachMode) {
+            $this->checkTargetStatement($targetExternId, $lineNumber, $worksheetTitle, $result, $existingExternIds);
+        }
 
         // Check if statement has segments
         $segmentCount = isset($segmentsByStatementId[$statementId])
@@ -404,6 +477,15 @@ class ExcelValidationService
                 $lineNumber,
                 $worksheetTitle
             );
+
+            return;
+        }
+
+        // In attach mode the statement metadata columns (name, e-mail, ...) belong to the
+        // already-existing statement and are ignored, so their DTO validation is skipped.
+        // The statement ID must still be recorded so its segments are not flagged as orphaned.
+        if ($isAttachMode) {
+            $statementIdsSeen[$statementId] = true;
 
             return;
         }
