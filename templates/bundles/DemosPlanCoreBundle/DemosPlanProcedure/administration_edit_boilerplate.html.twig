@@ -103,20 +103,39 @@
                 </div>
 
                 {% if not bluePrintIsTarget and hasPermission('feature_boilerplate_verified_marker') and (not isNew or hasPermission('feature_boilerplate_verified_edit')) %}
-                    {% set canEditVerified = hasPermission('feature_boilerplate_verified_edit') %}
-                    <label class="layout__item u-1-of-4 mt-4" for="r_verified">
-                        {{ "verified"|trans }}
-                    </label><!--
+                    <span class="layout__item u-1-of-4 mt-4 font-bold">
+                        {{ "status"|trans }}
+                    </span><!--
                  --><div class="layout__item u-3-of-4 pl-0 mt-4">
-                        <input
-                            type="checkbox"
-                            id="r_verified"
-                            data-cy="boilerplateVerified"
-                            name="r_verified"
-                            value="1"
-                            {% if verified|default(false) %}checked{% endif %}
-                            {% if not canEditVerified %}disabled{% endif %}/>
-                        <label for="r_verified" class="inline-block">{{ (canEditVerified ? 'boilerplate.verified.hint' : 'boilerplate.verified.state')|trans }}</label>
+                        {% if hasPermission('feature_boilerplate_verified_edit') %}
+                            <div class="flex">
+                                <dp-radio
+                                    id="r_verified_true"
+                                    class="mr-6"
+                                    data-cy="boilerplateVerified"
+                                    :checked="Boolean({{ verified|default(false) ? 1 : 0 }})"
+                                    :label="{
+                                        bold: false,
+                                        text: Translator.trans('verified')
+                                    }"
+                                    name="r_verified"
+                                    value="1">
+                                </dp-radio>
+                                <dp-radio
+                                    id="r_verified_false"
+                                    data-cy="boilerplateNotVerified"
+                                    :checked="Boolean({{ verified|default(false) ? 0 : 1 }})"
+                                    :label="{
+                                        bold: false,
+                                        text: Translator.trans('not.verified')
+                                    }"
+                                    name="r_verified"
+                                    value="0">
+                                </dp-radio>
+                            </div>
+                        {% else %}
+                            {{ (verified|default(false) ? 'verified' : 'not.verified')|trans }}
+                        {% endif %}
                     </div>
                 {% endif %}
 

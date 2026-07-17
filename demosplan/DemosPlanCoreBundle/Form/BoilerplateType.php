@@ -76,8 +76,10 @@ class BoilerplateType extends AbstractType implements DataMapperInterface
                 'r_verified',
                 CheckboxType::class,
                 [
-                    'required' => false,
-                    'label'    => 'verified',
+                    'required'     => false,
+                    'label'        => 'verified',
+                    // the edit form submits this as a radio group ("1"/"0"), so "0" must map to false
+                    'false_values' => [null, '0'],
                 ]
             );
         }
