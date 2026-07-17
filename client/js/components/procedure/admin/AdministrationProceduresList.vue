@@ -184,6 +184,7 @@ import {
   DpSelect,
   formatDate,
 } from '@demos-europe/demosplan-ui'
+import { pollExportJob } from '@DpJs/lib/shared/persistentExportPoll'
 
 export default {
   name: 'AdministrationProceduresList',
@@ -284,8 +285,10 @@ export default {
     },
 
     exportProcedures (event) {
-      // The export now runs as a background job to avoid gateway timeouts on large selections.
-      // Prevent the native form submit, start the job, then poll and trigger the download.
+      /*
+       * The export now runs as a background job to avoid gateway timeouts on large selections.
+       * Prevent the native form submit, start the job, then poll and trigger the download.
+       */
       event.preventDefault()
 
       if (!dpconfirm(Translator.trans('check.entries.marked.export'))) {
@@ -305,7 +308,7 @@ export default {
         .then(response => response.json())
         .then(data => {
           if (data && data.jobId) {
-            this.pollProcedureExportStatus(data.jobId)
+            this.startProcedureExportPolling(data.jobId)
           } else if (data && data.error === 'noselection') {
             dplan.notify.error(Translator.trans('error.procedure.export.noselection'))
           } else {
@@ -317,29 +320,17 @@ export default {
 
     /**
      * Poll the background procedure export job until it is finished, then trigger the file download.
+     * The job's URLs are persisted so a refresh/navigation resumes it (globally, on any page)
+     * instead of losing the running export. The procedure export is not procedure-scoped, so a
+     * single fixed storage key is used.
      * @param jobId {String}
      */
-    pollProcedureExportStatus (jobId) {
-      const statusUrl = Routing.generate('DemosPlan_procedures_export_status', { jobId })
-      const downloadUrl = Routing.generate('DemosPlan_procedures_export_download', { jobId })
-
-      const poll = () => {
-        fetch(statusUrl, { credentials: 'same-origin' })
-          .then(response => response.json())
-          .then(data => {
-            if (data.status === 'completed') {
-              dplan.notify.confirm(Translator.trans('export.done'))
-              window.location.href = downloadUrl
-            } else if (data.status === 'failed' || data.status === 'not_found') {
-              dplan.notify.error(Translator.trans('error.export'))
-            } else {
-              setTimeout(poll, 3000)
-            }
-          })
-          .catch(() => dplan.notify.error(Translator.trans('error.export')))
-      }
-
-      setTimeout(poll, 3000)
+    startProcedureExportPolling (jobId) {
+      pollExportJob({
+        key: 'procedure',
+        statusUrl: Routing.generate('DemosPlan_procedures_export_status', { jobId }),
+        downloadUrl: Routing.generate('DemosPlan_procedures_export_download', { jobId }),
+      })
     },
 
     fetchAdministrationProceduresList (sort = '-creationDate') {
