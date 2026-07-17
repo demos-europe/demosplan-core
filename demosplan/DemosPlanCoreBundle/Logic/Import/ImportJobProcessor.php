@@ -275,11 +275,15 @@ class ImportJobProcessor
 
                 // Create concise error summary for display (TEXT column has 65KB limit)
                 $showErrors = 40;
-                $errorSummary = sprintf(
-                    "Validierungsfehler in der Import-Datei: %d Fehler gefunden.\n\nErste %d Fehler:\n\n",
-                    $errorCount,
-                    min($showErrors, $errorCount)
-                );
+                // A single error is self-explanatory - show only the message. The count
+                // header is only useful when several errors need to be summarized.
+                $errorSummary = $errorCount > 1
+                    ? sprintf(
+                        "Validierungsfehler in der Import-Datei: %d Fehler gefunden.\n\nErste %d Fehler:\n\n",
+                        $errorCount,
+                        min($showErrors, $errorCount)
+                    )
+                    : '';
 
                 // Add first errors to summary
                 $firstErrors = array_slice($errors, 0, $showErrors);
