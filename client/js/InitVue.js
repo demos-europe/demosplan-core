@@ -32,6 +32,7 @@ import loadSentry from './loadSentry'
 import NotificationStoreAdapter from '@DpJs/store/core/NotificationStoreAdapter'
 import NotifyContainer from '@DpJs/components/shared/NotifyContainer'
 import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
+import { resumePendingExports } from '@DpJs/lib/shared/persistentExportPoll'
 import SessionTimer from '@DpJs/components/shared/SessionTimer'
 
 function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}) {
@@ -45,6 +46,13 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
     const app = createApp({
       mounted () {
         window.dplan.notify = new NotificationStoreAdapter(this.$store)
+
+        /*
+         * Resume any background export started earlier so it downloads wherever the user now is,
+         * even after a refresh or navigating to an unrelated page. Runs after notify is ready.
+         */
+        resumePendingExports()
+
         loadLibs()
         initGlobalEventListener()
         ToggleSideMenu()

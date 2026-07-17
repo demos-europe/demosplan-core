@@ -184,6 +184,7 @@ import {
   DpSelect,
   formatDate,
 } from '@demos-europe/demosplan-ui'
+import { pollExportJob } from '@DpJs/lib/shared/persistentExportPoll'
 
 export default {
   name: 'AdministrationProceduresList',
@@ -284,12 +285,52 @@ export default {
     },
 
     exportProcedures (event) {
-      if (dpconfirm(Translator.trans('check.entries.marked.export'))) {
-        this.$refs.procedureForm.method = 'post'
-        this.$refs.procedureForm.action = Routing.generate('DemosPlan_procedures_export')
-      } else {
-        event.preventDefault()
+      /*
+       * The export now runs as a background job to avoid gateway timeouts on large selections.
+       * Prevent the native form submit, start the job, then poll and trigger the download.
+       */
+      event.preventDefault()
+
+      if (!dpconfirm(Translator.trans('check.entries.marked.export'))) {
+        return
       }
+
+      const startUrl = Routing.generate('DemosPlan_procedures_export_async_start')
+      const formData = new FormData(this.$refs.procedureForm)
+
+      dplan.notify.notify('info', Translator.trans('export.processing'))
+
+      fetch(startUrl, {
+        method: 'POST',
+        body: formData,
+        credentials: 'same-origin',
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data && data.jobId) {
+            this.startProcedureExportPolling(data.jobId)
+          } else if (data && data.error === 'noselection') {
+            dplan.notify.error(Translator.trans('error.procedure.export.noselection'))
+          } else {
+            dplan.notify.error(Translator.trans('error.export'))
+          }
+        })
+        .catch(() => dplan.notify.error(Translator.trans('error.export')))
+    },
+
+    /**
+     * Poll the background procedure export job until it is finished, then trigger the file download.
+     * The job's URLs are persisted so a refresh/navigation resumes it (globally, on any page)
+     * instead of losing the running export. The procedure export is not procedure-scoped, so a
+     * single fixed storage key is used.
+     * @param jobId {String}
+     */
+    startProcedureExportPolling (jobId) {
+      pollExportJob({
+        key: 'procedure',
+        statusUrl: Routing.generate('DemosPlan_procedures_export_status', { jobId }),
+        downloadUrl: Routing.generate('DemosPlan_procedures_export_download', { jobId }),
+      })
     },
 
     fetchAdministrationProceduresList (sort = '-creationDate') {

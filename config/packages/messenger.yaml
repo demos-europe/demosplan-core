@@ -1,0 +1,26 @@
+framework:
+    messenger:
+        failure_transport: failed
+
+        transports:
+            # Long-running exports (e.g. the Abwägungstabelle export) run here so they are
+            # not bound by the web-request/gateway timeout. Uses the Doctrine connection as
+            # the queue store (auto-creates the messenger_messages table).
+            async:
+                dsn: 'doctrine://dplan'
+                retry_strategy:
+                    max_retries: 1
+                    delay: 5000
+            failed: 'doctrine://dplan?queue_name=failed'
+            sync: 'sync://'
+
+        routing:
+            # Route your messages to the transports
+            demosplan\DemosPlanCoreBundle\Message\ExportAssessmentTableMessage: async
+            demosplan\DemosPlanCoreBundle\Message\ExportProcedureMessage: async
+
+# when@test:
+#    framework:
+#        messenger:
+#            transports:
+#                async: 'in-memory://'

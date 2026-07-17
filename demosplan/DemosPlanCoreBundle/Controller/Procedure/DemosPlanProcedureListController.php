@@ -14,11 +14,13 @@ use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureExportJob;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -27,23 +29,30 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureListService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
 use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Message\ExportProcedureMessage;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Elastica\Exception\NotFoundException;
 use Exception;
+use League\Flysystem\FilesystemOperator;
 use proj4php\Point;
 use proj4php\Proj;
 use proj4php\Proj4php;
 use ReflectionException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -274,6 +283,126 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
         }
 
         return $this->redirectToRoute('DemosPlan_procedure_administration_get');
+    }
+
+    /**
+     * Start an asynchronous procedure export (Gesamtabzug). Instead of building the ZIP inside the
+     * web request (which risks a gateway timeout on large selections), this enqueues a background
+     * job and returns its id so the browser can poll for completion and then download the result.
+     *
+     * @DplanPermissions("area_admin_procedures")
+     *
+     * @throws Exception
+     */
+    #[Route(
+        path: '/verfahren/export/async',
+        name: 'DemosPlan_procedures_export_async_start',
+        options: ['expose' => true],
+        methods: ['POST']
+    )]
+    public function startAsyncExportAction(
+        CurrentUserService $currentUserService,
+        EntityManagerInterface $entityManager,
+        MessageBusInterface $messageBus,
+        Request $request,
+    ): Response {
+        $selectedProcedures = $this->getSelectedItems($request);
+        if (0 === count($selectedProcedures)) {
+            return new JsonResponse(['error' => 'noselection'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $userId = $currentUserService->getUser()->getId();
+
+        $job = new ProcedureExportJob();
+        $job->setUserId($userId);
+        $entityManager->persist($job);
+        $entityManager->flush();
+
+        $messageBus->dispatch(new ExportProcedureMessage(
+            $job->getId(),
+            array_values($selectedProcedures),
+            $userId
+        ));
+
+        return new JsonResponse(['jobId' => $job->getId()]);
+    }
+
+    /**
+     * Poll the status of an asynchronous procedure export.
+     *
+     * @DplanPermissions("area_admin_procedures")
+     */
+    #[Route(
+        path: '/verfahren/export/status/{jobId}',
+        name: 'DemosPlan_procedures_export_status',
+        options: ['expose' => true],
+        methods: ['GET']
+    )]
+    public function exportStatusAction(
+        CurrentUserService $currentUserService,
+        EntityManagerInterface $entityManager,
+        string $jobId,
+    ): Response {
+        $job = $entityManager->find(ProcedureExportJob::class, $jobId);
+        if (!$job instanceof ProcedureExportJob
+            || $job->getUserId() !== $currentUserService->getUser()->getId()) {
+            return new JsonResponse(['status' => 'not_found'], Response::HTTP_NOT_FOUND);
+        }
+
+        return new JsonResponse([
+            'status' => $job->getStatus(),
+            'error'  => $job->getErrorMessage(),
+        ]);
+    }
+
+    /**
+     * Download the result of a finished asynchronous procedure export.
+     *
+     * @DplanPermissions("area_admin_procedures")
+     */
+    #[Route(
+        path: '/verfahren/export/download/{jobId}',
+        name: 'DemosPlan_procedures_export_download',
+        options: ['expose' => true],
+        methods: ['GET']
+    )]
+    public function exportDownloadAction(
+        CurrentUserService $currentUserService,
+        EntityManagerInterface $entityManager,
+        FileService $fileService,
+        FilesystemOperator $defaultStorage,
+        FilesystemOperator $localStorage,
+        string $jobId,
+    ): Response {
+        $job = $entityManager->find(ProcedureExportJob::class, $jobId);
+        if (!$job instanceof ProcedureExportJob
+            || $job->getUserId() !== $currentUserService->getUser()->getId()
+            || ProcedureExportJob::STATUS_COMPLETED !== $job->getStatus()
+            || null === $job->getFileHash()) {
+            throw new NotFoundHttpException();
+        }
+
+        $fileInfo = $fileService->getFileInfo($job->getFileHash());
+        if ($defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
+            $storage = $defaultStorage;
+        } elseif ($localStorage->fileExists($fileInfo->getAbsolutePath())) {
+            $storage = $localStorage;
+        } else {
+            throw new NotFoundHttpException();
+        }
+
+        $stream = $storage->readStream($fileInfo->getAbsolutePath());
+        $response = new StreamedResponse(static function () use ($stream): void {
+            fpassthru($stream);
+            fclose($stream);
+        });
+        $response->headers->set('Content-Type', 'application/octet-stream');
+        $response->headers->set(
+            'Content-Disposition',
+            'attachment; filename="'.($job->getFileName() ?? $fileInfo->getFileName()).'"'
+        );
+
+        return $response;
     }
 
     /**

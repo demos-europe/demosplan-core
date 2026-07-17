@@ -610,6 +610,7 @@ import {
   DpRadio,
   hasOwnProp,
 } from '@demos-europe/demosplan-ui'
+import { pollExportJob } from '@DpJs/lib/shared/persistentExportPoll'
 
 export default {
   name: 'ExportModal',
@@ -775,6 +776,19 @@ export default {
       return null
     },
 
+    //  Return the asynchronous (background) export start route for the current view
+    asyncRoute () {
+      if (this.view === 'assessment_table') {
+        return 'DemosPlan_assessment_table_export_async_start'
+      }
+
+      if (this.view === 'original_statements') {
+        return 'DemosPlan_assessment_table_original_export_async_start'
+      }
+
+      return null
+    },
+
     submitLabel () {
       let transKey
 
@@ -882,13 +896,14 @@ export default {
     },
 
     submit () {
-      const oldAction = document.bpform.action
+      if (null === this.asyncRoute) {
+        return
+      }
 
-      document.bpform.action = Routing.generate(this.route, {
-        procedureId: this.procedureId,
-      })
-
-      // Set data params
+      /*
+       * Populate the shared form fields exactly as the synchronous export did; these carry the
+       * export choice that the server reads from the POST body.
+       */
       document.bpform.r_export_format.value = this.currentTab
       document.bpform.r_export_choice.value = JSON.stringify(this.format)
       document.bpform.searchFields.value = this.getSearchFields()
@@ -898,11 +913,53 @@ export default {
         document.bpform.currentTableSort.value = this.currentTableSort
       }
 
-      //  Submit form
-      document.bpform.submit()
+      const startUrl = Routing.generate(this.asyncRoute, {
+        procedureId: this.procedureId,
+      })
+      const formData = new FormData(document.bpform)
 
-      //  Restore original form action
-      document.bpform.action = oldAction
+      /*
+       * The export runs in the background to avoid gateway timeouts on large procedures. Start the
+       * job, then poll for completion and trigger the download automatically once it is ready.
+       */
+      dplan.notify.notify('info', Translator.trans('export.processing'))
+
+      fetch(startUrl, {
+        method: 'POST',
+        body: formData,
+        credentials: 'same-origin',
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data && data.jobId) {
+            this.startExportPolling(data.jobId)
+          } else {
+            dplan.notify.error(Translator.trans('error.export'))
+          }
+        })
+        .catch(() => dplan.notify.error(Translator.trans('error.export')))
+    },
+
+    /**
+     * Storage key under which the in-flight export job for this procedure is remembered, so polling
+     * can be resumed after a page refresh or navigation.
+     */
+    exportStorageKey () {
+      return `assessment.${this.procedureId}`
+    },
+
+    /**
+     * Poll the background export job until it is finished, then trigger the file download. The
+     * job's URLs are persisted so a refresh/navigation resumes it (globally, on any page) instead
+     * of losing the running export.
+     * @param jobId {String}
+     */
+    startExportPolling (jobId) {
+      pollExportJob({
+        key: this.exportStorageKey(),
+        statusUrl: Routing.generate('DemosPlan_assessment_table_export_status', { procedureId: this.procedureId, jobId }),
+        downloadUrl: Routing.generate('DemosPlan_assessment_table_export_download', { procedureId: this.procedureId, jobId }),
+      })
     },
 
     toggleModal (tab) {

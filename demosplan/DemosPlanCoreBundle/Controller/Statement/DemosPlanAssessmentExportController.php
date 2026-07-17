@@ -14,6 +14,7 @@ use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Annotation\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\AssessmentTableExportJob;
 use demosplan\DemosPlanCoreBundle\Exception\AssessmentTableZipExportException;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidPostParameterTypeException;
@@ -21,13 +22,22 @@ use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableExporterStrategy;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Message\ExportAssessmentTableMessage;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
+use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use League\Flysystem\FilesystemOperator;
 use Psr\Log\InvalidArgumentException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 use function array_key_exists;
@@ -87,6 +97,150 @@ class DemosPlanAssessmentExportController extends BaseController
 
             return $this->redirectBack($request);
         }
+
+        return $response;
+    }
+
+    /**
+     * Start an asynchronous export. Instead of building the file inside the web request (which
+     * times out on large procedures), this enqueues a background job and returns its id so the
+     * browser can poll for completion and then download the result.
+     *
+     * @DplanPermissions("area_admin_assessmenttable")
+     *
+     * @throws Exception
+     */
+    #[Route(
+        path: '/verfahren/abwaegung/export/{procedureId}/async',
+        name: 'DemosPlan_assessment_table_export_async_start',
+        options: ['expose' => true],
+        methods: ['POST']
+    )]
+    #[Route(
+        path: '/verfahren/abwaegung/original/export/{procedureId}/async',
+        name: 'DemosPlan_assessment_table_original_export_async_start',
+        options: ['expose' => true],
+        methods: ['POST'],
+        defaults: ['original' => true]
+    )]
+    public function startAsyncExportAction(
+        Request $request,
+        CurrentUserService $currentUserService,
+        EntityManagerInterface $entityManager,
+        MessageBusInterface $messageBus,
+        PermissionsInterface $permissions,
+        string $procedureId,
+        bool $original = false,
+    ): Response {
+        $exportFormat = $request->request->get('r_export_format');
+        if ('docx' === $exportFormat && $permissions->hasPermission('feature_export_docx_elements_view_mode_only')) {
+            $request->request->set('r_view_mode', AssessmentTableViewMode::ELEMENTS_VIEW);
+        }
+        $exportParameters = $this->getExportParameters($request, $procedureId, $original);
+
+        // Capture the session filter hash list; it is the only request-scoped value the exporter
+        // reads that cannot be rebuilt from the database inside the worker.
+        $session = $request->getSession();
+        $hashList = $session->has('hashList') ? $session->get('hashList') : [];
+
+        $userId = $currentUserService->getUser()->getId();
+
+        $job = new AssessmentTableExportJob();
+        $job->setProcedureId($procedureId);
+        $job->setUserId($userId);
+        $entityManager->persist($job);
+        $entityManager->flush();
+
+        $messageBus->dispatch(new ExportAssessmentTableMessage(
+            $job->getId(),
+            $exportFormat,
+            $exportParameters,
+            $userId,
+            $procedureId,
+            $hashList
+        ));
+
+        return new JsonResponse(['jobId' => $job->getId()]);
+    }
+
+    /**
+     * Poll the status of an asynchronous export.
+     *
+     * @DplanPermissions("area_admin_assessmenttable")
+     */
+    #[Route(
+        path: '/verfahren/abwaegung/export/{procedureId}/status/{jobId}',
+        name: 'DemosPlan_assessment_table_export_status',
+        options: ['expose' => true],
+        methods: ['GET']
+    )]
+    public function exportStatusAction(
+        CurrentUserService $currentUserService,
+        EntityManagerInterface $entityManager,
+        string $procedureId,
+        string $jobId,
+    ): Response {
+        $job = $entityManager->find(AssessmentTableExportJob::class, $jobId);
+        if (!$job instanceof AssessmentTableExportJob
+            || $job->getUserId() !== $currentUserService->getUser()->getId()
+            || $job->getProcedureId() !== $procedureId) {
+            return new JsonResponse(['status' => 'not_found'], Response::HTTP_NOT_FOUND);
+        }
+
+        return new JsonResponse([
+            'status' => $job->getStatus(),
+            'error'  => $job->getErrorMessage(),
+        ]);
+    }
+
+    /**
+     * Download the result of a finished asynchronous export.
+     *
+     * @DplanPermissions("area_admin_assessmenttable")
+     */
+    #[Route(
+        path: '/verfahren/abwaegung/export/{procedureId}/download/{jobId}',
+        name: 'DemosPlan_assessment_table_export_download',
+        options: ['expose' => true],
+        methods: ['GET']
+    )]
+    public function exportDownloadAction(
+        CurrentUserService $currentUserService,
+        EntityManagerInterface $entityManager,
+        FileService $fileService,
+        FilesystemOperator $defaultStorage,
+        FilesystemOperator $localStorage,
+        string $procedureId,
+        string $jobId,
+    ): Response {
+        $job = $entityManager->find(AssessmentTableExportJob::class, $jobId);
+        if (!$job instanceof AssessmentTableExportJob
+            || $job->getUserId() !== $currentUserService->getUser()->getId()
+            || $job->getProcedureId() !== $procedureId
+            || AssessmentTableExportJob::STATUS_COMPLETED !== $job->getStatus()
+            || null === $job->getFileHash()) {
+            throw new NotFoundHttpException();
+        }
+
+        $fileInfo = $fileService->getFileInfo($job->getFileHash());
+        if ($defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
+            $storage = $defaultStorage;
+        } elseif ($localStorage->fileExists($fileInfo->getAbsolutePath())) {
+            $storage = $localStorage;
+        } else {
+            throw new NotFoundHttpException();
+        }
+
+        $stream = $storage->readStream($fileInfo->getAbsolutePath());
+        $response = new StreamedResponse(static function () use ($stream): void {
+            fpassthru($stream);
+            fclose($stream);
+        });
+        $response->headers->set('Content-Type', 'application/octet-stream');
+        $response->headers->set(
+            'Content-Disposition',
+            'attachment; filename="'.($job->getFileName() ?? $fileInfo->getFileName()).'"'
+        );
 
         return $response;
     }
