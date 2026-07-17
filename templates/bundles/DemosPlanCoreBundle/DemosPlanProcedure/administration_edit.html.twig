@@ -794,6 +794,17 @@
                                     </div>
                                 {% endif %}
 
+                                {% if hasPermission('field_procedure_allow_uninvited_institutions') %}
+                                    <dp-checkbox
+                                        id="allowUninvitedInstitutions"
+                                        :checked="{{ proceduresettings.allowUninvitedInstitutions ? 'true' : 'false' }}"
+                                        :label="{ text: Translator.trans('procedure.institutions.allow_uninvited') }"
+                                        class="mb-4"
+                                        data-cy="procedure:allowUninvitedInstitutions"
+                                        name="r_allowUninvitedInstitutions">
+                                    </dp-checkbox>
+                                {% endif %}
+
                                 <div class="u-mb">
                                     <fieldset class="pb-0">
                                         <legend class="weight--bold block is-label">
