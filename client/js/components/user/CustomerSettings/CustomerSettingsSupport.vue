@@ -22,7 +22,10 @@
           class="break-words"
           v-text="contact.attributes.eMailAddress"
         />
-        <template v-html="contact.attributes.text" />
+        <div
+          v-cleanhtml="contact.attributes.text || ''"
+          class="c-styled-html"
+        />
         <dp-badge
           class="color--white rounded-full whitespace--nowrap bg-color--grey u-mt-0_125"
           size="smaller"
@@ -102,7 +105,7 @@
 </template>
 
 <script>
-import { DpBadge, DpCheckbox, DpEditableList, DpEditor, DpInput, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpBadge, DpCheckbox, DpEditableList, DpEditor, DpInput, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 
 const emptyCustomer = {
@@ -122,6 +125,10 @@ export default {
     DpEditableList,
     DpEditor,
     DpInput,
+  },
+
+  directives: {
+    cleanhtml: CleanHtml,
   },
 
   mixins: [dpValidateMixin],
