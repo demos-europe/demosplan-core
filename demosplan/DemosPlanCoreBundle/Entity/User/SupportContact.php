@@ -20,7 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Repository\SupportContactRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
-use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[SupportContactConstraint]
@@ -29,8 +29,6 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: SupportContactRepository::class)]
 class SupportContact extends CoreEntity implements UuidEntityInterface, SupportContactInterface
 {
-    use TimestampableEntity;
-
     /**
      * These constants represent all possible values the property
      * {@link SupportContact::$supportType} can hold. This type is used to distinguish between support contacts used in
@@ -48,6 +46,14 @@ class SupportContact extends CoreEntity implements UuidEntityInterface, SupportC
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     private ?string $id = null;
+
+    #[Gedmo\Timestampable(on: 'create')]
+    #[ORM\Column(name: 'created_at', type: 'datetime')]
+    protected ?\DateTime $createdAt = null;
+
+    #[Gedmo\Timestampable(on: 'update')]
+    #[ORM\Column(name: 'updated_at', type: 'datetime')]
+    protected ?\DateTime $updatedAt = null;
 
     public function __construct(
         #[Assert\Choice(choices: [
@@ -75,6 +81,30 @@ class SupportContact extends CoreEntity implements UuidEntityInterface, SupportC
     public function getId(): ?string
     {
         return $this->id;
+    }
+
+    public function getCreatedAt(): ?\DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTime $createdAt): self
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTime $updatedAt): self
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
     }
 
     public function getSupportType(): string
