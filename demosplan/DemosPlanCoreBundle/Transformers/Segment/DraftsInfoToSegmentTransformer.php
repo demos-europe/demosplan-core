@@ -36,6 +36,7 @@ use Doctrine\ORM\NoResultException;
 use Exception;
 use JsonSchema\Exception\InvalidSchemaException;
 use Psr\Log\LoggerInterface;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -118,10 +119,26 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         $counter = 1;
         $internId = $this->segmentHandler->getNextSegmentOrderNumber($procedure->getId());
         foreach ($parsedMarks as $segmentMark) {
-            $metadata = $metadataById[$segmentMark['segmentId']] ?? [];
+            $segmentId = $segmentMark['segmentId'];
+
+            // Only materialize segments the planner actually confirmed. Confirmed
+            // segments are the ones listed (and schema-validated) in the segments
+            // metadata; a mark whose id is missing there is a leftover the pipeline
+            // could not classify (e.g. images or un-OCR-able tables) and must not
+            // become a Segment. The id is also persisted verbatim as the entity
+            // primary key, so reject any non-UUID id as a safeguard.
+            if (!isset($metadataById[$segmentId]) || !Uuid::isValid($segmentId)) {
+                $this->logger->warning(
+                    'Skipping unconfirmed or invalid segment mark during finalization',
+                    ['statementId' => $statement->getId(), 'segmentId' => $segmentId]
+                );
+                continue;
+            }
+
+            $metadata = $metadataById[$segmentId];
 
             $segment = new Segment();
-            $segment->setId($segmentMark['segmentId']);
+            $segment->setId($segmentId);
             $segment->setParentStatementOfSegment($statement);
             $segment->setText($segmentMark['text']);
             $segment->setExternId($statement->getExternId().'-'.$counter);
@@ -148,10 +165,10 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         // Restore the original ID generator (done with manually-assigned segment IDs)
         $segmentMetadata->setIdGenerator($originalIdGenerator);
 
-        // Set tags after persist (junction table entries will be flushed by controller)
-        foreach ($segments as $index => $segment) {
-            $segmentMark = $parsedMarks[$index];
-            $metadata = $metadataById[$segmentMark['segmentId']] ?? [];
+        // Set tags after persist (junction table entries will be flushed by controller).
+        // Keyed by the segment's own id so it stays correct when marks were skipped above.
+        foreach ($segments as $segment) {
+            $metadata = $metadataById[$segment->getId()] ?? [];
             $tags = $this->getTags($metadata['tags'] ?? [], $procedure);
             $segment->setTags($tags);
         }
