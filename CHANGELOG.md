@@ -27,6 +27,9 @@
 ## v4.49.0 (2026-07-15)
 ## v4.48.0 (2026-07-07)
 
+- new SegmentTagsChangedEvent implements new interface added to contract layer in:
+- This core version will depend on the contract layer being > v...
+
 ### Added
 - Make procedure phase definitions deletable (condition: not currently in use and not configuration-phase)
 - Add statement export via planner-uploaded DOCX layout template: planners upload a `.docx` via TUS,
