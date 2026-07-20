@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\User;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SupportContactInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\SupportContactConstraint;
@@ -49,11 +50,11 @@ class SupportContact extends CoreEntity implements UuidEntityInterface, SupportC
 
     #[Gedmo\Timestampable(on: 'create')]
     #[ORM\Column(name: 'created_at', type: 'datetime')]
-    protected ?\DateTime $createdAt = null;
+    protected ?DateTime $createdAt = null;
 
     #[Gedmo\Timestampable(on: 'update')]
     #[ORM\Column(name: 'updated_at', type: 'datetime')]
-    protected ?\DateTime $updatedAt = null;
+    protected ?DateTime $updatedAt = null;
 
     public function __construct(
         #[Assert\Choice(choices: [
@@ -83,24 +84,24 @@ class SupportContact extends CoreEntity implements UuidEntityInterface, SupportC
         return $this->id;
     }
 
-    public function getCreatedAt(): ?\DateTime
+    public function getCreatedAt(): ?DateTime
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): self
+    public function setCreatedAt(DateTime $createdAt): self
     {
         $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    public function getUpdatedAt(): ?\DateTime
+    public function getUpdatedAt(): ?DateTime
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTime $updatedAt): self
+    public function setUpdatedAt(DateTime $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
 
