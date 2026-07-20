@@ -12,7 +12,7 @@
 </documentation>
 
 <template>
-  <fieldset>
+  <fieldset class="pb-2">
     <legend
       class="sr-only"
       v-text="title"
