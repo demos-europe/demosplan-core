@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter;
 use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -53,15 +52,35 @@ class StatementArrayConverter
     public function convertIntoExportableArray(StatementInterface $segmentOrStatement): array
     {
         $exportData = $this->entityHelper->toArray($segmentOrStatement);
-        $exportData['meta'] = $this->entityHelper->toArray($exportData['meta']);
+        $exportData = $this->extractMetaData($segmentOrStatement, $exportData);
         $exportData['submitDateString'] = $segmentOrStatement->getSubmitDateString();
         $exportData['countyNames'] = $segmentOrStatement->getCountyNames();
-        $exportData['meta']['authoredDate'] = $segmentOrStatement->getAuthoredDateString();
         $exportData['phase'] = $segmentOrStatement->getPhaseDefinition()->getName();
-
         $exportData['fileNames'] = $this->getFileNamesWithOriginal($segmentOrStatement);
 
-        // Some data is stored on parentStatement instead on Segment and have to get from there
+        if ($segmentOrStatement instanceof Segment) {
+            // Some data is stored on parentStatement instead on Segment and have to get from there
+            $exportData = $this->extractParentStatementData($segmentOrStatement, $exportData);
+            $exportData['status'] = $segmentOrStatement->getPlace()->getName(); // Segments using place instead of status
+        }
+
+        $exportData = $this->extractTagsData($segmentOrStatement, $exportData);
+        $exportData['isClusterStatement'] = $segmentOrStatement->isClusterStatement();
+        $exportData['recommendationVersionCount'] = count($segmentOrStatement->getRecommendationVersions());
+
+        return $exportData;
+    }
+
+    /**
+     * @return array<string, mixed>
+     *
+     * @throws ReflectionException
+     */
+    private function extractMetaData(StatementInterface $segmentOrStatement, array $exportData): array
+    {
+        $exportData['meta'] = $this->entityHelper->toArray($exportData['meta']);
+        $exportData['meta']['authoredDate'] = $segmentOrStatement->getAuthoredDateString();
+
         if ($segmentOrStatement instanceof Segment) {
             $parentStatement = $segmentOrStatement->getParentStatementOfSegment();
             $exportData['meta']['orgaCity'] = $parentStatement->getOrgaCity();
@@ -71,16 +90,34 @@ class StatementArrayConverter
             $exportData['meta']['authorName'] = $parentStatement->getAuthorName();
             $exportData['meta']['submitName'] = $parentStatement->getSubmitterName();
             $exportData['meta']['houseNumber'] = $parentStatement->getMeta()->getHouseNumber();
-            $exportData['memo'] = $parentStatement->getMemo();
-            $exportData['internId'] = $parentStatement->getInternId();
-            $exportData['oName'] = $parentStatement->getOName();
             $exportData['meta']['authoredDate'] = $parentStatement->getAuthoredDateString();
-            $exportData['dName'] = $parentStatement->getDName();
-            $exportData['status'] = $segmentOrStatement->getPlace()->getName(); // Segments using place instead of status
-            $exportData['fileNames'] = $this->getFileNamesWithOriginal($parentStatement);
-            $exportData['submitDateString'] = $parentStatement->getSubmitDateString();
         }
 
+        return $exportData;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function extractParentStatementData(Segment $segment, array $exportData): array
+    {
+        $parentStatement = $segment->getParentStatementOfSegment();
+
+        $exportData['memo'] = $parentStatement->getMemo();
+        $exportData['internId'] = $parentStatement->getInternId();
+        $exportData['oName'] = $parentStatement->getOName();
+        $exportData['dName'] = $parentStatement->getDName();
+        $exportData['fileNames'] = $this->getFileNamesWithOriginal($parentStatement);
+        $exportData['submitDateString'] = $parentStatement->getSubmitDateString();
+
+        return $exportData;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function extractTagsData(StatementInterface $segmentOrStatement, array $exportData): array
+    {
         $exportData['tagNames'] = $segmentOrStatement->getTagNames();
         /** @var ArrayCollection $tagsCollection */
         $tagsCollection = $exportData['tags'];
@@ -91,9 +128,6 @@ class StatementArrayConverter
             $exportData['tags'][$key]['topicTitle'] = $tagTopic->getTitle();
         }
         $exportData['topicNames'] = $segmentOrStatement->getTopicNames();
-        $exportData['isClusterStatement'] = $segmentOrStatement->isClusterStatement();
-
-        $exportData['recommendationVersionCount'] = count($segmentOrStatement->getRecommendationVersions());
 
         return $exportData;
     }

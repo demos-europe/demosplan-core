@@ -19,21 +19,36 @@ class HtmlHelper
 {
     public const LINK_CLASS_FOR_DARSTELLUNG_STELL = 'pdf_importer_image';
 
+    /**
+     * Memoizes {@see getHtmlValidText()} results keyed by a hash of the raw input. Sanitizing is
+     * deterministic and, during a segment export, the same string (empty recommendations, boilerplate
+     * phrases) is passed thousands of times. HTMLPurifier is the dominant export cost, so collapsing
+     * duplicate inputs to a single purify call cuts it to one call per distinct string.
+     *
+     * @var array<string, string>
+     */
+    private array $validTextCache = [];
+
     public function __construct(private readonly HTMLSanitizer $htmlSanitizer)
     {
     }
 
     public function getHtmlValidText(string $text): string
     {
-        /** @var string $text $text */
-        $text = str_replace('<br>', '<br/>', $text);
+        $cacheKey = md5($text);
+        if (isset($this->validTextCache[$cacheKey])) {
+            return $this->validTextCache[$cacheKey];
+        }
+
+        /** @var string $validText */
+        $validText = str_replace('<br>', '<br/>', $text);
 
         // strip all a tags without href
         $pattern = '/<a(?![^>]*\bhref=)([^>]*)>(.*?)<\/a>/i';
-        $text = preg_replace($pattern, '$2', $text);
+        $validText = preg_replace($pattern, '$2', $validText);
 
         // avoid problems in phpword parser
-        return $this->htmlSanitizer->purify($text);
+        return $this->validTextCache[$cacheKey] = $this->htmlSanitizer->purify($validText);
     }
 
     /**
