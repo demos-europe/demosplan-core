@@ -26,6 +26,7 @@ use EDT\PathBuilding\End;
  * @property-read End $ident
  * @property-read End $title
  * @property-read End $text
+ * @property-read End $verified
  * @property-read End $categoriesTitle @deprecated use a relationship instead
  * @property-read End $procedureId @deprecated use a relationship instead
  * @property-read ProcedureResourceType $procedure
@@ -88,6 +89,8 @@ final class BoilerplateResourceType extends DplanResourceType
                 ->readable(true, fn (Boilerplate $boilerplate): string => $this->htmlSanitizer->purify($boilerplate->getText())),
             $this->createAttribute($this->categoriesTitle)
                 ->readable(true, fn (Boilerplate $boilerplate): array => $boilerplate->getCategoryTitles()),
+            $this->createAttribute($this->verified)
+                ->readable(true, fn (Boilerplate $boilerplate): bool => $boilerplate->isVerified()),
             // defaultInclude used because of recursion
             $this->createToOneRelationship($this->group)->readable(true, null, true),
         ];
