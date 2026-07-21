@@ -91,7 +91,7 @@
         v-if="items.length > 0"
         class="flex justify-between items-center mt-4"
       >
-        <dp-pager
+<!--        <dp-pager
           v-if="pagination.currentPage"
           :key="`pager1_${pagination.currentPage}_${pagination.count}`"
           :class="{ 'invisible': isLoading }"
@@ -102,7 +102,7 @@
           :total-items="pagination.total"
           @page-change="applyQuery"
           @size-change="handleSizeChange"
-        />
+        />-->
         <div class="ml-auto flex items-center space-inline-xs">
           <label
             class="u-mb-0"
@@ -445,7 +445,7 @@ import {
   DpFlyout,
   DpInlineNotification,
   DpLoading,
-  DpPager,
+/*  DpPager,*/
   dpRpc,
   DpSelect,
   DpStickyElement,
@@ -485,7 +485,7 @@ export default {
     DpFlyout,
     DpInlineNotification,
     DpLoading,
-    DpPager,
+/*    DpPager,*/
     DpSelect,
     DpStickyElement,
     FilterFlyout,
@@ -596,21 +596,9 @@ export default {
       pagination: {},
       searchTerm: this.initialSearchTerm,
       searchFieldsSelected: [],
-      selectedSort: '-externId',
       sortOptions: [
-        { value: '-externId', label: Translator.trans('sort.id.descending') },
-        { value: 'externId', label: Translator.trans('sort.id.ascending') },
-        { value: '-parentStatement.submitName', label: Translator.trans('sort.author.descending') },
-        { value: 'parentStatement.submitName', label: Translator.trans('sort.author.ascending') },
-        { value: '-parentStatement.internId', label: Translator.trans('sort.internId.descending') },
-        { value: 'parentStatement.internId', label: Translator.trans('sort.internId.ascending') },
         { value: '-deadline', label: Translator.trans('sort.deadline.descending') },
         { value: 'deadline', label: Translator.trans('sort.deadline.ascending') },
-        // ToDo: add sorting key for tags when backend provides it.
-        { value: '-tags.name', label: Translator.trans('sort.tag.descending') },
-        { value: 'tags.name', label: Translator.trans('sort.tag.ascending') },
-        { value: '-place.name', label: Translator.trans('sort.place.descending') },
-        { value: 'place.name', label: Translator.trans('sort.place.ascending') },
       ],
     }
   },
@@ -903,7 +891,6 @@ export default {
           number: page,
           size: this.pagination.perPage,
         },
-        sort: this.selectedSort,
         filter,
         fields: {
           File: [
