@@ -14,6 +14,7 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagTopicFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
@@ -81,6 +82,23 @@ class TagServiceTest extends FunctionalTestCase
 
         static::assertNotEmpty($result->getTags());
         static::assertContains($testTag->_real(), $result->getTags());
+    }
+
+    public function testSetDefaultAssignee(): void
+    {
+        $testTag = TagFactory::createOne();
+        $testUser = UserFactory::createOne();
+
+        $this->sut->setDefaultAssignee($testTag->_real(), $testUser->_real());
+
+        $result = $this->sut->getTag($testTag->getId());
+        static::assertNotNull($result->getDefaultAssignee());
+        static::assertSame($testUser->getId(), $result->getDefaultAssignee()->getId());
+
+        $this->sut->setDefaultAssignee($testTag->_real(), null);
+
+        $result = $this->sut->getTag($testTag->getId());
+        static::assertNull($result->getDefaultAssignee());
     }
 
     public function testDuplicatedTopic(): void
