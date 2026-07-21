@@ -21,3 +21,69 @@
         }
     }
 }
+
+// Customer settings support contact list (admin view).
+// DpEditableList appends each entry's edit/delete buttons as a <span> right after
+// the entry content. The slot wraps its content in .c-support-contacts__entry, so
+// that <span> is the wrapper's next sibling. Anchor the actions to the top-right of
+// the entry so they sit beside the contact name instead of stacking below content.
+.c-support-contacts {
+    li {
+        position: relative;
+    }
+
+    // DpEditableList appends the edit/delete buttons as a <span> after each entry.
+    // Anchor it to the top-right and give it the height of the title's first line
+    // (h3: 24px * 1.4) so the icon buttons center on the contact name rather than
+    // top-aligning with it (the 30px buttons are shorter than the 33.6px line box).
+    // `top` matches the entry's top padding: pt-3 / py-3 resolve to 18px
+    &__entry + span {
+        position: absolute;
+        top: 18px;
+        right: 0;
+
+        display: flex;
+        align-items: center;
+        height: calc(24px * 1.4);
+    }
+
+    // Keep the gap below the last line of content equal to the gap above the name
+    // (both are the entry's py-3 padding) no matter what the entry ends with. The
+    // phone/email lines and the rich-text block are <p>/block elements whose
+    // trailing margin-bottom would otherwise stack onto that bottom padding and
+    // vary the gap by content. Zero the trailing margin of the entry's last child
+    // -- the phone/email <p> when there is no rich text, since that block is only
+    // rendered when it has content (see CustomerSettingsSupport.vue) -- and of the
+    // last element inside the rich-text block.
+    //
+    // !important is required because c-styled-html's paragraph spacing
+    // (`.c-styled-html > p { margin-bottom: 20px }`) lives in the `overrides`
+    // cascade layer, while this file compiles into the earlier `components` layer
+    // (see core_style.scss). A later layer beats an earlier one regardless of
+    // selector specificity, so only an important declaration can win here.
+    &__entry > :last-child,
+    &__entry .c-styled-html > :last-child {
+        margin-bottom: 0 !important;
+    }
+
+    // The o-box wraps this list in u-p (24px all round). Pull the entry list up by
+    // that amount so the first contact's name sits the same small distance from the
+    // top as the following names sit below their divider (side/bottom padding kept).
+    // Scoped to the entries list (u-mb-0_75) so rich-text <ul>s are unaffected; no
+    // utility sets margin-top here, so this component-layer rule applies cleanly.
+    ul.u-mb-0_75 {
+        margin-top: -$inuit-base-spacing-unit;
+
+        // Own the 32px gap below the list so it reads identically above the
+        // create/edit form and above the "new contact" button that replaces it
+        // while it is hidden. Putting the space here -- rather than as a margin-top
+        // on those following elements -- sidesteps a margin-collapse asymmetry: the
+        // form's wrapper is a block whose top margin would collapse with the list's
+        // (max wins), but DpButton is inline-block and would instead ADD its top
+        // margin on top of the list's, doubling the gap. As the list's own bottom
+        // margin this applies equally to both, and still absorbs any trailing
+        // rich-text margin (the <p>'s 24px) since collapsing keeps the larger value.
+        // Overrides the u-mb-0_75 utility's !important, hence the !important here.
+        margin-bottom: 32px !important;
+    }
+}
