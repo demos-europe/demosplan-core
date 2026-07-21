@@ -116,6 +116,12 @@
               @updating-filters="disabledInteractions = true"
               @updated-filters="disabledInteractions = false"
             />
+            <dp-custom-fields-filter
+              v-if="filterGroup.type === 'statement' && customFieldDefinitions.length > 0"
+              v-model="customFieldFilterValue"
+              :custom-field-definitions="customFieldDefinitions"
+              variant="modal"
+            />
           </dp-tab>
         </dp-tabs>
 
@@ -237,12 +243,15 @@
 <script>
 import { DpLoading, DpModal, DpMultiselect, DpTab, DpTabs, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import DpCustomFieldsFilter from '@DpJs/components/shared/DpCustomFieldsFilter'
 import DpFilterModalSelectItem from './FilterModalSelectItem'
+import { useCustomFieldDefinitions } from '@DpJs/composables/useCustomFieldDefinitions'
 
 export default {
   name: 'DpFilterModal',
 
   components: {
+    DpCustomFieldsFilter,
     DpFilterModalSelectItem,
     DpMultiselect,
     DpModal,
@@ -283,6 +292,8 @@ export default {
   data () {
     return {
       activeTabId: null,
+      customFieldDefinitions: [],
+      customFieldFilterValue: {},
       disabledInteractions: false, // Do not submit form if filters are currently updating
       isLoading: true,
       saveFilterSet: false,
@@ -322,7 +333,7 @@ export default {
       })
     },
 
-    /**
+/**
      * Generate initial name for filterSet from labels of selected options
      */
     filterSetName () {
@@ -433,11 +444,25 @@ export default {
       // Initially, only load empty filters without options
       return this.getFilterListAction()
         .then(() => {
-          // Load selected options into store
           if (this.appliedFilterOptions.length > 0) {
-            this.selectedOptions = this.appliedFilterOptions
-            this.loadSelectedFilterOptions(this.appliedFilterOptions)
-            this.loadAppliedFilterOptions(this.appliedFilterOptions)
+            // Restore custom field selections from applied options
+            const customFieldOptions = this.appliedFilterOptions.filter(opt => opt.type === 'customField')
+            if (customFieldOptions.length > 0) {
+              const restored = {}
+              customFieldOptions.forEach(({ fieldId, value }) => {
+                if (!restored[fieldId]) restored[fieldId] = []
+                restored[fieldId].push(value)
+              })
+              this.customFieldFilterValue = restored
+            }
+
+            // Load only standard options into the Filter store
+            const standardOptions = this.appliedFilterOptions.filter(opt => opt.type !== 'customField')
+            if (standardOptions.length > 0) {
+              this.selectedOptions = standardOptions
+              this.loadSelectedFilterOptions(standardOptions)
+              this.loadAppliedFilterOptions(standardOptions)
+            }
           }
         })
     },
@@ -459,9 +484,16 @@ export default {
       this.$refs.filterModalInner.toggle()
 
       if (this.filterList.length === 0) {
+        const { fetchCustomFields } = useCustomFieldDefinitions()
+
         this.updateBaseState({ procedureId: this.procedureId, original: this.original })
           .then(() => {
-            const promises = [this.initFilterList()]
+            const promises = [
+              this.initFilterList(),
+              fetchCustomFields(this.procedureId, { sourceEntity: 'PROCEDURE', targetEntity: 'STATEMENT' })
+                .then(definitions => { this.customFieldDefinitions = definitions })
+                .catch(() => {}),
+            ]
 
             if (this.userFilterSetSaveEnabled) {
               promises.push(this.initUserFilterSets())
@@ -513,12 +545,25 @@ export default {
     },
 
     submitWithSave (event) {
-      /*
-       * SubmitForm needs event to prevent default behaviour of submit button
-       * it first updates the filterHash and then submits the form with a new
-       * hash set in the action
-       */
-      window.submitForm(event, 'filters')
+      if (event) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
+
+      const customFieldEntries = []
+      Object.entries(this.customFieldFilterValue).forEach(([fieldId, optionIds]) => {
+        optionIds.forEach(optionId => {
+          customFieldEntries.push({ name: `filter_customField_${fieldId}[]`, value: optionId })
+        })
+      })
+
+      const filterOptions = [...this.allSelectedFilterOptionsWithFilterName, ...customFieldEntries]
+
+      window.updateFilterHash(this.procedureId, filterOptions)
+        .then(filterHash => {
+          document.bpform.action = Routing.generate(this.route, { procedureId: this.procedureId, filterHash })
+          document.bpform.submit()
+        })
     },
 
     /**

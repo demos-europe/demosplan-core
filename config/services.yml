@@ -1318,6 +1318,7 @@ services:
             $drupalConditionFactory: '@EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory'
 
     EDT\Querying\ConditionParsers\Drupal\PredefinedDrupalConditionFactory:
+        class: demosplan\DemosPlanCoreBundle\Logic\CustomField\DemosplanDrupalConditionFactory
         arguments:
             $conditionFactory: '@EDT\DqlQuerying\ConditionFactories\DqlConditionFactory'
 
