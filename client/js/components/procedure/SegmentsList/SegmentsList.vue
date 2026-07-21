@@ -557,7 +557,7 @@ export default {
         { field: 'externId', label: Translator.trans('id'), colWidth: '120px', initialMinWidth: 120, fixed: true },
         { field: 'statementStatus', label: Translator.trans('statement.status'), colWidth: '180px', initialMinWidth: 180 },
         { field: 'internId', label: Translator.trans('internId.shortened'), colWidth: '120px', initialMinWidth: 120 },
-        { field: 'deadline', label: Translator.trans('deadline'), colWidth: '150px', initialMinWidth: 180 },
+        { field: 'deadline', label: Translator.trans('deadline'), colWidth: '180px', initialMinWidth: 180 },
         { field: 'submitter', label: Translator.trans('submitter'), colWidth: '180px', initialMinWidth: 180 },
         { field: 'address', label: Translator.trans('address'), colWidth: '180px', initialMinWidth: 180 },
         { field: 'text', label: Translator.trans('text'), colWidth: '270px', initialMinWidth: 270 },
@@ -891,6 +891,8 @@ export default {
           // 1000 is the hard server-side cap (JsonApiPaginationParser::MAX_PAGE_SIZE) — there is no pager anymore, so load as many segments as the API allows in one go.
           size: 1000,
         },
+        // Baseline order so the list stays stable when selectedSort is '' (deadline sort, if active, is applied on top of this client-side).
+        sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
         filter,
         fields: {
           File: [
