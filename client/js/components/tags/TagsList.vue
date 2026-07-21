@@ -35,16 +35,16 @@
 
           <div
             v-if="hasPermission('feature_tag_default_assignee')"
-            class="ml-1 flex-0 w-1/4"
+            class="ml-1 flex-none w-10"
           >
             {{ Translator.trans('assignee') }}
           </div>
 
-          <div class="ml-1 flex-0 w-9">
+          <div class="ml-1 flex-none w-9">
             {{ Translator.trans('boilerplates') }}
           </div>
 
-          <div class="ml-1 flex-0 w-8 text-right">
+          <div class="ml-1 flex-none w-8 text-right">
             {{ Translator.trans('actions') }}
           </div>
         </div>
