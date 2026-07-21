@@ -69,15 +69,27 @@ class CustomFieldElasticaQueryBuilder
     /**
      * Nested query matching statements with a customFieldsForIndex entry
      * {id: $fieldId, value: $optionId} (or an entry whose array value contains $optionId, for a
-     * multiSelect field).
+     * multiSelect field). For use as a top-level (non-aggregation) query clause only — the ES
+     * `nested` type requires exactly one `nested` query hop per path to reach the nested document
+     * space; see {@see buildOptionMatchInnerQuery()} for the aggregation-context equivalent.
      */
     public function buildOptionMatchQuery(string $fieldId, string $optionId): Nested
     {
-        $inner = (new BoolQuery())
+        return (new Nested())->setPath(self::PATH)->setQuery($this->buildOptionMatchInnerQuery($fieldId, $optionId));
+    }
+
+    /**
+     * Same {id, value} match as {@see buildOptionMatchQuery()}, without the `Nested` query wrapper.
+     * Used inside a `Filter` aggregation that already sits under a `Nested` aggregation on the same
+     * path — that nested aggregation already moved evaluation into the nested document space, so
+     * wrapping this in another `Nested` *query* would try to descend a second, nonexistent nesting
+     * level and silently match nothing.
+     */
+    private function buildOptionMatchInnerQuery(string $fieldId, string $optionId): BoolQuery
+    {
+        return (new BoolQuery())
             ->addMust(new Term([self::PATH.'.id' => $fieldId]))
             ->addMust(new Term([self::PATH.'.value' => $optionId]));
-
-        return (new Nested())->setPath(self::PATH)->setQuery($inner);
     }
 
     /**
@@ -95,7 +107,7 @@ class CustomFieldElasticaQueryBuilder
 
         foreach (array_values($optionIds) as $index => $optionId) {
             $filterAggregation = new FilterAggregation("opt_{$index}");
-            $filterAggregation->setFilter($this->buildOptionMatchQuery($fieldId, $optionId));
+            $filterAggregation->setFilter($this->buildOptionMatchInnerQuery($fieldId, $optionId));
             $nestedAggregation->addAggregation($filterAggregation);
         }
 
