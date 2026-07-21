@@ -35,11 +35,11 @@ class CustomFieldStatementCounter
     }
 
     /**
-     * @param string[]                $optionIds       option IDs of the field, as already known by the caller
+     * @param string[]                $optionIds          option IDs of the field, as already known by the caller
      * @param array<string, mixed>    $regularUserFilters raw assessment table filters (e.g. `original`,
-     *                                                     `institution`, ...), without any `customField_*` keys
-     * @param array<string, string[]> $otherCfFilters  fieldId => selectedOptionIds[], for every OTHER
-     *                                                  active custom-field filter (excluding $fieldId itself)
+     *                                                    `institution`, ...), without any `customField_*` keys
+     * @param array<string, string[]> $otherCfFilters     fieldId => selectedOptionIds[], for every OTHER
+     *                                                    active custom-field filter (excluding $fieldId itself)
      *
      * @return array<string, int> optionId => count
      */

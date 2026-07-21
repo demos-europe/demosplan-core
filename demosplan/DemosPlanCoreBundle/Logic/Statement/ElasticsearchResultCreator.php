@@ -140,19 +140,19 @@ class ElasticsearchResultCreator
      * @param string                  $search
      * @param array|null              $sort
      * @param int                     $limit
-     * @param int                     $page                            First page is 1
+     * @param int                     $page                         First page is 1
      * @param array                   $searchFields
      * @param bool                    $aggregationsOnly
      * @param int                     $aggregationsMinDocumentCount
      * @param bool                    $addAllAggregations
      * @param list<GlobalAggregation> $customAggregations
-     * @param string|null             $customFieldCountFieldId         When set together with
-     *                                                                 $customFieldCountOptionIds, adds a
-     *                                                                 `customFieldOptionCounts` nested
-     *                                                                 aggregation (one Filter sub-aggregation
-     *                                                                 per option, keyed `opt_{index}`) scoped
-     *                                                                 to the query built from $userFilters.
-     *                                                                 Used by CustomFieldStatementCounter.
+     * @param string|null             $customFieldCountFieldId      When set together with
+     *                                                              $customFieldCountOptionIds, adds a
+     *                                                              `customFieldOptionCounts` nested
+     *                                                              aggregation (one Filter sub-aggregation
+     *                                                              per option, keyed `opt_{index}`) scoped
+     *                                                              to the query built from $userFilters.
+     *                                                              Used by CustomFieldStatementCounter.
      * @param string[]                $customFieldCountOptionIds
      */
     public function getElasticsearchResult(
