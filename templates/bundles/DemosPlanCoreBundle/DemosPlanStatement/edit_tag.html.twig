@@ -6,14 +6,34 @@
         heading: 'tag.administration_single' |trans
     } %}
 
+    {% set currentAssignee = templateVars.tag.defaultAssignee is not null
+        ? { id: templateVars.tag.defaultAssignee.id, label: templateVars.tag.defaultAssignee.firstname ~ ' ' ~ templateVars.tag.defaultAssignee.lastname }
+        : { id: '', label: 'not.assigned'|trans } %}
+    {% set existingBoilerplates = [] %}
+    {% for boilerplate in templateVars.boilerplates %}
+        {% if 'consideration' in boilerplate.categories|map(cat => cat.title) or boilerplate.categories|length == 0 %}
+            {% set existingBoilerplates = existingBoilerplates|merge([{ id: boilerplate.ident, label: boilerplate.title }]) %}
+        {% endif %}
+    {% endfor %}
+    {% set currentBoilerplate = templateVars.tag.boilerplate is not null
+        ? { id: templateVars.tag.boilerplate.ident, label: templateVars.tag.boilerplate.title }
+        : (existingBoilerplates is not empty ? existingBoilerplates|first : { id: '', label: '' }) %}
+    {% set currentAttachmode = templateVars.tag.boilerplate is not null ? 'existing' : 'none' %}
+
     <form class="layout--flush flow-root" action='{{ path('DemosPlan_statement_administration_tag',{'procedure': procedure, 'tag': tag}) }}' method="post" enctype="multipart/form-data" data-dp-validate>
         {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
+        <edit-tag
+            :selected-assignee="JSON.parse('{{ currentAssignee|json_encode|e('js', 'utf-8') }}')"
+            :selected-attachmode="'{{ currentAttachmode }}'"
+            :selected-boilerplate="JSON.parse('{{ currentBoilerplate|json_encode|e('js', 'utf-8') }}')"
+            v-slot="{ assignee, attachmode, boilerplate, setAssignee, setAttachmode, setBoilerplate }"
+        >
         {{ uiComponent('form.row', {
             elements: [
                 {
                     label: { text: 'title'|trans, id: 'r_tagTitle' },
-                    control: { name: 'r_tagTitle', class: 'u-mb' },
+                    control: { name: 'r_tagTitle' },
                     id: 'r_tagTitle',
                     value: templateVars.tag.title,
                     type: 'text',
@@ -23,92 +43,102 @@
         }) }}
 
         {% if permissions.feature_tag_default_assignee is defined and permissions.feature_tag_default_assignee.enabled == true %}
-            {% set assigneeOptions = [{ value: '', selected: templateVars.tag.defaultAssignee is null, label: 'not.assigned'|trans }] %}
+            {% set assigneeOptions = [{ id: '', label: 'not.assigned'|trans }] %}
             {% for user in templateVars.authorizedUsers %}
                 {% set assigneeOptions = assigneeOptions|merge([{
-                    value: user.id,
-                    selected: templateVars.tag.defaultAssignee is not null and user.id == templateVars.tag.defaultAssignee.id,
+                    id: user.id,
                     label: user.firstname ~ ' ' ~ user.lastname
                 }]) %}
             {% endfor %}
-            {{ uiComponent('form.row', {
-                elements: [
-                    {
-                        label: { text: 'assignee'|trans, id: 'r_defaultAssigneeId' },
-                        control: { name: 'r_defaultAssigneeId', options: assigneeOptions, class: 'u-mb' },
-                        id: 'r_defaultAssigneeId',
-                        type: 'select'
-                    }
-                ]
-            }) }}
+            <label
+                class="mb-1"
+                for="r_defaultAssigneeId"
+            >
+                {{ 'assignee'|trans }}
+            </label>
+            <dp-multiselect
+                v-model="assignee"
+                :allow-empty="false"
+                class="mb-4"
+                label="label"
+                :options="JSON.parse('{{ assigneeOptions|json_encode|e('js', 'utf-8') }}')"
+                track-by="id"
+                @input="val => setAssignee(val)"
+            >
+                <template v-slot:option="{ props }">
+                    {% verbatim %}{{ props.option.label }}{% endverbatim %}
+                </template>
+            </dp-multiselect>
+            <input
+                :value="assignee.id"
+                name="r_defaultAssigneeId"
+                type="hidden"
+            >
         {% endif %}
 
         {% if permissions.area_admin_boilerplates is defined and permissions.area_admin_boilerplates.enabled == true %}
 
-            {{ uiComponent('form.row', {
-                elements: [
-                    {
-                        label: { text: 'boilerplate.none'|trans, class: "inline" },
-                        control: { name: 'r_attachmode' },
-                        id: 'boilerplateNone',
-                        name: 'r_attachmode',
-                        value: 'none',
-                        type: 'radio',
-                        checked: templateVars.tag.boilerplate is null
-                    }
-                ]
-            }) }}
+            <dp-radio
+                id="boilerplateNone"
+                class="mb-3"
+                :checked="attachmode === 'none'"
+                :label="{ text: Translator.trans('boilerplate.none') }"
+                name="r_attachmode"
+                value="none"
+                @change="setAttachmode('none')"
+            ></dp-radio>
 
-            {% set existingBoilerplates = [] %}
-            {% for boilerplate in templateVars.boilerplates %}
-                    {% if 'consideration' in boilerplate.categories|map(cat => cat.title) or boilerplate.categories|length == 0 %}
-                        {% set existingBoilerplates = existingBoilerplates|merge([{ value: boilerplate.ident, selected: templateVars.tag.boilerplate is not null and boilerplate.ident == templateVars.tag.boilerplate.ident, label: boilerplate.title }]) %}
-                    {% endif %}
-                {% endfor %}
-            {{ uiComponent('form.row', {
-                elements: [
-                    {
-                        label: { text: 'boilerplate.existing'|trans, class: "inline" },
-                        control: { name: 'r_attachmode' },
-                        name: 'r_attachmode',
-                        id: 'boilerplateExisting',
-                        value: 'existing',
-                        type: 'radio',
-                        elementSize: 'medium',
-                        elementStyle: 'inline-block',
-                        checked: templateVars.tag.boilerplate is not null
-                    },
-                    {
-                        label: {},
-                        control: { name: 'r_boilerplateId', options: existingBoilerplates },
-                        id: 'boilerplateSelect',
-                        type: 'select',
-                        elementSize: 'larger',
-                        elementStyle: 'inline-block',
-                    }
-                ]
-            })|spaceless }}
+            <dp-radio
+                id="boilerplateExisting"
+                :checked="attachmode === 'existing'"
+                :label="{ text: Translator.trans('boilerplate.existing') }"
+                name="r_attachmode"
+                value="existing"
+                @change="setAttachmode('existing')"
+            ></dp-radio>
+            <div class="ml-4 mt-1 mb-3">
+                <dp-multiselect
+                    v-model="boilerplate"
+                    :allow-empty="false"
+                    class="w-full"
+                    label="label"
+                    :options="JSON.parse('{{ existingBoilerplates|json_encode|e('js', 'utf-8') }}')"
+                    track-by="id"
+                    @input="val => setBoilerplate(val)"
+                >
+                    <template v-slot:option="{ props }">
+                        {% verbatim %}{{ props.option.label }}{% endverbatim %}
+                    </template>
+                </dp-multiselect>
+                <input
+                    v-if="attachmode === 'existing'"
+                    :value="boilerplate.id"
+                    name="r_boilerplateId"
+                    type="hidden"
+                >
+            </div>
 
-            {% apply spaceless %}
-                <div class="layout__item u-1-of-3">
-                    {{ uiComponent('form.element', {
-                        label: { text: 'boilerplate.generate'|trans, class: "inline" },
-                        control: { name: 'r_attachmode' },
-                        name: 'r_attachmode',
-                        id: 'newBoilerplateRadio',
-                        value: 'new',
-                        type: 'radio',
-                    }) }}
-                </div>
-
-                <div class="layout__item u-2-of-3 hidden" id="newBoilerplateForm">
-                    {{ uiComponent('form.element',  {
-                        label: {},
-                        control: { name: 'r_boilerplateTitle', attributes: ['data-dp-validate-if=#newBoilerplateRadio'], required: true },
-                        id: 'boilerplateTitle',
-                        type: 'text',
-                        value: '',
-                    }) }}
+            <dp-radio
+                id="newBoilerplateRadio"
+                :checked="attachmode === 'new'"
+                :label="{ text: Translator.trans('boilerplate.generate') }"
+                name="r_attachmode"
+                value="new"
+                @change="setAttachmode('new')"
+            ></dp-radio>
+            <div
+                v-show="attachmode === 'new'"
+                id="newBoilerplateForm"
+                class="ml-4"
+            >
+                {{ uiComponent('form.element',  {
+                    label: {},
+                    control: { name: 'r_boilerplateTitle', attributes: ['data-dp-validate-if=#newBoilerplateRadio'], required: true },
+                    id: 'boilerplateTitle',
+                    type: 'text',
+                    value: '',
+                }) }}
+                <div class="mt-2">
                     {{ uiComponent('form.element', {
                         label: {},
                         control: {
@@ -123,7 +153,7 @@
                         value: ''
                     }) }}
                 </div>
-            {% endapply %}
+            </div>
 
         {% endif %}
 
@@ -133,6 +163,7 @@
                 {{ "abort"|trans }}
             </a>
         </div>
+        </edit-tag>
 
     </form>
 {% endblock %}
