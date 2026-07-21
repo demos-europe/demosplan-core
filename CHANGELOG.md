@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+### Added
+- sortable deadline column in segmentsList, remove pager
+
 ## v4.50.0 (2026-07-15)
 
 ### Added
