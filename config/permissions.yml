@@ -800,6 +800,18 @@ feature_auto_switch_to_procedure_end_phase:
     expose: true
     label: 'Automatically toggle into procedure evaluating-phase in case of current reading phase has ended.'
     loginRequired: false
+feature_boilerplate_verified_edit:
+    description: 'Allow changing the verified state of a boilerplate in the boilerplate edit form.'
+    expose: true
+    label: 'Edit the verified state of boilerplates'
+    loginRequired: true
+    parent: feature_boilerplate_verified_marker
+feature_boilerplate_verified_marker:
+    description: 'Show a badge on boilerplates that were copied from a blueprint procedure and have not been edited since.'
+    expose: true
+    label: 'Mark boilerplates originating from a blueprint as verified'
+    loginRequired: true
+    parent: area_admin_boilerplates
 feature_change_own_email:
     description: 'Enable user to change the email address in the system.'
     label: 'User can change their email address'
@@ -2891,6 +2903,11 @@ field_statement_county:
     label: 'Show field "county" (Kreis) and save its value'
     loginRequired: false
     parent: field_statement
+field_statement_deadline:
+    description: 'Adds a deadline field  (Bearbeitungsfrist).'
+    label: 'Statement deadline'
+    expose: true
+    loginRequired: true
 field_statement_extern_id:
     expose: true
     label: 'Name des Verfahrens'

@@ -2201,6 +2201,17 @@ class ProcedureService implements ProcedureServiceInterface
             throw new Exception('Boilerplate with id: '.$boilerplateVO->getId().' not found');
         }
 
+        // an actual content change means the boilerplate no longer matches the blueprint original
+        if ($boilerplate->getTitle() !== $boilerplateVO->getTitle()
+            || $boilerplate->getText() !== $boilerplateVO->getText()) {
+            $boilerplate->setVerified(false);
+        }
+
+        // an explicitly given verified state (permission-gated in the edit form) wins over the automatic reset
+        if (null !== $boilerplateVO->getVerified()) {
+            $boilerplate->setVerified($boilerplateVO->getVerified());
+        }
+
         $boilerplate->setTitle($boilerplateVO->getTitle());
         $boilerplate->setText($boilerplateVO->getText());
 
@@ -2279,6 +2290,12 @@ class ProcedureService implements ProcedureServiceInterface
             $boilerplate->setProcedure($procedure);
             $boilerplate->setTitle($boilerplateVO->getTitle());
             $boilerplate->setText($boilerplateVO->getText());
+
+            // an explicitly given verified state (permission-gated in the create form) is applied,
+            // otherwise the new boilerplate keeps the default (not verified)
+            if (null !== $boilerplateVO->getVerified()) {
+                $boilerplate->setVerified($boilerplateVO->getVerified());
+            }
 
             // resolve & set categories:
             $categories = [];

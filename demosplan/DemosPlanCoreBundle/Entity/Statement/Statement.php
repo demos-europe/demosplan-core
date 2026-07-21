@@ -817,6 +817,12 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     protected $assignee;
 
     /**
+     * @var DateTime|null
+     */
+    #[ORM\Column(name: 'deadline_date', type: 'date', nullable: true)]
+    protected $deadline;
+
+    /**
      * The representative Statement defines the cluster.
      * This is the Statement which will be used instead of each statement in the cluster.
      *
@@ -3202,6 +3208,18 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function setAssignee($assignee)
     {
         $this->assignee = $assignee;
+    }
+
+    public function getDeadline(): ?DateTime
+    {
+        return $this->deadline;
+    }
+
+    public function setDeadline(?DateTime $deadline): self
+    {
+        $this->deadline = $deadline;
+
+        return $this;
     }
 
     /**
