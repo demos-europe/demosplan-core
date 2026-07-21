@@ -231,11 +231,14 @@
                 {% endif %}
 
                 {% if hasPermission('field_procedure_allow_uninvited_institutions') %}
+                    <label class="mt-4">
+                        {{ 'invitable_institution.participation'|trans }}
+                    </label>
                     <dp-checkbox
                         id="allowUninvitedInstitutions"
                         :checked="{{ proceduresettings.allowUninvitedInstitutions ? 'true' : 'false' }}"
                         :label="{ text: Translator.trans('procedure.institutions.allow_uninvited') }"
-                        class="mb-4"
+                        class="lbl__hint mb-4"
                         data-cy="procedure:allowUninvitedInstitutions"
                         name="r_allowUninvitedInstitutions">
                     </dp-checkbox>
