@@ -1200,10 +1200,11 @@ export default {
           .then(() => {
             /*
              * If this was the only item on the current page, that page no longer exists after
-             * deletion — go back to page 1 directly instead of requesting an out-of-range page.
+             * deletion — go back to the previous page directly
+             * instead of requesting an out-of-range page.
              */
             if (this.pagination.count <= 1 && this.pagination.currentPage > 1) {
-              this.pagination.currentPage = 1
+              this.pagination.currentPage -= 1
             }
 
             this.getItemsByPage(this.pagination.currentPage)
