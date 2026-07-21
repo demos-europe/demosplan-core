@@ -335,6 +335,10 @@ export default {
       return this.deadline !== this.initialDeadline
     },
 
+    hasSelectedAssignee () {
+      return Boolean(this.selectedAssignee?.id) && this.selectedAssignee.id !== 'noAssigneeId'
+    },
+
     initialAssignee () {
       if (this.currentSegment && hasOwnProp(this.currentSegment, 'assigneeId')) {
         return this.getAssignableUserById(this.currentSegment.assigneeId)
@@ -387,6 +391,33 @@ export default {
 
     selectedTags () {
       return this.editingSegment ? this.editingSegment.tags.map(el => this.availableTags.find(tag => tag.id === el.id || tag.attributes.title === el.tagName)) : []
+    },
+  },
+
+  watch: {
+    /*
+     * When a tag with a default assignee is added to an unassigned segment, preselect
+     * that user as assignee (first added tag with a default assignee wins). The
+     * selection is persisted with the regular save flow via updateSegment().
+     */
+    'editingSegment.tags': function (newTags, oldTags) {
+      if (!hasPermission('feature_tag_default_assignee') || !newTags || this.hasSelectedAssignee) {
+        return
+      }
+
+      const addedTags = oldTags ? newTags.filter(tag => !oldTags.some(el => el.id === tag.id)) : newTags
+
+      for (const addedTag of addedTags) {
+        const availableTag = this.availableTags.find(tag => tag.id === addedTag.id)
+        const defaultAssigneeId = availableTag?.relationships?.defaultAssignee?.data?.id
+        const defaultAssignee = defaultAssigneeId ? this.getAssignableUserById(defaultAssigneeId) : null
+
+        if (defaultAssignee) {
+          this.selectedAssignee = defaultAssignee
+
+          return
+        }
+      }
     },
   },
 
