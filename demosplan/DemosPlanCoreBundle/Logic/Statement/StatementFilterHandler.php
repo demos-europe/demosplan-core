@@ -731,6 +731,22 @@ class StatementFilterHandler extends CoreHandler
             }
         }
 
+        // customField_* entries are not in ES aggregations — emit them directly for hash restore
+        $cfPrefix = 'customField_';
+        foreach ($requestedFilters as $key => $values) {
+            if (!str_starts_with($key, $cfPrefix)) {
+                continue;
+            }
+            $fieldId = substr($key, strlen($cfPrefix));
+            foreach ((array) $values as $value) {
+                $requestedfiltersInfo[] = [
+                    'type'    => 'customField',
+                    'fieldId' => $fieldId,
+                    'value'   => $value,
+                ];
+            }
+        }
+
         return $requestedfiltersInfo;
     }
 }

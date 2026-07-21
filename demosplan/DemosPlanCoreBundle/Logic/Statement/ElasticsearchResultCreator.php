@@ -12,12 +12,15 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\CustomField\CustomFieldElasticaQueryBuilder;
+use demosplan\DemosPlanCoreBundle\Logic\CustomField\CustomFieldFilterResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
@@ -119,6 +122,9 @@ class ElasticsearchResultCreator
         private readonly DepartmentRepository $departmentRepository,
         private readonly ProfilerService $profilerService,
         private readonly LoggerInterface $logger,
+        private readonly PermissionsInterface $permissions,
+        private readonly CustomFieldFilterResolver $customFieldFilterResolver,
+        private readonly CustomFieldElasticaQueryBuilder $customFieldElasticaQueryBuilder,
         #[Autowire(param: 'elasticsearch_max_result_window')]
         private readonly int $elasticsearchMaxResultWindow,
         #[Autowire(param: 'elasticsearch_search_after_batch_size')]
@@ -134,12 +140,20 @@ class ElasticsearchResultCreator
      * @param string                  $search
      * @param array|null              $sort
      * @param int                     $limit
-     * @param int                     $page                         First page is 1
+     * @param int                     $page                            First page is 1
      * @param array                   $searchFields
      * @param bool                    $aggregationsOnly
      * @param int                     $aggregationsMinDocumentCount
      * @param bool                    $addAllAggregations
      * @param list<GlobalAggregation> $customAggregations
+     * @param string|null             $customFieldCountFieldId         When set together with
+     *                                                                 $customFieldCountOptionIds, adds a
+     *                                                                 `customFieldOptionCounts` nested
+     *                                                                 aggregation (one Filter sub-aggregation
+     *                                                                 per option, keyed `opt_{index}`) scoped
+     *                                                                 to the query built from $userFilters.
+     *                                                                 Used by CustomFieldStatementCounter.
+     * @param string[]                $customFieldCountOptionIds
      */
     public function getElasticsearchResult(
         $userFilters,
@@ -153,6 +167,8 @@ class ElasticsearchResultCreator
         $aggregationsMinDocumentCount = 1,
         $addAllAggregations = true,
         array $customAggregations = [],
+        ?string $customFieldCountFieldId = null,
+        array $customFieldCountOptionIds = [],
     ): ElasticsearchResult {
         $elasticsearchResultStatement = new ElasticsearchResult();
         try {
@@ -162,6 +178,12 @@ class ElasticsearchResultCreator
                 $aggregationsMinDocumentCount
             );
             [$boolMustFilter, $boolMustNotFilter] = $this->getBasicFilters($procedureId, $userFilters);
+
+            if ($this->permissions->hasPermission('feature_statements_custom_fields')) {
+                [$customFieldClauses, $userFilters] = $this->customFieldFilterResolver->resolveCustomFieldFilter($userFilters);
+                array_push($boolMustFilter, ...$customFieldClauses);
+            }
+
             $userFilters = $this->getRenamedUserFilters($userFilters);
             $fragmentFilters = $this->getFragmentFilters($userFilters);
             $userFragmentFilters = $this->statementService->mapRequestFiltersToESFragmentFilters($userFilters);
@@ -303,6 +325,14 @@ class ElasticsearchResultCreator
 
             foreach ($customAggregations as $customAggregation) {
                 $query->addAggregation($customAggregation);
+            }
+
+            if (null !== $customFieldCountFieldId && [] !== $customFieldCountOptionIds) {
+                $query->addAggregation($this->customFieldElasticaQueryBuilder->buildOptionCountsAggregation(
+                    'customFieldOptionCounts',
+                    $customFieldCountFieldId,
+                    $customFieldCountOptionIds
+                ));
             }
 
             /****************************************** EINREICHUNG **************************************************/
@@ -1334,6 +1364,12 @@ class ElasticsearchResultCreator
             }
 
             /************************************* ADD AGGREGATIONS TO RESULT (END) **********************************/
+
+            if (isset($esResultAggregations['customFieldOptionCounts'])) {
+                // passed through verbatim (raw ES buckets, opt_{index} => {doc_count}) —
+                // consumed directly by CustomFieldStatementCounter, not further processed here.
+                $processedAggregation['customFieldOptionCounts'] = $esResultAggregations['customFieldOptionCounts'];
+            }
 
             // add modified Aggregations to Result
             $elasticsearchResultStatement->setAggregations($processedAggregation);

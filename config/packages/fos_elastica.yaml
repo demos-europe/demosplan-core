@@ -644,6 +644,11 @@ fos_elastica:
                                 sort:  {type: icu_collation_keyword}
                                 # sort : { type : string, analyzer : naturalsort }
                         sortIndex: {type: integer, index: false}
+                customFieldsForIndex:
+                    type: nested
+                    properties:
+                        id: {type: keyword, index: true}
+                        value: {type: keyword, index: true}
 
             # define callback to check whether entity should be indexed
             indexable_callback: 'shouldBeIndexed'
