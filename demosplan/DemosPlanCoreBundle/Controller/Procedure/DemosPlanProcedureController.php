@@ -16,17 +16,14 @@ use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Form\Procedure\AbstractProcedureFormTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateUsage;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\StatementFormDefinition;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -86,11 +83,9 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\MasterToebService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\Repository\BoilerplateUsageRepository;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
-use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureTypeResourceType;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
@@ -2382,105 +2377,6 @@ class DemosPlanProcedureController extends BaseController
         );
     }
 
-    /**
-     * Records the usage of a boilerplate in the recommendation of a segment.
-     * Idempotent: inserting the same boilerplate into the same segment again
-     * keeps the single existing usage entry.
-     */
-    #[DplanPermissions('feature_boilerplate_usage_list')]
-    #[Route(path: '/verfahren/{procedureId}/textbaustein/{boilerplateId}/verwendung', name: 'dplan_boilerplate_usage_create', options: ['expose' => true], methods: ['POST'])]
-    public function createBoilerplateUsage(
-        BoilerplateUsageRepository $boilerplateUsageRepository,
-        Request $request,
-        SegmentRepository $segmentRepository,
-        string $procedureId,
-        string $boilerplateId,
-    ): JsonResponse {
-        $boilerplate = $this->procedureService->getBoilerplateById($boilerplateId);
-        if (!$boilerplate instanceof Boilerplate || $boilerplate->getProcedureId() !== $procedureId) {
-            return new JsonResponse(null, Response::HTTP_NOT_FOUND);
-        }
-
-        try {
-            $requestContent = Json::decodeToArray($request->getContent());
-            $segmentId = $requestContent['segmentId'] ?? '';
-            $segment = is_string($segmentId) && '' !== $segmentId ? $segmentRepository->get($segmentId) : null;
-        } catch (Exception) {
-            $segment = null;
-        }
-        if (null === $segment || $segment->getProcedure()->getId() !== $procedureId) {
-            return new JsonResponse(null, Response::HTTP_BAD_REQUEST);
-        }
-
-        $boilerplateUsageRepository->addUsage($boilerplate, $segment);
-
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
-    }
-
-    /**
-     * Records the usage of a boilerplate in the recommendations of multiple
-     * segments at once (bulk edit). Idempotent per boilerplate/segment pair.
-     */
-    #[DplanPermissions('feature_boilerplate_usage_list')]
-    #[Route(path: '/verfahren/{procedureId}/textbaustein/{boilerplateId}/verwendungen', name: 'dplan_boilerplate_usage_create_bulk', options: ['expose' => true], methods: ['POST'])]
-    public function createBoilerplateUsages(
-        BoilerplateUsageRepository $boilerplateUsageRepository,
-        Request $request,
-        SegmentRepository $segmentRepository,
-        string $procedureId,
-        string $boilerplateId,
-    ): JsonResponse {
-        $boilerplate = $this->procedureService->getBoilerplateById($boilerplateId);
-        if (!$boilerplate instanceof Boilerplate || $boilerplate->getProcedureId() !== $procedureId) {
-            return new JsonResponse(null, Response::HTTP_NOT_FOUND);
-        }
-
-        $segments = $this->resolveSegmentsForProcedure($request, $segmentRepository, $procedureId);
-        if ([] === $segments) {
-            return new JsonResponse(null, Response::HTTP_BAD_REQUEST);
-        }
-
-        $boilerplateUsageRepository->addUsages($boilerplate, $segments);
-
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
-    }
-
-    /**
-     * Resolves the segments referenced by the request's `segmentIds` payload,
-     * keeping only those that exist and belong to the given procedure.
-     *
-     * @return Segment[]
-     */
-    private function resolveSegmentsForProcedure(Request $request, SegmentRepository $segmentRepository, string $procedureId): array
-    {
-        try {
-            $segmentIds = Json::decodeToArray($request->getContent())['segmentIds'] ?? [];
-        } catch (Exception) {
-            return [];
-        }
-
-        if (!is_array($segmentIds)) {
-            return [];
-        }
-
-        $segments = [];
-        foreach ($segmentIds as $segmentId) {
-            if (!is_string($segmentId) || '' === $segmentId) {
-                continue;
-            }
-            try {
-                $segment = $segmentRepository->get($segmentId);
-            } catch (Exception) {
-                continue;
-            }
-            if ($segment instanceof Segment && $segment->getProcedure()->getId() === $procedureId) {
-                $segments[] = $segment;
-            }
-        }
-
-        return $segments;
-    }
-
     private function processBoilerplateActions(ProcedureHandler $procedureHandler, ParameterBag $requestPost, string $procedureId): void
     {
         $this->processDeleteCheckedBoilerplates($procedureHandler, $requestPost);
@@ -2594,7 +2490,7 @@ class DemosPlanProcedureController extends BaseController
      */
     #[DplanPermissions('area_admin_boilerplates')]
     #[Route(path: '/verfahren/{procedure}/textbaustein/{boilerplateId}/{selectedGroupId}', name: 'DemosPlan_procedure_boilerplate_edit', defaults: ['boilerplateId' => 'new', 'selectedGroupId' => ''])]
-    public function boilerplateEdit(BoilerplateUsageRepository $boilerplateUsageRepository, FormFactoryInterface $formFactory, Request $request, $procedure, $boilerplateId, $selectedGroupId)
+    public function boilerplateEdit(FormFactoryInterface $formFactory, Request $request, $procedure, $boilerplateId, $selectedGroupId)
     {
         $boilerplateValueObject = new BoilerplateVO();
         $updatedBoilerplate = null;
@@ -2690,33 +2586,13 @@ class DemosPlanProcedureController extends BaseController
                 'form'                         => $form,
                 'boilerplateCategories'        => $boilerplateCategories,
                 'boilerplateGroupsOfProcedure' => $boilerplateGroups,
-                'boilerplateUsages'            => $this->getBoilerplateUsages($boilerplateUsageRepository, $boilerplateId),
+                'boilerplateUsages'            => $this->procedureService->getBoilerplateUsagesForDisplay($boilerplateId),
                 'selectedGroup'                => '',
                 'title'                        => 'procedure.boilerplate.edit',
                 'procedure'                    => $procedure,
                 'verified'                     => $verified,
                 'bluePrintIsTarget'            => $isBluePrintTarget,
             ]
-        );
-    }
-
-    /**
-     * Segments whose recommendation the given boilerplate was inserted into,
-     * prepared for display on the boilerplate edit page.
-     */
-    private function getBoilerplateUsages(BoilerplateUsageRepository $boilerplateUsageRepository, string $boilerplateId): array
-    {
-        if ('new' === $boilerplateId || !$this->permissions->hasPermission('feature_boilerplate_usage_list')) {
-            return [];
-        }
-
-        return array_map(
-            static fn (BoilerplateUsage $usage): array => [
-                'externId'    => $usage->getSegment()->getExternId(),
-                'segmentId'   => $usage->getSegment()->getId(),
-                'statementId' => $usage->getSegment()->getParentStatementOfSegment()->getId(),
-            ],
-            $boilerplateUsageRepository->getUsagesForBoilerplate($boilerplateId)
         );
     }
 
