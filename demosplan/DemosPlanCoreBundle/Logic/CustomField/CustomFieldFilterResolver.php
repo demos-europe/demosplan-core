@@ -72,17 +72,17 @@ class CustomFieldFilterResolver
      *
      * @param array<string, mixed> $userFilters
      * @param bool                 $stripEmptySentinels When true (default), the empty-string
-     *                                                   sentinel posted when a dropdown opens is
-     *                                                   filtered out of each field's values, and a
-     *                                                   field left with no real values is omitted
-     *                                                   entirely — used when building ES query
-     *                                                   clauses, where a sentinel-only field must not
-     *                                                   produce a clause. When false, sentinels are
-     *                                                   kept as-is — used by
-     *                                                   {@see CustomFieldFilterResponseBuilder}, which
-     *                                                   must still treat a field opened via its
-     *                                                   sentinel as "active" so its filter item (with
-     *                                                   fresh option counts) is included in the response.
+     *                                                  sentinel posted when a dropdown opens is
+     *                                                  filtered out of each field's values, and a
+     *                                                  field left with no real values is omitted
+     *                                                  entirely — used when building ES query
+     *                                                  clauses, where a sentinel-only field must not
+     *                                                  produce a clause. When false, sentinels are
+     *                                                  kept as-is — used by
+     *                                                  {@see CustomFieldFilterResponseBuilder}, which
+     *                                                  must still treat a field opened via its
+     *                                                  sentinel as "active" so its filter item (with
+     *                                                  fresh option counts) is included in the response.
      *
      * @return array<string, string[]> fieldId => selected option IDs
      */
