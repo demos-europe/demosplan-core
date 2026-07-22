@@ -27,8 +27,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticsearchResultCreator;
  */
 class CustomFieldStatementCounter
 {
-    private const CF_FILTER_PREFIX = 'customField_';
-
     public function __construct(
         private readonly ElasticsearchResultCreator $elasticsearchResultCreator,
     ) {
@@ -57,7 +55,7 @@ class CustomFieldStatementCounter
 
         $mergedFilters = $regularUserFilters;
         foreach ($otherCfFilters as $otherFieldId => $otherOptionIds) {
-            $mergedFilters[self::CF_FILTER_PREFIX.$otherFieldId] = $otherOptionIds;
+            $mergedFilters[CustomFieldFilterResolver::PREFIX.$otherFieldId] = $otherOptionIds;
         }
 
         $result = $this->elasticsearchResultCreator->getElasticsearchResult(

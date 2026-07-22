@@ -19,8 +19,6 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\AssessmentTableFilter;
 
 class CustomFieldFilterResponseBuilder
 {
-    private const CF_FILTER_PREFIX = 'customField_';
-
     public function __construct(
         private readonly CustomFieldConfigurationRepository $cfConfigRepository,
         private readonly CustomFieldStatementCounter $customFieldStatementCounter,
@@ -104,8 +102,8 @@ class CustomFieldFilterResponseBuilder
         $active = [];
 
         foreach ($userFilters as $key => $values) {
-            if (str_starts_with($key, self::CF_FILTER_PREFIX)) {
-                $active[substr($key, strlen(self::CF_FILTER_PREFIX))] = (array) $values;
+            if (str_starts_with($key, CustomFieldFilterResolver::PREFIX)) {
+                $active[substr($key, strlen(CustomFieldFilterResolver::PREFIX))] = (array) $values;
             }
         }
 

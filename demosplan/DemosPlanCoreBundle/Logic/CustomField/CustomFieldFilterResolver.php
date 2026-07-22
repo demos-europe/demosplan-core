@@ -22,7 +22,12 @@ use Elastica\Query\AbstractQuery;
  */
 class CustomFieldFilterResolver
 {
-    private const PREFIX = 'customField_';
+    /**
+     * Prefix of the `customField_*` filter keys used throughout the assessment table filter
+     * pipeline (request params, filter hash entries, ES filter resolution). Single source of
+     * truth — reference this instead of redefining the literal elsewhere.
+     */
+    public const PREFIX = 'customField_';
 
     public function __construct(
         private readonly CustomFieldElasticaQueryBuilder $customFieldElasticaQueryBuilder,
