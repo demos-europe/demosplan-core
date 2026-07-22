@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\CustomField;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use Elastica\Query\AbstractQuery;
 
 /**
@@ -29,8 +30,11 @@ class CustomFieldFilterResolver
      */
     public const PREFIX = 'customField_';
 
+    private const REQUIRED_PERMISSION = 'feature_statements_custom_fields';
+
     public function __construct(
         private readonly CustomFieldElasticaQueryBuilder $customFieldElasticaQueryBuilder,
+        private readonly PermissionsInterface $permissions,
     ) {
     }
 
@@ -38,6 +42,8 @@ class CustomFieldFilterResolver
      * Splits $userFilters into custom-field ES clauses (to AND into the query's boolMustFilter)
      * and the remaining filters (with all `customField_*` keys stripped, so the generic per-filter
      * loop in ElasticsearchResultCreator doesn't also try to treat them as plain ES field filters).
+     * Returns an empty clause list and $userFilters untouched when the custom-field feature
+     * permission is off, so callers don't need to check the permission themselves.
      *
      * @param array<string, mixed> $userFilters
      *
@@ -45,6 +51,10 @@ class CustomFieldFilterResolver
      */
     public function resolveCustomFieldFilter(array $userFilters): array
     {
+        if (!$this->permissions->hasPermission(self::REQUIRED_PERMISSION)) {
+            return [[], $userFilters];
+        }
+
         $fieldFilters = $this->extractActiveCfFilters($userFilters);
 
         return [

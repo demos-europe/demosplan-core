@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
@@ -122,7 +121,6 @@ class ElasticsearchResultCreator
         private readonly DepartmentRepository $departmentRepository,
         private readonly ProfilerService $profilerService,
         private readonly LoggerInterface $logger,
-        private readonly PermissionsInterface $permissions,
         private readonly CustomFieldFilterResolver $customFieldFilterResolver,
         private readonly CustomFieldElasticaQueryBuilder $customFieldElasticaQueryBuilder,
         #[Autowire(param: 'elasticsearch_max_result_window')]
@@ -179,10 +177,8 @@ class ElasticsearchResultCreator
             );
             [$boolMustFilter, $boolMustNotFilter] = $this->getBasicFilters($procedureId, $userFilters);
 
-            if ($this->permissions->hasPermission('feature_statements_custom_fields')) {
-                [$customFieldClauses, $userFilters] = $this->customFieldFilterResolver->resolveCustomFieldFilter($userFilters);
-                array_push($boolMustFilter, ...$customFieldClauses);
-            }
+            [$customFieldClauses, $userFilters] = $this->customFieldFilterResolver->resolveCustomFieldFilter($userFilters);
+            array_push($boolMustFilter, ...$customFieldClauses);
 
             $userFilters = $this->getRenamedUserFilters($userFilters);
             $fragmentFilters = $this->getFragmentFilters($userFilters);
