@@ -22,7 +22,7 @@
         {{ 'statements.uploaded.confirm.hint'|trans }}
     </p>
 
-    {% if templateVars.isAutoMode %}
+    {% if templateVars.isAutoMode|default(false) %}
         <dp-inline-notification
             class="mb-6"
             message="{{ 'import.statements.fromPdf.auto.warning.text.confirmed'|trans }}"
