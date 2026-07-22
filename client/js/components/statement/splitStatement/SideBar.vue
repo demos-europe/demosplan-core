@@ -402,9 +402,15 @@ export default {
         return
       }
 
-      const defaultAssignee = this.getFirstTagAssignee(newTags)
+      const assignee = this.getFirstTagAssignee(newTags) || this.getAssignableUserById('noAssigneeId')
 
-      this.selectedAssignee = defaultAssignee || this.getAssignableUserById('noAssigneeId') || null
+      /*
+       * Only update once a valid option exists; avoid setting null while the assignable
+       * users are still loading, which would break dp-multiselect and the save logic.
+       */
+      if (assignee) {
+        this.selectedAssignee = assignee
+      }
     },
   },
 
