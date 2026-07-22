@@ -125,11 +125,11 @@ class CustomFieldElasticaQueryBuilder
      * different ones).
      *
      * @param array<string, string[]> $fieldsToCount   fieldId => option IDs to count, for every
-     *                                                  field this request needs counts for
+     *                                                 field this request needs counts for
      * @param array<string, string[]> $activeCfFilters fieldId => selected option IDs, for every
-     *                                                  currently active custom-field filter
-     *                                                  (including fields in $fieldsToCount) —
-     *                                                  used to build each field's own exclusion filter
+     *                                                 currently active custom-field filter
+     *                                                 (including fields in $fieldsToCount) —
+     *                                                 used to build each field's own exclusion filter
      *
      * @return array<string, FilterAggregation>
      */

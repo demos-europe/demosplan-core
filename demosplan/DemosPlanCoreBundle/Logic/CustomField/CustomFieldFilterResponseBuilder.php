@@ -102,9 +102,9 @@ class CustomFieldFilterResponseBuilder
 
     /**
      * @param array<string, string[]> $activeCfFilters fieldId => raw values (sentinels included), used
-     *                                                  to determine selected options for $config's own field
+     *                                                 to determine selected options for $config's own field
      * @param array<string, int>      $counts          optionId => count, already scoped to this field's
-     *                                                  facet exclusion by the caller
+     *                                                 facet exclusion by the caller
      */
     private function buildSingleFilterItem(
         CustomFieldConfiguration $config,
