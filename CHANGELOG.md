@@ -8,7 +8,7 @@
 
 ### Added
 
-- Sortable deadline column in segmentsList, remove pager
+- Sortable deadline column in segmentsList, temporarily remove pager
 - Tags can now be linked to a default assignee, who is preselected when the tag is added to a segment during statement splitting
 
 

@@ -92,14 +92,9 @@
         class="flex justify-between items-center mt-4"
       >
         <div class="ml-auto flex items-center space-inline-xs">
-          <label
-            class="u-mb-0"
-            for="applySortSelection"
-          >
-            {{ Translator.trans('sorting') }}
-          </label>
           <dp-select
             id="applySortSelection"
+            :label="{ text: Translator.trans('sorting') }"
             :options="sortOptions"
             :selected="selectedSort"
             @select="applySort"
@@ -634,7 +629,7 @@ export default {
     // Passed as headerFields to DpDataTable
     availableHeaderFields () {
       const externIdField = this.headerFieldsAvailable.find(el => el.field === 'externId')
-      const userHeaderFields = this.headerFields.filter(el => el.field !== 'externId'  && (el.field !== 'deadline' || hasPermission('field_statement_deadline')))
+      const userHeaderFields = this.headerFields.filter(el => el.field !== 'externId' && (el.field !== 'deadline' || hasPermission('field_statement_deadline')))
 
       if (!hasPermission('field_segments_custom_fields')) {
         return [
