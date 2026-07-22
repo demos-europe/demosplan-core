@@ -59,25 +59,38 @@ class CustomFieldFilterResponseBuilder
 
         $regularUserFilters = $this->customFieldFilterResolver->withoutCfFilterKeys($userFilters);
 
-        // Sentinel-free values only, shared across all fields below when building each
-        // field's "other active CF filters" constraint (see buildSingleFilterItem()).
+        // Sentinel-free values only, used both to build each field's own facet-exclusion filter
+        // and passed to the counter alongside $fieldsToCount below.
         $strippedCfFilters = $this->customFieldFilterResolver->extractActiveCfFilters($userFilters);
+
+        $relevantConfigs = array_values(array_filter(
+            $cfConfigs ?? [],
+            static fn (CustomFieldConfiguration $config): bool => array_key_exists($config->getId(), $activeCfFilters)
+        ));
+
+        $fieldsToCount = [];
+        foreach ($relevantConfigs as $config) {
+            $field = $config->getConfiguration();
+            $field->setId($config->getId());
+            $optionIds = array_map(static fn ($option) => $option->getId(), $field->getOptions());
+
+            if ([] !== $optionIds) {
+                $fieldsToCount[$config->getId()] = $optionIds;
+            }
+        }
+
+        $counts = $this->customFieldStatementCounter->countForFields(
+            $procedureId,
+            $fieldsToCount,
+            $regularUserFilters,
+            $strippedCfFilters,
+            $search
+        );
 
         $filterItems = [];
 
-        foreach ($cfConfigs ?? [] as $config) {
-            if (!array_key_exists($config->getId(), $activeCfFilters)) {
-                continue;
-            }
-
-            $item = $this->buildSingleFilterItem(
-                $config,
-                $procedureId,
-                $activeCfFilters,
-                $strippedCfFilters,
-                $regularUserFilters,
-                $search
-            );
+        foreach ($relevantConfigs as $config) {
+            $item = $this->buildSingleFilterItem($config, $activeCfFilters, $counts[$config->getId()] ?? []);
 
             if (null !== $item) {
                 $filterItems[] = $item;
@@ -88,20 +101,15 @@ class CustomFieldFilterResponseBuilder
     }
 
     /**
-     * @param array<string, string[]> $activeCfFilters    fieldId => raw values (sentinels included), used
-     *                                                    to determine selected options for $config's own field
-     * @param array<string, string[]> $strippedCfFilters  fieldId => real values only, used to constrain
-     *                                                    counts by the OTHER active CF fields
-     * @param array<string, mixed>    $regularUserFilters raw assessment table filters, without any
-     *                                                    `customField_*` keys
+     * @param array<string, string[]> $activeCfFilters fieldId => raw values (sentinels included), used
+     *                                                  to determine selected options for $config's own field
+     * @param array<string, int>      $counts          optionId => count, already scoped to this field's
+     *                                                  facet exclusion by the caller
      */
     private function buildSingleFilterItem(
         CustomFieldConfiguration $config,
-        string $procedureId,
         array $activeCfFilters,
-        array $strippedCfFilters,
-        array $regularUserFilters,
-        ?string $search,
+        array $counts,
     ): ?AssessmentTableFilter {
         $fieldId = $config->getId();
         $field = $config->getConfiguration();
@@ -112,25 +120,6 @@ class CustomFieldFilterResponseBuilder
         if ([] === $fieldOptions) {
             return null;
         }
-
-        // Facet exclusion: count options for this field with all OTHER CF filters applied,
-        // but not this field's own active selection (mirrors ES aggregation behaviour).
-        $constraintFilters = array_filter(
-            $strippedCfFilters,
-            static fn (string $id): bool => $id !== $fieldId,
-            ARRAY_FILTER_USE_KEY
-        );
-
-        $optionIds = array_map(static fn ($option) => $option->getId(), $fieldOptions);
-
-        $counts = $this->customFieldStatementCounter->countByField(
-            $procedureId,
-            $fieldId,
-            $optionIds,
-            $regularUserFilters,
-            $constraintFilters,
-            $search
-        );
 
         $options = $this->buildOptions($fieldOptions, $counts);
 

@@ -113,4 +113,49 @@ class CustomFieldElasticaQueryBuilder
 
         return $nestedAggregation;
     }
+
+    /**
+     * One top-level Filter aggregation per field in $fieldsToCount, keyed
+     * `customFieldOptionCounts_{fieldId}`, each scoped by its own facet-exclusion filter
+     * (matches statements satisfying every OTHER active custom-field filter, but not this
+     * field's own selection) and containing {@see buildOptionCountsAggregation()} for that
+     * field. Lets a single ES query return option counts for multiple custom fields at once —
+     * each field still gets its own correct exclusion state, which is why this can't be done by
+     * adding a single top-level query filter (a query only has one filter state; N fields need N
+     * different ones).
+     *
+     * @param array<string, string[]> $fieldsToCount   fieldId => option IDs to count, for every
+     *                                                  field this request needs counts for
+     * @param array<string, string[]> $activeCfFilters fieldId => selected option IDs, for every
+     *                                                  currently active custom-field filter
+     *                                                  (including fields in $fieldsToCount) —
+     *                                                  used to build each field's own exclusion filter
+     *
+     * @return array<string, FilterAggregation>
+     */
+    public function buildFacetedOptionCountsAggregations(array $fieldsToCount, array $activeCfFilters): array
+    {
+        $aggregations = [];
+
+        foreach ($fieldsToCount as $fieldId => $optionIds) {
+            $otherFieldFilters = array_filter(
+                $activeCfFilters,
+                static fn (string $id): bool => $id !== $fieldId,
+                ARRAY_FILTER_USE_KEY
+            );
+
+            $exclusionFilter = new BoolQuery();
+            foreach ($this->buildFieldClauses($otherFieldFilters) as $clause) {
+                $exclusionFilter->addMust($clause);
+            }
+
+            $aggregationName = "customFieldOptionCounts_{$fieldId}";
+            $facetAggregation = (new FilterAggregation($aggregationName))->setFilter($exclusionFilter);
+            $facetAggregation->addAggregation($this->buildOptionCountsAggregation('byOption', $fieldId, $optionIds));
+
+            $aggregations[$aggregationName] = $facetAggregation;
+        }
+
+        return $aggregations;
+    }
 }

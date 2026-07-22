@@ -20,10 +20,13 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticsearchResultCreator;
  * count query so its options keep counting the full applicable universe, mirroring how the other
  * ES-backed filters in {@see ElasticsearchResultCreator} behave).
  *
- * Reuses ElasticsearchResultCreator::getElasticsearchResult() itself (aggregations-only, size 0)
- * so the counted document set — procedure/original scoping, active regular filters, full-text
- * search, fragment filters — is composed by exactly the same logic as the main statement list,
- * instead of being re-derived here.
+ * Counts every field passed in in a SINGLE Elasticsearch query — one Filter aggregation per
+ * field, each with its own facet-exclusion filter context — rather than one query per field, so
+ * a request with N active custom-field filters costs one ES round trip instead of N. Reuses
+ * ElasticsearchResultCreator::getElasticsearchResult() itself (aggregations-only, size 0) so the
+ * counted document set — procedure/original scoping, active regular filters, full-text search,
+ * fragment filters — is composed by exactly the same logic as the main statement list, instead
+ * of being re-derived here.
  */
 class CustomFieldStatementCounter
 {
@@ -33,33 +36,29 @@ class CustomFieldStatementCounter
     }
 
     /**
-     * @param string[]                $optionIds          option IDs of the field, as already known by the caller
+     * @param array<string, string[]> $fieldsToCount      fieldId => option IDs to count
      * @param array<string, mixed>    $regularUserFilters raw assessment table filters (e.g. `original`,
      *                                                    `institution`, ...), without any `customField_*` keys
-     * @param array<string, string[]> $otherCfFilters     fieldId => selectedOptionIds[], for every OTHER
-     *                                                    active custom-field filter (excluding $fieldId itself)
+     * @param array<string, string[]> $activeCfFilters    fieldId => selected option IDs, for EVERY currently
+     *                                                    active custom-field filter (including fields in
+     *                                                    $fieldsToCount) — used to build each field's own
+     *                                                    facet-exclusion filter
      *
-     * @return array<string, int> optionId => count
+     * @return array<string, array<string, int>> fieldId => (optionId => count)
      */
-    public function countByField(
+    public function countForFields(
         string $procedureId,
-        string $fieldId,
-        array $optionIds,
+        array $fieldsToCount,
         array $regularUserFilters,
-        array $otherCfFilters = [],
+        array $activeCfFilters,
         ?string $search = null,
     ): array {
-        if ([] === $optionIds) {
+        if ([] === $fieldsToCount) {
             return [];
         }
 
-        $mergedFilters = $regularUserFilters;
-        foreach ($otherCfFilters as $otherFieldId => $otherOptionIds) {
-            $mergedFilters[CustomFieldFilterResolver::PREFIX.$otherFieldId] = $otherOptionIds;
-        }
-
         $result = $this->elasticsearchResultCreator->getElasticsearchResult(
-            $mergedFilters,
+            $regularUserFilters,
             $procedureId,
             $search ?? '',
             null,
@@ -70,15 +69,20 @@ class CustomFieldStatementCounter
             1,
             false,
             [],
-            $fieldId,
-            $optionIds,
+            $fieldsToCount,
+            $activeCfFilters,
         );
 
-        $buckets = $result->getAggregations()['customFieldOptionCounts'] ?? [];
-
+        $esAggregations = $result->getAggregations();
         $counts = [];
-        foreach (array_values($optionIds) as $index => $optionId) {
-            $counts[$optionId] = (int) ($buckets["opt_{$index}"]['doc_count'] ?? 0);
+
+        foreach ($fieldsToCount as $fieldId => $optionIds) {
+            $buckets = $esAggregations["customFieldOptionCounts_{$fieldId}"]['byOption'] ?? [];
+            $counts[$fieldId] = [];
+
+            foreach (array_values($optionIds) as $index => $optionId) {
+                $counts[$fieldId][$optionId] = (int) ($buckets["opt_{$index}"]['doc_count'] ?? 0);
+            }
         }
 
         return $counts;
