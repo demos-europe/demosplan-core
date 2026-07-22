@@ -45,7 +45,7 @@ class CustomFieldFilterResponseBuilder
         // stale) 'original' entry — mirrors how the caller derives $isOriginalStatementView.
         $userFilters['original'] = $isOriginalStatementView ? 'IS NULL' : 'IS NOT NULL';
 
-        $activeCfFilters = $this->extractActiveCfFilters($userFilters);
+        $activeCfFilters = $this->customFieldFilterResolver->extractActiveCfFilters($userFilters, stripEmptySentinels: false);
 
         if ([] === $activeCfFilters) {
             return [];
@@ -85,29 +85,6 @@ class CustomFieldFilterResponseBuilder
         }
 
         return $filterItems;
-    }
-
-    /**
-     * Deliberately does NOT strip sentinel empty values (unlike
-     * CustomFieldFilterResolver::extractActiveCfFilters()) — a field opened via its
-     * empty-value sentinel must still be treated as "active" here so its filter item
-     * (with fresh option counts) is included in the response. Sentinels are stripped
-     * separately, only where they'd otherwise act as query constraints (see
-     * $strippedCfFilters in buildFilterItems()).
-     *
-     * @return array<string, string[]> fieldId => selected option IDs
-     */
-    private function extractActiveCfFilters(array $userFilters): array
-    {
-        $active = [];
-
-        foreach ($userFilters as $key => $values) {
-            if (str_starts_with($key, CustomFieldFilterResolver::PREFIX)) {
-                $active[substr($key, strlen(CustomFieldFilterResolver::PREFIX))] = (array) $values;
-            }
-        }
-
-        return $active;
     }
 
     /**

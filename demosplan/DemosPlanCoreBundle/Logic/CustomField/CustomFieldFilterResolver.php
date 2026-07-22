@@ -68,15 +68,25 @@ class CustomFieldFilterResolver
     }
 
     /**
-     * Returns CF field filters with real (non-sentinel) values only.
-     * Empty-string sentinels posted when a dropdown opens are stripped so they
-     * do not produce ES filter clauses.
+     * Returns CF field filters, keyed by field ID.
      *
      * @param array<string, mixed> $userFilters
+     * @param bool                 $stripEmptySentinels When true (default), the empty-string
+     *                                                   sentinel posted when a dropdown opens is
+     *                                                   filtered out of each field's values, and a
+     *                                                   field left with no real values is omitted
+     *                                                   entirely — used when building ES query
+     *                                                   clauses, where a sentinel-only field must not
+     *                                                   produce a clause. When false, sentinels are
+     *                                                   kept as-is — used by
+     *                                                   {@see CustomFieldFilterResponseBuilder}, which
+     *                                                   must still treat a field opened via its
+     *                                                   sentinel as "active" so its filter item (with
+     *                                                   fresh option counts) is included in the response.
      *
-     * @return array<string, string[]> fieldId => selected option IDs (never empty arrays)
+     * @return array<string, string[]> fieldId => selected option IDs
      */
-    public function extractActiveCfFilters(array $userFilters): array
+    public function extractActiveCfFilters(array $userFilters, bool $stripEmptySentinels = true): array
     {
         $active = [];
 
@@ -85,14 +95,20 @@ class CustomFieldFilterResolver
                 continue;
             }
 
-            $nonEmpty = array_values(array_filter(
-                (array) $values,
-                static fn (mixed $v): bool => '' !== (string) $v
-            ));
+            $values = (array) $values;
 
-            if ([] !== $nonEmpty) {
-                $active[substr($key, strlen(self::PREFIX))] = $nonEmpty;
+            if ($stripEmptySentinels) {
+                $values = array_values(array_filter(
+                    $values,
+                    static fn (mixed $v): bool => '' !== (string) $v
+                ));
+
+                if ([] === $values) {
+                    continue;
+                }
             }
+
+            $active[substr($key, strlen(self::PREFIX))] = $values;
         }
 
         return $active;
