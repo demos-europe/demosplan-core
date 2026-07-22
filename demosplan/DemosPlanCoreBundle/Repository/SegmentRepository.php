@@ -79,6 +79,57 @@ class SegmentRepository extends CoreRepository
     }
 
     /**
+     * Returns the subset of the given IDs that belong to `$procedureId`,
+     * in a single round-trip. Out-of-procedure IDs are simply absent from
+     * the result, so callers neither need a per-segment procedure check
+     * nor leak the existence of segments belonging to a different procedure.
+     *
+     * @param array<int, string> $ids
+     *
+     * @return array<int, Segment>
+     *
+     * @throws Exception
+     */
+    public function findByIdsForProcedure(array $ids, string $procedureId): array
+    {
+        if ([] === $ids) {
+            return [];
+        }
+
+        return $this->findBy(['id' => $ids, 'procedure' => $procedureId]);
+    }
+
+    /**
+     * Subset of the given IDs that belong to `$procedureId` AND whose workflow
+     * place is not locked, in a single round-trip. The direct complement of
+     * {{ @see SegmentRepository::findLockedByIds }}: every segment always has a
+     * place ({{ @see Segment::getPlace }} is non-nullable), so an inner join
+     * suffices.
+     *
+     * @param array<int, string> $ids
+     *
+     * @return array<int, Segment>
+     *
+     * @throws Exception
+     */
+    public function findUnlockedByIdsForProcedure(array $ids, string $procedureId): array
+    {
+        if ([] === $ids) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('s')
+            ->innerJoin('s.place', 'p')
+            ->where('s.id IN (:ids)')
+            ->andWhere('s.procedure = :procedureId')
+            ->andWhere('p.locked = false')
+            ->setParameter('ids', $ids)
+            ->setParameter('procedureId', $procedureId)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * Returns the subset of given IDs that belong to `$procedureId` AND
      * whose current workflow place has `locked = true`. One round-trip
      * with an explicit JOIN — the lock state is read at query time instead

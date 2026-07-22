@@ -166,7 +166,7 @@
                 ref="boilerPlateModal"
                 boiler-plate-type="consideration"
                 :procedure-id="procedureId"
-                @insert="text => modalProps.handleInsertText(text)"
+                @insert="(text, boilerplateId) => insertBoilerplateText(text, boilerplateId, modalProps.handleInsertText)"
               />
               <recommendation-modal
                 ref="recommendationModal"
@@ -798,6 +798,26 @@ export default {
     closeRecommendationModalAfterInsert (recommendation) {
       this.actions.addRecommendations.text = recommendation
       dplan.notify.notify('confirm', Translator.trans('recommendation.pasted'))
+    },
+
+    /**
+     * Inserts the boilerplate text into the recommendation editor and records
+     * the usage of the boilerplate for every segment selected for bulk edit.
+     */
+    insertBoilerplateText (text, boilerplateId, handleInsertText) {
+      handleInsertText(text)
+
+      if (boilerplateId && this.segments.length > 0 && hasPermission('feature_boilerplate_usage_list')) {
+        return dpApi.post(
+          Routing.generate('dplan_boilerplate_usage_create_bulk', { procedureId: this.procedureId, boilerplateId }),
+          {},
+          { segmentIds: this.segments },
+        ).catch(() => {
+          // Recording the usage is non-critical: the text was inserted regardless.
+        })
+      }
+
+      return Promise.resolve()
     },
 
     openBoilerPlate () {
