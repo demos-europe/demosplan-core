@@ -22,6 +22,15 @@
         {{ 'statements.uploaded.confirm.hint'|trans }}
     </p>
 
+    {% if templateVars.isAutoMode %}
+        <dp-inline-notification
+            class="mb-6"
+            message="{{ 'import.statements.fromPdf.auto.warning.text.confirmed'|trans }}"
+            title="{{ 'import.statements.fromPdf.auto.warning.title'|trans }}"
+            type="warning">
+        </dp-inline-notification>
+    {% endif %}
+
     <dp-convert-annotated-pdf
         csrf-token="{{ csrf_token('csrf') }}"
         current-internal-phase-definition-id="{{ templateVars.currentInternalPhaseDefinitionId }}"
