@@ -8,6 +8,9 @@
 ### Added
 - Boilerplate edit page lists the segments in which a boilerplate is used as deep links
 
+### Added
+- Tags can now be linked to a default assignee, who is preselected when the tag is added to a segment during statement splitting
+
 ## v4.50.0 (2026-07-15)
 
 ### Added
