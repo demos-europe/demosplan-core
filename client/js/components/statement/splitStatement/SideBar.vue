@@ -335,10 +335,6 @@ export default {
       return this.deadline !== this.initialDeadline
     },
 
-    hasSelectedAssignee () {
-      return Boolean(this.selectedAssignee?.id) && this.selectedAssignee.id !== 'noAssigneeId'
-    },
-
     initialAssignee () {
       if (this.currentSegment && hasOwnProp(this.currentSegment, 'assigneeId')) {
         return this.getAssignableUserById(this.currentSegment.assigneeId)
@@ -396,28 +392,19 @@ export default {
 
   watch: {
     /*
-     * When a tag with a default assignee is added to an unassigned segment, preselect
-     * that user as assignee (first added tag with a default assignee wins). The
-     * selection is persisted with the regular save flow via updateSegment().
+     * Keep the assignee field in sync with the segment's tags: the first selected tag
+     * that has a default assignee wins and is applied even if an assignee is already set.
+     * If no selected tag provides one, the field is reset to "not assigned". The selection
+     * is persisted with the regular save flow via updateSegment().
      */
-    'editingSegment.tags': function (newTags, oldTags) {
-      if (!hasPermission('feature_tag_default_assignee') || !newTags || this.hasSelectedAssignee) {
+    'editingSegment.tags': function (newTags) {
+      if (!hasPermission('feature_tag_default_assignee') || !newTags) {
         return
       }
 
-      const addedTags = oldTags ? newTags.filter(tag => !oldTags.some(el => el.id === tag.id)) : newTags
+      const defaultAssignee = this.getFirstTagAssignee(newTags)
 
-      for (const addedTag of addedTags) {
-        const availableTag = this.availableTags.find(tag => tag.id === addedTag.id)
-        const defaultAssigneeId = availableTag?.relationships?.defaultAssignee?.data?.id
-        const defaultAssignee = defaultAssigneeId ? this.getAssignableUserById(defaultAssigneeId) : null
-
-        if (defaultAssignee) {
-          this.selectedAssignee = defaultAssignee
-
-          return
-        }
-      }
+      this.selectedAssignee = defaultAssignee || this.getAssignableUserById('noAssigneeId') || null
     },
   },
 
@@ -436,6 +423,20 @@ export default {
 
     getAssignableUserById (id) {
       return this.assignableUsers.find(user => user.id === id)
+    },
+
+    getFirstTagAssignee (tags) {
+      for (const tag of tags) {
+        const availableTag = this.availableTags.find(el => el.id === tag.id)
+        const defaultAssigneeId = availableTag?.relationships?.defaultAssignee?.data?.id
+        const defaultAssignee = defaultAssigneeId ? this.getAssignableUserById(defaultAssigneeId) : null
+
+        if (defaultAssignee) {
+          return defaultAssignee
+        }
+      }
+
+      return null
     },
 
     getPlaceById (placeId) {
