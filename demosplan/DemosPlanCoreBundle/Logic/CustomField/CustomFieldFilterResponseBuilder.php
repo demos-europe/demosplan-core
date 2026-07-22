@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\CustomField;
 
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\ElasticsearchResultCreator;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\AssessmentTableFilter;
@@ -21,7 +22,7 @@ class CustomFieldFilterResponseBuilder
 {
     public function __construct(
         private readonly CustomFieldConfigurationRepository $cfConfigRepository,
-        private readonly CustomFieldStatementCounter $customFieldStatementCounter,
+        private readonly ElasticsearchResultCreator $elasticsearchResultCreator,
         private readonly CustomFieldFilterResolver $customFieldFilterResolver,
     ) {
     }
@@ -79,7 +80,7 @@ class CustomFieldFilterResponseBuilder
             }
         }
 
-        $counts = $this->customFieldStatementCounter->countForFields(
+        $counts = $this->countForFields(
             $procedureId,
             $fieldsToCount,
             $regularUserFilters,
@@ -98,6 +99,68 @@ class CustomFieldFilterResponseBuilder
         }
 
         return $filterItems;
+    }
+
+    /**
+     * Was CustomFieldStatementCounter::countForFields() — folded in since buildFilterItems() was
+     * its only caller. Counts every field in $fieldsToCount in a SINGLE Elasticsearch query — one
+     * Filter aggregation per field, each with its own facet-exclusion filter context — rather than
+     * one query per field, so a request with N active custom-field filters costs one ES round trip
+     * instead of N. Reuses ElasticsearchResultCreator::getElasticsearchResult() itself
+     * (aggregations-only, size 0) so the counted document set — procedure/original scoping, active
+     * regular filters, full-text search, fragment filters — is composed by exactly the same logic
+     * as the main statement list, instead of being re-derived here.
+     *
+     * @param array<string, string[]> $fieldsToCount      fieldId => option IDs to count
+     * @param array<string, mixed>    $regularUserFilters raw assessment table filters (e.g. `original`,
+     *                                                    `institution`, ...), without any `customField_*` keys
+     * @param array<string, string[]> $activeCfFilters    fieldId => selected option IDs, for EVERY currently
+     *                                                    active custom-field filter (including fields in
+     *                                                    $fieldsToCount) — used to build each field's own
+     *                                                    facet-exclusion filter
+     *
+     * @return array<string, array<string, int>> fieldId => (optionId => count)
+     */
+    private function countForFields(
+        string $procedureId,
+        array $fieldsToCount,
+        array $regularUserFilters,
+        array $activeCfFilters,
+        ?string $search,
+    ): array {
+        if ([] === $fieldsToCount) {
+            return [];
+        }
+
+        $result = $this->elasticsearchResultCreator->getElasticsearchResult(
+            $regularUserFilters,
+            $procedureId,
+            $search ?? '',
+            null,
+            0,
+            1,
+            [],
+            true,
+            1,
+            false,
+            [],
+            $fieldsToCount,
+            $activeCfFilters,
+        );
+
+        $esAggregations = $result->getAggregations();
+        $counts = [];
+
+        foreach ($fieldsToCount as $fieldId => $optionIds) {
+            $buckets = $esAggregations["customFieldOptionCounts_{$fieldId}"]['byOption'] ?? [];
+            $counts[$fieldId] = [];
+
+            foreach (array_values($optionIds) as $index => $optionId) {
+                $counts[$fieldId][$optionId] = (int) ($buckets["opt_{$index}"]['doc_count'] ?? 0);
+            }
+        }
+
+        return $counts;
     }
 
     /**

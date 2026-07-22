@@ -144,20 +144,21 @@ class ElasticsearchResultCreator
      * @param int                     $aggregationsMinDocumentCount
      * @param bool                    $addAllAggregations
      * @param list<GlobalAggregation> $customAggregations
-     * @param array<string, string[]> $customFieldsToCount          fieldId => option IDs. When non-empty,
-     *                                                              adds one `customFieldOptionCounts_{fieldId}`
-     *                                                              Filter aggregation per entry (each with its
-     *                                                              own facet-exclusion filter), and skips
-     *                                                              applying CF filters to the main query, since
-     *                                                              each field's exclusion state now lives in its
-     *                                                              own aggregation instead. Used by
-     *                                                              CustomFieldStatementCounter; callers building
-     *                                                              the real statement list must leave this empty.
-     * @param array<string, string[]> $activeCfFiltersForCount      fieldId => selected option IDs, for every
-     *                                                              currently active custom-field filter — used
-     *                                                              to build each $customFieldsToCount entry's
-     *                                                              exclusion filter. Ignored when
-     *                                                              $customFieldsToCount is empty.
+     * @param array<string, string[]> $customFieldsToCount      fieldId => option IDs. When non-empty,
+     *                                                          adds one `customFieldOptionCounts_{fieldId}`
+     *                                                          Filter aggregation per entry (each with its
+     *                                                          own facet-exclusion filter), and skips
+     *                                                          applying CF filters to the main query, since
+     *                                                          each field's exclusion state now lives in its
+     *                                                          own aggregation instead. Used by
+     *                                                          CustomFieldFilterResponseBuilder::countForFields();
+     *                                                          callers building the real statement list must
+     *                                                          leave this empty.
+     * @param array<string, string[]> $activeCfFiltersForCount fieldId => selected option IDs, for every
+     *                                                          currently active custom-field filter — used
+     *                                                          to build each $customFieldsToCount entry's
+     *                                                          exclusion filter. Ignored when
+     *                                                          $customFieldsToCount is empty.
      */
     public function getElasticsearchResult(
         $userFilters,
@@ -188,7 +189,7 @@ class ElasticsearchResultCreator
                 [$customFieldClauses, $userFilters] = $this->customFieldFilterResolver->resolveCustomFieldFilter($userFilters);
                 array_push($boolMustFilter, ...$customFieldClauses);
             }
-            // Counting path (CustomFieldStatementCounter): deliberately skipped. Each field being
+            // Counting path (CustomFieldFilterResponseBuilder::countForFields()): deliberately skipped. Each field being
             // counted needs its own facet-exclusion state, which can only be expressed per
             // aggregation (see CustomFieldElasticaQueryBuilder::buildFacetedOptionCountsAggregations()) —
             // a single shared top-level filter can't hold N different exclusion states at once.
@@ -1374,7 +1375,8 @@ class ElasticsearchResultCreator
             foreach ($esResultAggregations as $key => $value) {
                 if (str_starts_with($key, 'customFieldOptionCounts_')) {
                     // passed through verbatim (raw ES buckets, nested under 'byOption') —
-                    // consumed directly by CustomFieldStatementCounter, not further processed here.
+                    // consumed directly by CustomFieldFilterResponseBuilder::countForFields(), not
+                    // further processed here.
                     $processedAggregation[$key] = $value;
                 }
             }
