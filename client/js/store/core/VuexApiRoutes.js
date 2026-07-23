@@ -96,6 +96,18 @@ const api1_0Routes = [
   },
 ]
 
+/*
+ * Hardcoded API 3.0 Routes — override the generic /2.0/{type} route
+ * for modules migrated to ApiPlatform.
+ */
+const api3_0Routes = [
+  {
+    module: 'Place',
+    action: 'list',
+    url: '/3.0/Place',
+  },
+]
+
 const generateApi2_0Routes = (apiModules) => {
   const routes = []
 
@@ -143,4 +155,4 @@ const generateApi2_0Routes = (apiModules) => {
   return routes
 }
 
-export { api1_0Routes, generateApi2_0Routes }
+export { api1_0Routes, api3_0Routes, generateApi2_0Routes }
