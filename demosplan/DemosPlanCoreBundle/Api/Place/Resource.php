@@ -29,7 +29,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place as PlaceEntity;
     ],
     formats: ['jsonapi'],
     routePrefix: ApiPlatformConstants::ROUTE_PREFIX_V3,
-    //provider: PlaceStateProvider::class,
+    provider: Provider::class,
 )]
 #[ApiFilter(PropertyFilter::class)]
 class Resource
