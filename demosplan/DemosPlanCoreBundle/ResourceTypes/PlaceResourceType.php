@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BasePlaceResourceConfigBuilder;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Api\Place\AccessChecker;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
@@ -43,6 +43,7 @@ final class PlaceResourceType extends DplanResourceType
         private readonly PlaceRepository $placeRepository,
         private readonly SegmentLockEnforcementService $segmentLockEnforcementService,
         private readonly EntityContentChangeService $entityContentChangeService,
+        private readonly AccessChecker $accessChecker,
     ) {
     }
 
@@ -58,22 +59,12 @@ final class PlaceResourceType extends DplanResourceType
 
     public function isAvailable(): bool
     {
-        // for now places are needed if and only if statements can be segmentated
-        return $this->currentUser->hasPermission('area_statement_segmentation');
+        return $this->accessChecker->isAvailable();
     }
 
     protected function getAccessConditions(): array
     {
-        $procedure = $this->currentProcedureService->getProcedure();
-        if (!$procedure instanceof Procedure) {
-            return [$this->conditionFactory->false()];
-        }
-
-        // for now all places can be read by anyone if they are available
-        return [$this->conditionFactory->propertyHasValue(
-            $procedure->getId(),
-            $this->procedure->id
-        )];
+        return $this->accessChecker->getAccessConditions();
     }
 
     public function isUpdateAllowed(): bool
