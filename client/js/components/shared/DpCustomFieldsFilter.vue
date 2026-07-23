@@ -29,6 +29,7 @@
       :id="`filter-item-${filterDefinition.id}`"
       :close-on-select="false"
       label="label"
+      :loading="loading"
       :multiple="filterDefinition.fieldType === 'multiSelect'"
       :options="sortedOptions"
       selection-controls
@@ -91,6 +92,12 @@ const props = defineProps({
   filterDefinition: {
     type: Object as PropType<FilterDefinition>,
     required: true,
+  },
+
+  loading: {
+    type: Boolean,
+    required: false,
+    default: false,
   },
 
   options: {
