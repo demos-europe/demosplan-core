@@ -18,12 +18,12 @@
 </documentation>
 
 <template>
-  <label
-    :for="`filter-item-${filterDefinition.id}`"
+  <dp-label
     class="layout__item u-1-of-3 pl-0 text-right"
-  >
-    {{ filterDefinition.name }}
-  </label><!--
+    style="display: inline-block"
+    :for="`filter-item-${filterDefinition.id}`"
+    :text="filterDefinition.name"
+  /><!--
  --><div class="layout__item u-2-of-3">
     <dp-multiselect
       :id="`filter-item-${filterDefinition.id}`"
