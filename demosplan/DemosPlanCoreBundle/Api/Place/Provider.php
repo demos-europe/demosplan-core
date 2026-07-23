@@ -11,6 +11,7 @@ declare(strict_types=1);
  */
 
 namespace demosplan\DemosPlanCoreBundle\Api\Place;
+
 use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
@@ -79,4 +80,3 @@ class Provider implements ProviderInterface
         );
     }
 }
-
