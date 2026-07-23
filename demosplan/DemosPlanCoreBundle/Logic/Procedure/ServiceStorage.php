@@ -502,6 +502,10 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             }
         }
 
+        if ($this->permissions->hasPermission('field_procedure_allow_uninvited_institutions')) {
+            $procedure['settings']['allowUninvitedInstitutions'] = array_key_exists('r_allowUninvitedInstitutions', $data);
+        }
+
         // liegt das Enddatum vor dem Startdatum?
         if (isset($procedure['endDate']) && strtotime((string) $procedure['endDate']) < strtotime((string) $procedure['startDate'])) {
             $mandatoryErrors[] = [

@@ -733,6 +733,13 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             }
         }
 
+        // Uninvited institutions are allowed to participate in this procedure too.
+        if ($this->procedure->getSettings()->isAllowUninvitedInstitutions()) {
+            $this->logger->debug('Uninvited institutions are allowed to participate in this procedure');
+
+            return true;
+        }
+
         $invitedOrgaIds = $this->procedureRepository->getInvitedOrgaIds($this->procedure->getId());
         $dataInputOrganisations = $this->procedure->getDataInputOrganisations();
         /** @var Orga $orga */
