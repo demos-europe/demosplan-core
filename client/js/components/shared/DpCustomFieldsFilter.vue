@@ -9,133 +9,120 @@
 
 <documentation>
   <!--
-    Renders custom field filters in the modal variant (label + DpMultiselect rows).
-    Counts next to each option come from the parent via fieldOptionCounts — no data
-    fetching happens here. The parent (DpFilterModal) sources counts from the same
-    Vuex filter options endpoint that powers all other filter counts.
-
-    v-model shape: { [fieldId]: string[] }  (selected option IDs keyed by field ID)
+    Renders a label + DpMultiselect for a single/multi-select custom field filter definition.
+    Manages its own sort state internally. Counts next to each option come from the parent via
+    the options prop - no data fetching happens here. The parent (DpFilterModal) sources counts
+    from the same Vuex filter options endpoint that powers all other filter counts, refreshed on
+    the open/close events emitted by this component.
   -->
 </documentation>
 
 <template>
-  <template v-if="variant === 'modal'">
-    <div
-      v-for="field in filterableFields"
-      :key="field.id"
+  <dp-label
+    class="layout__item u-1-of-3 pl-0 text-right"
+    style="display: inline-block"
+    :for="`filter-item-${filterDefinition.id}`"
+    :text="filterDefinition.name"
+  /><!--
+ --><div class="layout__item u-2-of-3">
+    <dp-multiselect
+      :id="`filter-item-${filterDefinition.id}`"
+      :close-on-select="false"
+      label="label"
+      :multiple="filterDefinition.fieldType === 'multiSelect'"
+      :options="sortedOptions"
+      selection-controls
+      track-by="value"
+      :value="value"
+      @close="emit('close')"
+      @deselect-all="emit('input', null)"
+      @input="val => emit('input', val)"
+      @open="emit('open')"
+      @select-all="val => emit('input', val)"
     >
-      <div class="layout__item u-1-of-3">
-        <label
-          :for="`custom-field-${field.id}`"
-          class="block text-right u-pr"
-        >
-          {{ field.attributes.name }}
-        </label>
-      </div>
-      <div class="layout__item u-2-of-3">
-        <dp-multiselect
-          :id="`custom-field-${field.id}`"
-          :multiple="field.attributes.fieldType === 'multiSelect'"
-          :options="fieldOptions(field)"
-          :placeholder="Translator.trans('choose')"
-          :value="selectedForField(field.id)"
-          label="label"
-          track-by="value"
-          @open="$emit('open', field.id)"
-          @remove="option => onOptionRemove(field.id, option)"
-          @select="option => onOptionSelect(field.id, option)"
-        >
-          <template v-slot:option="{ props }">
-            {{ props.option.label }} ({{ props.option.count }})
-          </template>
-        </dp-multiselect>
-      </div>
-    </div>
-  </template>
+      <template v-slot:beforeList>
+        <li>
+          <button
+            class="btn--blank o-link--default"
+            type="button"
+            @click="toggleSort"
+          >
+            <i
+              aria-hidden="true"
+              class="fa pr-1"
+              :class="sortingType === 'alphabetic' ? 'fa-sort-numeric-desc' : 'fa-sort-alpha-asc'"
+            />
+            {{ sortingType === 'alphabetic' ? Translator.trans('sort.count.desc') : Translator.trans('sort.alphabet.asc') }}
+          </button>
+        </li>
+      </template>
+      <template v-slot:option="{ props: optionProps }">
+        {{ optionProps.option.label }}
+        <template v-if="optionProps.option.count !== undefined">
+          ({{ optionProps.option.count }})
+        </template>
+      </template>
+      <template v-slot:tag="{ props: tagProps }">
+        <span class="multiselect__tag">
+          <span>
+            {{ tagProps.option.label }}
+            <template v-if="tagProps.option.count !== undefined">
+              ({{ tagProps.option.count }})
+            </template>
+          </span>
+          <button
+            :aria-label="`${Translator.trans('remove')}: ${tagProps.option.label}`"
+            class="multiselect__tag-icon"
+            type="button"
+            @click="tagProps.remove(tagProps.option)"
+          />
+        </span>
+      </template>
+    </dp-multiselect>
+  </div>
 </template>
 
-<script>
-import { DpMultiselect } from '@demos-europe/demosplan-ui'
+<script setup lang="ts">
+import { computed, type PropType, ref } from 'vue'
+import type { FilterDefinition, SelectOption } from '@DpJs/types/filters'
+import { DpLabel, DpMultiselect } from '@demos-europe/demosplan-ui'
 
-export default {
-  name: 'DpCustomFieldsFilter',
-
-  components: {
-    DpMultiselect,
+const props = defineProps({
+  filterDefinition: {
+    type: Object as PropType<FilterDefinition>,
+    required: true,
   },
 
-  props: {
-    customFieldDefinitions: {
-      type: Array,
-      default: () => [],
-    },
-
-    variant: {
-      type: String,
-      default: 'modal',
-      validator: (v) => ['modal'].includes(v),
-    },
-
-    /**
-     * Statement counts per option, keyed by fieldId then optionId.
-     * Shape: { [fieldId]: { [optionId]: count } }
-     * Sourced by DpFilterModal from Vuex customFieldOptionCounts getter.
-     */
-    fieldOptionCounts: {
-      type: Object,
-      default: () => ({}),
-    },
-
-    value: {
-      type: Object,
-      default: () => ({}),
-    },
+  options: {
+    type: Array as PropType<SelectOption[]>,
+    required: false,
+    default: () => [],
   },
 
-  emits: ['input', 'open'],
-
-  computed: {
-    filterableFields () {
-      return this.customFieldDefinitions.filter(f =>
-        ['singleSelect', 'multiSelect'].includes(f.attributes?.fieldType),
-      )
-    },
+  value: {
+    type: [Object, Array, null] as PropType<SelectOption | SelectOption[] | null>,
+    required: false,
+    default: null,
   },
+})
 
-  methods: {
-    fieldOptions (field) {
-      return (field.attributes?.options ?? []).map(o => ({
-        label: o.label,
-        value: o.id,
-        count: this.fieldOptionCounts[field.id]?.[o.id] ?? 0,
-      }))
-    },
+const emit = defineEmits<{
+  close: []
+  input: [value: SelectOption | SelectOption[] | null]
+  open: []
+}>()
 
-    selectedForField (fieldId) {
-      const ids = this.value[fieldId] ?? []
-      const field = this.customFieldDefinitions.find(f => f.id === fieldId)
+const sortingType = ref<'alphabetic' | 'count'>('alphabetic')
 
-      if (!field) {
-        return null
-      }
-
-      const matched = this.fieldOptions(field).filter(o => ids.includes(o.value))
-
-      return field.attributes.fieldType === 'multiSelect' ? matched : (matched[0] ?? null)
-    },
-
-    onOptionSelect (fieldId, option) {
-      const current = Array.isArray(this.value[fieldId]) ? [...this.value[fieldId]] : []
-      if (!current.includes(option.value)) {
-        current.push(option.value)
-      }
-      this.$emit('input', { ...this.value, [fieldId]: current })
-    },
-
-    onOptionRemove (fieldId, option) {
-      const current = (this.value[fieldId] ?? []).filter(id => id !== option.value)
-      this.$emit('input', { ...this.value, [fieldId]: current })
-    },
-  },
+const toggleSort = (): void => {
+  sortingType.value = sortingType.value === 'alphabetic' ? 'count' : 'alphabetic'
 }
+
+const sortedOptions = computed((): SelectOption[] => {
+  const optionsCopy = [...props.options]
+
+  return sortingType.value === 'count' ?
+    optionsCopy.sort((a, b) => (b.count ?? 0) - (a.count ?? 0)) :
+    optionsCopy.sort((a, b) => a.label.localeCompare(b.label))
+})
 </script>
