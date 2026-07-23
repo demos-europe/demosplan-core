@@ -85,7 +85,7 @@
 <script setup lang="ts">
 import { computed, type PropType, ref } from 'vue'
 import type { FilterDefinition, SelectOption } from '@DpJs/types/filters'
-import { DpMultiselect } from '@demos-europe/demosplan-ui'
+import { DpLabel, DpMultiselect } from '@demos-europe/demosplan-ui'
 
 const props = defineProps({
   filterDefinition: {
