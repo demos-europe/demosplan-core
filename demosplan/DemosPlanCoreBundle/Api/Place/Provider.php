@@ -26,7 +26,6 @@ use Webmozart\Assert\Assert;
 
 class Provider implements ProviderInterface
 {
-
     public function __construct(
         private readonly AccessChecker $accessChecker,
         private readonly PlaceRepository $placeRepository,
