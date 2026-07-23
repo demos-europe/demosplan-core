@@ -2865,7 +2865,7 @@ procedure.filter.permissionset.value.write: "Verfahren in Beteiligung"
 procedure.goto: "Zum Verfahren"
 procedure.inaccessible: "Verfahren ohne Zugriff"
 
-procedure.institutions.allow_uninvited: "Registrierte, nicht eingeladene Institutionen, dürfen sich beteiligen"
+procedure.institutions.allow_uninvited: "Registrierte, nicht eingeladene Institutionen dürfen sich beteiligen"
 procedure.involved.see.all: "zur ausführlichen Liste"
 procedure.legalNotice: "Rechtlicher Hinweis für Institutionen"
 procedure.legalnotice.cleared: "Mit dem Ändern der Phase wurde der rechtliche Hinweis entfernt"
