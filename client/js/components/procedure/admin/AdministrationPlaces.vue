@@ -336,8 +336,7 @@ export default {
     fetchPlaces () {
       this.isInitiallyLoading = true
 
-      dpApi.get(Routing.generate('api_resource_list', {
-        resourceType: 'Place',
+      dpApi.get(`${Routing.getBaseUrl()}/api/3.0/Place`, {
         fields: {
           Place: [
             'name',
@@ -346,7 +345,7 @@ export default {
           ].join(),
         },
         sort: 'sortIndex',
-      }))
+      })
         .then(({ data }) => {
           const places = data.data
 

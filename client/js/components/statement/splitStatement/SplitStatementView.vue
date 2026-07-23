@@ -616,8 +616,7 @@ export default {
     },
 
     fetchAvailablePlaces () {
-      return dpApi.get(Routing.generate('api_resource_list', {
-        resourceType: 'Place',
+      return dpApi.get(`${Routing.getBaseUrl()}/api/3.0/Place`, {
         fields: {
           Place: [
             'name',
@@ -626,7 +625,7 @@ export default {
           ].join(),
         },
         sort: 'sortIndex',
-      })).then((response) => {
+      }).then((response) => {
         const availablePlaces = response.data.data.map(place => {
           return {
             name: place.attributes.name,

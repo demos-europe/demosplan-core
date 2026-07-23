@@ -770,12 +770,9 @@ export default {
     },
 
     fetchPlaces () {
-      const url = Routing.generate('api_resource_list', {
-        resourceType: 'Place',
-        sort: 'sortIndex',
-      })
+      const url = `${Routing.getBaseUrl()}/api/3.0/Place`
 
-      return dpApi.get(url)
+      return dpApi.get(url, { sort: 'sortIndex' })
         .then(response => {
           this.places = response.data.data.map(place => {
             return {
