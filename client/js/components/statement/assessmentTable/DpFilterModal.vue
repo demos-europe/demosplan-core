@@ -124,9 +124,10 @@
                 v-for="definition in filterableCustomFieldDefinitions"
                 :key="definition.id"
                 :filter-definition="{ id: definition.id, name: definition.attributes.name, fieldType: definition.attributes.fieldType }"
-                :options="customFieldOptions(definition)"
-                :value="selectedCustomFieldValue(definition.id)"
-                @close="commitCustomFieldFilter"
+                :loading="getIsLoading(definition.id)"
+                :options="getVisibleCustomFieldOptions(definition)"
+                :value="getSelectedCustomFieldValue(definition.id)"
+                @close="applyCustomFieldFilter"
                 @input="handleCustomFieldInput(definition.id, $event)"
                 @open="refreshCustomFieldCounts(definition.id)"
               />
@@ -329,6 +330,7 @@ export default {
       customFieldOptionCounts: 'customFieldOptionCounts',
       filterByType: 'filterByType',
       getFilterHash: 'userFilterSetFilterHash',
+      getIsLoading: 'isLoading',
       userFilterSets: 'userFilterSets',
       // All selected filter options
       selectedFilterOptions: 'selectedFilterOptions',
@@ -382,9 +384,9 @@ export default {
     },
 
     noFilterSelected () {
-      const hasCustomFieldFilters = Object.values(this.customFieldFilterValue).some(ids => ids.length > 0)
+      const areCustomFieldFiltersSelected = Object.values(this.customFieldFilterValue).some(ids => ids.length > 0)
 
-      return this.selectedFilterOptions.length === 0 && !hasCustomFieldFilters
+      return this.selectedFilterOptions.length === 0 && !areCustomFieldFiltersSelected
     },
 
     route () {
@@ -439,12 +441,22 @@ export default {
       'setLoading',
     ]),
 
-    allCustomFieldOptions (definition) {
+    getCustomFieldOptions (definition) {
+      const counts = this.customFieldOptionCounts[definition.id]
+
       return (definition.attributes?.options ?? []).map(option => ({
         label: option.label,
         value: option.id,
-        count: this.customFieldOptionCounts[definition.id]?.[option.id] ?? 0,
+        count: counts ? (counts[option.id] ?? 0) : undefined,
       }))
+    },
+
+    getVisibleCustomFieldOptions (definition) {
+      if (undefined === this.customFieldOptionCounts[definition.id]) {
+        return []
+      }
+
+      return this.getCustomFieldOptions(definition).filter(option => option.count !== 0)
     },
 
     back () {
@@ -463,7 +475,7 @@ export default {
       return entries
     },
 
-    commitCustomFieldFilter () {
+    applyCustomFieldFilter () {
       this.setActiveCfFilterEntries(this.buildCustomFieldEntries())
       this.disabledInteractions = true
       this.updateSelectedOptions()
@@ -477,10 +489,6 @@ export default {
       }
 
       return (selectedCount > 0) ? '<span class="o-badge o-badge--small o-badge--dark">' + selectedCount + '</span>' : ''
-    },
-
-    customFieldOptions (definition) {
-      return this.allCustomFieldOptions(definition).filter(option => option.count !== 0)
     },
 
     deleteSavedFilterSet (userFilterSetId) {
@@ -501,8 +509,13 @@ export default {
 
       this.customFieldFilterValue = { ...this.customFieldFilterValue, [fieldId]: ids }
 
+      /*
+       * Tag removal / deselect-all can happen without the dropdown being open, so no
+       * @close event follows - commit immediately on decrease. Increases (and same-length
+       * swaps in a single-select) are always covered by the @close-triggered commit.
+       */
       if (ids.length < previousIds.length) {
-        this.commitCustomFieldFilter()
+        this.applyCustomFieldFilter()
       }
     },
 
@@ -621,7 +634,7 @@ export default {
       this.setActiveCfFilterEntries(this.buildCustomFieldEntries())
     },
 
-    selectedCustomFieldValue (fieldId) {
+    getSelectedCustomFieldValue (fieldId) {
       const selectedIds = this.customFieldFilterValue[fieldId] ?? []
       const definition = this.customFieldDefinitions.find(definition => definition.id === fieldId)
 
@@ -629,7 +642,7 @@ export default {
         return null
       }
 
-      const matched = this.allCustomFieldOptions(definition).filter(option => selectedIds.includes(option.value))
+      const matched = this.getCustomFieldOptions(definition).filter(option => selectedIds.includes(option.value))
 
       return definition.attributes.fieldType === 'multiSelect' ? matched : (matched[0] ?? null)
     },
@@ -657,9 +670,9 @@ export default {
        * hash set in the action
        */
       const allEntries = [...this.allSelectedFilterOptionsWithFilterName, ...this.buildCustomFieldEntries()]
-      const hasCfEntries = allEntries.some(entry => entry.name.startsWith('filter_customField_'))
+      const hasCustomFieldEntries = allEntries.some(entry => entry.name.startsWith('filter_customField_'))
 
-      if (!hasCfEntries) {
+      if (!hasCustomFieldEntries) {
         globalThis.submitForm(event, 'filters')
 
         return
@@ -679,6 +692,8 @@ export default {
     },
 
     refreshCustomFieldCounts (fieldId) {
+      this.setLoading({ filterId: fieldId, isLoading: true })
+
       /*
        * Mirror FilterModalSelectItem's sentinel pattern: post an empty-value entry for the
        * opened field so the backend knows to return its options with counts.
@@ -705,6 +720,9 @@ export default {
       globalThis.updateFilterHash(this.procedureId, entries)
         .then(filterHash => {
           this.getFilterOptionsAction({ filterHash })
+            .then(() => {
+              this.setLoading({ filterId: fieldId, isLoading: false })
+            })
         })
     },
 
