@@ -18,15 +18,19 @@ use ApiPlatform\State\ProviderInterface;
 use demosplan\DemosPlanCoreBundle\Api\Place\Resource as PlaceResource;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
+use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
+use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Webmozart\Assert\Assert;
 
 class Provider implements ProviderInterface
 {
+
     public function __construct(
         private readonly AccessChecker $accessChecker,
         private readonly PlaceRepository $placeRepository,
+        private readonly SortMethodFactory $sortMethodFactory,
     ) {
     }
 
@@ -39,7 +43,7 @@ class Provider implements ProviderInterface
         }
 
         if ($operation instanceof CollectionOperationInterface) {
-            return $this->provideCollection();
+            return $this->provideCollection($this->getSortMethods($context));
         }
 
         if (isset($uriVariables['id'])) {
@@ -47,6 +51,23 @@ class Provider implements ProviderInterface
         }
 
         return null;
+    }
+
+    private function getSortMethods(array $context): array
+    {
+        if (!$context) {
+            return [];
+        }
+
+        if (!array_key_exists('request', $context)) {
+            return [];
+        }
+
+        $sortQueryParamValue = $context['request']->query->get('sort');
+
+        return 'sortIndex' === $sortQueryParamValue
+            ? [$this->sortMethodFactory->propertyAscending([$sortQueryParamValue])]
+            : [];
     }
 
     private function provideSingle(string $id): ?PlaceResource
@@ -65,13 +86,15 @@ class Provider implements ProviderInterface
     }
 
     /**
+     * @param list<OrderBySortMethodInterface> $sortMethods
+     *
      * @return list<PlaceResource>
      */
-    private function provideCollection(): array
+    private function provideCollection(array $sortMethods): array
     {
         $places = $this->placeRepository->getEntities(
             $this->accessChecker->getAccessConditions(),
-            [],
+            $sortMethods,
         );
 
         return array_map(
