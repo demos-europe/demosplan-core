@@ -146,6 +146,40 @@ const SplitStatementStore = {
       }
     },
 
+    /**
+     * Preselects a segment's assignee from the default assignee of its first tag that has one.
+     * This mirrors the manual behaviour in SideBar.vue (the tag-add watcher) for tags that arrive
+     * pre-attached to segments (e.g. proposed by demospipes), which never trigger that watcher.
+     * Only users assignable in the procedure are applied, and an existing assignee is never overwritten.
+     */
+    applyTagDefaultAssignees ({ state, commit }) {
+      if (!hasPermission('feature_tag_default_assignee')) {
+        return
+      }
+
+      const segmentsWithDefaultAssignee = structuredClone(state.segments).map(segment => {
+        if (segment.assigneeId) {
+          return segment
+        }
+
+        for (const segmentTag of segment.tags) {
+          const availableTag = state.availableTags.find(tag => tag.id === segmentTag.id)
+          const defaultAssigneeId = availableTag?.relationships?.defaultAssignee?.data?.id
+          const isAssignableUser = Boolean(defaultAssigneeId) && state.assignableUsers.some(user => user.id === defaultAssigneeId)
+
+          if (isAssignableUser) {
+            segment.assigneeId = defaultAssigneeId
+
+            return segment
+          }
+        }
+
+        return segment
+      })
+
+      commit('setProperty', { prop: 'segments', val: segmentsWithDefaultAssignee })
+    },
+
     closeEditMode ({ commit }) {
       commit('setProperty', { prop: 'editModeActive', val: false })
       commit('setProperty', { prop: 'editingSegment', val: null })
@@ -307,6 +341,8 @@ const SplitStatementStore = {
 
         commit('setProperty', { prop: 'uncategorizedTags', val: mergedTags })
         commit('setProperty', { prop: 'availableTags', val: availableTags })
+
+        dispatch('applyTagDefaultAssignees')
       })
     },
 
@@ -356,7 +392,9 @@ const SplitStatementStore = {
     fetchTags ({ commit }) {
       const url = Routing.generate('api_resource_list', { resourceType: 'Tag' })
 
-      return dpApi.get(url, { include: 'topic', sort: 'sortIndex' })
+      const include = hasPermission('feature_tag_default_assignee') ? 'topic,defaultAssignee' : 'topic'
+
+      return dpApi.get(url, { include, sort: 'sortIndex' })
         .then(response => {
           const tags = response.data
 

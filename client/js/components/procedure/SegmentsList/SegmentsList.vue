@@ -14,6 +14,18 @@
       class="pt-2 pb-3"
       :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }"
     >
+      <div class="flex justify-end gap-2 py-2">
+        <dp-button
+          v-if="hasPermission('feature_segments_import_excel')"
+          :href="Routing.generate('DemosPlan_procedure_import', { procedureId: procedureId }) + '#ExcelImport'"
+          :text="Translator.trans('import.options.xls')"
+          class="mr-0 h-fit"
+          data-cy="segmentsList:importOptionsXLS"
+          icon="download"
+          icon-size="medium"
+          variant="subtle"
+        />
+      </div>
       <div class="flex items-start mb-2">
         <custom-search
           id="customSearch"
@@ -79,27 +91,15 @@
         v-if="items.length > 0"
         class="flex justify-between items-center mt-4"
       >
-        <dp-pager
-          v-if="pagination.currentPage"
-          :key="`pager1_${pagination.currentPage}_${pagination.count}`"
-          :class="{ 'invisible': isLoading }"
-          :current-page="pagination.currentPage"
-          :limits="pagination.limits"
-          :per-page="pagination.perPage"
-          :total-pages="pagination.totalPages"
-          :total-items="pagination.total"
-          @page-change="applyQuery"
-          @size-change="handleSizeChange"
-        />
-        <dp-button
-          v-if="hasPermission('feature_segments_import_excel')"
-          :href="Routing.generate('DemosPlan_procedure_import', { procedureId: procedureId }) + '#ExcelImport'"
-          :text="Translator.trans('import.options.xls')"
-          data-cy="segmentsList:importOptionsXLS"
-          icon="download"
-          icon-size="medium"
-          variant="subtle"
-        />
+        <div class="ml-auto flex items-center space-inline-xs">
+          <dp-select
+            id="applySortSelection"
+            :label="{ text: Translator.trans('sorting') }"
+            :options="sortOptions"
+            :selected="selectedSort"
+            @select="applySort"
+          />
+        </div>
       </div>
       <div
         v-show="!isLoading"
@@ -374,6 +374,9 @@
                 </a>
               </dp-flyout>
             </template>
+            <template v-slot:deadline="rowData">
+              {{ rowData.attributes.deadline ? formatDate(rowData.attributes.deadline) : '' }}
+            </template>
           </dp-data-table>
         </div>
         <div
@@ -408,7 +411,7 @@
       ref="unlockModal"
       :assignable-users="unlockAssignableUsers"
       :places="places"
-      @unlock="payload => unlockSegment(payload, () => applyQuery(pagination.currentPage))"
+      @unlock="payload => unlockSegment(payload, () => applyQuery())"
     />
   </div>
 </template>
@@ -425,9 +428,10 @@ import {
   DpFlyout,
   DpInlineNotification,
   DpLoading,
-  DpPager,
   dpRpc,
+  DpSelect,
   DpStickyElement,
+  formatDate,
   hasOwnProp,
   tableSelectAllItems,
   VPopover,
@@ -440,7 +444,6 @@ import fullscreenModeMixin from '@DpJs/components/shared/mixins/fullscreenModeMi
 import ImageModal from '@DpJs/components/shared/ImageModal'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import lscache from 'lscache'
-import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 import StatusBadge from '../Shared/StatusBadge'
@@ -462,7 +465,7 @@ export default {
     DpFlyout,
     DpInlineNotification,
     DpLoading,
-    DpPager,
+    DpSelect,
     DpStickyElement,
     FilterFlyout,
     ImageModal,
@@ -477,7 +480,7 @@ export default {
     cleanhtml: CleanHtml,
   },
 
-  mixins: [fullscreenModeMixin, paginationMixin, tableScrollbarMixin, tableSelectAllItems],
+  mixins: [fullscreenModeMixin, tableScrollbarMixin, tableSelectAllItems],
 
   props: {
     currentUserId: {
@@ -543,17 +546,13 @@ export default {
       defaultColumnSelection: [],
       currentSelection: [],
       customFieldDefinitions: [],
-      defaultPagination: {
-        currentPage: 1,
-        limits: [10, 25, 50, 100],
-        perPage: 10,
-      },
       demosplanUi,
       hasStyledTopicalTags: false,
       headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id'), colWidth: '120px', initialMinWidth: 120, fixed: true },
         { field: 'statementStatus', label: Translator.trans('statement.status'), colWidth: '180px', initialMinWidth: 180 },
         { field: 'internId', label: Translator.trans('internId.shortened'), colWidth: '120px', initialMinWidth: 120 },
+        { field: 'deadline', label: Translator.trans('deadline'), colWidth: '180px', initialMinWidth: 180 },
         { field: 'submitter', label: Translator.trans('submitter'), colWidth: '180px', initialMinWidth: 180 },
         { field: 'address', label: Translator.trans('address'), colWidth: '180px', initialMinWidth: 180 },
         { field: 'text', label: Translator.trans('text'), colWidth: '270px', initialMinWidth: 270 },
@@ -566,11 +565,16 @@ export default {
         // LocalStorage keys
         allSegments: `${this.procedureId}:allSegments`,
         currentQueryHash: `${this.procedureId}:segments:currentQueryHash`,
+        selectedSort: `${this.procedureId}:segmentsListSelectedSort`,
         toggledSegments: `${this.procedureId}:toggledSegments`,
       },
-      pagination: {},
       searchTerm: this.initialSearchTerm,
       searchFieldsSelected: [],
+      selectedSort: '',
+      sortOptions: [
+        { value: '-deadline', label: Translator.trans('sort.deadline.descending') },
+        { value: 'deadline', label: Translator.trans('sort.deadline.ascending') },
+      ],
     }
   },
 
@@ -625,7 +629,7 @@ export default {
     // Passed as headerFields to DpDataTable
     availableHeaderFields () {
       const externIdField = this.headerFieldsAvailable.find(el => el.field === 'externId')
-      const userHeaderFields = this.headerFields.filter(el => el.field !== 'externId')
+      const userHeaderFields = this.headerFields.filter(el => el.field !== 'externId' && (el.field !== 'deadline' || hasPermission('field_statement_deadline')))
 
       if (!hasPermission('field_segments_custom_fields')) {
         return [
@@ -684,13 +688,37 @@ export default {
     },
 
     items () {
-      return Object.values(this.segmentsObject)
+      const mapped = Object.values(this.segmentsObject)
         .map(segment => ({
           ...segment,
           isPlaceLocked: !!this.placesObject[segment.relationships?.place?.data?.id]?.attributes?.locked,
         }))
-        // This is not working! better pass createdDate into segmentsObject
-        .sort((a, b) => (b.attributes.externId.substring(1) - a.attributes.externId.substring(1)))
+
+      if (this.selectedSort === '') {
+        return mapped
+      }
+
+      // Deadline sorting happens client-side, so segments without a deadline always sort last, regardless of direction.
+      const direction = this.selectedSort.startsWith('-') ? -1 : 1
+
+      return mapped.sort((a, b) => {
+        const deadlineA = a.attributes.deadline
+        const deadlineB = b.attributes.deadline
+
+        if (!deadlineA && !deadlineB) {
+          return 0
+        }
+
+        if (!deadlineA) {
+          return 1
+        }
+
+        if (!deadlineB) {
+          return -1
+        }
+
+        return direction * (new Date(deadlineA) - new Date(deadlineB))
+      })
     },
 
     /*
@@ -745,7 +773,8 @@ export default {
      */
     selectableColumns () {
       const staticColumns = this.headerFieldsAvailable
-        .filter(el => el.field !== 'externId') // ExternId should always be displayed, so it shouldn't be selectable
+        // ExternId should always be displayed, so it shouldn't be selectable
+        .filter(el => el.field !== 'externId' && (el.field !== 'deadline' || hasPermission('field_statement_deadline')))
         .map(headerField => ([headerField.field, headerField.label]))
 
       if (!hasPermission('field_segments_custom_fields')) {
@@ -772,13 +801,10 @@ export default {
           fieldId: definition.id,
         }))
     },
-
-    storageKeyPagination () {
-      return `${this.currentUserId}:${this.procedureId}:paginationSegmentsList`
-    },
   },
 
   methods: {
+    formatDate,
     ...mapActions('AssignableUser', {
       fetchAssignableUsers: 'list',
     }),
@@ -802,7 +828,12 @@ export default {
       setUngroupedFilterOptions: 'setUngroupedOptions',
     }),
 
-    applyQuery (page) {
+    applySort (sortValue) {
+      this.selectedSort = sortValue
+      lscache.set(this.lsKey.selectedSort, sortValue)
+    },
+
+    applyQuery () {
       lscache.remove(this.lsKey.allSegments)
       lscache.remove(this.lsKey.toggledSegments)
       this.allItemsCount = null
@@ -827,6 +858,10 @@ export default {
         'recommendation',
       ]
 
+      if (hasPermission('field_statement_deadline')) {
+        statementSegmentFields.push('deadline')
+      }
+
       const statementSegmentInclude = [
         'assignee',
         'place',
@@ -847,9 +882,11 @@ export default {
       const payload = {
         include: statementSegmentInclude.join(),
         page: {
-          number: page,
-          size: this.pagination.perPage,
+          number: 1,
+          // 1000 is the hard server-side cap (JsonApiPaginationParser::MAX_PAGE_SIZE) — there is no pager anymore, so load as many segments as the API allows in one go.
+          size: 1000,
         },
+        // Baseline order so the list stays stable when selectedSort is '' (deadline sort, if active, is applied on top of this client-side).
         sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
         filter,
         fields: {
@@ -908,14 +945,8 @@ export default {
       this.isLoading = true
       this.fetchSegments(payload)
         .then((data) => {
-          /**
-           * We need to set the localStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
-           */
-          this.setLocalStorage(data.meta.pagination)
-
           // Fake the count from meta info of paged request, until `fetchSegmentIds()` resolves
           this.allItemsCount = data.meta.pagination.total
-          this.updatePagination(data.meta.pagination)
 
           /*
            * Get all segments (without pagination) to save them in localStorage for bulk editing.
@@ -1045,15 +1076,7 @@ export default {
 
     handleResetSearch () {
       this.resetSearchQuery()
-      this.applyQuery(1)
-    },
-
-    handleSizeChange (newSize) {
-      // Compute new page with current page for changed number of items per page
-      const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
-
-      this.pagination.perPage = newSize
-      this.applyQuery(page)
+      this.applyQuery()
     },
 
     recommendationHasHtmlTags (recommendation) {
@@ -1084,7 +1107,7 @@ export default {
       })
       this.updateQueryHash()
       this.resetSelection()
-      this.applyQuery(1)
+      this.applyQuery()
     },
 
     resetSearchQuery () {
@@ -1274,7 +1297,7 @@ export default {
 
       this.updateQueryHash()
       this.resetSelection()
-      this.applyQuery(1)
+      this.applyQuery()
     },
 
     showVersionHistory (segmentId, externId) {
@@ -1316,7 +1339,7 @@ export default {
     updateSearchQuery (term) {
       this.searchTerm = term
       this.resetSelection()
-      this.applyQuery(1)
+      this.applyQuery()
     },
   },
 
@@ -1332,6 +1355,12 @@ export default {
 
     // When returning from bulk edit flow, the currentQueryHash which was used there to build a return link must be deleted.
     lscache.remove(this.lsKey.currentQueryHash)
+
+    const storedSort = lscache.get(this.lsKey.selectedSort)
+
+    if (storedSort) {
+      this.selectedSort = storedSort
+    }
 
     if (lscache.get(`${this.procedureId}:navigation:source`)) {
       lscache.remove(`${this.procedureId}:navigation:source`)
@@ -1350,12 +1379,11 @@ export default {
       })
     }
 
-    this.initPagination()
     if (hasPermission('field_segments_custom_fields')) {
       this.loadSegmentCustomFields()
     }
 
-    this.applyQuery(this.pagination.currentPage)
+    this.applyQuery()
 
     this.fetchPlaces({
       fields: {
