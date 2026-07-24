@@ -989,27 +989,6 @@ export default {
       }
     },
 
-    /**
-     * Remove non-updatable comments from segments relationships for update request
-     * @param relations {Object}
-     */
-    excludeComments (relations) {
-      if (relations.comments) {
-        this.setProperty({ prop: 'isLoading', val: true })
-        delete relations.comments
-      }
-    },
-
-    /**
-     * Remove non-updatable recommendationVersions from segments relationships for update request
-     * @param relations {Object}
-     */
-    excludeRecommendationVersion (relations) {
-      if (relations.recommendationVersions) {
-        delete relations.recommendationVersions
-      }
-    },
-
     restoreComments (comments) {
       if (comments) {
         const segmentWithComments = {
@@ -1058,15 +1037,10 @@ export default {
         { ...this.segment.relationships.comments } :
         null
 
-      // Update relationships (assignee/place)
-      const relations = this.updateRelationships()
-
-      /**
-       *  Comments and recommendationVersions need to be removed from the PATCH payload
-       *  as updating them is technically not supported
-       */
-      this.excludeComments(relations)
-      this.excludeRecommendationVersion(relations)
+      // Update relationships (assignee/place). Read-only relationships (comments,
+      // recommendationVersions) are stripped inside updateRelationships so they never
+      // reach the PATCH payload.
+      this.updateRelationships()
 
       this.lockedBeforeSave = this.isLocked
       this.isSaving = true
@@ -1261,6 +1235,17 @@ export default {
 
     updateRelationships () {
       let relations = { ...this.segment.relationships }
+
+      /*
+       * `comments` and `recommendationVersions` are read-only on the StatementSegment resource
+       * (they are managed through their own resources/endpoints, never via a segment update).
+       * They must not end up in the update payload. They have to be removed here, before the item
+       * is written to the store, because the vuex-json-api `save` diff reads the *stored* item —
+       * stripping them from the returned object alone has no effect. `finalizeSave()` /
+       * `restoreComments()` put the comments back into the store afterwards so the UI keeps them.
+       */
+      delete relations.comments
+      delete relations.recommendationVersions
 
       if (this.showWorkflowActions) {
         let assignee = { assignee: { data: null } }
