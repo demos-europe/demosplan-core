@@ -1136,6 +1136,19 @@ feature_json_api_statement:
     expose: true
     label: 'Allows access to Statement resources using the JSON:API.'
     loginRequired: false
+feature_json_api_statement_cross_procedures_search:
+    description: |-
+        Enables the AdminStatementCrossProcedureSearch JSON:API resource for cross-procedure submitter / author
+        search. Returns a narrow projection (id, externId, status, authorName, submitName,
+        initialOrganisationName) of statements from procedures the user can administer within
+        the current customer. Granting this permission carries a data-exposure decision: the
+        listed fields cross procedure boundaries.
+        Distinct from `area_search_submitter_in_procedures`, which additionally activates the
+        procedure-list-style "Einreicher suchen" UI flow and the AdminProcedure filter path.
+        This permission gates only the JSON:API resource.
+    expose: true
+    label: 'Allows access to AdminStatementCrossProcedureSearch resources using the JSON:API for cross-procedure submitter search.'
+    loginRequired: true
 feature_json_api_statement_segment:
     descriptions: |-
         When enabled then access to the StatementSegment resources using the JSON:API is granted.

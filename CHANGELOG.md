@@ -126,6 +126,7 @@
 
 ### Added
 - Tags can be reordered within and between TagTopics via drag and drop in tag administration
+- Cross-procedure submitter search API (`AdminStatementCrossProcedureSearchResourceType`) for locating statements by author or submitter name across all procedures the user can administer, scoped to the current customer (permission: `feature_json_api_statement_cross_procedures_search`)
 
 ### Changed
 - Segment transformer extracts segment IDs and text from `<segment-mark>` elements in textualReference instead of charStart/charEnd positions
