@@ -432,7 +432,7 @@
     {
         "package": "postcss-loader",
         "license": "MIT",
-        "website": "https://github.com/webpack-contrib/postcss-loader"
+        "website": "https://github.com/webpack/postcss-loader"
     },
     {
         "package": "postcss-prefix-selector",
