@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
@@ -43,8 +44,8 @@ use Webmozart\Assert\Assert;
 final class TagTopicResourceType extends DplanResourceType
 {
     public function __construct(
-        private readonly TagService $tagService,
-        protected TagTopicRepository $tagTopicRepository,
+        private readonly TagService  $tagService,
+        protected TagTopicRepository $tagTopicRepository
     ) {
     }
 
@@ -74,6 +75,18 @@ final class TagTopicResourceType extends DplanResourceType
             'feature_json_api_tag_topic',
             'area_statement_segmentation'
         );
+    }
+
+    /**
+     * @return bool
+     */
+    public function getMaster(): bool
+    {
+        if (!$this->currentProcedureService->getProcedure()) {
+            return false;
+        }
+
+        return $this->currentProcedureService->getProcedure()->getMaster();
     }
 
     protected function getAccessConditions(): array
@@ -145,12 +158,12 @@ final class TagTopicResourceType extends DplanResourceType
             )
         );
 
-        if ($this->currentProcedureService->getProcedure()->getMaster()) {
+        if ($this->getMaster()) {
             $configBuilder->procedure
                 ->setRelationshipType($this->resourceTypeStore->getProcedureTemplateResourceType())
                 ->setReadableByPath()->setSortable()->setFilterable()->initializable();
         }
-        if (!$this->currentProcedureService->getProcedure()->getMaster()) {
+        if (!$this->getMaster()) {
             $configBuilder->procedure
                 ->setRelationshipType($this->resourceTypeStore->getProcedureResourceType())
                 ->setReadableByPath()->setSortable()->setFilterable()->initializable();
