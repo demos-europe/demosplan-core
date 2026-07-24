@@ -76,7 +76,7 @@ describe('DpBoilerPlate', () => {
       wrapper.vm.addToTextArea(boilerPlates[0])
 
       expect(wrapper.vm.previewValue).toBe('<p>Some text</p>')
-      expect(wrapper.emitted('boilerplateText:added')).toEqual([['<p>Some text</p>']])
+      expect(wrapper.emitted('boilerplateText:added')).toEqual([['<p>Some text</p>', 'verified-boilerplate']])
     })
   })
 
