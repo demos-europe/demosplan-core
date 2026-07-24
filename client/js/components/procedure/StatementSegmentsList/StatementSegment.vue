@@ -1037,9 +1037,11 @@ export default {
         { ...this.segment.relationships.comments } :
         null
 
-      // Update relationships (assignee/place). Read-only relationships (comments,
-      // recommendationVersions) are stripped inside updateRelationships so they never
-      // reach the PATCH payload.
+      /*
+       * Update relationships (assignee/place). Read-only relationships (comments,
+       * recommendationVersions) are stripped inside updateRelationships so they never
+       * reach the PATCH payload.
+       */
       this.updateRelationships()
 
       this.lockedBeforeSave = this.isLocked
