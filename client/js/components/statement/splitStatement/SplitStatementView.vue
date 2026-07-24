@@ -776,6 +776,46 @@ export default {
       this.ignoreProsemirrorUpdates = false
     },
 
+    /**
+     * Confirms every segment that is still an unconfirmed proposal.
+     *
+     * Clicking the 'save and finish' button implicitly accepts all remaining proposals. For each one the
+     * segmentMark is set to confirmed, which assigns the pmId that the drafts-list ProseMirror logic
+     * later relies on, and its store status is updated to 'confirmed'. Confirming a mark does not
+     * change document positions, so the ranges read once up front stay valid across the loop
+     */
+    confirmAllUnconfirmedSegments () {
+      const ranges = this.prosemirror.keyAccess.rangeTrackerKey.getState(this.prosemirror.view.state)
+      const confirmedSegments = []
+
+      this.ignoreProsemirrorUpdates = true
+
+      this.segments.forEach(segment => {
+        if (segment.status === 'confirmed') {
+          return
+        }
+
+        const range = ranges[segment.id]
+
+        /**
+         * A proposal without a mark in the document (e.g. a broken draft) cannot be confirmed in
+         * ProseMirror, so it is skipped rather than throwing on the missing range
+         */
+        if (!range) {
+          return
+        }
+
+        setRange(this.prosemirror.view)(range.from, range.to, { segmentId: segment.id, isConfirmed: true })
+        confirmedSegments.push({ ...segment, status: 'confirmed' })
+      })
+
+      this.ignoreProsemirrorUpdates = false
+
+      if (confirmedSegments.length) {
+        this.locallyUpdateSegments(confirmedSegments)
+      }
+    },
+
     handleSegmentCreation (segmentToCreate) {
       const segment = {
         id: uuid(),
@@ -907,6 +947,8 @@ export default {
         if (window.dpconfirm(Translator.trans('statement.split.complete.confirm'))) {
           this.setProperty({ prop: 'isBusy', val: true })
           try {
+            // Confirming completes any remaining proposals so they are saved in a valid, confirmed state
+            this.confirmAllUnconfirmedSegments()
             const currentStatementText = this.prosemirror.getContent(this.prosemirror.view.state)
 
             this.setProperty({ prop: 'statementText', val: currentStatementText })
