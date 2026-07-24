@@ -187,6 +187,7 @@ import {
   setRange,
   setRangeEditingState,
 } from '@DpJs/lib/prosemirror/commands'
+import { DOMParser, DOMSerializer } from 'prosemirror-model'
 import {
   dpApi,
   DpButton,
@@ -197,17 +198,16 @@ import {
   hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
-import { DOMParser, DOMSerializer } from 'prosemirror-model'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CardPane from './CardPane'
 import dayjs from 'dayjs'
 import { EditorState } from 'prosemirror-state'
 import { generateRangeChangeMap } from '@DpJs/lib/prosemirror/utilities'
-import { v4 as uuid } from 'uuid'
 import SegmentationEditor from './SegmentationEditor'
 import SideBar from './SideBar'
 import StatementMeta from '@DpJs/components/procedure/StatementSegmentsList/StatementMeta/StatementMeta'
 import StatementMetaTooltip from '../StatementMetaTooltip'
+import { v4 as uuid } from 'uuid'
 
 /**
  * Merges ProseMirror segmentMark data with segment metadata from the store.
