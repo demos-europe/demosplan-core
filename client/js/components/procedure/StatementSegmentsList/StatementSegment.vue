@@ -704,7 +704,10 @@ export default {
       const hasRecommendationChanges = initialSegment.attributes.recommendation !== this.segment.attributes.recommendation
       const hasDeadlineChanges = initialSegment.attributes.deadline !== this.segment.attributes.deadline
       const hasPlaceChanges = initialSegment.relationships?.place?.data?.id !== this.selectedPlace.id
-      const hasAssigneeChanges = initialSegment.relationships?.assignee?.data?.id !== this.selectedAssignee.id
+
+      const initialAssigneeId = initialSegment.relationships?.assignee?.data?.id || null
+      const currentAssigneeId = (this.selectedAssignee?.id && this.selectedAssignee.id !== 'noAssigneeId') ? this.selectedAssignee.id : null
+      const hasAssigneeChanges = initialAssigneeId !== currentAssigneeId
 
       return (
         hasRecommendationChanges ||
@@ -1251,9 +1254,18 @@ export default {
     },
 
     setSelectedAssignee () {
-      if (this.segment.relationships?.assignee?.data?.id) {
-        this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
+      const assigneeId = this.segment.relationships?.assignee?.data?.id
+
+      if (!assigneeId) {
+        this.selectedAssignee = {
+          id: 'noAssigneeId',
+          name: Translator.trans('not.assigned'),
+        }
+
+        return
       }
+
+      this.selectedAssignee = this.assignableUsers.find(user => user.id === assigneeId)
     },
 
     setSelectedPlace () {
@@ -1361,6 +1373,10 @@ export default {
           this.isCollapsed = true
           this.claimLoading = false
           this.selectedAssignee = { id: '', name: '' }
+          this.selectedAssignee = {
+            name: Translator.trans('not.assigned'),
+            id: 'noAssigneeId',
+          }
         })
         .catch((err) => {
           console.error(err)
