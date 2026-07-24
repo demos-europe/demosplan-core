@@ -3823,46 +3823,44 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mapbox/unitbezier@npm:^0.0.1":
-  version: 0.0.1
-  resolution: "@mapbox/unitbezier@npm:0.0.1"
-  checksum: 10c0/97f39d4fbdf9579d0a1a8be0d536eb113a805d36459e774014f488a7ca6cc9dcfc77ab7a2ebe5af395ad50da6efb4dbf2566de0db3f62b6b8675cddbace8f86a
+"@mapbox/unitbezier@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@mapbox/unitbezier@npm:1.0.0"
+  checksum: 10c0/40749dd7f4fa2a3e6e3a881faf0cdfb14d47fefdea028e0191c750fca8e2203f976d8ef07ab7f704a59b9e7a4354d088fc92b86316d5479e0c49b5d3263dfc60
   languageName: node
   linkType: hard
 
-"@maplibre/maplibre-gl-style-spec@npm:^23.1.0":
-  version: 23.3.0
-  resolution: "@maplibre/maplibre-gl-style-spec@npm:23.3.0"
+"@maplibre/maplibre-gl-style-spec@npm:^24.4.1":
+  version: 24.10.0
+  resolution: "@maplibre/maplibre-gl-style-spec@npm:24.10.0"
   dependencies:
     "@mapbox/jsonlint-lines-primitives": "npm:~2.0.2"
-    "@mapbox/unitbezier": "npm:^0.0.1"
+    "@mapbox/unitbezier": "npm:^1.0.0"
     json-stringify-pretty-compact: "npm:^4.0.0"
     minimist: "npm:^1.2.8"
     quickselect: "npm:^3.0.0"
-    rw: "npm:^1.3.3"
     tinyqueue: "npm:^3.0.0"
   bin:
     gl-style-format: dist/gl-style-format.mjs
     gl-style-migrate: dist/gl-style-migrate.mjs
     gl-style-validate: dist/gl-style-validate.mjs
-  checksum: 10c0/c6207675c5e787a5743ef4d9b33778f5a85ba1f2a4e597e0e3dd0b527977cdac9b4c576477979f6af8d625b2bed8af76368f5a1c8b10500a2b855141d3f5caf3
+  checksum: 10c0/43ababa29ca151b274c5faea8a3cfe6c84c4b5ae47430fb92ea3711c733ea05db159eb56b3430febd2a11a0416ae01617ffa63f1951a4d8a44d0671299fd7bce
   languageName: node
   linkType: hard
 
-"@masterportal/masterportalapi@npm:2.54.0":
-  version: 2.54.0
-  resolution: "@masterportal/masterportalapi@npm:2.54.0"
+"@masterportal/masterportalapi@npm:2.62.0":
+  version: 2.62.0
+  resolution: "@masterportal/masterportalapi@npm:2.62.0"
   dependencies:
     core-js: "npm:^3.33.1"
     dayjs: "npm:^1.11.10"
-    ol: "npm:^10.7.0"
-    ol-mapbox-style: "npm:12.5.0"
-    olcs: "npm:^2.22.1"
+    ol: "npm:10.9.0"
+    ol-mapbox-style: "npm:13.3.0"
+    olcs: "npm:^2.23.0"
     proj4: "npm:^2.10.0"
-    xml2js: "npm:^0.6.2"
   peerDependencies:
-    "@cesium/engine": ^20.0.1
-  checksum: 10c0/126da034e727fefdccf17767f70378089676d3098628b6fe5818b812663c9e508b191aafcac20544e3c59b15c719181baa04fa366ed6b0c07cff2df01c120e7d
+    "@cesium/engine": ^23.0.0
+  checksum: 10c0/ed0b383a2c1a709b3edeefe949c293c91e9c91e88b9b08ffac4c6c1c74a0adf65693b5d5612d0fc618dbf563801b798f8923357cede9f12bc1eb8d27ccf11ee0
   languageName: node
   linkType: hard
 
@@ -4082,6 +4080,13 @@ __metadata:
   version: 3.9.2
   resolution: "@petamoriken/float16@npm:3.9.2"
   checksum: 10c0/af229a0fc429083e76c459cc3bf7e682f578518c34c21e2d1c1b1c2744e69a5208b94245c41757f500ef722dd79fb6c55e8858d29d7fb57d4fe2b3e5734f1149
+  languageName: node
+  linkType: hard
+
+"@petamoriken/float16@npm:^3.9.3":
+  version: 3.9.3
+  resolution: "@petamoriken/float16@npm:3.9.3"
+  checksum: 10c0/de0a1a0224862cba16e6b614e6a5dd557c545c3f0372db21f61d7bcce7595fa63a28d10512c908acfbe177d209a39cea406f190159936f5891b3c095d460fdc2
   languageName: node
   linkType: hard
 
@@ -5972,6 +5977,16 @@ __metadata:
   version: 4.2.2
   resolution: "@xtuc/long@npm:4.2.2"
   checksum: 10c0/8582cbc69c79ad2d31568c412129bf23d2b1210a1dfb60c82d5a1df93334da4ee51f3057051658569e2c196d8dc33bc05ae6b974a711d0d16e801e1d0647ccd1
+  languageName: node
+  linkType: hard
+
+"@zarrita/storage@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "@zarrita/storage@npm:0.2.0"
+  dependencies:
+    reference-spec-reader: "npm:^0.2.0"
+    unzipit: "npm:2.0.0"
+  checksum: 10c0/9f433cb8ab404741f05c842b57e03710cc8add4f58826a001099a7b0eff7f2bb3fd3a87c9c038655d479abc9a50368eaf0685898433e313c9cf587b6d51b03a8
   languageName: node
   linkType: hard
 
@@ -8023,7 +8038,7 @@ __metadata:
     "@eslint/js": "npm:^9.39.1"
     "@fullhuman/postcss-purgecss": "npm:^8.0.0"
     "@jest/globals": "npm:^30.2.0"
-    "@masterportal/masterportalapi": "npm:2.54.0"
+    "@masterportal/masterportalapi": "npm:2.62.0"
     "@sentry/browser": "npm:^10.57.0"
     "@tailwindcss/postcss": "npm:^4.3.0"
     "@types/leaflet": "npm:^1.9.21"
@@ -9163,6 +9178,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fflate@npm:^0.8.0":
+  version: 0.8.3
+  resolution: "fflate@npm:0.8.3"
+  checksum: 10c0/eab181ca37f5348ae76d4b6f840e0026e30220e33153289ac942222d8b9638237d486507dbcc09878d724095bd354993a2ee48bbee99c8f2c6440d4448719aa7
+  languageName: node
+  linkType: hard
+
 "file-entry-cache@npm:^11.1.1":
   version: 11.1.1
   resolution: "file-entry-cache@npm:11.1.1"
@@ -9397,6 +9419,22 @@ __metadata:
     xml-utils: "npm:^1.0.2"
     zstddec: "npm:^0.1.0"
   checksum: 10c0/565dde39ab2a58c16c6756bcf58e7e417f22de9faa73da6cf68f17ec24e2f9b3e020bedce96e7bcbb52188fb3b13f198ca29ee32007e6c887476f0f049e4859a
+  languageName: node
+  linkType: hard
+
+"geotiff@npm:^3.0.5 || ^3.1.0-beta.0":
+  version: 3.1.0-beta.0
+  resolution: "geotiff@npm:3.1.0-beta.0"
+  dependencies:
+    "@petamoriken/float16": "npm:^3.9.3"
+    lerc: "npm:^3.0.0"
+    pako: "npm:^2.0.4"
+    parse-headers: "npm:^2.0.2"
+    quick-lru: "npm:^6.1.1"
+    web-worker: "npm:^1.5.0"
+    xml-utils: "npm:^1.10.2"
+    zstddec: "npm:^0.2.0"
+  checksum: 10c0/d6d22d5012c03b780aac925661275234b0c896671640dd3cedf19778da8e10c5d9f4753b214f3f3964629e5892b83406be08e57ed469abd6a260b89c48ec7d40
   languageName: node
   linkType: hard
 
@@ -11734,7 +11772,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mapbox-to-css-font@npm:^3.0.2":
+"mapbox-to-css-font@npm:^3.2.0":
   version: 3.2.0
   resolution: "mapbox-to-css-font@npm:3.2.0"
   checksum: 10c0/68d2c1ae53e75b639f4aa04ee3d42b47f22bb50d2940ea35976fd7a40a157770825c2c289e8263d9d4f888231c3b96bdcaee03567bcf1e43806799affdcec712
@@ -12230,6 +12268,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"numcodecs@npm:^0.3.2":
+  version: 0.3.2
+  resolution: "numcodecs@npm:0.3.2"
+  dependencies:
+    fflate: "npm:^0.8.0"
+  checksum: 10c0/38e6e60ee063f63f6530f78f9dd4c1b4e347989b29950ddcf3307e43579ad1bc1ba17a6faf0e5cb9786517ac1489c02ee86a77ca8c19fbd70d0d20a23e7d6a81
+  languageName: node
+  linkType: hard
+
 "nwsapi@npm:^2.2.16":
   version: 2.2.20
   resolution: "nwsapi@npm:2.2.20"
@@ -12307,15 +12354,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ol-mapbox-style@npm:12.5.0":
-  version: 12.5.0
-  resolution: "ol-mapbox-style@npm:12.5.0"
+"ol-mapbox-style@npm:13.3.0":
+  version: 13.3.0
+  resolution: "ol-mapbox-style@npm:13.3.0"
   dependencies:
-    "@maplibre/maplibre-gl-style-spec": "npm:^23.1.0"
-    mapbox-to-css-font: "npm:^3.0.2"
+    "@maplibre/maplibre-gl-style-spec": "npm:^24.4.1"
+    mapbox-to-css-font: "npm:^3.2.0"
   peerDependencies:
     ol: "*"
-  checksum: 10c0/962c3c87afe4b0158b0467456629c35d4870f9410bb39fbd3c89f4acd088d12dcf7124f65fa7c4d5d64cf26f55f76569f501f599f5574927902f930d1ffb46dd
+  checksum: 10c0/dc2168dca3b7ea5dcd1ec4e2788b833fd8e9b5275fe56870d7efffd8d958425e624047aee6c7bfea4e1d854ed7d7665c75a525a17ac4fb00a5e7f09b2610532c
+  languageName: node
+  linkType: hard
+
+"ol@npm:10.9.0":
+  version: 10.9.0
+  resolution: "ol@npm:10.9.0"
+  dependencies:
+    "@types/rbush": "npm:4.0.0"
+    earcut: "npm:^3.0.0"
+    geotiff: "npm:^3.0.5 || ^3.1.0-beta.0"
+    pbf: "npm:4.0.1"
+    rbush: "npm:^4.0.0"
+    zarrita: "npm:^0.7.1"
+  checksum: 10c0/f8e955819db2d9c2f46430c81485d8f0a22fb1b0ec654a128e79716b419905e8fd3aadc23185570f45c60e5d1fe926f3593341441dfc35c5f3ed3a5e4a54ec48
   languageName: node
   linkType: hard
 
@@ -12332,13 +12393,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"olcs@npm:2.22.1, olcs@npm:^2.22.1":
+"olcs@npm:2.22.1":
   version: 2.22.1
   resolution: "olcs@npm:2.22.1"
   peerDependencies:
     cesium: ">= 1.90.0"
     ol: "*"
   checksum: 10c0/a3fd63597e59a0a38ec5ed49a85e1906fc9b74ab353b593f7e6b53ccec1aee86a8960bc84844f4a1ceb475566b5c3d57111390782522344b97e06e580011b5f9
+  languageName: node
+  linkType: hard
+
+"olcs@npm:^2.23.0":
+  version: 2.23.0
+  resolution: "olcs@npm:2.23.0"
+  peerDependencies:
+    cesium: ">= 1.90.0"
+    ol: "*"
+  checksum: 10c0/84045d172ec4d09d3f461a1204dc6f2e035be4e26772e8a241bd397b939a685843a4e96766efd9c0a322a4428ed1eca51050d81210593f80097d88815c267034
   languageName: node
   linkType: hard
 
@@ -13975,6 +14046,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"reference-spec-reader@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "reference-spec-reader@npm:0.2.0"
+  checksum: 10c0/8d966a0124978edf910aae10fcc56c13c2b66393ce0217819296ff1ff1b626754698c6edc4b2bfe6171acfac827979eb8ef7a884f521794798304be4a523ccd0
+  languageName: node
+  linkType: hard
+
 "reflect.getprototypeof@npm:^1.0.6, reflect.getprototypeof@npm:^1.0.9":
   version: 1.0.10
   resolution: "reflect.getprototypeof@npm:1.0.10"
@@ -14265,13 +14343,6 @@ __metadata:
   dependencies:
     queue-microtask: "npm:^1.2.2"
   checksum: 10c0/200b5ab25b5b8b7113f9901bfe3afc347e19bb7475b267d55ad0eb86a62a46d77510cb0f232507c9e5d497ebda569a08a9867d0d14f57a82ad5564d991588b39
-  languageName: node
-  linkType: hard
-
-"rw@npm:^1.3.3":
-  version: 1.3.3
-  resolution: "rw@npm:1.3.3"
-  checksum: 10c0/b1e1ef37d1e79d9dc7050787866e30b6ddcb2625149276045c262c6b4d53075ddc35f387a856a8e76f0d0df59f4cd58fe24707e40797ebee66e542b840ed6a53
   languageName: node
   linkType: hard
 
@@ -14569,13 +14640,6 @@ __metadata:
   bin:
     sass: sass.js
   checksum: 10c0/9e91daa20f970fefb364ac31289f070636da7aa7eaeb43e371ea98fa98085a6dbc2d3d058504226a02d07717faf0a4ce8d41b579ecb428c4a9d96b4dc1944a95
-  languageName: node
-  linkType: hard
-
-"sax@npm:>=0.6.0":
-  version: 1.4.1
-  resolution: "sax@npm:1.4.1"
-  checksum: 10c0/6bf86318a254c5d898ede6bd3ded15daf68ae08a5495a2739564eb265cd13bcc64a07ab466fb204f67ce472bb534eb8612dac587435515169593f4fffa11de7c
   languageName: node
   linkType: hard
 
@@ -15913,6 +15977,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"unzipit@npm:2.0.0":
+  version: 2.0.0
+  resolution: "unzipit@npm:2.0.0"
+  checksum: 10c0/7ee6af8bf1b8a978c08cebbe65d7e0dfab8a0889d20ef89c1b2219389cad255074611f895242f34087cb0cf428719dd8251734d0e8fa4033c618c9ff21d67445
+  languageName: node
+  linkType: hard
+
 "update-browserslist-db@npm:^1.1.1, update-browserslist-db@npm:^1.1.3":
   version: 1.1.3
   resolution: "update-browserslist-db@npm:1.1.3"
@@ -16304,7 +16375,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"web-worker@npm:^1.2.0":
+"web-worker@npm:^1.2.0, web-worker@npm:^1.5.0":
   version: 1.5.0
   resolution: "web-worker@npm:1.5.0"
   checksum: 10c0/d42744757422803c73ca64fa51e1ce994354ace4b8438b3f740425a05afeb8df12dd5dadbf6b0839a08dbda56c470d7943c0383854c4fb1ae40ab874eb10427a
@@ -16677,13 +16748,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"xml2js@npm:^0.6.2":
-  version: 0.6.2
-  resolution: "xml2js@npm:0.6.2"
-  dependencies:
-    sax: "npm:>=0.6.0"
-    xmlbuilder: "npm:~11.0.0"
-  checksum: 10c0/e98a84e9c172c556ee2c5afa0fc7161b46919e8b53ab20de140eedea19903ed82f7cd5b1576fb345c84f0a18da1982ddf65908129b58fc3d7cbc658ae232108f
+"xml-utils@npm:^1.10.2":
+  version: 1.10.2
+  resolution: "xml-utils@npm:1.10.2"
+  checksum: 10c0/53e98971e9bca58f382806bbb3a83cba3798e823a7c43a0dcfd5588df0085af288ad20701277d7eda1049cbf99a4563763cbcd1be692ad91dd4074bf11fa2a90
   languageName: node
   linkType: hard
 
@@ -16691,13 +16759,6 @@ __metadata:
   version: 1.0.1
   resolution: "xml@npm:1.0.1"
   checksum: 10c0/04bcc9b8b5e7b49392072fbd9c6b0f0958bd8e8f8606fee460318e43991349a68cbc5384038d179ff15aef7d222285f69ca0f067f53d071084eb14c7fdb30411
-  languageName: node
-  linkType: hard
-
-"xmlbuilder@npm:~11.0.0":
-  version: 11.0.1
-  resolution: "xmlbuilder@npm:11.0.1"
-  checksum: 10c0/74b979f89a0a129926bc786b913459bdbcefa809afaa551c5ab83f89b1915bdaea14c11c759284bb9b931e3b53004dbc2181e21d3ca9553eeb0b2a7b4e40c35b
   languageName: node
   linkType: hard
 
@@ -16765,9 +16826,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"zarrita@npm:^0.7.1":
+  version: 0.7.3
+  resolution: "zarrita@npm:0.7.3"
+  dependencies:
+    "@zarrita/storage": "npm:^0.2.0"
+    numcodecs: "npm:^0.3.2"
+  checksum: 10c0/97ad16f900a190f14872582d03c75da26a77ae925aa57dcc5dcdb04216ecd25383c46e78947d503bb9e0857e69d9c4018c2489b3d8d8f312e69eec924d2393de
+  languageName: node
+  linkType: hard
+
 "zstddec@npm:^0.1.0":
   version: 0.1.0
   resolution: "zstddec@npm:0.1.0"
   checksum: 10c0/13601cc53211af491cf3a28a49239405e44129c7aba6a0211401d7bf79ee96b4679016a4d3c5e9c01f753e6da806eb40550f12c469580548b695b146a6d8fe1a
+  languageName: node
+  linkType: hard
+
+"zstddec@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "zstddec@npm:0.2.0"
+  checksum: 10c0/58d0facb7171dfdab6b7cc1e2e3dcd23f4e3e4318fe0bbc5a293925f231b8f7932c82e2930867f4174fd4ccd443ee18b80cc240464bfd2519a82e92c7dc46b4a
   languageName: node
   linkType: hard
