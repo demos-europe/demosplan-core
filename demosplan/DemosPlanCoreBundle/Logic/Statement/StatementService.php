@@ -68,7 +68,6 @@ use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\KeysAtEndSorter;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\KeysAtStartSorter;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ParagraphOrderSorter;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\TitleGroupsSorter;
-use demosplan\DemosPlanCoreBundle\Logic\Consultation\ConsultationTokenService;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
@@ -85,21 +84,15 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionResolv
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
-use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Logic\Workflow\ProfilerService;
-use demosplan\DemosPlanCoreBundle\Repository\DepartmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
-use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
-use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
-use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementAttributeRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementFragmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementVoteRepository;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
-use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\SimilarStatementSubmitterResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
@@ -237,10 +230,8 @@ class StatementService implements StatementServiceInterface
 
     public function __construct(
         AssignService $assignService,
-        private readonly ConsultationTokenService $consultationTokenService,
         private readonly CurrentUserInterface $currentUser,
         private readonly DateHelper $dateHelper,
-        private readonly DepartmentRepository $departmentRepository,
         private readonly DqlConditionFactory $conditionFactory,
         private readonly ElasticsearchResultCreator $elasticsearchResultCreator,
         private readonly EditorService $editorService,
@@ -260,15 +251,11 @@ class StatementService implements StatementServiceInterface
         PermissionsInterface $permissions,
         PriorityAreaService $priorityAreaService,
         private readonly ProcedurePhaseDefinitionResolver $procedurePhaseDefinitionResolver,
-        private readonly ProcedureRepository $procedureRepository,
         ProcedureService $procedureService,
         private readonly ReportService $reportService,
-        private readonly ResourceTypeService $resourceTypeService,
         private readonly RouterInterface $router,
         private readonly SimilarStatementSubmitterResourceType $similarStatementSubmitterResourceType,
-        private readonly SingleDocumentRepository $singleDocumentRepository,
         SingleDocumentService $singleDocumentService,
-        private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository,
         private readonly StatementAttachmentService $statementAttachmentService,
         private readonly StatementAttributeRepository $statementAttributeRepository,
         StatementCopier $statementCopier,
@@ -284,11 +271,9 @@ class StatementService implements StatementServiceInterface
         StatementValidator $statementValidator,
         private readonly StatementVoteRepository $statementVoteRepository,
         private readonly TagRepository $tagRepository,
-        private readonly TagTopicRepository $tagTopicRepository,
         private readonly TranslatorInterface $translator,
         private readonly UserRepository $userRepository,
         UserService $userService,
-        private readonly StatementDeleter $statementDeleter,
         private readonly LoggerInterface $logger,
         private readonly ManagerRegistry $doctrine,
         private readonly ProfilerService $profilerService,
@@ -2434,9 +2419,12 @@ class StatementService implements StatementServiceInterface
                 'oName.sort'         => $sortDirection,
                 'dName.sort'         => $sortDirection,
                 'uName.sort'         => $sortDirection,
-                'cluster.oName.sort' => $sortDirection,
-                'cluster.dName.sort' => $sortDirection,
-                'cluster.uName.sort' => $sortDirection,
+                // The cluster fields are mapped as a nested type, so Elasticsearch requires
+                // an explicit nested context to sort on them. Without it the whole search is
+                // rejected with HTTP 400 and the assessment table shows no statements.
+                'cluster.oName.sort' => ['order' => $sortDirection, 'nested' => ['path' => 'cluster']],
+                'cluster.dName.sort' => ['order' => $sortDirection, 'nested' => ['path' => 'cluster']],
+                'cluster.uName.sort' => ['order' => $sortDirection, 'nested' => ['path' => 'cluster']],
             ];
         }
 

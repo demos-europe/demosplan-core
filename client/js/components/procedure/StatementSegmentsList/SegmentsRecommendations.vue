@@ -75,6 +75,7 @@
           :current-user-first-name="currentUser.firstname"
           :current-user-last-name="currentUser.lastname"
           :current-user-orga="currentUser.orgaName"
+          @unlock="openUnlockModal"
         />
 
         <!-- Pagination below segments list -->
@@ -95,6 +96,13 @@
           />
         </div>
       </div>
+      <segment-unlock-modal
+        v-if="hasPermission('feature_administrate_segment_lock')"
+        ref="unlockModal"
+        :assignable-users="unlockAssignableUsers"
+        :places="places"
+        @unlock="payload => unlockSegment(payload, () => fetchSegments(pagination?.currentPage || 1))"
+      />
     </div>
   </div>
 </template>
@@ -105,7 +113,9 @@ import { mapActions, mapMutations, mapState } from 'vuex'
 import { handleSegmentNavigation } from '@DpJs/lib/segment/handleSegmentNavigation'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import { scrollTo } from 'vue-scrollto'
+import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
 import StatementSegment from './StatementSegment'
+import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
 
 export default {
   name: 'SegmentsRecommendations',
@@ -116,6 +126,7 @@ export default {
     DpButton,
     DpLoading,
     DpPager,
+    SegmentUnlockModal,
     StatementSegment,
   },
 
@@ -131,6 +142,12 @@ export default {
       type: String,
       required: true,
     },
+  },
+
+  setup () {
+    const { unlockModal, openUnlockModal, unlockSegment } = useSegmentUnlock()
+
+    return { unlockModal, openUnlockModal, unlockSegment }
   },
 
   data () {
@@ -153,12 +170,38 @@ export default {
       segments: 'items',
     }),
 
+    ...mapState('Place', {
+      placeItems: 'items',
+    }),
+
+    ...mapState('AssignableUser', {
+      assignableUsersObject: 'items',
+    }),
+
     hasSegments () {
       return Object.keys(this.segments).length > 0
     },
 
+    places () {
+      return Object.values(this.placeItems).map(place => ({
+        name: place.attributes.name,
+        id: place.id,
+        locked: place.attributes.locked,
+      }))
+    },
+
     statement () {
       return this.$store.state.Statement.items[this.statementId] || null
+    },
+
+    // Assignable users including the "not assigned" option, used as the unlock modal default
+    unlockAssignableUsers () {
+      const users = Object.values(this.assignableUsersObject).map(user => ({
+        name: user.attributes.firstname + ' ' + user.attributes.lastname,
+        id: user.id,
+      }))
+
+      return [{ name: Translator.trans('not.assigned'), id: 'noAssigneeId' }, ...users]
     },
   },
 
@@ -182,6 +225,78 @@ export default {
     ...mapMutations('Statement', {
       setStatement: 'setItem',
     }),
+
+    buildFieldsObject (statementSegmentFields) {
+      const placeFields = [
+        'description',
+        ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+        'name',
+        'solved',
+        'sortIndex',
+      ]
+
+      const fields = {
+        StatementSegment: statementSegmentFields.join(),
+        SegmentComment: ['creationDate', 'text', 'submitter', 'place'].join(),
+        Place: placeFields.join(),
+      }
+
+      if (hasPermission('feature_enable_recommendation_versions')) {
+        fields.RecommendationVersion = [
+          'versionNumber',
+          'recommendationText',
+          'createdAt']
+          .join()
+      }
+
+      return fields
+    },
+
+    buildStatementSegmentFields () {
+      const fields = [
+        'assignee',
+        'comments',
+        'externId',
+        'internId',
+        'orderInProcedure',
+        'place',
+        'polygon',
+        'recommendation',
+        'tags',
+        'text',
+      ]
+
+      if (hasPermission('field_statement_deadline')) {
+        fields.push('deadline')
+      }
+
+      if (hasPermission('feature_enable_recommendation_versions')) {
+        fields.push('recommendationVersions')
+      }
+
+      if (hasPermission('field_segments_custom_fields')) {
+        fields.push('customFields')
+      }
+
+      return fields
+    },
+
+    buildStatementSegmentInclude () {
+      const include = [
+        'assignee',
+        'comments',
+        'comments.place',
+        'comments.submitter',
+        'place',
+        'tags',
+      ]
+
+      if (hasPermission('feature_enable_recommendation_versions')) {
+        include.push('recommendationVersions')
+      }
+
+      return include
+    },
 
     /**
      * Claim statement if necessary/desired, then go to new view:
@@ -269,46 +384,35 @@ export default {
         })
     },
 
-    async fetchSegments (page = 1) {
-      const statementSegmentFields = [
-        'tags',
-        'text',
-        'assignee',
-        'place',
-        'comments',
-        'externId',
-        'internId',
-        'orderInProcedure',
-        'polygon',
-        'recommendation',
-      ]
+    async calculateSegmentPage (page) {
+      const { calculatedPage, perPage } = await this.segmentNavigation.calculatePageForSegment()
 
-      if (hasPermission('field_segments_custom_fields')) {
-        statementSegmentFields.push('customFields')
+      if (!calculatedPage) {
+        return { page, shouldRemoveParam: false }
       }
+
+      this.pagination.currentPage = calculatedPage
+
+      if (perPage) {
+        this.pagination.perPage = perPage
+      }
+
+      return { page: calculatedPage, shouldRemoveParam: true }
+    },
+
+    async fetchSegments (page = 1) {
+      const statementSegmentFields = this.buildStatementSegmentFields()
+      const statementSegmentInclude = this.buildStatementSegmentInclude()
 
       this.isLoading = true
 
-      // Calculate correct page for segment parameter (only runs once)
-      const { calculatedPage, perPage } = await this.segmentNavigation.calculatePageForSegment()
-      let shouldRemoveSegmentParam = false
-
-      if (calculatedPage) {
-        page = calculatedPage
-        this.pagination.currentPage = calculatedPage
-
-        if (perPage) {
-          this.pagination.perPage = perPage
-        }
-
-        // Mark that we need to remove segment param after scroll completes
-        shouldRemoveSegmentParam = true
-      }
+      const { page: targetPage, shouldRemoveParam } = await this.calculateSegmentPage(page)
 
       await this.fetchPlaces({
         fields: {
           Place: [
             'description',
+            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
             'name',
             'solved',
             'sortIndex',
@@ -322,32 +426,21 @@ export default {
           AssignableUser: [
             'firstname',
             'lastname',
+            'orga',
           ].join(),
+          Orga: ['name'].join(),
         },
-        include: 'department',
+        include: 'orga',
         sort: 'lastname',
       })
 
+      const fields = this.buildFieldsObject(statementSegmentFields)
+
       const response = await this.listSegments({
-        include: [
-          'assignee',
-          'comments',
-          'comments.place',
-          'comments.submitter',
-          'place',
-          'tags',
-        ].join(),
-        fields: {
-          StatementSegment: statementSegmentFields.join(),
-          SegmentComment: [
-            'creationDate',
-            'text',
-            'submitter',
-            'place',
-          ].join(),
-        },
+        include: statementSegmentInclude.join(),
+        fields,
         page: {
-          number: page,
+          number: targetPage,
           size: this.pagination?.perPage || this.defaultPagination.perPage,
         },
         sort: 'orderInProcedure',
@@ -367,8 +460,7 @@ export default {
         },
       })
 
-      // Update pagination with response metadata
-      if (response && response.meta && response.meta.pagination) {
+      if (response?.meta?.pagination) {
         this.setLocalStorage(response.meta.pagination)
         this.updatePagination(response.meta.pagination)
       }
@@ -376,27 +468,32 @@ export default {
       this.isLoading = false
 
       await this.$nextTick()
-
-      const queryParams = new URLSearchParams(globalThis.location.search)
-      const segmentId = queryParams.get('segment') || ''
-
-      if (segmentId) {
-        scrollTo('#segment_' + segmentId, { offset: -110 })
-        const segmentComponent = this.$refs.segment.find(el => el.segment.id === segmentId)
-
-        if (segmentComponent) {
-          segmentComponent.isCollapsed = false
-        }
-
-        // Remove segment parameter after scroll completes to prevent re-navigation on tab toggle
-        if (shouldRemoveSegmentParam) {
-          this.segmentNavigation.removeSegmentParameter()
-        }
-      }
+      this.handleSegmentScroll(shouldRemoveParam)
     },
 
     goToSplitStatementView () {
       globalThis.location.href = Routing.generate('dplan_drafts_list_edit', { statementId: this.statementId, procedureId: this.procedureId })
+    },
+
+    handleSegmentScroll (shouldRemoveParam) {
+      const queryParams = new URLSearchParams(globalThis.location.search)
+      const segmentId = queryParams.get('segment')
+
+      if (!segmentId) {
+        return
+      }
+
+      scrollTo('#segment_' + segmentId, { offset: -110 })
+
+      const segmentComponent = this.$refs.segment.find(el => el.segment.id === segmentId)
+
+      if (segmentComponent) {
+        segmentComponent.isCollapsed = false
+      }
+
+      if (shouldRemoveParam) {
+        this.segmentNavigation.removeSegmentParameter()
+      }
     },
 
     toggleAll () {

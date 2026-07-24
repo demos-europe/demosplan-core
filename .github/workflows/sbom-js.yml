@@ -14,16 +14,16 @@ jobs:
   sbom:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v6
         with:
-          node-version: '24.11.1'
+          node-version: '24.15.0'
 
       - run: npm install --ignore-scripts -g corepack && corepack enable && yarn set version 4.2.2
 
       - name: Cache yarn dependencies
-        uses: actions/cache@v5.0.5
+        uses: actions/cache@v6.1.0
         with:
           path: |
             ~/.yarn/cache

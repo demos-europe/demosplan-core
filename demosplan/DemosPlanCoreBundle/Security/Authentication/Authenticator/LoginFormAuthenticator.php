@@ -12,12 +12,21 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
+use demosplan\DemosPlanCoreBundle\EventDispatcher\TraceableEventDispatcher;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserMapperInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\ValueObject\Credentials;
 use Exception;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\TooManyLoginAttemptsAuthenticationException;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
@@ -31,6 +40,23 @@ use Symfony\Component\Security\Http\SecurityRequestAttributes;
 final class LoginFormAuthenticator extends DplanAuthenticator implements AuthenticationEntryPointInterface
 {
     public const LOGIN_ROUTE = 'DemosPlan_user_login';
+
+    /**
+     * @param list<string> $idpOnlySubdomains
+     */
+    public function __construct(
+        UserMapperInterface $authenticator,
+        LoggerInterface $logger,
+        MessageBagInterface $messageBag,
+        TraceableEventDispatcher $eventDispatcher,
+        UrlGeneratorInterface $urlGenerator,
+        UserService $userService,
+        private readonly CustomerService $customerService,
+        #[Autowire('%idp_only_subdomains%')]
+        private readonly array $idpOnlySubdomains,
+    ) {
+        parent::__construct($authenticator, $logger, $messageBag, $eventDispatcher, $urlGenerator, $userService);
+    }
 
     public function supports(Request $request): bool
     {
@@ -65,6 +91,15 @@ final class LoginFormAuthenticator extends DplanAuthenticator implements Authent
     {
         $user = $this->userMapper->getValidUser($credentials);
 
+        if ($user instanceof User
+            && $user->isProvidedByIdentityProvider()
+            && $this->isIdpOnlySubdomain()
+        ) {
+            $this->logger->info('Password login rejected for identity-provider user on IdP-only subdomain', ['login' => $user->getLogin()]);
+
+            throw new AuthenticationException('Password login is disabled for identity-provider users on this customer.');
+        }
+
         return new Passport(
             new UserBadge($user ? $user->getLogin() : ''),
             new PasswordCredentials($credentials->getPassword()),
@@ -94,5 +129,22 @@ final class LoginFormAuthenticator extends DplanAuthenticator implements Authent
     public function start(Request $request, ?AuthenticationException $authException = null): Response
     {
         return new RedirectResponse($this->urlGenerator->generate('DemosPlan_user_login_alternative'));
+    }
+
+    private function isIdpOnlySubdomain(): bool
+    {
+        if ([] === $this->idpOnlySubdomains) {
+            return false;
+        }
+
+        try {
+            $subdomain = $this->customerService->getCurrentCustomer()->getSubdomain();
+        } catch (Exception $e) {
+            $this->logger->warning('Could not resolve current customer for IdP-only subdomain check', [$e]);
+
+            return false;
+        }
+
+        return in_array($subdomain, $this->idpOnlySubdomains, true);
     }
 }

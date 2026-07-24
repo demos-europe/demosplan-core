@@ -63,6 +63,10 @@ parameters:
     account_deletion.first_warning_days: ~
     account_deletion.warning_step_days: 30
     account_deletion.additional_protected_user_ids: []
+    # Support e-mail shown in warning mails and used as replyTo.
+    # Set ACCOUNT_DELETION_SUPPORT_EMAIL env var per instance; falls back to
+    # the system e-mail address when the env var is unset or empty.
+    account_deletion.support_email: '%env(default::ACCOUNT_DELETION_SUPPORT_EMAIL)%'
 
     # Route and parameters for the public index page
     #
@@ -300,9 +304,14 @@ parameters:
     #  Set shard settings to dev settings. When use in cluster with 3 nodes use 3 shards, 2 replicas
     elasticsearch_number_of_shards: "1"
     elasticsearch_number_of_replicas: "1"
-    # High result window applied at index creation so deep paginating exports (size up to 1_000_000)
-    # work even before a full populate completes. Replaces the runtime PopulateElasticaListener setting.
-    elasticsearch_max_result_window: "1000000"
+    # Result window applied at index creation (index.max_result_window). The ES default of 10000 is
+    # enough because "fetch everything" paths (exports, no-pager lists) page through results via
+    # search_after instead of a single from+size query. Raise only if a paged query legitimately needs
+    # from+size beyond this; keep batch size <= this value.
+    elasticsearch_max_result_window: 10000
+    # Per-request page size for the search_after batched fetch used when a caller requests more than
+    # max_result_window results at once. Must be <= elasticsearch_max_result_window.
+    elasticsearch_search_after_batch_size: 1000
     # Major version of elasticsearch
     elasticsearch_major_version: 6
     # Number of workers to use during populate in command dplan:elasticsearch:populate
@@ -394,6 +403,10 @@ parameters:
     azure_sso_enabled: false
     # and if, which customers?
     azure_sso_customers: []
+    # Subdomains of customers that have completed the IdP migration. For those subdomains the
+    # password/form login rejects users flagged providedByIdentityProvider, so they can only
+    # log in via IdP. Leave empty during the transition to keep form login working.
+    idp_only_subdomains: []
     # knpu_oauth2_client settings
     # oath client referenced by knpu_oauth2_client when oauth is used
     oauth_client: ''

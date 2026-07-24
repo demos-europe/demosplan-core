@@ -154,10 +154,10 @@ export default {
       this.closeOnSelect = true
     },
 
-    saveManualSort (val) {
+    saveManualSort ({ newIndex, oldIndex }) {
       const initialSort = structuredClone(this.tableElements)
 
-      this.tableElements.splice(val.moved.newIndex, 0, this.tableElements.splice(val.moved.oldIndex, 1)[0])
+      this.tableElements.splice(newIndex, 0, this.tableElements.splice(oldIndex, 1)[0])
 
       const payload = {
         r_sorting: this.currentSort,

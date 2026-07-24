@@ -21,6 +21,7 @@ efrane/console-additions: MIT
 efrane/tus-bundle: MIT
 egulias/email-validator: MIT
 endroid/qr-code-bundle: MIT
+enqueue/elastica-bundle: MIT
 enqueue/enqueue-bundle: MIT
 enqueue/fs: MIT
 erusev/parsedown: MIT
@@ -133,4 +134,4 @@ willdurand/geocoder-bundle: MIT
 willdurand/js-translation-bundle: MIT
 zenstruck/foundry: MIT
 
-As of 29.05.2026 08:16
+As of 07.07.2026 08:07

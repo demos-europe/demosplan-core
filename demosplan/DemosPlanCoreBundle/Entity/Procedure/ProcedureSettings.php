@@ -105,6 +105,13 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     private bool $expandProcedureDescription = false;
 
     /**
+     * Allows institutions that were not invited to this procedure to still submit a Stellungnahme,
+     * even when the "Institutionen verwalten" invitation restriction is otherwise enforced.
+     */
+    #[ORM\Column(name: 'allow_uninvited_institutions', type: 'boolean', nullable: false, options: ['default' => false])]
+    private bool $allowUninvitedInstitutions = false;
+
+    /**
      * @var string
      */
     #[ORM\Column(name: '_ps_plan_text', type: 'text', length: 65535, nullable: false)]
@@ -258,7 +265,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      * Enable publication of Feedback possibility.
      */
     #[ORM\Column(name: '_p_public_participation_feedback_enabled', type: 'boolean', nullable: false, options: ['default' => true])]
-    protected bool $publicParticipationFeedbackEnabled = false;
+    protected bool $publicParticipationFeedbackEnabled = true;
 
     public function __construct()
     {
@@ -1066,5 +1073,17 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     public function isPublicParticipationFeedbackEnabled(): bool
     {
         return $this->publicParticipationFeedbackEnabled;
+    }
+
+    public function isAllowUninvitedInstitutions(): bool
+    {
+        return $this->allowUninvitedInstitutions;
+    }
+
+    public function setAllowUninvitedInstitutions(bool $allowUninvitedInstitutions): self
+    {
+        $this->allowUninvitedInstitutions = $allowUninvitedInstitutions;
+
+        return $this;
     }
 }

@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseDefinitionInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
@@ -22,13 +23,13 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Stores a customer-specific procedure phase definition (Verfahrensschritt).
  * Each customer can define their own set of procedure phases for internal and external audiences.
  */
 #[ORM\Table(name: 'procedure_phase_definition')]
-#[ORM\UniqueConstraint(name: 'uniq_name_customer_audience', columns: ['name', 'customer_id', 'audience'])]
 #[ORM\Entity(repositoryClass: ProcedurePhaseDefinitionRepository::class)]
 class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface, ProcedurePhaseDefinitionInterface
 {
@@ -41,6 +42,7 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
     /**
      * The display name of this procedure phase definition.
      */
+    #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
     #[ORM\Column(type: 'string', length: 255, nullable: false)]
     protected string $name = '';
 
@@ -67,6 +69,11 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
      *
      * Note: planners always have 'write' access for procedures they own, regardless of this value.
      */
+    #[Assert\Choice([
+        ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_HIDDEN,
+        ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_READ,
+        ProcedureInterface::PROCEDURE_PHASE_PERMISSIONSET_WRITE,
+    ])]
     #[ORM\Column(type: 'string', length: 10, nullable: false)]
     protected string $permissionSet = 'hidden';
 
@@ -74,6 +81,10 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
      * Optional participation state for this phase.
      * Values: null | 'finished' | 'participateWithToken'.
      */
+    #[Assert\Choice([
+        ProcedureInterface::PARTICIPATIONSTATE_FINISHED,
+        ProcedureInterface::PARTICIPATIONSTATE_PARTICIPATE_WITH_TOKEN,
+    ])]
     #[ORM\Column(type: 'string', length: 50, nullable: true)]
     protected ?string $participationState = null;
 
@@ -82,6 +93,12 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
      */
     #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
     protected bool $closingPhase = false;
+
+    /**
+     * Indicates if a ProcedurePhaseDefinition is deleted or not.
+     */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
+    protected bool $isDeleted = false;
 
     /**
      * Sort order within the audience.
@@ -101,6 +118,9 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
     #[ORM\Column(type: 'datetime', nullable: false)]
     #[Gedmo\Timestampable(on: 'update')]
     private DateTime $modificationDate;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?DateTime $deletedDate = null;
 
     public function getId(): ?string
     {
@@ -162,6 +182,17 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
         $this->closingPhase = $closingPhase;
     }
 
+    public function isDeleted(): bool
+    {
+        return $this->isDeleted;
+    }
+
+    public function setDeleted(bool $deleted): void
+    {
+        $this->isDeleted = $deleted;
+        $this->deletedDate = $deleted ? new DateTime() : null;
+    }
+
     public function getOrderInAudience(): int
     {
         return $this->orderInAudience;
@@ -170,6 +201,16 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
     public function setOrderInAudience(int $orderInAudience): void
     {
         $this->orderInAudience = $orderInAudience;
+    }
+
+    /**
+     * The configuration phase ("Konfiguration") is always the first phase within its audience.
+     * There is exactly one per audience and, unlike other phases, only its name may be edited -
+     * its permissionSet and participationState are fixed.
+     */
+    public function isConfigurationPhase(): bool
+    {
+        return 0 === $this->orderInAudience;
     }
 
     public function getCustomer(): ?CustomerInterface
@@ -198,5 +239,10 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
         }
 
         return $this->modificationDate;
+    }
+
+    public function getDeletedDate(): ?DateTime
+    {
+        return $this->deletedDate;
     }
 }

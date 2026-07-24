@@ -9,7 +9,6 @@
 
 import { dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { transformJsonApiToPi, transformPiToJsonApi } from './storeHelpers/SplitStatementStore/PiTagsToJSONApi'
-import { transformHTMLPositionsToProsemirrorPositions } from './storeHelpers/SplitStatementStore/HTMLIdxToProsemirrorIdx'
 
 const SplitStatementStore = {
   namespaced: true,
@@ -30,6 +29,7 @@ const SplitStatementStore = {
     initText: '',
     // Loading state for save+finish button
     isBusy: false,
+    needsEditorRefresh: false,
     procedureId: '',
     /**
      *If the new selection in editor intersects with existing segments we set recalculatedSegments to
@@ -38,7 +38,6 @@ const SplitStatementStore = {
      */
     recalculatedSegments: null,
     segments: [],
-    segmentsWithText: null,
     statement: null,
     statementText: null,
     statementId: '',
@@ -62,7 +61,7 @@ const SplitStatementStore = {
     },
 
     locallyUpdateSegments (state, updatedSegments) {
-      const segments = JSON.parse(JSON.stringify(state.segments))
+      const segments = structuredClone(state.segments)
 
       // We want to update all segments at once to avoid triggering multiple view updates.
       const segmentsAfterUpdate = segments.map(segment => {
@@ -84,21 +83,16 @@ const SplitStatementStore = {
       state.segments = segmentsAfterUpdate.concat(segmentsToCreate)
     },
 
-    recalculatePositionsInText (state) {
-      // Calculate tiptap positions based on data from PI.
-      state.segments = transformHTMLPositionsToProsemirrorPositions(state.segments, state.initText)
-    },
-
     replaceSegment (state, { id, newSegment }) {
       const oldSegmentIndex = state.segments.findIndex((el) => el.id === id)
 
       if (oldSegmentIndex >= 0) {
-        state.segments.oldSegmentIndex = newSegment
+        state.segments[oldSegmentIndex] = newSegment
       }
     },
 
     resetSegments (state) {
-      state.segments = state.initialSegments
+      state.segments = structuredClone(state.initialSegments)
     },
 
     setProperty (state, { prop, val }) {
@@ -139,7 +133,7 @@ const SplitStatementStore = {
         const segment = state.segments.find((el) => el.id === id)
 
         if (typeof segment !== 'undefined') {
-          const segmentCopy = JSON.parse(JSON.stringify(segment))
+          const segmentCopy = structuredClone(segment)
 
           // Set segment status to confirmed
           segmentCopy.status = 'confirmed'
@@ -255,18 +249,6 @@ const SplitStatementStore = {
           commit('setProperty', { prop: 'segments', val: segments })
           commit('setProperty', { prop: 'initText', val: initialData.attributes.textualReference })
 
-          /**
-           * Recalculating the indexing of segments should only be done once. As soon as their boundary positions
-           * have been adjusted to the Prosemirror indexing scheme, we don't want to reindex them because this would
-           * cause misalignment of segments.
-           */
-          const haveProsemirrorIndexing = typeof segments.find(segment => segment.hasProsemirrorIndex === true) !== 'undefined'
-
-          if (haveProsemirrorIndexing === false && doUpdate === true) {
-            commit('recalculatePositionsInText')
-            dispatch('persistProsemirrorIndexing')
-          }
-
           const segmentTags = state.segments.reduce((acc, seg) => {
             const tagNames = seg.tags || []
 
@@ -298,7 +280,7 @@ const SplitStatementStore = {
           }
         })
 
-        const segments = JSON.parse(JSON.stringify(state.segments)).map(segment => {
+        const segments = structuredClone(state.segments).map(segment => {
           // We need to replace PI generated tag ids with dplan tag ids
           segment.tags = segment.tags.map(tag => {
             const dplanTag = state.categorizedTags.find(t => t.attributes.title === tag.tagName)
@@ -374,7 +356,7 @@ const SplitStatementStore = {
     fetchTags ({ commit }) {
       const url = Routing.generate('api_resource_list', { resourceType: 'Tag' })
 
-      return dpApi.get(url, { include: 'topic' })
+      return dpApi.get(url, { include: 'topic', sort: 'sortIndex' })
         .then(response => {
           const tags = response.data
 
@@ -398,8 +380,8 @@ const SplitStatementStore = {
             return acc
           }, { uncategorizedTags: [], categorizedTags: [] })
 
+          // Categorized tags keep the backend sortIndex order; only uncategorized tags fall back to alphabetical
           uncategorizedTags.sort(sortByTitle)
-          categorizedTags.sort(sortByTitle)
 
           commit('setProperty', { prop: 'uncategorizedTags', val: uncategorizedTags })
           commit('setProperty', { prop: 'categorizedTags', val: categorizedTags })
@@ -408,56 +390,47 @@ const SplitStatementStore = {
         })
     },
 
-    persistProsemirrorIndexing ({ commit, dispatch, state }) {
-      const segments = JSON.parse(JSON.stringify(state.segments))
-      const indexedSegments = segments.map(segment => {
-        segment.hasProsemirrorIndex = true
-
-        return segment
-      })
-
-      indexedSegments.forEach(segment => {
-        commit('replaceSegment', { id: segment.id, newSegment: segment })
-      })
-
-      dispatch('saveSegmentsDrafts')
-    },
-
-    saveSegmentsDrafts ({ state, dispatch }, triggerNotifications = false) {
-      const dataToSend = JSON.parse(JSON.stringify(state.initialData))
+    saveSegmentsDrafts ({ state, commit, dispatch }, triggerNotifications = false) {
+      const dataToSend = structuredClone(state.initialData)
 
       dataToSend.attributes.textualReference = state.initText
-      dataToSend.attributes.segments = state.segments
+      dataToSend.attributes.segments = structuredClone(state.segments)
+
       const payload = {
         id: state.statementId,
         type: 'Statement',
-        attributes: {},
-      }
-
-      payload.attributes.segmentDraftList = {
-        data: dataToSend,
+        attributes: {
+          segmentDraftList: {
+            data: dataToSend,
+          },
+        },
       }
 
       return dpApi.patch(Routing.generate('api_resource_update', {
         resourceType: 'Statement',
         resourceId: state.statementId,
       }), {}, { data: payload })
-        .then((response) => {
-          dispatch('fetchInitialData', false)
+        .then(() => {
+          commit('setProperty', { prop: 'initialData', val: dataToSend })
+          commit('setProperty', { prop: 'initialSegments', val: dataToSend.attributes.segments })
+
           if (triggerNotifications) {
-            if (response.status === 204) {
-              dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-            } else {
-              dplan.notify.notify('error', Translator.trans('error.api.generic'))
-            }
+            dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
           }
+        })
+        .catch(() => {
+          dplan.notify.notify('error', Translator.trans('error.api.generic'))
+
+          commit('setProperty', { prop: 'segments', val: structuredClone(state.initialSegments) })
+          commit('setProperty', { prop: 'initText', val: state.initialData.attributes.textualReference })
+          commit('setProperty', { prop: 'needsEditorRefresh', val: true })
         })
     },
 
     saveSegmentsFinal ({ dispatch, state, commit }) {
-      const dataToSend = JSON.parse(JSON.stringify(state.initialData))
+      const dataToSend = structuredClone(state.initialData)
 
-      dataToSend.attributes.segments = state.segmentsWithText
+      dataToSend.attributes.segments = structuredClone(state.segments)
       dataToSend.attributes.statementText = state.statementText
 
       return dpApi.post(Routing.generate('dplan_drafts_list_confirm', {
@@ -485,7 +458,7 @@ const SplitStatementStore = {
         })
         .catch((err) => {
           // Reset view to last saved data - set segments from last initial data
-          commit('setProperty', { prop: 'segments', val: state.initialSegments })
+          commit('setProperty', { prop: 'segments', val: structuredClone(state.initialSegments) })
 
           return Promise.reject(err)
         })
@@ -564,9 +537,9 @@ const SplitStatementStore = {
     initialSegments: (state) => state.initialSegments,
     initText: (state) => state.initText,
     isBusy: (state) => state.isBusy,
+    needsEditorRefresh: (state) => state.needsEditorRefresh,
     procedureId: (state) => state.procedureId,
     segments: (state) => state.segments,
-    sortedSegments: (state) => state.segments.concat().sort((a, b) => a.charStart - b.charStart),
     statement: (state) => state.statement,
     statementSegmentDraftList: (state) => state.statement?.attributes.segmentDraftList || '',
     segmentById: (state) => (id) => state.segments.find((el) => el.id === id),

@@ -6,6 +6,94 @@
 
 ## UNRELEASED
 
+## v4.50.0 (2026-07-15)
+
+### Added
+- Statements with identical or similar content can be grouped together in the statement list and treated as a single statement. Groups can be created, edited, and dissolved; removing the last member of a group dissolves the group and returns to the statement list.
+- A date field for setting a processing deadline is available when assigning sections (statement split, section list, and response drafting). The deadline resets automatically when the processing step changes.
+
+### Fixed
+- Institution coordinators without a second organisation email address are now redirected to the welcome page until they provide it.
+- When the last member of a statement group is removed, both notifications ("statement detached" and "group dissolved") are now shown in the correct order.
+
+## v4.49.0 (2026-07-15)
+
+### Added
+- Statement groups are editable
+
+### Fixed
+- Institution coordinators without a second organisation email address are now redirected to the welcome page until they provide it.
+
+## v4.49.0 (2026-07-15)
+## v4.48.0 (2026-07-07)
+
+### Added
+- Make procedure phase definitions deletable (condition: not currently in use and not configuration-phase)
+- Add statement export via planner-uploaded DOCX layout template: planners upload a `.docx` via TUS,
+  the backend validates `${…}` placeholders against a whitelist and clones the
+  `${AbschnitteAlsAbsätze}` … `${/AbschnitteAlsAbsätze}` block per segment to render the response letter
+  (permission: `feature_statement_via_template_export`, EWM-only for v1; frontend modal integration pending)
+
+### Fixed
+- Adjust organization type key in platform statistics: Replace 'procedure.agency' with 'municipality' in OrgaService::getAcceptedOrgaCountByType()
+
+## v4.47.4 (2026-07-15)
+
+### Added
+- Statement import errors now report the offending column and value, and aborted imports are logged with per-row error details
+
+### Changed
+- In the split statement view, both the start and end handles of a segment range can now be dragged to adjust the selection
+- Users provisioned by an external identity provider are no longer deleted by the inactivity cascade; their lifecycle is managed by the identity provider
+
+### Fixed
+- Ghost segment boxes could appear when deleting multiple segments in quick succession in the split statement view
+- The segmentation editor could crash when opening, saving or scrolling segments that have no document mark
+- Tag-filtered statement and segment export could fail with an out-of-memory error on large procedures; the export is also significantly faster now
+- Spellcheck requests could block other requests from the same session, surfacing as lock wait timeouts
+
+## v4.47.1 (2026-07-06)
+
+### Fixed
+- Statements that were split under the previous exchange format could no longer be edited or deleted in the split view; such drafts are now converted to the current segment-mark format when opened
+
+## v4.47.0 (2026-06-24)
+
+## v4.46.0 (2026-06-19)
+## v4.45.1 (2026-07-03)
+### Fixed 
+- Manual drag-and-drop reordering of documents in the plan document category admin now saves correctly
+
+## v4.45.0 (2026-06-19)
+### Added
+- Delete Institution Text CustomFields
+- Delete Statement multiSelect CustomFields
+- Make procedure phase definitions editable
+- Segment lock feature: workflow places can now be marked as locked, making segments on them read-only for users without the `feature_administrate_segment_lock` permission. Enforced on JSON:API PATCH, `segment.bulk.edit` RPC, and place updates; transitions are recorded in the segment Versionsverlauf.
+- Permission `feature_segment_lock_by_workflow_place` (exposed, login-required) toggles the segment lock feature per project. Grant it in `projects/<name>/.../Permissions.php` to every role that should see the feature. Requires `demos-europe/demosplan-addon` ^0.68.1.
+
+## v4.44.1 (2026-06-12)
+
+### Changed
+- Adjacent statement segments with identical tags are now merged into a single segment during statement segmentation, preserving the original text formatting (DPLAN-12697)
+
+### Fixed
+- Submitting a public statement as an anonymous citizen no longer fails with a Doctrine `MissingIdentifierField` exception (DPLAN-18002)
+- Logging out via Keycloak no longer produces an invalid redirect address when the customer-specific logout route already contains the full host name
+
+## v4.44.0 (2026-06-05)
+
+## v4.43.1 (2026-06-16)
+
+### Changed
+- Adjacent statement segments with identical tags are now merged into a single segment during statement segmentation, preserving the original text formatting (DPLAN-12697)
+
+### Fixed
+- Submitting a public statement as an anonymous citizen no longer fails with a Doctrine `MissingIdentifierField` exception (DPLAN-18002)
+- Logging out via Keycloak no longer produces an invalid redirect address when the customer-specific logout route already contains the full host name
+
+## v4.43.0 (2026-06-05)
+
 ### Added
 - Show text custom fields and its values in manage institutions and add institutions dialogs
 - Add text custom field value editing to institution tag management dialog
@@ -14,6 +102,12 @@
 - Add bridge classes in demosplan-addon for EDT-to-API Platform relationship handling during migration (`PlainIdJsonApiNormalizer`, `ApiPlatformRelationshipConfig`, `ExtendedDynamicTransformer`)
 - Add text custom field definition editing
 - Add customer admin interface for managing procedure phases - displaying and creating new phases
+- Store procedure phase definitions in the database as `ProcedurePhaseDefinition` entities (per customer and audience) instead of in YAML/`GlobalConfig`, with a new `procedure_phase_definition` table and `phase_definition_id` foreign keys on `procedure_phase` (plus `designated_phase_definition_id`), `_statement`, `_draft_statement`, `_draft_statement_versions` and `institution_mail` (DPLAN-17570)
+
+### Changed
+- Widen `_procedure.extern_id` from `VARCHAR(50)` to `VARCHAR(255)` so XBeteiligung planIDs longer than 50 characters can be stored (DPLAN-17455)
+- Tag selection when splitting a statement now lists keywords in the manual sort order from tag administration instead of alphabetically
+- Procedure phase names are now read from the `ProcedurePhaseDefinition` entity in the database everywhere they are displayed, instead of from YAML-based phase translation keys (DPLAN-17570)
 
 ### Fixed
 - `AccessProcedureListener` now checks for array controller before accessing index, preventing crashes on API Platform routes
@@ -298,6 +392,13 @@
 ## v4.18.1 (2025-10-16)
 ## v4.18.0 (2025-10-13)
 
+## v4.16.5 (2026-06-26)
+### Fixed
+- Sorting the assessment table by submitter no longer produces an empty table.
+- The authored date of a statement can no longer be set after its submission date when creating or editing a statement.
+- ODT exports of the assessment table now include table-cell borders.
+- Procedure archive exports now handle non-ASCII characters in file names correctly.
+
 ## v4.16.3 (2026-02-05)
 
 ## v4.16.1 (2025-10-16)
@@ -315,6 +416,11 @@
 ### Features
 - Add possibility to delete custom fields and their options
 
+## v4.15.6 (2026-06-26)
+- Reject an authored date later than the submission date when editing or manually changing a statement
+- Sorting the assessment table by submitter no longer hides all statements
+- Assessment table exports in ODT/LibreOffice format now include visible table-cell borders
+
 ## v4.15.4 (2026-03-06)
 - Fix statement vote on mysql8+, immediately show vote
 - Rate limit new statements only for anonymous users
@@ -326,6 +432,13 @@
 - fix zip download for older uploads
 
 ## v4.15.0 (2025-09-15)
+
+## v4.14.4 (2026-06-26)
+- Statements no longer accept an authoring date later than the submission date
+- Sorting the assessment table by submitter no longer hides all statements
+- LibreOffice/ODT exports of the assessment table now include table-cell borders
+- Editing the process step, authoring date and submission date is now restricted to manually recorded statements
+- Rate limiting for new statements now applies only to anonymous users
 
 ## v4.14.3 (2026-02-06)
 ## v4.14.2 (2025-12-02)
@@ -356,6 +469,21 @@
 - Migrate to Tailwind CSS v4
 
 ## v4.7.0 (2025-07-18)
+
+## v4.6.5 (2026-06-26)
+
+### Fixed
+- When creating or editing a statement, the authoring date can no longer be set later than the submission date
+- The assessment table no longer appears empty when sorting by submitter
+
+## v4.6.4 (2026-05-08)
+
+### Fixed
+- Changing a single FAQ entry from blocked to released directly in the FAQ list now works
+- In the assessment table, fields such as procedure phase, authoring date and submission date can no longer be edited on online-submitted statements; they remain editable only for manually recorded statements
+- The cookie banner is now styled correctly on the start page for logged-in users
+- The project's primary color is used again on the affected buttons and elements, and the procedure search field is restored to its proper width
+- Pagination in the assessment table now responds on the first click, the entries-per-page dropdown works again, and the selected page is retained when changing the page size
 
 ## v4.6.3 (2026-02-18)
 - Allow to configure procedures to accept or not anonymous statements

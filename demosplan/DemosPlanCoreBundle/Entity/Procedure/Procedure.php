@@ -57,6 +57,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ProcedureTemplateConstraint(groups={ProcedureInterface::VALIDATION_GROUP_MANDATORY_PROCEDURE_TEMPLATE})
@@ -228,8 +229,8 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *
      * @var bool
      */
-    #[ORM\Column(name: '_p_public_participation_publication_enabled', type: 'boolean', nullable: false, options: ['default' => true])]
-    protected $publicParticipationPublicationEnabled = true;
+    #[ORM\Column(name: '_p_public_participation_publication_enabled', type: 'boolean', nullable: false, options: ['default' => false])]
+    protected $publicParticipationPublicationEnabled = false;
 
     /**
      * @var string
@@ -484,7 +485,8 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *
      * @var string
      */
-    #[ORM\Column(name: 'extern_id', type: 'string', length: 50, nullable: false, options: ['default' => ''])]
+    #[ORM\Column(name: 'extern_id', type: 'string', length: 255, nullable: false, options: ['default' => ''])]
+    #[Assert\Length(max: 255)]
     private $xtaPlanId = '';
 
     /**
@@ -1081,7 +1083,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function setLocationName($locationName)
     {
-        $this->locationName = $locationName;
+        $this->locationName = $this->stripControlCharacters($locationName);
 
         return $this;
     }
@@ -1105,7 +1107,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function setLocationPostCode($locationPostCode)
     {
-        $this->locationPostCode = $locationPostCode;
+        $this->locationPostCode = $this->stripControlCharacters($locationPostCode);
 
         return $this;
     }
@@ -1163,7 +1165,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      */
     public function setMunicipalCode($municipalCode)
     {
-        $this->municipalCode = $municipalCode;
+        $this->municipalCode = $this->stripControlCharacters($municipalCode);
 
         return $this;
     }
@@ -1185,9 +1187,20 @@ class Procedure extends SluggedEntity implements ProcedureInterface
 
     public function setArs(string $ars): Procedure
     {
-        $this->ars = $ars;
+        $this->ars = $this->stripControlCharacters($ars);
 
         return $this;
+    }
+
+    /**
+     * Removes ASCII control characters (including tab, CR and LF) from single-line
+     * location values. These fields are embedded into a JSON.parse() string in the
+     * procedure administration template; a stray control character there produces a
+     * "bad control character in string literal" error and breaks the whole page.
+     */
+    private function stripControlCharacters(?string $value): string
+    {
+        return preg_replace('/[\x00-\x1F\x7F]/', '', (string) $value);
     }
 
     /**

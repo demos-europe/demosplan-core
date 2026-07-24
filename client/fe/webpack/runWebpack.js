@@ -101,9 +101,6 @@ function createProgressPlugin (options, progressBar, webpackRunner) {
 
     if (percentage === 1.0 && options.mode !== 'watch') {
       progressBar.stop()
-
-      // Yay, we done
-      log(chalk.green('\\o/'))
     }
   }).apply(webpackRunner)
 }
@@ -193,7 +190,7 @@ function showErrorMessage (err, stats) {
 
   const info = stats.toJson()
 
-  if (err || stats.hasErrors() || stats.hasWarnings()) {
+  if (err || stats.hasErrors()) {
     log(chalk.red('Build failed'))
   }
 
@@ -231,7 +228,41 @@ function printStatsMessageList (messageList, colorFunction) {
 function showWebpackRunMessage (userFeedbackCallback, mode, project, webpackConfig, webpackRunner) {
   if (mode === 'build') {
     log(chalk.green(`Begin ${chalk.bold('building')} frontend assets for ${chalk.bold(project)} in ${chalk.bold(webpackConfig[0].mode)} mode`))
-    webpackRunner.run(userFeedbackCallback)
+    webpackRunner.run((err, stats) => {
+      userFeedbackCallback(err, stats)
+
+      /*
+       * A failed compile must break the build; webpack's Node API does not set an exit code itself, so an errored build
+       * would otherwise exit 0. Warnings are intentionally not treated as a failure.
+       */
+      if (err || (stats?.hasErrors())) {
+        process.exitCode = 1
+      }
+
+      const buildSucceeded = !err && stats && !stats.hasErrors()
+
+      /*
+       * Close the compiler once the build has finished so webpack fires its shutdown
+       * hooks and loaders/plugins can dispose their resources.
+       */
+      webpackRunner.close(closeError => {
+        if (closeError) {
+          // Surface cleanup failures instead of exiting 0 and hiding them
+          process.exitCode = 1
+          log(chalk.red(closeError.stack ?? String(closeError)))
+
+          return
+        }
+
+        /*
+         * Yay, we done - printed once for the whole (multi-compiler) build, and only  after a clean shutdown, so a
+         * failed close() is never reported as success. Warnings do not count as a failed build.
+         */
+        if (buildSucceeded) {
+          log(chalk.green(String.raw`\o/`))
+        }
+      })
+    })
   }
 
   if (mode === 'watch') {
