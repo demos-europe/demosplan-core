@@ -71,6 +71,9 @@
                   class="fa fa-trash"
                   aria-hidden="true"
                 />
+                <span class="sr-only">
+                  {{ Translator.trans('delete') }}
+                </span>
               </a>
               {{ hasOwnProp(props.option, 'attributes') ? props.option.attributes.name : '' }}
             </template>
@@ -116,6 +119,19 @@
               @updating-filters="disabledInteractions = true"
               @updated-filters="disabledInteractions = false"
             />
+            <template v-if="filterGroup.type === 'statement'">
+              <dp-custom-fields-filter
+                v-for="definition in filterableCustomFieldDefinitions"
+                :key="definition.id"
+                :filter-definition="{ id: definition.id, name: definition.attributes.name, fieldType: definition.attributes.fieldType }"
+                :loading="getIsLoading(definition.id)"
+                :options="getVisibleCustomFieldOptions(definition)"
+                :value="getSelectedCustomFieldValue(definition.id)"
+                @close="applyCustomFieldFilter"
+                @input="handleCustomFieldInput(definition.id, $event)"
+                @open="refreshCustomFieldCounts(definition.id)"
+              />
+            </template>
           </dp-tab>
         </dp-tabs>
 
@@ -237,18 +253,27 @@
 <script>
 import { DpLoading, DpModal, DpMultiselect, DpTab, DpTabs, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import DpCustomFieldsFilter from '@DpJs/components/shared/DpCustomFieldsFilter'
 import DpFilterModalSelectItem from './FilterModalSelectItem'
+import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 export default {
   name: 'DpFilterModal',
 
   components: {
+    DpCustomFieldsFilter,
     DpFilterModalSelectItem,
-    DpMultiselect,
-    DpModal,
     DpLoading,
+    DpModal,
+    DpMultiselect,
     DpTab,
     DpTabs,
+  },
+
+  setup () {
+    const { fetchCustomFields } = useCustomFields()
+
+    return { fetchCustomFields }
   },
 
   props: {
@@ -283,6 +308,8 @@ export default {
   data () {
     return {
       activeTabId: null,
+      customFieldDefinitions: [],
+      customFieldFilterValue: {},
       disabledInteractions: false, // Do not submit form if filters are currently updating
       isLoading: true,
       saveFilterSet: false,
@@ -300,14 +327,26 @@ export default {
     }),
 
     ...mapGetters('Filter', {
+      customFieldOptionCounts: 'customFieldOptionCounts',
       filterByType: 'filterByType',
       getFilterHash: 'userFilterSetFilterHash',
+      getIsLoading: 'isLoading',
       userFilterSets: 'userFilterSets',
       // All selected filter options
       selectedFilterOptions: 'selectedFilterOptions',
       // Selected options for filterHash
       allSelectedFilterOptionsWithFilterName: 'allSelectedFilterOptionsWithFilterName',
     }),
+
+    filterableCustomFieldDefinitions () {
+      if (!hasPermission('feature_statements_custom_fields')) {
+        return []
+      }
+
+      return this.customFieldDefinitions.filter(definition =>
+        ['singleSelect', 'multiSelect'].includes(definition.attributes?.fieldType),
+      )
+    },
 
     /**
      * Returns only filterGroups (i.e. tabs) that have filters and should be displayed
@@ -316,9 +355,10 @@ export default {
     filterGroupsToBeDisplayed () {
       return this.filterGroups.filter(filterGroup => {
         const groupHasPermission = filterGroup.permission ? hasPermission(filterGroup.permission) : true
-        const groupHasFilters = this.filterByType(filterGroup.type).length > 0
+        const groupHasStandardFilters = this.filterByType(filterGroup.type).length > 0
+        const groupHasCustomFieldFilters = filterGroup.type === 'statement' && this.filterableCustomFieldDefinitions.length > 0
 
-        return groupHasPermission && groupHasFilters ? filterGroup : false
+        return groupHasPermission && (groupHasStandardFilters || groupHasCustomFieldFilters)
       })
     },
 
@@ -344,7 +384,9 @@ export default {
     },
 
     noFilterSelected () {
-      return this.selectedFilterOptions.length === 0
+      const areCustomFieldFiltersSelected = Object.values(this.customFieldFilterValue).some(ids => ids.length > 0)
+
+      return this.selectedFilterOptions.length === 0 && !areCustomFieldFiltersSelected
     },
 
     route () {
@@ -395,15 +437,56 @@ export default {
       'loadAppliedFilterOptions',
       'loadSelectedFilterOptions',
       'resetSelectedOptions',
+      'setActiveCfFilterEntries',
       'setLoading',
     ]),
+
+    getCustomFieldOptions (definition) {
+      const counts = this.customFieldOptionCounts[definition.id]
+
+      return (definition.attributes?.options ?? []).map(option => ({
+        label: option.label,
+        value: option.id,
+        count: counts ? (counts[option.id] ?? 0) : undefined,
+      }))
+    },
+
+    getVisibleCustomFieldOptions (definition) {
+      if (undefined === this.customFieldOptionCounts[definition.id]) {
+        return []
+      }
+
+      return this.getCustomFieldOptions(definition).filter(option => option.count !== 0)
+    },
 
     back () {
       this.saveFilterSetView = false
     },
 
+    buildCustomFieldEntries () {
+      const entries = []
+
+      Object.entries(this.customFieldFilterValue).forEach(([fieldId, optionIds]) => {
+        optionIds.forEach(optionId => {
+          entries.push({ name: `filter_customField_${fieldId}[]`, value: optionId })
+        })
+      })
+
+      return entries
+    },
+
+    applyCustomFieldFilter () {
+      this.setActiveCfFilterEntries(this.buildCustomFieldEntries())
+      this.disabledInteractions = true
+      this.updateSelectedOptions()
+    },
+
     createSelectedFiltersBadge (filterGroup) {
-      const selectedCount = this.selectedOptions.length ? this.selectedOptions.filter(option => option.type === filterGroup.type).length : 0
+      let selectedCount = this.selectedOptions.length ? this.selectedOptions.filter(option => option.type === filterGroup.type).length : 0
+
+      if (filterGroup.type === 'statement') {
+        selectedCount += Object.values(this.customFieldFilterValue).reduce((total, ids) => total + ids.length, 0)
+      }
 
       return (selectedCount > 0) ? '<span class="o-badge o-badge--small o-badge--dark">' + selectedCount + '</span>' : ''
     },
@@ -411,6 +494,28 @@ export default {
     deleteSavedFilterSet (userFilterSetId) {
       if (confirm(Translator.trans('filter.savedFilterSet.delete.confirm'))) {
         this.removeUserFilterSetAction(userFilterSetId)
+      }
+    },
+
+    handleCustomFieldInput (fieldId, selected) {
+      const previousIds = this.customFieldFilterValue[fieldId] ?? []
+      let ids = []
+
+      if (Array.isArray(selected)) {
+        ids = selected.map(option => option.value)
+      } else if (selected) {
+        ids = [selected.value]
+      }
+
+      this.customFieldFilterValue = { ...this.customFieldFilterValue, [fieldId]: ids }
+
+      /*
+       * Tag removal / deselect-all can happen without the dropdown being open, so no
+       * @close event follows - commit immediately on decrease. Increases (and same-length
+       * swaps in a single-select) are always covered by the @close-triggered commit.
+       */
+      if (ids.length < previousIds.length) {
+        this.applyCustomFieldFilter()
       }
     },
 
@@ -433,13 +538,20 @@ export default {
       // Initially, only load empty filters without options
       return this.getFilterListAction()
         .then(() => {
-          // Load selected options into store
           if (this.appliedFilterOptions.length > 0) {
-            this.selectedOptions = this.appliedFilterOptions
-            this.loadSelectedFilterOptions(this.appliedFilterOptions)
-            this.loadAppliedFilterOptions(this.appliedFilterOptions)
+            const standardOptions = this.appliedFilterOptions.filter(option => option.type !== 'customField')
+
+            // Load selected options into store
+            if (standardOptions.length > 0) {
+              this.selectedOptions = standardOptions
+              this.loadSelectedFilterOptions(standardOptions)
+              this.loadAppliedFilterOptions(standardOptions)
+            }
+
+            this.restoreCustomFieldFilterValue()
           }
         })
+        .then(() => this.getFilterOptionsAction({ filterHash: this.filterHash }))
     },
 
     initUserFilterSets () {
@@ -461,7 +573,19 @@ export default {
       if (this.filterList.length === 0) {
         this.updateBaseState({ procedureId: this.procedureId, original: this.original })
           .then(() => {
-            const promises = [this.initFilterList()]
+            const promises = [
+              this.initFilterList(),
+            ]
+
+            if (hasPermission('feature_statements_custom_fields')) {
+              promises.push(
+                this.fetchCustomFields(this.procedureId, { sourceEntity: 'PROCEDURE', targetEntity: 'STATEMENT' })
+                  .then(definitions => {
+                    this.customFieldDefinitions = definitions
+                  })
+                  .catch(() => {}),
+              )
+            }
 
             if (this.userFilterSetSaveEnabled) {
               promises.push(this.initUserFilterSets())
@@ -491,9 +615,36 @@ export default {
       }
 
       if (this.noFilterSelected === false && !isOpen) {
+        this.restoreCustomFieldFilterValue()
         this.resetSelectedOptions(this.appliedFilterOptions)
         this.updateSelectedOptions()
       }
+    },
+
+    restoreCustomFieldFilterValue () {
+      const customFieldOptions = this.appliedFilterOptions.filter(opt => opt.type === 'customField')
+      const restored = {}
+
+      customFieldOptions.forEach(({ fieldId, value }) => {
+        restored[fieldId] = restored[fieldId] ?? []
+        restored[fieldId].push(value)
+      })
+
+      this.customFieldFilterValue = restored
+      this.setActiveCfFilterEntries(this.buildCustomFieldEntries())
+    },
+
+    getSelectedCustomFieldValue (fieldId) {
+      const selectedIds = this.customFieldFilterValue[fieldId] ?? []
+      const definition = this.customFieldDefinitions.find(definition => definition.id === fieldId)
+
+      if (!definition) {
+        return null
+      }
+
+      const matched = this.getCustomFieldOptions(definition).filter(option => selectedIds.includes(option.value))
+
+      return definition.attributes.fieldType === 'multiSelect' ? matched : (matched[0] ?? null)
     },
 
     setActiveTabId (id) {
@@ -518,7 +669,61 @@ export default {
        * it first updates the filterHash and then submits the form with a new
        * hash set in the action
        */
-      window.submitForm(event, 'filters')
+      const allEntries = [...this.allSelectedFilterOptionsWithFilterName, ...this.buildCustomFieldEntries()]
+      const hasCustomFieldEntries = allEntries.some(entry => entry.name.startsWith('filter_customField_'))
+
+      if (!hasCustomFieldEntries) {
+        globalThis.submitForm(event, 'filters')
+
+        return
+      }
+
+      // Prevent default form submit; update hash with CF entries merged in, then submit
+      if (event) {
+        event.preventDefault()
+        event.stopPropagation()
+      }
+
+      globalThis.updateFilterHash(this.procedureId, allEntries)
+        .then(filterHash => {
+          document.bpform.action = Routing.generate(this.route, { procedureId: this.procedureId, filterHash })
+          document.bpform.submit()
+        })
+    },
+
+    refreshCustomFieldCounts (fieldId) {
+      this.setLoading({ filterId: fieldId, isLoading: true })
+
+      /*
+       * Mirror FilterModalSelectItem's sentinel pattern: post an empty-value entry for the
+       * opened field so the backend knows to return its options with counts.
+       */
+      const sentinel = { name: `filter_customField_${fieldId}[]`, value: '' }
+
+      // Include active selections for OTHER CF fields; opened field gets only the sentinel.
+      const otherCfEntries = []
+
+      Object.entries(this.customFieldFilterValue).forEach(([currentFieldId, optionIds]) => {
+        if (currentFieldId !== fieldId) {
+          optionIds.forEach(optionId => {
+            otherCfEntries.push({ name: `filter_customField_${currentFieldId}[]`, value: optionId })
+          })
+        }
+      })
+
+      const entries = [
+        ...this.allSelectedFilterOptionsWithFilterName,
+        sentinel,
+        ...otherCfEntries,
+      ]
+
+      globalThis.updateFilterHash(this.procedureId, entries)
+        .then(filterHash => {
+          this.getFilterOptionsAction({ filterHash })
+            .then(() => {
+              this.setLoading({ filterId: fieldId, isLoading: false })
+            })
+        })
     },
 
     /**
@@ -526,7 +731,9 @@ export default {
      * emit event to FilterModalSelectItem which then loads updated options from store
      */
     updateSelectedOptions (filterItemId = false) {
-      window.updateFilterHash(this.procedureId, this.allSelectedFilterOptionsWithFilterName)
+      const filterOptions = [...this.allSelectedFilterOptionsWithFilterName, ...this.buildCustomFieldEntries()]
+
+      globalThis.updateFilterHash(this.procedureId, filterOptions)
         .then((filterHash) => {
           // Get updated options for selected filters
           this.getFilterOptionsAction({ filterHash })
