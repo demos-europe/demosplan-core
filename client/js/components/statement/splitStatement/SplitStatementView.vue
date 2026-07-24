@@ -790,26 +790,28 @@ export default {
 
       this.ignoreProsemirrorUpdates = true
 
-      this.segments.forEach(segment => {
-        if (segment.status === 'confirmed') {
-          return
-        }
+      try {
+        this.segments.forEach(segment => {
+          if (segment.status === 'confirmed') {
+            return
+          }
 
-        const range = ranges[segment.id]
+          const range = ranges[segment.id]
 
-        /**
-         * A proposal without a mark in the document (e.g. a broken draft) cannot be confirmed in
-         * ProseMirror, so it is skipped rather than throwing on the missing range
-         */
-        if (!range) {
-          return
-        }
+          /**
+           * A proposal without a mark in the document (e.g. a broken draft) cannot be confirmed in
+           * ProseMirror, so it is skipped rather than throwing on the missing range
+           */
+          if (!range) {
+            return
+          }
 
-        setRange(this.prosemirror.view)(range.from, range.to, { segmentId: segment.id, isConfirmed: true })
-        confirmedSegments.push({ ...segment, status: 'confirmed' })
-      })
-
-      this.ignoreProsemirrorUpdates = false
+          setRange(this.prosemirror.view)(range.from, range.to, { segmentId: segment.id, isConfirmed: true })
+          confirmedSegments.push({ ...segment, status: 'confirmed' })
+        })
+      } finally {
+        this.ignoreProsemirrorUpdates = false
+      }
 
       if (confirmedSegments.length) {
         this.locallyUpdateSegments(confirmedSegments)
