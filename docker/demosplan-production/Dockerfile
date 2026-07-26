@@ -104,6 +104,7 @@ RUN mkdir -p /srv/www/public/js && \
     chown -R www-data /srv/www/var/certs && \
     chown -R www-data /srv/www/var/tmp && \
     chown -R www-data /srv/www/client/css/generated && \
+    if [ -d /srv/www/addonZipsDeploy ]; then chown -R www-data /srv/www/addonZipsDeploy; fi && \
 # define doctrine in memory database for the asset build \
     mv /srv/www/config/packages/doctrine.yaml /tmp/doctrine.yaml
 # No --link: writes into /srv/www subpaths; --link would rebase /srv/www metadata and break
@@ -119,7 +120,13 @@ RUN --mount=type=secret,id=envlocal,target=/srv/www/.env.local,uid=33 \
     --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=locked \
     --mount=type=cache,target=/var/www/.yarn,uid=33,gid=33,sharing=locked \
     --mount=type=cache,target=/var/www/.cache,uid=33,gid=33,sharing=locked \
-    ACTIVE_PROJECT=$PROJECT_NAME bin/console dplan:addon:autoinstall -e ${BUILD_MODE} --no-debug || true && \
+    if [ -d /srv/www/addonZipsDeploy ] && ls /srv/www/addonZipsDeploy/*.zip >/dev/null 2>&1; then \
+        for zip in /srv/www/addonZipsDeploy/*.zip; do \
+            ACTIVE_PROJECT=$PROJECT_NAME bin/console dplan:addon:install "$zip" -e ${BUILD_MODE} --no-debug --skip-frontend-build || true; \
+        done; \
+    else \
+        ACTIVE_PROJECT=$PROJECT_NAME bin/console dplan:addon:autoinstall -e ${BUILD_MODE} --no-debug || true; \
+    fi && \
     if [ "$BUILD_MODE" = "dev" ]; then \
         ./fe build $PROJECT_NAME; \
     else \
@@ -128,6 +135,7 @@ RUN --mount=type=secret,id=envlocal,target=/srv/www/.env.local,uid=33 \
     rm -rf /srv/www/node_modules && \
     rm -rf /srv/www/addons/cache/*/node_modules && \
     rm -rf /srv/www/addonZips && \
+    rm -rf /srv/www/addonZipsDeploy && \
     rm -rf /srv/www/.cache
 
 USER root

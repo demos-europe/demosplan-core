@@ -259,6 +259,24 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
         ($this->sut)(new AccountDeletionRunMessage());
     }
 
+    public function testIdentityProviderUserIsSkippedBeforeAnyDeletionStep(): void
+    {
+        $user = $this->buildUserMock();
+        $user->method('isProvidedByIdentityProvider')->willReturn(true);
+
+        $this->userRepository->method('findInactivityDeletionCandidates')->willReturn([$user]);
+
+        // The IdP guard short-circuits at the top of processCandidate: no step
+        // evaluation, no tracking lookup, no mail, no soft-deletion, no flush.
+        $this->trackingRepository->expects($this->never())->method('findOneByUser');
+        $this->activityChecker->expects($this->never())->method('evaluateInactivityStep');
+        $this->mailService->expects($this->never())->method('sendMail');
+        $user->expects($this->never())->method('setDeleted');
+        $this->entityManager->expects($this->never())->method('flush');
+
+        ($this->sut)(new AccountDeletionRunMessage());
+    }
+
     /**
      * @return User&MockObject
      */

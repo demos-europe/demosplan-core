@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\StateProvider;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementGroupResource;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementClusterConditions;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
@@ -44,7 +45,28 @@ class StatementGroupStateProvider implements ProviderInterface
             return $this->provideSingle($uriVariables['id']);
         }
 
-        return null;
+        return $this->provideCollection();
+    }
+
+    /**
+     * @return list<StatementGroupResource>
+     */
+    private function provideCollection(): array
+    {
+        $procedure = $this->currentProcedureService->getProcedure();
+        if (null === $procedure) {
+            return [];
+        }
+
+        $statements = $this->statementRepository->getEntities(
+            $this->clusterConditions->forProcedure($procedure->getId()),
+            $this->clusterConditions->defaultSortMethods()
+        );
+
+        return array_map(
+            static fn (Statement $statement): StatementGroupResource => StatementGroupResource::fromStatement($statement),
+            $statements
+        );
     }
 
     private function provideSingle(string $id): ?StatementGroupResource

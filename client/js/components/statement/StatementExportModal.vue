@@ -75,7 +75,7 @@
       </fieldset>
 
       <fieldset v-if="isSingleStatementExport">
-        <div class="flex mt-1 mb-5">
+        <div class="flex mt-1 mb-5 gap-2">
           <dp-checkbox
             id="singleStatementCitizen"
             v-model="isCitizenDataCensored"
