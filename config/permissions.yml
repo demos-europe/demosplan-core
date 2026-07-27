@@ -2786,6 +2786,11 @@ field_procedure_administration:
     label: 'Anzeige der Behörde im Header der Detailansicht eines Verfahrens'
     loginRequired: false
     parent: field_procedure
+field_procedure_allow_uninvited_institutions:
+    description: 'Allows a planner to configure, per procedure, whether institutions that were not invited may still submit a Stellungnahme.'
+    label: 'Nicht eingeladene Institutionen zulassen'
+    loginRequired: true
+    parent: area_admin_invitable_institution
 field_procedure_contact_person:
     description: 'Set the contact person for procedure in settings (procedure/blueprint) and display it in public detail in procedure info.'
     label: 'Field for contact person for procedure'
