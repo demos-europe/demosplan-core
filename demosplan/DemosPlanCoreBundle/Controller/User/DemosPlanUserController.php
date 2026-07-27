@@ -530,7 +530,15 @@ class DemosPlanUserController extends BaseController
             // Store status before update to compare it to the status after the update
             $newsletterStatusBefore = $userBefore->getNewsletter();
 
-            $user = $userHandler->updateUser($userBefore->getId(), $request->request->all());
+            $requestData = $request->request->all();
+            // Convert the segment deadline reminder checkbox ('on' / absent) into a bool
+            // on this profile-edit path only. Keeping it out of the shared updateUser()
+            // means callers that omit the field leave the flag untouched, so its
+            // default-on value is preserved.
+            $requestData[UserFlagKey::SEGMENT_DEADLINE_REMINDER_ENABLED->value] =
+                'on' === ($requestData[UserFlagKey::SEGMENT_DEADLINE_REMINDER_ENABLED->value] ?? null);
+
+            $user = $userHandler->updateUser($userBefore->getId(), $requestData);
             if ($user instanceof User) {
                 // soll eine Benachrichtigung verschickt werden, dass sich der Newsletterstatus verändert hat?
                 if ($newsletterStatusBefore !== $user->getNewsletter()) {

@@ -2184,6 +2184,12 @@ feature_statement_data_protection:
     label: 'Data protection evaluation for public statements'
     loginRequired: false
     parent: feature_statement
+feature_statement_deadline_mail:
+    description: 'Enhances the deadline feature in global (non-procedure) contexts: enables the deadline reminder emails and the reminder opt-out shown in the user settings. The deadline field itself is gated by the linked, role-bound "field_statement_deadline"; enable this one globally.'
+    label: 'Enable statement deadline reminder emails and settings opt-out'
+    parent: field_statement_deadline
+    expose: true
+    loginRequired: false
 feature_statement_delete:
     description: |-
         Allows to delete statements in the application. The deletion is activated regardless of the way the
@@ -2909,7 +2915,7 @@ field_statement_county:
     loginRequired: false
     parent: field_statement
 field_statement_deadline:
-    description: 'Adds a deadline field  (Bearbeitungsfrist).'
+    description: 'Adds a deadline field (Bearbeitungsfrist) within procedures (role-bound). Its global-context enhancements — the deadline reminder emails and the reminder opt-out in the user settings — are enabled by the linked, global "feature_statement_deadline_mail".'
     label: 'Statement deadline'
     expose: true
     loginRequired: true

@@ -912,13 +912,13 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
      *
      * @param string $flagKey
      */
-    protected function getFlagValue($flagKey): bool
+    protected function getFlagValue($flagKey, bool $default = false): bool
     {
         if (is_array($this->flags) && array_key_exists($flagKey, $this->flags)) {
             return (bool) $this->flags[$flagKey];
         }
 
-        return false;
+        return $default;
     }
 
     /**
@@ -1601,6 +1601,20 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     public function setDraftStatementSubmissionReminderEnabled(bool $draftStatementSubmissionReminderEnabled)
     {
         $this->setFlagValue(UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED->value, $draftStatementSubmissionReminderEnabled);
+    }
+
+    /**
+     * Defaults to enabled: a user receives segment deadline reminders unless
+     * they have explicitly turned the setting off.
+     */
+    public function getSegmentDeadlineReminderEnabled(): bool
+    {
+        return $this->getFlagValue(UserFlagKey::SEGMENT_DEADLINE_REMINDER_ENABLED->value, true);
+    }
+
+    public function setSegmentDeadlineReminderEnabled(bool $segmentDeadlineReminderEnabled)
+    {
+        $this->setFlagValue(UserFlagKey::SEGMENT_DEADLINE_REMINDER_ENABLED->value, $segmentDeadlineReminderEnabled);
     }
 
     /**
