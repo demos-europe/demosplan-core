@@ -52,28 +52,32 @@ class SegmentEmailSender
             $this->sendAbschnitt($sendMailTo, $sentFrom, $ccEmailAddresses, $emailVariables, []);
         } catch (InvalidDataException) {
             $this->messageBag->add('error', 'error.segment.send.syntax.email');
+
             return false;
         }
         $this->messageBag->add('confirm', 'confirm.segment.sent');
+
         return true;
     }
+
     /**
      * @throws InvalidDataException if the address is not a valid email
      */
     private function validateRecipientEmail(string $recipientEmail): string
     {
         $recipient = trim($recipientEmail);
-        if(!filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
+        if (!filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
             throw new InvalidDataException('Invalid recipient email address provided.');
         }
+
         return $recipient;
     }
 
     /**
-     * splits the cc field on comma/semicolon and validates every address
+     * splits the cc field on comma/semicolon and validates every address.
+     *
      * @throws InvalidDataException if any address is invalid
      */
-
     private function extractCcEmailAddresses(?string $sendEmailCC): array
     {
         if (null === $sendEmailCC || '' === trim($sendEmailCC)) {
@@ -85,7 +89,7 @@ class SegmentEmailSender
         $mailsCC = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $sendEmailCC);
 
         foreach ($mailsCC as $mail) {
-            $mailForCc = trim((string)$mail);
+            $mailForCc = trim((string) $mail);
             if (filter_var($mailForCc, FILTER_VALIDATE_EMAIL)) {
                 $emailCC[] = $mailForCc;
             } else {
@@ -95,6 +99,7 @@ class SegmentEmailSender
         if ([] !== $syntaxEmailErrors) {
             throw new InvalidDataException('Invalid email address provided in CC field.');
         }
+
         return $emailCC;
     }
 
