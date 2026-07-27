@@ -61,6 +61,23 @@ class StatementGroupResourceApiTest extends AbstractApiTest
         $this->client->loginUser($user, 'main');
     }
 
+    /**
+     * The `main` firewall authenticates via the session set up in
+     * {@see loginUserForApiPlatform()}. The inherited {@see AbstractApiTest::getAdditionalHeaders()}
+     * always attaches an X-JWT-Authorization header meant for the stateless `api` firewall;
+     * sending it alongside here confuses the `main` firewall's lazy authentication and can
+     * cause it to treat the request as unauthenticated, so it is omitted for these requests.
+     */
+    protected function getAdditionalHeaders(string $jwtToken, ?Procedure $procedure): array
+    {
+        $headers = [];
+        if (null !== $procedure) {
+            $headers['HTTP_X_DEMOSPLAN_PROCEDURE_ID'] = $procedure->getId();
+        }
+
+        return $headers;
+    }
+
     private function fetchPersistedGroup(string $groupId): Statement
     {
         $this->getEntityManager()->clear();
@@ -74,7 +91,7 @@ class StatementGroupResourceApiTest extends AbstractApiTest
 
     public function testPatchGroupNameOnlyUpdatesAndPersists(): void
     {
-        $procedure = ProcedureFactory::createOne();
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
         [$group] = $this->createGroupWithTwoMembers($procedure);
         $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
         $this->enablePermissions(['feature_statement_cluster']);
