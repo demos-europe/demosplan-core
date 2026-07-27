@@ -601,6 +601,10 @@ export default {
       'slidebar',
     ]),
 
+    ...mapState('StatementSegment', {
+      segmentItems: 'items',
+    }),
+
     assignableUsers () {
       const assigneeOptions = Object.values({ ...this.assignableUserItems })
         .map(assignableUser => {
@@ -732,10 +736,6 @@ export default {
   methods: {
     ...mapActions('SegmentSlidebar', [
       'toggleSlidebarContent',
-    ]),
-
-    ...mapMutations('SegmentSlidebar', [
-      'setProperty',
     ]),
 
     ...mapActions('StatementSegment', {
@@ -893,12 +893,6 @@ export default {
       })
     },
 
-    finalizeSave (comments) {
-      this.restoreComments(comments)
-      this.setProperty({ prop: 'isLoading', val: false })
-      this.isEditing = false
-    },
-
     hasPolygonFeatures () {
       const raw = this.segment.attributes.polygon
 
@@ -990,38 +984,37 @@ export default {
     },
 
     /**
-     * Remove non-updatable comments from segments relationships for update request
-     * @param relations {Object}
+     * Re-add read-only relationships stripped by updateRelationships() to the store
+     * Comments and recommendationVersions are only added as relationship if they don't exist already
+     *
+     * @param comments {Object|null}
+     * @param recommendationVersions {Object|null}
      */
-    excludeComments (relations) {
-      if (relations.comments) {
-        this.setProperty({ prop: 'isLoading', val: true })
-        delete relations.comments
-      }
-    },
+    restoreReadOnlyRelationships ({ comments, recommendationVersions }) {
+      const storedSegment = this.segmentItems[this.segment.id]
 
-    /**
-     * Remove non-updatable recommendationVersions from segments relationships for update request
-     * @param relations {Object}
-     */
-    excludeRecommendationVersion (relations) {
-      if (relations.recommendationVersions) {
-        delete relations.recommendationVersions
+      if (!storedSegment) {
+        return
       }
-    },
 
-    restoreComments (comments) {
-      if (comments) {
-        const segmentWithComments = {
-          ...this.segment,
-          relationships: {
-            ...this.segment.relationships,
-            comments,
-          },
-        }
+      const restoreComments = comments && !storedSegment.relationships.comments
+      const restoreRecommendationVersions = recommendationVersions && !storedSegment.relationships.recommendationVersions
 
-        this.setSegment({ ...segmentWithComments, id: this.segment.id })
+      if (!restoreComments && !restoreRecommendationVersions) {
+        return
       }
+
+      const relationships = { ...storedSegment.relationships }
+
+      if (restoreComments) {
+        relationships.comments = comments
+      }
+
+      if (restoreRecommendationVersions) {
+        relationships.recommendationVersions = recommendationVersions
+      }
+
+      this.setSegment({ ...storedSegment, relationships, id: storedSegment.id })
     },
 
     saveCustomFields () {
@@ -1054,25 +1047,37 @@ export default {
     },
 
     save () {
-      const comments = this.segment.relationships.comments ?
-        { ...this.segment.relationships.comments } :
-        null
+      const readOnlyRelationships = {
+        comments: this.segment.relationships.comments ?
+          { ...this.segment.relationships.comments } :
+          null,
+        recommendationVersions: this.segment.relationships.recommendationVersions ?
+          { ...this.segment.relationships.recommendationVersions } :
+          null,
+      }
 
-      // Update relationships (assignee/place)
-      const relations = this.updateRelationships()
-
-      /**
-       *  Comments and recommendationVersions need to be removed from the PATCH payload
-       *  as updating them is technically not supported
+      /*
+       * Update relationships (assignee/place). Read-only relationships (comments,
+       * recommendationVersions) are stripped inside updateRelationships so they never
+       * reach the PATCH payload.
        */
-      this.excludeComments(relations)
-      this.excludeRecommendationVersion(relations)
+      this.updateRelationships()
 
       this.lockedBeforeSave = this.isLocked
       this.isSaving = true
 
-      return this.saveSegmentAction({ id: this.segment.id })
+      const savePromise = this.saveSegmentAction({ id: this.segment.id })
+
+      this.restoreReadOnlyRelationships(readOnlyRelationships)
+
+      return savePromise
         .then(() => {
+          /*
+           * The saveAction overwrites segment data in the store without the readonly relationships, so we need to restore
+           * them again here to ensure comments don't vanish from the interface while saving
+           */
+          this.restoreReadOnlyRelationships(readOnlyRelationships)
+
           /*
            * Clearing the assignee ("nicht zugewiesen") is sent as a separate explicit PATCH because the
            * vuex-json-api diff drops a to-one relationship set to `{ data: null }` (it diffs against a
@@ -1104,6 +1109,7 @@ export default {
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
 
+          this.isEditing = false
           this.isFullscreen = false
 
           this.toggleAssignableUsersSelect()
@@ -1116,16 +1122,14 @@ export default {
             }
           })
         })
-        .catch((err) => {
+        .catch(err => {
           console.error('Save failed:', err)
           dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
-        })
-        .catch(() => {
           this.restoreSegmentAction(this.segment.id)
         })
         .finally(() => {
           this.isSaving = false
-          this.finalizeSave(comments)
+          this.restoreReadOnlyRelationships(readOnlyRelationships)
         })
     },
 
@@ -1262,6 +1266,14 @@ export default {
     updateRelationships () {
       let relations = { ...this.segment.relationships }
 
+      /*
+       * `comments` and `recommendationVersions` are read-only on the StatementSegment resource (they are managed through
+       * their own resources/endpoints), so we need to remove them from the payload to prevent them from being written
+       * to the store and sent to the BE on save
+       */
+      delete relations.comments
+      delete relations.recommendationVersions
+
       if (this.showWorkflowActions) {
         let assignee = { assignee: { data: null } }
 
@@ -1303,7 +1315,13 @@ export default {
     },
 
     updateSegment (key, val) {
-      const updated = { ...this.segment, ...{ attributes: { ...this.segment.attributes, ...{ [key]: val } } } }
+      const updated = {
+        ...this.segment,
+        attributes: {
+          ...this.segment.attributes,
+          [key]: val,
+        },
+      }
 
       this.setSegment({ ...updated, id: this.segment.id })
     },
