@@ -18,6 +18,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\CustomField\CustomFieldElasticaQueryBuilder;
+use demosplan\DemosPlanCoreBundle\Logic\CustomField\CustomFieldFilterResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
@@ -119,6 +121,8 @@ class ElasticsearchResultCreator
         private readonly DepartmentRepository $departmentRepository,
         private readonly ProfilerService $profilerService,
         private readonly LoggerInterface $logger,
+        private readonly CustomFieldFilterResolver $customFieldFilterResolver,
+        private readonly CustomFieldElasticaQueryBuilder $customFieldElasticaQueryBuilder,
         #[Autowire(param: 'elasticsearch_max_result_window')]
         private readonly int $elasticsearchMaxResultWindow,
         #[Autowire(param: 'elasticsearch_search_after_batch_size')]
@@ -140,6 +144,21 @@ class ElasticsearchResultCreator
      * @param int                     $aggregationsMinDocumentCount
      * @param bool                    $addAllAggregations
      * @param list<GlobalAggregation> $customAggregations
+     * @param array<string, string[]> $customFieldsToCount          fieldId => option IDs. When non-empty,
+     *                                                              adds one `customFieldOptionCounts_{fieldId}`
+     *                                                              Filter aggregation per entry (each with its
+     *                                                              own facet-exclusion filter), and skips
+     *                                                              applying CF filters to the main query, since
+     *                                                              each field's exclusion state now lives in its
+     *                                                              own aggregation instead. Used by
+     *                                                              CustomFieldFilterResponseBuilder::countForFields();
+     *                                                              callers building the real statement list must
+     *                                                              leave this empty.
+     * @param array<string, string[]> $activeCfFiltersForCount      fieldId => selected option IDs, for every
+     *                                                              currently active custom-field filter — used
+     *                                                              to build each $customFieldsToCount entry's
+     *                                                              exclusion filter. Ignored when
+     *                                                              $customFieldsToCount is empty.
      */
     public function getElasticsearchResult(
         $userFilters,
@@ -153,6 +172,8 @@ class ElasticsearchResultCreator
         $aggregationsMinDocumentCount = 1,
         $addAllAggregations = true,
         array $customAggregations = [],
+        array $customFieldsToCount = [],
+        array $activeCfFiltersForCount = [],
     ): ElasticsearchResult {
         $elasticsearchResultStatement = new ElasticsearchResult();
         try {
@@ -162,6 +183,18 @@ class ElasticsearchResultCreator
                 $aggregationsMinDocumentCount
             );
             [$boolMustFilter, $boolMustNotFilter] = $this->getBasicFilters($procedureId, $userFilters);
+
+            if ([] === $customFieldsToCount) {
+                // Normal path: apply active CF filters to the main query, like every other filter.
+                [$customFieldClauses, $userFilters] = $this->customFieldFilterResolver->resolveCustomFieldFilter($userFilters);
+                array_push($boolMustFilter, ...$customFieldClauses);
+            }
+            // Counting path (CustomFieldFilterResponseBuilder::countForFields()): deliberately skipped. Each field being
+            // counted needs its own facet-exclusion state, which can only be expressed per
+            // aggregation (see CustomFieldElasticaQueryBuilder::buildFacetedOptionCountsAggregations()) —
+            // a single shared top-level filter can't hold N different exclusion states at once.
+            // $userFilters is expected to already be free of `customField_*` keys on this path.
+
             $userFilters = $this->getRenamedUserFilters($userFilters);
             $fragmentFilters = $this->getFragmentFilters($userFilters);
             $userFragmentFilters = $this->statementService->mapRequestFiltersToESFragmentFilters($userFilters);
@@ -303,6 +336,10 @@ class ElasticsearchResultCreator
 
             foreach ($customAggregations as $customAggregation) {
                 $query->addAggregation($customAggregation);
+            }
+
+            foreach ($this->customFieldElasticaQueryBuilder->buildFacetedOptionCountsAggregations($customFieldsToCount, $activeCfFiltersForCount) as $aggregation) {
+                $query->addAggregation($aggregation);
             }
 
             /****************************************** EINREICHUNG **************************************************/
@@ -1334,6 +1371,15 @@ class ElasticsearchResultCreator
             }
 
             /************************************* ADD AGGREGATIONS TO RESULT (END) **********************************/
+
+            foreach ($esResultAggregations as $key => $value) {
+                if (str_starts_with($key, 'customFieldOptionCounts_')) {
+                    // passed through verbatim (raw ES buckets, nested under 'byOption') —
+                    // consumed directly by CustomFieldFilterResponseBuilder::countForFields(), not
+                    // further processed here.
+                    $processedAggregation[$key] = $value;
+                }
+            }
 
             // add modified Aggregations to Result
             $elasticsearchResultStatement->setAggregations($processedAggregation);

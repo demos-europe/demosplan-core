@@ -42,6 +42,7 @@ use demosplan\DemosPlanCoreBundle\Constraint\MatchingSubmitTypesConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\OriginalReferenceConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\PrePersistUniqueInternIdConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\SimilarStatementSubmittersSameProcedureConstraint;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -4231,5 +4232,19 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function setCustomFields(?CustomFieldValuesList $customFields): void
     {
         $this->customFields = $customFields;
+    }
+
+    /**
+     * List-of-objects projection of {@see self::$customFields} for the `customFieldsForIndex`
+     * nested mapping (config/packages/fos_elastica.yaml). FOSElastica's ORM transformer walks a
+     * nested mapping's sub-properties (`id`, `value`) via PropertyAccessor against each element —
+     * it requires actual objects with getId()/getValue(), not plain arrays, so this exposes the
+     * {@see CustomFieldValue} elements directly rather than {@see CustomFieldValuesList::toJson()}.
+     *
+     * @return CustomFieldValue[]
+     */
+    public function getCustomFieldsForIndex(): array
+    {
+        return $this->customFields?->getCustomFieldsValues() ?? [];
     }
 }
