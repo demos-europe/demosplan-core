@@ -13,8 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use Doctrine\DBAL\Exception;
@@ -51,7 +49,7 @@ class SegmentEmailSender
             // the sender address is the procedures agency mailbox
             $sentFrom = $segment->getProcedure()->getAgencyMainEmailAddress();
             // Queue the mail, no attachments as of now
-            $this->sendAbschnitt($sendMailTo, $ccEmailAddresses, $emailVariables, []);
+            $this->sendAbschnitt($sendMailTo, $sentFrom, $ccEmailAddresses, $emailVariables, []);
         } catch (InvalidDataException) {
             $this->messageBag->add('error', 'error.segment.send.syntax.email');
             return false;
@@ -59,26 +57,6 @@ class SegmentEmailSender
         $this->messageBag->add('confirm', 'confirm.segment.sent');
         return true;
     }
-
-    private function detectRecipientParticipationEmailAddresses($user): array
-    {
-        $recipients = [];
-        /** @var User $user */
-
-        // Participation email address is found on Statement details view > Grundeinstellungen > Intern section > E-Mail Verfahrensträger
-        if ('' !== (string) $user->getOrga()->getParticipationEmail()) {
-            $recipients[] = $user->getOrga()->getParticipationEmail();
-        }
-
-        // CcEmail2 addresses are found on Statement details view > Grundeinstellungen > Intern section > Weitere Empfänger*innen
-        if (null !== $user->getOrga()->getCcEmail2()) {
-            $ccUsersEmail = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $user->getOrga()->getCcEmail2());
-            $recipients = array_merge($recipients, $ccUsersEmail);
-        }
-
-        return $recipients;
-    }
-
     /**
      * @throws InvalidDataException if the address is not a valid email
      */
@@ -86,7 +64,7 @@ class SegmentEmailSender
     {
         $recipient = trim($recipientEmail);
         if(!filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
-            throw new InvalidDataException('Invalid recipient email address provided.')
+            throw new InvalidDataException('Invalid recipient email address provided.');
         }
         return $recipient;
     }
@@ -120,24 +98,7 @@ class SegmentEmailSender
         return $emailCC;
     }
 
-    private function detectCCEmailAddresses($sendEmailCC): array
-    {
-        $ccEmailAddresses = [];
-
-        if ($this->permissions->hasPermission('feature_send_final_email_cc_to_self')) {
-            $ccEmailAddresses[] = $this->currentUserService->getUser()->getEmail();
-        }
-
-        // Check if emails are entered in the CC field
-
-        if (!empty($sendEmailCC) && 0 !== strlen((string) $sendEmailCC)) {
-            $ccEmailAddresses = array_merge($ccEmailAddresses, $this->extractAndValidateCcEmails($sendEmailCC));
-        }
-
-        return $ccEmailAddresses;
-    }
-
-    private function populateEmailVariables($subject, $body): array
+    private function populateEmailVariables(?string $subject, ?string $body): array
     {
         $emailVariables = [];
         if (!empty($body)) {
@@ -149,37 +110,6 @@ class SegmentEmailSender
         }
 
         return $emailVariables;
-    }
-
-    /**
-     * @throws InvalidDataException
-     */
-    private function extractAndValidateCcEmails($sendEmailCC): array
-    {
-        $syntaxEmailErrors = [];
-        $emailcc = [];
-        // Split string into individual email addresses
-        $mailsCC = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', (string) $sendEmailCC);
-        // Check each email address for validity
-        foreach ($mailsCC as $mail) {
-            // Remove all whitespace at the beginning and end
-            $mailForCc = trim((string) $mail);
-            // Check if the email address is correct
-            if (filter_var($mailForCc, FILTER_VALIDATE_EMAIL)) {
-                // if yes, add it to the array
-                $emailcc[] = $mailForCc;
-            } else {
-                // if not, added to error message array
-                $syntaxEmailErrors[] = $mailForCc;
-            }
-        }
-
-        // if email addresses are incorrect, generate an error message
-        if ([] !== $syntaxEmailErrors) {
-            throw new InvalidDataException('Invalid Emails provided in CC field.');
-        }
-
-        return $emailcc;
     }
 
     /**
