@@ -1,0 +1,64 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace demosplan\DemosPlanCoreBundle\Api\Tag;
+
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+
+class AccessChecker
+{
+    public function __construct(
+        private readonly CurrentUserInterface $currentUser,
+        private readonly CurrentProcedureService $currentProcedureService,
+        private readonly DqlConditionFactory $conditionFactory,
+    ) {
+    }
+
+    /**
+     * Mirrors TagResourceType::isAvailable().
+     */
+    public function isAvailable(): bool
+    {
+        return $this->currentUser->hasAnyPermissions(
+            'feature_json_api_tag',
+            'area_statement_segmentation',
+            'feature_statements_tag',
+            'area_admin_statements_tag'
+        );
+    }
+
+    /**
+     * Mirrors TagResourceType::getAccessConditions().
+     *
+     * @return list<ClauseFunctionInterface<bool>>
+     */
+    public function getAccessConditions(): array
+    {
+        $procedure = $this->currentProcedureService->getProcedure();
+        if (!$procedure instanceof Procedure) {
+            // there is currently no use case in which all tags for all procedures need to be requested
+            return [$this->conditionFactory->false()];
+        }
+
+        return [
+            $this->conditionFactory->propertyHasValue(
+                $procedure->getId(),
+                Paths::tag()->topic->procedure->id
+            ),
+        ];
+    }
+}
