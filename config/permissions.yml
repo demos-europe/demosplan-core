@@ -475,6 +475,17 @@ area_search_submitter_in_procedures:
     expose: true
     label: 'Enables the search to find procedures that contain statements that were submitted by a specific submitter name.'
     loginRequired: true
+area_search_submitters_cross_procedures:
+    description: |-
+        Enables the page that searches for statements by submitter or author name across all
+        procedures the user can administer, showing matching statements directly (grouped by
+        procedure) instead of a list of procedures to search individually.
+        Complements `feature_json_api_statement_cross_procedures_search`, which gates the
+        underlying JSON:API resource; this permission additionally gates the page and its
+        menu entry.
+    expose: true
+    label: 'Allows access to the cross-procedure submitter search page.'
+    loginRequired: true
 area_sign_language_overview_video:
     description: |-
         To conform to BITV 2.0, a website must publish information on essential contents, navigation and

@@ -152,6 +152,27 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     }
 
     /**
+     * @return Response
+     *
+     * @throws Exception
+     */
+    #[DplanPermissions(['area_admin_procedures', 'area_search_submitters_cross_procedures'])]
+    #[Route(path: '/verfahren/suche/einreichende', name: 'DemosPlan_procedure_search_submitters_cross_procedures', methods: ['GET'])]
+    public function searchSubmittersAcrossProceduresView(ProcedureHandler $procedureHandler)
+    {
+        $procedures = $procedureHandler->getProceduresForAdmin();
+        $procedures = $procedureHandler->convertProceduresForTwigAdminList($procedures);
+
+        return $this->render(
+            '@DemosPlanCore/DemosPlanProcedure/administration_search_submitters.html.twig',
+            [
+                'templateVars' => ['procedures' => $procedures],
+                'title'        => 'search.submitter',
+            ]
+        );
+    }
+
+    /**
      * @throws Exception
      */
     #[DplanPermissions('area_admin_procedures')]
