@@ -116,6 +116,15 @@
               @updating-filters="disabledInteractions = true"
               @updated-filters="disabledInteractions = false"
             />
+            <dp-custom-fields-filter
+              v-if="filterGroup.type === 'statement' && customFieldDefinitions.length > 0"
+              :custom-field-definitions="customFieldDefinitions"
+              :field-option-counts="customFieldOptionCounts"
+              :value="customFieldFilterValue"
+              variant="modal"
+              @input="updateCustomFieldFilter"
+              @open="refreshCustomFieldCounts"
+            />
           </dp-tab>
         </dp-tabs>
 
@@ -237,12 +246,15 @@
 <script>
 import { DpLoading, DpModal, DpMultiselect, DpTab, DpTabs, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import DpCustomFieldsFilter from '@DpJs/components/shared/DpCustomFieldsFilter'
 import DpFilterModalSelectItem from './FilterModalSelectItem'
+import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 export default {
   name: 'DpFilterModal',
 
   components: {
+    DpCustomFieldsFilter,
     DpFilterModalSelectItem,
     DpMultiselect,
     DpModal,
@@ -283,6 +295,8 @@ export default {
   data () {
     return {
       activeTabId: null,
+      customFieldDefinitions: [],
+      customFieldFilterValue: {},
       disabledInteractions: false, // Do not submit form if filters are currently updating
       isLoading: true,
       saveFilterSet: false,
@@ -300,6 +314,7 @@ export default {
     }),
 
     ...mapGetters('Filter', {
+      customFieldOptionCounts: 'customFieldOptionCounts',
       filterByType: 'filterByType',
       getFilterHash: 'userFilterSetFilterHash',
       userFilterSets: 'userFilterSets',
@@ -395,6 +410,7 @@ export default {
       'loadAppliedFilterOptions',
       'loadSelectedFilterOptions',
       'resetSelectedOptions',
+      'setActiveCfFilterEntries',
       'setLoading',
     ]),
 
@@ -440,6 +456,7 @@ export default {
             this.loadAppliedFilterOptions(this.appliedFilterOptions)
           }
         })
+        .then(() => this.getFilterOptionsAction({ filterHash: this.filterHash }))
     },
 
     initUserFilterSets () {
@@ -461,7 +478,15 @@ export default {
       if (this.filterList.length === 0) {
         this.updateBaseState({ procedureId: this.procedureId, original: this.original })
           .then(() => {
-            const promises = [this.initFilterList()]
+            const { fetchCustomFields } = useCustomFields()
+            const promises = [
+              this.initFilterList(),
+              fetchCustomFields(this.procedureId, { sourceEntity: 'PROCEDURE', targetEntity: 'STATEMENT' })
+                .then(definitions => {
+                  this.customFieldDefinitions = definitions
+                })
+                .catch(() => {}),
+            ]
 
             if (this.userFilterSetSaveEnabled) {
               promises.push(this.initUserFilterSets())
@@ -473,6 +498,22 @@ export default {
               })
           })
       }
+
+      // Restore CF selections from the last applied filter state
+      const cfValue = {}
+
+      this.appliedFilterOptions
+        .filter(f => f.type === 'customField')
+        .forEach(f => {
+          if (!cfValue[f.fieldId]) {
+            cfValue[f.fieldId] = []
+          }
+
+          cfValue[f.fieldId].push(f.value)
+        })
+
+      this.customFieldFilterValue = cfValue
+      this.setActiveCfFilterEntries(this.buildCfEntries(cfValue))
     },
 
     /**
@@ -518,7 +559,77 @@ export default {
        * it first updates the filterHash and then submits the form with a new
        * hash set in the action
        */
-      window.submitForm(event, 'filters')
+      const allEntries = this.buildAllEntries()
+      const hasCfEntries = allEntries.some(e => e.name.startsWith('filter_customField_'))
+
+      if (!hasCfEntries) {
+        window.submitForm(event, 'filters')
+
+        return
+      }
+
+      // Prevent default form submit; update hash with CF entries merged in, then submit
+      if (event) {
+        event.preventDefault()
+      }
+
+      window.updateFilterHash(this.procedureId, allEntries)
+        .then(filterHash => {
+          document.bpform.action = Routing.generate(this.route, { procedureId: this.procedureId, filterHash })
+          document.bpform.submit()
+        })
+    },
+
+    buildCfEntries (cfValue) {
+      const entries = []
+      Object.entries(cfValue).forEach(([fieldId, optionIds]) => {
+        optionIds.forEach(optionId => {
+          entries.push({ name: `filter_customField_${fieldId}[]`, value: optionId })
+        })
+      })
+      return entries
+    },
+
+    buildAllEntries (cfValueOverride = null) {
+      const cfValue = cfValueOverride ?? this.customFieldFilterValue
+      return [...this.allSelectedFilterOptionsWithFilterName, ...this.buildCfEntries(cfValue)]
+    },
+
+    refreshCustomFieldCounts (fieldId) {
+      // Mirror FilterModalSelectItem's sentinel pattern: post an empty-value entry for the
+      // opened field so the backend knows to return its options with counts.
+      const sentinel = { name: `filter_customField_${fieldId}[]`, value: '' }
+
+      // Include active selections for OTHER CF fields; opened field gets only the sentinel.
+      const otherCfEntries = []
+      Object.entries(this.customFieldFilterValue).forEach(([fId, optionIds]) => {
+        if (fId !== fieldId) {
+          optionIds.forEach(optionId => {
+            otherCfEntries.push({ name: `filter_customField_${fId}[]`, value: optionId })
+          })
+        }
+      })
+
+      const entries = [
+        ...this.allSelectedFilterOptionsWithFilterName,
+        sentinel,
+        ...otherCfEntries,
+      ]
+
+      window.updateFilterHash(this.procedureId, entries)
+        .then(filterHash => {
+          this.getFilterOptionsAction({ filterHash })
+        })
+    },
+
+    updateCustomFieldFilter (newValue) {
+      this.customFieldFilterValue = newValue
+      this.setActiveCfFilterEntries(this.buildCfEntries(newValue))
+
+      window.updateFilterHash(this.procedureId, this.buildAllEntries(newValue))
+        .then(filterHash => {
+          this.getFilterOptionsAction({ filterHash })
+        })
     },
 
     /**
@@ -526,7 +637,7 @@ export default {
      * emit event to FilterModalSelectItem which then loads updated options from store
      */
     updateSelectedOptions (filterItemId = false) {
-      window.updateFilterHash(this.procedureId, this.allSelectedFilterOptionsWithFilterName)
+      window.updateFilterHash(this.procedureId, this.buildAllEntries())
         .then((filterHash) => {
           // Get updated options for selected filters
           this.getFilterOptionsAction({ filterHash })
