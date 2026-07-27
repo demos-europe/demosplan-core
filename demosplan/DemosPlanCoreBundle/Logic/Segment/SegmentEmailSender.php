@@ -55,8 +55,10 @@ class SegmentEmailSender
             $this->sendAbschnitt($sendMailTo, $ccEmailAddresses, $emailVariables, []);
         } catch (InvalidDataException) {
             $this->messageBag->add('error', 'error.segment.send.syntax.email');
+            return false;
         }
-        return false;
+        $this->messageBag->add('confirm', 'confirm.segment.sent');
+        return true;
     }
 
     private function detectRecipientParticipationEmailAddresses($user): array
@@ -78,7 +80,46 @@ class SegmentEmailSender
         return $recipients;
     }
 
+    /**
+     * @throws InvalidDataException if the address is not a valid email
+     */
+    private function validateRecipientEmail(string $recipientEmail): string
+    {
+        $recipient = trim($recipientEmail);
+        if(!filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
+            throw new InvalidDataException('Invalid recipient email address provided.')
+        }
+        return $recipient;
+    }
 
+    /**
+     * splits the cc field on comma/semicolon and validates every address
+     * @throws InvalidDataException if any address is invalid
+     */
+
+    private function extractCcEmailAddresses(?string $sendEmailCC): array
+    {
+        if (null === $sendEmailCC || '' === trim($sendEmailCC)) {
+            return [];
+        }
+        $syntaxEmailErrors = [];
+        $emailCC = [];
+        // split the string into individual email addresses.
+        $mailsCC = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $sendEmailCC);
+
+        foreach ($mailsCC as $mail) {
+            $mailForCc = trim((string)$mail);
+            if (filter_var($mailForCc, FILTER_VALIDATE_EMAIL)) {
+                $emailCC[] = $mailForCc;
+            } else {
+                $syntaxEmailErrors[] = $mailForCc;
+            }
+        }
+        if ([] !== $syntaxEmailErrors) {
+            throw new InvalidDataException('Invalid email address provided in CC field.');
+        }
+        return $emailCC;
+    }
 
     private function detectCCEmailAddresses($sendEmailCC): array
     {
