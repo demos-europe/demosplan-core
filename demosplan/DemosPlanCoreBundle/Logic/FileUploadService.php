@@ -28,6 +28,9 @@ class FileUploadService implements FileUploadServiceInterface
     {
     }
 
+    /**
+     * @return array|string
+     */
     public function prepareFilesUpload(Request $request, $field = null, bool $suppressWarning = false)
     {
         $messageBag = $this->messageBag;

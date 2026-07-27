@@ -115,6 +115,15 @@ class Segment extends Statement implements SegmentInterface
         return $this->place->getId();
     }
 
+    /**
+     * Used by the segment lock content change display — no PHP code calls this
+     * directly, so static analysis will not surface a caller.
+     */
+    public function isLocked(): bool
+    {
+        return $this->place->isLocked();
+    }
+
     public function addComment(SegmentCommentInterface $comment): self
     {
         $this->comments->add($comment);

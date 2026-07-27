@@ -12,28 +12,17 @@ All rights reserved
     ref="recommendationModal"
     content-classes="w-2/3"
   >
-    <div class="flex w-full">
-      <h3 class="mb-4">
+    <div class="flex items-center mb-4 w-full">
+      <h3 class="mb-0">
         {{ Translator.trans('segment.recommendation.insert.similar') }}
       </h3>
       <dp-contextual-help
         v-if="activeId === 'oracleRec'"
-        class="ml-1"
+        class="ml-1 mb-1"
         icon="ai"
         size="large"
         :text="Translator.trans('segment.oracle.tooltip')"
       />
-      <dp-tooltip
-        v-if="activeId === 'oracleRec'"
-        class="ml-auto self-start"
-        placement="bottom-end"
-        :text="Translator.trans('segment.oracle.beta.tooltip')"
-      >
-        <dp-badge
-          size="smaller"
-          :text="Translator.trans('segment.oracle.beta')"
-        />
-      </dp-tooltip>
     </div>
     <dp-tabs
       v-if="tabAddonsLoaded && segmentDataLoaded"
@@ -62,19 +51,17 @@ All rights reserved
 </template>
 <script>
 import * as demosplanUi from '@demos-europe/demosplan-ui'
-import { DpBadge, DpContextualHelp, DpModal, DpTab, DpTabs, DpTooltip } from '@demos-europe/demosplan-ui'
+import { DpContextualHelp, DpModal, DpTab, DpTabs } from '@demos-europe/demosplan-ui'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import { shallowRef } from 'vue'
 
 export default {
   name: 'RecommendationModal',
   components: {
-    DpBadge,
     DpContextualHelp,
     DpModal,
     DpTab,
     DpTabs,
-    DpTooltip,
   },
   props: {
     procedureId: {

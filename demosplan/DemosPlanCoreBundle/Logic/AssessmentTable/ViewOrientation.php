@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\AssessmentTable;
 
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplate;
 
 /**
  * Class ViewOrientation
@@ -20,16 +21,11 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 class ViewOrientation
 {
     /** @var string */
-    final public const PORTRAIT_NAME = 'portrait';
-    /** @var string */
-    final public const LANDSCAPE_NAME = 'landscape';
-
-    /** @var string */
     private $name;
 
     public function __construct(string $name)
     {
-        if (self::LANDSCAPE_NAME !== $name && self::PORTRAIT_NAME !== $name) {
+        if (ExportTemplate::LANDSCAPE->value !== $name && ExportTemplate::PORTRAIT->value !== $name) {
             throw new InvalidArgumentException('value not allowed as name: "'.$name.'"');
         }
         $this->name = $name;
@@ -53,21 +49,21 @@ class ViewOrientation
 
     public static function createPortrait(): ViewOrientation
     {
-        return self::create(self::PORTRAIT_NAME);
+        return self::create(ExportTemplate::PORTRAIT->value);
     }
 
     public static function createLandscape(): ViewOrientation
     {
-        return self::create(self::LANDSCAPE_NAME);
+        return self::create(ExportTemplate::LANDSCAPE->value);
     }
 
     public function isLandscape(): bool
     {
-        return self::LANDSCAPE_NAME === $this->getName();
+        return ExportTemplate::LANDSCAPE->value === $this->getName();
     }
 
     public function isPortrait(): bool
     {
-        return self::PORTRAIT_NAME === $this->getName();
+        return ExportTemplate::PORTRAIT->value === $this->getName();
     }
 }

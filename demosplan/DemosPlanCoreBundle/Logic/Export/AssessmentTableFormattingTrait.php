@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ViewOrientation;
 use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplate;
 use Exception;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Style\Table;
@@ -59,7 +60,7 @@ trait AssessmentTableFormattingTrait
 
         if ($orientation->isLandscape()) {
             $styles['cellWidthTotal'] = 14000;
-            $styles['orientation'] = ['orientation' => 'landscape'];
+            $styles['orientation'] = ['orientation' => ExportTemplate::LANDSCAPE->value];
             $styles['firstCellWidth'] = 2000;
             $styles['cellWidth'] = 6000;
             $styles['cellWidthSecondThird'] = 12000;
