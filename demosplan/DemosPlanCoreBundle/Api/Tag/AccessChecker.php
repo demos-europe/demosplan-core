@@ -38,7 +38,6 @@ class AccessChecker
     }
 
     /**
-     *
      * @return list<ClauseFunctionInterface<bool>>
      */
     public function getAccessConditions(): array
