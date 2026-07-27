@@ -127,7 +127,7 @@
                 :loading="getIsLoading(definition.id)"
                 :options="getVisibleCustomFieldOptions(definition)"
                 :value="getSelectedCustomFieldValue(definition.id)"
-                @close="applyCustomFieldFilter"
+                @close="applyCustomFieldFilter(definition.id)"
                 @input="handleCustomFieldInput(definition.id, $event)"
                 @open="refreshCustomFieldCounts(definition.id)"
               />
@@ -310,6 +310,7 @@ export default {
       activeTabId: null,
       customFieldDefinitions: [],
       customFieldFilterValue: {},
+      customFieldsOnLastOpen: {}, // IDs per fieldId as of the last open/commit, used to detect no-op closes
       disabledInteractions: false, // Do not submit form if filters are currently updating
       isLoading: true,
       saveFilterSet: false,
@@ -475,7 +476,20 @@ export default {
       return entries
     },
 
-    applyCustomFieldFilter () {
+    /*
+     * Guard against no-op commits: unlike FilterModalSelectItem's @close (which always fires), this
+     * commit is expensive (Vuex entry rebuild + updateFilterHash + ES query), so opening and closing
+     * a custom field dropdown without changing the selection must not trigger it.
+     */
+    applyCustomFieldFilter (fieldId) {
+      const previousIds = this.customFieldsOnLastOpen[fieldId] ?? []
+      const currentIds = this.customFieldFilterValue[fieldId] ?? []
+
+      if (JSON.stringify([...previousIds].sort()) === JSON.stringify([...currentIds].sort())) {
+        return
+      }
+
+      this.customFieldsOnLastOpen = { ...this.customFieldsOnLastOpen, [fieldId]: currentIds }
       this.setActiveCfFilterEntries(this.buildCustomFieldEntries())
       this.disabledInteractions = true
       this.updateSelectedOptions()
@@ -515,7 +529,7 @@ export default {
        * swaps in a single-select) are always covered by the @close-triggered commit.
        */
       if (ids.length < previousIds.length) {
-        this.applyCustomFieldFilter()
+        this.applyCustomFieldFilter(fieldId)
       }
     },
 
@@ -549,9 +563,16 @@ export default {
             }
 
             this.restoreCustomFieldFilterValue()
+
+            /*
+             * Already-applied filter tags render immediately, before any dropdown is opened, and
+             * display their count. Standard filter counts come from updateSelectedOptionsCount,
+             * custom field counts from customFieldFilterListOptions/customFieldOptionCounts - both
+             * are only populated by this call, so it's skipped entirely when nothing is applied yet.
+             */
+            return this.getFilterOptionsAction({ filterHash: this.filterHash })
           }
         })
-        .then(() => this.getFilterOptionsAction({ filterHash: this.filterHash }))
     },
 
     initUserFilterSets () {
@@ -692,6 +713,9 @@ export default {
     },
 
     refreshCustomFieldCounts (fieldId) {
+      // Snapshot the selection at open time, so the @close handler can detect a no-op close.
+      this.customFieldsOnLastOpen = { ...this.customFieldsOnLastOpen, [fieldId]: this.customFieldFilterValue[fieldId] ?? [] }
+
       this.setLoading({ filterId: fieldId, isLoading: true })
 
       /*
