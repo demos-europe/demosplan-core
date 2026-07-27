@@ -2,15 +2,15 @@
 
 {% block component_part %}
     {% include '@DemosPlanCore/DemosPlanProcedure/includes/administration_list_pageheader.html.twig' with {
-        heading: 'search.submitter.cross_procedures'|trans,
+        heading: 'search.submitter'|trans,
         highlighted: 'procedure_search_submitters'
     } %}
 
     <p class="font-size-small u-mb-0_75">
-        {{ "search.submitter.cross_procedures.hint"|trans }}
+        {{ "search.submitter"|trans }}
     </p>
 
-    <dp-search-submitters :searchable-procedures="JSON.parse('{{ templateVars.procedures|json_encode|e('js', 'utf-8') }}')"></dp-search-submitters>
+<!--    <dp-search-submitters :searchable-procedures="JSON.parse('{{ templateVars.procedures|json_encode|e('js', 'utf-8') }}')"></dp-search-submitters>-->
 
 {% endblock %}
 
