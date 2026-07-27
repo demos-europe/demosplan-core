@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Api\Tag;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
@@ -28,9 +27,6 @@ class AccessChecker
     ) {
     }
 
-    /**
-     * Mirrors TagResourceType::isAvailable().
-     */
     public function isAvailable(): bool
     {
         return $this->currentUser->hasAnyPermissions(
@@ -42,7 +38,6 @@ class AccessChecker
     }
 
     /**
-     * Mirrors TagResourceType::getAccessConditions().
      *
      * @return list<ClauseFunctionInterface<bool>>
      */
@@ -57,7 +52,7 @@ class AccessChecker
         return [
             $this->conditionFactory->propertyHasValue(
                 $procedure->getId(),
-                Paths::tag()->topic->procedure->id
+                ['topic', 'procedure', 'id']
             ),
         ];
     }
