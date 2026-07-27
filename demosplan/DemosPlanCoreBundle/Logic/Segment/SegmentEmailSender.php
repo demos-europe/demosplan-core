@@ -13,9 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use Doctrine\DBAL\Exception;
@@ -31,6 +30,7 @@ class SegmentEmailSender
 
     /**
      * Send a segment to an external mail recipient, optionally with cc addresses.
+     *
      * @return bool whether the mail was queued successfully
      */
     public function sendSegmentMail(
@@ -39,23 +39,23 @@ class SegmentEmailSender
         ?string $subject,
         ?string $body,
         ?string $sendEmailCC,
-    ): bool
-    {
+    ): bool {
         try {
             // load the segment. prove it exists and give us the procedure it belongs to
             $segment = $this->segmentService->findByIdWithCertainty($segmentId);
             // validate the recipients email address
             $sendMailTo = $this->validateRecipientEmail($recipientEmail);
             $ccEmailAddresses = $this->extractCcEmailAddresses($sendEmailCC);
-            //build the placeholder values the mail template expects:
+            // build the placeholder values the mail template expects:
             $emailVariables = $this->populateEmailVariables($subject, $body);
-            //the sender address is the procedures agency mailbox
+            // the sender address is the procedures agency mailbox
             $sentFrom = $segment->getProcedure()->getAgencyMainEmailAddress();
-            //Queue the mail, no attachments as of now
+            // Queue the mail, no attachments as of now
             $this->sendAbschnitt($sendMailTo, $ccEmailAddresses, $emailVariables, []);
         } catch (InvalidDataException) {
             $this->messageBag->add('error', 'error.segment.send.syntax.email');
         }
+
         return false;
     }
 
@@ -77,8 +77,6 @@ class SegmentEmailSender
 
         return $recipients;
     }
-
-
 
     private function detectCCEmailAddresses($sendEmailCC): array
     {
@@ -165,5 +163,4 @@ class SegmentEmailSender
             $attachments
         );
     }
-
 }
