@@ -647,6 +647,7 @@ class DemosPlanDocumentController extends BaseController
         Breadcrumb $breadcrumb,
         CurrentUserInterface $currentUser,
         CurrentProcedureService $currentProcedureService,
+        EntityManagerInterface $entityManager,
         MapService $mapService,
         ProcedureHandler $procedureHandler,
         Request $request,
@@ -681,6 +682,18 @@ class DemosPlanDocumentController extends BaseController
         if ((is_countable($errorReports) ? count($errorReports) : 0) > 0) {
             $templateVars['errorReport'] = $errorReports[0];
         }
+
+        /*
+         * An import runs in a worker, so it outlives the page that started it. Its state is
+         * therefore taken from the job row rather than from a request parameter: otherwise the
+         * import becomes invisible as soon as that one tab is gone — closed, reloaded, or left
+         * behind by a session that expired while the worker was still busy.
+         */
+        $templateVars['elementImportJob'] = $this->findLatestElementImportJob(
+            $entityManager,
+            $procedure,
+            $currentUser->getUser()->getId()
+        );
 
         $templateVars['procedure'] = $procedureHandler->getProcedure($procedure);
 
@@ -746,10 +759,10 @@ class DemosPlanDocumentController extends BaseController
 
         $session->remove('element_import_list');
 
-        return $this->redirectToRoute(
-            'DemosPlan_element_administration',
-            ['procedure' => $procedure, 'importJob' => $job->getId()]
-        );
+        // No job id in the url: the list page looks the running import up itself, which is what
+        // makes it survive a reload or a new tab. It also removes the parameter that previously
+        // turned "reload when finished" into an endless reload.
+        return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure]);
     }
 
     /**
@@ -782,6 +795,23 @@ class DemosPlanDocumentController extends BaseController
             'filesProcessed' => $job->getFilesProcessed(),
             'error'          => $job->getErrorMessage(),
         ]);
+    }
+
+    /**
+     * The most recent import this user started for this procedure, regardless of how it ended.
+     *
+     * Only the newest one is of interest: a running job is what the page needs to report on, and a
+     * failed one stays worth showing until the next attempt replaces it.
+     */
+    private function findLatestElementImportJob(
+        EntityManagerInterface $entityManager,
+        string $procedureId,
+        string $userId,
+    ): ?ElementImportJob {
+        return $entityManager->getRepository(ElementImportJob::class)->findOneBy(
+            ['procedureId' => $procedureId, 'userId' => $userId],
+            ['createdDate' => 'DESC']
+        );
     }
 
     /**

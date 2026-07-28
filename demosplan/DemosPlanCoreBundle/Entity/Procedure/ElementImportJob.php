@@ -239,4 +239,20 @@ class ElementImportJob extends CoreEntity implements UuidEntityInterface
     {
         $this->modifiedDate = $modifiedDate;
     }
+
+    /**
+     * Whether a worker is expected to still act on this job.
+     *
+     * Pending counts as running: a job whose message has not been picked up yet is waiting, not
+     * finished, and the user should see it as an import in progress.
+     */
+    public function isRunning(): bool
+    {
+        return in_array($this->status, [self::STATUS_PENDING, self::STATUS_PROCESSING], true);
+    }
+
+    public function hasFailed(): bool
+    {
+        return self::STATUS_FAILED === $this->status;
+    }
 }

@@ -4159,6 +4159,7 @@ warning.consolidate.only.clusters.selected: "Sie haben nur Stellungnahmengruppen
 warning.edit.selection.fragments.not.claimed: "Sie können die aktuelle Auswahl nicht bearbeiten, weil Ihnen nicht alle Datensätze zugewiesen sind"
 warning.edit.selection.statements.not.claimed: "Sie können die aktuelle Auswahl nicht bearbeiten, weil Ihnen nicht alle Stellungnahmen zugewiesen sind"
 warning.edit.selection.contains.moved.statements: "Sie können die aktuelle Auswahl nicht bearbeiten, weil sie Stellungnahmen enthält, die in ein anderes Verfahren verschoben wurden."
+warning.elementimport.status.unavailable: "Der Fortschritt des Imports kann derzeit nicht abgefragt werden. Der Import läuft im Hintergrund weiter. Laden Sie die Seite später erneut."
 warning.date.authored: "Ein leeres Verfassungsdatum ist ungültig und wurde nicht übernommen."
 warning.date.submitted: "Ein leeres Einreichungsdatum ist ungültig und wurde nicht übernommen."
 warning.delete.annotatedStatementPdf: "Vollständig geteilte PDFs können nicht gelöscht werden"

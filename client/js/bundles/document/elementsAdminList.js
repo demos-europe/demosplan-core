@@ -33,6 +33,17 @@ const apiStores = ['Elements']
  */
 const IMPORT_FINISHED_KEY = 'dpElementImportFinished'
 
+const POLL_INTERVAL = 3000
+
+/**
+ * How many consecutive failed status requests are tolerated before polling gives up.
+ *
+ * A single failure means nothing — a restarting container, a dropped connection, a machine waking
+ * from sleep. Stopping on the first one used to leave the progress display frozen with no
+ * explanation while the import kept running.
+ */
+const MAX_CONSECUTIVE_FAILURES = 5
+
 initialize(components, {}, apiStores).then(() => {
   notifyIfImportJustFinished()
   pollImportJob()
@@ -44,6 +55,9 @@ initialize(components, {}, apiStores).then(() => {
  * Saving an import no longer happens inside the request, so this page is reached immediately after
  * submitting and the documents appear only once the worker is done. Without this the user would be
  * looking at an unchanged list with no indication that anything is happening.
+ *
+ * Whether an import is running is decided server-side and expressed by the presence of the progress
+ * element — not by a url parameter, so a reload or a fresh tab picks the import back up.
  */
 function pollImportJob () {
   const progressElement = document.getElementById('js_importJobProgress')
@@ -56,42 +70,94 @@ function pollImportJob () {
   const statusUrl = progressElement.dataset.statusUrl
   const processedElement = document.getElementById('js_importJobProcessed')
   const totalElement = document.getElementById('js_importJobTotal')
+  let consecutiveFailures = 0
 
   progressElement.classList.remove('hidden')
 
   const handle = setInterval(() => {
     fetch(statusUrl, { headers: { Accept: 'application/json' } })
-      .then(response => response.json())
+      .then(response => {
+        /*
+         * An expired session does not answer with an error code: the request is redirected to the
+         * login page and fetch follows it, so what arrives is a perfectly successful html
+         * response. The content type is therefore the reliable signal, not the status.
+         */
+        const isJson = (response.headers.get('content-type') || '').includes('application/json')
+
+        if (!isJson || 401 === response.status || 403 === response.status) {
+          throw new StatusRequestError(response.status, true)
+        }
+
+        if (!response.ok) {
+          throw new StatusRequestError(response.status, false)
+        }
+
+        return response.json()
+      })
       .then(data => {
+        consecutiveFailures = 0
+
         processedElement.textContent = data.filesProcessed
         totalElement.textContent = data.filesTotal
 
         if (data.status === 'completed') {
           clearInterval(handle)
-          /*
-           * The list is rendered server-side, so it only picks up the new documents on reload.
-           * Drop the job id on the way: reloading with it still in the url would start polling
-           * the finished job again and reload forever.
-           */
-          reloadWithoutJobId()
+          // The list is rendered server-side, so it only picks up the new documents on reload.
+          reloadForFinishedImport()
         }
 
         if (data.status === 'failed') {
           clearInterval(handle)
+          // A frozen counter next to an error message reads as though it were still running.
+          progressElement.classList.add('hidden')
           dplan.notify.error(data.error || Translator.trans('error.elementimport.failed'))
         }
       })
-      .catch(() => clearInterval(handle))
-  }, 3000)
+      .catch(error => {
+        // Retrying cannot recover an authentication problem, so stop and say what is wrong.
+        if (error instanceof StatusRequestError && error.isAuthenticationProblem) {
+          clearInterval(handle)
+          dplan.notify.error(Translator.trans('warning.session.expired'))
+
+          return
+        }
+
+        consecutiveFailures++
+
+        if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+          clearInterval(handle)
+          /*
+           * The import itself is unaffected — it runs in a worker and does not depend on this page.
+           * Say so, otherwise a frozen counter reads as a failed import.
+           */
+          dplan.notify.warning(Translator.trans('warning.elementimport.status.unavailable'))
+        }
+      })
+  }, POLL_INTERVAL)
 }
 
 /**
- * Reload so the server-side rendered list picks up the imported documents, without the job id.
- *
- * Using replace() rather than assign() keeps the polling url out of the history, so going back
- * does not drop the user onto a page that starts polling a finished job again.
+ * A status request that did not yield usable json, carrying whether retrying could help.
  */
-function reloadWithoutJobId () {
+class StatusRequestError extends Error {
+  constructor (status, isAuthenticationProblem) {
+    super(`Import status request failed with status ${status}`)
+    this.status = status
+    this.isAuthenticationProblem = isAuthenticationProblem
+  }
+}
+
+/**
+ * Reload so the server-side rendered list picks up the imported documents.
+ *
+ * The job id is stripped for the benefit of urls that still carry one — an open tab or a bookmark
+ * from before it was dropped from the redirect. Left in place it used to make the page poll the
+ * finished job again after every reload, and reload forever.
+ *
+ * replace() rather than assign() keeps that url out of the history, so going back cannot drop the
+ * user into the same loop.
+ */
+function reloadForFinishedImport () {
   window.sessionStorage.setItem(IMPORT_FINISHED_KEY, '1')
 
   const url = new URL(window.location.href)

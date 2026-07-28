@@ -36,18 +36,32 @@
         :addon-props="JSON.parse('{{ addonProps|json_encode|e('js', 'utf-8') }}')">
     </addon-wrapper>
 
-    {# Progress of an import running in a background worker. The status url is passed as a data
-       attribute because the polling code lives in a webpack bundle, which Twig does not render. #}
-    {% if app.request.get('importJob') %}
+    {# Progress of an import running in a background worker. Driven by the job row rather than by a
+       request parameter, so a running import stays visible after a reload, in a new tab, or after
+       logging back in. The status url is passed as a data attribute because the polling code lives
+       in a webpack bundle, which Twig does not render. #}
+    {% set elementImportJob = templateVars.elementImportJob|default(null) %}
+    {% if elementImportJob and elementImportJob.isRunning %}
         <p
             class="flash flash-info u-mv-0_75 hidden"
             id="js_importJobProgress"
             data-status-url="{{ path('DemosPlan_element_import_status', {
                 'procedure': templateVars.procedure.id,
-                'jobId': app.request.get('importJob')
+                'jobId': elementImportJob.id
             }) }}">
             {{ "text.elementimport.running"|trans }}
-            <span id="js_importJobProcessed">0</span> / <span id="js_importJobTotal">0</span>
+            <span id="js_importJobProcessed">{{ elementImportJob.filesProcessed }}</span> / <span id="js_importJobTotal">{{ elementImportJob.filesTotal }}</span>
+        </p>
+    {% endif %}
+
+    {# A failed import would otherwise be invisible: it leaves no documents behind and the browser
+       that started it is long gone. Shown until the next attempt supersedes it. #}
+    {% if elementImportJob and elementImportJob.hasFailed %}
+        <p class="flash flash-error u-mv-0_75">
+            {{ "error.elementimport.failed"|trans }}
+            {% if elementImportJob.errorMessage %}
+                <br>{{ elementImportJob.errorMessage }}
+            {% endif %}
         </p>
     {% endif %}
 
