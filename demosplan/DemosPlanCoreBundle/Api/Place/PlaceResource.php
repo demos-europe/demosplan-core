@@ -24,7 +24,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place as PlaceEntity;
 #[ApiResource(
     shortName: 'Place',
     operations: [
-        new GetCollection(uriTemplate: '/Place'),
+        new GetCollection(uriTemplate: '/Place', paginationEnabled: false),
         new Get(uriTemplate: '/Place/{id}'),
     ],
     formats: ['jsonapi'],
