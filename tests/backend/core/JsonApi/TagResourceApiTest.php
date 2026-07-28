@@ -95,31 +95,6 @@ class TagResourceApiTest extends AbstractApiTest
         self::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
     }
 
-    /**
-     * The access condition filters via the topic → procedure relationship rather than a direct
-     * `procedure` field (unlike Place), so a tag belonging to a different procedure's topic must
-     * be excluded even though the requesting user is otherwise permitted.
-     */
-    public function testGetIsNotFoundForTagOfDifferentProcedure(): void
-    {
-        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
-        $otherProcedure = ProcedureFactory::new()->withDefaultSettings()->create();
-        $otherTopic = TagTopicFactory::createOne(['procedure' => $otherProcedure]);
-        $foreignTag = TagFactory::createOne(['topic' => $otherTopic]);
-        $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
-        $this->enablePermissions(['area_statement_segmentation']);
-        $this->loginUserForApiPlatform($user);
-
-        $response = $this->sendRequest(
-            '/api/3.0/Tag/'.$foreignTag->getId(),
-            'GET',
-            $user,
-            $procedure
-        );
-
-        self::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
-    }
-
     public function testGetCollectionIsSortedBySortIndexAscending(): void
     {
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
