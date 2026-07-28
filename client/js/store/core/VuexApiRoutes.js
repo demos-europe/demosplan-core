@@ -97,62 +97,52 @@ const api1_0Routes = [
 ]
 
 /*
- * Hardcoded API 3.0 Routes — override the generic /2.0/{type} route
- * for modules migrated to ApiPlatform.
+ * Resources migrated to ApiPlatform
+ * Actions not listed keep their /2.0 route
  */
-const api3_0Routes = [
-  {
-    module: 'Place',
-    action: 'list',
-    url: '/3.0/Place',
-  },
-]
-
-const generateApi2_0Routes = (apiModules) => {
-  const routes = []
-
-  apiModules.forEach(typeName => {
-    routes.push({
-      module: typeName,
-      action: 'list',
-      url: `/2.0/${typeName}`,
-    })
-
-    routes.push({
-      module: typeName,
-      action: 'get',
-      url: `/2.0/${typeName}/{id}`,
-      parameters: [
-        'id',
-      ],
-    })
-
-    routes.push({
-      module: typeName,
-      action: 'update',
-      url: `/2.0/${typeName}/{id}`,
-      parameters: [
-        'id',
-      ],
-    })
-
-    routes.push({
-      module: typeName,
-      action: 'create',
-      url: `/2.0/${typeName}`,
-    })
-
-    routes.push({
-      module: typeName,
-      action: 'delete',
-      url: `/2.0/${typeName}/{id}`,
-      parameters: [
-        'id',
-      ],
-    })
-  })
-
-  return routes
+const api3_0Modules = {
+  Place: [
+    'list',
+    'get',
+  ],
 }
 
-export { api1_0Routes, api3_0Routes, generateApi2_0Routes }
+const crudActions = [
+  'list',
+  'get',
+  'create',
+  'update',
+  'delete',
+]
+
+const itemActions = new Set([
+  'get',
+  'update',
+  'delete',
+])
+
+/*
+ * Build route with correct version prefix (2.0 or 3.0)
+ */
+const buildRoute = (version, module, action) => {
+  const isItemAction = itemActions.has(action)
+
+  return {
+    module,
+    action,
+    url: `/${version}/${module}${isItemAction ? '/{id}' : ''}`,
+    parameters: isItemAction ? ['id'] : [],
+  }
+}
+
+const generateApi2_0Routes = (apiModules) => apiModules
+  .flatMap(typeName => crudActions.map(action => buildRoute('2.0', typeName, action)))
+
+const generateApi3_0Routes = () => Object.entries(api3_0Modules)
+  .flatMap(([typeName, actions]) => actions.map(action => buildRoute('3.0', typeName, action)))
+
+export {
+  api1_0Routes,
+  generateApi2_0Routes,
+  generateApi3_0Routes,
+}
