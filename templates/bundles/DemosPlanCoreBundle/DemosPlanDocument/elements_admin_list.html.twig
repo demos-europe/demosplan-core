@@ -36,6 +36,21 @@
         :addon-props="JSON.parse('{{ addonProps|json_encode|e('js', 'utf-8') }}')">
     </addon-wrapper>
 
+    {# Progress of an import running in a background worker. The status url is passed as a data
+       attribute because the polling code lives in a webpack bundle, which Twig does not render. #}
+    {% if app.request.get('importJob') %}
+        <p
+            class="flash flash-info u-mv-0_75 hidden"
+            id="js_importJobProgress"
+            data-status-url="{{ path('DemosPlan_element_import_status', {
+                'procedure': templateVars.procedure.id,
+                'jobId': app.request.get('importJob')
+            }) }}">
+            {{ "text.elementimport.running"|trans }}
+            <span id="js_importJobProcessed">0</span> / <span id="js_importJobTotal">0</span>
+        </p>
+    {% endif %}
+
     <div class="u-mv-0_75">
         {# Display errors from failed element import #}
         {% if templateVars.errorReport|default([])|length > 0 %}
@@ -78,12 +93,15 @@
             action="{{ path('DemosPlan_element_import', {'procedureId':templateVars.procedure.id }) }}" method="post" enctype="multipart/form-data">
             {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
+            {# Upload in chunks: an unchunked PATCH sends the whole archive as a single request body,
+               which the dev profiler then reads back into memory in one piece and exceeds memory_limit. #}
             {{
                 fileupload(
                     "r_zipImport",
                     "hide",
                     "zip",
-                    "form.button.upload.zip"
+                    "form.button.upload.zip",
+                    chunksize: 256 * 1024 * 1024
                 )
             }}
 

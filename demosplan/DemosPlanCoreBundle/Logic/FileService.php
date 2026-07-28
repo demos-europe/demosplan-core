@@ -369,6 +369,7 @@ class FileService implements FileServiceInterface
         ?string $procedureId = null,
         ?string $virencheck = FileServiceInterface::VIRUSCHECK_SYNC,
         ?string $hash = null,
+        bool $flush = true,
     ): File {
         $dplanFile = new File();
         $symfonyFile = new \Symfony\Component\HttpFoundation\File\File($filePath);
@@ -385,7 +386,7 @@ class FileService implements FileServiceInterface
             // Procedure does not exist
         }
 
-        return $this->handleLocalFileStorage($symfonyFile, $virencheck, $dplanFile, $filePath);
+        return $this->handleLocalFileStorage($symfonyFile, $virencheck, $dplanFile, $filePath, $flush);
     }
 
     /**
@@ -427,6 +428,7 @@ class FileService implements FileServiceInterface
         string $hash,
         string $path,
         string $size,
+        bool $flush = true,
     ): File {
         try {
             // $symfonyFile needs to be used before it is moved
@@ -437,7 +439,7 @@ class FileService implements FileServiceInterface
             $fileEntity->setPath($path);
 
             // Create DatabaseEntry
-            return $this->addFile($fileEntity);
+            return $this->addFile($fileEntity, $flush);
         } catch (Throwable $e) {
             $this->logger->warning('File could not be saved', [$e, $e->getMessage()]);
 
@@ -452,9 +454,16 @@ class FileService implements FileServiceInterface
      *
      * @throws Exception
      */
-    public function addFile(File $file): File
+    public function addFile(File $file, bool $flush = true): File
     {
-        $this->fileRepository->addObject($file);
+        if ($flush) {
+            $this->fileRepository->addObject($file);
+        } else {
+            // Bulk callers flush once per batch instead. Flushing here would do it once per file,
+            // and because every flush walks the whole unit of work that turns an import of tens of
+            // thousands of files into quadratic work.
+            $this->entityManager->persist($file);
+        }
 
         // Set String to be used in other Entities
         $this->setFileString($file->getFileString());
@@ -1143,9 +1152,10 @@ class FileService implements FileServiceInterface
         string $virencheck,
         File $dplanFile,
         string $filePath,
+        bool $flush = true,
     ): File {
         [$path, $hash] = $this->storeLocalFile($symfonyFile, self::VIRUSCHECK_NONE !== $virencheck, $dplanFile);
-        $newEntity = $this->saveFileEntity($dplanFile, $hash, $path, $symfonyFile->getSize());
+        $newEntity = $this->saveFileEntity($dplanFile, $hash, $path, $symfonyFile->getSize(), $flush);
 
         // delete temporary file. May be done with Symfony Filesystem component as file needs to exist locally
         $fs = new Filesystem();
@@ -1185,10 +1195,18 @@ class FileService implements FileServiceInterface
                 sprintf('%s/%s', uniqid($hash, true), $hash ?? uniqid('', true))
             );
         }
-        // Move the file to local directory from flysystem
+        // Move the file to local directory from flysystem. Copy via a stream instead of read(),
+        // which would hold the whole file in memory and exceed memory_limit on large uploads.
         $fs = new Filesystem();
         if ($this->defaultStorage->fileExists($remotePath)) {
-            $fs->dumpFile($path, $this->defaultStorage->read($remotePath));
+            $stream = $this->defaultStorage->readStream($remotePath);
+            try {
+                $fs->dumpFile($path, $stream);
+            } finally {
+                if (is_resource($stream)) {
+                    fclose($stream);
+                }
+            }
         }
 
         if (!$fs->exists($path)) {
