@@ -5,6 +5,11 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.49.1 (2026-07-28)
+
+### Fixed
+- Forwarding a segment for technical review (changing its assignee) could fail with a validation error when the segment had comments; assigning a segment now works reliably regardless of loaded comments
+
 ## v4.49.0 (2026-07-15)
 ## v4.48.0 (2026-07-07)
 
