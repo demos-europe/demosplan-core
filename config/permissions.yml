@@ -2168,6 +2168,18 @@ feature_statement_delete:
     expose: true
     label: 'Delete (non-draft, non-original) statements.'
     loginRequired: true
+feature_statement_delete_cross_procedures:
+    description: |-
+        Allows deletion of statements found via the AdminStatementCrossProcedureSearch resource, i.e. outside of
+        any procedure context. Needed because `feature_statement_delete` is usually only enabled for a procedure
+        the user currently works in, which never applies to the cross-procedure search.
+        Holding this permission alone does not authorize any deletion: every single deletion is additionally
+        verified against the procedure the statement belongs to. The user must be explicitly authorized for that
+        procedure and must hold `feature_statement_delete` within it, so nothing can be deleted that the user
+        could not also delete after entering the procedure.
+    expose: true
+    label: 'Delete statements found via the cross-procedure submitter search.'
+    loginRequired: true
 feature_statement_file_filter_set:
     description: 'Set file to filter in statement list.'
     expose: true

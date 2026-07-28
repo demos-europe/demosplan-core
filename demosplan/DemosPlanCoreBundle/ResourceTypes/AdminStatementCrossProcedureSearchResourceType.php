@@ -16,11 +16,14 @@ use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
+use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
+use EDT\JsonApi\ResourceTypes\AbstractResourceType;
 use Webmozart\Assert\Assert;
 
 /**
@@ -64,11 +67,25 @@ final class AdminStatementCrossProcedureSearchResourceType extends AbstractState
         return $this->currentUser->hasPermission('feature_json_api_statement_cross_procedures_search');
     }
 
+    /**
+     * `feature_statement_delete` cannot be used here: projects grant it inside their
+     * {@see Permissions::setProcedurePermissions()} implementation, usually behind
+     * {@see Permissions::ownsProcedure()}, and this resource intentionally operates without a procedure
+     * context, where that permission is never enabled.
+     *
+     * The dedicated permission only opens the delete verb. Which statements it may be applied to is
+     * decided by {@see self::getAccessConditions()}, see {@see self::deleteEntity()}.
+     */
     public function isDeleteAllowed(): bool
     {
-        return $this->currentUser->hasPermission('feature_statement_delete');
+        return $this->currentUser->hasPermission('feature_statement_delete_cross_procedures');
     }
 
+    /**
+     * {@see AbstractResourceType::getEntity()} applies {@see self::getAccessConditions()}, so a statement
+     * whose procedure the current user does not administer cannot be resolved here and the deletion fails
+     * instead of taking effect. That makes the access conditions the authorization for deletions, too.
+     */
     public function deleteEntity(string $entityIdentifier): void
     {
         $this->getTransactionService()->executeAndFlushInTransaction(
@@ -98,6 +115,11 @@ final class AdminStatementCrossProcedureSearchResourceType extends AbstractState
             $this->conditionFactory->propertyIsNull($this->movedStatement),
             $this->conditionFactory->propertyIsNull($this->parentStatementOfSegment),
             $this->conditionFactory->propertyIsNotNull($this->original->id),
+            /** This is the authorization for reading *and* deleting. The IDs come from
+             * {@see ProcedureAccessEvaluator::getOwnsProcedureConditions()}, which reproduces
+             * {@see Permissions::ownsProcedure()} — including the requirement that the user is listed in
+             * {@see Procedure::getAuthorizedUsers()} whenever `procedure_user_restricted_access` is enabled.
+             * A user therefore only ever sees and deletes statements of procedures they could open anyway. */
             $this->conditionFactory->propertyHasAnyOfValues(
                 $allowedProcedureIds,
                 $this->procedure->id
