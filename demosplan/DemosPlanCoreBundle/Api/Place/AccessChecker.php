@@ -13,17 +13,19 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Api\Place;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Api\AccessCheckerInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+use EDT\Querying\Contracts\PathException;
 
-class AccessChecker
+readonly class AccessChecker implements AccessCheckerInterface
 {
     public function __construct(
-        private readonly CurrentUserInterface $currentUser,
-        private readonly CurrentProcedureService $currentProcedureService,
-        private readonly DqlConditionFactory $conditionFactory,
+        private CurrentUserInterface $currentUser,
+        private CurrentProcedureService $currentProcedureService,
+        private DqlConditionFactory $conditionFactory,
     ) {
     }
 
@@ -39,6 +41,8 @@ class AccessChecker
      * Mirrors PlaceResourceType::getAccessConditions().
      *
      * @return list<ClauseFunctionInterface<bool>>
+     *
+     * @throws PathException
      */
     public function getAccessConditions(): array
     {
