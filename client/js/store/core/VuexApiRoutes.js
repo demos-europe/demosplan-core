@@ -159,7 +159,7 @@ const resolveApiRoute = (module, action) => {
 const apiUrl = (module, action = 'list', id = null) => {
   const path = resolveApiRoute(module, action)
 
-  if (path.includes('{id}') && id === null) {
+  if (path.includes('{id}') && !id) {
     throw new Error(`apiUrl: action "${action}" on "${module}" requires an id`)
   }
 

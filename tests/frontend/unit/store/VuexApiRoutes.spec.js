@@ -86,8 +86,11 @@ describe('apiUrl', () => {
     expect(apiUrl('Place')).toBe('/app_dev.php/api/3.0/Place')
   })
 
-  it('throws when an item action is called without an id', () => {
+  it('throws when an item action is called without a usable id', () => {
     expect(() => apiUrl('Place', 'update')).toThrow('requires an id')
+    expect(() => apiUrl('Place', 'update', undefined)).toThrow('requires an id')
+    expect(() => apiUrl('Place', 'update', null)).toThrow('requires an id')
+    expect(() => apiUrl('Place', 'update', '')).toThrow('requires an id')
   })
 
   it('encodes the id', () => {
