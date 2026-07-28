@@ -47,6 +47,9 @@ const dplan = {
     publicCSSClassPrefix: 'dp-',
   },
   debug: false,
+  paths: {
+    tusEndpoint: 'tus-endpoint',
+  },
 }
 const hasPermission = vi.fn(() => true)
 const dpApi = vi.fn(() => Promise.resolve())
