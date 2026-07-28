@@ -852,7 +852,7 @@ export default {
   mounted () {
     const promises = [
       this.listTagTopics({ include: 'tag' }),
-      this.listTags({ include: 'topic', sort: 'sortIndex' }),
+      this.listTags({ include: 'topic' }),
       this.fetchPlaces(),
     ]
 
