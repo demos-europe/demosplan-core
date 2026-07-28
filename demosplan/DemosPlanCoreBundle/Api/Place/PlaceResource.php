@@ -29,10 +29,10 @@ use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place as PlaceEntity;
     ],
     formats: ['jsonapi'],
     routePrefix: ApiPlatformConstants::ROUTE_PREFIX_V3,
-    provider: Provider::class,
+    provider: PlaceProvider::class,
 )]
 #[ApiFilter(PropertyFilter::class)]
-class Resource
+class PlaceResource
 {
     #[ApiProperty(readable: false, identifier: true)]
     public string $id = '';

@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\Api\Place;
 use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use demosplan\DemosPlanCoreBundle\Api\Place\Resource as PlaceResource;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
@@ -24,10 +23,10 @@ use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Webmozart\Assert\Assert;
 
-class Provider implements ProviderInterface
+class PlaceProvider implements ProviderInterface
 {
     public function __construct(
-        private readonly AccessChecker $accessChecker,
+        private readonly PlaceAccessChecker $accessChecker,
         private readonly PlaceRepository $placeRepository,
         private readonly SortMethodFactory $sortMethodFactory,
     ) {
