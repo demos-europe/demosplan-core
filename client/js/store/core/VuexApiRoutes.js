@@ -106,6 +106,11 @@ const api3_0Routes = [
     action: 'list',
     url: '/3.0/Place',
   },
+  {
+    module: 'Tag',
+    action: 'list',
+    url: '/3.0/Tag',
+  },
 ]
 
 const generateApi2_0Routes = (apiModules) => {

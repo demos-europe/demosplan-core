@@ -18,6 +18,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
+use demosplan\DemosPlanCoreBundle\Api\TagTopic\Resource as TagTopicResource;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag as TagEntity;
 
@@ -44,7 +45,7 @@ class Resource
     public int $sortIndex = 0;
 
     #[ApiProperty(readable: true, writable: false)]
-    public string $topicId = '';
+    public ?TagTopicResource $topic = null;
 
     #[ApiProperty(readable: true, writable: false)]
     public ?string $boilerplateId = null;
@@ -55,7 +56,7 @@ class Resource
         $resource->id = $tag->getId();
         $resource->title = $tag->getTitle();
         $resource->sortIndex = $tag->getSortIndex();
-        $resource->topicId = $tag->getTopic()->getId();
+        $resource->topic = TagTopicResource::fromEntity($tag->getTopic());
         $resource->boilerplateId = $tag->getBoilerplate()?->getId();
 
         return $resource;
