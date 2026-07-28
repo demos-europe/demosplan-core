@@ -23,4 +23,5 @@ enum ExportTemplate: string
     case LANDSCAPE_WITH_FRAGMENTS = 'landscapeWithFrags';
     case PORTRAIT = 'portrait';
     case PORTRAIT_WITH_FRAGMENTS = 'portraitWithFrags';
+    case PORTRAIT_WITH_PRIORITIZATION = 'portraitWithPrioritization';
 }

@@ -80,6 +80,7 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
         $this->parameterBag->method('get')->willReturnCallback(
             static fn (string $name) => match ($name) {
                 'account_deletion.first_warning_days' => 30,
+                'account_deletion.support_email'      => 'support@test.example',
                 default                               => null,
             }
         );
@@ -140,7 +141,7 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
                 $this->callback(fn (array $mail) => 'email.subject.account_deletion.warning_first' === ($mail['mailsubject'] ?? null)
                     && str_contains($mail['mailbody'] ?? '', 'Test')
                     && str_contains($mail['mailbody'] ?? '', 'User')
-                    && str_contains($mail['mailbody'] ?? '', 'Support-Team'))
+                    && str_contains($mail['mailbody'] ?? '', 'DEMOS Support Team'))
             )
             ->willReturn($mailSend);
 
@@ -254,6 +255,24 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
                 'Account deletion: failed to render or queue notification mail',
                 $this->callback(fn (array $context) => 'user1-id' === ($context['pii']['userId'] ?? null))
             );
+
+        ($this->sut)(new AccountDeletionRunMessage());
+    }
+
+    public function testIdentityProviderUserIsSkippedBeforeAnyDeletionStep(): void
+    {
+        $user = $this->buildUserMock();
+        $user->method('isProvidedByIdentityProvider')->willReturn(true);
+
+        $this->userRepository->method('findInactivityDeletionCandidates')->willReturn([$user]);
+
+        // The IdP guard short-circuits at the top of processCandidate: no step
+        // evaluation, no tracking lookup, no mail, no soft-deletion, no flush.
+        $this->trackingRepository->expects($this->never())->method('findOneByUser');
+        $this->activityChecker->expects($this->never())->method('evaluateInactivityStep');
+        $this->mailService->expects($this->never())->method('sendMail');
+        $user->expects($this->never())->method('setDeleted');
+        $this->entityManager->expects($this->never())->method('flush');
 
         ($this->sut)(new AccountDeletionRunMessage());
     }

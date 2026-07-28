@@ -23,6 +23,13 @@ parameters:
             customFields: #special case!
                 fieldType: "json"
                 noHighlighting: true
+            locked:
+                fieldType: "string"
+                translationKey: "segment.locked"
+                noHighlighting: true
+            deadline:
+                fieldType: "date"
+                translationKey: "deadline"
             text:
                 fieldType: "tipTapHtmlString"
                 translationKey: "text"
@@ -52,6 +59,9 @@ parameters:
                 fieldType: "object"
                 translationKey: "cluster"
                 class: 'demosplan\DemosPlanCoreBundle\Entity\Statement\Statement'
+            deadline:
+                fieldType: "date"
+                translationKey: "deadline"
             memo:
                 fieldType: "tipTapHtmlString"
                 translationKey: "memo"

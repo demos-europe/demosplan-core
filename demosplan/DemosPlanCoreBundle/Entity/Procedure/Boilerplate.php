@@ -100,6 +100,12 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
     #[Gedmo\Timestampable(on: 'update')]
     protected $modifyDate;
 
+    /**
+     * True when this boilerplate was copied from a blueprint procedure and has not been edited since.
+     */
+    #[ORM\Column(name: 'verified', type: 'boolean', nullable: false, options: ['default' => false])]
+    protected bool $verified = false;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
@@ -230,6 +236,16 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
     public function setModifyDate($modifyDate)
     {
         $this->modifyDate = $modifyDate;
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->verified;
+    }
+
+    public function setVerified(bool $verified): void
+    {
+        $this->verified = $verified;
     }
 
     /**
