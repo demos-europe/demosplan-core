@@ -33,7 +33,7 @@ const apiStores = ['Elements']
  */
 const IMPORT_FINISHED_KEY = 'dpElementImportFinished'
 
-const POLL_INTERVAL = 3000
+const POLL_INTERVAL = 5000
 
 /**
  * How many consecutive failed status requests are tolerated before polling gives up.
@@ -43,6 +43,20 @@ const POLL_INTERVAL = 3000
  * explanation while the import kept running.
  */
 const MAX_CONSECUTIVE_FAILURES = 5
+
+/**
+ * Lease held by whichever tab is currently polling, so only one of them does.
+ *
+ * Every page showing the administration list polls, and an import can run for many minutes, so
+ * several open tabs otherwise produce a burst of simultaneous requests every interval for the whole
+ * duration. Requests are cheap individually but concurrent ones are not: they were observed
+ * arriving five per second, and the session lost its authentication shortly after.
+ *
+ * The lease expires so that a tab which was closed or crashed does not keep the others waiting.
+ */
+const POLL_LOCK_KEY = 'dpElementImportPollLock'
+const POLL_LOCK_TTL = POLL_INTERVAL * 3
+const TAB_ID = `${Date.now()}-${Math.random().toString(36).slice(2)}`
 
 initialize(components, {}, apiStores).then(() => {
   notifyIfImportJustFinished()
@@ -74,7 +88,21 @@ function pollImportJob () {
 
   progressElement.classList.remove('hidden')
 
-  const handle = setInterval(() => {
+  let handle = null
+  const stopPolling = () => {
+    clearInterval(handle)
+    releasePollLock()
+  }
+
+  // Hand the lease over immediately instead of making the next tab wait for it to expire.
+  window.addEventListener('beforeunload', releasePollLock)
+
+  handle = setInterval(() => {
+    // Another tab is already asking; this one just keeps showing what the server rendered.
+    if (!claimPollLock()) {
+      return
+    }
+
     fetch(statusUrl, { headers: { Accept: 'application/json' } })
       .then(response => {
         /*
@@ -101,13 +129,13 @@ function pollImportJob () {
         totalElement.textContent = data.filesTotal
 
         if (data.status === 'completed') {
-          clearInterval(handle)
+          stopPolling()
           // The list is rendered server-side, so it only picks up the new documents on reload.
           reloadForFinishedImport()
         }
 
         if (data.status === 'failed') {
-          clearInterval(handle)
+          stopPolling()
           // A frozen counter next to an error message reads as though it were still running.
           progressElement.classList.add('hidden')
           dplan.notify.error(data.error || Translator.trans('error.elementimport.failed'))
@@ -116,7 +144,7 @@ function pollImportJob () {
       .catch(error => {
         // Retrying cannot recover an authentication problem, so stop and say what is wrong.
         if (error instanceof StatusRequestError && error.isAuthenticationProblem) {
-          clearInterval(handle)
+          stopPolling()
           dplan.notify.error(Translator.trans('warning.session.expired'))
 
           return
@@ -125,7 +153,7 @@ function pollImportJob () {
         consecutiveFailures++
 
         if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
-          clearInterval(handle)
+          stopPolling()
           /*
            * The import itself is unaffected — it runs in a worker and does not depend on this page.
            * Say so, otherwise a frozen counter reads as a failed import.
@@ -134,6 +162,49 @@ function pollImportJob () {
         }
       })
   }, POLL_INTERVAL)
+}
+
+/**
+ * Take or renew the polling lease, and report whether this tab now holds it.
+ *
+ * localStorage has no atomic compare-and-set, so the lease is written and then read back: if
+ * another tab wrote after us, it wins and we stay passive. Two tabs can still both claim on the
+ * exact same tick, which costs one duplicate request — the point is to keep the number of
+ * simultaneous requests near one instead of growing with the number of open tabs.
+ */
+function claimPollLock () {
+  const now = Date.now()
+
+  try {
+    const held = JSON.parse(window.localStorage.getItem(POLL_LOCK_KEY) || 'null')
+
+    // Someone else holds a lease that has not expired yet.
+    if (held && held.tabId !== TAB_ID && now - held.claimedAt < POLL_LOCK_TTL) {
+      return false
+    }
+
+    window.localStorage.setItem(POLL_LOCK_KEY, JSON.stringify({ tabId: TAB_ID, claimedAt: now }))
+
+    const confirmed = JSON.parse(window.localStorage.getItem(POLL_LOCK_KEY) || 'null')
+
+    return null !== confirmed && confirmed.tabId === TAB_ID
+  } catch {
+    // Without usable localStorage every tab polls, which is the behaviour this replaces.
+    return true
+  }
+}
+
+function releasePollLock () {
+  try {
+    const held = JSON.parse(window.localStorage.getItem(POLL_LOCK_KEY) || 'null')
+
+    // Never drop a lease another tab has meanwhile taken over.
+    if (held && held.tabId === TAB_ID) {
+      window.localStorage.removeItem(POLL_LOCK_KEY)
+    }
+  } catch {
+    // Nothing to release.
+  }
 }
 
 /**
