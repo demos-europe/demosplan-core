@@ -209,6 +209,7 @@ import {
   dpRpc,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
+import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
 
 export default {
   name: 'AdministrationPlaces',
@@ -336,7 +337,7 @@ export default {
     fetchPlaces () {
       this.isInitiallyLoading = true
 
-      dpApi.get(`${Routing.getBaseUrl()}/api/3.0/Place`, {
+      dpApi.get(apiUrl('Place'), {
         fields: {
           Place: [
             'name',
@@ -413,7 +414,7 @@ export default {
         payload.attributes.locked = this.newPlace.solved
       }
 
-      dpApi.post(Routing.generate('api_resource_create', { resourceType: 'Place' }), {}, { data: payload })
+      dpApi.post(apiUrl('Place', 'create'), {}, { data: payload })
         .then(response => {
           /**
            * Update local data so no additional api request is needed to fetch the updated data
@@ -492,7 +493,7 @@ export default {
 
       this.isSaving = true
 
-      dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Place', resourceId: rowData.id }), {}, payload)
+      dpApi.patch(apiUrl('Place', 'update', rowData.id), {}, payload)
         .then(() => {
           dplan.notify.confirm(Translator.trans('confirm.saved'))
           this.setEditMode(rowData.id, false)
