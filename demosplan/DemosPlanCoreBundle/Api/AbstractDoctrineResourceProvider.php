@@ -28,7 +28,7 @@ use Webmozart\Assert\Assert;
  * Shared `Get`/`GetCollection` provider logic for read-only ApiPlatform resources backed by a
  * {@see RepositoryInterface} entity and scoped by an {@see AccessCheckerInterface}.
  *
- * Concrete providers (e.g. {@see \demosplan\DemosPlanCoreBundle\Api\Place\Provider}) only need to
+ * Concrete providers (e.g. {@see Place\Provider}) only need to
  * declare their resource class, sortable properties and entity-to-resource mapping; the
  * availability check, access-condition scoping and single-vs-collection branching live here once.
  *
@@ -85,6 +85,7 @@ abstract class AbstractDoctrineResourceProvider implements ProviderInterface
 
     /**
      * @return list<OrderBySortMethodInterface>
+     *
      * @throws PathException
      */
     protected function getSortMethods(array $context): array

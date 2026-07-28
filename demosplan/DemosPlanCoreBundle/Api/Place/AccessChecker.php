@@ -41,6 +41,7 @@ readonly class AccessChecker implements AccessCheckerInterface
      * Mirrors PlaceResourceType::getAccessConditions().
      *
      * @return list<ClauseFunctionInterface<bool>>
+     *
      * @throws PathException
      */
     public function getAccessConditions(): array

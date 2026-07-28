@@ -16,7 +16,7 @@ use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 
 /**
  * Common contract for the per-resource access checkers used by {@see AbstractDoctrineResourceProvider}
- * implementations (e.g. {@see \demosplan\DemosPlanCoreBundle\Api\Place\AccessChecker}).
+ * implementations (e.g. {@see Place\AccessChecker}).
  */
 interface AccessCheckerInterface
 {
