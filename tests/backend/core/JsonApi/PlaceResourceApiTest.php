@@ -78,7 +78,7 @@ class PlaceResourceApiTest extends AbstractApiTest
     public function testGetIsDeniedWithoutPermission(): void
     {
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
-        $place = PlaceFactory::createOne(['procedure' => $procedure]);
+        $place = PlaceFactory::createOne(['procedure' => $procedure, 'name' => 'Step 1']);
         $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
         $this->loginUserForApiPlatform($user);
 
@@ -89,7 +89,26 @@ class PlaceResourceApiTest extends AbstractApiTest
             $procedure
         );
 
-        self::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+        self::assertStringNotContainsString('Step 1', $response->getContent());
+    }
+
+    public function testGetReturnsNotFoundForPlaceOutsideCurrentProcedure(): void
+    {
+        $ownerProcedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $otherProcedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $place = PlaceFactory::createOne(['procedure' => $ownerProcedure, 'name' => 'Step 1']);
+        $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
+        $this->enablePermissions(['area_statement_segmentation']);
+        $this->loginUserForApiPlatform($user);
+
+        $response = $this->sendRequest(
+            '/api/3.0/Place/'.$place->getId(),
+            'GET',
+            $user,
+            $otherProcedure
+        );
+
+        self::assertStringNotContainsString('Step 1', $response->getContent());
     }
 
     public function testGetCollectionIsSortedBySortIndexAscending(): void
