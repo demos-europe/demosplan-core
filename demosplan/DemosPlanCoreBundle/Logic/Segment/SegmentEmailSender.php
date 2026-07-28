@@ -118,22 +118,22 @@ class SegmentEmailSender
     }
 
     /**
-     * @param string|array         $to
-     * @param string|array         $from
-     * @param string|array         $emailcc
+     * @param string|array         $sendMailTo
+     * @param string|array         $sentFrom
+     * @param string|array         $emailCC
      * @param array                $vars
      * @param array<string,string> $attachments
      *
      * @throws Exception
      */
-    public function sendAbschnitt($to, $from, $emailcc, $vars, array $attachments): void
+    public function sendAbschnitt($sendMailTo, $sentFrom, $emailCC, $vars, array $attachments): void
     {
         $this->mailService->sendMail(
             'dm_abschnitt_versand',
             'de_DE',
-            $to,
-            $from,
-            $emailcc,
+            $sendMailTo,
+            $sentFrom,
+            $emailCC,
             '',
             'extern',
             $vars,
