@@ -10,20 +10,19 @@
 
 namespace Tests\Core\Document\Unit;
 
-use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
-use League\Flysystem\DirectoryAttributes;
-use League\Flysystem\DirectoryListing;
-use League\Flysystem\FileAttributes;
-use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
  * Tests for the elementImportDirToArray method in DocumentHandler.
+ *
+ * The extracted archive is read from local disk rather than from flysystem, so these tests build
+ * real directory structures in a temporary directory instead of mocking a storage operator.
  */
 class DocumentHandlerElementImportTest extends TestCase
 {
@@ -33,22 +32,19 @@ class DocumentHandlerElementImportTest extends TestCase
     private $documentHandler;
 
     /**
-     * @var FilesystemOperator|MockObject
-     */
-    private $defaultStorage;
-
-    /**
      * @var Session|MockObject
      */
     private $session;
+
+    /**
+     * @var string
+     */
+    private $importDir;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Create mocks for required dependencies
-        $this->defaultStorage = $this->createMock(FilesystemOperator::class);
-        $messageBag = $this->createMock(MessageBagInterface::class);
         $this->session = $this->createMock(Session::class);
 
         // Create a partial mock of DocumentHandler
@@ -61,19 +57,45 @@ class DocumentHandlerElementImportTest extends TestCase
         $this->documentHandler->method('getSession')
             ->willReturn($this->session);
 
-        // Set the mocked defaultStorage using reflection
-        $reflection = new ReflectionClass(DocumentHandler::class);
-        $property = $reflection->getProperty('defaultStorage');
-        $property->setAccessible(true);
-        $property->setValue($this->documentHandler, $this->defaultStorage);
+        $this->importDir = sys_get_temp_dir().'/dplan-element-import-test-'.uniqid('', true);
+        (new Filesystem())->mkdir($this->importDir);
+    }
+
+    protected function tearDown(): void
+    {
+        (new Filesystem())->remove($this->importDir);
+
+        parent::tearDown();
     }
 
     /**
-     * Creates a mock DirectoryListing that iterates over the provided items.
+     * Creates the given relative paths below the import directory. Paths ending in a slash become
+     * directories, everything else an empty file.
      */
-    private function createMockListing(array $items): DirectoryListing
+    private function createStructure(array $relativePaths): void
     {
-        return new DirectoryListing($items);
+        $filesystem = new Filesystem();
+
+        foreach ($relativePaths as $relativePath) {
+            $absolutePath = $this->importDir.'/'.rtrim($relativePath, '/');
+
+            if (str_ends_with($relativePath, '/')) {
+                $filesystem->mkdir($absolutePath);
+                continue;
+            }
+
+            $filesystem->mkdir(dirname($absolutePath));
+            $filesystem->touch($absolutePath);
+        }
+    }
+
+    private function invokeElementImportDirToArray(string $directory): array
+    {
+        $reflection = new ReflectionClass(DocumentHandler::class);
+        $method = $reflection->getMethod('elementImportDirToArray');
+        $method->setAccessible(true);
+
+        return $method->invoke($this->documentHandler, $directory);
     }
 
     /**
@@ -81,31 +103,19 @@ class DocumentHandlerElementImportTest extends TestCase
      */
     public function testSimpleStructure(): void
     {
-        // Create a simple structure with one file
-        $directoryPath = 'tmp/import/123';
-        $fileAttributes = new FileAttributes('tmp/import/123/file.pdf');
-
-        // Setup mock behaviors
-        $this->defaultStorage->expects($this->once())
-            ->method('listContents')
-            ->with($directoryPath, false)
-            ->willReturn($this->createMockListing([$fileAttributes]));
+        $this->createStructure(['file.pdf']);
 
         $this->session->expects($this->once())
             ->method('set')
             ->with('bulkImportFilesTotal', 1);
 
-        // Call the method using reflection
-        $reflection = new ReflectionClass(DocumentHandler::class);
-        $method = $reflection->getMethod('elementImportDirToArray');
-        $method->setAccessible(true);
-        $result = $method->invoke($this->documentHandler, $directoryPath);
+        $result = $this->invokeElementImportDirToArray($this->importDir);
 
         // Assert the result structure
         $this->assertCount(1, $result);
         $this->assertFalse($result[0]['isDir']);
         $this->assertEquals('file.pdf', $result[0]['title']);
-        $this->assertEquals('tmp/import/123/file.pdf', $result[0]['path']);
+        $this->assertEquals($this->importDir.'/file.pdf', $result[0]['path']);
     }
 
     /**
@@ -114,45 +124,18 @@ class DocumentHandlerElementImportTest extends TestCase
      */
     public function testNestedStructure(): void
     {
-        $baseDir = 'tmp/import/456';
-        $nestedDir = 'tmp/import/456/Ordner 2';
-        $nestedDir2 = 'tmp/import/456/Ordner 2/Anlage 13';
-
-        // Create test directory structure
-        $dirAttributes = new DirectoryAttributes($nestedDir);
-        $fileAttributes1 = new FileAttributes('tmp/import/456/root-file.pdf');
-
-        $this->defaultStorage->expects($this->exactly(3))
-            ->method('listContents')
-            ->willReturnCallback(function ($path, $deep) use ($baseDir, $nestedDir, $nestedDir2, $dirAttributes, $fileAttributes1) {
-                if ($path === $baseDir) {
-                    return $this->createMockListing([$dirAttributes, $fileAttributes1]);
-                }
-
-                if ($path === $nestedDir) {
-                    return $this->createMockListing([new DirectoryAttributes($nestedDir2)]);
-                }
-
-                if ($path === $nestedDir2) {
-                    return $this->createMockListing([
-                        new FileAttributes('tmp/import/456/Ordner 2/Anlage 13/document1.pdf'),
-                        new FileAttributes('tmp/import/456/Ordner 2/Anlage 13/document2.pdf'),
-                    ]);
-                }
-
-                return $this->createMockListing([]);
-            });
+        $this->createStructure([
+            'root-file.pdf',
+            'Ordner 2/Anlage 13/document1.pdf',
+            'Ordner 2/Anlage 13/document2.pdf',
+        ]);
 
         // Setup session mock for file count
         $this->session->expects($this->exactly(3))
             ->method('set')
             ->with('bulkImportFilesTotal', $this->anything());
 
-        // Call the method using reflection
-        $reflection = new ReflectionClass(DocumentHandler::class);
-        $method = $reflection->getMethod('elementImportDirToArray');
-        $method->setAccessible(true);
-        $result = $method->invoke($this->documentHandler, $baseDir);
+        $result = $this->invokeElementImportDirToArray($this->importDir);
 
         // Assert the result has the correct structure
         $this->assertCount(2, $result);
@@ -193,49 +176,19 @@ class DocumentHandlerElementImportTest extends TestCase
      */
     public function testNoDuplicatedFiles(): void
     {
-        $importDir = 'tmp/import/789';
-        $folder1 = 'tmp/import/789/Ordner 1';
-        $folder2 = 'tmp/import/789/Ordner 2';
-
-        // Create complex structure mimicking the original issue
-        $dir1Attributes = new DirectoryAttributes($folder1);
-        $dir2Attributes = new DirectoryAttributes($folder2);
-
-        // Setup directory structure
-        $this->defaultStorage->expects($this->exactly(3))
-            ->method('listContents')
-            ->willReturnCallback(function ($path, $deep) use ($importDir, $folder1, $folder2, $dir1Attributes, $dir2Attributes) {
-                if ($path === $importDir) {
-                    return $this->createMockListing([$dir1Attributes, $dir2Attributes]);
-                }
-
-                if ($path === $folder1) {
-                    return $this->createMockListing([
-                        new FileAttributes('tmp/import/789/Ordner 1/file1.pdf'),
-                        new FileAttributes('tmp/import/789/Ordner 1/file2.pdf'),
-                    ]);
-                }
-
-                if ($path === $folder2) {
-                    return $this->createMockListing([
-                        new FileAttributes('tmp/import/789/Ordner 2/file3.pdf'),
-                        new FileAttributes('tmp/import/789/Ordner 2/file4.pdf'),
-                    ]);
-                }
-
-                return $this->createMockListing([]);
-            });
+        $this->createStructure([
+            'Ordner 1/file1.pdf',
+            'Ordner 1/file2.pdf',
+            'Ordner 2/file3.pdf',
+            'Ordner 2/file4.pdf',
+        ]);
 
         // Session mock for counting files
         $this->session->expects($this->exactly(4))
             ->method('set')
             ->with('bulkImportFilesTotal', $this->anything());
 
-        // Call the method using reflection
-        $reflection = new ReflectionClass(DocumentHandler::class);
-        $method = $reflection->getMethod('elementImportDirToArray');
-        $method->setAccessible(true);
-        $result = $method->invoke($this->documentHandler, $importDir);
+        $result = $this->invokeElementImportDirToArray($this->importDir);
 
         // Assert structure: should have exactly 2 directories at root
         $this->assertCount(2, $result);

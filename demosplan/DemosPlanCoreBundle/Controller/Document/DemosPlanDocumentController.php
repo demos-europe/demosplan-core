@@ -59,7 +59,6 @@ use League\Flysystem\FilesystemOperator;
 use Pagerfanta\Adapter\ArrayAdapter;
 use ReflectionException;
 use RuntimeException;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -1023,7 +1022,9 @@ class DemosPlanDocumentController extends BaseController
         $result = [];
 
         // Gehe rekursiv alle Verzeichnisse durch. Speichere Ordner als Elements, dateien als Files in den Elements
-        // at this point local files need to be used, no flysystem needed
+        // The extracted files stay where they are: the save phase reads them from this local
+        // directory. Copying them into flysystem here meant every file was written a second time
+        // on extraction and read back a third time on save, all on the same filesystem.
         $iter = new DirectoryIterator($dir);
         foreach ($iter as $fileInfo) {
             if ($fileInfo->isDot()) {
@@ -1043,7 +1044,6 @@ class DemosPlanDocumentController extends BaseController
                         $session
                     ),
                 ];
-                $this->defaultStorage->createDirectory($fileInfo->getPathname());
             } else {
                 $hash = 'file_'.random_int(1, 99_999_999);
                 // T5659 only filter filenames, do not translit
@@ -1054,16 +1054,11 @@ class DemosPlanDocumentController extends BaseController
                     'title' => $filename,
                     'hash'  => $hash,
                 ];
-                $stream = fopen($fileInfo->getPathname(), 'rb+');
-                $this->defaultStorage->writeStream($fileInfo->getPathname(), $stream);
-                fclose($stream);
             }
             $sessionImportList = $session->get('element_import_list');
             $sessionImportList[$hash] = $fileInfo->getPathname();
             $session->set('element_import_list', $sessionImportList);
         }
-        $fs = new Filesystem();
-        $fs->remove($dir);
 
         // Sortiere die Elements natürlichsprachig
         usort($result, [DocumentHandler::class, 'sortElementsAlphabetically']);

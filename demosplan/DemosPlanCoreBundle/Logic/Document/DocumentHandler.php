@@ -15,6 +15,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
+use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ElementImportJob;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
@@ -24,10 +25,10 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use DirectoryIterator;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
-use League\Flysystem\FilesystemException;
-use League\Flysystem\FilesystemOperator;
 use ReflectionException;
 use RuntimeException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -68,7 +69,6 @@ class DocumentHandler extends CoreHandler
         ElementsService $elementsService,
         private readonly EntityManagerInterface $entityManager,
         private readonly FileService $fileService,
-        private readonly FilesystemOperator $defaultStorage,
         MessageBagInterface $messageBag,
         private readonly ParagraphService $paragraphService,
         private readonly ProcedureService $procedureService,
@@ -121,10 +121,13 @@ class DocumentHandler extends CoreHandler
         $this->getSession()->remove('bulkImportFilesTotal');
         $this->getSession()->remove('bulkImportFilesProcessed');
 
+        // The extracted archive stays on local disk between extraction and this method, so the
+        // leftovers (empty directories, and files of entries that could not be imported) are
+        // removed locally rather than through flysystem.
         try {
-            $this->defaultStorage->deleteDirectory($importDir);
-        } catch (FilesystemException $e) {
-            $this->logger->error('Could not delete file: ', [$e]);
+            DemosPlanPath::recursiveRemoveLocalPath($importDir);
+        } catch (Exception $e) {
+            $this->logger->error('Could not delete import directory: ', [$e]);
         }
 
         return $errorReport;
@@ -176,6 +179,7 @@ class DocumentHandler extends CoreHandler
          */
         $singleDocumentIndex = 0;
         $createdDocuments = [];
+        $createdFiles = [];
 
         foreach ($entries as $entry) {
             $fileName = $this->resolveImportFileName($entry, $sessionElementImportList, $request);
@@ -210,12 +214,13 @@ class DocumentHandler extends CoreHandler
 
                 // speichere die Datei im Fileservice ab
                 try {
-                    // Viruscheck has been done for complete zip, so no check needed any more
-                    $entry['path'] = $this->fileService->ensureLocalFile($entry['path'], $entry['title']);
+                    // $entry['path'] already points at the extracted file on local disk, so it can
+                    // be handed to the file service directly. Viruscheck has been done for the
+                    // complete zip, so no check is needed any more.
                     // flush: false — the File rows are written by the batch flush below. Letting
                     // saveTemporaryLocalFile() flush per file made every one of tens of thousands
                     // of files walk the whole unit of work.
-                    $this->fileService->saveTemporaryLocalFile(
+                    $createdFiles[] = $this->fileService->saveTemporaryLocalFile(
                         $entry['path'],
                         $fileName,
                         $this->currentUser->getUser()->getId(),
@@ -260,13 +265,13 @@ class DocumentHandler extends CoreHandler
                 }
 
                 if (self::IMPORT_FLUSH_BATCH_SIZE <= count($createdDocuments)) {
-                    $this->flushImportedDocuments($createdDocuments, $job);
+                    $this->flushImportedDocuments($createdDocuments, $createdFiles, $job);
                 }
             }
         }
 
         // Flush whatever is left over from the last, incomplete batch of this recursion level.
-        $this->flushImportedDocuments($createdDocuments, $job);
+        $this->flushImportedDocuments($createdDocuments, $createdFiles, $job);
 
         return $result;
     }
@@ -279,23 +284,54 @@ class DocumentHandler extends CoreHandler
      * whole (growing) buffer on each iteration, making the database work quadratic in the
      * number of files — an import of ~37.000 files spent most of its runtime here.
      *
-     * $createdDocuments is taken by reference so the caller's buffer is emptied together
-     * with the flush; forgetting to reset it is what made the work quadratic in the first
-     * place.
+     * Both buffers are taken by reference so the caller's state is emptied together with the
+     * flush; forgetting to reset them is what made the work quadratic in the first place.
      *
      * @param list<SingleDocument> $createdDocuments
+     * @param list<File>           $createdFiles
      */
-    private function flushImportedDocuments(array &$createdDocuments, ElementImportJob $job): void
+    private function flushImportedDocuments(array &$createdDocuments, array &$createdFiles, ElementImportJob $job): void
     {
         if ([] !== $createdDocuments) {
             $this->singleDocumentService->persistAndFlushNewPlanningDocumentsFromImport($createdDocuments);
-            $createdDocuments = [];
         }
 
         $job->setFilesTotal((int) $this->getSession()->get('bulkImportFilesTotal'));
         $job->setFilesProcessed((int) $this->getSession()->get('bulkImportFilesProcessed'));
         $job->setModifiedDate(new DateTime());
         $this->entityManager->flush();
+
+        $this->detachWrittenRows($createdDocuments, $createdFiles);
+    }
+
+    /**
+     * Remove the rows just written from Doctrine's identity map.
+     *
+     * Batching the flushes alone does not make the import linear: every flush computes change
+     * sets for everything the entity manager still manages, and that set keeps growing as the
+     * import proceeds. Neither the documents nor the files are read again once written, so they
+     * are detached, which keeps each flush proportional to the batch size instead of to the
+     * number of files imported so far.
+     *
+     * Only these two types are detached rather than clearing the entity manager entirely: the
+     * job, the procedure and the element categories are needed for the rest of the import and
+     * would otherwise have to be re-fetched.
+     *
+     * @param list<SingleDocument> $createdDocuments
+     * @param list<File>           $createdFiles
+     */
+    private function detachWrittenRows(array &$createdDocuments, array &$createdFiles): void
+    {
+        foreach ($createdDocuments as $createdDocument) {
+            $this->entityManager->detach($createdDocument);
+        }
+
+        foreach ($createdFiles as $createdFile) {
+            $this->entityManager->detach($createdFile);
+        }
+
+        $createdDocuments = [];
+        $createdFiles = [];
     }
 
     /**
@@ -344,29 +380,33 @@ class DocumentHandler extends CoreHandler
     {
         $result = [];
 
-        // Recursively go through all directories. Save folders as Elements, files as Files in the Elements
-        // Use false for recursive parameter to only get direct contents of this directory
-        $contents = $this->defaultStorage->listContents($dir, false);
-        foreach ($contents as $item) {
+        // Recursively go through all directories. Save folders as Elements, files as Files in the
+        // Elements. The extracted archive is read from local disk: copying it into flysystem after
+        // extraction only to read it back out here meant every file was moved twice for nothing.
+        foreach (new DirectoryIterator($dir) as $item) {
+            if ($item->isDot()) {
+                continue;
+            }
+
             if ($item->isDir()) {
                 $result[] = [
                     'isDir'   => true,
-                    'title'   => basename($item->path()),
-                    'path'    => $item->path(),
+                    'title'   => $item->getFilename(),
+                    'path'    => $item->getPathname(),
                     'entries' => $this->elementImportDirToArray(
-                        $item->path()
+                        $item->getPathname()
                     ),
                 ];
             } else {
                 // Ensure proper UTF-8 encoding for filenames
-                $filename = basename($item->path());
+                $filename = $item->getFilename();
                 $filename = mb_convert_encoding($filename, 'UTF-8',
                     mb_detect_encoding($filename, self::POSSIBLE_ENCODINGS, true));
 
                 $result[] = [
                     'isDir'  => false,
                     'title'  => $filename,
-                    'path'   => $item->path(),
+                    'path'   => $item->getPathname(),
                 ];
 
                 // Speichere die Anzahl der Dateien in die Session
