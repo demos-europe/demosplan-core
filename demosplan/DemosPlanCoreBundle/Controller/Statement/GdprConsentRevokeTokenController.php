@@ -33,7 +33,7 @@ class GdprConsentRevokeTokenController extends BaseController
      * @throws MessageBagException
      */
     #[DplanPermissions('area_gdpr_consent_revoke_page')]
-    #[Route(path: '/einwilligung-widerrufen', methods: ['POST'], name: 'DemosPlan_statement_revoke_gdpr_consent_post')]
+    #[Route(path: '/einwilligung-widerrufen', name: 'DemosPlan_statement_revoke_gdpr_consent_post', methods: ['POST'])]
     public function revokeGdprConsentPost(GdprConsentRevokeTokenService $gdprConsentRevokeTokenService, Request $request): Response
     {
         try {
@@ -62,7 +62,7 @@ class GdprConsentRevokeTokenController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_demosplan')]
-    #[Route(path: '/einwilligung-widerrufen', methods: ['GET'], name: 'DemosPlan_statement_revoke_gdpr_consent_get')]
+    #[Route(path: '/einwilligung-widerrufen', name: 'DemosPlan_statement_revoke_gdpr_consent_get', methods: ['GET'])]
     public function revokeGdprConsentGet(PermissionsInterface $permissions): Response
     {
         if ($permissions->hasPermission('area_gdpr_consent_revoke_page')) {

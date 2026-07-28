@@ -13,6 +13,7 @@ import Statement from '@DpJs/store/statement/Statement'
 
 const localVue = createApp({})
 let StubStore
+
 global.Vue = localVue
 
 // Non-instance tests
@@ -39,6 +40,7 @@ describe('StatementStore', () => {
     expect(Object.keys(StubStore.state.Statement.statements)).toHaveLength(0)
 
     const statement = { id: '123-456-234' }
+
     StubStore.commit('Statement/addStatement', statement)
     expect(Object.keys(StubStore.state.Statement.statements)).toHaveLength(1)
   })

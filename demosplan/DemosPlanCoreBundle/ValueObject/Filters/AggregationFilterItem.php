@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -51,7 +53,7 @@ class AggregationFilterItem extends ValueObject
         string $label,
         ?string $description,
         int $count,
-        bool $selected
+        bool $selected,
     ) {
         $this->id = $id;
         $this->label = $label;

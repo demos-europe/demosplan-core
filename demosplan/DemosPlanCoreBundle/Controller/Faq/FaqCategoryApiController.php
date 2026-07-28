@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -22,7 +24,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class FaqCategoryApiController extends APIController
 {
     #[DplanPermissions('area_admin_faq')]
-    #[Route(path: '/api/1.0/FaqCategory', methods: ['GET'], name: 'dp_api_faq_category_list', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/FaqCategory', name: 'dp_api_faq_category_list', options: ['expose' => true], methods: ['GET'])]
     public function list(FaqHandler $faqHandler): APIResponse
     {
         try {

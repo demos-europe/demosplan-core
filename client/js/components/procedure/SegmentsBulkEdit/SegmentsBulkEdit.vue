@@ -22,6 +22,14 @@
     <!-- Step 1 - Chose action -->
     <template v-slot:step-1>
       <div class="border-between-vertical">
+        <dp-inline-notification
+          v-if="hasLockedSelection"
+          :dismissible-key="lockedHintDismissibleKey"
+          :message="Translator.trans('segments.bulk.edit.locked.hint', { lockedCount, totalCount: segments.length })"
+          class="border-between-none mt-3 mb-2"
+          type="info"
+          dismissible
+        />
         <!-- Assign user -->
         <action-stepper-action
           v-if="hasPermission('feature_statement_assignment')"
@@ -57,8 +65,24 @@
           />
         </action-stepper-action>
 
+        <!-- Add deadline -->
+        <action-stepper-action
+          v-if="!hasLockedSelection && hasPermission('field_statement_deadline')"
+          id="addDeadlineAction"
+          v-model="actions.addDeadline.checked"
+          :label="Translator.trans('segments.bulk.edit.deadline.description')"
+        >
+          <dp-datepicker
+            id="deadline"
+            v-model="actions.addDeadline.value"
+            class="w-9"
+            data-cy="deadline"
+          />
+        </action-stepper-action>
+
         <!-- Add tags -->
         <action-stepper-action
+          v-if="!hasLockedSelection"
           id="selectAddTagsAction"
           v-model="actions.addTags.checked"
           :label="Translator.trans('segments.bulk.edit.tags.add')"
@@ -79,6 +103,7 @@
 
         <!-- Remove tags -->
         <action-stepper-action
+          v-if="!hasLockedSelection"
           id="selectDeleteTagsAction"
           v-model="actions.deleteTags.checked"
           :label="Translator.trans('segments.bulk.edit.tags.delete')"
@@ -99,6 +124,7 @@
 
         <!-- Append text to recommendation -->
         <action-stepper-action
+          v-if="!hasLockedSelection"
           id="selectAddRecommendationAction"
           v-model="actions.addRecommendations.checked"
           :label="Translator.trans('segments.bulk.edit.recommendations.add')"
@@ -182,21 +208,23 @@
           </dp-editor>
         </action-stepper-action>
         <!--Custom Fields-->
-        <action-stepper-action
-          v-for="customField in actions.customFields"
-          :id="customField.id"
-          :key="`customField:${customField.id}`"
-          v-model="customField.checked"
-          :label="customField.label"
-        >
-          <dp-multiselect
-            :id="`customFieldSelect:${customField.id}`"
-            v-model="customField.selected"
-            class="w-12"
-            :disabled="!hasSegments"
-            :options="customField.optionLabels"
-          />
-        </action-stepper-action>
+        <template v-if="!hasLockedSelection">
+          <action-stepper-action
+            v-for="customField in actions.customFields"
+            :id="customField.id"
+            :key="`customField:${customField.id}`"
+            v-model="customField.checked"
+            :label="customField.label"
+          >
+            <dp-multiselect
+              :id="`customFieldSelect:${customField.id}`"
+              v-model="customField.selected"
+              class="w-12"
+              :disabled="!hasSegments"
+              :options="customField.optionLabels"
+            />
+          </action-stepper-action>
+        </template>
       </div>
     </template>
 
@@ -232,15 +260,23 @@
           v-if="assignPlaceCheckedAndSelected"
           class="py-4"
         >
-          <p v-html="Translator.trans('segments.bulk.edit.place.assigned.description')" />
+          <p v-cleanhtml="Translator.trans('segments.bulk.edit.place.assigned.description')" />
           <p v-cleanhtml="actions.assignPlace.selected.name" />
+        </div>
+
+        <div
+          v-if="hasPermission('field_statement_deadline') && addDeadlineCheckedAndSelected"
+          class="py-4"
+        >
+          <p v-cleanhtml="Translator.trans('segments.bulk.edit.deadline.assigned.description', { count: segments.length })" />
+          <p v-cleanhtml="actions.addDeadline.value" />
         </div>
 
         <div
           v-if="addTagsCheckedAndSelected"
           class="py-4"
         >
-          <p v-html="Translator.trans('segments.bulk.edit.tags.add.description', { count: segments.length })" />
+          <p v-cleanhtml="Translator.trans('segments.bulk.edit.tags.add.description', { count: segments.length })" />
           <selected-tags-list :selected-tags="actions.addTags.selected" />
         </div>
 
@@ -248,7 +284,7 @@
           v-if="deleteTagsCheckedAndSelected"
           class="py-4"
         >
-          <p v-html="Translator.trans('segments.bulk.edit.tags.delete.description', { count: segments.length })" />
+          <p v-cleanhtml="Translator.trans('segments.bulk.edit.tags.delete.description', { count: segments.length })" />
           <selected-tags-list :selected-tags="actions.deleteTags.selected" />
         </div>
 
@@ -256,8 +292,8 @@
           v-if="addRecommendationsChecked && actions.addRecommendations.text !== ''"
           class="py-4"
         >
-          <p v-html="addOrReplaceRecommendationMessage" />
-          <p v-html="actions.addRecommendations.text" />
+          <p v-cleanhtml="addOrReplaceRecommendationMessage" />
+          <p v-cleanhtml="actions.addRecommendations.text" />
         </div>
 
         <div
@@ -265,7 +301,7 @@
           :key="`customField:${customField.id}`"
           class="py-4"
         >
-          <p v-html="Translator.trans('segments.bulk.edit.customFields.description', { label: customField.label })" />
+          <p v-cleanhtml="Translator.trans('segments.bulk.edit.customFields.description', { label: customField.label })" />
           <selected-tags-list :selected-tags="[{ title: customField.selected, id: customField.id }]" />
         </div>
       </div>
@@ -288,6 +324,18 @@
       >
         <p
           v-cleanhtml="actions.assignPlace.selected.name"
+          class="mt-2"
+        />
+      </action-stepper-response>
+
+      <action-stepper-response
+        v-if="hasPermission('field_statement_deadline') && addDeadlineCheckedAndSelected"
+        :success="actions.addDeadline.success"
+        :description-error="Translator.trans('segments.bulk.edit.deadline.assigned.error', { count: segments.length })"
+        :description-success="Translator.trans('segments.bulk.edit.deadline.assigned.success', { count: segments.length })"
+      >
+        <p
+          v-cleanhtml="actions.addDeadline.value"
           class="mt-2"
         />
       </action-stepper-response>
@@ -317,8 +365,8 @@
         :description-success="addRecommendationsSuccess"
       >
         <p
+          v-cleanhtml="actions.addRecommendations.text"
           class="mt-2"
-          v-html="actions.addRecommendations.text"
         />
       </action-stepper-response>
 
@@ -339,15 +387,17 @@
 import {
   CleanHtml,
   dpApi,
+  DpDatepicker,
   DpMultiselect,
   DpRadio,
   dpRpc,
   DpTooltip,
   hasOwnProp,
   prefixClassMixin,
+  reformatDateString,
 } from '@demos-europe/demosplan-ui'
-import { defineAsyncComponent } from 'vue'
 import { mapActions, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperAction from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperAction'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
@@ -355,6 +405,7 @@ import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import lscache from 'lscache'
 import RecommendationModal from '../Shared/RecommendationModal'
 import SelectedTagsList from '@DpJs/components/procedure/SegmentsBulkEdit/SelectedTagsList'
+import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 export default {
   name: 'SegmentsBulkEdit',
@@ -364,12 +415,15 @@ export default {
     ActionStepperAction,
     ActionStepperResponse,
     DpBoilerPlateModal,
+    DpDatepicker,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
+
       return DpEditor
     }),
     DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
+
       return DpInlineNotification
     }),
     DpMultiselect,
@@ -401,6 +455,11 @@ export default {
   data () {
     return {
       actions: {
+        addDeadline: {
+          value: '',
+          checked: false,
+          success: false,
+        },
         addRecommendations: {
           text: '',
           checked: false,
@@ -433,8 +492,11 @@ export default {
       },
       assignableUsers: [],
       busy: false,
+      customFieldDefinitions: [],
+      hasLockedSelection: false,
       hasRecommendationTabs: false,
       isLoading: true,
+      lockedCount: 0,
       places: [],
       returnLink: Routing.generate('dplan_segments_list', { procedureId: this.procedureId }),
       segmentDataLoaded: false,
@@ -444,10 +506,6 @@ export default {
   },
 
   computed: {
-    ...mapState('CustomField', {
-      customFieldItems: 'items',
-    }),
-
     ...mapState('Tag', {
       tagsItems: 'items',
     }),
@@ -455,6 +513,10 @@ export default {
     ...mapState('TagTopic', {
       tagTopicsItems: 'items',
     }),
+
+    addDeadlineCheckedAndSelected () {
+      return this.actions.addDeadline.checked && this.actions.addDeadline.value
+    },
 
     addOrReplaceRecommendationMessage () {
       if (this.actions.addRecommendations.isTextAttached) {
@@ -515,9 +577,11 @@ export default {
       if (isEmptyTextAttached) {
         return Translator.trans('segments.bulk.edit.recommendations.warning.empty.text.attach', { count: this.segments.length })
       }
+
       if (isEmptyTextReplaced) {
         return Translator.trans('segments.bulk.edit.recommendations.warning.empty.text.replace', { count: this.segments.length })
       }
+
       return ''
     },
 
@@ -527,7 +591,7 @@ export default {
           title: topic.attributes.title,
           id: topic.id,
           tags: this.tags
-            .filter(tag => tag.relationships.topic.data.id === topic.id)
+            .filter(tag => tag?.relationships?.topic?.data?.id === topic.id)
             .map(tag => {
               return {
                 title: tag.attributes.title,
@@ -539,6 +603,7 @@ export default {
     },
 
     hasActions () {
+      const addDeadline = this.actions.addDeadline.checked && this.actions.addDeadline.value !== ''
       const addRecommendationAction = this.actions.addRecommendations.checked && this.actions.addRecommendations.text
       const addTagsAction = this.actions.addTags.checked && this.actions.addTags.selected.length > 0
       const assignPlaceAction = this.actions.assignPlace.checked && Object.values(this.actions.assignPlace.selected).length > 0
@@ -546,7 +611,7 @@ export default {
       const deleteTagsAction = this.actions.deleteTags.checked && this.actions.deleteTags.selected.length > 0
       const customFieldsAction = this.customFieldsCheckedAndSelected.length > 0
 
-      return addRecommendationAction || addTagsAction || assignPlaceAction || assignSegmentAction || deleteTagsAction || customFieldsAction
+      return addDeadline || addRecommendationAction || addTagsAction || assignPlaceAction || assignSegmentAction || deleteTagsAction || customFieldsAction
     },
 
     hasPlaces () {
@@ -561,6 +626,10 @@ export default {
       return this.segments.length === 1
     },
 
+    lockedHintDismissibleKey () {
+      return `${this.procedureId}:segmentsBulkEditLockedHint`
+    },
+
     tags () {
       return Object.values(this.tagsItems).sort((a, b) => a.attributes.title.localeCompare(b.attributes.title, 'de', { sensitivity: 'base' }))
     },
@@ -571,10 +640,6 @@ export default {
   },
 
   methods: {
-    ...mapActions('AdminProcedure', {
-      getAdminProcedureWithFields: 'get',
-    }),
-
     ...mapActions('StatementSegment', {
       getSegment: 'get',
     }),
@@ -588,7 +653,7 @@ export default {
     }),
 
     addCustomFieldsToActions () {
-      Object.values(this.customFieldItems).forEach(customField => {
+      this.customFieldDefinitions.forEach(customField => {
         this.actions.customFields.push({
           checked: false,
           id: customField.id,
@@ -637,6 +702,12 @@ export default {
         params.placeId = this.actions.assignPlace.selected.id
       }
 
+      if (this.actions.addDeadline.checked && this.actions.addDeadline.value) {
+        const isoDate = reformatDateString(this.actions.addDeadline.value)
+
+        params.deadline = isoDate
+      }
+
       dpRpc('segment.bulk.edit', params)
         .then((response) => {
           const rpcResult = this.getRpcResult(response.data)
@@ -667,6 +738,7 @@ export default {
 
     fetchAssignableUsers () {
       const url = Routing.generate('api_resource_list', { resourceType: 'AssignableUser' })
+
       return dpApi.get(url, { include: 'department' })
         .then(response => {
           this.assignableUsers = response.data.data.map(assignableUser => {
@@ -684,27 +756,17 @@ export default {
         })
     },
 
-    /**
-     * Fetch custom fields that are available either in the procedure or in the procedure template
-     */
-    fetchCustomFields () {
-      const payload = {
-        id: this.procedureId,
-        fields: {
-          AdminProcedure: [
-            'segmentCustomFields',
-          ].join(),
-          CustomField: [
-            'name',
-            'description',
-            'options',
-          ].join(),
-        },
-        include: ['segmentCustomFields'].join(),
-      }
+    loadSegmentCustomFields () {
+      const { fetchCustomFields } = useCustomFields()
 
-      return this.getAdminProcedureWithFields(payload)
-        .catch(err => console.error(err))
+      return fetchCustomFields(this.procedureId, {
+        sourceEntity: 'PROCEDURE',
+        targetEntity: 'SEGMENT',
+      })
+        .then(definitions => {
+          this.customFieldDefinitions = definitions
+        })
+        .catch(() => { /* Notification already shown by useCustomFieldDefinitions */ })
     },
 
     fetchPlaces () {
@@ -712,6 +774,7 @@ export default {
         resourceType: 'Place',
         sort: 'sortIndex',
       })
+
       return dpApi.get(url)
         .then(response => {
           this.places = response.data.data.map(place => {
@@ -754,6 +817,7 @@ export default {
      */
     setReturnLink () {
       const currentQueryHash = lscache.get(`${this.procedureId}:segments:currentQueryHash`)
+
       if (currentQueryHash) {
         this.returnLink = Routing.generate('dplan_segments_list_by_query_hash', {
           procedureId: this.procedureId,
@@ -771,7 +835,10 @@ export default {
       const allSegments = lscache.get(`${this.procedureId}:allSegments`)
 
       if (segments && allSegments) {
+        this.hasLockedSelection = !!segments.hasLocked
+        this.lockedCount = segments.lockedCount ?? 0
         const toggledIds = segments.toggledSegments.map(item => item.id)
+
         if (segments.trackDeselected === false) {
           this.segments = toggledIds
         } else if (segments.trackDeselected === true) {
@@ -798,7 +865,7 @@ export default {
     }
 
     if (hasPermission('field_segments_custom_fields')) {
-      promises.push(this.fetchCustomFields())
+      promises.push(this.loadSegmentCustomFields())
     }
 
     Promise.all(promises)
@@ -811,7 +878,7 @@ export default {
         this.isLoading = false
       })
     if (this.segments.length === 1) {
-      this.getSegment({ id: this.segments[0], include: 'tags' })
+      this.getSegment({ id: this.segments[0], include: 'tags,tags.topic' })
         .then(() => {
           this.segmentDataLoaded = true
         })

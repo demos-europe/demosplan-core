@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
 use EDT\JsonApi\OutputHandling\DynamicTransformer;
@@ -308,7 +309,8 @@ class DynamicTransformerTest extends JsonApiTest
 
     private function getInputData(): object
     {
-        $procedure = new Procedure();
+        $def = new ProcedurePhaseDefinition();
+        $procedure = new Procedure($def, $def);
         $procedure->setName('My Procedure');
 
         $inputData = new class($procedure) implements EntityInterface {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -34,7 +36,7 @@ class DemosPlanEntityContentChangeAPIController extends APIController
      * Then the combination of ABC is a change instance.
      */
     #[DplanPermissions('feature_statement_content_changes_view')]
-    #[Route(path: '/api/1.0/statements/{procedureId}/entitycontentchange/{entityContentChangeId}', name: 'dplan_api_history_of_all_fields_of_specific_datetime', methods: ['GET'], options: ['expose' => true])]
+    #[Route(path: '/api/1.0/statements/{procedureId}/entitycontentchange/{entityContentChangeId}', name: 'dplan_api_history_of_all_fields_of_specific_datetime', options: ['expose' => true], methods: ['GET'])]
     public function getEntityContentChange(
         EntityContentChangeService $contentChangeService,
         string $entityContentChangeId,
@@ -51,7 +53,7 @@ class DemosPlanEntityContentChangeAPIController extends APIController
      * @return APIResponse|JsonResponse
      */
     #[DplanPermissions('feature_statement_fragment_content_changes_view')]
-    #[Route(path: '/api/1.0/statements/{procedureId}/statementfragment/{statementFragmentId}/history', name: 'dplan_api_statement_fragment_history', methods: ['GET'], options: ['expose' => true])]
+    #[Route(path: '/api/1.0/statements/{procedureId}/statementfragment/{statementFragmentId}/history', name: 'dplan_api_statement_fragment_history', options: ['expose' => true], methods: ['GET'])]
     public function getStatementFragmentHistory(
         CurrentProcedureService $currentProcedureService,
         EntityContentChangeDisplayHandler $displayHandler,
@@ -79,7 +81,7 @@ class DemosPlanEntityContentChangeAPIController extends APIController
      * Then the combination of ABC is a change instance.
      */
     #[DplanPermissions('feature_segment_content_changes_view')]
-    #[Route(path: '/api/1.0/segments/{procedureId}/entitycontentchange/{entityContentChangeId}', name: 'dplan_api_segments_history_of_all_fields_of_specific_datetime', methods: ['GET'], options: ['expose' => true])]
+    #[Route(path: '/api/1.0/segments/{procedureId}/entitycontentchange/{entityContentChangeId}', name: 'dplan_api_segments_history_of_all_fields_of_specific_datetime', options: ['expose' => true], methods: ['GET'])]
     public function getSegmentContentChange(
         EntityContentChangeService $contentChangeService,
         string $entityContentChangeId,

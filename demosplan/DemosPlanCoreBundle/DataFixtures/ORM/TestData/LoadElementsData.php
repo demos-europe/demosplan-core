@@ -535,7 +535,7 @@ class LoadElementsData extends TestFixture implements DependentFixtureInterface
         return $order;
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             LoadProcedureData::class,

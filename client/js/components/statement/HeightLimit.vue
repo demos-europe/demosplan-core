@@ -86,6 +86,7 @@ export default {
     toggle () {
       if (this.noEvent) {
         this.isExpanded = !this.isExpanded
+
         return
       }
 

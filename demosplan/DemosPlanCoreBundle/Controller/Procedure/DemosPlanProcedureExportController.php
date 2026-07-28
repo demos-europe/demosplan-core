@@ -38,7 +38,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
      * @throws MessageBagException
      */
     #[DplanPermissions('area_public_participation')]
-    #[Route(name: 'DemosPlan_title_page_export.tex.twig', path: '/verfahren/{procedure}/titlepage/export')]
+    #[Route(path: '/verfahren/{procedure}/titlepage/export', name: 'DemosPlan_title_page_export.tex.twig')]
     public function titlePageExport(
         CurrentUserInterface $currentUser,
         PermissionsInterface $permissions,
@@ -82,7 +82,7 @@ class DemosPlanProcedureExportController extends DemosPlanProcedureController
      * @throws Exception
      */
     #[DplanPermissions(['area_main_procedures', 'area_admin_invitable_institution'])]
-    #[Route(name: 'DemosPlan_procedure_member_index_pdf', path: '/verfahren/{procedure}/einstellungen/benutzer/pdf', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedure}/einstellungen/benutzer/pdf', name: 'DemosPlan_procedure_member_index_pdf', options: ['expose' => true])]
     public function administrationMemberListPdf(
         CurrentProcedureService $currentProcedureService,
         ExportService $exportService,

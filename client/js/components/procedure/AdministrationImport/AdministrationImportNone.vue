@@ -20,6 +20,7 @@ export default {
 
   render () {
     const DpInlineNotification = resolveComponent('dp-inline-notification')
+
     return () => h(DpInlineNotification, {
       props: {
         message: Translator.trans('import.options.none'),

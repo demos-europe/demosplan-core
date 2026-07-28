@@ -247,7 +247,7 @@ final class OrgaResourceType extends DplanResourceType implements OrgaResourceTy
                 }
 
                 // If no relevant roles found, permission cannot exist
-                if (empty($relevantRoleCodes)) {
+                if ([] === $relevantRoleCodes) {
                     return false;
                 }
 

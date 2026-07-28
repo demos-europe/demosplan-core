@@ -296,7 +296,7 @@ class DocumentHandler extends CoreHandler
             $keys = array_keys($sessionElementImportList, $entryPath);
             if (is_array($keys)
                 && isset($request[$keys[0]])
-                && 0 < strlen((string) $request[$keys[0]])
+                && '' !== (string) $request[$keys[0]]
             ) {
                 $fileName = $request[$keys[0]]; // here the name is taken from the request
                 // Also ensure the string from request is properly encoded to UTF-8

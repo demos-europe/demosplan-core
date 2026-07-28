@@ -85,6 +85,7 @@ export default {
   components: {
     DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
+
       return DpInlineNotification
     }),
     DpLoading,
@@ -112,6 +113,7 @@ export default {
   computed: {
     versionHistoryHeading () {
       let entityKey
+
       switch (this.entity) {
         case 'statement':
           if (this.externId.includes('GM')) {
@@ -119,6 +121,7 @@ export default {
           } else {
             entityKey = Translator.trans('statement')
           }
+
           break
         case 'fragment':
           entityKey = Translator.trans('fragment')
@@ -148,6 +151,7 @@ export default {
           { statementFragmentId: id, procedureId: this.procedureId }
 
       this.entityId = id
+
       return dpApi({
         method: 'GET',
         url: Routing.generate(route, params),

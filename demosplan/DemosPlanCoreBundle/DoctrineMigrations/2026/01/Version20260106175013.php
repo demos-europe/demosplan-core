@@ -161,7 +161,7 @@ class Version20260106175013 extends AbstractMigration
         $this->write(sprintf('Entries marked for deletion: %d / %d', count($toDelete), $totalEntries));
         $this->write('');
 
-        if (!empty($deletionReasons['orga_not_accepted'])) {
+        if (isset($deletionReasons['orga_not_accepted']) && [] !== $deletionReasons['orga_not_accepted']) {
             $this->write(sprintf('Reason: Organization not accepted in customer (%d entries):', count($deletionReasons['orga_not_accepted'])));
             foreach ($deletionReasons['orga_not_accepted'] as $entry) {
                 $this->write(sprintf(
@@ -177,7 +177,7 @@ class Version20260106175013 extends AbstractMigration
             $this->write('');
         }
 
-        if (!empty($deletionReasons['role_mismatch'])) {
+        if (isset($deletionReasons['role_mismatch']) && [] !== $deletionReasons['role_mismatch']) {
             $this->write(sprintf('Reason: Role does not match organization types (%d entries):', count($deletionReasons['role_mismatch'])));
             foreach ($deletionReasons['role_mismatch'] as $entry) {
                 $this->write(sprintf(
@@ -196,7 +196,7 @@ class Version20260106175013 extends AbstractMigration
         }
 
         // Delete invalid entries
-        if (!empty($toDelete)) {
+        if ([] !== $toDelete) {
             $this->write('Deleting invalid entries...');
 
             // Delete in batches to avoid issues with large datasets

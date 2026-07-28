@@ -43,4 +43,8 @@ return [
     League\FlysystemBundle\FlysystemBundle::class                                      => ['all' => true],
     Scheb\TwoFactorBundle\SchebTwoFactorBundle::class                                  => ['all' => true],
     Endroid\QrCodeBundle\EndroidQrCodeBundle::class                                    => ['all' => true],
+    Nelmio\CorsBundle\NelmioCorsBundle::class                                          => ['all' => true],
+    ApiPlatform\Symfony\Bundle\ApiPlatformBundle::class                                => ['all' => true],
+    Enqueue\Bundle\EnqueueBundle::class                                                => ['all' => true],
+    Enqueue\ElasticaBundle\EnqueueElasticaBundle::class                                => ['all' => true],
 ];

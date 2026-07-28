@@ -238,7 +238,7 @@
                 {% else %}
 
                     {# If procedure has phase "Beteiligung in Vorbereitung", display a hint to participants if a procedure will soon be open to participation #}
-                    {% if getProcedurePhaseKey(proceduresettings, 'public') == 'preparation' or getProcedurePhaseKey(proceduresettings) == 'preparation' %}
+                    {% if isPreparationPhase(proceduresettings, 'public') or isPreparationPhase(proceduresettings) %}
 
                         {% if context == 'map' %}
                             {{ 'actionbox.map.announce'|trans({ roles: 'actionbox.roles.all'|trans }) }}

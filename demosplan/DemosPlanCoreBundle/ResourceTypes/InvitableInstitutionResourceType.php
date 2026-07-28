@@ -16,15 +16,19 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
-use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BaseOrgaResourceConfigBuilder;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
+use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\OrgaResourceConfigBuilder;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use Doctrine\Common\Collections\ArrayCollection;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\ApiDocumentation\DefaultInclude;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
+use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToMany\CallbackToManyRelationshipSetBehavior;
 
 /**
@@ -32,6 +36,11 @@ use EDT\Wrapping\PropertyBehavior\Relationship\ToMany\CallbackToManyRelationship
  */
 final class InvitableInstitutionResourceType extends DplanResourceType
 {
+    public function __construct(
+        private readonly CustomFieldValueCreator $customFieldValueCreator,
+    ) {
+    }
+
     public static function getName(): string
     {
         return 'InvitableInstitution';
@@ -61,7 +70,10 @@ final class InvitableInstitutionResourceType extends DplanResourceType
 
     public function isUpdateAllowed(): bool
     {
-        return $this->currentUser->hasPermission('feature_institution_tag_assign');
+        return $this->currentUser->hasAnyPermissions(
+            'feature_institution_tag_assign',
+            'feature_organisations_custom_fields'
+        );
     }
 
     protected function getAccessConditions(): array
@@ -91,8 +103,8 @@ final class InvitableInstitutionResourceType extends DplanResourceType
 
     protected function getProperties(): ResourceConfigBuilderInterface
     {
-        /** @var BaseOrgaResourceConfigBuilder $configBuilder */
-        $configBuilder = $this->getConfig(BaseOrgaResourceConfigBuilder::class);
+        /** @var OrgaResourceConfigBuilder $configBuilder */
+        $configBuilder = $this->getConfig(OrgaResourceConfigBuilder::class);
 
         // Add identifier property
         $configBuilder->id->setReadableByPath();
@@ -144,6 +156,32 @@ final class InvitableInstitutionResourceType extends DplanResourceType
                     []
                 )
             );
+        }
+
+        if ($this->currentUser->hasPermission('feature_organisations_custom_fields')) {
+            $configBuilder->customFields
+                ->setReadableByCallable(
+                    static fn (Orga $orga): ?array => $orga->getCustomFields()?->toJson()
+                )
+                ->addUpdateBehavior(
+                    new CallbackAttributeSetBehaviorFactory(
+                        [],
+                        function (Orga $orga, array $customFields): array {
+                            $customFieldList = $orga->getCustomFields() ?? new CustomFieldValuesList();
+                            $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues(
+                                $customFieldList,
+                                $customFields,
+                                $this->currentCustomerService->getCurrentCustomer()->getId(),
+                                CustomFieldSupportedEntity::customer->value,
+                                CustomFieldSupportedEntity::orga->value,
+                            );
+                            $orga->setCustomFields($customFieldList);
+
+                            return [];
+                        },
+                        OptionalField::YES,
+                    )
+                );
         }
 
         return $configBuilder;

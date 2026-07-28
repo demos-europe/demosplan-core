@@ -479,6 +479,7 @@ export default {
         // If child is also a category, recursively sync its children
         if (child.type === 'GisLayerCategory') {
           const nestedResult = this.syncChildrenOfCategoryThatAppearsAsLayer(child.id)
+
           ungroupedLayers.push(...nestedResult.ungroupedLayers)
           nestedResult.affectedGroupIds.forEach(groupId => affectedGroupIds.add(groupId))
         }
@@ -597,6 +598,7 @@ export default {
         ].join(),
       },
     }
+
     this.getLayers(payload)
       .then(() => {
         this.isLoading = false

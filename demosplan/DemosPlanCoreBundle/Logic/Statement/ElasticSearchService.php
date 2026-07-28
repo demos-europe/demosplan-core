@@ -25,6 +25,7 @@ use Elastica\Query\BoolQuery;
 use Elastica\Query\Exists;
 use Elastica\Query\QueryString;
 use Elastica\Query\Terms;
+use Elastica\SearchableInterface;
 use Exception;
 
 use function array_key_exists;
@@ -47,6 +48,70 @@ class ElasticSearchService
         private readonly UserService $userService,
         private readonly ProfilerService $profilerService,
     ) {
+    }
+
+    /**
+     * Retrieves every hit matching the query by paging with Elasticsearch `search_after`, instead
+     * of a single from+size request that would require an inflated index.max_result_window.
+     *
+     * The accumulated result keeps the exact shape downstream code expects from a normal search
+     * response: ['hits' => ['total' => ['value' => N, ...], 'hits' => [...all hit docs...]]].
+     * Aggregations are computed once (from the first batch) and dropped from subsequent batches.
+     *
+     * The passed $query is mutated (from/size/sort/track_total_hits/search_after); pass a query
+     * that is not reused afterwards.
+     *
+     * @return array{result: array, aggregations: array}
+     */
+    public function fetchAllHitsViaSearchAfter(
+        SearchableInterface $search,
+        Query $query,
+        int $batchSize,
+    ): array {
+        // search_after needs a deterministic total order; append the unique `id` as tiebreaker.
+        $query->addSort(['id' => 'asc']);
+        // Without this ES caps the reported total at 10000, which would corrupt the hit count.
+        $query->setTrackTotalHits(true);
+        $query->setFrom(0);
+        $query->setSize($batchSize);
+
+        $allHits = [];
+        $firstData = ['hits' => ['total' => ['value' => 0], 'hits' => []]];
+        $aggregations = [];
+        $searchAfter = null;
+        $isFirstBatch = true;
+
+        do {
+            if (null !== $searchAfter) {
+                $query->setParam('search_after', $searchAfter);
+            }
+
+            $resultSet = $search->search($query);
+            $data = $resultSet->getResponse()->getData();
+            $batchHits = $data['hits']['hits'] ?? [];
+
+            if ($isFirstBatch) {
+                $firstData = $data;
+                $aggregations = $resultSet->getAggregations();
+                $isFirstBatch = false;
+                // Aggregations are needed only once; drop them so ES does not recompute per batch.
+                $query->setParams(array_diff_key($query->getParams(), ['aggs' => null]));
+            }
+
+            foreach ($batchHits as $hit) {
+                $allHits[] = $hit;
+            }
+
+            $lastHit = end($batchHits);
+            $searchAfter = (false !== $lastHit && isset($lastHit['sort'])) ? $lastHit['sort'] : null;
+        } while (count($batchHits) === $batchSize && null !== $searchAfter);
+
+        // Total comes from the first batch (accurate thanks to track_total_hits); replace the
+        // single-batch hit slice with the full accumulated set.
+        $result = $firstData;
+        $result['hits']['hits'] = $allHits;
+
+        return ['result' => $result, 'aggregations' => $aggregations];
     }
 
     /**

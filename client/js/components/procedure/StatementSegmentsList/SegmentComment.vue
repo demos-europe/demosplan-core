@@ -60,10 +60,12 @@ export default {
     place () {
       if (this.comment && this.comment?.relationships?.place?.data && Object.keys(this.comment.relationships.place.data).length) {
         const place = this.comment.rel('place')
+
         if (place.attributes.name) {
           return place.attributes.name
         }
       }
+
       return Translator.trans('workflow.place.deleted')
     },
 
@@ -88,6 +90,7 @@ export default {
           return `${submitter.attributes.firstname} ${submitter.attributes.lastname}`
         }
       }
+
       return Translator.trans('user.deleted')
     },
   },

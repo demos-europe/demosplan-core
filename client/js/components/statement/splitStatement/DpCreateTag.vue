@@ -231,6 +231,7 @@ export default {
      */
     handleError () {
       let hasError = false
+
       if (this.tagExists) {
         hasError = true
         this.$refs.tagInput.$el.classList.add('border--error')
@@ -256,6 +257,7 @@ export default {
       if (this.tagTopic.title === '' && this.showSelect) {
         hasError = true
         const activeInput = this.$refs.tagTopicSelect
+
         activeInput.$el.classList.add('border--error')
         activeInput.$el.addEventListener('input', () => {
           if (this.tagTopic.title !== '') {
@@ -297,7 +299,9 @@ export default {
     },
 
     save () {
-      if (this.handleError()) return
+      if (this.handleError()) {
+        return
+      }
 
       const isNewTopic = this.tagTopic.id === ''
 

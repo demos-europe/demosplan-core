@@ -54,6 +54,7 @@ describe('DpPublicLayerListCategory', () => {
 
   it.skip('should compute the contextualHelp-ID correctly', () => {
     const layerfromStoreMock = jest.fn()
+
     layerfromStoreMock.mockReturnValue([{
       layers: [],
       unfolded: false,
@@ -94,6 +95,7 @@ describe('DpPublicLayerListCategory', () => {
 
   it.skip('should compute the isTopLevelCategory correct', () => {
     const layerfromStoreMock = jest.fn()
+
     layerfromStoreMock.mockReturnValue([{
       layers: [],
       unfolded: false,
@@ -229,7 +231,9 @@ describe('DpPublicLayerListCategory', () => {
     const wrapper = shallowMountWithGlobalMocks(DpPublicLayerListCategory, {
       propsData,
       computed: {
-        elementListForLayerSidebar: () => { return () => [] },
+        elementListForLayerSidebar: () => {
+          return () => []
+        },
         layers: () => [],
       },
       stubs: {
@@ -238,6 +242,7 @@ describe('DpPublicLayerListCategory', () => {
     })
 
     const component = wrapper.vm
+
     expect(typeof component.elementListForLayerSidebar).toBe('function')
     expect(component.isParentOf(elementList, 'ccc')).toBe(true)
     expect(component.isParentOf(elementList, 'eee')).toBe(false)

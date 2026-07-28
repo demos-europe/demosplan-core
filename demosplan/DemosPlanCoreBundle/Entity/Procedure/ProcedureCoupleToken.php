@@ -15,42 +15,37 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureCoupleTokenInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\ProcedureInCoupleAlreadyUsedConstraint;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureCoupleTokenRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\ProcedureCoupleTokenRepository")
- *
  * @ProcedureInCoupleAlreadyUsedConstraint()
  */
+#[ORM\Entity(repositoryClass: ProcedureCoupleTokenRepository::class)]
 class ProcedureCoupleToken implements UuidEntityInterface, ProcedureCoupleTokenInterface
 {
     final public const TOKEN_LENGTH = 12;
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * The procedure the {@link ProcedureCoupleToken::token} was generated for.
      *
      * @var Procedure
-     *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
-     *
-     * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=false, unique=true)
      */
     #[Assert\NotNull(message: 'procedureCoupleToken.sourceProceudre.not.null')]
+    #[ORM\JoinColumn(referencedColumnName: '_p_id', unique: true, nullable: false)]
+    #[ORM\OneToOne(targetEntity: Procedure::class)]
     protected $sourceProcedure;
 
     /**
@@ -58,20 +53,17 @@ class ProcedureCoupleToken implements UuidEntityInterface, ProcedureCoupleTokenI
      * {@link ProcedureCoupleToken::$sourceProcedure}.
      *
      * @var Procedure|null
-     *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
-     *
-     * @ORM\JoinColumn(referencedColumnName="_p_id", nullable=true, unique=true)
      */
+    #[ORM\JoinColumn(referencedColumnName: '_p_id', unique: true, nullable: true)]
+    #[ORM\OneToOne(targetEntity: Procedure::class)]
     protected $targetProcedure;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", length=12, nullable=false, unique=true, options={"fixed":true})
      */
-    #[Assert\Length(max: ProcedureCoupleToken::TOKEN_LENGTH, min: ProcedureCoupleToken::TOKEN_LENGTH, normalizer: 'trim')]
+    #[Assert\Length(min: ProcedureCoupleToken::TOKEN_LENGTH, max: ProcedureCoupleToken::TOKEN_LENGTH, normalizer: 'trim')]
     #[Assert\NotBlank(message: 'procedureCoupleToken.token.invalid', allowNull: false, normalizer: 'trim')]
+    #[ORM\Column(type: 'string', length: 12, unique: true, nullable: false, options: ['fixed' => true])]
     protected $token;
 
     public function __construct(Procedure $sourceProcedure, string $token)

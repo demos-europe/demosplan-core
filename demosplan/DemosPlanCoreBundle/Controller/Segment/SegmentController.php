@@ -47,7 +47,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 class SegmentController extends BaseController
 {
     #[DplanPermissions('area_statement_segmentation')]
-    #[Route(name: 'dplan_segments_list', methods: 'GET', path: '/verfahren/{procedureId}/abschnitte', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedureId}/abschnitte', name: 'dplan_segments_list', options: ['expose' => true], methods: 'GET')]
     public function list(string $procedureId, HashedQueryService $filterSetService): RedirectResponse
     {
         $segmentListQuery = new SegmentListQuery();
@@ -67,7 +67,7 @@ class SegmentController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('feature_segments_of_statement_list')]
-    #[Route(name: 'dplan_statement_segments_list', methods: 'GET', path: '/verfahren/{procedureId}/{statementId}/abschnitte', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedureId}/{statementId}/abschnitte', name: 'dplan_statement_segments_list', options: ['expose' => true], methods: 'GET')]
     public function statementSpecificList(
         CurrentUserInterface $currentUser,
         CurrentProcedureService $currentProcedureService,
@@ -129,7 +129,7 @@ class SegmentController extends BaseController
      * Get the position of a segment within its parent statement.
      */
     #[DplanPermissions('feature_segments_of_statement_list')]
-    #[Route(name: 'dplan_segment_position', methods: 'GET', path: '/api/segment/{segmentId}/position/{statementId}', options: ['expose' => true])]
+    #[Route(path: '/api/segment/{segmentId}/position/{statementId}', name: 'dplan_segment_position', options: ['expose' => true], methods: 'GET')]
     public function getSegmentPosition(
         string $segmentId,
         string $statementId,
@@ -169,7 +169,7 @@ class SegmentController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('feature_segments_import_excel')]
-    #[Route(name: 'dplan_segments_process_import', methods: 'POST', path: '/verfahren/{procedureId}/abschnitte/speichern', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedureId}/abschnitte/speichern', name: 'dplan_segments_process_import', options: ['expose' => true], methods: 'POST')]
     public function importSegmentsFromXlsx(
         CurrentProcedureService $currentProcedureService,
         CurrentUserInterface $currentUser,
@@ -253,18 +253,14 @@ class SegmentController extends BaseController
      * List all import jobs for a procedure.
      */
     #[DplanPermissions('area_statement_segmentation')]
-    #[Route(
-        name: 'dplan_import_jobs_list',
-        path: '/verfahren/{procedureId}/import/jobs',
-        methods: ['GET']
-    )]
+    #[Route(path: '/verfahren/{procedureId}/import/jobs', name: 'dplan_import_jobs_list', methods: ['GET'])]
     public function listImportJobs(
         CurrentProcedureService $currentProcedureService,
         string $procedureId,
     ): Response {
         $procedure = $currentProcedureService->getProcedure();
 
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             throw ProcedureNotFoundException::createFromId($procedureId);
         }
 
@@ -282,12 +278,7 @@ class SegmentController extends BaseController
      * Returns last 20 jobs only (no pagination needed).
      */
     #[DplanPermissions('area_statement_segmentation')]
-    #[Route(
-        name: 'dplan_import_jobs_api',
-        path: '/verfahren/{procedureId}/import/jobs/api',
-        methods: ['GET'],
-        options: ['expose' => true]
-    )]
+    #[Route(path: '/verfahren/{procedureId}/import/jobs/api', name: 'dplan_import_jobs_api', options: ['expose' => true], methods: ['GET'])]
     public function getImportJobsApi(
         CurrentProcedureService $currentProcedureService,
         CurrentUserInterface $currentUser,
@@ -296,7 +287,7 @@ class SegmentController extends BaseController
     ): JsonResponse {
         $procedure = $currentProcedureService->getProcedure();
 
-        if (null === $procedure) {
+        if (!$procedure instanceof Procedure) {
             return $this->json(['error' => 'Procedure not found'], 404);
         }
 
@@ -323,7 +314,7 @@ class SegmentController extends BaseController
     }
 
     #[DplanPermissions('area_statement_segmentation')]
-    #[Route(name: 'dplan_segments_list_by_query_hash', methods: 'GET', path: '/verfahren/{procedureId}/abschnitte/{queryHash}', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedureId}/abschnitte/{queryHash}', name: 'dplan_segments_list_by_query_hash', options: ['expose' => true], methods: 'GET')]
     public function listFiltered(
         string $procedureId,
         string $queryHash,
@@ -352,7 +343,7 @@ class SegmentController extends BaseController
     }
 
     #[DplanPermissions('area_statement_segmentation')]
-    #[Route(name: 'dplan_segment_delete', path: '/verfahren/{procedureId}/abschnitt/{segmentId}/delete', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedureId}/abschnitt/{segmentId}/delete', name: 'dplan_segment_delete', options: ['expose' => true])]
     public function deleteSegmentAction(
         string $procedureId,
         string $segmentId,

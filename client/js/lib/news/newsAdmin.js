@@ -25,6 +25,7 @@ function toggleCaptionInput (fieldName, show) {
   }
 
   const selectCaptionId = document.getElementById(captionId)
+
   if (selectCaptionId) {
     if (show) {
       selectCaptionId.parentNode.classList.remove('hidden')
@@ -47,12 +48,15 @@ function toggleCaptionInput (fieldName, show) {
 export default function newsAdminInit () {
   // On paste remove line breaks from copied text, because in IE11 there are empty lines added and it is impossible to paste something to input fields (only empty line gets pasted)
   const inputs = []
+
   if (document.querySelector('[name="r_title"]')) {
     inputs.push(document.querySelector('[name="r_title"]'))
   }
+
   if (document.querySelector('[name="r_pictitle"]')) {
     inputs.push(document.querySelector('[name="r_pictitle"]'))
   }
+
   if (document.querySelector('[name="r_pdftitle"]')) {
     inputs.push(document.querySelector('[name="r_pdftitle"]'))
   }
@@ -65,6 +69,7 @@ export default function newsAdminInit () {
         const text = clipboardData.getData('text')
         const newText = text.replace(/[\r\n]/g, '')
         const initialValue = e.target.value
+
         e.target.value = initialValue.substring(0, input.selectionStart) + newText + initialValue.substring(input.selectionEnd)
       })
     })
@@ -74,6 +79,7 @@ export default function newsAdminInit () {
   if (document.getElementById('news_picture') === null) {
     toggleCaptionInput('r_picture', false)
   }
+
   if (document.getElementById('news_pdf') === null) {
     toggleCaptionInput('r_pdf', false)
   }

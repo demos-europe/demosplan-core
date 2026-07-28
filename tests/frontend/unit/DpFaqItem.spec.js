@@ -91,6 +91,7 @@ describe('DpFaqItem', () => {
     })
 
     const deleteButton = wrapper.find('[data-cy="deleteFaqItem"]')
+
     await deleteButton.trigger('click')
     await flushPromises()
 

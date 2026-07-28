@@ -261,6 +261,7 @@ export default {
     DpMultiselect,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
+
       return DpEditor
     }),
   },
@@ -282,7 +283,9 @@ export default {
     filterHash: {
       required: false,
       type: String,
-      default: () => { return '' },
+      default: () => {
+        return ''
+      },
     },
 
     procedureId: {
@@ -326,11 +329,13 @@ export default {
     // Array with keys (names) of all checked options
     checkedOptions () {
       const checkedOptions = []
+
       Object.keys(this.options).forEach(key => {
         if (this.options[key].checked) {
           checkedOptions.push(key)
         }
       })
+
       return checkedOptions
     },
 
@@ -355,7 +360,9 @@ export default {
 
     selectedFragmentsIds () {
       const ids = []
+
       Object.keys(this.selectedFragments).forEach((elem) => ids.push(elem))
+
       return ids
     },
   },
@@ -370,6 +377,7 @@ export default {
     toggleMode (mode) {
       if (this.checkedOptions.length < 1) {
         dplan.notify.error(Translator.trans('actions.choose'))
+
         return
       }
 
@@ -379,6 +387,7 @@ export default {
 
       if (mode === 'confirm') {
         let allCheckedValid = true
+
         // Perform validation
         this.checkedOptions.forEach(opt => {
           const optionElem = this.$refs[opt].$el.querySelector(this.options[opt].elementToReceiveErrorBorder)
@@ -423,6 +432,7 @@ export default {
           relationships: this.payloadRelationships,
         },
       }
+
       return dpApi.post(Routing.generate('dplan_api_assessment_table_statement_fragment_update_create'),
         {}, payload)
         .then(() => {
@@ -436,6 +446,7 @@ export default {
           this.isError = true
           // Display error messages from response
           const errorMeta = error.response.data.meta
+
           if (hasOwnProp(errorMeta, 'messages')) {
             for (const type in errorMeta.messages) {
               for (const message in errorMeta.messages[type]) {

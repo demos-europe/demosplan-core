@@ -51,6 +51,16 @@
     },
     {
         "license": "MIT",
+        "package": "doctrine/data-fixtures",
+        "website": "https://github.com/doctrine/data-fixtures"
+    },
+    {
+        "license": "MIT",
+        "package": "doctrine/dbal",
+        "website": "https://github.com/doctrine/dbal"
+    },
+    {
+        "license": "MIT",
         "package": "doctrine/doctrine-bundle",
         "website": "https://github.com/doctrine/DoctrineBundle"
     },
@@ -103,6 +113,11 @@
         "license": "MIT",
         "package": "endroid/qr-code-bundle",
         "website": "https://github.com/endroid/qr-code-bundle"
+    },
+    {
+        "license": "MIT",
+        "package": "enqueue/elastica-bundle",
+        "website": "https://github.com/php-enqueue/enqueue-elastica-bundle"
     },
     {
         "license": "MIT",
@@ -243,6 +258,11 @@
         "license": "MIT",
         "package": "masterminds/html5",
         "website": "https://github.com/Masterminds/html5-php"
+    },
+    {
+        "license": "MIT",
+        "package": "nelmio/cors-bundle",
+        "website": "https://github.com/nelmio/NelmioCorsBundle"
     },
     {
         "license": "MIT",

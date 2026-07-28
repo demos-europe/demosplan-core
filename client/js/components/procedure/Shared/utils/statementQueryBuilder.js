@@ -37,8 +37,10 @@ export function buildDetailedStatementQuery (statementId, options = {}) {
     'counties',
     'document',
     'elements',
+    'externId',
     'fullText',
     'genericAttachments',
+    'headStatement',
     'initialOrganisationCity',
     'initialOrganisationDepartmentName',
     'initialOrganisationHouseNumber',
@@ -46,6 +48,7 @@ export function buildDetailedStatementQuery (statementId, options = {}) {
     'initialOrganisationPostalCode',
     'initialOrganisationStreet',
     'internId',
+    'isCluster',
     'isManual',
     'isSubmittedByCitizen',
     'memo',
@@ -56,7 +59,6 @@ export function buildDetailedStatementQuery (statementId, options = {}) {
     'paragraphVersion',
     'polygon',
     'priorityAreas',
-    'procedurePhase',
     'publicVerified',
     'publicVerifiedTranslation',
     'recommendation',
@@ -76,7 +78,7 @@ export function buildDetailedStatementQuery (statementId, options = {}) {
 
   // Add permission-based fields
   if (hasPermission('field_statement_phase')) {
-    statementFields.push('availableProcedurePhases')
+    statementFields.push('availableProcedurePhases', 'procedurePhase')
   }
 
   if (hasPermission('area_statement_segmentation')) {
@@ -115,6 +117,9 @@ export function buildDetailedStatementQuery (statementId, options = {}) {
     ].join(),
     ParagraphVersion: [
       'title',
+    ].join(),
+    ProcedurePhaseDefinition: [
+      'name',
     ].join(),
     SingleDocument: [
       'title',
@@ -162,8 +167,10 @@ export function buildDetailedStatementQuery (statementId, options = {}) {
     'elements',
     'genericAttachments',
     'genericAttachments.file',
+    'headStatement',
     'paragraph',
     'paragraphVersion.paragraph',
+    'procedurePhase',
     'sourceAttachment',
     'sourceAttachment.file',
   ]

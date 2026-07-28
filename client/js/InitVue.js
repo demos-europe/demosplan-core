@@ -53,12 +53,15 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
 
         // This is a quickfix until https://yaits.demos-deutschland.de/T25443 arrives
         const flyoutMenuElement = document.querySelector('#jumpNavigation [data-actionmenu]')
+
         if (flyoutMenuElement) {
           const flyoutMenuWidth = flyoutMenuElement.offsetWidth + 20
+
           document.querySelector('#jumpNavigation').setAttribute('style', 'padding-right: ' + flyoutMenuWidth + 'px')
         }
 
         const mountedEvent = new Event('vue-mounted')
+
         document.dispatchEvent(mountedEvent)
         setTimeout(() => {
           window.mounted = true

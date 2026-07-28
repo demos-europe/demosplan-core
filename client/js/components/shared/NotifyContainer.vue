@@ -77,12 +77,14 @@ export default {
           let i = 0
           const l = messages.length
           let message
+
           for (; i < l; i++) {
             message = messages[i]
             // Support legacy messages
             if (typeof message === 'string') {
               message = { message }
             }
+
             this.add({
               type,
               text: message.message || '',
@@ -92,7 +94,10 @@ export default {
           }
         }
       }
-      document.addEventListener('visibilitychange', () => { this.isVisible = !document.hidden })
+
+      document.addEventListener('visibilitychange', () => {
+        this.isVisible = !document.hidden
+      })
     },
 
     removeMessage (message) {

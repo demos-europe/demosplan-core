@@ -243,8 +243,24 @@ export default {
 
       const initialAttributes = this.statement.attributes
       const currentAttributes = this.localStatement.attributes
+      const isDifferent = (a, b) => (a ?? '') !== (b ?? '')
 
-      return JSON.stringify(currentAttributes) !== JSON.stringify(initialAttributes)
+      const stringFields = [
+        'initialOrganisationDepartmentName',
+        'initialOrganisationName',
+        'authorName',
+        'submitName',
+        'submitterEmailAddress',
+        'initialOrganisationStreet',
+        'initialOrganisationHouseNumber',
+        'initialOrganisationPostalCode',
+        'initialOrganisationCity',
+      ]
+
+      return [
+        ...stringFields.map(field => isDifferent(currentAttributes[field], initialAttributes[field])),
+        Boolean(currentAttributes.representationChecked) !== Boolean(initialAttributes.representationChecked),
+      ].some(Boolean)
     },
 
     isStatementManual () {
@@ -255,12 +271,14 @@ export default {
       if (typeof this.statement.hasRelationship === 'function' && this.statement.hasRelationship('similarStatementSubmitters')) {
         return Object.values(this.statement.relationships.similarStatementSubmitters.list())
       }
+
       return null
     },
 
     statementSubmitterField () {
       const attr = this.localStatement.attributes
       let submitterField = 'authorName'
+
       // If submitter is an orga and name has a value
       if (attr.submitName && !attr.isSubmittedByCitizen) {
         submitterField = 'submitName'
@@ -327,6 +345,7 @@ export default {
 
     save () {
       const attrs = this.localStatement.attributes
+
       this.$emit('save', {
         attributes: {
           initialOrganisationDepartmentName: attrs.initialOrganisationDepartmentName,

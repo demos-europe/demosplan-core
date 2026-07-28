@@ -45,6 +45,7 @@ use demosplan\DemosPlanCoreBundle\Form\BoilerplateType;
 use demosplan\DemosPlanCoreBundle\Form\ProcedureFormType;
 use demosplan\DemosPlanCoreBundle\Form\ProcedureTemplateFormType;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
+use demosplan\DemosPlanCoreBundle\Logic\CurrentContextProvider;
 use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
@@ -59,6 +60,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureCategoryService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput as ProcedureServiceOutput;
@@ -83,6 +85,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureTypeResourceType;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
@@ -163,6 +166,8 @@ class DemosPlanProcedureController extends BaseController
         private readonly ProcedureTypeResourceType $procedureTypeResourceType,
         private readonly SortMethodFactory $sortMethodFactory,
         private readonly CurrentProcedureService $currentProcedureService,
+        private readonly ProcedurePhaseDefinitionService $procedurePhaseDefinitionService,
+        private readonly CurrentContextProvider $currentContextProvider,
     ) {
         $this->procedureServiceOutput = $procedureServiceOutput;
         $this->procedureService = $procedureService;
@@ -175,7 +180,7 @@ class DemosPlanProcedureController extends BaseController
      * @param string                             $procedure
      */
     #[DplanPermissions('area_demosplan')]
-    #[Route(name: 'DemosPlan_procedure_entrypoint', path: '/verfahren/{procedure}/entrypoint')]
+    #[Route(path: '/verfahren/{procedure}/entrypoint', name: 'DemosPlan_procedure_entrypoint')]
     public function procedureEntrypoint(GlobalConfigInterface $globalConfig, $procedure): RedirectResponse
     {
         $route = $globalConfig->getProcedureEntrypointRoute();
@@ -230,7 +235,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_admin_dashboard')]
-    #[Route(name: 'DemosPlan_procedure_dashboard', path: '/verfahren/{procedure}/uebersicht', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedure}/uebersicht', name: 'DemosPlan_procedure_dashboard', options: ['expose' => true])]
     public function procedureDashboard(
         CurrentUserService $currentUserService,
         PermissionsInterface $permissions,
@@ -641,7 +646,7 @@ class DemosPlanProcedureController extends BaseController
                 'r_autoSwitch',
                 'r_autoSwitchPublic',
                 'r_coordinate',
-                'r_currentPublicParticipationPhase',
+                'r_currentPublicParticipationPhaseDefinitionId',
                 'r_customerMasterBlueprint',
                 'r_dataInputOrga',
                 'r_deletePictogram',
@@ -665,7 +670,7 @@ class DemosPlanProcedureController extends BaseController
                 'r_municipalCode',
                 'r_name',
                 'r_oldSlug',
-                'r_phase',
+                'r_phaseDefinitionId',
                 'r_pictogram',
                 'r_pictogramCopyright',
                 'r_pictogramAltText',
@@ -673,11 +678,12 @@ class DemosPlanProcedureController extends BaseController
                 'r_publicParticipation',
                 'r_publicParticipationContact',
                 'r_publicParticipationEndDate',
-                'r_publicParticipationPhase',
+                'r_publicParticipationPhaseDefinitionId',
                 'r_publicParticipationPublicationEnabled',
                 'r_publicParticipationFeedbackEnabled',
                 'allowAnonymousStatements',
                 'expandProcedureDescription',
+                'r_allowUninvitedInstitutions',
                 'r_publicParticipationStartDate',
                 'r_sendMailsToCounties',
                 'r_shortUrl',
@@ -723,7 +729,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('feature_admin_new_procedure')]
-    #[Route(name: 'DemosPlan_procedure_new', path: '/verfahren/neu', options: ['expose' => true])]
+    #[Route(path: '/verfahren/neu', name: 'DemosPlan_procedure_new', options: ['expose' => true])]
     public function newProcedure(
         Breadcrumb $breadcrumb,
         CurrentUserInterface $currentUser,
@@ -812,7 +818,7 @@ class DemosPlanProcedureController extends BaseController
             [
                 'templateVars' => $templateVars,
                 'title'        => $translator->trans('procedure.new', [], 'page-title'),
-                'form'         => $form->createView(),
+                'form'         => $form,
             ]
         );
     }
@@ -823,7 +829,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_admin_procedure_templates')]
-    #[Route(name: 'DemosPlan_master_new', path: '/verfahren/blaupausen/neu', options: ['expose' => true])]
+    #[Route(path: '/verfahren/blaupausen/neu', name: 'DemosPlan_master_new', options: ['expose' => true])]
     public function newProcedureTemplate(
         Breadcrumb $breadcrumb,
         CurrentUserInterface $currentUser,
@@ -912,7 +918,7 @@ class DemosPlanProcedureController extends BaseController
             [
                 'templateVars' => $templateVars,
                 'title'        => $translator->trans('procedure.master.new', [], 'page-title'),
-                'form'         => $form->createView(),
+                'form'         => $form,
             ]
         );
     }
@@ -927,7 +933,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions(['area_main_procedures', 'area_admin_invitable_institution'])]
-    #[Route(name: 'DemosPlan_procedure_member_add_mastertoeblist', path: '/verfahren/{procedure}/einstellungen/benutzer/hinzufuegen/mastertoeblist', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedure}/einstellungen/benutzer/hinzufuegen/mastertoeblist', name: 'DemosPlan_procedure_member_add_mastertoeblist', options: ['expose' => true])]
     public function administrationNewMemberListMastertoeblist(
         CurrentProcedureService $currentProcedureService,
         MasterToebService $masterToebService,
@@ -988,7 +994,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws MessageBagException
      */
     #[DplanPermissions('area_invite_unregistered_public_agencies')]
-    #[Route(name: 'DemosPlan_invite_unregistered_public_agency_email', path: '/verfahren/{procedureId}/einstellungen/unregistrierte_toeb_email')]
+    #[Route(path: '/verfahren/{procedureId}/einstellungen/unregistrierte_toeb_email', name: 'DemosPlan_invite_unregistered_public_agency_email')]
     public function administrationUnregisteredPublicAgencyEMail(
         AddressBookEntryService $addressBookEntryService,
         Request $request,
@@ -1060,7 +1066,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_invite_unregistered_public_agencies')]
-    #[Route(name: 'DemosPlan_invite_unregistered_public_agency_list', path: '/verfahren/{procedureId}/einstellungen/unregistrierte_toeb_liste')]
+    #[Route(path: '/verfahren/{procedureId}/einstellungen/unregistrierte_toeb_liste', name: 'DemosPlan_invite_unregistered_public_agency_list')]
     public function administrationUnregisteredPublicAgencyList(
         AddressBookEntryService $addressBookEntryService,
         CurrentUserService $currentUserService,
@@ -1107,7 +1113,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws Throwable
      */
     #[DplanPermissions(['area_main_procedures', 'area_admin_invitable_institution'])]
-    #[Route(name: 'DemosPlan_admin_member_email', path: '/verfahren/{procedureId}/einstellungen/mitglieder_email', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedureId}/einstellungen/mitglieder_email', name: 'DemosPlan_admin_member_email', options: ['expose' => true])]
     public function administrationMemberEMail(
         OrgaService $orgaService,
         Request $request,
@@ -1210,8 +1216,8 @@ class DemosPlanProcedureController extends BaseController
      * @throws TransactionRequiredException
      */
     #[DplanPermissions(['area_main_procedures', 'area_admin_preferences'])]
-    #[Route(name: 'DemosPlan_procedure_edit', path: '/verfahren/{procedure}/einstellungen', defaults: ['isMaster' => false])]
-    #[Route(name: 'DemosPlan_procedure_edit_master', path: '/verfahren/blaupause/{procedure}/einstellungen', defaults: ['isMaster' => true])]
+    #[Route(path: '/verfahren/{procedure}/einstellungen', name: 'DemosPlan_procedure_edit', defaults: ['isMaster' => false])]
+    #[Route(path: '/verfahren/blaupause/{procedure}/einstellungen', name: 'DemosPlan_procedure_edit_master', defaults: ['isMaster' => true])]
     public function administrationEdit(
         ContentService $contentService,
         CurrentUserService $currentUser,
@@ -1226,6 +1232,8 @@ class DemosPlanProcedureController extends BaseController
         MailService $mailService,
         ProcedureCategoryService $procedureCategoryService,
         ProcedureCoupleTokenFetcher $coupleTokenService,
+        ProcedurePhaseDefinitionRepository $procedurePhaseDefinitionRepository,
+        ProcedurePhaseDefinitionService $procedurePhaseDefinitionService,
         Request $request,
         ServiceStorage $serviceStorage,
         StatementService $statementService,
@@ -1333,10 +1341,11 @@ class DemosPlanProcedureController extends BaseController
                     $this->getMessageBag()->add('confirm', 'confirm.saved');
 
                     // Prüfe, ob eine Email an die Verfahrensabonnenten geschicht werden soll
-                    $publicParticipationPhase = $procedureAsArray['publicParticipationPhase'];
-                    if (isset($inData['r_currentPublicParticipationPhase']) && $publicParticipationPhase !== $inData['r_currentPublicParticipationPhase']) {
-                        $externalPhasesAssoc = $this->globalConfig->getExternalPhasesAssoc();
-                        if (isset($externalPhasesAssoc[$publicParticipationPhase]) && 'write' === $externalPhasesAssoc[$publicParticipationPhase]['permissionset']) {
+                    if (isset($inData['r_currentPublicParticipationPhaseDefinitionId'], $inData['r_publicParticipationPhaseDefinitionId'])
+                        && $inData['r_publicParticipationPhaseDefinitionId'] !== $inData['r_currentPublicParticipationPhaseDefinitionId']
+                    ) {
+                        $newExternalDefinition = $procedurePhaseDefinitionRepository->find($inData['r_publicParticipationPhaseDefinitionId']);
+                        if (null !== $newExternalDefinition && 'write' === $newExternalDefinition->getPermissionSet()) {
                             // Schicke die Email an die Interessenten
                             $this->sendProcedureSubscriptionEmail($mailService, $translator, $procedureAsArray);
                         }
@@ -1387,8 +1396,10 @@ class DemosPlanProcedureController extends BaseController
             $templateVars['inData']['r_shortUrl'] = $procedureAsArray['currentSlug']->getName();
 
             // Verfahrensschritte
-            $templateVars['internalPhases'] = $this->globalConfig->getInternalPhases();
-            $templateVars['externalPhases'] = $this->globalConfig->getExternalPhases();
+            $templateVars['internalPhaseDefinitions'] =
+                $procedurePhaseDefinitionService->getInternalPhaseDefinitionsForCurrentCustomer();
+            $templateVars['externalPhaseDefinitions'] =
+                $procedurePhaseDefinitionService->getExternalPhaseDefinitionsForCurrentCustomer();
 
             // ProcedureCategories
             $templateVars['procedureCategories'] = $procedureCategoryService->getProcedureCategories();
@@ -1401,23 +1412,15 @@ class DemosPlanProcedureController extends BaseController
                 $template = '@DemosPlanCore/DemosPlanProcedure/administration_edit.html.twig';
                 $title = 'procedure.adjustments';
 
-                $evaluatingPhase = null;
-                foreach ($templateVars['internalPhases'] as $internalPhase) {
-                    if ('evaluating' === $internalPhase['key']) {
-                        $evaluatingPhase = $internalPhase['name'];
-                        break;
-                    }
-                }
+                $evaluatingPhaseName = $this->procedurePhaseDefinitionService->findEvaluatingDefinition(
+                    'internal',
+                    $customerService->getCurrentCustomer()
+                )?->getName();
 
-                // Fallback to 'analysis' if 'evaluating' phase not found
-                if (null === $evaluatingPhase) {
-                    foreach ($templateVars['internalPhases'] as $internalPhase) {
-                        if ('analysis' === $internalPhase['key']) {
-                            $evaluatingPhase = $internalPhase['name'];
-                            break;
-                        }
-                    }
-                }
+                $evaluatingPublicParticipationPhaseName = $this->procedurePhaseDefinitionService->findEvaluatingDefinition(
+                    'external',
+                    $customerService->getCurrentCustomer()
+                )?->getName();
             }
 
             /** @var NotificationReceiverRepository $notificationReveicerRepository */
@@ -1455,11 +1458,12 @@ class DemosPlanProcedureController extends BaseController
             $templateVars['synchronizedStatementCount'] = $entitySyncLinkRepository->getSynchronizedStatementCount($procedureId);
 
             $data = [
-                'templateVars'    => $templateVars,
-                'procedure'       => $procedureId,
-                'title'           => $title,
-                'form'            => $form->createView(),
-                'evaluatingPhase' => $evaluatingPhase ?? '',
+                'templateVars'                           => $templateVars,
+                'procedure'                              => $procedureId,
+                'title'                                  => $title,
+                'form'                                   => $form->createView(),
+                'evaluatingPhaseName'                    => $evaluatingPhaseName ?? null,
+                'evaluatingPublicParticipationPhaseName' => $evaluatingPublicParticipationPhaseName ?? null,
             ];
 
             return $this->render($template, $data);
@@ -1482,7 +1486,7 @@ class DemosPlanProcedureController extends BaseController
      * @param string $procedure
      */
     #[DplanPermissions(['area_main_procedures', 'area_admin_preferences'])]
-    #[Route(name: 'DemosPlan_procedure_edit_ajax', path: '/verfahren/{procedure}/einstellungen/update', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedure}/einstellungen/update', name: 'DemosPlan_procedure_edit_ajax', options: ['expose' => true])]
     public function administrationEditAjax(
         CurrentProcedureService $currentProcedureService,
         CurrentUserService $currentUser,
@@ -1518,7 +1522,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions(['area_main_procedures', 'area_admin_import'])]
-    #[Route(name: 'DemosPlan_procedure_import', path: '/verfahren/{procedureId}/import', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedureId}/import', name: 'DemosPlan_procedure_import', options: ['expose' => true])]
     public function administrationImport(
         CurrentUserService $currentUser,
         PermissionsInterface $permissions,
@@ -1527,9 +1531,12 @@ class DemosPlanProcedureController extends BaseController
         string $procedureId,
     ): Response {
         $currentUserId = $currentUser->getUser()->getId();
+        $procedure = $procedureService->getProcedure($procedureId);
         $templateVars = [
-            'newestInternalId' => $statementService->getNewestInternId($procedureId),
-            'usedInternIds'    => $statementService->getInternIdsFromProcedure($procedureId),
+            'currentInternalPhaseDefinitionId'  => $procedure?->getPhaseObject()->getPhaseDefinition()->getId(),
+            'currentExternalPhaseDefinitionId'  => $procedure?->getPublicParticipationPhaseObject()->getPhaseDefinition()->getId(),
+            'newestInternalId'                  => $statementService->getNewestInternId($procedureId),
+            'usedInternIds'                     => $statementService->getInternIdsFromProcedure($procedureId),
         ];
 
         if ($permissions->hasPermission('feature_statements_tag')) {
@@ -1618,7 +1625,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws Throwable
      */
     #[DplanPermissions('area_public_participation')]
-    #[Route(name: 'DemosPlan_procedure_public_detail', path: '/verfahren/{procedure}/public/detail', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedure}/public/detail', name: 'DemosPlan_procedure_public_detail', options: ['expose' => true])]
     public function publicDetail(
         BrandingService $brandingService,
         ContentService $contentService,
@@ -1726,7 +1733,7 @@ class DemosPlanProcedureController extends BaseController
                 $templateVars['isSubmitted'] = true;
 
                 // Wenn der User eine E-Mail-Adresse angegeben hat, schicke eine Bestätigungsmail
-                if ($request->request->has('r_email') && 0 < \strlen((string) $requestPost['r_email'])) {
+                if ($request->request->has('r_email') && '' !== (string) $requestPost['r_email']) {
                     $fullEmailAddress = $requestPost['r_email'];
                     $gdprConsentRevokeToken = isset($savedStatement)
                         ? $gdprConsentRevokeTokenService->maybeCreateGdprConsentRevokeToken(
@@ -1978,7 +1985,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_statement_data_input_orga')]
-    #[Route(name: 'DemosPlan_procedure_list_data_input_orga_procedures', path: '/verfahren/datainput/list')]
+    #[Route(path: '/verfahren/datainput/list', name: 'DemosPlan_procedure_list_data_input_orga_procedures')]
     public function dataInputOrgaChooseProcedure(CurrentUserService $currentUser): Response
     {
         $templateVars = [];
@@ -2002,7 +2009,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_subscriptions')]
-    #[Route(name: 'DemosPlan_procedure_list_subscriptions', path: '/verfahren/abonnieren', options: ['expose' => true])]
+    #[Route(path: '/verfahren/abonnieren', name: 'DemosPlan_procedure_list_subscriptions', options: ['expose' => true])]
     public function subscribe(CurrentUserService $currentUser, Request $request)
     {
         $templateVars = [];
@@ -2011,7 +2018,7 @@ class DemosPlanProcedureController extends BaseController
         // Überprüfe, ob PLZ und Orte für Benachrichtigungen eingegeben wurden
         if (\array_key_exists('newSubscription', $requestPost)) {
             $postalCode = $requestPost['r_postalCode'];
-            if (5 != \strlen((string) $postalCode)) {
+            if (5 !== \strlen((string) $postalCode)) {
                 /* In BOB-SH's area_subscriptions feature the postal code is sent by the FE only if
                  * one of the dropdown entries is selected, otherwise (eg. even when a valid postal
                  * code is entered into the search field) `r_postalCode` will be sent by the FE
@@ -2072,7 +2079,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws Throwable
      */
     #[DplanPermissions('area_admin_invitable_institution')]
-    #[Route(name: 'DemosPlan_procedure_member_index', path: '/verfahren/{procedure}/einstellungen/benutzer', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedure}/einstellungen/benutzer', name: 'DemosPlan_procedure_member_index', options: ['expose' => true])]
     public function administrationMemberList(
         Breadcrumb $breadcrumb,
         MailService $mailService,
@@ -2238,10 +2245,7 @@ class DemosPlanProcedureController extends BaseController
 
         // an welche Töb wurde eine Email geschickt?
         $templateVars['orgaInvitationemailSent'] = [];
-        $invitationEmailSent = $serviceOutput->getInvitationEmailSentList(
-            $procedure,
-            $templateVars['procedure']['phase']
-        );
+        $invitationEmailSent = $serviceOutput->getInvitationEmailSentList($procedure);
         if (\is_array($invitationEmailSent['result']) && [] !== $invitationEmailSent['result']) {
             foreach ($invitationEmailSent['result'] as $invitedOrga) {
                 if (\array_key_exists('organisation', $invitedOrga)
@@ -2270,7 +2274,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions(['area_main_procedures', 'area_admin_invitable_institution'])]
-    #[Route(name: 'DemosPlan_procedure_member_add', path: '/verfahren/{procedure}/einstellungen/benutzer/hinzufuegen', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedure}/einstellungen/benutzer/hinzufuegen', name: 'DemosPlan_procedure_member_add', options: ['expose' => true])]
     public function administrationNewMemberList(
         Breadcrumb $breadcrumb,
         MessageBagInterface $messageBag,
@@ -2343,7 +2347,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_admin_boilerplates')]
-    #[Route(name: 'DemosPlan_procedure_boilerplate_list', path: '/verfahren/{procedure}/textbausteine', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedure}/textbausteine', name: 'DemosPlan_procedure_boilerplate_list', options: ['expose' => true])]
     public function boilerplateList(
         ProcedureHandler $procedureHandler,
         Request $request,
@@ -2360,14 +2364,16 @@ class DemosPlanProcedureController extends BaseController
             return $this->redirectBack($request);
         }
 
-        $templateVars = $this->prepareBoilerplateTemplateVars($procedure, $procedureId);
+        $templateVars = $this->prepareBoilerplateTemplateVars($procedureId);
+        $bluePrintIsTarget = $this->procedureService->getProcedure($procedureId)?->getMaster() ?? false;
 
         return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_list_boilerplate.html.twig',
             [
-                'templateVars' => $templateVars,
-                'title'        => 'procedure.boilerplates',
-                'procedure'    => $procedure,
+                'templateVars'      => $templateVars,
+                'title'             => 'procedure.boilerplates',
+                'procedure'         => $procedure,
+                'bluePrintIsTarget' => $bluePrintIsTarget,
             ]
         );
     }
@@ -2434,10 +2440,10 @@ class DemosPlanProcedureController extends BaseController
         }
     }
 
-    private function prepareBoilerplateTemplateVars(string $procedure, string $procedureId): array
+    private function prepareBoilerplateTemplateVars(string $procedureId): array
     {
         return [
-            'list'              => $this->procedureService->getBoilerplateList($procedure),
+            'list'              => $this->procedureService->getBoilerplateList($procedureId),
             'boilerplateGroups' => $this->procedureService->getBoilerplateGroups($procedureId),
         ];
     }
@@ -2446,8 +2452,8 @@ class DemosPlanProcedureController extends BaseController
      * Creation and editing of places, each is either process or procedure template related.
      */
     #[DplanPermissions('area_manage_segment_places')]
-    #[Route(name: 'DemosPlan_procedure_places_list', path: '/verfahren/{procedureId}/schritte', options: ['expose' => true])]
-    #[Route(name: 'DemosPlan_procedure_template_places_list', path: '/verfahren/blaupause/{procedureId}/schritte')]
+    #[Route(path: '/verfahren/{procedureId}/schritte', name: 'DemosPlan_procedure_places_list', options: ['expose' => true])]
+    #[Route(path: '/verfahren/blaupause/{procedureId}/schritte', name: 'DemosPlan_procedure_template_places_list')]
     public function showProcedurePlaces(string $procedureId)
     {
         return $this->render('@DemosPlanCore/DemosPlanProcedure/administration_places.html.twig', [
@@ -2460,15 +2466,18 @@ class DemosPlanProcedureController extends BaseController
      * Creation of custom fields, each is either procedure or procedure template related.
      */
     #[DplanPermissions('area_admin_custom_fields')]
-    #[Route(name: 'DemosPlan_procedure_custom_fields_list', path: '/verfahren/{procedureId}/konfigurierbareFelder', options: ['expose' => true])]
-    #[Route(name: 'DemosPlan_procedure_template_custom_fields_list', path: '/verfahren/blaupause/{procedureId}/konfigurierbareFelder', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedureId}/konfigurierbareFelder', name: 'DemosPlan_procedure_custom_fields_list', options: ['expose' => true])]
+    #[Route(path: '/verfahren/blaupause/{procedureId}/konfigurierbareFelder', name: 'DemosPlan_procedure_template_custom_fields_list', options: ['expose' => true])]
     public function showProcedureCustomFields(string $procedureId)
     {
         $templateVars['procedureTemplate'] = $this->currentProcedureService->getProcedure()?->getMaster() ?? false;
         $templateVars['procedureId'] = $procedureId;
 
         return $this->render('@DemosPlanCore/DemosPlanProcedure/administration_custom_fields_list.html.twig',
-            ['templateVars' => $templateVars]);
+            [
+                'templateVars' => $templateVars,
+                'title'        => 'procedure.custom.fields',
+            ]);
     }
 
     /**
@@ -2481,17 +2490,20 @@ class DemosPlanProcedureController extends BaseController
      * @return RedirectResponse|Response
      */
     #[DplanPermissions('area_admin_boilerplates')]
-    #[Route(name: 'DemosPlan_procedure_boilerplate_edit', path: '/verfahren/{procedure}/textbaustein/{boilerplateId}/{selectedGroupId}', defaults: ['boilerplateId' => 'new', 'selectedGroupId' => ''])]
+    #[Route(path: '/verfahren/{procedure}/textbaustein/{boilerplateId}/{selectedGroupId}', name: 'DemosPlan_procedure_boilerplate_edit', defaults: ['boilerplateId' => 'new', 'selectedGroupId' => ''])]
     public function boilerplateEdit(FormFactoryInterface $formFactory, Request $request, $procedure, $boilerplateId, $selectedGroupId)
     {
         $boilerplateValueObject = new BoilerplateVO();
         $updatedBoilerplate = null;
+        $verified = false;
         $procedureService = $this->procedureService;
+        $isBluePrintTarget = $procedureService->getProcedure($procedure)?->getMaster() ?? false;
 
         if ('new' !== $boilerplateId) {
             $boilerplate = $procedureService->getBoilerplateById($boilerplateId);
             if (null !== $boilerplate) {
                 $boilerplateValueObject = new BoilerplateVO($boilerplate);
+                $verified = $boilerplate->isVerified();
             } else {
                 $this->logger->warning('no Boilerplate found for ID '.$boilerplateId);
             }
@@ -2508,8 +2520,9 @@ class DemosPlanProcedureController extends BaseController
             BoilerplateType::class,
             $boilerplateValueObject,
             [
-                'csrf_protection'    => true,
-                'allow_extra_fields' => true, // action field (input, not the one from form)
+                'csrf_protection'     => true,
+                'allow_extra_fields'  => true, // action field (input, not the one from form)
+                'allow_verified_edit' => $this->permissions->hasPermission('feature_boilerplate_verified_edit'),
             ]
         );
         $form->handleRequest($request);
@@ -2571,12 +2584,14 @@ class DemosPlanProcedureController extends BaseController
         return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_edit_boilerplate.html.twig',
             [
-                'form'                         => $form->createView(),
+                'form'                         => $form,
                 'boilerplateCategories'        => $boilerplateCategories,
                 'boilerplateGroupsOfProcedure' => $boilerplateGroups,
                 'selectedGroup'                => '',
                 'title'                        => 'procedure.boilerplate.edit',
                 'procedure'                    => $procedure,
+                'verified'                     => $verified,
+                'bluePrintIsTarget'            => $isBluePrintTarget,
             ]
         );
     }
@@ -2590,7 +2605,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_admin_boilerplates')]
-    #[Route(name: 'DemosPlan_procedure_boilerplate_group_delete', path: '/verfahren/{procedure}/boilerplate/{boilerplateGroupId}/delete')]
+    #[Route(path: '/verfahren/{procedure}/boilerplate/{boilerplateGroupId}/delete', name: 'DemosPlan_procedure_boilerplate_group_delete')]
     public function boilerplateGroupDelete($procedure, $boilerplateGroupId): RedirectResponse
     {
         $procedureService = $this->procedureService;
@@ -2621,7 +2636,7 @@ class DemosPlanProcedureController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_admin_boilerplates')]
-    #[Route(name: 'DemosPlan_procedure_boilerplate_group_edit', path: '/verfahren/{procedure}/boilerplategroup/{boilerplateGroupId}', defaults: ['boilerplateGroupId' => 'new'], options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedure}/boilerplategroup/{boilerplateGroupId}', name: 'DemosPlan_procedure_boilerplate_group_edit', options: ['expose' => true], defaults: ['boilerplateGroupId' => 'new'])]
     public function boilerplateGroupEdit(FormFactoryInterface $formFactory, Request $request, $procedure, $boilerplateGroupId)
     {
         $boilerplateGroupValueObject = new BoilerplateGroupVO();
@@ -2679,7 +2694,7 @@ class DemosPlanProcedureController extends BaseController
         return $this->render(
             '@DemosPlanCore/DemosPlanProcedure/administration_edit_boilerplate_group.html.twig',
             [
-                'form'      => $form->createView(),
+                'form'      => $form,
                 'title'     => 'procedure.boilerplateGroup.edit',
                 'procedure' => $procedure,
             ]

@@ -78,9 +78,9 @@ class OzgKeycloakStaticAuthenticator extends AbstractOzgKeycloakAuthenticator
         private readonly OzgKeycloakStaticUserDataProvider $userDataProvider,
         private readonly OAuthTokenRepository $oauthTokenRepository,
         private readonly SecretEncryptor $tokenEncryptionService,
-        #[Autowire('%kernel.environment%')]
+        #[Autowire(param: 'kernel.environment')]
         private readonly string $environment,
-        #[Autowire('%oauth_token_timezone%')]
+        #[Autowire(param: 'oauth_token_timezone')]
         private readonly string $tokenTimezoneString,
     ) {
         parent::__construct(
@@ -110,14 +110,14 @@ class OzgKeycloakStaticAuthenticator extends AbstractOzgKeycloakAuthenticator
 
         if (null === $userData) {
             $availableKeys = implode(', ', $this->userDataProvider->getAvailableUserKeys());
-            $this->logger->error('Static Keycloak test user not found', [
+            $this->logger->error('oauthAuthenticator: Static Keycloak test user not found', [
                 'requestedKey'  => $testUserKey,
                 'availableKeys' => $availableKeys,
             ]);
             throw new AuthenticationException(sprintf('Test user "%s" not found. Available users: %s', $testUserKey, $availableKeys));
         }
 
-        $this->logger->info('Static Keycloak login attempt', [
+        $this->logger->info('oauthAuthenticator: Static Keycloak login attempt', [
             'testUserKey'         => $testUserKey,
             'userId'              => $userData['sub'],
             'email'               => $userData['email'],
@@ -126,7 +126,7 @@ class OzgKeycloakStaticAuthenticator extends AbstractOzgKeycloakAuthenticator
 
         try {
             $this->entityManager->getConnection()->beginTransaction();
-            $this->logger->info('Start of doctrine transaction (static Keycloak).');
+            $this->logger->info('oauthAuthenticator: Start of doctrine transaction (static Keycloak).');
 
             $customerSubdomain = $this->customerService->getCurrentCustomer()->getSubdomain();
 
@@ -135,24 +135,24 @@ class OzgKeycloakStaticAuthenticator extends AbstractOzgKeycloakAuthenticator
             // Static test users always use 'dplan-test' as client ID in resource_access
             $this->ozgKeycloakUserData->fill($resourceOwner, $customerSubdomain, 'dplan-test');
 
-            $this->logger->info('Static Keycloak user data: '.$this->ozgKeycloakUserData);
+            $this->logger->info('oauthAuthenticator: Static Keycloak user data: '.$this->ozgKeycloakUserData);
             $user = $this->ozgKeycloakUserDataMapper->mapUserData($this->ozgKeycloakUserData);
 
             $this->entityManager->getConnection()->commit();
-            $this->logger->info('Doctrine transaction commit (static Keycloak).');
+            $this->logger->info('oauthAuthenticator: Doctrine transaction commit (static Keycloak).');
 
             $request->getSession()->set('userId', $user->getId());
         } catch (Exception $e) {
             $this->entityManager->getConnection()->rollBack();
-            $this->logger->info('Doctrine transaction rollback (static Keycloak).');
+            $this->logger->info('oauthAuthenticator: Doctrine transaction rollback (static Keycloak).');
             $this->logger->error(
-                'Static Keycloak login failed',
+                'oauthAuthenticator: Static Keycloak login failed',
                 [
                     'testUserKey' => $testUserKey,
                     'exception'   => $e,
                 ]
             );
-            throw new AuthenticationException('Static Keycloak authentication failed: '.$e->getMessage());
+            throw new AuthenticationException('Static Keycloak authentication failed: '.$e->getMessage(), $e->getCode(), $e);
         }
 
         return new SelfValidatingPassport(
@@ -185,7 +185,7 @@ class OzgKeycloakStaticAuthenticator extends AbstractOzgKeycloakAuthenticator
         }
 
         $oauthToken = $this->oauthTokenRepository->findByUserId($user->getId());
-        if (null === $oauthToken) {
+        if (!$oauthToken instanceof OAuthToken) {
             $oauthToken = new OAuthToken();
             $oauthToken->setUser($user);
             $this->entityManager->persist($oauthToken);
@@ -223,7 +223,7 @@ class OzgKeycloakStaticAuthenticator extends AbstractOzgKeycloakAuthenticator
 
         $this->entityManager->flush();
 
-        $this->logger->info('Static Keycloak: fake pending data created for re-auth simulation', [
+        $this->logger->info('oauthAuthenticator: Static Keycloak: fake pending data created for re-auth simulation', [
             'userId'  => $user->getId(),
             'pageUrl' => $oauthToken->getPendingPageUrl(),
             'orgaId'  => false !== $firstOrga ? $firstOrga->getId() : null,

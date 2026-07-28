@@ -15,6 +15,7 @@ use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
+use demosplan\DemosPlanCoreBundle\Entity\User\CustomerOAuthConfig;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
@@ -84,7 +85,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      * @throws Exception
      */
     #[DplanPermissions('area_mydata_password')]
-    #[Route(name: 'DemosPlan_user_change_password', path: '/password/change', options: ['expose' => true])]
+    #[Route(path: '/password/change', name: 'DemosPlan_user_change_password', options: ['expose' => true])]
     public function changePassword(Request $request): RedirectResponse
     {
         $requestPostFields = collect($request->request->all())->only(
@@ -110,7 +111,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      * @throws Exception
      */
     #[DplanPermissions('feature_change_own_email')]
-    #[Route(name: 'DemosPlan_user_change_email_request', path: '/email/change')]
+    #[Route(path: '/email/change', name: 'DemosPlan_user_change_email_request')]
     public function changeEmailRequest(Request $request, PasswordHasherFactoryInterface $hasherFactory): RedirectResponse
     {
         $requestPostFields = collect($request->request->all())->only(
@@ -186,7 +187,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      * Set email address of user. Called via link which was sent to user via email.
      */
     #[DplanPermissions('feature_change_own_email')]
-    #[Route(name: 'DemosPlan_user_doubleoptin_change_email', path: 'email/change/doubleoptin/{uId}/{key}')]
+    #[Route(path: 'email/change/doubleoptin/{uId}/{key}', name: 'DemosPlan_user_doubleoptin_change_email')]
     public function changeEmailConfirmation(string $uId, string $key): RedirectResponse
     {
         try {
@@ -221,7 +222,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      * @throws MessageBagException
      */
     #[DplanPermissions(['area_demosplan', 'feature_password_recovery'])]
-    #[Route(name: 'DemosPlan_user_password_recover', path: '/password/recover', options: ['expose' => true])]
+    #[Route(path: '/password/recover', name: 'DemosPlan_user_password_recover', options: ['expose' => true])]
     public function recoverPassword(RateLimiterFactory $userRegisterLimiter, Request $request)
     {
         $requestPost = $request->request;
@@ -272,9 +273,9 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      * This Action is only needed to define the routes.
      * Authentication is handled via guards located in Security/Authentication.
      */
-    #[Route(name: 'DemosPlan_user_login_gateway', path: '/redirect/')]
-    #[Route(name: 'DemosPlan_user_login_osi_legacy', path: '/user/login/osi/legacy')]
-    #[Route(name: 'DemosPlan_user_login', path: '/user/login', options: ['expose' => true])]
+    #[Route(path: '/redirect/', name: 'DemosPlan_user_login_gateway')]
+    #[Route(path: '/user/login/osi/legacy', name: 'DemosPlan_user_login_osi_legacy')]
+    #[Route(path: '/user/login', name: 'DemosPlan_user_login', options: ['expose' => true])]
     public function login(CurrentUserInterface $currentUser, LoggerInterface $logger): RedirectResponse
     {
         // this possibly never is never reached, but better safe than sorry
@@ -298,7 +299,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      * @throws AccessDeniedException|Exception
      */
     #[DplanPermissions('area_demosplan')]
-    #[Route(name: 'DemosPlan_user_login_alternative', path: '/dplan/login', options: ['expose' => true])]
+    #[Route(path: '/dplan/login', name: 'DemosPlan_user_login_alternative', options: ['expose' => true])]
     public function alternativeLogin(
         CacheInterface $cache,
         CurrentUserInterface $currentUser,
@@ -308,7 +309,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         ParameterBagInterface $parameterBag,
         Request $request,
     ) {
-        if (!($currentUser->getUser() instanceof AnonymousUser)) {
+        if (!$currentUser->getUser() instanceof AnonymousUser) {
             return $this->redirectToRoute('core_home_loggedin');
         }
 
@@ -358,7 +359,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
             $useIdp = true;
         }
 
-        $hasDynamicOAuthConfig = null !== $customerOAuthConfigRepository->findByCustomer($currentCustomerEntity);
+        $hasDynamicOAuthConfig = $customerOAuthConfigRepository->findByCustomer($currentCustomerEntity) instanceof CustomerOAuthConfig;
         $useAzureSso = $parameterBag->get('azure_sso_enabled');
         $useAzureCustomers = $parameterBag->get('azure_sso_customers');
         if ($useAzureSso && is_array($useAzureCustomers)) {
@@ -395,7 +396,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     /**
      * Logout via security system.
      */
-    #[Route(name: 'DemosPlan_user_logout', path: '/user/logout', options: ['expose' => true])]
+    #[Route(path: '/user/logout', name: 'DemosPlan_user_logout', options: ['expose' => true])]
     public function logout(): void
     {
         // special cases are handled by the LogoutSubscriber
@@ -409,7 +410,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      * @throws MessageBagException
      */
     #[DplanPermissions('area_demosplan')]
-    #[Route(name: 'DemosPlan_user_logout_success', path: '/user/logout/success')]
+    #[Route(path: '/user/logout/success', name: 'DemosPlan_user_logout_success')]
     public function logoutSuccess(PermissionsInterface $permissions)
     {
         try {
@@ -429,7 +430,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      * @throws Exception
      */
     #[DplanPermissions('area_demosplan')]
-    #[Route(name: 'DemosPlan_user_doubleoptin_invite_confirmation', path: '/doubleoptin/{uId}/{token}')]
+    #[Route(path: '/doubleoptin/{uId}/{token}', name: 'DemosPlan_user_doubleoptin_invite_confirmation')]
     public function confirmInvitation(UserHasher $userHasher, string $token, string $uId)
     {
         try {
@@ -454,7 +455,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
      * @throws Exception
      */
     #[DplanPermissions('area_demosplan')]
-    #[Route(name: 'DemosPlan_user_password_set', path: '/user/{uId}/setpass/{token}', options: ['expose' => true])]
+    #[Route(path: '/user/{uId}/setpass/{token}', name: 'DemosPlan_user_password_set', options: ['expose' => true])]
     public function setPassword(
         FlashMessageHandler $flashMessageHandler,
         LoginFormAuthenticator $loginFormAuthenticator,

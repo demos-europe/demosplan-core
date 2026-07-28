@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_edit_boilerplate.html.twig
  */
 
-import { DpEditor, DpMultiselect, dpValidate } from '@demos-europe/demosplan-ui'
+import { DpEditor, DpMultiselect, DpRadio, dpValidate } from '@demos-europe/demosplan-ui'
 import DpEditBoilerplate from '@DpJs/components/procedure/admin/DpEditBoilerplate'
 import { initialize } from '@DpJs/InitVue'
 
@@ -19,6 +19,7 @@ const components = {
   DpEditBoilerplate,
   DpEditor,
   DpMultiselect,
+  DpRadio,
 }
 
 initialize(components).then(() => {

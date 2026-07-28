@@ -142,6 +142,7 @@ export default {
     if (this.field?.attributes?.isRequired && this.currentValue.length > 0) {
       this.$nextTick(() => {
         const el = this.$el.querySelector('[data-dp-validate-is-valid]')
+
         if (el) {
           el.dataset.dpValidateIsValid = 'true'
         }

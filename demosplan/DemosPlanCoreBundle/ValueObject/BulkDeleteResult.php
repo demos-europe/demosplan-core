@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -46,7 +48,7 @@ class BulkDeleteResult extends ValueObject
         int $countSuccessful,
         int $countUnsuccessful,
         int $countNotFound,
-        bool $isErroneous
+        bool $isErroneous,
     ) {
         $this->countSuccessful = $countSuccessful;
         $this->countUnsuccessful = $countUnsuccessful;

@@ -216,6 +216,7 @@ export default {
       if (!this.editable) {
         return
       }
+
       this.editingEnabled = !this.editingEnabled
       this.$emit('toggleEditing', this.editingEnabled)
     },

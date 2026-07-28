@@ -82,10 +82,13 @@ export default {
       if (hasOwnProp(this.$store.state, 'AssessmentTable')) {
         return this.$store.state.AssessmentTable.assessmentBaseLoaded
       }
+
       return true
     },
 
-    showFragmentsCount () { return (this.statementFragmentsTotal !== '0') },
+    showFragmentsCount () {
+      return (this.statementFragmentsTotal !== '0')
+    },
 
     filteredFragmentsLength () {
       if (!this.$store.state.Fragment.fragments[this.statementId]) {

@@ -187,41 +187,53 @@ import {
   setRange,
   setRangeEditingState,
 } from '@DpJs/lib/prosemirror/commands'
-import { dpApi, DpButton, DpFlyout, DpInlineNotification, DpLoading, DpStickyElement } from '@demos-europe/demosplan-ui'
+import {
+  dpApi,
+  DpButton,
+  DpFlyout,
+  DpInlineNotification,
+  DpLoading,
+  DpStickyElement,
+  hasOwnProp,
+} from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
+import { DOMParser, DOMSerializer } from 'prosemirror-model'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CardPane from './CardPane'
 import dayjs from 'dayjs'
+import { EditorState } from 'prosemirror-state'
 import { generateRangeChangeMap } from '@DpJs/lib/prosemirror/utilities'
+import { v4 as uuid } from 'uuid'
 import SegmentationEditor from './SegmentationEditor'
 import SideBar from './SideBar'
 import StatementMeta from '@DpJs/components/procedure/StatementSegmentsList/StatementMeta/StatementMeta'
 import StatementMetaTooltip from '../StatementMetaTooltip'
-import { v4 as uuid } from 'uuid'
+
 /**
- * This function merges ranges with their corresponding segments.
- * Ranges are used to represent range shaped information in prosemirror.
- * Their attributes do not perfectly match segment attributes.
- * Thus, range attributes are mapped to their corresponding segment attributes and an Array of updated segments is returned.
+ * Merges ProseMirror segmentMark data with segment metadata from the store.
  *
- * @param {Array} ranges
- * @param {Array} segments
- * @return {undefined|Array}
+ * SegmentMarks are ProseMirror marks that track segment positions and confirmation status in the editor.
+ * This function synchronizes that state with the segment metadata (tags, place, assignee) stored in Vuex.
+ *
+ * @param {Array} segmentMarks - Array of segmentMark objects from ProseMirror with {segmentId, isConfirmed}
+ * @param {Array} segments - Array of segment metadata objects from Vuex store
+ * @return {Array} Array of merged segment objects with updated status
  */
-const mergeRangesAndSegments = (ranges, segments) => {
+const mergeSegmentMarksAndSegments = (segmentMarks, segments) => {
   const mergedSegments = []
-  ranges.forEach(range => {
-    const segment = segments.find(seg => seg.id === range.rangeId)
-    const mergedSegment = { ...segment }
+
+  segmentMarks.forEach(mark => {
+    const segment = segments.find(seg => seg.id === mark.segmentId)
+
     if (!segment) {
       console.warn('A segment was updated in Prosemirror but no corresponding segment found in store.')
+
       return
     }
 
-    mergedSegment.charStart = range.from
-    mergedSegment.charEnd = range.to
-    mergedSegment.status = range.isConfirmed ? 'confirmed' : false
-    mergedSegment.text = range.text
+    const mergedSegment = { ...segment }
+
+    mergedSegment.status = mark.isConfirmed ? 'confirmed' : false
     mergedSegments.push(mergedSegment)
   })
 
@@ -322,6 +334,7 @@ export default {
       'initialData',
       'initText',
       'isBusy',
+      'needsEditorRefresh',
       'segmentById',
       'segments',
       'statement',
@@ -375,6 +388,13 @@ export default {
       },
       deep: false, // Set default for migrating purpose. To know this occurrence is checked
     },
+
+    needsEditorRefresh (shouldRerender) {
+      if (shouldRerender && this.prosemirror) {
+        this.refreshEditorContent()
+        this.setProperty({ prop: 'needsEditorRefresh', val: false })
+      }
+    },
   },
 
   methods: {
@@ -415,11 +435,22 @@ export default {
      */
     calculateProcessingTime () {
       const statementLength = this.initialData.attributes.textualReference.length
+
       this.processingTime = statementLength > 4000 ? Math.round(statementLength / 2000) + 3 : 0
     },
 
     determineDisplayScrollButton () {
       const segmentSpans = document.querySelectorAll('span[data-range-active="true"]')
+
+      /**
+       * Normally every segment is marked in the document, but broken drafts can contain a segment
+       * without a mark. While such a segment is being edited there is no active span to scroll to,
+       * so no scroll button is shown.
+       */
+      if (!segmentSpans.length) {
+        return false
+      }
+
       const lastSegmentSpan = segmentSpans[segmentSpans.length - 1]
       const segmentBottom = lastSegmentSpan.getBoundingClientRect().bottom
       const headerHeight = document.getElementById('header').getBoundingClientRect().height
@@ -435,22 +466,23 @@ export default {
         }
       } else if (segmentIsAtBottom) {
         const vh = document.documentElement.clientHeight
+
         this.scrollButtonPosition = {
           direction: 'bottom',
           offset: `${vh - 70}px`,
         }
       }
 
-      return segmentSpans.length ?
-        segmentIsAtTop || segmentIsAtBottom :
-        false
+      return segmentIsAtTop || segmentIsAtBottom
     },
 
     determineIfStatementReady (counter = 0) {
       if (this.segmentationStatus === 'aiSegmented' || this.segmentationStatus === 'inUserSegmentation') {
         return
       }
+
       const time = counter < 3 ? 5000 : 2000
+
       setTimeout(() => {
         this.fetchStatementSegmentDraftList(this.statementId)
           .then(({ data }) => {
@@ -463,8 +495,10 @@ export default {
               this.fetchInitialData().then(() => {
                 this.segmentationStatus = 'aiSegmented'
               })
+
               return
             }
+
             counter++
             this.determineIfStatementReady(counter)
           })
@@ -476,10 +510,19 @@ export default {
         this.stateBeforeEditing = null
       }
 
-      this.ignoreProsemirrorUpdates = true
       const { rangeTrackerKey, editingDecorationsKey } = this.prosemirror.keyAccess
-      setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(this.editingSegment.id, false)
-      this.ignoreProsemirrorUpdates = false
+
+      /**
+       * Normally every segment has a range in the document, but a broken draft can contain a segment
+       * without a mark. Only reset the range editing state for segments that actually have a range;
+       * mark-less segments (metadata-only edits) have nothing to reset.
+       */
+      if (this.editingSegment && rangeTrackerKey.getState(this.prosemirror.view.state)[this.editingSegment.id]) {
+        this.ignoreProsemirrorUpdates = true
+        setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(this.editingSegment.id, false)
+        this.ignoreProsemirrorUpdates = false
+      }
+
       this.setProperty({ prop: 'editingSegment', val: null })
       this.setProperty({ prop: 'editModeActive', val: false })
     },
@@ -487,6 +530,7 @@ export default {
     enableEditMode (segmentId) {
       if (this.editModeActive) {
         console.warn('Tried to enable edit mode although it was already active')
+
         return
       }
 
@@ -498,6 +542,15 @@ export default {
       this.setProperty({ prop: 'editingSegment', val: this.segmentById(id) })
       this.setProperty({ prop: 'editModeActive', val: true })
 
+      /**
+       * Normally every segment is marked in the document. When a broken draft contains a segment
+       * whose mark is missing, it has no range to edit: allow editing its metadata (tags, place,
+       * assignee) but skip range activation, which requires an existing range.
+       */
+      if (!rangeTrackerKey.getState(state)[id]) {
+        return
+      }
+
       this.ignoreProsemirrorUpdates = true
       setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(id, true)
       activateRangeEdit(
@@ -505,13 +558,50 @@ export default {
         rangeTrackerKey,
         editStateTrackerKey,
         id,
-        { active: this.editingSegment.charEnd, fixed: this.editingSegment.charStart },
       )
       this.ignoreProsemirrorUpdates = false
     },
 
+    /**
+     * Serialize the entire ProseMirror document to HTML, converting any `<span data-segment-id="...">…</span>` into a custom `<segment-mark>`
+     * element so that segment identifiers are preserved in the output.
+     *
+     * @param {EditorState} state
+     *  The current ProseMirror editor state.
+     * @returns {string}
+     *  Serialized HTML including `<segment-mark data-segment-id="...">…</segment-mark>`
+     */
+    extractHtmlWithSegmentMarks () {
+      const state = this.prosemirror.view.state
+      const { schema } = state
+      const serializer = DOMSerializer.fromSchema(schema)
+      const fragment = serializer.serializeFragment(state.tr.doc.content)
+
+      const wrapper = document.createElement('div')
+
+      wrapper.appendChild(fragment)
+
+      wrapper.querySelectorAll('span[data-segment-id]').forEach(span => {
+        const mark = document.createElement('segment-mark')
+        const attributes = [...span.attributes]
+
+        attributes.forEach(({ name, value }) => {
+          /* Copy just the essential metadata (e.g. data-segment-id) for the textual reference */
+          if (name === 'data-segment-id') {
+            mark.setAttribute(name, value)
+          }
+        })
+
+        mark.innerHTML = span.innerHTML
+        span.replaceWith(mark)
+      })
+
+      return wrapper.innerHTML.trim()
+    },
+
     fetchAssignableUsers () {
       const url = Routing.generate('api_resource_list', { resourceType: 'AssignableUser' })
+
       return dpApi.get(url, { sort: 'lastname' })
         .then(response => {
           this.assignableUsers = response.data.data.map(assignableUser => {
@@ -544,6 +634,7 @@ export default {
             description: place.attributes.description,
           }
         })
+
         this.setProperty({ prop: 'availablePlaces', val: availablePlaces })
       })
         .catch((err) => console.error(err))
@@ -566,8 +657,28 @@ export default {
       }
     },
 
+    /**
+     * Find all occurrences of a `segmentMark` with the given ID in the document.
+     * This handles multiple occurrences across different paragraphs or blocks.
+     */
+    getSegmentMarkRangesById (segmentId) {
+      const { doc } = this.prosemirror.view.state
+      const ranges = []
+
+      doc.nodesBetween(0, doc.content.size, (node, pos) => {
+        if (node.marks.some(mark => mark.type.name === 'segmentMark' && mark.attrs.segmentId === segmentId)) {
+          ranges.push({ from: pos, to: pos + node.nodeSize })
+        }
+
+        return true
+      })
+
+      return ranges
+    },
+
     handleCardHighlighting (segmentId, highlight) {
-      const card = document.querySelector(`div[data-range="${segmentId}"]`)
+      const card = document.querySelector(`div[data-segment-id="${segmentId}"]`)
+
       if (card) {
         if (highlight) {
           card.classList.add('highlighted')
@@ -595,23 +706,26 @@ export default {
      */
     handleMouseOver (event) {
       if (!this.editModeActive) {
-        let segmentId = event.target.getAttribute('data-range') || event.target.closest('span[data-range]')?.getAttribute('data-range')
+        let segmentId = event.target.dataset.segmentId ||
+          event.target.closest('span[data-segment-id]')?.dataset.segmentId
 
         /**
-         * If the target element doesn't have the attribute 'data-range', it may be an html element inside the segment span,
+         * If the target element doesn't have the attribute 'data-segment-id', it may be an html element inside the segment span,
          * and we don't know how deeply nested
-         * In this case, we look for the next parent with the attribute 'data-range' to retrieve the segmentId; if none
+         * In this case, we look for the next parent with the attribute 'data-segment-id' to retrieve the segmentId; if none
          * exists, the hovered element is not inside a segment and highlighting is removed
          */
         if (!segmentId) {
-          const closestParent = event.target.closest('span[data-range]')
-          segmentId = closestParent ? closestParent.getAttribute('data-range') : null
+          const closestParent = event.target.closest('span[data-segment-id]')
+
+          segmentId = closestParent ? closestParent.dataset.segmentId : null
         }
 
         if (segmentId) {
           if (segmentId !== this.currentlyHighlightedSegmentId) {
             this.handleSegmentHighlighting(this.currentlyHighlightedSegmentId, false)
           }
+
           this.handleCardHighlighting(segmentId, true)
           this.handleSegmentHighlighting(segmentId, true)
         } else {
@@ -628,9 +742,11 @@ export default {
       if (this.ignoreProsemirrorUpdates) {
         return
       }
+
       if (this.editModeActive === false) {
         this.stateBeforeEditing = oldSegments
       }
+
       if (createdRanges.length > 1) {
         console.warn('More than one segment was created since the last update event. There might be issues with the segment creation process.')
       }
@@ -650,8 +766,12 @@ export default {
 
     handleSegmentConfirmation (segmentId) {
       this.ignoreProsemirrorUpdates = true
-      const { id, charStart, charEnd } = this.segmentById(segmentId)
-      setRange(this.prosemirror.view)(charStart, charEnd, { rangeId: id, isConfirmed: true })
+      const { state } = this.prosemirror.view
+      const { rangeTrackerKey } = this.prosemirror.keyAccess
+      const range = rangeTrackerKey.getState(state)[segmentId]
+      const { id } = this.segmentById(segmentId)
+
+      setRange(this.prosemirror.view)(range.from, range.to, { segmentId: id, isConfirmed: true })
       this.acceptSegmentProposal()
       this.ignoreProsemirrorUpdates = false
     },
@@ -659,38 +779,41 @@ export default {
     handleSegmentCreation (segmentToCreate) {
       const segment = {
         id: uuid(),
-        charStart: segmentToCreate.from,
-        charEnd: segmentToCreate.to,
         tags: [],
-        hasProsemirrorIndex: true,
         status: 'confirmed',
-        text: segmentToCreate.text,
       }
+
       this.setProperty({ prop: 'editingSegment', val: segment })
       this.setProperty({ prop: 'editModeActive', val: true })
       this.locallyUpdateSegments([segment])
       this.ignoreProsemirrorUpdates = true
-      setRange(this.prosemirror.view)(segment.charStart, segment.charEnd, { rangeId: segment.id, isConfirmed: true, isActive: false })
+
+      // We still need from/to values to create a segment marks in the prosemirror
+      setRange(this.prosemirror.view)(segmentToCreate.from, segmentToCreate.to, { segmentId: segment.id, isConfirmed: true, isActive: false })
+
       const { rangeTrackerKey, editingDecorationsKey, editStateTrackerKey } = this.prosemirror.keyAccess
+
       setRangeEditingState(this.prosemirror.view, rangeTrackerKey, editingDecorationsKey)(segment.id, true)
-      activateRangeEdit(this.prosemirror.view, rangeTrackerKey, editStateTrackerKey, segment.id, { active: segment.charEnd, fixed: segment.charStart })
+      activateRangeEdit(this.prosemirror.view, rangeTrackerKey, editStateTrackerKey, segment.id)
       this.ignoreProsemirrorUpdates = false
     },
 
     handleSegmentDeletions (segments) {
-      const IdsToDelete = segments.map(segment => segment.rangeId)
-      this.locallyDeleteSegments(IdsToDelete)
+      const idsToDelete = segments.map(segment => segment.segmentId)
+
+      this.locallyDeleteSegments(idsToDelete)
     },
 
     handleSegmentHighlighting (segmentId, highlight) {
       const id = segmentId || this.currentlyHighlightedSegmentId
       const highlightedSegmentId = highlight ? segmentId : null
-      const segmentParts = Array.from(document.querySelectorAll(`span[data-range="${id}"]`))
+      const segmentParts = Array.from(document.querySelectorAll(`span[data-segment-id="${id}"]`))
 
       segmentParts.forEach(part => {
         if (highlight && !part.classList.contains('highlighted')) {
           part.classList.add('highlighted')
         }
+
         if (!highlight && part.classList.contains('highlighted')) {
           part.classList.remove('highlighted')
         }
@@ -700,16 +823,32 @@ export default {
     },
 
     immediatelyDeleteSegment (segmentId) {
-      const segment = this.segmentById(segmentId)
+      const segmentMarkRanges = this.getSegmentMarkRangesById(segmentId)
       const { state } = this.prosemirror.view
-      const tr = removeRange(state, segment.charStart, segment.charEnd)
+      let tr = null
+
+      segmentMarkRanges.forEach(({ from, to }) => {
+        tr = removeRange(state, from, to, tr)
+      })
 
       this.ignoreProsemirrorUpdates = true
       this.prosemirror.view.dispatch(tr)
       this.ignoreProsemirrorUpdates = false
+      this.updateTextualReference()
       this.deleteSegmentAction(segmentId)
       this.isSegmentDraftUpdated = true
       this.setCurrentTime()
+    },
+
+    initializeSegmentStatus (segment, mark) {
+      if (hasOwnProp(segment, 'status')) {
+        return segment
+      }
+
+      return {
+        ...segment,
+        status: mark.isConfirmed ? 'confirmed' : false,
+      }
     },
 
     resetProsemirrorState () {
@@ -722,15 +861,16 @@ export default {
       const changes = generateRangeChangeMap(newSegments, oldSegments)
 
       changes.createdRanges.forEach(range => {
-        setRange(this.prosemirror.view)(range.from, range.to, { rangeId: range.rangeId, isConfirmed: range.isConfirmed })
+        setRange(this.prosemirror.view)(range.from, range.to, { segmentId: range.segmentId, isConfirmed: range.isConfirmed })
       })
 
       changes.updatedRanges.forEach(range => {
-        setRange(this.prosemirror.view)(range.from, range.to, { rangeId: range.rangeId, isConfirmed: range.isConfirmed })
+        setRange(this.prosemirror.view)(range.from, range.to, { segmentId: range.segmentId, isConfirmed: range.isConfirmed })
       })
 
       changes.deletedRanges.forEach(range => {
         const tr = removeRange(state, range.from, range.to)
+
         this.prosemirror.view.dispatch(tr)
       })
       this.ignoreProsemirrorUpdates = false
@@ -738,17 +878,18 @@ export default {
     },
 
     /**
-     * After prosemirror was initialized we need to perform a few tasks:
-     * 1. Making prosemirror and the pluginstates available in this component by assigning it to this.prosemirror.
-     * 2. Update segments because prosemirror might have made non-conforming range positions conformant.
-     * 3. Set this.ignoreProsemirrorUpdates to true in order to listen to prosemirror changes.
+     * Performs post-initialization setup once the ProseMirror editor is ready.
+     *
+     * Stores the ProseMirror instance and synchronizes the confirmation state
+     * between segments and ProseMirror marks.
      */
     runPostInitTasks (prosemirrorState) {
       this.prosemirror = prosemirrorState
       const { state } = this.prosemirror.view
-      const ranges = Object.values(this.prosemirror.keyAccess.rangeTrackerKey.getState(state))
-      const updatedSegments = mergeRangesAndSegments(ranges, this.segments)
-      this.locallyUpdateSegments(updatedSegments)
+      const segmentMarks = Object.values(this.prosemirror.keyAccess.rangeTrackerKey.getState(state))
+
+      this.ignoreProsemirrorUpdates = true
+      this.syncSegmentMarkStatuses(segmentMarks)
       this.ignoreProsemirrorUpdates = false
     },
 
@@ -766,18 +907,8 @@ export default {
         if (window.dpconfirm(Translator.trans('statement.split.complete.confirm'))) {
           this.setProperty({ prop: 'isBusy', val: true })
           try {
-            // Set data with html not only charStart and charEnd
-            const ranges = this.prosemirror.keyAccess.rangeTrackerKey.getState(this.prosemirror.view.state)
-            const segmentsWithText = this.segments
-              .filter(segment => !!ranges[segment.id])
-              .map(segment => {
-                return {
-                  ...segment,
-                  text: ranges[segment.id].text,
-                }
-              })
-            this.setProperty({ prop: 'segmentsWithText', val: segmentsWithText })
             const currentStatementText = this.prosemirror.getContent(this.prosemirror.view.state)
+
             this.setProperty({ prop: 'statementText', val: currentStatementText })
             this.saveSegmentsFinal()
               .then(() => this.setProperty({ prop: 'isBusy', val: false }))
@@ -794,9 +925,32 @@ export default {
     },
 
     /**
-     * This function will apply all changes from the changed selection. It will generate new ranges/range boundaries.
-     * The range changes are handled by handleSegmentChanges (as a callback). After handleSegmentChanges has persisted
-     * the range changes locally, saveSegmentsDrafts will save the new json to our API.
+     *  Parse restored initText into ProseMirror document
+     */
+    refreshEditorContent () {
+      const wrapper = document.createElement('div')
+
+      wrapper.innerHTML = this.initText
+      const parser = DOMParser.fromSchema(this.prosemirror.view.state.schema)
+      const newDoc = parser.parse(wrapper, { preserveWhitespace: true })
+
+      const newState = EditorState.create({
+        doc: newDoc,
+        plugins: this.prosemirror.view.state.plugins,
+      })
+
+      this.ignoreProsemirrorUpdates = true
+      this.prosemirror.view.updateState(newState)
+      const segmentMarks = Object.values(this.prosemirror.keyAccess.rangeTrackerKey.getState(this.prosemirror.view.state))
+
+      this.syncSegmentMarkStatuses(segmentMarks)
+      this.ignoreProsemirrorUpdates = false
+    },
+
+    /**
+     * Applies changes from the current selection to create or modify a segmentMark.
+     * Updates are handled by handleSegmentChanges callback, which persists changes locally.
+     * Finally, saveSegmentsDrafts saves the updated segments and textualReference to the API.
      */
     save () {
       const validSegment = applySelectionChange(this.prosemirror.view, this.prosemirror.keyAccess.editStateTrackerKey, this.prosemirror.keyAccess.rangeTrackerKey)
@@ -805,18 +959,20 @@ export default {
         return
       }
 
+      this.disableEditMode()
+      this.updateTextualReference()
       this.saveSegmentsDrafts(true)
       this.isSegmentDraftUpdated = true
-      this.disableEditMode()
       this.setCurrentTime()
     },
 
     scrollToSegment () {
-      const segment = document.querySelector(`span[data-range="${this.editingSegment.id}"`)
+      const segment = document.querySelector(`span[data-segment-id="${this.editingSegment.id}"`)
       const bodyRect = document.body.getBoundingClientRect().top
       const elementRect = segment.getBoundingClientRect().top
       const elementPosition = elementRect - bodyRect
       const offsetPosition = elementPosition - 100
+
       window.scrollTo({
         top: offsetPosition,
         behavior: 'smooth',
@@ -827,8 +983,56 @@ export default {
       this.maxRange = range
     },
 
+    setSegmentMarkConfirmStatus (mark, segment) {
+      const isConfirmed = segment.status === 'confirmed'
+
+      if (mark.isConfirmed === isConfirmed) {
+        return
+      }
+
+      setRange(this.prosemirror.view)(mark.from, mark.to, {
+        segmentId: mark.segmentId,
+        isConfirmed,
+      })
+    },
+
     setSegmentationStatus (status) {
       this.segmentationStatus = status
+    },
+
+    /**
+     * Synchronizes segment confirmation state between the store and ProseMirror.
+     *
+     * If a segment has no `status` property (e.g. AI-generated segments), it is initialized from the corresponding ProseMirror mark.
+     * Afterwards, the store becomes the source of truth and ProseMirror marks are
+     * updated to match it.
+     */
+    syncSegmentMarkStatuses (segmentMarks) {
+      const segmentsToUpdate = []
+      const segmentsById = Object.fromEntries(
+        this.segments.map(segment => [segment.id, segment]),
+      )
+
+      segmentMarks.forEach(mark => {
+        const segment = segmentsById[mark.segmentId]
+
+        if (!segment) {
+          return
+        }
+
+        const updatedSegment = this.initializeSegmentStatus(segment, mark)
+
+        if (updatedSegment !== segment) {
+          segmentsToUpdate.push(updatedSegment)
+          segmentsById[segment.id] = updatedSegment
+        }
+
+        this.setSegmentMarkConfirmStatus(mark, updatedSegment)
+      })
+
+      if (segmentsToUpdate.length) {
+        this.locallyUpdateSegments(segmentsToUpdate)
+      }
     },
 
     toggleInfobox () {
@@ -842,8 +1046,19 @@ export default {
       }
     },
 
+    updateTextualReference () {
+      const textualReference = this.extractHtmlWithSegmentMarks()
+
+      /* Store the serialized HTML (with custom <segment-mark> annotations) in draftSegmentsList for future rehydration */
+      this.setProperty({
+        prop: 'initText',
+        val: textualReference,
+      })
+    },
+
     updateSegments (updatedSegments) {
-      const newSegments = mergeRangesAndSegments(updatedSegments, this.segments)
+      const newSegments = mergeSegmentMarksAndSegments(updatedSegments, this.segments)
+
       this.locallyUpdateSegments(newSegments)
     },
   },

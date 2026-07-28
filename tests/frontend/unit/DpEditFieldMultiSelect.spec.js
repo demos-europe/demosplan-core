@@ -11,7 +11,9 @@ import { createStore } from 'vuex'
 import DpEditFieldMultiSelect from '@DpJs/components/statement/assessmentTable/DpEditFieldMultiSelect'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
-window.dplan = () => { return {} }
+window.dplan = () => {
+  return {}
+}
 
 describe('DpEditFieldMultiSelect', () => {
   const AssessmentTable = {

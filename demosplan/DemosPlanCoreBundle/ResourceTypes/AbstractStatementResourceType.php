@@ -76,7 +76,6 @@ use EDT\PathBuilding\End;
  * @property-read End $movedToProcedureName @deprecated See {@link StatementResourceType::$movedStatementId}
  * @property-read End $name @deprecated If still only needed for cluster statements then it should be moved into a separate resource type for such
  * @property-read End $parentId @deprecated Statements in clusters should get a separate resource type where this relationship(!) can be moved into
- * @property-read End $phase
  * @property-read End $polygon
  * @property-read End $priority
  * @property-read End $procedureId @deprecated Use relationship instead
@@ -184,11 +183,6 @@ abstract class AbstractStatementResourceType extends DplanResourceType
             ->readable(true)->aliasedPath(Paths::statement()->meta->orgaPostalCode);
         $configBuilder->parentId
             ->readable(true)->aliasedPath(Paths::statement()->parent->id);
-        $configBuilder->phase
-            ->readable(true,
-                fn (Statement $statement): string => $this->statementService->getProcedurePhaseName($statement->getPhase(),
-                    $statement->isSubmittedByCitizen())
-            );
         $configBuilder->polygon->readable(true);
         $configBuilder->priority->readable(true);
         $configBuilder->procedureId->readable(true)->aliasedPath(Paths::statement()->procedure->id);

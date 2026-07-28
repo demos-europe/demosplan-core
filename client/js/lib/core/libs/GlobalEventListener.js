@@ -14,6 +14,7 @@
 export default function initGlobalEventListener () {
   // Used for responsively compressed menu
   const responsiveMenuHelper = document.querySelector('[data-responsive-menu-helper]')
+
   if (responsiveMenuHelper) {
     responsiveMenuHelper.addEventListener('click', function (event) {
       event.preventDefault()
@@ -26,6 +27,7 @@ export default function initGlobalEventListener () {
       }
 
       const body = document.querySelector('body')
+
       body.classList.toggle('menu-open')
       document.getElementById('responsive-menu-helper-checkbox').toggleAttribute('checked')
       responsiveMenuHelper.setAttribute('aria-expanded', document.getElementById('responsive-menu-helper-checkbox').checked)

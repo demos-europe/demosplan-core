@@ -67,102 +67,131 @@ All rights reserved
       @items-selected="setSelectedItems"
     >
       <!-- Resource-specific content based on resourceType -->
-      <template v-slot:expandedContent="{ participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson, assignedTags }">
-        <div class="lg:w-2/3 lg:flex pt-4">
-          <dl class="pl-4 w-full">
-            <dt class="color--grey">
-              {{ Translator.trans('address') }}
-            </dt>
-            <template v-if="locationContacts && hasAdress(locationContacts)">
+      <template v-slot:expandedContent="{ id, participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson, assignedTags }">
+        <div class="border-l-4 border-neutral mb-2 ml-4 mt-4 pl-4">
+          <p class="weight--bold pb-2">
+            {{ Translator.trans('institution.general.information') }}
+          </p>
+          <div class="lg:flex">
+            <dl class="w-full">
+              <dt class="color--grey">
+                {{ Translator.trans('address') }}
+              </dt>
+              <template v-if="locationContacts && hasAdress(locationContacts)">
+                <dd
+                  v-if="locationContacts.street"
+                  class="ml-0"
+                >
+                  {{ locationContacts.street }}
+                </dd>
+                <dd
+                  v-if="locationContacts.postalcode"
+                  class="ml-0"
+                >
+                  {{ locationContacts.postalcode }}
+                </dd>
+                <dd
+                  v-if="locationContacts.city"
+                  class="ml-0"
+                >
+                  {{ locationContacts.city }}
+                </dd>
+              </template>
               <dd
-                v-if="locationContacts.street"
+                v-else
                 class="ml-0"
               >
-                {{ locationContacts.street }}
+                {{ Translator.trans('notspecified') }}
               </dd>
-              <dd
-                v-if="locationContacts.postalcode"
-                class="ml-0"
-              >
-                {{ locationContacts.postalcode }}
-              </dd>
-              <dd
-                v-if="locationContacts.city"
-                class="ml-0"
-              >
-                {{ locationContacts.city }}
-              </dd>
-            </template>
-            <dd
-              v-else
-              class="ml-0"
-            >
-              {{ Translator.trans('notspecified') }}
-            </dd>
-          </dl>
-          <dl class="pl-4 w-full">
-            <dt class="color--grey">
-              {{ Translator.trans('phone') }}
-            </dt>
-            <dd
-              v-if="locationContacts?.hasOwnProperty('phone') && locationContacts.phone"
-              class="ml-0"
-            >
-              {{ locationContacts.phone }}
-            </dd>
-            <dd
-              v-else
-              class="ml-0"
-            >
-              {{ Translator.trans('notspecified') }}
-            </dd>
-            <dt class="color--grey mt-2">
-              {{ Translator.trans('email.participation') }}
-            </dt>
-            <dd
-              v-if="participationFeedbackEmailAddress"
-              class="ml-0"
-            >
-              {{ participationFeedbackEmailAddress }}
-            </dd>
-            <dd
-              v-else
-              class="ml-0"
-            >
-              {{ Translator.trans('no.participation.email') }}
-            </dd>
-            <template v-if="ccEmailAddresses">
               <dt class="color--grey mt-2">
-                {{ Translator.trans('email.cc.participation') }}:
+                {{ Translator.trans('phone') }}
+              </dt>
+              <dd
+                v-if="locationContacts?.hasOwnProperty('phone') && locationContacts.phone"
+                class="ml-0"
+              >
+                {{ locationContacts.phone }}
+              </dd>
+              <dd
+                v-else
+                class="ml-0"
+              >
+                {{ Translator.trans('notspecified') }}
+              </dd>
+              <dt class="color--grey mt-2">
+                {{ Translator.trans('email.participation') }}
+              </dt>
+              <dd
+                v-if="participationFeedbackEmailAddress"
+                class="ml-0"
+              >
+                {{ participationFeedbackEmailAddress }}
+              </dd>
+              <dd
+                v-else
+                class="ml-0"
+              >
+                {{ Translator.trans('no.participation.email') }}
+              </dd>
+              <template v-if="ccEmailAddresses">
+                <dt class="color--grey mt-2">
+                  {{ Translator.trans('email.cc.participation') }}:
+                </dt>
+                <dd class="ml-0">
+                  {{ ccEmailAddresses }}
+                </dd>
+              </template>
+              <template v-if="contactPerson">
+                <dt class="color--grey mt-2">
+                  {{ Translator.trans('contact.person') }}:
+                </dt>
+                <dd class="ml-0">
+                  {{ contactPerson }}
+                </dd>
+              </template>
+            </dl>
+            <dl
+              v-if="hasPermission('feature_institution_tag_read') && Array.isArray(assignedTags) && assignedTags.length > 0"
+              class="w-full"
+            >
+              <dt class="color--grey">
+                {{ Translator.trans('tags') }}
               </dt>
               <dd class="ml-0">
-                {{ ccEmailAddresses }}
+                <div class="flex flex-wrap gap-1 mt-1">
+                  <span>
+                    {{ assignedTags.map(tag => tag.name).join(', ') }}
+                  </span>
+                </div>
               </dd>
-            </template>
-            <template v-if="contactPerson">
-              <dt class="color--grey mt-2">
-                {{ Translator.trans('contact.person') }}:
-              </dt>
-              <dd class="ml-0">
-                {{ contactPerson }}
-              </dd>
-            </template>
-          </dl>
-          <dl
-            v-if="hasPermission('feature_institution_tag_read') && Array.isArray(assignedTags) && assignedTags.length > 0"
-            class="pl-4 w-full"
-          >
-            <dt class="color--grey">
-              {{ Translator.trans('tags') }}
-            </dt>
-            <dd class="ml-0">
-              <div class="flex flex-wrap gap-1 mt-1">
-                <span>
-                  {{ assignedTags.map(tag => tag.name).join(', ') }}
-                </span>
-              </div>
-            </dd>
-          </dl>
+            </dl>
+          </div>
+
+          <template v-if="hasPermission('field_organisations_custom_fields') && getCustomFieldsForInstitution(id).length > 0">
+            <p class="weight--bold mt-4 pb-2">
+              {{ Translator.trans('institution.internal.information') }}
+            </p>
+            <div class="columns-1 lg:columns-2">
+              <dl
+                v-for="{ field, definition } in sortFields(getCustomFieldsForInstitution(id))"
+                :key="field.id"
+                class="mb-2 break-inside-avoid"
+              >
+                <dt class="color--grey flex items-center gap-1">
+                  <span>{{ definition.attributes.name }}</span>
+                  <dp-contextual-help
+                    v-if="definition.attributes.description"
+                    :text="definition.attributes.description"
+                    icon="question"
+                    size="medium"
+                  />
+                </dt>
+                <dd class="ml-0 whitespace-pre-line">
+                  {{ field.value }}
+                </dd>
+              </dl>
+            </div>
+          </template>
         </div>
       </template>
     </dp-data-table>
@@ -171,6 +200,7 @@ All rights reserved
 
 <script>
 import {
+  DpContextualHelp,
   DpDataTable,
   DpLoading,
   DpPager,
@@ -179,12 +209,14 @@ import {
 import { mapActions, mapGetters, mapState } from 'vuex'
 import ClientSideTagFilter from '@DpJs/components/procedure/admin/InstitutionTagManagement/ClientSideTagFilter'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
+import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 export default {
   name: 'OrganisationTable',
 
   components: {
     ClientSideTagFilter,
+    DpContextualHelp,
     DpDataTable,
     DpLoading,
     DpPager,
@@ -192,6 +224,12 @@ export default {
   },
 
   mixins: [paginationMixin],
+
+  setup () {
+    const { fetchCustomFields } = useCustomFields()
+
+    return { fetchCustomFields }
+  },
 
   props: {
     headerFields: {
@@ -217,6 +255,7 @@ export default {
 
   data () {
     return {
+      customFieldDefinitions: [],
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
@@ -269,14 +308,28 @@ export default {
     apiRequestFields () {
       const headerFieldNames = this.headerFields.map(field => field.field)
       const baseFields = ['participationFeedbackEmailAddress', 'locationContacts']
+      const customFields = hasPermission('field_organisations_custom_fields') ? ['customFields'] : []
       const tagFields = hasPermission('feature_institution_tag_read') ? ['assignedTags'] : []
 
-      return [...new Set([...headerFieldNames, ...baseFields,
-        ...tagFields])]
+      return [...new Set([...headerFieldNames, ...baseFields, ...customFields, ...tagFields])]
     },
 
     currentPage () {
       return this.pagination.currentPage || 1
+    },
+
+    customFieldValuesByInstitutionId () {
+      return Object.keys(this.storeItems).reduce((byInstitution, id) => {
+        const customFields = this.storeItems[id].attributes?.customFields || []
+
+        return {
+          ...byInstitution,
+          [id]: customFields.reduce((byField, field) => ({
+            ...byField,
+            [field.id]: field.value,
+          }), {}),
+        }
+      }, {})
     },
 
     isSearchApplied () {
@@ -329,6 +382,7 @@ export default {
     selectedItemsText () {
       const count = this.selectedItems.length
       const translationKey = count === 1 ? 'entry.selected' : 'entries.selected'
+
       return `${count} ${Translator.trans(translationKey)}`
     },
 
@@ -357,6 +411,21 @@ export default {
     ...mapActions('InstitutionTagCategory', {
       fetchInstitutionTagCategories: 'list',
     }),
+
+    getCustomFieldsForInstitution (institutionId) {
+      const values = this.customFieldValuesByInstitutionId[institutionId] || {}
+
+      return this.customFieldDefinitions
+        .map(definition => ({
+          definition,
+          field: { id: definition.id, value: values[definition.id] ?? null },
+        }))
+        .filter(({ field }) =>
+          field.value !== null &&
+          field.value !== undefined &&
+          field.value !== '',
+        )
+    },
 
     getInstitutionTagCategories (isInitial = false) {
       if (!hasPermission('feature_institution_tag_read')) {
@@ -541,12 +610,17 @@ export default {
         if (hasPermission(check.permission)) {
           acc.push(check.value)
         }
+
         return acc
       }, [])
     },
 
     setSelectedItems (items) {
       this.$emit('selectedItems', items)
+    },
+
+    sortFields (fields) {
+      return [...fields].sort((a, b) => a.definition.attributes.name.localeCompare(b.definition.attributes.name))
     },
 
     /**
@@ -569,6 +643,15 @@ export default {
     const promises = [
       this.getInstitutionTagCategories(true),
     ]
+
+    if (hasPermission('field_organisations_custom_fields')) {
+      promises.push(
+        this.fetchCustomFields(null, { sourceEntity: 'CUSTOMER', targetEntity: 'ORGA' })
+          .then(definitions => {
+            this.customFieldDefinitions = definitions || []
+          }),
+      )
+    }
 
     Promise.allSettled(promises)
       .then(() => {

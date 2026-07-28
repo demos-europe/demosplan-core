@@ -98,6 +98,7 @@ export default {
 
     toggle () {
       const unfolded = this.unfolded = !this.unfolded
+
       if (unfolded) {
         this.$emit('customLayer:unfolded')
       }

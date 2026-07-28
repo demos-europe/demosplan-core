@@ -232,10 +232,13 @@ export default {
 
     userRolesNames () {
       let names = []
+
       if (this.hasRoles) {
         const roles = Object.values(this.userRoles)
+
         names = roles.map(role => role.attributes.name)
       }
+
       return names
     },
   },

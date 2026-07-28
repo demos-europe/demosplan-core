@@ -201,6 +201,35 @@ class RouterTest extends FunctionalTestCase
         }
     }
 
+    public function testSlugifyRejectsShortUrlContainingSlashes(): void
+    {
+        $procedureId = 'ac616128-b29c-483e-aa21-c0b25e49a724';
+        $badShortUrl = 'https://example.com/offene-verfahren/';
+
+        $innerRouter = $this->createMock(RouterInterface::class);
+        $innerRouter
+            ->expects(self::once())
+            ->method('generate')
+            ->with(
+                self::anything(),
+                self::callback(
+                    static fn (array $params): bool => $procedureId === $params['procedure']
+                )
+            )
+            ->willReturn('/anything');
+
+        $globalConfig = $this->createMock(GlobalConfigInterface::class);
+        $globalConfig->method('getUrlScheme')->willReturn('http');
+        $globalConfig->method('getUrlPathPrefix')->willReturn('');
+
+        $procedureRepository = $this->getMock(ProcedureRepository::class, [
+            new MockMethodDefinition('findShortUrlById', $badShortUrl),
+        ]);
+
+        $sut = new Router($globalConfig, $procedureRepository, $innerRouter);
+        $sut->generate('anyRoute', ['procedure' => $procedureId]);
+    }
+
     public function testProcedureDecodeMatch()
     {
         /** @var Router $sut */

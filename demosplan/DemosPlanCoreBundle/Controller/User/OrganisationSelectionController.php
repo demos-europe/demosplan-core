@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\OAuth\PendingRequestCacheService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentOrganisationService;
+use demosplan\DemosPlanCoreBundle\ValueObject\PendingRequestData;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -44,7 +45,7 @@ class OrganisationSelectionController extends BaseController
      * Display organisation selection page for multi-responsibility users.
      */
     #[DplanPermissions('area_demosplan')]
-    #[Route(name: 'DemosPlan_user_select_organisation', path: '/organisation/select')]
+    #[Route(path: '/organisation/select', name: 'DemosPlan_user_select_organisation')]
     public function selectOrganisation(Request $request): Response
     {
         $user = $this->getUser();
@@ -94,7 +95,7 @@ class OrganisationSelectionController extends BaseController
      * Handle organisation selection/switch.
      */
     #[DplanPermissions('area_demosplan')]
-    #[Route(name: 'DemosPlan_user_switch_organisation', path: '/organisation/switch-responsibility', methods: ['POST'])]
+    #[Route(path: '/organisation/switch-responsibility', name: 'DemosPlan_user_switch_organisation', methods: ['POST'])]
     public function switchOrganisation(Request $request): RedirectResponse
     {
         // Validate CSRF token
@@ -150,7 +151,7 @@ class OrganisationSelectionController extends BaseController
         $pendingRequest = $this->pendingRequestCacheService->retrieve($user->getId());
         $this->pendingRequestCacheService->delete($user->getId());
 
-        if (null !== $pendingRequest) {
+        if ($pendingRequest instanceof PendingRequestData) {
             $pendingOrgId = $pendingRequest->getSelectedOrganisationId();
             $pendingPageUrl = $pendingRequest->getPageUrl();
 

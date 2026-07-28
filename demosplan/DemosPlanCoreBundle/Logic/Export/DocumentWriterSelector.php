@@ -13,6 +13,10 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Export;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Export\Odt\OdtBorderedWriter;
+use PhpOffice\PhpWord\IOFactory;
+use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\Writer\WriterInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class DocumentWriterSelector
@@ -28,6 +32,19 @@ class DocumentWriterSelector
         return $this->shouldUseOdt()
             ? 'ODText'
             : 'Word2007';
+    }
+
+    /**
+     * PhpWord's stock ODText writer drops table-cell borders, so wrap it with
+     * {@see OdtBorderedWriter} which post-processes content.xml to add them.
+     */
+    public function createWriter(PhpWord $phpWord): WriterInterface
+    {
+        if ($this->shouldUseOdt()) {
+            return new OdtBorderedWriter($phpWord);
+        }
+
+        return IOFactory::createWriter($phpWord, $this->getWriterType());
     }
 
     public function getFileExtension(): string

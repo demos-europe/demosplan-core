@@ -14,6 +14,7 @@ export default class NotificationStoreAdapter {
 
   notify (type, text, linkUrl = '', linkText = '') {
     let message = { type }
+
     if (typeof text === 'object') {
       message.linkUrl = text.linkUrl || null
       message.linkText = text.linkText || null
@@ -22,6 +23,7 @@ export default class NotificationStoreAdapter {
     } else {
       message = { type, text, linkUrl, linkText, persist: false }
     }
+
     this.store.commit('Notify/add', message)
   }
 

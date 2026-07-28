@@ -23,6 +23,7 @@ describe('inlineImageAnchors', () => {
 
   it('preserves anchors without the target class', () => {
     const html = '<a class="other-class" href="http://example.com">keep me</a>'
+
     expect(inlineImageAnchors(html)).toBe(html)
   })
 
@@ -37,6 +38,7 @@ describe('inlineImageAnchors', () => {
 
   it('trims the alt value from anchor text content', () => {
     const html = '<a class="pdf_importer_image" href="x">  spaced label  </a>'
+
     expect(inlineImageAnchors(html)).toContain('alt="spaced label"')
   })
 
@@ -45,6 +47,7 @@ describe('inlineImageAnchors', () => {
     const result = inlineImageAnchors(html)
 
     const matches = result.match(/<img/g)
+
     expect(matches).toHaveLength(2)
     expect(result).not.toContain('<a')
   })
@@ -59,6 +62,7 @@ describe('inlineImageAnchors', () => {
 
   it('returns the input unchanged when the class is absent', () => {
     const html = '<p>no images here</p>'
+
     expect(inlineImageAnchors(html)).toBe(html)
   })
 

@@ -124,6 +124,7 @@ export default {
   computed: {
     completedPercent () {
       const checked = this.checkedItems.filter(val => val === true)
+
       return checked.length / this.errors.length * 100
     },
 

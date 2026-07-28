@@ -16,6 +16,8 @@ use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOu
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplate;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplateName;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\ExportTemplateData;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
@@ -96,49 +98,49 @@ abstract class AssessmentTableFileExporterAbstract
         // define various variables based on cases
         if ($original) {
             switch ($template) {
-                case 'condensed':
+                case ExportTemplate::CONDENSED->value:
                     $filenamePrefix = 'Abwaegungstabelle';
-                    $templateName = 'export_condensed';
+                    $templateName = ExportTemplateName::EXPORT_CONDENSED->value;
                     $title = 'statements.original';
                     break;
-                case 'landscape':
-                case 'portrait':
+                case ExportTemplate::LANDSCAPE->value:
+                case ExportTemplate::PORTRAIT->value:
                 default:
                     $filenamePrefix = 'Originalstellungnahmen';
-                    $templateName = 'export_original';
+                    $templateName = ExportTemplateName::EXPORT_ORIGINAL->value;
                     $title = 'statements.original';
                     break;
             }
         } elseif ($anonymous) {
-            $templateName = 'export_anonymous';
+            $templateName = ExportTemplateName::EXPORT_ANONYMOUS->value;
             switch ($template) {
-                case 'condensed':
+                case ExportTemplate::CONDENSED->value:
                     $filenamePrefix = $translator->trans('considerationtable').'_ohneNamen';
-                    $templateName = 'export_condensed_anonymous';
+                    $templateName = ExportTemplateName::EXPORT_CONDENSED_ANONYMOUS->value;
                     $title = 'assessment.table';
                     break;
-                case 'portraitWithFrags':
-                case 'landscapeWithFrags':
-                    $templateName = 'export_fragments_anonymous';
+                case ExportTemplate::PORTRAIT_WITH_FRAGMENTS->value:
+                case ExportTemplate::LANDSCAPE_WITH_FRAGMENTS->value:
+                    $templateName = ExportTemplateName::EXPORT_FRAGMENTS_ANONYMOUS->value;
                     // no break
-                case 'landscape':
-                case 'portrait':
+                case ExportTemplate::LANDSCAPE->value:
+                case ExportTemplate::PORTRAIT->value:
                 default:
                     $filenamePrefix = $translator->trans('considerationtable').'_ohneNamen';
                     $title = 'assessment.table';
             }
         } else {
             switch ($template) {
-                case 'condensed':
+                case ExportTemplate::CONDENSED->value:
                     $filenamePrefix = $translator->trans('considerationtable');
-                    $templateName = 'export_condensed';
+                    $templateName = ExportTemplateName::EXPORT_CONDENSED->value;
                     $title = 'assessment.table';
                     break;
-                case 'landscape':
-                case 'portrait':
+                case ExportTemplate::LANDSCAPE->value:
+                case ExportTemplate::PORTRAIT->value:
                 default:
                     $filenamePrefix = $translator->trans('considerationtable');
-                    $templateName = 'export';
+                    $templateName = ExportTemplateName::EXPORT->value;
                     $title = 'assessment.table';
             }
         }

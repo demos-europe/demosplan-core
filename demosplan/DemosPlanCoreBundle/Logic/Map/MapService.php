@@ -128,7 +128,7 @@ class MapService
         // transform object and date times to array/timestamp
         foreach ($listOfGisLayers as $gisLayer) {
             $gisLayer = $this->convertToLegacy($gisLayer);
-            if (isset($gisLayer['gId']) && 0 < strlen((string) $gisLayer['gId'])) {
+            if (isset($gisLayer['gId']) && '' !== (string) $gisLayer['gId']) {
                 $globalLayer = $this->mapRepository->get($gisLayer['gId']);
                 $gisLayer['globalGis'] = $this->convertToLegacy($globalLayer);
                 $gisLayer['globalLayer'] = true;
@@ -169,7 +169,7 @@ class MapService
         foreach ($listOfGisLayers as $gisLayer) {
             $gisLayer = $this->convertToLegacy($gisLayer);
 
-            if (isset($gisLayer['gId']) && 0 < strlen((string) $gisLayer['gId'])) {
+            if (isset($gisLayer['gId']) && '' !== (string) $gisLayer['gId']) {
                 $globalLayer = $this->mapRepository->get($gisLayer['gId']);
                 $gisLayer['globalGis'] = $this->convertToLegacy($globalLayer);
                 $gisLayer['globalLayer'] = true;
@@ -222,7 +222,7 @@ class MapService
             $singleGis = $this->mapRepository->get($ident);
             $singleGis = $this->convertToLegacy($singleGis);
 
-            if (isset($singleGis['gId']) && 0 < strlen((string) $singleGis['gId'])) {
+            if (isset($singleGis['gId']) && '' !== (string) $singleGis['gId']) {
                 $globalLayer = $this->mapRepository->get($singleGis['gId']);
                 $singleGis['globalGis'] = $this->convertToLegacy($globalLayer);
                 $singleGis['globalLayer'] = true;

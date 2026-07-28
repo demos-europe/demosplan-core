@@ -30,6 +30,7 @@ initialize(components, stores).then(() => {
   // To Disable Submit Button after Form Validate
   dpValidate()
   const fragmentSubmitButton = document.getElementById('fragmentSubmitButton')
+
   document.addEventListener('customValidationPassed', function (e) {
     fragmentSubmitButton.disabled = true
   })

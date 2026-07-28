@@ -127,6 +127,7 @@ export default {
 
     displayedBoilerplates () {
       const displayed = JSON.parse(JSON.stringify(this.getGroupedBoilerplates))
+
       displayed.forEach(group => {
         if (this.boilerPlateType !== '') {
           if (typeof this.boilerPlateType === 'string') {
@@ -142,11 +143,13 @@ export default {
 
     displayedBoilerplateType () {
       let boilerplateString = ''
+
       if (typeof this.boilerPlateType === 'string') {
         boilerplateString = Translator.trans(this.boilerPlateType)
       } else if (Array.isArray(this.boilerPlateType)) {
         boilerplateString = this.boilerPlateType.map(bp => Translator.trans(bp)).join(', ')
       }
+
       return boilerplateString
     },
 

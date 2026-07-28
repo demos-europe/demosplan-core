@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -22,7 +24,7 @@ class SegmentBulkEditController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('feature_segments_bulk_edit')]
-    #[Route(name: 'dplan_segment_bulk_edit_form', methods: 'GET', path: '/verfahren/{procedureId}/abschnitte/bulk-edit', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedureId}/abschnitte/bulk-edit', name: 'dplan_segment_bulk_edit_form', options: ['expose' => true], methods: 'GET')]
     public function showForm(string $procedureId): Response
     {
         return $this->render('@DemosPlanCore/DemosPlanProcedure/administration_segments_bulk_edit.html.twig', [

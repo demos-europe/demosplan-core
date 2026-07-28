@@ -43,7 +43,7 @@ class EncryptedStringType extends StringType
             return null;
         }
 
-        return self::getEncryptor()->encrypt((string) $value);
+        return $this->getEncryptor()->encrypt((string) $value);
     }
 
     public function convertToPHPValue($value, AbstractPlatform $platform): ?string
@@ -53,7 +53,7 @@ class EncryptedStringType extends StringType
         }
 
         try {
-            return self::getEncryptor()->decrypt((string) $value);
+            return $this->getEncryptor()->decrypt((string) $value);
         } catch (CryptoException) {
             // Legacy plaintext value not yet encrypted — return as-is.
             // It will be encrypted on next persist/flush.
@@ -66,9 +66,9 @@ class EncryptedStringType extends StringType
         return self::DPLAN_ENCRYPTED_STRING;
     }
 
-    private static function getEncryptor(): SecretEncryptor
+    private function getEncryptor(): SecretEncryptor
     {
-        if (null === self::$encryptor) {
+        if (!self::$encryptor instanceof SecretEncryptor) {
             throw new CryptoException('EncryptedStringType requires a SecretEncryptor. Ensure the EncryptedStringTypeInitializer listener is registered.');
         }
 

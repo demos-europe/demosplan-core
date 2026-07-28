@@ -80,7 +80,7 @@ class TokenData extends ValueObject
             $this->refreshToken = $encryptionService->decrypt($oauthToken->getRefreshToken());
         }
 
-        if (null !== $oauthToken->getRefreshTokenExpiresAt()) {
+        if ($oauthToken->getRefreshTokenExpiresAt() instanceof DateTime) {
             $this->refreshTokenExpiresAt = $oauthToken->getRefreshTokenExpiresAt();
         }
 

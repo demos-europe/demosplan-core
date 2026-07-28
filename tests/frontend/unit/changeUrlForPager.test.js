@@ -20,6 +20,7 @@ describe('changeUrlforPager', () => {
     part1: 'https://dummy.com',
     part2: `r_limit=${urlContent.count}&page=${urlContent.currentPage}`,
   }
+
   beforeAll(() => {
     global.window = Object.create(window)
     defineProp = (url) => {
@@ -32,6 +33,7 @@ describe('changeUrlforPager', () => {
         count: urlContent.count,
         current_page: urlContent.currentPage,
       })
+
       return updatedUrl
     }
   })
@@ -41,11 +43,13 @@ describe('changeUrlforPager', () => {
       count: urlContent.count,
       current_page: urlContent.currentPage,
     })
+
     expect(url[1]).toBe(urlParts.part2)
   })
 
   it('overwrites given values', () => {
     const url = `${urlParts.part1}?r_limit=2&page=5`
+
     defineProp(url)
     expect(updatedUrl[0]).toBe(urlParts.part1)
     expect(updatedUrl[1]).toBe(urlParts.part2)

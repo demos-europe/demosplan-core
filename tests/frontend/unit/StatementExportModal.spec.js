@@ -30,6 +30,7 @@ describe('StatementExportModal', () => {
     isInstitutionDataCensored: false,
     isObscured: false,
     tagFilterIds: [],
+    uploadedDocxTemplate: null,
   }
 
   beforeEach(() => {
@@ -66,6 +67,7 @@ describe('StatementExportModal', () => {
   it('opens the modal when the button is clicked', async () => {
     const modal = wrapper.findComponent(DpModal)
     const mockEvent = { preventDefault: jest.fn() }
+
     modal.vm.$emit('click', mockEvent)
 
     expect(modal.isVisible()).toBe(true)
@@ -73,6 +75,7 @@ describe('StatementExportModal', () => {
 
   it('sets the initial values correctly', () => {
     const sessionStorageValue = 'Stored Column Title'
+
     window.sessionStorage.setItem('exportModal:docxCol:col1', JSON.stringify(sessionStorageValue))
     wrapper.vm.setInitialValues()
 
@@ -90,6 +93,7 @@ describe('StatementExportModal', () => {
 
       Object.keys(wrapper.vm.docxColumns).forEach(key => {
         const input = wrapper.find(`[datacy="exportModal:input:${key}"]`)
+
         expect(input.exists()).toBe(true)
       })
     })
@@ -230,6 +234,7 @@ describe('StatementExportModal', () => {
       isInstitutionDataCensored: true,
       isObscured: false,
       tagFilterIds: [],
+      uploadedDocxTemplate: null,
     })
   })
 
@@ -253,6 +258,7 @@ describe('StatementExportModal', () => {
       isInstitutionDataCensored: false,
       isObscured: true,
       tagFilterIds: [],
+      uploadedDocxTemplate: null,
     })
   })
 
@@ -275,6 +281,7 @@ describe('StatementExportModal', () => {
     ]
 
     const flyoutRef = wrapper.vm.$refs.filterFlyout
+
     expect(flyoutRef).toBeTruthy()
     flyoutRef.itemsSelected = itemsSelectedMock
 
@@ -308,6 +315,7 @@ describe('StatementExportModal', () => {
     ]
 
     const flyoutRef = wrapper.vm.$refs.filterFlyout
+
     expect(flyoutRef).toBeTruthy()
     flyoutRef.itemsSelected = itemsSelectedMock
 
@@ -354,6 +362,7 @@ describe('StatementExportModal', () => {
 
   it('closes the DpModal after executing the handleExport function', () => {
     const toggleSpy = jest.spyOn(wrapper.vm.$refs.exportModalInner, 'toggle')
+
     wrapper.vm.handleExport()
 
     expect(toggleSpy).toHaveBeenCalled()
@@ -388,26 +397,62 @@ describe('StatementExportModal', () => {
     expect(wrapper.find(selector).exists()).toBe(false)
   })
 
-  it('requests the full-export placeholder when no tag filters are selected', () => {
-    const transSpy = jest.spyOn(globalThis.Translator, 'trans')
-    transSpy.mockClear()
+  it('emits the via-template route and hash when single statement export has an uploaded template and permission', async () => {
+    await wrapper.setProps({ isSingleStatementExport: true })
+    await wrapper.setData({ uploadedHash: 'template-hash-123' })
 
-    expect(wrapper.vm.customHeaderPlaceholder).toBe('docx.export.header.custom.placeholder')
-    expect(transSpy).toHaveBeenCalledWith(
-      'docx.export.header.custom.placeholder',
-      expect.objectContaining({ isPartialExport: false }),
-    )
+    wrapper.vm.handleExport()
+    const exportEvent = wrapper.emitted('export')[0][0]
+
+    expect(exportEvent.route).toBe('dplan_statement_via_template_export')
+    expect(exportEvent.uploadedDocxTemplate).toBe('template-hash-123')
   })
 
-  it('requests the partial-export placeholder when tag filters are selected', async () => {
-    const transSpy = jest.spyOn(globalThis.Translator, 'trans')
-    await wrapper.setData({ selectedTagIds: ['tagID1'] })
-    transSpy.mockClear()
+  it('falls back to the default single-statement route when the template permission is missing', async () => {
+    const originalHasPermission = globalThis.hasPermission
+    globalThis.hasPermission = jest.fn(() => false)
 
-    expect(wrapper.vm.customHeaderPlaceholder).toBe('docx.export.header.custom.placeholder')
-    expect(transSpy).toHaveBeenCalledWith(
-      'docx.export.header.custom.placeholder',
-      expect.objectContaining({ isPartialExport: true }),
-    )
+    try {
+      await wrapper.setProps({ isSingleStatementExport: true })
+      await wrapper.setData({ uploadedHash: 'template-hash-123' })
+
+      wrapper.vm.handleExport()
+      const exportEvent = wrapper.emitted('export')[0][0]
+
+      expect(exportEvent.route).toBe('dplan_segments_export')
+      expect(exportEvent.uploadedDocxTemplate).toBeNull()
+    } finally {
+      globalThis.hasPermission = originalHasPermission
+    }
+  })
+
+  it('restores uploadedHash from sessionStorage in setInitialValues', () => {
+    globalThis.sessionStorage.setItem(`templateHash_${MOCK_PROCEDURE_ID}`, JSON.stringify([{ hash: 'stored-hash' }]))
+    wrapper.vm.setInitialValues()
+
+    expect(wrapper.vm.uploadedHash).toBe('stored-hash')
+  })
+
+  it('clears uploadedHash in setInitialValues when no template is stored', () => {
+    wrapper.vm.setInitialValues()
+
+    expect(wrapper.vm.uploadedHash).toBe('')
+  })
+
+  it('resets uploadedHash when resetExportModalState is called', async () => {
+    await wrapper.setData({ uploadedHash: 'some-hash' })
+    wrapper.vm.resetExportModalState()
+
+    expect(wrapper.vm.uploadedHash).toBe('')
+  })
+
+  it('displays column header warning only if single statement export, hash uploaded, permission granted, and column title is set', async () => {
+    await wrapper.setProps({ isSingleStatementExport: true })
+    await wrapper.setData({
+      uploadedHash: 'template-hash',
+      docxColumns: { col1: { title: 'My Title' } },
+    })
+
+    expect(wrapper.findComponent({ name: 'DpInlineNotification' }).exists()).toBe(true)
   })
 })

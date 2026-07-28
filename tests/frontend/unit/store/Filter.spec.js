@@ -53,6 +53,7 @@ describe('FilterStore', () => {
   it('returns the correct filter hash for a given UserFilterSet', () => {
     // Mock state
     const userFilterSet = UserFilterSetResource.data[0]
+
     store.state.userFilterSets = UserFilterSetResource
     // Call the getter with the mocked state and user filter set
     const result = store.getters.userFilterSetFilterHash(userFilterSet)

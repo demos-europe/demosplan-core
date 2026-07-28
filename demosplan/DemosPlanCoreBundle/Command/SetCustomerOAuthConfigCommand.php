@@ -262,7 +262,7 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
     {
         $clientSecret = $io->askHidden(
             'Client Secret (input hidden)'
-                .($existingConfig ? ' [leave empty to keep current]' : '')
+                .($existingConfig instanceof CustomerOAuthConfig ? ' [leave empty to keep current]' : '')
         );
 
         if ('' === $clientSecret || null === $clientSecret) {
@@ -288,7 +288,7 @@ class SetCustomerOAuthConfigCommand extends CoreCommand
         }
 
         $config = $this->configRepository->findByCustomer($customer);
-        if (null === $config) {
+        if (!$config instanceof CustomerOAuthConfig) {
             $config = new CustomerOAuthConfig();
             $config->setCustomer($customer);
             $this->entityManager->persist($config);

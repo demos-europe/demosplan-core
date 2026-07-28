@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Scheduler;
 
+use demosplan\DemosPlanCoreBundle\Message\AccountDeletionRunMessage;
 use demosplan\DemosPlanCoreBundle\Message\AutoSwitchProcedurePhasesMessage;
 use demosplan\DemosPlanCoreBundle\Message\CleanupFilesMessage;
 use demosplan\DemosPlanCoreBundle\Message\CreateUnsubmittedDraftEmailsMessage;
@@ -66,6 +67,7 @@ class DailyMaintenanceScheduler implements ScheduleProviderInterface
             ->add(RecurringMessage::cron('35 0 * * *', new PurgeSentEmailsMessage()))
             ->add(RecurringMessage::cron('40 0 * * *', new CleanupFilesMessage()))
             ->add(RecurringMessage::cron('45 0 * * *', new LoginAuditCleanupMessage()))
+            ->add(RecurringMessage::cron('50 0 * * *', new AccountDeletionRunMessage()))
             ->lock($this->lockFactory->createLock('demosplan_daily_maintenance_scheduler_lock'))
         ;
     }
