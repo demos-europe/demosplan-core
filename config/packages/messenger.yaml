@@ -1,0 +1,20 @@
+framework:
+    messenger:
+        failure_transport: failed
+
+        transports:
+            # Long-running work (e.g. the Planunterlagen ZIP import) runs here so it is not
+            # bound by the web-request/gateway timeout and does not occupy a PHP-FPM worker.
+            # Uses the Doctrine connection as the queue store (auto-creates the
+            # messenger_messages table).
+            async:
+                dsn: 'doctrine://dplan'
+                retry_strategy:
+                    max_retries: 1
+                    delay: 5000
+            failed: 'doctrine://dplan?queue_name=failed'
+            sync: 'sync://'
+
+        routing:
+            demosplan\DemosPlanCoreBundle\Message\ExtractElementImportMessage: async
+            demosplan\DemosPlanCoreBundle\Message\SaveElementImportMessage: async

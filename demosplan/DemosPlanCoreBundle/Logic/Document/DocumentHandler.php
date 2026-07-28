@@ -10,11 +10,13 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Document;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ElementsInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
+use demosplan\DemosPlanCoreBundle\Entity\File;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ElementImportJob;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Exception\VirusFoundException;
@@ -23,13 +25,12 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use DirectoryIterator;
+use Doctrine\ORM\EntityManagerInterface;
 use Exception;
-use League\Flysystem\FilesystemException;
-use League\Flysystem\FilesystemOperator;
 use ReflectionException;
 use RuntimeException;
-use Symfony\Component\Filesystem\Exception\IOException;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -37,6 +38,14 @@ class DocumentHandler extends CoreHandler
 {
     final public const ACTION_SINGLE_DOCUMENT_NEW = 'singledocumentnew';
     private const POSSIBLE_ENCODINGS = 'UTF-8, ISO-8859-1, ISO-8859-15';
+
+    /**
+     * How many imported documents are collected before they are written to the database.
+     *
+     * Trades memory held in the unit of work against the number of flushes; 200 keeps both
+     * small enough for imports with tens of thousands of files.
+     */
+    private const IMPORT_FLUSH_BATCH_SIZE = 200;
 
     /**
      * @var SingleDocumentHandler
@@ -58,8 +67,8 @@ class DocumentHandler extends CoreHandler
         private readonly CurrentUserService $currentUser,
         private readonly ElementHandler $elementHandler,
         ElementsService $elementsService,
+        private readonly EntityManagerInterface $entityManager,
         private readonly FileService $fileService,
-        private readonly FilesystemOperator $defaultStorage,
         MessageBagInterface $messageBag,
         private readonly ParagraphService $paragraphService,
         private readonly ProcedureService $procedureService,
@@ -74,30 +83,22 @@ class DocumentHandler extends CoreHandler
     }
 
     /**
-     * @param array  $request
-     * @param string $sessionId
-     * @param array  $sessionElementImportList
+     * @param array            $request
+     * @param array            $sessionElementImportList
+     * @param ElementImportJob $job                      progress is reported on this row, which is what
+     *                                                   the browser polls: the import runs in a worker,
+     *                                                   so there is neither a session to keep counters
+     *                                                   in nor a request to return them from
      *
      * @throws Exception
      */
     public function saveElementsFromImport(
         $request,
-        $sessionId,
         $sessionElementImportList,
         string $procedure,
         string $importDir,
+        ElementImportJob $job,
     ): array {
-        // Schreibe den Status des Imports im ein temporäres File
-        // local file only, no need for flysystem
-        $fs = new Filesystem();
-        $statusHash = md5($sessionId.$procedure);
-        $status = Json::encode(['bulkImportFilesTotal' => 0, 'bulkImportFilesProcessed' => 0]);
-        try {
-            $fs->dumpFile('uploads/files/importStatus_'.$statusHash.'.json', $status);
-        } catch (IOException $e) {
-            $this->logger->warning('Could not dump Statusfile: ', [$e]);
-        }
-
         $this->getSession()->set('bulkImportFilesTotal', 0);
         $this->getSession()->set('bulkImportFilesProcessed', 0);
 
@@ -110,7 +111,7 @@ class DocumentHandler extends CoreHandler
         $this->saveElementsFromDirArray(
             $fileDir,
             $startElementId,
-            $sessionId,
+            $job,
             $procedure,
             $request,
             $sessionElementImportList,
@@ -120,10 +121,13 @@ class DocumentHandler extends CoreHandler
         $this->getSession()->remove('bulkImportFilesTotal');
         $this->getSession()->remove('bulkImportFilesProcessed');
 
+        // The extracted archive stays on local disk between extraction and this method, so the
+        // leftovers (empty directories, and files of entries that could not be imported) are
+        // removed locally rather than through flysystem.
         try {
-            $this->defaultStorage->deleteDirectory($importDir);
-        } catch (FilesystemException $e) {
-            $this->logger->error('Could not delete file: ', [$e]);
+            DemosPlanPath::recursiveRemoveLocalPath($importDir);
+        } catch (Exception $e) {
+            $this->logger->error('Could not delete import directory: ', [$e]);
         }
 
         return $errorReport;
@@ -144,7 +148,6 @@ class DocumentHandler extends CoreHandler
      *
      * @param array       $entries
      * @param string      $elementId
-     * @param string      $sessionId
      * @param string      $procedure
      * @param array       $request
      * @param array       $sessionElementImportList
@@ -157,15 +160,13 @@ class DocumentHandler extends CoreHandler
     protected function saveElementsFromDirArray(
         $entries,
         $elementId,
-        $sessionId,
+        ElementImportJob $job,
         $procedure,
         $request,
         $sessionElementImportList,
         array &$errorReport,
         $category = null,
     ) {
-        // used for local files only, no need for flysystem
-        $fs = new Filesystem();
         $result = [];
 
         if (!is_array($errorReport)) {
@@ -178,6 +179,7 @@ class DocumentHandler extends CoreHandler
          */
         $singleDocumentIndex = 0;
         $createdDocuments = [];
+        $createdFiles = [];
 
         foreach ($entries as $entry) {
             $fileName = $this->resolveImportFileName($entry, $sessionElementImportList, $request);
@@ -197,7 +199,7 @@ class DocumentHandler extends CoreHandler
                 $this->saveElementsFromDirArray(
                     $entry['entries'],
                     $resultElementId,
-                    $sessionId,
+                    $job,
                     $procedure,
                     $request,
                     $sessionElementImportList,
@@ -212,9 +214,21 @@ class DocumentHandler extends CoreHandler
 
                 // speichere die Datei im Fileservice ab
                 try {
-                    // Viruscheck has been done for complete zip, so no check needed any more
-                    $entry['path'] = $this->fileService->ensureLocalFile($entry['path'], $entry['title']);
-                    $this->fileService->saveTemporaryLocalFile($entry['path'], $fileName, $this->currentUser->getUser()->getId(), $procedure, FileService::VIRUSCHECK_NONE);
+                    // $entry['path'] already points at the extracted file on local disk, so it can
+                    // be handed to the file service directly. Viruscheck has been done for the
+                    // complete zip, so no check is needed any more.
+                    // flush: false — the File rows are written by the batch flush below. Letting
+                    // saveTemporaryLocalFile() flush per file made every one of tens of thousands
+                    // of files walk the whole unit of work.
+                    $createdFiles[] = $this->fileService->saveTemporaryLocalFile(
+                        $entry['path'],
+                        $fileName,
+                        $this->currentUser->getUser()->getId(),
+                        $procedure,
+                        FileService::VIRUSCHECK_NONE,
+                        null,
+                        false
+                    );
 
                     $singleDocument = new SingleDocument();
                     $singleDocument->setTitle($fileName);
@@ -250,26 +264,74 @@ class DocumentHandler extends CoreHandler
                     $errorReport[] = 'Die Datei '.$fileName.' konnte nicht importiert werden.';
                 }
 
-                // save all the created documents
-                $this->singleDocumentService->persistAndFlushNewPlanningDocumentsFromImport($createdDocuments);
-
-                // Schreibe den Status des Imports im ein temporäres File
-                $status = Json::encode(
-                    [
-                        'bulkImportFilesTotal'     => $this->getSession()->get('bulkImportFilesTotal'),
-                        'bulkImportFilesProcessed' => $this->getSession()->get('bulkImportFilesProcessed'),
-                    ]
-                );
-                try {
-                    $statusHash = md5($sessionId.$procedure);
-                    $fs->dumpFile('uploads/files/importStatus_'.$statusHash.'.json', $status);
-                } catch (IOException $e) {
-                    $this->logger->warning('could not update Statusfile: ', [$e]);
+                if (self::IMPORT_FLUSH_BATCH_SIZE <= count($createdDocuments)) {
+                    $this->flushImportedDocuments($createdDocuments, $createdFiles, $job);
                 }
             }
         }
 
+        // Flush whatever is left over from the last, incomplete batch of this recursion level.
+        $this->flushImportedDocuments($createdDocuments, $createdFiles, $job);
+
         return $result;
+    }
+
+    /**
+     * Persist the documents buffered so far and publish the progress the browser polls.
+     *
+     * Both operations are batched rather than done per file. This method is reached from a
+     * loop over every entry of the import, and the previous implementation persisted the
+     * whole (growing) buffer on each iteration, making the database work quadratic in the
+     * number of files — an import of ~37.000 files spent most of its runtime here.
+     *
+     * Both buffers are taken by reference so the caller's state is emptied together with the
+     * flush; forgetting to reset them is what made the work quadratic in the first place.
+     *
+     * @param list<SingleDocument> $createdDocuments
+     * @param list<File>           $createdFiles
+     */
+    private function flushImportedDocuments(array &$createdDocuments, array &$createdFiles, ElementImportJob $job): void
+    {
+        if ([] !== $createdDocuments) {
+            $this->singleDocumentService->persistAndFlushNewPlanningDocumentsFromImport($createdDocuments);
+        }
+
+        $job->setFilesTotal((int) $this->getSession()->get('bulkImportFilesTotal'));
+        $job->setFilesProcessed((int) $this->getSession()->get('bulkImportFilesProcessed'));
+        $job->setModifiedDate(new DateTime());
+        $this->entityManager->flush();
+
+        $this->detachWrittenRows($createdDocuments, $createdFiles);
+    }
+
+    /**
+     * Remove the rows just written from Doctrine's identity map.
+     *
+     * Batching the flushes alone does not make the import linear: every flush computes change
+     * sets for everything the entity manager still manages, and that set keeps growing as the
+     * import proceeds. Neither the documents nor the files are read again once written, so they
+     * are detached, which keeps each flush proportional to the batch size instead of to the
+     * number of files imported so far.
+     *
+     * Only these two types are detached rather than clearing the entity manager entirely: the
+     * job, the procedure and the element categories are needed for the rest of the import and
+     * would otherwise have to be re-fetched.
+     *
+     * @param list<SingleDocument> $createdDocuments
+     * @param list<File>           $createdFiles
+     */
+    private function detachWrittenRows(array &$createdDocuments, array &$createdFiles): void
+    {
+        foreach ($createdDocuments as $createdDocument) {
+            $this->entityManager->detach($createdDocument);
+        }
+
+        foreach ($createdFiles as $createdFile) {
+            $this->entityManager->detach($createdFile);
+        }
+
+        $createdDocuments = [];
+        $createdFiles = [];
     }
 
     /**
@@ -318,29 +380,33 @@ class DocumentHandler extends CoreHandler
     {
         $result = [];
 
-        // Recursively go through all directories. Save folders as Elements, files as Files in the Elements
-        // Use false for recursive parameter to only get direct contents of this directory
-        $contents = $this->defaultStorage->listContents($dir, false);
-        foreach ($contents as $item) {
+        // Recursively go through all directories. Save folders as Elements, files as Files in the
+        // Elements. The extracted archive is read from local disk: copying it into flysystem after
+        // extraction only to read it back out here meant every file was moved twice for nothing.
+        foreach (new DirectoryIterator($dir) as $item) {
+            if ($item->isDot()) {
+                continue;
+            }
+
             if ($item->isDir()) {
                 $result[] = [
                     'isDir'   => true,
-                    'title'   => basename($item->path()),
-                    'path'    => $item->path(),
+                    'title'   => $item->getFilename(),
+                    'path'    => $item->getPathname(),
                     'entries' => $this->elementImportDirToArray(
-                        $item->path()
+                        $item->getPathname()
                     ),
                 ];
             } else {
                 // Ensure proper UTF-8 encoding for filenames
-                $filename = basename($item->path());
+                $filename = $item->getFilename();
                 $filename = mb_convert_encoding($filename, 'UTF-8',
                     mb_detect_encoding($filename, self::POSSIBLE_ENCODINGS, true));
 
                 $result[] = [
                     'isDir'  => false,
                     'title'  => $filename,
-                    'path'   => $item->path(),
+                    'path'   => $item->getPathname(),
                 ];
 
                 // Speichere die Anzahl der Dateien in die Session

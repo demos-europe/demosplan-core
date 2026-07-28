@@ -36,6 +36,35 @@
         :addon-props="JSON.parse('{{ addonProps|json_encode|e('js', 'utf-8') }}')">
     </addon-wrapper>
 
+    {# Progress of an import running in a background worker. Driven by the job row rather than by a
+       request parameter, so a running import stays visible after a reload, in a new tab, or after
+       logging back in. The status url is passed as a data attribute because the polling code lives
+       in a webpack bundle, which Twig does not render. #}
+    {% set elementImportJob = templateVars.elementImportJob|default(null) %}
+    {% if elementImportJob and elementImportJob.isRunning %}
+        <p
+            class="flash flash-info u-mv-0_75 hidden"
+            id="js_importJobProgress"
+            data-status-url="{{ path('DemosPlan_element_import_status', {
+                'procedure': templateVars.procedure.id,
+                'jobId': elementImportJob.id
+            }) }}">
+            {{ "text.elementimport.running"|trans }}
+            <span id="js_importJobProcessed">{{ elementImportJob.filesProcessed }}</span> / <span id="js_importJobTotal">{{ elementImportJob.filesTotal }}</span>
+        </p>
+    {% endif %}
+
+    {# A failed import would otherwise be invisible: it leaves no documents behind and the browser
+       that started it is long gone. Shown until the next attempt supersedes it. #}
+    {% if elementImportJob and elementImportJob.hasFailed %}
+        <p class="flash flash-error u-mv-0_75">
+            {{ "error.elementimport.failed"|trans }}
+            {% if elementImportJob.errorMessage %}
+                <br>{{ elementImportJob.errorMessage }}
+            {% endif %}
+        </p>
+    {% endif %}
+
     <div class="u-mv-0_75">
         {# Display errors from failed element import #}
         {% if templateVars.errorReport|default([])|length > 0 %}
@@ -78,12 +107,15 @@
             action="{{ path('DemosPlan_element_import', {'procedureId':templateVars.procedure.id }) }}" method="post" enctype="multipart/form-data">
             {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
+            {# Upload in chunks: an unchunked PATCH sends the whole archive as a single request body,
+               which the dev profiler then reads back into memory in one piece and exceeds memory_limit. #}
             {{
                 fileupload(
                     "r_zipImport",
                     "hide",
                     "zip",
-                    "form.button.upload.zip"
+                    "form.button.upload.zip",
+                    chunksize: 256 * 1024 * 1024
                 )
             }}
 

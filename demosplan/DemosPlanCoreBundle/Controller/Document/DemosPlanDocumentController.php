@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ElementImportJob;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Document\AdministrateParagraphElementEvent;
 use demosplan\DemosPlanCoreBundle\Event\Document\ElementsAdminListSaveEvent;
@@ -28,7 +29,6 @@ use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Logic\DemosFilesystem;
 use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
@@ -45,6 +45,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
 use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
+use demosplan\DemosPlanCoreBundle\Message\SaveElementImportMessage;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
@@ -52,18 +53,20 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use DirectoryIterator;
+use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use League\Flysystem\FilesystemOperator;
 use Pagerfanta\Adapter\ArrayAdapter;
 use ReflectionException;
 use RuntimeException;
-use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\UnicodeString;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -76,7 +79,6 @@ use function array_merge;
 use function compact;
 use function explode;
 use function is_array;
-use function set_time_limit;
 
 /**
  * Seitenausgabe Planunterlagen.
@@ -645,6 +647,7 @@ class DemosPlanDocumentController extends BaseController
         Breadcrumb $breadcrumb,
         CurrentUserInterface $currentUser,
         CurrentProcedureService $currentProcedureService,
+        EntityManagerInterface $entityManager,
         MapService $mapService,
         ProcedureHandler $procedureHandler,
         Request $request,
@@ -680,6 +683,18 @@ class DemosPlanDocumentController extends BaseController
             $templateVars['errorReport'] = $errorReports[0];
         }
 
+        /*
+         * An import runs in a worker, so it outlives the page that started it. Its state is
+         * therefore taken from the job row rather than from a request parameter: otherwise the
+         * import becomes invisible as soon as that one tab is gone — closed, reloaded, or left
+         * behind by a session that expired while the worker was still busy.
+         */
+        $templateVars['elementImportJob'] = $this->findLatestElementImportJob(
+            $entityManager,
+            $procedure,
+            $currentUser->getUser()->getId()
+        );
+
         $templateVars['procedure'] = $procedureHandler->getProcedure($procedure);
 
         $templateVars['contextualHelpBreadcrumb'] = $breadcrumb->getContextualHelp($title);
@@ -706,19 +721,13 @@ class DemosPlanDocumentController extends BaseController
     #[Route(name: 'DemosPlan_save_imported_elements_administration', path: '/verfahren/{procedure}/verwalten/planunterlagen/import/speichern', options: ['expose' => true])]
     public function saveImportedElementsAdminAction(
         CurrentUserInterface $currentUser,
-        CurrentProcedureService $currentProcedureService,
-        DocumentHandler $documentHandler,
+        EntityManagerInterface $entityManager,
+        MessageBusInterface $messageBus,
         Request $request,
         EventDispatcherInterface $eventDispatcher,
         string $procedure)
     {
         $session = $request->getSession();
-
-        // Set the Max_execution_time for the import
-        set_time_limit(3600);
-
-        $currentProcedureArray = $currentProcedureService->getProcedureArray();
-        $requestPost = $request->request->all();
 
         if ($request->isMethod('POST')) {
             // if you need the event, this method returns it :)
@@ -728,21 +737,81 @@ class DemosPlanDocumentController extends BaseController
             );
         }
 
-        $sessionElementImportList = $session->get('element_import_list');
-        $errorReport = $documentHandler->saveElementsFromImport(
-            $requestPost,
-            $session->get('sessionId'),
-            $sessionElementImportList,
-            $procedure,
-            $this->getElementImportDir($currentProcedureArray['id'], $currentUser->getUser())
+        // Creating the documents takes tens of minutes on a large archive, far past any gateway
+        // timeout, and would hold one of the few PHP-FPM workers for the whole time. Hand it to a
+        // background worker and let the browser poll the job instead.
+        $job = new ElementImportJob();
+        $job->setPhase(ElementImportJob::PHASE_SAVE);
+        $job->setProcedureId($procedure);
+        $job->setUserId($currentUser->getUser()->getId());
+        $job->setImportList($session->get('element_import_list') ?? []);
+        $entityManager->persist($job);
+        $entityManager->flush();
+
+        $messageBus->dispatch(
+            new SaveElementImportMessage(
+                $job->getId(),
+                $procedure,
+                $currentUser->getUser()->getId(),
+                $request->request->all()
+            )
         );
 
-        // Redirect so that the documents are not recharged with a reload and the files are displayed immediately
-        /** @var FlashBagInterface $flashBag */
-        $flashBag = $session->getBag('flashes');
-        $flashBag->add('errorReports', $errorReport);
+        $session->remove('element_import_list');
 
+        // No job id in the url: the list page looks the running import up itself, which is what
+        // makes it survive a reload or a new tab. It also removes the parameter that previously
+        // turned "reload when finished" into an endless reload.
         return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedure]);
+    }
+
+    /**
+     * Progress of a running Planunterlagen import, polled by the browser while a worker does the
+     * work. Returns the counters the job carries rather than a file under the web root, so it also
+     * works while no request is holding the import.
+     *
+     * @DplanPermissions({"area_admin_single_document","feature_admin_element_import"})
+     */
+    #[Route(
+        name: 'DemosPlan_element_import_status',
+        path: '/verfahren/{procedure}/verwalten/planunterlagen/import/status/{jobId}',
+        options: ['expose' => true]
+    )]
+    public function elementImportStatusAction(
+        EntityManagerInterface $entityManager,
+        string $procedure,
+        string $jobId,
+    ): JsonResponse {
+        $job = $entityManager->find(ElementImportJob::class, $jobId);
+
+        if (!$job instanceof ElementImportJob || $job->getProcedureId() !== $procedure) {
+            return new JsonResponse(['status' => 'not_found'], Response::HTTP_NOT_FOUND);
+        }
+
+        return new JsonResponse([
+            'status'         => $job->getStatus(),
+            'phase'          => $job->getPhase(),
+            'filesTotal'     => $job->getFilesTotal(),
+            'filesProcessed' => $job->getFilesProcessed(),
+            'error'          => $job->getErrorMessage(),
+        ]);
+    }
+
+    /**
+     * The most recent import this user started for this procedure, regardless of how it ended.
+     *
+     * Only the newest one is of interest: a running job is what the page needs to report on, and a
+     * failed one stays worth showing until the next attempt replaces it.
+     */
+    private function findLatestElementImportJob(
+        EntityManagerInterface $entityManager,
+        string $procedureId,
+        string $userId,
+    ): ?ElementImportJob {
+        return $entityManager->getRepository(ElementImportJob::class)->findOneBy(
+            ['procedureId' => $procedureId, 'userId' => $userId],
+            ['createdDate' => 'DESC']
+        );
     }
 
     /**
@@ -765,17 +834,6 @@ class DemosPlanDocumentController extends BaseController
         $templateVars = [];
         $session = $request->getSession();
         $session->remove('element_import_list');
-        $fs = new DemosFilesystem();
-
-        $path = DemosPlanPath::getProjectPath('web/uploads/files');
-
-        // Lösche das alte Statusfile zum Importstatus
-        $statusHash = md5($session->getId().$procedureId);
-        try {
-            $fs->remove($path.'/importStatus_'.$statusHash.'.json');
-        } catch (Exception) {
-        }
-
         $uploadedFileArray = $fileUploadService->prepareFilesUpload($request);
 
         // Prüfe, ob eine Datei hochgeladen wurde
@@ -803,82 +861,106 @@ class DemosPlanDocumentController extends BaseController
         $res = $zip->open($uploadedZipFileLocal);
         $successFiles = 0;
         $folderCount = 0;
-        if (true === $res) {
-            for ($indexInZipFile = 0; $indexInZipFile < $zip->numFiles; ++$indexInZipFile) {
-                $filenameOrig = $zip->getNameIndex($indexInZipFile);
 
-                // Nur Dateien müssen behandelt werden, Ordner werden automatisch angelegt
-                if (str_ends_with($filenameOrig, '/')) {
-                    ++$folderCount;
-                    continue;
+        try {
+            if (true === $res) {
+                for ($indexInZipFile = 0; $indexInZipFile < $zip->numFiles; ++$indexInZipFile) {
+                    $filenameOrig = $zip->getNameIndex($indexInZipFile);
+
+                    // Nur Dateien müssen behandelt werden, Ordner werden automatisch angelegt
+                    if (str_ends_with($filenameOrig, '/')) {
+                        ++$folderCount;
+                        continue;
+                    }
+                    // files at top level could not be imported because we need an elementId later on
+                    if (!str_contains($filenameOrig, '/')) {
+                        $this->getMessageBag()->add('warning', 'warning.document.import.toplevel');
+                        continue;
+                    }
+                    $fileinfo = pathinfo($filenameOrig);
+
+                    // T5659 only filter filenames for bad chars, do not translit
+                    $filename = (new UnicodeString($fileinfo['basename']))->normalize()->toString();
+                    $dirname = (new UnicodeString($fileinfo['dirname']))->normalize()->toString();
+
+                    // T8843 zip-slip: check whether path is in valid location
+                    $destination = $extractDir.'/'.$dirname;
+                    // if path contains any relative path immediately skip file
+                    if (0 !== mb_substr_count($destination, '../')) {
+                        $this->getLogger()->error('Possible Zip-slip-Attack. File not extracted. Destination:'.DemosPlanTools::varExport($destination, true));
+                        continue;
+                    }
+
+                    // Falls gar kein valider Filename ermittelt werden konnte, lieber einen Hash als nix
+                    if ('' == $filename) {
+                        $filename = md5(random_int(0, 9999));
+                        $this->getLogger()->warning('Es konnte via kein gültiger Name gefunden werden. RandomHash: '.DemosPlanTools::varExport($filename, true));
+                    } else {
+                        ++$successFiles;
+                    }
+
+                    $this->getLogger()->info('DocumentImport set Filename '.DemosPlanTools::varExport($filename, true).' Dirname: '.DemosPlanTools::varExport($dirname, true).
+                        ' Orig base64encoded: '.DemosPlanTools::varExport(base64_encode($filenameOrig), true));
+                    $zip->renameIndex($indexInZipFile, $dirname.'/'.$filename);
+                    $zip->extractTo($extractDir, $zip->getNameIndex($indexInZipFile));
                 }
-                // files at top level could not be imported because we need an elementId later on
-                if (!str_contains($filenameOrig, '/')) {
-                    $this->getMessageBag()->add('warning', 'warning.document.import.toplevel');
-                    continue;
-                }
-                $fileinfo = pathinfo($filenameOrig);
 
-                // T5659 only filter filenames for bad chars, do not translit
-                $filename = (new UnicodeString($fileinfo['basename']))->normalize()->toString();
-                $dirname = (new UnicodeString($fileinfo['dirname']))->normalize()->toString();
-
-                // T8843 zip-slip: check whether path is in valid location
-                $destination = $extractDir.'/'.$dirname;
-                // if path contains any relative path immediately skip file
-                if (0 !== mb_substr_count($destination, '../')) {
-                    $this->getLogger()->error('Possible Zip-slip-Attack. File not extracted. Destination:'.DemosPlanTools::varExport($destination, true));
-                    continue;
+                if ($indexInZipFile != $successFiles + $folderCount) {
+                    $this->getMessageBag()->add('warning', 'error.elementimport.unpacking_failed');
                 }
 
-                // Falls gar kein valider Filename ermittelt werden konnte, lieber einen Hash als nix
-                if ('' == $filename) {
-                    $filename = md5(random_int(0, 9999));
-                    $this->getLogger()->warning('Es konnte via kein gültiger Name gefunden werden. RandomHash: '.DemosPlanTools::varExport($filename, true));
-                } else {
-                    ++$successFiles;
-                }
+                $templateVars['totalFiles'] = $indexInZipFile - $folderCount;
+                $templateVars['importedFiles'] = $successFiles;
 
-                $this->getLogger()->info('DocumentImport set Filename '.DemosPlanTools::varExport($filename, true).' Dirname: '.DemosPlanTools::varExport($dirname, true).
-                    ' Orig base64encoded: '.DemosPlanTools::varExport(base64_encode($filenameOrig), true));
-                $zip->renameIndex($indexInZipFile, $dirname.'/'.$filename);
-                $zip->extractTo($extractDir, $zip->getNameIndex($indexInZipFile));
+                $zip->close();
+            } else {
+                $this->logger->warning('Could not open Zip file. Reason: '.$res);
+                $this->getMessageBag()->add('error', 'error.elementimport.cantopen');
+
+                return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedureId]);
             }
+            $fileDir = $this->importElementDirToArraySaveHashInSession($extractDir, $session);
 
-            if ($indexInZipFile != $successFiles + $folderCount) {
-                $this->getMessageBag()->add('warning', 'error.elementimport.unpacking_failed');
-            }
+            $templateVars['procedure'] = $procedureId;
 
-            $templateVars['totalFiles'] = $indexInZipFile - $folderCount;
-            $templateVars['importedFiles'] = $successFiles;
-
-            $zip->close();
-
-            // Lösche das hochgeladene Zipfile, es wird nicht mehr benötigt
-            $fileService->deleteFile($uploadedFileInfo->getHash());
-            $fileService->deleteFile($uploadedZipFileLocal);
-        } else {
-            $this->logger->warning('Could not open Zip file. Reason: '.$res);
-            $this->getMessageBag()->add('error', 'error.elementimport.cantopen');
-
-            // Lösche das hochgeladene Zipfile
-            $fileService->deleteFile($uploadedFileInfo->getHash());
-
-            return $this->redirectToRoute('DemosPlan_element_administration', ['procedure' => $procedureId]);
+            return $this->renderTemplate(
+                '@DemosPlanCore/DemosPlanDocument/elements_admin_import.html.twig',
+                [
+                    'entries'      => $fileDir,
+                    'templateVars' => $templateVars,
+                ]
+            );
+        } finally {
+            // Both copies of the archive are dead weight once it has been unpacked, and
+            // they are the size of the upload itself. Dropping them in a finally covers
+            // the abort paths too: previously a failed or abandoned import left the stored
+            // archive behind for good, and repeated attempts filled the disk.
+            $this->removeImportArchives($fileService, $uploadedFileInfo->getHash(), $uploadedZipFileLocal);
         }
-        $fileDir = $this->importElementDirToArraySaveHashInSession($extractDir, $session);
+    }
 
-        $templateVars['procedure'] = $procedureId;
-        $templateVars['statusHash'] = $statusHash;
-        $templateVars['basePath'] = $request->getBasePath();
+    /**
+     * Drop both copies of an uploaded import archive: the one in flysystem storage,
+     * addressed by hash, and the local working copy ensureLocalFileFromHash() made.
+     *
+     * The local copy needs deleteLocalFile(); passing its path to deleteFile(), which
+     * expects a hash, silently deleted nothing and left a full-size file behind on every
+     * import.
+     */
+    private function removeImportArchives(
+        FileService $fileService,
+        string $storedFileHash,
+        ?string $localFilePath,
+    ): void {
+        try {
+            $fileService->deleteFile($storedFileHash);
+        } catch (Exception $e) {
+            $this->logger->warning('Could not delete uploaded import archive', [$storedFileHash, $e]);
+        }
 
-        return $this->renderTemplate(
-            '@DemosPlanCore/DemosPlanDocument/elements_admin_import.html.twig',
-            [
-                'entries'      => $fileDir,
-                'templateVars' => $templateVars,
-            ]
-        );
+        if (null !== $localFilePath) {
+            $fileService->deleteLocalFile($localFilePath);
+        }
     }
 
     /**
@@ -970,7 +1052,9 @@ class DemosPlanDocumentController extends BaseController
         $result = [];
 
         // Gehe rekursiv alle Verzeichnisse durch. Speichere Ordner als Elements, dateien als Files in den Elements
-        // at this point local files need to be used, no flysystem needed
+        // The extracted files stay where they are: the save phase reads them from this local
+        // directory. Copying them into flysystem here meant every file was written a second time
+        // on extraction and read back a third time on save, all on the same filesystem.
         $iter = new DirectoryIterator($dir);
         foreach ($iter as $fileInfo) {
             if ($fileInfo->isDot()) {
@@ -990,7 +1074,6 @@ class DemosPlanDocumentController extends BaseController
                         $session
                     ),
                 ];
-                $this->defaultStorage->createDirectory($fileInfo->getPathname());
             } else {
                 $hash = 'file_'.random_int(1, 99_999_999);
                 // T5659 only filter filenames, do not translit
@@ -1001,16 +1084,11 @@ class DemosPlanDocumentController extends BaseController
                     'title' => $filename,
                     'hash'  => $hash,
                 ];
-                $stream = fopen($fileInfo->getPathname(), 'rb+');
-                $this->defaultStorage->writeStream($fileInfo->getPathname(), $stream);
-                fclose($stream);
             }
             $sessionImportList = $session->get('element_import_list');
             $sessionImportList[$hash] = $fileInfo->getPathname();
             $session->set('element_import_list', $sessionImportList);
         }
-        $fs = new Filesystem();
-        $fs->remove($dir);
 
         // Sortiere die Elements natürlichsprachig
         usort($result, [DocumentHandler::class, 'sortElementsAlphabetically']);
