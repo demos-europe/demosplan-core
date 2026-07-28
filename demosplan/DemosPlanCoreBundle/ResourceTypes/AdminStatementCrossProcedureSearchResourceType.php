@@ -115,7 +115,7 @@ final class AdminStatementCrossProcedureSearchResourceType extends AbstractState
             $this->conditionFactory->propertyIsNull($this->movedStatement),
             $this->conditionFactory->propertyIsNull($this->parentStatementOfSegment),
             $this->conditionFactory->propertyIsNotNull($this->original->id),
-            /** This is the authorization for reading *and* deleting. The IDs come from
+            /* This is the authorization for reading *and* deleting. The IDs come from
              * {@see ProcedureAccessEvaluator::getOwnsProcedureConditions()}, which reproduces
              * {@see Permissions::ownsProcedure()} — including the requirement that the user is listed in
              * {@see Procedure::getAuthorizedUsers()} whenever `procedure_user_restricted_access` is enabled.
