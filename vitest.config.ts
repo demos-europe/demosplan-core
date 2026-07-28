@@ -11,8 +11,29 @@ import { defineConfig } from 'vitest/config'
 import path from 'node:path'
 import vue from '@vitejs/plugin-vue'
 
+/*
+ * @vitejs/plugin-vue emits unknown custom blocks as virtual modules that vite then tries to parse as JS;
+ * to prevent vue files with <license>/<documentation> blocks from failing, those virtual ids are resolved
+ * to an empty module. Allowlisting the real block types also covers typo'd blocks (<documentaion>) and any
+ * custom block added later.
+ */
+const isVueCustomBlock = (id: string) => /[?&]vue&/.test(id) &&
+  /[?&]type=([^&]+)/.test(id) &&
+  !/[?&]type=(script|template|style)(&|$)/.test(id)
+
+const ignoreVueCustomBlocks = {
+  name: 'ignore-vue-custom-blocks',
+  resolveId (id: string) {
+    return isVueCustomBlock(id) ? id : null
+  },
+  load (id: string) {
+    return isVueCustomBlock(id) ? 'export default {}' : null
+  },
+}
+
 export default defineConfig({
   plugins: [
+    ignoreVueCustomBlocks,
     vue({
       template: {
         compilerOptions: {
