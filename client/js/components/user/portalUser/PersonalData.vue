@@ -85,7 +85,7 @@
       </p>
     </template>
 
-    <template v-if="hasPermission('feature_statement_deadline_mail')">
+    <template v-if="hasPermission('feature_statement_deadline_mail_setting')">
       <dp-checkbox
         id="segmentDeadlineReminderEnabled"
         v-model="isSegmentDeadlineReminderChecked"
