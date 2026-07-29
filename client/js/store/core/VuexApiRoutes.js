@@ -96,51 +96,83 @@ const api1_0Routes = [
   },
 ]
 
-const generateApi2_0Routes = (apiModules) => {
-  const routes = []
-
-  apiModules.forEach(typeName => {
-    routes.push({
-      module: typeName,
-      action: 'list',
-      url: `/2.0/${typeName}`,
-    })
-
-    routes.push({
-      module: typeName,
-      action: 'get',
-      url: `/2.0/${typeName}/{id}`,
-      parameters: [
-        'id',
-      ],
-    })
-
-    routes.push({
-      module: typeName,
-      action: 'update',
-      url: `/2.0/${typeName}/{id}`,
-      parameters: [
-        'id',
-      ],
-    })
-
-    routes.push({
-      module: typeName,
-      action: 'create',
-      url: `/2.0/${typeName}`,
-    })
-
-    routes.push({
-      module: typeName,
-      action: 'delete',
-      url: `/2.0/${typeName}/{id}`,
-      parameters: [
-        'id',
-      ],
-    })
-  })
-
-  return routes
+/*
+ * Resources migrated to ApiPlatform
+ * Actions not listed keep their /2.0 route
+ */
+const api3_0Modules = {
+  Place: [
+    'list',
+    'get',
+  ],
+  Tag: [
+    'list',
+  ],
 }
 
-export { api1_0Routes, generateApi2_0Routes }
+const crudActions = [
+  'list',
+  'get',
+  'create',
+  'update',
+  'delete',
+]
+
+const itemActions = new Set([
+  'get',
+  'update',
+  'delete',
+])
+
+/*
+ * Build route with correct version prefix (2.0 or 3.0)
+ */
+const buildRoute = (version, module, action) => {
+  const isItemAction = itemActions.has(action)
+
+  return {
+    module,
+    action,
+    url: `/${version}/${module}${isItemAction ? '/{id}' : ''}`,
+    parameters: isItemAction ? ['id'] : [],
+  }
+}
+
+const generateApi2_0Routes = (apiModules) => apiModules
+  .flatMap(typeName => crudActions.map(action => buildRoute('2.0', typeName, action)))
+
+const generateApi3_0Routes = () => Object.entries(api3_0Modules)
+  .flatMap(([typeName, actions]) => actions.map(action => buildRoute('3.0', typeName, action)))
+
+/*
+ * Resolve the path for a module + action, applying the same precedence as initStore():
+ * explicit 1.0 and generated 3.0 routes win over the generic 2.0 one.
+ */
+const resolveApiRoute = (module, action) => {
+  const override = [...api1_0Routes, ...generateApi3_0Routes()]
+    .find(route => route.module === module && route.action === action)
+
+  return override ? override.url : buildRoute('2.0', module, action).url
+}
+
+/*
+ * Full URL for components calling dpApi directly, so they resolve to the same API
+ * version as the store does. Keeps the version in api3_0Modules, not in call sites.
+ */
+const apiUrl = (module, action = 'list', id = null) => {
+  const path = resolveApiRoute(module, action)
+
+  if (path.includes('{id}') && !id) {
+    throw new Error(`apiUrl: action "${action}" on "${module}" requires an id`)
+  }
+
+  // Encode like Routing.generate() does
+  return `${Routing.getBaseUrl()}/api${path.replace('{id}', encodeURIComponent(id))}`
+}
+
+export {
+  api1_0Routes,
+  apiUrl,
+  generateApi2_0Routes,
+  generateApi3_0Routes,
+}
