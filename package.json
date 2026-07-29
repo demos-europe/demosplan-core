@@ -31,7 +31,7 @@
     "prod:robobsh": "cross-env ./fe build --prod robobsh",
     "prod:teilhabe": "cross-env ./fe build --prod teilhabe",
     "prod:wmmsh": "cross-env ./fe build --prod wmmsh",
-    "tdd:js": "vitest --ui",
+    "tdd:js": "vitest --ui --open false --api.host 172.22.255.2",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "unit:js": "vitest run",
