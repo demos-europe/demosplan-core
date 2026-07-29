@@ -24,7 +24,7 @@ describe('changeUrlforPager', () => {
   beforeAll(() => {
     global.window = Object.create(window)
     defineProp = (url) => {
-      // configurable, because defineProp is called once per test case
+      // Configurable, because defineProp is called once per test case
       Object.defineProperty(window, 'location', {
         configurable: true,
         value: {
