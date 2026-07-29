@@ -6,11 +6,18 @@
         highlighted: 'procedure_search_submitters'
     } %}
 
-    <p class="font-size-small u-mb-0_75">
+    <p class="font-size-small mb-4">
         {{ "search.submitter.cross.procedures.hint"|trans }}
     </p>
 
-<dp-search-submitters></dp-search-submitters>
+    {% set submitTypesOptions = [] %}
+    {% for key, translated in getFormOption('statement_submit_types.values', true)|filter(key => key != 'system') %}
+        {% set submitTypesOptions = submitTypesOptions|merge([{ label: translated, value: key }]) %}
+    {% endfor %}
+
+    <dp-search-submitters
+        :submit-type-options="JSON.parse('{{ submitTypesOptions|json_encode|e('js', 'utf-8') }}')">
+    </dp-search-submitters>
 
 {% endblock %}
 

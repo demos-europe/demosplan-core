@@ -5,6 +5,8 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+### Added
+- Statements can be searched by submitter across all accessible procedures. Results are grouped under the procedure they belong to, each row can be expanded to show the submitter details and deleted directly from the result list.
 
 ## v4.50.0 (2026-07-15)
 

@@ -9,20 +9,18 @@
 
 <template>
   <div class="mb-3">
-    <dp-input
-      id="searchinput"
-      v-model="searchTerm"
-      class="inline-block align-top u-1-of-3"
-      :label="{
-        hide: true,
-        text: Translator.trans('search.submitter')
-      }"
-      @enter="search"
-    />
-    <dp-button
-      class="ml-1 mb-3"
-      :text="Translator.trans('search')"
-      @click="search"
+    <div class="flex space-inline-s mb-4">
+      <div class="relative">
+        <dp-search-field
+          data-cy="searchSubmitters:searchField"
+          @reset="handleReset"
+          @search="term => search(term)"
+        />
+      </div>
+    </div>
+    <dp-loading
+      v-if="isSearching"
+      class="u-mv"
     />
     <p
       v-if="noResults"
@@ -51,13 +49,13 @@
             class="mt-0.5"
           />
         </template>
-        <template v-slot:submitter="{ authorName, initialOrganisationName, submitName }">
+        <template v-slot:submitter="{ authorName, initialOrganisationName, isSubmittedByCitizen, submitName }">
           <ul class="o-list">
             <li class="o-list__item o-hellip--nowrap">
               {{ authorName || submitName || Translator.trans('citizen') }}
             </li>
             <li
-              v-if="initialOrganisationName"
+              v-if="initialOrganisationName && !isSubmittedByCitizen"
               class="o-list__item o-hellip--nowrap"
             >
               {{ initialOrganisationName }}
@@ -79,7 +77,10 @@
           </div>
         </template>
         <template v-slot:expandedContent="{ id }">
-          <statement-meta-data :statement="statementsObject[id]">
+          <statement-meta-data
+            :statement="statementsObject[id]"
+            :submit-type-options="submitTypeOptions"
+          >
             <template
               v-slot:default="{
                 formattedAuthoredDate,
@@ -87,23 +88,30 @@
                 initialOrganisationDepartmentName,
                 initialOrganisationName,
                 internId,
+                isSubmittedByCitizen,
                 location,
                 submitName,
                 submitType
               }"
             >
-              <div class="grid grid-cols-2 gap-4">
-                <dl class="description-list-inline">
+              <p class="font-size-large font-semibold mb-3">
+                {{ Translator.trans('statement.metadata') }}
+              </p>
+              <div class="grid grid-cols-2 gap-4 pb-1">
+                <dl class="description-list-inline content-start grid-cols-[max-content_auto]">
                   <dt>{{ Translator.trans('submitter') }}:</dt>
                   <dd>{{ submitName }}</dd>
-                  <dt>{{ Translator.trans('organisation') }}:</dt>
-                  <dd>{{ initialOrganisationName }}</dd>
-                  <dt>{{ Translator.trans('department') }}:</dt>
-                  <dd>{{ initialOrganisationDepartmentName }}</dd>
+                  <!-- Citizens are all attached to the same placeholder organisation, so these two rows carry no information for them -->
+                  <template v-if="!isSubmittedByCitizen">
+                    <dt>{{ Translator.trans('organisation') }}:</dt>
+                    <dd>{{ initialOrganisationName }}</dd>
+                    <dt>{{ Translator.trans('department') }}:</dt>
+                    <dd>{{ initialOrganisationDepartmentName }}</dd>
+                  </template>
                   <dt>{{ Translator.trans('address') }}:</dt>
                   <dd>{{ location }}</dd>
                 </dl>
-                <dl class="description-list-inline">
+                <dl class="description-list-inline border-l border-neutral-light-3 pl-3">
                   <dt>{{ Translator.trans('internId') }}:</dt>
                   <dd>{{ internId }}</dd>
                   <dt>{{ Translator.trans('statement.date.authored') }}:</dt>
@@ -123,12 +131,21 @@
 </template>
 
 <script setup>
-import { CleanHtml, DpAccordion, dpApi, DpButton, DpDataTable, DpInput } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpAccordion, dpApi, DpButton, DpDataTable, DpLoading, DpSearchField } from '@demos-europe/demosplan-ui'
+import buildProcedureGroups from '@DpJs/components/procedure/utils/buildProcedureGroups'
 import { ref } from 'vue'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
 import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge'
 
 const vCleanhtml = CleanHtml
+
+defineProps({
+  submitTypeOptions: {
+    type: Array,
+    required: false,
+    default: () => [],
+  },
+})
 
 const headerFields = [
   { field: 'externId', label: Translator.trans('id'), colWidth: '120px', initialMinWidth: 120 },
@@ -136,10 +153,10 @@ const headerFields = [
   { field: 'submitter', label: Translator.trans('submitter'), colWidth: '240px', initialMinWidth: 240 },
   { field: 'delete', label: '' },
 ]
+const isSearching = ref(false)
 const lastSearchedTerm = ref('')
 const openProcedureIds = ref([])
 const procedureGroups = ref([])
-const searchTerm = ref('')
 const noResults = ref(false)
 
 /*
@@ -156,40 +173,22 @@ const toggleGroup = procedureId => {
     [...openProcedureIds.value, procedureId]
 }
 
-const buildProcedureGroups = (results, included) => {
-  const nameById = included.reduce((acc, resource) => {
-    acc[resource.id] = resource.attributes.name
-
-    return acc
-  }, {})
-
-  const groups = results.reduce((acc, result) => {
-    const procedureId = result.relationships.procedure.data.id
-
-    if (!acc[procedureId]) {
-      acc[procedureId] = {
-        procedureId,
-        procedureName: nameById[procedureId],
-        statements: [],
-      }
-    }
-
-    acc[procedureId].statements.push({ id: result.id, ...result.attributes })
-
-    return acc
-  }, {})
-
-  return Object.values(groups)
+const handleReset = () => {
+  lastSearchedTerm.value = ''
+  noResults.value = false
+  procedureGroups.value = []
+  statementsObject.value = {}
 }
 
-const search = () => {
-  console.log(searchTerm.value)
+const search = term => {
+  console.log(term)
 
-  if (searchTerm.value.length === 0) {
+  if (term.length === 0 || isSearching.value) {
     return
   }
 
-  lastSearchedTerm.value = searchTerm.value
+  isSearching.value = true
+  lastSearchedTerm.value = term
   const url = Routing.generate('api_resource_list', { resourceType: 'AdminStatementCrossProcedureSearch' })
   const params = {
     filter: {
@@ -201,7 +200,7 @@ const search = () => {
       withAuthor: {
         condition: {
           path: 'authorName',
-          value: searchTerm.value,
+          value: term,
           operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
           memberOf: 'authorOrSubmitter',
         },
@@ -209,7 +208,7 @@ const search = () => {
       withSubmitter: {
         condition: {
           path: 'submitName',
-          value: searchTerm.value,
+          value: term,
           operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
           memberOf: 'authorOrSubmitter',
         },
@@ -218,12 +217,22 @@ const search = () => {
     include: 'procedure',
     fields: {
       AdminStatementCrossProcedureSearch: [
-        'externId',
-        'status',
+        'authoredDate',
         'authorName',
-        'submitName',
+        'externId',
+        'initialOrganisationCity',
+        'initialOrganisationDepartmentName',
+        'initialOrganisationHouseNumber',
         'initialOrganisationName',
+        'initialOrganisationPostalCode',
+        'initialOrganisationStreet',
+        'internId',
+        'isSubmittedByCitizen',
         'procedure',
+        'status',
+        'submitDate',
+        'submitName',
+        'submitType',
       ].join(),
       Procedure: ['name'].join(),
     },
@@ -241,7 +250,17 @@ const search = () => {
       procedureGroups.value = buildProcedureGroups(response.data.data, response.data.included || [])
       console.log(procedureGroups.value)
     })
-    .catch(error => console.log(error))
+    .catch(error => {
+      console.log(error)
+      // Drop stale results, otherwise the list would still show hits of an earlier search term
+      noResults.value = false
+      procedureGroups.value = []
+      statementsObject.value = {}
+      dplan.notify.error(Translator.trans('error.results.loading'))
+    })
+    .finally(() => {
+      isSearching.value = false
+    })
 }
 
 const deleteStatement = (procedureId, statementId) => {
@@ -252,16 +271,17 @@ const deleteStatement = (procedureId, statementId) => {
 
   dpApi.delete(url)
     .then(() => {
-      const group = procedureGroups.value.find(group => group.procedureId === procedureId)
+      const group = procedureGroups.value.find(candidate => candidate.procedureId === procedureId)
 
       if (!group) {
         return
       }
 
       group.statements = group.statements.filter(statement => statement.id !== statementId)
+      delete statementsObject.value[statementId]
 
       if (group.statements.length === 0) {
-        procedureGroups.value = procedureGroups.value.filter(group => group.procedureId !== procedureId)
+        procedureGroups.value = procedureGroups.value.filter(candidate => candidate.procedureId !== procedureId)
       }
 
       if (procedureGroups.value.length === 0) {
