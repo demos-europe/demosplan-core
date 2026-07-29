@@ -27,27 +27,31 @@ class SegmentEmailSender
     }
 
     /**
-     * Send a segment to an external mail recipient, optionally with cc addresses.
+     * Send a segment or several segments to an external mail recipient, optionally with cc addresses.
      *
      * @return bool whether the mail was queued successfully
+     * @param string[] $segmentIds
      */
-    public function sendSegmentMail(
-        string $segmentId,
+    public function sendSegmentsMail(
+        array $segmentIds,
         string $recipientEmail,
         ?string $subject,
         ?string $body,
         ?string $sendEmailCC,
     ): bool {
         try {
-            // load the segment. prove it exists and give us the procedure it belongs to
-            $segment = $this->segmentService->findByIdWithCertainty($segmentId);
+            // load the segment(s). prove it exists and give us the procedure it belongs to
+            $segments = $this->segmentService->findByIds($segmentIds);
+           if ([] === $segments) {
+              throw new InvalidDataException('No segments found for the given IDs.');
+           }
             // validate the recipients email address
             $sendMailTo = $this->validateRecipientEmail($recipientEmail);
             $ccEmailAddresses = $this->extractCcEmailAddresses($sendEmailCC);
             // build the placeholder values the mail template expects:
             $emailVariables = $this->populateEmailVariables($subject, $body);
             // the sender address is the procedures agency mailbox
-            $sentFrom = $segment->getProcedure()->getAgencyMainEmailAddress();
+            $sentFrom = $segments[0]->getProcedure()->getAgencyMainEmailAddress();
             // Queue the mail, no attachments as of now
             $this->sendAbschnitt($sendMailTo, $sentFrom, $ccEmailAddresses, $emailVariables, []);
         } catch (InvalidDataException) {
