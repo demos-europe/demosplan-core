@@ -15,6 +15,12 @@ import vue from '@vitejs/plugin-vue'
 const require = createRequire(import.meta.url)
 
 /*
+ * TEAMCITY_VERSION is checked as well as CI because the build steps run in a container, and it is not guaranteed
+ * that CI is passed through to it
+ */
+const isCi = Boolean(process.env.CI || process.env.TEAMCITY_VERSION)
+
+/*
  * Resolve @vue/test-utils' ESM entry from its exports map
  * Needed to ensure @vue/compat is applied
  */
@@ -90,7 +96,7 @@ export default defineConfig({
     environment: 'jsdom',
     include: ['tests/frontend/**/*.{spec,test}.{js,ts}'],
     setupFiles: ['./tests/frontend/setup.ts'],
-    reporters: ['default', ['junit', { suiteName: 'Vitest Tests' }]],
+    reporters: isCi ? ['default', ['junit', { suiteName: 'Vitest Tests' }]] : ['default'],
     // The file name still says jest because the CI job collects the report from this exact path
     outputFile: { junit: '.build/jenkins-build-jest.junit.xml' },
     coverage: {
