@@ -5,6 +5,10 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.52.0 (2026-07-29)
+
+### Added
+- Filter custom fields in assesment table
 
 ## v4.50.0 (2026-07-15)
 
