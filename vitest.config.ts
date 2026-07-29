@@ -9,6 +9,7 @@
 
 import { createRequire } from 'node:module'
 import { defineConfig } from 'vitest/config'
+import { loadEnv } from 'vite'
 import path from 'node:path'
 import vue from '@vitejs/plugin-vue'
 
@@ -19,6 +20,9 @@ const require = createRequire(import.meta.url)
  * that CI is passed through to it
  */
 const isCi = Boolean(process.env.CI || process.env.TEAMCITY_VERSION)
+
+const isUi = process.argv.includes('--ui')
+const uiHost = loadEnv('test', process.cwd(), 'VITEST_').VITEST_UI_HOST || '0.0.0.0'
 
 /*
  * Resolve @vue/test-utils' ESM entry from its exports map
@@ -94,6 +98,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
+    ...(isUi && { api: { host: uiHost, port: 51204 } }),
     include: ['tests/frontend/**/*.{spec,test}.{js,ts}'],
     setupFiles: ['./tests/frontend/setup.ts'],
     reporters: isCi ? ['default', ['junit', { suiteName: 'Vitest Tests' }]] : ['default'],
