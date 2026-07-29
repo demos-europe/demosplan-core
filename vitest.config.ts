@@ -90,7 +90,9 @@ export default defineConfig({
     environment: 'jsdom',
     include: ['tests/frontend/**/*.{spec,test}.{js,ts}'],
     setupFiles: ['./tests/frontend/setup.ts'],
-    reporters: ['default'],
+    reporters: ['default', ['junit', { suiteName: 'Vitest Tests' }]],
+    // The file name still says jest because the CI job collects the report from this exact path
+    outputFile: { junit: '.build/jenkins-build-jest.junit.xml' },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
