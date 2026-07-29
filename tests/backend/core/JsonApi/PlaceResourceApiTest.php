@@ -23,8 +23,8 @@ use Tests\Base\AbstractApiTest;
 
 class PlaceResourceApiTest extends AbstractApiTest
 {
-    private const  PLACE_ROUTE = '/api/3.0/Place/';
-    private const  PLACE_NAME = 'Step 1';
+    private const PLACE_ROUTE = '/api/3.0/Place/';
+    private const PLACE_NAME = 'Step 1';
 
     /**
      * /api/3.0/* routes sit behind the `api_platform` firewall (context: main, form-login
