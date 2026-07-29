@@ -29,8 +29,9 @@ class SegmentEmailSender
     /**
      * Send a segment or several segments to an external mail recipient, optionally with cc addresses.
      *
-     * @return bool whether the mail was queued successfully
      * @param string[] $segmentIds
+     *
+     * @return bool whether the mail was queued successfully
      */
     public function sendSegmentsMail(
         array $segmentIds,
@@ -42,9 +43,9 @@ class SegmentEmailSender
         try {
             // load the segment(s). prove it exists and give us the procedure it belongs to
             $segments = $this->segmentService->findByIds($segmentIds);
-           if ([] === $segments) {
-              throw new InvalidDataException('No segments found for the given IDs.');
-           }
+            if ([] === $segments) {
+                throw new InvalidDataException('No segments found for the given IDs.');
+            }
             // validate the recipients email address
             $sendMailTo = $this->validateRecipientEmail($recipientEmail);
             $ccEmailAddresses = $this->extractCcEmailAddresses($sendEmailCC);
