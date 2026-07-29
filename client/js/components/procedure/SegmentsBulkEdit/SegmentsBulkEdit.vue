@@ -397,10 +397,11 @@ import {
   reformatDateString,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
-import { defineAsyncComponent } from 'vue'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperAction from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperAction'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
+import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
+import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import lscache from 'lscache'
 import RecommendationModal from '../Shared/RecommendationModal'
@@ -770,12 +771,7 @@ export default {
     },
 
     fetchPlaces () {
-      const url = Routing.generate('api_resource_list', {
-        resourceType: 'Place',
-        sort: 'sortIndex',
-      })
-
-      return dpApi.get(url)
+      return dpApi.get(apiUrl('Place'), { sort: 'sortIndex' })
         .then(response => {
           this.places = response.data.data.map(place => {
             return {
