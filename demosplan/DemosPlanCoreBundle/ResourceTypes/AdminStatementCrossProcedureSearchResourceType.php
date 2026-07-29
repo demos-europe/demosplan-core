@@ -135,10 +135,14 @@ final class AdminStatementCrossProcedureSearchResourceType extends AbstractState
     }
 
     /**
-     * Deliberately narrow property surface — only the fields visible in the cross-procedure
-     * search results UI may be exposed. Cross-procedure data exposure is constrained by
-     * data-minimization rules (procedure boundaries usually contain statement contents);
-     * adding fields here without a UI requirement would broaden that exposure.
+     * Deliberately narrow property surface — only the fields visible in the cross-procedure search
+     * results list and its per-row detail view may be exposed.
+     *
+     * This resource gathers data from multiple procedures at once, but only from those the current
+     * user would be able to administrate within their respective procedure context anyway, as long as
+     * the required permission is granted (see {@see self::isAvailable()} and
+     * {@see self::getAccessConditions()}). It therefore does not widen *which* data a user can reach,
+     * it only removes the need to open each procedure separately.
      */
     protected function getProperties(): ResourceConfigBuilderInterface
     {
@@ -159,6 +163,35 @@ final class AdminStatementCrossProcedureSearchResourceType extends AbstractState
         $configBuilder->initialOrganisationName
             ->aliasedPath(Paths::statement()->meta->orgaName)
             ->readable(true);
+        // Submitter data of the per-row detail view, mirroring the assessment table.
+        $configBuilder->authoredDate
+            ->aliasedPath(Paths::statement()->meta->authoredDate)
+            ->readable(true, fn (Statement $statement): ?string => $this->formatDate($statement->getMeta()->getAuthoredDateObject()));
+        $configBuilder->submitDate
+            ->aliasedPath(Paths::statement()->submit)
+            ->readable(true, fn (Statement $statement): ?string => $this->formatDate($statement->getSubmitObject()));
+        $configBuilder->submitType->readable(true);
+        $configBuilder->internId
+            ->aliasedPath(Paths::statement()->original->internId)
+            ->readable(true);
+        $configBuilder->isSubmittedByCitizen
+            ->readable(true, static fn (Statement $statement): bool => $statement->isSubmittedByCitizen());
+        $configBuilder->initialOrganisationDepartmentName
+            ->aliasedPath(Paths::statement()->meta->orgaDepartmentName)
+            ->readable(true);
+        $configBuilder->initialOrganisationStreet
+            ->aliasedPath(Paths::statement()->meta->orgaStreet)
+            ->readable(true);
+        $configBuilder->initialOrganisationHouseNumber
+            ->aliasedPath(Paths::statement()->meta->houseNumber)
+            ->readable(true);
+        $configBuilder->initialOrganisationPostalCode
+            ->aliasedPath(Paths::statement()->meta->orgaPostalCode)
+            ->readable(true);
+        $configBuilder->initialOrganisationCity
+            ->aliasedPath(Paths::statement()->meta->orgaCity)
+            ->readable(true);
+
         $configBuilder->procedure
             ->setRelationshipType($this->resourceTypeStore->getProcedureResourceType())
             ->readable()
