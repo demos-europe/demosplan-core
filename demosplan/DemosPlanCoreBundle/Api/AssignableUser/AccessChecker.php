@@ -30,17 +30,12 @@ class AccessChecker
     ) {
     }
 
-    /**
-     * Mirrors AssignableUserResourceType::isAvailable().
-     */
     public function isAvailable(): bool
     {
         return $this->currentUser->hasPermission('feature_json_api_user');
     }
 
     /**
-     * Mirrors AssignableUserResourceType::getAccessConditions().
-     *
      * @return list<ClauseFunctionInterface<bool>>
      */
     public function getAccessConditions(): array

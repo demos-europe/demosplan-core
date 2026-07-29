@@ -18,6 +18,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
+use demosplan\DemosPlanCoreBundle\Api\Orga\Resource as OrgaResource;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
 use demosplan\DemosPlanCoreBundle\Entity\User\User as UserEntity;
 
@@ -44,7 +45,7 @@ class Resource
     public string $lastname = '';
 
     #[ApiProperty(readable: true, writable: false)]
-    public string $orgaName = '';
+    public ?OrgaResource $orga = null;
 
     public static function fromEntity(UserEntity $user): self
     {
@@ -52,7 +53,7 @@ class Resource
         $resource->id = $user->getId();
         $resource->firstname = $user->getFirstname();
         $resource->lastname = $user->getLastname();
-        $resource->orgaName = $user->getOrga()?->getName() ?? '';
+        $resource->orga = null !== $user->getOrga() ? OrgaResource::fromEntity($user->getOrga()) : null;
 
         return $resource;
     }
