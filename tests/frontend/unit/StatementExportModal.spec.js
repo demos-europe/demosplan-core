@@ -1,8 +1,8 @@
-import { afterEach, beforeEach, describe, expect, it } from '@jest/globals'
 import { DpModal } from '@demos-europe/demosplan-ui'
 import { enableAutoUnmount } from '@vue/test-utils'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
+import { vi } from 'vitest'
 
 describe('StatementExportModal', () => {
   const MOCK_PROCEDURE_ID = 'procedure-123'
@@ -45,13 +45,13 @@ describe('StatementExportModal', () => {
           'dp-modal': {
             template: '<div><slot /></div>',
             methods: {
-              toggle: jest.fn(),
+              toggle: vi.fn(),
             },
           },
           'filter-flyout': {
             template: '<div></div>',
             methods: {
-              reset: jest.fn(),
+              reset: vi.fn(),
             },
           },
         },
@@ -66,7 +66,7 @@ describe('StatementExportModal', () => {
 
   it('opens the modal when the button is clicked', async () => {
     const modal = wrapper.findComponent(DpModal)
-    const mockEvent = { preventDefault: jest.fn() }
+    const mockEvent = { preventDefault: vi.fn() }
 
     modal.vm.$emit('click', mockEvent)
 
@@ -263,8 +263,8 @@ describe('StatementExportModal', () => {
   })
 
   it('calls updateSelectedTags when getFilterValues is called', () => {
-    const updateSelectedTagIdsSpy = jest.spyOn(wrapper.vm, 'updateSelectedTagIds')
-    const updateSelectedTagsSpy = jest.spyOn(wrapper.vm, 'updateSelectedTags')
+    const updateSelectedTagIdsSpy = vi.spyOn(wrapper.vm, 'updateSelectedTagIds')
+    const updateSelectedTagsSpy = vi.spyOn(wrapper.vm, 'updateSelectedTags')
 
     wrapper.vm.getFilterValues({})
 
@@ -361,7 +361,7 @@ describe('StatementExportModal', () => {
   })
 
   it('closes the DpModal after executing the handleExport function', () => {
-    const toggleSpy = jest.spyOn(wrapper.vm.$refs.exportModalInner, 'toggle')
+    const toggleSpy = vi.spyOn(wrapper.vm.$refs.exportModalInner, 'toggle')
 
     wrapper.vm.handleExport()
 
@@ -410,7 +410,7 @@ describe('StatementExportModal', () => {
 
   it('falls back to the default single-statement route when the template permission is missing', async () => {
     const originalHasPermission = globalThis.hasPermission
-    globalThis.hasPermission = jest.fn(() => false)
+    globalThis.hasPermission = vi.fn(() => false)
 
     try {
       await wrapper.setProps({ isSingleStatementExport: true })
