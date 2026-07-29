@@ -33,6 +33,7 @@
       :is-open="isGroupOpen(group.procedureId)"
       :title="group.procedureName"
       compressed
+      highlight-toggled-trigger
       padded
       @item:toggle="toggleGroup(group.procedureId)"
     >
