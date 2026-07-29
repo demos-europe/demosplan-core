@@ -831,8 +831,7 @@ export default {
         'assignee',
         'place',
         'tags',
-        'parentStatement.genericAttachments.file',
-        'parentStatement.sourceAttachment.file',
+        'parentStatement',
       ]
 
       if (hasPermission('field_segments_custom_fields')) {
@@ -853,21 +852,13 @@ export default {
         sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
         filter,
         fields: {
-          File: [
-            'hash',
-          ].join(),
-          GenericStatementAttachment: [
-            'file',
-          ].join(),
           Place: [
             'name',
             ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
           ].join(),
-          SourceStatementAttachment: ['file'].join(),
           Statement: [
             'authoredDate',
             'authorName',
-            'genericAttachments',
             'isSubmittedByCitizen',
             'initialOrganisationDepartmentName',
             'initialOrganisationName',
@@ -877,7 +868,6 @@ export default {
             'initialOrganisationCity',
             'internId',
             'memo',
-            'sourceAttachment',
             'status',
             'submitDate',
             'submitName',
