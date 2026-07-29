@@ -12,8 +12,23 @@
  * components, directives, and globalProperties
  */
 import { config } from '@vue/test-utils'
+import { configureCompat } from 'vue'
 import lscache from 'lscache'
 import { vi } from 'vitest'
+
+// Vue is resolved to @vue/compat, and @vue/compat ships no declarations of its own, so it has to be declared here
+declare module 'vue' {
+  export function configureCompat (config: Record<string, boolean | 'suppress-warning'>): void
+}
+
+configureCompat({
+  ATTR_FALSE_VALUE: 'suppress-warning',
+  COMPONENT_V_MODEL: 'suppress-warning',
+  CONFIG_WHITESPACE: 'suppress-warning',
+  CUSTOM_DIR: 'suppress-warning',
+  RENDER_FUNCTION: 'suppress-warning',
+  WATCH_ARRAY: 'suppress-warning',
+})
 
 /*
  * Polyfill `matchMedia` on `window` before any package that calls it at
