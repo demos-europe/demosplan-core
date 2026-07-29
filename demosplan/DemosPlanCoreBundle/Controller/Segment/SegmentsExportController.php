@@ -153,7 +153,8 @@ class SegmentsExportController extends BaseController
 
             $absolutePath = $fileService->ensureLocalFileFromHash($uploadedTemplateHash);
             $templateProcessor = $exporter->export($procedure, $statement, $absolutePath);
-            $fileNameTemplate = $request->query->get(self::FILE_NAME_TEMPLATE_PARAMETER, '');
+            $fileNameTemplate = $request->query->get(self::FILE_NAME_TEMPLATE_PARAMETER, '')
+                ?: FileNameGenerator::PLACEHOLDER_ID.'-'.FileNameGenerator::PLACEHOLDER_NAME;
 
             $response = new StreamedResponse(
                 static function () use ($templateProcessor): void {
@@ -228,7 +229,7 @@ class SegmentsExportController extends BaseController
         // loaded, instead of loading every statement of the procedure and discarding the rest
         // in PHP.
         $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
-        $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions($tagsFilter, $statementResourceType);
+        $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions($tagsFilter, $statementResourceType, $procedureId);
 
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
@@ -309,7 +310,7 @@ class SegmentsExportController extends BaseController
         // loaded, instead of loading every statement of the procedure and discarding the rest
         // in PHP.
         $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
-        $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions($tagsFilter, $statementResourceType);
+        $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions($tagsFilter, $statementResourceType, $procedureId);
 
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
@@ -387,7 +388,7 @@ class SegmentsExportController extends BaseController
         // loaded, instead of loading every statement of the procedure and discarding the rest
         // in PHP.
         $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
-        $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions($tagsFilter, $statementResourceType);
+        $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions($tagsFilter, $statementResourceType, $procedureId);
 
         $statementResult = $requestHandler->getObjectsByQueryParams(
             $this->requestStack->getCurrentRequest()->query,

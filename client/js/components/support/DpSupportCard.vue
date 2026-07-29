@@ -11,12 +11,12 @@ All rights reserved
   <section class="c-support__wrapper">
     <h4
       v-if="title"
-      class="u-mb-0_75 font-semibold font-size-large break-words"
+      class="mb-3 font-semibold font-size-large break-words"
       v-text="title"
     />
     <a
       v-if="phoneNumber"
-      class="u-mt-0_25 inline-block font-semibold font-size-large color--black break-words"
+      class="mt-1 inline-block font-semibold font-size-large color--black break-words"
       :href="`tel:${phoneNumber}`"
     >
       <dp-icon
@@ -25,17 +25,23 @@ All rights reserved
       />
       {{ phoneNumber }}
     </a>
-    <p
+    <a
       v-if="email"
-      class="break-words"
-      v-text="email"
-    />
+      class="mt-1 inline-block font-semibold font-size-large color--black break-words"
+      :href="`mailto:${email}`"
+    >
+      <dp-icon
+        class="inline-block"
+        icon="mail"
+      />
+      {{ email }}
+    </a>
     <template v-if="reachability.officeHours">
       <div
         v-if="reachability.service"
       >
         <h4
-          class="u-mt-0_75 font-semibold break-words"
+          class="mt-3 font-semibold break-words"
           v-text="reachability.service"
         />
         <div
@@ -50,7 +56,7 @@ All rights reserved
       <div
         v-else
         v-cleanhtml="reachability.officeHours"
-        class="u-mt-0_75 lg:mt-2 break-words c-styled-html"
+        class="mt-3 lg:mt-2 break-words c-styled-html"
       />
     </template>
   </section>
