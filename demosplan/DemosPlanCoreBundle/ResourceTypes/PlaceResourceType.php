@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use DemosEurope\DemosplanAddon\ResourceConfigBuilder\BasePlaceResourceConfigBuilder;
-use demosplan\DemosPlanCoreBundle\Api\Place\AccessChecker;
+use demosplan\DemosPlanCoreBundle\Api\Place\PlaceAccessChecker;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
@@ -43,7 +43,7 @@ final class PlaceResourceType extends DplanResourceType
         private readonly PlaceRepository $placeRepository,
         private readonly SegmentLockEnforcementService $segmentLockEnforcementService,
         private readonly EntityContentChangeService $entityContentChangeService,
-        private readonly AccessChecker $accessChecker,
+        private readonly PlaceAccessChecker $accessChecker,
     ) {
     }
 

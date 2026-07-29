@@ -23,6 +23,9 @@ use Tests\Base\AbstractApiTest;
 
 class PlaceResourceApiTest extends AbstractApiTest
 {
+    private const PLACE_ROUTE = '/api/3.0/Place/';
+    private const PLACE_NAME = 'Step 1';
+
     /**
      * /api/3.0/* routes sit behind the `api_platform` firewall (context: main, form-login
      * authenticator), not the stateless JWT `api` firewall AbstractApiTest::sendRequest() targets —
@@ -53,20 +56,20 @@ class PlaceResourceApiTest extends AbstractApiTest
     public function testGetReturnsPlaceScopedToCurrentProcedure(): void
     {
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
-        $place = PlaceFactory::createOne(['procedure' => $procedure, 'name' => 'Step 1']);
+        $place = PlaceFactory::createOne(['procedure' => $procedure, 'name' => self::PLACE_NAME]);
         $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
         $this->enablePermissions(['area_statement_segmentation']);
         $this->loginUserForApiPlatform($user);
 
         $response = $this->sendRequest(
-            '/api/3.0/Place/'.$place->getId(),
+            self::PLACE_ROUTE.$place->getId(),
             'GET',
             $user,
             $procedure
         );
 
         self::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        self::assertStringContainsString('Step 1', $response->getContent());
+        self::assertStringContainsString(self::PLACE_NAME, $response->getContent());
     }
 
     /**
@@ -78,18 +81,37 @@ class PlaceResourceApiTest extends AbstractApiTest
     public function testGetIsDeniedWithoutPermission(): void
     {
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
-        $place = PlaceFactory::createOne(['procedure' => $procedure]);
+        $place = PlaceFactory::createOne(['procedure' => $procedure, 'name' => self::PLACE_NAME]);
         $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
         $this->loginUserForApiPlatform($user);
 
         $response = $this->sendRequest(
-            '/api/3.0/Place/'.$place->getId(),
+            self::PLACE_ROUTE.$place->getId(),
             'GET',
             $user,
             $procedure
         );
 
-        self::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
+        self::assertStringNotContainsString(self::PLACE_NAME, $response->getContent());
+    }
+
+    public function testGetReturnsNotFoundForPlaceOutsideCurrentProcedure(): void
+    {
+        $ownerProcedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $otherProcedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $place = PlaceFactory::createOne(['procedure' => $ownerProcedure, 'name' => self::PLACE_NAME]);
+        $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
+        $this->enablePermissions(['area_statement_segmentation']);
+        $this->loginUserForApiPlatform($user);
+
+        $response = $this->sendRequest(
+            self::PLACE_ROUTE.$place->getId(),
+            'GET',
+            $user,
+            $otherProcedure
+        );
+
+        self::assertStringNotContainsString(self::PLACE_NAME, $response->getContent());
     }
 
     public function testGetCollectionIsSortedBySortIndexAscending(): void
