@@ -9,6 +9,7 @@
 
 import { dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { transformJsonApiToPi, transformPiToJsonApi } from './storeHelpers/SplitStatementStore/PiTagsToJSONApi'
+import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
 
 const SplitStatementStore = {
   namespaced: true,
@@ -144,6 +145,40 @@ const SplitStatementStore = {
           commit('setProperty', { prop: 'isBubbleVisible', val: false })
         }
       }
+    },
+
+    /**
+     * Preselects a segment's assignee from the default assignee of its first tag that has one.
+     * This mirrors the manual behaviour in SideBar.vue (the tag-add watcher) for tags that arrive
+     * pre-attached to segments (e.g. proposed by demospipes), which never trigger that watcher.
+     * Only users assignable in the procedure are applied, and an existing assignee is never overwritten.
+     */
+    applyTagDefaultAssignees ({ state, commit }) {
+      if (!hasPermission('feature_tag_default_assignee')) {
+        return
+      }
+
+      const segmentsWithDefaultAssignee = structuredClone(state.segments).map(segment => {
+        if (segment.assigneeId) {
+          return segment
+        }
+
+        for (const segmentTag of segment.tags) {
+          const availableTag = state.availableTags.find(tag => tag.id === segmentTag.id)
+          const defaultAssigneeId = availableTag?.relationships?.defaultAssignee?.data?.id
+          const isAssignableUser = Boolean(defaultAssigneeId) && state.assignableUsers.some(user => user.id === defaultAssigneeId)
+
+          if (isAssignableUser) {
+            segment.assigneeId = defaultAssigneeId
+
+            return segment
+          }
+        }
+
+        return segment
+      })
+
+      commit('setProperty', { prop: 'segments', val: segmentsWithDefaultAssignee })
     },
 
     closeEditMode ({ commit }) {
@@ -307,6 +342,8 @@ const SplitStatementStore = {
 
         commit('setProperty', { prop: 'uncategorizedTags', val: mergedTags })
         commit('setProperty', { prop: 'availableTags', val: availableTags })
+
+        dispatch('applyTagDefaultAssignees')
       })
     },
 
@@ -354,7 +391,10 @@ const SplitStatementStore = {
     },
 
     fetchTags ({ commit }) {
-      return dpApi.get(`${Routing.getBaseUrl()}/api/3.0/Tag`, { include: 'topic', sort: 'sortIndex' })
+      const url = apiUrl('Tag')
+      const include = hasPermission('feature_tag_default_assignee') ? 'topic,defaultAssignee' : 'topic'
+
+      return dpApi.get(url, { include, sort: 'sortIndex' })
         .then(response => {
           const tags = response.data
 
