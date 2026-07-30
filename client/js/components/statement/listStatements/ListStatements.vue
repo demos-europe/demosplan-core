@@ -1250,7 +1250,12 @@ export default {
     this.fetchAssignableUsers({
       include: 'orga',
       fields: {
-        Orga: 'name',
+        AssignableUser: [
+          'firstname',
+          'lastname',
+          'orga',
+        ].join(),
+        orga: 'name',
       },
     })
     this.initPagination()
