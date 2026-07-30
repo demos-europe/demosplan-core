@@ -912,7 +912,11 @@ export default {
     this.listAssignableUser({
       include: 'orga',
       fields: {
-        AssignableUser: 'firstname,lastname,orga',
+        AssignableUser: [
+          'firstname',
+          'lastname',
+          'orga',
+        ].join(),
         orga: 'name',
       },
     })
