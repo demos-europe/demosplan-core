@@ -12,8 +12,10 @@ declare(strict_types=1);
 
 namespace Tests\Core\JsonApi\Functional;
 
+use DemosEurope\DemosplanAddon\Controller\APIController;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\AdminProcedureResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\AdminStatementCrossProcedureSearchResourceType;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Base\JsonApiTest;
@@ -61,8 +63,10 @@ class AdminStatementCrossProcedureSearchResourceTypeTest extends JsonApiTest
     public function testListAcceptsIncludeProcedureAndFieldsParameters(): void
     {
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-        // ProcedureResourceType.isAvailable requires area_admin_procedures; without it `include=procedure`
-        // silently drops, and the FE would not get procedure names for the grouping headings.
+        // The procedure relationship points at AdminProcedure, whose isAvailable() requires
+        // area_admin_procedures. Naming an unavailable type in `fields` makes
+        // {@see APIController::validateFieldsets()} throw, which aborts the whole request, so the FE
+        // would not get procedure names for the grouping headings.
         $this->enablePermissions(['feature_json_api_statement_cross_procedures_search', 'area_admin_procedures']);
 
         $responseBody = $this->executeListRequest(
@@ -72,12 +76,12 @@ class AdminStatementCrossProcedureSearchResourceTypeTest extends JsonApiTest
             Response::HTTP_OK,
             [
                 'include' => 'procedure',
-                'fields'  => ['Procedure' => 'name'],
+                'fields'  => [AdminProcedureResourceType::getName() => 'name'],
             ]
         );
 
         // The endpoint must accept the FE's actual call shape (include=procedure +
-        // sparse Procedure fieldset) without erroring. Data presence is environment-dependent;
+        // sparse AdminProcedure fieldset) without erroring. Data presence is environment-dependent;
         // see {@see self::testListReturnsValidJsonApiPayloadForAdministrableUser}.
         self::assertArrayHasKey('data', $responseBody);
         self::assertArrayHasKey('included', $responseBody);
@@ -121,7 +125,9 @@ class AdminStatementCrossProcedureSearchResourceTypeTest extends JsonApiTest
     {
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
         $procedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
-        $this->enablePermissions(['feature_json_api_statement_cross_procedures_search']);
+        // Filtering across the procedure relationship resolves AdminProcedure as well, so the
+        // "selected procedures" mode of the FE needs area_admin_procedures just like the sideload does.
+        $this->enablePermissions(['feature_json_api_statement_cross_procedures_search', 'area_admin_procedures']);
 
         $responseBody = $this->executeListRequest(
             AdminStatementCrossProcedureSearchResourceType::getName(),
@@ -138,7 +144,7 @@ class AdminStatementCrossProcedureSearchResourceTypeTest extends JsonApiTest
                     ],
                 ],
                 'include' => 'procedure',
-                'fields'  => ['Procedure' => 'name'],
+                'fields'  => [AdminProcedureResourceType::getName() => 'name'],
             ]
         );
 

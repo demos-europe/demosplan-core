@@ -12,10 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
@@ -192,8 +194,15 @@ final class AdminStatementCrossProcedureSearchResourceType extends AbstractState
             ->aliasedPath(Paths::statement()->meta->orgaCity)
             ->readable(true);
 
+        /* Deliberately AdminProcedure instead of Procedure: {@see ProcedureResourceType::isAvailable()}
+         * requires permissions that projects grant per procedure, so sideloading it without a procedure
+         * context fails the fieldset validation in {@see APIController::validateFieldsets()} and aborts
+         * the whole request. {@see AdminProcedureResourceType} is available globally to procedure
+         * administrators and scopes its results via
+         * {@see ProcedureService::getAdminProcedureConditions()} — the same rule that builds the
+         * allowed procedure IDs in {@see self::getAccessConditions()}. */
         $configBuilder->procedure
-            ->setRelationshipType($this->resourceTypeStore->getProcedureResourceType())
+            ->setRelationshipType($this->resourceTypeStore->getAdminProcedureResourceType())
             ->readable()
             ->filterable();
 
