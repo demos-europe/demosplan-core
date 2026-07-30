@@ -2,8 +2,7 @@
 
 {% block component_part %}
     {% include '@DemosPlanCore/DemosPlanProcedure/includes/administration_list_pageheader.html.twig' with {
-        heading: 'search.submitter'|trans,
-        highlighted: 'procedure_search_submitters'
+        heading: 'search.submitter'|trans
     } %}
 
     <p class="font-size-small mb-4">
@@ -11,7 +10,8 @@
     </p>
 
     {% set submitTypesOptions = [] %}
-    {% for key, translated in getFormOption('statement_submit_types.values', true)|filter(key => key != 'system') %}
+    {# All submit types are needed, including `system`: the options are only used to resolve the label of a statement's submit type, not to fill a select #}
+    {% for key, translated in getFormOption('statement_submit_types.values', true) %}
         {% set submitTypesOptions = submitTypesOptions|merge([{ label: translated, value: key }]) %}
     {% endfor %}
 
