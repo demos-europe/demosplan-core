@@ -738,7 +738,7 @@ export default {
     },
 
     fetchAssignableUsers () {
-      return dpApi.get(apiUrl('AssignableUser'))
+      return dpApi.get(apiUrl('AssignableUser'), { sort: 'lastname' })
         .then(response => {
           this.assignableUsers = response.data.data.map(assignableUser => {
             return {
