@@ -107,6 +107,7 @@ const api3_0Modules = {
   ],
   AssignableUser: [
     'list',
+    'get',
   ],
 }
 
