@@ -182,8 +182,6 @@ const handleReset = () => {
 }
 
 const search = term => {
-  console.log(term)
-
   if (term.length === 0 || isSearching.value) {
     return
   }
@@ -241,7 +239,6 @@ const search = term => {
 
   dpApi.get(url, params)
     .then(response => {
-      console.log(response.data)
       noResults.value = response.data.data.length === 0
       statementsObject.value = response.data.data.reduce((acc, statement) => {
         acc[statement.id] = statement
@@ -249,10 +246,8 @@ const search = term => {
         return acc
       }, {})
       procedureGroups.value = buildProcedureGroups(response.data.data, response.data.included || [])
-      console.log(procedureGroups.value)
     })
-    .catch(error => {
-      console.log(error)
+    .catch(() => {
       // Drop stale results, otherwise the list would still show hits of an earlier search term
       noResults.value = false
       procedureGroups.value = []
