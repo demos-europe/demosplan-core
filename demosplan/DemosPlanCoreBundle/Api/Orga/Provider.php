@@ -17,11 +17,13 @@ use ApiPlatform\State\ProviderInterface;
 use demosplan\DemosPlanCoreBundle\Api\Orga\Resource as OrgaResource;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use InvalidArgumentException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Webmozart\Assert\Assert;
 
 class Provider implements ProviderInterface
 {
     public function __construct(
+        private readonly AccessChecker $accessChecker,
         private readonly OrgaRepository $orgaRepository,
     ) {
     }
@@ -30,12 +32,20 @@ class Provider implements ProviderInterface
     {
         Assert::same($operation->getClass(), OrgaResource::class);
 
+        if (!$this->accessChecker->isAvailable()) {
+            throw new AccessDeniedHttpException(sprintf('Access denied: insufficient permissions to access %s', $operation->getShortName()));
+        }
+
         if (!isset($uriVariables['id'])) {
             return null;
         }
 
         try {
-            $orga = $this->orgaRepository->getEntityByIdentifier($uriVariables['id'], [], ['id']);
+            $orga = $this->orgaRepository->getEntityByIdentifier(
+                $uriVariables['id'],
+                $this->accessChecker->getAccessConditions(),
+                ['id']
+            );
         } catch (InvalidArgumentException) {
             return null;
         }
