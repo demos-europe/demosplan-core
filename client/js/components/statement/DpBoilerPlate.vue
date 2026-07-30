@@ -160,7 +160,7 @@ export default {
   methods: {
     addToTextArea (data) {
       this.previewValue = data.text
-      this.$emit('boilerplateText:added', this.previewValue)
+      this.$emit('boilerplateText:added', this.previewValue, data.id)
     },
 
     resetBoilerPlateMultiSelect () {
