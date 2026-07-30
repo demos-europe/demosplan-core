@@ -25,7 +25,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User as UserEntity;
 #[ApiResource(
     shortName: 'AssignableUser',
     operations: [
-        new GetCollection(uriTemplate: '/AssignableUser'),
+        new GetCollection(uriTemplate: '/AssignableUser', paginationEnabled: false),
         new Get(uriTemplate: '/AssignableUser/{id}'),
     ],
     formats: ['jsonapi'],

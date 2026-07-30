@@ -428,7 +428,7 @@ export default {
             'lastname',
             'orga',
           ].join(),
-          Orga: ['name'].join(),
+          orga: ['name'].join(),
         },
         include: 'orga',
         sort: 'lastname',

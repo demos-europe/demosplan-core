@@ -912,7 +912,8 @@ export default {
     this.listAssignableUser({
       include: 'orga',
       fields: {
-        Orga: 'name',
+        AssignableUser: 'firstname,lastname,orga',
+        orga: 'name',
       },
     })
     this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedure.id, statementId: this.statementId } })
