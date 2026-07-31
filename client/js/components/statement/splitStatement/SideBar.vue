@@ -390,6 +390,30 @@ export default {
     },
   },
 
+  watch: {
+    /*
+     * Keep the assignee field in sync with the segment's tags: the first selected tag
+     * that has a default assignee wins and is applied even if an assignee is already set.
+     * If no selected tag provides one, the field is reset to "not assigned". The selection
+     * is persisted with the regular save flow via updateSegment().
+     */
+    'editingSegment.tags': function (newTags) {
+      if (!hasPermission('feature_tag_default_assignee') || !newTags) {
+        return
+      }
+
+      const assignee = this.getFirstTagAssignee(newTags) || this.getAssignableUserById('noAssigneeId')
+
+      /*
+       * Only update once a valid option exists; avoid setting null while the assignable
+       * users are still loading, which would break dp-multiselect and the save logic.
+       */
+      if (assignee) {
+        this.selectedAssignee = assignee
+      }
+    },
+  },
+
   methods: {
     ...mapActions('SplitStatement', [
       'updateCurrentTags',
@@ -405,6 +429,20 @@ export default {
 
     getAssignableUserById (id) {
       return this.assignableUsers.find(user => user.id === id)
+    },
+
+    getFirstTagAssignee (tags) {
+      for (const tag of tags) {
+        const availableTag = this.availableTags.find(el => el.id === tag.id)
+        const defaultAssigneeId = availableTag?.relationships?.defaultAssignee?.data?.id
+        const defaultAssignee = defaultAssigneeId ? this.getAssignableUserById(defaultAssigneeId) : null
+
+        if (defaultAssignee) {
+          return defaultAssignee
+        }
+      }
+
+      return null
     },
 
     getPlaceById (placeId) {

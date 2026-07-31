@@ -166,7 +166,7 @@
                 ref="boilerPlateModal"
                 boiler-plate-type="consideration"
                 :procedure-id="procedureId"
-                @insert="text => modalProps.handleInsertText(text)"
+                @insert="(text, boilerplateId) => insertBoilerplateText(text, boilerplateId, modalProps.handleInsertText)"
               />
               <recommendation-modal
                 ref="recommendationModal"
@@ -397,10 +397,11 @@ import {
   reformatDateString,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
-import { defineAsyncComponent } from 'vue'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
 import ActionStepperAction from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperAction'
 import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
+import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
+import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import lscache from 'lscache'
 import RecommendationModal from '../Shared/RecommendationModal'
@@ -770,12 +771,7 @@ export default {
     },
 
     fetchPlaces () {
-      const url = Routing.generate('api_resource_list', {
-        resourceType: 'Place',
-        sort: 'sortIndex',
-      })
-
-      return dpApi.get(url)
+      return dpApi.get(apiUrl('Place'), { sort: 'sortIndex' })
         .then(response => {
           this.places = response.data.data.map(place => {
             return {
@@ -798,6 +794,26 @@ export default {
     closeRecommendationModalAfterInsert (recommendation) {
       this.actions.addRecommendations.text = recommendation
       dplan.notify.notify('confirm', Translator.trans('recommendation.pasted'))
+    },
+
+    /**
+     * Inserts the boilerplate text into the recommendation editor and records
+     * the usage of the boilerplate for every segment selected for bulk edit.
+     */
+    insertBoilerplateText (text, boilerplateId, handleInsertText) {
+      handleInsertText(text)
+
+      if (boilerplateId && this.segments.length > 0 && hasPermission('feature_boilerplate_usage_list')) {
+        return dpApi.post(
+          Routing.generate('dplan_boilerplate_usage_create_bulk', { procedureId: this.procedureId, boilerplateId }),
+          {},
+          { segmentIds: this.segments },
+        ).catch(() => {
+          // Recording the usage is non-critical: the text was inserted regardless.
+        })
+      }
+
+      return Promise.resolve()
     },
 
     openBoilerPlate () {
