@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\ApiResources;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement as StatementEntity;
 use demosplan\DemosPlanCoreBundle\StateProvider\StatementStateProvider;
 
 #[ApiResource(
@@ -40,4 +41,16 @@ class StatementResource
 
     #[ApiProperty(readable: true, writable: false)]
     public string $initialOrganisationName = '';
+
+    public static function fromEntity(StatementEntity $statement): self
+    {
+        $resource = new self();
+        $resource->id = $statement->getId();
+        $resource->externId = $statement->getExternId();
+        $resource->isSubmittedByCitizen = $statement->isSubmittedByCitizen();
+        $resource->authorName = $statement->getAuthorName();
+        $resource->initialOrganisationName = $statement->getMeta()->getOrgaName();
+
+        return $resource;
+    }
 }
