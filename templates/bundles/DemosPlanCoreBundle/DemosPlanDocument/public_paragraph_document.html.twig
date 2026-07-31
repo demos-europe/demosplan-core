@@ -45,7 +45,7 @@
 
     {# content #}
     <dp-public-detail-no-map procedure-id="{{ procedure }}" user-id="{{ currentUser.id|default }}">
-        <template #default="{ setRef, updateStatementAndOpenModal }">
+        <template #default="{ activeStatement, prefixClass, setRef, toggleStatementModal, updateStatementAndOpenModal }">
         <div id="scParagraph" class="{{ 'o-page__padded'|prefixClass }}">
 
             {% if templateVars.list.documentlistToc|default([])|length > 0 %}
