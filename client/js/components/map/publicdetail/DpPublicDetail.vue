@@ -118,7 +118,7 @@ export default {
 
     foldOpenToolbarItems (items) {
       items.forEach(item => {
-        if (this.slotRefs[item] && typeof this.slotRefs[item].toggle === 'function') {
+        if (this.slotRefs[item] && typeof this.slotRefs[item].fold === 'function') {
           this.slotRefs[item].fold()
         }
       })
