@@ -7,36 +7,39 @@
   All rights reserved
 </license>
 
+<template>
+  <div>
+    <slot
+      :active-action-box-tab="activeActionBoxTab"
+      :active-statement="activeStatement"
+      :active-tab="activeTab"
+      :dp-validate="dpValidate"
+      :dp-validate-action="dpValidateAction"
+      :is-submitting="isSubmitting"
+      :open-statement-modal-from-list="openStatementModalFromList"
+      :prefix-class="prefixClass"
+      :set-ref="setRef"
+      :submit-form="submitForm"
+      :toggle-confirm-modal="toggleConfirmModal"
+      :toggle-statement-modal="toggleStatementModal"
+      :toggle-tabs="toggleTabs"
+      :update-statement-and-open-modal="updateStatementAndOpenModal"
+    />
+  </div>
+</template>
+
 <script>
 import { addFormHiddenField, removeFormHiddenField } from '../../lib/core/libs/FormActions'
-import { DpButton, DpContextualHelp, DpModal, dpValidateMixin, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { dpValidateMixin, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
-import { defineAsyncComponent } from 'vue'
-import DpPublicStatementList from '@DpJs/components/statement/publicStatementLists/DpPublicStatementList'
-import StatementModal from '@DpJs/components/statement/publicStatementModal/StatementModal'
+import { useSlotRefs } from '@DpJs/composables/useSlotRefs'
 
+/*
+ * The components the Twig markup uses are registered on the app by the bundle entrypoints, not here:
+ * as scoped slot content it's compiled in the app's scope, not in this component's
+ */
 export default {
   name: 'DpPublicDetailNoMap',
-
-  components: {
-    StatementModal,
-    DpButton,
-    DpContextualHelp,
-    DpModal,
-    DpPublicStatementList,
-    DpMapModal: defineAsyncComponent(() => import('@DpJs/components/statement/assessmentTable/DpMapModal')),
-    DpSelect: defineAsyncComponent(async () => {
-      const { DpSelect } = await import('@demos-europe/demosplan-ui')
-
-      return DpSelect
-    }),
-    DpVideoPlayer: defineAsyncComponent(async () => {
-      const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
-
-      return DpVideoPlayer
-    }),
-    ElementsList: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList')),
-  },
 
   mixins: [dpValidateMixin, prefixClassMixin],
 
@@ -58,10 +61,15 @@ export default {
     },
   },
 
+  setup () {
+    const { setRef, slotRefs } = useSlotRefs()
+
+    return { setRef, slotRefs }
+  },
+
   data () {
     return {
       activeTab: '#procedureDetailsDocumentlist',
-      consultationTokenInputField: '',
       isSubmitting: false,
     }
   },
@@ -98,11 +106,11 @@ export default {
     },
 
     toggleConfirmModal () {
-      this.$refs.confirmModal.toggle()
+      this.slotRefs.confirmModal.toggle()
     },
 
     toggleStatementModal (updateStatementPayload) {
-      this.$refs.statementModal.toggleModal(true, updateStatementPayload)
+      this.slotRefs.statementModal.toggleModal(true, updateStatementPayload)
     },
 
     toggleTabs (tabId) {
@@ -114,13 +122,13 @@ export default {
        * Only set custom fields from list if there are NO unsaved changes
        * If there are unsaved changes, localStorage will restore them
        */
-      const hasUnsavedChanges = this.$refs.statementModal.unsavedDrafts.includes(id)
+      const hasUnsavedChanges = this.slotRefs.statementModal.unsavedDrafts.includes(id)
 
       if (!hasUnsavedChanges && customFields?.length > 0) {
-        this.$refs.statementModal.setCustomFieldsForEditing(customFields)
+        this.slotRefs.statementModal.setCustomFieldsForEditing(customFields)
       }
 
-      this.$refs.statementModal.getDraftStatement(id, true, true)
+      this.slotRefs.statementModal.getDraftStatement(id, true, true)
     },
 
     updateStatementAndOpenModal (updateStatementPayload) {

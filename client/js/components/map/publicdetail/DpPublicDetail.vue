@@ -7,36 +7,37 @@
   All rights reserved
 </license>
 
-<script>
-import { DpContextualHelp, prefixClassMixin } from '@demos-europe/demosplan-ui'
-import { mapMutations, mapState } from 'vuex'
-import CustomLayer from '@DpJs/components/map/publicdetail/controls/CustomLayer'
-import { defineAsyncComponent } from 'vue'
-import DpLayerLegend from '@DpJs/components/map/publicdetail/controls/legendList/DpLayerLegend'
-import DpPublicLayerListWrapper from '@DpJs/components/map/publicdetail/controls/layerlist/DpPublicLayerListWrapper'
-import DpUnfoldToolbarControl from '@DpJs/components/map/publicdetail/controls/DpUnfoldToolbarControl'
-import Map from '@DpJs/components/map/publicdetail/Map'
-import MapTools from '@DpJs/components/map/publicdetail/controls/MapTools'
-import StatementModal from '@DpJs/components/statement/publicStatementModal/StatementModal'
+<template>
+  <div>
+    <slot
+      :active-action-box-tab="activeActionBoxTab"
+      :active-statement="activeStatement"
+      :active-tab="activeTab"
+      :check-key-event="checkKeyEvent"
+      :fold-open-toolbar-items="foldOpenToolbarItems"
+      :handle-fullscreen-focus="handleFullscreenFocus"
+      :prefix-class="prefixClass"
+      :set-ref="setRef"
+      :toggle-map-hint="toggleMapHint"
+      :toggle-statement-modal="toggleStatementModal"
+      :toggle-tabs="toggleTabs"
+      :update="update"
+      :update-statement-and-open-modal="updateStatementAndOpenModal"
+    />
+  </div>
+</template>
 
+<script>
+import { mapMutations, mapState } from 'vuex'
+import { prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { useSlotRefs } from '@DpJs/composables/useSlotRefs'
+
+/*
+ * The components the Twig markup uses are registered on the app by the bundle entrypoints, not here:
+ * as scoped slot content it's compiled in the app's scope, not in this component's
+ */
 export default {
   name: 'DpPublicDetail',
-
-  components: {
-    DpContextualHelp,
-    'dp-custom-layer': CustomLayer,
-    DpLayerLegend,
-    'dp-map': Map,
-    'dp-map-tools': MapTools,
-    DpPublicLayerListWrapper,
-    DpUnfoldToolbarControl,
-    DpVideoPlayer: defineAsyncComponent(async () => {
-      const { DpVideoPlayer } = await import('@demos-europe/demosplan-ui')
-
-      return DpVideoPlayer
-    }),
-    StatementModal,
-  },
 
   mixins: [prefixClassMixin],
 
@@ -58,10 +59,15 @@ export default {
     },
   },
 
+  setup () {
+    const { setRef, slotRefs } = useSlotRefs()
+
+    return { setRef, slotRefs }
+  },
+
   data () {
     return {
       activeTab: this.isMapEnabled ? '#procedureDetailsMap' : '#procedureDetailsDocumentlist',
-      consultationTokenInputField: '',
       focusableElements: [],
       lastFocusedElement: '',
     }
@@ -113,8 +119,8 @@ export default {
 
     foldOpenToolbarItems (items) {
       items.forEach(item => {
-        if (this.$refs[item] && typeof this.$refs[item].toggle === 'function') {
-          this.$refs[item].fold()
+        if (this.slotRefs[item] && typeof this.slotRefs[item].toggle === 'function') {
+          this.slotRefs[item].fold()
         }
       })
     },
@@ -146,7 +152,7 @@ export default {
     },
 
     toggleStatementModal (updateStatementPayload) {
-      this.$refs.statementModal.toggleModal(true, updateStatementPayload)
+      this.slotRefs.statementModal.toggleModal(true, updateStatementPayload)
     },
 
     toggleTabs (tabId) {
