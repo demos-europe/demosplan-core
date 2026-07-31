@@ -159,6 +159,27 @@
         </template>
     </dp-edit-boilerplate>
 
+    {% if not isNew and hasPermission('feature_boilerplate_usage_list') %}
+        <h2 class="u-mt">{{ 'boilerplate.usage.headline'|trans }}</h2>
+        {% if boilerplateUsages|default([]) is not empty %}
+            <ul data-cy="editBoilerplate:usageList">
+                {% for usage in boilerplateUsages %}
+                    <li>
+                        <a
+                            href="{{ path('dplan_statement_segments_list', { procedureId: procedure, statementId: usage.statementId, segment: usage.segmentId }) }}#recommendation"
+                            data-cy="editBoilerplate:usageLink"
+                            rel="noopener"
+                            target="_blank">
+                            {{ usage.externId }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p data-cy="editBoilerplate:usageEmpty">{{ 'boilerplate.usage.none'|trans }}</p>
+        {% endif %}
+    {% endif %}
+
 {% endblock %}
 
 {% block javascripts %}
