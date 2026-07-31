@@ -68,7 +68,6 @@ class Resource
     #[ApiProperty(readable: true, writable: false)]
     public ?string $deadline = null;
 
-    /** @var array|null */
     #[ApiProperty(readable: true, writable: false)]
     public ?array $customFields = null;
 
