@@ -87,7 +87,7 @@
       <dp-checkbox
         id="segmentDeadlineReminderEnabled"
         v-model="isSegmentDeadlineReminderChecked"
-        class="u-mb-0_25"
+        class="mb-1"
         :label="{
           bold: true,
           hint: Translator.trans('email.segment.deadline.reminder.explanation'),
