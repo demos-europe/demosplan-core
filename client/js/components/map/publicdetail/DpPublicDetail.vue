@@ -18,7 +18,6 @@
       :handle-fullscreen-focus="handleFullscreenFocus"
       :prefix-class="prefixClass"
       :set-ref="setRef"
-      :toggle-map-hint="toggleMapHint"
       :toggle-statement-modal="toggleStatementModal"
       :toggle-tabs="toggleTabs"
       :update="update"

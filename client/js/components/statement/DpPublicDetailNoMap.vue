@@ -10,10 +10,8 @@
 <template>
   <div>
     <slot
-      :active-action-box-tab="activeActionBoxTab"
       :active-statement="activeStatement"
       :active-tab="activeTab"
-      :dp-validate="dpValidate"
       :dp-validate-action="dpValidateAction"
       :is-submitting="isSubmitting"
       :open-statement-modal-from-list="openStatementModalFromList"
