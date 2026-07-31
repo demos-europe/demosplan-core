@@ -75,14 +75,12 @@
         class="u-mb-0_25"
         :label="{
           bold: true,
+          hint: Translator.trans('email.daily.assigned.tasks.explanation'),
           text: Translator.trans('email.daily.subscribe')
         }"
         name="assignedTaskNotification"
         value-to-send="on"
       />
-      <p>
-        {{ Translator.trans('email.daily.assigned.tasks.explanation') }}
-      </p>
     </template>
 
     <template v-if="hasPermission('feature_statement_deadline_mail_setting')">
@@ -92,14 +90,12 @@
         class="u-mb-0_25"
         :label="{
           bold: true,
+          hint: Translator.trans('email.segment.deadline.reminder.explanation'),
           text: Translator.trans('email.segment.deadline.reminder.subscribe')
         }"
         name="segmentDeadlineReminderEnabled"
         value-to-send="on"
       />
-      <p>
-        {{ Translator.trans('email.segment.deadline.reminder.explanation') }}
-      </p>
     </template>
 
     <template v-if="hasPermission('feature_statement_gdpr_consent')">
