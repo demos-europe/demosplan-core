@@ -75,10 +75,8 @@ export default {
   computed: {
     ...mapState('PublicStatement', [
       'activeActionBoxTab',
-      'showMapHint',
       'initForm',
       'statement',
-      'localStorageName',
     ]),
 
     activeStatement () {
@@ -87,7 +85,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('PublicStatement', ['initialiseStore', 'update', 'updateHighlighted', 'updateStatement']),
+    ...mapMutations('PublicStatement', ['initialiseStore', 'update', 'updateHighlighted']),
 
     checkKeyEvent (event) {
       if (this.isFullscreen) {
@@ -157,10 +155,6 @@ export default {
     toggleTabs (tabId) {
       this.activeTab = tabId
       history.pushState(null, null, this.activeTab)
-    },
-
-    toggleMapHint (state = false) {
-      this.update({ key: 'showMapHint', val: state })
     },
 
     updateStatementAndOpenModal (updateStatementPayload) {

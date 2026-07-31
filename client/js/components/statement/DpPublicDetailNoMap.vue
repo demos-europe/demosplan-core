@@ -74,10 +74,8 @@ export default {
 
   computed: {
     ...mapState('PublicStatement', [
-      'activeActionBoxTab',
       'initForm',
       'statement',
-      'unsavedDrafts',
     ]),
 
     activeStatement () {
@@ -86,7 +84,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('PublicStatement', ['initialiseStore', 'updateHighlighted', 'updateStatement', 'localStorageName']),
+    ...mapMutations('PublicStatement', ['initialiseStore', 'updateHighlighted']),
 
     submitForm (formId, hiddenFieldName) {
       const form = this.$el.querySelector(`[data-dp-validate="${formId}"]`)
