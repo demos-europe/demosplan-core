@@ -65,6 +65,13 @@ class Resource
     #[ApiProperty(readable: true, writable: false)]
     public array $tagIds = [];
 
+    #[ApiProperty(readable: true, writable: false)]
+    public ?string $deadline = null;
+
+    /** @var array|null */
+    #[ApiProperty(readable: true, writable: false)]
+    public ?array $customFields = null;
+
     public static function fromEntity(SegmentEntity $segment): self
     {
         $resource = new self();
@@ -80,6 +87,8 @@ class Resource
         $resource->tagIds = array_values(array_filter(
             $segment->getTags()->map(static fn ($tag): ?string => $tag->getId())->toArray()
         ));
+        $resource->deadline = $segment->getDeadline()?->format('Y-m-d');
+        $resource->customFields = $segment->getCustomFields()?->toJson();
 
         return $resource;
     }
