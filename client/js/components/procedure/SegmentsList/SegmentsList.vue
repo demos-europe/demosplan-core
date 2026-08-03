@@ -83,7 +83,7 @@
       >
         <dp-button
           :text="Translator.trans('segments.bulk.edit')"
-          variant="outline"
+          :variant="selectionCopiedToClipboard ? 'solid' : 'outline'"
           @click.prevent="handleBulkEdit"
         />
       </dp-bulk-edit-header>
