@@ -33,6 +33,9 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementArrayConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
+use League\Csv\CannotInsertRecord;
+use League\Csv\Exception as CsvException;
+use League\Csv\InvalidArgument;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpWord\Element\Footer;
 use PhpOffice\PhpWord\Element\Section;
@@ -135,8 +138,9 @@ class SegmentsByStatementsExporter extends SegmentsExporter
 
     /**
      * @throws ReflectionException
-     * @throws \League\Csv\Exception
-     * @throws \League\Csv\CannotInsertRecord
+     * @throws CsvException
+     * @throws CannotInsertRecord
+     * @throws InvalidArgument
      */
     public function exportAllCsv(Statement ...$statements): string
     {

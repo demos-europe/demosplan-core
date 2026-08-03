@@ -13,9 +13,6 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Export\CsvExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementArrayConverter;
-use League\Csv\CannotInsertRecord;
-use League\Csv\Exception;
-use League\Csv\InvalidArgument;
 use ReflectionException;
 
 class OriginalStatementCsvExporter
@@ -39,16 +36,6 @@ class OriginalStatementCsvExporter
             $attributesToExport
         );
 
-        return $this->generateCsv($formattedData, $columnsDefinition);
-    }
-
-    /**
-     * @throws InvalidArgument
-     * @throws CannotInsertRecord
-     * @throws Exception
-     */
-    private function generateCsv(array $formattedData, array $columnsDefinition): string
-    {
         return $this->csvExporter->generate($formattedData, $columnsDefinition);
     }
 
