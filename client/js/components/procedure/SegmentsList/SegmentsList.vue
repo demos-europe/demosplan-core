@@ -804,6 +804,12 @@ export default {
     },
   },
 
+  watch: {
+    toggledItems () {
+      this.selectionCopiedToClipboard = false
+    },
+  },
+
   methods: {
     formatDate,
     ...mapActions('AssignableUser', {
