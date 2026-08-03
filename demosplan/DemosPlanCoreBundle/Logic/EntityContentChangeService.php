@@ -594,7 +594,6 @@ class EntityContentChangeService
         $this->entityContentChangeRepository->persistAndDelete([$entry], []);
     }
 
-
     /**
      * Segment lock feature — Versionsverlauf entries for every segment
      * currently on $place when its `locked` flag toggled.

@@ -12,12 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use Doctrine\DBAL\Exception;
-use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
-use DateTime;
 
 class SegmentEmailSender
 {
@@ -33,6 +33,7 @@ class SegmentEmailSender
      * Send a segment or several segments to an external mail recipient, optionally with cc addresses.
      *
      * @param string[] $segmentIds
+     *
      * @return bool whether the mail was queued successfully
      * @return bool whether the mail was queued successfully
      */
@@ -47,14 +48,13 @@ class SegmentEmailSender
         try {
             // load the segment(s). prove they exist and give us the procedure it belongs to
             $segments = $this->segmentService->findByIds($segmentIds);
-           if ([] === $segments) {
-              throw new InvalidDataException('No segments found for the given IDs.');
-           }
-           //ensure every segment belongs to the current procedure
+            if ([] === $segments) {
+                throw new InvalidDataException('No segments found for the given IDs.');
+            }
+            // ensure every segment belongs to the current procedure
             foreach ($segments as $segment) {
                 if ($segment->getProcedure()->getId() !== $procedureId) {
-                    throw new  InvalidDataException('Segment does not belong to current procedure.');
-
+                    throw new InvalidDataException('Segment does not belong to current procedure.');
                 }
             }
             // validate the recipients email address
