@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
 namespace demosplan\DemosPlanCoreBundle\Api\EmailAddress;
 
 use ApiPlatform\Metadata\Operation;
@@ -16,9 +24,9 @@ class EmailAddressProvider implements ProviderInterface
         private readonly LoggerInterface $logger,
         private EmailAddressRepository $emailAddressRepository,
     ) {
-
     }
-    public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|null
+
+    public function provide(Operation $operation, array $uriVariables = [], array $context = []): ?object
     {
         try {
             Assert::same($operation->getClass(), EmailAddress::class);
@@ -29,6 +37,7 @@ class EmailAddressProvider implements ProviderInterface
         } catch (Exception $exception) {
             $this->logger->error($exception->getMessage());
         }
+
         return null;
     }
 
@@ -44,6 +53,5 @@ class EmailAddressProvider implements ProviderInterface
 
             return null;
         }
-
     }
 }
