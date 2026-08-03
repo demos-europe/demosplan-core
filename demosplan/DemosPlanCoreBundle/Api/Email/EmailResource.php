@@ -12,13 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Api\Email;
 
-use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Post;
-use ApiPlatform\Serializer\Filter\PropertyFilter;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 
@@ -31,7 +27,6 @@ use demosplan\DemosPlanCoreBundle\Entity\MailSend;
     routePrefix: ApiPlatformConstants::ROUTE_PREFIX_V3,
     provider: EmailProvider::class,
 )]
-
 class EmailResource
 {
     #[ApiProperty(readable: false, identifier: true)]
@@ -40,7 +35,7 @@ class EmailResource
     #[ApiProperty(readable: true, writable: false)]
     public string $to = '';
 
-    public static function fromEntity( MailSend $mailSent): self
+    public static function fromEntity(MailSend $mailSent): self
     {
         $resource = new self();
         $resource->id = $mailSent->getId();

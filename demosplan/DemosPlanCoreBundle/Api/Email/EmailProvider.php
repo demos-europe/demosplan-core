@@ -12,23 +12,19 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Api\Email;
 
-use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Repository\MailRepository;
-use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use InvalidArgumentException;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Webmozart\Assert\Assert;
 
 class EmailProvider implements ProviderInterface
 {
     public function __construct(
         private readonly MailRepository $mailRepository,
-) {
+    ) {
     }
 
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
@@ -48,7 +44,7 @@ class EmailProvider implements ProviderInterface
             $place = $this->mailRepository->getEntityByIdentifier(
                 (string) $id,
                 [],
-                ["id"]
+                ['id']
             );
         } catch (InvalidArgumentException) {
             return null;
