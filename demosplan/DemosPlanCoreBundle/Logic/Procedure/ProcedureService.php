@@ -30,6 +30,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Location;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateUsage;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\InstitutionMail;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
@@ -37,6 +38,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -67,6 +69,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentLockEnforcementService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
@@ -75,6 +78,7 @@ use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateCategoryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateGroupRepository;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository;
+use demosplan\DemosPlanCoreBundle\Repository\BoilerplateUsageRepository;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
@@ -87,6 +91,7 @@ use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureElasticsearchRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureSubscriptionRepository;
+use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SettingRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
@@ -177,6 +182,7 @@ class ProcedureService implements ProcedureServiceInterface
         private readonly BoilerplateCategoryRepository $boilerplateCategoryRepository,
         private readonly BoilerplateGroupRepository $boilerplateGroupRepository,
         private readonly BoilerplateRepository $boilerplateRepository,
+        private readonly BoilerplateUsageRepository $boilerplateUsageRepository,
         ContentService $contentService,
         private readonly CurrentUserInterface $currentUser,
         private readonly CustomerService $customerService,
@@ -213,6 +219,8 @@ class ProcedureService implements ProcedureServiceInterface
         private readonly ProcedureSubscriptionRepository $procedureSubscriptionRepository,
         private readonly ProcedureToLegacyConverter $procedureToLegacyConverter,
         private readonly ProcedureTypeService $procedureTypeService,
+        private readonly SegmentLockEnforcementService $segmentLockEnforcementService,
+        private readonly SegmentRepository $segmentRepository,
         private readonly SettingRepository $settingRepository,
         private readonly SingleDocumentRepository $singleDocumentRepository,
         private readonly SortMethodFactory $sortMethodFactory,
@@ -2328,6 +2336,115 @@ class ProcedureService implements ProcedureServiceInterface
     public function getBoilerplateById($boilerplateId)
     {
         return $this->boilerplateRepository->findOneBy(['ident' => $boilerplateId]);
+    }
+
+    /**
+     * Loads a boilerplate only if it exists and belongs to the given procedure.
+     *
+     * @throws Exception
+     */
+    public function getBoilerplateOfProcedure(string $boilerplateId, string $procedureId): ?Boilerplate
+    {
+        $boilerplate = $this->getBoilerplateById($boilerplateId);
+        if (!$boilerplate instanceof Boilerplate || $boilerplate->getProcedureId() !== $procedureId) {
+            return null;
+        }
+
+        return $boilerplate;
+    }
+
+    /**
+     * Records that the given boilerplate was inserted into the recommendation
+     * of the segment identified by `$segmentId`. Idempotent per
+     * boilerplate/segment pair.
+     *
+     * @return bool whether the segment was valid (exists and belongs to the procedure)
+     */
+    public function addBoilerplateUsage(Boilerplate $boilerplate, string $segmentId, string $procedureId): bool
+    {
+        return 0 < $this->addBoilerplateUsages($boilerplate, [$segmentId], $procedureId);
+    }
+
+    /**
+     * Records that the given boilerplate was inserted into the recommendations
+     * of the segments identified by `$segmentIds`. Only segments that exist and
+     * belong to the procedure are recorded. Idempotent per boilerplate/segment pair.
+     *
+     * @param array<int, mixed> $segmentIds
+     *
+     * @return int the number of valid segments the usage was recorded for
+     */
+    public function addBoilerplateUsages(Boilerplate $boilerplate, array $segmentIds, string $procedureId): int
+    {
+        try {
+            $segments = $this->resolveSegmentsForProcedure($segmentIds, $procedureId);
+            if ([] === $segments) {
+                return 0;
+            }
+
+            $this->boilerplateUsageRepository->addUsages($boilerplate, $segments);
+
+            return count($segments);
+        } catch (Exception $e) {
+            // Recording the usage is non-critical: the boilerplate text was
+            // inserted regardless, so the failure is only logged.
+            $this->logger->error(
+                'Failed to record boilerplate usage',
+                ['boilerplateId' => $boilerplate->getId(), 'procedureId' => $procedureId, 'exception' => $e]
+            );
+
+            return 0;
+        }
+    }
+
+    /**
+     * Segments whose recommendation the given boilerplate was inserted into,
+     * prepared for display on the boilerplate edit page. Returns an empty array
+     * for unsaved boilerplates or when the current user may not list usages.
+     *
+     * @return array<int, array{externId: string, segmentId: string, statementId: string}>
+     *
+     * @throws Exception
+     */
+    public function getBoilerplateUsagesForDisplay(string $boilerplateId): array
+    {
+        if ('new' === $boilerplateId || !$this->permissions->hasPermission('feature_boilerplate_usage_list')) {
+            return [];
+        }
+
+        return array_map(
+            static fn (BoilerplateUsage $usage): array => [
+                'externId'    => $usage->getSegment()->getExternId(),
+                'segmentId'   => $usage->getSegment()->getId(),
+                'statementId' => $usage->getSegment()->getParentStatementOfSegment()->getId(),
+            ],
+            $this->boilerplateUsageRepository->getUsagesForBoilerplate($boilerplateId)
+        );
+    }
+
+    /**
+     * Resolves the given segment IDs to the segments that exist and belong to
+     * the procedure, in a single query. Non-string and empty IDs are ignored.
+     *
+     * @param array<int, mixed> $segmentIds
+     *
+     * @return array<int, Segment>
+     *
+     * @throws Exception
+     */
+    private function resolveSegmentsForProcedure(array $segmentIds, string $procedureId): array
+    {
+        $validIds = array_values(array_filter(
+            $segmentIds,
+            static fn ($segmentId): bool => is_string($segmentId) && '' !== $segmentId
+        ));
+
+        // Only record usage for segments that actually receive the inserted
+        // text: when segment-lock enforcement applies, locked segments are
+        // skipped by the recommendation edit and must not be recorded either.
+        return $this->segmentLockEnforcementService->isEnforcementApplicable()
+            ? $this->segmentRepository->findUnlockedByIdsForProcedure($validIds, $procedureId)
+            : $this->segmentRepository->findByIdsForProcedure($validIds, $procedureId);
     }
 
     /**

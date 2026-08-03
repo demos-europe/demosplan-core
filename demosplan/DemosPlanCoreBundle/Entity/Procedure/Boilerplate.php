@@ -75,6 +75,14 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
     protected $tags;
 
     /**
+     * Segments whose recommendation this boilerplate was inserted into.
+     *
+     * @var Collection<int, BoilerplateUsage>
+     */
+    #[ORM\OneToMany(targetEntity: BoilerplateUsage::class, mappedBy: 'boilerplate')]
+    protected $usages;
+
+    /**
      * @var string
      */
     #[ORM\Column(name: '_pt_title', type: 'string', length: 255, nullable: true)]
@@ -110,6 +118,7 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
     {
         $this->categories = new ArrayCollection();
         $this->tags = new ArrayCollection();
+        $this->usages = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -439,5 +448,13 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
     public function hasGroup(): bool
     {
         return null !== $this->getGroup();
+    }
+
+    /**
+     * @return Collection<int, BoilerplateUsage>
+     */
+    public function getUsages(): Collection
+    {
+        return $this->usages;
     }
 }

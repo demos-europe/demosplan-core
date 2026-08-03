@@ -34,7 +34,8 @@ class SegmentEmailSender
      *
      * @param string[] $segmentIds
      * @return bool whether the mail was queued successfully
-     * */
+     * @return bool whether the mail was queued successfully
+     */
     public function sendSegmentsMail(
         array $segmentIds,
         string $procedureId,
