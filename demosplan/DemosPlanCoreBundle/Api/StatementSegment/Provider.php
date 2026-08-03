@@ -70,7 +70,7 @@ class Provider implements ProviderInterface
     /**
      * Delegates to API Platform's own Doctrine ORM collection provider so that its
      * filter/extension mechanism (access control via
-     * {@see \demosplan\DemosPlanCoreBundle\Api\StatementSegment\Extension\SegmentDoctrineAccessExtension},
+     * {@see Extension\SegmentDoctrineAccessExtension},
      * sorting via the declared OrderFilter on {@see StatementSegmentResource}) applies.
      *
      * @return list<StatementSegmentResource>

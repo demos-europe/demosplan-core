@@ -51,8 +51,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag as TagEntity;
 // procedure directly, since AccessChecker::getAccessConditions() alone is broader
 // (current procedure plus other allowed/related procedures).
 #[ApiFilter(SearchFilter::class, properties: [
-    'text' => 'ipartial',
-    'parentStatementOfSegment.internId' => 'exact',
+    'text'                                  => 'ipartial',
+    'parentStatementOfSegment.internId'     => 'exact',
     'parentStatementOfSegment.procedure.id' => 'exact',
 ])]
 #[ApiFilter(OrderFilter::class, properties: [
@@ -110,9 +110,9 @@ class Resource
         $resource->internId = $segment->getInternId();
         $resource->orderInProcedure = $segment->getOrderInProcedure();
         $resource->recommendation = $segment->getRecommendation();
-        //$resource->parentStatement = StatementResource::fromEntity($segment->getParentStatementOfSegment());
-        //$resource->assigneeId = $segment->getAssigneeId();
-        //$resource->place = PlaceResource::fromEntity($segment->getPlace());
+        // $resource->parentStatement = StatementResource::fromEntity($segment->getParentStatementOfSegment());
+        // $resource->assigneeId = $segment->getAssigneeId();
+        // $resource->place = PlaceResource::fromEntity($segment->getPlace());
         /*$resource->tags = array_values($segment->getTags()->map(
             static fn (TagEntity $tag): TagResource => TagResource::fromEntity($tag)
         )->toArray());*/
