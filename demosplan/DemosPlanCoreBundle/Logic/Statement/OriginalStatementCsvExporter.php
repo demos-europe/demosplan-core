@@ -10,19 +10,19 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use demosplan\DemosPlanCoreBundle\Logic\Export\CsvExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementArrayConverter;
-use League\Csv\Bom;
 use League\Csv\CannotInsertRecord;
 use League\Csv\Exception;
 use League\Csv\InvalidArgument;
-use League\Csv\Writer;
 use ReflectionException;
 
 class OriginalStatementCsvExporter
 {
     public function __construct(
         private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
+        private readonly CsvExporter $csvExporter,
         private readonly StatementArrayConverter $statementArrayConverter)
     {
     }
@@ -49,23 +49,7 @@ class OriginalStatementCsvExporter
      */
     private function generateCsv(array $formattedData, array $columnsDefinition): string
     {
-        $csv = Writer::fromString('');
-        $csv->setOutputBOM(Bom::Utf8); // Add UTF-8 BOM - Excel needs this to properly display special characters in CSV files
-
-        $csv->setDelimiter(',');
-        $csv->setEnclosure('"');
-        $csv->setEscape('\\');
-
-        // Add headers
-        $headers = array_column($columnsDefinition, 'title');
-        $csv->insertOne($headers);
-
-        // Add data rows
-        foreach ($formattedData as $row) {
-            $csv->insertOne($row);
-        }
-
-        return $csv->toString();
+        return $this->csvExporter->generate($formattedData, $columnsDefinition);
     }
 
     /**

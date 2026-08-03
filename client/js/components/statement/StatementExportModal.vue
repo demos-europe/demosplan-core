@@ -45,7 +45,7 @@
             :checked="active === key"
             @change="active = key"
           />
-          <template v-if="active !== 'xlsx_normal'">
+          <template v-if="!['xlsx_normal', 'csv_normal'].includes(active)">
             <dp-checkbox
               id="censoredCitizen"
               v-model="isCitizenDataCensored"
@@ -364,6 +364,12 @@ export default {
           hint: Translator.trans('export.xlsx.hint'),
           exportPath: 'dplan_statement_xls_export',
           dataCy: 'exportModal:export:xlsx',
+        },
+        csv_normal: {
+          label: 'export.csv',
+          hint: '',
+          exportPath: 'dplan_statement_csv_export',
+          dataCy: 'exportModal:export:csv',
         },
       },
       fileName: '',
