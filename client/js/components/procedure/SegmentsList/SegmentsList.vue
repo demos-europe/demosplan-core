@@ -77,7 +77,7 @@
       </div>
       <dp-bulk-edit-header
         v-if="selectedItemsCount > 0"
-        class="layout__item u-12-of-12 u-mt-0_5"
+        :is-copied="selectionCopiedToClipboard"
         :selected-items-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
         @reset-selection="resetSelection"
       >
@@ -571,6 +571,7 @@ export default {
       searchTerm: this.initialSearchTerm,
       searchFieldsSelected: [],
       selectedSort: '',
+      selectionCopiedToClipboard: false,
       sortOptions: [
         { value: '-deadline', label: Translator.trans('sort.deadline.descending') },
         { value: 'deadline', label: Translator.trans('sort.deadline.ascending') },
