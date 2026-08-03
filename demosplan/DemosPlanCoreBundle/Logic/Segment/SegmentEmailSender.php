@@ -16,6 +16,8 @@ use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use Doctrine\DBAL\Exception;
+use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
+use DateTime;
 
 class SegmentEmailSender
 {
@@ -23,28 +25,37 @@ class SegmentEmailSender
         private readonly MailService $mailService,
         private readonly MessageBagInterface $messageBag,
         private readonly SegmentService $segmentService,
+        private readonly EntityContentChangeService $entityContentChangeService,
     ) {
     }
 
     /**
      * Send a segment or several segments to an external mail recipient, optionally with cc addresses.
      *
-     * @return bool whether the mail was queued successfully
      * @param string[] $segmentIds
-     */
+     * @return bool whether the mail was queued successfully
+     * */
     public function sendSegmentsMail(
         array $segmentIds,
+        string $procedureId,
         string $recipientEmail,
         ?string $subject,
         ?string $body,
         ?string $sendEmailCC,
     ): bool {
         try {
-            // load the segment(s). prove it exists and give us the procedure it belongs to
+            // load the segment(s). prove they exist and give us the procedure it belongs to
             $segments = $this->segmentService->findByIds($segmentIds);
            if ([] === $segments) {
               throw new InvalidDataException('No segments found for the given IDs.');
            }
+           //ensure every segment belongs to the current procedure
+            foreach ($segments as $segment) {
+                if ($segment->getProcedure()->getId() !== $procedureId) {
+                    throw new  InvalidDataException('Segment does not belong to current procedure.');
+
+                }
+            }
             // validate the recipients email address
             $sendMailTo = $this->validateRecipientEmail($recipientEmail);
             $ccEmailAddresses = $this->extractCcEmailAddresses($sendEmailCC);
@@ -54,6 +65,9 @@ class SegmentEmailSender
             $sentFrom = $segments[0]->getProcedure()->getAgencyMainEmailAddress();
             // Queue the mail, no attachments as of now
             $this->sendAbschnitt($sendMailTo, $sentFrom, $ccEmailAddresses, $emailVariables, []);
+            foreach ($segments as $segment) {
+                $this->entityContentChangeService->createSegmentSentByMailChangeEntry($segment, $sendMailTo, new DateTime());
+            }
         } catch (InvalidDataException) {
             $this->messageBag->add('error', 'error.segment.send.syntax.email');
 
