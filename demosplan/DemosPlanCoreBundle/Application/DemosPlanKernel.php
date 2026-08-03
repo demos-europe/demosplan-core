@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Application;
 
+use demosplan\DemosPlanCoreBundle\Addon\AddonApiResourceMappingPass;
 use demosplan\DemosPlanCoreBundle\Addon\AddonBundleGenerator;
 use demosplan\DemosPlanCoreBundle\Addon\AddonDoctrineMigrationsPass;
 use demosplan\DemosPlanCoreBundle\Addon\AddonResolveTargetEntity;
@@ -280,6 +281,7 @@ class DemosPlanKernel extends Kernel
         $container->addCompilerPass(new OptionsLoaderPass(), PassConfig::TYPE_AFTER_REMOVING, 0);
         $container->addCompilerPass(new VirusCheckPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
         $container->addCompilerPass(new AddonResolveTargetEntity(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 1000);
+        $container->addCompilerPass(new AddonApiResourceMappingPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
         if ('test' !== $this->getEnvironment()) {
             $container->addCompilerPass(new LoadAddonInfoCompilerPass(), PassConfig::TYPE_BEFORE_OPTIMIZATION, 0);
             $container->addCompilerPass(new AddonDoctrineMigrationsPass());
