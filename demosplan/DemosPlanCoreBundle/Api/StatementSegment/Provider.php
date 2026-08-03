@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Api\StatementSegment;
 
+use ApiPlatform\Doctrine\Orm\State\CollectionProvider as DoctrineCollectionProvider;
+use ApiPlatform\Doctrine\Orm\State\Options as DoctrineOptions;
 use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
@@ -27,6 +29,7 @@ class Provider implements ProviderInterface
     public function __construct(
         private readonly AccessChecker $accessChecker,
         private readonly SegmentRepository $segmentRepository,
+        private readonly DoctrineCollectionProvider $doctrineCollectionProvider,
     ) {
     }
 
@@ -39,7 +42,7 @@ class Provider implements ProviderInterface
         }
 
         if ($operation instanceof CollectionOperationInterface) {
-            return $this->provideCollection();
+            return $this->provideCollection($operation, $uriVariables, $context);
         }
 
         if (isset($uriVariables['id'])) {
@@ -65,14 +68,19 @@ class Provider implements ProviderInterface
     }
 
     /**
+     * Delegates to API Platform's own Doctrine ORM collection provider so that its
+     * filter/extension mechanism (access control via
+     * {@see \demosplan\DemosPlanCoreBundle\Api\StatementSegment\Extension\SegmentDoctrineAccessExtension},
+     * sorting via the declared OrderFilter on {@see StatementSegmentResource}) applies.
+     *
      * @return list<StatementSegmentResource>
      */
-    private function provideCollection(): array
+    private function provideCollection(Operation $operation, array $uriVariables, array $context): array
     {
-        $segments = $this->segmentRepository->getEntities(
-            $this->accessChecker->getAccessConditions(),
-            [],
-        );
+        $operation = $operation->withStateOptions(new DoctrineOptions(entityClass: Segment::class));
+
+        $segments = $this->doctrineCollectionProvider->provide($operation, $uriVariables, $context);
+        $segments = is_array($segments) ? $segments : iterator_to_array($segments);
 
         return array_map(
             static fn (Segment $segment): StatementSegmentResource => StatementSegmentResource::fromEntity($segment),

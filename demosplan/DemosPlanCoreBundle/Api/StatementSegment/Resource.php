@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Api\StatementSegment;
 
+use ApiPlatform\Doctrine\Odm\Filter\OrderFilter;
+use ApiPlatform\Doctrine\Odm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
@@ -28,7 +30,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag as TagEntity;
 #[ApiResource(
     shortName: 'StatementSegment',
     operations: [
-        new GetCollection(uriTemplate: '/StatementSegment'),
+        new GetCollection(uriTemplate: '/StatementSegment', paginationEnabled: false),
         new Get(uriTemplate: '/StatementSegment/{id}'),
     ],
     formats: ['jsonapi'],
@@ -36,6 +38,30 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag as TagEntity;
     provider: Provider::class,
 )]
 #[ApiFilter(PropertyFilter::class)]
+// Both filters below resolve properties (including nested ones like
+// `parentStatementOfSegment.internId`) against the real Segment entity mapping (see
+// Provider::provideCollection(), which sets Options(entityClass: Segment::class)),
+// not against this DTO's own properties -- so nested paths work regardless of how
+// this class shapes its own `parentStatement` relationship below.
+// SearchFilter joins nested associations with INNER JOIN (only segments with a
+// matching parent survive); OrderFilter joins with LEFT JOIN (sorting shouldn't drop
+// rows). The built-in FilterExtension applies OrderFilter last, so if both target the
+// same association it reuses the already-added join instead of adding a duplicate.
+// `parentStatementOfSegment.procedure.id` lets a caller scope results to one
+// procedure directly, since AccessChecker::getAccessConditions() alone is broader
+// (current procedure plus other allowed/related procedures).
+#[ApiFilter(SearchFilter::class, properties: [
+    'text' => 'ipartial',
+    'parentStatementOfSegment.internId' => 'exact',
+    'parentStatementOfSegment.procedure.id' => 'exact',
+])]
+#[ApiFilter(OrderFilter::class, properties: [
+    'externId',
+    'internId',
+    'orderInProcedure',
+    'parentStatementOfSegment.internId',
+    'parentStatementOfSegment.externId',
+])]
 class Resource
 {
     #[ApiProperty(readable: false, identifier: true)]
@@ -62,12 +88,12 @@ class Resource
     #[ApiProperty(readable: true, writable: false)]
     public ?string $assigneeId = null;
 
-    #[ApiProperty(readable: true, writable: false)]
+    /*#[ApiProperty(readable: true, writable: false)]
     public ?PlaceResource $place = null;
 
-    /** @var list<TagResource> */
+
     #[ApiProperty(readable: true, writable: false)]
-    public array $tags = [];
+    public array $tags = [];*/
 
     #[ApiProperty(readable: true, writable: false)]
     public ?string $deadline = null;
@@ -84,12 +110,12 @@ class Resource
         $resource->internId = $segment->getInternId();
         $resource->orderInProcedure = $segment->getOrderInProcedure();
         $resource->recommendation = $segment->getRecommendation();
-        $resource->parentStatement = StatementResource::fromEntity($segment->getParentStatementOfSegment());
-        $resource->assigneeId = $segment->getAssigneeId();
-        $resource->place = PlaceResource::fromEntity($segment->getPlace());
-        $resource->tags = array_values($segment->getTags()->map(
+        //$resource->parentStatement = StatementResource::fromEntity($segment->getParentStatementOfSegment());
+        //$resource->assigneeId = $segment->getAssigneeId();
+        //$resource->place = PlaceResource::fromEntity($segment->getPlace());
+        /*$resource->tags = array_values($segment->getTags()->map(
             static fn (TagEntity $tag): TagResource => TagResource::fromEntity($tag)
-        )->toArray());
+        )->toArray());*/
         $resource->deadline = $segment->getDeadline()?->format('Y-m-d');
         $resource->customFields = $segment->getCustomFields()?->toJson();
 
