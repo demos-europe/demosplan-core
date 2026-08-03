@@ -23,9 +23,12 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplate;
+use League\Csv\Reader;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Shared\Converter;
 use PhpOffice\PhpWord\Style\Table;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Tests\Base\FunctionalTestCase;
 use Zenstruck\Foundry\Persistence\Proxy;
 
@@ -191,6 +194,60 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $section = $exportResult->getPhpWord()->getSection(0);
 
         return $section->getElements()[0]->getRows()[0]->getCells()[0]->getElements()[0]->getText();
+    }
+
+    public function testExportAllCsvForUnsegmentedStatement(): void
+    {
+        $this->pushSessionRequestOntoStack();
+        $statement = $this->createMinimalTestStatement('csv-unsegmented', 'csv-unsegmented', 'csv-unsegmented');
+
+        $csv = $this->sut->exportAllCsv($statement->_real());
+
+        static::assertStringStartsWith("\xEF\xBB\xBF", $csv);
+        static::assertStringNotContainsString('Array', $csv);
+
+        $reader = Reader::fromString($csv);
+        $reader->setHeaderOffset(0);
+        $records = iterator_to_array($reader->getRecords(), false);
+
+        static::assertCount(1, $records);
+        static::assertSame('statement_extern_id_csv-unsegmented', $records[0]['ID']);
+    }
+
+    public function testExportAllCsvForSegmentedStatement(): void
+    {
+        $this->pushSessionRequestOntoStack();
+        $statement = $this->createMinimalTestStatement('csv-segmented', 'csv-segmented', 'csv-segmented');
+        $segmentA = $this->createMinimalTestSegment($statement, 'csv-segment-a');
+        $segmentB = $this->createMinimalTestSegment($statement, 'csv-segment-b');
+
+        $csv = $this->sut->exportAllCsv($statement->_real());
+
+        static::assertStringNotContainsString('Array', $csv);
+
+        $reader = Reader::fromString($csv);
+        $reader->setHeaderOffset(0);
+        $records = iterator_to_array($reader->getRecords(), false);
+
+        static::assertCount(2, $records);
+        $externIds = array_column($records, 'ID');
+        static::assertContains($segmentA->getExternId(), $externIds);
+        static::assertContains($segmentB->getExternId(), $externIds);
+    }
+
+    /**
+     * `AssessmentTableXlsExporter` (used by `exportAllCsv()`/`exportAllXlsx()` via `selectFormat()`)
+     * requires a session on the request stack, and the `externId` column is only included in the
+     * export when `field_statement_extern_id` is enabled. Kernel-booted tests get neither by default.
+     */
+    private function pushSessionRequestOntoStack(): void
+    {
+        $request = new Request();
+        $request->setSession($this->setUpMockSession());
+        $this->getContainer()->get(RequestStack::class)->push($request);
+
+        $this->loginTestUser();
+        $this->enablePermissions(['field_statement_extern_id']);
     }
 
     public function getCensorParams(): array
