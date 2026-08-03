@@ -35,7 +35,7 @@ class EmailAddressResource
     #[ApiProperty(readable: true, writable: false)]
     public string $fullAddress = '';
 
-    public function fromEntity(EmailAddress $emailAddress): EmailAddressResource
+    public static function fromEntity(EmailAddress $emailAddress): EmailAddressResource
     {
         $resource = new self();
         $resource->id = $emailAddress->getId();
