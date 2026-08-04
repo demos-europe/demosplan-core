@@ -58,6 +58,10 @@ class Resource
     #[ApiProperty(readable: true, writable: false)]
     public string $recommendation = '';
 
+    #[ApiFilter(SearchFilter::class, properties: [
+        'parentStatementOfSegment.id'            => 'exact',
+        'parentStatementOfSegment.procedure.id' => 'exact',
+    ])]
     #[ApiProperty(readable: true, writable: false)]
     public ?StatementResource $parentStatement = null;
 
