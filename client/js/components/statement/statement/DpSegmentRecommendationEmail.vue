@@ -72,7 +72,33 @@
         </p>
         <dp-accordion
           :title="Translator.trans('segment.text')"
+          class="pt-2"
+          compressed
         >
+          <template v-slot:titlePrefix>
+            <dp-checkbox
+              id="attachSegmentText"
+              v-model="attachSegmentText"
+              :aria-label="Translator.trans('segment.text')"
+              class=""
+              data-cy="segmentRecommendationEmail:attachSegmentText"
+            />
+          </template>
+          Test
+        </dp-accordion>
+        <dp-accordion
+          :title="Translator.trans('recommendation.text')"
+          class="py-2"
+          compressed
+        >
+          <template v-slot:titlePrefix>
+            <dp-checkbox
+              id="attachRecommendation"
+              v-model="attachRecommendation"
+              :aria-label="Translator.trans('recommendation.text')"
+              data-cy="segmentRecommendationEmail:attachRecommendation"
+            />
+          </template>
           Test
         </dp-accordion>
       </div>
@@ -81,12 +107,13 @@
 </template>
 
 <script>
-import { DpAccordion, DpInlineNotification, DpInput, DpTextArea } from '@demos-europe/demosplan-ui'
+import { DpAccordion, DpCheckbox, DpInlineNotification, DpInput, DpTextArea } from '@demos-europe/demosplan-ui'
 export default {
   name: 'DpSegmentRecommendationemail',
 
   components: {
     DpAccordion,
+    DpCheckbox,
     DpInlineNotification,
     DpInput,
     DpTextArea,
@@ -108,6 +135,8 @@ export default {
 
   data () {
     return {
+      attachRecommendation: false,
+      attachSegmentText: true,
       externId: '',
       isVisible: false,
       message: '',
