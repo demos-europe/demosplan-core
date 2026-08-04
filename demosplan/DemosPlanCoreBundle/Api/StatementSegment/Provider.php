@@ -19,6 +19,7 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Resource as StatementSegmentResource;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -30,6 +31,7 @@ class Provider implements ProviderInterface
         private readonly AccessChecker $accessChecker,
         private readonly SegmentRepository $segmentRepository,
         private readonly DoctrineCollectionProvider $doctrineCollectionProvider,
+        private readonly StatementService $statementService,
     ) {
     }
 
@@ -64,7 +66,7 @@ class Provider implements ProviderInterface
             return null;
         }
 
-        return StatementSegmentResource::fromEntity($segment);
+        return StatementSegmentResource::fromEntity($segment, $this->statementService->getProcessingStatus($segment->getParentStatementOfSegment()));
     }
 
     /**
@@ -88,7 +90,10 @@ class Provider implements ProviderInterface
         $segments = is_array($segments) ? $segments : iterator_to_array($segments);
 
         return array_map(
-            static fn (Segment $segment): StatementSegmentResource => StatementSegmentResource::fromEntity($segment),
+            fn (Segment $segment): StatementSegmentResource => StatementSegmentResource::fromEntity(
+                $segment,
+                $this->statementService->getProcessingStatus($segment->getParentStatementOfSegment())
+            ),
             $segments
         );
     }

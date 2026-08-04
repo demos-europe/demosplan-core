@@ -40,7 +40,10 @@
           @search="term => updateSearchQuery(term)"
           @reset="handleResetSearch"
         />
-        <div class="ml-2 space-x-2">
+        <div
+          v-if="!v3Mode"
+          class="ml-2 space-x-2"
+        >
           <filter-flyout
             v-for="(filter, idx) in Object.values(filters)"
             ref="filterFlyout"
@@ -199,7 +202,7 @@
                 <template v-slot:popover>
                   <statement-meta-tooltip
                     :assignable-users="assignableUsers"
-                    :statement="statementsObject[rowData.relationships.parentStatement.data.id]"
+                    :statement="parentStatementFor(rowData)"
                     :segment="rowData"
                     :places="places"
                   />
@@ -219,62 +222,62 @@
             <template v-slot:statementStatus="rowData">
               <status-badge
                 class="mt-0.5 max-w-fit !block o-hellip--nowrap"
-                :status="statementsObject[rowData.relationships.parentStatement.data.id].attributes.status"
+                :status="parentStatementFor(rowData).attributes.status"
               />
             </template>
             <template v-slot:internId="rowData">
               <div class="o-hellip__wrapper">
                 <div
-                  v-tooltip="statementsObject[rowData.relationships.parentStatement.data.id].attributes.internId"
+                  v-tooltip="parentStatementFor(rowData).attributes.internId"
                   class="o-hellip--nowrap text-right"
                   dir="rtl"
                 >
-                  {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.internId }}
+                  {{ parentStatementFor(rowData).attributes.internId }}
                 </div>
               </div>
             </template>
             <template v-slot:submitter="rowData">
               <ul class="o-list max-w-12">
                 <li
-                  v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.authorName !== ''"
+                  v-if="parentStatementFor(rowData).attributes.authorName !== ''"
                   class="o-list__item o-hellip--nowrap"
                 >
-                  {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.authorName }}
+                  {{ parentStatementFor(rowData).attributes.authorName }}
                 </li>
                 <li
                   v-else
                   class="o-list__item o-hellip--nowrap"
                 >
-                  {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.submitName }}
+                  {{ parentStatementFor(rowData).attributes.submitName }}
                 </li>
                 <li
-                  v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationName !== ''"
+                  v-if="parentStatementFor(rowData).attributes.initialOrganisationName !== ''"
                   class="o-list__item o-hellip--nowrap"
                 >
-                  {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationName }}
+                  {{ parentStatementFor(rowData).attributes.initialOrganisationName }}
                 </li>
               </ul>
             </template>
             <template v-slot:address="rowData">
               <ul class="o-list">
                 <li
-                  v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationStreet !== ''"
+                  v-if="parentStatementFor(rowData).attributes.initialOrganisationStreet !== ''"
                   class="o-list__item o-hellip--nowrap"
                 >
-                  {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationStreet }}
-                  {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationHouseNumber }}
+                  {{ parentStatementFor(rowData).attributes.initialOrganisationStreet }}
+                  {{ parentStatementFor(rowData).attributes.initialOrganisationHouseNumber }}
                 </li>
                 <li
-                  v-if="statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationPostalCode !== ''"
+                  v-if="parentStatementFor(rowData).attributes.initialOrganisationPostalCode !== ''"
                   class="o-list__item o-hellip--nowrap"
                 >
-                  {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationPostalCode }}
-                  {{ statementsObject[rowData.relationships.parentStatement.data.id].attributes.initialOrganisationCity }}
+                  {{ parentStatementFor(rowData).attributes.initialOrganisationPostalCode }}
+                  {{ parentStatementFor(rowData).attributes.initialOrganisationCity }}
                 </li>
               </ul>
             </template>
             <template v-slot:place="rowData">
-              {{ placesObject[rowData.relationships.place.data.id].attributes.name }}
+              {{ placeFor(rowData).attributes.name }}
             </template>
             <template v-slot:text="rowData">
               <text-content-renderer
@@ -301,11 +304,11 @@
                 hook-name="tag.style.segments.list"
                 :addon-props="{
                   demosplanUi,
-                  tags: getTagsBySegment(rowData.id)
+                  tags: getTagsBySegment(rowData)
                 }"
               />
               <span
-                v-for="tag in getTagsBySegment(rowData.id)"
+                v-for="tag in getTagsBySegment(rowData)"
                 v-else
                 :key="tag.id"
                 class="rounded-md color--grey-dark bg-color--grey-light-2 px-1 py-0.5 mx-0.5 my-1 inline-block"
@@ -575,6 +578,10 @@ export default {
         { value: '-deadline', label: Translator.trans('sort.deadline.descending') },
         { value: 'deadline', label: Translator.trans('sort.deadline.ascending') },
       ],
+      // Filter flyouts (Ort/Bearbeiter*in/Schlagworte) have no v3 equivalent yet, so they're disabled while this list runs on v3.
+      v3Mode: true,
+      v3Segments: [],
+      v3Included: {},
     }
   },
 
@@ -602,18 +609,6 @@ export default {
 
     ...mapState('RecommendationVersion', {
       recommendationVersions: 'items',
-    }),
-
-    ...mapState('Statement', {
-      statementsObject: 'items',
-    }),
-
-    ...mapState('StatementSegment', {
-      segmentsObject: 'items',
-    }),
-
-    ...mapState('Tag', {
-      tagsObject: 'items',
     }),
 
     assignableUsers () {
@@ -688,10 +683,10 @@ export default {
     },
 
     items () {
-      const mapped = Object.values(this.segmentsObject)
+      const mapped = this.v3Segments
         .map(segment => ({
           ...segment,
-          isPlaceLocked: !!this.placesObject[segment.relationships?.place?.data?.id]?.attributes?.locked,
+          isPlaceLocked: !!this.v3Included.Place?.[segment.relationships?.place?.data?.id]?.attributes?.locked,
         }))
 
       if (this.selectedSort === '') {
@@ -817,10 +812,6 @@ export default {
       fetchPlaces: 'list',
     }),
 
-    ...mapActions('StatementSegment', {
-      fetchSegments: 'list',
-    }),
-
     ...mapMutations('FilterFlyout', {
       setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
       setIsLoadingFilterFlyout: 'setIsLoading',
@@ -838,6 +829,7 @@ export default {
       lscache.remove(this.lsKey.toggledSegments)
       this.allItemsCount = null
 
+      // Still needed for fetchSegmentIds() below, which uses the legacy RPC's Drupal-style filter shape.
       const filter = {
         ...this.getFilterQuery,
         sameProcedure: {
@@ -847,96 +839,34 @@ export default {
           },
         },
       }
-      const statementSegmentFields = [
-        'assignee',
-        'externId',
-        'orderInProcedure',
-        'parentStatement',
-        'place',
-        'tags',
-        'text',
-        'recommendation',
-      ]
 
-      if (hasPermission('field_statement_deadline')) {
-        statementSegmentFields.push('deadline')
-      }
-
-      const statementSegmentInclude = [
-        'assignee',
-        'place',
-        'tags',
-        'parentStatement',
-      ]
-
-      if (hasPermission('field_segments_custom_fields')) {
-        statementSegmentFields.push('customFields')
-      }
-
-      if (hasPermission('feature_enable_recommendation_versions')) {
-        statementSegmentFields.push('recommendationVersions')
-        statementSegmentInclude.push('recommendationVersions')
-      }
-
-      const payload = {
-        include: statementSegmentInclude.join(),
-        page: {
-          number: 1,
-          // 1000 is the hard server-side cap (JsonApiPaginationParser::MAX_PAGE_SIZE) — there is no pager anymore, so load as many segments as the API allows in one go.
-          size: 1000,
-        },
-        // Baseline order so the list stays stable when selectedSort is '' (deadline sort, if active, is applied on top of this client-side).
-        sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
-        filter,
-        fields: {
-          Place: [
-            'name',
-            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
-          ].join(),
-          Statement: [
-            'authoredDate',
-            'authorName',
-            'isSubmittedByCitizen',
-            'initialOrganisationDepartmentName',
-            'initialOrganisationName',
-            'initialOrganisationStreet',
-            'initialOrganisationHouseNumber',
-            'initialOrganisationPostalCode',
-            'initialOrganisationCity',
-            'internId',
-            'memo',
-            'status',
-            'submitDate',
-            'submitName',
-            'submitType',
-          ].join(),
-          StatementSegment: statementSegmentFields.join(),
-          Tag: [
-            'title',
-          ].join(),
-        },
-      }
-
-      if (hasPermission('feature_enable_recommendation_versions')) {
-        payload.fields.RecommendationVersion = [
-          'versionNumber',
-          'recommendationText',
-          'createdAt',
-        ].join()
-      }
-
-      if (this.searchTerm !== '') {
-        payload.search = {
+      const search = this.searchTerm !== '' ?
+        {
           value: this.searchTerm,
           ...this.searchFieldsSelected.length !== 0 ? { fieldsToSearch: this.searchFieldsSelected } : {},
-        }
+        } :
+        undefined
+
+      const params = new URLSearchParams({
+        'parentStatementOfSegment.procedure.id': this.procedureId,
+        include: 'parentStatement,assignee,place,tags',
+      })
+
+      if (this.searchTerm !== '') {
+        params.set('text', this.searchTerm)
       }
 
+      // Baseline order so the list stays stable when selectedSort is '' (deadline sort, if active, is applied on top of this client-side).
+      params.append('order[parentStatementOfSegment.submit]', 'asc')
+      params.append('order[parentStatementOfSegment.externId]', 'asc')
+      params.append('order[orderInProcedure]', 'asc')
+
       this.isLoading = true
-      this.fetchSegments(payload)
-        .then((data) => {
-          // Fake the count from meta info of paged request, until `fetchSegmentIds()` resolves
-          this.allItemsCount = data.meta.pagination.total
+      dpApi.get(`${Routing.getBaseUrl()}/api/3.0/StatementSegment?${params}`)
+        .then(({ data }) => {
+          this.v3Segments = data.data
+          this.v3Included = this.groupIncludedByType(data.included || [])
+          this.allItemsCount = this.v3Segments.length
 
           /*
            * Get all segments (without pagination) to save them in localStorage for bulk editing.
@@ -956,7 +886,7 @@ export default {
 
           this.fetchSegmentIds({
             filter: idsFilter,
-            search: payload.search,
+            search,
           })
         })
         .catch(() => {
@@ -975,6 +905,23 @@ export default {
             })
           }
         })
+    },
+
+    groupIncludedByType (included) {
+      return included.reduce((byType, resource) => {
+        byType[resource.type] = byType[resource.type] || {}
+        byType[resource.type][resource.id] = resource
+
+        return byType
+      }, {})
+    },
+
+    parentStatementFor (rowData) {
+      return this.v3Included.Statement?.[rowData.relationships.parentStatement.data.id]
+    },
+
+    placeFor (rowData) {
+      return this.v3Included.Place?.[rowData.relationships.place.data.id]
     },
 
     fetchSegmentIds (payload) {
@@ -1023,27 +970,18 @@ export default {
         ''
     },
 
-    getTagsBySegment (id) {
-      const segment = this.segmentsObject[id]
-      const relatedTagIds = segment.relationships.tags && segment.relationships.tags.data.map(tag => tag.id)
+    getTagsBySegment (segment) {
+      const relatedTagIds = segment.relationships.tags?.data.map(tag => tag.id) || []
 
-      return relatedTagIds.map(id => this.tagsObject[id])
+      return relatedTagIds.map(id => this.v3Included.Tag?.[id]).filter(Boolean)
     },
 
     /**
-     * Returns the hash of the original statement attachment
+     * Returns the hash of the original statement attachment.
+     * Always null for now -- the `attachments` relationship isn't requested via
+     * /api/3.0/StatementSegment yet (it was already unavailable in the legacy query too).
      */
-    getOriginalPdfAttachmentHashBySegment (segment) {
-      const parentStatement = segment.rel('parentStatement')
-
-      if (parentStatement.hasRelationship('attachments')) {
-        const originalAttachment = Object.values(parentStatement.relationships.attachments.list()).filter(attachment => attachment.attributes.attachmentType === 'source_statement')[0]
-
-        if (originalAttachment) {
-          return originalAttachment.rel('file').attributes.hash
-        }
-      }
-
+    getOriginalPdfAttachmentHashBySegment () {
       return null
     },
 

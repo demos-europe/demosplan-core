@@ -56,7 +56,7 @@ class StatementStateProvider implements ProviderInterface
             return null;
         }
 
-        return StatementResource::fromEntity($statement);
+        return StatementResource::fromEntity($statement, $this->statementService->getProcessingStatus($statement));
     }
 
     private function hasAssessmentPermission(): bool

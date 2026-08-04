@@ -20,6 +20,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
+use demosplan\DemosPlanCoreBundle\Api\AssignableUser\AssignableUserResource;
 use demosplan\DemosPlanCoreBundle\Api\Place\PlaceResource;
 use demosplan\DemosPlanCoreBundle\Api\Tag\Resource as TagResource;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
@@ -65,19 +66,20 @@ class Resource
     ])]
     #[ApiFilter(OrderFilter::class, properties: [
         'parentStatementOfSegment.original.internId',
+        'parentStatementOfSegment.submit',
     ])]
     #[ApiProperty(readable: true, writable: false)]
     public ?StatementResource $parentStatement = null;
 
     #[ApiProperty(readable: true, writable: false)]
-    public ?string $assigneeId = null;
-
-    /*#[ApiProperty(readable: true, writable: false)]
-    public ?PlaceResource $place = null;
-
+    public ?AssignableUserResource $assignee = null;
 
     #[ApiProperty(readable: true, writable: false)]
-    public array $tags = [];*/
+    public ?PlaceResource $place = null;
+
+    /** @var list<TagResource> */
+    #[ApiProperty(readable: true, writable: false)]
+    public array $tags = [];
 
     #[ApiProperty(readable: true, writable: false)]
     public ?string $deadline = null;
@@ -85,7 +87,7 @@ class Resource
     #[ApiProperty(readable: true, writable: false)]
     public ?array $customFields = null;
 
-    public static function fromEntity(SegmentEntity $segment): self
+    public static function fromEntity(SegmentEntity $segment, ?string $parentStatementStatus = null): self
     {
         $resource = new self();
         $resource->id = $segment->getId();
@@ -94,12 +96,13 @@ class Resource
         $resource->internId = $segment->getInternId();
         $resource->orderInProcedure = $segment->getOrderInProcedure();
         $resource->recommendation = $segment->getRecommendation();
-        $resource->parentStatement = StatementResource::fromEntity($segment->getParentStatementOfSegment());
-        // $resource->assigneeId = $segment->getAssigneeId();
-        // $resource->place = PlaceResource::fromEntity($segment->getPlace());
-        /*$resource->tags = array_values($segment->getTags()->map(
+        $resource->parentStatement = StatementResource::fromEntity($segment->getParentStatementOfSegment(), $parentStatementStatus);
+        $assignee = $segment->getAssignee();
+        $resource->assignee = null !== $assignee ? AssignableUserResource::fromEntity($assignee) : null;
+        $resource->place = PlaceResource::fromEntity($segment->getPlace());
+        $resource->tags = array_values($segment->getTags()->map(
             static fn (TagEntity $tag): TagResource => TagResource::fromEntity($tag)
-        )->toArray());*/
+        )->toArray());
         $resource->deadline = $segment->getDeadline()?->format('Y-m-d');
         $resource->customFields = $segment->getCustomFields()?->toJson();
 
