@@ -20,8 +20,8 @@
     <h2 class="pb-4">
       {{ Translator.trans('segment.send.via.email') }}
     </h2>
-    <div class="-ml-5 border-y border-neutral-light-3">
-      <div class="ml-5 mr-5 pt-4 border-b border-neutral-light-3">
+    <div class="-ml-5 py-4 border-y border-neutral-light-3">
+      <div class="ml-5 mr-5 border-b border-neutral-light-3">
         <dp-inline-notification
           class="mb-4"
           :message="Translator.trans('segment.send.via.email.explanation')"
@@ -102,17 +102,21 @@
           Test
         </dp-accordion>
       </div>
+      <dp-button-row>
+
+      </dp-button-row>
     </div>
   </div>
 </template>
 
 <script>
-import { DpAccordion, DpCheckbox, DpInlineNotification, DpInput, DpTextArea } from '@demos-europe/demosplan-ui'
+import { DpAccordion, DpButtonRow, DpCheckbox, DpInlineNotification, DpInput, DpTextArea } from '@demos-europe/demosplan-ui'
 export default {
   name: 'DpSegmentRecommendationemail',
 
   components: {
     DpAccordion,
+    DpButtonRow,
     DpCheckbox,
     DpInlineNotification,
     DpInput,
