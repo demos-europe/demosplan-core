@@ -81,6 +81,18 @@
         :selected-items-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
         @reset-selection="resetSelection"
       >
+        <template
+          v-if="hasPermission('feature_segments_copy_to_clipboard')"
+          v-slot:buttonRowStart
+        >
+          <dp-button
+            :text="Translator.trans('segments.copy.clipboard')"
+            :variant="selectionCopiedToClipboard ? 'transparent' : 'subtle'"
+            data-cy="segmentsList:copyToClipboard"
+            icon="copy"
+            @click.prevent="copySelectionToClipboard"
+          />
+        </template>
         <dp-button
           :text="Translator.trans('segments.bulk.edit')"
           :variant="selectionCopiedToClipboard ? 'solid' : 'outline'"
