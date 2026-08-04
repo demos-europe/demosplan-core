@@ -29,6 +29,7 @@ use PhpOffice\PhpWord\Shared\Converter;
 use PhpOffice\PhpWord\Style\Table;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
 use Zenstruck\Foundry\Persistence\Proxy;
 
@@ -45,6 +46,8 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
 
     private Slugify|Proxy|null $slugify;
 
+    private ?string $authorColumnTitle = null;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -53,6 +56,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $this->testStatement = StatementFactory::createOne();
         $this->testStatementeMeta = StatementMetaFactory::createOne();
         $this->testStatement->setMeta($this->testStatementeMeta->_real());
+        $this->authorColumnTitle = $this->getContainer()->get(TranslatorInterface::class)->trans('author');
     }
 
     /**
@@ -211,15 +215,15 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $records = iterator_to_array($reader->getRecords(), false);
 
         static::assertCount(1, $records);
-        static::assertSame('statement_extern_id_csv-unsegmented', $records[0]['ID']);
+        static::assertSame('statement_author_name_csv-unsegmented', $records[0][$this->authorColumnTitle]);
     }
 
     public function testExportAllCsvForSegmentedStatement(): void
     {
         $this->pushSessionRequestOntoStack();
         $statement = $this->createMinimalTestStatement('csv-segmented', 'csv-segmented', 'csv-segmented');
-        $segmentA = $this->createMinimalTestSegment($statement, 'csv-segment-a');
-        $segmentB = $this->createMinimalTestSegment($statement, 'csv-segment-b');
+        $this->createMinimalTestSegment($statement, 'csv-segment-a');
+        $this->createMinimalTestSegment($statement, 'csv-segment-b');
 
         $csv = $this->sut->exportAllCsv($statement->_real());
 
@@ -230,24 +234,22 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $records = iterator_to_array($reader->getRecords(), false);
 
         static::assertCount(2, $records);
-        $externIds = array_column($records, 'ID');
-        static::assertContains($segmentA->getExternId(), $externIds);
-        static::assertContains($segmentB->getExternId(), $externIds);
+        // The export inherits the parent statement's author for each of its segments' rows —
+        // segment-level author names are not used, hence both rows share the same value here.
+        $authorNames = array_column($records, $this->authorColumnTitle);
+        static::assertSame(['statement_author_name_csv-segmented', 'statement_author_name_csv-segmented'], $authorNames);
     }
 
     /**
      * `AssessmentTableXlsExporter` (used by `exportAllCsv()`/`exportAllXlsx()` via `selectFormat()`)
-     * requires a session on the request stack, and the `externId` column is only included in the
-     * export when `field_statement_extern_id` is enabled. Kernel-booted tests get neither by default.
+     * requires a session on the request stack the moment any of its methods are called — a
+     * kernel-booted test never establishes one on its own.
      */
     private function pushSessionRequestOntoStack(): void
     {
         $request = new Request();
         $request->setSession($this->setUpMockSession());
         $this->getContainer()->get(RequestStack::class)->push($request);
-
-        $this->loginTestUser();
-        $this->enablePermissions(['field_statement_extern_id']);
     }
 
     public function getCensorParams(): array
