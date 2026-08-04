@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Api\StatementSegment;
 
-use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
@@ -37,8 +36,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag as TagEntity;
     routePrefix: ApiPlatformConstants::ROUTE_PREFIX_V3,
     provider: Provider::class,
 )]
-
-
 #[ApiFilter(PropertyFilter::class)]
 class Resource
 {
