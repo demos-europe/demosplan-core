@@ -60,7 +60,7 @@ class Resource
 
     #[ApiFilter(SearchFilter::class, properties: [
         'parentStatementOfSegment.id'            => 'exact',
-        'parentStatementOfSegment.procedure.id' => 'exact',
+        'parentStatementOfSegment.procedure.id'  => 'exact',
     ])]
     #[ApiProperty(readable: true, writable: false)]
     public ?StatementResource $parentStatement = null;
