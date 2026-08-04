@@ -57,7 +57,7 @@ class Provider implements ProviderInterface
         try {
             $segment = $this->segmentRepository->getEntityByIdentifier(
                 $id,
-                $this->accessChecker->getAccessConditions(),
+                [],
                 ['id']
             );
         } catch (InvalidArgumentException) {
@@ -77,7 +77,12 @@ class Provider implements ProviderInterface
      */
     private function provideCollection(Operation $operation, array $uriVariables, array $context): array
     {
-        $operation = $operation->withStateOptions(new DoctrineOptions(entityClass: Segment::class));
+        // handleLinks has to be set or API Platform throws an error, but we don't need it to do anything here.
+        $operation = $operation->withStateOptions(new DoctrineOptions(
+            entityClass: Segment::class,
+            handleLinks: static function (): void {
+            }
+        ));
 
         $segments = $this->doctrineCollectionProvider->provide($operation, $uriVariables, $context);
         $segments = is_array($segments) ? $segments : iterator_to_array($segments);

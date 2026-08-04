@@ -12,8 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Api\StatementSegment;
 
-use ApiPlatform\Doctrine\Odm\Filter\OrderFilter;
-use ApiPlatform\Doctrine\Odm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
@@ -37,36 +37,15 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag as TagEntity;
     routePrefix: ApiPlatformConstants::ROUTE_PREFIX_V3,
     provider: Provider::class,
 )]
+
+
 #[ApiFilter(PropertyFilter::class)]
-// Both filters below resolve properties (including nested ones like
-// `parentStatementOfSegment.internId`) against the real Segment entity mapping (see
-// Provider::provideCollection(), which sets Options(entityClass: Segment::class)),
-// not against this DTO's own properties -- so nested paths work regardless of how
-// this class shapes its own `parentStatement` relationship below.
-// SearchFilter joins nested associations with INNER JOIN (only segments with a
-// matching parent survive); OrderFilter joins with LEFT JOIN (sorting shouldn't drop
-// rows). The built-in FilterExtension applies OrderFilter last, so if both target the
-// same association it reuses the already-added join instead of adding a duplicate.
-// `parentStatementOfSegment.procedure.id` lets a caller scope results to one
-// procedure directly, since AccessChecker::getAccessConditions() alone is broader
-// (current procedure plus other allowed/related procedures).
-#[ApiFilter(SearchFilter::class, properties: [
-    'text'                                  => 'ipartial',
-    'parentStatementOfSegment.internId'     => 'exact',
-    'parentStatementOfSegment.procedure.id' => 'exact',
-])]
-#[ApiFilter(OrderFilter::class, properties: [
-    'externId',
-    'internId',
-    'orderInProcedure',
-    'parentStatementOfSegment.internId',
-    'parentStatementOfSegment.externId',
-])]
 class Resource
 {
     #[ApiProperty(readable: false, identifier: true)]
     public string $id = '';
 
+    #[ApiFilter(SearchFilter::class, strategy: 'ipartial')]
     #[ApiProperty(readable: true, writable: false)]
     public string $text = '';
 
