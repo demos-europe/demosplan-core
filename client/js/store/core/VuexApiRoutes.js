@@ -108,6 +108,10 @@ const api3_0Modules = {
   Tag: [
     'list',
   ],
+  AssignableUser: [
+    'list',
+    'get',
+  ],
 }
 
 const crudActions = [

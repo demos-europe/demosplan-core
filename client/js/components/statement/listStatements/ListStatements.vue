@@ -628,9 +628,9 @@ export default {
     getAssignee (statement) {
       if (this.assigneeId(statement)) {
         const assignee = this.assignableUsersObject[this.assigneeId(statement)]
-        const assigneeOrga = assignee ? assignee.rel('orga') : null
+        const assigneeOrga = assignee?.rel ? assignee.rel('orga') : null
 
-        if (typeof assignee === 'undefined') {
+        if (assignee === undefined) {
           return {
             id: statement.relationships.assignee.data.id,
             name: 'Benutzer',
@@ -1250,7 +1250,12 @@ export default {
     this.fetchAssignableUsers({
       include: 'orga',
       fields: {
-        Orga: 'name',
+        AssignableUser: [
+          'firstname',
+          'lastname',
+          'orga',
+        ].join(),
+        orga: 'name',
       },
     })
     this.initPagination()
