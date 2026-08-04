@@ -57,7 +57,7 @@ class Provider implements ProviderInterface
         try {
             $segment = $this->segmentRepository->getEntityByIdentifier(
                 $id,
-                [],
+                $this->accessChecker->getAccessConditions(),
                 ['id']
             );
         } catch (InvalidArgumentException) {
