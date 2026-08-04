@@ -16,11 +16,6 @@ import { configureCompat } from 'vue'
 import lscache from 'lscache'
 import { vi } from 'vitest'
 
-// Vue is resolved to @vue/compat, and @vue/compat ships no declarations of its own, so it has to be declared here
-declare module 'vue' {
-  export function configureCompat (config: Record<string, boolean | 'suppress-warning'>): void
-}
-
 configureCompat({
   ATTR_FALSE_VALUE: 'suppress-warning',
   COMPONENT_V_MODEL: 'suppress-warning',
@@ -56,7 +51,9 @@ const { VTooltip } = await import('v-tooltip')
 
 const Translator = { trans: vi.fn((key: string) => key) }
 const Routing = { generate: vi.fn((key: string) => key) }
-const dplan = {
+const dplan: DplanGlobal = {
+  procedureId: '',
+  notify: vi.fn(),
   settings: {
     debug: false,
     publicCSSClassPrefix: 'dp-',
