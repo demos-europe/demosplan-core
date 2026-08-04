@@ -1429,6 +1429,9 @@ class EntityContentChangeService
             if ('locked' === $propertyName) {
                 continue;
             }
+            if ('sentViaMail' === $propertyName) {
+                continue;
+            }
             if ('customFields' === $propertyName) {
                 $changes['customFields'] = $this->diffCustomFields(
                     $preUpdateArray['customFields'] ?? null,
@@ -1481,6 +1484,9 @@ class EntityContentChangeService
             * {{ @link EntityContentChangeService::calculateChangesOfStandardFieldsOfPreUpdateArrayAndPostUpdateObject }}.
             */
             if ('locked' === $propertyName) {
+                continue;
+            }
+            if ('sentViaMail' === $propertyName) {
                 continue;
             }
             if ('customFields' === $propertyName && array_key_exists($propertyName, $incomingDataArray)) {
