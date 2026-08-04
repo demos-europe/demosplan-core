@@ -11,23 +11,12 @@
  * This is the entrypoint for edit_tag.html.twig
  */
 
-import { DpEditor, dpValidate, prefixClass } from '@demos-europe/demosplan-ui'
+import { DpEditor, DpMultiselect, DpRadio, dpValidate } from '@demos-europe/demosplan-ui'
+import EditTag from '@DpJs/components/tags/EditTag'
 import { initialize } from '@DpJs/InitVue'
 
-const components = { DpEditor }
+const components = { DpEditor, DpMultiselect, DpRadio, EditTag }
 
 initialize(components).then(() => {
   dpValidate()
-  const radios = Array.from(document.getElementsByName('r_attachmode'))
-  const newBoilerplateForm = document.getElementById('newBoilerplateForm')
-
-  radios.forEach(radio => {
-    radio.addEventListener('change', (e) => {
-      if (radio.value === 'new') {
-        newBoilerplateForm.classList.remove(prefixClass('hidden'))
-      } else {
-        newBoilerplateForm.classList.add(prefixClass('hidden'))
-      }
-    })
-  })
 })
