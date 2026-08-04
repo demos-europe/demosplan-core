@@ -20,7 +20,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 
-class AccessChecker
+class AssignableUserAccessChecker
 {
     public function __construct(
         private readonly CurrentUserInterface $currentUser,

@@ -18,7 +18,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
-use demosplan\DemosPlanCoreBundle\Api\Orga\Resource as OrgaResource;
+use demosplan\DemosPlanCoreBundle\Api\Orga\OrgaResource as OrgaResource;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
 use demosplan\DemosPlanCoreBundle\Entity\User\User as UserEntity;
 
@@ -30,10 +30,10 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User as UserEntity;
     ],
     formats: ['jsonapi'],
     routePrefix: ApiPlatformConstants::ROUTE_PREFIX_V3,
-    provider: Provider::class,
+    provider: AssignableUserProvider::class,
 )]
 #[ApiFilter(PropertyFilter::class)]
-class Resource
+class AssignableUserResource
 {
     #[ApiProperty(readable: false, identifier: true)]
     public string $id = '';

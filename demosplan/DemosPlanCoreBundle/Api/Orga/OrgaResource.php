@@ -27,10 +27,10 @@ use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
     ],
     formats: ['jsonapi'],
     routePrefix: ApiPlatformConstants::ROUTE_PREFIX_V3,
-    provider: Provider::class,
+    provider: OrgaProvider::class,
 )]
 #[ApiFilter(PropertyFilter::class)]
-class Resource
+class OrgaResource
 {
     #[ApiProperty(readable: false, identifier: true)]
     public string $id = '';

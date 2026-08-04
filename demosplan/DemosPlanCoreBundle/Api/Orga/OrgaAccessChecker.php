@@ -24,7 +24,7 @@ use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
  * Orga endpoint enforces the same rules as the legacy JSON:API one instead of
  * exposing every organisation to any caller.
  */
-class AccessChecker
+class OrgaAccessChecker
 {
     public function __construct(
         private readonly CurrentUserInterface $currentUser,

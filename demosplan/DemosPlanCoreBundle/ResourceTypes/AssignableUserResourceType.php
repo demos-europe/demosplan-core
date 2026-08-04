@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use demosplan\DemosPlanCoreBundle\Api\AssignableUser\AccessChecker;
+use demosplan\DemosPlanCoreBundle\Api\AssignableUser\AssignableUserAccessChecker;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -28,7 +28,7 @@ use EDT\PathBuilding\End;
  */
 final class AssignableUserResourceType extends DplanResourceType
 {
-    public function __construct(private readonly AccessChecker $accessChecker)
+    public function __construct(private readonly AssignableUserAccessChecker $accessChecker)
     {
     }
 

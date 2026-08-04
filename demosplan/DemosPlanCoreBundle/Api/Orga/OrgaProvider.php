@@ -14,16 +14,16 @@ namespace demosplan\DemosPlanCoreBundle\Api\Orga;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use demosplan\DemosPlanCoreBundle\Api\Orga\Resource as OrgaResource;
+use demosplan\DemosPlanCoreBundle\Api\Orga\OrgaResource as OrgaResource;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Webmozart\Assert\Assert;
 
-class Provider implements ProviderInterface
+class OrgaProvider implements ProviderInterface
 {
     public function __construct(
-        private readonly AccessChecker $accessChecker,
+        private readonly OrgaAccessChecker $accessChecker,
         private readonly OrgaRepository $orgaRepository,
     ) {
     }

@@ -15,7 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Api\AssignableUser;
 use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use demosplan\DemosPlanCoreBundle\Api\AssignableUser\Resource as AssignableUserResource;
+use demosplan\DemosPlanCoreBundle\Api\AssignableUser\AssignableUserResource as AssignableUserResource;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
@@ -24,10 +24,10 @@ use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Webmozart\Assert\Assert;
 
-class Provider implements ProviderInterface
+class AssignableUserProvider implements ProviderInterface
 {
     public function __construct(
-        private readonly AccessChecker $accessChecker,
+        private readonly AssignableUserAccessChecker $accessChecker,
         private readonly UserRepository $userRepository,
         private readonly SortMethodFactory $sortMethodFactory,
     ) {
