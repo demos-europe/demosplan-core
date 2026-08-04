@@ -31,7 +31,7 @@
           class="font-semibold text-base"
           v-text="Translator.trans('export.type')"
         />
-        <div class="grid grid-cols-3 mt-2 mb-3 gap-x-2 gap-y-5">
+        <div class="grid grid-cols-4 mt-2 mb-3 gap-x-2 gap-y-5">
           <dp-radio
             v-for="(exportType, key) in exportTypes"
             :id="key"
@@ -45,32 +45,36 @@
             :checked="active === key"
             @change="active = key"
           />
-          <template v-if="!['xlsx_normal', 'csv_normal'].includes(active)">
-            <dp-checkbox
-              id="censoredCitizen"
-              v-model="isCitizenDataCensored"
-              data-cy="exportModal:censoredCitizen"
-              :label="{
-                text: Translator.trans('export.censored.citizen')
-              }"
-            />
-            <dp-checkbox
-              id="censoredInstitution"
-              v-model="isInstitutionDataCensored"
-              data-cy="exportModal:censoredInstitution"
-              :label="{
-                text: Translator.trans('export.censored.institution')
-              }"
-            />
-            <dp-checkbox
-              id="obscured"
-              v-model="isObscure"
-              data-cy="exportModal:obscured"
-              :label="{
-                text: Translator.trans('export.docx.obscured')
-              }"
-            />
-          </template>
+        </div>
+
+        <div
+          v-if="!['xlsx_normal', 'csv_normal'].includes(active)"
+          class="grid grid-cols-3 mt-2 mb-3 gap-x-2 gap-y-5"
+        >
+          <dp-checkbox
+            id="censoredCitizen"
+            v-model="isCitizenDataCensored"
+            data-cy="exportModal:censoredCitizen"
+            :label="{
+              text: Translator.trans('export.censored.citizen')
+            }"
+          />
+          <dp-checkbox
+            id="censoredInstitution"
+            v-model="isInstitutionDataCensored"
+            data-cy="exportModal:censoredInstitution"
+            :label="{
+              text: Translator.trans('export.censored.institution')
+            }"
+          />
+          <dp-checkbox
+            id="obscured"
+            v-model="isObscure"
+            data-cy="exportModal:obscured"
+            :label="{
+              text: Translator.trans('export.docx.obscured')
+            }"
+          />
         </div>
       </fieldset>
 
