@@ -15,13 +15,48 @@ namespace Tests\Core\JsonApi\Functional;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\AdminProcedureResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\AdminStatementCrossProcedureSearchResourceType;
+use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Base\JsonApiTest;
+use Webmozart\Assert\Assert;
 
 class AdminStatementCrossProcedureSearchResourceTypeTest extends JsonApiTest
 {
+    protected ?AdminStatementCrossProcedureSearchResourceType $sut = null;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // A dedicated instance rather than the shared one from the container: the container instance
+        // serves the HTTP requests of the other test cases and must keep its own collaborators.
+        // `CurrentUserInterface` is configured with `class:` instead of an alias to CurrentUserService
+        // (config/services.yml), so a resource type receives its own instance which does not observe
+        // the token {@see FunctionalTestCase::logIn()} sets and would always report an AnonymousUser.
+        $container = $this->getContainer();
+        $htmlSanitizer = $container->get(HTMLSanitizer::class);
+        Assert::isInstanceOf($htmlSanitizer, HTMLSanitizer::class);
+        $statementService = $container->get(StatementService::class);
+        Assert::isInstanceOf($statementService, StatementService::class);
+        $procedureHandler = $container->get(ProcedureHandler::class);
+        Assert::isInstanceOf($procedureHandler, ProcedureHandler::class);
+        $statementDeleter = $container->get(StatementDeleter::class);
+        Assert::isInstanceOf($statementDeleter, StatementDeleter::class);
+        $this->sut = new AdminStatementCrossProcedureSearchResourceType(
+            $htmlSanitizer,
+            $statementService,
+            $procedureHandler,
+            $statementDeleter,
+        );
+        $this->sut->setCurrentUserService($this->currentUserService);
+    }
+
     public function testListWithoutPermissionIsRejected(): void
     {
         $user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
@@ -150,9 +185,50 @@ class AdminStatementCrossProcedureSearchResourceTypeTest extends JsonApiTest
 
         self::assertArrayHasKey('data', $responseBody);
         foreach ($responseBody['included'] ?? [] as $included) {
-            if ('Procedure' === $included['type']) {
+            if (AdminProcedureResourceType::getName() === $included['type']) {
                 self::assertSame($procedure->getId(), $included['id']);
             }
         }
+    }
+
+    public function testClaimedByOthersIsTrueForStatementAssignedToAnotherUser(): void
+    {
+        $this->logIn($this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY));
+        $otherUser = $this->getUserReference(LoadUserData::TEST_USER_2_PLANNER_ADMIN);
+        $statement = StatementFactory::createOne(['assignee' => $otherUser])->_real();
+
+        $claimedByOthers = $this->invokeProtectedMethod(
+            [AdminStatementCrossProcedureSearchResourceType::class, 'isClaimedByOthers'],
+            $statement
+        );
+
+        self::assertTrue($claimedByOthers);
+    }
+
+    public function testClaimedByOthersIsFalseForUnassignedStatement(): void
+    {
+        $this->logIn($this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY));
+        $statement = StatementFactory::createOne(['assignee' => null])->_real();
+
+        $claimedByOthers = $this->invokeProtectedMethod(
+            [AdminStatementCrossProcedureSearchResourceType::class, 'isClaimedByOthers'],
+            $statement
+        );
+
+        self::assertFalse($claimedByOthers, 'An unassigned statement can be claimed by the current user.');
+    }
+
+    public function testClaimedByOthersIsFalseForStatementAssignedToCurrentUser(): void
+    {
+        $currentUser = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
+        $this->logIn($currentUser);
+        $statement = StatementFactory::createOne(['assignee' => $currentUser])->_real();
+
+        $claimedByOthers = $this->invokeProtectedMethod(
+            [AdminStatementCrossProcedureSearchResourceType::class, 'isClaimedByOthers'],
+            $statement
+        );
+
+        self::assertFalse($claimedByOthers, 'The current user already holds the claim.');
     }
 }
