@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Api\Orga;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use demosplan\DemosPlanCoreBundle\Api\Orga\OrgaResource as OrgaResource;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;

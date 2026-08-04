@@ -18,7 +18,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
-use demosplan\DemosPlanCoreBundle\Api\Orga\OrgaResource as OrgaResource;
+use demosplan\DemosPlanCoreBundle\Api\Orga\OrgaResource;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
 use demosplan\DemosPlanCoreBundle\Entity\User\User as UserEntity;
 

@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\Api\AssignableUser;
 use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use demosplan\DemosPlanCoreBundle\Api\AssignableUser\AssignableUserResource as AssignableUserResource;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
