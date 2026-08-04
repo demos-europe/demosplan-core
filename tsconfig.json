@@ -21,7 +21,8 @@
   "include": [
     "client/js/**/*.ts",
     "client/js/**/*.vue",
-    "tests/frontend/**/*.ts"
+    "tests/frontend/**/*.ts",
+    "vitest.config.ts"
   ],
   "exclude": [
     "node_modules",
