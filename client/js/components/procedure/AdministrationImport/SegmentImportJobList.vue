@@ -55,7 +55,7 @@
         <!-- Result Column -->
         <template v-slot:result="rowData">
           <span v-if="rowData.status === 'completed' && rowData.result">
-            {{ rowData.result.statements || 0 }} {{ Translator.trans('statements') }}, {{ rowData.result.segments || 0 }} {{ Translator.trans('segments') }}
+            {{ rowData.result.statements || 0 }} {{ Translator.trans('statements') }}<template v-if="rowData.importType === 'segments'">, {{ rowData.result.segments || 0 }} {{ Translator.trans('segments') }}</template>
           </span>
           <span v-else-if="rowData.status === 'failed'">
             {{ Translator.trans('error.occurred') }}

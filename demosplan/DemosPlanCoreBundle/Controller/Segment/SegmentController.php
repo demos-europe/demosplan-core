@@ -217,8 +217,8 @@ class SegmentController extends BaseController
                     'confirm',
                     'confirm.segments.import.queued',
                     [
-                        '%fileName%' => $fileName,
-                        '%jobId%'    => $job->getId(),
+                        'fileName' => $fileName,
+                        'jobId'    => $job->getId(),
                     ]
                 );
 
@@ -237,7 +237,7 @@ class SegmentController extends BaseController
                 $this->getMessageBag()->add(
                     'error',
                     'error.segments.import.queue.failed',
-                    ['%fileName%' => $fileName]
+                    ['fileName' => $fileName]
                 );
             }
         }
@@ -252,7 +252,7 @@ class SegmentController extends BaseController
     /**
      * List all import jobs for a procedure.
      */
-    #[DplanPermissions('area_statement_segmentation')]
+    #[DplanPermissions('area_admin_import')]
     #[Route(path: '/verfahren/{procedureId}/import/jobs', name: 'dplan_import_jobs_list', methods: ['GET'])]
     public function listImportJobs(
         CurrentProcedureService $currentProcedureService,
@@ -277,7 +277,7 @@ class SegmentController extends BaseController
      * Get import jobs list data (JSON API for Vue component).
      * Returns last 20 jobs only (no pagination needed).
      */
-    #[DplanPermissions('area_statement_segmentation')]
+    #[DplanPermissions('area_admin_import')]
     #[Route(path: '/verfahren/{procedureId}/import/jobs/api', name: 'dplan_import_jobs_api', options: ['expose' => true], methods: ['GET'])]
     public function getImportJobsApi(
         CurrentProcedureService $currentProcedureService,
@@ -300,6 +300,7 @@ class SegmentController extends BaseController
             return [
                 'id'             => $job->getId(),
                 'fileName'       => $job->getFileName(),
+                'importType'     => $job->getImportType(),
                 'status'         => $job->getStatus(),
                 'result'         => $job->getResult(),
                 'error'          => $job->getError(),

@@ -2445,6 +2445,15 @@ feature_statements_fragment_vote:
     label: 'Votum zu Datensatz abgeben'
     loginRequired: true
     parent: feature_statement_fragment
+feature_statements_import_csv:
+    description: |-
+        Allows the user to upload a csv file containing new statements. The file is processed in the
+        background as a queued import job, which makes it suitable for data sets that are too large
+        for a spreadsheet.
+    expose: true
+    label: 'Generate statements from uploaded csv file'
+    loginRequired: true
+    parent: area_statements, area_admin_import
 feature_statements_import_excel:
     description: |-
         Allows the user to upload an excel file containing new statements. These are then validated and

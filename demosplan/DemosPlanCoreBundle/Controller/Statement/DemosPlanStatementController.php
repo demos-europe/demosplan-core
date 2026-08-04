@@ -15,6 +15,7 @@ use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
+use demosplan\DemosPlanCoreBundle\Entity\Import\ImportJob;
 use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -76,6 +77,7 @@ use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEnt
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementListFilters;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
+use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use RuntimeException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -2450,6 +2452,100 @@ class DemosPlanStatementController extends BaseController
         }
 
         return $this->createSuccessResponse($procedureId, $statementCount, $fileNames);
+    }
+
+    /**
+     * Queues an import of statements from a csv-file.
+     *
+     * CSV files are used for data sets that are too large for a spreadsheet, so the import runs in the
+     * background: this only creates the job, {@link ImportJobProcessor} picks it up from there and the
+     * user follows its progress in the list of import jobs.
+     *
+     * @throws ProcedureNotFoundException
+     */
+    #[DplanPermissions('feature_statements_import_csv')]
+    #[Route(path: '/verfahren/{procedureId}/stellungnahmen/csv-import', name: 'dplan_statement_import_csv', options: ['expose' => true], methods: ['POST'])]
+    public function importStatementsFromCsv(
+        EntityManagerInterface $entityManager,
+        FileService $fileService,
+        string $procedureId,
+        Request $request,
+    ): Response {
+        $procedure = $this->currentProcedureService->getProcedure();
+
+        if (!$procedure instanceof Procedure) {
+            throw ProcedureNotFoundException::createFromId($procedureId);
+        }
+
+        $uploadHashes = array_filter(explode(',', (string) $request->request->get('uploadedFiles', '')));
+
+        foreach ($uploadHashes as $uploadHash) {
+            $this->queueCsvStatementImportJob($uploadHash, $procedure, $entityManager, $fileService);
+        }
+
+        return $this->redirectToRoute('DemosPlan_procedure_import', ['procedureId' => $procedureId]);
+    }
+
+    private function queueCsvStatementImportJob(
+        string $uploadHash,
+        Procedure $procedure,
+        EntityManagerInterface $entityManager,
+        FileService $fileService,
+    ): void {
+        $fileName = '';
+        $job = new ImportJob();
+
+        try {
+            $fileName = $fileService->getFileInfo($uploadHash)->getFileName();
+
+            if ('csv' !== mb_strtolower(pathinfo($fileName, PATHINFO_EXTENSION))) {
+                $this->getMessageBag()->add('error', 'error.statements.import.csv.wrong.format', ['fileName' => $fileName]);
+
+                return;
+            }
+
+            $job->setProcedure($procedure);
+            $job->setUser($this->currentUser->getUser());
+            $job->setImportType(ImportJob::TYPE_STATEMENTS);
+            $job->setFilePath($uploadHash);
+            $job->setFileName($fileName);
+
+            // capture the current organisation context for background processing
+            $currentOrga = $this->currentUser->getUser()->getCurrentOrganisation();
+            if ($currentOrga instanceof Orga) {
+                $job->setOrganisation($currentOrga);
+            }
+
+            $entityManager->persist($job);
+            $entityManager->flush();
+
+            $this->logger->info('Statement csv import job queued', [
+                'jobId'       => $job->getId(),
+                'fileName'    => $fileName,
+                'procedureId' => $procedure->getId(),
+            ]);
+
+            $this->getMessageBag()->add(
+                'confirm',
+                'confirm.statements.import.queued',
+                [
+                    'fileName' => $fileName,
+                    'jobId'    => $job->getId(),
+                ]
+            );
+        } catch (Exception $e) {
+            $this->logger->error('Failed to queue statement csv import job', [
+                'fileName'  => $fileName,
+                'exception' => $e->getMessage(),
+                'trace'     => $e->getTraceAsString(),
+            ]);
+
+            $this->getMessageBag()->add(
+                'error',
+                'error.statements.import.queue.failed',
+                ['fileName' => $fileName]
+            );
+        }
     }
 
     /**

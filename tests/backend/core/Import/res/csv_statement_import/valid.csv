@@ -1,0 +1,27 @@
+﻿Typ;ID;Institution;Abteilung;Name;E-Mail;Straße;Hausnummer;PLZ;Ort;Einreichungsdatum;Verfassungsdatum;Art der Einreichung;Eingangsnummer;Stellungnahmetext;Memo
+Öffentlichkeit;2;;;Sir Knuff;theo@mail.de;Teststr 1124;;12345;Berlin;28-03-2020;22-03-2020;E-Mail;;"Sehr geehrter Herr Fischer,
+Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren?
+Freundliche Grüße,
+Theodor Müller
+
+Strase 1
+12345 Berlin";"Notiz:
+MultilineNotiz: 123456789"
+Öffentlichkeit;5;;;Monty Dog;tom@mail.de;;;10781;Berlin;07-02-2020;19-01-2020;E-Mail;;Hier findet sich eine beispielhafte Stellungnahme.;"Notiz:
+MultilineNotiz: 123456789"
+Öffentlichkeit;99;;;Bob Ross;bobthepainter@test.de;;;12459;Berlin;11-01-2025;11-01-2025;E-Mail;;A flock of trees? I don't know... a STAND of trees. That's what you call them! Beautiful little roundy-hill-type things. Let's just enjoy today. Scary to have this much power -- that you can move mountains!;SomeId: 123456789
+Institution;7;Amt für Beispiele;MFG;Lina Larssen;;Teststr.;1;12049;Berlin;07-04-2018;11-02-2018;Brief;K85/789789789;"Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.   
+
+Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.   
+
+Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.   
+
+Nam liber tempor cum soluta nobis eleifend";"Notiz:
+MultilineNotiz: 123456789"
+Institution;19;Behörde für Beispielentwicklung;HDL;Annette Grabe;;;;10999;Berlin;17-10-2019;17-10-2019;Brief;K85/456456456;"Xlorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.   
+
+Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.   
+
+Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse";"Notiz:
+MultilineNotiz: 123456789"
+Institution;124;Behörde für süße Hunde;HDGDL;Lord Tönnchen;;;;12459;;11-07-2025;11-07-2025;Brief;K66/55555555;Dance in all these areas and just let 'em play in the sky. Let's really have some fun. Try not to kill it. Very soft, very quiet. Don't think there's anybody that doesn't like mountains. Well, maybe there is.;SomeId: 123456789

@@ -37,6 +37,16 @@ class ImportJob extends CoreEntity
     final public const STATUS_FAILED = 'failed';
 
     /**
+     * Import of statements with their segments from a spreadsheet workbook.
+     */
+    final public const TYPE_SEGMENTS = 'segments';
+
+    /**
+     * Import of statements without segments from a CSV file.
+     */
+    final public const TYPE_STATEMENTS = 'statements';
+
+    /**
      * @var string|null
      */
     #[ORM\Id]
@@ -84,6 +94,12 @@ class ImportJob extends CoreEntity
      */
     #[ORM\Column(name: 'status', type: 'string', length: 50)]
     protected $status = self::STATUS_PENDING;
+
+    /**
+     * Determines which importer processes this job.
+     */
+    #[ORM\Column(name: 'import_type', type: 'string', length: 32, options: ['default' => self::TYPE_SEGMENTS])]
+    protected string $importType = self::TYPE_SEGMENTS;
 
     /**
      * @var DateTime|null
@@ -187,6 +203,18 @@ class ImportJob extends CoreEntity
     public function setStatus(string $status): self
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getImportType(): string
+    {
+        return $this->importType;
+    }
+
+    public function setImportType(string $importType): self
+    {
+        $this->importType = $importType;
 
         return $this;
     }

@@ -92,6 +92,11 @@ server
             expires 1y;
             add_header Cache-Control "public, immutable";
         }
+        # csv is absent from the mime.types of some nginx builds, which would make the
+        # server-wide default_type turn the example import files into text/html downloads
+        location ~* \.csv$ {
+            default_type text/csv;
+        }
 
         # Cache images privately for 1 year
         location ~* \.(jpg|jpeg|png|gif|ico|webp|avif)$ {

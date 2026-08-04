@@ -21,7 +21,7 @@
             text: radioLabel(entity)
           }"
           :value="entity.key"
-          @change="active = entity.key"
+          @change="setActive(entity.key)"
         />
       </template>
       <p
@@ -32,7 +32,7 @@
     </div>
 
     <form
-      :action="Routing.generate(activeEntity.uploadPath, { procedureId: procedureId })"
+      :action="formAction"
       class="space-stack-s"
       method="post"
       enctype="multipart/form-data"
@@ -44,19 +44,27 @@
       >
 
       <dp-upload-files
-        allowed-file-types="xls"
+        :allowed-file-types="allowedFileTypes"
+        :clear-all-files="clearAllFiles"
         data-cy="uploadExcelFile"
         :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
         :max-file-size="100 * 1024 * 1024/* 100 MiB */"
         needs-hidden-input
-        :translations="{ dropHereOr: Translator.trans('form.button.upload.file.allowed.formats', { browse: '{browse}', allowedFormats: '.xls, .xlsx, .ods', maxUploadSize: '100 MB' }) }"
+        :translations="{ dropHereOr: Translator.trans('form.button.upload.file.allowed.formats', { browse: '{browse}', allowedFormats: allowedFileTypes.join(', '), maxUploadSize: '100 MB' }) }"
         :tus-endpoint="dplan.paths.tusEndpoint"
-        @file-remove="removeFileIds"
-        @upload-success="setFileIds"
+        @file-remove="removeFile"
+        @upload-success="addFile"
       />
+      <p
+        v-if="hasMixedFileTypes"
+        class="color-message-severe-text"
+        data-cy="mixedFileTypesHint"
+      >
+        {{ Translator.trans('statements.import.csv.error.mixed.formats') }}
+      </p>
       <div class="text-right">
         <button
-          :disabled="fileIds.length === 0"
+          :disabled="files.length === 0 || hasMixedFileTypes"
           type="submit"
           data-cy="statementImport"
           class="btn btn--primary"
@@ -78,8 +86,11 @@
 </template>
 
 <script>
-import { DpRadio, DpUploadFiles } from '@demos-europe/demosplan-ui'
+import { DpRadio, DpUploadFiles, hasAnyPermissions } from '@demos-europe/demosplan-ui'
 import SegmentImportJobList from '../SegmentImportJobList'
+
+const CSV_TYPE = '.csv'
+const SPREADSHEET_TYPES = ['.xls', '.xlsx', '.ods']
 
 export default {
   name: 'ExcelImport',
@@ -102,7 +113,8 @@ export default {
   data () {
     return {
       active: '',
-      fileIds: [],
+      clearAllFiles: false,
+      files: [],
     }
   },
 
@@ -110,24 +122,71 @@ export default {
     availableEntities () {
       return [
         {
-          exampleFile: '/files/statement_import_template.xlsx',
+          exampleFiles: [
+            {
+              label: 'import.example.file.excel',
+              path: '/files/statement_import_template.xlsx',
+              permission: 'feature_statements_import_excel',
+            },
+            {
+              label: 'import.example.file.csv',
+              path: '/files/statement_import_template.csv',
+              permission: 'feature_statements_import_csv',
+            },
+          ],
           label: 'statements.import',
           key: 'statements',
-          permission: 'feature_statements_import_excel',
+          permissions: ['feature_statements_import_excel', 'feature_statements_import_csv'],
           uploadPath: 'DemosPlan_statement_import',
         },
         {
-          exampleFile: '/files/segment_import_template.xlsx',
+          exampleFiles: [
+            {
+              label: 'example.file',
+              path: '/files/segment_import_template.xlsx',
+              permission: 'feature_segments_import_excel',
+            },
+          ],
           label: 'segments.import',
           key: 'segments',
-          permission: 'feature_segments_import_excel',
+          permissions: ['feature_segments_import_excel'],
           uploadPath: 'dplan_segments_process_import',
         },
-      ].filter(component => hasPermission(component.permission))
+      ].filter(entity => hasAnyPermissions(entity.permissions))
     },
 
     activeEntity () {
       return this.availableEntities.find(entity => entity.key === this.active)
+    },
+
+    /**
+     * Statements may additionally be imported as csv, segments may not.
+     */
+    allowedFileTypes () {
+      const csvAllowed = this.active === 'statements' && hasPermission('feature_statements_import_csv')
+
+      return csvAllowed ? [...SPREADSHEET_TYPES, CSV_TYPE] : SPREADSHEET_TYPES
+    },
+
+    /**
+     * Csv files are imported as a background job by a route of their own, spreadsheets are not.
+     */
+    formAction () {
+      const isCsvImport = this.active === 'statements' && this.hasOnlyCsvFiles
+      const path = isCsvImport ? 'dplan_statement_import_csv' : this.activeEntity.uploadPath
+
+      return Routing.generate(path, { procedureId: this.procedureId })
+    },
+
+    hasOnlyCsvFiles () {
+      return this.files.length > 0 && this.files.every(file => this.isCsv(file))
+    },
+
+    /**
+     * Csv and spreadsheet uploads are handled by different routes, so they cannot be submitted together.
+     */
+    hasMixedFileTypes () {
+      return this.files.some(file => this.isCsv(file)) && this.files.some(file => !this.isCsv(file))
     },
 
     importJobsUrl () {
@@ -136,18 +195,52 @@ export default {
   },
 
   methods: {
+    addFile (file) {
+      this.files.push(file)
+    },
+
+    /**
+     * The file name is set explicitly so the browser does not derive it from the response, which
+     * would append the wrong extension if the server does not know the mime type of the file.
+     */
+    exampleFileLinks (entity) {
+      return entity.exampleFiles
+        .filter(exampleFile => hasPermission(exampleFile.permission))
+        .map(exampleFile => {
+          const fileName = exampleFile.path.split('/').pop()
+
+          return `<a download="${fileName}" href="${exampleFile.path}">${Translator.trans(exampleFile.label)}</a>`
+        })
+        .join(', ')
+    },
+
+    isCsv (file) {
+      return (file.name || '').toLowerCase().endsWith(CSV_TYPE)
+    },
+
     radioLabel (entity) {
-      return `${Translator.trans(entity.label)} (<a download href="${Translator.trans(entity.exampleFile)}">${Translator.trans('example.file')}</a>)`
+      return `${Translator.trans(entity.label)} (${this.exampleFileLinks(entity)})`
     },
 
-    removeFileIds (file) {
-      const fileIdx = this.fileIds.findIndex(el => el === file.hash)
+    removeFile (file) {
+      const fileIdx = this.files.findIndex(el => el.hash === file.hash)
 
-      this.fileIds.splice(fileIdx, 1)
+      if (fileIdx > -1) {
+        this.files.splice(fileIdx, 1)
+      }
     },
 
-    setFileIds (file) {
-      this.fileIds.push(file.hash)
+    /**
+     * The entities accept different file types and are submitted to different routes, so already
+     * uploaded files must not be carried over when the user switches between them.
+     */
+    setActive (key) {
+      this.active = key
+      this.files = []
+      this.clearAllFiles = true
+      this.$nextTick(() => {
+        this.clearAllFiles = false
+      })
     },
   },
 
