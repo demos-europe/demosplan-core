@@ -867,7 +867,7 @@ export default {
 
       // Assignable users and places are needed to populate the unlock modal
       if (hasPermission('feature_administrate_segment_lock')) {
-        this.fetchAssignableUsers()
+        this.fetchAssignableUsers({ sort: 'lastname' })
         this.fetchPlaces({
           fields: {
             Place: [
