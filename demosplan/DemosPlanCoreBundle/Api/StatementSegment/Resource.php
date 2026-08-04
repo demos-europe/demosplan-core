@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Api\StatementSegment;
 
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
@@ -62,6 +63,9 @@ class Resource
         'parentStatementOfSegment.id'            => 'exact',
         'parentStatementOfSegment.procedure.id'  => 'exact',
     ])]
+    #[ApiFilter(OrderFilter::class, properties: [
+        'parentStatementOfSegment.original.internId',
+    ])]
     #[ApiProperty(readable: true, writable: false)]
     public ?StatementResource $parentStatement = null;
 
@@ -90,7 +94,7 @@ class Resource
         $resource->internId = $segment->getInternId();
         $resource->orderInProcedure = $segment->getOrderInProcedure();
         $resource->recommendation = $segment->getRecommendation();
-        // $resource->parentStatement = StatementResource::fromEntity($segment->getParentStatementOfSegment());
+        $resource->parentStatement = StatementResource::fromEntity($segment->getParentStatementOfSegment());
         // $resource->assigneeId = $segment->getAssigneeId();
         // $resource->place = PlaceResource::fromEntity($segment->getPlace());
         /*$resource->tags = array_values($segment->getTags()->map(

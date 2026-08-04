@@ -34,6 +34,9 @@ class StatementResource
     public ?string $externId = null;
 
     #[ApiProperty(readable: true, writable: false)]
+    public ?string $internId = null;
+
+    #[ApiProperty(readable: true, writable: false)]
     public bool $isSubmittedByCitizen = false;
 
     #[ApiProperty(readable: true, writable: false)]
@@ -47,6 +50,7 @@ class StatementResource
         $resource = new self();
         $resource->id = $statement->getId();
         $resource->externId = $statement->getExternId();
+        $resource->internId = $statement->getInternId();
         $resource->isSubmittedByCitizen = $statement->isSubmittedByCitizen();
         $resource->authorName = $statement->getAuthorName();
         $resource->initialOrganisationName = $statement->getMeta()->getOrgaName();
