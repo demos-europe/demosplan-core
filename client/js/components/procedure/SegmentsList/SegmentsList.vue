@@ -1259,7 +1259,7 @@ export default {
         idChunks.push(missingIds.slice(start, start + chunkSize))
       }
 
-      const requests = idChunks.map(idChunk => dpApi.get(Routing.generate('api_resource_list', { resourceType: 'StatementSegment' }), {
+      const fetchChunk = idChunk => dpApi.get(Routing.generate('api_resource_list', { resourceType: 'StatementSegment' }), {
         include,
         fields,
         filter: {
@@ -1271,20 +1271,22 @@ export default {
             },
           },
         },
-      }))
-
-      return Promise.all(requests).then(responses => {
-        const segments = responses.flatMap(response => response.data.data)
-        const included = responses.flatMap(response => response.data.included || [])
-
-        return {
-          segmentsById: this.buildResourceMapById(segments),
-          statementsById: this.buildResourceMapByType(included, 'Statement'),
-          placesById: this.buildResourceMapByType(included, 'Place'),
-          tagsById: this.buildResourceMapByType(included, 'Tag'),
-          recommendationVersionsById: this.buildResourceMapByType(included, 'RecommendationVersion'),
-        }
       })
+
+      return idChunks
+        .reduce((chain, idChunk) => chain.then(responses => fetchChunk(idChunk).then(response => [...responses, response])), Promise.resolve([]))
+        .then(responses => {
+          const segments = responses.flatMap(response => response.data.data)
+          const included = responses.flatMap(response => response.data.included || [])
+
+          return {
+            segmentsById: this.buildResourceMapById(segments),
+            statementsById: this.buildResourceMapByType(included, 'Statement'),
+            placesById: this.buildResourceMapByType(included, 'Place'),
+            tagsById: this.buildResourceMapByType(included, 'Tag'),
+            recommendationVersionsById: this.buildResourceMapByType(included, 'RecommendationVersion'),
+          }
+        })
     },
 
     fetchSegmentIds (payload) {
