@@ -1040,6 +1040,7 @@ export default {
         })
         .catch(error => {
           console.error(error)
+          this.selectionCopiedToClipboard = false
           dplan.notify.notify('error', Translator.trans('segments.copy.clipboard.error', { count: selectedIds.length }))
         })
     },
