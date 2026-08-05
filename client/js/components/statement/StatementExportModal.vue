@@ -371,7 +371,7 @@ export default {
         },
         csv_normal: {
           label: 'export.csv',
-          hint: '',
+          hint: Translator.trans('export.csv.hint'),
           exportPath: 'dplan_statement_csv_export',
           dataCy: 'exportModal:export:csv',
         },
