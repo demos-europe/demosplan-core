@@ -116,13 +116,16 @@ All rights reserved
           :title="section.title"
           is-open
         >
-          <div class="overflow-x-auto pb-3 has-scrollable-content">
+          <div
+            v-if="section.configurationPhaseRow"
+            class="overflow-x-auto pb-3 has-scrollable-content"
+          >
             <dp-data-table
-              :column-width-storage-key="`procedurePhases:${section.audience}`"
-              :data-cy="`procedurePhases:dataTable:${section.audience}`"
+              :column-width-storage-key="`procedurePhases:${section.audience}:configuration`"
+              :data-cy="`procedurePhases:configurationDataTable:${section.audience}`"
               :flyout-width="flyoutWidth"
               :header-fields="headerFields"
-              :items="section.audiencePhases"
+              :items="[section.configurationPhaseRow]"
               density="spacious"
               track-by="id"
               has-borders
@@ -142,8 +145,123 @@ All rights reserved
               </template>
 
               <template v-slot:permissionSet="phase">
+                <span>{{ phase.permissionSetLabel }}</span>
+              </template>
+
+              <template v-slot:participationState="phase">
+                <span>{{ phase.participationStateLabel }}</span>
+              </template>
+
+              <template v-slot:phaseCode="phase">
+                <addon-wrapper
+                  :addon-props="{
+                    hasAttemptedSubmit,
+                    isEditing: editingRowId === phase.id,
+                    phaseId: phase.id,
+                    savedRowPayload: savedAddonRowPayloads[phase.id] || null,
+                  }"
+                  hook-name="phase.list.fields"
+                  @edit-change="handleAddonEditChange"
+                  @edit-start="handleAddonEditStart"
+                />
+              </template>
+
+              <template v-slot:portalPhase="phase">
+                <addon-wrapper
+                  :addon-props="{
+                    hasAttemptedSubmit,
+                    isEditing: editingRowId === phase.id,
+                    isPortalPhase: true,
+                    phaseId: phase.id,
+                    savedRowPayload: savedAddonRowPayloads[phase.id] || null,
+                  }"
+                  hook-name="phase.list.fields"
+                  @edit-change="handleAddonEditChange"
+                  @edit-start="handleAddonEditStart"
+                />
+              </template>
+
+              <template v-slot:flyout="rowData">
+                <div class="flex justify-center gap-3 py-[15px]">
+                  <template v-if="editingRowId !== rowData.id">
+                    <button
+                      :aria-label="Translator.trans('item.edit')"
+                      :data-cy="`procedurePhases:edit:${rowData.id}`"
+                      :title="Translator.trans('edit')"
+                      class="btn--blank o-link--default"
+                      @click="startEdit(rowData)"
+                    >
+                      <dp-icon
+                        aria-hidden="true"
+                        icon="edit"
+                      />
+                    </button>
+                  </template>
+
+                  <template v-else>
+                    <button
+                      :aria-label="Translator.trans('save')"
+                      :data-cy="`procedurePhases:saveEdit:${rowData.id}`"
+                      :disabled="isSaving"
+                      :title="Translator.trans('save')"
+                      class="btn--blank o-link--default"
+                      @click="handleSaveEditClick"
+                    >
+                      <dp-icon
+                        aria-hidden="true"
+                        icon="check"
+                      />
+                    </button>
+
+                    <button
+                      :aria-label="Translator.trans('abort')"
+                      :data-cy="`procedurePhases:abortEdit:${rowData.id}`"
+                      :disabled="isSaving"
+                      :title="Translator.trans('abort')"
+                      class="btn--blank o-link--default"
+                      @click="cancelEdit"
+                    >
+                      <dp-icon
+                        aria-hidden="true"
+                        icon="xmark"
+                      />
+                    </button>
+                  </template>
+                </div>
+              </template>
+            </dp-data-table>
+          </div>
+
+          <div class="overflow-x-auto pb-3 has-scrollable-content">
+            <dp-data-table
+              :column-width-storage-key="`procedurePhases:${section.audience}`"
+              :data-cy="`procedurePhases:dataTable:${section.audience}`"
+              :flyout-width="flyoutWidth"
+              :header-fields="headerFields"
+              :items="section.audiencePhases"
+              density="spacious"
+              track-by="id"
+              has-borders
+              has-flyout
+              is-draggable
+              is-resizable
+              @changed-order="handleReorder(section.audience, $event)"
+            >
+              <template v-slot:name="phase">
+                <dp-input
+                  v-if="editingRowId === phase.id"
+                  :id="`phaseName-${phase.id}`"
+                  v-model="draftCoreRowValue.name"
+                  :data-cy="`procedurePhases:editName:${phase.id}`"
+                  :invalid="isEditedPhaseNameInvalid"
+                />
+
+                <span v-else>{{ phase.name }}</span>
+              </template>
+
+              <template v-slot:permissionSet="phase">
                 <dp-multiselect
-                  v-if="editingRowId === phase.id && phase.orderInAudience !== 0"
+                  v-if="editingRowId === phase.id"
                   :id="`phasePermissionSet-${phase.id}`"
                   :allow-empty="false"
                   :data-cy="`procedurePhases:editPermissionSet:${phase.id}`"
@@ -158,7 +276,7 @@ All rights reserved
               </template>
 
               <template v-slot:participationState="phase">
-                <fieldset v-if="editingRowId === phase.id && phase.orderInAudience !== 0">
+                <fieldset v-if="editingRowId === phase.id">
                   <legend class="sr-only">
                     {{ Translator.trans('participation.state.radio.label') }}
                   </legend>
@@ -235,7 +353,6 @@ All rights reserved
                     </button>
 
                     <button
-                      v-if="rowData.orderInAudience !== 0"
                       :aria-label="Translator.trans('item.delete')"
                       :data-cy="`procedurePhases:delete:${rowData.id}`"
                       :title="Translator.trans('delete')"
@@ -307,6 +424,7 @@ import {
   DpLoading,
   DpMultiselect,
   DpRadio,
+  dpRpc,
   DpSelect,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
@@ -381,13 +499,19 @@ export default {
     const savedAddonRowPayloads = ref({})
 
     const audienceSections = computed(() =>
-      ['internal', 'external'].map(audience => ({
-        audience,
-        audiencePhases: phaseDefinitions.value
-          .filter(phase => phase.audience === audience)
-          .map(phase => mapPhaseToRow(phase)),
-        title: Translator.trans(`audience.${audience}`),
-      })),
+      ['internal', 'external'].map(audience => {
+        const phasesForAudience = phaseDefinitions.value.filter(phase => phase.audience === audience)
+        const configurationPhase = phasesForAudience.find(phase => phase.orderInAudience === 0)
+
+        return {
+          audience,
+          audiencePhases: phasesForAudience
+            .filter(phase => phase.orderInAudience !== 0)
+            .map(phase => mapPhaseToRow(phase)),
+          configurationPhaseRow: configurationPhase ? mapPhaseToRow(configurationPhase) : null,
+          title: Translator.trans(`audience.${audience}`),
+        }
+      }),
     )
 
     const headerFields = computed(() => [
@@ -445,6 +569,36 @@ export default {
         })
         .finally(() => {
           isInitiallyLoading.value = false
+        })
+    }
+
+    /*
+     * The configuration phase (orderInAudience 0) is excluded from the draggable table, so
+     * newIndex/oldIndex here are 0-based positions among the non-configuration phases of this
+     * audience only.
+     */
+    const handleReorder = (audience, { newIndex, oldIndex }) => {
+      const listBackup = phaseDefinitions.value
+      const otherPhases = phaseDefinitions.value.filter(phase => phase.audience !== audience || phase.orderInAudience === 0)
+      const sectionPhases = phaseDefinitions.value.filter(phase => phase.audience === audience && phase.orderInAudience !== 0)
+
+      const movedPhase = sectionPhases.splice(oldIndex, 1)[0]
+      sectionPhases.splice(newIndex, 0, movedPhase)
+
+      phaseDefinitions.value = [...otherPhases, ...sectionPhases]
+
+      dpRpc('procedurePhaseDefinitionList.reorder', {
+        phaseDefinitionId: movedPhase.id,
+        newIndex,
+      })
+        .then(() => {
+          dplan.notify.confirm(Translator.trans('confirm.saved'))
+        })
+        .catch(err => {
+          // Reset optimistically triggered sort on error
+          phaseDefinitions.value = listBackup
+          console.error(err)
+          dplan.notify.error(Translator.trans('error.api.generic'))
         })
     }
 
@@ -876,6 +1030,7 @@ export default {
       flyoutWidth,
       handleAddonEditChange,
       handleAddonEditStart,
+      handleReorder,
       handleSaveEditClick,
       hasAttemptedSubmit,
       headerFields,

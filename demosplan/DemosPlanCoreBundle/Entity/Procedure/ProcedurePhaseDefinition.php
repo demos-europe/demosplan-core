@@ -19,6 +19,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseDefinitionInterf
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\SortableInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
 use Doctrine\ORM\Mapping as ORM;
@@ -31,7 +32,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 #[ORM\Table(name: 'procedure_phase_definition')]
 #[ORM\Entity(repositoryClass: ProcedurePhaseDefinitionRepository::class)]
-class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface, ProcedurePhaseDefinitionInterface
+class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface, ProcedurePhaseDefinitionInterface, SortableInterface
 {
     #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
     #[ORM\Id]
@@ -201,6 +202,18 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
     public function setOrderInAudience(int $orderInAudience): void
     {
         $this->orderInAudience = $orderInAudience;
+    }
+
+    public function getSortIndex(): int
+    {
+        return $this->getOrderInAudience();
+    }
+
+    public function setSortIndex(int $newIndex)
+    {
+        $this->setOrderInAudience($newIndex);
+
+        return $this;
     }
 
     /**
