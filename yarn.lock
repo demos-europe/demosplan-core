@@ -684,7 +684,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/parser@npm:^7.1.0, @babel/parser@npm:^7.14.7, @babel/parser@npm:^7.20.7, @babel/parser@npm:^7.23.5, @babel/parser@npm:^7.23.9, @babel/parser@npm:^7.25.3, @babel/parser@npm:^7.26.10, @babel/parser@npm:^7.27.0":
+"@babel/parser@npm:^7.1.0, @babel/parser@npm:^7.14.7, @babel/parser@npm:^7.20.7, @babel/parser@npm:^7.23.9, @babel/parser@npm:^7.25.3, @babel/parser@npm:^7.26.10, @babel/parser@npm:^7.27.0":
   version: 7.27.0
   resolution: "@babel/parser@npm:7.27.0"
   dependencies:
@@ -5458,21 +5458,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vue/compiler-sfc@npm:2.7.16":
-  version: 2.7.16
-  resolution: "@vue/compiler-sfc@npm:2.7.16"
-  dependencies:
-    "@babel/parser": "npm:^7.23.5"
-    postcss: "npm:^8.4.14"
-    prettier: "npm:^1.18.2 || ^2.0.0"
-    source-map: "npm:^0.6.1"
-  dependenciesMeta:
-    prettier:
-      optional: true
-  checksum: 10c0/eaeeef054c939e6cd7591199e2b998ae33d0afd65dc1b5675b54361f0c657c08ae82945791a1a8ca76762e1c1f8e69a00595daf280b854cbc3370ed5c5a34bcd
-  languageName: node
-  linkType: hard
-
 "@vue/compiler-sfc@npm:3.5.13":
   version: 3.5.13
   resolution: "@vue/compiler-sfc@npm:3.5.13"
@@ -5989,7 +5974,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"a11y-datepicker@npm: ^0.9.0":
+"a11y-datepicker@npm: ^0.9.0, a11y-datepicker@npm:^0.9.0":
   version: 0.9.0
   resolution: "a11y-datepicker@npm:0.9.0"
   checksum: 10c0/33e531790a52154ef21503b4f54003bd7ad8168623bfa1513337a7e8f3e18b09519edf2c563a34fa36b084b1c2c2077c6068a8eb5edf8e96bb06ab2cb1f37e25
@@ -6867,28 +6852,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30001688, caniuse-lite@npm:^1.0.30001733":
-  version: 1.0.30001743
-  resolution: "caniuse-lite@npm:1.0.30001743"
-  checksum: 10c0/1bd730ca10d881a1ca9f55ce864d34c3b18501718c03976e0d3419f4694b715159e13fdef6d58ad47b6d2445d315940f3a01266658876828c820a3331aac021d
-  languageName: node
-  linkType: hard
-
-"caniuse-lite@npm:^1.0.30001754":
-  version: 1.0.30001754
-  resolution: "caniuse-lite@npm:1.0.30001754"
-  checksum: 10c0/d38709ab11abc36eea28068d241434eba925c4d3462916ccaa17a34a6227dfdeb58ab0e1eb614bab12fb393c7d527db392a0f477b48c33d70d8e466954f381ba
-  languageName: node
-  linkType: hard
-
-"caniuse-lite@npm:^1.0.30001759":
-  version: 1.0.30001769
-  resolution: "caniuse-lite@npm:1.0.30001769"
-  checksum: 10c0/161b8c30ab967371807d45d361f0d5bc06e38ef2dbf811493d70cd97c21e1522f5b91fd944c419a00047ee09c931ca64627f125a9ffa7a17a9fdff8dad9765b0
-  languageName: node
-  linkType: hard
-
-"caniuse-lite@npm:^1.0.30001799":
+"caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30001688, caniuse-lite@npm:^1.0.30001733, caniuse-lite@npm:^1.0.30001754, caniuse-lite@npm:^1.0.30001759, caniuse-lite@npm:^1.0.30001799":
   version: 1.0.30001799
   resolution: "caniuse-lite@npm:1.0.30001799"
   checksum: 10c0/f24f9834edc7b60188f368ce44714695c3901bc4acb7f2a977dd9b7b697e39ddc0f9947fad6224a955b789f36a73432cb888d620aa7280d728f582d3bd8927a7
@@ -7567,7 +7531,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"csstype@npm:^3.1.0, csstype@npm:^3.1.3":
+"csstype@npm:^3.1.3":
   version: 3.1.3
   resolution: "csstype@npm:3.1.3"
   checksum: 10c0/80c089d6f7e0c5b2bd83cf0539ab41474198579584fa10d86d0cafe0642202343cbc119e076a0b1aece191989477081415d66c9fefbf3c957fc2fc4b7009f248
@@ -8035,7 +7999,7 @@ __metadata:
     "@vue/compiler-sfc": "npm:3.5.33"
     "@vue/test-utils": "npm:^2.4.6"
     "@vue/vue3-jest": "npm:^29.2.6"
-    a11y-datepicker: "npm: ^0.9.0"
+    a11y-datepicker: "npm:^0.9.0"
     assets-webpack-plugin: "npm:^7.1.1"
     babel-jest: "npm:^29.7.0"
     babel-loader: "npm:^10.1.1"
@@ -8074,6 +8038,7 @@ __metadata:
     font-awesome: "npm:^4.7.0"
     fscreen: "npm:^1.2.0"
     glob: "npm:^13.0.6"
+    globals: "npm:15.13.0"
     intl-messageformat: "npm:^10.7.18"
     ismobilejs: "npm:^1.1.1"
     jest: "npm:^29.6.4"
@@ -8117,7 +8082,6 @@ __metadata:
     vue-eslint-parser: "npm:^10.4.1"
     vue-loader: "npm:^17.4.2"
     vue-scrollto: "npm:^2.20.0"
-    vue-sliding-pagination: "npm:^1.3.2"
     vue2-leaflet: "npm:^2.7.1"
     vue2-leaflet-markercluster: "npm:^3.1.0"
     vuedraggable: "npm:^2.24.3"
@@ -13478,7 +13442,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.4.14, postcss@npm:^8.4.33, postcss@npm:^8.4.40, postcss@npm:^8.4.47, postcss@npm:^8.4.48, postcss@npm:^8.5.10, postcss@npm:^8.5.23, postcss@npm:^8.5.6":
+"postcss@npm:^8.4.33, postcss@npm:^8.4.40, postcss@npm:^8.4.47, postcss@npm:^8.4.48, postcss@npm:^8.5.10, postcss@npm:^8.5.23, postcss@npm:^8.5.6":
   version: 8.5.23
   resolution: "postcss@npm:8.5.23"
   dependencies:
@@ -13512,7 +13476,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^1.18.2 || ^2.0.0, prettier@npm:^2.7.1":
+"prettier@npm:^2.7.1":
   version: 2.8.8
   resolution: "prettier@npm:2.8.8"
   bin:
@@ -16134,15 +16098,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vue-sliding-pagination@npm:^1.3.2":
-  version: 1.3.2
-  resolution: "vue-sliding-pagination@npm:1.3.2"
-  dependencies:
-    vue: "npm:^2.6"
-  checksum: 10c0/6627e35698b7c22171de7000b3a290b8c1656217bfb4ae152ff095dbe707678f00bdc13e207a7d5f821dca2a6c2c01a059a7f342648a39767dbb3ad64530a77c
-  languageName: node
-  linkType: hard
-
 "vue-sliding-pagination@npm:^v2.0.0-alpha-1":
   version: 2.0.0-alpha-1
   resolution: "vue-sliding-pagination@npm:2.0.0-alpha-1"
@@ -16190,16 +16145,6 @@ __metadata:
     typescript:
       optional: true
   checksum: 10c0/759dfdc39a54a5aa4ec6021601a8f929c4813f7ba43ea0c006dffa8caa9bd0ca462dd48605be4f4836cb08764bc435afc9ed99b7c84daba7079934f0d78f8d89
-  languageName: node
-  linkType: hard
-
-"vue@npm:^2.6":
-  version: 2.7.16
-  resolution: "vue@npm:2.7.16"
-  dependencies:
-    "@vue/compiler-sfc": "npm:2.7.16"
-    csstype: "npm:^3.1.0"
-  checksum: 10c0/15bf536c131a863d03c42386a4bbc82316262129421ef70e88d1758bcf951446ef51edeff42e3b27d026015330fe73d90155fca270eb5eadd30b0290735f2c3e
   languageName: node
   linkType: hard
 

@@ -56,10 +56,11 @@ module.exports = {
      * Transform ESM packages (demosplan-ui and its ESM dependencies).
      * Jest requires CommonJS, so we must transform:
      * - @demos-europe/demosplan-ui (ESM-only since v0.7.0)
+     * - @efrane/vuex-json-api (ships untranspiled ESM sources)
      * - External dependencies: Packages that are externalized in demosplan-ui's
      *   vite.config.mjs but imported as ESM by consuming code
      */
-    String.raw`node_modules/(?!(@demos-europe/demosplan-ui|demosplan-ui|uuid|@uppy|nanoid|preact|dayjs|tippy\.js|v-tooltip|vue-multiselect|vuedraggable|dompurify|@braintree))`,
+    String.raw`node_modules/(?!(@demos-europe/demosplan-ui|demosplan-ui|@efrane/vuex-json-api|uuid|@uppy|nanoid|preact|dayjs|tippy\.js|v-tooltip|vue-multiselect|vuedraggable|dompurify|@braintree))`,
   ],
   // Send a notification when tests fail or once when they pass
   notifyMode: 'failure-success',
