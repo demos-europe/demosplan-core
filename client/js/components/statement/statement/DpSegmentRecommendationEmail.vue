@@ -79,7 +79,11 @@
             <dp-checkbox
               id="attachSegmentText"
               v-model="attachSegmentText"
-              :aria-label="Translator.trans('segment.text')"
+              :label="{
+                text: Translator.trans('segment.text'),
+                hide: true,
+              }"
+              class="h-4 w-4"
               data-cy="segmentRecommendationEmail:attachSegmentText"
             />
           </template>
@@ -100,8 +104,12 @@
             <dp-checkbox
               id="attachRecommendation"
               v-model="attachRecommendation"
-              :aria-label="Translator.trans('recommendation.text')"
               :disabled="!hasRecommendation"
+              :label="{
+                text: Translator.trans('recommendation.text'),
+                hide: true,
+              }"
+              class="h-4 w-4"
               data-cy="segmentRecommendationEmail:attachRecommendation"
             />
           </template>
