@@ -147,174 +147,144 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { computed, ref } from 'vue'
 import { DpAccordion, DpButtonRow, DpCheckbox, DpEditor, DpInlineNotification, DpInput, dpRpc, DpTextArea } from '@demos-europe/demosplan-ui'
-import { mapState } from 'vuex'
-export default {
-  name: 'DpSegmentRecommendationemail',
+import { useRootEventBus } from '@DpJs/composables/useRootEventBus'
+import { useStore } from 'vuex'
 
-  components: {
-    DpAccordion,
-    DpButtonRow,
-    DpCheckbox,
-    DpEditor,
-    DpInlineNotification,
-    DpInput,
-    DpTextArea,
+const props = defineProps({
+  currentUserEmail: {
+    type: String,
+    required: false,
+    default: '',
   },
 
-  props: {
-    currentUserEmail: {
-      type: String,
-      required: false,
-      default: '',
-    },
-
-    procedureName: {
-      type: String,
-      required: false,
-      default: '',
-    },
+  procedureName: {
+    type: String,
+    required: false,
+    default: '',
   },
+})
 
-  data () {
-    return {
-      attachRecommendation: false,
-      attachSegmentText: true,
-      emailCC: '',
-      externId: '',
-      isSending: false,
-      isVisible: false,
-      message: '',
-      recipient: '',
-      recommendationTextToSend: '',
-      replyToEmail: this.currentUserEmail,
-      segmentId: '',
-      segmentTextToSend: '',
-      subject: '',
-    }
-  },
+const store = useStore()
+const { emitRootEvent, onRootEvent } = useRootEventBus()
 
-  computed: {
-    ...mapState('StatementSegment', {
-      segments: 'items',
-    }),
+const attachRecommendation = ref(false)
+const attachSegmentText = ref(true)
+const emailCC = ref('')
+const externId = ref('')
+const isSending = ref(false)
+const isVisible = ref(false)
+const message = ref('')
+const recipient = ref('')
+const recommendationTextToSend = ref('')
+const replyToEmail = ref(props.currentUserEmail)
+const segmentId = ref('')
+const segmentTextToSend = ref('')
+const subject = ref('')
 
-    /**
-     * The backend does not append the segment content, it only forwards this body into the
-     * mail template. The order matches what the hint above the checkboxes announces.
-     */
-    emailBody () {
-      const parts = [this.message]
+const segments = computed(() => store.state.StatementSegment.items)
 
-      if (this.attachSegmentText) {
-        parts.push(this.segmentTextToSend)
-      }
+/**
+ * The backend does not append the segment content, it only forwards this body into the
+ * mail template. The order matches what the hint above the checkboxes announces.
+ */
+const emailBody = computed(() => {
+  const parts = [message.value]
 
-      if (this.attachRecommendation) {
-        parts.push(this.recommendationTextToSend)
-      }
+  if (attachSegmentText.value) {
+    parts.push(segmentTextToSend.value)
+  }
 
-      return parts.filter(part => part !== '').join('\n\n')
-    },
+  if (attachRecommendation.value) {
+    parts.push(recommendationTextToSend.value)
+  }
 
-    hasRecommendation () {
-      return this.recommendationTextToSend !== ''
-    },
+  return parts.filter(part => part !== '').join('\n\n')
+})
 
-    /**
-     * Reduce the editor to what is needed here: obscuring content before sending it.
-     * Undo and redo are always rendered, everything else is switched off — cutting
-     * would remove content instead of making it unreadable.
-     */
-    obscureOnlyToolbar () {
-      return {
-        cut: false,
-        fullscreenButton: false,
-        listButtons: false,
-        obscure: true,
-        textDecoration: false,
-      }
-    },
-  },
+const hasRecommendation = computed(() => recommendationTextToSend.value !== '')
 
-  methods: {
-    onAbort () {
-      this.isVisible = false
-      this.$root.$emit('hide-slidebar')
-    },
+/**
+ * Reduce the editor to what is needed here: obscuring content before sending it.
+ * Undo and redo are always rendered, everything else is switched off — cutting
+ * would remove content instead of making it unreadable.
+ */
+const obscureOnlyToolbar = computed(() => ({
+  cut: false,
+  fullscreenButton: false,
+  listButtons: false,
+  obscure: true,
+  textDecoration: false,
+}))
 
-    onSendEmail () {
-      this.isSending = true
-
-      /*
-       * The procedure is not part of the payload, the backend resolves it from the current
-       * procedure context, so the third dpRpc argument (the JSON-RPC request id) is omitted.
-       */
-      return dpRpc('segment.email.sender', {
-        body: this.emailBody,
-        recipientMail: this.recipient,
-        replyTo: this.replyToEmail,
-        segmentIds: [this.segmentId],
-        sendEmailCC: this.emailCC,
-        subject: this.subject,
-      })
-        .then(() => {
-          this.onAbort()
-        })
-        .finally(() => {
-          this.isSending = false
-        })
-    },
-
-    onShowEmailForm (segmentId, externId) {
-      this.resetForm()
-
-      this.isVisible = true
-      this.externId = externId
-      this.segmentId = segmentId
-      this.subject = Translator.trans('segment.send.via.email.subject.default', {
-        externId,
-        procedureName: this.procedureName,
-      })
-
-      /*
-       * Work on copies: obscuring is meant for this email only and must not
-       * change the segment itself.
-       */
-      const segment = this.segments[segmentId]
-
-      this.segmentTextToSend = segment?.attributes.text ?? ''
-      this.recommendationTextToSend = segment?.attributes.recommendation ?? ''
-    },
-
-    onVersionHistory () {
-      this.isVisible = false
-    },
-
-    /**
-     * Called whenever the form is opened, so that nothing carries over from a previously
-     * viewed segment. Fields derived from the segment are set by the caller afterwards.
-     */
-    resetForm () {
-      this.attachRecommendation = false
-      this.attachSegmentText = true
-      this.emailCC = ''
-      this.message = ''
-      this.recipient = ''
-      this.replyToEmail = this.currentUserEmail
-    },
-  },
-
-  mounted () {
-    this.$root.$on('segment:send-via-mail', this.onShowEmailForm)
-    this.$root.$on('version:history', this.onVersionHistory)
-  },
-
-  beforeUnmount () {
-    this.$root.$off('segment:send-via-mail', this.onShowEmailForm)
-    this.$root.$off('version:history', this.onVersionHistory)
-  },
+const onAbort = () => {
+  isVisible.value = false
+  emitRootEvent('hide-slidebar')
 }
 
+const onSendEmail = () => {
+  isSending.value = true
+
+  /*
+   * The procedure is not part of the payload, the backend resolves it from the current
+   * procedure context, so the third dpRpc argument (the JSON-RPC request id) is omitted.
+   */
+  return dpRpc('segment.email.sender', {
+    body: emailBody.value,
+    recipientMail: recipient.value,
+    replyTo: replyToEmail.value,
+    segmentIds: [segmentId.value],
+    sendEmailCC: emailCC.value,
+    subject: subject.value,
+  })
+    .then(() => {
+      onAbort()
+    })
+    .finally(() => {
+      isSending.value = false
+    })
+}
+
+/**
+ * Called whenever the form is opened, so that nothing carries over from a previously
+ * viewed segment. Fields derived from the segment are set by the caller afterwards.
+ */
+const resetForm = () => {
+  attachRecommendation.value = false
+  attachSegmentText.value = true
+  emailCC.value = ''
+  message.value = ''
+  recipient.value = ''
+  replyToEmail.value = props.currentUserEmail
+}
+
+const onShowEmailForm = (id, segmentExternId) => {
+  resetForm()
+
+  isVisible.value = true
+  externId.value = segmentExternId
+  segmentId.value = id
+  subject.value = Translator.trans('segment.send.via.email.subject.default', {
+    externId: segmentExternId,
+    procedureName: props.procedureName,
+  })
+
+  /*
+   * Work on copies: obscuring is meant for this email only and must not
+   * change the segment itself.
+   */
+  const segment = segments.value[id]
+
+  segmentTextToSend.value = segment?.attributes.text ?? ''
+  recommendationTextToSend.value = segment?.attributes.recommendation ?? ''
+}
+
+const onVersionHistory = () => {
+  isVisible.value = false
+}
+
+onRootEvent('segment:send-via-mail', onShowEmailForm)
+onRootEvent('version:history', onVersionHistory)
 </script>
