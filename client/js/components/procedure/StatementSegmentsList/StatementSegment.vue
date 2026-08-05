@@ -1075,10 +1075,7 @@ export default {
         return
       }
 
-      this.fetchAssignableUsers({
-        include: 'department',
-        sort: 'lastname',
-      })
+      this.fetchAssignableUsers({ sort: 'lastname' })
         .then(() => {
           this.setSelectedAssignee()
         })
