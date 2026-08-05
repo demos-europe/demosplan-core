@@ -38,6 +38,16 @@
           required
         />
         <dp-input
+          id="emailCC"
+          v-model="emailCC"
+          :label="{
+            text: Translator.trans('email.cc'),
+            hint: Translator.trans('explanation.email.cc')
+          }"
+          class="mb-4"
+          data-cy="segmentRecommendationEmail:emailCC"
+        />
+        <dp-input
           id="replyToEmail"
           v-model="replyToEmail"
           :label="{
@@ -122,18 +132,18 @@
           />
         </dp-accordion>
       </div>
-      <dp-button-row
-        :busy="isSending"
-        :primary-text="Translator.trans('email.send')"
-        :secondary-text="Translator.trans('abort')"
-        class="mr-5 mt-4"
-        data-cy="segmentRecommendationEmail"
-        primary
-        secondary
-        @primary-action="onSendEmail"
-        @secondary-action="onAbort"
-      />
     </div>
+    <dp-button-row
+      :busy="isSending"
+      :primary-text="Translator.trans('email.send')"
+      :secondary-text="Translator.trans('abort')"
+      class="mr-5 my-5"
+      data-cy="segmentRecommendationEmail"
+      primary
+      secondary
+      @primary-action="onSendEmail"
+      @secondary-action="onAbort"
+    />
   </div>
 </template>
 
@@ -276,7 +286,6 @@ export default {
 
       this.segmentTextToSend = segment?.attributes.text ?? ''
       this.recommendationTextToSend = segment?.attributes.recommendation ?? ''
-      console.log(this.segmentId, this.$store.state.StatementSegment.items)
     },
 
     onVersionHistory () {
