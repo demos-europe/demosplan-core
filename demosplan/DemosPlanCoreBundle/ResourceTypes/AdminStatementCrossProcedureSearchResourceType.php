@@ -22,7 +22,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
-use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigBuilder;
+use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\AdminStatementCrossProcedureSearchResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\JsonApi\ResourceTypes\AbstractResourceType;
@@ -148,8 +148,8 @@ final class AdminStatementCrossProcedureSearchResourceType extends AbstractState
      */
     protected function getProperties(): ResourceConfigBuilderInterface
     {
-        /** @var StatementResourceConfigBuilder $configBuilder */
-        $configBuilder = $this->getConfig(StatementResourceConfigBuilder::class);
+        /** @var AdminStatementCrossProcedureSearchResourceConfigBuilder $configBuilder */
+        $configBuilder = $this->getConfig(AdminStatementCrossProcedureSearchResourceConfigBuilder::class);
 
         $configBuilder->id->readable()->filterable();
         $configBuilder->externId->readable(true);
@@ -194,6 +194,10 @@ final class AdminStatementCrossProcedureSearchResourceType extends AbstractState
             ->aliasedPath(Paths::statement()->meta->orgaCity)
             ->readable(true);
 
+        /* Virtual property of this resource type, computed in PHP and therefore deliberately neither
+         * aliased nor filterable. */
+        $configBuilder->claimedByOthers->readable(true, $this->isClaimedByOthers(...));
+
         /* Deliberately AdminProcedure instead of Procedure: {@see ProcedureResourceType::isAvailable()}
          * requires permissions that projects grant per procedure, so sideloading it without a procedure
          * context fails the fieldset validation in {@see APIController::validateFieldsets()} and aborts
@@ -207,5 +211,20 @@ final class AdminStatementCrossProcedureSearchResourceType extends AbstractState
             ->filterable();
 
         return $configBuilder;
+    }
+
+    /**
+     * Whether the statement is claimed by somebody other than the current user, who can therefore
+     * neither claim nor edit it. Backs the virtual `claimedByOthers` property and saves the frontend
+     * from resolving the assignee and comparing it against the logged-in user itself.
+     *
+     * False for unassigned statements as well as for those assigned to the current user.
+     */
+    private function isClaimedByOthers(Statement $statement): bool
+    {
+        $assigneeId = $statement->getAssigneeId();
+
+        return null !== $assigneeId
+            && $assigneeId !== $this->currentUser->getUser()->getId();
     }
 }
