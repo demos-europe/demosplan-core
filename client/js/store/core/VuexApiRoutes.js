@@ -105,6 +105,10 @@ const api3_0Modules = {
     'list',
     'get',
   ],
+  AssignableUser: [
+    'list',
+    'get',
+  ],
 }
 
 const crudActions = [
