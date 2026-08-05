@@ -1233,7 +1233,11 @@ export default {
     },
 
     buildResourceMapById (resources) {
-      return resources.reduce((map, resource) => ({ ...map, [resource.id]: resource }), {})
+      return resources.reduce((resourceMap, resource) => {
+        resourceMap[resource.id] = resource
+
+        return resourceMap
+      }, {})
     },
 
     buildResourceMapByType (resources, type) {
