@@ -40,10 +40,7 @@
           @search="term => updateSearchQuery(term)"
           @reset="handleResetSearch"
         />
-        <div
-          v-if="!v3Mode"
-          class="ml-2 space-x-2"
-        >
+        <div class="ml-2 space-x-2">
           <filter-flyout
             v-for="(filter, idx) in Object.values(filters)"
             ref="filterFlyout"
@@ -578,8 +575,6 @@ export default {
         { value: '-deadline', label: Translator.trans('sort.deadline.descending') },
         { value: 'deadline', label: Translator.trans('sort.deadline.ascending') },
       ],
-      // Filter flyouts (Ort/Bearbeiter*in/Schlagworte) have no v3 equivalent yet, so they're disabled while this list runs on v3.
-      v3Mode: true,
       v3Segments: [],
       v3Included: {},
     }
@@ -860,6 +855,24 @@ export default {
       params.append('order[parentStatementOfSegment.submit]', 'asc')
       params.append('order[parentStatementOfSegment.externId]', 'asc')
       params.append('order[orderInProcedure]', 'asc')
+
+      /*
+       * Translate the filter-flyout selections (place/assignee/tags) into v3 SearchFilter/ExistsFilter params.
+       * Multiple values on the same path[] naturally OR together; different paths naturally AND together.
+       */
+      Object.values(this.getFilterQuery).forEach(entry => {
+        if (!entry.condition) {
+          return
+        }
+
+        const { path, value, operator } = entry.condition
+
+        if (operator === 'IS NULL') {
+          params.append(`exists[${path}]`, 'false')
+        } else {
+          params.append(`${path}.id[]`, value)
+        }
+      })
 
       this.isLoading = true
       dpApi.get(`${Routing.getBaseUrl()}/api/3.0/StatementSegment?${params}`)

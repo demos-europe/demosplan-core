@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Api\StatementSegment;
 
+use ApiPlatform\Doctrine\Orm\Filter\ExistsFilter;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
@@ -71,13 +72,17 @@ class Resource
     #[ApiProperty(readable: true, writable: false)]
     public ?StatementResource $parentStatement = null;
 
+    #[ApiFilter(SearchFilter::class, properties: ['assignee.id' => 'exact'])]
+    #[ApiFilter(ExistsFilter::class, properties: ['assignee'])]
     #[ApiProperty(readable: true, writable: false)]
     public ?AssignableUserResource $assignee = null;
 
+    #[ApiFilter(SearchFilter::class, properties: ['place.id' => 'exact'])]
     #[ApiProperty(readable: true, writable: false)]
     public ?PlaceResource $place = null;
 
     /** @var list<TagResource> */
+    #[ApiFilter(SearchFilter::class, properties: ['tags.id' => 'exact'])]
     #[ApiProperty(readable: true, writable: false)]
     public array $tags = [];
 
