@@ -572,8 +572,8 @@ export default {
       searchFieldsSelected: [],
       selectedSort: '',
       sortOptions: [
-        { value: '-deadline', label: Translator.trans('sort.deadline.descending') },
-        { value: 'deadline', label: Translator.trans('sort.deadline.ascending') },
+        { value: 'internId-desc', label: Translator.trans('sort.internId.descending') },
+        { value: 'internId-asc', label: Translator.trans('sort.internId.ascending') },
       ],
       v3Segments: [],
       v3Included: {},
@@ -678,37 +678,11 @@ export default {
     },
 
     items () {
-      const mapped = this.v3Segments
+      return this.v3Segments
         .map(segment => ({
           ...segment,
           isPlaceLocked: !!this.v3Included.Place?.[segment.relationships?.place?.data?.id]?.attributes?.locked,
         }))
-
-      if (this.selectedSort === '') {
-        return mapped
-      }
-
-      // Deadline sorting happens client-side, so segments without a deadline always sort last, regardless of direction.
-      const direction = this.selectedSort.startsWith('-') ? -1 : 1
-
-      return mapped.sort((a, b) => {
-        const deadlineA = a.attributes.deadline
-        const deadlineB = b.attributes.deadline
-
-        if (!deadlineA && !deadlineB) {
-          return 0
-        }
-
-        if (!deadlineA) {
-          return 1
-        }
-
-        if (!deadlineB) {
-          return -1
-        }
-
-        return direction * (new Date(deadlineA) - new Date(deadlineB))
-      })
     },
 
     /*
@@ -817,6 +791,7 @@ export default {
     applySort (sortValue) {
       this.selectedSort = sortValue
       lscache.set(this.lsKey.selectedSort, sortValue)
+      this.applyQuery()
     },
 
     applyQuery () {
@@ -851,10 +826,16 @@ export default {
         params.set('text', this.searchTerm)
       }
 
-      // Baseline order so the list stays stable when selectedSort is '' (deadline sort, if active, is applied on top of this client-side).
-      params.append('order[parentStatementOfSegment.submit]', 'asc')
-      params.append('order[parentStatementOfSegment.externId]', 'asc')
-      params.append('order[orderInProcedure]', 'asc')
+      if ('internId-desc' === this.selectedSort) {
+        params.append('order[parentStatementOfSegment.original.internId]', 'desc')
+      } else if ('internId-asc' === this.selectedSort) {
+        params.append('order[parentStatementOfSegment.original.internId]', 'asc')
+      } else {
+        // Baseline order so the list stays stable when no sort is selected.
+        params.append('order[parentStatementOfSegment.submit]', 'asc')
+        params.append('order[parentStatementOfSegment.externId]', 'asc')
+        params.append('order[orderInProcedure]', 'asc')
+      }
 
       /*
        * Translate the filter-flyout selections (place/assignee/tags) into v3 SearchFilter/ExistsFilter params.
