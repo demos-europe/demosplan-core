@@ -49,7 +49,7 @@
 
         <div
           v-if="!['xlsx_normal', 'csv_normal'].includes(active)"
-          class="grid grid-cols-3 mt-2 mb-3 gap-x-2 gap-y-5"
+          class="grid grid-cols-3 mb-3 gap-x-2"
         >
           <dp-checkbox
             id="censoredCitizen"
