@@ -1393,7 +1393,7 @@ export default {
         ].join(),
       },
     })
-    this.fetchAssignableUsers()
+    this.fetchAssignableUsers({ sort: 'lastname' })
   },
 }
 </script>
