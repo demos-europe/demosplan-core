@@ -1109,7 +1109,7 @@ export default {
         } catch (error) {
           reject(error)
         } finally {
-          document.body.removeChild(textarea)
+          textarea.remove()
         }
       })
     },
