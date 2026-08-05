@@ -31,7 +31,7 @@
           class="font-semibold text-base"
           v-text="Translator.trans('export.type')"
         />
-        <div class="grid grid-cols-4 mt-2 mb-3 gap-x-2 gap-y-5">
+        <div class="grid grid-cols-4 mt-2 mb-5 gap-x-2">
           <dp-radio
             v-for="(exportType, key) in exportTypes"
             :id="key"
