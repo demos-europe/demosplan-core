@@ -45,6 +45,10 @@ parameters:
                 fieldType: "array"
                 translationKey: "segment.tags"
                 noHighlighting: true
+            sentViaMail:
+                fieldType: "string"
+                translationKey: "segment.sent.via.mail"
+                noHighlighting: true
         demosplan\DemosPlanCoreBundle\Entity\Statement\Statement:
             customFields: #special case needs special handling
                 fieldType: "json"
