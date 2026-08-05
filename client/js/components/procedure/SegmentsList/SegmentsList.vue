@@ -362,6 +362,7 @@
                   {{ Translator.trans('history') }}
                 </button>
                 <button
+                  v-if="hasPermission('feature_segment_send_via_mail')"
                   type="button"
                   class="btn--blank o-link--default block leading-[2] whitespace-nowrap"
                   data-cy="segmentsList:segmentSendViaMail"
@@ -1314,7 +1315,7 @@ export default {
     },
 
     showSendViaMail (segmentId, externId) {
-      this.$root.$emit('segment:send-via-mail', segmentId, 'segment', externId)
+      this.$root.$emit('segment:send-via-mail', segmentId, externId)
       this.$root.$emit('show-slidebar')
     },
 
