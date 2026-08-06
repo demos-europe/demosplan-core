@@ -18,7 +18,6 @@ use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
-use demosplan\DemosPlanCoreBundle\Logic\ReorderEntityListByInteger;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedurePhaseDefinitionResourceType;
@@ -50,7 +49,8 @@ use JsonSchema\Exception\InvalidSchemaException;
  * audience) where the phase definition should be put at.
  *
  * The configuration phase (orderInAudience 0) is always excluded from the reorderable
- * scope: it may neither be moved, nor be a valid target index.
+ * scope: it may neither be moved, nor be a valid target index. The actual index math is
+ * delegated to {@see ProcedurePhaseDefinitionAudienceReorderer}.
  */
 class RpcProcedurePhaseDefinitionListReorder implements RpcMethodSolverInterface
 {
@@ -62,6 +62,7 @@ class RpcProcedurePhaseDefinitionListReorder implements RpcMethodSolverInterface
         private readonly RpcErrorGenerator $errorGenerator,
         private readonly JsonSchemaValidator $jsonValidator,
         private readonly PermissionsInterface $permissions,
+        private readonly ProcedurePhaseDefinitionAudienceReorderer $phaseDefinitionAudienceReorderer,
         private readonly ProcedurePhaseDefinitionResourceType $procedurePhaseDefinitionResourceType,
         private readonly SortMethodFactory $sortMethodFactory,
         private readonly TransactionService $transactionService,
@@ -130,8 +131,7 @@ class RpcProcedurePhaseDefinitionListReorder implements RpcMethodSolverInterface
                 }
 
                 $phasesOfAudience = $this->loadPhaseDefinitionsForAudience($movedPhase->getAudience());
-                $listReorder = new ReorderEntityListByInteger($newIndex, $phaseDefinitionId, $phasesOfAudience);
-                $listReorder->reorderEntityList();
+                $this->phaseDefinitionAudienceReorderer->reorder($phaseDefinitionId, $newIndex, $phasesOfAudience);
             } catch (Exception) {
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
 
