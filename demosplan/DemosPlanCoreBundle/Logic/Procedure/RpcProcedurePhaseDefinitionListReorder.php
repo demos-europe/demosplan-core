@@ -125,7 +125,7 @@ class RpcProcedurePhaseDefinitionListReorder implements RpcMethodSolverInterface
                 $newIndex = $rpcRequest->params->newIndex;
 
                 $movedPhase = $this->loadPhaseDefinition($phaseDefinitionId);
-                if (null === $movedPhase || $movedPhase->isConfigurationPhase()) {
+                if (null === $movedPhase || $movedPhase->isConfigurationPhase() || $movedPhase->isDeleted()) {
                     $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
                     continue;
                 }
@@ -162,9 +162,10 @@ class RpcProcedurePhaseDefinitionListReorder implements RpcMethodSolverInterface
     {
         $audienceCondition = $this->conditionFactory->propertyHasValue($audience, $this->procedurePhaseDefinitionResourceType->audience);
         $orderCondition = $this->conditionFactory->valueGreaterThan(0, $this->procedurePhaseDefinitionResourceType->orderInAudience);
+        $notDeletedCondition = $this->conditionFactory->propertyHasValue(false, $this->procedurePhaseDefinitionResourceType->isDeleted);
         $sortMethod = $this->sortMethodFactory->propertyAscending(['orderInAudience']);
 
-        $phases = $this->procedurePhaseDefinitionResourceType->getEntities([$audienceCondition, $orderCondition], [$sortMethod]);
+        $phases = $this->procedurePhaseDefinitionResourceType->getEntities([$audienceCondition, $orderCondition, $notDeletedCondition], [$sortMethod]);
 
         $result = new ArrayCollection();
         foreach ($phases as $phase) {

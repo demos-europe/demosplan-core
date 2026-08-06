@@ -128,4 +128,31 @@ class ProcedurePhaseDefinitionAudienceReordererTest extends UnitTestCase
 
         $this->sut->reorder('e1', 0, $this->toCollection([$e1]));
     }
+
+    public function testReorderThrowsOnNegativeNewIndex(): void
+    {
+        $e1 = $this->createPhase('e1', 1);
+        $e2 = $this->createPhase('e2', 2);
+
+        $this->expectException(\demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException::class);
+
+        $this->sut->reorder('e1', -1, $this->toCollection([$e1, $e2]));
+    }
+
+    public function testReorderThrowsOnNewIndexBeyondAudienceRange(): void
+    {
+        $e1 = $this->createPhase('e1', 1);
+        $e2 = $this->createPhase('e2', 2);
+
+        $this->expectException(\demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException::class);
+
+        $this->sut->reorder('e1', 2, $this->toCollection([$e1, $e2]));
+    }
+
+    public function testReorderThrowsOnEmptyAudienceCollection(): void
+    {
+        $this->expectException(\demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException::class);
+
+        $this->sut->reorder('e1', 0, new ArrayCollection());
+    }
 }

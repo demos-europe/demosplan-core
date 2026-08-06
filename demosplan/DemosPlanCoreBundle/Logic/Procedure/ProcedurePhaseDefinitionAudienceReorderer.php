@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\SortableInterface;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\ReorderEntityListByInteger;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -33,6 +34,11 @@ class ProcedurePhaseDefinitionAudienceReorderer
      */
     public function reorder(string $movedPhaseId, int $newIndex, Collection $phasesOfAudience): void
     {
+        $count = $phasesOfAudience->count();
+        if (0 === $count || $newIndex < 0 || $newIndex > $count - 1) {
+            throw new InvalidArgumentException('newIndex is out of range for the given audience phases');
+        }
+
         $renumberedPhases = $this->renumberStartingAtOne($phasesOfAudience);
 
         $listReorder = new ReorderEntityListByInteger($newIndex + 1, $movedPhaseId, $renumberedPhases);
