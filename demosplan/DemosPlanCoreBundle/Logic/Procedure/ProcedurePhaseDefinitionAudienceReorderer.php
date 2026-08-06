@@ -19,22 +19,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
 /**
- * Reorders the non-configuration phases of a single audience, given an already loaded,
- * ascending-by-orderInAudience collection. Kept free of any EDT/ResourceType dependency
- * so the index math can be unit tested without mocking a final class.
- *
- * {@link ReorderEntityListByInteger} was written for collections whose sortIndex starts
- * at 0 (e.g. {@link \demosplan\DemosPlanCoreBundle\Entity\Workflow\Place}). Its only
- * compensation for a non-zero-based collection is shifting an incoming index that is
- * *below* the collection's lowest value - which only helps moves toward the front.
- * Moving an item to any other position (including the very end) would silently land one
- * slot short, or throw a false "already has the desired index" error, if the raw
- * frontend index were passed through unmodified. To avoid relying on that partial
- * self-correction (and to avoid the collection's absolute values drifting away from a
- * small range across repeated reorders - risking a regular phase ending up with
- * orderInAudience 0 and being mistaken for the configuration phase), the given scope is
- * renumbered to a clean 1..N immediately before every reorder, and the frontend's 0-based
- * newIndex is translated with a fixed +1.
+ * Changes the position number of a phase, and updates the other phases' numbers so
+ * they stay in order, one after another.
+ * The configuration phase always keeps position 0, so before moving anything this class
+ * renumbers the other phases starting at 1.
+ * That way, no other phase can end up with position 0 and be confused with the
+ * configuration phase.
  */
 class ProcedurePhaseDefinitionAudienceReorderer
 {
@@ -50,8 +40,9 @@ class ProcedurePhaseDefinitionAudienceReorderer
     }
 
     /**
-     * Renumbers the given (already ascending) phases to a clean 1..N sequence, preserving
-     * their relative order.
+     * Gives each phase a new number starting from 1, keeping them in the same order.
+     * This removes any gaps or duplicate numbers before we move a phase.
+     * /
      *
      * @param Collection<int, ProcedurePhaseDefinition> $phases
      *
