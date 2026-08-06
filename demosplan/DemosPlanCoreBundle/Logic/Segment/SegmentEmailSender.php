@@ -15,17 +15,20 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use Doctrine\DBAL\Exception;
 
 class SegmentEmailSender
 {
+
     public function __construct(
         private readonly MailService $mailService,
         private readonly MessageBagInterface $messageBag,
         private readonly SegmentService $segmentService,
         private readonly EntityContentChangeService $entityContentChangeService,
+        private readonly EditorService $editorService,
     ) {
     }
 
@@ -34,7 +37,6 @@ class SegmentEmailSender
      *
      * @param string[] $segmentIds
      *
-     * @return bool whether the mail was queued successfully
      * @return bool whether the mail was queued successfully
      */
     public function sendSegmentsMail(
@@ -60,10 +62,11 @@ class SegmentEmailSender
             // validate the recipients email address
             $sendMailTo = $this->validateRecipientEmail($recipientEmail);
             $ccEmailAddresses = $this->extractCcEmailAddresses($sendEmailCC);
-            // build the placeholder values the mail template expects:
-            $emailVariables = $this->populateEmailVariables($subject, $body);
             // the sender address is the procedures agency mailbox
             $sentFrom = $segments[0]->getProcedure()->getAgencyMainEmailAddress();
+            // handle anonymized text before building email variables
+            $obscuredBody   = null === $body ? null : $this->editorService->obscureString($body);
+            $emailVariables = $this->populateEmailVariables($subject, $obscuredBody);
             // Queue the mail, no attachments as of now
             $this->sendAbschnitt($sendMailTo, $sentFrom, $ccEmailAddresses, $emailVariables, []);
             foreach ($segments as $segment) {
