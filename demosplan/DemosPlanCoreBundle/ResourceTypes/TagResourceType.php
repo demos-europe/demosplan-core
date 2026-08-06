@@ -40,8 +40,9 @@ use InvalidArgumentException;
 /**
  * @template-extends DplanResourceType<Tag>
  *
- * @property-read End $title
- * @property-read End $sortIndex
+ * @property-read End                  $title
+ * @property-read End                  $sortIndex
+ * @property-read TagTopicResourceType $topic
  */
 final class TagResourceType extends DplanResourceType implements TagResourceTypeInterface
 {
@@ -170,6 +171,13 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
         $configBuilder->boilerplate
             ->setRelationshipType($this->resourceTypeStore->getBoilerplateResourceType())
             ->setReadableByPath()->setSortable()->setFilterable();
+
+        if ($this->currentUser->hasPermission('feature_tag_default_assignee')) {
+            $configBuilder->defaultAssignee
+                ->setRelationshipType($this->resourceTypeStore->getAssignableUserResourceType())
+                ->setReadableByPath()->setSortable()->setFilterable()
+                ->updatable();
+        }
 
         $configBuilder->addCreationBehavior(
             new FixedSetBehavior(

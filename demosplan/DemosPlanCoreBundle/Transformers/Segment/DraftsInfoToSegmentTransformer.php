@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Transformers\Segment;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\SegmentTransformerInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -34,6 +35,7 @@ use Doctrine\ORM\Id\AssignedGenerator;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Exception;
+use InvalidArgumentException;
 use JsonSchema\Exception\InvalidSchemaException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
@@ -137,6 +139,7 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
             );
             $segment = $this->setAssigneeIfGiven($segment, $metadata);
             $segment = $this->setPlace($segment, $metadata);
+            $segment = $this->setDeadlineIfGiven($segment, $metadata);
 
             $this->entityManager->persist($segment);
 
@@ -186,6 +189,35 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
             : $this->placeService->findFirstOrderedBySortIndex($segment->getProcedure()->getId());
 
         $segment->setPlace($place);
+
+        return $segment;
+    }
+
+    /**
+     * Sets the deadline (Bearbeitungsfrist) from the split metadata, if provided.
+     * The frontend sends it as an ISO date string ("Y-m-d"); a malformed value is
+     * rejected as a client error rather than silently producing a wrong date.
+     *
+     * @param array<string, mixed> $metadata
+     *
+     * @throws InvalidArgumentException on a non-empty value that is not a valid "Y-m-d" date
+     */
+    private function setDeadlineIfGiven(Segment $segment, array $metadata): Segment
+    {
+        $deadline = data_get($metadata, 'deadline');
+        if (!is_string($deadline) || '' === trim($deadline)) {
+            return $segment;
+        }
+
+        $date = DateTime::createFromFormat('!Y-m-d', trim($deadline));
+        $errors = DateTime::getLastErrors();
+        if (!$date instanceof DateTime
+            || (is_array($errors) && ($errors['warning_count'] > 0 || $errors['error_count'] > 0))
+        ) {
+            throw new InvalidArgumentException('Invalid deadline provided; expected format YYYY-MM-DD.');
+        }
+
+        $segment->setDeadline($date);
 
         return $segment;
     }

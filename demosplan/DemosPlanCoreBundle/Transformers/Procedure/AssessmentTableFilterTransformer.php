@@ -31,6 +31,13 @@ class AssessmentTableFilterTransformer extends BaseTransformer
 
         $filterItem['options'] = array_values($filterItem['options']);
 
+        if ('customField' === $filterItem['type']) {
+            $cfPrefix = 'filter_customField_';
+            $filterItem['fieldId'] = str_starts_with($filterItem['name'], $cfPrefix)
+                ? substr($filterItem['name'], strlen($cfPrefix))
+                : null;
+        }
+
         return [...$filterItem, 'id' => hash('sha256', $filterItem['name'].$filterItem['type'])];
     }
 }

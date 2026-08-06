@@ -14,14 +14,23 @@ namespace Tests\Core\Statement\Functional;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureSettingsFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagTopicFactory;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\Functions\Constant;
+use EDT\DqlQuerying\Functions\OneOf;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
 use Zenstruck\Foundry\Persistence\Proxy;
@@ -36,6 +45,9 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
      */
     protected $sut;
 
+    private ?StatementResourceType $statementResourceType = null;
+    private ?DqlConditionFactory $conditionFactory = null;
+    private Proxy|Procedure|null $testProcedure = null;
     private Proxy|TagTopic|null $tagTopic1 = null;
     private Proxy|TagTopic|null $tagTopic2 = null;
     private Proxy|Tag|null $tag1 = null;
@@ -55,13 +67,22 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
         // Instantiate the filter service
         /** @var TranslatorInterface $translator */
         $translator = $this->getContainer()->get(TranslatorInterface::class);
-        $this->sut = new StatementExportTagFilter($translator, $this->getEntityManager());
+        $this->conditionFactory = $this->getContainer()->get(DqlConditionFactory::class);
+        $this->statementResourceType = $this->getContainer()->get(StatementResourceType::class);
+        $this->sut = new StatementExportTagFilter($translator, $this->getEntityManager(), $this->conditionFactory);
 
-        // Create test procedure and statements used by most tests
-        $testProcedure = ProcedureFactory::createOne();
-        $this->statement1 = StatementFactory::createOne(['procedure' => $testProcedure->_real()]);
-        $this->statement2 = StatementFactory::createOne(['procedure' => $testProcedure->_real()]);
-        $this->statement3 = StatementFactory::createOne(['procedure' => $testProcedure->_real()]);
+        // Create a procedure owned by the test user's orga, with settings, so the
+        // StatementResourceType access conditions allow querying its statements. This is
+        // required by the query-path tests that exercise buildStatementTagConditions()
+        // through StatementResourceType::getEntities().
+        $currentCustomer = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer();
+        $orga = OrgaFactory::createOne();
+        $this->testProcedure = ProcedureFactory::createOne(['orga' => $orga, 'customer' => $currentCustomer]);
+        ProcedureSettingsFactory::createOne(['procedure' => $this->testProcedure]);
+
+        $this->statement1 = StatementFactory::createOne(['procedure' => $this->testProcedure->_real()]);
+        $this->statement2 = StatementFactory::createOne(['procedure' => $this->testProcedure->_real()]);
+        $this->statement3 = StatementFactory::createOne(['procedure' => $this->testProcedure->_real()]);
 
         // Create test tag topics and tags
         $this->tagTopic1 = TagTopicFactory::createOne(['title' => self::TAG_TOPIC_NAME_1]);
@@ -75,6 +96,19 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
         $this->segment1 = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement1->_real()])->_real();
         $this->segment2 = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement2->_real()])->_real();
         $this->segment3 = SegmentFactory::createOne(['parentStatementOfSegment' => $this->statement3->_real()])->_real();
+
+        // Make the procedure current and log in a user of its orga, so getEntities() on the
+        // StatementResourceType resolves against this procedure in the query-path tests.
+        $this->getUserReference('testUser')->setOrga($orga->_real());
+        $currentProcedureService = $this->getContainer()->get(CurrentProcedureService::class);
+        $currentProcedureService->setProcedure($this->testProcedure->_real());
+        $this->statementResourceType->setCurrentProcedureService($currentProcedureService);
+        $this->loginTestUser();
+        $this->enablePermissions([
+            'feature_json_api_statement',
+            'feature_json_api_procedure',
+            'feature_json_api_original_statement',
+        ]);
     }
 
     public function testFilterStatementsByTagIds(): void
@@ -331,5 +365,177 @@ class SegmentsExportControllerTagFilterTest extends FunctionalTestCase
         // Verify statement1 was excluded entirely
         $filteredIds = array_map(fn ($s) => $s->getId(), $filtered);
         static::assertNotContains($this->statement1->_real()->getId(), $filteredIds, 'Statement1 should be excluded');
+    }
+
+    public function testBuildStatementTagConditionsWithEmptyFilterReturnsEmpty(): void
+    {
+        // Act: no supported criteria present
+        $conditions = $this->sut->buildStatementTagConditions([], $this->statementResourceType, $this->testProcedure->getId());
+
+        // Assert: query is left unchanged (full export)
+        static::assertSame([], $conditions);
+    }
+
+    public function testBuildStatementTagConditionsWithSingleCriterionReturnsStatementIdCondition(): void
+    {
+        // Arrange: statement1 owns a segment carrying tag1, so the id resolution finds a match
+        $this->segment1->addTag($this->tag1->_real());
+        $this->getEntityManager()->flush();
+
+        // Act: exactly one criterion
+        $conditions = $this->sut->buildStatementTagConditions(
+            ['tagIds' => [$this->tag1->getId()]],
+            $this->statementResourceType,
+            $this->testProcedure->getId()
+        );
+
+        // Assert: a single `statement.id IN (...)` condition (OneOf), rather than a to-many
+        // condition on segments.tags.* (which would fetch-join and exhaust memory on large procedures)
+        static::assertCount(1, $conditions);
+        static::assertInstanceOf(OneOf::class, $conditions[0]);
+    }
+
+    public function testBuildStatementTagConditionsWithMultipleCriteriaReturnsSingleStatementIdCondition(): void
+    {
+        // Arrange: statement1 matched by tag id, statement3 matched by topic title
+        $this->segment1->addTag($this->tag1->_real()); // Topic 1
+        $this->segment3->addTag($this->tag3->_real()); // Topic 2
+        $this->getEntityManager()->flush();
+
+        // Act: two criteria, OR-combined while resolving the matching statement ids
+        $conditions = $this->sut->buildStatementTagConditions(
+            [
+                'tagIds'         => [$this->tag1->getId()],
+                'tagTopicTitles' => [self::TAG_TOPIC_NAME_2],
+            ],
+            $this->statementResourceType,
+            $this->testProcedure->getId()
+        );
+
+        // Assert: still a single `statement.id IN (...)` condition covering the union of both criteria
+        static::assertCount(1, $conditions);
+        static::assertInstanceOf(OneOf::class, $conditions[0]);
+    }
+
+    public function testBuildStatementTagConditionsWithNoMatchForcesEmptyResult(): void
+    {
+        // Act: criteria present but no segment carries the tag
+        $conditions = $this->sut->buildStatementTagConditions(
+            ['tagIds' => ['non-existent-id']],
+            $this->statementResourceType,
+            $this->testProcedure->getId()
+        );
+
+        // Assert: a single condition that matches nothing is returned, so the export yields an
+        // empty result instead of silently falling back to an unfiltered full export
+        static::assertCount(1, $conditions);
+        static::assertCount(0, $this->statementResourceType->getEntities($conditions, []));
+    }
+
+    public function testBuildStatementTagConditionsIgnoresMatchesFromOtherProcedures(): void
+    {
+        // Arrange: a statement in a DIFFERENT procedure carries a tag whose title also exists nowhere
+        // in the current procedure. Titles are not unique across procedures, so without procedure
+        // scoping the scalar id query would resolve this foreign statement and emit an id IN (...)
+        // list of statements the current export cannot even load.
+        $otherProcedure = ProcedureFactory::createOne();
+        $foreignTopic = TagTopicFactory::createOne(['title' => 'ForeignTopicTitle']);
+        $foreignTag = TagFactory::createOne(['title' => 'ForeignTagTitle', 'topic' => $foreignTopic->_real()]);
+        $foreignStatement = StatementFactory::createOne(['procedure' => $otherProcedure->_real()])->_real();
+        $foreignSegment = SegmentFactory::createOne(['parentStatementOfSegment' => $foreignStatement])->_real();
+        $foreignSegment->addTag($foreignTag->_real());
+        $this->getEntityManager()->flush();
+
+        // Act: filter the current procedure's export by the foreign title
+        $conditions = $this->sut->buildStatementTagConditions(
+            ['tagTitles' => ['ForeignTagTitle']],
+            $this->statementResourceType,
+            $this->testProcedure->getId()
+        );
+
+        // Assert: the foreign match is excluded by the procedure scope, so the export is forced empty
+        // (Constant `1 = 2`) instead of narrowed to a cross-procedure id IN (...) list.
+        static::assertCount(1, $conditions);
+        static::assertInstanceOf(Constant::class, $conditions[0]);
+    }
+
+    public function testPushedDownFilterReturnsSameStatementsAsInPhpFilter(): void
+    {
+        // Arrange: three visible (non-original) statements, each with one tagged segment
+        $stmtWithTag1 = $this->createVisibleStatementWithTaggedSegment($this->tag1->_real());
+        $stmtWithTag2 = $this->createVisibleStatementWithTaggedSegment($this->tag2->_real());
+        $stmtWithTag3 = $this->createVisibleStatementWithTaggedSegment($this->tag3->_real());
+        $this->getEntityManager()->flush();
+
+        $tagsFilter = ['tagIds' => [$this->tag1->getId()]];
+
+        // Act: in-PHP filter over the full candidate set ...
+        $phpFilteredIds = array_map(
+            static fn (StatementInterface $s): string => $s->getId(),
+            $this->sut->filterStatementsByTags([$stmtWithTag1, $stmtWithTag2, $stmtWithTag3], $tagsFilter)
+        );
+
+        // ... and the pushed-down query filter through the resource type
+        $conditions = $this->sut->buildStatementTagConditions($tagsFilter, $this->statementResourceType, $this->testProcedure->getId());
+        $queryFilteredIds = array_map(
+            static fn (StatementInterface $s): string => $s->getId(),
+            $this->statementResourceType->getEntities($conditions, [])
+        );
+
+        // Assert: both paths select the same statement, and only that one
+        sort($phpFilteredIds);
+        sort($queryFilteredIds);
+        static::assertSame([$stmtWithTag1->getId()], $phpFilteredIds);
+        static::assertSame($phpFilteredIds, $queryFilteredIds);
+    }
+
+    public function testStatementWithTwoMatchingSegmentsIsReturnedOnce(): void
+    {
+        // Arrange: a single statement whose TWO segments both carry the filtered tag.
+        // The statement-id resolution joins segments+tags; this asserts the to-many join
+        // does not surface the statement more than once (the id query is DISTINCT).
+        $statement = $this->createVisibleStatement();
+        $segmentA = SegmentFactory::createOne(['parentStatementOfSegment' => $statement])->_real();
+        $segmentB = SegmentFactory::createOne(['parentStatementOfSegment' => $statement])->_real();
+        $segmentA->addTag($this->tag1->_real());
+        $segmentB->addTag($this->tag1->_real());
+        $this->getEntityManager()->flush();
+
+        // Act
+        $conditions = $this->sut->buildStatementTagConditions(
+            ['tagIds' => [$this->tag1->getId()]],
+            $this->statementResourceType,
+            $this->testProcedure->getId()
+        );
+        $result = $this->statementResourceType->getEntities($conditions, []);
+
+        // Assert: exactly one statement, no duplicate ids
+        $ids = array_map(static fn (StatementInterface $s): string => $s->getId(), $result);
+        static::assertCount(1, $result);
+        static::assertSame([$statement->getId()], $ids);
+        static::assertSame($ids, array_values(array_unique($ids)));
+    }
+
+    /**
+     * Creates a statement that passes the StatementResourceType access conditions:
+     * non-deleted, in the current procedure, and a copy (has an original).
+     */
+    private function createVisibleStatement(): StatementInterface
+    {
+        $original = StatementFactory::createOne(['procedure' => $this->testProcedure->_real()])->_real();
+
+        return StatementFactory::createOne([
+            'procedure' => $this->testProcedure->_real(),
+            'original'  => $original,
+        ])->_real();
+    }
+
+    private function createVisibleStatementWithTaggedSegment(Tag $tag): StatementInterface
+    {
+        $statement = $this->createVisibleStatement();
+        $segment = SegmentFactory::createOne(['parentStatementOfSegment' => $statement])->_real();
+        $segment->addTag($tag);
+
+        return $statement;
     }
 }

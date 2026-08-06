@@ -14,6 +14,7 @@ use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
+use demosplan\DemosPlanCoreBundle\Logic\CustomField\CustomFieldFilterResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use Exception;
@@ -728,6 +729,21 @@ class StatementFilterHandler extends CoreHandler
                     $esFilterValue['type'] = $filterType;
                     $requestedfiltersInfo[] = $esFilterValue;
                 }
+            }
+        }
+
+        // customField_* entries are not in ES aggregations — emit them directly for hash restore
+        foreach ($requestedFilters as $key => $values) {
+            if (!str_starts_with($key, CustomFieldFilterResolver::PREFIX)) {
+                continue;
+            }
+            $fieldId = substr($key, strlen(CustomFieldFilterResolver::PREFIX));
+            foreach ((array) $values as $value) {
+                $requestedfiltersInfo[] = [
+                    'type'    => 'customField',
+                    'fieldId' => $fieldId,
+                    'value'   => $value,
+                ];
             }
         }
 
