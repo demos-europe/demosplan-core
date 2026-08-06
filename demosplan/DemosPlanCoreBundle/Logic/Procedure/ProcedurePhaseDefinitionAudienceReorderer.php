@@ -42,7 +42,6 @@ class ProcedurePhaseDefinitionAudienceReorderer
     /**
      * Gives each phase a new number starting from 1, keeping them in the same order.
      * This removes any gaps or duplicate numbers before we move a phase.
-     * /
      *
      * @param Collection<int, ProcedurePhaseDefinition> $phases
      *
