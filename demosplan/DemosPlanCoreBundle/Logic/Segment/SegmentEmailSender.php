@@ -22,7 +22,6 @@ use Doctrine\DBAL\Exception;
 
 class SegmentEmailSender
 {
-
     public function __construct(
         private readonly MailService $mailService,
         private readonly MessageBagInterface $messageBag,
@@ -65,7 +64,7 @@ class SegmentEmailSender
             // the sender address is the procedures agency mailbox
             $sentFrom = $segments[0]->getProcedure()->getAgencyMainEmailAddress();
             // handle anonymized text before building email variables
-            $obscuredBody   = null === $body ? null : $this->editorService->obscureString($body);
+            $obscuredBody = null === $body ? null : $this->editorService->obscureString($body);
             $emailVariables = $this->populateEmailVariables($subject, $obscuredBody);
             // Queue the mail, no attachments as of now
             $this->sendAbschnitt($sendMailTo, $sentFrom, $ccEmailAddresses, $emailVariables, []);
