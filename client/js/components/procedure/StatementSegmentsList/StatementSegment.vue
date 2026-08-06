@@ -432,6 +432,25 @@
         </button>
 
         <button
+          v-if="hasPermission('feature_segment_send_via_mail')"
+          v-tooltip="{
+            container: `#segment_${segment.id}`,
+            content: Translator.trans('segment.send.via.email')
+          }"
+          class="segment-list-toolbar__button btn--blank"
+          :class="{ 'is-active' : slidebar.showTab === 'sendViaMail' && slidebar.segmentId === segment.id }"
+          type="button"
+          :aria-label="Translator.trans('segment.send.via.email')"
+          data-cy="segmentSendViaMail"
+          @click.prevent="showSendViaMail"
+        >
+          <dp-icon
+            class="inline-block"
+            icon="mail"
+          />
+        </button>
+
+        <button
           v-if="hasPermission('feature_segment_comment_list_on_segment')"
           v-tooltip="{
             container: `#segment_${segment.id}`,
@@ -1318,6 +1337,16 @@ export default {
       this.$root.$emit('version:history', this.segment.id, 'segment', this.segment.attributes.externId)
       this.$root.$emit('show-slidebar')
       this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'history' } })
+    },
+
+    showSendViaMail () {
+      if (this.checkIfToolIsActive('sendViaMail')) {
+        return
+      }
+
+      this.$root.$emit('segment:send-via-mail', this.segment.id, this.segment.attributes.externId)
+      this.$root.$emit('show-slidebar')
+      this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'sendViaMail' } })
     },
 
     startEditing () {
