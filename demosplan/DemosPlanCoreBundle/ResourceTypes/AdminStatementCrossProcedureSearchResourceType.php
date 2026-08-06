@@ -206,7 +206,7 @@ final class AdminStatementCrossProcedureSearchResourceType extends AbstractState
          * {@see ProcedureService::getAdminProcedureConditions()} — the same rule that builds the
          * allowed procedure IDs in {@see self::getAccessConditions()}. */
         $configBuilder->procedure
-            ->setRelationshipType($this->resourceTypeStore->getAdminProcedureResourceType())
+            ->setRelationshipType($this->resourceTypeStore->getProcedureResourceType())
             ->readable()
             ->filterable();
 

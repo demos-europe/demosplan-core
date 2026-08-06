@@ -66,6 +66,7 @@
         <template v-slot:delete="rowData">
           <div class="text-right">
             <dp-button
+              :disabled="rowData.claimedByOthers"
               :text="Translator.trans('remove')"
               color="warning"
               data-cy="searchSubmitters:deleteStatement"
@@ -218,6 +219,7 @@ const search = term => {
       AdminStatementCrossProcedureSearch: [
         'authoredDate',
         'authorName',
+        'claimedByOthers',
         'externId',
         'initialOrganisationCity',
         'initialOrganisationDepartmentName',
@@ -233,7 +235,6 @@ const search = term => {
         'submitName',
         'submitType',
       ].join(),
-      Procedure: ['name'].join(),
     },
   }
 
