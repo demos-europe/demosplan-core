@@ -807,7 +807,17 @@ export default {
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
         .then(() => {
+          /*
+           * `set` updates `initial` (which is what we need here) but overwrites `items` too, with a
+           * snapshot taken before the request. Restore `items` afterward to keep edits the user made
+           * while the request was in flight - the edit controls are already live at this point, because
+           * `isAssignedToMe` reacts to the optimistic update above
+           */
+          const currentSegment = { ...this.segment }
+
           this.setSegmentAndInitial({ ...dataToUpdate, id: this.segment.id })
+          this.setSegment({ ...currentSegment, id: this.segment.id })
+
           this.claimLoading = false
           this.isCollapsed = false
           this.selectedAssignee = {
