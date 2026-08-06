@@ -44,7 +44,7 @@ class RpcProcedurePhaseDefinitionListReorderTest extends RpcApiTest
             $user,
             [
                 'phaseDefinitionId' => $e1->getId(),
-                'newIndex' => 2,
+                'newIndex'          => 2,
             ],
         );
 
@@ -77,7 +77,7 @@ class RpcProcedurePhaseDefinitionListReorderTest extends RpcApiTest
             $user,
             [
                 'phaseDefinitionId' => $configPhase->getId(),
-                'newIndex' => 0,
+                'newIndex'          => 0,
             ],
         );
 
