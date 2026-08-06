@@ -641,10 +641,7 @@ export default {
           }
         })
 
-      assigneeOptions.unshift({
-        name: Translator.trans('not.assigned'),
-        id: 'noAssigneeId',
-      })
+      assigneeOptions.unshift(this.getUnassignedAssignee())
 
       return assigneeOptions
     },
@@ -1044,6 +1041,13 @@ export default {
       this.isEditing = false
     },
 
+    getUnassignedAssignee () {
+      return {
+        id: 'noAssigneeId',
+        name: Translator.trans('not.assigned'),
+      }
+    },
+
     handleDeadlineUpdate (value) {
       if (!value) {
         this.updateSegment('deadline', '')
@@ -1272,17 +1276,15 @@ export default {
 
     setSelectedAssignee () {
       const assigneeId = this.segment.relationships?.assignee?.data?.id
+      const assignedUser = this.assignableUsers.find(user => user.id === assigneeId)
 
-      if (!assigneeId) {
-        this.selectedAssignee = {
-          id: 'noAssigneeId',
-          name: Translator.trans('not.assigned'),
-        }
+      if (!assigneeId || !assignedUser) {
+        this.selectedAssignee = this.getUnassignedAssignee()
 
         return
       }
 
-      this.selectedAssignee = this.assignableUsers.find(user => user.id === assigneeId)
+      this.selectedAssignee = assignedUser
     },
 
     setSelectedPlace () {
@@ -1389,11 +1391,7 @@ export default {
           this.exitEditMode()
           this.isCollapsed = true
           this.claimLoading = false
-          this.selectedAssignee = { id: '', name: '' }
-          this.selectedAssignee = {
-            name: Translator.trans('not.assigned'),
-            id: 'noAssigneeId',
-          }
+          this.selectedAssignee = this.getUnassignedAssignee()
         })
         .catch((err) => {
           console.error(err)
