@@ -123,7 +123,9 @@ All rights reserved
               :flyout-width="flyoutWidth"
               :header-fields="headerFields"
               :items="section.audiencePhases"
+              :lock-drag-and-drop-hint="Translator.trans('procedure.phase.configuration.not.movable')"
               density="spacious"
+              lock-drag-and-drop-by="isFixedOrderPhase"
               track-by="id"
               has-borders
               has-flyout
@@ -451,30 +453,21 @@ export default {
         })
     }
 
-    /*
-     * The configuration phase (orderInAudience 0) is always first and must stay there - the
-     * shared dp-data-table has no per-row "disable drag" option, so it's included in the
-     * draggable table like any other row, and rejected here instead: dragging it, or dropping
-     * another phase into its slot (newIndex 0), is reverted by reassigning phaseDefinitions
-     * (even to equivalent content) to force audienceSections to recompute and the table to
-     * snap back to the authoritative order.
+    /**
+     * The configuration phase (orderInAudience 0) is locked for dragging via
+     * lock-drag-and-drop-by, so it can neither be moved nor be a drop target.
      *
-     * For a valid move, the backend's newIndex is 0-based among the non-configuration phases
-     * only (see RpcProcedurePhaseDefinitionListReorder), while newIndex/oldIndex here are
-     * positions within the full table including the configuration phase - hence the -1.
+     * The table counts the locked configuration phase as row 0, the backend does not - hence the -1.
      */
     const handleReorder = (audience, { newIndex, oldIndex }) => {
+      if (newIndex === oldIndex) {
+        return
+      }
+
       const listBackup = phaseDefinitions.value
       const otherPhases = phaseDefinitions.value.filter(phase => phase.audience !== audience)
       const sectionPhases = phaseDefinitions.value.filter(phase => phase.audience === audience)
       const movedPhase = sectionPhases[oldIndex]
-
-      if (movedPhase.orderInAudience === 0 || newIndex === 0) {
-        phaseDefinitions.value = [...phaseDefinitions.value]
-        dplan.notify.error(Translator.trans('procedure.phase.configuration.not.movable'))
-
-        return
-      }
 
       sectionPhases.splice(oldIndex, 1)
       sectionPhases.splice(newIndex, 0, movedPhase)
@@ -498,6 +491,7 @@ export default {
 
     const mapPhaseToRow = (phase) => ({
       id: phase.id,
+      isFixedOrderPhase: phase.orderInAudience === 0,
       name: phase.name,
       orderInAudience: phase.orderInAudience,
       participationState: phase.participationState,
