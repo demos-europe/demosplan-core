@@ -3,8 +3,8 @@
 
 Guten Tag,
 
-innerhalb der letzten 24 Stunden wurden Ihnen <strong>{{ templateVars.totalTasks }}</strong> neue Abschnitte zur Bearbeitung zugewiesen.
-Untenstehend finden Sie eine Auflistung der zugewiesenen Abschnitte:
+zur Erinnerung: die Bearbeitungsfrist der folgenden Ihnen zugewiesenen Abschnitte endet am <strong>{{ templateVars.deadline|date('d.m.Y') }}</strong>.
+Bitte schließen Sie die Bearbeitung bis dahin ab.
 
 {% for procedureName, places in templateVars.entries %}
 
@@ -12,8 +12,8 @@ Untenstehend finden Sie eine Auflistung der zugewiesenen Abschnitte:
         {% for place, segments in places %}
 
             Schritt "{{ place }}"
-                {% for segmentExternId, segment in segments %}
-                  - Abschnitt <a href="{{ segment.link }}">{{ segmentExternId }}</a>{% if segment.deadline %} (Bearbeitungsfrist: {{ segment.deadline|date('d.m.Y') }}){% endif %}
+                {% for segmentExternId, link in segments %}
+                  - Abschnitt <a href="{{ link }}">{{ segmentExternId }}</a>
                 {% endfor %}
         {% endfor %}
 {% endfor %}
