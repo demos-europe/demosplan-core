@@ -457,14 +457,15 @@ export default {
      * The configuration phase (orderInAudience 0) is locked for dragging via
      * lock-drag-and-drop-by, so it can neither be moved nor be a drop target.
      *
-     * The table counts the locked configuration phase as row 0, the backend does not - hence the -1.
+     * The backend counts positions among the non-configuration phases only, so it is excluded
+     * before the index is read off the reordered list.
      */
     const handleReorder = (audience, { newIndex, oldIndex }) => {
       if (newIndex === oldIndex) {
         return
       }
 
-      const listBackup = phaseDefinitions.value
+      const listBackup = [...phaseDefinitions.value]
       const otherPhases = phaseDefinitions.value.filter(phase => phase.audience !== audience)
       const sectionPhases = phaseDefinitions.value.filter(phase => phase.audience === audience)
       const movedPhase = sectionPhases[oldIndex]
@@ -472,11 +473,15 @@ export default {
       sectionPhases.splice(oldIndex, 1)
       sectionPhases.splice(newIndex, 0, movedPhase)
 
+      const backendIndex = sectionPhases
+        .filter(phase => phase.orderInAudience !== 0)
+        .indexOf(movedPhase)
+
       phaseDefinitions.value = [...otherPhases, ...sectionPhases]
 
       dpRpc('procedurePhaseDefinitionList.reorder', {
         phaseDefinitionId: movedPhase.id,
-        newIndex: newIndex - 1,
+        newIndex: backendIndex,
       })
         .then(() => {
           dplan.notify.confirm(Translator.trans('confirm.saved'))
