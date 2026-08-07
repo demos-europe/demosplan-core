@@ -747,6 +747,11 @@ export default {
     ...mapMutations('StatementSegment', {
       updateSegment: 'update',
       setSegment: 'setItem',
+      /*
+       * `setItem` writes only `items`; `set` writes `items` and `initial`, which save() diffs against.
+       * Use `set` after a direct PATCH so `initial` keeps matching what the BE holds.
+       */
+      setSegmentAndInitial: 'set',
     }),
 
     abort () {
@@ -802,6 +807,17 @@ export default {
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
         .then(() => {
+          /*
+           * `set` updates `initial` (which is what we need here) but overwrites `items` too, with a
+           * snapshot taken before the request. Restore `items` afterward to keep edits the user made
+           * while the request was in flight - the edit controls are already live at this point, because
+           * `isAssignedToMe` reacts to the optimistic update above
+           */
+          const currentSegment = { ...this.segment }
+
+          this.setSegmentAndInitial({ ...dataToUpdate, id: this.segment.id })
+          this.setSegment({ ...currentSegment, id: this.segment.id })
+
           this.claimLoading = false
           this.isCollapsed = false
           this.selectedAssignee = {
@@ -1078,25 +1094,6 @@ export default {
            */
           this.restoreReadOnlyRelationships(readOnlyRelationships)
 
-          /*
-           * Clearing the assignee ("nicht zugewiesen") is sent as a separate explicit PATCH because the
-           * vuex-json-api diff drops a to-one relationship set to `{ data: null }` (it diffs against a
-           * stale `initial` baseline that setSegment never updates), so an unassign would be silently
-           * omitted from saveSegmentAction's request body. Mirrors the explicit payload already used by
-           * claimSegment()/unclaimSegment(). It must complete before fetchUpdatedSegment, which would
-           * otherwise re-store the stale assignee.
-           */
-          const isUnassigning = !this.selectedAssignee?.id || this.selectedAssignee.id === 'noAssigneeId'
-
-          return isUnassigning ?
-            dpApi.patch(
-              Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }),
-              {},
-              { data: { type: 'StatementSegment', id: this.segment.id, relationships: { assignee: { data: null } } } },
-            ) :
-            Promise.resolve()
-        })
-        .then(() => {
           return Promise.all([
             this.fetchUpdatedSegment().catch((err) => {
               console.error('Failed to fetch updated segment:', err)
@@ -1252,8 +1249,8 @@ export default {
           delete dataToUpdate.relationships.assignee
           // Reset recommendation text in store (segment might have been in edit mode with some changes)
           dataToUpdate.attributes.recommendation = this.$store.state.StatementSegment.initial[this.segment.id].attributes.recommendation
-          // Set segment in store, without the assignee and with resetted recommendation
-          this.setSegment({ ...dataToUpdate, id: this.segment.id })
+          // Set segment in store, without the assignee and with reset recommendation
+          this.setSegmentAndInitial({ ...dataToUpdate, id: this.segment.id })
           this.claimLoading = false
           this.selectedAssignee = { id: '', name: '' }
         })
