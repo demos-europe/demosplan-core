@@ -98,8 +98,8 @@ describe('StatementExportModal', () => {
 
     expect(wrapper.vm.$data.active).toBe('docx_normal')
     expect(wrapper.vm.docxColumns.col1.title).toBe(sessionStorageValue)
-    expect(wrapper.vm.docxColumns.col2.title).toBe(null)
-    expect(wrapper.vm.docxColumns.col3.title).toBe(null)
+    expect(wrapper.vm.docxColumns.col2.title).toBeNull()
+    expect(wrapper.vm.docxColumns.col3.title).toBeNull()
   })
 
   it('renders input fields when export type is docx or zip', () => {
@@ -120,7 +120,7 @@ describe('StatementExportModal', () => {
     await wrapper.setData({ active: 'xlsx_normal' })
     const inputs = wrapper.findAllComponents({ name: 'DpInput' })
 
-    expect(inputs.length).toBe(0)
+    expect(inputs).toHaveLength(0)
   })
 
   it('renders checkboxes for isCitizenDataCensored, isInstitutionDataCensored and isObscure when export type is not xlsx', async () => {
@@ -388,14 +388,14 @@ describe('StatementExportModal', () => {
   it('renders radio buttons when isSingleStatementExport is false', () => {
     const radioButtons = wrapper.findAllComponents({ name: 'DpRadio' })
 
-    expect(radioButtons.length).toBe(Object.keys(wrapper.vm.exportTypes).length)
+    expect(radioButtons).toHaveLength(Object.keys(wrapper.vm.exportTypes).length)
   })
 
   it('does not render radio buttons when isSingleStatementExport is true', async () => {
     await wrapper.setProps({ isSingleStatementExport: true })
     const radioButtons = wrapper.findAllComponents({ name: 'DpRadio' })
 
-    expect(radioButtons.length).toBe(0)
+    expect(radioButtons).toHaveLength(0)
   })
 
   it('renders customHeaderText input only when docx_normal, not single export, and permission granted', async () => {
