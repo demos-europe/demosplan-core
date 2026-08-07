@@ -1045,6 +1045,8 @@ export default {
         this.fetchMissingSegments(missingIds) :
         Promise.resolve({ segmentsById: {}, statementsById: {}, placesById: {}, tagsById: {}, recommendationVersionsById: {} })
 
+      this.isCopyingToClipboard = true
+
       fetchMissing
         .then(supplemental => this.copyTextToClipboard(this.buildClipboardText(selectedIds, supplemental)))
         .then(() => {
