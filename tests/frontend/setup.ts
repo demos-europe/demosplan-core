@@ -26,7 +26,7 @@ configureCompat({
   COMPONENT_V_MODEL: 'suppress-warning',
   CONFIG_WHITESPACE: 'suppress-warning',
   CUSTOM_DIR: 'suppress-warning',
-  RENDER_FUNCTION: 'suppress-warning',
+  RENDER_FUNCTION: false,
   WATCH_ARRAY: 'suppress-warning',
 })
 
