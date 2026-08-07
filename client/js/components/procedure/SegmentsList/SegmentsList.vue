@@ -1061,24 +1061,24 @@ export default {
     buildClipboardText (selectedIds, supplemental) {
       const segmentsById = {
         ...this.segmentsObject,
-        ...supplemental.segmentsById
+        ...supplemental.segmentsById,
       }
       const context = {
         statementsById: {
           ...this.statementsObject,
-          ...supplemental.statementsById
+          ...supplemental.statementsById,
         },
         placesById: {
           ...this.placesObject,
-          ...supplemental.placesById
+          ...supplemental.placesById,
         },
         tagsById: {
           ...this.tagsObject,
-          ...supplemental.tagsById
+          ...supplemental.tagsById,
         },
         recommendationVersionsById: {
           ...this.recommendationVersions,
-          ...supplemental.recommendationVersionsById
+          ...supplemental.recommendationVersionsById,
         },
         hasRecommendationVersions: hasPermission('feature_enable_recommendation_versions'),
       }
@@ -1165,6 +1165,7 @@ export default {
 
           return status ? Translator.trans(status) : ''
         }
+
         case 'submitter':
           return this.getClipboardSubmitter(segment, context)
         case 'tags':
