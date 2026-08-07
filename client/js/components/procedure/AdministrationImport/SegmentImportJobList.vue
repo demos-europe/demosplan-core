@@ -74,7 +74,7 @@
               :message="Translator.trans('error.occurred')"
               type="error"
             >
-              <pre class="m-0 mt-2 max-h-[200px] overflow-auto text-sm">{{ rowData.error }}</pre>
+              <pre class="m-0 mt-2 max-h-[200px] w-full overflow-y-auto whitespace-pre-wrap break-words text-sm">{{ rowData.error }}</pre>
             </dp-inline-notification>
           </div>
         </template>

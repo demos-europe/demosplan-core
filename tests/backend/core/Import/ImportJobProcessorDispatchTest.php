@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace Tests\Core\Import;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Import\ImportJob;
@@ -20,8 +22,15 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Import\ImportJobProcessor;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\CsvStatementImport;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxSegmentImport;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Repository\ImportJobRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
+use RuntimeException;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
 
 /**
@@ -74,6 +83,41 @@ class ImportJobProcessorDispatchTest extends FunctionalTestCase
         // no worksheet is named for a csv, it holds a single table
         self::assertStringNotContainsString('Arbeitsblatt', (string) $job->getError());
         self::assertSame($statementsBefore, $this->countEntries(Statement::class));
+    }
+
+    /**
+     * A raw DBAL/SQL failure (e.g. a unique-constraint violation, the original bug behind this test)
+     * must never reach the user-facing job record - only a translated, generic message may.
+     */
+    public function testUnexpectedExceptionDuringImportStoresNoTechnicalDetail(): void
+    {
+        $job = $this->queueJob('valid.csv', ImportJob::TYPE_STATEMENTS);
+
+        $technicalMessage = "SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'K85/789789789-a783c9f4-69ca-4e6b-b514-87dd87742911' for key 'internId_procedure'";
+        $failingCsvStatementImport = $this->createMock(CsvStatementImport::class);
+        $failingCsvStatementImport->method('importFromFile')->willThrowException(new RuntimeException($technicalMessage));
+
+        $processor = new ImportJobProcessor(
+            $failingCsvStatementImport,
+            self::getContainer()->get(CurrentProcedureService::class),
+            self::getContainer()->get(CurrentUserService::class),
+            $this->entityManager,
+            $this->fileService,
+            self::getContainer()->get(GlobalConfigInterface::class),
+            $this->importJobRepository,
+            self::getContainer()->get(LoggerInterface::class),
+            self::getContainer()->get(PermissionsInterface::class),
+            self::getContainer()->get(TranslatorInterface::class),
+            self::getContainer()->get(XlsxSegmentImport::class),
+        );
+
+        $processor->processPendingJobs();
+
+        $job = $this->importJobRepository->find($job->getId());
+        self::assertSame(ImportJob::STATUS_FAILED, $job->getStatus());
+        self::assertStringNotContainsString('SQLSTATE', (string) $job->getError());
+        self::assertStringNotContainsString('internId_procedure', (string) $job->getError());
+        self::assertStringContainsString('erneut', (string) $job->getError());
     }
 
     private function queueJob(string $filename, string $importType): ImportJob

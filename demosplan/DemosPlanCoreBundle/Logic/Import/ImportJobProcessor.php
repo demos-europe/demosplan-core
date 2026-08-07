@@ -31,6 +31,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ImportJobProcessor
 {
@@ -44,6 +45,7 @@ class ImportJobProcessor
         private readonly ImportJobRepository $importJobRepository,
         private readonly LoggerInterface $logger,
         private readonly PermissionsInterface $permissions,
+        private readonly TranslatorInterface $translator,
         private readonly XlsxSegmentImport $xlsxSegmentImport,
     ) {
     }
@@ -114,7 +116,9 @@ class ImportJobProcessor
         }
 
         $jobId = $job->getId();
-        $errorMessage = mb_substr($exception->getMessage(), 0, 65000);
+        // The exception can be a raw DBAL/SQL failure (e.g. a unique-constraint violation) - the full
+        // detail goes to the log via logJobFailure() below, never into the user-facing job record.
+        $errorMessage = $this->translator->trans('error.import.job.unexpected');
 
         // Try ORM flush first (works for non-DBAL exceptions where EM is still open)
         if ($this->entityManager->isOpen()) {
@@ -259,7 +263,7 @@ class ImportJobProcessor
         try {
             $fileInfo = $this->fileService->getFileInfo($fileIdent);
         } catch (Exception $e) {
-            $job->markAsFailed('Failed to retrieve file from storage: '.$e->getMessage());
+            $job->markAsFailed($this->translator->trans('error.import.job.file.retrieval.failed'));
             $this->entityManager->flush();
             $this->logger->error('Import job file retrieval failed', [
                 'jobId'       => $job->getId(),
@@ -276,7 +280,7 @@ class ImportJobProcessor
         try {
             $localPath = $this->fileService->ensureLocalFile($fileInfo->getAbsolutePath(), $fileIdent);
         } catch (Exception $e) {
-            $job->markAsFailed('Failed to download file locally: '.$e->getMessage());
+            $job->markAsFailed($this->translator->trans('error.import.job.file.download.failed'));
             $this->entityManager->flush();
             $this->logger->error('Import job file download failed', [
                 'jobId'     => $job->getId(),

@@ -14,6 +14,7 @@ namespace Tests\Core\Import;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -57,6 +58,26 @@ class CsvStatementImportTest extends FunctionalTestCase
         $statementsBefore = $this->countEntries(Statement::class);
 
         $result = $this->sut->importFromFile($this->fileInfo('invalid_date.csv'));
+
+        self::assertTrue($result->hasErrors());
+        self::assertSame(0, $result->getStatementCount());
+        self::assertSame($statementsBefore, $this->countEntries(Statement::class));
+    }
+
+    public function testDuplicateInternIdAgainstExistingStatementPersistsNothingAndDoesNotThrow(): void
+    {
+        // this reproduces the original bug: a duplicate Eingangsnummer used to reach flush()
+        // unvalidated and surface as a raw UniqueConstraintViolationException
+        $procedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
+        StatementFactory::createOne([
+            'procedure' => $procedure,
+            'internId'  => 'DUP-EXISTING',
+        ]);
+
+        $this->setProcedureAndLogin();
+        $statementsBefore = $this->countEntries(Statement::class);
+
+        $result = $this->sut->importFromFile($this->fileInfo('duplicate_internid_in_db.csv'));
 
         self::assertTrue($result->hasErrors());
         self::assertSame(0, $result->getStatementCount());

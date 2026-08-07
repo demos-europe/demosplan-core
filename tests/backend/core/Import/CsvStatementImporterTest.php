@@ -14,6 +14,7 @@ namespace Tests\Core\Import;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\CsvStatementImporter;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -130,6 +131,40 @@ class CsvStatementImporterTest extends FunctionalTestCase
 
         self::assertTrue($result->hasErrors());
         self::assertSame(0, $result->getStatementCount());
+    }
+
+    public function testDuplicateInternIdWithinFileIsReportedOnBothRowsWithoutThrowing(): void
+    {
+        $this->setProcedureAndLogin();
+
+        $result = $this->sut->process($this->fixture('duplicate_internid_in_file.csv'));
+
+        self::assertTrue($result->hasErrors());
+        self::assertSame(0, $result->getStatementCount());
+
+        $lineNumbers = array_column($result->getErrorsAsArray(), 'lineNumber');
+        self::assertSame([2, 3], $lineNumbers);
+
+        $message = $this->describeErrors($result->getErrorsAsArray());
+        self::assertStringContainsString('DUP-001', $message);
+        self::assertStringNotContainsString('SQLSTATE', $message);
+    }
+
+    public function testInternIdAlreadyUsedInProcedureIsReportedInsteadOfThrowing(): void
+    {
+        $procedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
+        StatementFactory::createOne([
+            'procedure' => $procedure,
+            'internId'  => 'DUP-EXISTING',
+        ]);
+
+        $this->setProcedureAndLogin();
+
+        $result = $this->sut->process($this->fixture('duplicate_internid_in_db.csv'));
+
+        self::assertTrue($result->hasErrors());
+        self::assertSame(0, $result->getStatementCount());
+        self::assertStringContainsString('DUP-EXISTING', $this->describeErrors($result->getErrorsAsArray()));
     }
 
     public function testInvalidDateIsReportedWithItsLineNumber(): void
