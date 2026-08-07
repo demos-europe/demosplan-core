@@ -5,14 +5,18 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
 ### Added
 - Boilerplate edit page lists the segments in which a boilerplate is used as deep links
-
-### Added
-
 - Sortable deadline column in segmentsList, temporarily remove pager
 - Tags can now be linked to a default assignee, who is preselected when the tag is added to a segment during statement splitting
 
+## v4.53.0 (2026-07-30)
+
+## v4.52.0 (2026-07-29)
+
+### Added
+- Filter custom fields in assesment table
 
 ## v4.50.0 (2026-07-15)
 
