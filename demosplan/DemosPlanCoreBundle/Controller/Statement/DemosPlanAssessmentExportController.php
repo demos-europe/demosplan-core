@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidPostParameterTypeException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
+use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobFingerprint;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentExportOptions;
@@ -161,10 +162,25 @@ class DemosPlanAssessmentExportController extends BaseController
         $hashList = $session->has('hashList') ? $session->get('hashList') : [];
 
         $userId = $currentUserService->getUser()->getId();
+        $parametersHash = ExportJobFingerprint::forAssessmentTable($exportParameters, $hashList);
+
+        // The export gives no progress feedback, so a slow one invites re-triggering. Hand back the
+        // job that is already running for this exact request instead of queueing a duplicate on the
+        // serial worker; the client then polls the running job rather than orphaning it.
+        $running = $entityManager->getRepository(AssessmentTableExportJob::class)->findOneBy([
+            'userId'         => $userId,
+            'procedureId'    => $procedureId,
+            'parametersHash' => $parametersHash,
+            'status'         => [AssessmentTableExportJob::STATUS_PENDING, AssessmentTableExportJob::STATUS_PROCESSING],
+        ], ['createdDate' => 'DESC']);
+        if ($running instanceof AssessmentTableExportJob) {
+            return new JsonResponse(['jobId' => $running->getId()]);
+        }
 
         $job = new AssessmentTableExportJob();
         $job->setProcedureId($procedureId);
         $job->setUserId($userId);
+        $job->setParametersHash($parametersHash);
         $entityManager->persist($job);
         $entityManager->flush();
 

@@ -37,6 +37,7 @@ class Version20260807100000 extends AbstractMigration
                 status VARCHAR(20) NOT NULL,
                 procedure_id CHAR(36) NOT NULL,
                 user_id CHAR(36) NOT NULL,
+                parameters_hash CHAR(64) NOT NULL,
                 file_hash CHAR(36) DEFAULT NULL,
                 file_name VARCHAR(255) DEFAULT NULL,
                 error_message LONGTEXT DEFAULT NULL,

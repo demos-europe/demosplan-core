@@ -59,6 +59,15 @@ class AssessmentTableExportJob extends CoreEntity implements UuidEntityInterface
     protected $userId;
 
     /**
+     * Identifies the export request, so a repeated request joins the running job instead of
+     * starting a second one.
+     *
+     * @var string
+     */
+    #[ORM\Column(name: 'parameters_hash', type: 'string', length: 64, options: ['fixed' => true], nullable: false)]
+    protected $parametersHash = '';
+
+    /**
      * Hash of the generated result file, once available.
      *
      * @var string|null
@@ -129,6 +138,16 @@ class AssessmentTableExportJob extends CoreEntity implements UuidEntityInterface
     public function setUserId(string $userId): void
     {
         $this->userId = $userId;
+    }
+
+    public function getParametersHash(): string
+    {
+        return $this->parametersHash;
+    }
+
+    public function setParametersHash(string $parametersHash): void
+    {
+        $this->parametersHash = $parametersHash;
     }
 
     public function getFileHash(): ?string

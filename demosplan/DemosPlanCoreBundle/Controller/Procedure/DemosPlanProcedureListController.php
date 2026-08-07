@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
+use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobFingerprint;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
@@ -233,16 +234,33 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
         }
 
         $userId = $currentUserService->getUser()->getId();
+        $procedureIds = array_values($selectedProcedures);
+        $useExternalProcedureName = false;
+        $parametersHash = ExportJobFingerprint::forProcedureSelection($procedureIds, $useExternalProcedureName);
+
+        // The export gives no progress feedback, so a slow one invites re-triggering. Hand back the
+        // job that is already running for this exact selection instead of queueing a duplicate on
+        // the serial worker; the client then polls the running job rather than orphaning it.
+        $running = $entityManager->getRepository(ProcedureExportJob::class)->findOneBy([
+            'userId'         => $userId,
+            'parametersHash' => $parametersHash,
+            'status'         => [ProcedureExportJob::STATUS_PENDING, ProcedureExportJob::STATUS_PROCESSING],
+        ], ['createdDate' => 'DESC']);
+        if ($running instanceof ProcedureExportJob) {
+            return new JsonResponse(['jobId' => $running->getId()]);
+        }
 
         $job = new ProcedureExportJob();
         $job->setUserId($userId);
+        $job->setParametersHash($parametersHash);
         $entityManager->persist($job);
         $entityManager->flush();
 
         $messageBus->dispatch(new ExportProcedureMessage(
             $job->getId(),
-            array_values($selectedProcedures),
-            $userId
+            $procedureIds,
+            $userId,
+            $useExternalProcedureName
         ));
 
         return new JsonResponse(['jobId' => $job->getId()]);
