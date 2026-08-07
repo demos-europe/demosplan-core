@@ -1027,6 +1027,13 @@ export default {
 
     copySelectionToClipboard () {
       const selectedIds = this.resolveSelectedSegmentIds()
+
+      if (selectedIds.length === 0) {
+        dplan.notify.notify('warning', Translator.trans('warning.entries.no.selected'))
+
+        return
+      }
+
       const missingIds = selectedIds.filter(id => !this.segmentsObject[id])
       const fetchMissing = missingIds.length > 0 ?
         this.fetchMissingSegments(missingIds) :
