@@ -12,12 +12,12 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
@@ -26,8 +26,8 @@ use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ViewOrientation;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\BookmarkService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\UserFilterSetService;
 use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplate;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
@@ -52,8 +52,8 @@ class AssessmentHandler extends CoreHandler
     /** @var StatementFragmentService */
     protected $statementFragmentService;
 
-    /** @var UserFilterSetService */
-    protected $userFilterSetService;
+    /** @var BookmarkService */
+    protected $bookmarkService;
 
     /** @var HashedQueryService */
     protected $filterSetService;
@@ -68,6 +68,7 @@ class AssessmentHandler extends CoreHandler
 
     public function __construct(
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
+        BookmarkService $bookmarkService,
         private readonly CurrentUserInterface $currentUser,
         private readonly GlobalConfig $globalConfig,
         HashedQueryService $filterSetService,
@@ -79,17 +80,16 @@ class AssessmentHandler extends CoreHandler
         StatementFragmentService $statementFragmentService,
         StatementService $statementService,
         TranslatorInterface $translator,
-        UserFilterSetService $userFilterSetService,
         private readonly DocumentWriterSelector $writerSelector,
     ) {
         parent::__construct($messageBag);
         $this->assessmentTableServiceOutput = $assessmentTableServiceOutput;
+        $this->bookmarkService = $bookmarkService;
         $this->filterSetService = $filterSetService;
         $this->simpleSpreadsheetService = $simpleSpreadsheetService;
         $this->statementFragmentService = $statementFragmentService;
         $this->statementService = $statementService;
         $this->translator = $translator;
-        $this->userFilterSetService = $userFilterSetService;
     }
 
     /**
@@ -452,23 +452,23 @@ class AssessmentHandler extends CoreHandler
      *
      * @throws Exception
      */
-    public function saveUserFilterSet(User $user, $procedureId, Request $request, HashedQuery $filterSet): bool
+    public function saveBookmark(UserInterface $user, $procedureId, Request $request, HashedQuery $filterSet): bool
     {
         $name = $request->request->get('r_save_filter_set_name');
         $userId = $user->getId();
 
-        return $this->getUserFilterSetService()->saveUserFilterSet($procedureId, $userId, $name, $filterSet);
+        return $this->getBookmarkService()->saveBookmark($procedureId, $userId, $name, $filterSet);
     }
 
     /**
-     * @throws Exception thrown if UserFilterSetService was not set
+     * @throws Exception thrown if BookmarkService was not set
      */
-    protected function getUserFilterSetService(): UserFilterSetService
+    protected function getBookmarkService(): BookmarkService
     {
-        if (!$this->userFilterSetService instanceof UserFilterSetService) {
-            throw new Exception('userFilterSetService not set');
+        if (!$this->bookmarkService instanceof BookmarkService) {
+            throw new Exception('bookmarkService not set');
         }
 
-        return $this->userFilterSetService;
+        return $this->bookmarkService;
     }
 }

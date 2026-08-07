@@ -169,7 +169,7 @@ class DemosPlanAssessmentTableController extends BaseController
 
         if ($this->permissions->hasPermission('feature_procedure_user_filter_sets')
             && $request->request->has('r_save_filter_set_name')) {
-            $assessmentHandler->saveUserFilterSet(
+            $assessmentHandler->saveBookmark(
                 $currentUser->getUser(),
                 $procedureId,
                 $request,
@@ -384,7 +384,7 @@ class DemosPlanAssessmentTableController extends BaseController
 
         if ($this->permissions->hasPermission('feature_procedure_user_filter_sets')
             && $request->request->has('r_save_filter_set_name')) {
-            $assessmentHandler->saveUserFilterSet(
+            $assessmentHandler->saveBookmark(
                 $currentUser->getUser(),
                 $procedureId,
                 $request,

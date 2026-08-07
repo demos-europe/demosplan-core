@@ -11,22 +11,22 @@
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\UserFilterSet;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Bookmark;
 use demosplan\DemosPlanCoreBundle\Traits\RepositoryLegacyShizzle;
 use Doctrine\ORM\NoResultException;
 use Exception;
 
 /**
- * @template-extends FluentRepository<UserFilterSet>
+ * @template-extends FluentRepository<Bookmark>
  */
-class UserFilterSetRepository extends FluentRepository
+class BookmarkRepository extends FluentRepository
 {
     use RepositoryLegacyShizzle;
 
     /**
      * @param string $entityId
      *
-     * @return UserFilterSet|null
+     * @return Bookmark|null
      */
     public function get($entityId)
     {
@@ -38,7 +38,7 @@ class UserFilterSetRepository extends FluentRepository
     }
 
     /**
-     * @param UserFilterSet $entity
+     * @param Bookmark $entity
      *
      * @return bool
      */
@@ -49,7 +49,7 @@ class UserFilterSetRepository extends FluentRepository
             $entityManager->persist($entity);
             $entityManager->flush();
         } catch (Exception $e) {
-            $this->logger->error('Could not add new filterSet: ', [$e]);
+            $this->logger->error('Could not add new bookmark: ', [$e]);
 
             return false;
         }
@@ -58,7 +58,7 @@ class UserFilterSetRepository extends FluentRepository
     }
 
     /**
-     * @param UserFilterSet $entity
+     * @param Bookmark $entity
      *
      * @return bool
      */
@@ -69,29 +69,29 @@ class UserFilterSetRepository extends FluentRepository
             $entityManager->persist($entity);
             $entityManager->flush();
         } catch (Exception $e) {
-            $this->logger->error('Could not update filterSet: ', [$e]);
+            $this->logger->error('Could not update bookmark: ', [$e]);
 
             return false;
         }
 
-        return false;
+        return true;
     }
 
     /**
-     * @param UserFilterSet $userFilterSet
+     * @param Bookmark $bookmark
      *
      * @return bool - true if successfully deleted the given entity, otherwise false
      */
-    public function deleteObject($userFilterSet)
+    public function deleteObject($bookmark)
     {
         try {
             $entityManager = $this->getEntityManager();
-            $entityManager->remove($userFilterSet);
+            $entityManager->remove($bookmark);
             $entityManager->flush();
 
             return true;
         } catch (Exception $e) {
-            $this->logger->error('Could not delete UserFilterSet', ['id' => $userFilterSet->getId(), 'exception' => $e]);
+            $this->logger->error('Could not delete Bookmark', ['id' => $bookmark->getId(), 'exception' => $e]);
         }
 
         return false;
