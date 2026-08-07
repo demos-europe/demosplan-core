@@ -1259,7 +1259,7 @@ export default {
      */
     fetchMissingSegments (missingIds) {
       const { include, fields } = this.buildSegmentFetchOptions()
-      const chunkSize = 1000
+      const chunkSize = 200
       const idChunks = []
 
       for (let start = 0; start < missingIds.length; start += chunkSize) {
