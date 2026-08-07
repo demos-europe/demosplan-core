@@ -3392,6 +3392,7 @@ segments.bulk.edit.recommendations.warning.empty.text.replace: |
         other { Sie haben keinen Text eingegeben. Der Inhalt der Erwiderungen geht dadurch verloren. }
     }
 segments.copy.clipboard: "In Zwischenablage kopieren"
+segments.copy.clipboard.done: "Inhalte wurden kopiert"
 segments.copy.clipboard.error: |
     {count, plural,
         =1 {Der Abschnitt konnte nicht kopiert werden.}
