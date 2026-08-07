@@ -77,7 +77,6 @@
       </div>
       <dp-bulk-edit-header
         v-if="selectedItemsCount > 0"
-        :is-copied="selectionCopiedToClipboard"
         :selected-items-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
         class="mt-2"
         @reset-selection="resetSelection"
@@ -87,8 +86,10 @@
           v-slot:buttonRowStart
         >
           <dp-button
-            :text="Translator.trans('segments.copy.clipboard')"
-            :variant="selectionCopiedToClipboard ? 'transparent' : 'subtle'"
+            :busy="isCopyingToClipboard"
+            :disabled="selectionCopiedToClipboard"
+            :text="selectionCopiedToClipboard ? Translator.trans('segments.copy.clipboard.done') : Translator.trans('segments.copy.clipboard')"
+            variant="transparent"
             data-cy="segmentsList:copyToClipboard"
             icon="copy"
             @click.prevent="copySelectionToClipboard"
@@ -96,7 +97,7 @@
         </template>
         <dp-button
           :text="Translator.trans('segments.bulk.edit')"
-          :variant="selectionCopiedToClipboard ? 'solid' : 'outline'"
+          variant="solid"
           @click.prevent="handleBulkEdit"
         />
       </dp-bulk-edit-header>
@@ -573,6 +574,7 @@ export default {
         { field: 'tags', label: Translator.trans('segment.tags'), colWidth: '270px', initialMinWidth: 270 },
         { field: 'place', label: Translator.trans('workflow.place'), colWidth: '180px', initialMinWidth: 180 },
       ],
+      isCopyingToClipboard: false,
       isLoading: true,
       lsKey: {
         // LocalStorage keys
@@ -818,6 +820,10 @@ export default {
   },
 
   watch: {
+    currentSelection () {
+      this.selectionCopiedToClipboard = false
+    },
+
     toggledItems () {
       this.selectionCopiedToClipboard = false
     },
@@ -1049,6 +1055,9 @@ export default {
           console.error(error)
           this.selectionCopiedToClipboard = false
           dplan.notify.notify('error', Translator.trans('segments.copy.clipboard.error', { count: selectedIds.length }))
+        })
+        .finally(() => {
+          this.isCopyingToClipboard = false
         })
     },
 
