@@ -111,6 +111,7 @@
     "symfony/cache": "6.*.*",
     "symfony/css-selector": "6.*.*",
     "symfony/dependency-injection": "6.*.*",
+    "symfony/doctrine-messenger": "6.*.*",
     "symfony/dom-crawler": "6.*.*",
     "symfony/dotenv": "6.*.*",
     "symfony/error-handler": "6.*.*",
