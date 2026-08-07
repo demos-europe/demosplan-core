@@ -192,6 +192,7 @@
             is-selectable
             :lock-checkbox-by="canUnlock ? false : 'isPlaceLocked'"
             :lock-checkbox-hint="Translator.trans('segment.lock.hint')"
+            @columns-reordered="selectionCopiedToClipboard = false"
             @items-toggled="handleToggleItem"
             @select-all="handleSelectAll"
           >
@@ -1065,9 +1066,10 @@ export default {
 
     /*
      * Builds the tab/newline-separated plain-text representation (Excel-paste target) of the
-     * selected segments, matching the currently visible columns. `supplemental` provides data for
-     * segment ids not yet in the Vuex store (see fetchMissingSegments) and must be merged in
-     * locally rather than read from `this.*` directly, since it is never committed to the store.
+     * selected segments, matching the currently visible columns and their drag&drop order.
+     * `supplemental` provides data for segment ids not yet in the Vuex store (see
+     * fetchMissingSegments) and must be merged in locally rather than read from `this.*` directly,
+     * since it is never committed to the store.
      */
     buildClipboardText (selectedIds, supplemental) {
       const segmentsById = {
@@ -1093,10 +1095,11 @@ export default {
         },
         hasRecommendationVersions: hasPermission('feature_enable_recommendation_versions'),
       }
+      const headerFields = this.$refs.dataTable?.orderedHeaderFields || this.availableHeaderFields
 
       return selectedIds
         .map(id => segmentsById[id])
-        .map(segment => this.availableHeaderFields
+        .map(segment => headerFields
           .map(headerField => this.sanitizeClipboardCell(segment ? this.getClipboardCellValue(headerField, segment, context) : ''))
           .join('\t'))
         .join('\n')
