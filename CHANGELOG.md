@@ -8,7 +8,7 @@
 
 ### Added
 - Boilerplate edit page lists the segments in which a boilerplate is used as deep links
-- Sortable deadline column in segmentsList, temporarily remove pager
+- Sortable deadline column in segmentsList (sorting gated behind `feature_segments_manualsort`, not enabled yet)
 - Tags can now be linked to a default assignee, who is preselected when the tag is added to a segment during statement splitting
 
 ## v4.53.0 (2026-07-30)
