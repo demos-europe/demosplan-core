@@ -1239,7 +1239,9 @@ export default {
     },
 
     /**
-     * Extracts plain text from an HTML string, discarding all markup
+     * Extracts plain text from an HTML string, discarding all markup.
+     * DOMParser builds an inert document, so unlike assigning to innerHTML it neither loads
+     * embedded resources nor lets event handlers such as `onerror` run on unsanitized input.
      * @param {string} html
      * @returns {string}
      */
@@ -1248,11 +1250,7 @@ export default {
         return ''
       }
 
-      const container = document.createElement('div')
-
-      container.innerHTML = html
-
-      return container.textContent || ''
+      return new DOMParser().parseFromString(html, 'text/html').body.textContent || ''
     },
 
     buildResourceMapById (resources) {
