@@ -43,7 +43,7 @@
         <dp-button
           :text="Translator.trans('procedure.share_statements.bulk.share')"
           data-cy="statementsBulkShare"
-          variant="outline"
+          variant="solid"
           @click.prevent="handleBulkShare"
         />
       </dp-bulk-edit-header>
