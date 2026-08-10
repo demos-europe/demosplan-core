@@ -133,6 +133,63 @@ class CsvStatementImporterTest extends FunctionalTestCase
         self::assertSame(0, $result->getStatementCount());
     }
 
+    /**
+     * A file that includes Institution/Abteilung must leave them empty, not omit them, to mark every
+     * row as public - an empty value, not an absent column.
+     */
+    public function testInstitutionColumnAlwaysEmptyImportsEveryRowAsPublic(): void
+    {
+        $this->setProcedureAndLogin();
+
+        $result = $this->sut->process($this->fixture('institution_column_empty.csv'));
+
+        self::assertFalse($result->hasErrors(), $this->describeErrors($result->getErrorsAsArray()));
+        self::assertSame(2, $result->getStatementCount());
+        foreach ($result->getStatements() as $statement) {
+            self::assertSame(Statement::EXTERNAL, $statement->getPublicStatement());
+        }
+    }
+
+    /**
+     * A file holding only public statements has no use for Institution/Abteilung, so omitting the pair
+     * entirely is accepted the same way as including it but leaving it empty on every row.
+     */
+    public function testAbsentInstitutionColumnsImportEveryRowAsPublic(): void
+    {
+        $this->setProcedureAndLogin();
+
+        $result = $this->sut->process($this->fixture('institution_column_absent.csv'));
+
+        self::assertFalse($result->hasErrors(), $this->describeErrors($result->getErrorsAsArray()));
+        self::assertSame(1, $result->getStatementCount());
+        self::assertSame(Statement::EXTERNAL, $result->getStatements()[0]->getPublicStatement());
+    }
+
+    /**
+     * Only one of the two institution columns present is an inconsistent file, not a further valid
+     * variant, and must be rejected the same way any other missing column is.
+     */
+    public function testOnlyOneInstitutionColumnPresentIsReportedAsMissingColumn(): void
+    {
+        $this->setProcedureAndLogin();
+
+        $result = $this->sut->process($this->fixture('institution_column_partial.csv'));
+
+        self::assertTrue($result->hasErrors());
+        self::assertSame(0, $result->getStatementCount());
+        self::assertStringContainsString('Abteilung', $this->describeErrors($result->getErrorsAsArray()));
+    }
+
+    public function testIso8859EncodedHeaderIsAccepted(): void
+    {
+        $this->setProcedureAndLogin();
+
+        $result = $this->sut->process($this->fixture('iso8859_header.csv'));
+
+        self::assertFalse($result->hasErrors(), $this->describeErrors($result->getErrorsAsArray()));
+        self::assertSame(1, $result->getStatementCount());
+    }
+
     public function testDuplicateInternIdWithinFileIsReportedOnBothRowsWithoutThrowing(): void
     {
         $this->setProcedureAndLogin();

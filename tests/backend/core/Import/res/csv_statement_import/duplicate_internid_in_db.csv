@@ -1,2 +1,2 @@
-﻿Typ;ID;Institution;Abteilung;Name;E-Mail;Straße;Hausnummer;PLZ;Ort;Einreichungsdatum;Verfassungsdatum;Art der Einreichung;Eingangsnummer;Stellungnahmetext;Memo
-Institution;9;Amt für Beispiele;MFG;Petra Peters;;Teststr.;3;12049;Berlin;07-04-2018;11-02-2018;Brief;DUP-EXISTING;Ein Text.;Notiz
+﻿Institution;Abteilung;Name;E-Mail;Straße;Hausnummer;PLZ;Ort;Einreichungsdatum;Verfassungsdatum;Art der Einreichung;Eingangsnummer;Stellungnahmetext;Memo
+Amt für Beispiele;MFG;Petra Peters;;Teststr.;3;12049;Berlin;07-04-2018;11-02-2018;Brief;DUP-EXISTING;Ein Text.;Notiz

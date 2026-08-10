@@ -28,9 +28,11 @@ use UnexpectedValueException;
 /**
  * Creates {@link Statement} entities from a CSV file holding one statement per row.
  *
- * Unlike the spreadsheet import, which derives the submitter type from the worksheet a row lives in,
- * a CSV holds a single flat table and uses the `Typ` column instead - the same way the metadata
- * worksheet of the segment import does.
+ * Unlike the spreadsheet import, which derives the submitter type from the worksheet a row lives in, a
+ * CSV holds a single flat table. `Institution` and `Abteilung` are optional: a file without them holds
+ * only statements submitted by the public. In a file that has them, a row with an empty `Institution`
+ * is a statement submitted by a member of the public, a non-empty one by that institution. Having only
+ * one of the two columns is treated as a missing-columns error, not as a further, valid variant.
  *
  * The entities are neither persisted nor flushed here, see {@link CsvStatementImport}.
  */
@@ -38,19 +40,14 @@ class CsvStatementImporter
 {
     private const DELIMITER = ';';
     private const ENCLOSURE = '"';
-    private const COLUMN_TYPE = 'Typ';
+    private const COLUMN_INSTITUTION = 'Institution';
     private const COLUMN_INTERN_ID = 'Eingangsnummer';
     private const DETECTABLE_ENCODINGS = 'UTF-8, ISO-8859-1, ISO-8859-15';
 
     /**
-     * All columns the import expects. They are the columns of the `Öffentlichkeit` and `Institution`
-     * worksheets of the spreadsheet statement import, merged into one table and prefixed by `Typ`.
+     * Columns every row must have, regardless of whether the file holds institution statements.
      */
     private const REQUIRED_COLUMNS = [
-        self::COLUMN_TYPE,
-        'ID',
-        'Institution',
-        'Abteilung',
         'Name',
         'E-Mail',
         'Straße',
@@ -64,6 +61,12 @@ class CsvStatementImporter
         'Stellungnahmetext',
         'Memo',
     ];
+
+    /**
+     * Only valid together: either both are present, marking a file that also holds institution
+     * statements, or both are absent, marking a file that holds public statements exclusively.
+     */
+    private const INSTITUTION_COLUMNS = [self::COLUMN_INSTITUTION, 'Abteilung'];
 
     public function __construct(
         private readonly CurrentProcedureService $currentProcedureService,
@@ -166,9 +169,20 @@ class CsvStatementImporter
      */
     private function getMissingColumns(array $header): array
     {
-        $presentColumns = array_map(static fn (string $column): string => trim($column), $header);
+        // the header itself carries no encoding information either, same as every data cell - without
+        // this an umlaut-containing column name (e.g. "Straße") in a non-UTF-8 file would never match
+        // its UTF-8 counterpart in REQUIRED_COLUMNS and be reported as missing even though it is present
+        $presentColumns = array_map(fn (string $column): string => trim($this->toUtf8($column)), $header);
 
-        return array_values(array_diff(self::REQUIRED_COLUMNS, $presentColumns));
+        $missing = array_values(array_diff(self::REQUIRED_COLUMNS, $presentColumns));
+        $missingInstitutionColumns = array_values(array_diff(self::INSTITUTION_COLUMNS, $presentColumns));
+
+        // both entirely absent is a valid, public-statements-only file - see the class doc comment
+        if (count($missingInstitutionColumns) === count(self::INSTITUTION_COLUMNS)) {
+            return $missing;
+        }
+
+        return [...$missing, ...$missingInstitutionColumns];
     }
 
     /**
@@ -273,24 +287,11 @@ class CsvStatementImporter
         SegmentExcelImportResult $result,
         array $duplicateInternIds,
     ): void {
-        // an omitted type means a statement submitted by the public, as in the segment import
-        $type = $row[self::COLUMN_TYPE] ?? ExcelImporter::PUBLIC;
-
-        if (!in_array($type, [ExcelImporter::PUBLIC, ExcelImporter::INSTITUTION], true)) {
-            $result->addError(
-                $this->translator->trans(
-                    'statements.import.csv.error.type',
-                    [
-                        'value'      => $type,
-                        'validTypes' => implode(', ', [ExcelImporter::PUBLIC, ExcelImporter::INSTITUTION]),
-                    ]
-                ),
-                $fileLine,
-                $sheetTitle
-            );
-
-            return;
-        }
+        // an empty or entirely absent Institution means a statement submitted by the public, a filled
+        // one by that institution - see the class doc comment
+        $type = null === ($row[self::COLUMN_INSTITUTION] ?? null)
+            ? ExcelImporter::PUBLIC
+            : ExcelImporter::INSTITUTION;
 
         $internId = $row[self::COLUMN_INTERN_ID] ?? null;
         if (null !== $internId && isset($duplicateInternIds[$internId])) {
@@ -306,7 +307,6 @@ class CsvStatementImporter
             return;
         }
 
-        $row[self::COLUMN_TYPE] = $type;
         $row['publicStatement'] = ExcelImporter::INSTITUTION === $type
             ? Statement::INTERNAL
             : Statement::EXTERNAL;
