@@ -1225,7 +1225,8 @@ export default {
         parts.push(statement.attributes.initialOrganisationName)
       }
 
-      return parts.join(', ')
+      // Drop empty parts so anonymous submissions do not end up with a leading separator
+      return parts.filter(Boolean).join(', ')
     },
 
     /**
