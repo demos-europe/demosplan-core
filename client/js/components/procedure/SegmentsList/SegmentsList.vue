@@ -88,7 +88,7 @@
         />
       </dp-bulk-edit-header>
       <div
-        v-if="items.length > 0"
+        v-if="items.length > 0 && hasPermission('feature_segments_manualsort')"
         class="flex justify-between items-center mt-4"
       >
         <div class="ml-auto flex items-center space-inline-xs">
@@ -694,7 +694,7 @@ export default {
           isPlaceLocked: !!this.placesObject[segment.relationships?.place?.data?.id]?.attributes?.locked,
         }))
 
-      if (this.selectedSort === '') {
+      if (this.selectedSort === '' || !hasPermission('feature_segments_manualsort')) {
         return mapped
       }
 
@@ -1358,7 +1358,7 @@ export default {
 
     const storedSort = lscache.get(this.lsKey.selectedSort)
 
-    if (storedSort) {
+    if (storedSort && hasPermission('feature_segments_manualsort')) {
       this.selectedSort = storedSort
     }
 
