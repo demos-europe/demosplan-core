@@ -5,13 +5,14 @@ framework:
         transports:
             # Long-running exports (e.g. the Abwägungstabelle export) run here so they are
             # not bound by the web-request/gateway timeout. Uses the Doctrine connection as
-            # the queue store (auto-creates the messenger_messages table).
+            # the queue store. auto_setup is disabled because production DB users may lack CREATE
+            # privileges; the messenger_messages table is created via migration instead.
             async:
-                dsn: 'doctrine://dplan'
+                dsn: 'doctrine://dplan?auto_setup=0'
                 retry_strategy:
                     max_retries: 1
                     delay: 5000
-            failed: 'doctrine://dplan?queue_name=failed'
+            failed: 'doctrine://dplan?queue_name=failed&auto_setup=0'
             sync: 'sync://'
 
         routing:

@@ -15,6 +15,10 @@ doctrine:
                 user:     "%database_user%"
                 password: "%database_password%"
                 charset:  UTF8
+                # The messenger_messages table is managed by the Messenger Doctrine transport
+                # and created via migration. Exclude it from schema diffs so the index
+                # definitions contributed by the transport do not produce flip-flop migrations.
+                schema_filter: ~^(?!messenger_messages$)~
             dplan_install:
                 driver:   "%database_driver%"
                 host:     "%database_host%"
