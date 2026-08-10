@@ -356,7 +356,7 @@ class SegmentsExportController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions(
-        'feature_admin_assessmenttable_export_statement_generic_xlsx'
+        'feature_statement_segments_export_csv'
     )]
     #[Route(
         path: '/verfahren/{procedureId}/abschnitte/export/csv',
