@@ -2011,6 +2011,14 @@ feature_segment_recommendation_edit:
     label: 'Allows to create, update and delete recommendations of segments.'
     loginRequired: true
     parent: area_statement_segmentation
+feature_segments_copy_to_clipboard:
+    description: |-
+        Allows the user to copy the currently selected segments in the segment list to the clipboard
+        as tab-separated text, using the currently visible columns, for pasting into Excel or Word.
+    expose: true
+    label: 'Copy selected segments to clipboard'
+    loginRequired: true
+    parent: area_statement_segmentation
 feature_segments_import_excel:
     description: |-
         Allows the user to upload an excel file containing new segments and corresponding statement meta data. These are then validated and

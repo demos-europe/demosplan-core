@@ -3394,6 +3394,18 @@ segments.bulk.edit.recommendations.warning.empty.text.replace: |
         =1 { Sie haben keinen Text eingegeben. Der Inhalt der Erwiderung geht dadurch verloren. }
         other { Sie haben keinen Text eingegeben. Der Inhalt der Erwiderungen geht dadurch verloren. }
     }
+segments.copy.clipboard: "In Zwischenablage kopieren"
+segments.copy.clipboard.done: "Inhalte wurden kopiert"
+segments.copy.clipboard.error: |
+    {count, plural,
+        =1 {Der Abschnitt konnte nicht kopiert werden.}
+        other {Die Abschnitte konnten nicht kopiert werden.}
+    }
+segments.copy.clipboard.success: |
+    {count, plural,
+        =1 {Der Abschnitt wurde erfolgreich kopiert.}
+        other {Die Abschnitte wurden erfolgreich kopiert.}
+    }
 segments.export.filter.tags.only: "Nur Abschnitte mit folgenden Schlagworten"
 segments.export.pagination: "Seite {PAGE} von {NUMPAGES}"
 segments.export.segment.id: "Abschnitts-ID"
