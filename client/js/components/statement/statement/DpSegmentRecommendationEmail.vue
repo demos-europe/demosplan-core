@@ -98,6 +98,7 @@
             />
           </template>
           <dp-editor
+            :aria-label="Translator.trans('segment.text')"
             :toolbar-items="obscureOnlyToolbar"
             :value="segmentTextToSend"
             class="-mt-1"
