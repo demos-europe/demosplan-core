@@ -124,6 +124,7 @@
             />
           </template>
           <dp-editor
+            :aria-label="Translator.trans('recommendation.text')"
             :toolbar-items="obscureOnlyToolbar"
             :value="recommendationTextToSend"
             class="-mt-1"
