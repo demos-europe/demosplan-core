@@ -379,6 +379,7 @@ by: "durch"
 caption: "Bildunterschrift"
 categories: "Kategorien"
 category: "Kategorie"
+cc: "Cc"
 completed: "Abgeschlossen"
 
 category.delete: "Kategorie löschen"
