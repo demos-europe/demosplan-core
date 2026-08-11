@@ -44,6 +44,8 @@
       :class="['flex-1', 'flex', 'pl-2', 'pr-5', '-mr-4', { 'overflow-y-scroll': availableTags.length && tagTopics.length > 8 }]"
       @mouseover="showFloatingContextButton.tags = true"
       @mouseleave="showFloatingContextButton.tags = false"
+      @focusin="showFloatingContextButton.tags = true"
+      @focusout="showFloatingContextButton.tags = false"
     >
       <button
         v-if="!isCollapsed.tags"
@@ -102,11 +104,14 @@
     </div>
 
     <!-- Places and Assignee Section -->
+    <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
     <div
       aria-labelledby="floatingContextButton_placesAndAssignee"
       class="relative py-1 pl-2 pr-5 -mr-4"
       @mouseover="showFloatingContextButton.placesAndAssignee = true"
       @mouseleave="showFloatingContextButton.placesAndAssignee = false"
+      @focusin="showFloatingContextButton.placesAndAssignee = true"
+      @focusout="showFloatingContextButton.placesAndAssignee = false"
     >
       <FloatingContextButton
         class="right-0 top-0"
@@ -128,12 +133,11 @@
       </button>
 
       <div v-else>
-        <label
-          class="inline-block m-0"
+        <dp-label
+          :text="Translator.trans('workflow.place')"
+          class="mb-0"
           for="setPlace"
-        >
-          {{ Translator.trans('workflow.place') }}
-        </label>
+        />
         <dp-multiselect
           id="setPlace"
           v-model="selectedPlace"
@@ -154,12 +158,12 @@
             />
           </template>
         </dp-multiselect>
-        <label
-          class="inline-block mb-0"
+        <dp-label
+          :text="Translator.trans('assignee')"
+          :tooltip="assigneeTooltip"
+          class="mb-0"
           for="assignUser"
-        >
-          {{ Translator.trans('assignee') }}
-        </label>
+        />
         <dp-multiselect
           id="assignUser"
           v-model="selectedAssignee"
@@ -170,6 +174,47 @@
           :options="assignableUsers"
           :show-placeholder="false"
           track-by="id"
+        />
+      </div>
+    </div>
+
+    <!-- Additional Fields Section -->
+    <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
+    <div
+      v-if="showAdditionalFields"
+      aria-labelledby="floatingContextButton_additionalFields"
+      class="relative py-1 pl-2 pr-5 -mr-4"
+      @focusin="showFloatingContextButton.additionalFields = true"
+      @focusout="showFloatingContextButton.additionalFields = false"
+      @mouseover="showFloatingContextButton.additionalFields = true"
+      @mouseleave="showFloatingContextButton.additionalFields = false"
+    >
+      <FloatingContextButton
+        class="right-0 top-0"
+        section="additionalFields"
+        :is-visible="showFloatingContextButton.additionalFields"
+        :is-content-collapsed="isCollapsed.additionalFields"
+        @toggle-content-visibility="toggleVisibility"
+        @show="showFloatingContextButton.additionalFields = true"
+        @hide="showFloatingContextButton.additionalFields = false"
+      />
+      <button
+        v-if="!isCollapsed.additionalFields"
+        data-cy="sidebar:toggleVisibility:additionalFields"
+        class="relative btn--blank o-link--default font-semibold text-left w-full"
+        @click="toggleVisibility('additionalFields')"
+      >
+        {{ Translator.trans('fields.more.edit') }}
+      </button>
+      <div v-else>
+        <dp-datepicker
+          id="deadline"
+          v-model="deadline"
+          class="mt-1"
+          data-cy="selectedDeadline"
+          :label="{
+            text: Translator.trans('deadline.processing.until')
+          }"
         />
       </div>
     </div>
@@ -191,9 +236,12 @@
 import {
   DpButtonRow,
   DpContextualHelp,
+  DpDatepicker,
   DpLabel,
   DpMultiselect,
+  formatDate,
   hasOwnProp,
+  reformatDateString,
   Tooltip,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
@@ -211,6 +259,7 @@ export default {
     DpButtonRow,
     DpCreateTag,
     DpContextualHelp,
+    DpDatepicker,
     DpLabel,
     DpMultiselect,
     FloatingContextButton,
@@ -237,9 +286,11 @@ export default {
 
   data () {
     return {
+      deadline: '',
       isCollapsed: {
         tags: true,
         placesAndAssignee: false,
+        additionalFields: false,
       },
       selectedAssignee: null,
       selectedPlace: null,
@@ -247,6 +298,7 @@ export default {
       showFloatingContextButton: {
         tags: false,
         placesAndAssignee: false,
+        additionalFields: false,
       },
     }
   },
@@ -270,12 +322,24 @@ export default {
       return this.selectedAssignee.id !== this.initialAssignee.id
     },
 
+    assigneeTooltip () {
+      if (!hasPermission('feature_tag_default_assignee')) {
+        return ''
+      }
+
+      return Translator.trans('workflow.change.assignee.hint')
+    },
+
     currentSegment () {
       if (this.editingSegment && this.segment(this.editingSegment.id)) {
         return JSON.parse(JSON.stringify(this.segment(this.editingSegment.id)))
       }
 
       return null
+    },
+
+    deadlineNeedsUpdate () {
+      return this.deadline !== this.initialDeadline
     },
 
     initialAssignee () {
@@ -288,6 +352,12 @@ export default {
       return noAssignee || null
     },
 
+    initialDeadline () {
+      const deadline = this.currentSegment?.deadline ?? ''
+
+      return formatDate(deadline)
+    },
+
     initialPlace () {
       if (this.currentSegment?.place?.id) {
         return this.getPlaceById(this.currentSegment.place.id)
@@ -297,7 +367,9 @@ export default {
     },
 
     needsUpdate () {
-      return this.assigneeNeedsUpdate || this.placeNeedsUpdate
+      return this.assigneeNeedsUpdate ||
+        this.placeNeedsUpdate ||
+        this.deadlineNeedsUpdate
     },
 
     placeNeedsUpdate () {
@@ -308,6 +380,12 @@ export default {
           this.editingSegment === null
     },
 
+    showAdditionalFields () {
+      const hasDeadline = hasPermission('field_statement_deadline')
+
+      return hasDeadline
+    },
+
     searchableTags () {
       return this.availableTags
         .map((tag) => ({ title: tag.attributes.title, id: tag.id }))
@@ -316,6 +394,30 @@ export default {
 
     selectedTags () {
       return this.editingSegment ? this.editingSegment.tags.map(el => this.availableTags.find(tag => tag.id === el.id || tag.attributes.title === el.tagName)) : []
+    },
+  },
+
+  watch: {
+    /*
+     * Keep the assignee field in sync with the segment's tags: the first selected tag
+     * that has a default assignee wins and is applied even if an assignee is already set.
+     * If no selected tag provides one, the field is reset to "not assigned". The selection
+     * is persisted with the regular save flow via updateSegment().
+     */
+    'editingSegment.tags': function (newTags) {
+      if (!hasPermission('feature_tag_default_assignee') || !newTags) {
+        return
+      }
+
+      const assignee = this.getFirstTagAssignee(newTags) || this.getAssignableUserById('noAssigneeId')
+
+      /*
+       * Only update once a valid option exists; avoid setting null while the assignable
+       * users are still loading, which would break dp-multiselect and the save logic.
+       */
+      if (assignee) {
+        this.selectedAssignee = assignee
+      }
     },
   },
 
@@ -334,6 +436,20 @@ export default {
 
     getAssignableUserById (id) {
       return this.assignableUsers.find(user => user.id === id)
+    },
+
+    getFirstTagAssignee (tags) {
+      for (const tag of tags) {
+        const availableTag = this.availableTags.find(el => el.id === tag.id)
+        const defaultAssigneeId = availableTag?.relationships?.defaultAssignee?.data?.id
+        const defaultAssignee = defaultAssigneeId ? this.getAssignableUserById(defaultAssigneeId) : null
+
+        if (defaultAssignee) {
+          return defaultAssignee
+        }
+      }
+
+      return null
     },
 
     getPlaceById (placeId) {
@@ -377,6 +493,7 @@ export default {
     },
 
     setInitialValues () {
+      this.deadline = this.initialDeadline
       this.selectedAssignee = this.initialAssignee
       this.selectedPlace = this.initialPlace || this.availablePlaces[0]
     },
@@ -390,6 +507,12 @@ export default {
         } else {
           segment.assigneeId = this.selectedAssignee.id
         }
+      }
+
+      if (hasPermission('field_statement_deadline') && this.deadlineNeedsUpdate) {
+        const isoDate = reformatDateString(this.deadline)
+
+        segment.deadline = isoDate
       }
 
       if (this.placeNeedsUpdate) {

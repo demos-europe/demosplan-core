@@ -16,6 +16,8 @@ use Exception;
 
 class NotAllStatementsGroupableException extends Exception
 {
+    private ?string $statementId = null;
+
     public static function create(): NotAllStatementsGroupableException
     {
         return new self('Not all statements to be grouped are groupable.');
@@ -28,6 +30,17 @@ class NotAllStatementsGroupableException extends Exception
 
     public static function createFromStatementId(string $statementId): NotAllStatementsGroupableException
     {
-        return new self("Statement not groupable: {$statementId}.");
+        $exception = new self("Statement not groupable: {$statementId}.");
+        $exception->statementId = $statementId;
+
+        return $exception;
+    }
+
+    /**
+     * The id of the specific statement that could not be grouped, when known.
+     */
+    public function getStatementId(): ?string
+    {
+        return $this->statementId;
     }
 }

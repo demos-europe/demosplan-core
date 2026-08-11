@@ -17,8 +17,8 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\ProcedurePhaseDefinitionResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
-use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\PersistResourceException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionEditor;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedurePhaseDefinitionUpdatableField;
@@ -26,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\ProcedurePhaseDefinitionResourceConfigBuilder;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
+use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathException;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\CallbackAttributeSetBehavior;
@@ -33,6 +34,11 @@ use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 
 /**
  * @template-extends DplanResourceType<ProcedurePhaseDefinition>
+ *
+ * @property-read End $id
+ * @property-read End $audience
+ * @property-read End $orderInAudience
+ * @property-read End $isDeleted
  */
 final class ProcedurePhaseDefinitionResourceType extends DplanResourceType implements ProcedurePhaseDefinitionResourceTypeInterface
 {
@@ -217,7 +223,8 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
 
         $configBuilder->orderInAudience
             ->setReadableByPath(DefaultField::YES)
-            ->setSortable();
+            ->setSortable()
+            ->setFilterable();
 
         $configBuilder->customer
             ->setRelationshipType($this->resourceTypeStore->getCustomerResourceType())
@@ -250,11 +257,14 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
         return $configBuilder;
     }
 
+    /**
+     * @throws PersistResourceException
+     */
     private function guardNameUnique(string $name, string $audience, CustomerInterface $customer): void
     {
         if (null !== $this->procedurePhaseDefinitionRepository->findByNameAndAudienceAndCustomer($name, $audience, $customer)) {
             $this->messageBag->add('error', 'error.procedure_phase_definition.name.duplicate', ['name' => $name]);
-            throw new BadRequestException('A phase definition with this name already exists for this audience.');
+            throw new PersistResourceException('A phase definition with this name already exists for this audience.');
         }
     }
 }

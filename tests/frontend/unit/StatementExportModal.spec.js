@@ -30,6 +30,7 @@ describe('StatementExportModal', () => {
     isInstitutionDataCensored: false,
     isObscured: false,
     tagFilterIds: [],
+    uploadedDocxTemplate: null,
   }
 
   beforeEach(() => {
@@ -233,6 +234,7 @@ describe('StatementExportModal', () => {
       isInstitutionDataCensored: true,
       isObscured: false,
       tagFilterIds: [],
+      uploadedDocxTemplate: null,
     })
   })
 
@@ -256,6 +258,7 @@ describe('StatementExportModal', () => {
       isInstitutionDataCensored: false,
       isObscured: true,
       tagFilterIds: [],
+      uploadedDocxTemplate: null,
     })
   })
 
@@ -392,5 +395,64 @@ describe('StatementExportModal', () => {
     await wrapper.setData({ active: 'docx_normal' })
     await wrapper.setProps({ isSingleStatementExport: true })
     expect(wrapper.find(selector).exists()).toBe(false)
+  })
+
+  it('emits the via-template route and hash when single statement export has an uploaded template and permission', async () => {
+    await wrapper.setProps({ isSingleStatementExport: true })
+    await wrapper.setData({ uploadedHash: 'template-hash-123' })
+
+    wrapper.vm.handleExport()
+    const exportEvent = wrapper.emitted('export')[0][0]
+
+    expect(exportEvent.route).toBe('dplan_statement_via_template_export')
+    expect(exportEvent.uploadedDocxTemplate).toBe('template-hash-123')
+  })
+
+  it('falls back to the default single-statement route when the template permission is missing', async () => {
+    const originalHasPermission = globalThis.hasPermission
+    globalThis.hasPermission = jest.fn(() => false)
+
+    try {
+      await wrapper.setProps({ isSingleStatementExport: true })
+      await wrapper.setData({ uploadedHash: 'template-hash-123' })
+
+      wrapper.vm.handleExport()
+      const exportEvent = wrapper.emitted('export')[0][0]
+
+      expect(exportEvent.route).toBe('dplan_segments_export')
+      expect(exportEvent.uploadedDocxTemplate).toBeNull()
+    } finally {
+      globalThis.hasPermission = originalHasPermission
+    }
+  })
+
+  it('restores uploadedHash from sessionStorage in setInitialValues', () => {
+    globalThis.sessionStorage.setItem(`templateHash_${MOCK_PROCEDURE_ID}`, JSON.stringify([{ hash: 'stored-hash' }]))
+    wrapper.vm.setInitialValues()
+
+    expect(wrapper.vm.uploadedHash).toBe('stored-hash')
+  })
+
+  it('clears uploadedHash in setInitialValues when no template is stored', () => {
+    wrapper.vm.setInitialValues()
+
+    expect(wrapper.vm.uploadedHash).toBe('')
+  })
+
+  it('resets uploadedHash when resetExportModalState is called', async () => {
+    await wrapper.setData({ uploadedHash: 'some-hash' })
+    wrapper.vm.resetExportModalState()
+
+    expect(wrapper.vm.uploadedHash).toBe('')
+  })
+
+  it('displays column header warning only if single statement export, hash uploaded, permission granted, and column title is set', async () => {
+    await wrapper.setProps({ isSingleStatementExport: true })
+    await wrapper.setData({
+      uploadedHash: 'template-hash',
+      docxColumns: { col1: { title: 'My Title' } },
+    })
+
+    expect(wrapper.findComponent({ name: 'DpInlineNotification' }).exists()).toBe(true)
   })
 })
