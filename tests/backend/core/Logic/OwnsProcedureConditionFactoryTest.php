@@ -201,6 +201,59 @@ class OwnsProcedureConditionFactoryTest extends FunctionalTestCase
         // The condition should NOT match procedures where user is not authorized
     }
 
+    /**
+     * `authorizedUsers` is a `ManyToMany` collection. Once Doctrine hydrates a {@link Procedure}
+     * from the database, reading that property via reflection (as EDT does for conditions
+     * evaluated in PHP, e.g. when resolving an already-fetched to-one relationship) yields the
+     * lazy, un-fetched {@link \Doctrine\ORM\PersistentCollection} rather than a resolved array.
+     * The condition must still be able to check membership in that case.
+     */
+    public function testUserIsExplicitlyAuthorizedMatchesHydratedProcedureInPhp(): void
+    {
+        // Arrange
+        $user = UserFactory::createOne();
+        $procedure = ProcedureFactory::createOne();
+        $procedure->_real()->getAuthorizedUsers()->add($user->_real());
+        $this->getEntityManager()->flush();
+        $procedureId = $procedure->_real()->getId();
+        $this->getEntityManager()->clear();
+
+        // Re-fetch so `authorizedUsers` is hydrated as a lazy Doctrine collection instead of
+        // the `ArrayCollection` set up above.
+        $hydratedProcedure = $this->getEntityManager()->find(Procedure::class, $procedureId);
+
+        $factory = $this->createFactory($user->_real());
+        $condition = $factory->userIsExplicitlyAuthorized();
+
+        $reindexer = $this->getContainer()->get(Reindexer::class);
+
+        // Act & Assert
+        self::assertTrue(
+            $reindexer->isMatchingEntity($hydratedProcedure, [$condition]),
+            'A procedure whose authorizedUsers contains the user must match when evaluated in PHP.'
+        );
+    }
+
+    public function testUserIsExplicitlyAuthorizedDoesNotMatchHydratedProcedureInPhpWhenNotAuthorized(): void
+    {
+        // Arrange
+        $user = UserFactory::createOne();
+        $procedure = ProcedureFactory::createOne();
+        $this->getEntityManager()->flush();
+        $procedureId = $procedure->_real()->getId();
+        $this->getEntityManager()->clear();
+
+        $hydratedProcedure = $this->getEntityManager()->find(Procedure::class, $procedureId);
+
+        $factory = $this->createFactory($user->_real());
+        $condition = $factory->userIsExplicitlyAuthorized();
+
+        $reindexer = $this->getContainer()->get(Reindexer::class);
+
+        // Act & Assert
+        self::assertFalse($reindexer->isMatchingEntity($hydratedProcedure, [$condition]));
+    }
+
     // ========================================================================
     // Tests for isAuthorizedViaOrgaOrManually() - THE BUG WE FIXED
     // ========================================================================
@@ -347,6 +400,62 @@ class OwnsProcedureConditionFactoryTest extends FunctionalTestCase
         // Assert
         $this->assertNotNull($condition);
         // The condition should NOT match since user's org is not a planning office
+    }
+
+    /**
+     * `planningOffices` is a `ManyToMany` collection, subject to the same PHP-evaluation
+     * limitation as {@link self::testUserIsExplicitlyAuthorizedMatchesHydratedProcedureInPhp()}.
+     */
+    public function testIsAuthorizedViaPlanningAgencyMatchesHydratedProcedureInPhp(): void
+    {
+        // Arrange
+        $planningOfficeOrga = OrgaFactory::createOne();
+        $user = UserFactory::createOne();
+        $this->linkUserToOrga($user->_real(), $planningOfficeOrga->_real());
+        $procedure = ProcedureFactory::createOne();
+        $procedure->_real()->addPlanningOffice($planningOfficeOrga->_real());
+        $this->getEntityManager()->flush();
+        $procedureId = $procedure->_real()->getId();
+        $this->getEntityManager()->clear();
+
+        // Re-fetch so `planningOffices` is hydrated as a lazy Doctrine collection instead of
+        // the `ArrayCollection` set up above.
+        $hydratedProcedure = $this->getEntityManager()->find(Procedure::class, $procedureId);
+
+        $factory = $this->createFactory($user->_real());
+        $condition = $factory->isAuthorizedViaPlanningAgency();
+
+        $reindexer = $this->getContainer()->get(Reindexer::class);
+
+        // Act & Assert
+        self::assertTrue(
+            $reindexer->isMatchingEntity($hydratedProcedure, [$condition]),
+            "A procedure whose planningOffices contains the user's orga must match when evaluated in PHP."
+        );
+    }
+
+    public function testIsAuthorizedViaPlanningAgencyDoesNotMatchHydratedProcedureInPhpWhenOrgNotInPlanningOffices(): void
+    {
+        // Arrange
+        $userOrga = OrgaFactory::createOne();
+        $planningOfficeOrga = OrgaFactory::createOne();
+        $user = UserFactory::createOne();
+        $this->linkUserToOrga($user->_real(), $userOrga->_real());
+        $procedure = ProcedureFactory::createOne();
+        $procedure->_real()->addPlanningOffice($planningOfficeOrga->_real());
+        $this->getEntityManager()->flush();
+        $procedureId = $procedure->_real()->getId();
+        $this->getEntityManager()->clear();
+
+        $hydratedProcedure = $this->getEntityManager()->find(Procedure::class, $procedureId);
+
+        $factory = $this->createFactory($user->_real());
+        $condition = $factory->isAuthorizedViaPlanningAgency();
+
+        $reindexer = $this->getContainer()->get(Reindexer::class);
+
+        // Act & Assert
+        self::assertFalse($reindexer->isMatchingEntity($hydratedProcedure, [$condition]));
     }
 
     // ========================================================================
