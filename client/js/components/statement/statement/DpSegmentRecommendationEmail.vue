@@ -31,7 +31,7 @@
           id="recipient"
           v-model="recipient"
           :label="{
-            text: Translator.trans('recipients'),
+            text: Translator.trans('recipient'),
             hint: Translator.trans('segment.send.via.email.recipient.hint')
           }"
           class="mb-4"
@@ -102,6 +102,7 @@
             :toolbar-items="obscureOnlyToolbar"
             :value="segmentTextToSend"
             class="-mt-1"
+            obscure-only
             @input="value => segmentTextToSend = value"
             @transform-obscure-tag="value => segmentTextToSend = value"
           />
@@ -129,6 +130,7 @@
             :toolbar-items="obscureOnlyToolbar"
             :value="recommendationTextToSend"
             class="-mt-1"
+            obscure-only
             @input="value => recommendationTextToSend = value"
             @transform-obscure-tag="value => recommendationTextToSend = value"
           />
