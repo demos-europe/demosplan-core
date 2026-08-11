@@ -89,9 +89,6 @@
 import { DpRadio, DpUploadFiles, getFileTypes, hasAnyPermissions } from '@demos-europe/demosplan-ui'
 import SegmentImportJobList from '../SegmentImportJobList'
 
-const CSV_TYPE = '.csv'
-const SPREADSHEET_TYPES = ['.xls', '.xlsx', '.ods']
-
 export default {
   name: 'ExcelImport',
 

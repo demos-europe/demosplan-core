@@ -55,7 +55,7 @@
         <!-- Result Column -->
         <template v-slot:result="rowData">
           <span v-if="rowData.status === 'completed' && rowData.result">
-            {{ rowData.result.statements || 0 }} {{ Translator.trans('statements') }}<template v-if="rowData.importType === 'segments'">, {{ rowData.result.segments || 0 }} {{ Translator.trans('segments') }}</template>
+            {{ resultSummary(rowData) }}
           </span>
           <span v-else-if="rowData.status === 'failed'">
             {{ Translator.trans('error.occurred') }}
@@ -200,6 +200,16 @@ export default {
           this.isInitialLoad = false
         }
       }
+    },
+    
+    resultSummary (job) {
+      const summary = [`${job.result.statements || 0} ${Translator.trans('statements')}`]
+
+      if (job.importType === 'segments') {
+        summary.push(`${job.result.segments || 0} ${Translator.trans('segments')}`)
+      }
+
+      return summary.join(', ')
     },
 
     /**
