@@ -1205,7 +1205,10 @@ class EntityContentChangeService
             $procedureName = $changedSegment->getProcedure()->getName();
             $workflowPlace = $changedSegment->getPlace()->getName();
             $externId = $changedSegment->getExternId();
-            $currentMailData['entries'][$procedureName][$workflowPlace][$externId] = $link;
+            $currentMailData['entries'][$procedureName][$workflowPlace][$externId] = [
+                'link'     => $link,
+                'deadline' => $changedSegment->getDeadline(),
+            ];
             ++$currentMailData['totalTasks'];
         }
         // send mail for last user
