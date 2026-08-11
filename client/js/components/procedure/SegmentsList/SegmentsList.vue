@@ -1656,10 +1656,10 @@ export default {
       if (parentStatement.hasRelationship('attachments')) {
         const originalAttachment = Object.values(
           parentStatement.relationships.attachments.list(),
-        ).filter(
+        ).find(
           (attachment) =>
             attachment.attributes.attachmentType === 'source_statement',
-        )[0]
+        )
 
         if (originalAttachment) {
           return originalAttachment.rel('file').attributes.hash
