@@ -41,7 +41,7 @@
           id="emailCC"
           v-model="emailCC"
           :label="{
-            text: Translator.trans('email.cc'),
+            text: Translator.trans('cc'),
             hint: Translator.trans('explanation.email.cc')
           }"
           class="mb-4"
