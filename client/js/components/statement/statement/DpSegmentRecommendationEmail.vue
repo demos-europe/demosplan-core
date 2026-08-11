@@ -36,6 +36,7 @@
           }"
           class="mb-4"
           required
+          type="email"
         />
         <dp-input
           id="emailCC"
@@ -46,6 +47,7 @@
           }"
           class="mb-4"
           data-cy="segmentRecommendationEmail:emailCC"
+          type="email"
         />
         <dp-input
           id="replyToEmail"
@@ -55,6 +57,8 @@
             hint: Translator.trans('segment.send.via.email.reply.to.hint')
           }"
           class="mb-4"
+          data-cy="segmentRecommendationEmail:replyToEmail"
+          type="email"
         />
         <dp-input
           id="subject"
@@ -73,15 +77,18 @@
           class="mb-4"
         />
       </div>
-      <div class="ml-5 mr-5">
-        <p class="font-semibold pt-4">
+      <fieldset
+        aria-describedby="attachmentsHint"
+        class="ml-5 mr-5 mt-4 pt-2"
+      >
+        <legend class="font-semibold">
           {{ Translator.trans('segment.send.via.mail.add.attachments') }}
-        </p>
-        <p>
+        </legend>
+        <p id="attachmentsHint">
           {{ Translator.trans('segment.send.via.mail.add.attachments.hint') }}
         </p>
         <dp-accordion
-          :title="Translator.trans('segment.text')"
+          :title="Translator.trans('segment.text.attach')"
           class="pt-2"
           compressed
         >
@@ -108,7 +115,7 @@
           />
         </dp-accordion>
         <dp-accordion
-          :title="Translator.trans('recommendation.text')"
+          :title="Translator.trans('recommendation.text.attach')"
           class="pt-2"
           compressed
         >
@@ -135,7 +142,7 @@
             @transform-obscure-tag="value => recommendationTextToSend = value"
           />
         </dp-accordion>
-      </div>
+      </fieldset>
     </div>
     <dp-button-row
       :busy="isSending"
