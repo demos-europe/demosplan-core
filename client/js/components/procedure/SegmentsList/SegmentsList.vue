@@ -98,17 +98,27 @@
       </div>
       <dp-bulk-edit-header
         v-if="selectedItemsCount > 0"
-        class="layout__item u-12-of-12 u-mt-0_5"
-        :selected-items-text="
-          Translator.trans('items.selected.multi.page', {
-            count: selectedItemsCount,
-          })
-        "
+        :selected-items-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
+        class="mt-2"
         @reset-selection="resetSelection"
       >
+        <template
+          v-if="hasPermission('feature_segments_copy_to_clipboard')"
+          v-slot:buttonRowStart
+        >
+          <dp-button
+            :busy="isCopyingToClipboard"
+            :disabled="selectionCopiedToClipboard"
+            :text="selectionCopiedToClipboard ? Translator.trans('segments.copy.clipboard.done') : Translator.trans('segments.copy.clipboard')"
+            variant="transparent"
+            data-cy="segmentsList:copyToClipboard"
+            icon="copy"
+            @click.prevent="copySelectionToClipboard"
+          />
+        </template>
         <dp-button
           :text="Translator.trans('segments.bulk.edit')"
-          variant="outline"
+          variant="solid"
           @click.prevent="handleBulkEdit"
         />
       </dp-bulk-edit-header>
@@ -222,6 +232,7 @@
             is-selectable
             :lock-checkbox-by="canUnlock ? false : 'isPlaceLocked'"
             :lock-checkbox-hint="Translator.trans('segment.lock.hint')"
+            @columns-reordered="selectionCopiedToClipboard = false"
             @items-toggled="handleToggleItem"
             @select-all="handleSelectAll"
           >
@@ -768,6 +779,7 @@ export default {
           initialMinWidth: 180,
         },
       ],
+      isCopyingToClipboard: false,
       isLoading: true,
       lsKey: {
         // LocalStorage keys
@@ -780,6 +792,7 @@ export default {
       searchTerm: this.initialSearchTerm,
       searchFieldsSelected: [],
       selectedSort: '',
+      selectionCopiedToClipboard: false,
       sortOptions: [
         { value: '-deadline', label: Translator.trans('sort.deadline.descending') },
         { value: 'deadline', label: Translator.trans('sort.deadline.ascending') },
@@ -1050,6 +1063,16 @@ export default {
     },
   },
 
+  watch: {
+    currentSelection () {
+      this.selectionCopiedToClipboard = false
+    },
+
+    toggledItems () {
+      this.selectionCopiedToClipboard = false
+    },
+  },
+
   methods: {
     formatDate,
     ...mapActions('AssignableUser', {
@@ -1092,86 +1115,17 @@ export default {
           },
         },
       }
-      const statementSegmentFields = [
-        'assignee',
-        'externId',
-        'orderInProcedure',
-        'parentStatement',
-        'place',
-        'tags',
-        'text',
-        'recommendation',
-      ]
-
-      if (hasPermission('field_statement_deadline')) {
-        statementSegmentFields.push('deadline')
-      }
-
-      const statementSegmentInclude = [
-        'assignee',
-        'place',
-        'tags',
-        'parentStatement.genericAttachments.file',
-        'parentStatement.sourceAttachment.file',
-      ]
-
-      if (hasPermission('field_segments_custom_fields')) {
-        statementSegmentFields.push('customFields')
-      }
-
-      if (hasPermission('feature_enable_recommendation_versions')) {
-        statementSegmentFields.push('recommendationVersions')
-        statementSegmentInclude.push('recommendationVersions')
-      }
+      const { include, fields } = this.buildSegmentFetchOptions()
 
       const payload = {
-        include: statementSegmentInclude.join(),
+        include,
         page: {
           number: page,
           size: this.pagination.perPage,
         },
         sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
         filter,
-        fields: {
-          File: ['hash'].join(),
-          GenericStatementAttachment: ['file'].join(),
-          Place: [
-            'name',
-            ...(hasPermission('feature_segment_lock_by_workflow_place') ?
-              ['locked'] :
-              []),
-          ].join(),
-          SourceStatementAttachment: ['file'].join(),
-          Statement: [
-            'authoredDate',
-            'authorName',
-            'genericAttachments',
-            'isSubmittedByCitizen',
-            'initialOrganisationDepartmentName',
-            'initialOrganisationName',
-            'initialOrganisationStreet',
-            'initialOrganisationHouseNumber',
-            'initialOrganisationPostalCode',
-            'initialOrganisationCity',
-            'internId',
-            'memo',
-            'sourceAttachment',
-            'status',
-            'submitDate',
-            'submitName',
-            'submitType',
-          ].join(),
-          StatementSegment: statementSegmentFields.join(),
-          Tag: ['title'].join(),
-        },
-      }
-
-      if (hasPermission('feature_enable_recommendation_versions')) {
-        payload.fields.RecommendationVersion = [
-          'versionNumber',
-          'recommendationText',
-          'createdAt',
-        ].join()
+        fields,
       }
 
       if (this.searchTerm !== '') {
@@ -1241,6 +1195,375 @@ export default {
                 this.$refs.dataTable.$el.querySelectorAll('img'),
               )
             })
+          }
+        })
+    },
+
+    /*
+     * Builds the `include`/`fields` portion of a StatementSegment JSON:API request. Shared by
+     * applyQuery() (the main list fetch) and fetchMissingSegments() (the supplemental fetch for
+     * selected segments outside the currently loaded batch), so both requests always resolve the
+     * same relationships/attributes and copying-to-clipboard never sees a different data shape
+     * depending on where a segment's data came from.
+     */
+    buildSegmentFetchOptions () {
+      const statementSegmentFields = [
+        'assignee',
+        'externId',
+        'orderInProcedure',
+        'parentStatement',
+        'place',
+        'tags',
+        'text',
+        'recommendation',
+      ]
+
+      if (hasPermission('field_statement_deadline')) {
+        statementSegmentFields.push('deadline')
+      }
+
+      const statementSegmentInclude = [
+        'assignee',
+        'place',
+        'tags',
+        'parentStatement.genericAttachments.file',
+        'parentStatement.sourceAttachment.file',
+      ]
+
+      if (hasPermission('field_segments_custom_fields')) {
+        statementSegmentFields.push('customFields')
+      }
+
+      if (hasPermission('feature_enable_recommendation_versions')) {
+        statementSegmentFields.push('recommendationVersions')
+        statementSegmentInclude.push('recommendationVersions')
+      }
+
+      const fields = {
+        File: [
+          'hash',
+        ].join(),
+        GenericStatementAttachment: [
+          'file',
+        ].join(),
+        Place: [
+          'name',
+          ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+        ].join(),
+        SourceStatementAttachment: ['file'].join(),
+        Statement: [
+          'authoredDate',
+          'authorName',
+          'genericAttachments',
+          'isSubmittedByCitizen',
+          'initialOrganisationDepartmentName',
+          'initialOrganisationName',
+          'initialOrganisationStreet',
+          'initialOrganisationHouseNumber',
+          'initialOrganisationPostalCode',
+          'initialOrganisationCity',
+          'internId',
+          'memo',
+          'sourceAttachment',
+          'status',
+          'submitDate',
+          'submitName',
+          'submitType',
+        ].join(),
+        StatementSegment: statementSegmentFields.join(),
+        Tag: [
+          'title',
+        ].join(),
+      }
+
+      if (hasPermission('feature_enable_recommendation_versions')) {
+        fields.RecommendationVersion = [
+          'versionNumber',
+          'recommendationText',
+          'createdAt',
+        ].join()
+      }
+
+      return {
+        include: statementSegmentInclude.join(),
+        fields,
+      }
+    },
+
+    copySelectionToClipboard () {
+      const selectedIds = this.resolveSelectedSegmentIds()
+
+      if (selectedIds.length === 0) {
+        dplan.notify.notify('warning', Translator.trans('warning.entries.no.selected'))
+
+        return
+      }
+
+      const missingIds = selectedIds.filter(id => !this.segmentsObject[id])
+      const fetchMissing = missingIds.length > 0 ?
+        this.fetchMissingSegments(missingIds) :
+        Promise.resolve({ segmentsById: {}, statementsById: {}, placesById: {}, tagsById: {}, recommendationVersionsById: {} })
+
+      this.isCopyingToClipboard = true
+
+      fetchMissing
+        .then(supplemental => this.copyTextToClipboard(this.buildClipboardText(selectedIds, supplemental)))
+        .then(() => {
+          dplan.notify.notify('confirm', Translator.trans('segments.copy.clipboard.success', { count: selectedIds.length }))
+          this.selectionCopiedToClipboard = true
+        })
+        .catch(error => {
+          console.error(error)
+          this.selectionCopiedToClipboard = false
+          dplan.notify.notify('error', Translator.trans('segments.copy.clipboard.error', { count: selectedIds.length }))
+        })
+        .finally(() => {
+          this.isCopyingToClipboard = false
+        })
+    },
+
+    /*
+     * Builds the tab/newline-separated plain-text representation (Excel-paste target) of the
+     * selected segments, matching the currently visible columns and their drag&drop order.
+     * `supplemental` provides data for segment ids not yet in the Vuex store (see
+     * fetchMissingSegments) and must be merged in locally rather than read from `this.*` directly,
+     * since it is never committed to the store.
+     */
+    buildClipboardText (selectedIds, supplemental) {
+      const segmentsById = {
+        ...this.segmentsObject,
+        ...supplemental.segmentsById,
+      }
+      const context = {
+        statementsById: {
+          ...this.statementsObject,
+          ...supplemental.statementsById,
+        },
+        placesById: {
+          ...this.placesObject,
+          ...supplemental.placesById,
+        },
+        tagsById: {
+          ...this.tagsObject,
+          ...supplemental.tagsById,
+        },
+        recommendationVersionsById: {
+          ...this.recommendationVersions,
+          ...supplemental.recommendationVersionsById,
+        },
+        hasRecommendationVersions: hasPermission('feature_enable_recommendation_versions'),
+      }
+      const headerFields = this.$refs.dataTable?.orderedHeaderFields || this.availableHeaderFields
+
+      return selectedIds
+        .map(id => segmentsById[id])
+        .map(segment => headerFields
+          .map(headerField => this.sanitizeClipboardCell(segment ? this.getClipboardCellValue(headerField, segment, context) : ''))
+          .join('\t'))
+        .join('\n')
+    },
+
+    /*
+     * The Clipboard API (`navigator.clipboard`) is only available in secure contexts (https or
+     * localhost) — on a plain-http local dev domain it is `undefined`. Falls back to the classic
+     * hidden-textarea + execCommand('copy') technique in that case, matching DpEditor.vue's cut().
+     */
+    copyTextToClipboard (text) {
+      if (navigator.clipboard) {
+        return navigator.clipboard.writeText(text)
+      }
+
+      return new Promise((resolve, reject) => {
+        const textarea = document.createElement('textarea')
+
+        textarea.value = text
+        textarea.setAttribute('readonly', '')
+        textarea.style.position = 'fixed'
+        textarea.style.opacity = '0'
+        document.body.appendChild(textarea)
+        textarea.select()
+
+        try {
+          document.execCommand('copy')
+          resolve()
+        } catch (error) {
+          reject(error)
+        } finally {
+          textarea.remove()
+        }
+      })
+    },
+
+    getClipboardAddress (segment, context) {
+      const statement = this.getClipboardParentStatement(segment, context)
+
+      if (!statement) {
+        return ''
+      }
+
+      const parts = []
+
+      if (statement.attributes.initialOrganisationStreet !== '') {
+        parts.push(`${statement.attributes.initialOrganisationStreet} ${statement.attributes.initialOrganisationHouseNumber}`.trim())
+      }
+
+      if (statement.attributes.initialOrganisationPostalCode !== '') {
+        parts.push(`${statement.attributes.initialOrganisationPostalCode} ${statement.attributes.initialOrganisationCity}`.trim())
+      }
+
+      return parts.join(', ')
+    },
+
+    getClipboardCellValue (headerField, segment, context) {
+      if (headerField.field.startsWith('customField_')) {
+        return this.getCustomFieldOptionLabel(segment.attributes.customFields, headerField.field.replace('customField_', ''))
+      }
+
+      switch (headerField.field) {
+        case 'address':
+          return this.getClipboardAddress(segment, context)
+        case 'deadline':
+          return segment.attributes.deadline ? formatDate(segment.attributes.deadline) : ''
+        case 'externId':
+          return segment.attributes.externId || ''
+        case 'internId':
+          return this.getClipboardParentStatement(segment, context)?.attributes.internId || ''
+        case 'place':
+          return context.placesById[segment.relationships?.place?.data?.id]?.attributes.name || ''
+        case 'recommendation':
+          return this.getClipboardRecommendation(segment, context)
+        case 'statementStatus': {
+          const status = this.getClipboardParentStatement(segment, context)?.attributes.status
+
+          return status ? Translator.trans(status) : ''
+        }
+
+        case 'submitter':
+          return this.getClipboardSubmitter(segment, context)
+        case 'tags':
+          return (segment.relationships?.tags?.data || [])
+            .map(tag => context.tagsById[tag.id]?.attributes?.title)
+            .filter(Boolean)
+            .join(', ')
+        case 'text':
+          return this.stripHtmlForClipboard(segment.attributes.text)
+        default:
+          return ''
+      }
+    },
+
+    getClipboardParentStatement (segment, context) {
+      return context.statementsById[segment.relationships?.parentStatement?.data?.id]
+    },
+
+    getClipboardRecommendation (segment, context) {
+      const text = this.stripHtmlForClipboard(segment.attributes.recommendation) || '-'
+      const versionNumber = context.hasRecommendationVersions ? this.getClipboardRecommendationVersionNumber(segment, context) : ''
+
+      return versionNumber ? `${text} ${Translator.trans('version')}: ${versionNumber}` : text
+    },
+
+    getClipboardRecommendationVersionNumber (segment, context) {
+      const versionId = segment.relationships?.recommendationVersions?.data?.[0]?.id
+      const versionNumber = versionId && context.recommendationVersionsById[versionId]?.attributes?.versionNumber
+
+      return versionNumber ? String(versionNumber).padStart(3, '0') : ''
+    },
+
+    getClipboardSubmitter (segment, context) {
+      const statement = this.getClipboardParentStatement(segment, context)
+
+      if (!statement) {
+        return ''
+      }
+
+      const parts = [statement.attributes.authorName || statement.attributes.submitName]
+
+      if (statement.attributes.initialOrganisationName !== '') {
+        parts.push(statement.attributes.initialOrganisationName)
+      }
+
+      // Drop empty parts so anonymous submissions do not end up with a leading separator
+      return parts.filter(Boolean).join(', ')
+    },
+
+    /**
+     * Collapses tabs/newlines in a value so it cannot break the copied table's row/column structure
+     * @param {*} value
+     * @returns {string}
+     */
+    sanitizeClipboardCell (value) {
+      return String(value ?? '').replace(/[\t\r\n]+/g, ' ').trim()
+    },
+
+    /**
+     * Extracts plain text from an HTML string, discarding all markup.
+     * DOMParser builds an inert document, so unlike assigning to innerHTML it neither loads
+     * embedded resources nor lets event handlers such as `onerror` run on unsanitized input.
+     * @param {string} html
+     * @returns {string}
+     */
+    stripHtmlForClipboard (html) {
+      if (!html) {
+        return ''
+      }
+
+      return new DOMParser().parseFromString(html, 'text/html').body.textContent || ''
+    },
+
+    buildResourceMapById (resources) {
+      return resources.reduce((resourceMap, resource) => {
+        resourceMap[resource.id] = resource
+
+        return resourceMap
+      }, {})
+    },
+
+    buildResourceMapByType (resources, type) {
+      return this.buildResourceMapById(resources.filter(resource => resource.type === type))
+    },
+
+    /*
+     * Loads full attribute data for selected segment ids that aren't in the Vuex store yet — only
+     * possible when "select all" spans more segments than the 1000-row main-fetch cap. Deliberately
+     * bypasses the mapped `fetchSegments` ('list') action, which would reset the currently displayed
+     * table; the raw JSON:API response is turned into standalone lookup maps instead.
+     */
+    fetchMissingSegments (missingIds) {
+      const { include, fields } = this.buildSegmentFetchOptions()
+      const chunkSize = 200
+      const idChunks = []
+
+      for (let start = 0; start < missingIds.length; start += chunkSize) {
+        idChunks.push(missingIds.slice(start, start + chunkSize))
+      }
+
+      const fetchChunk = idChunk => dpApi.get(Routing.generate('api_resource_list', { resourceType: 'StatementSegment' }), {
+        include,
+        fields,
+        filter: {
+          idIsOneOf: {
+            condition: {
+              path: 'id',
+              value: idChunk,
+              operator: 'IN',
+            },
+          },
+        },
+      })
+
+      return idChunks
+        .reduce((chain, idChunk) => chain.then(responses => fetchChunk(idChunk).then(response => [...responses, response])), Promise.resolve([]))
+        .then(responses => {
+          const segments = responses.flatMap(response => response.data.data)
+          const included = responses.flatMap(response => response.data.included || [])
+
+          return {
+            segmentsById: this.buildResourceMapById(segments),
+            statementsById: this.buildResourceMapByType(included, 'Statement'),
+            placesById: this.buildResourceMapByType(included, 'Place'),
+            tagsById: this.buildResourceMapByType(included, 'Tag'),
+            recommendationVersionsById: this.buildResourceMapByType(included, 'RecommendationVersion'),
           }
         })
     },
@@ -1406,6 +1729,24 @@ export default {
     resetSearchQuery () {
       this.searchTerm = ''
       this.$refs.customSearch.reset()
+    },
+
+    /*
+     * Returns the true set of selected segment ids, independent of `currentlySelectedItems`
+     * (which silently truncates to the loaded page/batch once `trackDeselected` is active — see
+     * the override above). When "select all" is active, the full filtered-set id list (written to
+     * `lscache` by fetchSegmentIds()/storeAllSegments(), covering the >1000-segment case too) minus
+     * the individually deselected ids is the true selection.
+     */
+    resolveSelectedSegmentIds () {
+      if (this.trackDeselected) {
+        const deselectedIds = new Set(this.toggledItems.map(item => item.id))
+        const allSegmentIds = lscache.get(this.lsKey.allSegments) || []
+
+        return allSegmentIds.filter(id => !deselectedIds.has(id))
+      }
+
+      return this.toggledItems.map(item => item.id)
     },
 
     /**

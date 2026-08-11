@@ -10,6 +10,10 @@
 - Boilerplate edit page lists the segments in which a boilerplate is used as deep links
 - Sortable deadline column in segmentsList (sorting gated behind `feature_segments_manualsort`, not enabled yet)
 - Tags can now be linked to a default assignee, who is preselected when the tag is added to a segment during statement splitting
+- Selected segments in the segments list can be copied to the clipboard for pasting into Excel, respecting the currently visible columns and their order
+
+### Fixed
+- The statement PDF attached to the submission confirmation no longer states that the submitter declined feedback when no feedback preference was recorded at all.
 
 ## v4.53.0 (2026-07-30)
 
