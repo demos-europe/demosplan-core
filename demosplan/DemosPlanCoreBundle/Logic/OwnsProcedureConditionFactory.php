@@ -205,7 +205,17 @@ class OwnsProcedureConditionFactory
     public function isEitherTemplateOrProcedure(bool $template): ClauseFunctionInterface
     {
         if ($this->userOrProcedure instanceof User) {
-            return $this->conditionFactory->propertyHasValue($template, ['master']);
+            /*
+             * Procedure::$master is persisted as an integer column but semantically boolean
+             * (see ProcedureResourceType::getResourceTypeConditions()). SQL-executed conditions
+             * work with either representation because MySQL loosely casts bool to int, but
+             * conditions evaluated in PHP (e.g. EDT relationship resolution) use strict
+             * comparison and require the int representation to match.
+             */
+            return $this->conditionFactory->anyConditionApplies(
+                $this->conditionFactory->propertyHasValue($template, ['master']),
+                $this->conditionFactory->propertyHasValue((int) $template, ['master']),
+            );
         }
 
         $procedure = $this->userOrProcedure;
