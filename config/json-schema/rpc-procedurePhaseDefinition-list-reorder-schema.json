@@ -27,11 +27,9 @@
       "type": "object",
       "properties": {
         "phaseDefinitionId": {
-          "$id": "phaseDefinitionId",
           "type": "string"
         },
         "newIndex": {
-          "$index": "index",
           "type": "integer",
           "minimum": 0
         }
