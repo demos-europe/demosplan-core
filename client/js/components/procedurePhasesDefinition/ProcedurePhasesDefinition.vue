@@ -123,11 +123,15 @@ All rights reserved
               :flyout-width="flyoutWidth"
               :header-fields="headerFields"
               :items="section.audiencePhases"
+              :lock-drag-and-drop-hint="Translator.trans('procedure.phase.configuration.not.movable')"
               density="spacious"
+              lock-drag-and-drop-by="isFixedOrderPhase"
               track-by="id"
               has-borders
               has-flyout
+              is-draggable
               is-resizable
+              @changed-order="handleReorder(section.audience, $event)"
             >
               <template v-slot:name="phase">
                 <dp-input
@@ -307,6 +311,7 @@ import {
   DpLoading,
   DpMultiselect,
   DpRadio,
+  dpRpc,
   DpSelect,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
@@ -448,8 +453,50 @@ export default {
         })
     }
 
+    /**
+     * The configuration phase (orderInAudience 0) is locked for dragging via
+     * lock-drag-and-drop-by, so it can neither be moved nor be a drop target.
+     *
+     * The backend counts positions among the non-configuration phases only, so it is excluded
+     * before the index is read off the reordered list.
+     */
+    const handleReorder = (audience, { newIndex, oldIndex }) => {
+      if (newIndex === oldIndex) {
+        return
+      }
+
+      const listBackup = [...phaseDefinitions.value]
+      const otherPhases = phaseDefinitions.value.filter(phase => phase.audience !== audience)
+      const sectionPhases = phaseDefinitions.value.filter(phase => phase.audience === audience)
+      const movedPhase = sectionPhases[oldIndex]
+
+      sectionPhases.splice(oldIndex, 1)
+      sectionPhases.splice(newIndex, 0, movedPhase)
+
+      const backendIndex = sectionPhases
+        .filter(phase => phase.orderInAudience !== 0)
+        .indexOf(movedPhase)
+
+      phaseDefinitions.value = [...otherPhases, ...sectionPhases]
+
+      dpRpc('procedurePhaseDefinitionList.reorder', {
+        phaseDefinitionId: movedPhase.id,
+        newIndex: backendIndex,
+      })
+        .then(() => {
+          dplan.notify.confirm(Translator.trans('confirm.saved'))
+        })
+        .catch(err => {
+          // Reset optimistically triggered sort on error
+          phaseDefinitions.value = listBackup
+          console.error(err)
+          dplan.notify.error(Translator.trans('error.api.generic'))
+        })
+    }
+
     const mapPhaseToRow = (phase) => ({
       id: phase.id,
+      isFixedOrderPhase: phase.orderInAudience === 0,
       name: phase.name,
       orderInAudience: phase.orderInAudience,
       participationState: phase.participationState,
@@ -876,6 +923,7 @@ export default {
       flyoutWidth,
       handleAddonEditChange,
       handleAddonEditStart,
+      handleReorder,
       handleSaveEditClick,
       hasAttemptedSubmit,
       headerFields,

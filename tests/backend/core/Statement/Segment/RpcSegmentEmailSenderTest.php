@@ -84,12 +84,12 @@ class RpcSegmentEmailSenderTest extends TestCase
         $result = $this->sut->execute(
             $this->procedure('procedure-id'),
             $this->rpcRequest('req-1', [
-                'segmentIds'   => ['segment-1', 'segment-2'],
+                'segmentIds'    => ['segment-1', 'segment-2'],
                 'recipientMail' => 'recipient@test.de',
-                'subject'      => 'Subject',
-                'body'         => 'Body',
-                'sendEmailCC'  => 'cc@test.de',
-                'replyTo'      => 'reply@test.de',
+                'subject'       => 'Subject',
+                'body'          => 'Body',
+                'sendEmailCC'   => 'cc@test.de',
+                'replyTo'       => 'reply@test.de',
             ])
         );
 
@@ -121,11 +121,11 @@ class RpcSegmentEmailSenderTest extends TestCase
         $result = $this->sut->execute(
             $this->procedure('procedure-id'),
             $this->rpcRequest('req-1', [
-                'segmentIds'   => ['segment-1'],
+                'segmentIds'    => ['segment-1'],
                 'recipientMail' => 'recipient@test.de',
-                'subject'      => 'Subject',
-                'body'         => 'Body',
-                'sendEmailCC'  => 'cc@test.de',
+                'subject'       => 'Subject',
+                'body'          => 'Body',
+                'sendEmailCC'   => 'cc@test.de',
             ])
         );
 
@@ -149,11 +149,11 @@ class RpcSegmentEmailSenderTest extends TestCase
         $result = $this->sut->execute(
             $this->procedure('procedure-id'),
             $this->rpcRequest('req-1', [
-                'segmentIds'   => ['segment-1'],
+                'segmentIds'    => ['segment-1'],
                 'recipientMail' => 'recipient@test.de',
-                'subject'      => 'Subject',
-                'body'         => 'Body',
-                'sendEmailCC'  => null,
+                'subject'       => 'Subject',
+                'body'          => 'Body',
+                'sendEmailCC'   => null,
             ])
         );
 
