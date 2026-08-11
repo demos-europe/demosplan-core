@@ -86,7 +86,7 @@
 </template>
 
 <script>
-import { DpRadio, DpUploadFiles, hasAnyPermissions } from '@demos-europe/demosplan-ui'
+import { DpRadio, DpUploadFiles, getFileTypes, hasAnyPermissions } from '@demos-europe/demosplan-ui'
 import SegmentImportJobList from '../SegmentImportJobList'
 
 const CSV_TYPE = '.csv'
@@ -165,7 +165,7 @@ export default {
     allowedFileTypes () {
       const csvAllowed = this.active === 'statements' && hasPermission('feature_statements_import_csv')
 
-      return csvAllowed ? [...SPREADSHEET_TYPES, CSV_TYPE] : SPREADSHEET_TYPES
+      return csvAllowed ? [...getFileTypes('xls'), ...getFileTypes('csv')] : getFileTypes('xls')
     },
 
     /**
@@ -215,7 +215,9 @@ export default {
     },
 
     isCsv (file) {
-      return (file.name || '').toLowerCase().endsWith(CSV_TYPE)
+      const fileName = (file.name || '').toLowerCase()
+
+      return getFileTypes('csv').some(fileType => fileName.endsWith(fileType))
     },
 
     radioLabel (entity) {
