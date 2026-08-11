@@ -4,7 +4,6 @@
 {% set user = user|merge({ firstname: currentUser.firstname }) %}
 {% set user = user|merge({ lastname: currentUser.lastname }) %}
 {% set user = user|merge({ orgaName: currentUser.organisationNameLegal }) %}
-{% set user = user|merge({ email: currentUser.email }) %}
 {% set submitTypeOptions = [] %}
 
 {% for value, label in getFormOption('statement_submit_types.values', true) %}

@@ -10,7 +10,6 @@
 /**
  * This is the entrypoint for administration_segments_list.html.twig
  */
-import DpSegmentRecommendationEmail from '@DpJs/components/statement/statement/DpSegmentRecommendationEmail'
 import { DpSlidebar } from '@demos-europe/demosplan-ui'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
 import FilterFlyoutStore from '@DpJs/store/procedure/FilterFlyout'
@@ -20,7 +19,6 @@ import SegmentsList from '@DpJs/components/procedure/SegmentsList/SegmentsList'
 const components = {
   SegmentsList,
   DpSlidebar,
-  DpSegmentRecommendationEmail,
   DpVersionHistory,
 }
 const stores = {

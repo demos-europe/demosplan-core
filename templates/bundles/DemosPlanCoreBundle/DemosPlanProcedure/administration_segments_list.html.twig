@@ -10,13 +10,7 @@
     {# Version History Slidebar #}
     <dp-slidebar>
         <dp-version-history procedure-id="{{ procedure }}"></dp-version-history>
-        <dp-segment-recommendation-email
-            current-user-email="{{ currentUser.email }}"
-            procedure-name="{{ procedureObject.name }}"
-        ></dp-segment-recommendation-email>
     </dp-slidebar>
-
-    {# Send segments via mail slidebar #}
 
     <segments-list
         :filters="JSON.parse('{{ filterNames|json_encode|e('js', 'utf-8') }}')"

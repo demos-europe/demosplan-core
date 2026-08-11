@@ -14,7 +14,7 @@
 </documentation>
 
 <template>
-  <div v-if="isVisible">
+  <div>
     <h2 class="u-mb-0_75">
       {{ versionHistoryHeading }}
     </h2>
@@ -105,7 +105,6 @@ export default {
       entity: '',
       entityId: null,
       externId: '',
-      isVisible: false,
       isLoading: true,
       times: [],
     }
@@ -113,10 +112,6 @@ export default {
 
   computed: {
     versionHistoryHeading () {
-      if (this.entity === '' || this.externId === '') {
-        return Translator.trans('history')
-      }
-
       let entityKey
 
       switch (this.entity) {
@@ -141,21 +136,6 @@ export default {
   },
 
   methods: {
-    handleEntityUpdated (entityId, entityType) {
-      this.updateVersionHistory(entityId, entityType)
-    },
-
-    handleSendViaMail () {
-      this.isVisible = false
-    },
-
-    handleVersionHistory (entityId, entityType, externId) {
-      this.isVisible = true
-      this.externId = externId
-      this.loadItems(entityId, entityType)
-      this.entity = entityType
-    },
-
     loadItems (id, type) {
       this.isLoading = true
       const route = type === 'statement' ?
@@ -191,15 +171,16 @@ export default {
   },
 
   mounted () {
-    this.$root.$on('entity:updated', this.handleEntityUpdated)
-    this.$root.$on('segment:send-via-mail', this.handleSendViaMail)
-    this.$root.$on('version:history', this.handleVersionHistory)
-  },
+    // Emitted by TableCardFlyoutMenu
+    this.$root.$on('version:history', (entityId, entityType, externId) => {
+      this.externId = externId
+      this.loadItems(entityId, entityType)
+      this.entity = entityType
+    })
 
-  beforeUnmount () {
-    this.$root.$off('entity:updated', this.handleEntityUpdated)
-    this.$root.$off('segment:send-via-mail', this.handleSendViaMail)
-    this.$root.$off('version:history', this.handleVersionHistory)
+    this.$root.$on('entity:updated', (entityId, entityType) => {
+      this.updateVersionHistory(entityId, entityType)
+    })
   },
 }
 </script>

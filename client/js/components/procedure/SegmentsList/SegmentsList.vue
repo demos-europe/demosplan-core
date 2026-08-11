@@ -361,15 +361,6 @@
                 >
                   {{ Translator.trans('history') }}
                 </button>
-                <button
-                  v-if="hasPermission('feature_segment_send_via_mail')"
-                  type="button"
-                  class="btn--blank o-link--default block leading-[2] whitespace-nowrap"
-                  data-cy="segmentsList:segmentSendViaMail"
-                  @click.prevent="showSendViaMail(rowData.id, rowData.attributes.externId)"
-                >
-                  {{ Translator.trans('segment.send.via.email') }}
-                </button>
                 <a
                   v-if="hasPermission('feature_read_source_statement_via_api')"
                   class="block leading-[2] whitespace-nowrap"
@@ -1311,11 +1302,6 @@ export default {
 
     showVersionHistory (segmentId, externId) {
       this.$root.$emit('version:history', segmentId, 'segment', externId)
-      this.$root.$emit('show-slidebar')
-    },
-
-    showSendViaMail (segmentId, externId) {
-      this.$root.$emit('segment:send-via-mail', segmentId, externId)
       this.$root.$emit('show-slidebar')
     },
 
