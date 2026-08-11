@@ -111,6 +111,7 @@ class MailService
         $scope,
         $vars = [],
         $attachments = [],
+        $replyTo = null,
     ): MailSend {
         if (!is_string($from) || '' === $from || (is_array($from) && 0 === count($from))) {
             $from = $this->emailSystem;
@@ -118,6 +119,7 @@ class MailService
 
         $emailTo = $this->checkEMailField($to);
         $emailFrom = $this->checkEMailField($from);
+        $emailReplyTo = $this->checkEMailField($replyTo);
         $emailCc = $this->checkEMailField($cc);
         $emailBcc = $this->checkEMailField($bcc);
 
@@ -135,6 +137,7 @@ class MailService
         $mail->setCc($emailCc);
         $mail->setBcc($emailBcc);
         $mail->setFrom($emailFrom);
+        $mail->setReplyTo($emailReplyTo);
         $mail->setScope($scope);
         $mail->setTitle($this->emailSubjectPrefix.$emailTitle);
 
@@ -286,9 +289,11 @@ class MailService
                         $from = $fromInitial[0];
                     }
                 }
-
-                // set real sender as reply to
-                $replyTo = $this->explodeEmailAddresses($mail->getFrom());
+                // prefer the dedicated reply-to; fall back to the sender address
+                $replyToRaw = $mail->getReplyTo();
+                $replyTo = (null !== $replyToRaw && '' !== $replyToRaw)
+                    ? $this->explodeEmailAddresses($replyToRaw)
+                    : $this->explodeEmailAddresses($mail->getFrom());
                 if (0 === count($replyTo)) {
                     $replyTo = $this->emailSystem;
                 }

@@ -45,6 +45,7 @@ class SegmentEmailSender
         ?string $subject,
         ?string $body,
         ?string $sendEmailCC,
+        ?string $replyTo,
     ): bool {
         try {
             // load the segment(s). prove they exist and give us the procedure it belongs to
@@ -67,7 +68,7 @@ class SegmentEmailSender
             $obscuredBody = null === $body ? null : $this->editorService->obscureString($body);
             $emailVariables = $this->populateEmailVariables($subject, $obscuredBody);
             // Queue the mail, no attachments as of now
-            $this->sendAbschnitt($sendMailTo, $sentFrom, $ccEmailAddresses, $emailVariables, []);
+            $this->sendAbschnitt($sendMailTo, $sentFrom, $ccEmailAddresses, $emailVariables, [], $replyTo);
             foreach ($segments as $segment) {
                 $this->entityContentChangeService->createSegmentSentByMailChangeEntry($segment, $sendMailTo, new DateTime());
             }
@@ -147,7 +148,7 @@ class SegmentEmailSender
      *
      * @throws Exception
      */
-    public function sendAbschnitt($sendMailTo, $sentFrom, $emailCC, $vars, array $attachments): void
+    public function sendAbschnitt($sendMailTo, $sentFrom, $emailCC, $vars, array $attachments, $replyTo): void
     {
         $this->mailService->sendMail(
             'dm_abschnitt_versand',
@@ -158,7 +159,8 @@ class SegmentEmailSender
             '',
             'extern',
             $vars,
-            $attachments
+            $attachments,
+            $replyTo,
         );
     }
 }
