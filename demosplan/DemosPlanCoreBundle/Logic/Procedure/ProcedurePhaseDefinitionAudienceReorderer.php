@@ -13,9 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
-use demosplan\DemosPlanCoreBundle\Entity\SortableInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Logic\ReorderEntityListByInteger;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
@@ -40,9 +38,7 @@ class ProcedurePhaseDefinitionAudienceReorderer
         }
 
         $renumberedPhases = $this->renumberStartingAtOne($phasesOfAudience);
-
-        $listReorder = new ReorderEntityListByInteger($newIndex + 1, $movedPhaseId, $renumberedPhases);
-        $listReorder->reorderEntityList();
+        $this->moveToPosition($movedPhaseId, $newIndex + 1, $renumberedPhases);
     }
 
     /**
@@ -51,7 +47,7 @@ class ProcedurePhaseDefinitionAudienceReorderer
      *
      * @param Collection<int, ProcedurePhaseDefinition> $phases
      *
-     * @return Collection<int, SortableInterface> keyed by the freshly assigned orderInAudience
+     * @return Collection<int, ProcedurePhaseDefinition> keyed by the freshly assigned orderInAudience
      */
     private function renumberStartingAtOne(Collection $phases): Collection
     {
@@ -64,5 +60,39 @@ class ProcedurePhaseDefinitionAudienceReorderer
         }
 
         return $result;
+    }
+
+    /**
+     * Moves the given phase to its new position, shifting only the phases in between
+     * by one to close the gap it leaves and to make room at the target position.
+     * Every phase stays within the 1..count range - no other numbers are touched.
+     *
+     * @param Collection<int, ProcedurePhaseDefinition> $renumberedPhases keyed by orderInAudience, values already 1..count
+     */
+    private function moveToPosition(string $movedPhaseId, int $newPosition, Collection $renumberedPhases): void
+    {
+        $movedPhase = $renumberedPhases->filter(
+            static fn (ProcedurePhaseDefinition $phase): bool => $phase->getId() === $movedPhaseId
+        )->first();
+
+        $oldPosition = $movedPhase->getOrderInAudience();
+        if ($oldPosition === $newPosition) {
+            throw new InvalidArgumentException('The requested place already has the desired index - there is nothing to change');
+        }
+
+        foreach ($renumberedPhases as $phase) {
+            if ($phase === $movedPhase) {
+                continue;
+            }
+
+            $position = $phase->getOrderInAudience();
+            if ($newPosition < $oldPosition && $position >= $newPosition && $position < $oldPosition) {
+                $phase->setOrderInAudience($position + 1);
+            } elseif ($newPosition > $oldPosition && $position > $oldPosition && $position <= $newPosition) {
+                $phase->setOrderInAudience($position - 1);
+            }
+        }
+
+        $movedPhase->setOrderInAudience($newPosition);
     }
 }

@@ -64,6 +64,17 @@ class ProcedurePhaseDefinitionAudienceReordererTest extends UnitTestCase
         self::assertSame($expectedIds, $actualIds);
     }
 
+    /**
+     * @param ProcedurePhaseDefinition[] $phases
+     */
+    private function assertOrderInAudienceIsTightRange(array $phases): void
+    {
+        $actual = array_map(static fn (ProcedurePhaseDefinition $phase) => $phase->getOrderInAudience(), $phases);
+        sort($actual);
+
+        self::assertSame(range(1, count($phases)), $actual, 'orderInAudience must stay within 1..count, without gaps or drift');
+    }
+
     #[DataProvider('moveWithinAudienceProvider')]
     public function testReorderMovesPhaseToExpectedPosition(int $movedPosition, int $newIndex, array $expectedOrder): void
     {
@@ -76,6 +87,7 @@ class ProcedurePhaseDefinitionAudienceReordererTest extends UnitTestCase
         $this->sut->reorder($movedPhase->getId(), $newIndex, $this->toCollection($phases));
 
         $this->assertOrder($expectedOrder, $phases);
+        $this->assertOrderInAudienceIsTightRange($phases);
 
         foreach ($phases as $phase) {
             self::assertFalse($phase->isConfigurationPhase(), "phase {$phase->getId()} must never end up as the configuration phase");
@@ -106,16 +118,16 @@ class ProcedurePhaseDefinitionAudienceReordererTest extends UnitTestCase
         $this->assertOrder(['e2', 'e3', 'e1'], $phases);
 
         // ...then move whatever is now at the front to the back again. The collection
-        // passed in reflects real post-reorder order (ascending by the now-drifted
-        // orderInAudience values), exactly as a fresh DB query would return it.
+        // passed in reflects real post-reorder order (ascending by orderInAudience),
+        // exactly as a fresh DB query would return it.
         $sortedAfterFirstMove = $phases;
         usort($sortedAfterFirstMove, static fn (ProcedurePhaseDefinition $a, ProcedurePhaseDefinition $b) => $a->getOrderInAudience() <=> $b->getOrderInAudience());
         $this->sut->reorder('e2', 2, $this->toCollection($sortedAfterFirstMove));
 
         $this->assertOrder(['e3', 'e1', 'e2'], $phases);
+        $this->assertOrderInAudienceIsTightRange($phases);
 
         foreach ($phases as $phase) {
-            self::assertNotSame(0, $phase->getOrderInAudience(), "phase {$phase->getId()} must never drift to orderInAudience 0");
             self::assertFalse($phase->isConfigurationPhase());
         }
     }
