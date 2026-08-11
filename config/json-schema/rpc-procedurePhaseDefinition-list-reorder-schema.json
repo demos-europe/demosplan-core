@@ -23,7 +23,6 @@
       "type": "string"
     },
     "params": {
-      "$id": "#/items/anyOf/0/properties/params",
       "type": "object",
       "properties": {
         "phaseDefinitionId": {
