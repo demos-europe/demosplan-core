@@ -139,7 +139,7 @@
           />
         </div>
         <dp-pager
-          v-if="pagination.currentPage"
+          v-if="pagination.currentPage && !hasPermission('feature_segments_manualsort')"
           :key="`pager1_${pagination.currentPage}_${pagination.count}`"
           :class="{ invisible: isLoading }"
           :current-page="pagination.currentPage"
@@ -847,6 +847,17 @@ export default {
         []
     },
 
+    /*
+     * The deadline column was introduced together with the client-side deadline sorting, so it is
+     * only shown when that feature is enabled - on top of the field permission that guards the data itself.
+     */
+    hasDeadlineColumn () {
+      return (
+        hasPermission('field_statement_deadline') &&
+        hasPermission('feature_segments_manualsort')
+      )
+    },
+
     // Passed as headerFields to DpDataTable
     availableHeaderFields () {
       const externIdField = this.headerFieldsAvailable.find(
@@ -855,7 +866,7 @@ export default {
       const userHeaderFields = this.headerFields.filter(
         (el) =>
           el.field !== 'externId' &&
-          (el.field !== 'deadline' || hasPermission('field_statement_deadline')),
+          (el.field !== 'deadline' || this.hasDeadlineColumn),
       )
 
       if (!hasPermission('field_segments_custom_fields')) {
@@ -1024,10 +1035,7 @@ export default {
       const staticColumns = this.headerFieldsAvailable
         // ExternId should always be displayed, so it shouldn't be selectable
         .filter(
-          (el) =>
-            el.field !== 'externId' &&
-            (el.field !== 'deadline' ||
-              hasPermission('field_statement_deadline')),
+          (el) => el.field !== 'externId' && (el.field !== 'deadline' || this.hasDeadlineColumn),
         )
         .map((headerField) => [headerField.field, headerField.label])
 
@@ -1119,10 +1127,14 @@ export default {
 
       const payload = {
         include,
-        page: {
-          number: page,
-          size: this.pagination.perPage,
-        },
+        /*
+         * Client-side sorting needs the whole list at once, so it comes without a pager and requests
+         * 1000 items - the hard server-side cap (JsonApiPaginationParser::MAX_PAGE_SIZE).
+         */
+        page: hasPermission('feature_segments_manualsort') ?
+          { number: 1, size: 1000 } :
+          { number: page, size: this.pagination.perPage },
+        // Baseline order so the list stays stable when selectedSort is '' (deadline sort, if active, is applied on top of this client-side).
         sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
         filter,
         fields,
@@ -1218,7 +1230,7 @@ export default {
         'recommendation',
       ]
 
-      if (hasPermission('field_statement_deadline')) {
+      if (this.hasDeadlineColumn) {
         statementSegmentFields.push('deadline')
       }
 
