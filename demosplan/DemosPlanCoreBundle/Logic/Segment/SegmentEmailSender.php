@@ -108,7 +108,7 @@ class SegmentEmailSender
         $syntaxEmailErrors = [];
         $emailCC = [];
         // split the string into individual email addresses.
-        $mailsCC = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $sendEmailCC);
+        $mailsCC = preg_split('/ *[;,] */', $sendEmailCC);
 
         foreach ($mailsCC as $mail) {
             $mailForCc = trim((string) $mail);
