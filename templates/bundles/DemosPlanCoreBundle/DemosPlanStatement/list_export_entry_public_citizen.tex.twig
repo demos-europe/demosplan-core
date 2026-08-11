@@ -18,10 +18,21 @@
                 {{ "email.address"|trans|latex|raw }}: & {{ statement.uEmail|latex|raw }}\\
             {% endif %}
 
-            {# feedback #}{% if hasPermission('field_statement_feedback')
+            {#
+                feedback
+                Render this row only when the submitter actually chose a feedback channel.
+                An empty statement.feedback means the question was never answered: either the
+                procedure does not display the "Ich möchte eine Rückmeldung erhalten" checkbox
+                (ProcedureSettings::publicParticipationFeedbackEnabled, false by default and
+                not editable without feature_feedback_on_statement_controllable), or the
+                submitter left it unchecked. Falling back to "nicht erwünscht" stated a
+                decision the submitter never made.
+            #}
+            {% if hasPermission('field_statement_feedback')
+                and statement.feedback|default('') in ['email', 'snailmail']
                 and (statement.procedure.statementFormDefinition.getFieldDefinitionByName('getEvaluationMailViaEmail').isEnabled == true
                 or statement.procedure.statementFormDefinition.getFieldDefinitionByName('getEvaluationMailViaSnailMailOrEmail').isEnabled == true)
-            %} {{ "feedback"|trans|latex|raw }}: & {% if statement.feedback is defined and statement.feedback == 'email' %}{{ "via.mail"|trans|latex|raw }}{% elseif statement.feedback is defined and statement.feedback == 'snailmail' %} {{ "via.post"|trans|latex|raw }} {% else %} {{ "notrequired"|trans|latex|raw }} {% endif %}\\{% endif %}
+            %} {{ "feedback"|trans|latex|raw }}: & {% if 'email' == statement.feedback %}{{ "via.mail"|trans|latex|raw }}{% else %} {{ "via.post"|trans|latex|raw }} {% endif %}\\{% endif %}
 
             {# feedback address #}
             {% block address %}
