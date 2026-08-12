@@ -1336,7 +1336,7 @@ export default {
 
       this.$root.$emit('version:history', this.segment.id, 'segment', this.segment.attributes.externId)
       this.$root.$emit('show-slidebar')
-      this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'history' } })
+      this.toggleSlidebarContent({ prop: 'slidebar', val: { externId: this.segment.attributes.externId, isOpen: true, segmentId: this.segment.id, showTab: 'history' } })
     },
 
     showSendViaMail () {
@@ -1344,9 +1344,8 @@ export default {
         return
       }
 
-      this.$root.$emit('segment:send-via-mail', this.segment.id, this.segment.attributes.externId)
       this.$root.$emit('show-slidebar')
-      this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'sendViaMail' } })
+      this.toggleSlidebarContent({ prop: 'slidebar', val: { externId: this.segment.attributes.externId, isOpen: true, segmentId: this.segment.id, showTab: 'sendViaMail' } })
     },
 
     startEditing () {

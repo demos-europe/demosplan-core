@@ -112,6 +112,16 @@ export default {
   },
 
   computed: {
+    /*
+     * Only the segment pages register the SegmentSlidebar store; on the assessment table this
+     * component is mounted without it, so the panel state is read defensively.
+     */
+    slidebarTab () {
+      return this.$store.hasModule('SegmentSlidebar') ?
+        this.$store.state.SegmentSlidebar.slidebar.showTab :
+        null
+    },
+
     versionHistoryHeading () {
       if (this.entity === '' || this.externId === '') {
         return Translator.trans('history')
@@ -140,13 +150,18 @@ export default {
     },
   },
 
+  watch: {
+    // Another panel of the segment slidebar took over, so this one steps back.
+    slidebarTab (newTab) {
+      if (newTab !== null && newTab !== 'history') {
+        this.isVisible = false
+      }
+    },
+  },
+
   methods: {
     handleEntityUpdated (entityId, entityType) {
       this.updateVersionHistory(entityId, entityType)
-    },
-
-    handleSendViaMail () {
-      this.isVisible = false
     },
 
     handleVersionHistory (entityId, entityType, externId) {
@@ -192,13 +207,11 @@ export default {
 
   mounted () {
     this.$root.$on('entity:updated', this.handleEntityUpdated)
-    this.$root.$on('segment:send-via-mail', this.handleSendViaMail)
     this.$root.$on('version:history', this.handleVersionHistory)
   },
 
   beforeUnmount () {
     this.$root.$off('entity:updated', this.handleEntityUpdated)
-    this.$root.$off('segment:send-via-mail', this.handleSendViaMail)
     this.$root.$off('version:history', this.handleVersionHistory)
   },
 }

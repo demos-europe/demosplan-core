@@ -837,6 +837,10 @@ export default {
       setUngroupedFilterOptions: 'setUngroupedOptions',
     }),
 
+    ...mapMutations('SegmentSlidebar', {
+      setSlidebarState: 'setContent',
+    }),
+
     applySort (sortValue) {
       this.selectedSort = sortValue
       lscache.set(this.lsKey.selectedSort, sortValue)
@@ -1088,6 +1092,10 @@ export default {
       this.applyQuery()
     },
 
+    setSlidebarContent (val) {
+      this.setSlidebarState({ prop: 'slidebar', val })
+    },
+
     recommendationHasHtmlTags (recommendation) {
       const div = document.createElement('div')
 
@@ -1310,12 +1318,13 @@ export default {
     },
 
     showVersionHistory (segmentId, externId) {
+      this.setSlidebarContent({ externId, isOpen: true, segmentId, showTab: 'history' })
       this.$root.$emit('version:history', segmentId, 'segment', externId)
       this.$root.$emit('show-slidebar')
     },
 
     showSendViaMail (segmentId, externId) {
-      this.$root.$emit('segment:send-via-mail', segmentId, externId)
+      this.setSlidebarContent({ externId, isOpen: true, segmentId, showTab: 'sendViaMail' })
       this.$root.$emit('show-slidebar')
     },
 

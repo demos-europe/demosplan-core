@@ -159,7 +159,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { DpAccordion, DpButtonRow, DpCheckbox, DpEditor, DpInlineNotification, DpInput, dpRpc, DpTextArea } from '@demos-europe/demosplan-ui'
 import { useRootEventBus } from '@DpJs/composables/useRootEventBus'
 import { useStore } from 'vuex'
@@ -179,7 +179,8 @@ const props = defineProps({
 })
 
 const store = useStore()
-const { emitRootEvent, onRootEvent } = useRootEventBus()
+// Only `hide-slidebar` still goes through the bus - it is the API DpSlidebar listens on.
+const { emitRootEvent } = useRootEventBus()
 
 const attachRecommendation = ref(false)
 const attachSegmentText = ref(true)
@@ -196,6 +197,7 @@ const segmentTextToSend = ref('')
 const subject = ref('')
 
 const segments = computed(() => store.state.StatementSegment.items)
+const slidebar = computed(() => store.state.SegmentSlidebar.slidebar)
 
 /**
  * The backend does not append the segment content, it only forwards this body into the
@@ -292,10 +294,20 @@ const onShowEmailForm = (id, segmentExternId) => {
   recommendationTextToSend.value = segment?.attributes.recommendation ?? ''
 }
 
-const onVersionHistory = () => {
-  isVisible.value = false
-}
+/*
+ * On the procedure-wide list this component is mounted from the twig template, unrelated to the
+ * list that triggers it, so the store carries which segment to show instead of a root event.
+ */
+watch(
+  () => [slidebar.value.showTab, slidebar.value.segmentId],
+  ([showTab, segmentId]) => {
+    if (showTab !== 'sendViaMail') {
+      isVisible.value = false
 
-onRootEvent('segment:send-via-mail', onShowEmailForm)
-onRootEvent('version:history', onVersionHistory)
+      return
+    }
+
+    onShowEmailForm(segmentId, slidebar.value.externId)
+  },
+)
 </script>

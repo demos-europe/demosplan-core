@@ -14,19 +14,15 @@ import { nextTick } from 'vue'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 /*
- * The component reaches the application event bus through this composable. Jest runs against
- * plain Vue 3 (jest.config.js removes the @vue/compat alias), where $on does not exist, so the
- * composable is replaced by one that hands the registered handlers back to the test.
+ * Closing the slidebar still goes through the application event bus. Jest runs against plain
+ * Vue 3 (jest.config.js removes the @vue/compat alias), where $on does not exist, so the
+ * composable is replaced by a mock.
  */
-const mockRootEventHandlers = {}
 const mockEmitRootEvent = jest.fn()
 
 jest.mock('@DpJs/composables/useRootEventBus', () => ({
   useRootEventBus: () => ({
     emitRootEvent: mockEmitRootEvent,
-    onRootEvent: (event, handler) => {
-      mockRootEventHandlers[event] = handler
-    },
   }),
 }))
 
@@ -57,9 +53,13 @@ describe('DpSegmentRecommendationEmail', () => {
   }
 
   let wrapper
+  let store
 
   const openFormFor = async (segmentId, externId) => {
-    mockRootEventHandlers['segment:send-via-mail'](segmentId, externId)
+    store.commit('SegmentSlidebar/setContent', {
+      prop: 'slidebar',
+      val: { externId, isOpen: true, segmentId, showTab: 'sendViaMail' },
+    })
 
     await nextTick()
   }
@@ -80,8 +80,19 @@ describe('DpSegmentRecommendationEmail', () => {
     mockDpRpc.mockClear()
     mockEmitRootEvent.mockClear()
 
-    const store = createStore({
+    store = createStore({
       modules: {
+        SegmentSlidebar: {
+          namespaced: true,
+          state: () => ({
+            slidebar: { externId: '', isOpen: false, segmentId: '', showTab: '' },
+          }),
+          mutations: {
+            setContent (state, data) {
+              state[data.prop] = data.val
+            },
+          },
+        },
         StatementSegment: {
           namespaced: true,
           state: () => ({
@@ -115,7 +126,7 @@ describe('DpSegmentRecommendationEmail', () => {
     })
   })
 
-  it('stays hidden until the form is opened through the event bus', async () => {
+  it('stays hidden until the store opens the slidebar on this tab', async () => {
     expect(wrapper.find('#recipient').exists()).toBe(false)
 
     await openFormFor('segment-1', 'M7-2')
