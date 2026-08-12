@@ -65,17 +65,23 @@
         </template>
         <template v-slot:delete="rowData">
           <div class="text-right">
-            <dp-button
-              :disabled="rowData.claimedByOthers"
-              :text="Translator.trans('remove')"
-              color="warning"
-              data-cy="searchSubmitters:deleteStatement"
-              icon="delete"
-              icon-size="medium"
-              variant="subtle"
-              hide-text
-              @click="deleteStatement(group.procedureId, rowData.id)"
-            />
+            <!-- The tooltip has to sit on the wrapper: a disabled dp-button has `pointer-events-none`, so it never fires the hover events the directive listens to -->
+            <span
+              v-tooltip="rowData.claimedByOthers ? Translator.trans('warning.delete.statement.not.claimed.by.current.user') : null"
+              class="inline-block"
+            >
+              <dp-button
+                :disabled="rowData.claimedByOthers"
+                :text="Translator.trans('remove')"
+                color="warning"
+                data-cy="searchSubmitters:deleteStatement"
+                icon="delete"
+                icon-size="medium"
+                variant="subtle"
+                hide-text
+                @click="deleteStatement(group.procedureId, rowData.id)"
+              />
+            </span>
           </div>
         </template>
         <template v-slot:expandedContent="{ id }">
@@ -133,13 +139,14 @@
 </template>
 
 <script setup>
-import { CleanHtml, DpAccordion, dpApi, DpButton, DpDataTable, DpLoading, DpSearchField } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpAccordion, dpApi, DpButton, DpDataTable, DpLoading, DpSearchField, Tooltip } from '@demos-europe/demosplan-ui'
 import buildProcedureGroups from '@DpJs/components/procedure/utils/buildProcedureGroups'
 import { ref } from 'vue'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
 import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge'
 
 const vCleanhtml = CleanHtml
+const vTooltip = Tooltip
 
 defineProps({
   submitTypeOptions: {

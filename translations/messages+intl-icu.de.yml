@@ -4358,6 +4358,7 @@ warning.delete.statement.metadata.inconsistent.fragments.county: "Die Kreise an 
 warning.delete.statement.metadata.inconsistent.fragments.municipality: "Die Gemeinden an der Stellungnahme konnten nicht gelöscht werden, da sie auch an Datensätzen vergeben sind."
 warning.delete.statement.metadata.inconsistent.fragments.priorityArea: "Die Potenzialflächen an der Stellungnahme konnten nicht gelöscht werden, da sie auch an Datensätzen vergeben sind."
 warning.delete.statement.metadata.inconsistent.fragments.tag: "Die Schlagworte an der Stellungnahme konnten nicht gelöscht werden, da sie auch an Datensätzen vergeben sind."
+warning.delete.statement.not.claimed.by.current.user: "Sie können diese Stellungnahme nicht löschen, weil sie einer anderen Person zugewiesen ist."
 warning.delete.statement.original: "Originalstellungnahmen können nicht gelöscht werden: {externId}."
 warning.delete.statement.placeholder: "Verschobene Stellungnahmen können nicht gelöscht werden: {externId}."
 warning.deny.copy.statement.to.foreign.procedure: "Stellungnahmen können nur in Verfahren ihrer Organisation kopiert werden."
