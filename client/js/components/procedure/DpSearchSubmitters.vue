@@ -248,13 +248,15 @@ const search = term => {
 
   dpApi.get(url, params)
     .then(response => {
-      noResults.value = response.data.data.length === 0
-      statementsObject.value = response.data.data.reduce((acc, statement) => {
-        acc[statement.id] = statement
+      const statements = response.data.data
+      const included = response.data.included || []
 
+      noResults.value = statements.length === 0
+      statementsObject.value = statements.reduce((acc, statement) => {
+        acc[statement.id] = statement
         return acc
       }, {})
-      procedureGroups.value = buildProcedureGroups(response.data.data, response.data.included || [])
+      procedureGroups.value = buildProcedureGroups(statements, included)
     })
     .catch(() => {
       // Drop stale results, otherwise the list would still show hits of an earlier search term
