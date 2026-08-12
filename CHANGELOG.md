@@ -8,6 +8,9 @@
 
 ## v4.55.0 (2026-08-12)
 
+### Changed
+- The zip upload for planning documents now accepts files up to 2 GB
+
 ## v4.54.0 (2026-08-12)
 
 ### Added
