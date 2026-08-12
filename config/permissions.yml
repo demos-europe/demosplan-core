@@ -2011,6 +2011,14 @@ feature_segment_recommendation_edit:
     label: 'Allows to create, update and delete recommendations of segments.'
     loginRequired: true
     parent: area_statement_segmentation
+feature_segments_copy_to_clipboard:
+    description: |-
+        Allows the user to copy the currently selected segments in the segment list to the clipboard
+        as tab-separated text, using the currently visible columns, for pasting into Excel or Word.
+    expose: true
+    label: 'Copy selected segments to clipboard'
+    loginRequired: true
+    parent: area_statement_segmentation
 feature_segments_import_excel:
     description: |-
         Allows the user to upload an excel file containing new segments and corresponding statement meta data. These are then validated and
@@ -2019,6 +2027,15 @@ feature_segments_import_excel:
     label: 'Generate segments (with corresponding statements) from uploaded excel file'
     loginRequired: true
     parent: area_statement_segmentation, area_admin_import
+feature_segments_manualsort:
+    description: |-
+        Shows the sorting dropdown on the procedure-wide segment list, allowing the
+        list to be sorted by deadline. The feature is not yet fully implemented and
+        must not be enabled on production instances.
+    expose: true
+    label: 'Allows sorting the segment list by deadline.'
+    loginRequired: true
+    parent: area_statement_segmentation
 feature_segments_of_statement_list:
     description: |-
         The list will contain segments of a specific statement only. Additional
@@ -2326,6 +2343,11 @@ feature_statement_search_type_of_submission:
     description: 'Search for submission type in Assessment Table'
     expose: true
     label: 'Search for submission type in Assessment Table'
+    loginRequired: true
+feature_statement_segments_export_csv:
+    description: 'Permission to enable CSV export of statements and their segments from the statement list of a procedure. Embedded images from statements or replies are not included in the export.'
+    expose: true
+    label: 'Enable CSV Export'
     loginRequired: true
 feature_statement_submitter_data_always_editable:
     description: 'Allows editing submitter data fields (name, department, address, dates, phase, submit type) on all statements, not just manual ones. When disabled, these fields can only be edited on manual statements.'
