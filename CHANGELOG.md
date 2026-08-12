@@ -43,6 +43,11 @@
 - Institution coordinators without a second organisation email address are now redirected to the welcome page until they provide it.
 - When the last member of a statement group is removed, both notifications ("statement detached" and "group dissolved") are now shown in the correct order.
 
+## v4.49.1 (2026-07-28)
+
+### Fixed
+- Forwarding a segment for technical review (changing its assignee) could fail with a validation error when the segment had comments; assigning a segment now works reliably regardless of loaded comments
+
 ## v4.49.0 (2026-07-15)
 
 ### Added
