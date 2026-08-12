@@ -9,6 +9,7 @@
 ## v4.54.0 (2026-08-12)
 
 ### Added
+- Statements can be searched by submitter across all accessible procedures. Results are grouped under the procedure they belong to, each row can be expanded to show the submitter details and deleted directly from the result list.
 - Add drag and drop sorting for procedure phases definitions
 - Boilerplate edit page lists the segments in which a boilerplate is used as deep links
 - Sortable deadline column in segmentsList (sorting gated behind `feature_segments_manualsort`, not enabled yet)
