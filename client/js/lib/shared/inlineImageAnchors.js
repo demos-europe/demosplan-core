@@ -163,6 +163,11 @@ const wrapBareImages = (root, doc, fallbackLabel) => {
       return
     }
 
+    // Wrapping a linked image would nest an <a> in an <a>, and the parser would split it out as a sibling
+    if (img.closest('a')) {
+      return
+    }
+
     const src = img.getAttribute('src')
 
     if (!src) {

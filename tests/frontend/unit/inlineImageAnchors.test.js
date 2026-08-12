@@ -158,6 +158,13 @@ describe('inlineImageAnchors', () => {
     expect(result).toMatch(/<span[^>]*><img[^>]*><a[^>]*>A<\/a><\/span><a href="b\.jpg">other<\/a>/)
   })
 
+  it('does not wrap an img that is already inside an anchor', () => {
+    const html = '<a href="/page"><img src="/file/h" alt="Pic"></a>'
+    const result = inlineImageAnchors(html)
+
+    expect(result).toBe(html)
+  })
+
   it('skips bare img without a src attribute', () => {
     const html = '<img alt="broken">'
     const result = inlineImageAnchors(html)
