@@ -9,12 +9,26 @@ const DEFAULT_FALLBACK_LABEL_KEY = 'image.open'
 const INLINE_DISPOSITION_PARAM = 'disposition=inline'
 
 /**
+ * Only core_file/core_file_procedure (routes under /file/) read this parameter; appending it to an external URL
+ * (e.g. a pre-signed CDN link) would alter its query string and could break the link's signature
+ */
+const isSameOriginFileHref = (href) => {
+  try {
+    const url = new URL(href, window.location.origin)
+
+    return url.origin === window.location.origin && url.pathname.startsWith('/file/')
+  } catch {
+    return false
+  }
+}
+
+/**
  * The file routes serve attachment by default, so a plain link click would
  * download the image. The parameter asks the backend to serve raster images
  * inline so the new tab actually displays the image.
  */
 const withInlineDisposition = (href) => {
-  if (typeof href !== 'string' || href === '' || href.startsWith('data:') || href.startsWith('blob:') || href.includes(INLINE_DISPOSITION_PARAM)) {
+  if (typeof href !== 'string' || href === '' || href.includes(INLINE_DISPOSITION_PARAM) || !isSameOriginFileHref(href)) {
     return href
   }
 

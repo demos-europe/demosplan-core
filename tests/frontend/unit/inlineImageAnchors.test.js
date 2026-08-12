@@ -13,15 +13,15 @@ import { inlineImageAnchors, inlineImageAnchorsForEditing, stripInlineImageAncho
 
 describe('inlineImageAnchors', () => {
   it('replaces a pdf_importer_image anchor with an img and a visible link', () => {
-    const html = '<p><a class="pdf_importer_image" href="http://example.com/hash.jpg">Label</a></p>'
+    const html = '<p><a class="pdf_importer_image" href="/file/hash.jpg">Label</a></p>'
     const result = inlineImageAnchors(html)
 
     expect(result).toContain('<img')
-    expect(result).toContain('src="http://example.com/hash.jpg"')
+    expect(result).toContain('src="/file/hash.jpg"')
     expect(result).toContain('alt="Label"')
     expect(result).toContain('loading="lazy"')
     expect(result).toMatch(/<span[^>]*><img[^>]*><a[^>]*>Label<\/a><\/span>/)
-    expect(result).toMatch(/<a[^>]*href="http:\/\/example\.com\/hash\.jpg\?disposition=inline"[^>]*>Label<\/a>/)
+    expect(result).toMatch(/<a[^>]*href="\/file\/hash\.jpg\?disposition=inline"[^>]*>Label<\/a>/)
   })
 
   it('preserves anchors without the target class', () => {
@@ -58,12 +58,12 @@ describe('inlineImageAnchors', () => {
   })
 
   it('replaces multiple anchors in one pass', () => {
-    const html = '<a class="pdf_importer_image" href="a">A</a><a class="pdf_importer_image" href="b">B</a>'
+    const html = '<a class="pdf_importer_image" href="/file/a">A</a><a class="pdf_importer_image" href="/file/b">B</a>'
     const result = inlineImageAnchors(html)
 
     expect(result.match(/<img/g)).toHaveLength(2)
-    expect(result).toMatch(/<a[^>]*href="a\?disposition=inline"[^>]*>A<\/a>/)
-    expect(result).toMatch(/<a[^>]*href="b\?disposition=inline"[^>]*>B<\/a>/)
+    expect(result).toMatch(/<a[^>]*href="\/file\/a\?disposition=inline"[^>]*>A<\/a>/)
+    expect(result).toMatch(/<a[^>]*href="\/file\/b\?disposition=inline"[^>]*>B<\/a>/)
   })
 
   it('mixes pdf_importer_image anchors and unrelated anchors correctly', () => {
@@ -86,23 +86,23 @@ describe('inlineImageAnchors', () => {
   })
 
   it('respects a custom className', () => {
-    const html = '<a class="my-class" href="x">L</a>'
+    const html = '<a class="my-class" href="/file/x">L</a>'
     const result = inlineImageAnchors(html, 'my-class')
 
     expect(result).toContain('<img')
-    expect(result).toContain('src="x"')
-    expect(result).toMatch(/<a[^>]*href="x\?disposition=inline"[^>]*>L<\/a>/)
+    expect(result).toContain('src="/file/x"')
+    expect(result).toMatch(/<a[^>]*href="\/file\/x\?disposition=inline"[^>]*>L<\/a>/)
   })
 
   it('adds a link below a bare img tag using its alt as label', () => {
-    const html = '<p><img src="http://example.com/photo.jpg" alt="My photo" loading="lazy"></p>'
+    const html = '<p><img src="/file/photo.jpg" alt="My photo" loading="lazy"></p>'
     const result = inlineImageAnchors(html)
 
     expect(result).toMatch(/<span[^>]*><img[^>]*><a[^>]*>My photo<\/a><\/span>/)
     expect(result).toContain('<img')
-    expect(result).toContain('src="http://example.com/photo.jpg"')
+    expect(result).toContain('src="/file/photo.jpg"')
     expect(result).toContain('alt="My photo"')
-    expect(result).toMatch(/<a[^>]*href="http:\/\/example\.com\/photo\.jpg\?disposition=inline"[^>]*>My photo<\/a>/)
+    expect(result).toMatch(/<a[^>]*href="\/file\/photo\.jpg\?disposition=inline"[^>]*>My photo<\/a>/)
     expect(result).toContain('target="_blank"')
     expect(result).toContain('rel="noopener noreferrer"')
   })
@@ -194,6 +194,20 @@ describe('inlineImageAnchors', () => {
     const result = inlineImageAnchors(html)
 
     expect(result).toMatch(/<a[^>]*href="data:image\/png;base64,AAAA"/)
+  })
+
+  it('does not append the inline disposition param to an external URL', () => {
+    const html = '<a class="pdf_importer_image" href="https://cdn.example.com/signed?token=abc">L</a>'
+    const result = inlineImageAnchors(html)
+
+    expect(result).toMatch(/<a[^>]*href="https:\/\/cdn\.example\.com\/signed\?token=abc"[^>]*>L<\/a>/)
+  })
+
+  it('does not append the inline disposition param to a same-origin path outside /file/', () => {
+    const html = '<a class="pdf_importer_image" href="/other/path">L</a>'
+    const result = inlineImageAnchors(html)
+
+    expect(result).toMatch(/<a[^>]*href="\/other\/path"[^>]*>L<\/a>/)
   })
 
   it('does not append the inline disposition param twice', () => {
