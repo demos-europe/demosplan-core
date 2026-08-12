@@ -33,11 +33,6 @@
         :segment-id="slidebar.segmentId"
         :statement-id="statementId"
       />
-      <dp-segment-recommendation-email
-        v-show="slidebar.showTab === 'sendViaMail'"
-        :current-user-email="currentUser.email"
-        :procedure-name="procedure.name"
-      />
     </dp-slidebar>
 
     <dp-confirm-dialog
@@ -245,7 +240,6 @@ import {
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { buildDetailedStatementQuery } from '../Shared/utils/statementQueryBuilder'
 import DpClaim from '@DpJs/components/statement/DpClaim'
-import DpSegmentRecommendationEmail from '@DpJs/components/statement/statement/DpSegmentRecommendationEmail'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
 import lscache from 'lscache'
 import { redirectToStatementListWithGroupResolvedToast } from '../Shared/utils/redirectToStatementListWithGroupResolvedToast'
@@ -268,7 +262,6 @@ export default {
     DpClaim,
     DpConfirmDialog,
     DpFlyout,
-    DpSegmentRecommendationEmail,
     DpSlidebar,
     DpStickyElement,
     DpVersionHistory,

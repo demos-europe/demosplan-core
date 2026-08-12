@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use Doctrine\DBAL\Exception;
@@ -26,6 +27,7 @@ class SegmentEmailSender
         private readonly MessageBagInterface $messageBag,
         private readonly SegmentService $segmentService,
         private readonly EntityContentChangeService $entityContentChangeService,
+        private readonly EditorService $editorService,
     ) {
     }
 
@@ -35,7 +37,6 @@ class SegmentEmailSender
      * @param string[] $segmentIds
      *
      * @return bool whether the mail was queued successfully
-     * @return bool whether the mail was queued successfully
      */
     public function sendSegmentsMail(
         array $segmentIds,
@@ -44,6 +45,7 @@ class SegmentEmailSender
         ?string $subject,
         ?string $body,
         ?string $sendEmailCC,
+        ?string $replyTo,
     ): bool {
         try {
             // load the segment(s). prove they exist and give us the procedure it belongs to
@@ -60,12 +62,13 @@ class SegmentEmailSender
             // validate the recipients email address
             $sendMailTo = $this->validateRecipientEmail($recipientEmail);
             $ccEmailAddresses = $this->extractCcEmailAddresses($sendEmailCC);
-            // build the placeholder values the mail template expects:
-            $emailVariables = $this->populateEmailVariables($subject, $body);
             // the sender address is the procedures agency mailbox
             $sentFrom = $segments[0]->getProcedure()->getAgencyMainEmailAddress();
+            // handle anonymized text before building email variables
+            $obscuredBody = null === $body ? null : $this->editorService->obscureString($body);
+            $emailVariables = $this->populateEmailVariables($subject, $obscuredBody);
             // Queue the mail, no attachments as of now
-            $this->sendAbschnitt($sendMailTo, $sentFrom, $ccEmailAddresses, $emailVariables, []);
+            $this->sendAbschnitt($sendMailTo, $sentFrom, $ccEmailAddresses, $emailVariables, [], $replyTo);
             foreach ($segments as $segment) {
                 $this->entityContentChangeService->createSegmentSentByMailChangeEntry($segment, $sendMailTo, new DateTime());
             }
@@ -105,7 +108,7 @@ class SegmentEmailSender
         $syntaxEmailErrors = [];
         $emailCC = [];
         // split the string into individual email addresses.
-        $mailsCC = preg_split('/[ ]*;[ ]*|[ ]*,[ ]*/', $sendEmailCC);
+        $mailsCC = preg_split('/ *[;,] */', $sendEmailCC);
 
         foreach ($mailsCC as $mail) {
             $mailForCc = trim((string) $mail);
@@ -145,7 +148,7 @@ class SegmentEmailSender
      *
      * @throws Exception
      */
-    public function sendAbschnitt($sendMailTo, $sentFrom, $emailCC, $vars, array $attachments): void
+    public function sendAbschnitt($sendMailTo, $sentFrom, $emailCC, $vars, array $attachments, $replyTo): void
     {
         $this->mailService->sendMail(
             'dm_abschnitt_versand',
@@ -156,7 +159,8 @@ class SegmentEmailSender
             '',
             'extern',
             $vars,
-            $attachments
+            $attachments,
+            $replyTo,
         );
     }
 }

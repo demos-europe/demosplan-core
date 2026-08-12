@@ -57,8 +57,9 @@ class RpcSegmentEmailSender implements RpcMethodSolverInterface
                 $subject = $params->subject;
                 $body = $params->body;
                 $sendEmailCC = $params->sendEmailCC;
+                $replyTo = $params->replyTo ?? null;
 
-                $emailIsSent = $this->segmentEmailSender->sendSegmentsMail($segmentIds, $expectedProcedureId, $recipientMail, $subject, $body, $sendEmailCC);
+                $emailIsSent = $this->segmentEmailSender->sendSegmentsMail($segmentIds, $expectedProcedureId, $recipientMail, $subject, $body, $sendEmailCC, $replyTo);
 
                 $resultResponse[] = $this->generateMethodResult($rpcRequest, $emailIsSent);
             } catch (Exception $exception) {
