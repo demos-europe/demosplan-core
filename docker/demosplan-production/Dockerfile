@@ -1,23 +1,31 @@
 # due to BSI SYS.1.6.A6 we need to use excplicit versions
-FROM debian:bookworm-20260406-slim AS build
+#
+# Shared base for the build and fpm stages. Do not source PHP from packages.sury.org: its php-fpm
+# has DNS telemetry compiled in (telemetry.sury.org:53) with no opt-out.
+FROM php:8.4.24-fpm-bookworm AS php-base
 
-# Install all dependencies needed for both build and fpm stages
+# Extensions that are not already compiled into the base image.
+COPY --link --from=mlocati/php-extension-installer:2.10.0 /usr/bin/install-php-extensions /usr/local/bin/
+RUN install-php-extensions \
+        apcu bcmath bz2 calendar excimer exif ffi gd gettext intl mysqli opcache pcntl \
+        pdo_mysql shmop soap sockets sysvmsg sysvsem sysvshm xsl zip \
+    && rm -f /usr/local/bin/install-php-extensions \
+# The base image ships only php.ini templates; without this display_errors defaults to On.
+    && cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
+# client/fe/config/projectConfig.js spawns a hardcoded /usr/bin/php and exits 0 when that fails,
+# silently producing an image without frontend assets.
+    && ln -s /usr/local/bin/php /usr/bin/php
+
+FROM php-base AS build
+
+# Build dependencies; PHP comes from the base image
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
     apt-get update -y \
-    && apt-get install --no-install-recommends  lsb-release ca-certificates curl gpg -y \
-    && curl -sSo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb \
-    && dpkg -i /tmp/debsuryorg-archive-keyring.deb \
-    && rm -f /tmp/debsuryorg-archive-keyring.deb \
-    && echo "deb https://packages.sury.org/php/ bookworm main" > /etc/apt/sources.list.d/deb.sury.org.list \
-    && apt-get update -y \
-    && apt-get --no-install-recommends install acl bind9-host ca-certificates composer curl  \
-    gettext-base npm php8.4 php8.4-apcu php8.4-bcmath php8.4-bz2 php8.4-cli  \
-    php8.4-common php8.4-curl php8.4-excimer php8.4-fpm php8.4-gd php8.4-intl php8.4-mbstring php8.4-mysqli php8.4-soap  \
-    php8.4-sqlite3 php8.4-xml php8.4-zip unzip -y \
-    && update-alternatives --set php /usr/bin/php8.4 \
+    && apt-get --no-install-recommends install acl bind9-host ca-certificates curl  \
+    gettext-base npm unzip -y \
     && mkdir -p /opt/uploads
-COPY --link zzz-dplan-cli.ini /etc/php/8.4/cli/conf.d/zzz-dplan-cli.ini
+COPY --link --from=composer:2.8.12 /usr/bin/composer /usr/bin/composer
 
 ARG PROJECT_NAME
 ARG BUILD_MODE=prod
@@ -32,9 +40,8 @@ ENV PROJECT_PREFIX=$PROJECT_NAME \
 
 # Setup timezone
 RUN ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ"> /etc/timezone
-COPY --link zzz-dplan.ini /etc/php/8.4/fpm/conf.d/zzz-dplan.ini
-COPY --link zzz-dplan-cli.ini /etc/php/8.4/cli/conf.d/zzz-dplan-cli.ini
-COPY --link php-fpm_www.conf /etc/php/8.4/fpm/pool.d/zzz-www.conf
+# Single conf.d for every SAPI; FPM-only overrides live in php-fpm_www.conf.
+COPY --link zzz-dplan.ini /usr/local/etc/php/conf.d/zzz-dplan.ini
 
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
     --mount=type=cache,target=/var/www/.cache,sharing=locked \
@@ -153,11 +160,10 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     mkdir -p /opt/uploads && \
     chown -R root:root /srv/www/public && \
     chown -R www-data /opt/uploads && \
-    chown -R www-data /srv/www/public/uploads && \
-    touch /var/log/php8.4-fpm.log && chown www-data:www-data /var/log/php8.4-fpm.log
+    chown -R www-data /srv/www/public/uploads
 
 # Runtime stage - starts fresh WITHOUT build tools (Node.js, npm, composer)
-FROM debian:bookworm-20260406-slim AS fpm
+FROM php-base AS fpm
 
 ARG PROJECT_NAME
 ARG BUILD_MODE=prod
@@ -174,28 +180,19 @@ ENV PROJECT_PREFIX=$PROJECT_NAME \
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
     apt-get update -y \
-    && apt-get install --no-install-recommends lsb-release ca-certificates curl gpg -y \
-    && curl -sSo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb \
-    && dpkg -i /tmp/debsuryorg-archive-keyring.deb \
-    && rm -f /tmp/debsuryorg-archive-keyring.deb \
-    && echo "deb https://packages.sury.org/php/ bookworm main" > /etc/apt/sources.list.d/deb.sury.org.list \
-    && apt-get update -y \
     && apt-get --no-install-recommends install acl bind9-host ca-certificates curl \
-       default-mysql-client gettext-base libfcgi-bin lnav php8.4 php8.4-apcu php8.4-bcmath php8.4-bz2 php8.4-cli \
-       php8.4-common php8.4-curl php8.4-excimer php8.4-fpm php8.4-gd php8.4-intl php8.4-mbstring \
-       php8.4-mysqli php8.4-soap php8.4-sqlite3 php8.4-xml php8.4-zip unzip vim-tiny -y \
+       default-mysql-client gettext-base libfcgi-bin lnav unzip vim-tiny -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
-    && update-alternatives --set php /usr/bin/php8.4 \
     && mkdir -p /opt/uploads \
     && ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ"> /etc/timezone
 
 # Copy PHP configuration. --link lets these layers stay independent from each other so
 # touching one ini file doesn't invalidate the rest.
-COPY --link zzz-dplan.ini /etc/php/8.4/fpm/conf.d/zzz-dplan.ini
-COPY --link zzz-dplan-cli.ini /etc/php/8.4/cli/conf.d/zzz-dplan-cli.ini
-COPY --link php-fpm_www.conf /etc/php/8.4/fpm/pool.d/zzz-www.conf
-COPY --link php-fpm.conf /etc/php/8.4/fpm/php-fpm.conf
+# Settings that must differ between CLI and FPM are php_admin_value entries in php-fpm_www.conf.
+COPY --link zzz-dplan.ini /usr/local/etc/php/conf.d/zzz-dplan.ini
+COPY --link php-fpm_www.conf /usr/local/etc/php-fpm.d/zzz-www.conf
+COPY --link php-fpm.conf /usr/local/etc/php-fpm.conf
 
 WORKDIR /srv/www
 
@@ -220,9 +217,9 @@ RUN rm -rf /srv/www/var/cache/* && \
     touch /srv/www/var/certs/ca.crt && \
     ln -s /srv/www/var/certs/ca.crt /usr/local/share/ca-certificates/ca.crt && \
     # avoid conflict with the default www.conf \
-    rm -f /etc/php/8.4/fpm/pool.d/www.conf && \
-    # create php-fpm log file \
-    touch /var/log/php8.4-fpm.log && chown www-data:www-data /var/log/php8.4-fpm.log
+    rm -f /usr/local/etc/php-fpm.d/www.conf /usr/local/etc/php-fpm.d/www.conf.default && \
+    # the k8s deployment args reference this path \
+    ln -s /usr/local/sbin/php-fpm /usr/sbin/php-fpm8.4
 
 # Strip setuid/setgid bits — defense-in-depth against privilege escalation from a compromised
 # runtime.
@@ -236,7 +233,7 @@ LABEL de.demos.project.revision=$COMMIT_SHA_PROJECT
 
 # run as rootless container
 USER www-data
-CMD ["/usr/sbin/php-fpm8.4", "-F"]
+CMD ["php-fpm", "-F"]
 
 FROM nginxinc/nginx-unprivileged:alpine3.23-slim AS nginx
 

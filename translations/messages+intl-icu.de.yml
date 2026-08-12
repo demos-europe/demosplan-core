@@ -1121,6 +1121,8 @@ email.procedure.agency: "E-Mail Verfahrensträger"
 email.procedure.agency.help: 'Die Verfahrensträger-E-Mail-Adresse wird in der Signatur genannt, wenn E-Mails zum Verfahren an Beteiligte versendet werden.'
 email.recipient: "E-Mail des/der Empfänger*in"
 email.reviewer.admin: "E-Mail-Adresse der Fachbehörden-Koordination"
+email.segment.deadline.reminder.explanation: "Sie erhalten eine Woche vor sowie am Tag des Fristablaufs eine Erinnerung an die Bearbeitungsfristen der Ihnen zugewiesenen Abschnitte."
+email.segment.deadline.reminder.subscribe: "Erinnerung an Bearbeitungsfristen meiner Abschnitte erhalten"
 email.send: "E-Mail senden"
 email.send.as: "als E-Mail versenden"
 email.subject.account_deletion.completed: "Ihr Konto wurde gelöscht"
@@ -1134,6 +1136,7 @@ email.subject.forum.notification: "Beitrag im Forum von demosplan"
 email.subject.procedure.subscription: "Planverfahren bei demosplan in der Beteiligung"
 email.subject.procedure: "Stellungnahme zur Kenntnis - {procedure_name}"
 email.subject.public.confirm: "Ihre Stellungnahme zum Verfahren {procedure_name} ist eingegangen"
+email.subject.segment.deadline.reminder: "Erinnerung an Ihre Bearbeitungsfrist - {date}"
 email.subject.reviewer.admin.orga.new.fragment: "Information über Zuweisung eines Datensatzes in demosplan"
 email.subject.reviewer.admin.orga.reassign.fragment: "Information über Zurückweisung eines Datensatzes in demosplan"
 email.subject.orga.new: "Neue zu prüfende Organisation"
@@ -1713,6 +1716,8 @@ export.anonymous.hint: "Der Export erfolgt ohne Namen."
 export.censored.citizen: "ohne Einreichendendaten der Öffentlichkeit"
 export.censored.institution: "ohne Einreichendendaten der Institutionen"
 export.compact: "Querformat (kompakt)"
+export.csv: "CSV-Datei"
+export.csv.hint: "Bitte beachten Sie: Darstellungen aus Stellungnahmen oder Erwiderungen werden nicht im CSV-Export angezeigt."
 export.data: "Zu exportierende Daten"
 export.datasheet: "Export mit Datenblatt"
 export.docx.anonymous: "DOCX (ohne Namen)"
@@ -1750,8 +1755,8 @@ export.settings.hint: "Wählen Sie aus, welche Daten im Export der Stellungnahme
 export.statements: "Stellungnahmen exportieren"
 export.statements.zip: "Stellungnahmen als einzelne DOCX-Dateien"
 export.statements.docx: "Stellungnahmen in einer DOCX-Datei"
-export.statements.hint: "Achtung: Falls weitere Einreichende zu einer Stellungnahme hinzugefügt wurden, werden diese auch im DOCX-Export aufgeführt."
-export.statements.hint.via_template: "Achtung: Falls weitere Einreichende zu einer Stellungnahme hinzugefügt wurden, werden diese nicht im Antwortschreiben aufgeführt."
+export.statements.hint: "Bitte beachten Sie: Falls weitere Einreichende zu einer Stellungnahme hinzugefügt wurden, werden diese auch im DOCX-Export aufgeführt."
+export.statements.hint.via_template: "Bitte beachten Sie: Falls weitere Einreichende zu einer Stellungnahme hinzugefügt wurden, werden diese nicht im Antwortschreiben aufgeführt."
 export.statements.xlsx: "Stellungnahmen in einer XLSX-Datei"
 export.structure: "Gliederung des Exports"
 export.topicsAndTags: "Themen und Schlagworte"
@@ -1762,7 +1767,7 @@ export.type: "Art des Exports"
 export.verb: "Exportieren"
 export.xls: "XLS"
 export.xlsx: "XLSX"
-export.xlsx.hint: "Achtung: Darstellungen aus Stellungnahmen oder Erwiderungen, werden nicht im Excel-Export angezeigt."
+export.xlsx.hint: "Bitte beachten Sie: Darstellungen aus Stellungnahmen oder Erwiderungen werden nicht im Excel-Export angezeigt."
 export.zip: "ZIP"
 export.zip.censored: "Einzelne DOCX-Dateien (anonymisiert)"
 export.info: "Export-Informationen"
@@ -2904,6 +2909,7 @@ procedure.phase.autoswitch.enddate: "Neues Enddatum:"
 procedure.phase.autoswitch.targetphase: "Neuer Verfahrensschritt"
 procedure.phase.create: "Neuen Verfahrensschritt anlegen"
 procedure.phase.create.success: "Verfahrensschritt wurde erstellt"
+procedure.phase.configuration.not.movable: "Der Konfigurationsschritt kann nicht verschoben werden."
 procedure.phase.delete.confirm: "Möchten Sie den Verfahrensschritt wirklich löschen?"
 procedure.phase.delete.success: "Verfahrensschritt wurde gelöscht"
 procedure.phase.institutions: "Verfahrensschritt für Institutionen"
@@ -3390,6 +3396,18 @@ segments.bulk.edit.recommendations.warning.empty.text.replace: |
     {count, plural,
         =1 { Sie haben keinen Text eingegeben. Der Inhalt der Erwiderung geht dadurch verloren. }
         other { Sie haben keinen Text eingegeben. Der Inhalt der Erwiderungen geht dadurch verloren. }
+    }
+segments.copy.clipboard: "In Zwischenablage kopieren"
+segments.copy.clipboard.done: "Inhalte wurden kopiert"
+segments.copy.clipboard.error: |
+    {count, plural,
+        =1 {Der Abschnitt konnte nicht kopiert werden.}
+        other {Die Abschnitte konnten nicht kopiert werden.}
+    }
+segments.copy.clipboard.success: |
+    {count, plural,
+        =1 {Der Abschnitt wurde erfolgreich kopiert.}
+        other {Die Abschnitte wurden erfolgreich kopiert.}
     }
 segments.export.filter.tags.only: "Nur Abschnitte mit folgenden Schlagworten"
 segments.export.pagination: "Seite {PAGE} von {NUMPAGES}"
@@ -4539,6 +4557,7 @@ wizard.topic.phaseExternal: "Verfahrensschritt Öffentlichkeit"
 wizard.topic.info: "Informationen zum Verfahren"
 wizard.topic.location: "Verortung des Verfahrens"
 workflow.change.assignee.place: "Schritt und/oder Bearbeiter*in ändern"
+workflow.change.assignee.hint: "Schlagworten kann eine Bearbeiter*in hinterlegt sein. Wird ein solches Schlagwort vergeben, wird diese Person automatisch als Bearbeiter*in des Abschnitts eingetragen. Bei mehreren Schlagworten greift das erste mit hinterlegter Bearbeiter*in. Die Zuweisung kann jederzeit überschrieben werden."
 workflow.place: "Schritt"
 workflow.place.added: "Schritt wurde hinzugefügt"
 workflow.place.and.assignment: "Schritt und Zuweisung"
