@@ -79,7 +79,7 @@
                 icon-size="medium"
                 variant="subtle"
                 hide-text
-                @click="deleteStatement(group.procedureId, rowData.id)"
+                @click="deleteStatement(group.procedureId, rowData.id, rowData.externId)"
               />
             </span>
           </div>
@@ -270,7 +270,7 @@ const search = term => {
     })
 }
 
-const deleteStatement = (procedureId, statementId) => {
+const deleteStatement = (procedureId, statementId, externId) => {
   const url = Routing.generate('api_resource_delete', {
     resourceType: 'AdminStatementCrossProcedureSearch',
     resourceId: statementId,
@@ -278,6 +278,8 @@ const deleteStatement = (procedureId, statementId) => {
 
   dpApi.delete(url)
     .then(() => {
+      dplan.notify.confirm(Translator.trans('confirm.statement.id.deleted', { externId }))
+
       const group = procedureGroups.value.find(candidate => candidate.procedureId === procedureId)
 
       if (!group) {
