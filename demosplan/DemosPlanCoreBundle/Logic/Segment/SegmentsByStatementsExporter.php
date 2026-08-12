@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\Segment\SegmentXlsxExportColumnsEvent;
 use demosplan\DemosPlanCoreBundle\Event\Segment\SegmentXlsxExportDataEvent;
 use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
+use demosplan\DemosPlanCoreBundle\Logic\Export\CsvExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
@@ -32,6 +33,9 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementArrayConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
+use League\Csv\CannotInsertRecord;
+use League\Csv\Exception as CsvException;
+use League\Csv\InvalidArgument;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpWord\Element\Footer;
 use PhpOffice\PhpWord\Element\Section;
@@ -51,6 +55,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
 
     public function __construct(
         private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
+        private readonly CsvExporter $csvExporter,
         CurrentUserInterface $currentUser,
         private readonly EventDispatcherInterface $eventDispatcher,
         HtmlHelper $htmlHelper,
@@ -121,6 +126,40 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     public function exportAllXlsx(StatementExportTagFilter $tagFilter, Statement ...$statements): IWriter
     {
         Settings::setOutputEscapingEnabled(true);
+
+        [$exportData, $columnsDefinition] = $this->collectExportData(...$statements);
+
+        $writer = $this->assessmentTableXlsExporter->createExcel($exportData, $columnsDefinition);
+
+        $this->assessmentTableXlsExporter->addFilterInfoSheet($writer, $tagFilter);
+
+        return $writer;
+    }
+
+    /**
+     * @throws ReflectionException
+     * @throws CsvException
+     * @throws CannotInsertRecord
+     * @throws InvalidArgument
+     */
+    public function exportAllCsv(Statement ...$statements): string
+    {
+        [$exportData, $columnsDefinition] = $this->collectExportData(...$statements);
+        $attributesToExport = array_column($columnsDefinition, 'key');
+        $formattedData = $this->assessmentTableXlsExporter->prepareDataForExcelExport($exportData, false, $attributesToExport);
+
+        return $this->csvExporter->generate($formattedData, $columnsDefinition);
+    }
+
+    /**
+     * Converts the Segments (or the Statement itself, in case of an unsegmented Statement) of the
+     * given Statements into flat arrays, together with the matching column definitions. Shared by
+     * the xlsx and csv exports, which only differ in how this data is serialized.
+     *
+     * @return array{0: array<int, array<string, mixed>>, 1: array<int, array<string, mixed>>}
+     */
+    private function collectExportData(Statement ...$statements): array
+    {
         $exportData = [];
         $convertedSegments = [];
         // unfortunately for xlsx export data needs to be an array
@@ -156,11 +195,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         $this->eventDispatcher->dispatch($columnsEvent, SegmentXlsxExportColumnsEventInterface::class);
         $columnsDefinition = $columnsEvent->getColumnsDefinition();
 
-        $writer = $this->assessmentTableXlsExporter->createExcel($exportData, $columnsDefinition);
-
-        $this->assessmentTableXlsExporter->addFilterInfoSheet($writer, $tagFilter);
-
-        return $writer;
+        return [$exportData, $columnsDefinition];
     }
 
     public function exportStatementSegmentsInSeparateDocx(

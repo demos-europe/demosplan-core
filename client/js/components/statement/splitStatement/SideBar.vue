@@ -133,12 +133,11 @@
       </button>
 
       <div v-else>
-        <label
-          class="inline-block m-0"
+        <dp-label
+          :text="Translator.trans('workflow.place')"
+          class="mb-0"
           for="setPlace"
-        >
-          {{ Translator.trans('workflow.place') }}
-        </label>
+        />
         <dp-multiselect
           id="setPlace"
           v-model="selectedPlace"
@@ -159,12 +158,12 @@
             />
           </template>
         </dp-multiselect>
-        <label
-          class="inline-block mb-0"
+        <dp-label
+          :text="Translator.trans('assignee')"
+          :tooltip="assigneeTooltip"
+          class="mb-0"
           for="assignUser"
-        >
-          {{ Translator.trans('assignee') }}
-        </label>
+        />
         <dp-multiselect
           id="assignUser"
           v-model="selectedAssignee"
@@ -321,6 +320,14 @@ export default {
 
     assigneeNeedsUpdate () {
       return this.selectedAssignee.id !== this.initialAssignee.id
+    },
+
+    assigneeTooltip () {
+      if (!hasPermission('feature_tag_default_assignee')) {
+        return ''
+      }
+
+      return Translator.trans('workflow.change.assignee.hint')
     },
 
     currentSegment () {
