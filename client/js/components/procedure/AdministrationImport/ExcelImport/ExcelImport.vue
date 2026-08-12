@@ -75,7 +75,10 @@
     </form>
 
     <!-- Import Jobs List -->
-    <div class="u-mt-2">
+    <div
+      v-if="hasPermission('area_statement_segmentation')"
+      class="u-mt-2"
+    >
       <h2>{{ Translator.trans('import.jobs.list') }}</h2>
       <segment-import-job-list
         :init-url="importJobsUrl"

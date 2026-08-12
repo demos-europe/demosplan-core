@@ -8,12 +8,12 @@
  */
 
 import { api1_0Routes, apiUrl, generateApi2_0Routes, generateApi3_0Routes } from '@DpJs/store/core/VuexApiRoutes'
-import { describe, expect, it, jest } from '@jest/globals'
 import { StaticRouter } from '@efrane/vuex-json-api'
+import { vi } from 'vitest'
 
 // Mock Routing (following the pattern from VueConfigLocal.js)
 global.Routing = {
-  getBaseUrl: jest.fn(() => ''),
+  getBaseUrl: vi.fn(() => ''),
 }
 
 /**
@@ -32,6 +32,13 @@ describe('VuexApiRoutes', () => {
 
     expect(routes.Place.list.url).toBe('/3.0/Place')
     expect(routes.Place.get.url).toBe('/3.0/Place/{id}')
+  })
+
+  it('serves AssignableUser get/list from the ApiPlatform resource', () => {
+    const routes = resolveRoutes(['AssignableUser'])
+
+    expect(routes.AssignableUser.list.url).toBe('/3.0/AssignableUser')
+    expect(routes.AssignableUser.get.url).toBe('/3.0/AssignableUser/{id}')
   })
 
   it('keeps Place create/update/delete on the EDT resource', () => {

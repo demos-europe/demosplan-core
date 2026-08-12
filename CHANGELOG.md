@@ -5,14 +5,29 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+## v4.55.0 (2026-08-12)
+
+## v4.54.0 (2026-08-12)
+
 ### Added
+- Add drag and drop sorting for procedure phases definitions
 - Boilerplate edit page lists the segments in which a boilerplate is used as deep links
+- Sortable deadline column in segmentsList (sorting gated behind `feature_segments_manualsort`, not enabled yet)
+- Tags can now be linked to a default assignee, who is preselected when the tag is added to a segment during statement splitting
+- Selected segments in the segments list can be copied to the clipboard for pasting into Excel, respecting the currently visible columns and their order
+
+### Fixed
+- The statement PDF attached to the submission confirmation no longer states that the submitter declined feedback when no feedback preference was recorded at all.
+
+## v4.53.0 (2026-07-30)
+
+## v4.52.0 (2026-07-29)
 
 ### Added
+- Filter custom fields in assesment table
 
-- Sortable deadline column in segmentsList, temporarily remove pager
-- Tags can now be linked to a default assignee, who is preselected when the tag is added to a segment during statement splitting
-
+## v4.51.0 (2026-07-15)
 
 ## v4.50.0 (2026-07-15)
 
