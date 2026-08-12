@@ -3300,6 +3300,7 @@ search.special.characters.description: |
     Wenn Sie nach einem dieser Zeichen suchen möchten, schreiben Sie "\" vor das Zeichen.<br />
     Möchten Sie z.B. nach ? suchen, geben Sie \? ein.<br />
 search.submitter: "Einreichende suchen"
+search.submitter.cross.procedures.hint: "Sie können über mehrere Verfahren nach Einreichenden von Stellungnahmen suchen. Es werden nur Verfahren durchsucht, auf die Sie Zugriff haben. Die Suchergebnisse werden direkt unterhalb des jeweiligen Verfahrensnamens aufgelistet und zeigen alle zugehörigen Stellungnahmen der einreichenden Person. Über das Papierkorb-Symbol einer Stellungnahme können Sie diese bei Bedarf direkt löschen."
 search.submitter.hint: "Sie können über mehrere Verfahren nach Einreichenden von Stellungnahmen suchen. Es werden nur Verfahren durchsucht, auf die Sie Zugriff haben. In der Ergebnisliste werden die Verfahren aufgelistet, in denen Ihre Suche Ergebnisse produziert hat. Durch einen Klick gelangen Sie zu dem jeweiligen Verfahren. Dort können Sie erneut nach den Einreichenden suchen, um die jeweiligen Stellungnahmen zu finden."
 search.text: "Text durchsuchen"
 search.three.signs: "Suchen (mindestens 3 Zeichen eingeben)..."
@@ -4386,6 +4387,7 @@ warning.delete.statement.metadata.inconsistent.fragments.county: "Die Kreise an 
 warning.delete.statement.metadata.inconsistent.fragments.municipality: "Die Gemeinden an der Stellungnahme konnten nicht gelöscht werden, da sie auch an Datensätzen vergeben sind."
 warning.delete.statement.metadata.inconsistent.fragments.priorityArea: "Die Potenzialflächen an der Stellungnahme konnten nicht gelöscht werden, da sie auch an Datensätzen vergeben sind."
 warning.delete.statement.metadata.inconsistent.fragments.tag: "Die Schlagworte an der Stellungnahme konnten nicht gelöscht werden, da sie auch an Datensätzen vergeben sind."
+warning.delete.statement.not.claimed.by.current.user: "Sie können diese Stellungnahme nicht löschen, weil sie einer anderen Person zugewiesen ist."
 warning.delete.statement.original: "Originalstellungnahmen können nicht gelöscht werden: {externId}."
 warning.delete.statement.placeholder: "Verschobene Stellungnahmen können nicht gelöscht werden: {externId}."
 warning.deny.copy.statement.to.foreign.procedure: "Stellungnahmen können nur in Verfahren ihrer Organisation kopiert werden."
