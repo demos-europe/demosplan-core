@@ -289,9 +289,7 @@ const deleteStatement = (procedureId, statementId) => {
         procedureGroups.value = procedureGroups.value.filter(candidate => candidate.procedureId !== procedureId)
       }
 
-      if (procedureGroups.value.length === 0) {
-        noResults.value = true
-      }
+      noResults.value = procedureGroups.value.length === 0
     })
     .catch(() => {
       dplan.notify.error(Translator.trans('error.api.generic'))
