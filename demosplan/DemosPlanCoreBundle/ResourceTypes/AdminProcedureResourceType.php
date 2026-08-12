@@ -84,6 +84,10 @@ final class AdminProcedureResourceType extends DplanResourceType
         }
 
         if ($this->currentUser->hasPermission('area_admin_procedures')) {
+            // Needed to narrow lists to specific procedures, e.g. the `procedure.id` filter of
+            // {@see AdminStatementCrossProcedureSearchResourceType}. The identifier is readable here
+            // anyway, so making it filterable does not widen what the user can see.
+            $id->filterable();
             $name->sortable()->readable()->filterable();
             $creationDate->sortable()->readable();
 
