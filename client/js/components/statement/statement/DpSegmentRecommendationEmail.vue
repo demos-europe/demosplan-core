@@ -161,7 +161,6 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { DpAccordion, DpButtonRow, DpCheckbox, DpEditor, DpInlineNotification, DpInput, dpRpc, DpTextArea } from '@demos-europe/demosplan-ui'
-import { useRootEventBus } from '@DpJs/composables/useRootEventBus'
 import { useStore } from 'vuex'
 
 const props = defineProps({
@@ -179,8 +178,6 @@ const props = defineProps({
 })
 
 const store = useStore()
-// Only `hide-slidebar` still goes through the bus - it is the API DpSlidebar listens on.
-const { emitRootEvent } = useRootEventBus()
 
 const attachRecommendation = ref(false)
 const attachSegmentText = ref(true)
@@ -232,9 +229,18 @@ const obscureOnlyToolbar = computed(() => ({
   textDecoration: false,
 }))
 
+/**
+ * Clearing the store closes the slidebar, because its `open` prop is bound to `isOpen`.
+ */
+const closeSlidebar = () => {
+  store.commit('SegmentSlidebar/setContent', {
+    prop: 'slidebar',
+    val: { externId: '', isOpen: false, segmentId: '', showTab: '' },
+  })
+}
+
 const onAbort = () => {
-  isVisible.value = false
-  emitRootEvent('hide-slidebar')
+  closeSlidebar()
 }
 
 const onSendEmail = () => {

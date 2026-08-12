@@ -9,7 +9,10 @@
 
 <template>
   <div v-if="statement">
-    <dp-slidebar @close="resetSlidebar">
+    <dp-slidebar
+      :open="slidebar.isOpen"
+      @close="resetSlidebar"
+    >
       <dp-version-history
         v-show="slidebar.showTab === 'history'"
         class="u-pr"
@@ -749,7 +752,7 @@ export default {
         this.$refs.locationMap.resetCurrentMap()
       }
 
-      this.setContent({ prop: 'slidebar', val: { isOpen: false, showTab: '', segmentId: '' } })
+      this.setContent({ prop: 'slidebar', val: { externId: '', isOpen: false, showTab: '', segmentId: '' } })
     },
 
     saveStatement (changes) {

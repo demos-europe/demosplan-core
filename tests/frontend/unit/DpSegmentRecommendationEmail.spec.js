@@ -13,19 +13,6 @@ import DpSegmentRecommendationEmail from '@DpJs/components/statement/statement/D
 import { nextTick } from 'vue'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
-/*
- * Closing the slidebar still goes through the application event bus. Jest runs against plain
- * Vue 3 (jest.config.js removes the @vue/compat alias), where $on does not exist, so the
- * composable is replaced by a mock.
- */
-const mockEmitRootEvent = jest.fn()
-
-jest.mock('@DpJs/composables/useRootEventBus', () => ({
-  useRootEventBus: () => ({
-    emitRootEvent: mockEmitRootEvent,
-  }),
-}))
-
 const mockDpRpc = jest.fn(() => Promise.resolve())
 
 jest.mock('@demos-europe/demosplan-ui', () => ({
@@ -78,7 +65,6 @@ describe('DpSegmentRecommendationEmail', () => {
 
   beforeEach(() => {
     mockDpRpc.mockClear()
-    mockEmitRootEvent.mockClear()
 
     store = createStore({
       modules: {

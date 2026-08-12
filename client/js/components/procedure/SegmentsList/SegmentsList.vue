@@ -537,10 +537,6 @@ export default {
     },
   },
 
-  emits: [
-    'show-slidebar',
-  ],
-
   setup () {
     const { unlockModal, openUnlockModal, unlockSegment } = useSegmentUnlock()
 
@@ -1320,12 +1316,10 @@ export default {
     showVersionHistory (segmentId, externId) {
       this.setSlidebarContent({ externId, isOpen: true, segmentId, showTab: 'history' })
       this.$root.$emit('version:history', segmentId, 'segment', externId)
-      this.$root.$emit('show-slidebar')
     },
 
     showSendViaMail (segmentId, externId) {
       this.setSlidebarContent({ externId, isOpen: true, segmentId, showTab: 'sendViaMail' })
-      this.$root.$emit('show-slidebar')
     },
 
     updateQueryHash () {
