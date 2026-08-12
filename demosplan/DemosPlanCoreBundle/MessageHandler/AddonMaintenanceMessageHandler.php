@@ -44,6 +44,6 @@ final class AddonMaintenanceMessageHandler
         } catch (Exception $e) {
             $this->logger->error('Addon Maintenance failed', [$e]);
         }
-        $this->logger->info('Finished Addon Maintenance.', [spl_object_id($message)]);
+        $this->logger->debug('Finished Addon Maintenance.', [spl_object_id($message)]);
     }
 }

@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Message\LoginAuditCleanupMessage;
 use demosplan\DemosPlanCoreBundle\Message\PurgeSentEmailsMessage;
 use demosplan\DemosPlanCoreBundle\Message\SendAssignedTaskNotificationEmailsMessage;
 use demosplan\DemosPlanCoreBundle\Message\SendDeadlineNotificationsMessage;
+use demosplan\DemosPlanCoreBundle\Message\SendSegmentDeadlineReminderEmailsMessage;
 use demosplan\DemosPlanCoreBundle\Message\SwitchNewsStatesMessage;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Scheduler\Attribute\AsSchedule;
@@ -41,6 +42,7 @@ use Symfony\Component\Scheduler\ScheduleProviderInterface;
  * @see SwitchNewsStatesMessageHandler
  * @see AutoSwitchProcedurePhasesMessageHandler
  * @see SendAssignedTaskNotificationEmailsMessageHandler
+ * @see SendSegmentDeadlineReminderEmailsMessageHandler
  * @see DeleteOrphanEmailAddressesMessageHandler
  * @see PurgeSentEmailsMessageHandler
  * @see CleanupFilesMessageHandler
@@ -68,6 +70,7 @@ class DailyMaintenanceScheduler implements ScheduleProviderInterface
             ->add(RecurringMessage::cron('40 0 * * *', new CleanupFilesMessage()))
             ->add(RecurringMessage::cron('45 0 * * *', new LoginAuditCleanupMessage()))
             ->add(RecurringMessage::cron('50 0 * * *', new AccountDeletionRunMessage()))
+            ->add(RecurringMessage::cron('55 0 * * *', new SendSegmentDeadlineReminderEmailsMessage()))
             ->lock($this->lockFactory->createLock('demosplan_daily_maintenance_scheduler_lock'))
         ;
     }

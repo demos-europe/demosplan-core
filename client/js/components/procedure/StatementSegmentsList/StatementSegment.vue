@@ -182,7 +182,7 @@
               editor-id="recommendationText"
               :procedure-id="procedureId"
               :preview-segment-id="segment.id"
-              @insert="text => modalProps.handleInsertText(text)"
+              @insert="(text, boilerplateId) => insertBoilerplateText(text, boilerplateId, modalProps.handleInsertText)"
             />
             <recommendation-modal
               ref="recommendationModal"
@@ -641,10 +641,7 @@ export default {
           }
         })
 
-      assigneeOptions.unshift({
-        name: Translator.trans('not.assigned'),
-        id: 'noAssigneeId',
-      })
+      assigneeOptions.unshift(this.getUnassignedAssignee())
 
       return assigneeOptions
     },
@@ -704,7 +701,10 @@ export default {
       const hasRecommendationChanges = initialSegment.attributes.recommendation !== this.segment.attributes.recommendation
       const hasDeadlineChanges = initialSegment.attributes.deadline !== this.segment.attributes.deadline
       const hasPlaceChanges = initialSegment.relationships?.place?.data?.id !== this.selectedPlace.id
-      const hasAssigneeChanges = initialSegment.relationships?.assignee?.data?.id !== this.selectedAssignee.id
+
+      const initialAssigneeId = initialSegment.relationships?.assignee?.data?.id || null
+      const currentAssigneeId = (this.selectedAssignee?.id && this.selectedAssignee.id !== 'noAssigneeId') ? this.selectedAssignee.id : null
+      const hasAssigneeChanges = initialAssigneeId !== currentAssigneeId
 
       return (
         hasRecommendationChanges ||
@@ -1041,6 +1041,13 @@ export default {
       this.isEditing = false
     },
 
+    getUnassignedAssignee () {
+      return {
+        id: 'noAssigneeId',
+        name: Translator.trans('not.assigned'),
+      }
+    },
+
     handleDeadlineUpdate (value) {
       if (!value) {
         this.updateSegment('deadline', '')
@@ -1075,10 +1082,7 @@ export default {
         return
       }
 
-      this.fetchAssignableUsers({
-        include: 'department',
-        sort: 'lastname',
-      })
+      this.fetchAssignableUsers({ sort: 'lastname' })
         .then(() => {
           this.setSelectedAssignee()
         })
@@ -1134,6 +1138,26 @@ export default {
      */
     onDiscardChanges () {
       this.abort()
+    },
+
+    /**
+     * Inserts the boilerplate text into the recommendation editor and records
+     * the usage of the boilerplate in this segment in the backend.
+     */
+    insertBoilerplateText (text, boilerplateId, handleInsertText) {
+      handleInsertText(text)
+
+      if (boilerplateId && hasPermission('feature_boilerplate_usage_list')) {
+        return dpApi.post(
+          Routing.generate('dplan_boilerplate_usage_create', { procedureId: this.procedureId, boilerplateId }),
+          {},
+          { segmentId: this.segment.id },
+        ).catch(() => {
+          // Recording the usage is non-critical: the text was inserted regardless.
+        })
+      }
+
+      return Promise.resolve()
     },
 
     openBoilerPlate () {
@@ -1251,9 +1275,16 @@ export default {
     },
 
     setSelectedAssignee () {
-      if (this.segment.relationships?.assignee?.data?.id) {
-        this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
+      const assigneeId = this.segment.relationships?.assignee?.data?.id
+      const assignedUser = this.assignableUsers.find(user => user.id === assigneeId)
+
+      if (!assigneeId || !assignedUser) {
+        this.selectedAssignee = this.getUnassignedAssignee()
+
+        return
       }
+
+      this.selectedAssignee = assignedUser
     },
 
     setSelectedPlace () {
@@ -1360,7 +1391,7 @@ export default {
           this.exitEditMode()
           this.isCollapsed = true
           this.claimLoading = false
-          this.selectedAssignee = { id: '', name: '' }
+          this.selectedAssignee = this.getUnassignedAssignee()
         })
         .catch((err) => {
           console.error(err)

@@ -133,12 +133,11 @@
       </button>
 
       <div v-else>
-        <label
-          class="inline-block m-0"
+        <dp-label
+          :text="Translator.trans('workflow.place')"
+          class="mb-0"
           for="setPlace"
-        >
-          {{ Translator.trans('workflow.place') }}
-        </label>
+        />
         <dp-multiselect
           id="setPlace"
           v-model="selectedPlace"
@@ -159,12 +158,12 @@
             />
           </template>
         </dp-multiselect>
-        <label
-          class="inline-block mb-0"
+        <dp-label
+          :text="Translator.trans('assignee')"
+          :tooltip="assigneeTooltip"
+          class="mb-0"
           for="assignUser"
-        >
-          {{ Translator.trans('assignee') }}
-        </label>
+        />
         <dp-multiselect
           id="assignUser"
           v-model="selectedAssignee"
@@ -323,6 +322,14 @@ export default {
       return this.selectedAssignee.id !== this.initialAssignee.id
     },
 
+    assigneeTooltip () {
+      if (!hasPermission('feature_tag_default_assignee')) {
+        return ''
+      }
+
+      return Translator.trans('workflow.change.assignee.hint')
+    },
+
     currentSegment () {
       if (this.editingSegment && this.segment(this.editingSegment.id)) {
         return JSON.parse(JSON.stringify(this.segment(this.editingSegment.id)))
@@ -390,6 +397,30 @@ export default {
     },
   },
 
+  watch: {
+    /*
+     * Keep the assignee field in sync with the segment's tags: the first selected tag
+     * that has a default assignee wins and is applied even if an assignee is already set.
+     * If no selected tag provides one, the field is reset to "not assigned". The selection
+     * is persisted with the regular save flow via updateSegment().
+     */
+    'editingSegment.tags': function (newTags) {
+      if (!hasPermission('feature_tag_default_assignee') || !newTags) {
+        return
+      }
+
+      const assignee = this.getFirstTagAssignee(newTags) || this.getAssignableUserById('noAssigneeId')
+
+      /*
+       * Only update once a valid option exists; avoid setting null while the assignable
+       * users are still loading, which would break dp-multiselect and the save logic.
+       */
+      if (assignee) {
+        this.selectedAssignee = assignee
+      }
+    },
+  },
+
   methods: {
     ...mapActions('SplitStatement', [
       'updateCurrentTags',
@@ -405,6 +436,20 @@ export default {
 
     getAssignableUserById (id) {
       return this.assignableUsers.find(user => user.id === id)
+    },
+
+    getFirstTagAssignee (tags) {
+      for (const tag of tags) {
+        const availableTag = this.availableTags.find(el => el.id === tag.id)
+        const defaultAssigneeId = availableTag?.relationships?.defaultAssignee?.data?.id
+        const defaultAssignee = defaultAssigneeId ? this.getAssignableUserById(defaultAssigneeId) : null
+
+        if (defaultAssignee) {
+          return defaultAssignee
+        }
+      }
+
+      return null
     },
 
     getPlaceById (placeId) {

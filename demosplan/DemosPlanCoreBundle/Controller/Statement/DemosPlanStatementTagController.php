@@ -11,7 +11,9 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Events\UpdateTagEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Tag\UpdateTagEvent;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
@@ -44,6 +46,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
     #[DplanPermissions('area_admin_statements_tag')]
     #[Route(path: '/verfahren/{procedure}/tag/{tag}', name: 'DemosPlan_statement_administration_tag', options: ['expose' => true], defaults: ['master' => false])]
     public function tagView(
+        PermissionsInterface $permissions,
         ProcedureService $procedureService,
         Request $request,
         StatementHandler $statementHandler,
@@ -75,6 +78,11 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         if (\array_key_exists('r_boilerplateId', $requestPost)) {
             $data['boilerplateId'] = $requestPost['r_boilerplateId'];
         }
+        $data['defaultAssigneeId'] = null;
+        if ($permissions->hasPermission('feature_tag_default_assignee')
+            && array_key_exists('r_defaultAssigneeId', $requestPost)) {
+            $data['defaultAssigneeId'] = $requestPost['r_defaultAssigneeId'];
+        }
         $statementHandler->handleTagBoilerplate($tag, $data, $procedure);
         $templateVars = [];
         $tagEntity = $statementHandler->getTag($tag);
@@ -87,6 +95,11 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         }
         $templateVars['tag'] = $tagEntity;
         $templateVars['boilerplates'] = $procedureService->getBoilerplateList($procedure);
+        if ($permissions->hasPermission('feature_tag_default_assignee')) {
+            $templateVars['authorizedUsers'] = $procedureService->getAuthorizedUsers($procedure)
+                ->sortBy(static fn (User $user): string => $user->getFullname())
+                ->values();
+        }
         if (null !== $data['action']) {
             $this->getMessageBag()->add('confirm', 'confirm.tag.edited');
             $eventDispatcher->dispatch(
