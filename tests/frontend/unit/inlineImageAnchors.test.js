@@ -21,7 +21,7 @@ describe('inlineImageAnchors', () => {
     expect(result).toContain('alt="Label"')
     expect(result).toContain('loading="lazy"')
     expect(result).toMatch(/<span[^>]*><img[^>]*><a[^>]*>Label<\/a><\/span>/)
-    expect(result).toMatch(/<a[^>]*href="http:\/\/example\.com\/hash\.jpg"[^>]*>Label<\/a>/)
+    expect(result).toMatch(/<a[^>]*href="http:\/\/example\.com\/hash\.jpg\?disposition=inline"[^>]*>Label<\/a>/)
   })
 
   it('preserves anchors without the target class', () => {
@@ -62,8 +62,8 @@ describe('inlineImageAnchors', () => {
     const result = inlineImageAnchors(html)
 
     expect(result.match(/<img/g)).toHaveLength(2)
-    expect(result).toMatch(/<a[^>]*href="a"[^>]*>A<\/a>/)
-    expect(result).toMatch(/<a[^>]*href="b"[^>]*>B<\/a>/)
+    expect(result).toMatch(/<a[^>]*href="a\?disposition=inline"[^>]*>A<\/a>/)
+    expect(result).toMatch(/<a[^>]*href="b\?disposition=inline"[^>]*>B<\/a>/)
   })
 
   it('mixes pdf_importer_image anchors and unrelated anchors correctly', () => {
@@ -91,7 +91,7 @@ describe('inlineImageAnchors', () => {
 
     expect(result).toContain('<img')
     expect(result).toContain('src="x"')
-    expect(result).toMatch(/<a[^>]*href="x"[^>]*>L<\/a>/)
+    expect(result).toMatch(/<a[^>]*href="x\?disposition=inline"[^>]*>L<\/a>/)
   })
 
   it('adds a link below a bare img tag using its alt as label', () => {
@@ -102,7 +102,7 @@ describe('inlineImageAnchors', () => {
     expect(result).toContain('<img')
     expect(result).toContain('src="http://example.com/photo.jpg"')
     expect(result).toContain('alt="My photo"')
-    expect(result).toMatch(/<a[^>]*href="http:\/\/example\.com\/photo\.jpg"[^>]*>My photo<\/a>/)
+    expect(result).toMatch(/<a[^>]*href="http:\/\/example\.com\/photo\.jpg\?disposition=inline"[^>]*>My photo<\/a>/)
     expect(result).toContain('target="_blank"')
     expect(result).toContain('rel="noopener noreferrer"')
   })
@@ -165,6 +165,36 @@ describe('inlineImageAnchors', () => {
     expect(result).not.toMatch(/<span[^>]*><img/)
     expect(result).toContain('<img')
     expect(result).toContain('alt="broken"')
+  })
+
+  it('adds the inline disposition param to the link but not to the img src', () => {
+    const html = '<img src="/file/proc-id/hash-id" alt="A">'
+    const result = inlineImageAnchors(html)
+
+    expect(result).toContain('src="/file/proc-id/hash-id"')
+    expect(result).toMatch(/<a[^>]*href="\/file\/proc-id\/hash-id\?disposition=inline"/)
+  })
+
+  it('appends the inline disposition param with & when the href already has a query', () => {
+    const html = '<a class="pdf_importer_image" href="/file/hash?foo=bar">L</a>'
+    const result = inlineImageAnchors(html)
+
+    expect(result).toMatch(/<a[^>]*href="\/file\/hash\?foo=bar&amp;disposition=inline"/)
+  })
+
+  it('does not append the inline disposition param to data URLs', () => {
+    const html = '<img src="data:image/png;base64,AAAA" alt="A">'
+    const result = inlineImageAnchors(html)
+
+    expect(result).toMatch(/<a[^>]*href="data:image\/png;base64,AAAA"/)
+  })
+
+  it('does not append the inline disposition param twice', () => {
+    const html = '<a class="pdf_importer_image" href="/file/hash?disposition=inline">L</a>'
+    const result = inlineImageAnchors(html)
+
+    expect(result).toMatch(/<a[^>]*href="\/file\/hash\?disposition=inline"[^>]*>L<\/a>/)
+    expect(result).not.toContain('disposition=inline&amp;disposition=inline')
   })
 })
 

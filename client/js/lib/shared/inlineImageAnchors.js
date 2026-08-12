@@ -6,6 +6,25 @@ const WRAPPER_UTILITY_CLASSES = `${WRAPPER_CLASS} inline-block text-center`
 const IMAGE_UTILITY_CLASSES = 'block'
 const LINK_UTILITY_CLASSES = 'pdf-importer-image-link block mt-1'
 const DEFAULT_FALLBACK_LABEL_KEY = 'image.open'
+const INLINE_DISPOSITION_PARAM = 'disposition=inline'
+
+/**
+ * The file routes serve attachment by default, so a plain link click would
+ * download the image. The parameter asks the backend to serve raster images
+ * inline so the new tab actually displays the image.
+ */
+const withInlineDisposition = (href) => {
+  if (typeof href !== 'string' || href === '' || href.startsWith('data:') || href.startsWith('blob:') || href.includes(INLINE_DISPOSITION_PARAM)) {
+    return href
+  }
+
+  const hashIndex = href.indexOf('#')
+  const base = hashIndex === -1 ? href : href.substring(0, hashIndex)
+  const fragment = hashIndex === -1 ? '' : href.substring(hashIndex)
+  const separator = base.includes('?') ? '&' : '?'
+
+  return `${base}${separator}${INLINE_DISPOSITION_PARAM}${fragment}`
+}
 
 const filenameFromSrc = (src) => {
   if (typeof src !== 'string' || src === '' || src.startsWith('data:')) {
@@ -86,7 +105,7 @@ const createLink = (doc, { href, target, rel, label }) => {
   const anchor = doc.createElement('a')
 
   anchor.className = LINK_UTILITY_CLASSES
-  anchor.setAttribute('href', href)
+  anchor.setAttribute('href', withInlineDisposition(href))
   anchor.setAttribute('target', target)
   anchor.setAttribute('rel', rel)
   anchor.textContent = label
