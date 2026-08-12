@@ -1,6 +1,6 @@
 const pluginVue = require('eslint-plugin-vue')
 const pluginVueA11y = require('eslint-plugin-vuejs-accessibility')
-const pluginJest = require('eslint-plugin-jest')
+const pluginVitest = require('@vitest/eslint-plugin')
 const pluginJquery = require('eslint-plugin-jquery')
 const js = require('@eslint/js')
 const pluginImportExtensions = require('eslint-plugin-import')
@@ -69,7 +69,6 @@ module.exports = [
       globals: {
         ...require('globals').node,
         ...require('globals').browser,
-        ...require('globals').jest,
         // Webpack DefinePlugin globals
         URL_PATH_PREFIX: 'readonly',
         PROJECT: 'readonly',
@@ -96,18 +95,18 @@ module.exports = [
     },
   },
   {
-    name: 'app/jest-rules',
+    name: 'app/vitest-rules',
     files: ['**/*.test.{js,ts}', '**/*.spec.{js,ts}', '**/tests/**/*.{js,ts}'],
     plugins: {
-      jest: pluginJest,
+      vitest: pluginVitest,
     },
     languageOptions: {
       globals: {
-        ...require('globals').jest,
+        ...pluginVitest.configs.env.languageOptions.globals,
       },
     },
     rules: {
-      ...pluginJest.configs.recommended.rules,
+      ...pluginVitest.configs.recommended.rules,
     },
   },
   {
