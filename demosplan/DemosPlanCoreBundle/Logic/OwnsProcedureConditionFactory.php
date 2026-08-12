@@ -87,7 +87,8 @@ class OwnsProcedureConditionFactory
      *
      * If {@link GlobalConfigInterface::hasProcedureUserRestrictedAccess} is set to `true`,
      * then the user must be authorized manually for the procedure AND must be in the
-     * procedure's owning organization.
+     * procedure's owning organization. The platform master blueprint is exempt from the
+     * manual authorization part, see {@link self::isMasterTemplate()}.
      *
      * The returned condition will not apply role checks by itself. Use in conjunction with
      * {@link self::hasProcedureAccessingRole}.
@@ -96,16 +97,59 @@ class OwnsProcedureConditionFactory
      */
     public function isAuthorizedViaOrgaOrManually(): FunctionInterface
     {
-        // When explicit authorization is enabled, require BOTH explicit authorization
-        // AND owning organization match to prevent access by users who changed organizations
-        if ($this->globalConfig->hasProcedureUserRestrictedAccess()) {
-            return $this->conditionFactory->allConditionsApply(
-                $this->userIsExplicitlyAuthorized(),
-                $this->userOwnsProcedureViaOrgaOfUserThatCreatedTheProcedure()
-            );
+        if (!$this->globalConfig->hasProcedureUserRestrictedAccess()) {
+            return $this->userOwnsProcedureViaOrgaOfUserThatCreatedTheProcedure();
         }
 
-        return $this->userOwnsProcedureViaOrgaOfUserThatCreatedTheProcedure();
+        // When explicit authorization is enabled, require BOTH explicit authorization
+        // AND owning organization match to prevent access by users who changed organizations.
+        // The owning organization match is never waived, so no exemption below can grant
+        // access across organizations.
+        return $this->conditionFactory->allConditionsApply(
+            $this->userOwnsProcedureViaOrgaOfUserThatCreatedTheProcedure(),
+            $this->conditionFactory->anyConditionApplies(
+                $this->isMasterTemplate(),
+                $this->userIsExplicitlyAuthorized()
+            )
+        );
+    }
+
+    /**
+     * Whether the procedure is the platform master blueprint ("Plattform-Blaupause"), the
+     * per-installation singleton that all new procedures are copied from.
+     *
+     * This exists to exempt that blueprint from {@link self::userIsExplicitlyAuthorized()}
+     * while explicit authorization is enabled. The master blueprint is seeded by migration
+     * rather than created through the UI, so it never receives the creator row that
+     * ProcedureService::setAuthorizedUsersToProcedure() writes for every other
+     * procedure. Its authorized user list is therefore permanently empty, and
+     * {@link self::userIsExplicitlyAuthorized()} resolves an empty list to a hard `false()` —
+     * which would make the blueprint owned by nobody and its settings page unopenable, even
+     * for the organisation that owns it. Note also that inheriting authorized users from a
+     * master blueprint is explicitly refused when copying it (T15644 / T23583), which is
+     * further evidence it was never meant to carry a per-user authorization list.
+     *
+     * Combined with the never-waived organisation match in
+     * {@link self::isAuthorizedViaOrgaOrManually()} and the role check in
+     * {@link self::hasProcedureAccessingRole()}, this grants the master blueprint to
+     * FP-role users of the owning organisation — matching the intent of ADO #44507, which
+     * made it visible to exactly that group but left it unopenable.
+     *
+     * @return ClauseFunctionInterface<bool>
+     *
+     * @throws PathException
+     */
+    public function isMasterTemplate(): ClauseFunctionInterface
+    {
+        if ($this->userOrProcedure instanceof User) {
+            return $this->conditionFactory->propertyHasValue(true, ['masterTemplate']);
+        }
+
+        $procedure = $this->userOrProcedure;
+
+        return $procedure->isMasterTemplate()
+            ? $this->conditionFactory->true()
+            : $this->conditionFactory->false();
     }
 
     /**

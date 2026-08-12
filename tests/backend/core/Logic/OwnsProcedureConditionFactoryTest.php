@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\EntityFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\OwnsProcedureConditionFactory;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use Psr\Log\LoggerInterface;
@@ -466,5 +467,139 @@ class OwnsProcedureConditionFactoryTest extends FunctionalTestCase
         $this->assertNotNull($condition1);
         $this->assertNotNull($condition2);
         // Both users should be able to access the procedure via their shared org
+    }
+
+    // ========================================================================
+    // Tests for isMasterTemplate() - the platform master blueprint exemption
+    //
+    // The platform master blueprint is seeded by migration rather than created
+    // through the UI, so it never receives the creator row that every other
+    // procedure gets. While explicit authorization is enabled that empty list made
+    // userIsExplicitlyAuthorized() resolve to a hard false(), leaving the blueprint
+    // owned by nobody and its settings page unopenable even for its owning orga.
+    //
+    // Unlike the tests above these evaluate the produced conditions rather than only
+    // asserting they are non-null, so they fail if the exemption regresses.
+    // ========================================================================
+
+    private function getEntityFetcher(): EntityFetcher
+    {
+        return $this->getContainer()->get(EntityFetcher::class);
+    }
+
+    /**
+     * Only the config is mocked here - it is a collaborator, not the system under test.
+     */
+    private function createRestrictedAccessConfig(): GlobalConfigInterface
+    {
+        $config = $this->createMock(GlobalConfigInterface::class);
+        $config->method('hasProcedureUserRestrictedAccess')->willReturn(true);
+
+        return $config;
+    }
+
+    /**
+     * Evaluates a procedure's ownership condition against a user, the way
+     * {@link ProcedureAccessEvaluator::isOwningProcedure()} does when a permission is checked.
+     */
+    private function ownsProcedureUnderRestrictedAccess(User $user, Procedure $procedure): bool
+    {
+        $condition = $this->createFactory($procedure, $this->createRestrictedAccessConfig())
+            ->isAuthorizedViaOrgaOrManually();
+
+        return $this->getEntityFetcher()->objectMatches($user, $condition);
+    }
+
+    public function testMasterTemplateIsOwnedByOrgaMemberWithoutExplicitAuthorization(): void
+    {
+        // Arrange
+        $orga = OrgaFactory::createOne();
+        $user = UserFactory::createOne();
+        $masterTemplate = ProcedureFactory::createOne(['master' => true, 'masterTemplate' => true]);
+
+        $this->linkUserToOrga($user->_real(), $orga->_real());
+        $this->linkProcedureToOrga($masterTemplate->_real(), $orga->_real());
+        $this->getEntityManager()->flush();
+
+        $this->assertCount(0, $masterTemplate->_real()->getAuthorizedUsers());
+
+        // Act
+        $owns = $this->ownsProcedureUnderRestrictedAccess($user->_real(), $masterTemplate->_real());
+
+        // Assert
+        $this->assertTrue($owns);
+    }
+
+    public function testOrdinaryBlueprintIsNotOwnedWithoutExplicitAuthorization(): void
+    {
+        // Arrange - identical to the master template case except for the flag under test,
+        // so that the exemption cannot be mistaken for a general waiver
+        $orga = OrgaFactory::createOne();
+        $user = UserFactory::createOne();
+        $blueprint = ProcedureFactory::createOne(['master' => true, 'masterTemplate' => false]);
+
+        $this->linkUserToOrga($user->_real(), $orga->_real());
+        $this->linkProcedureToOrga($blueprint->_real(), $orga->_real());
+        $this->getEntityManager()->flush();
+
+        $this->assertCount(0, $blueprint->_real()->getAuthorizedUsers());
+
+        // Act
+        $owns = $this->ownsProcedureUnderRestrictedAccess($user->_real(), $blueprint->_real());
+
+        // Assert
+        $this->assertFalse($owns);
+    }
+
+    public function testMasterTemplateIsNotOwnedByUserFromAnotherOrga(): void
+    {
+        // Arrange - the owning organisation match is never waived by the exemption
+        $procedureOrga = OrgaFactory::createOne(['name' => self::TEST_ORGA_NAME_DEMOS]);
+        $userOrga = OrgaFactory::createOne(['name' => self::TEST_ORGA_NAME_EXAMPLE]);
+        $user = UserFactory::createOne();
+        $masterTemplate = ProcedureFactory::createOne(['master' => true, 'masterTemplate' => true]);
+
+        $this->linkUserToOrga($user->_real(), $userOrga->_real());
+        $this->linkProcedureToOrga($masterTemplate->_real(), $procedureOrga->_real());
+        $this->getEntityManager()->flush();
+
+        // Act
+        $owns = $this->ownsProcedureUnderRestrictedAccess($user->_real(), $masterTemplate->_real());
+
+        // Assert
+        $this->assertFalse($owns);
+    }
+
+    /**
+     * The same exemption has to hold in the opposite shape of the factory, where conditions
+     * are built from a user and evaluated against procedures. Both shapes share
+     * isAuthorizedViaOrgaOrManually(), so this pins down the "keep in sync" contract
+     * between ProcedureAccessEvaluator::isOwningProcedure() and getOwnsProcedureConditions().
+     */
+    public function testMasterTemplateMatchesConditionsBuiltFromUserWithoutExplicitAuthorization(): void
+    {
+        // Arrange
+        $orga = OrgaFactory::createOne();
+        $user = UserFactory::createOne();
+        $masterTemplate = ProcedureFactory::createOne(['master' => true, 'masterTemplate' => true]);
+        $blueprint = ProcedureFactory::createOne(['master' => true, 'masterTemplate' => false]);
+
+        $this->linkUserToOrga($user->_real(), $orga->_real());
+        $this->linkProcedureToOrga($masterTemplate->_real(), $orga->_real());
+        $this->linkProcedureToOrga($blueprint->_real(), $orga->_real());
+        $this->getEntityManager()->flush();
+
+        $condition = $this->createFactory($user->_real(), $this->createRestrictedAccessConfig())
+            ->isAuthorizedViaOrgaOrManually();
+
+        // Act
+        $matchedIds = array_map(
+            static fn (Procedure $procedure): string => $procedure->getId(),
+            $this->getEntityFetcher()->listEntitiesUnrestricted(Procedure::class, [$condition])
+        );
+
+        // Assert
+        $this->assertContains($masterTemplate->_real()->getId(), $matchedIds);
+        $this->assertNotContains($blueprint->_real()->getId(), $matchedIds);
     }
 }
