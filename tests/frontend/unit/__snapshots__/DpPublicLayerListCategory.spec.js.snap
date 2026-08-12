@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`DpPublicLayerListCategory should render a list if there are layers 1`] = `
 "<li class="dp-c-map__group-item">

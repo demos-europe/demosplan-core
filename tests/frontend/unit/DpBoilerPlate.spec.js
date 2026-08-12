@@ -9,6 +9,7 @@
 
 import DpBoilerPlate from '@DpJs/components/statement/DpBoilerPlate'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
+import { vi } from 'vitest'
 
 describe('DpBoilerPlate', () => {
   const boilerPlates = [
@@ -56,7 +57,7 @@ describe('DpBoilerPlate', () => {
     it('returns false for a verified boilerplate when the permission is missing', () => {
       const originalHasPermission = globalThis.hasPermission
 
-      globalThis.hasPermission = jest.fn(() => false)
+      globalThis.hasPermission = vi.fn(() => false)
 
       try {
         const wrapper = mountComponent()

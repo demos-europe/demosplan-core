@@ -6,6 +6,8 @@
 
 ## UNRELEASED
 
+## v4.54.0 (2026-08-12)
+
 ### Added
 - Add drag and drop sorting for procedure phases definitions
 - Boilerplate edit page lists the segments in which a boilerplate is used as deep links
@@ -22,6 +24,8 @@
 
 ### Added
 - Filter custom fields in assesment table
+
+## v4.51.0 (2026-07-15)
 
 ## v4.50.0 (2026-07-15)
 
