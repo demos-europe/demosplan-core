@@ -8,6 +8,7 @@
  */
 
 import buildProcedureGroups from '@DpJs/components/procedure/utils/buildProcedureGroups'
+import { vi } from 'vitest'
 
 describe('buildProcedureGroups', () => {
   const buildStatement = (id, procedureId, attributes = {}) => ({
@@ -24,7 +25,7 @@ describe('buildProcedureGroups', () => {
   })
 
   beforeEach(() => {
-    global.Translator = { trans: jest.fn(key => key) }
+    global.Translator = { trans: vi.fn(key => key) }
   })
 
   it('returns an empty array when there are no results', () => {
