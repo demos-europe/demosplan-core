@@ -282,4 +282,17 @@ module.exports = [
       'vuejs-accessibility/tabindex-no-positive': 'warn',
     },
   },
+  {
+    /*
+     * TypeScript cannot resolve an extensionless import to a .vue file — there is no compiler option for it.
+     * So in .ts files the extension is required, inverting the project-wide `vue: 'never'` rule.
+     */
+    name: 'app/ts-import-extensions',
+    files: ['**/*.ts'],
+    rules: {
+      'import/extensions': ['error', 'never', {
+        json: 'always', js: 'never', vue: 'always', ts: 'never',
+      }],
+    },
+  },
 ]

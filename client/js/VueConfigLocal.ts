@@ -15,6 +15,10 @@
  */
 import { shallowMount } from '@vue/test-utils'
 
-const shallowMountWithGlobalMocks = (component, options = {}) => shallowMount(component, options)
+/*
+ * Typed as `typeof shallowMount` so callers keep the overloads that infer the component instance —
+ * without it, `wrapper.vm.<prop>` is unresolvable in .ts specs.
+ */
+const shallowMountWithGlobalMocks: typeof shallowMount = (component: any, options: any = {}) => shallowMount(component, options)
 
 export default shallowMountWithGlobalMocks

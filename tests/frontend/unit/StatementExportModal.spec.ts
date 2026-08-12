@@ -1,12 +1,29 @@
+import { enableAutoUnmount, VueWrapper } from '@vue/test-utils'
 import { DpModal } from '@demos-europe/demosplan-ui'
-import { enableAutoUnmount } from '@vue/test-utils'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
-import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
+import StatementExportModal from '@DpJs/components/statement/StatementExportModal.vue'
 import { vi } from 'vitest'
+
+/** Payload of the component's `export` event, mirrored from handleExport() */
+interface ExportPayload {
+  customHeaderText: string | null
+  docxHeaders: Record<string, string | null> | null
+  fileNameTemplate: string | null
+  isCitizenDataCensored: boolean
+  isInstitutionDataCensored: boolean
+  isObscured: boolean
+  route: string
+  shouldConfirm: boolean
+  tagFilterIds: string[]
+  uploadedDocxTemplate: string | null
+}
 
 describe('StatementExportModal', () => {
   const MOCK_PROCEDURE_ID = 'procedure-123'
-  let wrapper
+  let wrapper: VueWrapper<any>
+
+  // `emitted()` is typed `unknown[][]`, so the payload needs naming to be asserted against
+  const firstExportPayload = () => wrapper.emitted('export')[0][0] as ExportPayload
 
   const findCheckboxes = () => {
     return {
@@ -16,13 +33,13 @@ describe('StatementExportModal', () => {
     }
   }
 
-  const defaultDocxHeaders = {
+  const defaultDocxHeaders: Record<string, string | null> = {
     col1: null,
     col2: null,
     col3: null,
   }
 
-  const defaultPayload = {
+  const defaultPayload: Omit<ExportPayload, 'route' | 'shouldConfirm'> = {
     customHeaderText: null,
     docxHeaders: defaultDocxHeaders,
     fileNameTemplate: null,
@@ -81,8 +98,8 @@ describe('StatementExportModal', () => {
 
     expect(wrapper.vm.$data.active).toBe('docx_normal')
     expect(wrapper.vm.docxColumns.col1.title).toBe(sessionStorageValue)
-    expect(wrapper.vm.docxColumns.col2.title).toBe(null)
-    expect(wrapper.vm.docxColumns.col3.title).toBe(null)
+    expect(wrapper.vm.docxColumns.col2.title).toBeNull()
+    expect(wrapper.vm.docxColumns.col3.title).toBeNull()
   })
 
   it('renders input fields when export type is docx or zip', () => {
@@ -103,7 +120,7 @@ describe('StatementExportModal', () => {
     await wrapper.setData({ active: 'xlsx_normal' })
     const inputs = wrapper.findAllComponents({ name: 'DpInput' })
 
-    expect(inputs.length).toBe(0)
+    expect(inputs).toHaveLength(0)
   })
 
   it('renders checkboxes for isCitizenDataCensored, isInstitutionDataCensored and isObscure when export type is not xlsx', async () => {
@@ -128,7 +145,7 @@ describe('StatementExportModal', () => {
 
   it('emits export event with initial column titles when no changes are made', () => {
     wrapper.vm.handleExport()
-    const exportEvent = wrapper.emitted('export')[0][0] /** It returns an array with all the occurrences of `this.$emit('export')` */
+    const exportEvent = firstExportPayload()
     const payload = {
       ...defaultPayload,
       route: 'dplan_statement_segments_export',
@@ -151,7 +168,7 @@ describe('StatementExportModal', () => {
       docxColumns,
     })
     wrapper.vm.handleExport()
-    const exportEvent = wrapper.emitted('export')[0][0]
+    const exportEvent = firstExportPayload()
     const payload = {
       ...defaultPayload,
       route: 'dplan_statement_segments_export',
@@ -168,7 +185,7 @@ describe('StatementExportModal', () => {
 
     wrapper.setData({ customHeaderText })
     wrapper.vm.handleExport()
-    const exportEvent = wrapper.emitted('export')[0][0]
+    const exportEvent = firstExportPayload()
     const payload = {
       ...defaultPayload,
       customHeaderText,
@@ -183,7 +200,7 @@ describe('StatementExportModal', () => {
   it('emits export event with null docxHeaders for xlsx export type', () => {
     wrapper.setData({ active: 'xlsx_normal' })
     wrapper.vm.handleExport()
-    const exportEvent = wrapper.emitted('export')[0][0]
+    const exportEvent = firstExportPayload()
     const payload = {
       ...defaultPayload,
       route: 'dplan_statement_xls_export',
@@ -202,7 +219,7 @@ describe('StatementExportModal', () => {
     })
     wrapper.vm.handleExport()
 
-    const exportEvent = wrapper.emitted('export')[0][0]
+    const exportEvent = firstExportPayload()
     const payload = {
       ...defaultPayload,
       isCitizenDataCensored: true,
@@ -221,7 +238,7 @@ describe('StatementExportModal', () => {
       isInstitutionDataCensored: true,
     })
     wrapper.vm.handleExport()
-    const exportEvent = wrapper.emitted('export')[0][0]
+    const exportEvent = firstExportPayload()
 
     expect(exportEvent).toBeTruthy()
     expect(exportEvent).toEqual({
@@ -245,7 +262,7 @@ describe('StatementExportModal', () => {
     })
     wrapper.vm.handleExport()
 
-    const exportEvent = wrapper.emitted('export')[0][0]
+    const exportEvent = firstExportPayload()
 
     expect(exportEvent).toBeTruthy()
     expect(exportEvent).toEqual({
@@ -349,7 +366,7 @@ describe('StatementExportModal', () => {
     wrapper.vm.getFilterValues(filter)
     wrapper.vm.handleExport()
 
-    const exportEvent = wrapper.emitted('export')[0][0]
+    const exportEvent = firstExportPayload()
 
     expect(exportEvent).toBeTruthy()
     expect(exportEvent).toEqual({
@@ -371,14 +388,14 @@ describe('StatementExportModal', () => {
   it('renders radio buttons when isSingleStatementExport is false', () => {
     const radioButtons = wrapper.findAllComponents({ name: 'DpRadio' })
 
-    expect(radioButtons.length).toBe(Object.keys(wrapper.vm.exportTypes).length)
+    expect(radioButtons).toHaveLength(Object.keys(wrapper.vm.exportTypes).length)
   })
 
   it('does not render radio buttons when isSingleStatementExport is true', async () => {
     await wrapper.setProps({ isSingleStatementExport: true })
     const radioButtons = wrapper.findAllComponents({ name: 'DpRadio' })
 
-    expect(radioButtons.length).toBe(0)
+    expect(radioButtons).toHaveLength(0)
   })
 
   it('renders customHeaderText input only when docx_normal, not single export, and permission granted', async () => {
@@ -402,7 +419,7 @@ describe('StatementExportModal', () => {
     await wrapper.setData({ uploadedHash: 'template-hash-123' })
 
     wrapper.vm.handleExport()
-    const exportEvent = wrapper.emitted('export')[0][0]
+    const exportEvent = firstExportPayload()
 
     expect(exportEvent.route).toBe('dplan_statement_via_template_export')
     expect(exportEvent.uploadedDocxTemplate).toBe('template-hash-123')
@@ -418,7 +435,7 @@ describe('StatementExportModal', () => {
       await wrapper.setData({ uploadedHash: 'template-hash-123' })
 
       wrapper.vm.handleExport()
-      const exportEvent = wrapper.emitted('export')[0][0]
+      const exportEvent = firstExportPayload()
 
       expect(exportEvent.route).toBe('dplan_segments_export')
       expect(exportEvent.uploadedDocxTemplate).toBeNull()
