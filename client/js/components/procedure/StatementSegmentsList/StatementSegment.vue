@@ -660,10 +660,7 @@ export default {
           }
         })
 
-      assigneeOptions.unshift({
-        name: Translator.trans('not.assigned'),
-        id: 'noAssigneeId',
-      })
+      assigneeOptions.unshift(this.getUnassignedAssignee())
 
       return assigneeOptions
     },
@@ -723,7 +720,10 @@ export default {
       const hasRecommendationChanges = initialSegment.attributes.recommendation !== this.segment.attributes.recommendation
       const hasDeadlineChanges = initialSegment.attributes.deadline !== this.segment.attributes.deadline
       const hasPlaceChanges = initialSegment.relationships?.place?.data?.id !== this.selectedPlace.id
-      const hasAssigneeChanges = initialSegment.relationships?.assignee?.data?.id !== this.selectedAssignee.id
+
+      const initialAssigneeId = initialSegment.relationships?.assignee?.data?.id || null
+      const currentAssigneeId = (this.selectedAssignee?.id && this.selectedAssignee.id !== 'noAssigneeId') ? this.selectedAssignee.id : null
+      const hasAssigneeChanges = initialAssigneeId !== currentAssigneeId
 
       return (
         hasRecommendationChanges ||
@@ -1060,6 +1060,13 @@ export default {
       this.isEditing = false
     },
 
+    getUnassignedAssignee () {
+      return {
+        id: 'noAssigneeId',
+        name: Translator.trans('not.assigned'),
+      }
+    },
+
     handleDeadlineUpdate (value) {
       if (!value) {
         this.updateSegment('deadline', '')
@@ -1287,9 +1294,16 @@ export default {
     },
 
     setSelectedAssignee () {
-      if (this.segment.relationships?.assignee?.data?.id) {
-        this.selectedAssignee = this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id)
+      const assigneeId = this.segment.relationships?.assignee?.data?.id
+      const assignedUser = this.assignableUsers.find(user => user.id === assigneeId)
+
+      if (!assigneeId || !assignedUser) {
+        this.selectedAssignee = this.getUnassignedAssignee()
+
+        return
       }
+
+      this.selectedAssignee = assignedUser
     },
 
     setSelectedPlace () {
@@ -1401,7 +1415,7 @@ export default {
           this.exitEditMode()
           this.isCollapsed = true
           this.claimLoading = false
-          this.selectedAssignee = { id: '', name: '' }
+          this.selectedAssignee = this.getUnassignedAssignee()
         })
         .catch((err) => {
           console.error(err)
