@@ -216,6 +216,7 @@ const search = term => {
     },
     include: 'procedure',
     fields: {
+      AdminProcedure: 'name',
       AdminStatementCrossProcedureSearch: [
         'authoredDate',
         'authorName',
