@@ -56,7 +56,7 @@ const filenameFromSrc = (src) => {
 
     return decodeURIComponent(basename)
   } catch (error) {
-    console.error('filenameFromSrc: failed to decode src', error)
+    console.debug('filenameFromSrc: failed to decode src', error)
 
     return ''
   }
