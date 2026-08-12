@@ -201,7 +201,7 @@ export default {
         }
       }
     },
-    
+
     resultSummary (job) {
       const summary = [`${job.result.statements || 0} ${Translator.trans('statements')}`]
 

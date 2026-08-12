@@ -52,19 +52,12 @@
         needs-hidden-input
         :translations="{ dropHereOr: Translator.trans('form.button.upload.file.allowed.formats', { browse: '{browse}', allowedFormats: allowedFileTypes.join(', '), maxUploadSize: '100 MB' }) }"
         :tus-endpoint="dplan.paths.tusEndpoint"
-        @file-remove="removeFile"
-        @upload-success="addFile"
+        @file-remove="unsetUploadedFileName"
+        @upload-success="setUploadedFileName"
       />
-      <p
-        v-if="hasMixedFileTypes"
-        class="color-message-severe-text"
-        data-cy="mixedFileTypesHint"
-      >
-        {{ Translator.trans('statements.import.csv.error.mixed.formats') }}
-      </p>
       <div class="text-right">
         <button
-          :disabled="files.length === 0 || hasMixedFileTypes"
+          :disabled="uploadedFileName === ''"
           type="submit"
           data-cy="statementImport"
           class="btn btn--primary"
@@ -114,7 +107,7 @@ export default {
     return {
       active: '',
       clearAllFiles: false,
-      files: [],
+      uploadedFileName: '',
     }
   },
 
@@ -172,21 +165,10 @@ export default {
      * Csv files are imported as a background job by a route of their own, spreadsheets are not.
      */
     formAction () {
-      const isCsvImport = this.active === 'statements' && this.hasOnlyCsvFiles
+      const isCsvImport = this.active === 'statements' && this.isCsv(this.uploadedFileName)
       const path = isCsvImport ? 'dplan_statement_import_csv' : this.activeEntity.uploadPath
 
       return Routing.generate(path, { procedureId: this.procedureId })
-    },
-
-    hasOnlyCsvFiles () {
-      return this.files.length > 0 && this.files.every(file => this.isCsv(file))
-    },
-
-    /**
-     * Csv and spreadsheet uploads are handled by different routes, so they cannot be submitted together.
-     */
-    hasMixedFileTypes () {
-      return this.files.some(file => this.isCsv(file)) && this.files.some(file => !this.isCsv(file))
     },
 
     importJobsUrl () {
@@ -195,10 +177,6 @@ export default {
   },
 
   methods: {
-    addFile (file) {
-      this.files.push(file)
-    },
-
     /**
      * The file name is set explicitly so the browser does not derive it from the response, which
      * would append the wrong extension if the server does not know the mime type of the file.
@@ -214,35 +192,39 @@ export default {
         .join(', ')
     },
 
-    isCsv (file) {
-      const fileName = (file.name || '').toLowerCase()
+    isCsv (fileName) {
+      const lowerCaseFileName = fileName.toLowerCase()
 
-      return getFileTypes('csv').some(fileType => fileName.endsWith(fileType))
+      return getFileTypes('csv').some(fileType => lowerCaseFileName.endsWith(fileType))
     },
 
     radioLabel (entity) {
       return `${Translator.trans(entity.label)} (${this.exampleFileLinks(entity)})`
     },
 
-    removeFile (file) {
-      const fileIdx = this.files.findIndex(el => el.hash === file.hash)
-
-      if (fileIdx > -1) {
-        this.files.splice(fileIdx, 1)
-      }
-    },
-
     /**
-     * The entities accept different file types and are submitted to different routes, so already
-     * uploaded files must not be carried over when the user switches between them.
+     * The entities accept different file types and are submitted to different routes, so an already
+     * uploaded file must not be carried over when the user switches between them.
      */
     setActive (key) {
       this.active = key
-      this.files = []
+      this.uploadedFileName = ''
       this.clearAllFiles = true
       this.$nextTick(() => {
         this.clearAllFiles = false
       })
+    },
+
+    /**
+     * The uploader holds a single file, so uploading another one replaces it without emitting
+     * `file-remove`. Tracking the name of that one file keeps this component in sync with it.
+     */
+    setUploadedFileName (file) {
+      this.uploadedFileName = file.name
+    },
+
+    unsetUploadedFileName () {
+      this.uploadedFileName = ''
     },
   },
 
