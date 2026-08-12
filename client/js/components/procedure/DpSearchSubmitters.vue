@@ -88,6 +88,7 @@
           <statement-meta-data
             :statement="statementsObject[id]"
             :submit-type-options="submitTypeOptions"
+            class="pl-1.5"
           >
             <template
               v-slot:default="{
@@ -252,10 +253,9 @@ const search = term => {
       const included = response.data.included || []
 
       noResults.value = statements.length === 0
-      statementsObject.value = statements.reduce((acc, statement) => {
-        acc[statement.id] = statement
-        return acc
-      }, {})
+      statementsObject.value = Object.fromEntries(
+        statements.map(statement => [statement.id, statement]),
+      )
       procedureGroups.value = buildProcedureGroups(statements, included)
     })
     .catch(() => {
