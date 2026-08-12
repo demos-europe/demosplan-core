@@ -174,6 +174,13 @@ describe('inlineImageAnchors', () => {
     expect(result).toContain('alt="broken"')
   })
 
+  it('wraps a bare img with an uppercase tag name', () => {
+    const html = '<IMG SRC="a.jpg" ALT="A">'
+    const result = inlineImageAnchors(html)
+
+    expect(result).toMatch(/<span[^>]*><img[^>]*><a[^>]*>A<\/a><\/span>/)
+  })
+
   it('adds the inline disposition param to the link but not to the img src', () => {
     const html = '<img src="/file/proc-id/hash-id" alt="A">'
     const result = inlineImageAnchors(html)
@@ -261,6 +268,13 @@ describe('stripInlineImageAnchors', () => {
 
   it('replaces a bare img with its alt as plain text', () => {
     const html = '<p>before <img src="x" alt="My photo"> after</p>'
+    const result = stripInlineImageAnchors(html)
+
+    expect(result).toBe('<p>before My photo after</p>')
+  })
+
+  it('replaces a bare img with an uppercase tag name', () => {
+    const html = '<p>before <IMG SRC="x" ALT="My photo"> after</p>'
     const result = stripInlineImageAnchors(html)
 
     expect(result).toBe('<p>before My photo after</p>')

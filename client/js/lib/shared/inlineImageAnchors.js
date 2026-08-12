@@ -216,7 +216,7 @@ export function inlineImageAnchors (html, className = DEFAULT_CLASS, fallbackLab
     return html
   }
 
-  if (!html.includes(className) && !html.includes('<img')) {
+  if (!html.includes(className) && !/<img/i.test(html)) {
     return html
   }
 
@@ -269,7 +269,7 @@ export function inlineImageAnchorsForEditing (html, className = DEFAULT_CLASS) {
  * inner text; bare `<img>` tags become their `alt`.
  */
 export function stripInlineImageAnchors (html, className = DEFAULT_CLASS) {
-  if (typeof html !== 'string' || (!html.includes(className) && !html.includes('<img'))) {
+  if (typeof html !== 'string' || (!html.includes(className) && !/<img/i.test(html))) {
     return html
   }
 
