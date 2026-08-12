@@ -32,38 +32,38 @@ describe('buildProcedureGroups', () => {
   })
 
   it('collects statements of the same procedure in one group', () => {
-    const results = [buildStatement('1', 'p1'), buildStatement('2', 'p1')]
+    const results = [buildStatement('statement-1', 'procedure-a'), buildStatement('statement-2', 'procedure-a')]
 
-    const groups = buildProcedureGroups(results, [buildProcedure('p1', 'Testverfahren')])
+    const groups = buildProcedureGroups(results, [buildProcedure('procedure-a', 'Testverfahren')])
 
     expect(groups).toHaveLength(1)
-    expect(groups[0].statements.map(statement => statement.id)).toEqual(['1', '2'])
+    expect(groups[0].statements.map(statement => statement.id)).toEqual(['statement-1', 'statement-2'])
   })
 
   it('separates statements of different procedures', () => {
-    const results = [buildStatement('1', 'p1'), buildStatement('2', 'p2')]
-    const included = [buildProcedure('p1', 'Verfahren A'), buildProcedure('p2', 'Verfahren B')]
+    const results = [buildStatement('statement-1', 'procedure-a'), buildStatement('statement-2', 'procedure-b')]
+    const included = [buildProcedure('procedure-a', 'Verfahren A'), buildProcedure('procedure-b', 'Verfahren B')]
 
     const groups = buildProcedureGroups(results, included)
 
-    expect(groups.map(group => group.procedureId)).toEqual(['p1', 'p2'])
+    expect(groups.map(group => group.procedureId)).toEqual(['procedure-a', 'procedure-b'])
     expect(groups.map(group => group.procedureName)).toEqual(['Verfahren A', 'Verfahren B'])
   })
 
   it('falls back to a generic name when the procedure is missing in included', () => {
-    const groups = buildProcedureGroups([buildStatement('1', 'p1')], [])
+    const groups = buildProcedureGroups([buildStatement('statement-1', 'procedure-a')], [])
 
     expect(groups[0].procedureName).toBe('procedure')
   })
 
   it('flattens the statement attributes into the group item', () => {
-    const results = [buildStatement('1', 'p1', { authorName: 'Max Musterperson', status: 'new' })]
+    const results = [buildStatement('statement-1', 'procedure-a', { authorName: 'Max Musterperson', status: 'new' })]
 
-    const groups = buildProcedureGroups(results, [buildProcedure('p1', 'Testverfahren')])
+    const groups = buildProcedureGroups(results, [buildProcedure('procedure-a', 'Testverfahren')])
 
     expect(groups[0].statements[0]).toEqual({
-      id: '1',
-      externId: 'M1',
+      id: 'statement-1',
+      externId: 'Mstatement-1',
       authorName: 'Max Musterperson',
       status: 'new',
     })
