@@ -14,8 +14,9 @@ namespace demosplan\DemosPlanCoreBundle\Message;
 
 /**
  * Carries everything the background worker needs to run an Abwägungstabelle export without an
- * HTTP request: the fully resolved export parameters, the acting user, and the session filter
- * hash list (the only request-scoped value the exporter reads that cannot be rebuilt from the DB).
+ * HTTP request: the fully resolved export parameters, the acting user and their customer, and the
+ * session filter hash list (the only request-scoped value the exporter reads that cannot be rebuilt
+ * from the DB).
  */
 class ExportAssessmentTableMessage
 {
@@ -25,6 +26,7 @@ class ExportAssessmentTableMessage
         private readonly array $parameters,
         private readonly string $userId,
         private readonly string $procedureId,
+        private readonly string $customerId,
         private readonly array $hashList = [],
     ) {
     }
@@ -52,6 +54,11 @@ class ExportAssessmentTableMessage
     public function getProcedureId(): string
     {
         return $this->procedureId;
+    }
+
+    public function getCustomerId(): string
+    {
+        return $this->customerId;
     }
 
     public function getHashList(): array

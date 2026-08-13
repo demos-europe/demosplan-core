@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobFingerprint;
+use demosplan\DemosPlanCoreBundle\Logic\Export\RunningExportJobLookup;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
@@ -31,6 +32,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureListService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
 use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Message\ExportProcedureMessage;
@@ -224,9 +226,11 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     )]
     public function startAsyncExport(
         CurrentUserService $currentUserService,
+        CustomerService $customerService,
         EntityManagerInterface $entityManager,
         MessageBusInterface $messageBus,
         Request $request,
+        RunningExportJobLookup $runningExportJobLookup,
     ): Response {
         $selectedProcedures = $this->getSelectedItems($request);
         if (0 === count($selectedProcedures)) {
@@ -241,11 +245,14 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
         // The export gives no progress feedback, so a slow one invites re-triggering. Hand back the
         // job that is already running for this exact selection instead of queueing a duplicate on
         // the serial worker; the client then polls the running job rather than orphaning it.
-        $running = $entityManager->getRepository(ProcedureExportJob::class)->findOneBy([
-            'userId'         => $userId,
-            'parametersHash' => $parametersHash,
-            'status'         => [ProcedureExportJob::STATUS_PENDING, ProcedureExportJob::STATUS_PROCESSING],
-        ], ['createdDate' => 'DESC']);
+        $running = $runningExportJobLookup->find(
+            ProcedureExportJob::class,
+            [
+                'userId'         => $userId,
+                'parametersHash' => $parametersHash,
+            ],
+            [ProcedureExportJob::STATUS_PENDING, ProcedureExportJob::STATUS_PROCESSING]
+        );
         if ($running instanceof ProcedureExportJob) {
             return new JsonResponse(['jobId' => $running->getId()]);
         }
@@ -260,6 +267,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
             $job->getId(),
             $procedureIds,
             $userId,
+            $customerService->getCurrentCustomer()->getId(),
             $useExternalProcedureName
         ));
 

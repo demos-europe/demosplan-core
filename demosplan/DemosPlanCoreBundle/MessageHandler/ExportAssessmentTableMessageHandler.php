@@ -13,23 +13,18 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\MessageHandler;
 
 use DateTime;
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\AssessmentTableExportJob;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobContextRestorer;
+use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobFailureReason;
+use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobStatusWriter;
+use demosplan\DemosPlanCoreBundle\Logic\Export\ExportResponseFileStore;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
-use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableExporterStrategy;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Message\ExportAssessmentTableMessage;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -49,14 +44,13 @@ class ExportAssessmentTableMessageHandler
 {
     public function __construct(
         private readonly AssessmentTableExporterStrategy $assessmentExporter,
-        private readonly CurrentProcedureService $currentProcedureService,
-        private readonly CurrentUserService $currentUserService,
         private readonly EntityManagerInterface $entityManager,
+        private readonly ExportJobContextRestorer $contextRestorer,
+        private readonly ExportJobFailureReason $failureReason,
+        private readonly ExportJobStatusWriter $statusWriter,
+        private readonly ExportResponseFileStore $fileStore,
         private readonly FileResponseGeneratorStrategy $responseGenerator,
-        private readonly FileService $fileService,
         private readonly LoggerInterface $logger,
-        private readonly PermissionsInterface $permissions,
-        private readonly ProcedureService $procedureService,
         private readonly RequestStack $requestStack,
     ) {
     }
@@ -81,46 +75,35 @@ class ExportAssessmentTableMessageHandler
             $this->pushSyntheticRequest($message->getHashList());
             $requestPushed = true;
 
-            $this->establishContext($message);
+            $this->contextRestorer->restore(
+                $message->getUserId(),
+                $message->getCustomerId(),
+                $message->getProcedureId()
+            );
 
             $file = $this->assessmentExporter->export($message->getExportFormat(), $message->getParameters());
             $response = ($this->responseGenerator)($message->getExportFormat(), $file);
 
-            [$fileHash, $fileName] = $this->storeResponseAsFile($response, $message);
-            $job->setFileHash($fileHash);
-            $job->setFileName($fileName);
+            $storedFile = $this->fileStore->store(
+                $response,
+                $message->getUserId(),
+                $message->getProcedureId(),
+                'Abwaegungstabelle'
+            );
+            $job->setFileHash($storedFile->getFileHash());
+            $job->setFileName($storedFile->getFileName());
             $job->setStatus(AssessmentTableExportJob::STATUS_COMPLETED);
         } catch (Throwable $e) {
             $this->logger->error('Asynchronous assessment table export failed', ['jobId' => $message->getJobId(), 'exception' => $e]);
             $job->setStatus(AssessmentTableExportJob::STATUS_FAILED);
-            $job->setErrorMessage($e->getMessage());
+            $job->setErrorMessage($this->failureReason->forThrowable($e));
         } finally {
             if ($requestPushed) {
                 $this->requestStack->pop();
             }
             $job->setModifiedDate(new DateTime());
-            $this->entityManager->flush();
+            $this->statusWriter->persist($job);
         }
-    }
-
-    /**
-     * Re-establish the acting user, current procedure and permissions outside an HTTP request.
-     */
-    private function establishContext(ExportAssessmentTableMessage $message): void
-    {
-        $user = $this->entityManager->find(User::class, $message->getUserId());
-        if (!$user instanceof User) {
-            throw new RuntimeException('Export job user not found: '.$message->getUserId());
-        }
-        $this->currentUserService->setUser($user);
-        $this->permissions->initPermissions($user);
-
-        $procedure = $this->procedureService->getProcedure($message->getProcedureId());
-        if (!$procedure instanceof Procedure) {
-            throw new RuntimeException('Export job procedure not found: '.$message->getProcedureId());
-        }
-        $this->currentProcedureService->setProcedure($procedure);
-        $this->permissions->setProcedure($procedure);
     }
 
     private function pushSyntheticRequest(array $hashList): void
@@ -132,47 +115,5 @@ class ExportAssessmentTableMessageHandler
         $request = new Request();
         $request->setSession($session);
         $this->requestStack->push($request);
-    }
-
-    /**
-     * Materialise the (possibly streamed) response body into a stored file and return its hash and
-     * download name. The body is captured in chunks so large zips never sit fully in memory.
-     *
-     * @return array{0: string, 1: string} file hash and file name
-     */
-    private function storeResponseAsFile(Response $response, ExportAssessmentTableMessage $message): array
-    {
-        $tmpPath = (string) tempnam(sys_get_temp_dir(), 'atexport_');
-        $handle = fopen($tmpPath, 'wb');
-
-        ob_start(static function (string $buffer) use ($handle): string {
-            fwrite($handle, $buffer);
-
-            return '';
-        }, 1024 * 256);
-        $response->sendContent();
-        ob_end_clean();
-        fclose($handle);
-
-        $fileName = $this->resolveFileName($response);
-        $fileEntity = $this->fileService->saveTemporaryFile(
-            $tmpPath,
-            $fileName,
-            $message->getUserId(),
-            $message->getProcedureId(),
-            FileService::VIRUSCHECK_NONE
-        );
-
-        return [$fileEntity->getHash(), $fileName];
-    }
-
-    private function resolveFileName(Response $response): string
-    {
-        $disposition = (string) $response->headers->get('Content-Disposition');
-        if (1 === preg_match('/filename\*?=(?:UTF-8\'\')?"?([^";]+)"?/i', $disposition, $matches)) {
-            return rawurldecode(trim($matches[1], '"'));
-        }
-
-        return 'export';
     }
 }

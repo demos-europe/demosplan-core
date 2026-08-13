@@ -12,19 +12,23 @@ declare(strict_types=1);
 
 namespace Tests\Core\MessageHandler;
 
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureExportJob;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\DemosException;
+use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobContextRestorer;
+use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobFailureReason;
+use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobStatusWriter;
+use demosplan\DemosPlanCoreBundle\Logic\Export\ExportResponseFileStore;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ExportService;
-use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Message\ExportProcedureMessage;
 use demosplan\DemosPlanCoreBundle\MessageHandler\ExportProcedureMessageHandler;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\UnitTestCase;
 
 class ExportProcedureMessageHandlerTest extends UnitTestCase
@@ -34,6 +38,8 @@ class ExportProcedureMessageHandlerTest extends UnitTestCase
 
     // Mock-suffixed to avoid colliding with the untyped properties declared on the base test case.
     private ?EntityManagerInterface $entityManagerMock = null;
+    private ?ExportJobContextRestorer $contextRestorerMock = null;
+    private ?ExportJobStatusWriter $statusWriterMock = null;
     private ?ExportService $exportServiceMock = null;
     private ?FileService $fileServiceMock = null;
     private ?LoggerInterface $loggerMock = null;
@@ -43,17 +49,23 @@ class ExportProcedureMessageHandlerTest extends UnitTestCase
         parent::setUp();
 
         $this->entityManagerMock = $this->createMock(EntityManagerInterface::class);
+        $this->contextRestorerMock = $this->createMock(ExportJobContextRestorer::class);
+        $this->statusWriterMock = $this->createMock(ExportJobStatusWriter::class);
         $this->exportServiceMock = $this->createMock(ExportService::class);
         $this->fileServiceMock = $this->createMock(FileService::class);
         $this->loggerMock = $this->createMock(LoggerInterface::class);
 
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->method('trans')->willReturnCallback(static fn (string $key): string => 'translated:'.$key);
+
         $this->sut = new ExportProcedureMessageHandler(
-            $this->createMock(CurrentUserService::class),
             $this->entityManagerMock,
+            $this->contextRestorerMock,
+            new ExportJobFailureReason($translator),
+            $this->statusWriterMock,
+            new ExportResponseFileStore($this->fileServiceMock),
             $this->exportServiceMock,
-            $this->fileServiceMock,
             $this->loggerMock,
-            $this->createMock(PermissionsInterface::class),
             $this->createMock(RequestStack::class)
         );
     }
@@ -68,62 +80,125 @@ class ExportProcedureMessageHandlerTest extends UnitTestCase
         $this->exportServiceMock->expects($this->never())->method('generateProcedureExportZip');
 
         // Act
-        ($this->sut)(new ExportProcedureMessage('missing-job', ['p1'], 'u1'));
+        ($this->sut)(new ExportProcedureMessage('missing-job', ['p1'], 'u1', 'c1'));
     }
 
-    public function testInvokeMarksJobFailedWhenUserNotFound(): void
+    public function testInvokeRestoresUserAndCustomerContextBeforeExporting(): void
     {
-        // Arrange - job exists but its user cannot be resolved
+        // Arrange
         $job = new ProcedureExportJob();
-        $this->entityManagerMock->method('find')->willReturnCallback(
-            static fn (string $class) => ProcedureExportJob::class === $class ? $job : null
-        );
+        $this->mockFindReturning($job);
+
+        // The permission set of the resulting export depends on this, so it must happen for the
+        // acting user and their customer - not the worker's default subdomain.
+        $this->contextRestorerMock->expects($this->once())
+            ->method('restore')
+            ->with('u1', 'c1');
+
+        $this->exportServiceMock->method('generateProcedureExportZip')
+            ->willReturn($this->streamedZipResponse());
+        $this->fileServiceMock->method('saveTemporaryFile')->willReturn($this->fileWithHash('hash-1'));
+
+        // Act
+        ($this->sut)(new ExportProcedureMessage('job-1', ['p1'], 'u1', 'c1'));
+    }
+
+    public function testInvokeMarksJobFailedWithGenericReasonWhenContextCannotBeRestored(): void
+    {
+        // Arrange - the acting user cannot be resolved; the raw message must not reach the job row
+        $job = new ProcedureExportJob();
+        $this->mockFindReturning($job);
+        $this->contextRestorerMock->method('restore')
+            ->willThrowException(new RuntimeException('Export job user not found: missing-user'));
         $this->exportServiceMock->expects($this->never())->method('generateProcedureExportZip');
 
         // Act
-        ($this->sut)(new ExportProcedureMessage('job-1', ['p1'], 'missing-user'));
+        ($this->sut)(new ExportProcedureMessage('job-1', ['p1'], 'missing-user', 'c1'));
 
         // Assert
         self::assertSame(ProcedureExportJob::STATUS_FAILED, $job->getStatus());
-        self::assertStringContainsString('missing-user', (string) $job->getErrorMessage());
+        self::assertSame('translated:error.export', $job->getErrorMessage());
+        self::assertStringNotContainsString('missing-user', (string) $job->getErrorMessage());
+    }
+
+    public function testInvokeStoresTranslatedUserMessageOfDemosException(): void
+    {
+        // Arrange - DemosException carries a translation key for the user, and the log detail apart
+        $job = new ProcedureExportJob();
+        $this->mockFindReturning($job);
+        $this->exportServiceMock->method('generateProcedureExportZip')
+            ->willThrowException(new DemosException('error.statements.zip.export', 'technical detail'));
+
+        // Act
+        ($this->sut)(new ExportProcedureMessage('job-1', ['p1'], 'u1', 'c1'));
+
+        // Assert
+        self::assertSame(ProcedureExportJob::STATUS_FAILED, $job->getStatus());
+        self::assertSame('translated:error.statements.zip.export', $job->getErrorMessage());
+    }
+
+    public function testInvokeWritesJobStatusThroughStatusWriterEvenWhenExportFails(): void
+    {
+        // Arrange - a Doctrine failure closes the EntityManager, so the outcome must not be written
+        // with a plain flush or the job would stay 'processing' forever
+        $job = new ProcedureExportJob();
+        $this->mockFindReturning($job);
+        $this->exportServiceMock->method('generateProcedureExportZip')
+            ->willThrowException(new RuntimeException('deadlock'));
+        $this->statusWriterMock->expects($this->once())->method('persist')->with($job);
+
+        // Act
+        ($this->sut)(new ExportProcedureMessage('job-1', ['p1'], 'u1', 'c1'));
     }
 
     public function testInvokeStoresFileAndCompletesJobOnSuccess(): void
     {
         // Arrange
         $job = new ProcedureExportJob();
-        $user = $this->createMock(User::class);
-        $this->entityManagerMock->method('find')->willReturnCallback(
-            static fn (string $class) => match ($class) {
-                ProcedureExportJob::class => $job,
-                User::class               => $user,
-                default                   => null,
-            }
-        );
+        $this->mockFindReturning($job);
 
         // The exporter is reused unchanged; return a streamed ZIP with a download name.
-        $response = new StreamedResponse(static function (): void {
-            echo 'zip-bytes';
-        });
-        $response->headers->set('Content-Disposition', "attachment; filename*=UTF-8''Verfahrensexport.zip");
         $this->exportServiceMock->expects($this->once())
             ->method('generateProcedureExportZip')
             ->with(['p1', 'p2'], false)
-            ->willReturn($response);
+            ->willReturn($this->streamedZipResponse());
 
-        $file = $this->createMock(File::class);
-        $file->method('getHash')->willReturn('hash-1');
         $this->fileServiceMock->expects($this->once())
             ->method('saveTemporaryFile')
             ->with($this->isType('string'), 'Verfahrensexport.zip', 'u1', null, FileService::VIRUSCHECK_NONE)
-            ->willReturn($file);
+            ->willReturn($this->fileWithHash('hash-1'));
 
         // Act
-        ($this->sut)(new ExportProcedureMessage('job-1', ['p1', 'p2'], 'u1'));
+        ($this->sut)(new ExportProcedureMessage('job-1', ['p1', 'p2'], 'u1', 'c1'));
 
         // Assert
         self::assertSame(ProcedureExportJob::STATUS_COMPLETED, $job->getStatus());
         self::assertSame('hash-1', $job->getFileHash());
         self::assertSame('Verfahrensexport.zip', $job->getFileName());
+    }
+
+    private function mockFindReturning(ProcedureExportJob $job): void
+    {
+        $this->entityManagerMock->method('find')->willReturnCallback(
+            static fn (string $class) => ProcedureExportJob::class === $class ? $job : null
+        );
+    }
+
+    private function streamedZipResponse(): StreamedResponse
+    {
+        $response = new StreamedResponse(static function (): void {
+            echo 'zip-bytes';
+        });
+        $response->headers->set('Content-Disposition', "attachment; filename*=UTF-8''Verfahrensexport.zip");
+
+        return $response;
+    }
+
+    private function fileWithHash(string $hash): File
+    {
+        $file = $this->createMock(File::class);
+        $file->method('getHash')->willReturn($hash);
+
+        return $file;
     }
 }

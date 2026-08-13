@@ -15,7 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Message;
 /**
  * Carries everything the background worker needs to run a procedure export (Gesamtabzug) without an
  * HTTP request: the selected procedure ids, whether the external procedure name should be used, and
- * the acting user.
+ * the acting user together with their customer.
  */
 class ExportProcedureMessage
 {
@@ -26,6 +26,7 @@ class ExportProcedureMessage
         private readonly string $jobId,
         private readonly array $procedureIds,
         private readonly string $userId,
+        private readonly string $customerId,
         private readonly bool $useExternalProcedureName = false,
     ) {
     }
@@ -46,6 +47,11 @@ class ExportProcedureMessage
     public function getUserId(): string
     {
         return $this->userId;
+    }
+
+    public function getCustomerId(): string
+    {
+        return $this->customerId;
     }
 
     public function useExternalProcedureName(): bool

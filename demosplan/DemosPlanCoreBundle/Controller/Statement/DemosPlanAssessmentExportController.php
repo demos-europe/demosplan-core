@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobFingerprint;
+use demosplan\DemosPlanCoreBundle\Logic\Export\RunningExportJobLookup;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentExportOptions;
@@ -33,6 +34,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Assess
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplate;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportType;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Message\ExportAssessmentTableMessage;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Doctrine\ORM\EntityManagerInterface;
@@ -138,9 +140,11 @@ class DemosPlanAssessmentExportController extends BaseController
     public function startAsyncExport(
         Request $request,
         CurrentUserService $currentUserService,
+        CustomerService $customerService,
         EntityManagerInterface $entityManager,
         MessageBusInterface $messageBus,
         PermissionsInterface $permissions,
+        RunningExportJobLookup $runningExportJobLookup,
         string $procedureId,
         bool $original = false,
     ): Response {
@@ -167,12 +171,15 @@ class DemosPlanAssessmentExportController extends BaseController
         // The export gives no progress feedback, so a slow one invites re-triggering. Hand back the
         // job that is already running for this exact request instead of queueing a duplicate on the
         // serial worker; the client then polls the running job rather than orphaning it.
-        $running = $entityManager->getRepository(AssessmentTableExportJob::class)->findOneBy([
-            'userId'         => $userId,
-            'procedureId'    => $procedureId,
-            'parametersHash' => $parametersHash,
-            'status'         => [AssessmentTableExportJob::STATUS_PENDING, AssessmentTableExportJob::STATUS_PROCESSING],
-        ], ['createdDate' => 'DESC']);
+        $running = $runningExportJobLookup->find(
+            AssessmentTableExportJob::class,
+            [
+                'userId'         => $userId,
+                'procedureId'    => $procedureId,
+                'parametersHash' => $parametersHash,
+            ],
+            [AssessmentTableExportJob::STATUS_PENDING, AssessmentTableExportJob::STATUS_PROCESSING]
+        );
         if ($running instanceof AssessmentTableExportJob) {
             return new JsonResponse(['jobId' => $running->getId()]);
         }
@@ -190,6 +197,7 @@ class DemosPlanAssessmentExportController extends BaseController
             $exportParameters,
             $userId,
             $procedureId,
+            $customerService->getCurrentCustomer()->getId(),
             $hashList
         ));
 

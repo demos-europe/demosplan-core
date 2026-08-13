@@ -16,6 +16,7 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Export\AsyncExportJobInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -23,8 +24,12 @@ use Doctrine\ORM\Mapping as ORM;
  * and download the result once the background worker has finished.
  */
 #[ORM\Table(name: 'assessment_table_export_job')]
+// Covers the duplicate-suppression lookup a client performs on every export click.
+#[ORM\Index(name: 'at_export_job_lookup', columns: ['user_id', 'procedure_id', 'parameters_hash', 'status'])]
+// Covers the maintenance sweep over unfinished and expired jobs.
+#[ORM\Index(name: 'at_export_job_status_modified', columns: ['status', 'modified_date'])]
 #[ORM\Entity]
-class AssessmentTableExportJob extends CoreEntity implements UuidEntityInterface
+class AssessmentTableExportJob extends CoreEntity implements UuidEntityInterface, AsyncExportJobInterface
 {
     final public const STATUS_PENDING = 'pending';
     final public const STATUS_PROCESSING = 'processing';
