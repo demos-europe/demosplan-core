@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Exception\InvalidParameterTypeException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Exception;
@@ -47,6 +48,7 @@ class ZipExportService
         private readonly FilesystemOperator $defaultStorage,
         private readonly FileService $fileService,
         private readonly LoggerInterface $logger,
+        private readonly NameGenerator $nameGenerator,
     ) {
     }
 
@@ -60,7 +62,7 @@ class ZipExportService
      */
     public function buildZipStreamResponse(string $name, callable $fillZipFunction): StreamedResponse
     {
-        return new StreamedResponse(function () use ($name, $fillZipFunction): void {
+        $response = new StreamedResponse(function () use ($name, $fillZipFunction): void {
             $zip = new ZipStream(
                 // do not compress files
                 defaultDeflateLevel: -1,
@@ -73,6 +75,18 @@ class ZipExportService
 
             $zip->finish();
         });
+
+        // ZipStream emits these itself, but only through header() once the callback runs. Declaring
+        // them on the response as well - like the other file response generators do - keeps the name
+        // available to callers that consume the response without sending it, e.g. a background
+        // export worker storing the archive for a later download.
+        $response->headers->set('Content-Type', 'application/zip');
+        $response->headers->set(
+            'Content-Disposition',
+            $this->nameGenerator->generateDownloadFilename($name)
+        );
+
+        return $response;
     }
 
     /**
