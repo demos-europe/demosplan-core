@@ -16,8 +16,10 @@
       :check-key-event="checkKeyEvent"
       :fold-open-toolbar-items="foldOpenToolbarItems"
       :handle-fullscreen-focus="handleFullscreenFocus"
+      :handle-location-drawing="handleLocationDrawing"
       :prefix-class="prefixClass"
       :set-ref="setRef"
+      :statement="statement"
       :toggle-statement-modal="toggleStatementModal"
       :toggle-tabs="toggleTabs"
       :update="update"
@@ -141,7 +143,7 @@ export default {
     },
 
     handleLocationDrawing (payload) {
-      this.$refs.statementModal.setLocation(payload, false)
+      this.slotRefs.statementModal.setLocation(payload, false)
     },
 
     isElementVisible (el) {

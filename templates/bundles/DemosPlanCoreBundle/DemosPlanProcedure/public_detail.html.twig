@@ -107,8 +107,10 @@
                 checkKeyEvent,
                 foldOpenToolbarItems,
                 handleFullscreenFocus,
+                handleLocationDrawing,
                 prefixClass,
                 setRef,
+                statement,
                 toggleStatementModal,
                 toggleTabs,
                 update,
@@ -128,6 +130,7 @@
                 updateStatementAndOpenModal
             }">
     {% endif %}
+
     <div>
 
     {# infolist - display meta info of procedure #}
@@ -528,7 +531,7 @@
                     :allow-anonymous-statements="Boolean({{ proceduresettings.allowAnonymousStatements }})"
                     extra-personal-hint="{% block extra_personal_hint %}{% endblock %}"
                     ext-id="{{ templateVars.number|default }}"
-                    ref="statementModal"
+                    :ref="setRef('statementModal')"
                     :counties="JSON.parse('{{ counties|json_encode|e('js', 'utf-8') }}')"
                     :draft-statement="JSON.parse('{{ templateVars.draftStatement|default([])|json_encode|e('js', 'utf-8') }}')"
                     :feedback-form-fields="JSON.parse('{{ feedbackFields|json_encode|e('js', 'utf-8') }}')"
@@ -543,7 +546,7 @@
                     project-name="{{ projectName }}"
                     :public-participation-publication-enabled="Boolean({{ proceduresettings.publicParticipationPublicationEnabled }})"
                     :public-participation-feedback-enabled="Boolean({{ proceduresettings.publicParticipationFeedbackEnabled|default(false) }})"
-                        :statement-form-fields="JSON.parse('{{ statementFields|json_encode|e('js', 'utf-8') }}')"
+                    :statement-form-fields="JSON.parse('{{ statementFields|json_encode|e('js', 'utf-8') }}')"
                     statement-form-hint-personal-data="{{ templateVars.procedureUiDefinition.statementFormHintPersonalData|default }}"
                     statement-form-hint-recheck="{{ templateVars.procedureUiDefinition.statementFormHintRecheck|default }}"
                     statement-form-hint-statement="{{ templateVars.procedureUiDefinition.statementFormHintStatement|default }}"
@@ -551,6 +554,7 @@
                 ></statement-modal>
             {% endif %}
         </div>
+    </div>
             </template>
     {% if isMapEnabled == false %}
         </dp-public-detail-no-map>
