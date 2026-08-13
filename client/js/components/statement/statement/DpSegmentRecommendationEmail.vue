@@ -20,7 +20,10 @@
     <h2 class="pb-4">
       {{ Translator.trans('segment.send.via.email') }}
     </h2>
-    <div class="-ml-5 py-5 border-y border-neutral-light-3">
+    <div
+      ref="emailForm"
+      class="-ml-5 py-5 border-y border-neutral-light-3"
+    >
       <div class="ml-5 mr-5 border-b border-neutral-light-3">
         <dp-inline-notification
           class="mb-4"
@@ -47,7 +50,6 @@
           }"
           class="mb-4"
           data-cy="segmentRecommendationEmail:emailCC"
-          type="email"
         />
         <dp-input
           id="replyToEmail"
@@ -160,7 +162,7 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { DpAccordion, DpButtonRow, DpCheckbox, DpEditor, DpInlineNotification, DpInput, dpRpc, DpTextArea } from '@demos-europe/demosplan-ui'
+import { DpAccordion, DpButtonRow, DpCheckbox, DpEditor, DpInlineNotification, DpInput, dpRpc, DpTextArea, validateForm } from '@demos-europe/demosplan-ui'
 import { useStore } from 'vuex'
 
 const props = defineProps({
@@ -182,6 +184,7 @@ const store = useStore()
 const attachRecommendation = ref(false)
 const attachSegmentText = ref(true)
 const emailCC = ref('')
+const emailForm = ref(null)
 const externId = ref('')
 const isSending = ref(false)
 const isVisible = ref(false)
@@ -244,6 +247,10 @@ const onAbort = () => {
 }
 
 const onSendEmail = () => {
+  if (validateForm(emailForm.value).valid === false) {
+    return dplan.notify.notify('error', Translator.trans('error.mandatoryfields'))
+  }
+
   isSending.value = true
 
   /*
@@ -258,8 +265,11 @@ const onSendEmail = () => {
     sendEmailCC: emailCC.value,
     subject: subject.value,
   })
-    .then(() => {
-      onAbort()
+    .then(response => {
+      // The endpoint answers with http 200 even if sending failed, so the result has to be inspected
+      if (response?.data?.[0]?.result === true) {
+        onAbort()
+      }
     })
     .finally(() => {
       isSending.value = false
