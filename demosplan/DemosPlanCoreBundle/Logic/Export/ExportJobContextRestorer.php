@@ -16,12 +16,13 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use Doctrine\ORM\EntityManagerInterface;
-use RuntimeException;
 
 /**
  * Rebuilds the request-scoped context an export needs when it runs in a background worker instead of
@@ -60,7 +61,7 @@ class ExportJobContextRestorer
 
         $user = $this->entityManager->find(User::class, $userId);
         if (!$user instanceof User) {
-            throw new RuntimeException('Export job user not found: '.$userId);
+            throw new UserNotFoundException("Export job user not found: {$userId}");
         }
         // Assign explicitly rather than relying on DoctrineUserListener::postLoad(), which resolves
         // the customer from the subdomain that was active when the user got loaded.
@@ -71,7 +72,7 @@ class ExportJobContextRestorer
         if (null !== $procedureId) {
             $procedure = $this->procedureService->getProcedure($procedureId);
             if (!$procedure instanceof Procedure) {
-                throw new RuntimeException('Export job procedure not found: '.$procedureId);
+                throw ProcedureNotFoundException::createFromId($procedureId);
             }
         }
         // Always assign, including the null case: a worker handles many messages in one process, so

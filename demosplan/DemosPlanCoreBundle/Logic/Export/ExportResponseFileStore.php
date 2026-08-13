@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Export;
 
+use demosplan\DemosPlanCoreBundle\Exception\ExportResponseCaptureException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\ValueObject\Export\StoredExportFile;
-use RuntimeException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
@@ -47,7 +47,7 @@ class ExportResponseFileStore
     ): StoredExportFile {
         $tmpPath = tempnam(sys_get_temp_dir(), 'dplan_export_');
         if (false === $tmpPath) {
-            throw new RuntimeException('Could not create temporary file for export');
+            throw ExportResponseCaptureException::temporaryFileNotCreated();
         }
 
         try {
@@ -77,7 +77,7 @@ class ExportResponseFileStore
     {
         $handle = fopen($tmpPath, 'wb');
         if (false === $handle) {
-            throw new RuntimeException('Could not open temporary file for export: '.$tmpPath);
+            throw ExportResponseCaptureException::temporaryFileNotOpened($tmpPath);
         }
 
         $outerBufferLevel = ob_get_level();

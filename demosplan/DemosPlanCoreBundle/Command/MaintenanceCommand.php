@@ -146,10 +146,12 @@ class MaintenanceCommand extends CoreCommand implements SignalableCommandInterfa
             'ACTIVE_PROJECT' => $this->parameterBag->get('demosplan.project_name'),
         ]);
         // No TTY: it would suppress the output callback, and two children need their output
-        // labelled to stay readable in one stream.
-        $process->start(static function ($type, $buffer) use ($output, $label): void {
+        // labelled to stay readable in one stream. Keep the stream in the label as well, so a
+        // consumer's errors remain distinguishable once both outputs are merged.
+        $process->start(static function (string $type, string $buffer) use ($output, $label): void {
+            $prefix = '['.$label.(Process::ERR === $type ? ':err' : '').'] ';
             foreach (preg_split('/\R/', rtrim($buffer, "\r\n")) as $line) {
-                $output->writeln('['.$label.'] '.$line);
+                $output->writeln($prefix.$line);
             }
         });
 

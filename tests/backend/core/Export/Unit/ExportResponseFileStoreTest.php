@@ -13,14 +13,16 @@ declare(strict_types=1);
 namespace Tests\Core\Export\Unit;
 
 use demosplan\DemosPlanCoreBundle\Entity\File;
+use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportResponseFileStore;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use RuntimeException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Tests\Base\UnitTestCase;
 
 class ExportResponseFileStoreTest extends UnitTestCase
 {
+    private const EXPORT_FAILURE_MESSAGE = 'export exploded';
+
     protected ?ExportResponseFileStore $sut = null;
 
     private ?FileService $fileServiceMock = null;
@@ -92,7 +94,7 @@ class ExportResponseFileStoreTest extends UnitTestCase
         // Arrange - for a streamed export the whole export runs inside sendContent(), so it may throw
         $response = new StreamedResponse(static function (): void {
             echo 'partial';
-            throw new RuntimeException('export exploded');
+            throw new DemosException('error.export', self::EXPORT_FAILURE_MESSAGE);
         });
         $bufferLevelBefore = ob_get_level();
 
@@ -100,8 +102,8 @@ class ExportResponseFileStoreTest extends UnitTestCase
         try {
             $this->sut->store($response, 'u1', 'proc-1', 'fallback.zip');
             self::fail('Expected the exception to propagate');
-        } catch (RuntimeException $e) {
-            self::assertSame('export exploded', $e->getMessage());
+        } catch (DemosException $e) {
+            self::assertSame(self::EXPORT_FAILURE_MESSAGE, $e->getMessage());
         }
 
         // Assert - a leaked buffer would swallow all later output of the worker process
@@ -112,14 +114,14 @@ class ExportResponseFileStoreTest extends UnitTestCase
     {
         // Arrange
         $response = new StreamedResponse(static function (): void {
-            throw new RuntimeException('export exploded');
+            throw new DemosException('error.export', self::EXPORT_FAILURE_MESSAGE);
         });
         $temporaryFilesBefore = $this->countTemporaryExportFiles();
 
         // Act
         try {
             $this->sut->store($response, 'u1', 'proc-1', 'fallback.zip');
-        } catch (RuntimeException) {
+        } catch (DemosException) {
             // expected
         }
 

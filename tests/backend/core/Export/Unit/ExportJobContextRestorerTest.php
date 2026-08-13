@@ -16,6 +16,8 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobContextRestorer;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
@@ -23,7 +25,6 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use Doctrine\ORM\EntityManagerInterface;
-use RuntimeException;
 use Tests\Base\UnitTestCase;
 
 class ExportJobContextRestorerTest extends UnitTestCase
@@ -155,8 +156,7 @@ class ExportJobContextRestorerTest extends UnitTestCase
         $this->user = null;
 
         // Assert
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Export job user not found: u1');
+        $this->expectException(UserNotFoundException::class);
 
         // Act
         $this->sut->restore('u1', 'c1');
@@ -169,8 +169,7 @@ class ExportJobContextRestorerTest extends UnitTestCase
         $this->procedureServiceMock->method('getProcedure')->willReturn(null);
 
         // Assert
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Export job procedure not found: proc-1');
+        $this->expectException(ProcedureNotFoundException::class);
 
         // Act
         $this->sut->restore('u1', 'c1', 'proc-1');
