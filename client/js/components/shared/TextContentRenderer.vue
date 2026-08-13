@@ -46,7 +46,8 @@ export default {
    * @return {*}
    */
   render () {
-    const sanitizedText = DomPurify.sanitize(inlineImageAnchors(this.text), { ADD_TAGS: ['dp-obscure'] })
+    // ADD_ATTR: DOMPurify strips target by default; the inline-image links need target="_blank"
+    const sanitizedText = DomPurify.sanitize(inlineImageAnchors(this.text), { ADD_TAGS: ['dp-obscure'], ADD_ATTR: ['target'] })
 
     const immediateComponent = {
       template: `<div class='text-wrapper w-fit' data-cy='textWrapper'>${sanitizedText}</div>`,
