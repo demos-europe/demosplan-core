@@ -617,9 +617,13 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             return [];
         }
 
-        $filterHash = $this->getSession()->get(
-            'hashList'
-        )[$procedureId]['assessment']['hash'];
+        // Without a filter hash in the session the filter set is built from the default filters downstream.
+        $filterHash = null;
+        if ($this->getSession()->has('hashList')) {
+            $filterHash = $this->getSession()->get(
+                'hashList'
+            )[$procedureId]['assessment']['hash'] ?? null;
+        }
 
         $items = $this->collectStatementsOrFragments(
             $statements,
