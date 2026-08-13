@@ -18,7 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\Platform\EntryPointDeciderInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
-use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakLogoutManager;
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomerLoginSupportContactResourceType;
 use demosplan\DemosPlanCoreBundle\ValueObject\EntrypointRoute;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
@@ -155,7 +155,7 @@ class EntrypointController extends BaseController
     #[Route(path: '/idp/login/error', name: 'core_login_idp_error', options: ['expose' => true])]
     public function loginIdpError(
         CustomerLoginSupportContactResourceType $customerLoginSupportContactResourceType,
-        OzgKeycloakLogoutManager $ozgKeycloakLogoutManager,
+        OzgKeycloakSessionManager $ozgKeycloakLogoutManager,
     ): RedirectResponse|Response {
         // there is in practise only one customerLoginSupport entity for each customer
         // therefore it is ok to pass the first entry of the array via reset($array)

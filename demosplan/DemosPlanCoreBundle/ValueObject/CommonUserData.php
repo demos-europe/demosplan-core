@@ -16,17 +16,6 @@ use Stringable;
 use Symfony\Component\Security\Core\Exception\AuthenticationCredentialsNotFoundException;
 
 /**
- * @method array  getCustomerRoleRelations()
- * @method string getEmailAddress()
- * @method string getUserName()
- * @method string getUserId()
- * @method string getOrganisationName()
- * @method string getOrganisationId()
- * @method string getFirstName()
- * @method string getLastName()
- * @method string getPostalCode()
- * @method string getStreet()
- * @method string getHouseNumber()
  * @method string getCompanyDepartment()
  */
 class CommonUserData extends ValueObject implements Stringable
@@ -61,6 +50,64 @@ class CommonUserData extends ValueObject implements Stringable
     protected string $street = '';
     protected string $houseNumber = '';
     protected string $postalCode = '';
+
+    /**
+     * @return array<int, array<int,string>>
+     */
+    public function getCustomerRoleRelations(): array
+    {
+        return $this->getProperty('customerRoleRelations');
+    }
+
+    public function getEmailAddress(): string
+    {
+        return $this->getProperty('emailAddress');
+    }
+
+    public function getUserName(): string
+    {
+        return $this->getProperty('userName');
+    }
+
+    public function getUserId(): string
+    {
+        return $this->getProperty('userId');
+    }
+
+    public function getOrganisationName(): string
+    {
+        return $this->getProperty('organisationName');
+    }
+
+    public function getOrganisationId(): string
+    {
+        return $this->getProperty('organisationId');
+    }
+
+    public function getFirstName(): string
+    {
+        return $this->getProperty('firstName');
+    }
+
+    public function getLastName(): string
+    {
+        return $this->getProperty('lastName');
+    }
+
+    public function getPostalCode(): string
+    {
+        return $this->getProperty('postalCode');
+    }
+
+    public function getStreet(): string
+    {
+        return $this->getProperty('street');
+    }
+
+    public function getHouseNumber(): string
+    {
+        return $this->getProperty('houseNumber');
+    }
 
     public function __toString(): string
     {

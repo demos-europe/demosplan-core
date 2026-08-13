@@ -10,8 +10,11 @@
 import { createStore } from 'vuex'
 import DpEditFieldMultiSelect from '@DpJs/components/statement/assessmentTable/DpEditFieldMultiSelect'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
+import { vi } from 'vitest'
 
-window.dplan = () => { return {} }
+window.dplan = () => {
+  return {}
+}
 
 describe('DpEditFieldMultiSelect', () => {
   const AssessmentTable = {
@@ -22,7 +25,7 @@ describe('DpEditFieldMultiSelect', () => {
 
     },
     getters: {
-      assessmentBaseLoaded: jest.fn(),
+      assessmentBaseLoaded: vi.fn(),
     },
 
   }

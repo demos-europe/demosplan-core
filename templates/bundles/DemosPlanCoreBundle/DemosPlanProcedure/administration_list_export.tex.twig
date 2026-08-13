@@ -3,7 +3,7 @@
 {% block demosplanbundlecontent %}
 {% block project %}
 % Überschrift
-\section*{{ '{' }}{{ "distribution.list.invitable_institution"|trans|latex|raw }}: {{ templateVars.procedure.phaseName|default()|latex|raw }}{{ '}' }}
+\section*{{ '{' }}{{ "distribution.list.invitable_institution"|trans|latex|raw }}: {{ templateVars.procedure.phaseObject.phaseDefinition.name|default()|latex|raw }}{{ '}' }}
 {{ '{{' }}\color{{ '{' }}DPlightgrey{{ '}' }}
 \hrule height 1.5pt{{ '}}' }}
 % Tabellenkopf

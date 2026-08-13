@@ -15,53 +15,46 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttachmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\IsValidStatementAttachmentType;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Repository\StatementAttachmentRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Some kind of file connected to a {@link StatementInterface} or original {@link StatementInterface}.
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\StatementAttachmentRepository")
  */
+#[ORM\Entity(repositoryClass: StatementAttachmentRepository::class)]
 class StatementAttachment implements UuidEntityInterface, StatementAttachmentInterface
 {
     /**
      * @var string|null
-     *
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var FileInterface
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\File")
-     *
-     * @ORM\JoinColumn(referencedColumnName="_f_ident", nullable=false)
      */
+    #[ORM\JoinColumn(referencedColumnName: '_f_ident', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: File::class)]
     protected $file;
 
     /**
      * @var string
      *
-     * @ORM\Column(type="string", nullable=false)
-     *
      * @IsValidStatementAttachmentType()
      */
+    #[ORM\Column(type: 'string', nullable: false)]
     protected $type;
 
     /**
      * @var StatementInterface
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="attachments")
-     *
-     * @ORM\JoinColumn(referencedColumnName="_st_id", nullable=false)
      */
+    #[ORM\JoinColumn(referencedColumnName: '_st_id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: Statement::class, inversedBy: 'attachments')]
     protected $statement;
 
     public function getFile(): FileInterface

@@ -45,7 +45,7 @@ class ProcedureProposalController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_procedure_proposal_edit')]
-    #[Route(path: '/procedure_proposal_list', methods: ['GET'], name: 'dplan_procedure_proposals_list')]
+    #[Route(path: '/procedure_proposal_list', name: 'dplan_procedure_proposals_list', methods: ['GET'])]
     public function listProcedureProposal(): Response
     {
         $procedureProposals = $this->procedureProposalService->getProcedureProposals();
@@ -65,7 +65,7 @@ class ProcedureProposalController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_procedure_proposal_edit')]
-    #[Route(path: 'proposal/{procedureProposalId}', methods: ['GET'], name: 'dplan_procedure_proposal_view')]
+    #[Route(path: 'proposal/{procedureProposalId}', name: 'dplan_procedure_proposal_view', methods: ['GET'])]
     public function getProcedureProposal(ProcedureProposalHandler $proposalHandler, string $procedureProposalId): Response
     {
         try {

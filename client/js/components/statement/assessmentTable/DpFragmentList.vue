@@ -137,10 +137,12 @@ export default {
 
     displayedFragments () {
       let displayedFragments = []
+
       if (this.isFiltered && this.filteredFragmentsCount === 0 && this.showAll === false) { // Filter is on but records are only in STN - then we show empty fragment list
         displayedFragments = []
       } else if (this.isFiltered && this.filteredFragmentsCount < this.totalFragmentsCount && this.showAll === false) { // Show only filtered fragments (search/filter records)
         const filteredFragmentsIds = this.statementFragmentsFromStore.filteredFragments.map(elem => elem.id)
+
         displayedFragments = this.statementFragmentsFromStore.fragments.filter(fragment => filteredFragmentsIds.includes(fragment.id))
       } else { // In all other cases show all fragments
         displayedFragments = this.statementFragmentsFromStore.fragments

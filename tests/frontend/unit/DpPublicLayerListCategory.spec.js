@@ -9,6 +9,7 @@
 
 import DpPublicLayerListCategory from '@DpJs/components/map/publicdetail/controls/layerlist/DpPublicLayerListCategory'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
+import { vi } from 'vitest'
 
 const propsData = {
   group: {
@@ -53,7 +54,8 @@ describe('DpPublicLayerListCategory', () => {
   })
 
   it.skip('should compute the contextualHelp-ID correctly', () => {
-    const layerfromStoreMock = jest.fn()
+    const layerfromStoreMock = vi.fn()
+
     layerfromStoreMock.mockReturnValue([{
       layers: [],
       unfolded: false,
@@ -93,7 +95,8 @@ describe('DpPublicLayerListCategory', () => {
   })
 
   it.skip('should compute the isTopLevelCategory correct', () => {
-    const layerfromStoreMock = jest.fn()
+    const layerfromStoreMock = vi.fn()
+
     layerfromStoreMock.mockReturnValue([{
       layers: [],
       unfolded: false,
@@ -109,7 +112,7 @@ describe('DpPublicLayerListCategory', () => {
     const wrapper = shallowMountWithGlobalMocks(DpPublicLayerListCategory, {
       propsData,
       computed: {
-        elementListForLayerSidebar: () => jest.fn().mockReturnValue([]),
+        elementListForLayerSidebar: () => vi.fn().mockReturnValue([]),
         rootId: () => 'xxx-rootID',
       },
       stubs: {
@@ -229,7 +232,9 @@ describe('DpPublicLayerListCategory', () => {
     const wrapper = shallowMountWithGlobalMocks(DpPublicLayerListCategory, {
       propsData,
       computed: {
-        elementListForLayerSidebar: () => { return () => [] },
+        elementListForLayerSidebar: () => {
+          return () => []
+        },
         layers: () => [],
       },
       stubs: {
@@ -238,6 +243,7 @@ describe('DpPublicLayerListCategory', () => {
     })
 
     const component = wrapper.vm
+
     expect(typeof component.elementListForLayerSidebar).toBe('function')
     expect(component.isParentOf(elementList, 'ccc')).toBe(true)
     expect(component.isParentOf(elementList, 'eee')).toBe(false)

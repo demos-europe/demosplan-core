@@ -141,7 +141,9 @@ export default {
     transformCategoryData (categories) {
       return Object.values(categories).map(category => {
         let catCpy = JSON.parse(JSON.stringify(category))
+
         catCpy = category.hasRelationship('faq') ? { ...catCpy, ...{ children: Object.values(category.relationships.faq.list()) } } : catCpy
+
         return JSON.parse(JSON.stringify(catCpy))
       })
     },
@@ -204,6 +206,7 @@ export default {
           if (itemIsChild) {
             // Remove item from old position
             const item = children.splice(event.oldIndex, 1)[0]
+
             // Add item at new position
             children.splice(event.newIndex, 0, item)
             this.updateCategory({ ...category, id: category.id })
@@ -221,6 +224,7 @@ export default {
 
         const xhr = new XMLHttpRequest()
         const url = Routing.generate('DemosPlan_faq_administration_faq')
+
         xhr.open('POST', url, true)
 
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded')
@@ -235,6 +239,7 @@ export default {
             dplan.notify.error(Translator.trans('error.update.manual.order'))
           }
         }
+
         xhr.send(postParams)
       })
     },

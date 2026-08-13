@@ -192,6 +192,7 @@ export default {
     copyStatement () {
       if (this.isNoProcedureSelected) {
         dplan.notify.notify('error', Translator.trans('warning.select.entry'))
+
         return
       }
 
@@ -220,7 +221,9 @@ export default {
     handleFragments () {
       if (this.statementId) {
         this.setFragments()
-          .then(() => { this.isLoading = false })
+          .then(() => {
+            this.isLoading = false
+          })
       } else {
         this.resetFragments()
       }
@@ -258,6 +261,7 @@ export default {
     setFragments () {
       const setFragmentsInComponent = () => {
         const fragments = this.fragmentsByStatement(this.statementId).fragments
+
         this.statementFragments = fragments.map(fragment => {
           return {
             id: fragment.id,
@@ -270,6 +274,7 @@ export default {
       // If fragments are already loaded don't load them again
       if (this.statement.fragmentsTotal === this.fragmentsByStatement(this.statementId).fragments.length) {
         setFragmentsInComponent()
+
         return Promise.resolve(true)
       } else {
         return this.loadFragments({ procedureId: this.procedureId, statementId: this.statementId })

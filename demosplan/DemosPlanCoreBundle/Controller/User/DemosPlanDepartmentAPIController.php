@@ -24,7 +24,7 @@ class DemosPlanDepartmentAPIController extends APIController
      * @param string $organisationId
      */
     #[DplanPermissions('area_manage_users')]
-    #[Route(path: '/api/1.0/{organisationId}/department', methods: ['GET'], name: 'dplan_api_department_list', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/{organisationId}/department', name: 'dplan_api_department_list', options: ['expose' => true], methods: ['GET'])]
     public function list(ApiResourceService $apiResourceService, OrgaHandler $orgaHandler, $organisationId): APIResponse
     {
         $orga = $orgaHandler->getOrga($organisationId);

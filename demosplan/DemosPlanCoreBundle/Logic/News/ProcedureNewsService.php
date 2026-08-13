@@ -89,7 +89,7 @@ class ProcedureNewsService implements ProcedureNewsServiceInterface
             $result[] = $this->convertToLegacy($singleNews);
         }
         // Is the list manual sorted?
-        if (is_string($manualSortScope) && 0 < strlen($manualSortScope)) {
+        if (is_string($manualSortScope) && '' !== $manualSortScope) {
             $sorted = $this->manualListSorter->orderByManualListSort($manualSortScope, $procedureId, 'news', $result);
             $result = $sorted['list'];
         }
@@ -127,7 +127,7 @@ class ProcedureNewsService implements ProcedureNewsServiceInterface
             $result[] = $this->convertToLegacy($singleNews);
         }
         // Is the list manual sorted?
-        if (isset($manualSortScope) && 0 < strlen($manualSortScope)) {
+        if (isset($manualSortScope) && '' !== (string) $manualSortScope) {
             $sorted = $this->manualListSorter->orderByManualListSort($manualSortScope, $procedureId, 'news', $result);
             $result = $sorted['list'];
         }

@@ -102,7 +102,7 @@ class RpcBulkDeleteSegments implements RpcMethodSolverInterface
         try {
             if (!$this->currentUser->hasPermission('area_statement_segmentation')) {
                 $this->logger->warning('User attempted bulk delete of segments without permission', [
-                    'userId'             => $this->currentUser->getUser()?->getId(),
+                    'userId'             => $this->currentUser->getUser()->getId(),
                     'requiredPermission' => 'area_statement_segmentation',
                 ]);
                 throw AccessDeniedException::missingPermission('area_statement_segmentation', $this->currentUser->getUser());
@@ -113,7 +113,7 @@ class RpcBulkDeleteSegments implements RpcMethodSolverInterface
             $this->logger->error('User not found during segment bulk delete authorization check', [
                 'exceptionMessage' => $e->getMessage(), 'exception' => $e,
             ]);
-            throw new AccessDeniedException('User not found');
+            throw new AccessDeniedException('User not found', $e);
         }
     }
 

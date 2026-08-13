@@ -22,7 +22,7 @@
         :required="required && statement.r_useName === '1'"
         autocomplete="postal-code"
         data-cy="postalCode"
-        data-dp-validate-if="#r_getEvaluation_snailmail, #r_useName_1"
+        :data-dp-validate-if="publicParticipationFeedbackEnabled && hasPermission('feature_statements_feedback_postal') ? '#r_getEvaluation_snailmail,#r_useName_1' : '#r_useName_1'"
         name="r_postalCode"
         pattern="^[0-9]{4,5}$"
         width="u-4-of-12"
@@ -54,5 +54,13 @@ export default {
   name: 'FormGroupPostalAndCity',
 
   mixins: [formGroupMixin],
+
+  props: {
+    publicParticipationFeedbackEnabled: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+  },
 }
 </script>

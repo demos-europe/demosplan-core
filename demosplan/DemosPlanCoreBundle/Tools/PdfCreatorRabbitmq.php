@@ -100,7 +100,7 @@ class PdfCreatorRabbitmq implements PdfCreatorInterface
                 'Fehler in ImportConsumer:',
                 [$e]
             );
-            throw new TimeoutException('Timeout ');
+            throw new TimeoutException('Timeout ', $e->getCode(), $e);
         } catch (Exception $e) {
             $this->logger->error(
                 'Could not create PDF ',

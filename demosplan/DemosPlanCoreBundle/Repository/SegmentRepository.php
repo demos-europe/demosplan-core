@@ -10,10 +10,15 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DateInterval;
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\RecommendationVersionService;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Exception;
 
 /**
@@ -76,6 +81,99 @@ class SegmentRepository extends CoreRepository
     }
 
     /**
+     * Returns the subset of the given IDs that belong to `$procedureId`,
+     * in a single round-trip. Out-of-procedure IDs are simply absent from
+     * the result, so callers neither need a per-segment procedure check
+     * nor leak the existence of segments belonging to a different procedure.
+     *
+     * @param array<int, string> $ids
+     *
+     * @return array<int, Segment>
+     *
+     * @throws Exception
+     */
+    public function findByIdsForProcedure(array $ids, string $procedureId): array
+    {
+        if ([] === $ids) {
+            return [];
+        }
+
+        return $this->findBy(['id' => $ids, 'procedure' => $procedureId]);
+    }
+
+    /**
+     * Subset of the given IDs that belong to `$procedureId` AND whose workflow
+     * place is not locked, in a single round-trip. The direct complement of
+     * {{ @see SegmentRepository::findLockedByIds }}: every segment always has a
+     * place ({{ @see Segment::getPlace }} is non-nullable), so an inner join
+     * suffices.
+     *
+     * @param array<int, string> $ids
+     *
+     * @return array<int, Segment>
+     *
+     * @throws Exception
+     */
+    public function findUnlockedByIdsForProcedure(array $ids, string $procedureId): array
+    {
+        if ([] === $ids) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('s')
+            ->innerJoin('s.place', 'p')
+            ->where('s.id IN (:ids)')
+            ->andWhere('s.procedure = :procedureId')
+            ->andWhere('p.locked = false')
+            ->setParameter('ids', $ids)
+            ->setParameter('procedureId', $procedureId)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * Returns the subset of given IDs that belong to `$procedureId` AND
+     * whose current workflow place has `locked = true`. One round-trip
+     * with an explicit JOIN — the lock state is read at query time instead
+     * of triggering N lazy place fetches when the caller iterates the
+     * result.
+     *
+     * The procedure filter prevents an out-of-procedure segment ID from
+     * triggering a "your batch contains locked segments" response that
+     * would also leak the existence and lock state of segments belonging
+     * to a different procedure.
+     *
+     * Note: the JOIN does not `addSelect('p')`, so the `place` association
+     * on each returned `Segment` remains a lazy proxy. Fine for the
+     * current caller (which only counts the result); future callers that
+     * need to walk `$segment->getPlace()->...` should add the select to
+     * avoid reintroducing N+1.
+     *
+     * Used by {{ @see SegmentBulkEditorService::findLockedSegments }} to
+     * pre-validate batches against the segment-lock feature.
+     *
+     * @param list<string> $ids
+     *
+     * @return list<Segment>
+     */
+    public function findLockedByIds(array $ids, string $procedureId): array
+    {
+        if ([] === $ids) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('s')
+            ->innerJoin('s.place', 'p')
+            ->where('s.id IN (:ids)')
+            ->andWhere('s.procedure = :procedureId')
+            ->andWhere('p.locked = true')
+            ->setParameter('ids', $ids)
+            ->setParameter('procedureId', $procedureId)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * Returns the highest number in field orderInProcedure filtered by procedure id.
      */
     public function getLastSortedSegmentNumber(string $procedureId): int
@@ -123,6 +221,49 @@ class SegmentRepository extends CoreRepository
             ->setParameter('customFieldSearch', $searchPattern)
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * Returns the non-deleted segments that have an assignee and whose
+     * deadline lies the given interval ahead of today, grouped by assignee.
+     *
+     * Used by the deadline-reminder cron via dedicated calls: one with a
+     * seven-day interval (reminder one week before the deadline) and one
+     * with a zero interval (reminder on the day of the deadline). Deadlines
+     * in the past are never matched, so no reminders go out once a deadline
+     * has lapsed.
+     *
+     * All segments in a group share the same deadline, so the caller can
+     * turn each group into a single bundled reminder mail per assignee. The
+     * caller is also responsible for skipping assignees who disabled the
+     * reminder, as that opt-out lives in the serialized user flags and
+     * cannot be expressed as a query condition.
+     *
+     * The `deadline` column is a pure date, so the target date is compared
+     * on its date part only.
+     *
+     * @return array<string, list<Segment>> segments keyed by assignee id
+     */
+    public function findSegmentsForAssigneesByDeadlineInterval(DateInterval $timeUntilDeadline): array
+    {
+        $targetDeadline = (new DateTime('today'))->add($timeUntilDeadline);
+
+        /** @var list<Segment> $segments */
+        $segments = $this->createQueryBuilder('segment')
+            ->where('segment.deadline = :targetDeadline')
+            ->andWhere('segment.assignee IS NOT NULL')
+            ->andWhere('segment.deleted = false')
+            ->setParameter('targetDeadline', $targetDeadline->format('Y-m-d'))
+            ->addOrderBy('segment.assignee', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        $segmentsByAssignee = [];
+        foreach ($segments as $segment) {
+            $segmentsByAssignee[$segment->getAssigneeId()][] = $segment;
+        }
+
+        return $segmentsByAssignee;
     }
 
     /**
@@ -185,6 +326,12 @@ class SegmentRepository extends CoreRepository
 
     /**
      * Change the recommendation in all segments with the given ID *if* they are in the given procedure.
+     *
+     * WARNING: This method uses raw DQL and bypasses {@see Statement::setRecommendation()}.
+     * Recommendation version recording is NOT handled here — the caller
+     * ({@see SegmentService::editSegmentRecommendations()}) is responsible for calling
+     * {@see RecommendationVersionService::recordVersion()} before invoking this method.
+     * Do not call this method from new contexts without considering version tracking.
      *
      * @param array<int, string> $segmentIds
      * @param bool               $attach     use true to attach the given text to the existing recommendation, otherwise it will be replaced

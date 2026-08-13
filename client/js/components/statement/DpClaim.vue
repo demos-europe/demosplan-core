@@ -153,6 +153,7 @@ export default {
       if (this.entityType === 'fragment') {
         baseKey += 'fragment.'
       }
+
       return baseKey
     },
 
@@ -210,6 +211,7 @@ export default {
           delegator: this.currentUserName,
         },
       )
+
       return { text: status, icon }
     },
   },
@@ -220,9 +222,11 @@ export default {
       if (this.isLoading) {
         return
       }
+
       // If the user want to 'steal' the entity from another user, ask if it's by purpose
       if (this.assignedId !== this.currentUserId && this.assignedId !== '') {
         let transkey
+
         switch (this.entityType.toLowerCase()) {
           case 'statement':
             transkey = 'warning.statement.needLock.generic'
@@ -234,6 +238,7 @@ export default {
             transkey = 'warning.segment.needLock.generic'
             break
         }
+
         if (window.dpconfirm(Translator.trans(transkey))) {
           this.$emit('click')
         }

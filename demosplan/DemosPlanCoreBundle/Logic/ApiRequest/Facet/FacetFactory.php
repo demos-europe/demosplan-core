@@ -203,10 +203,13 @@ class FacetFactory
     {
         $itemResourceType = $this->resourceTypeProvider->getTypeByIdentifier($facetDefinition->getItemsResourceType());
         Assert::isInstanceOf($itemResourceType, JsonApiResourceTypeInterface::class);
-        $items = $itemResourceType->listPrefilteredEntities($facetDefinition->getGroupItems($group), []);
+        $itemsSortMethods = $facetDefinition->getItemsSortMethods();
+        $items = $itemResourceType->listPrefilteredEntities($facetDefinition->getGroupItems($group), [], $itemsSortMethods);
 
-        // Apply natural sorting to items within this group for human-friendly ordering (e.g., "2" before "11")
-        $items = $this->applyNaturalSorting(collect($items), fn ($item) => $facetDefinition->getItemTitle($item))->all();
+        // Fall back to natural sort by title only when no explicit sort methods were provided
+        if ([] === $itemsSortMethods) {
+            $items = $this->applyNaturalSorting(collect($items), fn ($item) => $facetDefinition->getItemTitle($item))->all();
+        }
 
         return $this->createAggregationFilterItems($facetDefinition, $items, $itemCounts, $selections);
     }

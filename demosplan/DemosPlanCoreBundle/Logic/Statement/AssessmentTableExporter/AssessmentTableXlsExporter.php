@@ -31,6 +31,7 @@ use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -242,9 +243,9 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     /**
      * Adds the tag filter information to the info sheet.
      *
-     * @param \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $infoSheet The info sheet
-     * @param StatementExportTagFilter                      $tagFilter The tag filter
-     * @param int                                           $row       Current row number (passed by reference)
+     * @param Worksheet                $infoSheet The info sheet
+     * @param StatementExportTagFilter $tagFilter The tag filter
+     * @param int                      $row       Current row number (passed by reference)
      */
     private function addTagFilterInfo($infoSheet, StatementExportTagFilter $tagFilter, int &$row): void
     {
@@ -318,7 +319,6 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         $columnsDefinition = [
             $this->createColumnDefinition('externId', 'id'),
             $this->createColumnDefinition('uName', 'name'),
-            $this->createColumnDefinition('topicNames', 'topic', 30),
             $this->createColumnDefinition('tagNames', 'tag', 40),
         ];
 
@@ -368,10 +368,15 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
             'field_statement_recommendation',
             'recommendation'
         );
+        $this->addColumnDefinition(
+            $columnsDefinition,
+            'recommendationVersionCount',
+            'feature_enable_recommendation_versions',
+            'recommendation.version.count'
+        );
         $this->addColumnDefinition($columnsDefinition, 'countyNames', 'field_statement_county', 'county');
 
         $this->addColumnDefinition($columnsDefinition, 'tagNames', 'field_statement_tags_and_topics_export', 'tag');
-        $this->addColumnDefinition($columnsDefinition, 'topicNames', 'field_statement_tags_and_topics_export', 'tag.category');
 
         if ($isStatement) {
             $columnsDefinition[] = $this->createColumnDefinition('elementTitle', 'document.category');
@@ -502,7 +507,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         bool $anonymous,
         array $keysOfAttributesToExport,
     ): array {
-        $attributeKeysWhichCauseNewLine = collect(['priorityAreaKeys', 'tagNames']);
+        $attributeKeysWhichCauseNewLine = collect(['priorityAreaKeys']);
         $formattedStatements = collect([]);
 
         // has permission to READ obscure text? else obscure text
@@ -511,6 +516,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         // collect Statements in unified data format
         foreach ($statements as $statement) {
             $pushed = false;
+            // add tag topic title name behind tag names
+            $statement = $this->appendTopicToTagNames($statement);
             $formattedStatement = $this->statementFormatter->formatStatement($keysOfAttributesToExport, $statement);
 
             // loop again through the attributes
@@ -560,5 +567,25 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         }
 
         return $formattedStatements->toArray();
+    }
+
+    // this functions appends tag topic names to the tag
+    private function appendTopicToTagNames(array $statement): array
+    {
+        if (!isset($statement['tags'], $statement['tagNames'])) {
+            return $statement;
+        }
+        $tagTopicMap = [];
+        foreach ($statement['tags'] as $tag) {
+            $tagTopicMap[$tag['title']] = $tag['topicTitle'] ?? '';
+        }
+        foreach ($statement['tagNames'] as $key => $tagName) {
+            $topic = $tagTopicMap[$tagName] ?? '';
+            if ('' !== $topic) {
+                $statement['tagNames'][$key] = $tagName.' [Thema:'.$topic.']';
+            }
+        }
+
+        return $statement;
     }
 }

@@ -23,7 +23,7 @@
         }
       }"
       :branch-identifier="isBranch"
-      @draggable:change="changeTopic"
+      @end="handleTagReorder"
     >
       <template v-slot:header>
         <div class="flex">
@@ -33,11 +33,18 @@
 
           <addon-wrapper hook-name="tag.extend.form" />
 
-          <div class="ml-1 flex-0 w-9">
+          <div
+            v-if="hasPermission('feature_tag_default_assignee')"
+            class="ml-1 flex-none w-10"
+          >
+            {{ Translator.trans('assignee') }}
+          </div>
+
+          <div class="ml-1 flex-none w-9">
             {{ Translator.trans('boilerplates') }}
           </div>
 
-          <div class="ml-1 flex-0 w-8 text-right">
+          <div class="ml-1 flex-none w-8 text-right">
             {{ Translator.trans('actions') }}
           </div>
         </div>
@@ -137,23 +144,20 @@ export default {
         .sort((a, b) => a.attributes.title.localeCompare(b.attributes.title, undefined, { numeric: true, sensitivity: 'base' }))
         .map(category => {
           const { attributes, id, relationships, type } = category
-          const tags = category.relationships?.tags?.data.length > 0 ? category.relationships.tags.list() : []
-
-          // Sort tags naturally within each topic
-          const sortedTags = Object.values(tags)
-            .sort((a, b) => a.attributes.title.localeCompare(b.attributes.title, undefined, { numeric: true, sensitivity: 'base' }))
+          const tags = category.relationships?.tags?.data.length > 0 ? Object.values(category.relationships.tags.list()) : []
 
           return {
             id,
             attributes,
-            children: sortedTags.map(tag => {
+            children: tags.map(tag => {
               const { attributes, id, relationships, type } = tag
               const boilerplate = relationships?.boilerplate?.get ? relationships.boilerplate.get() : null
+              const defaultAssignee = relationships?.defaultAssignee?.get ? relationships.defaultAssignee.get() : null
 
               return {
                 attributes,
                 id,
-                relationships: { boilerplate },
+                relationships: { boilerplate, defaultAssignee },
                 type,
               }
             }),
@@ -185,53 +189,84 @@ export default {
       saveTagTopic: 'save',
     }),
 
+    // Apply tagList.reorder RPC response — sync sortIndex in the Tag store for every changed tag
+    applyReorderResponse (response) {
+      const result = response.data[0].result
+
+      for (const [id, { sortIndex }] of Object.entries(result)) {
+        const tag = this.Tag[id]
+
+        if (tag) {
+          this.updateTag({
+            ...tag,
+            attributes: { ...tag.attributes, sortIndex },
+          })
+        }
+      }
+
+      dplan.notify.confirm(Translator.trans('confirm.saved'))
+    },
+
     closeEditForm () {
       this.isInEditState = ''
     },
 
-    addTagToNewTopic (parentTopic, tagId) {
-      this.updateTagTopic({
-        id: parentTopic.id,
-        type: 'TagTopic',
-        attributes: parentTopic.attributes,
-        relationships: parentTopic.relationships ?
-          {
-            ...parentTopic.relationships,
-            tags: {
-              data: parentTopic.relationships.tags.data.concat({
-                type: 'Tag',
-                id: tagId,
-              }),
-            },
-          } :
-          {
-            tags: {
-              data: [{ type: 'Tag', id: tagId }],
-            },
-          },
-      })
+    // Persist cross-topic move via tagList.reorder RPC — optimistic update on both topics + rollback
+    crossTopicReorder (tagId, newIndex, targetTopicId) {
+      const newParent = this.TagTopic[targetTopicId]
 
-      this.saveTagTopic(parentTopic.id)
-    },
-
-    changeTopic ({ elementId, parentId }) {
-      if (!parentId) {
-        console.error('No parentId provided:', { elementId, parentId })
-
+      if (!newParent) {
         return
       }
 
-      const hasNewParent = !this.TagTopic[parentId].relationships?.tags.data.find(tag => tag.id === elementId)
+      const oldParent = Object.values(this.TagTopic).find(topic =>
+        topic.relationships?.tags.data.some(tag => tag.id === tagId),
+      )
 
-      if (hasNewParent) {
-        const parentTopic = { ...this.TagTopic[parentId] }
-        const oldParent = Object.values(this.TagTopic).find(topic => topic.relationships?.tags.data.find(tag => tag.id === elementId))
-
-        this.addTagToNewTopic(parentTopic, elementId)
-        this.removeTagFromOldTopic(oldParent, elementId)
-      } else {
-        dplan.notify.notify('warning', Translator.trans('tags.can.only.be.moved.to.topics'))
+      if (!oldParent) {
+        return
       }
+
+      const oldSourceData = [...oldParent.relationships.tags.data]
+      const oldTargetData = [...(newParent.relationships?.tags?.data || [])]
+
+      const newSourceData = oldSourceData.filter(tag => tag.id !== tagId)
+      const newTargetData = [...oldTargetData]
+
+      newTargetData.splice(newIndex, 0, { type: 'Tag', id: tagId })
+
+      this.updateTagTopic({
+        id: oldParent.id,
+        type: 'TagTopic',
+        attributes: oldParent.attributes,
+        relationships: { ...oldParent.relationships, tags: { data: newSourceData } },
+      })
+
+      this.updateTagTopic({
+        id: newParent.id,
+        type: 'TagTopic',
+        attributes: newParent.attributes,
+        relationships: { ...newParent.relationships, tags: { data: newTargetData } },
+      })
+
+      dpRpc('tagList.reorder', { tagId, topicId: targetTopicId, newIndex })
+        .then((response) => this.applyReorderResponse(response))
+        .catch(error => {
+          console.error(error)
+          this.updateTagTopic({
+            id: oldParent.id,
+            type: 'TagTopic',
+            attributes: oldParent.attributes,
+            relationships: { ...oldParent.relationships, tags: { data: oldSourceData } },
+          })
+          this.updateTagTopic({
+            id: newParent.id,
+            type: 'TagTopic',
+            attributes: newParent.attributes,
+            relationships: { ...newParent.relationships, tags: { data: oldTargetData } },
+          })
+          dplan.notify.error(Translator.trans('error.changes.not.saved'))
+        })
     },
 
     deleteItem (item) {
@@ -241,51 +276,101 @@ export default {
         })
     },
 
+    handleTagReorder (event, item, parentId) {
+      if (event.oldIndex === event.newIndex && event.from === event.to) {
+        return
+      }
+
+      const isCrossTopic = event.from !== event.to
+
+      if (isCrossTopic) {
+        this.crossTopicReorder(item.id, event.newIndex, event.to.id)
+      } else {
+        this.reorderTagInTopic(parentId, item.id, event.newIndex)
+      }
+    },
+
     isBranch ({ node }) {
       return node.type === 'TagTopic'
     },
 
     loadTagsAndTopics () {
-      if (this.dataIsRequested) return
+      if (this.dataIsRequested) {
+        return
+      }
 
       this.dataIsRequested = true
+      const hasDefaultAssignee = hasPermission('feature_tag_default_assignee')
       const topicAttributes = [
         'title',
         'tags',
       ]
+      const tagAttributes = hasDefaultAssignee ?
+        ['boilerplate', 'defaultAssignee', 'sortIndex', 'title'] :
+        ['boilerplate', 'sortIndex', 'title']
+      const include = hasDefaultAssignee ?
+        'tags,tags.boilerplate,tags.defaultAssignee' :
+        'tags,tags.boilerplate'
+      const fields = {
+        Tag: tagAttributes.join(),
+        TagTopic: topicAttributes.join(),
+        Boilerplate: [
+          'title',
+        ].join(),
+      }
+
+      if (hasDefaultAssignee) {
+        fields.AssignableUser = ['firstname', 'lastname'].join()
+      }
 
       this.listTagTopics({
-        fields: {
-          Tag: ['boilerplate', 'title'].join(),
-          TagTopic: topicAttributes.join(),
-          Boilerplate: [
-            'title',
-          ].join(),
-        },
-        include: 'tags,tags.boilerplate',
+        fields,
+        include,
         sort: 'title',
       }).then(() => {
         this.dataIsRequested = false
       })
     },
 
-    removeTagFromOldTopic (oldParent, tagId) {
-      const oldParentTags = [...oldParent.relationships?.tags?.data || []]
-      const indexToBeRemoved = oldParentTags.findIndex(el => el.id === tagId)
-      oldParentTags.splice(indexToBeRemoved, 1)
+    // Persist new tag order within a topic — optimistic update + rollback on failure
+    reorderTagInTopic (parentId, tagId, newIndex) {
+      const topic = this.TagTopic[parentId]
 
+      if (!topic) {
+        return
+      }
+
+      const oldTagsData = [...(topic.relationships?.tags?.data || [])]
+      const newTagsData = oldTagsData.filter(tag => tag.id !== tagId)
+
+      newTagsData.splice(newIndex, 0, { type: 'Tag', id: tagId })
+
+      // Optimistic UI update
       this.updateTagTopic({
-        id: oldParent.id,
-        attributes: oldParent.attributes,
+        id: topic.id,
         type: 'TagTopic',
+        attributes: topic.attributes,
         relationships: {
+          ...topic.relationships,
           tags: {
-            data: oldParentTags,
+            data: newTagsData,
           },
         },
       })
 
-      this.saveTagTopic(oldParent.id)
+      dpRpc('tagList.reorder', { tagId, topicId: parentId, newIndex })
+        .then((response) => this.applyReorderResponse(response))
+        .catch(error => {
+          console.error(error)
+          // Rollback
+          this.updateTagTopic({
+            id: topic.id,
+            type: 'TagTopic',
+            attributes: topic.attributes,
+            relationships: { ...topic.relationships, tags: { data: oldTagsData } },
+          })
+          dplan.notify.error(Translator.trans('error.changes.not.saved'))
+        })
     },
 
     save ({ id, attributes, type, isTitleChanged }) {

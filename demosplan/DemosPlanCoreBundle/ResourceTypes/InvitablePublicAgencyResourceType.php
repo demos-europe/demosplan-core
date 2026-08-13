@@ -140,6 +140,12 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
                 ->setFilterable();
         }
 
+        if ($this->currentUser->hasPermission('field_organisations_custom_fields')) {
+            $configBuilder->customFields->setReadableByCallable(
+                static fn (Orga $orga): ?array => $orga->getCustomFields()?->toJson()
+            );
+        }
+
         return $configBuilder;
     }
 }

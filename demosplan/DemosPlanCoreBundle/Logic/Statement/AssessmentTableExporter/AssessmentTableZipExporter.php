@@ -21,6 +21,8 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplate;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportType;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use Exception;
@@ -250,8 +252,8 @@ class AssessmentTableZipExporter extends AssessmentTableFileExporterAbstract
         $parameters = [
             'procedureId' => $this->currentProcedureService->getProcedure()->getId(),
             'anonymous'   => false,
-            'exportType'  => 'statementsOnly',
-            'template'    => 'portrait',
+            'exportType'  => ExportType::STATEMENTS_ONLY->value,
+            'template'    => ExportTemplate::PORTRAIT->value,
             'original'    => true,
             'viewMode'    => 'view_mode_default',
         ];

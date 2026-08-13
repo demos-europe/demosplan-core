@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Map\GisLayerValidator;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use Exception;
@@ -19,8 +20,6 @@ use Psr\Log\LoggerInterface;
 
 class BaseLayerVisibilityValidator
 {
-    final public const BASE_LAYER_TYPE = 'base';
-
     public function __construct(
         private readonly LoggerInterface $logger,
         private readonly MapService $mapService,
@@ -30,12 +29,13 @@ class BaseLayerVisibilityValidator
 
     public function ensureOnlyOneBaseLayerIsVisible(?string $procedureId, array $gisLayer): void
     {
-        if (null === $procedureId || '' === $procedureId) {
+        if (!$this->shouldDisableOtherBaseLayers($gisLayer)) {
             return;
         }
 
-        if (!$this->shouldDisableOtherBaseLayers($gisLayer)) {
-            return;
+        // Global layers have no procedure; the DB stores them with procedureId='' (NOT NULL column default)
+        if (null === $procedureId) {
+            $procedureId = '';
         }
 
         $this->disableOtherBaseLayersDefaultVisibility($procedureId, $gisLayer['id']);
@@ -43,7 +43,7 @@ class BaseLayerVisibilityValidator
 
     private function shouldDisableOtherBaseLayers(array $gisLayer)
     {
-        return isset($gisLayer['type']) && self::BASE_LAYER_TYPE === $gisLayer['type']
+        return isset($gisLayer['type']) && GisLayerInterface::TYPE_BASE === $gisLayer['type']
             && isset($gisLayer['defaultVisibility']) && true === $gisLayer['defaultVisibility'];
     }
 
@@ -56,22 +56,24 @@ class BaseLayerVisibilityValidator
     private function disableOtherBaseLayersDefaultVisibility(string $procedureId, string $exceptLayerId): void
     {
         try {
-            // Get all layers for this procedure
+            if ('' === $procedureId) {
+                $this->mapHandler->disableDefaultVisibilityForOtherGlobalBaseLayers($exceptLayerId);
+
+                return;
+            }
+
             $allLayers = $this->mapService->getGisAdminList($procedureId);
             $layerObjects = $this->mapService->getLayerObjects($allLayers);
 
             foreach ($layerObjects as $layer) {
-                // Skip if not a base layer, or if it's the layer we're currently saving
                 if (!$layer->isBaseLayer() || $layer->getId() === $exceptLayerId) {
                     continue;
                 }
 
-                // Skip if already disabled
                 if (!$layer->hasDefaultVisibility()) {
                     continue;
                 }
 
-                // Disable default visibility for this base layer
                 $this->mapHandler->updateGis([
                     'id'                => $layer->getId(),
                     'defaultVisibility' => false,

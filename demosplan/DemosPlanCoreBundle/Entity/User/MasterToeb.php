@@ -14,67 +14,55 @@ use DateTime;
 use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\MasterToebInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\MasterToebRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="_master_toeb")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\MasterToebRepository")
- */
+#[ORM\Table(name: '_master_toeb')]
+#[ORM\Entity(repositoryClass: MasterToebRepository::class)]
 class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebInterface
 {
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_mt_id", type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_mt_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $ident;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_mt_gateway_group", type="string", length=255, nullable=true)
      */
+    #[ORM\Column(name: '_mt_gateway_group', type: 'string', length: 255, nullable: true)]
     protected $gatewayGroup;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_mt_orga_name", type="string", length=255, nullable=true)
      */
+    #[ORM\Column(name: '_mt_orga_name', type: 'string', length: 255, nullable: true)]
     protected $orgaName;
 
     /**
      * @var Orga
-     *
-     * @ORM\OneToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", cascade={"persist"}, inversedBy="masterToeb")
-     *
-     * @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: '_o_id', referencedColumnName: '_o_id', onDelete: 'SET NULL')]
+    #[ORM\OneToOne(targetEntity: Orga::class, inversedBy: 'masterToeb', cascade: ['persist'])]
     protected $orga;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_o_id", type="string", length=36, options={"fixed":true}, nullable=true)
      */
+    #[ORM\Column(name: '_o_id', type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
     protected $oId;
 
     /**
      * @var Department
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Department", cascade={"persist"})
-     *
-     * @ORM\JoinColumn(name="_d_id", referencedColumnName="_d_id", onDelete="SET NULL")
      */
+    #[ORM\JoinColumn(name: '_d_id', referencedColumnName: '_d_id', onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: Department::class, cascade: ['persist'])]
     protected $department;
 
     /**
@@ -84,160 +72,136 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_mt_department_name", type="string", length=255, nullable=true)
      */
+    #[ORM\Column(name: '_mt_department_name', type: 'string', length: 255, nullable: true)]
     protected $departmentName;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_mt_sign", type="string", length=50, nullable=true)
      */
+    #[ORM\Column(name: '_mt_sign', type: 'string', length: 50, nullable: true)]
     protected $sign;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_mt_email", type="string", length=255, nullable=true)
      */
+    #[ORM\Column(name: '_mt_email', type: 'string', length: 255, nullable: true)]
     protected $email;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_mt_cc_email", type="string", length=4096, nullable=true)
      */
+    #[ORM\Column(name: '_mt_cc_email', type: 'string', length: 4096, nullable: true)]
     protected $ccEmail;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_mt_contact_person", type="string", length=255, nullable=true)
      */
+    #[ORM\Column(name: '_mt_contact_person', type: 'string', length: 255, nullable: true)]
     protected $contactPerson;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_mt_memo", type="text", length=65535,  nullable=true)
      */
+    #[ORM\Column(name: '_mt_memo', type: 'text', length: 65535, nullable: true)]
     protected $memo;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_mt_comment", type="text", length=65535,  nullable=true)
      */
+    #[ORM\Column(name: '_mt_comment', type: 'text', length: 65535, nullable: true)]
     protected $comment;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_mt_registered", type="boolean", nullable=true, options={"default":false})
      */
+    #[ORM\Column(name: '_mt_registered', type: 'boolean', nullable: true, options: ['default' => false])]
     protected $registered = 0;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_mt_district_hh_mitte", type="smallint", nullable=false, options={"default":0})
      */
+    #[ORM\Column(name: '_mt_district_hh_mitte', type: 'smallint', nullable: false, options: ['default' => 0])]
     protected $districtHHMitte = 0;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_mt_district_eimsbuettel", type="smallint", nullable=false, options={"default":0})
      */
+    #[ORM\Column(name: '_mt_district_eimsbuettel', type: 'smallint', nullable: false, options: ['default' => 0])]
     protected $districtEimsbuettel = 0;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_mt_district_altona", type="smallint", nullable=false, options={"default":0})
      */
+    #[ORM\Column(name: '_mt_district_altona', type: 'smallint', nullable: false, options: ['default' => 0])]
     protected $districtAltona = 0;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_mt_district_hh_nord", type="smallint", nullable=false, options={"default":0})
      */
+    #[ORM\Column(name: '_mt_district_hh_nord', type: 'smallint', nullable: false, options: ['default' => 0])]
     protected $districtHHNord = 0;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_mt_district_wandsbek", type="smallint", nullable=false, options={"default":0})
      */
+    #[ORM\Column(name: '_mt_district_wandsbek', type: 'smallint', nullable: false, options: ['default' => 0])]
     protected $districtWandsbek = 0;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_mt_district_bergedorf", type="smallint", nullable=false, options={"default":0})
      */
+    #[ORM\Column(name: '_mt_district_bergedorf', type: 'smallint', nullable: false, options: ['default' => 0])]
     protected $districtBergedorf = 0;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_mt_district_harburg", type="smallint", nullable=false, options={"default":0})
      */
+    #[ORM\Column(name: '_mt_district_harburg', type: 'smallint', nullable: false, options: ['default' => 0])]
     protected $districtHarburg = 0;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_mt_district_bsu", type="smallint", nullable=false, options={"default":0})
      */
+    #[ORM\Column(name: '_mt_district_bsu', type: 'smallint', nullable: false, options: ['default' => 0])]
     protected $districtBsu = 0;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_mt_document_rough_agreement", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_mt_document_rough_agreement', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $documentRoughAgreement = 0;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_mt_document_agreement", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_mt_document_agreement', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $documentAgreement = 0;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_mt_document_notice", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_mt_document_notice', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $documentNotice = 0;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="_mt_document_assessment", type="boolean", nullable=false, options={"default":false})
      */
+    #[ORM\Column(name: '_mt_document_assessment', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $documentAssessment = 0;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_mt_created_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_mt_created_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createdDate;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(name="_mt_modified_date",type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_mt_modified_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modifiedDate;
 
     public function __construct()
@@ -258,7 +222,7 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
     }
 
     /**
-     * @return mixed
+     * @return string|null
      */
     public function getGatewayGroup()
     {
@@ -266,8 +230,6 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
     }
 
     /**
-     * @param mixed $gatewayGroup
-     *
      * @return MasterToeb
      */
     public function setGatewayGroup($gatewayGroup)
@@ -278,7 +240,7 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
     }
 
     /**
-     * @return mixed
+     * @return string|null
      */
     public function getOrgaName()
     {
@@ -286,8 +248,6 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
     }
 
     /**
-     * @param mixed $orgaName
-     *
      * @return MasterToeb
      */
     public function setOrgaName($orgaName)
@@ -314,8 +274,6 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
     }
 
     /**
-     * @param mixed $orga
-     *
      * @return MasterToeb
      */
     public function setOrga($orga)
@@ -326,8 +284,6 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
     }
 
     /**
-     * @param mixed $orga
-     *
      * @return MasterToeb
      */
     public function setOrganisation($orga)
@@ -349,7 +305,7 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
     }
 
     /**
-     * @return mixed
+     * @return Department|null
      */
     public function getDepartment()
     {
@@ -357,8 +313,6 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
     }
 
     /**
-     * @param mixed $department
-     *
      * @return MasterToeb
      */
     public function setDepartment($department)
@@ -382,7 +336,7 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
     }
 
     /**
-     * @return mixed
+     * @return string|null
      */
     public function getDepartmentName()
     {
@@ -390,8 +344,6 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
     }
 
     /**
-     * @param mixed $departmentName
-     *
      * @return MasterToeb
      */
     public function setDepartmentName($departmentName)
@@ -402,7 +354,7 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
     }
 
     /**
-     * @return mixed
+     * @return string|null
      */
     public function getSign()
     {
@@ -410,8 +362,6 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
     }
 
     /**
-     * @param mixed $sign
-     *
      * @return MasterToeb
      */
     public function setSign($sign)
@@ -430,8 +380,6 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
     }
 
     /**
-     * @param mixed $email
-     *
      * @return MasterToeb
      */
     public function setEmail($email)
@@ -442,7 +390,7 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
     }
 
     /**
-     * @return mixed
+     * @return string|null
      */
     public function getCcEmail()
     {
@@ -450,8 +398,6 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
     }
 
     /**
-     * @param mixed $ccEmail
-     *
      * @return MasterToeb
      */
     public function setCcEmail($ccEmail)
@@ -462,7 +408,7 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
     }
 
     /**
-     * @return mixed
+     * @return string|null
      */
     public function getContactPerson()
     {
@@ -482,7 +428,7 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
     }
 
     /**
-     * @return mixed
+     * @return string|null
      */
     public function getMemo()
     {
@@ -490,8 +436,6 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
     }
 
     /**
-     * @param mixed $memo
-     *
      * @return MasterToeb
      */
     public function setMemo($memo)
@@ -522,7 +466,7 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
     }
 
     /**
-     * @return mixed
+     * @return int
      */
     public function getDistrictEimsbuettel()
     {

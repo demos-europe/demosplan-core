@@ -37,28 +37,28 @@ class KeycloakUserBadgeCreator
         return new UserBadge($userIdentifier, function () use ($resourceOwner, $request) {
             try {
                 $this->entityManager->getConnection()->beginTransaction();
-                $this->logger->info('Start of doctrine transaction.');
+                $this->logger->info('oauthAuthenticator: Start of doctrine transaction.');
 
                 $this->keycloakUserData->fill($resourceOwner);
-                $this->logger->info('Found user data: '.$this->keycloakUserData);
+                $this->logger->info('oauthAuthenticator: Found user data: '.$this->keycloakUserData);
                 $user = $this->keycloakUserDataMapper->mapUserData($this->keycloakUserData);
 
                 $this->entityManager->getConnection()->commit();
-                $this->logger->info('doctrine transaction commit.');
+                $this->logger->info('oauthAuthenticator: doctrine transaction commit.');
                 $request->getSession()->set('userId', $user->getId());
 
                 return $user;
             } catch (Exception $e) {
                 $this->entityManager->getConnection()->rollBack();
-                $this->logger->info('doctrine transaction rollback.');
+                $this->logger->info('oauthAuthenticator: doctrine transaction rollback.');
                 $this->logger->error(
-                    'login failed',
+                    'oauthAuthenticator: login failed',
                     [
                         'requestValues' => $this->keycloakUserData ?? null,
                         'exception'     => $e,
                     ]
                 );
-                throw new AuthenticationException('You shall not pass!');
+                throw new AuthenticationException('You shall not pass!', $e->getCode(), $e);
             }
         });
     }

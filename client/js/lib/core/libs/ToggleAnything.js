@@ -202,6 +202,7 @@ export default function ToggleAnything () {
         target.toggleClass(el.config.propertyClass)
 
         const isToggled = el.hasClass(el.config.propertyClass + '-toggle')
+
         toggleAriaAttrs(el, isToggled)
       }
     }

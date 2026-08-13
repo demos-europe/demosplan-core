@@ -177,8 +177,10 @@ const AssessmentTable = {
         if (Array.isArray(data.accessibleProcedures)) {
           data.accessibleProcedures = {}
         }
+
         // Large arrays that do not need to be reactive (enhances performance)
         const immutable = ['municipalities', 'priorityAreas', 'inaccessibleProcedures', 'accessibleProcedures']
+
         immutable.forEach(prop => {
           data[prop] = data[prop] && Object.freeze(data[prop])
         })
@@ -186,6 +188,7 @@ const AssessmentTable = {
         commit('addBase', data)
         commit('setProperty', { prop: 'currentTableView', val: data.defaultToggleView })
         const emptyOptions = ['adviceValues', 'priorities', 'paragraph', 'agencies']
+
         emptyOptions.forEach(field => commit('addOptionToProperty', { prop: field, value: { key: '', title: '-', name: '-', id: '', elementId: '' } }))
 
         return resolve(true)
@@ -214,6 +217,7 @@ const AssessmentTable = {
      */
     adviceValues: state => {
       const statusArray = []
+
       Object.entries(state.assessmentBase.adviceValues).forEach(
         ([key, value]) => statusArray.push({ id: key, name: Translator.trans(value), title: Translator.trans(value) }),
       )
@@ -221,10 +225,12 @@ const AssessmentTable = {
       const result = statusArray.find(obj => {
         return obj.title === '-'
       })
+
       if (statusArray.indexOf(result) > 0) {
         statusArray.splice(statusArray.indexOf(result), 1)
         statusArray.splice(0, 0, result)
       }
+
       return statusArray
     },
 
@@ -249,18 +255,22 @@ const AssessmentTable = {
             reviewerArray.push({ id: key, title: '-', name: '-', orgaName: '' })
           } else {
             const title = state.assessmentBase.agencies[key].departmentName
+
             reviewerArray.push({ id: key, title: `${state.assessmentBase.agencies[key].orgaName}, ${Translator.trans('department')}: ${title}`, name: Translator.trans(title), orgaName: state.assessmentBase.agencies[key].orgaName })
           }
         }
       }
+
       //  Move empty option to beginning of array so it will be displayed as first option
       const result = reviewerArray.find(obj => {
         return obj.title === '-'
       })
+
       if (reviewerArray.indexOf(result) > 0) {
         reviewerArray.splice(reviewerArray.indexOf(result), 1)
         reviewerArray.splice(0, 0, result)
       }
+
       return reviewerArray
     },
 
@@ -288,20 +298,25 @@ const AssessmentTable = {
      */
     fragmentStatus: state => {
       const statusArray = []
+
       for (const key in state.assessmentBase.fragmentStatus) {
         if (hasOwnProp(state.assessmentBase.fragmentStatus, key)) {
           const title = state.assessmentBase.fragmentStatus[key]
+
           statusArray.push({ id: key, title: Translator.trans(title), name: Translator.trans(title) })
         }
       }
+
       //  Move empty option to beginning of array so it will be displayed as first option
       const result = statusArray.find(obj => {
         return obj.title === '-'
       })
+
       if (statusArray.indexOf(result) > 0) {
         statusArray.splice(statusArray.indexOf(result), 1)
         statusArray.splice(0, 0, result)
       }
+
       return statusArray
     },
 
@@ -331,20 +346,25 @@ const AssessmentTable = {
      */
     priorities: state => {
       const priorityArray = []
+
       for (const key in state.assessmentBase.priorities) {
         if (hasOwnProp(state.assessmentBase.priorities, key)) {
           const title = state.assessmentBase.priorities[key]
+
           priorityArray.push({ id: key, title: Translator.trans(title), name: Translator.trans(title) })
         }
       }
+
       //  Move empty option to beginning of array so it will be displayed as first option
       const result = priorityArray.find(obj => {
         return obj.title === '-'
       })
+
       if (priorityArray.indexOf(result) > 0) {
         priorityArray.splice(priorityArray.indexOf(result), 1)
         priorityArray.splice(0, 0, result)
       }
+
       return priorityArray
     },
 
@@ -362,6 +382,7 @@ const AssessmentTable = {
      */
     status: state => {
       const statusArray = []
+
       Object.entries(state.assessmentBase.status).forEach(
         ([key, value]) => statusArray.push({ id: key, name: Translator.trans(value), title: Translator.trans(value) }),
       )
@@ -369,10 +390,12 @@ const AssessmentTable = {
       const result = statusArray.find(obj => {
         return obj.title === '-'
       })
+
       if (statusArray.indexOf(result) > 0) {
         statusArray.splice(statusArray.indexOf(result), 1)
         statusArray.splice(0, 0, result)
       }
+
       return statusArray
     },
 
@@ -388,14 +411,18 @@ const AssessmentTable = {
      */
     tags: state => {
       const tagsArray = []
+
       state.assessmentBase.tags.forEach((entry) => {
         const topic = {}
+
         topic.title = Translator.trans(entry.name)
         if (hasOwnProp(entry, 'tags')) {
           topic.tags = entry.tags
         }
+
         tagsArray.push(topic)
       })
+
       return tagsArray
     },
 
@@ -405,12 +432,15 @@ const AssessmentTable = {
      */
     procedurePhases: state => data => {
       let phases = []
+
       if (Object.keys(state.assessmentBase.internalPhases).length > 0 && data.internal) {
         phases = Object.values(state.assessmentBase.internalPhases)
       }
+
       if (Object.keys(state.assessmentBase.externalPhases).length > 0 && data.external) {
         phases = Object.values(state.assessmentBase.externalPhases)
       }
+
       return phases
     },
   },

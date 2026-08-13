@@ -65,8 +65,13 @@ class UserPermissionRevokeCommandTest extends FunctionalTestCase
 
     private function createCommandTester(): CommandTester
     {
-        $kernel = self::bootKernel();
-        $application = new ConsoleApplication($kernel, false);
+        // Reuse the kernel booted by parent::setUp(). Calling self::bootKernel()
+        // here would shut that kernel down and start a fresh one — wiping
+        // the EM's identity map and detaching $this->testUser / any fixture
+        // refs we replaced via setReference() in FunctionalTestCase::setUp,
+        // which makes the cascade walk during flush() see User back-refs as
+        // STATE_NEW and throw ORMInvalidArgumentException.
+        $application = new ConsoleApplication(self::$kernel, false);
         $application->add($this->sut);
 
         return new CommandTester($this->sut);

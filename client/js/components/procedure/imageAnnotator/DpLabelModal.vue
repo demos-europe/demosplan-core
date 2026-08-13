@@ -71,6 +71,7 @@ export default {
       if (preselectedLabel) {
         this.selectedLabel = preselectedLabel
       }
+
       this.$refs.labelModal.toggle()
     },
   },

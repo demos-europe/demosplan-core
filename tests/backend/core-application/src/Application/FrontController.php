@@ -25,6 +25,8 @@ class FrontController
      */
     public static function console()
     {
+        $_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = 'test';
+
         $input = BasicFrontController::bootstrapConsole();
 
         $kernel = new DemosPlanTestKernel(DemosPlanTestKernel::TEST_PROJECT_NAME, 'test', (bool) $_SERVER['APP_DEBUG']);

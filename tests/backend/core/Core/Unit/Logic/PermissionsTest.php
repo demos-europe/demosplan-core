@@ -15,6 +15,8 @@ use demosplan\DemosPlanCoreBundle\Addon\AddonRegistry;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadCustomerData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhase;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -80,7 +82,7 @@ class PermissionsTest extends FunctionalTestCase
         $procedure = [
             'orgaId'            => $this->userOrgaId,
             'organisation'      => [$this->userOrgaId],
-            'phase'             => 'participation',
+            'phase'             => 'write',
             'authorizedUsers'   => new ArrayCollection([$testUser]),
             'authorizedUserIds' => [$testUser->getId()],
         ];
@@ -179,7 +181,7 @@ class PermissionsTest extends FunctionalTestCase
             'ai api user #1'                    => [
                 'roles'                             => [Role::API_AI_COMMUNICATOR],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => false,
                 'ownsProcedure'                     => false,
                 'isMember'                          => false,
@@ -203,7 +205,7 @@ class PermissionsTest extends FunctionalTestCase
             'ai api user #2'                    => [
                 'roles'                             => [Role::API_AI_COMMUNICATOR],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => true,
                 'ownsProcedure'                     => false,
                 'isMember'                          => true,
@@ -225,7 +227,7 @@ class PermissionsTest extends FunctionalTestCase
             'ai api user #3'                    => [
                 'roles'                             => [Role::API_AI_COMMUNICATOR],
                 'procedurePhase'                    => $this->getParticipationPhases(),
-                'procedurePublicParticipationPhase' => 'participation',
+                'procedurePublicParticipationPhase' => 'write',
                 'isInProcedure'                     => false,
                 'ownsProcedure'                     => true,
                 'isMember'                          => false,
@@ -248,7 +250,7 @@ class PermissionsTest extends FunctionalTestCase
             'customer master user #1'           => [
                 'roles'                             => [Role::CUSTOMER_MASTER_USER],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => true,
                 'ownsProcedure'                     => true,
                 'isMember'                          => true,
@@ -281,7 +283,7 @@ class PermissionsTest extends FunctionalTestCase
             'planning agency admin #1'          => [
                 'roles'                             => [Role::PLANNING_AGENCY_ADMIN],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => true,
                 'ownsProcedure'                     => true,
                 'isMember'                          => true,
@@ -437,7 +439,7 @@ class PermissionsTest extends FunctionalTestCase
             'planning agency admin #2'          => [
                 'roles'                             => [Role::PLANNING_AGENCY_ADMIN],
                 'procedurePhase'                    => $this->getParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => true,
                 'ownsProcedure'                     => true,
                 'isMember'                          => true,
@@ -512,7 +514,7 @@ class PermissionsTest extends FunctionalTestCase
             'planning agency admin #3'          => [
                 'roles'                             => [Role::PLANNING_AGENCY_ADMIN],
                 'procedurePhase'                    => $this->getParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => true,
                 'ownsProcedure'                     => true,
                 'isMember'                          => false,
@@ -576,7 +578,7 @@ class PermissionsTest extends FunctionalTestCase
             'planning agency admin #4'          => [
                 'roles'                             => [Role::PLANNING_AGENCY_ADMIN],
                 'procedurePhase'                    => $this->getParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => true,
                 'ownsProcedure'                     => false,
                 'isMember'                          => false,
@@ -638,7 +640,7 @@ class PermissionsTest extends FunctionalTestCase
             'planning agency admin #5'          => [
                 'roles'                             => [Role::PLANNING_AGENCY_ADMIN],
                 'procedurePhase'                    => $this->getParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => false,
                 'ownsProcedure'                     => false,
                 'isMember'                          => false,
@@ -701,7 +703,7 @@ class PermissionsTest extends FunctionalTestCase
             'planning agency admin #6'          => [
                 'roles'                             => [Role::PLANNING_AGENCY_ADMIN],
                 'procedurePhase'                    => $this->getParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => true,
                 'ownsProcedure'                     => false,
                 'isMember'                          => true,
@@ -760,7 +762,7 @@ class PermissionsTest extends FunctionalTestCase
             'planning agency master user #1'    => [
                 'roles'                             => [Role::ORGANISATION_ADMINISTRATION],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => true,
                 'ownsProcedure'                     => true,
                 'isMember'                          => true,
@@ -863,7 +865,7 @@ class PermissionsTest extends FunctionalTestCase
             'planning agency master user #2'    => [
                 'roles'                             => [Role::ORGANISATION_ADMINISTRATION],
                 'procedurePhase'                    => $this->getParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => false,
                 'ownsProcedure'                     => false,
                 'isMember'                          => false,
@@ -926,7 +928,7 @@ class PermissionsTest extends FunctionalTestCase
             'planning agency master user #3'    => [
                 'roles'                             => [Role::ORGANISATION_ADMINISTRATION],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => false,
                 'ownsProcedure'                     => false,
                 'isMember'                          => true,
@@ -947,7 +949,7 @@ class PermissionsTest extends FunctionalTestCase
             'planning agency master user #4'    => [
                 'roles'                             => [Role::ORGANISATION_ADMINISTRATION],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => true,
                 'ownsProcedure'                     => true,
                 'isMember'                          => false,
@@ -969,7 +971,7 @@ class PermissionsTest extends FunctionalTestCase
             'private planning agency #1'        => [
                 'roles'                             => [Role::PRIVATE_PLANNING_AGENCY],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => false,
                 'ownsProcedure'                     => false,
                 'isMember'                          => false,
@@ -1057,7 +1059,7 @@ class PermissionsTest extends FunctionalTestCase
             'private planning agency #2'        => [
                 'roles'                             => [Role::PRIVATE_PLANNING_AGENCY],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => false,
                 'ownsProcedure'                     => true,
                 'isMember'                          => false,
@@ -1127,7 +1129,7 @@ class PermissionsTest extends FunctionalTestCase
             'private planning agency #3'        => [
                 'roles'                             => [Role::PRIVATE_PLANNING_AGENCY],
                 'procedurePhase'                    => $this->getParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => false,
                 'ownsProcedure'                     => false,
                 'isMember'                          => false,
@@ -1195,7 +1197,7 @@ class PermissionsTest extends FunctionalTestCase
             'private planning agency #4'        => [
                 'roles'                             => [Role::PRIVATE_PLANNING_AGENCY],
                 'procedurePhase'                    => $this->getParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => false,
                 'ownsProcedure'                     => true,
                 'isMember'                          => false,
@@ -1262,7 +1264,7 @@ class PermissionsTest extends FunctionalTestCase
             'private planning agency #5'        => [
                 'roles'                             => [Role::PRIVATE_PLANNING_AGENCY],
                 'procedurePhase'                    => $this->getParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => true,
                 'ownsProcedure'                     => true,
                 'isMember'                          => true,
@@ -1335,7 +1337,7 @@ class PermissionsTest extends FunctionalTestCase
             'planning agency worker #1'         => [
                 'roles'                             => [Role::PLANNING_AGENCY_WORKER],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => false,
                 'ownsProcedure'                     => false,
                 'isMember'                          => false,
@@ -1425,7 +1427,7 @@ class PermissionsTest extends FunctionalTestCase
             'planning agency worker #2'         => [
                 'roles'                             => [Role::PLANNING_AGENCY_WORKER],
                 'procedurePhase'                    => $this->getParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => false,
                 'ownsProcedure'                     => false,
                 'isMember'                          => false,
@@ -1488,7 +1490,7 @@ class PermissionsTest extends FunctionalTestCase
             'planning agency worker #3'         => [
                 'roles'                             => [Role::PLANNING_AGENCY_WORKER],
                 'procedurePhase'                    => $this->getParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => false,
                 'ownsProcedure'                     => true,
                 'isMember'                          => false,
@@ -1553,7 +1555,7 @@ class PermissionsTest extends FunctionalTestCase
             'planning agency worker #4'         => [
                 'roles'                             => [Role::PLANNING_AGENCY_WORKER],
                 'procedurePhase'                    => $this->getParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => true,
                 'ownsProcedure'                     => false,
                 'isMember'                          => true,
@@ -1623,7 +1625,7 @@ class PermissionsTest extends FunctionalTestCase
             'public agency coordinator #1'      => [
                 'roles'                             => [Role::PUBLIC_AGENCY_COORDINATION],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => false,
                 'ownsProcedure'                     => false,
                 'isMember'                          => false,
@@ -1716,7 +1718,7 @@ class PermissionsTest extends FunctionalTestCase
             'public agency coordinator #2'      => [
                 'roles'                             => [Role::PUBLIC_AGENCY_COORDINATION],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => true,
                 'ownsProcedure'                     => true,
                 'isMember'                          => true,
@@ -1772,7 +1774,7 @@ class PermissionsTest extends FunctionalTestCase
             'public agency coordinator #3'      => [
                 'roles'                             => [Role::PUBLIC_AGENCY_COORDINATION],
                 'procedurePhase'                    => $this->getParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => true,
                 'ownsProcedure'                     => true,
                 'isMember'                          => true,
@@ -1836,7 +1838,7 @@ class PermissionsTest extends FunctionalTestCase
             'public agency worker #1'           => [
                 'roles'                             => [Role::PUBLIC_AGENCY_WORKER],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => true,
                 'ownsProcedure'                     => true,
                 'isMember'                          => true,
@@ -1930,7 +1932,7 @@ class PermissionsTest extends FunctionalTestCase
             'public agency worker #2'           => [
                 'roles'                             => [Role::PUBLIC_AGENCY_WORKER],
                 'procedurePhase'                    => $this->getParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => true,
                 'ownsProcedure'                     => false,
                 'isMember'                          => false,
@@ -1990,7 +1992,7 @@ class PermissionsTest extends FunctionalTestCase
             'public agency worker #3'           => [
                 'roles'                             => [Role::PUBLIC_AGENCY_WORKER],
                 'procedurePhase'                    => $this->getParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => true,
                 'ownsProcedure'                     => true,
                 'isMember'                          => true,
@@ -2054,7 +2056,7 @@ class PermissionsTest extends FunctionalTestCase
             'editor #1'                         => [
                 'roles'                             => [Role::CONTENT_EDITOR],
                 'procedurePhase'                    => $this->getParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => false,
                 'ownsProcedure'                     => false,
                 'isMember'                          => false,
@@ -2125,7 +2127,7 @@ class PermissionsTest extends FunctionalTestCase
             'guest #1'                          => [
                 'roles'                             => [Role::GUEST],
                 'procedurePhase'                    => $this->getParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => false,
                 'ownsProcedure'                     => false,
                 'isMember'                          => false,
@@ -2235,7 +2237,7 @@ class PermissionsTest extends FunctionalTestCase
             'citizen #1'                        => [
                 'roles'                             => [Role::CITIZEN],
                 'procedurePhase'                    => $this->getParticipationPhases(),
-                'procedurePublicParticipationPhase' => 'participation',
+                'procedurePublicParticipationPhase' => 'write',
                 'isInProcedure'                     => true,
                 'ownsProcedure'                     => false,
                 'isMember'                          => false,
@@ -2324,7 +2326,7 @@ class PermissionsTest extends FunctionalTestCase
             'citizen #2'                        => [
                 'roles'                             => [Role::CITIZEN],
                 'procedurePhase'                    => $this->getParticipationPhases(),
-                'procedurePublicParticipationPhase' => 'participation',
+                'procedurePublicParticipationPhase' => 'write',
                 'isInProcedure'                     => false,
                 'ownsProcedure'                     => false,
                 'isMember'                          => false,
@@ -2401,7 +2403,7 @@ class PermissionsTest extends FunctionalTestCase
             'citizen #3'                        => [
                 'roles'                             => [Role::CITIZEN],
                 'procedurePhase'                    => $this->getParticipationPhases(),
-                'procedurePublicParticipationPhase' => 'participation',
+                'procedurePublicParticipationPhase' => 'write',
                 'isInProcedure'                     => true,
                 'ownsProcedure'                     => false,
                 'isMember'                          => true,
@@ -2474,7 +2476,7 @@ class PermissionsTest extends FunctionalTestCase
             'citizen #4'                        => [
                 'roles'                             => [Role::CITIZEN],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
-                'procedurePublicParticipationPhase' => 'closed',
+                'procedurePublicParticipationPhase' => 'read',
                 'isInProcedure'                     => true,
                 'ownsProcedure'                     => false,
                 'isMember'                          => true,
@@ -2547,7 +2549,7 @@ class PermissionsTest extends FunctionalTestCase
             'support #1'                        => [
                 'roles'                             => [Role::PLATFORM_SUPPORT],
                 'procedurePhase'                    => $this->getParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => false,
                 'ownsProcedure'                     => false,
                 'isMember'                          => false,
@@ -2628,7 +2630,7 @@ class PermissionsTest extends FunctionalTestCase
             'forum moderator #1'                => [
                 'roles'                             => [Role::BOARD_MODERATOR],
                 'procedurePhase'                    => $this->getParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => false,
                 'ownsProcedure'                     => false,
                 'isMember'                          => false,
@@ -2693,7 +2695,7 @@ class PermissionsTest extends FunctionalTestCase
             'planning supporting department #1' => [
                 'roles'                             => [Role::PLANNING_SUPPORTING_DEPARTMENT],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => true,
                 'ownsProcedure'                     => true,
                 'isMember'                          => true,
@@ -2767,7 +2769,7 @@ class PermissionsTest extends FunctionalTestCase
             'data input #1'                     => [
                 'roles'                             => [Role::PROCEDURE_DATA_INPUT],
                 'procedurePhase'                    => $this->getNonParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => false,
                 'ownsProcedure'                     => false,
                 'isMember'                          => false,
@@ -2839,7 +2841,7 @@ class PermissionsTest extends FunctionalTestCase
             'data input #2'                     => [
                 'roles'                             => [Role::PROCEDURE_DATA_INPUT],
                 'procedurePhase'                    => $this->getParticipationPhases(),
-                'procedurePublicParticipationPhase' => '',
+                'procedurePublicParticipationPhase' => 'hidden',
                 'isInProcedure'                     => false,
                 'ownsProcedure'                     => false,
                 'isMember'                          => false,
@@ -2913,7 +2915,7 @@ class PermissionsTest extends FunctionalTestCase
             [
                 'roles'                             => [Role::CITIZEN],
                 'procedurePhase'                    => $this->getParticipationPhases(),
-                'procedurePublicParticipationPhase' => 'participation',
+                'procedurePublicParticipationPhase' => 'write',
                 'isInProcedure'                     => true,
                 'ownsProcedure'                     => false,
                 'isMember'                          => true,
@@ -3282,6 +3284,32 @@ class PermissionsTest extends FunctionalTestCase
     }
 
     /**
+     * Creates a ProcedurePhase mock from a permissionSet descriptor.
+     *
+     * Format: "{permissionSet}" or "{permissionSet}:{participationState}"
+     * Examples: "write", "read", "read:finished", "hidden"
+     */
+    private function createProcedurePhaseMock(string $phaseDescriptor): ProcedurePhase
+    {
+        $parts = explode(':', $phaseDescriptor, 2);
+        $permissionSet = $parts[0];
+        $participationState = $parts[1] ?? null;
+
+        $phaseDefinitionMock = $this->getMockBuilder(ProcedurePhaseDefinition::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $phaseDefinitionMock->method('getPermissionSet')->willReturn($permissionSet);
+        $phaseDefinitionMock->method('getParticipationState')->willReturn($participationState);
+
+        $phaseMock = $this->getMockBuilder(ProcedurePhase::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $phaseMock->method('getPhaseDefinition')->willReturn($phaseDefinitionMock);
+
+        return $phaseMock;
+    }
+
+    /**
      * @param string $procedurePhase
      * @param array  $testCase
      * @param User   $user
@@ -3302,10 +3330,10 @@ class PermissionsTest extends FunctionalTestCase
             ->willReturn($this->procedure['id'] ?? '');
         $stub->method('getPlanningOfficesIds')
             ->willReturn($this->procedure['planningOfficesIds'] ?? []);
-        $stub->method('getPhase')
-            ->willReturn($procedurePhase);
-        $stub->method('getPublicParticipationPhase')
-            ->willReturn($this->procedure['publicParticipationPhase']);
+        $stub->method('getPhaseObject')
+            ->willReturn($this->createProcedurePhaseMock($procedurePhase));
+        $stub->method('getPublicParticipationPhaseObject')
+            ->willReturn($this->createProcedurePhaseMock($this->procedure['publicParticipationPhase'] ?? 'hidden'));
         $stub->method('getOrgaId')
             ->willReturn($this->procedure['orgaId']);
         $stub->method('isDeleted')
@@ -3354,7 +3382,7 @@ class PermissionsTest extends FunctionalTestCase
      */
     protected function getParticipationPhases(): string
     {
-        return 'participation';
+        return 'write';
     }
 
     /**
@@ -3362,7 +3390,7 @@ class PermissionsTest extends FunctionalTestCase
      */
     protected function getNonParticipationPhases(): string
     {
-        return 'evaluating||closed';
+        return 'read:finished||read';
     }
 
     protected function setUpSessionForTestCase(bool $isInProcedure, bool $ownsProcedure, bool $isMember): void

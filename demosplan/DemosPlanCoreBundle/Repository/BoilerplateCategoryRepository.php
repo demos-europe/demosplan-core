@@ -131,7 +131,7 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
     public function add(array $data, $returnEntity = false)
     {
         if (!$data['procedure'] instanceof Procedure) {
-            $data['procedure'] = $this->_em->getReference(Procedure::class, $data['procedure']);
+            $data['procedure'] = $this->getEntityManager()->getReference(Procedure::class, $data['procedure']);
         }
 
         if (array_key_exists('title', $data)) {
@@ -148,9 +148,9 @@ class BoilerplateCategoryRepository extends CoreRepository implements ArrayInter
             $this->getEntityManager()->flush();
             if ($returnEntity) {
                 return $boilerplateCategory;
-            } else {
-                return true;
             }
+
+            return true;
         }
 
         return false;

@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure;
 use demosplan\DemosPlanCoreBundle\Traits\DI\ElasticsearchQueryTrait;
 use Elastica\Index;
 use Elastica\Query\BoolQuery;
+use Elastica\Query\Term;
 use Elastica\Query\Terms;
 use Psr\Log\LoggerInterface;
 
@@ -38,7 +39,7 @@ class ProcedureElasticsearchRepository
         Index $procedureSearchType,
         GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,
-        PermissionsInterface $permissions
+        PermissionsInterface $permissions,
     ) {
         $this->index = $procedureSearchType;
         $this->globalConfig = $globalConfig;
@@ -68,14 +69,13 @@ class ProcedureElasticsearchRepository
         // their own procedures should be displayed even in hidden phases
         if ($esQuery->hasScope(QueryProcedure::SCOPE_INTERNAL)) {
             $boolInternalQuery = new BoolQuery();
-            $boolInternalMustNotTerms = [''];
-            foreach ($this->globalConfig->getInternalPhases('hidden') as $internalHidden) {
-                $boolInternalMustNotTerms[] = $internalHidden['key'];
-            }
-            $boolInternalQuery->addMustNot(new Terms('phase', $boolInternalMustNotTerms));
+            $boolInternalQuery->addMustNot(new Terms('phasePermissionset', ['hidden']));
 
             if (!$this->permissions->hasPermission('feature_procedure_all_orgas_invited')) {
-                $boolInternalQuery->addMust(new Terms('organisationIds', [$esQuery->getOrgaId()]));
+                $invitedOrAllowedQuery = new BoolQuery();
+                $invitedOrAllowedQuery->addShould(new Terms('organisationIds', [$esQuery->getOrgaId()]));
+                $invitedOrAllowedQuery->addShould(new Term(['allowUninvitedInstitutions' => true]));
+                $boolInternalQuery->addMust($this->setMinimumShouldMatch($invitedOrAllowedQuery, 1));
             }
             $boolQuery->addShould($boolInternalQuery);
             $boolQuery = $this->setMinimumShouldMatch($boolQuery, 1);
@@ -92,10 +92,7 @@ class ProcedureElasticsearchRepository
         }
 
         if ($esQuery->hasScope(QueryProcedure::SCOPE_EXTERNAL)) {
-            $boolQuery->addMustNot(new Terms('publicParticipationPhase', ['']));
-            foreach ($this->globalConfig->getExternalPhases('hidden') as $externalHidden) {
-                $boolQuery->addMustNot(new Terms('publicParticipationPhase', [$externalHidden['key']]));
-            }
+            $boolQuery->addMustNot(new Terms('publicParticipationPhasePermissionset', ['hidden']));
         }
 
         return $boolQuery;

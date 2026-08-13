@@ -173,8 +173,14 @@ class ProcedureDeleter
         // delete procedure report entries
         $this->deleteReportEntriesByIdentifierAndType($procedureIds, $isDryRun);
 
+        // collect referenced procedure_phase ids before deleting the procedures
+        $phaseIds = $this->collectProcedurePhaseIds($procedureIds);
+
         // delete procedures
         $this->deleteProcedure($procedureIds, $isDryRun);
+
+        // delete the now-orphaned procedure_phase rows
+        $this->deleteProcedurePhases($phaseIds, $isDryRun);
     }
 
     /**
@@ -476,6 +482,48 @@ class ProcedureDeleter
     private function deleteProcedure(array $procedureIds, bool $isDryRun): void
     {
         $this->queriesService->deleteFromTableByIdentifierArray('_procedure', '_p_id', $procedureIds, $isDryRun);
+    }
+
+    /**
+     * Returns the ids of every procedure_phase row referenced by the given procedures
+     * through `_procedure.phase_id` or `_procedure.public_participation_phase_id`.
+     *
+     * @return list<string>
+     *
+     * @throws Exception
+     */
+    private function collectProcedurePhaseIds(array $procedureIds): array
+    {
+        $rows = $this->queriesService->fetchFromTableByParameter(
+            ['phase_id', 'public_participation_phase_id'],
+            '_procedure',
+            '_p_id',
+            $procedureIds
+        );
+
+        $phaseIds = [];
+        foreach ($rows as $row) {
+            if (null !== $row['phase_id'] && '' !== $row['phase_id']) {
+                $phaseIds[] = $row['phase_id'];
+            }
+            if (null !== $row['public_participation_phase_id'] && '' !== $row['public_participation_phase_id']) {
+                $phaseIds[] = $row['public_participation_phase_id'];
+            }
+        }
+
+        return array_values(array_unique($phaseIds));
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteProcedurePhases(array $phaseIds, bool $isDryRun): void
+    {
+        if ([] === $phaseIds) {
+            return;
+        }
+
+        $this->queriesService->deleteFromTableByIdentifierArray('procedure_phase', 'id', $phaseIds, $isDryRun);
     }
 
     /**

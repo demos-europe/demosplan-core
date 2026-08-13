@@ -97,6 +97,7 @@ export default class LineChart {
           if (typeof res.index === 'undefined') {
             const datePtOne = chunk[0].x.slice(0, chunk[0].x.length - 3)
             let datePtTwo
+
             if (chunk[2]) {
               datePtTwo = ` - ${chunk[2].x}`
             } else if (chunk[1]) {
@@ -104,6 +105,7 @@ export default class LineChart {
             } else {
               datePtTwo = ''
             }
+
             res = {
               index: chunkIdx,
               x: `${datePtOne}${datePtTwo}`,
@@ -210,6 +212,7 @@ export default class LineChart {
      */
     const xAxisHeight = svg.select('.xAxis').node().getBBox().height
     const heightWithXAxis = Math.round(this.height + xAxisHeight)
+
     svg.attr('height', heightWithXAxis).attr('viewBox', `0 0 ${this.width} ${heightWithXAxis}`)
 
     // Add y scale
@@ -230,6 +233,7 @@ export default class LineChart {
       .y((d) => yScale(d.y))
 
     const lineOffset = (this.width - this.margin.left - this.margin.right) / data.length / 2
+
     svg
       .append('g')
       .attr('data-selector', 'chartElements')

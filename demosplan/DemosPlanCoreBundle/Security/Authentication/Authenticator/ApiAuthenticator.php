@@ -93,7 +93,7 @@ class ApiAuthenticator extends JWTAuthenticator
         // Session-based authentication for browser clients with an active session
         if ($this->hasValidSession($request)) {
             $user = $this->getUserFromSession($request);
-            if (null !== $user) {
+            if ($user instanceof User) {
                 $this->logger->debug('API request authenticated via session', [
                     'user' => $user->getLogin(),
                 ]);

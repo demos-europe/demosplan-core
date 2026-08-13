@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { api1_0Routes, generateApi2_0Routes } from './VuexApiRoutes'
+import { api1_0Routes, generateApi2_0Routes, generateApi3_0Routes } from './VuexApiRoutes'
 import { checkResponse, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { initJsonApiPlugin, prepareModuleHashMap, Route, StaticRoute, StaticRouter } from '@efrane/vuex-json-api'
 import { createStore } from 'vuex'
@@ -30,6 +30,7 @@ function registerPresetModules (store, presetStoreModules) {
       }
     }
   }
+
   return store
 }
 
@@ -49,7 +50,12 @@ const handleResponse = async (response, messages = {}) => {
 
 function initStore (storeModules, apiStoreModules, presetStoreModules) {
   const staticModules = { notify, ...storeModules }
-  const VuexApiRoutes = [...generateApi2_0Routes(apiStoreModules), ...api1_0Routes]
+  // Order is important here - the latter overwrite the former
+  const VuexApiRoutes = [
+    ...generateApi2_0Routes(apiStoreModules),
+    ...api1_0Routes,
+    ...generateApi3_0Routes(),
+  ]
   // This should probably be replaced with an adapter to our existing routes
   const router = new StaticRouter(VuexApiRoutes)
 
@@ -90,9 +96,11 @@ function initStore (storeModules, apiStoreModules, presetStoreModules) {
             store.api.newStaticRoute = (route) => {
               return new StaticRoute(route)
             }
+
             store.api.newRoute = (route) => {
               return new Route(route)
             }
+
             store.api.handleResponse = handleResponse
           },
         ],

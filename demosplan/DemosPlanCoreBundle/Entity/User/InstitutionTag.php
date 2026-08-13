@@ -17,77 +17,65 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\InstitutionTagCategoryInterfac
 use DemosEurope\DemosplanAddon\Contracts\Entities\InstitutionTagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\InstitutionTagRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\InstitutionTagRepository")
- *
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="unique_label_for_category", columns={"category_id", "label"})})
- */
+#[ORM\Table]
+#[ORM\UniqueConstraint(name: 'unique_label_for_category', columns: ['category_id', 'label'])]
+#[ORM\Entity(repositoryClass: InstitutionTagRepository::class)]
 class InstitutionTag extends CoreEntity implements UuidEntityInterface, InstitutionTagInterface
 {
     /**
      * @var string|null
-     *
-     * @ORM\Column(type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var string
-     *
-     * @ORM\Column(type="string", length=255, nullable=false)
      */
     #[Assert\NotNull(message: 'institutionTag.label.not.null')]
     #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
+    #[ORM\Column(type: 'string', length: 255, nullable: false)]
     protected $label;
 
     /**
      * Institutions which were tagged with this tag (by the owner of this tag).
      *
      * @var Collection<int, OrgaInterface>
-     *
-     * @ORM\ManyToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\Orga", mappedBy="assignedTags")
      */
+    #[ORM\ManyToMany(targetEntity: Orga::class, mappedBy: 'assignedTags')]
     protected $taggedInstitutions;
 
     /**
      * Category to which this tag belongs.
      *
      * @var InstitutionTagCategory
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTagCategory", inversedBy="tags", cascade={"persist"})
-     *
-     * @ORM\JoinColumn(referencedColumnName="id", nullable=false)
      */
+    #[ORM\JoinColumn(referencedColumnName: 'id', nullable: false)]
+    #[ORM\ManyToOne(targetEntity: InstitutionTagCategory::class, cascade: ['persist'], inversedBy: 'tags')]
     protected $category;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $creationDate;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="update")
-     *
-     * @ORM\Column(type="datetime", nullable=false)
      */
+    #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     private $modificationDate;
 
     public function getId(): ?string

@@ -141,7 +141,7 @@ class SubmitterExporter extends XlsxExporter
                 .$statement->getMeta()->getSubmitName();
 
             // do not group in case of different location data are given
-            if ('' === $statement->getOrgaPostalCode() || '' === $statement->getOrgaCity() || '' === $statement->getOrgaStreet()) {
+            if (in_array('', [$statement->getOrgaPostalCode(), $statement->getOrgaCity(), $statement->getOrgaStreet()], true)) {
                 $key .= $statement->getId(); // just add the ID to avoid grouping but keep key for sorting alphabetically
             }
 

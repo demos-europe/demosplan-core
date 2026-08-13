@@ -109,6 +109,7 @@ export default {
     filteredItems () {
       const dayTimes = this.day.relationships.historyTimes.data
       const filteredTimes = []
+
       this.allTimes.forEach(time => {
         dayTimes.forEach(dayTime => {
           if (time.id === dayTime.id) {
@@ -116,6 +117,7 @@ export default {
           }
         })
       })
+
       return filteredTimes
     },
   },

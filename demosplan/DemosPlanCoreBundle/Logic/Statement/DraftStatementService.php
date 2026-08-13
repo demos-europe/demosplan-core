@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
@@ -242,7 +243,7 @@ class DraftStatementService
             }
 
             // Suche
-            if (is_string($search) && 0 < strlen($search)) {
+            if (is_string($search) && '' !== $search) {
                 $conditions[] = $this->conditionFactory->propertyHasStringContainingCaseInsensitiveValue($search, ['text']);
             }
 
@@ -296,7 +297,7 @@ class DraftStatementService
             ];
 
             // Suche
-            if (is_string($search) && 0 < strlen($search)) {
+            if (is_string($search) && '' !== $search) {
                 $conditions[] = $this->conditionFactory->propertyHasStringContainingCaseInsensitiveValue($search, ['text']);
             }
 
@@ -777,7 +778,7 @@ class DraftStatementService
         });
 
         // generate Screenshot if necessary
-        if (array_key_exists('polygon', $data) && 0 < strlen((string) $data['polygon'])) {
+        if (array_key_exists('polygon', $data) && '' !== (string) $data['polygon']) {
             $mapService = $this->getServiceMap();
             $mapService->createMapScreenshot($data['pId'], $draftStatement->getId());
         }
@@ -788,7 +789,7 @@ class DraftStatementService
             if (array_key_exists('noLocation', $data['statementAttributes'])
                 && true == $data['statementAttributes']['noLocation']) {
                 $attrRepo->setNoLocation($draftStatement);
-            } elseif (array_key_exists('county', $data['statementAttributes']) && 0 < strlen((string) $data['statementAttributes']['county'])) {
+            } elseif (array_key_exists('county', $data['statementAttributes']) && '' !== (string) $data['statementAttributes']['county']) {
                 try {
                     $attrRepo->addCounty($draftStatement, $data['statementAttributes']['county']);
                 } catch (Exception) {
@@ -985,7 +986,7 @@ class DraftStatementService
                 // ensure that current mapfile exists when polygon is drawn
                 $statementData = $this->checkMapScreenshotFile($statementData, $statementData['pId']);
                 // hat das Statement ein Screenshot?
-                if (0 < strlen($statementData['mapFile'] ?? '')) {
+                if ('' !== (string) ($statementData['mapFile'] ?? '')) {
                     $this->logger->info('DraftStatement hat einen Screenshot.');
                     $file = $this->fileService->getFileInfoFromFileString($statementData['mapFile']);
                     $pictures = $this->addEntryOfFoundPicture($file, $pictures);
@@ -1001,12 +1002,12 @@ class DraftStatementService
     protected function checkMapScreenshotFile(array $statementArray, string $procedureId): array
     {
         // Does the statement have a polygon but no screenshot?
-        if (0 < strlen((string) $statementArray['polygon']) && '' === (string) ($statementArray['mapFile'] ?? '')) {
+        if ('' !== (string) $statementArray['polygon'] && '' === (string) ($statementArray['mapFile'] ?? '')) {
             $this->logger->info('DraftStatement has a polygon but no screenshot. Creating one');
             $statementArray['mapFile'] = $this->getServiceMap()->createMapScreenshot($procedureId, $statementArray['ident']);
         }
         // Does the statement have a screenshot?
-        if (0 < strlen($statementArray['mapFile'] ?? '')) {
+        if ('' !== (string) ($statementArray['mapFile'] ?? '')) {
             $this->logger->info('DraftStatement has a screenshot.');
             $fileInfo = null;
             try {
@@ -1017,7 +1018,7 @@ class DraftStatementService
             // If the screenshot should be there but isn't, try to regenerate it
             if (null === $fileInfo || !$this->defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
                 $this->logger->info('Screenshot could not be found');
-                if (0 < strlen((string) $statementArray['polygon'])) {
+                if ('' !== (string) $statementArray['polygon']) {
                     $this->logger->info('Regenerating screenshot');
                     $statementArray['mapFile'] = $this->getServiceMap()->createMapScreenshot($procedureId, $statementArray['ident']);
                 }
@@ -1115,7 +1116,7 @@ class DraftStatementService
             $attrRepo = $this->statementAttributeRepository;
 
             // generate Screenshot if necessary
-            if (array_key_exists('polygon', $data) && 0 < strlen((string) $data['polygon'])) {
+            if (array_key_exists('polygon', $data) && '' !== (string) $data['polygon']) {
                 $mapService = $this->getServiceMap();
                 $mapFile = $mapService->createMapScreenshot($draftStatement->getPId(), $data['ident']);
                 $draftStatement->setMapFile($mapFile);
@@ -1133,7 +1134,7 @@ class DraftStatementService
                     $attrRepo->setNoLocation($draftStatement);
                     $draftStatement->setMapFile('');
                     $draftStatement->setPolygon('');
-                } elseif (array_key_exists('county', $data['statementAttributes']) && 0 < strlen((string) $data['statementAttributes']['county'])) {
+                } elseif (array_key_exists('county', $data['statementAttributes']) && '' !== (string) $data['statementAttributes']['county']) {
                     try {
                         $attrRepo->addCounty($draftStatement, $data['statementAttributes']['county']);
                         $attrRepo->unsetNoLocation($draftStatement);
@@ -1185,6 +1186,9 @@ class DraftStatementService
         }
         $statementAttributes = $draftStatement->getStatementAttributes();
         $draftStatement = $this->entityHelper->toArray($draftStatement);
+        if ($draftStatement['phaseDefinition'] instanceof ProcedurePhaseDefinition) {
+            $draftStatement['phaseDefinition'] = $this->entityHelper->toArray($draftStatement['phaseDefinition']);
+        }
         if ($draftStatement['element'] instanceof Elements) {
             $draftStatement['element'] = $this->entityHelper->toArray($draftStatement['element']);
             if ($draftStatement['element']['documents'] instanceof Collection) {
@@ -1262,7 +1266,7 @@ class DraftStatementService
             );
         }
         // check whether existing paragraph equals given paragraphId
-        if (array_key_exists('paragraphId', $data) && 0 < strlen((string) $data['paragraphId']) && (is_null($entity) || $data['paragraphId'] != $entity->getParagraphId())) {
+        if (array_key_exists('paragraphId', $data) && '' !== (string) $data['paragraphId'] && (is_null($entity) || $data['paragraphId'] != $entity->getParagraphId())) {
             $data['paragraph'] = $this->createParagraphVersion(
                 $em->find(
                     Paragraph::class,
@@ -1278,7 +1282,7 @@ class DraftStatementService
             );
         }
         // check whether existing document equals given documentId
-        if (array_key_exists('documentId', $data) && 0 < strlen((string) $data['documentId']) && (is_null($entity) || $data['documentId'] != $entity->getDocumentId())) {
+        if (array_key_exists('documentId', $data) && '' !== (string) $data['documentId'] && (is_null($entity) || $data['documentId'] != $entity->getDocumentId())) {
             $data['document'] = $this->createSingleDocumentVersion(
                 $em->find(
                     SingleDocument::class,
@@ -1331,7 +1335,7 @@ class DraftStatementService
         $sorted = [];
         // Is the list manually sorted?
         $sorted['sorted'] = false;
-        if (isset($manualSortScope) && 0 < strlen($manualSortScope)) {
+        if (isset($manualSortScope) && '' !== (string) $manualSortScope) {
             $sorted = $this->manualListSorter->orderByManualListSort($manualSortScope, $procedureId, 'draftStatement', $list);
             $list = $sorted['list'];
         }
@@ -1506,7 +1510,7 @@ class DraftStatementService
             $this->profilerService->profilerStart(ProfilerService::ELASTICSEARCH_PROFILER);
 
             // if a Searchterm is set use it
-            if (null !== $search && 0 < strlen($search)) {
+            if (null !== $search && '' !== (string) $search) {
                 $baseQuery = new MatchQuery();
                 $baseQuery->setFieldQuery('text', $search);
                 $boolQuery->addMust($baseQuery);
@@ -1826,7 +1830,7 @@ class DraftStatementService
         if (array_key_exists(
             'priorityAreaKey',
             $data['statementAttributes']
-        ) && 0 < strlen((string) $data['statementAttributes']['priorityAreaKey'])
+        ) && '' !== (string) $data['statementAttributes']['priorityAreaKey']
         ) {
             try {
                 $dataKey = [
@@ -2034,18 +2038,18 @@ class DraftStatementService
         // in 3 Fällen wird r_location == point übergeben: Ortsbezug, Vorranggebietsauswahl und Ortseinzeichung
         if (array_key_exists('r_location', $data) && 'point' === $data['r_location']) {
             // Punkteinzeichnung
-            if (array_key_exists('r_location_geometry', $data) && 0 < strlen((string) $data['r_location_geometry'])) {
+            if (array_key_exists('r_location_geometry', $data) && '' !== (string) $data['r_location_geometry']) {
                 $statement['polygon'] = $data['r_location_geometry'];
             }
 
             // Vorranggebiet
-            if (array_key_exists('r_location_priority_area_key', $data) && 0 < strlen((string) $data['r_location_priority_area_key'])) {
+            if (array_key_exists('r_location_priority_area_key', $data) && '' !== (string) $data['r_location_priority_area_key']) {
                 $statement['statementAttributes']['priorityAreaKey'] = $data['r_location_priority_area_key'];
                 $statement['statementAttributes']['priorityAreaType'] = $data['r_location_priority_area_type'];
             }
 
             // Ortsbezug
-            if (array_key_exists('r_location_point', $data) && 0 < strlen((string) $data['r_location_point'])) {
+            if (array_key_exists('r_location_point', $data) && '' !== (string) $data['r_location_point']) {
                 try {
                     // wandle die Punktkoordinate in ein valides GeoJson um
                     $statement['polygon'] = '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":['.$data['r_location_point'].']},"properties":null}]}';
@@ -2058,7 +2062,7 @@ class DraftStatementService
         if (array_key_exists('r_county', $data)) {
             $statement['statementAttributes']['county'] = '';
 
-            if (0 < strlen((string) $data['r_county'])) {
+            if ('' !== (string) $data['r_county']) {
                 $statement['statementAttributes']['county'] = $data['r_county'];
             }
         }

@@ -12,17 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\CustomField;
 
-use Doctrine\ORM\Mapping as ORM;
-
-/**
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\CustomFieldJsonRepository")
- */
 interface CustomFieldInterface
 {
     public const TYPE_CLASSES = [
         'singleSelect' => RadioButtonField::class,
         'multiSelect'  => MultiSelectField::class,
-        // Add other custom field types here
+        'text'         => TextField::class,
     ];
 
     /**
@@ -53,6 +48,8 @@ interface CustomFieldInterface
     public function getId(): string;
 
     public function getOptions(): array;
+
+    public function getRequired(): bool;
 
     public function getCustomOptionValueById(string $customFieldOptionValueId): ?CustomFieldOption;
 

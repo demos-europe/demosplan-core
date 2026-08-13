@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\PostLoadEventArgs;
 use Doctrine\ORM\Mapping\PostLoad;
 use LogicException;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -25,7 +25,7 @@ class RoleEntityListener
     }
 
     /** @PostLoad */
-    public function postLoad(Role $role, LifecycleEventArgs $event): void
+    public function postLoad(Role $role, PostLoadEventArgs $event): void
     {
         $code = $role->getCode();
         $codeMap = Role::ROLE_CODE_NAME_MAP;

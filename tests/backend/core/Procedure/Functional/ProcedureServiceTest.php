@@ -13,8 +13,10 @@ namespace Tests\Core\Procedure\Functional;
 use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedurePhaseDefinitionInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadCustomerData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedurePhaseDefinitionData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureTypeData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
@@ -35,6 +37,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\UserFilterSet;
@@ -57,9 +60,11 @@ use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use Doctrine\ORM\ORMInvalidArgumentException;
 use Exception;
 use InvalidArgumentException;
+use League\Flysystem\FilesystemOperator;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Tests\Base\FunctionalTestCase;
+use TypeError;
 
 class ProcedureServiceTest extends FunctionalTestCase
 {
@@ -155,12 +160,12 @@ class ProcedureServiceTest extends FunctionalTestCase
         $procedureToExcludeInFixturesExist = false;
         $semiArchivedProcedureExist = false;
         foreach ($procedures as $procedure) {
-            if ('closed' === $procedure->getPhase() && 'closed' === $procedure->getPublicParticipationPhase()) {
+            if ($this->isClosedPhase($procedure->getPhaseObject()->getPhaseDefinition()) && $this->isClosedPhase($procedure->getPublicParticipationPhaseObject()->getPhaseDefinition())) {
                 $procedureToExcludeInFixturesExist = true;
             }
             if ($procedure->getName() === $semiArchivedProcedureName) {
                 $semiArchivedProcedureExist = true;
-                $fixtureIsValidForTest = ('closed' === $procedure->getPhase() && 'configuration' === $procedure->getPublicParticipationPhase());
+                $fixtureIsValidForTest = ($this->isClosedPhase($procedure->getPhaseObject()->getPhaseDefinition()) && 'hidden' === $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getPermissionSet());
                 $this->assertTrue($fixtureIsValidForTest, 'Fixture has been malformed.');
             }
         }
@@ -187,7 +192,7 @@ class ProcedureServiceTest extends FunctionalTestCase
         $this->assertGreaterThan(0, count($procedures));
         $semiArchivedProcedureFound = false;
         foreach ($procedures as $procedure) {
-            $areBothArchived = ('closed' === $procedure->getPhase() && 'closed' === $procedure->getPublicParticipationPhase());
+            $areBothArchived = ($this->isClosedPhase($procedure->getPhaseObject()->getPhaseDefinition()) && $this->isClosedPhase($procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()));
             $this->assertFalse($areBothArchived, 'Procedure found, that should be excluded. Both phases are closed.');
 
             // Explicit check for a procedure with one closed. That one should be found
@@ -407,8 +412,6 @@ class ProcedureServiceTest extends FunctionalTestCase
         static::assertObjectHasProperty('orgaId', $procedure);
         static::assertIsString($procedure->getOrgaId());
         static::assertEquals($this->testProcedure->getOrgaId(), $procedure->getOrgaId());
-        static::assertInstanceOf('\DateTime', $procedure->getClosedDate());
-        static::assertIsNotString($procedure->getClosedDate());
         static::assertInstanceOf('\DateTime', $procedure->getPublicParticipationStartDate());
         static::assertIsNotString($procedure->getPublicParticipationStartDate());
         static::assertInstanceOf('\DateTime', $procedure->getPublicParticipationEndDate());
@@ -443,8 +446,7 @@ class ProcedureServiceTest extends FunctionalTestCase
         $procedure = $this->sut->getSingleProcedure('I am not existant');
         // lustige legacy Rückgabewerte für ein nicht vorhandenes Verfahren
         static::assertIsArray($procedure);
-        static::assertCount(4, $procedure);
-        static::assertFalse($procedure['closed']);
+        static::assertCount(3, $procedure);
         static::assertFalse($procedure['deleted']);
         static::assertFalse($procedure['master']);
         static::assertFalse($procedure['publicParticipation']);
@@ -462,9 +464,6 @@ class ProcedureServiceTest extends FunctionalTestCase
         static::assertArrayHasKey('orgaId', $procedure);
         static::assertIsString($procedure['orgaId']);
         static::assertEquals($this->testProcedure->getOrgaId(), $procedure['orgaId']);
-        static::assertInstanceOf('\DateTime', $procedure['closedDate']);
-        static::assertIsNotString($procedure['closedDate']);
-
         static::assertIsArray($procedure['organisation']);
         static::assertIsString($procedure['organisation'][0]);
 
@@ -504,8 +503,6 @@ class ProcedureServiceTest extends FunctionalTestCase
 
     public function testAddProcedure(): void
     {
-        self::markSkippedForCIIntervention();
-
         $procedureMaster = $this->sut->getSingleProcedure(
             $this->fixtures->getReference('masterBlaupause')
         );
@@ -513,18 +510,18 @@ class ProcedureServiceTest extends FunctionalTestCase
         $dateTime = new DateTime();
         $microTimestamp = $dateTime->getTimestamp() * 1000;
         $procedure = [
-            'copymaster'                    => $this->fixtures->getReference('masterBlaupause')->getId(),
-            'desc'                          => '',
-            'startDate'                     => '01.02.2012',
-            'endDate'                       => '01.02.2012',
-            'externalName'                  => 'testAdded',
-            'name'                          => 'testAdded',
-            'master'                        => false,
-            'orgaId'                        => $this->testProcedure->getOrgaId(),
-            'orgaName'                      => $this->testProcedure->getOrga()->getName(),
-            'logo'                          => 'some:logodata:string',
-            'publicParticipationPhase'      => 'configuration',
-            'procedureType'                 => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
+            'copymaster'                                => $this->fixtures->getReference('masterBlaupause')->getId(),
+            'desc'                                      => '',
+            'startDate'                                 => '01.02.2012',
+            'endDate'                                   => '01.02.2012',
+            'externalName'                              => 'testAdded',
+            'name'                                      => 'testAdded',
+            'master'                                    => false,
+            'orgaId'                                    => $this->testProcedure->getOrgaId(),
+            'orgaName'                                  => $this->testProcedure->getOrga()->getName(),
+            'logo'                                      => 'some:logodata:string',
+            'publicParticipationPhaseDefinition'        => $this->fixtures->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION),
+            'procedureType'                             => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
         ];
         $resultProcedure = $this->sut->addProcedureEntity(
             $procedure,
@@ -537,7 +534,7 @@ class ProcedureServiceTest extends FunctionalTestCase
         static::assertFalse($resultProcedure->isMasterTemplate());
         static::assertEquals('testAdded', $resultProcedure->getName());
         static::assertEquals('some:logodata:string', $resultProcedure->getLogo());
-        static::assertEquals('configuration', $resultProcedure->getPublicParticipationPhase());
+        static::assertSame('hidden', $resultProcedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getPermissionSet());
         // nearly current timestamp?
         static::assertTrue(3000 > ($resultProcedure->getStartDateTimestamp() - $microTimestamp));
         static::assertEquals('', $resultProcedure->getSettings()->getLinks());
@@ -556,8 +553,6 @@ class ProcedureServiceTest extends FunctionalTestCase
 
     public function testCopyTagsFromBlueprint(): void
     {
-        self::markSkippedForCIIntervention();
-
         $blueprint = $this->fixtures->getReference('masterBlaupause');
 
         $tags = $blueprint->getTags();
@@ -566,19 +561,19 @@ class ProcedureServiceTest extends FunctionalTestCase
         $topicsBefore = $topics->getValues();
 
         $procedure = [
-            'copymaster'                => $blueprint,
-            'desc'                      => '',
-            'startDate'                 => '01.02.2012',
-            'endDate'                   => '01.02.2012',
-            'externalName'              => 'testAdded',
-            'name'                      => 'testAdded',
-            'master'                    => false,
-            'orgaId'                    => $this->testProcedure->getOrgaId(),
-            'orgaName'                  => $this->testProcedure->getOrga()->getName(),
-            'logo'                      => 'some:logodata:string',
-            'shortUrl'                  => 'myShortUrl',
-            'publicParticipationPhase'  => 'configuration',
-            'procedureType'             => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
+            'copymaster'                         => $blueprint,
+            'desc'                               => '',
+            'startDate'                          => '01.02.2012',
+            'endDate'                            => '01.02.2012',
+            'externalName'                       => 'testAdded',
+            'name'                               => 'testAdded',
+            'master'                             => false,
+            'orgaId'                             => $this->testProcedure->getOrgaId(),
+            'orgaName'                           => $this->testProcedure->getOrga()->getName(),
+            'logo'                               => 'some:logodata:string',
+            'shortUrl'                           => 'myShortUrl',
+            'publicParticipationPhaseDefinition' => $this->fixtures->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION),
+            'procedureType'                      => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
         ];
 
         $resultProcedure = $this->sut->addProcedureEntity($procedure, $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY)->getId());
@@ -589,8 +584,12 @@ class ProcedureServiceTest extends FunctionalTestCase
         $resultTags = $resultProcedure->getTags()->getValues();
         static::assertCount($tags->count(), $resultTags);
 
-        static::assertEquals($topics->getValues(), $resultTopics);
-        static::assertEquals($tags->getValues(), $resultTags);
+        // The copy creates new Tag/TagTopic entities bound to the new procedure, so compare
+        // by title rather than object identity.
+        $titles = static fn (array $entities): array => collect($entities)
+            ->map(static fn ($entity) => $entity->getTitle())->sort()->values()->all();
+        static::assertSame($titles($topics->getValues()), $titles($resultTopics));
+        static::assertSame($titles($tags->getValues()), $titles($resultTags));
 
         static::assertCount($blueprint->getTags()->count(), $tagsBefore);
         static::assertCount($blueprint->getTopics()->count(), $topicsBefore);
@@ -598,7 +597,7 @@ class ProcedureServiceTest extends FunctionalTestCase
 
     private function checkRelatedNews($procedureId)
     {
-        $news = $this->sut->getDoctrine()->getRepository(News::class)
+        $news = $this->getEntityManager()->getRepository(News::class)
             ->findBy(['pId' => $procedureId]);
 
         $news3 = $this->fixtures->getReference('news3');
@@ -621,7 +620,7 @@ class ProcedureServiceTest extends FunctionalTestCase
 
     private function checkRelatedGis($procedureId)
     {
-        $gis = $this->sut->getDoctrine()->getRepository(GisLayer::class)
+        $gis = $this->getEntityManager()->getRepository(GisLayer::class)
             ->findBy(['procedureId' => $procedureId]);
 
         $gisLayer4 = $this->fixtures->getReference('gisLayer4');
@@ -812,9 +811,6 @@ class ProcedureServiceTest extends FunctionalTestCase
         $procedureId = $procedure->getId();
         static::assertInstanceOf(Procedure::class, $procedure);
 
-        $relatedReports = $this->sut->getDoctrine()
-            ->getRepository(ReportEntry::class)
-            ->findBy(['identifier' => $procedure->getId()]);
         $relatedTopics = $this->getEntries(TagTopic::class, ['procedure' => $procedureId]);
         $relatedTags = $this->getEntries(Tag::class, ['procedure' => $procedureId]);
         $relatedSettings = $this->getEntries(Setting::class, ['procedure' => $procedureId]);
@@ -900,8 +896,7 @@ class ProcedureServiceTest extends FunctionalTestCase
 
         $procedureDeleted = $this->sut->getSingleProcedure($procedureId);
         static::assertIsArray($procedureDeleted);
-        static::assertCount(4, $procedureDeleted);
-        static::assertFalse($procedureDeleted['closed']);
+        static::assertCount(3, $procedureDeleted);
         static::assertFalse($procedureDeleted['deleted']);
         static::assertFalse($procedureDeleted['master']);
         static::assertFalse($procedureDeleted['publicParticipation']);
@@ -972,7 +967,6 @@ class ProcedureServiceTest extends FunctionalTestCase
         $procedureDeleted = $this->sut->getSingleProcedure($procedure['id']);
         static::assertIsArray($procedureDeleted);
         static::assertTrue($procedureDeleted['deleted']);
-        static::assertFalse($procedureDeleted['closed']);
     }
 
     /**
@@ -1000,17 +994,15 @@ class ProcedureServiceTest extends FunctionalTestCase
 
     public function testAddProcedureDataMissing(): void
     {
-        self::markSkippedForCIIntervention();
-
         $procedure = [
-            'copymaster'                => $this->fixtures->getReference('masterBlaupause'),
-            'master'                    => false,
-            'externalName'              => 'testAdded',
-            'name'                      => 'testAdded',
-            'orgaId'                    => $this->testProcedure->getOrgaId(),
-            'orgaName'                  => $this->testProcedure->getOrga()->getName(),
-            'publicParticipationPhase'  => 'configuration',
-            'procedureType'             => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
+            'copymaster'                         => $this->fixtures->getReference('masterBlaupause'),
+            'master'                             => false,
+            'externalName'                       => 'testAdded',
+            'name'                               => 'testAdded',
+            'orgaId'                             => $this->testProcedure->getOrgaId(),
+            'orgaName'                           => $this->testProcedure->getOrga()->getName(),
+            'publicParticipationPhaseDefinition' => $this->fixtures->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION),
+            'procedureType'                      => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
         ];
         $resultProcedure = $this->sut->addProcedureEntity($procedure, $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY)->getId());
         static::assertEquals('testAdded', $resultProcedure->getName());
@@ -1044,8 +1036,6 @@ class ProcedureServiceTest extends FunctionalTestCase
      */
     public function testUpdateProcedureObject(): void
     {
-        self::markSkippedForCIIntervention();
-
         $currentDate = new DateTime();
         $settings = $this->testProcedure->getSettings();
         $settings
@@ -1067,8 +1057,6 @@ class ProcedureServiceTest extends FunctionalTestCase
         $procedureToUpdate
             ->setName('Ein neues Testverfahren 1')
             ->setDesc('')
-            ->setPhase('participation')
-            ->setClosed(false)
             ->setStartDate($currentDate)
             ->setEndDate($currentDate)
             ->setExternalName('Ein neues Testverfahren')
@@ -1080,12 +1068,13 @@ Email:'
             )
             ->setLocationName('Ammersbek')
             ->setLocationPostCode('k.A.')
-            ->setPublicParticipationPhase('earlyparticipation')
-            ->setPublicParticipationPhase(true)
+            ->setPublicParticipation(true)
             ->setPublicParticipationStartDate($currentDate)
             ->setPublicParticipationEndDate($currentDate)
             ->setMunicipalCode('01062')
             ->setSettings($settings);
+        $procedureToUpdate->getPhaseObject()->setPhaseDefinition($this->fixtures->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION));
+        $procedureToUpdate->getPublicParticipationPhaseObject()->setPhaseDefinition($this->fixtures->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_EARLY_PARTICIPATION_PHASE_DEFINITION));
 
         $procedure = $this->sut->updateProcedureObject($procedureToUpdate);
         static::assertIsString($procedure->getOrgaId());
@@ -1111,7 +1100,7 @@ Email:'
             'ident'                        => $this->testProcedure->getId(),
             'name'                         => 'Ein neues Testverfahren 1',
             'desc'                         => '',
-            'phase'                        => 'participation',
+            'phaseDefinition'              => $this->fixtures->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION),
             'closed'                       => false,
             'startDate'                    => '05.02.2015',
             'endDate'                      => '26.02.2015',
@@ -1120,13 +1109,13 @@ Email:'
             'publicParticipationContact'   => 'Frau Musterfrau
 Tel.
 Email:',
-            'locationName'                 => 'Ammersbek',
-            'locationPostCode'             => 'k.A.',
-            'publicParticipationPhase'     => 'earlyparticipation',
-            'publicParticipation'          => true,
-            'publicParticipationStartDate' => '',
-            'publicParticipationEndDate'   => '',
-            'settings'                     => [
+            'locationName'                       => 'Ammersbek',
+            'locationPostCode'                   => 'k.A.',
+            'publicParticipationPhaseDefinition' => $this->fixtures->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_EARLY_PARTICIPATION_PHASE_DEFINITION),
+            'publicParticipation'                => true,
+            'publicParticipationStartDate'       => '',
+            'publicParticipationEndDate'         => '',
+            'settings'                           => [
                 'coordinate'   => '577380.68163195,5949764.0961163',
                 'boundingBox'  => '5.3,3.54,5.6,5.6',
                 'emailCc'      => 'a@b.de, b@c.de',
@@ -1197,8 +1186,6 @@ Email:',
 
     public function testUpdateProcedureException(): void
     {
-        self::markSkippedForCIIntervention();
-
         $this->expectException(Exception::class);
 
         // $data['ident'] is missing
@@ -1397,24 +1384,30 @@ Email:',
     {
         self::markSkippedForCIIntervention();
 
+        $phaseDefinition = $this->fixtures->getReference(
+            LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION
+        );
         $this->sut->addInstitutionMail(
             $this->testProcedure->getId(),
             $this->testProcedure->getOrgaId(),
-            'participation'
+            $phaseDefinition
         );
     }
 
     public function testGetInvitableInstitutionMail(): void
     {
+        $phaseDefinition = $this->fixtures->getReference(
+            LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION
+        );
         $this->sut->addInstitutionMail(
             $this->testProcedure->getId(),
             $this->testProcedure->getOrgaId(),
-            'participation'
+            $phaseDefinition
         );
 
         $invitableInstitutionMailList = $this->sut->getInstitutionMailList(
             $this->testProcedure->getId(),
-            'participation'
+            $phaseDefinition
         );
         $this->checkListResultStructure($invitableInstitutionMailList);
         static::assertArrayHasKey('result', $invitableInstitutionMailList);
@@ -1422,43 +1415,32 @@ Email:',
         static::assertArrayHasKey('createdDate', $entry);
         static::assertArrayHasKey('ident', $entry);
         static::assertArrayHasKey('procedure', $entry);
-        static::assertArrayHasKey('procedurePhase', $entry);
     }
 
     public function testGetInvitableInstitutionMailFail(): void
     {
+        $participationPhaseDefinition = $this->fixtures->getReference(
+            LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION
+        );
         $this->sut->addInstitutionMail(
             $this->testProcedure->getId(),
             $this->testProcedure->getOrgaId(),
-            'participation'
+            $participationPhaseDefinition
         );
 
-        $invitableInstitutionMailList = $this->sut->getInstitutionMailList('', 'participation');
+        // Unknown procedure ID returns no results
+        $invitableInstitutionMailList = $this->sut->getInstitutionMailList('', $participationPhaseDefinition);
         $this->checkListResultStructure($invitableInstitutionMailList);
         static::assertArrayHasKey('result', $invitableInstitutionMailList);
         static::assertCount(0, $invitableInstitutionMailList['result']);
 
-        $invitableInstitutionMailList = $this->sut->getInstitutionMailList(null, 'participation');
-        $this->checkListResultStructure($invitableInstitutionMailList);
-        static::assertArrayHasKey('result', $invitableInstitutionMailList);
-        static::assertCount(0, $invitableInstitutionMailList['result']);
-
-        $invitableInstitutionMailList = $this->sut->getInstitutionMailList([], 'participation');
-        $this->checkListResultStructure($invitableInstitutionMailList);
-        static::assertArrayHasKey('result', $invitableInstitutionMailList);
-        static::assertCount(0, $invitableInstitutionMailList['result']);
-
-        $invitableInstitutionMailList = $this->sut->getInstitutionMailList($this->testProcedure->getId(
-        ),
-            ''
+        // Different phase definition returns no results
+        $closedPhaseDefinition = $this->fixtures->getReference(
+            LoadProcedurePhaseDefinitionData::TEST_INTERNAL_CLOSED_PHASE_DEFINITION
         );
-        $this->checkListResultStructure($invitableInstitutionMailList);
-        static::assertArrayHasKey('result', $invitableInstitutionMailList);
-        static::assertCount(0, $invitableInstitutionMailList['result']);
-
-        $invitableInstitutionMailList = $this->sut->getInstitutionMailList($this->testProcedure->getId(
-        ),
-            null
+        $invitableInstitutionMailList = $this->sut->getInstitutionMailList(
+            $this->testProcedure->getId(),
+            $closedPhaseDefinition
         );
         $this->checkListResultStructure($invitableInstitutionMailList);
         static::assertArrayHasKey('result', $invitableInstitutionMailList);
@@ -1730,29 +1712,21 @@ Email:',
     {
         /** @var Procedure $procedure */
         $procedure = $this->fixtures->getReference('testProcedure4');
-        $procedureSettings = $procedure->getSettings();
 
-        $designatedPublicPhase = $procedureSettings->getDesignatedPublicPhase();
-        static::assertNull($designatedPublicPhase);
-
-        $designatedPhase = $procedureSettings->getDesignatedPhase();
-        static::assertNull($designatedPhase);
-
-        static::assertNull($procedureSettings->getDesignatedPublicSwitchDate());
-        static::assertNull($procedureSettings->getDesignatedSwitchDate());
+        static::assertNull($procedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition());
+        static::assertNull($procedure->getPhaseObject()->getDesignatedPhaseDefinition());
+        static::assertNull($procedure->getSettings()->getDesignatedPublicSwitchDate());
+        static::assertNull($procedure->getSettings()->getDesignatedSwitchDate());
 
         $date1 = Carbon::now();
-        $endDate = new DateTime();
-
-        $phase = 'configuration';
         $date1->setDate(1999, 4, 4);
-        $endDate->setDate(1999, 5, 5);
 
-        $procedureData = $this->setAndUpdateAutoSwitchPublic(['id' => $procedure->getId()], $date1, $phase);
+        /** @var ProcedurePhaseDefinition $externalDef */
+        $externalDef = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION);
+        $procedureData = $this->setAndUpdateAutoSwitchPublic(['id' => $procedure->getId()], $date1, $externalDef);
         $updatedProcedure = $this->sut->getProcedure($procedureData['id']);
 
-        $setPhase = $updatedProcedure->getPublicParticipationPhaseObject()->getDesignatedPhase();
-        static::assertSame($setPhase, $updatedProcedure->getSettings()->getDesignatedPublicPhase());
+        $setPhaseDefinition = $updatedProcedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition();
         $setSwitchDate = $updatedProcedure->getPublicParticipationPhaseObject()->getDesignatedSwitchDate();
         static::assertSame($setSwitchDate, $updatedProcedure->getSettings()->getDesignatedPublicSwitchDate());
 
@@ -1761,19 +1735,17 @@ Email:',
         static::assertTrue($date1->isSameDay($setSwitchDate));
         static::assertTrue($date1->isSameHour($setSwitchDate));
         static::assertTrue($date1->isSameSecond($setSwitchDate));
-        static::assertEquals($phase, $setPhase);
+        static::assertSame($externalDef->getId(), $setPhaseDefinition->getId());
 
         $date2 = Carbon::now();
-        $phases = $this->getContainer()->get(GlobalConfigInterface::class)->getInternalPhaseKeys('write');
-        $phase = $phases[0];
         $date2->setDate(1999, 3, 3);
-        $endDate->setDate(1999, 4, 4);
 
-        $updatedProcedure = $this->setAndUpdateAutoSwitch(['id' => $procedure->getId()], $date2, $phase);
+        /** @var ProcedurePhaseDefinition $internalDef */
+        $internalDef = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION);
+        $updatedProcedure = $this->setAndUpdateAutoSwitch(['id' => $procedure->getId()], $date2, $internalDef);
         $updatedProcedure = $this->sut->getProcedure($updatedProcedure['id']);
 
-        $setPhase = $updatedProcedure->getPhaseObject()->getDesignatedPhase();
-        static::assertSame($setPhase, $updatedProcedure->getSettings()->getDesignatedPhase());
+        $setPhaseDefinition = $updatedProcedure->getPhaseObject()->getDesignatedPhaseDefinition();
         $setSwitchDate = $updatedProcedure->getPhaseObject()->getDesignatedSwitchDate();
         static::assertSame($setSwitchDate, $updatedProcedure->getSettings()->getDesignatedSwitchDate());
 
@@ -1782,51 +1754,48 @@ Email:',
         static::assertTrue($date2->isSameDay($setSwitchDate));
         static::assertTrue($date2->isSameHour($setSwitchDate));
         static::assertTrue($date2->isSameSecond($setSwitchDate));
-        static::assertEquals($phase, $setPhase);
+        static::assertSame($internalDef->getId(), $setPhaseDefinition->getId());
 
         $updatedProcedure = $this->setAndUpdateAutoSwitchPublic(['id' => $procedure->getId()], null, null);
         $updatedProcedure = $this->sut->getProcedure($updatedProcedure['id']);
-        $updatedProcedureSettings = $updatedProcedure->getSettings();
         static::assertEquals($procedure, $updatedProcedure);
-        static::assertNull($updatedProcedureSettings->getDesignatedPublicSwitchDate());
-        static::assertNull($updatedProcedureSettings->getDesignatedPublicPhase());
+        static::assertNull($updatedProcedure->getSettings()->getDesignatedPublicSwitchDate());
+        static::assertNull($updatedProcedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition());
         static::assertFalse($this->sut->isAutoSwitchOfPublicPhasePossible($updatedProcedure));
 
         $updatedProcedure = $this->setAndUpdateAutoSwitch(['id' => $procedure->getId()], null, null);
         $updatedProcedure = $this->sut->getProcedure($updatedProcedure['id']);
-        $updatedProcedureSettings = $updatedProcedure->getSettings();
         static::assertEquals($procedure, $updatedProcedure);
-        static::assertNull($updatedProcedureSettings->getDesignatedSwitchDate());
-        static::assertNull($updatedProcedureSettings->getDesignatedPhase());
+        static::assertNull($updatedProcedure->getSettings()->getDesignatedSwitchDate());
+        static::assertNull($updatedProcedure->getPhaseObject()->getDesignatedPhaseDefinition());
         static::assertFalse($this->sut->isAutoSwitchOfPhasePossible($updatedProcedure));
     }
 
     public function testReportEntryOnSetAutoSwitch(): void
     {
         $procedure = $this->getProcedureReference('testProcedure4');
-        $procedureSettings = $procedure->getSettings();
 
-        $designatedPublicPhase = $procedureSettings->getDesignatedPublicPhase();
-        static::assertNull($designatedPublicPhase);
-        static::assertNull($procedureSettings->getDesignatedPhase());
-        static::assertNull($procedureSettings->getDesignatedPublicSwitchDate());
-        static::assertNull($procedureSettings->getDesignatedSwitchDate());
+        static::assertNull($procedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition());
+        static::assertNull($procedure->getPhaseObject()->getDesignatedPhaseDefinition());
+        static::assertNull($procedure->getSettings()->getDesignatedPublicSwitchDate());
+        static::assertNull($procedure->getSettings()->getDesignatedSwitchDate());
 
-        $phase = 'configuration';
+        /** @var ProcedurePhaseDefinition $externalDef */
+        $externalDef = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION);
         $date4 = Carbon::create(new DateTime());
         $date4->setDate(2029, 9, 9);
 
-        static::assertNotEquals($procedure->getPublicParticipationPhaseObject()->getDesignatedPhase(), $phase);
+        static::assertNull($procedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition());
 
         $updatedProcedureArray = $this->setAndUpdateAutoSwitchPublic(
             ['id' => $procedure->getId()],
             $date4->toDateTime(),
-            $phase
+            $externalDef
         );
         $updatedProcedure = $this->sut->getProcedure($updatedProcedureArray['id']);
 
         static::assertEquals($procedure, $updatedProcedure);
-        static::assertEquals($phase, $updatedProcedure->getSettings()->getDesignatedPublicPhase());
+        static::assertSame($externalDef->getId(), $updatedProcedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition()->getId());
 
         static::assertTrue($date4->isSameYear($updatedProcedure->getSettings()->getDesignatedPublicSwitchDate()));
         static::assertTrue($date4->isSameMonth($updatedProcedure->getSettings()->getDesignatedPublicSwitchDate()));
@@ -1834,7 +1803,7 @@ Email:',
         static::assertTrue($date4->isSameHour($updatedProcedure->getSettings()->getDesignatedPublicSwitchDate()));
         static::assertTrue($date4->isSameSecond($updatedProcedure->getSettings()->getDesignatedPublicSwitchDate()));
 
-        static::assertEquals($updatedProcedure->getPublicParticipationPhaseObject()->getDesignatedPhase(), $phase);
+        static::assertSame($externalDef->getId(), $updatedProcedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition()->getId());
 
         /** @var ReportEntry[] $entries */
         $entries = $this->getEntries(
@@ -1859,70 +1828,32 @@ Email:',
         static::assertTrue($date4->isSameSecond($loggedDate));
     }
 
-    public function testSetPublicAutoSwitchInvalidPhase(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        /** @var Procedure $procedure */
-        $procedure = $this->fixtures->getReference('testProcedure4');
-
-        static::assertNull($procedure->getPublicParticipationPhaseObject()->getDesignatedPhase());
-        static::assertNull($procedure->getPublicParticipationPhaseObject()->getDesignatedSwitchDate());
-
-        $invalidPhase = 'blalbllbalab';
-        $validDate = new DateTime();
-        $validDate->setDate(1999, 4, 4);
-        $validEndDate = new DateTime();
-        $validEndDate->setDate(1999, 5, 5);
-        $this->setAndUpdateAutoSwitch(['id' => $procedure->getId()], $validDate, $invalidPhase);
-    }
-
-    public function testSetAutoSwitchInvalidPhase(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        /** @var Procedure $procedure */
-        $procedure = $this->fixtures->getReference('testProcedure4');
-
-        static::assertNull($procedure->getPhaseObject()->getDesignatedPhase());
-        static::assertNull($procedure->getPhaseObject()->getDesignatedSwitchDate());
-
-        $invalidPhase = 'blalbllbalab';
-        $validDate = new DateTime();
-        $validDate->setDate(1999, 4, 4);
-        $validEndDate = new DateTime();
-        $validEndDate->setDate(1999, 5, 5);
-        $this->setAndUpdateAutoSwitchPublic(['id' => $procedure->getId()], $validDate, $invalidPhase);
-    }
-
     public function testSetAutoSwitchInvalidDate(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(TypeError::class);
         /** @var Procedure $procedure */
         $procedure = $this->fixtures->getReference('testProcedure4');
 
-        static::assertNull($procedure->getPhaseObject()->getDesignatedPhase());
+        static::assertNull($procedure->getPhaseObject()->getDesignatedPhaseDefinition());
         static::assertNull($procedure->getPhaseObject()->getDesignatedSwitchDate());
 
-        $validPhase = 'configure';
-        $invalidDate = 'someDate';
-        $validEndDate = new DateTime();
-        $validEndDate->setDate(1999, 5, 5);
-        $this->setAndUpdateAutoSwitchPublic(['id' => $procedure->getId()], $invalidDate, $validPhase);
+        /** @var ProcedurePhaseDefinition $validDef */
+        $validDef = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_CONFIGURATION_PHASE_DEFINITION);
+        $this->setAndUpdateAutoSwitch(['id' => $procedure->getId()], 'someDate', $validDef);
     }
 
     public function testSetPublicAutoSwitchInvalidDate(): void
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(TypeError::class);
         /** @var Procedure $procedure */
         $procedure = $this->fixtures->getReference('testProcedure4');
 
-        static::assertNull($procedure->getPublicParticipationPhaseObject()->getDesignatedPhase());
+        static::assertNull($procedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition());
         static::assertNull($procedure->getPublicParticipationPhaseObject()->getDesignatedSwitchDate());
 
-        $validPhase = 'configure';
-        $invalidDate = 'someDate';
-        $validEndDate = new DateTime();
-        $validEndDate->setDate(1999, 5, 5);
-        $this->setAndUpdateAutoSwitchPublic(['id' => $procedure->getId()], $validPhase, $invalidDate, $validEndDate, $this->mockSession);
+        /** @var ProcedurePhaseDefinition $validDef */
+        $validDef = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION);
+        $this->setAndUpdateAutoSwitchPublic(['id' => $procedure->getId()], 'someDate', $validDef);
     }
 
     public function testIsAutoSwitchPossible(): void
@@ -1947,20 +1878,20 @@ Email:',
         $procedureSettings = $procedure->getSettings();
         static::assertTrue($this->sut->isAutoSwitchOfPublicPhasePossible($procedure));
         static::assertTrue($this->sut->isAutoSwitchOfPhasePossible($procedure));
-        $designatedPhase = $procedureSettings->getDesignatedPhase();
-        $designatedPublicPhase = $procedureSettings->getDesignatedPublicPhase();
+        $designatedPhaseDefinition = $procedure->getPhaseObject()->getDesignatedPhaseDefinition();
+        $designatedPublicPhaseDefinition = $procedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition();
 
         $this->sut->switchToDesignatedPhase($procedure);
         $this->sut->switchToDesignatedPublicPhase($procedure);
 
-        static::assertNull($procedureSettings->getDesignatedPhase());
-        static::assertNull($procedureSettings->getDesignatedPublicPhase());
+        static::assertNull($procedure->getPhaseObject()->getDesignatedPhaseDefinition());
+        static::assertNull($procedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition());
         static::assertFalse($this->sut->isAutoSwitchOfPhasePossible($procedure));
         static::assertFalse($this->sut->isAutoSwitchOfPublicPhasePossible($procedure));
 
         $updatedProcedure = $this->sut->getProcedure($procedure->getId());
-        static::assertEquals($designatedPhase, $updatedProcedure->getPhase());
-        static::assertEquals($designatedPublicPhase, $updatedProcedure->getPublicParticipationPhase());
+        static::assertSame($designatedPhaseDefinition->getId(), $updatedProcedure->getPhaseObject()->getPhaseDefinition()->getId());
+        static::assertSame($designatedPublicPhaseDefinition->getId(), $updatedProcedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getId());
     }
 
     public function testGetProceduresToSwitchOnDay(): void
@@ -2000,8 +1931,12 @@ Email:',
         // reset autoswitch?!
         $procedure = $this->sut->getProcedure($procedure->getId());
 
-        $this->setAndUpdateAutoSwitchPublic(['id' => $procedure->getId()], $autoSwitchPublicDate, 'configuration');
-        $this->setAndUpdateAutoSwitch(['id' => $procedure->getId()], $autoSwitchDate, 'participation');
+        /** @var ProcedurePhaseDefinition $externalDef */
+        $externalDef = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION);
+        /** @var ProcedurePhaseDefinition $internalDef */
+        $internalDef = $this->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_PARTICIPATION_PHASE_DEFINITION);
+        $this->setAndUpdateAutoSwitchPublic(['id' => $procedure->getId()], $autoSwitchPublicDate, $externalDef);
+        $this->setAndUpdateAutoSwitch(['id' => $procedure->getId()], $autoSwitchDate, $internalDef);
 
         $listOfProcedures = $this->sut->getProceduresToSwitchUntilNow();
 
@@ -2018,7 +1953,7 @@ Email:',
         static::assertEquals($autoSwitchPublicDate->minute, $setDesignatedPublicSwitchDate->minute);
         static::assertEquals(10, $setDesignatedPublicSwitchDate->second);
         static::assertEquals($autoSwitchPublicDate->second, $setDesignatedPublicSwitchDate->second);
-        static::assertEquals('configuration', $procedure->getSettings()->getDesignatedPublicPhase());
+        static::assertSame($externalDef->getId(), $procedure->getPublicParticipationPhaseObject()->getDesignatedPhaseDefinition()?->getId());
 
         static::assertEquals($autoSwitchDate->toDateTime(), $procedure->getSettings()->getDesignatedSwitchDate());
         $setDesignatedSwitchDate = new Carbon($procedure->getSettings()->getDesignatedSwitchDate());
@@ -2029,7 +1964,7 @@ Email:',
         static::assertEquals(45, $setDesignatedSwitchDate->second);
         static::assertEquals($autoSwitchDate->second, $setDesignatedSwitchDate->second);
 
-        static::assertEquals('participation', $procedure->getSettings()->getDesignatedPhase());
+        static::assertSame($internalDef->getId(), $procedure->getPhaseObject()->getDesignatedPhaseDefinition()?->getId());
     }
 
     /**
@@ -2090,8 +2025,6 @@ Email:',
      */
     public function testCopyGisLayerCategoriesOnCreateProcedure(): void
     {
-        self::markSkippedForCIIntervention();
-
         /** @var Procedure $procedureMaster */
         $procedureMaster2 = $this->fixtures->getReference('masterBlaupause2');
         $numberOfGisLayerCategoriesBefore = $this->countEntries(GisLayerCategory::class);
@@ -2117,17 +2050,18 @@ Email:',
             );
 
         $procedureData = [
-            'copymaster'   => $procedureMaster2,
-            'desc'         => '',
-            'startDate'    => '01.02.2012',
-            'endDate'      => '01.02.2012',
-            'externalName' => 'testAdded',
-            'name'         => 'testAdded',
-            'master'       => false,
-            'orgaId'       => $this->testProcedure->getOrgaId(),
-            'orgaName'     => $this->testProcedure->getOrga()->getName(),
-            'logo'         => 'some:logodata:string',
-            'shortUrl'     => 'myShortUrl',
+            'copymaster'    => $procedureMaster2,
+            'desc'          => '',
+            'startDate'     => '01.02.2012',
+            'endDate'       => '01.02.2012',
+            'externalName'  => 'testAdded',
+            'name'          => 'testAdded',
+            'master'        => false,
+            'procedureType' => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
+            'orgaId'        => $this->testProcedure->getOrgaId(),
+            'orgaName'      => $this->testProcedure->getOrga()->getName(),
+            'logo'          => 'some:logodata:string',
+            'shortUrl'      => 'myShortUrl',
         ];
 
         // on addProcedure() GisLayer and GisLayerCategories will be copied
@@ -2250,8 +2184,6 @@ Email:',
 
     public function testCopyGisLayerVisibilityGroupOnAddProcedure(): void
     {
-        self::markSkippedForCIIntervention();
-
         /** @var Procedure $testProcedure2 */
         $testProcedure2 = $this->fixtures->getReference('testProcedure2');
         /** @var GisLayer $invisibleGisLayer1 */
@@ -2285,17 +2217,18 @@ Email:',
         static::assertEquals(4, $gisLayersWithVisibilityGroup);
 
         $procedureData = [
-            'copymaster'   => $testProcedure2,
-            'desc'         => 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzz',
-            'startDate'    => '01.02.2012',
-            'endDate'      => '01.02.2012',
-            'externalName' => 'testAdded',
-            'name'         => 'zzzzzzzzzzzzzzzzzzzzzzzzzzz',
-            'master'       => false,
-            'orgaId'       => $this->testProcedure->getOrgaId(),
-            'orgaName'     => $this->testProcedure->getOrga()->getName(),
-            'logo'         => 'some:logodata:string',
-            'shortUrl'     => 'myShortUrl',
+            'copymaster'    => $testProcedure2,
+            'desc'          => 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzz',
+            'startDate'     => '01.02.2012',
+            'endDate'       => '01.02.2012',
+            'externalName'  => 'testAdded',
+            'name'          => 'zzzzzzzzzzzzzzzzzzzzzzzzzzz',
+            'master'        => false,
+            'procedureType' => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
+            'orgaId'        => $this->testProcedure->getOrgaId(),
+            'orgaName'      => $this->testProcedure->getOrga()->getName(),
+            'logo'          => 'some:logodata:string',
+            'shortUrl'      => 'myShortUrl',
         ];
 
         // on addProcedure() GisLayer and GisLayerCategories will be copied
@@ -2479,8 +2412,6 @@ Email:',
 
     public function testSetAuthorizedUserOfOrganisationOnCreateProcedureFromMaster(): void
     {
-        self::markSkippedForCIIntervention();
-
         /** @var Procedure $procedureMaster */
         $procedureMaster = $this->fixtures->getReference('masterBlaupause');
         /** @var User $testUser */
@@ -2495,30 +2426,16 @@ Email:',
         static::assertContains($testUser, $procedureMaster->getAuthorizedUsers());
         static::assertContains($testUser2, $procedureMaster->getAuthorizedUsers());
 
-        $procedure = [
-            'copymaster'   => $procedureMaster,
-            'desc'         => '',
-            'startDate'    => '01.02.2018',
-            'endDate'      => '01.02.2019',
-            'externalName' => 'test',
-            'name'         => 'testSetAuthorizedUserOnCreateProcedureWithMaster',
-            'master'       => false,
-            'orgaId'       => $this->testProcedure->getOrgaId(),
-            'orgaName'     => $this->testProcedure->getOrga()->getName(),
-            'logo'         => 'some:logodata:string',
-            'shortUrl'     => 'myShortUrl',
-        ];
+        $procedure = $this->blueprintProcedureCreationData($procedureMaster);
 
         $createdProcedure = $this->sut->addProcedureEntity($procedure, $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY)->getId());
 
-        // T15644:
-        // overwrite authorized users in case of used blueprint is a master-blueprint,
-        // to avoid authorizing creators of masterblueprint to this new procedure:
-        static::assertCount(count($testUser->getOrga()->getUsers()), $createdProcedure->getAuthorizedUsers());
-
-        foreach ($testUser->getOrga()->getUsers() as $orgaUser) {
-            static::assertContains($orgaUser, $createdProcedure->getAuthorizedUsers());
-        }
+        // T15644 / T23583:
+        // The blueprint is a master template, so its authorized users must NOT be carried
+        // over to the new procedure - only the creating user is authorized.
+        static::assertCount(1, $createdProcedure->getAuthorizedUsers());
+        static::assertContains($testUser, $createdProcedure->getAuthorizedUsers());
+        static::assertNotContains($testUser2, $createdProcedure->getAuthorizedUsers());
     }
 
     /**
@@ -2529,35 +2446,7 @@ Email:',
      */
     public function testMinimumUserOnCreateProcedure(): void
     {
-        self::markSkippedForCIIntervention();
-
-        /** @var Procedure $procedureMaster */
-        $procedureMaster = $this->fixtures->getReference('masterBlaupause');
-        /** @var User $testUser */
-        $testUser = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-
-        $procedureMaster->setAuthorizedUsers([]);
-        $this->sut->updateProcedureObject($procedureMaster);
-        $procedureMaster = $this->sut->getProcedure($procedureMaster->getId());
-        static::assertCount(0, $procedureMaster->getAuthorizedUsers());
-
-        $procedure = [
-            'copymaster'   => $procedureMaster,
-            'desc'         => '',
-            'startDate'    => '01.02.2018',
-            'endDate'      => '01.02.2019',
-            'externalName' => 'test',
-            'name'         => 'testSetAuthorizedUserOnCreateProcedureWithMaster',
-            'master'       => false,
-            'orgaId'       => $this->testProcedure->getOrgaId(),
-            'orgaName'     => $this->testProcedure->getOrga()->getName(),
-            'logo'         => 'some:logodata:string',
-            'shortUrl'     => 'myShortUrl',
-        ];
-
-        $createdProcedure = $this->sut->addProcedureEntity($procedure, $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY)->getId());
-        static::assertCount(1, $createdProcedure->getAuthorizedUsers());
-        static::assertContains($testUser, $createdProcedure->getAuthorizedUsers());
+        $this->assertCreatingUserIsSoleAuthorizedUser();
     }
 
     /**
@@ -2568,41 +2457,11 @@ Email:',
      */
     public function testSetAuthorizedUsersOfBlueprintOnCreateProcedure(): void
     {
-        self::markSkippedForCIIntervention();
-
-        /** @var Procedure $procedureMaster */
-        $procedureMaster = $this->fixtures->getReference('masterBlaupause');
-        /** @var User $testUser */
-        $testUser = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-
-        $procedureMaster->setAuthorizedUsers([]);
-        $this->sut->updateProcedureObject($procedureMaster);
-        $procedureMaster = $this->sut->getProcedure($procedureMaster->getId());
-        static::assertCount(0, $procedureMaster->getAuthorizedUsers());
-
-        $procedure = [
-            'copymaster'   => $procedureMaster,
-            'desc'         => '',
-            'startDate'    => '01.02.2018',
-            'endDate'      => '01.02.2019',
-            'externalName' => 'test',
-            'name'         => 'testSetAuthorizedUserOnCreateProcedureWithMaster',
-            'master'       => false,
-            'orgaId'       => $this->testProcedure->getOrgaId(),
-            'orgaName'     => $this->testProcedure->getOrga()->getName(),
-            'logo'         => 'some:logodata:string',
-            'shortUrl'     => 'myShortUrl',
-        ];
-
-        $createdProcedure = $this->sut->addProcedureEntity($procedure, $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY)->getId());
-        static::assertCount(1, $createdProcedure->getAuthorizedUsers());
-        static::assertContains($testUser, $createdProcedure->getAuthorizedUsers());
+        $this->assertCreatingUserIsSoleAuthorizedUser();
     }
 
     public function testCopyBoilerplatesOnCreateProcedure(): void
     {
-        self::markSkippedForCIIntervention();
-
         /** @var Procedure $blueprintProcedure */
         $blueprintProcedure = $this->fixtures->getReference('testmasterProcedureWithBoilerplates');
         /** @var Boilerplate $newsBoilerplate */
@@ -2653,17 +2512,18 @@ Email:',
         static::assertCount(3, $blueprintBoilerplateCategories);
 
         $procedure = [
-            'copymaster'   => $blueprintProcedure,
-            'desc'         => '',
-            'startDate'    => '01.02.2018',
-            'endDate'      => '01.02.2019',
-            'externalName' => 'test',
-            'name'         => 'testBoilerplatesAndBoilerplateCategories',
-            'master'       => false,
-            'orgaId'       => $this->testProcedure->getOrgaId(),
-            'orgaName'     => $this->testProcedure->getOrga()->getName(),
-            'logo'         => 'some:logodata:string',
-            'shortUrl'     => 'myShortUrl',
+            'copymaster'    => $blueprintProcedure,
+            'desc'          => '',
+            'startDate'     => '01.02.2018',
+            'endDate'       => '01.02.2019',
+            'externalName'  => 'test',
+            'name'          => 'testBoilerplatesAndBoilerplateCategories',
+            'master'        => false,
+            'procedureType' => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
+            'orgaId'        => $this->testProcedure->getOrgaId(),
+            'orgaName'      => $this->testProcedure->getOrga()->getName(),
+            'logo'          => 'some:logodata:string',
+            'shortUrl'      => 'myShortUrl',
         ];
 
         $newProcedure = $this->sut->addProcedureEntity($procedure, $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY)->getId());
@@ -2903,11 +2763,58 @@ Email:',
         static::assertEquals($exprectedBoilerplates, $boilerplates);
     }
 
+    /**
+     * Create a new + fresh testing procedure based on the given blueprint.
+     */
+    private function createProcedureFromBlueprint(Procedure $blueprint, string $name, string $shortUrl): Procedure
+    {
+        $procedureData = [
+            'copymaster'   => $blueprint->getId(),
+            'desc'         => '',
+            'startDate'    => '01.02.2012',
+            'endDate'      => '01.02.2012',
+            'externalName' => $name,
+            'name'         => $name,
+            'master'       => false,
+            'orgaId'       => $this->testProcedure->getOrgaId(),
+            'orgaName'     => $this->testProcedure->getOrga()->getName(),
+            'logo'         => 'some:logodata:string',
+            'shortUrl'     => $shortUrl,
+            'customer'     => $this->getCustomerReference(LoadCustomerData::DEMOS),
+        ];
+
+        return $this->getEntityManager()->getRepository(Procedure::class)->add($procedureData);
+    }
+
+    public function testCopyBoilerplatesSetsVerified(): void
+    {
+        /** @var Procedure $blueprintWithBoilerplates */
+        $blueprintWithBoilerplates = $this->getReference('testmasterProcedureWithBoilerplates');
+
+        $newProcedure = $this->createProcedureFromBlueprint($blueprintWithBoilerplates, 'testVerified', 'myShortUrlVerified');
+
+        $this->sut->copyBoilerplates($blueprintWithBoilerplates->getId(), $newProcedure);
+
+        // copied boilerplates are marked as verified
+        /** @var Boilerplate[] $newBoilerplates */
+        $newBoilerplates = $this->getEntries(Boilerplate::class, ['procedure' => $newProcedure->getId()]);
+        static::assertNotEmpty($newBoilerplates);
+        foreach ($newBoilerplates as $newBoilerplate) {
+            static::assertTrue($newBoilerplate->isVerified());
+        }
+
+        // boilerplates of the blueprint itself remain untouched
+        /** @var Boilerplate[] $sourceBoilerplates */
+        $sourceBoilerplates = $this->getEntries(Boilerplate::class, ['procedure' => $blueprintWithBoilerplates->getId()]);
+        static::assertNotEmpty($sourceBoilerplates);
+        foreach ($sourceBoilerplates as $sourceBoilerplate) {
+            static::assertFalse($sourceBoilerplate->isVerified());
+        }
+    }
+
     public function testCopyBoilerplatesWithReference(): void
     {
-        self::markSkippedForCIIntervention();
-
-        /** @var Procedure $blueprintWit$blueprinthBoilerplates */
+        /** @var Procedure $blueprintWithBoilerplates */
         $blueprintWithBoilerplates = $this->getReference('testmasterProcedureWithBoilerplates');
 
         $sourceBoilerplates = $this->getEntries(Boilerplate::class, ['procedure' => $blueprintWithBoilerplates->getId()]);
@@ -2926,23 +2833,7 @@ Email:',
         $numberOfAllCategoriesBefore = $this->countEntries(BoilerplateCategory::class);
         $numberOfAllGroupesBefore = $this->countEntries(BoilerplateGroup::class);
 
-        // create new + fresh testing procedure
-        $procedureData = [
-            'copymaster'   => $blueprintWithBoilerplates->getId(),
-            'desc'         => '',
-            'startDate'    => '01.02.2012',
-            'endDate'      => '01.02.2012',
-            'externalName' => 'testAdded',
-            'name'         => 'testAdded',
-            'master'       => false,
-            'orgaId'       => $this->testProcedure->getOrgaId(),
-            'orgaName'     => $this->testProcedure->getOrga()->getName(),
-            'logo'         => 'some:logodata:string',
-            'shortUrl'     => 'myShortUrl',
-            'customer'     => $this->getCustomerReference(LoadCustomerData::DEMOS),
-        ];
-        $procedureRepository = $this->sut->getPublicProcedureRepository();
-        $newProcedure = $procedureRepository->add($procedureData);
+        $newProcedure = $this->createProcedureFromBlueprint($blueprintWithBoilerplates, 'testAdded', 'myShortUrl');
         $newProcedureId = $newProcedure->getId();
         $sourceProcedure = $blueprintWithBoilerplates;
 
@@ -3129,8 +3020,6 @@ Email:',
      */
     public function testEmailTitleOfMasterBlueprintOnAddProcedureEntity(): void
     {
-        self::markSkippedForCIIntervention();
-
         /** @var User $user */
         $user = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
         $copyMasterId = $this->sut->calculateCopyMasterId(null);
@@ -3139,13 +3028,13 @@ Email:',
         $emailTitleOfMasterBlueprintBefore = $copyMaster->getSettings()->getEmailTitle();
 
         $procedureData = [
-            'name'                     => 'newName',
-            'desc'                     => 'new description',
-            'copymaster'               => $copyMaster,
-            'settings'                 => ['emailTitle' => 'new EmailTitle Of new procedure'],
-            'master'                   => false, // this method only creates procedures (no blueprints)
-            'publicParticipationPhase' => 'configuration',
-            'procedureType'            => $this->getReference(LoadProcedureTypeData::BPLAN),
+            'name'                               => 'newName',
+            'desc'                               => 'new description',
+            'copymaster'                         => $copyMaster,
+            'settings'                           => ['emailTitle' => 'new EmailTitle Of new procedure'],
+            'master'                             => false, // this method only creates procedures (no blueprints)
+            'publicParticipationPhaseDefinition' => $this->fixtures->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION),
+            'procedureType'                      => $this->getReference(LoadProcedureTypeData::BPLAN),
         ];
         static::assertNotEquals($procedureData['settings']['emailTitle'], $copyMaster->getSettings()->getEmailTitle());
         static::assertNotEquals($procedureData['settings']['emailTitle'], $emailTitleOfMasterBlueprintBefore);
@@ -3164,11 +3053,18 @@ Email:',
      */
     public function testProcedureFilesOnCreateProcedure(): void
     {
-        self::markSkippedForCIIntervention();
-
         $templateProcedure = $this->getProcedureReference('masterBlaupause');
         $amountOfFilesBefore = $templateProcedure->getFiles()->count();
         self::assertGreaterThan(0, $amountOfFilesBefore);
+
+        // The fixture writes the blueprint's files to local disk, but in the test
+        // environment default.storage is an in-memory adapter. Seed the files there so
+        // the file copy during procedure creation (which reads from default.storage) works.
+        $defaultStorage = $this->getContainer()->get('default.storage');
+        \assert($defaultStorage instanceof FilesystemOperator);
+        foreach ($templateProcedure->getFiles() as $templateFile) {
+            $defaultStorage->write($templateFile->getFilePathWithHash(), 'test content');
+        }
 
         $newProcedureData = $this->newProcedureData($templateProcedure);
 
@@ -3194,28 +3090,7 @@ Email:',
      */
     public function testElementsOnCreateProcedure(): void
     {
-        self::markSkippedForCIIntervention();
-
-        $templateProcedure = $this->getProcedureReference('masterBlaupause');
-        $amountOfElements = $templateProcedure->getElements()->count();
-        self::assertGreaterThan(0, $amountOfElements);
-
-        $newProcedureData = $this->newProcedureData($templateProcedure);
-
-        $newlyCreatedProcedure = $this->sut->addProcedureEntity($newProcedureData, $this->loginTestUser()->getId());
-
-        self::assertCount($amountOfElements, $templateProcedure->getElements());
-        self::assertCount($amountOfElements, $newlyCreatedProcedure->getElements());
-
-        foreach ($templateProcedure->getElements() as $elementOfTemplateProcedure) {
-            self::assertInstanceOf(Elements::class, $elementOfTemplateProcedure);
-            self::assertSame($elementOfTemplateProcedure->getProcedure()->getId(), $templateProcedure->getId());
-        }
-
-        foreach ($newlyCreatedProcedure->getElements() as $newlyCreatedElement) {
-            self::assertInstanceOf(Elements::class, $newlyCreatedElement);
-            self::assertSame($newlyCreatedElement->getProcedure()->getId(), $newlyCreatedProcedure->getId());
-        }
+        $this->assertElementsCopiedFromBlueprint($this->getProcedureReference('masterBlaupause'));
     }
 
     /**
@@ -3225,8 +3100,6 @@ Email:',
      */
     public function testSingleDocumentsOnCreateProcedure(): void
     {
-        self::markSkippedForCIIntervention();
-
         $templateProcedure = $this->getProcedureReference('masterBlaupause');
         $amountOfSingleDocuments = $this->countEntries(SingleDocument::class, ['procedure' => $templateProcedure]);
         self::assertGreaterThan(0, $amountOfSingleDocuments);
@@ -3270,11 +3143,15 @@ Email:',
      */
     public function testFilesOfSingleDocumentsOnCreateProcedure(): void
     {
-        self::markSkippedForCIIntervention();
-
         $templateProcedure = $this->getProcedureReference('masterBlaupause');
         $singleDocumentFileStrings = $this->getFileStringsOfSingleDocuments($templateProcedure);
         self::assertGreaterThan(0, count($singleDocumentFileStrings));
+
+        // The fixture writes the files to local disk, but in the test environment
+        // default.storage is an in-memory adapter. Seed the files there so the file copy
+        // during procedure creation (which reads from default.storage) can succeed.
+        $defaultStorage = $this->getContainer()->get('default.storage');
+        \assert($defaultStorage instanceof FilesystemOperator);
 
         // check for necessary test-data:
         foreach ($singleDocumentFileStrings as $fileString) {
@@ -3289,6 +3166,7 @@ Email:',
                 $file->getHash()
             );
             self::assertSame($file->getProcedure()->getId(), $templateProcedure->getId());
+            $defaultStorage->write($file->getFilePathWithHash(), 'test content');
         }
 
         // actual test case:
@@ -3331,9 +3209,125 @@ Email:',
      */
     public function testElementsFilesOnCreateProcedure(): void
     {
-        self::markSkippedForCIIntervention();
+        $this->assertElementsCopiedFromBlueprint($this->getProcedureReference('masterBlaupause'));
+    }
 
-        $templateProcedure = $this->getProcedureReference('masterBlaupause');
+    /**
+     * Set designated external phase and designated date of a specific procedure.
+     * Necessary to enable switch of phase of a specific procedure.
+     * A cronjob will switch the external phase of the procedure
+     * to the designatedPhaseDefinition on the given date.
+     *
+     * @param array $procedureUpdateData - procedure, whose external designated phase and designated date will be set
+     */
+    protected function setAndUpdateAutoSwitchPublic(
+        array $procedureUpdateData,
+        ?DateTime $designatedSwitchDate,
+        ?ProcedurePhaseDefinitionInterface $designatedPhaseDefinition,
+    ): array {
+        $procedureUpdateData['settings']['designatedPublicPhaseDefinition'] = $designatedPhaseDefinition;
+        $procedureUpdateData['settings']['designatedPublicSwitchDate'] = $designatedSwitchDate?->format('d.m.Y H:i:s');
+
+        return $this->sut->updateProcedure($procedureUpdateData);
+    }
+
+    /**
+     * Set designated phase and designated date of a specific procedure.
+     * Necessary to enable switch of phase of a specific procedure.
+     * The cronjob will switch the phase of the procedure
+     * to the designatedPhaseDefinition on the given date.
+     *
+     * @param array $procedureData - procedure, whose internal designated phase and designated date will be set
+     */
+    protected function setAndUpdateAutoSwitch(
+        array $procedureData,
+        ?DateTime $designatedSwitchDate,
+        ?ProcedurePhaseDefinitionInterface $designatedPhaseDefinition,
+    ): array {
+        $procedureData['settings']['designatedPhaseDefinition'] = $designatedPhaseDefinition;
+        $procedureData['settings']['designatedSwitchDate'] = $designatedSwitchDate?->format('d.m.Y H:i:s');
+
+        return $this->sut->updateProcedure($procedureData);
+    }
+
+    private function getReferenceProcedureType(string $name): ProcedureType
+    {
+        return $this->fixtures->getReference($name);
+    }
+
+    private function getTestProcedure(): Procedure
+    {
+        return $this->fixtures->getReference('testProcedure');
+    }
+
+    private function newProcedureData(Procedure $templateProcedure): array
+    {
+        return [
+            'copymaster'                         => $templateProcedure->getId(),
+            'desc'                               => '',
+            'startDate'                          => '01.02.2023',
+            'endDate'                            => '01.02.2024',
+            'externalName'                       => 'testAdded',
+            'name'                               => 'testAdded',
+            'master'                             => false,
+            'orgaId'                             => $this->testProcedure->getOrgaId(),
+            'orgaName'                           => $this->testProcedure->getOrga()->getName(),
+            'logo'                               => 'some:logodata:string',
+            'publicParticipationPhaseDefinition' => $this->fixtures->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION),
+            'procedureType'                      => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
+        ];
+    }
+
+    private function blueprintProcedureCreationData(Procedure $procedureMaster): array
+    {
+        return [
+            'copymaster'    => $procedureMaster,
+            'desc'          => '',
+            'startDate'     => '01.02.2018',
+            'endDate'       => '01.02.2019',
+            'externalName'  => 'test',
+            'name'          => 'testSetAuthorizedUserOnCreateProcedureWithMaster',
+            'master'        => false,
+            'procedureType' => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
+            'orgaId'        => $this->testProcedure->getOrgaId(),
+            'orgaName'      => $this->testProcedure->getOrga()->getName(),
+            'logo'          => 'some:logodata:string',
+            'shortUrl'      => 'myShortUrl',
+        ];
+    }
+
+    /**
+     * Creates a procedure from a blueprint that has no authorized users and asserts that the
+     * creating user becomes the sole authorized user of the new procedure.
+     *
+     * @throws Exception
+     */
+    private function assertCreatingUserIsSoleAuthorizedUser(): void
+    {
+        /** @var Procedure $procedureMaster */
+        $procedureMaster = $this->fixtures->getReference('masterBlaupause');
+        /** @var User $testUser */
+        $testUser = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
+
+        $procedureMaster->setAuthorizedUsers([]);
+        $this->sut->updateProcedureObject($procedureMaster);
+        $procedureMaster = $this->sut->getProcedure($procedureMaster->getId());
+        static::assertCount(0, $procedureMaster->getAuthorizedUsers());
+
+        $createdProcedure = $this->sut->addProcedureEntity(
+            $this->blueprintProcedureCreationData($procedureMaster),
+            $testUser->getId()
+        );
+        static::assertCount(1, $createdProcedure->getAuthorizedUsers());
+        static::assertContains($testUser, $createdProcedure->getAuthorizedUsers());
+    }
+
+    /**
+     * Creates a procedure from the given blueprint and asserts that all of its elements are
+     * copied onto the new procedure while remaining on the blueprint, with correct ownership.
+     */
+    private function assertElementsCopiedFromBlueprint(Procedure $templateProcedure): void
+    {
         $amountOfElements = $templateProcedure->getElements()->count();
         self::assertGreaterThan(0, $amountOfElements);
 
@@ -3352,105 +3346,6 @@ Email:',
             self::assertInstanceOf(Elements::class, $newlyCreatedElement);
             self::assertSame($newlyCreatedElement->getProcedure()->getId(), $newlyCreatedProcedure->getId());
         }
-    }
-
-    /**
-     * Set designated external phase and designated date of a specific procedure.
-     * Necessary to enable switch of phase of a specific procedure.
-     * A cronjob will switch the external phase of the procedure
-     * to the designatedPhase on the given date.
-     *
-     * @param array $procedureUpdateData - procedure, whose external designated phase and designated date will be set
-     *
-     * @throws Exception
-     */
-    protected function setAndUpdateAutoSwitchPublic(
-        array $procedureUpdateData,
-        $designatedSwitchDate,
-        ?string $designatedPhase,
-    ): array {
-        try {
-            if ($this->isValidDesignatedPhase($designatedPhase)) {
-                $procedureUpdateData['settings']['designatedPublicPhase'] = $designatedPhase;
-                $procedureUpdateData['settings']['designatedPublicSwitchDate'] = $designatedSwitchDate?->format('d.m.Y H:i:s');
-            } else {
-                throw new InvalidArgumentException('Invalid phasekey: '.$designatedPhase);
-            }
-
-            return $this->sut->updateProcedure($procedureUpdateData);
-        } catch (Exception $e) {
-            throw $e;
-        }
-    }
-
-    /**
-     * Set designated phase and designated date of a specific procedure.
-     * Necessary to enable switch of phase of a specific procedure.
-     * The cronjob will switch the phase of the procedure
-     * to the designatedPhase on the given date.
-     *
-     * @param array $procedureData - procedure, whose internal designated phase and designated date will be set
-     *
-     * @throws Exception
-     */
-    protected function setAndUpdateAutoSwitch(
-        array $procedureData,
-        ?DateTime $designatedSwitchDate,
-        ?string $designatedPhase,
-    ): array {
-        try {
-            if ($this->isValidDesignatedPhase($designatedPhase)) {
-                $procedureData['settings']['designatedPhase'] = $designatedPhase;
-                $procedureData['settings']['designatedSwitchDate'] = $designatedSwitchDate?->format('d.m.Y H:i:s');
-            } else {
-                throw new InvalidArgumentException('Invalid phasekey: '.$designatedPhase);
-            }
-
-            return $this->sut->updateProcedure($procedureData);
-        } catch (Exception $e) {
-            throw $e;
-        }
-    }
-
-    /**
-     * Checks if given string is in procedurephases.yml listed as internalPhases and therefore a "valid" phasekey.
-     * Null is also a "valid" phase as "designatedPhase".
-     *
-     * @param string $phaseName - name of the phase, which will be checked
-     *
-     * @return bool - true if the given $phaseName is null or in the list of internal procedurephases of this project
-     */
-    protected function isValidDesignatedPhase($phaseName)
-    {
-        return in_array($phaseName, $this->globalConfig->getInternalPhaseKeys()) || null === $phaseName;
-    }
-
-    private function getReferenceProcedureType(string $name): ProcedureType
-    {
-        return $this->fixtures->getReference($name);
-    }
-
-    private function getTestProcedure(): Procedure
-    {
-        return $this->fixtures->getReference('testProcedure');
-    }
-
-    private function newProcedureData(Procedure $templateProcedure): array
-    {
-        return [
-            'copymaster'                => $templateProcedure->getId(),
-            'desc'                      => '',
-            'startDate'                 => '01.02.2023',
-            'endDate'                   => '01.02.2024',
-            'externalName'              => 'testAdded',
-            'name'                      => 'testAdded',
-            'master'                    => false,
-            'orgaId'                    => $this->testProcedure->getOrgaId(),
-            'orgaName'                  => $this->testProcedure->getOrga()->getName(),
-            'logo'                      => 'some:logodata:string',
-            'publicParticipationPhase'  => 'configuration',
-            'procedureType'             => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
-        ];
     }
 
     /**
@@ -3631,20 +3526,25 @@ Email:',
 
         $this->sut->addProcedureEntity(
             [
-                'copymaster'               => $deletedBlueprint->getId(),
-                'desc'                     => '',
-                'startDate'                => '01.02.2023',
-                'endDate'                  => '01.02.2024',
-                'externalName'             => 'testAdded',
-                'name'                     => 'testAdded',
-                'master'                   => false,
-                'orgaId'                   => $currentUser->getOrganisationId(),
-                'orgaName'                 => $currentUser->getOrgaName(),
-                'logo'                     => 'some:logodata:string',
-                'publicParticipationPhase' => 'configuration',
-                'procedureType'            => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
+                'copymaster'                         => $deletedBlueprint->getId(),
+                'desc'                               => '',
+                'startDate'                          => '01.02.2023',
+                'endDate'                            => '01.02.2024',
+                'externalName'                       => 'testAdded',
+                'name'                               => 'testAdded',
+                'master'                             => false,
+                'orgaId'                             => $currentUser->getOrganisationId(),
+                'orgaName'                           => $currentUser->getOrgaName(),
+                'logo'                               => 'some:logodata:string',
+                'publicParticipationPhaseDefinition' => $this->fixtures->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION),
+                'procedureType'                      => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
             ],
             $currentUser->getId()
         );
+    }
+
+    private function isClosedPhase(ProcedurePhaseDefinition $definition): bool
+    {
+        return $definition->isClosingPhase();
     }
 }

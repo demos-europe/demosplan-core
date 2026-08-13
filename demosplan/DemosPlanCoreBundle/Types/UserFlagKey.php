@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -14,6 +16,7 @@ enum UserFlagKey: string
 {
     case ASSIGNED_TASK_NOTIFICATION = 'assignedTaskNotification';
     case DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED = 'draftStatementSubmissionReminderEnabled';
+    case SEGMENT_DEADLINE_REMINDER_ENABLED = 'segmentDeadlineReminderEnabled';
     case NO_USER_TRACKING = 'noPiwik';
     case SUBSCRIBED_TO_NEWSLETTER = 'newsletter';
     case WANTS_FORUM_NOTIFICATIONS = 'forumNotification';

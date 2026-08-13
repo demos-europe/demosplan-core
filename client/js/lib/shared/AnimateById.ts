@@ -16,11 +16,14 @@ import { getAnimationEventName } from '@demos-europe/demosplan-ui'
 const Animate = (): void => {
   if (globalThis.location.hash) {
     const element = document.getElementById(globalThis.location.hash.slice(1))
+
     if (element) {
       element.classList.add('run-animate')
       const animationendEvent = getAnimationEventName()
+
       element.addEventListener(animationendEvent, function callback (event: Event) {
         const target = event.currentTarget as HTMLElement
+
         target.classList.remove('run-animate')
         target.removeEventListener(event.type, callback)
       })

@@ -128,7 +128,7 @@ class ServiceStorage implements MapServiceStorageInterface
         if ($isOaf && array_key_exists('r_url', $data)) {
             $oafUrlFormatError = $this->validateOafUrlFormat($data);
 
-            if (!empty($oafUrlFormatError)) {
+            if ([] !== $oafUrlFormatError) {
                 $mandatoryErrors[] = $oafUrlFormatError;
             }
         }
@@ -138,7 +138,7 @@ class ServiceStorage implements MapServiceStorageInterface
             && in_array(strtolower(trim((string) $data['r_serviceType'])), ['wms', 'wmts'], true);
         if ($isWmsOrWmts && array_key_exists('r_url', $data)) {
             $wmsWmtsUrFormatError = $this->validateWmsWmtsUrlFormat($data);
-            if (!empty($wmsWmtsUrFormatError)) {
+            if ([] !== $wmsWmtsUrFormatError) {
                 $mandatoryErrors[] = $wmsWmtsUrFormatError;
             }
         }
@@ -194,7 +194,7 @@ class ServiceStorage implements MapServiceStorageInterface
         // Wenn die Defaultlayer genutzt werden sollen, speichere sie als Layer ab
         if (array_key_exists('r_xplanDefaultlayers', $data) && '1' == $data['r_xplanDefaultlayers']) {
             // Wenn eigene Layer angegeben wurden, trenne sie mit Komma von den Standardlayern
-            if (0 < strlen((string) $gislayer['layers'])) {
+            if ('' !== (string) $gislayer['layers']) {
                 $gislayer['layers'] .= ',';
             }
             $gislayer['layers'] .= $this->globalConfig->getMapXplanDefaultlayers();
@@ -362,7 +362,7 @@ class ServiceStorage implements MapServiceStorageInterface
         if (!$isGlobalLayer && $isOaf && array_key_exists('r_url', $data)) {
             $oafUrlFormatError = $this->validateOafUrlFormat($data);
 
-            if (!empty($oafUrlFormatError)) {
+            if ([] !== $oafUrlFormatError) {
                 $mandatoryErrors[] = $oafUrlFormatError;
             }
         }
@@ -372,7 +372,7 @@ class ServiceStorage implements MapServiceStorageInterface
             && in_array(strtolower(trim((string) $data['r_serviceType'])), ['wms', 'wmts'], true);
         if (!$isGlobalLayer && $isWmsOrWmts && array_key_exists('r_url', $data)) {
             $wmsWmtsUrFormatError = $this->validateWmsWmtsUrlFormat($data);
-            if (!empty($wmsWmtsUrFormatError)) {
+            if ([] !== $wmsWmtsUrFormatError) {
                 $mandatoryErrors[] = $wmsWmtsUrFormatError;
             }
         }

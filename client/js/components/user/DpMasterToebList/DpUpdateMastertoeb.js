@@ -26,12 +26,14 @@ export default {
 
   render: function (h, ctx) {
     let out
+
     if (ctx.props.isEditing) {
       out = h('textarea', [ctx.props.value])
     } else {
       // This renders a text node. It uses VUE's internal API. Rendering any html element would lead to excessive DOM size
       out = String(ctx.props.value)
     }
+
     return out
   },
 }

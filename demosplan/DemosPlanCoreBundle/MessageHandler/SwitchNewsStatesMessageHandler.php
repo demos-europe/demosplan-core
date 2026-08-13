@@ -38,7 +38,7 @@ final class SwitchNewsStatesMessageHandler
         $this->initializeAnonymousUserPermissions();
 
         try {
-            $this->logger->info('Maintenance: switchStatesOfNewsOfToday', [spl_object_id($message)]);
+            $this->logger->debug('Maintenance: switchStatesOfNewsOfToday', [spl_object_id($message)]);
             $this->setStateOfNewsOfToday();
         } catch (Exception $e) {
             $this->logger->error('Daily maintenance task failed for: switching of news state.', [$e]);

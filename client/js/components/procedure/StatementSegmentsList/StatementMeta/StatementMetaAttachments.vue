@@ -246,6 +246,15 @@ export default {
     }
   },
 
+  computed: {
+    hasUnsavedChanges () {
+      return this.fileIds.length > 0 ||
+        this.genericAttachmentsMarkedForDeletion.length > 0 ||
+        this.isSourceAttachmentMarkedForDeletion ||
+        this.fileIdSourceAttachment !== ''
+    },
+  },
+
   watch: {
     editable: {
       handler (newVal) {
@@ -434,6 +443,7 @@ export default {
 
     markGenericAttachmentForDeletion (id) {
       const genericAttachmentToBeDeleted = { ...this.localAttachments.additionalAttachments.find(attachment => attachment.id === id) }
+
       this.genericAttachmentsMarkedForDeletion.push(genericAttachmentToBeDeleted)
     },
 
@@ -497,7 +507,7 @@ export default {
         })
       }
 
-      Promise.allSettled(promises)
+      return Promise.allSettled(promises)
         .then(() => {
           if (this.genericAttachmentsMarkedForDeletion.length > 0) {
             this.genericAttachmentsMarkedForDeletion = []

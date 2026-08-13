@@ -24,7 +24,7 @@
     <dp-label
       :text="Translator.trans('topic')"
       for="newTagTopic"
-      class="u-mt-0_25"
+      class="mt-2 mb-0.5"
       required
     />
     <!-- topic select -->
@@ -72,7 +72,7 @@
       alignment="left"
       primary
       secondary
-      variant="outline"
+      primary-btn-variant="outline"
       @primary-action="dpValidateAction('createTag', save, false)"
       @secondary-action="closeForm"
     />
@@ -231,6 +231,7 @@ export default {
      */
     handleError () {
       let hasError = false
+
       if (this.tagExists) {
         hasError = true
         this.$refs.tagInput.$el.classList.add('border--error')
@@ -256,6 +257,7 @@ export default {
       if (this.tagTopic.title === '' && this.showSelect) {
         hasError = true
         const activeInput = this.$refs.tagTopicSelect
+
         activeInput.$el.classList.add('border--error')
         activeInput.$el.addEventListener('input', () => {
           if (this.tagTopic.title !== '') {
@@ -297,7 +299,9 @@ export default {
     },
 
     save () {
-      if (this.handleError()) return
+      if (this.handleError()) {
+        return
+      }
 
       const isNewTopic = this.tagTopic.id === ''
 

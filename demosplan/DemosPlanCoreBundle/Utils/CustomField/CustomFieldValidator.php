@@ -16,6 +16,8 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Constraint\ProcedureWithStatementsCustomFieldConstraint;
 use Doctrine\ORM\EntityManagerInterface;
@@ -24,6 +26,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 abstract class CustomFieldValidator implements FieldTypeValidatorInterface
 {
     protected const COMMON_CLASS_NAME_TO_CLASS_PATH_MAP = [
+        'CUSTOMER'           => Customer::class,
+        'ORGA'               => Orga::class,
         'PROCEDURE'          => Procedure::class,
         'PROCEDURE_TEMPLATE' => Procedure::class,
         'SEGMENT'            => Segment::class,
@@ -80,8 +84,15 @@ abstract class CustomFieldValidator implements FieldTypeValidatorInterface
     private function validateSourceToTargetMapping(?string $sourceEntity, ?string $targetEntity): void
     {
         $sourceToTargetMap = $this->getSourceToTargetMapping();
-        if ($sourceToTargetMap[$sourceEntity] !== $targetEntity) {
-            throw new InvalidArgumentException(sprintf('The target entity "%s" does not match the expected target entity "%s" for source entity "%s".', $targetEntity, $sourceToTargetMap[$sourceEntity], $sourceEntity));
+
+        if (null === $sourceEntity || !array_key_exists($sourceEntity, $sourceToTargetMap)) {
+            throw new InvalidArgumentException(sprintf('No mapping defined for source entity "%s".', $sourceEntity));
+        }
+
+        $allowedTargets = $sourceToTargetMap[$sourceEntity];
+
+        if (!in_array($targetEntity, $allowedTargets, true)) {
+            throw new InvalidArgumentException(sprintf('The target entity "%s" is not valid for source entity "%s". Allowed targets: %s.', $targetEntity, $sourceEntity, implode(', ', $allowedTargets)));
         }
     }
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -13,15 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\ValueObject;
 use DemosEurope\DemosplanAddon\Contracts\ValueObject\FileInfoInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 
-/**
- * @method string         getHash()
- * @method string         getFileName()
- * @method int            getFileSize()
- * @method string         getContentType()
- * @method string         getPath()
- * @method string         getAbsolutePath()
- * @method Procedure|null getProcedure()
- */
 class FileInfo extends ValueObject implements FileInfoInterface
 {
     /**
@@ -66,7 +59,7 @@ class FileInfo extends ValueObject implements FileInfoInterface
         string $contentType,
         string $path,
         string $absolutePath,
-        ?Procedure $procedure
+        ?Procedure $procedure,
     ) {
         $this->hash = $hash;
         $this->fileName = $fileName;
@@ -77,5 +70,40 @@ class FileInfo extends ValueObject implements FileInfoInterface
         $this->procedure = $procedure;
 
         $this->lock();
+    }
+
+    public function getHash(): string
+    {
+        return $this->getProperty('hash');
+    }
+
+    public function getFileName(): string
+    {
+        return $this->getProperty('fileName');
+    }
+
+    public function getFileSize(): int
+    {
+        return $this->getProperty('fileSize');
+    }
+
+    public function getContentType(): string
+    {
+        return $this->getProperty('contentType');
+    }
+
+    public function getPath(): string
+    {
+        return $this->getProperty('path');
+    }
+
+    public function getAbsolutePath(): string
+    {
+        return $this->getProperty('absolutePath');
+    }
+
+    public function getProcedure(): ?Procedure
+    {
+        return $this->getProperty('procedure');
     }
 }

@@ -70,7 +70,20 @@ class OwnsProcedureConditionFactory
             $user = $this->userOrProcedure;
             $organisationId = $user->getOrganisationId();
 
-            return $this->conditionFactory->propertyHasStringAsMember($organisationId, ['planningOffices']);
+            if (null === $organisationId) {
+                return $this->conditionFactory->false();
+            }
+
+            /*
+             * `propertyHasStringAsMember()` (DQL `MEMBER OF`) reads the `planningOffices`
+             * to-many property with DIRECT access, which works when the condition is executed
+             * as SQL but returns the raw, unresolved `PersistentCollection` when the condition
+             * is evaluated in PHP against an already-fetched entity (e.g. EDT relationship
+             * resolution), breaking the `in_array()` call in `OneOf::reduce()`.
+             * `propertyHasAnyOfValues()` uses UNPACK access instead, which is resolved correctly
+             * in both cases.
+             */
+            return $this->conditionFactory->propertyHasAnyOfValues([$organisationId], ['planningOffices', 'id']);
         }
 
         $procedure = $this->userOrProcedure;
@@ -205,7 +218,17 @@ class OwnsProcedureConditionFactory
     public function isEitherTemplateOrProcedure(bool $template): ClauseFunctionInterface
     {
         if ($this->userOrProcedure instanceof User) {
-            return $this->conditionFactory->propertyHasValue($template, ['master']);
+            /*
+             * Procedure::$master is persisted as an integer column but semantically boolean
+             * (see ProcedureResourceType::getResourceTypeConditions()). SQL-executed conditions
+             * work with either representation because MySQL loosely casts bool to int, but
+             * conditions evaluated in PHP (e.g. EDT relationship resolution) use strict
+             * comparison and require the int representation to match.
+             */
+            return $this->conditionFactory->anyConditionApplies(
+                $this->conditionFactory->propertyHasValue($template, ['master']),
+                $this->conditionFactory->propertyHasValue((int) $template, ['master']),
+            );
         }
 
         $procedure = $this->userOrProcedure;
@@ -225,7 +248,9 @@ class OwnsProcedureConditionFactory
         if ($this->userOrProcedure instanceof User) {
             $user = $this->userOrProcedure;
 
-            return $this->conditionFactory->propertyHasStringAsMember($user->getId(), ['authorizedUsers']);
+            // see isAuthorizedViaPlanningAgency() for why UNPACK access via
+            // propertyHasAnyOfValues() is used instead of propertyHasStringAsMember()
+            return $this->conditionFactory->propertyHasAnyOfValues([$user->getId()], ['authorizedUsers', 'id']);
         }
 
         $procedure = $this->userOrProcedure;

@@ -16,6 +16,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplate;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportType;
 use Exception;
 use Tests\Base\FunctionalTestCase;
 
@@ -84,17 +86,17 @@ class AssessmentHandlerTest extends FunctionalTestCase
         ];
 
         $condensedExport = [
-            'template'         => 'condensed',
+            'template'         => ExportTemplate::CONDENSED->value,
             'anonymous'        => true,
             'numberStatements' => true,
-            'exportType'       => 'statementsOnly',
+            'exportType'       => ExportType::STATEMENTS_ONLY->value,
             'sortType'         => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
         ];
         $landscapeExport = [
-            'template'         => 'landscape',
+            'template'         => ExportTemplate::LANDSCAPE->value,
             'anonymous'        => true,
             'numberStatements' => true,
-            'exportType'       => 'statementsOnly',
+            'exportType'       => ExportType::STATEMENTS_ONLY->value,
             'sortType'         => AssessmentTableServiceOutput::EXPORT_SORT_DEFAULT,
         ];
 

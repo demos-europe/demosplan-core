@@ -76,11 +76,11 @@ class OriginalStatementExporterTest extends FunctionalTestCase
         $phpWord = $result->getPhpWord();
 
         // Should have multiple sections (one per statement)
-        static::assertCount(2, $phpWord->getSections());
+        static::assertCount(3, $phpWord->getSections());
 
         // Assert each section contains the correct statement
-        $firstSection = $phpWord->getSection(0);
-        $secondSection = $phpWord->getSection(1);
+        $firstSection = $phpWord->getSection(1);
+        $secondSection = $phpWord->getSection(2);
         $this->assertStatementInSection($firstSection->getElements()[3]->getRows(), 'STMT-001', 'First statement content');
         $this->assertStatementInSection($secondSection->getElements()[3]->getRows(), 'STMT-002', 'Second statement content');
     }

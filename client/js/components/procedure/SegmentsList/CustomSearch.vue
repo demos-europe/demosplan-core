@@ -215,6 +215,7 @@ export default {
       dpRpc('elasticsearchFieldDefinition.provide', this.elasticsearchFieldDefinition)
         .then(response => {
           const fields = response.data[0].result
+
           // The response has to be transformed as the rpc sends the ids as keys.
           this.fields = Object.keys(fields).map((field) => {
             return {
@@ -231,6 +232,7 @@ export default {
 
     setMaxHeight () {
       const offsetTop = this.$el.getBoundingClientRect().top + document.documentElement.scrollTop
+
       this.maxHeight = `max-height: calc(100vh - ${offsetTop + 80}px);`
     },
 
@@ -243,10 +245,12 @@ export default {
     toggleField (field, selectField) {
       if (selectField === true) {
         const set = new Set(this.selectedFields)
+
         set.add(field)
         this.selectedFields = [...set]
       } else if (selectField === false) {
         const set = new Set(this.selectedFields)
+
         set.delete(field)
         this.selectedFields = [...set]
       }
