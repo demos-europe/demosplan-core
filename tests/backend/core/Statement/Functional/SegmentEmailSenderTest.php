@@ -171,7 +171,7 @@ class SegmentEmailSenderTest extends FunctionalTestCase
         // Exactly one mail was queued, carrying the reply-to.
         static::assertSame($mailsBefore + 1, $this->countMails());
         static::assertSame('reply@test.de', $this->getLatestMail()['_ms_reply_to']);
-        static::assertSame('dm_abschnitt_versand', $this->getLatestMail()['_ms_mt_template']);
+        static::assertSame('dm_schlussmitteilung', $this->getLatestMail()['_ms_mt_template']);
 
         // A version-history entry was written for the segment.
         static::assertSame(1, $this->countSentViaMailEntriesFor($segment));
@@ -254,7 +254,7 @@ class SegmentEmailSenderTest extends FunctionalTestCase
     private function createSegmentMailTemplate(): void
     {
         MailTemplateFactory::createOne([
-            'label'   => 'dm_abschnitt_versand',
+            'label'   => 'dm_schlussmitteilung',
             'title'   => '${mailsubject}',
             'content' => '${mailbody}',
         ]);

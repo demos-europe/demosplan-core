@@ -148,10 +148,10 @@ class SegmentEmailSender
      *
      * @throws Exception
      */
-    public function sendAbschnitt($sendMailTo, $sentFrom, $emailCC, $vars, array $attachments, $replyTo): void
+    private function sendAbschnitt($sendMailTo, $sentFrom, $emailCC, $vars, array $attachments, $replyTo): void
     {
         $this->mailService->sendMail(
-            'dm_abschnitt_versand',
+            'dm_schlussmitteilung',
             'de_DE',
             $sendMailTo,
             $sentFrom,
