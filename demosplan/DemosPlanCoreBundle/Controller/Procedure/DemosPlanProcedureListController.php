@@ -20,8 +20,9 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
+use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobDownloadResponseFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobFingerprint;
-use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Export\RunningExportJobLookup;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -31,6 +32,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureListService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
 use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Message\ExportProcedureMessage;
@@ -40,7 +42,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Exception;
-use League\Flysystem\FilesystemOperator;
 use proj4php\Point;
 use proj4php\Proj;
 use proj4php\Proj4php;
@@ -161,6 +162,23 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     }
 
     /**
+     * @return Response
+     *
+     * @throws Exception
+     */
+    #[DplanPermissions(['area_admin_procedures', 'area_search_submitters_cross_procedures'])]
+    #[Route(path: '/verfahren/suche/einreichende', name: 'DemosPlan_procedure_search_submitters_cross_procedures', methods: ['GET'])]
+    public function searchSubmittersAcrossProceduresView()
+    {
+        return $this->render(
+            '@DemosPlanCore/DemosPlanProcedure/administration_search_submitters.html.twig',
+            [
+                'title' => 'search.submitter',
+            ]
+        );
+    }
+
+    /**
      * @throws Exception
      */
     #[DplanPermissions('area_admin_procedures')]
@@ -224,9 +242,11 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     )]
     public function startAsyncExport(
         CurrentUserService $currentUserService,
+        CustomerService $customerService,
         EntityManagerInterface $entityManager,
         MessageBusInterface $messageBus,
         Request $request,
+        RunningExportJobLookup $runningExportJobLookup,
     ): Response {
         $selectedProcedures = $this->getSelectedItems($request);
         if (0 === count($selectedProcedures)) {
@@ -241,11 +261,14 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
         // The export gives no progress feedback, so a slow one invites re-triggering. Hand back the
         // job that is already running for this exact selection instead of queueing a duplicate on
         // the serial worker; the client then polls the running job rather than orphaning it.
-        $running = $entityManager->getRepository(ProcedureExportJob::class)->findOneBy([
-            'userId'         => $userId,
-            'parametersHash' => $parametersHash,
-            'status'         => [ProcedureExportJob::STATUS_PENDING, ProcedureExportJob::STATUS_PROCESSING],
-        ], ['createdDate' => 'DESC']);
+        $running = $runningExportJobLookup->find(
+            ProcedureExportJob::class,
+            [
+                'userId'         => $userId,
+                'parametersHash' => $parametersHash,
+            ],
+            [ProcedureExportJob::STATUS_PENDING, ProcedureExportJob::STATUS_PROCESSING]
+        );
         if ($running instanceof ProcedureExportJob) {
             return new JsonResponse(['jobId' => $running->getId()]);
         }
@@ -260,6 +283,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
             $job->getId(),
             $procedureIds,
             $userId,
+            $customerService->getCurrentCustomer()->getId(),
             $useExternalProcedureName
         ));
 
@@ -306,40 +330,17 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     public function exportDownload(
         CurrentUserService $currentUserService,
         EntityManagerInterface $entityManager,
-        FileService $fileService,
-        FilesystemOperator $defaultStorage,
-        FilesystemOperator $localStorage,
+        ExportJobDownloadResponseFactory $downloadResponseFactory,
         string $jobId,
     ): Response {
         $job = $entityManager->find(ProcedureExportJob::class, $jobId);
         if (!$job instanceof ProcedureExportJob
             || $job->getUserId() !== $currentUserService->getUser()->getId()
-            || ProcedureExportJob::STATUS_COMPLETED !== $job->getStatus()
-            || null === $job->getFileHash()) {
+            || ProcedureExportJob::STATUS_COMPLETED !== $job->getStatus()) {
             throw new NotFoundHttpException();
         }
 
-        $fileInfo = $fileService->getFileInfo($job->getFileHash());
-        if ($defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
-            $storage = $defaultStorage;
-        } elseif ($localStorage->fileExists($fileInfo->getAbsolutePath())) {
-            $storage = $localStorage;
-        } else {
-            throw new NotFoundHttpException();
-        }
-
-        $stream = $storage->readStream($fileInfo->getAbsolutePath());
-        $response = new StreamedResponse(static function () use ($stream): void {
-            fpassthru($stream);
-            fclose($stream);
-        });
-        $response->headers->set('Content-Type', 'application/octet-stream');
-        $response->headers->set(
-            'Content-Disposition',
-            'attachment; filename="'.($job->getFileName() ?? $fileInfo->getFileName()).'"'
-        );
-
-        return $response;
+        return $downloadResponseFactory->createForJob($job) ?? throw new NotFoundHttpException();
     }
 
     /**

@@ -24,25 +24,25 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidPostParameterTypeException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
+use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobDownloadResponseFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobFingerprint;
+use demosplan\DemosPlanCoreBundle\Logic\Export\RunningExportJobLookup;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
-use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentExportOptions;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableExporterStrategy;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplate;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportType;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Message\ExportAssessmentTableMessage;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
-use League\Flysystem\FilesystemOperator;
 use Psr\Log\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
@@ -87,16 +87,7 @@ class DemosPlanAssessmentExportController extends BaseController
         bool $original = false,
     ): ?Response {
         $exportFormat = $request->request->get('r_export_format');
-        $docxTemplates = $this->assessmentExportOptions->get('assessment_table')['docx']['templates'] ?? [];
-        $hasPortraitWithPrioritization = is_array($docxTemplates) && array_key_exists(ExportTemplate::PORTRAIT_WITH_PRIORITIZATION->value, $docxTemplates);
-        $exportParameters = $this->getExportParameters($request, $procedureId, $original);
-        // switch to elements view for the dedicated portraitWithPrioritization template if permission allows:
-        if ('docx' === $exportFormat && $permissions->hasPermission('feature_export_docx_elements_view_mode_only')) {
-            $shouldOverride = $hasPortraitWithPrioritization ? ExportTemplate::PORTRAIT_WITH_PRIORITIZATION->value === $exportParameters['template'] : ExportTemplate::PORTRAIT->value !== $exportParameters['template'];
-            if ($shouldOverride) {
-                $exportParameters['viewMode'] = AssessmentTableViewMode::ELEMENTS_VIEW;
-            }
-        }
+        $exportParameters = $this->resolveExportParameters($request, $permissions, $procedureId, $original);
         try {
             $file = $assessmentExporter->export($exportFormat, $exportParameters);
 
@@ -138,23 +129,16 @@ class DemosPlanAssessmentExportController extends BaseController
     public function startAsyncExport(
         Request $request,
         CurrentUserService $currentUserService,
+        CustomerService $customerService,
         EntityManagerInterface $entityManager,
         MessageBusInterface $messageBus,
         PermissionsInterface $permissions,
+        RunningExportJobLookup $runningExportJobLookup,
         string $procedureId,
         bool $original = false,
     ): Response {
         $exportFormat = $request->request->get('r_export_format');
-        $docxTemplates = $this->assessmentExportOptions->get('assessment_table')['docx']['templates'] ?? [];
-        $hasPortraitWithPrioritization = is_array($docxTemplates) && array_key_exists(ExportTemplate::PORTRAIT_WITH_PRIORITIZATION->value, $docxTemplates);
-        $exportParameters = $this->getExportParameters($request, $procedureId, $original);
-        // switch to elements view for the dedicated portraitWithPrioritization template if permission allows:
-        if ('docx' === $exportFormat && $permissions->hasPermission('feature_export_docx_elements_view_mode_only')) {
-            $shouldOverride = $hasPortraitWithPrioritization ? ExportTemplate::PORTRAIT_WITH_PRIORITIZATION->value === $exportParameters['template'] : ExportTemplate::PORTRAIT->value !== $exportParameters['template'];
-            if ($shouldOverride) {
-                $exportParameters['viewMode'] = AssessmentTableViewMode::ELEMENTS_VIEW;
-            }
-        }
+        $exportParameters = $this->resolveExportParameters($request, $permissions, $procedureId, $original);
 
         // Capture the session filter hash list; it is the only request-scoped value the exporter
         // reads that cannot be rebuilt from the database inside the worker.
@@ -167,12 +151,15 @@ class DemosPlanAssessmentExportController extends BaseController
         // The export gives no progress feedback, so a slow one invites re-triggering. Hand back the
         // job that is already running for this exact request instead of queueing a duplicate on the
         // serial worker; the client then polls the running job rather than orphaning it.
-        $running = $entityManager->getRepository(AssessmentTableExportJob::class)->findOneBy([
-            'userId'         => $userId,
-            'procedureId'    => $procedureId,
-            'parametersHash' => $parametersHash,
-            'status'         => [AssessmentTableExportJob::STATUS_PENDING, AssessmentTableExportJob::STATUS_PROCESSING],
-        ], ['createdDate' => 'DESC']);
+        $running = $runningExportJobLookup->find(
+            AssessmentTableExportJob::class,
+            [
+                'userId'         => $userId,
+                'procedureId'    => $procedureId,
+                'parametersHash' => $parametersHash,
+            ],
+            [AssessmentTableExportJob::STATUS_PENDING, AssessmentTableExportJob::STATUS_PROCESSING]
+        );
         if ($running instanceof AssessmentTableExportJob) {
             return new JsonResponse(['jobId' => $running->getId()]);
         }
@@ -190,6 +177,7 @@ class DemosPlanAssessmentExportController extends BaseController
             $exportParameters,
             $userId,
             $procedureId,
+            $customerService->getCurrentCustomer()->getId(),
             $hashList
         ));
 
@@ -238,9 +226,7 @@ class DemosPlanAssessmentExportController extends BaseController
     public function exportDownload(
         CurrentUserService $currentUserService,
         EntityManagerInterface $entityManager,
-        FileService $fileService,
-        FilesystemOperator $defaultStorage,
-        FilesystemOperator $localStorage,
+        ExportJobDownloadResponseFactory $downloadResponseFactory,
         string $procedureId,
         string $jobId,
     ): Response {
@@ -248,32 +234,42 @@ class DemosPlanAssessmentExportController extends BaseController
         if (!$job instanceof AssessmentTableExportJob
             || $job->getUserId() !== $currentUserService->getUser()->getId()
             || $job->getProcedureId() !== $procedureId
-            || AssessmentTableExportJob::STATUS_COMPLETED !== $job->getStatus()
-            || null === $job->getFileHash()) {
+            || AssessmentTableExportJob::STATUS_COMPLETED !== $job->getStatus()) {
             throw new NotFoundHttpException();
         }
 
-        $fileInfo = $fileService->getFileInfo($job->getFileHash());
-        if ($defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
-            $storage = $defaultStorage;
-        } elseif ($localStorage->fileExists($fileInfo->getAbsolutePath())) {
-            $storage = $localStorage;
-        } else {
-            throw new NotFoundHttpException();
+        return $downloadResponseFactory->createForJob($job) ?? throw new NotFoundHttpException();
+    }
+
+    /**
+     * @throws InvalidPostParameterTypeException
+     * @throws JsonException
+     */
+    private function resolveExportParameters(
+        Request $request,
+        PermissionsInterface $permissions,
+        string $procedureId,
+        bool $original,
+    ): array {
+        $exportParameters = $this->getExportParameters($request, $procedureId, $original);
+
+        // switch to elements view for the dedicated portraitWithPrioritization template if permission allows:
+        if ('docx' !== $request->request->get('r_export_format')
+            || !$permissions->hasPermission('feature_export_docx_elements_view_mode_only')) {
+            return $exportParameters;
         }
 
-        $stream = $storage->readStream($fileInfo->getAbsolutePath());
-        $response = new StreamedResponse(static function () use ($stream): void {
-            fpassthru($stream);
-            fclose($stream);
-        });
-        $response->headers->set('Content-Type', 'application/octet-stream');
-        $response->headers->set(
-            'Content-Disposition',
-            'attachment; filename="'.($job->getFileName() ?? $fileInfo->getFileName()).'"'
-        );
+        $docxTemplates = $this->assessmentExportOptions->get('assessment_table')['docx']['templates'] ?? [];
+        $hasPortraitWithPrioritization = is_array($docxTemplates)
+            && array_key_exists(ExportTemplate::PORTRAIT_WITH_PRIORITIZATION->value, $docxTemplates);
+        $shouldOverride = $hasPortraitWithPrioritization
+            ? ExportTemplate::PORTRAIT_WITH_PRIORITIZATION->value === $exportParameters['template']
+            : ExportTemplate::PORTRAIT->value !== $exportParameters['template'];
+        if ($shouldOverride) {
+            $exportParameters['viewMode'] = AssessmentTableViewMode::ELEMENTS_VIEW;
+        }
 
-        return $response;
+        return $exportParameters;
     }
 
     /**

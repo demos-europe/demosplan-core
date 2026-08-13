@@ -1716,6 +1716,8 @@ export.anonymous.hint: "Der Export erfolgt ohne Namen."
 export.censored.citizen: "ohne Einreichendendaten der Öffentlichkeit"
 export.censored.institution: "ohne Einreichendendaten der Institutionen"
 export.compact: "Querformat (kompakt)"
+export.csv: "CSV-Datei"
+export.csv.hint: "Bitte beachten Sie: Darstellungen aus Stellungnahmen oder Erwiderungen werden nicht im CSV-Export angezeigt."
 export.data: "Zu exportierende Daten"
 export.datasheet: "Export mit Datenblatt"
 export.docx.anonymous: "DOCX (ohne Namen)"
@@ -1755,8 +1757,8 @@ export.settings.hint: "Wählen Sie aus, welche Daten im Export der Stellungnahme
 export.statements: "Stellungnahmen exportieren"
 export.statements.zip: "Stellungnahmen als einzelne DOCX-Dateien"
 export.statements.docx: "Stellungnahmen in einer DOCX-Datei"
-export.statements.hint: "Achtung: Falls weitere Einreichende zu einer Stellungnahme hinzugefügt wurden, werden diese auch im DOCX-Export aufgeführt."
-export.statements.hint.via_template: "Achtung: Falls weitere Einreichende zu einer Stellungnahme hinzugefügt wurden, werden diese nicht im Antwortschreiben aufgeführt."
+export.statements.hint: "Bitte beachten Sie: Falls weitere Einreichende zu einer Stellungnahme hinzugefügt wurden, werden diese auch im DOCX-Export aufgeführt."
+export.statements.hint.via_template: "Bitte beachten Sie: Falls weitere Einreichende zu einer Stellungnahme hinzugefügt wurden, werden diese nicht im Antwortschreiben aufgeführt."
 export.statements.xlsx: "Stellungnahmen in einer XLSX-Datei"
 export.structure: "Gliederung des Exports"
 export.topicsAndTags: "Themen und Schlagworte"
@@ -1767,7 +1769,7 @@ export.type: "Art des Exports"
 export.verb: "Exportieren"
 export.xls: "XLS"
 export.xlsx: "XLSX"
-export.xlsx.hint: "Achtung: Darstellungen aus Stellungnahmen oder Erwiderungen, werden nicht im Excel-Export angezeigt."
+export.xlsx.hint: "Bitte beachten Sie: Darstellungen aus Stellungnahmen oder Erwiderungen werden nicht im Excel-Export angezeigt."
 export.zip: "ZIP"
 export.zip.censored: "Einzelne DOCX-Dateien (anonymisiert)"
 export.info: "Export-Informationen"
@@ -2053,6 +2055,7 @@ id.plural: "IDs"
 id.statement: "Stn.-ID"
 id.statement.long: "Stellungnahme-ID"
 image.alt.placeholder: "Hier können Sie Ihren alternativen Text einfügen."
+image.open: "Bild öffnen"
 image.placeholder: "[An dieser Stelle wird ihr Bild angezeigt]"
 image.preview: "Bildvorschau"
 images.saved: "Gespeicherte Bilder"
@@ -2909,6 +2912,7 @@ procedure.phase.autoswitch.enddate: "Neues Enddatum:"
 procedure.phase.autoswitch.targetphase: "Neuer Verfahrensschritt"
 procedure.phase.create: "Neuen Verfahrensschritt anlegen"
 procedure.phase.create.success: "Verfahrensschritt wurde erstellt"
+procedure.phase.configuration.not.movable: "Der Konfigurationsschritt kann nicht verschoben werden."
 procedure.phase.delete.confirm: "Möchten Sie den Verfahrensschritt wirklich löschen?"
 procedure.phase.delete.success: "Verfahrensschritt wurde gelöscht"
 procedure.phase.institutions: "Verfahrensschritt für Institutionen"
@@ -3291,6 +3295,7 @@ search.special.characters.description: |
     Wenn Sie nach einem dieser Zeichen suchen möchten, schreiben Sie "\" vor das Zeichen.<br />
     Möchten Sie z.B. nach ? suchen, geben Sie \? ein.<br />
 search.submitter: "Einreichende suchen"
+search.submitter.cross.procedures.hint: "Sie können über mehrere Verfahren nach Einreichenden von Stellungnahmen suchen. Es werden nur Verfahren durchsucht, auf die Sie Zugriff haben. Die Suchergebnisse werden direkt unterhalb des jeweiligen Verfahrensnamens aufgelistet und zeigen alle zugehörigen Stellungnahmen der einreichenden Person. Über das Papierkorb-Symbol einer Stellungnahme können Sie diese bei Bedarf direkt löschen."
 search.submitter.hint: "Sie können über mehrere Verfahren nach Einreichenden von Stellungnahmen suchen. Es werden nur Verfahren durchsucht, auf die Sie Zugriff haben. In der Ergebnisliste werden die Verfahren aufgelistet, in denen Ihre Suche Ergebnisse produziert hat. Durch einen Klick gelangen Sie zu dem jeweiligen Verfahren. Dort können Sie erneut nach den Einreichenden suchen, um die jeweiligen Stellungnahmen zu finden."
 search.text: "Text durchsuchen"
 search.three.signs: "Suchen (mindestens 3 Zeichen eingeben)..."
@@ -3395,6 +3400,18 @@ segments.bulk.edit.recommendations.warning.empty.text.replace: |
     {count, plural,
         =1 { Sie haben keinen Text eingegeben. Der Inhalt der Erwiderung geht dadurch verloren. }
         other { Sie haben keinen Text eingegeben. Der Inhalt der Erwiderungen geht dadurch verloren. }
+    }
+segments.copy.clipboard: "In Zwischenablage kopieren"
+segments.copy.clipboard.done: "Inhalte wurden kopiert"
+segments.copy.clipboard.error: |
+    {count, plural,
+        =1 {Der Abschnitt konnte nicht kopiert werden.}
+        other {Die Abschnitte konnten nicht kopiert werden.}
+    }
+segments.copy.clipboard.success: |
+    {count, plural,
+        =1 {Der Abschnitt wurde erfolgreich kopiert.}
+        other {Die Abschnitte wurden erfolgreich kopiert.}
     }
 segments.export.filter.tags.only: "Nur Abschnitte mit folgenden Schlagworten"
 segments.export.pagination: "Seite {PAGE} von {NUMPAGES}"
@@ -4362,6 +4379,7 @@ warning.delete.statement.metadata.inconsistent.fragments.county: "Die Kreise an 
 warning.delete.statement.metadata.inconsistent.fragments.municipality: "Die Gemeinden an der Stellungnahme konnten nicht gelöscht werden, da sie auch an Datensätzen vergeben sind."
 warning.delete.statement.metadata.inconsistent.fragments.priorityArea: "Die Potenzialflächen an der Stellungnahme konnten nicht gelöscht werden, da sie auch an Datensätzen vergeben sind."
 warning.delete.statement.metadata.inconsistent.fragments.tag: "Die Schlagworte an der Stellungnahme konnten nicht gelöscht werden, da sie auch an Datensätzen vergeben sind."
+warning.delete.statement.not.claimed.by.current.user: "Sie können diese Stellungnahme nicht löschen, weil sie einer anderen Person zugewiesen ist."
 warning.delete.statement.original: "Originalstellungnahmen können nicht gelöscht werden: {externId}."
 warning.delete.statement.placeholder: "Verschobene Stellungnahmen können nicht gelöscht werden: {externId}."
 warning.deny.copy.statement.to.foreign.procedure: "Stellungnahmen können nur in Verfahren ihrer Organisation kopiert werden."
@@ -4544,6 +4562,7 @@ wizard.topic.phaseExternal: "Verfahrensschritt Öffentlichkeit"
 wizard.topic.info: "Informationen zum Verfahren"
 wizard.topic.location: "Verortung des Verfahrens"
 workflow.change.assignee.place: "Schritt und/oder Bearbeiter*in ändern"
+workflow.change.assignee.hint: "Schlagworten kann eine Bearbeiter*in hinterlegt sein. Wird ein solches Schlagwort vergeben, wird diese Person automatisch als Bearbeiter*in des Abschnitts eingetragen. Bei mehreren Schlagworten greift das erste mit hinterlegter Bearbeiter*in. Die Zuweisung kann jederzeit überschrieben werden."
 workflow.place: "Schritt"
 workflow.place.added: "Schritt wurde hinzugefügt"
 workflow.place.and.assignment: "Schritt und Zuweisung"

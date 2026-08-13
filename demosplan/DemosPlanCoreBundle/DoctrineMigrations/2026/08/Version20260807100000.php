@@ -43,6 +43,8 @@ class Version20260807100000 extends AbstractMigration
                 error_message LONGTEXT DEFAULT NULL,
                 created_date DATETIME NOT NULL,
                 modified_date DATETIME NOT NULL,
+                INDEX at_export_job_lookup (user_id, procedure_id, parameters_hash, status),
+                INDEX at_export_job_status_modified (status, modified_date),
                 PRIMARY KEY(id)
             ) DEFAULT CHARACTER SET UTF8 COLLATE `UTF8_unicode_ci` ENGINE = InnoDB
         ');

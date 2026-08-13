@@ -161,7 +161,7 @@
           <p class="font-semibold">
             {{ Translator.trans('statement.text.short') }}
           </p>
-          <div v-cleanhtml="statement.attributes.fullText || ''" />
+          <text-content-renderer :text="statement?.attributes?.fullText || ''" />
         </div>
       </template>
     </div>
