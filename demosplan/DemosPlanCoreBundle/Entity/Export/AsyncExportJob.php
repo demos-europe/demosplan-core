@@ -27,67 +27,42 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\MappedSuperclass]
 abstract class AsyncExportJob extends CoreEntity implements UuidEntityInterface, AsyncExportJobInterface
 {
-    /**
-     * @var string|null
-     */
     #[ORM\Id]
     #[ORM\Column(type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
-    protected $id;
+    protected ?string $id = null;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(type: 'string', length: 20, nullable: false)]
-    protected $status = self::STATUS_PENDING;
+    protected string $status = self::STATUS_PENDING;
 
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'user_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
-    protected $userId;
+    protected string $userId;
 
     /**
      * Identifies the export request, so a repeated request joins the running job instead of
      * starting a second one.
-     *
-     * @var string
      */
     #[ORM\Column(name: 'parameters_hash', type: 'string', length: 64, options: ['fixed' => true], nullable: false)]
-    protected $parametersHash = '';
+    protected string $parametersHash = '';
 
     /**
      * Hash of the generated result file, once available.
-     *
-     * @var string|null
      */
     #[ORM\Column(name: 'file_hash', type: 'string', length: 36, options: ['fixed' => true], nullable: true)]
-    protected $fileHash;
+    protected ?string $fileHash = null;
 
-    /**
-     * @var string|null
-     */
     #[ORM\Column(name: 'file_name', type: 'string', length: 255, nullable: true)]
-    protected $fileName;
+    protected ?string $fileName = null;
 
-    /**
-     * @var string|null
-     */
     #[ORM\Column(name: 'error_message', type: 'text', nullable: true)]
-    protected $errorMessage;
+    protected ?string $errorMessage = null;
 
-    /**
-     * @var DateTime
-     */
     #[ORM\Column(name: 'created_date', type: 'datetime', nullable: false)]
-    protected $createdDate;
+    protected DateTime $createdDate;
 
-    /**
-     * @var DateTime
-     */
     #[ORM\Column(name: 'modified_date', type: 'datetime', nullable: false)]
-    protected $modifiedDate;
+    protected DateTime $modifiedDate;
 
     public function __construct()
     {

@@ -27,11 +27,8 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class AssessmentTableExportJob extends AsyncExportJob
 {
-    /**
-     * @var string
-     */
     #[ORM\Column(name: 'procedure_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
-    protected $procedureId;
+    protected string $procedureId;
 
     public function getProcedureId(): string
     {
