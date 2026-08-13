@@ -20,9 +20,9 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
+use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobDownloadResponseFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobFingerprint;
 use demosplan\DemosPlanCoreBundle\Logic\Export\RunningExportJobLookup;
-use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -42,7 +42,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Exception;
-use League\Flysystem\FilesystemOperator;
 use proj4php\Point;
 use proj4php\Proj;
 use proj4php\Proj4php;
@@ -314,40 +313,17 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     public function exportDownload(
         CurrentUserService $currentUserService,
         EntityManagerInterface $entityManager,
-        FileService $fileService,
-        FilesystemOperator $defaultStorage,
-        FilesystemOperator $localStorage,
+        ExportJobDownloadResponseFactory $downloadResponseFactory,
         string $jobId,
     ): Response {
         $job = $entityManager->find(ProcedureExportJob::class, $jobId);
         if (!$job instanceof ProcedureExportJob
             || $job->getUserId() !== $currentUserService->getUser()->getId()
-            || ProcedureExportJob::STATUS_COMPLETED !== $job->getStatus()
-            || null === $job->getFileHash()) {
+            || ProcedureExportJob::STATUS_COMPLETED !== $job->getStatus()) {
             throw new NotFoundHttpException();
         }
 
-        $fileInfo = $fileService->getFileInfo($job->getFileHash());
-        if ($defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
-            $storage = $defaultStorage;
-        } elseif ($localStorage->fileExists($fileInfo->getAbsolutePath())) {
-            $storage = $localStorage;
-        } else {
-            throw new NotFoundHttpException();
-        }
-
-        $stream = $storage->readStream($fileInfo->getAbsolutePath());
-        $response = new StreamedResponse(static function () use ($stream): void {
-            fpassthru($stream);
-            fclose($stream);
-        });
-        $response->headers->set('Content-Type', 'application/octet-stream');
-        $response->headers->set(
-            'Content-Disposition',
-            'attachment; filename="'.($job->getFileName() ?? $fileInfo->getFileName()).'"'
-        );
-
-        return $response;
+        return $downloadResponseFactory->createForJob($job) ?? throw new NotFoundHttpException();
     }
 
     /**

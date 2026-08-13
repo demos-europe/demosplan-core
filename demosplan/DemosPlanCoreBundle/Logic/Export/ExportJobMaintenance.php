@@ -44,19 +44,27 @@ class ExportJobMaintenance
     private const STALE_REASON = 'error.export';
 
     /**
-     * @var array<class-string<AsyncExportJobInterface>, array{active: string[], final: string[], failed: string}>
+     * @var array<int, class-string<AsyncExportJobInterface>>
      */
     private const JOB_CLASSES = [
-        AssessmentTableExportJob::class => [
-            'active' => [AssessmentTableExportJob::STATUS_PENDING, AssessmentTableExportJob::STATUS_PROCESSING],
-            'final'  => [AssessmentTableExportJob::STATUS_COMPLETED, AssessmentTableExportJob::STATUS_FAILED],
-            'failed' => AssessmentTableExportJob::STATUS_FAILED,
-        ],
-        ProcedureExportJob::class => [
-            'active' => [ProcedureExportJob::STATUS_PENDING, ProcedureExportJob::STATUS_PROCESSING],
-            'final'  => [ProcedureExportJob::STATUS_COMPLETED, ProcedureExportJob::STATUS_FAILED],
-            'failed' => ProcedureExportJob::STATUS_FAILED,
-        ],
+        AssessmentTableExportJob::class,
+        ProcedureExportJob::class,
+    ];
+
+    /**
+     * @var string[]
+     */
+    private const ACTIVE_STATUSES = [
+        AsyncExportJobInterface::STATUS_PENDING,
+        AsyncExportJobInterface::STATUS_PROCESSING,
+    ];
+
+    /**
+     * @var string[]
+     */
+    private const FINAL_STATUSES = [
+        AsyncExportJobInterface::STATUS_COMPLETED,
+        AsyncExportJobInterface::STATUS_FAILED,
     ];
 
     public function __construct(
@@ -74,9 +82,9 @@ class ExportJobMaintenance
     public function failStaleJobs(): int
     {
         $failed = 0;
-        foreach (self::JOB_CLASSES as $jobClass => $statuses) {
-            foreach ($this->findJobsBefore($jobClass, $statuses['active'], self::STALE_AFTER) as $job) {
-                $job->setStatus($statuses['failed']);
+        foreach (self::JOB_CLASSES as $jobClass) {
+            foreach ($this->findJobsBefore($jobClass, self::ACTIVE_STATUSES, self::STALE_AFTER) as $job) {
+                $job->setStatus(AsyncExportJobInterface::STATUS_FAILED);
                 $job->setErrorMessage($this->translator->trans(self::STALE_REASON));
                 $job->setModifiedDate(new DateTime());
                 ++$failed;
@@ -97,8 +105,8 @@ class ExportJobMaintenance
     public function purgeExpiredResults(): int
     {
         $purged = 0;
-        foreach (self::JOB_CLASSES as $jobClass => $statuses) {
-            foreach ($this->findJobsBefore($jobClass, $statuses['final'], self::RESULT_RETENTION) as $job) {
+        foreach (self::JOB_CLASSES as $jobClass) {
+            foreach ($this->findJobsBefore($jobClass, self::FINAL_STATUSES, self::RESULT_RETENTION) as $job) {
                 $fileHash = $job->getFileHash();
                 if (null !== $fileHash) {
                     try {
