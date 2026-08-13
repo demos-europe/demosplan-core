@@ -135,7 +135,7 @@ export default {
         {
           exampleFiles: [
             {
-              label: 'example.file',
+              label: 'import.example.file.excel',
               path: '/files/segment_import_template.xlsx',
               permission: 'feature_segments_import_excel',
             },

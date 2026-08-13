@@ -145,7 +145,9 @@ export default {
         {
           name: ExcelImport.name,
           permissions: ['feature_statements_import_excel', 'feature_statements_import_csv', 'feature_segments_import_excel'],
-          title: 'import.options.xls',
+          title: hasPermission('feature_statements_import_csv') ?
+            'import.options.xls_csv' :
+            'import.options.xls',
         },
         {
           name: StatementFormImport.name,
