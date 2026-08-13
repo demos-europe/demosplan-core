@@ -14,7 +14,6 @@
 @efrane/vuex-json-api: MIT
 @eslint/js: MIT
 @fullhuman/postcss-purgecss: MIT
-@jest/globals: MIT
 @masterportal/masterportalapi: MIT
 @sentry/browser: MIT
 @tailwindcss/postcss: MIT
@@ -23,13 +22,15 @@
 @uppy/drag-drop: MIT
 @uppy/progress-bar: MIT
 @uppy/tus: MIT
+@vitejs/plugin-vue: MIT
+@vitest/coverage-v8: MIT
+@vitest/eslint-plugin: MIT
+@vitest/ui: MIT
 @vue/compat: MIT
 @vue/compiler-sfc: MIT
 @vue/test-utils: MIT
-@vue/vue3-jest: MIT
 a11y-datepicker: MIT
 assets-webpack-plugin: MIT
-babel-jest: MIT
 babel-loader: MIT
 caniuse-lite: CC-BY-4.0
 carbon-components: Apache-2.0
@@ -58,7 +59,6 @@ dompurify: (MPL-2.0 OR Apache-2.0)
 eslint: MIT
 eslint-import-resolver-alias: MIT
 eslint-plugin-import: MIT
-eslint-plugin-jest: MIT
 eslint-plugin-jquery: MIT
 eslint-plugin-n: MIT
 eslint-plugin-vue: MIT
@@ -66,11 +66,9 @@ eslint-plugin-vuejs-accessibility: MIT
 font-awesome: (OFL-1.1 AND MIT)
 fscreen: MIT
 glob: BlueOak-1.0.0
+globals: MIT
 intl-messageformat: BSD-3-Clause
 ismobilejs: MIT
-jest: MIT
-jest-environment-jsdom: MIT
-jest-junit: Apache-2.0
 jquery: MIT
 js-base64: BSD-3-Clause
 jsdom: MIT
@@ -105,11 +103,13 @@ tippy.js: MIT
 typescript: Apache-2.0
 typescript-eslint: MIT
 uuid: MIT
+vite: MIT
+vitest: MIT
 vue: MIT
 vue-eslint-parser: MIT
 vue-loader: MIT
 vue-scrollto: MIT
-vue-sliding-pagination: MIT
+vue-tsc: MIT
 vue2-leaflet: MIT
 vue2-leaflet-markercluster: MIT
 vuedraggable: MIT
@@ -119,4 +119,4 @@ webpack-bundle-analyzer: MIT
 webpack-manifest-plugin: MIT
 webpack-merge: MIT
 
-As of 07.07.2026 08:07
+As of 13.08.2026 07:29
