@@ -221,6 +221,9 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $this->getId();
     }
 
+    /**
+     * @return string|null
+     */
     public function getGatewayGroup()
     {
         return $this->gatewayGroup;
@@ -236,6 +239,9 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getOrgaName()
     {
         return $this->orgaName;
@@ -298,6 +304,9 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $return;
     }
 
+    /**
+     * @return Department|null
+     */
     public function getDepartment()
     {
         return $this->department;
@@ -326,6 +335,9 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $return;
     }
 
+    /**
+     * @return string|null
+     */
     public function getDepartmentName()
     {
         return $this->departmentName;
@@ -341,6 +353,9 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getSign()
     {
         return $this->sign;
@@ -374,6 +389,9 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getCcEmail()
     {
         return $this->ccEmail;
@@ -389,6 +407,9 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getContactPerson()
     {
         return $this->contactPerson;
@@ -406,6 +427,9 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getMemo()
     {
         return $this->memo;
@@ -441,6 +465,9 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $this;
     }
 
+    /**
+     * @return int
+     */
     public function getDistrictEimsbuettel()
     {
         return (int) $this->districtEimsbuettel;

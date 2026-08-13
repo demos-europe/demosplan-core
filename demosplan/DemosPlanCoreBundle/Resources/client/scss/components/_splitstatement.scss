@@ -161,6 +161,8 @@
         .range-handle {
             position: relative;
             font-size: $dp-font-size-large;
+            // Cap the line-height at the handle's own font-size so its larger glyph does not stretch the text line it sits on
+            line-height: 1;
             color: $dp-color-interactive-default;
 
             &::before {
@@ -248,7 +250,14 @@
     span[data-range-active='true'],
     span[data-range-selected],
     span[data-range-selected] > span {
+        // Vertical padding fills the leading (empty space line-height adds around the text) so the highlight
+        // has no gap between wrapped lines. The leading is line-height minus the font's glyph box, which is
+        // ~14px here (smaller than the 16px font-size), i.e. ~10px total; ~5px per side is needed to reach the
+        // full 24px line-height. 4px leaves a ~2px gap. box-decoration-break: clone applies the padding to
+        // each wrapped line fragment.
+        padding: 5px 0;
         background-color: $segment-highlight-bg-color;
+        box-decoration-break: clone;
     }
 
     span[data-range-moving='true'] {

@@ -116,6 +116,11 @@
     },
     {
         "license": "MIT",
+        "package": "enqueue/elastica-bundle",
+        "website": "https://github.com/php-enqueue/enqueue-elastica-bundle"
+    },
+    {
+        "license": "MIT",
         "package": "enqueue/enqueue-bundle",
         "website": "https://github.com/php-enqueue/enqueue-bundle"
     },

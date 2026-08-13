@@ -33,7 +33,8 @@ class ProcedurePhaseDefinitionResolver
             $this->idToNameMap = [];
             try {
                 $definitions = $this->repository->findByCustomerOrderedByAudience(
-                    $this->customerService->getCurrentCustomer()
+                    $this->customerService->getCurrentCustomer(),
+                    false
                 );
             } catch (CustomerNotFoundException) {
                 $definitions = $this->repository->findBy(['customer' => null]);

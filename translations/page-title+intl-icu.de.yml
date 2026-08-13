@@ -151,6 +151,8 @@ procedures.search.statements: Verfahrensübergreifende Stellungnahmensuche
 
 project.name: "{projectName}"
 
+search.submitter: "Einreichende suchen"
+
 service.mode: Wartungsmodus
 
 segments: "Abschnitte"
@@ -180,6 +182,7 @@ statement.vote: Stellungnahme mitzeichnen
 statement.bulk.edit: Stellungnahmen bearbeiten
 
 statements: Stellungnahmen
+statement.cluster.create: Gruppe erstellen
 statements.drafts: Entwürfe
 statements.final.group: Einreichungen der Organisation
 statements.final.own: Meine Einreichungen

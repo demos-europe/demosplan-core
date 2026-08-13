@@ -93,12 +93,42 @@
         } %}
     {% endblock pageheader %}
 
-    <component
-        is="{{ isMapEnabled ? 'dp-public-detail' : 'dp-public-detail-no-map' }}"
-        :is-map-enabled="{{ isMapEnabled ? 'true' : 'false' }}"
-        user-id="{{ currentUser.id|default }}"
-        procedure-id="{{ procedure }}"
-        inline-template>
+    {# The scoped slot props are consumed throughout this template, by the blocks projects override,
+       and by the includes rendered below - keep the two destructurings in sync with those usages #}
+    {% if isMapEnabled %}
+        <dp-public-detail
+            :is-map-enabled="{{ isMapEnabled ? 'true' : 'false' }}"
+            user-id="{{ currentUser.id|default }}"
+            procedure-id="{{ procedure }}">
+            <template #default="{
+                activeActionBoxTab,
+                activeStatement,
+                activeTab,
+                checkKeyEvent,
+                foldOpenToolbarItems,
+                handleFullscreenFocus,
+                prefixClass,
+                setRef,
+                toggleStatementModal,
+                toggleTabs,
+                update,
+                updateStatementAndOpenModal
+            }">
+    {% else %}
+        <dp-public-detail-no-map
+            user-id="{{ currentUser.id|default }}"
+            procedure-id="{{ procedure }}">
+            <template #default="{
+                activeStatement,
+                activeTab,
+                prefixClass,
+                setRef,
+                toggleStatementModal,
+                toggleTabs,
+                updateStatementAndOpenModal
+            }">
+    {% endif %}
+    <div>
 
     {# infolist - display meta info of procedure #}
     {% block infolist %}
@@ -521,7 +551,13 @@
                 ></statement-modal>
             {% endif %}
         </div>
-    </component>
+            </template>
+    {% if isMapEnabled == false %}
+        </dp-public-detail-no-map>
+    {% else %}
+        </dp-public-detail>
+    {% endif %}
+
 
     {# Nojs statement form #}
     {% if hasPermission('feature_new_statement') %}

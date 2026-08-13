@@ -63,6 +63,10 @@ parameters:
     account_deletion.first_warning_days: ~
     account_deletion.warning_step_days: 30
     account_deletion.additional_protected_user_ids: []
+    # Support e-mail shown in warning mails and used as replyTo.
+    # Set ACCOUNT_DELETION_SUPPORT_EMAIL env var per instance; falls back to
+    # the system e-mail address when the env var is unset or empty.
+    account_deletion.support_email: '%env(default::ACCOUNT_DELETION_SUPPORT_EMAIL)%'
 
     # Route and parameters for the public index page
     #

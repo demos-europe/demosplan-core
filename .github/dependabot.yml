@@ -47,6 +47,9 @@ updates:
       sentry:
         patterns:
           - "@sentry/*"
+      stylelint:
+        patterns:
+          - "stylelint*"
       uppy:
         patterns:
           - "@uppy/*"

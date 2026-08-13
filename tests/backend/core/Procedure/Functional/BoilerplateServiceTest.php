@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\BoilerplateVO;
 use Exception;
 use Tests\Base\FunctionalTestCase;
 
@@ -179,6 +180,109 @@ class BoilerplateServiceTest extends FunctionalTestCase
         $updatedBoilerplate = $this->sut->getBoilerplate($toUpdate->getIdent());
         static::assertEquals($update['text'], $updatedBoilerplate->getText());
         static::assertEquals($toUpdate->getTitle(), $updatedBoilerplate->getTitle());
+    }
+
+    public function testUpdateBoilerplateVOResetsVerifiedOnContentChange()
+    {
+        /** @var Boilerplate $boilerplate */
+        $boilerplate = $this->fixtures->getReference('testBoilerplate1');
+        $boilerplate->setVerified(true);
+        $this->getEntityManager()->flush();
+
+        $boilerplateVO = new BoilerplateVO($boilerplate);
+        $boilerplateVO->setText('this text differs from the blueprint original');
+
+        $updatedBoilerplate = $this->sut->updateBoilerplateVO($boilerplateVO);
+
+        static::assertFalse($updatedBoilerplate->isVerified());
+    }
+
+    public function testUpdateBoilerplateVOKeepsVerifiedWithoutContentChange()
+    {
+        /** @var Boilerplate $boilerplate */
+        $boilerplate = $this->fixtures->getReference('testBoilerplate1');
+        $boilerplate->setVerified(true);
+        $this->getEntityManager()->flush();
+
+        $boilerplateVO = new BoilerplateVO($boilerplate);
+
+        $updatedBoilerplate = $this->sut->updateBoilerplateVO($boilerplateVO);
+
+        static::assertTrue($updatedBoilerplate->isVerified());
+    }
+
+    public function testUpdateBoilerplateVOExplicitVerifiedWinsOverContentChange()
+    {
+        /** @var Boilerplate $boilerplate */
+        $boilerplate = $this->fixtures->getReference('testBoilerplate1');
+        $boilerplate->setVerified(true);
+        $this->getEntityManager()->flush();
+
+        $boilerplateVO = new BoilerplateVO($boilerplate);
+        $boilerplateVO->setText('this text differs from the blueprint original');
+        $boilerplateVO->setVerified(true);
+
+        $updatedBoilerplate = $this->sut->updateBoilerplateVO($boilerplateVO);
+
+        static::assertTrue($updatedBoilerplate->isVerified());
+    }
+
+    public function testUpdateBoilerplateVOExplicitVerifiedUnsetsVerified()
+    {
+        /** @var Boilerplate $boilerplate */
+        $boilerplate = $this->fixtures->getReference('testBoilerplate1');
+        $boilerplate->setVerified(true);
+        $this->getEntityManager()->flush();
+
+        $boilerplateVO = new BoilerplateVO($boilerplate);
+        $boilerplateVO->setVerified(false);
+
+        $updatedBoilerplate = $this->sut->updateBoilerplateVO($boilerplateVO);
+
+        static::assertFalse($updatedBoilerplate->isVerified());
+    }
+
+    public function testUpdateBoilerplateVOExplicitVerifiedSetsVerified()
+    {
+        /** @var Boilerplate $boilerplate */
+        $boilerplate = $this->fixtures->getReference('testBoilerplate1');
+        static::assertFalse($boilerplate->isVerified());
+
+        $boilerplateVO = new BoilerplateVO($boilerplate);
+        $boilerplateVO->setVerified(true);
+
+        $updatedBoilerplate = $this->sut->updateBoilerplateVO($boilerplateVO);
+
+        static::assertTrue($updatedBoilerplate->isVerified());
+    }
+
+    public function testAddBoilerplateVOSetsVerifiedWhenExplicit()
+    {
+        $procedureId = $this->fixtures->getReference('testProcedure')->getId();
+
+        $boilerplateVO = new BoilerplateVO();
+        $boilerplateVO->setTitle('verified on create');
+        $boilerplateVO->setText('some text');
+        $boilerplateVO->setVerified(true);
+
+        $createdBoilerplate = $this->sut->addBoilerplateVO($procedureId, $boilerplateVO);
+
+        static::assertInstanceOf(Boilerplate::class, $createdBoilerplate);
+        static::assertTrue($createdBoilerplate->isVerified());
+    }
+
+    public function testAddBoilerplateVODefaultsToUnverified()
+    {
+        $procedureId = $this->fixtures->getReference('testProcedure')->getId();
+
+        $boilerplateVO = new BoilerplateVO();
+        $boilerplateVO->setTitle('unverified on create');
+        $boilerplateVO->setText('some text');
+
+        $createdBoilerplate = $this->sut->addBoilerplateVO($procedureId, $boilerplateVO);
+
+        static::assertInstanceOf(Boilerplate::class, $createdBoilerplate);
+        static::assertFalse($createdBoilerplate->isVerified());
     }
 
     /**
