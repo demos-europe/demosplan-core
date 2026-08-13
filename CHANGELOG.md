@@ -6,9 +6,15 @@
 
 ## UNRELEASED
 
+## v4.55.0 (2026-08-12)
+
+### Changed
+- The zip upload for planning documents now accepts files up to 2 GB
+
 ## v4.54.0 (2026-08-12)
 
 ### Added
+- Statements can be searched by submitter across all accessible procedures. Results are grouped under the procedure they belong to, each row can be expanded to show the submitter details and deleted directly from the result list.
 - Add drag and drop sorting for procedure phases definitions
 - Boilerplate edit page lists the segments in which a boilerplate is used as deep links
 - Sortable deadline column in segmentsList (sorting gated behind `feature_segments_manualsort`, not enabled yet)
@@ -36,6 +42,11 @@
 ### Fixed
 - Institution coordinators without a second organisation email address are now redirected to the welcome page until they provide it.
 - When the last member of a statement group is removed, both notifications ("statement detached" and "group dissolved") are now shown in the correct order.
+
+## v4.49.1 (2026-07-28)
+
+### Fixed
+- Forwarding a segment for technical review (changing its assignee) could fail with a validation error when the segment had comments; assigning a segment now works reliably regardless of loaded comments
 
 ## v4.49.0 (2026-07-15)
 
@@ -147,6 +158,7 @@
 
 ### Added
 - Tags can be reordered within and between TagTopics via drag and drop in tag administration
+- Cross-procedure submitter search API (`AdminStatementCrossProcedureSearchResourceType`) for locating statements by author or submitter name across all procedures the user can administer, scoped to the current customer (permission: `feature_json_api_statement_cross_procedures_search`)
 
 ### Changed
 - Segment transformer extracts segment IDs and text from `<segment-mark>` elements in textualReference instead of charStart/charEnd positions

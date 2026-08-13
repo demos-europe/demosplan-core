@@ -7,7 +7,7 @@
   All rights reserved
 </license>
 
-<documentaion>
+<documentation>
   <usage>
     <!--
       Button that returns the the current extent of an ol-Map to its parent component
@@ -15,7 +15,7 @@
     -->
     <dp-ol-map-extent translation-key="ButtonText (untranslated)" />
   </usage>
-</documentaion>
+</documentation>
 
 <template>
   <button

@@ -9,6 +9,7 @@
 
 import { getResolutionsFromScales, getScalesAndResolutions } from '@DpJs/components/map/map/utils/utils'
 import ResponseAttributes from './fixtures/dplan_api_map_options_admin.json'
+import { vi } from 'vitest'
 
 describe('DpOlMap/utils', () => {
   /*
@@ -17,7 +18,7 @@ describe('DpOlMap/utils', () => {
    */
   beforeAll(() => {
     Object.defineProperty(window, 'matchMedia', {
-      value: jest.fn((query) => {
+      value: vi.fn((query) => {
         const a = 96
         const number = query.match(/\d+/)[0]
 

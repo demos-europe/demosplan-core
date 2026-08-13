@@ -7,12 +7,17 @@
  * All rights reserved
  */
 
+import type { ComponentPublicInstance } from 'vue'
 import { useSlotRefs } from '@DpJs/composables/useSlotRefs'
+import { vi } from 'vitest'
+
+// Test doubles for the component instances registered via :ref in slot content
+const asComponent = (stub: object) => stub as unknown as ComponentPublicInstance
 
 describe('useSlotRefs', () => {
   it('registers a child under the name it was set up with', () => {
     const { setRef, slotRefs } = useSlotRefs()
-    const child = { toggleModal: jest.fn() }
+    const child = asComponent({ toggleModal: vi.fn() })
 
     setRef('statementModal')(child)
 
@@ -27,8 +32,8 @@ describe('useSlotRefs', () => {
 
   it('keeps refs of different names apart', () => {
     const { setRef, slotRefs } = useSlotRefs()
-    const modal = {}
-    const layerList = {}
+    const modal = asComponent({})
+    const layerList = asComponent({})
 
     setRef('confirmModal')(modal)
     setRef('layerList')(layerList)
@@ -40,7 +45,7 @@ describe('useSlotRefs', () => {
   it('clears the ref when the child unmounts', () => {
     const { setRef, slotRefs } = useSlotRefs()
 
-    setRef('confirmModal')({})
+    setRef('confirmModal')(asComponent({}))
     setRef('confirmModal')(null)
 
     expect(slotRefs.confirmModal).toBeNull()
@@ -50,7 +55,7 @@ describe('useSlotRefs', () => {
     const first = useSlotRefs()
     const second = useSlotRefs()
 
-    first.setRef('statementModal')({})
+    first.setRef('statementModal')(asComponent({}))
 
     expect(second.slotRefs.statementModal).toBeUndefined()
   })
