@@ -17458,16 +17458,16 @@
         },
         {
             "name": "symfony/property-info",
-            "version": "v6.4.34",
+            "version": "v6.4.43",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/property-info.git",
-                "reference": "916455e4c9dcddbebfd101f29d7983841c3564e0"
+                "reference": "ff32a0d7885f6f8997ee0aca499fd008852ad5bd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/property-info/zipball/916455e4c9dcddbebfd101f29d7983841c3564e0",
-                "reference": "916455e4c9dcddbebfd101f29d7983841c3564e0",
+                "url": "https://api.github.com/repos/symfony/property-info/zipball/ff32a0d7885f6f8997ee0aca499fd008852ad5bd",
+                "reference": "ff32a0d7885f6f8997ee0aca499fd008852ad5bd",
                 "shasum": ""
             },
             "require": {
@@ -17524,7 +17524,7 @@
                 "validator"
             ],
             "support": {
-                "source": "https://github.com/symfony/property-info/tree/v6.4.34"
+                "source": "https://github.com/symfony/property-info/tree/v6.4.43"
             },
             "funding": [
                 {
@@ -17544,7 +17544,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-02-13T09:42:46+00:00"
+            "time": "2026-07-22T12:35:29+00:00"
         },
         {
             "name": "symfony/proxy-manager-bridge",
@@ -24998,16 +24998,16 @@
         },
         {
             "name": "zenstruck/foundry",
-            "version": "v2.10.1",
+            "version": "v2.11.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zenstruck/foundry.git",
-                "reference": "34cbd882df0fee5a5f9bd2f0c2f69286e283263d"
+                "reference": "d0e81b0c88c934567ae6074e34563224954df89a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zenstruck/foundry/zipball/34cbd882df0fee5a5f9bd2f0c2f69286e283263d",
-                "reference": "34cbd882df0fee5a5f9bd2f0c2f69286e283263d",
+                "url": "https://api.github.com/repos/zenstruck/foundry/zipball/d0e81b0c88c934567ae6074e34563224954df89a",
+                "reference": "d0e81b0c88c934567ae6074e34563224954df89a",
                 "shasum": ""
             },
             "require": {
@@ -25036,7 +25036,7 @@
                 "doctrine/mongodb-odm-bundle": "^4.6|^5.0",
                 "doctrine/orm": "^2.16|^3.0",
                 "doctrine/persistence": "^2.0|^3.0|^4.0",
-                "phpunit/phpunit": "^9.5.0 || ^10.0 || ^11.0 || ^12.0 || ^13.0",
+                "phpunit/phpunit": "^9.5.0 || ^10.0 || ^11.0 || ^12.0 || ~13.1.0",
                 "symfony/browser-kit": "^6.4|^7.0|^8.0",
                 "symfony/console": "^6.4|^7.0|^8.0",
                 "symfony/dotenv": "^6.4|^7.0|^8.0",
@@ -25077,7 +25077,10 @@
                     "Zenstruck\\Foundry\\": "src/",
                     "Zenstruck\\Foundry\\Psalm\\": "utils/psalm",
                     "Zenstruck\\Foundry\\Utils\\Rector\\": "utils/rector/src/"
-                }
+                },
+                "exclude-from-classmap": [
+                    "src/Test/Behat/"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -25106,7 +25109,7 @@
             ],
             "support": {
                 "issues": "https://github.com/zenstruck/foundry/issues",
-                "source": "https://github.com/zenstruck/foundry/tree/v2.10.1"
+                "source": "https://github.com/zenstruck/foundry/tree/v2.11.3"
             },
             "funding": [
                 {
@@ -25118,7 +25121,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-05-19T15:59:32+00:00"
+            "time": "2026-08-05T15:08:20+00:00"
         }
     ],
     "aliases": [],
