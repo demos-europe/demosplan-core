@@ -19,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Import\ImportJob;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Event\Statement\RecommendationRequestEvent;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
@@ -27,15 +26,16 @@ use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FilterUiDataProvider;
+use demosplan\DemosPlanCoreBundle\Logic\Import\ImportJobQueue;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureCoupleTokenFetcher;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Repository\ImportJobRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use demosplan\DemosPlanCoreBundle\StoredQuery\SegmentListQuery;
-use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -172,9 +172,9 @@ class SegmentController extends BaseController
     #[Route(path: '/verfahren/{procedureId}/abschnitte/speichern', name: 'dplan_segments_process_import', options: ['expose' => true], methods: 'POST')]
     public function importSegmentsFromXlsx(
         CurrentProcedureService $currentProcedureService,
-        CurrentUserInterface $currentUser,
-        EntityManagerInterface $entityManager,
+        CurrentUserService $currentUser,
         FileService $fileService,
+        ImportJobQueue $importJobQueue,
         Request $request,
         string $procedureId,
     ): Response {
@@ -190,56 +190,17 @@ class SegmentController extends BaseController
         $uploads = explode(',', (string) $requestPost['uploadedFiles']);
 
         foreach ($uploads as $uploadHash) {
-            $file = $fileService->getFileInfo($uploadHash);
-            $fileName = $file->getFileName();
-            $job = new ImportJob();
-            try {
-                $job->setProcedure($procedure);
-                $job->setUser($user);
-                $job->setFilePath($uploadHash);
-                $job->setFileName($fileName);
-                // Capture the current organisation context for background processing
-                $currentOrga = $user->getCurrentOrganisation();
-                if ($currentOrga instanceof Orga) {
-                    $job->setOrganisation($currentOrga);
-                }
+            $fileName = $fileService->getFileInfo($uploadHash)->getFileName();
 
-                $entityManager->persist($job);
-                $entityManager->flush();
-
-                $this->logger->info('Import job queued', [
-                    'jobId'       => $job->getId(),
-                    'fileName'    => $fileName,
-                    'procedureId' => $procedureId,
-                ]);
-
-                $this->getMessageBag()->add(
-                    'confirm',
-                    'confirm.segments.import.queued',
-                    [
-                        'fileName' => $fileName,
-                        'jobId'    => $job->getId(),
-                    ]
-                );
-
-                // File cleanup happens in ImportJobProcessor after processing
-            } catch (Exception $e) {
-                $this->logger->error('Failed to queue import job', [
-                    'fileName'  => $fileName,
-                    'exception' => $e->getMessage(),
-                    'trace'     => $e->getTraceAsString(),
-                ]);
-
-                // Mark job as failed if it was created
-                $job->markAsFailed($e->getMessage());
-                $entityManager->flush();
-
-                $this->getMessageBag()->add(
-                    'error',
-                    'error.segments.import.queue.failed',
-                    ['fileName' => $fileName]
-                );
-            }
+            $importJobQueue->queue(
+                $procedure,
+                $user,
+                $uploadHash,
+                $fileName,
+                ImportJob::TYPE_SEGMENTS,
+                'confirm.segments.import.queued',
+                'error.segments.import.queue.failed',
+            );
         }
 
         // Redirect back to import page to show job list

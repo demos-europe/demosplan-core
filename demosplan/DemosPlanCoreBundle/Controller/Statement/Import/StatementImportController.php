@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Import\ImportJob;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
@@ -25,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\RowAwareViolationsException;
 use demosplan\DemosPlanCoreBundle\Exception\UnexpectedWorksheetNameException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Import\ImportJobQueue;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\ExcelImporter;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\StatementSpreadsheetImporterWithZipSupport;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -33,7 +33,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxStatementImport;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\XlsxStatementImporterFactory;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
-use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\HttpFoundation\Request;
@@ -191,8 +190,8 @@ class StatementImportController extends BaseController
     public function importStatementsFromCsv(
         CurrentProcedureService $currentProcedureService,
         CurrentUserService $currentUser,
-        EntityManagerInterface $entityManager,
         FileService $fileService,
+        ImportJobQueue $importJobQueue,
         string $procedureId,
         Request $request,
     ): Response {
@@ -205,7 +204,34 @@ class StatementImportController extends BaseController
         $uploadHashes = array_filter(explode(',', (string) $request->request->get('uploadedFiles', '')));
 
         foreach ($uploadHashes as $uploadHash) {
-            $this->queueCsvStatementImportJob($uploadHash, $procedure, $currentUser, $entityManager, $fileService);
+            try {
+                $fileName = $fileService->getFileInfo($uploadHash)->getFileName();
+            } catch (Exception $e) {
+                $this->logger->error('Failed to queue statement csv import job', [
+                    'uploadHash' => $uploadHash,
+                    'exception'  => $e->getMessage(),
+                    'trace'      => $e->getTraceAsString(),
+                ]);
+                $this->getMessageBag()->add('error', 'error.statements.import.queue.failed', ['fileName' => '']);
+
+                continue;
+            }
+
+            if ('csv' !== mb_strtolower(pathinfo($fileName, PATHINFO_EXTENSION))) {
+                $this->getMessageBag()->add('error', 'error.statements.import.csv.wrong.format', ['fileName' => $fileName]);
+
+                continue;
+            }
+
+            $importJobQueue->queue(
+                $procedure,
+                $currentUser->getUser(),
+                $uploadHash,
+                $fileName,
+                ImportJob::TYPE_STATEMENTS,
+                'confirm.statements.import.queued',
+                'error.statements.import.queue.failed',
+            );
         }
 
         return $this->redirectToRoute('DemosPlan_procedure_import', ['procedureId' => $procedureId]);
@@ -324,70 +350,4 @@ class StatementImportController extends BaseController
         );
     }
 
-    private function queueCsvStatementImportJob(
-        string $uploadHash,
-        Procedure $procedure,
-        CurrentUserService $currentUser,
-        EntityManagerInterface $entityManager,
-        FileService $fileService,
-    ): void {
-        $fileName = '';
-        $job = new ImportJob();
-
-        try {
-            $fileName = $fileService->getFileInfo($uploadHash)->getFileName();
-
-            if ('csv' !== mb_strtolower(pathinfo($fileName, PATHINFO_EXTENSION))) {
-                $this->getMessageBag()->add('error', 'error.statements.import.csv.wrong.format', ['fileName' => $fileName]);
-
-                return;
-            }
-
-            $job->setProcedure($procedure);
-            $job->setUser($currentUser->getUser());
-            $job->setImportType(ImportJob::TYPE_STATEMENTS);
-            $job->setFilePath($uploadHash);
-            $job->setFileName($fileName);
-
-            // capture the current organisation context for background processing
-            $currentOrga = $currentUser->getUser()->getCurrentOrganisation();
-            if ($currentOrga instanceof Orga) {
-                $job->setOrganisation($currentOrga);
-            }
-
-            $entityManager->persist($job);
-            $entityManager->flush();
-
-            $this->logger->info('Statement csv import job queued', [
-                'jobId'       => $job->getId(),
-                'fileName'    => $fileName,
-                'procedureId' => $procedure->getId(),
-            ]);
-
-            $this->getMessageBag()->add(
-                'confirm',
-                'confirm.statements.import.queued',
-                [
-                    'fileName' => $fileName,
-                    'jobId'    => $job->getId(),
-                ]
-            );
-        } catch (Exception $e) {
-            $this->logger->error('Failed to queue statement csv import job', [
-                'fileName'  => $fileName,
-                'exception' => $e->getMessage(),
-                'trace'     => $e->getTraceAsString(),
-            ]);
-
-            // Mark job as failed if it was created
-            $job->markAsFailed($e->getMessage());
-            $entityManager->flush();
-
-            $this->getMessageBag()->add(
-                'error',
-                'error.statements.import.queue.failed',
-                ['fileName' => $fileName]
-            );
-        }
-    }
 }
