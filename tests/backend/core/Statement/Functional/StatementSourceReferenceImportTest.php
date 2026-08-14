@@ -40,6 +40,11 @@ class StatementSourceReferenceImportTest extends FunctionalTestCase
     private const SOURCE_ID_1 = 'ae2f4c1e-3b7d-4a10-9c62-0f1b8d5e7a31';
     private const SOURCE_ID_2 = 'b1c9d0e2-5f43-4c88-a7d1-2e6f9b0c4a55';
     private const SOURCE_ID_3 = 'c7e5a3b1-9d02-4f76-8b34-1a5c8e2d6f90';
+    private const FIRST_CHUNK = 'first chunk';
+    private const SECOND_CHUNK = 'second chunk';
+    private const HEADER = ['ID', 'Text', 'Dokumentenkategorie', 'Dokument', 'Absatz', 'Referenz'];
+    private const HEADER_WITHOUT_REFERENCE = ['ID', 'Text', 'Dokumentenkategorie', 'Dokument', 'Absatz'];
+    private const HEADER_WITH_INTERN_ID = ['ID', 'Text', 'Dokumentenkategorie', 'Dokument', 'Absatz', 'Eingangsnummer', 'Referenz'];
 
     /** @var list<string>|null */
     private ?array $temporaryFiles = [];
@@ -71,10 +76,10 @@ class StatementSourceReferenceImportTest extends FunctionalTestCase
         // Three assessment table copies of the same statement: same extern id, distinct source
         // references, distinct text chunks.
         $workbook = $this->createWorkbook(
-            ['ID', 'Text', 'Dokumentenkategorie', 'Dokument', 'Absatz', 'Referenz'],
+            self::HEADER,
             [
-                ['M1', 'first chunk', self::CATEGORY, null, null, self::SOURCE_ID_1],
-                ['M1', 'second chunk', self::CATEGORY, null, null, self::SOURCE_ID_2],
+                ['M1', self::FIRST_CHUNK, self::CATEGORY, null, null, self::SOURCE_ID_1],
+                ['M1', self::SECOND_CHUNK, self::CATEGORY, null, null, self::SOURCE_ID_2],
                 ['M1', 'third chunk', self::CATEGORY, null, null, self::SOURCE_ID_3],
             ]
         );
@@ -97,7 +102,7 @@ class StatementSourceReferenceImportTest extends FunctionalTestCase
     public function testStoresSourceReferenceOnOriginalStatementAsWell(): void
     {
         $workbook = $this->createWorkbook(
-            ['ID', 'Text', 'Dokumentenkategorie', 'Dokument', 'Absatz', 'Referenz'],
+            self::HEADER,
             [['M1', 'some text', self::CATEGORY, null, null, self::SOURCE_ID_1]]
         );
 
@@ -113,17 +118,16 @@ class StatementSourceReferenceImportTest extends FunctionalTestCase
 
     public function testSkipsStatementsWhoseSourceReferenceWasAlreadyImported(): void
     {
-        $header = ['ID', 'Text', 'Dokumentenkategorie', 'Dokument', 'Absatz', 'Referenz'];
         $firstImport = $this->createImporter();
-        $firstImport->process($this->createWorkbook($header, [
-            ['M1', 'first chunk', self::CATEGORY, null, null, self::SOURCE_ID_1],
+        $firstImport->process($this->createWorkbook(self::HEADER, [
+            ['M1', self::FIRST_CHUNK, self::CATEGORY, null, null, self::SOURCE_ID_1],
         ]));
         self::assertCount(1, $firstImport->getGeneratedStatements());
 
         // Re-importing a newer export adds only statements not imported before.
         $secondImport = $this->createImporter();
-        $secondImport->process($this->createWorkbook($header, [
-            ['M1', 'first chunk', self::CATEGORY, null, null, self::SOURCE_ID_1],
+        $secondImport->process($this->createWorkbook(self::HEADER, [
+            ['M1', self::FIRST_CHUNK, self::CATEGORY, null, null, self::SOURCE_ID_1],
             ['M2', 'another statement', self::CATEGORY, null, null, self::SOURCE_ID_2],
         ]));
 
@@ -141,10 +145,10 @@ class StatementSourceReferenceImportTest extends FunctionalTestCase
         // Copies report the intern id of the statement they were copied from, but it has to stay
         // unique per procedure.
         $workbook = $this->createWorkbook(
-            ['ID', 'Text', 'Dokumentenkategorie', 'Dokument', 'Absatz', 'Eingangsnummer', 'Referenz'],
+            self::HEADER_WITH_INTERN_ID,
             [
-                ['M1', 'first chunk', self::CATEGORY, null, null, 'E-123', self::SOURCE_ID_1],
-                ['M1', 'second chunk', self::CATEGORY, null, null, 'E-123', self::SOURCE_ID_2],
+                ['M1', self::FIRST_CHUNK, self::CATEGORY, null, null, 'E-123', self::SOURCE_ID_1],
+                ['M1', self::SECOND_CHUNK, self::CATEGORY, null, null, 'E-123', self::SOURCE_ID_2],
             ]
         );
 
@@ -166,10 +170,10 @@ class StatementSourceReferenceImportTest extends FunctionalTestCase
     {
         // Legacy exports carry no reference column - the extern id stays the only identity there.
         $workbook = $this->createWorkbook(
-            ['ID', 'Text', 'Dokumentenkategorie', 'Dokument', 'Absatz'],
+            self::HEADER_WITHOUT_REFERENCE,
             [
-                ['M1', 'first chunk', self::CATEGORY, null, null],
-                ['M1', 'second chunk', self::CATEGORY, null, null],
+                ['M1', self::FIRST_CHUNK, self::CATEGORY, null, null],
+                ['M1', self::SECOND_CHUNK, self::CATEGORY, null, null],
             ]
         );
 
@@ -185,10 +189,10 @@ class StatementSourceReferenceImportTest extends FunctionalTestCase
     {
         // An empty reference column falls back to the extern id, same as a legacy export.
         $workbook = $this->createWorkbook(
-            ['ID', 'Text', 'Dokumentenkategorie', 'Dokument', 'Absatz', 'Referenz'],
+            self::HEADER,
             [
-                ['M1', 'first chunk', self::CATEGORY, null, null, null],
-                ['M1', 'second chunk', self::CATEGORY, null, null, null],
+                ['M1', self::FIRST_CHUNK, self::CATEGORY, null, null, null],
+                ['M1', self::SECOND_CHUNK, self::CATEGORY, null, null, null],
             ]
         );
 
@@ -203,7 +207,7 @@ class StatementSourceReferenceImportTest extends FunctionalTestCase
     public function testReportsViolationForMalformedSourceReference(): void
     {
         $workbook = $this->createWorkbook(
-            ['ID', 'Text', 'Dokumentenkategorie', 'Dokument', 'Absatz', 'Referenz'],
+            self::HEADER,
             [['M1', 'some text', self::CATEGORY, null, null, 'not-a-uuid']]
         );
 
