@@ -162,7 +162,7 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
-import { DpAccordion, DpButtonRow, DpCheckbox, DpEditor, DpInlineNotification, DpInput, dpRpc, DpTextArea, validateForm } from '@demos-europe/demosplan-ui'
+import { DpAccordion, DpButtonRow, DpCheckbox, DpEditor, DpInlineNotification, DpInput, dpRpc, DpTextArea, useDpValidate } from '@demos-europe/demosplan-ui'
 import { useStore } from 'vuex'
 
 const props = defineProps({
@@ -195,6 +195,8 @@ const replyToEmail = ref(props.currentUserEmail)
 const segmentId = ref('')
 const segmentTextToSend = ref('')
 const subject = ref('')
+
+const { validate } = useDpValidate(emailForm)
 
 const segments = computed(() => store.state.StatementSegment.items)
 const slidebar = computed(() => store.state.SegmentSlidebar.slidebar)
@@ -247,8 +249,8 @@ const onAbort = () => {
 }
 
 const onSendEmail = () => {
-  if (validateForm(emailForm.value).valid === false) {
-    return dplan.notify.notify('error', Translator.trans('error.mandatoryfields'))
+  if (validate() === false) {
+    return
   }
 
   isSending.value = true
