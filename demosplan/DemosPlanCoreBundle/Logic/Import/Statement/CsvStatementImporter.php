@@ -151,7 +151,7 @@ readonly class CsvStatementImporter
      */
     private function createReader(SplFileInfo $file): Reader
     {
-        $reader = Reader::createFromPath($file->getPathname());
+        $reader = Reader::from($file->getPathname());
         $reader->setDelimiter(self::DELIMITER);
         $reader->setEnclosure(self::ENCLOSURE);
         // CSV files exported from Excel escape quotes by doubling them, so no escape character applies
