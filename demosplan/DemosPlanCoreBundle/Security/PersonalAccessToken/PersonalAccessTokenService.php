@@ -21,42 +21,30 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Report\PersonalAccessTokenReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Repository\PersonalAccessTokenRepository;
+use demosplan\DemosPlanCoreBundle\Security\ApiToken\ApiTokenSecretService;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
-use Random\Randomizer;
-use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
-use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 use Throwable;
 
 /**
  * Lifecycle manager for {@see PersonalAccessToken}: create, verify, revoke, list.
  *
- * Responsibilities:
- * - Generate the opaque secret portion and the lookup prefix
- * - Hash the secret with the application's password hasher (same factory the User entity uses)
- * - Enforce the invariants the entity itself can't: expiry bounded at +{@see PersonalAccessToken::MAX_LIFETIME_DAYS},
- *   non-empty scopes, scopes all present in {@see PersonalAccessTokenScope}
- * - Look tokens up by prefix in constant time (DB unique index) and verify in constant time (password_verify)
+ * Owns what is specific to a user-owned token — the invariants the entity itself can't enforce
+ * (expiry bounded at +{@see PersonalAccessToken::MAX_LIFETIME_DAYS}, non-empty scopes, scopes all
+ * present in {@see PersonalAccessTokenScope}), the audit trail, and revocation. Secret generation,
+ * hashing, verification and parsing live in {@see ApiTokenSecretService}, shared with every other
+ * token kind.
  *
  * The full token string exposed to the caller has the form
  *   dplan_pat_<12-char prefix><32-char secret>
- * The prefix + secret are URL-safe base32 characters (lowercase a-z2-7) to avoid = padding
- * and the visual ambiguity of 0/O/1/l.
  */
 class PersonalAccessTokenService
 {
-    /**
-     * RFC 4648 base32 alphabet without the padding/visually-ambiguous characters.
-     * 32 symbols = 5 bits per char; 12-char prefix = 60 bits, 32-char secret = 160 bits of entropy.
-     */
-    private const TOKEN_ALPHABET = 'abcdefghijkmnpqrstuvwxyz23456789';
-    private const SECRET_LENGTH = 32;
-
     public function __construct(
         private readonly PersonalAccessTokenRepository $repository,
         private readonly EntityManagerInterface $entityManager,
-        private readonly PasswordHasherFactoryInterface $passwordHasherFactory,
+        private readonly ApiTokenSecretService $secretService,
         private readonly PersonalAccessTokenReportEntryFactory $reportEntryFactory,
         private readonly ReportService $reportService,
         private readonly LoggerInterface $logger,
@@ -115,19 +103,17 @@ class PersonalAccessTokenService
             }
         }
 
-        $prefix = $this->generatePrefix();
-        $secret = $this->generateSecret();
-        $fullToken = PersonalAccessToken::TOKEN_LITERAL_PREFIX.$prefix.$secret;
-
-        $hasher = $this->passwordHasherFactory->getPasswordHasher(PersonalAccessToken::class);
-        $hash = $hasher->hash($secret);
+        $generated = $this->secretService->generate(
+            PersonalAccessToken::TOKEN_LITERAL_PREFIX,
+            fn (string $prefix): bool => null !== $this->repository->findByPrefix($prefix),
+        );
 
         $token = new PersonalAccessToken(
             user: $user,
             customer: $customer,
             name: $name,
-            tokenPrefix: $prefix,
-            tokenHash: $hash,
+            tokenPrefix: $generated->prefix,
+            tokenHash: $generated->hash,
             scopes: $validScopes,
             expiresAt: $expiresAt,
             procedureIds: $normalizedProcedureIds,
@@ -136,7 +122,7 @@ class PersonalAccessTokenService
         $this->repository->persistAndFlush($token);
 
         $this->logger->info('Personal access token created', [
-            'token_prefix' => $prefix,
+            'token_prefix' => $generated->prefix,
             'user_id'      => $user->getId(),
             'customer_id'  => $customer->getId(),
             'scopes'       => $validScopes,
@@ -148,7 +134,7 @@ class PersonalAccessTokenService
             'create'
         );
 
-        return new PersonalAccessTokenCreationResult($token, $fullToken);
+        return new PersonalAccessTokenCreationResult($token, $generated->fullToken);
     }
 
     /**
@@ -161,22 +147,20 @@ class PersonalAccessTokenService
      */
     public function findByPlaintext(string $fullToken): ?PersonalAccessToken
     {
-        $parsed = $this->parse($fullToken);
+        $parsed = $this->secretService->parse(PersonalAccessToken::TOKEN_LITERAL_PREFIX, $fullToken);
         if (null === $parsed) {
             return null;
         }
         [$prefix, $secret] = $parsed;
 
         $token = $this->repository->findByPrefix($prefix);
-        $hasher = $this->passwordHasherFactory->getPasswordHasher(PersonalAccessToken::class);
-
         if (null === $token) {
-            $this->constantTimeNoop($hasher, $secret);
+            $this->secretService->verifyAgainstMiss($secret);
 
             return null;
         }
 
-        if (!$hasher->verify($token->getTokenHash(), $secret)) {
+        if (!$this->secretService->verify($token->getTokenHash(), $secret)) {
             return null;
         }
 
@@ -220,56 +204,6 @@ class PersonalAccessTokenService
     public function revokeAllForUser(User $user, ?User $by = null): int
     {
         return $this->repository->revokeAllForUser($user, new DateTime(), $by);
-    }
-
-    private function generatePrefix(): string
-    {
-        $randomizer = new Randomizer();
-        for ($attempt = 0; $attempt < 5; ++$attempt) {
-            $prefix = $randomizer->getBytesFromString(self::TOKEN_ALPHABET, PersonalAccessToken::TOKEN_PREFIX_LENGTH);
-            if (null === $this->repository->findByPrefix($prefix)) {
-                return $prefix;
-            }
-        }
-        throw new \RuntimeException('Failed to generate a unique PAT prefix after 5 attempts.');
-    }
-
-    private function generateSecret(): string
-    {
-        return (new Randomizer())->getBytesFromString(self::TOKEN_ALPHABET, self::SECRET_LENGTH);
-    }
-
-    /**
-     * @return array{0: string, 1: string}|null
-     */
-    private function parse(string $fullToken): ?array
-    {
-        $literal = PersonalAccessToken::TOKEN_LITERAL_PREFIX;
-        if (!str_starts_with($fullToken, $literal)) {
-            return null;
-        }
-        $body = substr($fullToken, strlen($literal));
-        $expectedLength = PersonalAccessToken::TOKEN_PREFIX_LENGTH + self::SECRET_LENGTH;
-        if (strlen($body) !== $expectedLength) {
-            return null;
-        }
-        $prefix = substr($body, 0, PersonalAccessToken::TOKEN_PREFIX_LENGTH);
-        $secret = substr($body, PersonalAccessToken::TOKEN_PREFIX_LENGTH);
-
-        return [$prefix, $secret];
-    }
-
-    /**
-     * Runs a hash verification against a known-bad value to keep timing uniform when
-     * the prefix lookup misses. The result is discarded.
-     */
-    private function constantTimeNoop(PasswordHasherInterface $hasher, string $secret): void
-    {
-        static $dummyHash = null;
-        if (null === $dummyHash) {
-            $dummyHash = $hasher->hash(bin2hex(random_bytes(16)));
-        }
-        $hasher->verify($dummyHash, $secret);
     }
 
     /**

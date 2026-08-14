@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Report\PersonalAccessTokenReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Repository\PersonalAccessTokenRepository;
+use demosplan\DemosPlanCoreBundle\Security\ApiToken\ApiTokenSecretService;
 use demosplan\DemosPlanCoreBundle\Security\PersonalAccessToken\PersonalAccessTokenScope;
 use demosplan\DemosPlanCoreBundle\Security\PersonalAccessToken\PersonalAccessTokenService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -68,7 +69,7 @@ class PersonalAccessTokenServiceTest extends UnitTestCase
         $this->sut = new PersonalAccessTokenService(
             $this->repository,
             $this->entityManager,
-            $factory,
+            new ApiTokenSecretService($factory),
             $this->reportEntryFactory,
             $this->reportService,
             new NullLogger(),
@@ -104,6 +105,51 @@ class PersonalAccessTokenServiceTest extends UnitTestCase
 
         self::assertStringStartsWith('hashed:', $result->token->getTokenHash());
         self::assertNotSame($result->plaintext, $result->token->getTokenHash(), 'secret must not be persisted in clear');
+    }
+
+    /**
+     * Every other test here mocks the hasher factory, which hides whether `password_hashers` holds
+     * an entry matching the token class — the real factory throws when none does. Resolving it
+     * from the container is what puts that configuration under test.
+     */
+    public function testHashRoundTripsThroughTheConfiguredHasher(): void
+    {
+        $stored = null;
+        $repository = $this->createMock(PersonalAccessTokenRepository::class);
+        // The prefix-uniqueness check during create() must miss, the lookup during
+        // findByPlaintext() must hit, so both answers come from the same holder.
+        $repository->method('findByPrefix')->willReturnCallback(
+            static function () use (&$stored): ?PersonalAccessToken {
+                return $stored;
+            }
+        );
+        $repository->method('persistAndFlush')->willReturnCallback(
+            static function (PersonalAccessToken $token) use (&$stored): void {
+                $stored = $token;
+            }
+        );
+
+        $sut = $this->buildService(
+            $repository,
+            $this->createMock(EntityManagerInterface::class),
+            self::getContainer()->get(PasswordHasherFactoryInterface::class),
+        );
+
+        $result = $sut->create(
+            user: $this->user(),
+            customer: $this->customer(),
+            name: 'round trip',
+            scopes: [PersonalAccessTokenScope::STATEMENTS_READ],
+            expiresAt: $this->daysFromNow(30),
+        );
+
+        self::assertNotSame($result->plaintext, $result->token->getTokenHash());
+        self::assertSame($result->token, $sut->findByPlaintext($result->plaintext));
+
+        $wrongSecret = PersonalAccessToken::TOKEN_LITERAL_PREFIX
+            .$result->token->getTokenPrefix()
+            .str_repeat('q', 32);
+        self::assertNull($sut->findByPlaintext($wrongSecret));
     }
 
     public function testCreateRejectsEmptyName(): void
@@ -372,7 +418,7 @@ class PersonalAccessTokenServiceTest extends UnitTestCase
         return new PersonalAccessTokenService(
             $repo,
             $em,
-            $factory,
+            new ApiTokenSecretService($factory),
             $reportEntryFactory,
             $this->createMock(ReportService::class),
             new NullLogger(),

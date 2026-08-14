@@ -17,6 +17,12 @@ security:
             migrate_from:
                 - customSha512
                 - saltlessMd5
+        # Token secrets are 160 bit of CSPRNG output, not user-chosen passwords: there is no
+        # dictionary to stretch against, while the token is verified on every API request, where
+        # the cost of bcrypt or argon2 would be a per-request latency tax.
+        # Keyed on the base class so every token kind is covered without a further entry.
+        demosplan\DemosPlanCoreBundle\Entity\User\AbstractApiToken:
+            algorithm: sha256
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
 
     providers:
