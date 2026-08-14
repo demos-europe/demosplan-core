@@ -115,6 +115,11 @@ export default {
     availableEntities () {
       return [
         {
+          label: 'statements.import',
+          key: 'statements',
+          permissions: ['feature_statements_import_excel', 'feature_statements_import_csv'],
+          csvUploadPath: 'dplan_statement_import_csv',
+          excelUploadPath: 'DemosPlan_statement_import',
           exampleFiles: [
             {
               label: 'import.example.file.excel',
@@ -127,12 +132,12 @@ export default {
               permission: 'feature_statements_import_csv',
             },
           ],
-          label: 'statements.import',
-          key: 'statements',
-          permissions: ['feature_statements_import_excel', 'feature_statements_import_csv'],
-          uploadPath: 'DemosPlan_statement_import',
         },
         {
+          label: 'segments.import',
+          key: 'segments',
+          permissions: ['feature_segments_import_excel'],
+          excelUploadPath: 'dplan_segments_process_import',
           exampleFiles: [
             {
               label: 'import.example.file.excel',
@@ -140,10 +145,6 @@ export default {
               permission: 'feature_segments_import_excel',
             },
           ],
-          label: 'segments.import',
-          key: 'segments',
-          permissions: ['feature_segments_import_excel'],
-          uploadPath: 'dplan_segments_process_import',
         },
       ].filter(entity => hasAnyPermissions(entity.permissions))
     },
@@ -166,7 +167,7 @@ export default {
      */
     formAction () {
       const isCsvImport = this.active === 'statements' && this.isCsv(this.uploadedFileName)
-      const path = isCsvImport ? 'dplan_statement_import_csv' : this.activeEntity.uploadPath
+      const path = isCsvImport ? this.activeEntity.csvUploadPath : this.activeEntity.excelUploadPath
 
       return Routing.generate(path, { procedureId: this.procedureId })
     },
