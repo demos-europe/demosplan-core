@@ -36,6 +36,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Repository\ImportJobRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use demosplan\DemosPlanCoreBundle\StoredQuery\SegmentListQuery;
+use demosplan\DemosPlanCoreBundle\Types\ImportJobType;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -197,7 +198,7 @@ class SegmentController extends BaseController
                 $user,
                 $uploadHash,
                 $fileName,
-                ImportJob::TYPE_SEGMENTS,
+                ImportJobType::SEGMENTS,
                 'confirm.segments.import.queued',
                 'error.segments.import.queue.failed',
             );
@@ -261,7 +262,7 @@ class SegmentController extends BaseController
             return [
                 'id'             => $job->getId(),
                 'fileName'       => $job->getFileName(),
-                'importType'     => $job->getImportType(),
+                'importType'     => $job->getImportType()->value,
                 'status'         => $job->getStatus(),
                 'result'         => $job->getResult(),
                 'error'          => $job->getError(),

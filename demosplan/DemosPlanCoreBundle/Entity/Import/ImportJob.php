@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\ImportJobRepository;
+use demosplan\DemosPlanCoreBundle\Types\ImportJobType;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -35,16 +36,6 @@ class ImportJob extends CoreEntity
     final public const STATUS_PROCESSING = 'processing';
     final public const STATUS_COMPLETED = 'completed';
     final public const STATUS_FAILED = 'failed';
-
-    /**
-     * Import of statements with their segments from a spreadsheet workbook.
-     */
-    final public const TYPE_SEGMENTS = 'segments';
-
-    /**
-     * Import of statements without segments from a CSV file.
-     */
-    final public const TYPE_STATEMENTS = 'statements';
 
     /**
      * @var string|null
@@ -98,8 +89,8 @@ class ImportJob extends CoreEntity
     /**
      * Determines which importer processes this job.
      */
-    #[ORM\Column(name: 'import_type', type: 'string', length: 32, options: ['default' => self::TYPE_SEGMENTS])]
-    protected string $importType = self::TYPE_SEGMENTS;
+    #[ORM\Column(name: 'import_type', type: 'string', length: 32, enumType: ImportJobType::class, options: ['default' => ImportJobType::SEGMENTS->value])]
+    protected ImportJobType $importType = ImportJobType::SEGMENTS;
 
     /**
      * @var DateTime|null
@@ -207,12 +198,12 @@ class ImportJob extends CoreEntity
         return $this;
     }
 
-    public function getImportType(): string
+    public function getImportType(): ImportJobType
     {
         return $this->importType;
     }
 
-    public function setImportType(string $importType): self
+    public function setImportType(ImportJobType $importType): self
     {
         $this->importType = $importType;
 

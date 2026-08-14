@@ -27,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\CsvStatementImport;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxSegmentImport;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Repository\ImportJobRepository;
+use demosplan\DemosPlanCoreBundle\Types\ImportJobType;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -57,7 +58,7 @@ class ImportJobProcessorDispatchTest extends FunctionalTestCase
     public function testStatementJobImportsTheCsvAndCompletes(): void
     {
         $statementsBefore = $this->countEntries(Statement::class);
-        $job = $this->queueJob('valid.csv', ImportJob::TYPE_STATEMENTS);
+        $job = $this->queueJob('valid.csv', ImportJobType::STATEMENTS);
 
         $processed = $this->sut->processPendingJobs();
 
@@ -73,7 +74,7 @@ class ImportJobProcessorDispatchTest extends FunctionalTestCase
     public function testStatementJobWithViolationsFailsWithoutImporting(): void
     {
         $statementsBefore = $this->countEntries(Statement::class);
-        $job = $this->queueJob('invalid_date.csv', ImportJob::TYPE_STATEMENTS);
+        $job = $this->queueJob('invalid_date.csv', ImportJobType::STATEMENTS);
 
         $this->sut->processPendingJobs();
 
@@ -91,7 +92,7 @@ class ImportJobProcessorDispatchTest extends FunctionalTestCase
      */
     public function testUnexpectedExceptionDuringImportStoresNoTechnicalDetail(): void
     {
-        $job = $this->queueJob('valid.csv', ImportJob::TYPE_STATEMENTS);
+        $job = $this->queueJob('valid.csv', ImportJobType::STATEMENTS);
 
         $technicalMessage = "SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'K85/789789789-a783c9f4-69ca-4e6b-b514-87dd87742911' for key 'internId_procedure'";
         $failingCsvStatementImport = $this->createMock(CsvStatementImport::class);
@@ -120,7 +121,7 @@ class ImportJobProcessorDispatchTest extends FunctionalTestCase
         self::assertStringContainsString('erneut', (string) $job->getError());
     }
 
-    private function queueJob(string $filename, string $importType): ImportJob
+    private function queueJob(string $filename, ImportJobType $importType): ImportJob
     {
         /** @var Procedure $procedure */
         $procedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);

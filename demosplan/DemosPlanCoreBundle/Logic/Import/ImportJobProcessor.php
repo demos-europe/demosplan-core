@@ -27,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\CsvStatementImport;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxSegmentImport;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Repository\ImportJobRepository;
+use demosplan\DemosPlanCoreBundle\Types\ImportJobType;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -171,13 +172,16 @@ class ImportJobProcessor
     private function runImport(ImportJob $job, FileInfo $file): SegmentExcelImportResult
     {
         return match ($job->getImportType()) {
-            ImportJob::TYPE_STATEMENTS => $this->csvStatementImport->importFromFile($file),
-            default                    => $this->xlsxSegmentImport->importFromFile($file),
+            ImportJobType::STATEMENTS => $this->csvStatementImport->importFromFile($file),
+            default                   => $this->xlsxSegmentImport->importFromFile($file),
         };
     }
 
     /**
-     * A csv holds a single table, so naming a worksheet would only be confusing there.
+     * A csv holds a single table, so naming a worksheet would only be confusing there. This depends on
+     * the file's actual format, not on {@see ImportJob::getImportType()} - the two happen to line up
+     * for every importer that exists today, but must not be conflated once a format gets a second
+     * importer (e.g. a csv-based segment import).
      *
      * @param array<string, mixed> $error
      */
@@ -186,7 +190,7 @@ class ImportJobProcessor
         $lineNumber = $error['lineNumber'] ?? '?';
         $message = $error['message'] ?? 'Unknown error';
 
-        if (ImportJob::TYPE_STATEMENTS === $job->getImportType()) {
+        if ($this->isCsv($job)) {
             return sprintf("• Zeile %s: %s\n", $lineNumber, $message);
         }
 
@@ -198,6 +202,11 @@ class ImportJobProcessor
         );
     }
 
+    private function isCsv(ImportJob $job): bool
+    {
+        return 'csv' === mb_strtolower(pathinfo($job->getFileName(), PATHINFO_EXTENSION));
+    }
+
     /**
      * @return array<string, int>
      */
@@ -205,7 +214,7 @@ class ImportJobProcessor
     {
         $jobResult = ['statements' => $result->getStatementCount()];
 
-        if (ImportJob::TYPE_SEGMENTS === $job->getImportType()) {
+        if (ImportJobType::SEGMENTS === $job->getImportType()) {
             $jobResult['segments'] = $result->getSegmentCount();
         }
 
@@ -374,7 +383,7 @@ class ImportJobProcessor
 
             $this->logger->info('Import job completed', [
                 'jobId'      => $job->getId(),
-                'importType' => $job->getImportType(),
+                'importType' => $job->getImportType()->value,
                 'statements' => $result->getStatementCount(),
                 'segments'   => $result->getSegmentCount(),
             ]);

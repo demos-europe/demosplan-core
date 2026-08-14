@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Import\ImportJob;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Types\ImportJobType;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -39,7 +40,7 @@ readonly class ImportJobQueue
         User $user,
         string $uploadHash,
         string $fileName,
-        string $importType,
+        ImportJobType $importType,
         string $confirmTranslationKey,
         string $errorTranslationKey,
     ): ImportJob {
@@ -58,7 +59,7 @@ readonly class ImportJobQueue
             'jobId'       => $job->getId(),
             'fileName'    => $fileName,
             'procedureId' => $procedure->getId(),
-            'importType'  => $importType,
+            'importType'  => $importType->value,
         ]);
 
         $this->messageBag->add(
@@ -78,7 +79,7 @@ readonly class ImportJobQueue
         User $user,
         string $uploadHash,
         string $fileName,
-        string $importType,
+        ImportJobType $importType,
     ): ImportJob {
         $job = new ImportJob();
         $job->setProcedure($procedure);
@@ -99,13 +100,13 @@ readonly class ImportJobQueue
     private function handleQueueFailure(
         ImportJob $job,
         string $fileName,
-        string $importType,
+        ImportJobType $importType,
         string $errorTranslationKey,
         Exception $e,
     ): void {
         $this->logger->error('Failed to queue import job', [
             'fileName'   => $fileName,
-            'importType' => $importType,
+            'importType' => $importType->value,
             'exception'  => $e->getMessage(),
             'trace'      => $e->getTraceAsString(),
         ]);

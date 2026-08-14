@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Statement\Import;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
-use demosplan\DemosPlanCoreBundle\Entity\Import\ImportJob;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
@@ -33,6 +32,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxStatementImport;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\XlsxStatementImporterFactory;
+use demosplan\DemosPlanCoreBundle\Types\ImportJobType;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Exception;
 use Symfony\Component\Finder\SplFileInfo;
@@ -229,7 +229,7 @@ class StatementImportController extends BaseController
                 $currentUser->getUser(),
                 $uploadHash,
                 $fileName,
-                ImportJob::TYPE_STATEMENTS,
+                ImportJobType::STATEMENTS,
                 'confirm.statements.import.queued',
                 'error.statements.import.queue.failed',
             );
