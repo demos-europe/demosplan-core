@@ -36,7 +36,7 @@ use UnexpectedValueException;
  *
  * The entities are neither persisted nor flushed here, see {@link CsvStatementImport}.
  */
-class CsvStatementImporter
+readonly class CsvStatementImporter
 {
     private const DELIMITER = ';';
     private const ENCLOSURE = '"';
@@ -69,12 +69,12 @@ class CsvStatementImporter
     private const INSTITUTION_COLUMNS = [self::COLUMN_INSTITUTION, 'Abteilung'];
 
     public function __construct(
-        private readonly CurrentProcedureService $currentProcedureService,
-        private readonly ExcelImporter $statementImporter,
-        private readonly LoggerInterface $logger,
-        private readonly StatementService $statementService,
-        private readonly StatementValidator $statementValidator,
-        private readonly TranslatorInterface $translator,
+        private CurrentProcedureService $currentProcedureService,
+        private ExcelImporter $statementImporter,
+        private LoggerInterface $logger,
+        private StatementService $statementService,
+        private StatementValidator $statementValidator,
+        private TranslatorInterface $translator,
     ) {
     }
 

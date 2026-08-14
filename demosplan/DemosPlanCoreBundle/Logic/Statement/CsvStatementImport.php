@@ -36,7 +36,7 @@ use Throwable;
  * Nothing is persisted when the file contains violations - the caller is expected to roll back the
  * surrounding transaction in that case, see {@link ImportJobProcessor}.
  */
-class CsvStatementImport
+readonly class CsvStatementImport
 {
     /**
      * How many statements are persisted before the changes are written to the database.
@@ -49,15 +49,15 @@ class CsvStatementImport
     private const ES_BULK_INDEX_BATCH_SIZE = 1000;
 
     public function __construct(
-        private readonly CsvStatementImporter $csvStatementImporter,
-        private readonly EntityManagerInterface $entityManager,
-        private readonly EventDispatcherPostInterface $eventDispatcher,
-        private readonly LoggerInterface $logger,
-        private readonly ObjectPersisterInterface $statementPersister,
-        private readonly ReportService $reportService,
-        private readonly StatementReportEntryFactory $statementReportEntryFactory,
-        private readonly StatementRepository $statementRepository,
-        private readonly StatementService $statementService,
+        private CsvStatementImporter $csvStatementImporter,
+        private EntityManagerInterface $entityManager,
+        private EventDispatcherPostInterface $eventDispatcher,
+        private LoggerInterface $logger,
+        private ObjectPersisterInterface $statementPersister,
+        private ReportService $reportService,
+        private StatementReportEntryFactory $statementReportEntryFactory,
+        private StatementRepository $statementRepository,
+        private StatementService $statementService,
     ) {
     }
 
