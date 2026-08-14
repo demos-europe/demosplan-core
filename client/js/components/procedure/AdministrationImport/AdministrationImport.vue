@@ -26,9 +26,9 @@
           <keep-alive>
             <component
               :is="option.name"
-              class="u-mt"
-              :demosplan-ui="demosplanUi"
               :csrf-token="csrfToken"
+              :demosplan-ui="demosplanUi"
+              class="u-mt"
             />
           </keep-alive>
         </slot>

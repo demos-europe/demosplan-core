@@ -34,33 +34,33 @@
     <form
       :action="formAction"
       class="space-stack-s"
-      method="post"
       enctype="multipart/form-data"
+      method="post"
     >
       <input
+        :value="csrfToken"
         name="_token"
         type="hidden"
-        :value="csrfToken"
       >
 
       <dp-upload-files
         :allowed-file-types="allowedFileTypes"
         :clear-all-files="clearAllFiles"
-        data-cy="uploadExcelFile"
         :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
         :max-file-size="100 * 1024 * 1024/* 100 MiB */"
-        needs-hidden-input
         :translations="{ dropHereOr: Translator.trans('form.button.upload.file.allowed.formats', { browse: '{browse}', allowedFormats: allowedFileTypes.join(', '), maxUploadSize: '100 MB' }) }"
         :tus-endpoint="dplan.paths.tusEndpoint"
+        data-cy="uploadExcelFile"
+        needs-hidden-input
         @file-remove="unsetUploadedFileName"
         @upload-success="setUploadedFileName"
       />
       <div class="text-right">
         <button
           :disabled="uploadedFileName === ''"
-          type="submit"
-          data-cy="statementImport"
           class="btn btn--primary"
+          data-cy="statementImport"
+          type="submit"
         >
           {{ Translator.trans('import.verb') }}
         </button>
@@ -153,18 +153,14 @@ export default {
       return this.availableEntities.find(entity => entity.key === this.active)
     },
 
-    /**
-     * Statements may additionally be imported as csv, segments may not.
-     */
+    // Statements may additionally be imported as csv, segments may not.
     allowedFileTypes () {
       const csvAllowed = this.active === 'statements' && hasPermission('feature_statements_import_csv')
 
       return csvAllowed ? [...getFileTypes('xls'), ...getFileTypes('csv')] : getFileTypes('xls')
     },
 
-    /**
-     * Csv files are imported as a background job by a route of their own, spreadsheets are not.
-     */
+    // Csv files are imported as a background job by a route of their own, spreadsheets are not.
     formAction () {
       const isCsvImport = this.active === 'statements' && this.isCsv(this.uploadedFileName)
       const path = isCsvImport ? this.activeEntity.csvUploadPath : this.activeEntity.excelUploadPath

@@ -17,9 +17,9 @@
         v-if="items.length > 0"
         :header-fields="headerFields"
         :items="items"
-        is-expandable
-        track-by="id"
         data-cy="segmentImportJobList"
+        track-by="id"
+        is-expandable
       >
         <!-- Job ID Column -->
         <template v-slot:id="{ id }">
