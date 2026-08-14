@@ -17,9 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Import\ImportJob;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\ImportJobNotFoundException;
-use demosplan\DemosPlanCoreBundle\Exception\ImportJobUserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\SegmentExcelImportResult;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -244,9 +242,6 @@ class ImportJobProcessor
 
         // Use the actual user who created the import job
         $user = $job->getUser();
-        if (!$user instanceof User) {
-            throw ImportJobUserNotFoundException::create($job->getId());
-        }
 
         $customer = $job->getProcedure()->getCustomer();
         $this->globalConfig->setSubdomain($customer->getSubdomain());
