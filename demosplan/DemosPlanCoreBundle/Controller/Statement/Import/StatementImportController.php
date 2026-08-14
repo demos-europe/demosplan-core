@@ -379,6 +379,10 @@ class StatementImportController extends BaseController
                 'trace'     => $e->getTraceAsString(),
             ]);
 
+            // Mark job as failed if it was created
+            $job->markAsFailed($e->getMessage());
+            $entityManager->flush();
+
             $this->getMessageBag()->add(
                 'error',
                 'error.statements.import.queue.failed',
