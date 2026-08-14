@@ -23,7 +23,6 @@ use Doctrine\DBAL\Exception;
 
 class SegmentEmailSender
 {
-
     public function __construct(
         private readonly MailService $mailService,
         private readonly MessageBagInterface $messageBag,
@@ -72,7 +71,7 @@ class SegmentEmailSender
             $emailVariables = $this->populateEmailVariables($subject, $obscuredBody);
             // Queue the mail and write the version-history entries in one transaction so they commit atomically:
             // a queued mail can never end up without its GDPR audit entry (Important!)
-            //No attachments as of now.
+            // No attachments as of now.
             $this->transactionService->executeAndFlushInTransaction(function () use (
                 $sendMailTo, $sentFrom, $ccEmailAddresses, $emailVariables, $replyTo, $segments
             ): void {
