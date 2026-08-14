@@ -22,7 +22,7 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Bookmark as BookmarkEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Bookmark;
 use demosplan\DemosPlanCoreBundle\StoredQuery\SegmentListQuery;
 use Symfony\Component\Validator\Constraints as Assert;
 use Webmozart\Assert\Assert as TypeAssert;
@@ -108,7 +108,7 @@ class BookmarkResource
      * on that format in the query itself, so anything else here is a programming error rather than bad
      * input.
      */
-    public static function fromEntity(BookmarkEntity $bookmark): self
+    public static function fromEntity(Bookmark $bookmark): self
     {
         $hashedQuery = $bookmark->getFilterSet();
         $storedQuery = $hashedQuery->getStoredQuery();

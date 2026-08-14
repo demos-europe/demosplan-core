@@ -50,7 +50,7 @@ class SegmentRpcController extends APIController
         } catch (InvalidArgumentException $e) {
             $this->logger->error(
                 'Rejected a segment list query update',
-                ['queryHash' => $queryHash, 'reason' => $e->getMessage(), 'exception' => $e]
+                ['queryHash' => $queryHash, 'reason' => $e->getMessage()]
             );
             // todo changeMe to $this->handleApiError($e) - its an api request and should not return plain text
             throw new BadRequestException($e->getMessage(), 0, $e);
@@ -70,7 +70,7 @@ class SegmentRpcController extends APIController
 
         // A list when no filter is active, a map of conditions otherwise, so both forms are accepted.
         $filterArray = $requestJson[self::FILTER] ?? null;
-        Assert::isArray($filterArray, 'The "filter" property is required and must be an array or object.');
+        Assert::isArray($filterArray, 'The "filter" property is required; send an empty array when no filter is active.');
 
         // Used to validate only, no need for the returned object
         $filterArray = $filterParser->validateFilter($filterArray);
@@ -112,8 +112,8 @@ class SegmentRpcController extends APIController
 
     /**
      * An absent key leaves the stored view settings untouched, because this route also handles plain
-     * filter changes and wiping the user's columns on every one of those would be surprising. An empty
-     * array or object clears them, which restores the hash the query had before any were set.
+     * filter changes and wiping the user's columns on every one of those would be surprising. Sending
+     * it empty clears them, which restores the hash the query had before any were set.
      *
      * The contents are not validated here: {@see SegmentListQuery::setViewSettings()} normalizes them,
      * which keeps a single definition of what a valid view setting is.
@@ -125,7 +125,7 @@ class SegmentRpcController extends APIController
         }
 
         $viewSettings = $requestJson[self::VIEW_SETTINGS];
-        Assert::isArray($viewSettings, 'The "viewSettings" property must be an array or object.');
+        Assert::isArray($viewSettings, 'The "viewSettings" property must hold view settings; send an empty array to clear them.');
 
         $segmentListQuery->setViewSettings($viewSettings);
     }
