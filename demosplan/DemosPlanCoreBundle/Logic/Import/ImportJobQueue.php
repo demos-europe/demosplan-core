@@ -43,54 +43,77 @@ readonly class ImportJobQueue
         string $confirmTranslationKey,
         string $errorTranslationKey,
     ): ImportJob {
-        $job = new ImportJob();
+        $job = $this->buildJob($procedure, $user, $uploadHash, $fileName, $importType);
 
         try {
-            $job->setProcedure($procedure);
-            $job->setUser($user);
-            $job->setImportType($importType);
-            $job->setFilePath($uploadHash);
-            $job->setFileName($fileName);
-
-            // capture the current organisation context for background processing
-            $currentOrga = $user->getCurrentOrganisation();
-            if ($currentOrga instanceof Orga) {
-                $job->setOrganisation($currentOrga);
-            }
-
             $this->entityManager->persist($job);
             $this->entityManager->flush();
-
-            $this->logger->info('Import job queued', [
-                'jobId'       => $job->getId(),
-                'fileName'    => $fileName,
-                'procedureId' => $procedure->getId(),
-                'importType'  => $importType,
-            ]);
-
-            $this->messageBag->add(
-                'confirm',
-                $confirmTranslationKey,
-                [
-                    'fileName' => $fileName,
-                    'jobId'    => $job->getId(),
-                ]
-            );
         } catch (Exception $e) {
-            $this->logger->error('Failed to queue import job', [
-                'fileName'   => $fileName,
-                'importType' => $importType,
-                'exception'  => $e->getMessage(),
-                'trace'      => $e->getTraceAsString(),
-            ]);
+            $this->handleQueueFailure($job, $fileName, $importType, $errorTranslationKey, $e);
 
-            // Mark job as failed if it was created
-            $job->markAsFailed($e->getMessage());
-            $this->entityManager->flush();
+            return $job;
+        }
 
-            $this->messageBag->add('error', $errorTranslationKey, ['fileName' => $fileName]);
+        $this->logger->info('Import job queued', [
+            'jobId'       => $job->getId(),
+            'fileName'    => $fileName,
+            'procedureId' => $procedure->getId(),
+            'importType'  => $importType,
+        ]);
+
+        $this->messageBag->add(
+            'confirm',
+            $confirmTranslationKey,
+            [
+                'fileName' => $fileName,
+                'jobId'    => $job->getId(),
+            ]
+        );
+
+        return $job;
+    }
+
+    private function buildJob(
+        Procedure $procedure,
+        User $user,
+        string $uploadHash,
+        string $fileName,
+        string $importType,
+    ): ImportJob {
+        $job = new ImportJob();
+        $job->setProcedure($procedure);
+        $job->setUser($user);
+        $job->setImportType($importType);
+        $job->setFilePath($uploadHash);
+        $job->setFileName($fileName);
+
+        // capture the current organisation context for background processing
+        $currentOrga = $user->getCurrentOrganisation();
+        if ($currentOrga instanceof Orga) {
+            $job->setOrganisation($currentOrga);
         }
 
         return $job;
+    }
+
+    private function handleQueueFailure(
+        ImportJob $job,
+        string $fileName,
+        string $importType,
+        string $errorTranslationKey,
+        Exception $e,
+    ): void {
+        $this->logger->error('Failed to queue import job', [
+            'fileName'   => $fileName,
+            'importType' => $importType,
+            'exception'  => $e->getMessage(),
+            'trace'      => $e->getTraceAsString(),
+        ]);
+
+        // Mark job as failed if it was created
+        $job->markAsFailed($e->getMessage());
+        $this->entityManager->flush();
+
+        $this->messageBag->add('error', $errorTranslationKey, ['fileName' => $fileName]);
     }
 }
