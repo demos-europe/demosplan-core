@@ -28,26 +28,18 @@ use demosplan\DemosPlanCoreBundle\Event\RequestValidationStrictEvent;
 use demosplan\DemosPlanCoreBundle\Event\RequestValidationWeakEvent;
 use demosplan\DemosPlanCoreBundle\EventDispatcher\EventDispatcherPostInterface;
 use demosplan\DemosPlanCoreBundle\Exception\CookieException;
-use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\DraftStatementNotFoundException;
-use demosplan\DemosPlanCoreBundle\Exception\DuplicateInternIdException;
 use demosplan\DemosPlanCoreBundle\Exception\GdprConsentRequiredException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
-use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
-use demosplan\DemosPlanCoreBundle\Exception\MissingExcelDataException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
-use demosplan\DemosPlanCoreBundle\Exception\RowAwareViolationsException;
 use demosplan\DemosPlanCoreBundle\Exception\TimeoutException;
-use demosplan\DemosPlanCoreBundle\Exception\UnexpectedWorksheetNameException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
-use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\ExcelImporter;
-use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\StatementSpreadsheetImporterWithZipSupport;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -60,12 +52,10 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListHandlerResult;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxStatementImport;
 use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
-use demosplan\DemosPlanCoreBundle\Logic\XlsxStatementImporterFactory;
 use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Services\DatasheetService;
@@ -73,14 +63,11 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldProvider;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldPropertyName;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
-use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementListFilters;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
-use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use RuntimeException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -108,8 +95,6 @@ use function explode;
  */
 class DemosPlanStatementController extends BaseController
 {
-    private const STATEMENT_IMPORT_ENCOUNTERED_ERRORS = 'statement import failed';
-
     public function __construct(
         private readonly CurrentProcedureService $currentProcedureService,
         private readonly CurrentUserService $currentUser,
@@ -2390,249 +2375,6 @@ class DemosPlanStatementController extends BaseController
         }
 
         return false;
-    }
-
-    /**
-     * Imports Statements from a xlsx-file.
-     *
-     * @throws ProcedureNotFoundException
-     * @throws Exception
-     */
-    #[DplanPermissions('feature_statements_import_excel')]
-    #[Route(path: '/verfahren/{procedureId}/stellungnahmen/import', name: 'DemosPlan_statement_import', options: ['expose' => true], methods: ['POST'])]
-    public function importStatements(
-        FileService $fileService,
-        ProcedureService $procedureService,
-        XlsxStatementImporterFactory $importerFactory,
-        ExcelImporter $excelImporter,
-        string $procedureId,
-        Request $request,
-    ): Response {
-        $requestPost = $request->request->all();
-        $procedure = $procedureService->getProcedure($procedureId);
-
-        if (!$procedure instanceof Procedure) {
-            throw ProcedureNotFoundException::createFromId($procedureId);
-        }
-
-        try {
-            // recreate uploaded array
-            $uploads = explode(',', (string) $requestPost['uploadedFiles']);
-            $files = array_map($fileService->getFileInfo(...), $uploads);
-            $importer = $importerFactory->createXlsxStatementImporter($excelImporter);
-            $fileNames = [];
-            $statementCount = 0;
-            /** @var FileInfo $fileInfo */
-            foreach ($files as $fileInfo) {
-                $localPath = $fileService->ensureLocalFile($fileInfo->getAbsolutePath());
-                $localFileInfo = new FileInfo(
-                    $fileInfo->getHash(),
-                    '',
-                    0,
-                    '',
-                    $localPath,
-                    $localPath,
-                    null
-                );
-                $this->importStatementsFromXls($localFileInfo, $importer);
-                $fileNames[] = $fileInfo->getFileName();
-                $statementCount += count($importer->getCreatedStatements());
-                $fileService->deleteFile($fileInfo->getHash());
-                $fileService->deleteLocalFile($localPath);
-            }
-            if ($importer->hasErrors()) {
-                return $this->createErrorResponse($procedureId, $importer->getErrorsAsArray());
-            }
-        } catch (Exception) {
-            return $this->redirectToRoute(
-                'DemosPlan_procedure_import',
-                ['procedureId' => $procedureId]
-            );
-        }
-
-        return $this->createSuccessResponse($procedureId, $statementCount, $fileNames);
-    }
-
-    /**
-     * Imports Statements from a xlsx-file inside a zip created by the assessment table export and adds related documents.
-     *
-     * @throws ProcedureNotFoundException
-     * @throws Exception
-     */
-    #[DplanPermissions('feature_statements_participation_import_excel')]
-    #[Route(
-        path: '/verfahren/{procedureId}/stellungnahmen/beteilugengsimport',
-        name: 'DemosPlan_statement_participation_import',
-        options: ['expose' => true],
-        methods: [Request::METHOD_POST])]
-    public function importParticipationStatements(
-        FileService $fileService,
-        ProcedureService $procedureService,
-        XlsxStatementImporterFactory $importerFactory,
-        StatementSpreadsheetImporterWithZipSupport $excelImporter,
-        string $procedureId,
-        Request $request,
-    ): Response {
-        $requestPost = $request->request->all();
-        $procedure = $procedureService->getProcedure($procedureId);
-
-        if (!$procedure instanceof Procedure) {
-            throw ProcedureNotFoundException::createFromId($procedureId);
-        }
-
-        try {
-            // recreate uploaded array
-            $uploads = explode(',', (string) $requestPost['uploadedFiles']);
-            $files = array_map($fileService->getFileInfo(...), $uploads);
-            $importer = $importerFactory->createXlsxStatementImporter($excelImporter);
-            $fileNames = [];
-            $statementsCount = 0;
-            /** @var FileInfo $zipFileInfo */
-            foreach ($files as $zipFileInfo) {
-                $localPath = $fileService->ensureLocalFile($zipFileInfo->getAbsolutePath());
-                $localFileInfo = new FileInfo(
-                    $zipFileInfo->getHash(),
-                    '',
-                    0,
-                    '',
-                    $localPath,
-                    $localPath,
-                    null
-                );
-                $this->importStatementsFromXls($localFileInfo, $importer);
-
-                $fileNames[] = $zipFileInfo->getFileName();
-                $statements = $importer->getCreatedStatements();
-                $statementsCount += count($statements);
-
-                $fileService->deleteFile($zipFileInfo->getHash());
-                $fileService->deleteLocalFile($localPath);
-            }
-            if ($importer->hasErrors()) {
-                return $this->createErrorResponse($procedureId, $importer->getErrorsAsArray());
-            }
-        } catch (Throwable $e) {
-            $this->logger->error('Something went wrong importing Statements from zip', ['exception' => $e]);
-
-            return $this->redirectToRoute(
-                'DemosPlan_procedure_import',
-                ['procedureId' => $procedureId]
-            );
-        }
-
-        return $this->createSuccessResponse($procedureId, $statementsCount, $fileNames);
-    }
-
-    /**
-     * @throws DemosException
-     */
-    public function importStatementsFromXls(
-        FileInfo $fileInfo,
-        XlsxStatementImport $importer,
-    ): void {
-        $splFileInfo = new SplFileInfo(
-            $fileInfo->getAbsolutePath(),
-            '',
-            $fileInfo->getHash()
-        );
-        try {
-            $importer->importFromFile($splFileInfo);
-        } catch (RowAwareViolationsException $e) {
-            $this->getMessageBag()->add(
-                'error',
-                'statements.import.error.document.summary',
-                ['doc' => $fileInfo->getFileName()]
-            );
-            $this->getMessageBag()->add(
-                'error',
-                'statements.import.error.line.summary',
-                ['lineNr' => $e->getRow()]
-            );
-            foreach ($e->getViolationsAsStrings() as $error) {
-                $this->getMessageBag()->add('error', $error);
-            }
-            throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
-        } catch (MissingDataException) {
-            $this->getMessageBag()->add(
-                'error',
-                'error.missing.data',
-                ['fileName' => $fileInfo->getFileName()]
-            );
-            throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
-        } catch (UnexpectedWorksheetNameException $e) {
-            if ('Abschnitte' === $e->getIncomingTitle()) {
-                $this->getMessageBag()->add('error', 'error.wrong.selected.importer');
-            } else {
-                $this->getMessageBag()->add(
-                    'error',
-                    'error.worksheet.name',
-                    [
-                        'worksheetTitle' => $e->getIncomingTitle(),
-                        'expectedTitles' => $e->getExpectedTitles(),
-                    ]
-                );
-            }
-            throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
-        } catch (DuplicateInternIdException) {
-            $this->getMessageBag()->add(
-                'error',
-                'statements.import.error.document.duplicate.internid'
-            );
-            throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
-        } catch (MissingExcelDataException) {
-            $this->getMessageBag()->add(
-                'error',
-                'statements.import.error.missing.data',
-                ['doc' => $fileInfo->getFileName()]
-            );
-            throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
-        } catch (Exception $e) {
-            $this->logger->error(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS, ['exception' => $e]);
-            $this->getMessageBag()->add(
-                'error',
-                'statements.import.error.document.unexpected',
-                ['doc' => $fileInfo->getFileName()]
-            );
-            throw new DemosException(self::STATEMENT_IMPORT_ENCOUNTERED_ERRORS);
-        }
-    }
-
-    /**
-     * @param list<array{id: int, currentWorksheet: string, lineNumber: int, message: string}> $errors
-     */
-    protected function createErrorResponse(string $procedureId, array $errors): Response
-    {
-        return $this->render(
-            '@DemosPlanCore/DemosPlanProcedure/administration_excel_import_errors.html.twig',
-            [
-                'procedure'  => $procedureId,
-                'context'    => 'statements',
-                'title'      => 'statements.import',
-                'errors'     => $errors,
-            ]
-        );
-    }
-
-    protected function createSuccessResponse(
-        string $procedureId,
-        int $numberOfCreatedStatements,
-        array $fileNames,
-    ) {
-        $this->getMessageBag()->addChoice(
-            'confirm',
-            'confirm.statements.imported.from.files.xlsx.format',
-            ['count' => $numberOfCreatedStatements, 'fileName' => implode(', ', $fileNames), 'numbers' => (string) $numberOfCreatedStatements]
-        );
-        $route = 'dplan_procedure_statement_list';
-        // Change redirect target if data input user
-        if ($this->permissions->hasPermission('feature_statement_data_input_orga')) {
-            $route = 'DemosPlan_statement_orga_list';
-        }
-
-        return $this->redirectToRoute(
-            $route,
-            ['procedureId' => $procedureId]
-        );
     }
 
     /**
