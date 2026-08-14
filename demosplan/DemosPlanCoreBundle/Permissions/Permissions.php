@@ -33,7 +33,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
-use demosplan\DemosPlanCoreBundle\Security\PersonalAccessToken\PersonalAccessTokenContext;
+use demosplan\DemosPlanCoreBundle\Security\ApiToken\ApiTokenContextInterface;
 use demosplan\DemosPlanCoreBundle\Security\PersonalAccessToken\PersonalAccessTokenScope;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
@@ -117,17 +117,16 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     private array $addonPermissionCollections = [];
 
     /**
-     * Active personal access token context for the current request, if any. When non-null,
-     * permission evaluation additionally intersects with the PAT's scope-derived permission set
-     * and enforces the token's optional procedure allowlist. Set per-request by
+     * Active API token context for the current request, if any. When non-null, permission
+     * evaluation additionally intersects with the token's scope-derived permission set and
+     * enforces its procedure restriction. Set per-request by
      * {@see \demosplan\DemosPlanCoreBundle\EventListener\ConfigurePersonalAccessTokenContextListener}.
      */
-    private ?PersonalAccessTokenContext $personalAccessTokenContext = null;
+    private ?ApiTokenContextInterface $apiTokenContext = null;
 
     /**
-     * Memoised flip of the permissions that appear in any PAT scope. Permissions outside this
-     * set are not gated by the PAT (they pertain to non-API code paths that a PAT-authenticated
-     * API request never reaches anyway).
+     * Memoised flip of the permissions that appear in any token scope, used by contexts that gate
+     * only what a scope enumerates. Contexts that deny anything unlisted ignore this index.
      *
      * @var array<string, int>|null
      */
@@ -1148,21 +1147,24 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             // restrictions in addition to the user's own permissions. A PAT can only narrow the user's
             // rights, never widen them: the isEnabled() check above already covers the user-grant half
             // of the intersection.
-            if (null !== $this->personalAccessTokenContext) {
+            if (null !== $this->apiTokenContext) {
                 // Procedure allowlist: if the PAT pins to specific procedures, deny any permission check
                 // that happens while a procedure outside the allowlist is the active context.
                 if (null !== $this->procedure
-                    && $this->personalAccessTokenContext->hasProcedureRestriction()
-                    && !$this->personalAccessTokenContext->allowsProcedure($this->procedure->getId())
+                    && $this->apiTokenContext->hasProcedureRestriction()
+                    && !$this->apiTokenContext->allowsProcedure($this->procedure->getId())
                 ) {
                     throw AccessDeniedException::missingPermission($permission, $this->user);
                 }
-                // Scope gate: permissions that fall under any scope's implied set must be granted by at
-                // least one of this PAT's scopes. Permissions outside the scope-gated set are not
-                // affected — they govern non-API code paths that a PAT request would not reach anyway.
-                if (isset(self::getScopeGatedPermissionsIndex()[$permission])
-                    && !$this->personalAccessTokenContext->allowsPermission($permission)
-                ) {
+                // Scope gate. Which permissions it covers depends on the token kind:
+                // - indexed (a PAT): only permissions some scope enumerates, because a PAT serves
+                //   general API traffic where unrelated code paths perform incidental checks that no
+                //   scope describes.
+                // - deny-by-default (a single-purpose token): everything. Safe only because such a
+                //   token reaches a narrow enough code path for its permission set to be asserted.
+                $gated = $this->apiTokenContext->deniesUnlistedPermissions()
+                    || isset(self::getScopeGatedPermissionsIndex()[$permission]);
+                if ($gated && !$this->apiTokenContext->allowsPermission($permission)) {
                     throw AccessDeniedException::missingPermission($permission, $this->user);
                 }
             }
@@ -1181,14 +1183,14 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         }
     }
 
-    public function setPersonalAccessTokenContext(?PersonalAccessTokenContext $context): void
+    public function setApiTokenContext(?ApiTokenContextInterface $context): void
     {
-        $this->personalAccessTokenContext = $context;
+        $this->apiTokenContext = $context;
     }
 
-    public function getPersonalAccessTokenContext(): ?PersonalAccessTokenContext
+    public function getApiTokenContext(): ?ApiTokenContextInterface
     {
-        return $this->personalAccessTokenContext;
+        return $this->apiTokenContext;
     }
 
     /**

@@ -2380,6 +2380,16 @@ feature_statement_publish_name:
     label: 'Publish submitters'' orga name'
     loginRequired: true
     parent: feature_statement
+feature_statement_recommendation_push:
+    description: |-
+        Allows an integration token issued by this procedure to write the recommendation field of
+        existing statements in that procedure, on behalf of another instance that received them via
+        an assessment table export. Grants nothing else: no create, no delete, no other field and no
+        other procedure. Deliberately not part of any broader scope, so it cannot be picked up
+        implicitly.
+    expose: true
+    label: 'Receive statement recommendations from another instance'
+    loginRequired: true
 feature_statement_search_department:
     description: 'Search for department in Assessment Table'
     expose: true

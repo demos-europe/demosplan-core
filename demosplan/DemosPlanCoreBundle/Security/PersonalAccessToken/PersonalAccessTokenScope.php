@@ -42,6 +42,12 @@ final class PersonalAccessTokenScope
     public const REPORTS_READ = 'reports:read';
     public const ADMIN_CONTENT = 'admin:content';
     public const ADMIN_USERS = 'admin:users';
+    /**
+     * Narrower than {@see self::STATEMENTS_WRITE}, which also implies create, update and the
+     * statement/segment resource permissions. This one implies exactly one permission, so a token
+     * carrying it can write recommendations and do nothing else.
+     */
+    public const RECOMMENDATIONS_WRITE = 'recommendations:write';
 
     private const READ_BASE = [
         'feature_json_api_list',
@@ -62,6 +68,9 @@ final class PersonalAccessTokenScope
      * @var array<string, list<string>>
      */
     private const SCOPE_PERMISSIONS = [
+        self::RECOMMENDATIONS_WRITE => [
+            'feature_statement_recommendation_push',
+        ],
         self::PROCEDURES_READ => [
             'feature_json_api_list',
             'feature_json_api_get',
@@ -170,6 +179,7 @@ final class PersonalAccessTokenScope
         self::REPORTS_READ => 'Berichte lesen',
         self::ADMIN_CONTENT => 'Inhaltsverwaltung (Textbausteine, FAQ, News, Tags)',
         self::ADMIN_USERS => 'Benutzer- und Organisationsverwaltung',
+        self::RECOMMENDATIONS_WRITE => 'Empfehlungen einer anderen Instanz übernehmen',
     ];
 
     /** @return list<string> */

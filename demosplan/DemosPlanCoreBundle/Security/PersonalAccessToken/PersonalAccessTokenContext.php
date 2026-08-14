@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Security\PersonalAccessToken;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\PersonalAccessToken;
+use demosplan\DemosPlanCoreBundle\Security\ApiToken\ApiTokenContextInterface;
 
 /**
  * Request-scoped snapshot of the PAT that authenticated the current request.
@@ -25,7 +26,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\PersonalAccessToken;
  * A frozen value: the token entity is captured at authentication time; subsequent scope or
  * revocation changes do not retroactively affect the current request.
  */
-final readonly class PersonalAccessTokenContext
+final readonly class PersonalAccessTokenContext implements ApiTokenContextInterface
 {
     public const REQUEST_ATTRIBUTE = '_pat_context';
 
@@ -61,5 +62,14 @@ final readonly class PersonalAccessTokenContext
         $allowed = $this->token->getProcedureIds();
 
         return null === $allowed || in_array($procedureId, $allowed, true);
+    }
+
+    /**
+     * A PAT authenticates general API traffic, so only permissions some scope enumerates are gated.
+     * Denying everything unlisted would trip incidental checks in code paths no scope describes.
+     */
+    public function deniesUnlistedPermissions(): bool
+    {
+        return false;
     }
 }

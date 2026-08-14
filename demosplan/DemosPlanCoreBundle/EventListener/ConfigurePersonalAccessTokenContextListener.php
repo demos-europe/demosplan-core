@@ -36,7 +36,7 @@ class ConfigurePersonalAccessTokenContextListener
     public function onKernelController(ControllerEvent $event): void
     {
         $context = $event->getRequest()->attributes->get(PersonalAccessTokenContext::REQUEST_ATTRIBUTE);
-        $this->permissions->setPersonalAccessTokenContext(
+        $this->permissions->setApiTokenContext(
             $context instanceof PersonalAccessTokenContext ? $context : null
         );
     }
