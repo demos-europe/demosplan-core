@@ -40,7 +40,7 @@ class ProcedureIntegrationToken extends AbstractApiToken implements UuidEntityIn
     public const TOKEN_LITERAL_PREFIX = 'dplan_int_';
 
     #[ORM\ManyToOne(targetEntity: Procedure::class)]
-    #[ORM\JoinColumn(name: 'procedure', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: 'procedure_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
     protected Procedure $procedure;
 
     /**

@@ -21,10 +21,10 @@ class Version20260814124203 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        $this->addSql('CREATE TABLE procedure_integration_token (id CHAR(36) NOT NULL, customer CHAR(36) NOT NULL, revoked_by CHAR(36) DEFAULT NULL, `procedure` CHAR(36) NOT NULL, created_by CHAR(36) DEFAULT NULL, name VARCHAR(120) NOT NULL, token_prefix VARCHAR(12) NOT NULL, token_hash VARCHAR(255) NOT NULL, scopes JSON NOT NULL COMMENT \'(DC2Type:json)\', expires_at DATETIME DEFAULT NULL, last_used_at DATETIME DEFAULT NULL, revoked_at DATETIME DEFAULT NULL, created_at DATETIME NOT NULL, INDEX IDX_CE52E07F81398E09 (customer), INDEX IDX_CE52E07F8E5493E3 (revoked_by), INDEX IDX_CE52E07F9C3CBC1F (`procedure`), INDEX IDX_CE52E07FDE12AB56 (created_by), UNIQUE INDEX procedure_integration_token_prefix_unique (token_prefix), PRIMARY KEY(id)) DEFAULT CHARACTER SET UTF8 COLLATE `UTF8_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE procedure_integration_token (id CHAR(36) NOT NULL, customer CHAR(36) NOT NULL, revoked_by CHAR(36) DEFAULT NULL, procedure_id CHAR(36) NOT NULL, created_by CHAR(36) DEFAULT NULL, name VARCHAR(120) NOT NULL, token_prefix VARCHAR(12) NOT NULL, token_hash VARCHAR(255) NOT NULL, scopes JSON NOT NULL COMMENT \'(DC2Type:json)\', expires_at DATETIME DEFAULT NULL, last_used_at DATETIME DEFAULT NULL, revoked_at DATETIME DEFAULT NULL, created_at DATETIME NOT NULL, INDEX IDX_CE52E07F81398E09 (customer), INDEX IDX_CE52E07F8E5493E3 (revoked_by), INDEX IDX_CE52E07F1624BCD2 (procedure_id), INDEX IDX_CE52E07FDE12AB56 (created_by), UNIQUE INDEX procedure_integration_token_prefix_unique (token_prefix), PRIMARY KEY(id)) DEFAULT CHARACTER SET UTF8 COLLATE `UTF8_unicode_ci` ENGINE = InnoDB');
         $this->addSql('ALTER TABLE procedure_integration_token ADD CONSTRAINT FK_CE52E07F81398E09 FOREIGN KEY (customer) REFERENCES customer (_c_id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE procedure_integration_token ADD CONSTRAINT FK_CE52E07F8E5493E3 FOREIGN KEY (revoked_by) REFERENCES _user (_u_id) ON DELETE SET NULL');
-        $this->addSql('ALTER TABLE procedure_integration_token ADD CONSTRAINT FK_CE52E07F9C3CBC1F FOREIGN KEY (`procedure`) REFERENCES _procedure (_p_id) ON DELETE CASCADE');
+        $this->addSql('ALTER TABLE procedure_integration_token ADD CONSTRAINT FK_CE52E07F1624BCD2 FOREIGN KEY (procedure_id) REFERENCES _procedure (_p_id) ON DELETE CASCADE');
         $this->addSql('ALTER TABLE procedure_integration_token ADD CONSTRAINT FK_CE52E07FDE12AB56 FOREIGN KEY (created_by) REFERENCES _user (_u_id) ON DELETE SET NULL');
     }
 
@@ -37,7 +37,7 @@ class Version20260814124203 extends AbstractMigration
 
         $this->addSql('ALTER TABLE procedure_integration_token DROP FOREIGN KEY FK_CE52E07F81398E09');
         $this->addSql('ALTER TABLE procedure_integration_token DROP FOREIGN KEY FK_CE52E07F8E5493E3');
-        $this->addSql('ALTER TABLE procedure_integration_token DROP FOREIGN KEY FK_CE52E07F9C3CBC1F');
+        $this->addSql('ALTER TABLE procedure_integration_token DROP FOREIGN KEY FK_CE52E07F1624BCD2');
         $this->addSql('ALTER TABLE procedure_integration_token DROP FOREIGN KEY FK_CE52E07FDE12AB56');
         $this->addSql('DROP TABLE procedure_integration_token');
     }

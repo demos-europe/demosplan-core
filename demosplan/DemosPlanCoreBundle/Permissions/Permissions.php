@@ -228,6 +228,11 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             'area_portal_user',
             'feature_assessmenttable_export',
             'feature_data_protection_text_customized_view',
+            // Sits with its parent area_mydata rather than in a role block: a token can never grant
+            // more than its owner already has, so the narrowing is the scope intersection, not the
+            // role. Narrow this to planner roles if self-service should not reach every logged-in
+            // user (loginRequired already excludes guests).
+            'feature_personal_access_tokens',
             'feature_documents_category_use_file',
             'feature_documents_category_use_paragraph',
             'feature_imprint_text_customized_view',

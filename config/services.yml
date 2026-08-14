@@ -330,12 +330,16 @@ services:
         arguments:
             - !tagged dplan.data.generator
 
+    # The parent definition supplies the JWT arguments; everything this class adds on top has to be
+    # listed here, because the Lexik factory passes a fixed argument set and does not autowire.
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\ApiAuthenticator:
         parent: lexik_jwt_authentication.security.jwt_authenticator
         arguments:
             $userProvider: '@demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\ApiUserProvider'
             $userRepository: '@demosplan\DemosPlanCoreBundle\Repository\UserRepository'
             $logger: '@logger'
+            $personalAccessTokenAuthenticator: '@demosplan\DemosPlanCoreBundle\Security\PersonalAccessToken\PersonalAccessTokenRequestAuthenticator'
+            $procedureIntegrationTokenAuthenticator: '@demosplan\DemosPlanCoreBundle\Security\ProcedureIntegrationToken\ProcedureIntegrationTokenRequestAuthenticator'
 
     demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\AiApiAuthenticator:
         parent: lexik_jwt_authentication.security.jwt_authenticator

@@ -147,9 +147,12 @@ class ApiAuthenticator extends JWTAuthenticator
 
     public function createToken(Passport $passport, string $firewallName): TokenInterface
     {
-        // For session-based auth, create a standard PostAuthenticationToken
-        // (no JWT token string available)
-        if ($this->authenticatedViaSession) {
+        // The parent builds a JWTPostAuthenticationToken from the raw JWT string, so it can only be
+        // used when a JWT was actually extracted. Session and bearer-token requests carry none.
+        // Decided from the passport rather than from a flag, because a flag has to be maintained
+        // correctly at every branch of doAuthenticate() and silently produces a TypeError here when
+        // one is missed.
+        if (!is_string($passport->getAttribute('token'))) {
             return new PostAuthenticationToken(
                 $passport->getUser(),
                 $firewallName,
@@ -157,7 +160,6 @@ class ApiAuthenticator extends JWTAuthenticator
             );
         }
 
-        // For JWT auth, let parent create the JWT-specific token
         return parent::createToken($passport, $firewallName);
     }
 
