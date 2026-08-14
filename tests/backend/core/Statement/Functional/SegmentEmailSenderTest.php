@@ -246,7 +246,7 @@ class SegmentEmailSenderTest extends FunctionalTestCase
         $errorMessages = $this->messageBag->getErrorMessages();
         static::assertCount(1, $errorMessages);
         static::assertSame(
-            $this->translator->trans('error.segment.send.syntax.email'),
+            $this->translator->trans('error.segment.send'),
             $errorMessages->get(0)->getText()
         );
     }

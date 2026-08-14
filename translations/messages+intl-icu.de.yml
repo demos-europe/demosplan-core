@@ -1376,6 +1376,7 @@ error.savedFilterSet.deleted: "Die Filterkombination konnte nicht gelöscht werd
 error.segment.bulk.contains.locked: "{count, plural, one {Der Abschnitt konnte nicht bearbeitet werden, da er gesperrt ist} other {Die Abschnitte konnten nicht bearbeitet werden, da # gesperrte enthalten sind}}."
 error.segment.empty.text: "Bitte fügen Sie dem Abschnitt einen Text hinzu. Der Abschnitt kann ohne Inhalt nicht gespeichert werden."
 error.segment.locked.by.place: "Der Abschnitt ist gesperrt."
+error.segment.send: "Das Versenden per Mail war nicht erfolgreich."
 error.segment.send.syntax.email: "Die eingegebene Mailadresse ist nicht korrekt."
 error.split_statement.no_place: "Bitte fügen Sie vor dem Aufteilen mindestens einen Bearbeitungsschritt hinzu."
 "error.split_statement.no_place.link": "Bitte fügen Sie vor dem Aufteilen mindestens einen Bearbeitungsschritt <a class=\"o-link--default\" href=\"{href}\">hier</a> hinzu."

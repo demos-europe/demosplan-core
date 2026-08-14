@@ -73,7 +73,7 @@ class SegmentEmailSender
                 $this->entityContentChangeService->createSegmentSentByMailChangeEntry($segment, $sendMailTo, new DateTime());
             }
         } catch (InvalidDataException) {
-            $this->messageBag->add('error', 'error.segment.send.syntax.email');
+            $this->messageBag->add('error', 'error.segment.send');
 
             return false;
         }
