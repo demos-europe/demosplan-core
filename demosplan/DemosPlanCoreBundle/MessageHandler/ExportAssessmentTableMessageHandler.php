@@ -154,7 +154,7 @@ class ExportAssessmentTableMessageHandler
         ob_end_clean();
         fclose($handle);
 
-        $fileName = $this->resolveFileName($response);
+        $fileName = $this->resolveFileName($response, $message->getExportFormat());
         $fileEntity = $this->fileService->saveTemporaryFile(
             $tmpPath,
             $fileName,
@@ -166,13 +166,18 @@ class ExportAssessmentTableMessageHandler
         return [$fileEntity->getHash(), $fileName];
     }
 
-    private function resolveFileName(Response $response): string
+    /**
+     * The download name the user gets. All response generators declare it as `Content-Disposition`;
+     * the export format serves as extension for the fallback so the file stays openable even if the
+     * header is missing or unparsable.
+     */
+    private function resolveFileName(Response $response, string $exportFormat): string
     {
         $disposition = (string) $response->headers->get('Content-Disposition');
         if (1 === preg_match('/filename\*?=(?:UTF-8\'\')?"?([^";]+)"?/i', $disposition, $matches)) {
             return rawurldecode(trim($matches[1], '"'));
         }
 
-        return 'export';
+        return 'export.'.$exportFormat;
     }
 }

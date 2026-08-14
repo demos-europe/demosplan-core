@@ -155,4 +155,17 @@ class ZipExportServiceTest extends FunctionalTestCase
         self::assertStringStartsWith('STN-42_', $result);
         self::assertStringEndsWith('.pdf', $result);
     }
+
+    public function testZipStreamResponseDeclaresDownloadName(): void
+    {
+        // The download name must live on the response, not only inside the ZipStream: consumers that
+        // do not send the response over HTTP (the async export message handlers) have no other source.
+        $response = $this->sut->buildZipStreamResponse('Verfahrensexport.zip', static function (): void {});
+
+        self::assertSame('application/zip', $response->headers->get('Content-Type'));
+        self::assertStringContainsString(
+            'Verfahrensexport.zip',
+            (string) $response->headers->get('Content-Disposition')
+        );
+    }
 }

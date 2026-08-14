@@ -143,4 +143,38 @@ class ExportAssessmentTableMessageHandlerTest extends UnitTestCase
         self::assertSame('hash-1', $job->getFileHash());
         self::assertSame('export.pdf', $job->getFileName());
     }
+
+    public function testInvokeFallsBackToExportFormatExtensionWhenResponseDeclaresNoFilename(): void
+    {
+        // Arrange - a response without Content-Disposition must not yield an extensionless name
+        $job = new AssessmentTableExportJob();
+        $user = $this->createMock(User::class);
+        $this->entityManagerMock->method('find')->willReturnCallback(
+            static fn (string $class) => match ($class) {
+                AssessmentTableExportJob::class => $job,
+                User::class                     => $user,
+                default                         => null,
+            }
+        );
+        $this->procedureServiceMock->method('getProcedure')->willReturn($this->createMock(Procedure::class));
+        $this->assessmentExporterMock->method('export')->willReturn([]);
+        $this->responseGeneratorMock->method('__invoke')->willReturn(
+            new StreamedResponse(static function (): void {
+                echo 'zip-bytes';
+            })
+        );
+
+        $file = $this->createMock(File::class);
+        $file->method('getHash')->willReturn('hash-1');
+        $this->fileServiceMock->expects($this->once())
+            ->method('saveTemporaryFile')
+            ->with($this->isType('string'), 'export.zip', 'u1', 'proc-1', FileService::VIRUSCHECK_NONE)
+            ->willReturn($file);
+
+        // Act
+        ($this->sut)(new ExportAssessmentTableMessage('job-1', 'zip', [], 'u1', 'proc-1'));
+
+        // Assert
+        self::assertSame('export.zip', $job->getFileName());
+    }
 }

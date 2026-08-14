@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Exception\InvalidParameterTypeException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Exception;
@@ -47,6 +48,7 @@ class ZipExportService
         private readonly FilesystemOperator $defaultStorage,
         private readonly FileService $fileService,
         private readonly LoggerInterface $logger,
+        private readonly NameGenerator $nameGenerator,
     ) {
     }
 
@@ -56,15 +58,20 @@ class ZipExportService
      *
      * The ZIP file is given as parameter to the $fillZipFunction callable so it can be filled with data.
      *
+     * The download headers are set on the response instead of letting {@link ZipStream} emit them via
+     * PHP's `header()`: only the response object is available to consumers that do not send the
+     * response over HTTP, like the message handlers that store an export as a file for later
+     * download. `header()` is additionally a no-op outside a web request.
+     *
      * @param callable(ZipStream):void $fillZipFunction
      */
     public function buildZipStreamResponse(string $name, callable $fillZipFunction): StreamedResponse
     {
-        return new StreamedResponse(function () use ($name, $fillZipFunction): void {
+        $response = new StreamedResponse(function () use ($name, $fillZipFunction): void {
             $zip = new ZipStream(
                 // do not compress files
                 defaultDeflateLevel: -1,
-                sendHttpHeaders: true,
+                sendHttpHeaders: false,
                 outputName: $name,
                 contentDisposition: 'attachment',
                 contentType: 'application/zip',
@@ -73,6 +80,14 @@ class ZipExportService
 
             $zip->finish();
         });
+
+        $response->headers->set('Content-Type', 'application/zip');
+        $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($name));
+        $response->headers->set('Pragma', 'public');
+        $response->headers->set('Cache-Control', 'public, must-revalidate');
+        $response->headers->set('Content-Transfer-Encoding', 'binary');
+
+        return $response;
     }
 
     /**

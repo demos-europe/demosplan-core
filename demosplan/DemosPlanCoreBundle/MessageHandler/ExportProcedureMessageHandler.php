@@ -29,6 +29,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 
 /**
@@ -51,6 +52,7 @@ class ExportProcedureMessageHandler
         private readonly LoggerInterface $logger,
         private readonly PermissionsInterface $permissions,
         private readonly RequestStack $requestStack,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -153,6 +155,11 @@ class ExportProcedureMessageHandler
         return [$fileEntity->getHash(), $fileName];
     }
 
+    /**
+     * The download name the user gets. {@link ExportService::generateProcedureExportZip()} declares it
+     * as `Content-Disposition`; the fallback rebuilds it from the same translation key so the name
+     * does not diverge per project or locale.
+     */
     private function resolveFileName(Response $response): string
     {
         $disposition = (string) $response->headers->get('Content-Disposition');
@@ -160,6 +167,6 @@ class ExportProcedureMessageHandler
             return rawurldecode(trim($matches[1], '"'));
         }
 
-        return 'Verfahrensexport.zip';
+        return $this->translator->trans('procedure.export_filename').'.zip';
     }
 }

@@ -25,6 +25,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\UnitTestCase;
 
 class ExportProcedureMessageHandlerTest extends UnitTestCase
@@ -37,6 +38,7 @@ class ExportProcedureMessageHandlerTest extends UnitTestCase
     private ?ExportService $exportServiceMock = null;
     private ?FileService $fileServiceMock = null;
     private ?LoggerInterface $loggerMock = null;
+    private ?TranslatorInterface $translatorMock = null;
 
     protected function setUp(): void
     {
@@ -46,6 +48,7 @@ class ExportProcedureMessageHandlerTest extends UnitTestCase
         $this->exportServiceMock = $this->createMock(ExportService::class);
         $this->fileServiceMock = $this->createMock(FileService::class);
         $this->loggerMock = $this->createMock(LoggerInterface::class);
+        $this->translatorMock = $this->createMock(TranslatorInterface::class);
 
         $this->sut = new ExportProcedureMessageHandler(
             $this->createMock(CurrentUserService::class),
@@ -54,7 +57,8 @@ class ExportProcedureMessageHandlerTest extends UnitTestCase
             $this->fileServiceMock,
             $this->loggerMock,
             $this->createMock(PermissionsInterface::class),
-            $this->createMock(RequestStack::class)
+            $this->createMock(RequestStack::class),
+            $this->translatorMock
         );
     }
 
@@ -124,6 +128,40 @@ class ExportProcedureMessageHandlerTest extends UnitTestCase
         // Assert
         self::assertSame(ProcedureExportJob::STATUS_COMPLETED, $job->getStatus());
         self::assertSame('hash-1', $job->getFileHash());
+        self::assertSame('Verfahrensexport.zip', $job->getFileName());
+    }
+
+    public function testInvokeFallsBackToTranslatedNameWhenResponseDeclaresNoFilename(): void
+    {
+        // Arrange - a response without Content-Disposition must not yield an extensionless name
+        $job = new ProcedureExportJob();
+        $user = $this->createMock(User::class);
+        $this->entityManagerMock->method('find')->willReturnCallback(
+            static fn (string $class) => match ($class) {
+                ProcedureExportJob::class => $job,
+                User::class               => $user,
+                default                   => null,
+            }
+        );
+
+        $this->exportServiceMock->method('generateProcedureExportZip')->willReturn(
+            new StreamedResponse(static function (): void {
+                echo 'zip-bytes';
+            })
+        );
+        $this->translatorMock->method('trans')->with('procedure.export_filename')->willReturn('Verfahrensexport');
+
+        $file = $this->createMock(File::class);
+        $file->method('getHash')->willReturn('hash-1');
+        $this->fileServiceMock->expects($this->once())
+            ->method('saveTemporaryFile')
+            ->with($this->isType('string'), 'Verfahrensexport.zip', 'u1', null, FileService::VIRUSCHECK_NONE)
+            ->willReturn($file);
+
+        // Act
+        ($this->sut)(new ExportProcedureMessage('job-1', ['p1'], 'u1'));
+
+        // Assert
         self::assertSame('Verfahrensexport.zip', $job->getFileName());
     }
 }
