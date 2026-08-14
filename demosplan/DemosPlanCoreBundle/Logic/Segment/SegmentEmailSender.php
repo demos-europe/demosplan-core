@@ -48,10 +48,10 @@ class SegmentEmailSender
         ?string $replyTo,
     ): bool {
         try {
-            // load the segment(s). prove they exist and give us the procedure it belongs to
+            $segmentIds = array_values(array_unique($segmentIds));
             $segments = $this->segmentService->findByIds($segmentIds);
-            if ([] === $segments) {
-                throw new InvalidDataException('No segments found for the given IDs.');
+            if ([] === $segments || count($segments) !== count($segmentIds)) {
+                throw new InvalidDataException('Not all segments were found for the given IDs.');
             }
             // ensure every segment belongs to the current procedure
             foreach ($segments as $segment) {
