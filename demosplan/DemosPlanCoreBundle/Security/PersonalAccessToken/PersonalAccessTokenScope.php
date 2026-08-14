@@ -179,7 +179,7 @@ final class PersonalAccessTokenScope
         self::REPORTS_READ => 'Berichte lesen',
         self::ADMIN_CONTENT => 'Inhaltsverwaltung (Textbausteine, FAQ, News, Tags)',
         self::ADMIN_USERS => 'Benutzer- und Organisationsverwaltung',
-        self::RECOMMENDATIONS_WRITE => 'Empfehlungen einer anderen Instanz übernehmen',
+        self::RECOMMENDATIONS_WRITE => 'Abwägungen einer anderen Instanz übernehmen',
     ];
 
     /** @return list<string> */

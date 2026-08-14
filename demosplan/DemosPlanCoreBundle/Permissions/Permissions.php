@@ -555,6 +555,12 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             $this->enablePermissions([
                 'area_main_file',
                 'feature_read_source_statement_via_api',
+                // Shared with the procedure integration principal, which carries this same role.
+                // Enabling it here also grants it to the AI integration's JWT path, which sets no
+                // token context and is therefore not scope-gated — so the push endpoint refuses to
+                // act unless an integration token context is present, rather than trusting the
+                // permission alone.
+                'feature_statement_recommendation_push',
                 'field_statement_recommendation',
             ]);
         }

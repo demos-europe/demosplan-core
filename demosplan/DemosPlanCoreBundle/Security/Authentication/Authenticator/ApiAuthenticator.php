@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Security\PersonalAccessToken\PersonalAccessTokenRequestAuthenticator;
+use demosplan\DemosPlanCoreBundle\Security\ProcedureIntegrationToken\ProcedureIntegrationTokenRequestAuthenticator;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\Authenticator\JWTAuthenticator;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\TokenExtractor\TokenExtractorInterface;
@@ -53,6 +54,7 @@ class ApiAuthenticator extends JWTAuthenticator
         private readonly UserRepository $userRepository,
         private readonly LoggerInterface $logger,
         private readonly PersonalAccessTokenRequestAuthenticator $personalAccessTokenAuthenticator,
+        private readonly ProcedureIntegrationTokenRequestAuthenticator $procedureIntegrationTokenAuthenticator,
         ?TranslatorInterface $translator = null,
     ) {
         parent::__construct($jwtManager, $eventDispatcher, $tokenExtractor, $userProvider, $translator);
@@ -60,8 +62,9 @@ class ApiAuthenticator extends JWTAuthenticator
 
     public function supports(Request $request): bool
     {
-        // Support PAT-bearing requests, authenticated sessions, real JWT tokens, or anonymous fallback with a session
+        // Support token-bearing requests, authenticated sessions, real JWT tokens, or anonymous fallback with a session
         return $this->personalAccessTokenAuthenticator->supports($request)
+            || $this->procedureIntegrationTokenAuthenticator->supports($request)
             || $this->hasValidSession($request)
             || $this->hasRealJwtToken($request)
             || $request->hasSession();
@@ -71,6 +74,23 @@ class ApiAuthenticator extends JWTAuthenticator
     {
         // Personal access tokens take precedence over both session and JWT so that clients can override an
         // incidental browser session by sending Authorization: Bearer dplan_pat_...
+        // Integration tokens are distinguished from PATs by their literal prefix, so the two branches
+        // are mutually exclusive rather than ordered.
+        if ($this->procedureIntegrationTokenAuthenticator->supports($request)) {
+            $user = $this->procedureIntegrationTokenAuthenticator->authenticate($request);
+            $this->authenticatedViaSession = false;
+            if (null !== $user) {
+                return new SelfValidatingPassport(
+                    new UserBadge($user->getLogin(), fn () => $user)
+                );
+            }
+            $anonymous = new AnonymousUser();
+
+            return new SelfValidatingPassport(
+                new UserBadge($anonymous->getLogin(), fn () => $anonymous)
+            );
+        }
+
         if ($this->personalAccessTokenAuthenticator->supports($request)) {
             $user = $this->personalAccessTokenAuthenticator->authenticate($request);
             if (null !== $user) {
