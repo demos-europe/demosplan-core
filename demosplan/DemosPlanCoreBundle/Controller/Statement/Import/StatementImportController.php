@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 /**
@@ -349,5 +350,4 @@ class StatementImportController extends BaseController
             ['procedureId' => $procedureId]
         );
     }
-
 }
