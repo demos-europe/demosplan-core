@@ -31,23 +31,23 @@
           <div class="text-center">
             <dp-contextual-help
               v-if="rowData.status === 'pending'"
-              icon="clock"
               :text="Translator.trans('import.job.status.pending')"
+              icon="clock"
             />
             <dp-contextual-help
               v-else-if="rowData.status === 'processing'"
-              icon="hourglass"
               :text="Translator.trans('import.job.status.processing')"
+              icon="hourglass"
             />
             <dp-contextual-help
               v-else-if="rowData.status === 'completed'"
-              icon="check"
               :text="Translator.trans('terminated')"
+              icon="check"
             />
             <dp-contextual-help
               v-else-if="rowData.status === 'failed'"
-              icon="warning"
               :text="Translator.trans('error')"
+              icon="warning"
             />
           </div>
         </template>
