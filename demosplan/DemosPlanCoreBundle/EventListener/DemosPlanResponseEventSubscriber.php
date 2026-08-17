@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\SecurityUser;
 use demosplan\DemosPlanCoreBundle\Logic\TransformMessageBagService;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Provider\SecurityUserProvider;
@@ -94,6 +95,14 @@ class DemosPlanResponseEventSubscriber implements EventSubscriberInterface
         // once be got rid of the subrequests triggered in twig by `render()` calls,
         // this can be removed
         if ($existingToken->getUser() instanceof SecurityUser) {
+            return;
+        }
+
+        // A functional user exists only in memory: there is no row to look its login up in, and no
+        // Doctrine graph that would make it expensive to keep. Swapping it would make the provider
+        // throw UserNotFoundException, which the firewall answers with 401 on an otherwise
+        // successful response.
+        if ($existingToken->getUser() instanceof FunctionalUser) {
             return;
         }
 
