@@ -23,12 +23,14 @@ use Doctrine\DBAL\Exception;
 
 class SegmentEmailSender
 {
+
     public function __construct(
         private readonly MailService $mailService,
         private readonly MessageBagInterface $messageBag,
         private readonly SegmentService $segmentService,
         private readonly EntityContentChangeService $entityContentChangeService,
         private readonly EditorService $editorService,
+        private readonly TransactionService $transactionService,
     ) {
     }
 
