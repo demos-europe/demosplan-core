@@ -26,6 +26,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
  */
 class ExportJobDownloadResponseFactory
 {
+    private const CHUNK_SIZE = 1024 * 1024;
+
     public function __construct(
         private readonly FileService $fileService,
         private readonly FilesystemOperator $defaultStorage,
@@ -53,11 +55,24 @@ class ExportJobDownloadResponseFactory
         }
 
         $stream = $storage->readStream($fileInfo->getAbsolutePath());
+        // Write in chunks and hand each one to the client right away. Without the flush an active
+        // output buffer keeps the complete archive in memory and exhausts the memory limit.
         $response = new StreamedResponse(static function () use ($stream): void {
-            fpassthru($stream);
+            while (!feof($stream)) {
+                $chunk = fread($stream, self::CHUNK_SIZE);
+                if (false === $chunk) {
+                    break;
+                }
+                echo $chunk;
+                if (ob_get_level() > 0) {
+                    ob_flush();
+                }
+                flush();
+            }
             fclose($stream);
         });
         $response->headers->set('Content-Type', 'application/octet-stream');
+        $response->headers->set('Content-Length', (string) $storage->fileSize($fileInfo->getAbsolutePath()));
         $response->headers->set(
             'Content-Disposition',
             'attachment; filename="'.($job->getFileName() ?? $fileInfo->getFileName()).'"'
