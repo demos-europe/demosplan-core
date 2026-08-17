@@ -18,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
-use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use Doctrine\DBAL\Exception;
 
 class SegmentEmailSender
@@ -30,7 +29,6 @@ class SegmentEmailSender
         private readonly SegmentService $segmentService,
         private readonly EntityContentChangeService $entityContentChangeService,
         private readonly EditorService $editorService,
-        private readonly TransactionService $transactionService,
     ) {
     }
 
@@ -70,17 +68,12 @@ class SegmentEmailSender
             // handle anonymized text before building email variables
             $obscuredBody = null === $body ? null : $this->editorService->obscureString($body);
             $emailVariables = $this->populateEmailVariables($subject, $obscuredBody);
-            // Queue the mail and write the version-history entries in one transaction so they commit atomically:
-            // a queued mail can never end up without its GDPR audit entry (Important!)
-            //No attachments as of now.
-            $this->transactionService->executeAndFlushInTransaction(function () use (
-                $sendMailTo, $sentFrom, $ccEmailAddresses, $emailVariables, $replyTo, $segments
-            ): void {
-                $this->sendAbschnitt($sendMailTo, $sentFrom, $ccEmailAddresses, $emailVariables, [], $replyTo);
-                foreach ($segments as $segment) {
-                    $this->entityContentChangeService->createSegmentSentByMailChangeEntry($segment, $sendMailTo, new DateTime());
-                }
-            });
+            // Queue the mail and write the version-history audit entries together
+            //a queued mail can never end up without its GDPR audit entry. No attachments as of now.
+            $this->sendAbschnitt($sendMailTo, $sentFrom, $ccEmailAddresses, $emailVariables, [], $replyTo);
+            foreach ($segments as $segment) {
+                $this->entityContentChangeService->createSegmentSentByMailChangeEntry($segment, $sendMailTo, new DateTime());
+            }
         } catch (InvalidDataException) {
             $this->messageBag->add('error', 'error.segment.send');
 
