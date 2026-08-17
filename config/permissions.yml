@@ -1798,6 +1798,15 @@ feature_procedure_get_base_data:
     expose: true
     label: 'Receive basic data about a procedure like name, location information etc.'
     loginRequired: true
+feature_procedure_integration_manage:
+    description: |-
+        Allows a procedure administrator to pair the procedure with another demosplan instance: issue a
+        short-lived pairing code, and see and revoke the integration tokens the procedure has issued.
+        What a paired instance may write is decided by the token's scope.
+    expose: true
+    label: 'Manage integrations of this procedure with another instance'
+    loginRequired: true
+    parent: area_admin_preferences
 feature_procedure_legal_notice_read:
     description: 'Enables showing (in public detail) and defining (in settings) a legal notice to procedure. The notice will then be shown in procedure phase block in public detail.'
     label: 'Show legal notice in procedure'

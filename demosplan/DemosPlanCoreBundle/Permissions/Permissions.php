@@ -602,6 +602,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
             if ($this->user->hasRole(Role::PLANNING_AGENCY_ADMIN)) { // Fachplaner-Admin
                 $this->enablePermissions([
+                    'feature_procedure_integration_manage',  // pair this procedure with another instance and revoke its tokens
                     'feature_procedure_user_restrict_access_edit',  // edit user restrict access when config variable hasProcedureUserRestrictedAccess is set
                 ]);
             }

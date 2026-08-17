@@ -15,6 +15,17 @@ framework:
             policy: 'token_bucket'
             limit: 5
             rate: { interval: '15 minutes', amount: 2 }
+        # limit attempts to redeem a procedure pairing code. Keyed per client IP, which for the
+        # pushing instance is one egress address shared by all its pairings — hence not tighter.
+        procedure_pairing_exchange:
+            policy: 'fixed_window'
+            limit: 20
+            interval: '15 minutes'
+        # limit pushes per integration token; a push carries a whole batch.
+        procedure_integration_push:
+            policy: 'fixed_window'
+            limit: 30
+            interval: '1 minute'
         # limit api requests for captured bearer tokens
         # the bearer token is reset at every page reload
         jwt_token:

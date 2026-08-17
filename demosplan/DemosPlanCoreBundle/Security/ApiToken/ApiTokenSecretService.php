@@ -19,15 +19,9 @@ use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 
 /**
- * The secret half of every API token, independent of what the token authenticates as.
- *
- * Owns generation, hashing, constant-time verification and parsing; the per-kind services own the
- * entity, its invariants and its audit trail. Splitting it this way means a new token kind brings
- * no new crypto code, and the hasher is resolved once for {@see AbstractApiToken}, so a new kind
- * needs no further `password_hashers` entry either.
- *
- * The prefix + secret are URL-safe base32 characters (lowercase a-z2-7) to avoid `=` padding and
- * the visual ambiguity of 0/O and 1/l.
+ * The secret half of every API token: generation, hashing, constant-time verification and parsing.
+ * The per-kind services own the entity, its invariants and its audit trail, so a new token kind
+ * brings no new crypto code and needs no further `password_hashers` entry.
  */
 class ApiTokenSecretService
 {
@@ -85,6 +79,27 @@ class ApiTokenSecretService
     }
 
     /**
+     * A secret short enough for a human to read out or type, from the same unambiguous alphabet.
+     */
+    public function generateCode(int $length): string
+    {
+        if ($length < 1) {
+            throw new RuntimeException('A code needs at least one character.');
+        }
+
+        return (new Randomizer())->getBytesFromString(self::TOKEN_ALPHABET, $length);
+    }
+
+    /**
+     * Deterministic, so a value can be looked up by its digest. Unsalted and unstretched on purpose:
+     * CSPRNG input leaves nothing but exhaustive search. Never use for anything a human chooses.
+     */
+    public function digest(string $value): string
+    {
+        return hash('sha256', $value);
+    }
+
+    /**
      * Runs a verification against a known-bad value so that the observable response time does not
      * depend on whether the prefix lookup found a row. The result is discarded.
      */
@@ -123,8 +138,7 @@ class ApiTokenSecretService
     }
 
     /**
-     * Resolved for the base class, not the concrete one, so every token kind shares one
-     * `password_hashers` entry.
+     * Resolved for the base class so every token kind shares one `password_hashers` entry.
      */
     private function hasher(): PasswordHasherInterface
     {
