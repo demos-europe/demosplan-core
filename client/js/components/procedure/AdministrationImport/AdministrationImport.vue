@@ -35,7 +35,10 @@
       </dp-tab>
     </dp-tabs>
 
-    <dp-loading v-else class="u-mv" />
+    <dp-loading
+      v-else
+      class="u-mv"
+    />
   </div>
 </template>
 
