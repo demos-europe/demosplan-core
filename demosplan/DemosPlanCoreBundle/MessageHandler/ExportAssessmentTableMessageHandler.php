@@ -86,7 +86,7 @@ class ExportAssessmentTableMessageHandler
             $file = $this->assessmentExporter->export($message->getExportFormat(), $message->getParameters());
             $response = ($this->responseGenerator)($message->getExportFormat(), $file);
 
-            [$fileHash, $fileName] = $this->storeResponseAsFile($response, $message);
+            [$fileHash, $fileName] = $this->storeResponseAsFile($response, $message, $file);
             $job->setFileHash($fileHash);
             $job->setFileName($fileName);
             $job->setStatus(AssessmentTableExportJob::STATUS_COMPLETED);
@@ -140,7 +140,7 @@ class ExportAssessmentTableMessageHandler
      *
      * @return array{0: string, 1: string} file hash and file name
      */
-    private function storeResponseAsFile(Response $response, ExportAssessmentTableMessage $message): array
+    private function storeResponseAsFile(Response $response, ExportAssessmentTableMessage $message, array $file): array
     {
         $tmpPath = (string) tempnam(sys_get_temp_dir(), 'atexport_');
         $handle = fopen($tmpPath, 'wb');
@@ -154,7 +154,7 @@ class ExportAssessmentTableMessageHandler
         ob_end_clean();
         fclose($handle);
 
-        $fileName = $this->resolveFileName($response);
+        $fileName = $this->resolveFileName($response, $file);
         $fileEntity = $this->fileService->saveTemporaryFile(
             $tmpPath,
             $fileName,
@@ -166,11 +166,17 @@ class ExportAssessmentTableMessageHandler
         return [$fileEntity->getHash(), $fileName];
     }
 
-    private function resolveFileName(Response $response): string
+    private function resolveFileName(Response $response, array $file): string
     {
         $disposition = (string) $response->headers->get('Content-Disposition');
         if (1 === preg_match('/filename\*?=(?:UTF-8\'\')?"?([^";]+)"?/i', $disposition, $matches)) {
             return rawurldecode(trim($matches[1], '"'));
+        }
+
+        // ZipStream writes its Content-Disposition straight to the output stream instead of
+        // setting it on the response, so the zip name is taken from the exporter result.
+        if (isset($file['zipFileName']) && is_string($file['zipFileName'])) {
+            return $file['zipFileName'].'.zip';
         }
 
         return 'export';

@@ -143,4 +143,48 @@ class ExportAssessmentTableMessageHandlerTest extends UnitTestCase
         self::assertSame('hash-1', $job->getFileHash());
         self::assertSame('export.pdf', $job->getFileName());
     }
+
+    public function testInvokeNamesZipExportAfterZipFileName(): void
+    {
+        // Arrange
+        $job = new AssessmentTableExportJob();
+        $user = $this->createMock(User::class);
+        $this->entityManagerMock->method('find')->willReturnCallback(
+            static fn (string $class) => match ($class) {
+                AssessmentTableExportJob::class  => $job,
+                User::class                      => $user,
+                default                          => null,
+            }
+        );
+        $this->procedureServiceMock->method('getProcedure')->willReturn($this->createMock(Procedure::class));
+
+        $parameters = ['exportType' => 'statementsWithAttachments'];
+        $this->assessmentExporterMock->expects($this->once())
+            ->method('export')
+            ->with('zip', $parameters)
+            ->willReturn(['zipFileName' => 'Auswertung_Export']);
+
+        // ZipStream sends its Content-Disposition to the output stream, so the response
+        // carries no file name at all.
+        $response = new StreamedResponse(static function (): void {
+            echo 'zip-bytes';
+        });
+        $this->responseGeneratorMock->expects($this->once())
+            ->method('__invoke')
+            ->willReturn($response);
+
+        $file = $this->createMock(File::class);
+        $file->method('getHash')->willReturn('hash-2');
+        $this->fileServiceMock->expects($this->once())
+            ->method('saveTemporaryFile')
+            ->with($this->isType('string'), 'Auswertung_Export.zip', 'u1', 'proc-1', FileService::VIRUSCHECK_NONE)
+            ->willReturn($file);
+
+        // Act
+        ($this->sut)(new ExportAssessmentTableMessage('job-1', 'zip', $parameters, 'u1', 'proc-1'));
+
+        // Assert
+        self::assertSame(AssessmentTableExportJob::STATUS_COMPLETED, $job->getStatus());
+        self::assertSame('Auswertung_Export.zip', $job->getFileName());
+    }
 }
