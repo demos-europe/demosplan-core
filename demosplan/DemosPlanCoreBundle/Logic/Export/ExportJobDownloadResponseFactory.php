@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Export;
 
 use demosplan\DemosPlanCoreBundle\Entity\Export\AsyncExportJobInterface;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Response\StreamedFileOutput;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -53,10 +54,7 @@ class ExportJobDownloadResponseFactory
         }
 
         $stream = $storage->readStream($fileInfo->getAbsolutePath());
-        $response = new StreamedResponse(static function () use ($stream): void {
-            fpassthru($stream);
-            fclose($stream);
-        });
+        $response = new StreamedResponse(static fn () => StreamedFileOutput::sendAndClose($stream));
         $response->headers->set('Content-Type', 'application/octet-stream');
         $response->headers->set(
             'Content-Disposition',
