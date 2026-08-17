@@ -19,16 +19,13 @@ use demosplan\DemosPlanCoreBundle\Security\PersonalAccessToken\PersonalAccessTok
 use function in_array;
 
 /**
- * Request-scoped snapshot of the integration token that authenticated the current request.
+ * Request-scoped snapshot of the integration token that authenticated the current request, frozen at
+ * authentication time.
  *
  * Differs from {@see \demosplan\DemosPlanCoreBundle\Security\PersonalAccessToken\PersonalAccessTokenContext}
- * in the two ways that matter for security:
- * - the procedure restriction always applies, because the token's subject *is* a procedure;
- * - {@see self::deniesUnlistedPermissions()} is true, so the token's scopes are the complete list of
- *   what the request may do rather than a filter over an indexed subset.
- *
- * A frozen value: the token is captured at authentication time, so a scope or revocation change
- * does not retroactively affect the request in flight.
+ * in the two ways that matter: the procedure restriction always applies, and
+ * {@see self::deniesUnlistedPermissions()} is true, so the scopes are the complete list of what the
+ * request may do rather than a filter over an indexed subset.
  */
 final readonly class ProcedureIntegrationTokenContext implements ApiTokenContextInterface
 {

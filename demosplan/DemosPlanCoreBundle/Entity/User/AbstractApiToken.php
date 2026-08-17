@@ -23,14 +23,12 @@ use Gedmo\Mapping\Annotation as Gedmo;
  * as. Subclasses add their subject: {@see PersonalAccessToken} acts for a user, the procedure
  * integration token acts for a single procedure.
  *
- * The full token presented by the client has the shape `<literal prefix><prefix><secret>` where
- * - prefix is {@see self::TOKEN_PREFIX_LENGTH} chars, stored in the clear so a lookup can find the
- *   row without knowing the secret,
- * - secret is hashed and never persisted in the clear,
- * - the literal prefix is defined per subclass so the two kinds cannot be confused in logs.
+ * The client presents `<literal prefix><prefix><secret>`: the prefix is stored in the clear so a
+ * lookup can find the row without the secret, the secret is only ever stored hashed, and the literal
+ * prefix is per subclass so the kinds cannot be confused in logs.
  *
- * Each subclass maps to its own table, so this is a mapped superclass rather than an inheritance
- * hierarchy: the token-prefix unique constraint belongs to the concrete table.
+ * A mapped superclass rather than an inheritance hierarchy, since each subclass has its own table and
+ * therefore its own token-prefix unique constraint.
  */
 #[ORM\MappedSuperclass]
 abstract class AbstractApiToken extends CoreEntity

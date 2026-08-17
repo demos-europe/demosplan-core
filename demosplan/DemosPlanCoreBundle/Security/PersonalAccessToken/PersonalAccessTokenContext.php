@@ -18,13 +18,10 @@ use demosplan\DemosPlanCoreBundle\Security\ApiToken\ApiTokenContextInterface;
 /**
  * Request-scoped snapshot of the PAT that authenticated the current request.
  *
- * Attached to the {@see \Symfony\Component\HttpFoundation\Request} attributes under
- * {@see self::REQUEST_ATTRIBUTE} by {@see PersonalAccessTokenRequestAuthenticator} on success.
- * Consumed by the Permissions evaluator to intersect the user's effective permissions with
- * the PAT's scope-derived permission set.
- *
- * A frozen value: the token entity is captured at authentication time; subsequent scope or
- * revocation changes do not retroactively affect the current request.
+ * Attached to the request attributes under {@see self::REQUEST_ATTRIBUTE} by
+ * {@see PersonalAccessTokenRequestAuthenticator}, and consumed by the Permissions evaluator to
+ * intersect the user's effective permissions with the token's scopes. Frozen at authentication time,
+ * so a later scope or revocation change does not affect the request in flight.
  */
 final readonly class PersonalAccessTokenContext implements ApiTokenContextInterface
 {

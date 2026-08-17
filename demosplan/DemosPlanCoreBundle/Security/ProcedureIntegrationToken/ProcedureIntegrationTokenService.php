@@ -25,8 +25,6 @@ use InvalidArgumentException;
 
 /**
  * Resolves a presented integration token to its entity, and records its use.
- *
- * The pairing flow drives {@see self::create()}; the authentication path only ever reads.
  */
 class ProcedureIntegrationTokenService
 {
@@ -65,8 +63,7 @@ class ProcedureIntegrationTokenService
             throw new InvalidArgumentException('At least one valid scope is required.');
         }
 
-        // Null means "no expiry, revocation only", which is the norm for an integration; a date in the
-        // past would silently produce a token that never works.
+        // Null means "no expiry, revocation only", the norm for an integration.
         if (null !== $expiresAt && $expiresAt <= new DateTime()) {
             throw new InvalidArgumentException('Integration token expiry must be in the future.');
         }
@@ -102,8 +99,8 @@ class ProcedureIntegrationTokenService
     }
 
     /**
-     * Returns null for any malformed, unknown, revoked or expired token, or one whose procedure has
-     * been deleted. Timing does not reveal whether the prefix exists.
+     * Null for any malformed, unknown, revoked or expired token, or one whose procedure is deleted.
+     * Timing does not reveal whether the prefix exists.
      */
     public function findByPlaintext(string $fullToken): ?ProcedureIntegrationToken
     {
@@ -131,7 +128,6 @@ class ProcedureIntegrationTokenService
             return null;
         }
 
-        // The procedure is the token's whole reason to exist; a deleted one leaves nothing to write to.
         return $token->getProcedure()->isDeleted() ? null : $token;
     }
 

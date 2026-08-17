@@ -18,18 +18,14 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Extracts a personal access token from the Authorization header of a request and resolves
- * it to the owning {@see User} + {@see PersonalAccessToken} pair. Returns null when the
- * request carries no PAT, a malformed PAT, or a PAT that is revoked/expired/unknown.
+ * Resolves a personal access token from the Authorization header to the owning {@see User} +
+ * {@see PersonalAccessToken} pair, or null when the token is absent, malformed, revoked, expired or
+ * unknown.
  *
- * This is a plain service, not a Symfony Authenticator. It is invoked from
- * {@see \demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\ApiAuthenticator}
- * as the first strategy in the API firewall's authenticator chain; if it returns null,
- * authentication falls through to JWT and then session as before.
- *
- * On success, a {@see PersonalAccessTokenContext} is attached to the request under
- * {@see PersonalAccessTokenContext::REQUEST_ATTRIBUTE} so that the permissions evaluator
- * can intersect user permissions with the PAT's scopes for the remainder of the request.
+ * A plain service, invoked from
+ * {@see \demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\ApiAuthenticator};
+ * returning null lets authentication fall through to JWT and then session. On success it attaches a
+ * {@see PersonalAccessTokenContext} to the request for the permissions evaluator.
  */
 class PersonalAccessTokenRequestAuthenticator
 {
@@ -40,9 +36,8 @@ class PersonalAccessTokenRequestAuthenticator
     }
 
     /**
-     * Returns true when the request's Authorization header carries a token that looks like
-     * a personal access token. False for anything else (including JWT bearer tokens, which
-     * the JWT authenticator handles). Cheap enough to call on every request.
+     * True when the Authorization header carries something shaped like a personal access token, false
+     * for anything else including JWT bearer tokens. Cheap enough to call on every request.
      */
     public function supports(Request $request): bool
     {

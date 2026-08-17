@@ -23,17 +23,11 @@ use Psr\Log\LoggerInterface;
 /**
  * Applies recommendations pushed by another instance to statements of one procedure.
  *
- * Each entry is resolved by primary key and then *validated*, never searched: the pinned procedure
- * comes from the token, so there is no ambiguity to resolve and every mismatch is a reportable
- * failure rather than a near miss.
- *
- * Deliberate properties:
- * - The batch commits what succeeded. A failure does not roll back earlier entries, because a partial
- *   push the planner can see beats an all-or-nothing one they cannot diagnose.
- * - An empty recommendation is skipped rather than written, so a source with nothing to say cannot
- *   erase a value on this side.
- * - {@see Statement::setRecommendation()} is called at most once per statement per request, since each
- *   changed call records another recommendation version.
+ * Each entry is resolved by primary key and then validated, never searched, so every mismatch is a
+ * reportable failure. Three deliberate properties: the batch commits what succeeded rather than
+ * rolling back; an empty recommendation is skipped so it cannot erase a value on this side; and
+ * {@see Statement::setRecommendation()} runs at most once per statement, since each changed call
+ * records another recommendation version.
  */
 class RecommendationPushService
 {
@@ -124,9 +118,8 @@ class RecommendationPushService
     }
 
     /**
-     * Whether the statement is a row the assessment table would show, which is the only kind that may
-     * be written: originals are read-only, and deleted statements, move placeholders and segments are
-     * not editable rows at all.
+     * Only a row the assessment table would show may be written: originals are read-only, and deleted
+     * statements, move placeholders and segments are not editable rows.
      */
     private function isAssessable(Statement $statement): bool
     {
@@ -137,9 +130,8 @@ class RecommendationPushService
     }
 
     /**
-     * The payload is rich text authored on another instance, so it is filtered to the same tag
-     * allowlist as editor input and then run through HTMLPurifier. Returns '' when nothing of
-     * substance survives, which the caller treats as "skip" rather than "write empty".
+     * Filtered to the same tag allowlist as editor input. Returns '' when nothing of substance
+     * survives, which the caller treats as "skip" rather than "write empty".
      */
     private function purify(string $recommendation): string
     {

@@ -13,11 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Security\ApiToken;
 
 /**
- * A freshly generated token: everything the caller needs to persist the record and hand the
- * plaintext to the user exactly once.
- *
- * {@see self::$secret} and {@see self::$fullToken} are never persisted — only {@see self::$prefix}
- * (for lookup) and {@see self::$hash} are.
+ * A freshly generated token. Only {@see self::$prefix} (for lookup) and {@see self::$hash} are ever
+ * persisted.
  */
 final readonly class GeneratedApiToken
 {

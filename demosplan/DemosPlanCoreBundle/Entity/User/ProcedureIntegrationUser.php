@@ -17,16 +17,9 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 /**
  * Principal for a request authenticated by a procedure integration token.
  *
- * Its own identity rather than a reuse of {@see AiApiUser}, so that a recommendation written from
- * another instance is attributable in report entries and recommendation versions instead of being
- * filed under the AI integration.
- *
- * It does share {@see RoleInterface::API_AI_COMMUNICATOR}, because a dedicated role code would have
- * to be added to the demosplan-addon package. The role is therefore not the security boundary here:
- * the token's scope is, enforced deny-by-default by
- * {@see \demosplan\DemosPlanCoreBundle\Security\ProcedureIntegrationToken\ProcedureIntegrationTokenContext},
- * and the push endpoint additionally refuses to act without an integration token context — so the
- * permission this role gains cannot be exercised through the AI integration's JWT path.
+ * Its own identity rather than {@see AiApiUser}, so a pushed recommendation is attributable. It does
+ * share {@see RoleInterface::API_AI_COMMUNICATOR}, since a dedicated role code would have to be added
+ * to the demosplan-addon package; the security boundary is the token's scope, not the role.
  */
 class ProcedureIntegrationUser extends FunctionalUser
 {

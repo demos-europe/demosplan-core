@@ -19,15 +19,12 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Sibling of {@see \demosplan\DemosPlanCoreBundle\Security\PersonalAccessToken\PersonalAccessTokenRequestAuthenticator}
- * for integration tokens, dispatching on the literal prefix so the two kinds never compete for a
- * request.
+ * Sibling of {@see \demosplan\DemosPlanCoreBundle\Security\PersonalAccessToken\PersonalAccessTokenRequestAuthenticator},
+ * dispatching on the literal prefix so the two token kinds never compete for a request.
  *
- * Unlike a PAT there is no owning user to return: the token's subject is a procedure, so every
- * integration request runs as the same {@see ProcedureIntegrationUser}. What distinguishes one
- * token's rights from another's is the context attached to the request, not the principal.
- *
- * A plain service rather than a Symfony Authenticator, invoked from
+ * There is no owning user to return: every integration request runs as the same
+ * {@see ProcedureIntegrationUser}, and what distinguishes one token's rights from another's is the
+ * context attached to the request. A plain service, invoked from
  * {@see \demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\ApiAuthenticator}.
  */
 class ProcedureIntegrationTokenRequestAuthenticator
@@ -45,7 +42,7 @@ class ProcedureIntegrationTokenRequestAuthenticator
 
     /**
      * On success attaches a {@see ProcedureIntegrationTokenContext} to the request and returns the
-     * integration principal. Returns null without attaching anything when the token is invalid.
+     * principal; returns null without attaching anything when the token is invalid.
      */
     public function authenticate(Request $request): ?User
     {

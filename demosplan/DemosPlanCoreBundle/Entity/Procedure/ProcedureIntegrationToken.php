@@ -23,14 +23,10 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Credential that lets another demosplan instance write into exactly one procedure of this one.
  *
- * The differences to {@see \demosplan\DemosPlanCoreBundle\Entity\User\PersonalAccessToken} are the
- * point of the class:
- * - The subject is the procedure, not a user. A leaked token buys access to that one procedure and
- *   nothing else, so the restriction is a mandatory relation rather than an optional allowlist.
- * - {@see self::$createdBy} is audit only and nullable: the integration has to keep working after
- *   the planner who paired it leaves, which is also why no deactivation listener may revoke it.
- * - No expiry by default — the inherited column stays nullable, so a token lives until it is
- *   revoked or its procedure is deleted.
+ * Differs from {@see \demosplan\DemosPlanCoreBundle\Entity\User\PersonalAccessToken} in three ways
+ * that are the point of the class: the subject is a procedure rather than a user, so the restriction
+ * is mandatory; {@see self::$createdBy} is audit only and nullable, so the integration survives the
+ * planner who paired it leaving; and there is no expiry, only revocation.
  */
 #[ORM\Entity(repositoryClass: ProcedureIntegrationTokenRepository::class)]
 #[ORM\Table(name: 'procedure_integration_token')]
@@ -44,8 +40,7 @@ class ProcedureIntegrationToken extends AbstractApiToken implements UuidEntityIn
     protected Procedure $procedure;
 
     /**
-     * Who paired the integration. Kept for the audit trail only — it grants nothing, and the token
-     * outlives this user.
+     * Audit trail only: it grants nothing, and the token outlives this user.
      */
     #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(name: 'created_by', referencedColumnName: '_u_id', nullable: true, onDelete: 'SET NULL')]
@@ -69,7 +64,7 @@ class ProcedureIntegrationToken extends AbstractApiToken implements UuidEntityIn
         $this->name = $name;
         $this->tokenPrefix = $tokenPrefix;
         $this->tokenHash = $tokenHash;
-        $this->scopes = array_values($scopes);
+        $this->scopes = $scopes;
         $this->createdBy = $createdBy;
         $this->expiresAt = $expiresAt;
     }
@@ -90,8 +85,7 @@ class ProcedureIntegrationToken extends AbstractApiToken implements UuidEntityIn
     }
 
     /**
-     * The single procedure this token may act on. Unlike a PAT's optional allowlist this can never
-     * be absent, so callers do not need a null branch.
+     * Never absent, unlike a PAT's allowlist, so callers need no null branch.
      */
     public function allowsProcedure(string $procedureId): bool
     {

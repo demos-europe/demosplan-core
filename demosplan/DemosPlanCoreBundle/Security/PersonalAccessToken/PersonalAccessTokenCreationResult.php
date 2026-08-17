@@ -15,11 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Security\PersonalAccessToken;
 use demosplan\DemosPlanCoreBundle\Entity\User\PersonalAccessToken;
 
 /**
- * Return value of {@see PersonalAccessTokenService::create()}.
- *
- * The plaintext token is exposed to callers exactly once — at the moment of creation —
- * and is never persisted. Callers are expected to surface it to the end user immediately
- * and discard their reference.
+ * The persisted token plus the one and only chance to read its plaintext, which is never stored.
  */
 final readonly class PersonalAccessTokenCreationResult
 {

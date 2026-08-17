@@ -21,9 +21,6 @@ namespace demosplan\DemosPlanCoreBundle\Security\ApiToken;
  */
 interface ApiTokenContextInterface
 {
-    /**
-     * Whether the token's scopes imply the given permission.
-     */
     public function allowsPermission(string $permission): bool;
 
     public function hasProcedureRestriction(): bool;
@@ -31,14 +28,9 @@ interface ApiTokenContextInterface
     public function allowsProcedure(string $procedureId): bool;
 
     /**
-     * Whether a permission the token's scopes do not mention must be denied.
-     *
-     * `false` gates only permissions that appear in some scope's list and lets everything else
-     * through — necessary for a token serving general API traffic, where unrelated code paths
-     * perform incidental `area_*` checks that no scope enumerates.
-     *
-     * `true` denies anything unlisted. Only safe for a token whose reachable code is narrow enough
-     * that the permissions it touches can be enumerated and asserted in a test.
+     * `false` gates only permissions some scope lists, so incidental `area_*` checks in unrelated code
+     * paths still pass — needed for a token serving general API traffic. `true` denies anything
+     * unlisted, which is only safe where the reachable permissions can be enumerated in a test.
      */
     public function deniesUnlistedPermissions(): bool;
 }

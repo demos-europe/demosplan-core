@@ -15,10 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Security\ProcedureIntegrationToken;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureIntegrationToken;
 
 /**
- * The persisted token plus the one and only chance to read its plaintext.
- *
- * {@see self::$plaintext} is never stored, so whatever hands it to the paired instance has to do so
- * from this object or not at all.
+ * The persisted token plus the one and only chance to read its plaintext, which is never stored.
  */
 final readonly class ProcedureIntegrationTokenCreationResult
 {

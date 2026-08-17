@@ -29,11 +29,8 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Throwable;
 
 /**
- * Issues an integration token for a procedure from the command line.
- *
- * Exists so the push endpoint can be exercised before the pairing flow is built. It is not a
- * substitute for pairing: a token handed out by an operator over a terminal skips the single-use,
- * short-lived pairing code that keeps the durable secret out of mail and chat.
+ * Issues an integration token for a procedure from the command line, for operators and for exercising
+ * the endpoint. Not a substitute for pairing, which keeps the durable secret out of mail and chat.
  */
 #[AsCommand(
     name: 'dplan:data:issue-procedure-integration-token',
