@@ -118,8 +118,8 @@
         />
         <dp-checkbox
           id="singleStatementCitizen"
-          class="mb-1"
           v-model="isCitizenDataCensored"
+          class="mb-1"
           data-cy="exportModal:singleStatementCitizen"
           :label="{
             text: Translator.trans('export.censored.citizen')
@@ -127,8 +127,8 @@
         />
         <dp-checkbox
           id="singleStatementInstitution"
-          class="mb-1"
           v-model="isInstitutionDataCensored"
+          class="mb-1"
           data-cy="exportModal:singleStatementInstitution"
           :label="{
             text: Translator.trans('export.censored.institution')
