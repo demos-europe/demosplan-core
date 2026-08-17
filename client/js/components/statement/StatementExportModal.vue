@@ -50,10 +50,11 @@
             :id="key"
             :key="key"
             :class="{ 'bg-neutral-light-4 border-l-4 border-interactive rounded-sm' : active === key }"
-            class="pl-2"
+            class="p-2"
             :data-cy="`exportModal:exportType:${key}`"
             :label="{
               text: Translator.trans(exportType.label),
+              bold: true,
             }"
             :value="key"
             :checked="active === key"
@@ -111,6 +112,10 @@
         v-if="isSingleStatementExport"
         class="border-b border-neutral"
       >
+        <legend
+          class="text-base py-4"
+          v-text="Translator.trans('export.options')"
+        />
         <dp-checkbox
           id="singleStatementCitizen"
           class="mb-1"
@@ -166,7 +171,7 @@
         </div>
         <fieldset
           v-if="active === 'zip' || isSingleStatementExport"
-          class="border-b border-neutral"
+          class="pb-0"
         >
           <legend
             id="docxFileName"
@@ -198,7 +203,7 @@
 
       <div
         v-if="isSingleStatementExport && hasPermission('feature_statement_via_template_export')"
-        class="border-b border-neutral pt-4 mb-4"
+        class="border-b border-neutral py-4"
       >
         <dp-label
           :hint="Translator.trans('docx.export.via_template.upload.hint')"
@@ -285,7 +290,7 @@
         }"
         :maxlength="customHeaderMaxLength"
         :placeholder="Translator.trans('docx.export.header.custom.placeholder')"
-        class="mt-4"
+        class="py-4"
         data-cy="exportModal:customHeaderText"
         type="text"
       />
