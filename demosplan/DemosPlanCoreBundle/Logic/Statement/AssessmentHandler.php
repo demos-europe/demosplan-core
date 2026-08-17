@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ViewOrientation;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\UserFilterSetService;
 use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
@@ -70,6 +71,7 @@ class AssessmentHandler extends CoreHandler
         private readonly GlobalConfig $globalConfig,
         HashedQueryService $filterSetService,
         MessageBagInterface $messageBag,
+        private readonly NameGenerator $nameGenerator,
         private readonly PresentableOriginalStatementFactory $presentableOriginalStatementFactory,
         private readonly ProcedureService $procedureService,
         private readonly RouterInterface $router,
@@ -155,7 +157,7 @@ class AssessmentHandler extends CoreHandler
         $phpWord = $this->assessmentTableServiceOutput->buildOriginalStatementDocxExport($procedure, $presentableOriginalStatements);
 
         return new DocxExportResult(
-            'Originalstellungnahmen_'.$procedureName.'.pdf',
+            'Originalstellungnahmen_'.$this->nameGenerator->shortenProcedureNameForExport($procedureName).'.pdf',
             IOFactory::createWriter($phpWord, $this->writerSelector->getWriterType())
         );
     }
