@@ -14,6 +14,8 @@ namespace demosplan\DemosPlanCoreBundle\Command\Data;
 
 use demosplan\DemosPlanCoreBundle\Command\CoreCommand;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeletionLogService;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Exception;
@@ -32,6 +34,8 @@ class DeleteProcedureCommand extends CoreCommand
     public function __construct(
         ParameterBagInterface $parameterBag,
         private readonly ProcedureDeleter $procedureDeleter,
+        private readonly ProcedureDeletionLogService $procedureDeletionLogService,
+        private readonly ProcedureRepository $procedureRepository,
         private readonly SqlQueriesService $queriesService,
         ?string $name = null,
     ) {
@@ -92,6 +96,16 @@ class DeleteProcedureCommand extends CoreCommand
             return Command::FAILURE;
         }
 
+        $proceduresToLog = [];
+        if (!$isDryRun) {
+            foreach ($retrievedProceduresIds as $procedureId) {
+                $procedure = $this->procedureRepository->find($procedureId);
+                if (null !== $procedure) {
+                    $proceduresToLog[] = $procedure;
+                }
+            }
+        }
+
         try {
             $output->info('Procedures id(s) to delete: '.implode(',', $retrievedProceduresIds));
             $output->info($isDryRun ? 'Dry-run: true' : 'Dry-run: false');
@@ -99,6 +113,10 @@ class DeleteProcedureCommand extends CoreCommand
             $this->procedureDeleter->beginTransactionAndDisableForeignKeyChecks();
             $this->procedureDeleter->deleteProcedures($retrievedProceduresIds, $isDryRun);
             $this->procedureDeleter->commitTransactionAndEnableForeignKeyChecks();
+
+            foreach ($proceduresToLog as $procedure) {
+                $this->procedureDeletionLogService->logHardDelete($procedure);
+            }
         } catch (Exception $exception) {
             // rollback all changes
             $this->queriesService->rollbackTransaction();

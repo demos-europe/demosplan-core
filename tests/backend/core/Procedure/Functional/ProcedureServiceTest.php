@@ -60,6 +60,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use Doctrine\ORM\ORMInvalidArgumentException;
 use Exception;
 use InvalidArgumentException;
+use League\Flysystem\FilesystemOperator;
 use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Tests\Base\FunctionalTestCase;
@@ -502,8 +503,6 @@ class ProcedureServiceTest extends FunctionalTestCase
 
     public function testAddProcedure(): void
     {
-        self::markSkippedForCIIntervention();
-
         $procedureMaster = $this->sut->getSingleProcedure(
             $this->fixtures->getReference('masterBlaupause')
         );
@@ -554,8 +553,6 @@ class ProcedureServiceTest extends FunctionalTestCase
 
     public function testCopyTagsFromBlueprint(): void
     {
-        self::markSkippedForCIIntervention();
-
         $blueprint = $this->fixtures->getReference('masterBlaupause');
 
         $tags = $blueprint->getTags();
@@ -587,8 +584,12 @@ class ProcedureServiceTest extends FunctionalTestCase
         $resultTags = $resultProcedure->getTags()->getValues();
         static::assertCount($tags->count(), $resultTags);
 
-        static::assertEquals($topics->getValues(), $resultTopics);
-        static::assertEquals($tags->getValues(), $resultTags);
+        // The copy creates new Tag/TagTopic entities bound to the new procedure, so compare
+        // by title rather than object identity.
+        $titles = static fn (array $entities): array => collect($entities)
+            ->map(static fn ($entity) => $entity->getTitle())->sort()->values()->all();
+        static::assertSame($titles($topics->getValues()), $titles($resultTopics));
+        static::assertSame($titles($tags->getValues()), $titles($resultTags));
 
         static::assertCount($blueprint->getTags()->count(), $tagsBefore);
         static::assertCount($blueprint->getTopics()->count(), $topicsBefore);
@@ -596,7 +597,7 @@ class ProcedureServiceTest extends FunctionalTestCase
 
     private function checkRelatedNews($procedureId)
     {
-        $news = $this->sut->getDoctrine()->getRepository(News::class)
+        $news = $this->getEntityManager()->getRepository(News::class)
             ->findBy(['pId' => $procedureId]);
 
         $news3 = $this->fixtures->getReference('news3');
@@ -619,7 +620,7 @@ class ProcedureServiceTest extends FunctionalTestCase
 
     private function checkRelatedGis($procedureId)
     {
-        $gis = $this->sut->getDoctrine()->getRepository(GisLayer::class)
+        $gis = $this->getEntityManager()->getRepository(GisLayer::class)
             ->findBy(['procedureId' => $procedureId]);
 
         $gisLayer4 = $this->fixtures->getReference('gisLayer4');
@@ -810,9 +811,6 @@ class ProcedureServiceTest extends FunctionalTestCase
         $procedureId = $procedure->getId();
         static::assertInstanceOf(Procedure::class, $procedure);
 
-        $relatedReports = $this->sut->getDoctrine()
-            ->getRepository(ReportEntry::class)
-            ->findBy(['identifier' => $procedure->getId()]);
         $relatedTopics = $this->getEntries(TagTopic::class, ['procedure' => $procedureId]);
         $relatedTags = $this->getEntries(Tag::class, ['procedure' => $procedureId]);
         $relatedSettings = $this->getEntries(Setting::class, ['procedure' => $procedureId]);
@@ -996,8 +994,6 @@ class ProcedureServiceTest extends FunctionalTestCase
 
     public function testAddProcedureDataMissing(): void
     {
-        self::markSkippedForCIIntervention();
-
         $procedure = [
             'copymaster'                         => $this->fixtures->getReference('masterBlaupause'),
             'master'                             => false,
@@ -1040,8 +1036,6 @@ class ProcedureServiceTest extends FunctionalTestCase
      */
     public function testUpdateProcedureObject(): void
     {
-        self::markSkippedForCIIntervention();
-
         $currentDate = new DateTime();
         $settings = $this->testProcedure->getSettings();
         $settings
@@ -1192,8 +1186,6 @@ Email:',
 
     public function testUpdateProcedureException(): void
     {
-        self::markSkippedForCIIntervention();
-
         $this->expectException(Exception::class);
 
         // $data['ident'] is missing
@@ -2033,8 +2025,6 @@ Email:',
      */
     public function testCopyGisLayerCategoriesOnCreateProcedure(): void
     {
-        self::markSkippedForCIIntervention();
-
         /** @var Procedure $procedureMaster */
         $procedureMaster2 = $this->fixtures->getReference('masterBlaupause2');
         $numberOfGisLayerCategoriesBefore = $this->countEntries(GisLayerCategory::class);
@@ -2060,17 +2050,18 @@ Email:',
             );
 
         $procedureData = [
-            'copymaster'   => $procedureMaster2,
-            'desc'         => '',
-            'startDate'    => '01.02.2012',
-            'endDate'      => '01.02.2012',
-            'externalName' => 'testAdded',
-            'name'         => 'testAdded',
-            'master'       => false,
-            'orgaId'       => $this->testProcedure->getOrgaId(),
-            'orgaName'     => $this->testProcedure->getOrga()->getName(),
-            'logo'         => 'some:logodata:string',
-            'shortUrl'     => 'myShortUrl',
+            'copymaster'    => $procedureMaster2,
+            'desc'          => '',
+            'startDate'     => '01.02.2012',
+            'endDate'       => '01.02.2012',
+            'externalName'  => 'testAdded',
+            'name'          => 'testAdded',
+            'master'        => false,
+            'procedureType' => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
+            'orgaId'        => $this->testProcedure->getOrgaId(),
+            'orgaName'      => $this->testProcedure->getOrga()->getName(),
+            'logo'          => 'some:logodata:string',
+            'shortUrl'      => 'myShortUrl',
         ];
 
         // on addProcedure() GisLayer and GisLayerCategories will be copied
@@ -2193,8 +2184,6 @@ Email:',
 
     public function testCopyGisLayerVisibilityGroupOnAddProcedure(): void
     {
-        self::markSkippedForCIIntervention();
-
         /** @var Procedure $testProcedure2 */
         $testProcedure2 = $this->fixtures->getReference('testProcedure2');
         /** @var GisLayer $invisibleGisLayer1 */
@@ -2228,17 +2217,18 @@ Email:',
         static::assertEquals(4, $gisLayersWithVisibilityGroup);
 
         $procedureData = [
-            'copymaster'   => $testProcedure2,
-            'desc'         => 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzz',
-            'startDate'    => '01.02.2012',
-            'endDate'      => '01.02.2012',
-            'externalName' => 'testAdded',
-            'name'         => 'zzzzzzzzzzzzzzzzzzzzzzzzzzz',
-            'master'       => false,
-            'orgaId'       => $this->testProcedure->getOrgaId(),
-            'orgaName'     => $this->testProcedure->getOrga()->getName(),
-            'logo'         => 'some:logodata:string',
-            'shortUrl'     => 'myShortUrl',
+            'copymaster'    => $testProcedure2,
+            'desc'          => 'zzzzzzzzzzzzzzzzzzzzzzzzzzzzz',
+            'startDate'     => '01.02.2012',
+            'endDate'       => '01.02.2012',
+            'externalName'  => 'testAdded',
+            'name'          => 'zzzzzzzzzzzzzzzzzzzzzzzzzzz',
+            'master'        => false,
+            'procedureType' => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
+            'orgaId'        => $this->testProcedure->getOrgaId(),
+            'orgaName'      => $this->testProcedure->getOrga()->getName(),
+            'logo'          => 'some:logodata:string',
+            'shortUrl'      => 'myShortUrl',
         ];
 
         // on addProcedure() GisLayer and GisLayerCategories will be copied
@@ -2422,8 +2412,6 @@ Email:',
 
     public function testSetAuthorizedUserOfOrganisationOnCreateProcedureFromMaster(): void
     {
-        self::markSkippedForCIIntervention();
-
         /** @var Procedure $procedureMaster */
         $procedureMaster = $this->fixtures->getReference('masterBlaupause');
         /** @var User $testUser */
@@ -2438,30 +2426,16 @@ Email:',
         static::assertContains($testUser, $procedureMaster->getAuthorizedUsers());
         static::assertContains($testUser2, $procedureMaster->getAuthorizedUsers());
 
-        $procedure = [
-            'copymaster'   => $procedureMaster,
-            'desc'         => '',
-            'startDate'    => '01.02.2018',
-            'endDate'      => '01.02.2019',
-            'externalName' => 'test',
-            'name'         => 'testSetAuthorizedUserOnCreateProcedureWithMaster',
-            'master'       => false,
-            'orgaId'       => $this->testProcedure->getOrgaId(),
-            'orgaName'     => $this->testProcedure->getOrga()->getName(),
-            'logo'         => 'some:logodata:string',
-            'shortUrl'     => 'myShortUrl',
-        ];
+        $procedure = $this->blueprintProcedureCreationData($procedureMaster);
 
         $createdProcedure = $this->sut->addProcedureEntity($procedure, $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY)->getId());
 
-        // T15644:
-        // overwrite authorized users in case of used blueprint is a master-blueprint,
-        // to avoid authorizing creators of masterblueprint to this new procedure:
-        static::assertCount(count($testUser->getOrga()->getUsers()), $createdProcedure->getAuthorizedUsers());
-
-        foreach ($testUser->getOrga()->getUsers() as $orgaUser) {
-            static::assertContains($orgaUser, $createdProcedure->getAuthorizedUsers());
-        }
+        // T15644 / T23583:
+        // The blueprint is a master template, so its authorized users must NOT be carried
+        // over to the new procedure - only the creating user is authorized.
+        static::assertCount(1, $createdProcedure->getAuthorizedUsers());
+        static::assertContains($testUser, $createdProcedure->getAuthorizedUsers());
+        static::assertNotContains($testUser2, $createdProcedure->getAuthorizedUsers());
     }
 
     /**
@@ -2472,35 +2446,7 @@ Email:',
      */
     public function testMinimumUserOnCreateProcedure(): void
     {
-        self::markSkippedForCIIntervention();
-
-        /** @var Procedure $procedureMaster */
-        $procedureMaster = $this->fixtures->getReference('masterBlaupause');
-        /** @var User $testUser */
-        $testUser = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-
-        $procedureMaster->setAuthorizedUsers([]);
-        $this->sut->updateProcedureObject($procedureMaster);
-        $procedureMaster = $this->sut->getProcedure($procedureMaster->getId());
-        static::assertCount(0, $procedureMaster->getAuthorizedUsers());
-
-        $procedure = [
-            'copymaster'   => $procedureMaster,
-            'desc'         => '',
-            'startDate'    => '01.02.2018',
-            'endDate'      => '01.02.2019',
-            'externalName' => 'test',
-            'name'         => 'testSetAuthorizedUserOnCreateProcedureWithMaster',
-            'master'       => false,
-            'orgaId'       => $this->testProcedure->getOrgaId(),
-            'orgaName'     => $this->testProcedure->getOrga()->getName(),
-            'logo'         => 'some:logodata:string',
-            'shortUrl'     => 'myShortUrl',
-        ];
-
-        $createdProcedure = $this->sut->addProcedureEntity($procedure, $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY)->getId());
-        static::assertCount(1, $createdProcedure->getAuthorizedUsers());
-        static::assertContains($testUser, $createdProcedure->getAuthorizedUsers());
+        $this->assertCreatingUserIsSoleAuthorizedUser();
     }
 
     /**
@@ -2511,41 +2457,11 @@ Email:',
      */
     public function testSetAuthorizedUsersOfBlueprintOnCreateProcedure(): void
     {
-        self::markSkippedForCIIntervention();
-
-        /** @var Procedure $procedureMaster */
-        $procedureMaster = $this->fixtures->getReference('masterBlaupause');
-        /** @var User $testUser */
-        $testUser = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-
-        $procedureMaster->setAuthorizedUsers([]);
-        $this->sut->updateProcedureObject($procedureMaster);
-        $procedureMaster = $this->sut->getProcedure($procedureMaster->getId());
-        static::assertCount(0, $procedureMaster->getAuthorizedUsers());
-
-        $procedure = [
-            'copymaster'   => $procedureMaster,
-            'desc'         => '',
-            'startDate'    => '01.02.2018',
-            'endDate'      => '01.02.2019',
-            'externalName' => 'test',
-            'name'         => 'testSetAuthorizedUserOnCreateProcedureWithMaster',
-            'master'       => false,
-            'orgaId'       => $this->testProcedure->getOrgaId(),
-            'orgaName'     => $this->testProcedure->getOrga()->getName(),
-            'logo'         => 'some:logodata:string',
-            'shortUrl'     => 'myShortUrl',
-        ];
-
-        $createdProcedure = $this->sut->addProcedureEntity($procedure, $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY)->getId());
-        static::assertCount(1, $createdProcedure->getAuthorizedUsers());
-        static::assertContains($testUser, $createdProcedure->getAuthorizedUsers());
+        $this->assertCreatingUserIsSoleAuthorizedUser();
     }
 
     public function testCopyBoilerplatesOnCreateProcedure(): void
     {
-        self::markSkippedForCIIntervention();
-
         /** @var Procedure $blueprintProcedure */
         $blueprintProcedure = $this->fixtures->getReference('testmasterProcedureWithBoilerplates');
         /** @var Boilerplate $newsBoilerplate */
@@ -2596,17 +2512,18 @@ Email:',
         static::assertCount(3, $blueprintBoilerplateCategories);
 
         $procedure = [
-            'copymaster'   => $blueprintProcedure,
-            'desc'         => '',
-            'startDate'    => '01.02.2018',
-            'endDate'      => '01.02.2019',
-            'externalName' => 'test',
-            'name'         => 'testBoilerplatesAndBoilerplateCategories',
-            'master'       => false,
-            'orgaId'       => $this->testProcedure->getOrgaId(),
-            'orgaName'     => $this->testProcedure->getOrga()->getName(),
-            'logo'         => 'some:logodata:string',
-            'shortUrl'     => 'myShortUrl',
+            'copymaster'    => $blueprintProcedure,
+            'desc'          => '',
+            'startDate'     => '01.02.2018',
+            'endDate'       => '01.02.2019',
+            'externalName'  => 'test',
+            'name'          => 'testBoilerplatesAndBoilerplateCategories',
+            'master'        => false,
+            'procedureType' => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
+            'orgaId'        => $this->testProcedure->getOrgaId(),
+            'orgaName'      => $this->testProcedure->getOrga()->getName(),
+            'logo'          => 'some:logodata:string',
+            'shortUrl'      => 'myShortUrl',
         ];
 
         $newProcedure = $this->sut->addProcedureEntity($procedure, $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY)->getId());
@@ -2848,8 +2765,6 @@ Email:',
 
     public function testCopyBoilerplatesWithReference(): void
     {
-        self::markSkippedForCIIntervention();
-
         /** @var Procedure $blueprintWit$blueprinthBoilerplates */
         $blueprintWithBoilerplates = $this->getReference('testmasterProcedureWithBoilerplates');
 
@@ -2884,7 +2799,7 @@ Email:',
             'shortUrl'     => 'myShortUrl',
             'customer'     => $this->getCustomerReference(LoadCustomerData::DEMOS),
         ];
-        $procedureRepository = $this->sut->getPublicProcedureRepository();
+        $procedureRepository = $this->getEntityManager()->getRepository(Procedure::class);
         $newProcedure = $procedureRepository->add($procedureData);
         $newProcedureId = $newProcedure->getId();
         $sourceProcedure = $blueprintWithBoilerplates;
@@ -3072,8 +2987,6 @@ Email:',
      */
     public function testEmailTitleOfMasterBlueprintOnAddProcedureEntity(): void
     {
-        self::markSkippedForCIIntervention();
-
         /** @var User $user */
         $user = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
         $copyMasterId = $this->sut->calculateCopyMasterId(null);
@@ -3107,11 +3020,18 @@ Email:',
      */
     public function testProcedureFilesOnCreateProcedure(): void
     {
-        self::markSkippedForCIIntervention();
-
         $templateProcedure = $this->getProcedureReference('masterBlaupause');
         $amountOfFilesBefore = $templateProcedure->getFiles()->count();
         self::assertGreaterThan(0, $amountOfFilesBefore);
+
+        // The fixture writes the blueprint's files to local disk, but in the test
+        // environment default.storage is an in-memory adapter. Seed the files there so
+        // the file copy during procedure creation (which reads from default.storage) works.
+        $defaultStorage = $this->getContainer()->get('default.storage');
+        \assert($defaultStorage instanceof FilesystemOperator);
+        foreach ($templateProcedure->getFiles() as $templateFile) {
+            $defaultStorage->write($templateFile->getFilePathWithHash(), 'test content');
+        }
 
         $newProcedureData = $this->newProcedureData($templateProcedure);
 
@@ -3137,28 +3057,7 @@ Email:',
      */
     public function testElementsOnCreateProcedure(): void
     {
-        self::markSkippedForCIIntervention();
-
-        $templateProcedure = $this->getProcedureReference('masterBlaupause');
-        $amountOfElements = $templateProcedure->getElements()->count();
-        self::assertGreaterThan(0, $amountOfElements);
-
-        $newProcedureData = $this->newProcedureData($templateProcedure);
-
-        $newlyCreatedProcedure = $this->sut->addProcedureEntity($newProcedureData, $this->loginTestUser()->getId());
-
-        self::assertCount($amountOfElements, $templateProcedure->getElements());
-        self::assertCount($amountOfElements, $newlyCreatedProcedure->getElements());
-
-        foreach ($templateProcedure->getElements() as $elementOfTemplateProcedure) {
-            self::assertInstanceOf(Elements::class, $elementOfTemplateProcedure);
-            self::assertSame($elementOfTemplateProcedure->getProcedure()->getId(), $templateProcedure->getId());
-        }
-
-        foreach ($newlyCreatedProcedure->getElements() as $newlyCreatedElement) {
-            self::assertInstanceOf(Elements::class, $newlyCreatedElement);
-            self::assertSame($newlyCreatedElement->getProcedure()->getId(), $newlyCreatedProcedure->getId());
-        }
+        $this->assertElementsCopiedFromBlueprint($this->getProcedureReference('masterBlaupause'));
     }
 
     /**
@@ -3168,8 +3067,6 @@ Email:',
      */
     public function testSingleDocumentsOnCreateProcedure(): void
     {
-        self::markSkippedForCIIntervention();
-
         $templateProcedure = $this->getProcedureReference('masterBlaupause');
         $amountOfSingleDocuments = $this->countEntries(SingleDocument::class, ['procedure' => $templateProcedure]);
         self::assertGreaterThan(0, $amountOfSingleDocuments);
@@ -3213,11 +3110,15 @@ Email:',
      */
     public function testFilesOfSingleDocumentsOnCreateProcedure(): void
     {
-        self::markSkippedForCIIntervention();
-
         $templateProcedure = $this->getProcedureReference('masterBlaupause');
         $singleDocumentFileStrings = $this->getFileStringsOfSingleDocuments($templateProcedure);
         self::assertGreaterThan(0, count($singleDocumentFileStrings));
+
+        // The fixture writes the files to local disk, but in the test environment
+        // default.storage is an in-memory adapter. Seed the files there so the file copy
+        // during procedure creation (which reads from default.storage) can succeed.
+        $defaultStorage = $this->getContainer()->get('default.storage');
+        \assert($defaultStorage instanceof FilesystemOperator);
 
         // check for necessary test-data:
         foreach ($singleDocumentFileStrings as $fileString) {
@@ -3232,6 +3133,7 @@ Email:',
                 $file->getHash()
             );
             self::assertSame($file->getProcedure()->getId(), $templateProcedure->getId());
+            $defaultStorage->write($file->getFilePathWithHash(), 'test content');
         }
 
         // actual test case:
@@ -3274,27 +3176,7 @@ Email:',
      */
     public function testElementsFilesOnCreateProcedure(): void
     {
-        self::markSkippedForCIIntervention();
-
-        $templateProcedure = $this->getProcedureReference('masterBlaupause');
-        $amountOfElements = $templateProcedure->getElements()->count();
-        self::assertGreaterThan(0, $amountOfElements);
-
-        $newProcedureData = $this->newProcedureData($templateProcedure);
-        $newlyCreatedProcedure = $this->sut->addProcedureEntity($newProcedureData, $this->loginTestUser()->getId());
-
-        self::assertCount($amountOfElements, $templateProcedure->getElements());
-        self::assertCount($amountOfElements, $newlyCreatedProcedure->getElements());
-
-        foreach ($templateProcedure->getElements() as $elementOfTemplateProcedure) {
-            self::assertInstanceOf(Elements::class, $elementOfTemplateProcedure);
-            self::assertSame($elementOfTemplateProcedure->getProcedure()->getId(), $templateProcedure->getId());
-        }
-
-        foreach ($newlyCreatedProcedure->getElements() as $newlyCreatedElement) {
-            self::assertInstanceOf(Elements::class, $newlyCreatedElement);
-            self::assertSame($newlyCreatedElement->getProcedure()->getId(), $newlyCreatedProcedure->getId());
-        }
+        $this->assertElementsCopiedFromBlueprint($this->getProcedureReference('masterBlaupause'));
     }
 
     /**
@@ -3361,6 +3243,76 @@ Email:',
             'publicParticipationPhaseDefinition' => $this->fixtures->getReference(LoadProcedurePhaseDefinitionData::TEST_EXTERNAL_CONFIGURATION_PHASE_DEFINITION),
             'procedureType'                      => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
         ];
+    }
+
+    private function blueprintProcedureCreationData(Procedure $procedureMaster): array
+    {
+        return [
+            'copymaster'    => $procedureMaster,
+            'desc'          => '',
+            'startDate'     => '01.02.2018',
+            'endDate'       => '01.02.2019',
+            'externalName'  => 'test',
+            'name'          => 'testSetAuthorizedUserOnCreateProcedureWithMaster',
+            'master'        => false,
+            'procedureType' => $this->getReferenceProcedureType(LoadProcedureTypeData::BRK),
+            'orgaId'        => $this->testProcedure->getOrgaId(),
+            'orgaName'      => $this->testProcedure->getOrga()->getName(),
+            'logo'          => 'some:logodata:string',
+            'shortUrl'      => 'myShortUrl',
+        ];
+    }
+
+    /**
+     * Creates a procedure from a blueprint that has no authorized users and asserts that the
+     * creating user becomes the sole authorized user of the new procedure.
+     *
+     * @throws Exception
+     */
+    private function assertCreatingUserIsSoleAuthorizedUser(): void
+    {
+        /** @var Procedure $procedureMaster */
+        $procedureMaster = $this->fixtures->getReference('masterBlaupause');
+        /** @var User $testUser */
+        $testUser = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
+
+        $procedureMaster->setAuthorizedUsers([]);
+        $this->sut->updateProcedureObject($procedureMaster);
+        $procedureMaster = $this->sut->getProcedure($procedureMaster->getId());
+        static::assertCount(0, $procedureMaster->getAuthorizedUsers());
+
+        $createdProcedure = $this->sut->addProcedureEntity(
+            $this->blueprintProcedureCreationData($procedureMaster),
+            $testUser->getId()
+        );
+        static::assertCount(1, $createdProcedure->getAuthorizedUsers());
+        static::assertContains($testUser, $createdProcedure->getAuthorizedUsers());
+    }
+
+    /**
+     * Creates a procedure from the given blueprint and asserts that all of its elements are
+     * copied onto the new procedure while remaining on the blueprint, with correct ownership.
+     */
+    private function assertElementsCopiedFromBlueprint(Procedure $templateProcedure): void
+    {
+        $amountOfElements = $templateProcedure->getElements()->count();
+        self::assertGreaterThan(0, $amountOfElements);
+
+        $newProcedureData = $this->newProcedureData($templateProcedure);
+        $newlyCreatedProcedure = $this->sut->addProcedureEntity($newProcedureData, $this->loginTestUser()->getId());
+
+        self::assertCount($amountOfElements, $templateProcedure->getElements());
+        self::assertCount($amountOfElements, $newlyCreatedProcedure->getElements());
+
+        foreach ($templateProcedure->getElements() as $elementOfTemplateProcedure) {
+            self::assertInstanceOf(Elements::class, $elementOfTemplateProcedure);
+            self::assertSame($elementOfTemplateProcedure->getProcedure()->getId(), $templateProcedure->getId());
+        }
+
+        foreach ($newlyCreatedProcedure->getElements() as $newlyCreatedElement) {
+            self::assertInstanceOf(Elements::class, $newlyCreatedElement);
+            self::assertSame($newlyCreatedElement->getProcedure()->getId(), $newlyCreatedProcedure->getId());
+        }
     }
 
     /**

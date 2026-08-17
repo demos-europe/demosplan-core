@@ -601,6 +601,10 @@ export default {
       'slidebar',
     ]),
 
+    ...mapState('StatementSegment', {
+      segmentItems: 'items',
+    }),
+
     assignableUsers () {
       const assigneeOptions = Object.values({ ...this.assignableUserItems })
         .map(assignableUser => {
@@ -734,10 +738,6 @@ export default {
       'toggleSlidebarContent',
     ]),
 
-    ...mapMutations('SegmentSlidebar', [
-      'setProperty',
-    ]),
-
     ...mapActions('StatementSegment', {
       getStatementSegmentAction: 'get',
       restoreSegmentAction: 'restoreFromInitial',
@@ -747,6 +747,11 @@ export default {
     ...mapMutations('StatementSegment', {
       updateSegment: 'update',
       setSegment: 'setItem',
+      /*
+       * `setItem` writes only `items`; `set` writes `items` and `initial`, which save() diffs against.
+       * Use `set` after a direct PATCH so `initial` keeps matching what the BE holds.
+       */
+      setSegmentAndInitial: 'set',
     }),
 
     abort () {
@@ -802,6 +807,17 @@ export default {
 
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }), {}, payload)
         .then(() => {
+          /*
+           * `set` updates `initial` (which is what we need here) but overwrites `items` too, with a
+           * snapshot taken before the request. Restore `items` afterward to keep edits the user made
+           * while the request was in flight - the edit controls are already live at this point, because
+           * `isAssignedToMe` reacts to the optimistic update above
+           */
+          const currentSegment = { ...this.segment }
+
+          this.setSegmentAndInitial({ ...dataToUpdate, id: this.segment.id })
+          this.setSegment({ ...currentSegment, id: this.segment.id })
+
           this.claimLoading = false
           this.isCollapsed = false
           this.selectedAssignee = {
@@ -891,12 +907,6 @@ export default {
           ].join(','),
         },
       })
-    },
-
-    finalizeSave (comments) {
-      this.restoreComments(comments)
-      this.setProperty({ prop: 'isLoading', val: false })
-      this.isEditing = false
     },
 
     hasPolygonFeatures () {
@@ -990,38 +1000,37 @@ export default {
     },
 
     /**
-     * Remove non-updatable comments from segments relationships for update request
-     * @param relations {Object}
+     * Re-add read-only relationships stripped by updateRelationships() to the store
+     * Comments and recommendationVersions are only added as relationship if they don't exist already
+     *
+     * @param comments {Object|null}
+     * @param recommendationVersions {Object|null}
      */
-    excludeComments (relations) {
-      if (relations.comments) {
-        this.setProperty({ prop: 'isLoading', val: true })
-        delete relations.comments
-      }
-    },
+    restoreReadOnlyRelationships ({ comments, recommendationVersions }) {
+      const storedSegment = this.segmentItems[this.segment.id]
 
-    /**
-     * Remove non-updatable recommendationVersions from segments relationships for update request
-     * @param relations {Object}
-     */
-    excludeRecommendationVersion (relations) {
-      if (relations.recommendationVersions) {
-        delete relations.recommendationVersions
+      if (!storedSegment) {
+        return
       }
-    },
 
-    restoreComments (comments) {
-      if (comments) {
-        const segmentWithComments = {
-          ...this.segment,
-          relationships: {
-            ...this.segment.relationships,
-            comments,
-          },
-        }
+      const restoreComments = comments && !storedSegment.relationships.comments
+      const restoreRecommendationVersions = recommendationVersions && !storedSegment.relationships.recommendationVersions
 
-        this.setSegment({ ...segmentWithComments, id: this.segment.id })
+      if (!restoreComments && !restoreRecommendationVersions) {
+        return
       }
+
+      const relationships = { ...storedSegment.relationships }
+
+      if (restoreComments) {
+        relationships.comments = comments
+      }
+
+      if (restoreRecommendationVersions) {
+        relationships.recommendationVersions = recommendationVersions
+      }
+
+      this.setSegment({ ...storedSegment, relationships, id: storedSegment.id })
     },
 
     saveCustomFields () {
@@ -1054,44 +1063,37 @@ export default {
     },
 
     save () {
-      const comments = this.segment.relationships.comments ?
-        { ...this.segment.relationships.comments } :
-        null
+      const readOnlyRelationships = {
+        comments: this.segment.relationships.comments ?
+          { ...this.segment.relationships.comments } :
+          null,
+        recommendationVersions: this.segment.relationships.recommendationVersions ?
+          { ...this.segment.relationships.recommendationVersions } :
+          null,
+      }
 
-      // Update relationships (assignee/place)
-      const relations = this.updateRelationships()
-
-      /**
-       *  Comments and recommendationVersions need to be removed from the PATCH payload
-       *  as updating them is technically not supported
+      /*
+       * Update relationships (assignee/place). Read-only relationships (comments,
+       * recommendationVersions) are stripped inside updateRelationships so they never
+       * reach the PATCH payload.
        */
-      this.excludeComments(relations)
-      this.excludeRecommendationVersion(relations)
+      this.updateRelationships()
 
       this.lockedBeforeSave = this.isLocked
       this.isSaving = true
 
-      return this.saveSegmentAction({ id: this.segment.id })
+      const savePromise = this.saveSegmentAction({ id: this.segment.id })
+
+      this.restoreReadOnlyRelationships(readOnlyRelationships)
+
+      return savePromise
         .then(() => {
           /*
-           * Clearing the assignee ("nicht zugewiesen") is sent as a separate explicit PATCH because the
-           * vuex-json-api diff drops a to-one relationship set to `{ data: null }` (it diffs against a
-           * stale `initial` baseline that setSegment never updates), so an unassign would be silently
-           * omitted from saveSegmentAction's request body. Mirrors the explicit payload already used by
-           * claimSegment()/unclaimSegment(). It must complete before fetchUpdatedSegment, which would
-           * otherwise re-store the stale assignee.
+           * The saveAction overwrites segment data in the store without the readonly relationships, so we need to restore
+           * them again here to ensure comments don't vanish from the interface while saving
            */
-          const isUnassigning = !this.selectedAssignee?.id || this.selectedAssignee.id === 'noAssigneeId'
+          this.restoreReadOnlyRelationships(readOnlyRelationships)
 
-          return isUnassigning ?
-            dpApi.patch(
-              Routing.generate('api_resource_update', { resourceType: 'StatementSegment', resourceId: this.segment.id }),
-              {},
-              { data: { type: 'StatementSegment', id: this.segment.id, relationships: { assignee: { data: null } } } },
-            ) :
-            Promise.resolve()
-        })
-        .then(() => {
           return Promise.all([
             this.fetchUpdatedSegment().catch((err) => {
               console.error('Failed to fetch updated segment:', err)
@@ -1104,6 +1106,7 @@ export default {
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
 
+          this.isEditing = false
           this.isFullscreen = false
 
           this.toggleAssignableUsersSelect()
@@ -1116,16 +1119,14 @@ export default {
             }
           })
         })
-        .catch((err) => {
+        .catch(err => {
           console.error('Save failed:', err)
           dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
-        })
-        .catch(() => {
           this.restoreSegmentAction(this.segment.id)
         })
         .finally(() => {
           this.isSaving = false
-          this.finalizeSave(comments)
+          this.restoreReadOnlyRelationships(readOnlyRelationships)
         })
     },
 
@@ -1248,8 +1249,8 @@ export default {
           delete dataToUpdate.relationships.assignee
           // Reset recommendation text in store (segment might have been in edit mode with some changes)
           dataToUpdate.attributes.recommendation = this.$store.state.StatementSegment.initial[this.segment.id].attributes.recommendation
-          // Set segment in store, without the assignee and with resetted recommendation
-          this.setSegment({ ...dataToUpdate, id: this.segment.id })
+          // Set segment in store, without the assignee and with reset recommendation
+          this.setSegmentAndInitial({ ...dataToUpdate, id: this.segment.id })
           this.claimLoading = false
           this.selectedAssignee = { id: '', name: '' }
         })
@@ -1261,6 +1262,14 @@ export default {
 
     updateRelationships () {
       let relations = { ...this.segment.relationships }
+
+      /*
+       * `comments` and `recommendationVersions` are read-only on the StatementSegment resource (they are managed through
+       * their own resources/endpoints), so we need to remove them from the payload to prevent them from being written
+       * to the store and sent to the BE on save
+       */
+      delete relations.comments
+      delete relations.recommendationVersions
 
       if (this.showWorkflowActions) {
         let assignee = { assignee: { data: null } }
@@ -1303,7 +1312,13 @@ export default {
     },
 
     updateSegment (key, val) {
-      const updated = { ...this.segment, ...{ attributes: { ...this.segment.attributes, ...{ [key]: val } } } }
+      const updated = {
+        ...this.segment,
+        attributes: {
+          ...this.segment.attributes,
+          [key]: val,
+        },
+      }
 
       this.setSegment({ ...updated, id: this.segment.id })
     },

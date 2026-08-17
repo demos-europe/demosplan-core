@@ -139,11 +139,16 @@ class OzgKeycloakSessionManager
     {
         $currentCustomer = $this->customerService->getCurrentCustomer();
 
-        $logoutRoute = str_replace(
-            self::POST_LOGOUT_REDIRECT_URI,
-            self::POST_LOGOUT_REDIRECT_URI.$currentCustomer->getSubdomain().'.',
-            $logoutRoute
-        );
+        // skip injection when the configured route already contains the subdomain,
+        // otherwise a fully qualified template would end up with a doubled subdomain
+        $subdomainPrefix = self::POST_LOGOUT_REDIRECT_URI.$currentCustomer->getSubdomain().'.';
+        if (!str_contains($logoutRoute, $subdomainPrefix)) {
+            $logoutRoute = str_replace(
+                self::POST_LOGOUT_REDIRECT_URI,
+                $subdomainPrefix,
+                $logoutRoute
+            );
+        }
 
         if ($keycloakToken) {
             $logoutRoute = str_replace(

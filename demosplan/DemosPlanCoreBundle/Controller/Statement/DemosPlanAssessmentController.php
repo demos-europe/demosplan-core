@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
@@ -29,6 +30,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\MunicipalityService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\PriorityAreaService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDateOrderValidator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
@@ -152,6 +154,7 @@ class DemosPlanAssessmentController extends BaseController
         FileUploadService $fileUploadService,
         Request $request,
         ServiceOutput $serviceOutput,
+        StatementDateOrderValidator $statementDateOrderValidator,
         StatementHandler $statementHandler,
         StatementService $statementService,
         AssessmentHandler $assessmentHandler,
@@ -160,7 +163,12 @@ class DemosPlanAssessmentController extends BaseController
         $rParams = $request->request->all();
         $fParams = $fileUploadService->prepareFilesUpload($request, 'r_upload');
 
-        if (array_key_exists('r_action', $rParams) && 'new' === $rParams['r_action']) {
+        if (array_key_exists('r_action', $rParams) && 'new' === $rParams['r_action']
+            && $this->isAuthoredDateAfterSubmittedDate($rParams, $statementDateOrderValidator)) {
+            // authoredDate (Verfassungsdatum) must not be later than submittedDate (Einreichungsdatum);
+            // skip creation and re-render the form so the user can correct the dates.
+            $this->getMessageBag()->add('error', 'error.date.authored.after.submitted');
+        } elseif (array_key_exists('r_action', $rParams) && 'new' === $rParams['r_action']) {
             try {
                 if (null !== $fParams && '' !== $fParams) {
                     $rParams['fileupload'] = $fParams;
@@ -211,6 +219,26 @@ class DemosPlanAssessmentController extends BaseController
                 'templateVars' => $templateVars,
                 'title'        => 'statement.new',
             ]
+        );
+    }
+
+    /**
+     * Manual statement creation must reject an authoredDate (Verfassungsdatum) that is later than the
+     * submittedDate (Einreichungsdatum). The frontend datepicker already caps the selectable range, but
+     * a user can bypass that by typing directly into the input, so the order is enforced on the backend
+     * too. Both inputs are submitted in d.m.Y format. The actual comparison is delegated to the shared
+     * validator that the edit route uses as well, so the rule cannot drift between create and edit.
+     *
+     * @param array<string, mixed> $rParams
+     */
+    private function isAuthoredDateAfterSubmittedDate(array $rParams, StatementDateOrderValidator $validator): bool
+    {
+        $authored = DateTime::createFromFormat('d.m.Y', (string) ($rParams['r_authored_date'] ?? ''));
+        $submitted = DateTime::createFromFormat('d.m.Y', (string) ($rParams['r_submitted_date'] ?? ''));
+
+        return $validator->isAuthoredAfterSubmitted(
+            $authored instanceof DateTime ? $authored : null,
+            $submitted instanceof DateTime ? $submitted : null,
         );
     }
 

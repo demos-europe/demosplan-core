@@ -29,6 +29,8 @@ use demosplan\DemosPlanCoreBundle\Logic\Grouping\StatementEntityGroup;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplate;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportType;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
@@ -62,7 +64,6 @@ class DocxExporter
     final public const EXPORT_SORT_BY_PARAGRAPH_FRAGMENTS_ONLY = 'byParagraphFragmentsOnly';
     final public const EXPORT_SORT_BY_PARAGRAPH = 'byParagraph';
     final public const EXPORT_SORT_DEFAULT = 'default';
-    final public const TEMPLATE_PORTRAIT_WITH_PRIORITIZATION = 'portraitWithPrioritization';
     /**
      * @var array Style, wie Tabelle im gesamten aussehen soll
      */
@@ -178,10 +179,10 @@ class DocxExporter
 
         $incomingStatements = $outputResult->getStatements();
         $procedure = $this->procedureHandler->getProcedureWithCertainty($outputResult->getProcedure()['id']);
-        if ('condensed' === $templateName) {
+        if (ExportTemplate::CONDENSED->value === $templateName) {
             switch ($sortType) {
                 case self::EXPORT_SORT_BY_PARAGRAPH:
-                    $includeFragmentsInStatementExport = 'statementsAndFragments' === $exportType;
+                    $includeFragmentsInStatementExport = ExportType::STATEMENTS_AND_FRAGMENTS->value === $exportType;
                     $incomingNonOriginalStatements = array_filter(
                         $incomingStatements,
                         static fn (array $statement) =>
@@ -223,7 +224,7 @@ class DocxExporter
                         $table = $section->addTable($styles['tableStyle']);
 
                         $typeHeader = $this->translator->trans('statement');
-                        if ('statementsOnly' !== $exportType) {
+                        if (ExportType::STATEMENTS_ONLY->value !== $exportType) {
                             $typeHeader .= '/'.$this->translator->trans('fragment');
                         }
 
@@ -548,7 +549,7 @@ class DocxExporter
 
         if (null === $item['movedToProcedureName']) {
             // Stellungnahme oder Datensatz und Erwiderung
-            if ('statementsAndFragments' === $exportType && 0 < (is_countable($item['fragments']) ? count($item['fragments']) : 0)) {
+            if (ExportType::STATEMENTS_AND_FRAGMENTS->value === $exportType && 0 < (is_countable($item['fragments']) ? count($item['fragments']) : 0)) {
                 $this->addFragmentRows($item, $assessmentTable, $styles['cellWidthTotal'] * 0.44, $styles['cellWidthTotal'] * 0.44, $styles, $anonymous);
             } else {
                 $assessmentTable->addRow();
@@ -880,7 +881,7 @@ class DocxExporter
     }
 
     /**
-     * If $exportType is 'statementsAndFragments' use the fragments of a statement instead of the
+     * If $exportType is ExportType::STATEMENTS_AND_FRAGMENTS use the fragments of a statement instead of the
      * statement if there are any (if not use the statement).
      * <p>
      * The fragments are converted in a special export format and sorted by their 'created' date property.
@@ -899,7 +900,7 @@ class DocxExporter
                 $item = $this->formatStatementArray($statement);
 
                 // if there are fragments and fragment export was selected
-                if ('statementsAndFragments' === $exportType && 0 < (is_countable($statement['fragments']) ? count($statement['fragments']) : 0)) {
+                if (ExportType::STATEMENTS_AND_FRAGMENTS->value === $exportType && 0 < (is_countable($statement['fragments']) ? count($statement['fragments']) : 0)) {
                     // change type of entry (used for name of column)
                     $item['type'] = 'fragments';
                     $item['fragments'] = collect($statement['fragments'])
@@ -1095,7 +1096,7 @@ class DocxExporter
                 }
 
                 // Address
-                if (self::TEMPLATE_PORTRAIT_WITH_PRIORITIZATION !== $templateName && $this->isAddressExportable($organisationData, $exportConfig, $statement, $anonym)) {
+                if (ExportTemplate::PORTRAIT_WITH_PRIORITIZATION->value !== $templateName && $this->isAddressExportable($organisationData, $exportConfig, $statement, $anonym)) {
                     $cell2->addText(
                         htmlspecialchars($organisationData['postalAddressPartsOfAuthor']),
                         null,
@@ -1103,7 +1104,7 @@ class DocxExporter
                     );
                 }
 
-                if (self::TEMPLATE_PORTRAIT_WITH_PRIORITIZATION !== $templateName && $this->exportFieldDecider->isExportable(FieldDecider::FIELD_SUBMITTER_NAME,
+                if (ExportTemplate::PORTRAIT_WITH_PRIORITIZATION->value !== $templateName && $this->exportFieldDecider->isExportable(FieldDecider::FIELD_SUBMITTER_NAME,
                     $exportConfig,
                     $statement,
                     $organisationData,
@@ -1154,7 +1155,7 @@ class DocxExporter
                     );
                 }
 
-                if (self::TEMPLATE_PORTRAIT_WITH_PRIORITIZATION !== $templateName && $this->exportFieldDecider->isExportable(
+                if (ExportTemplate::PORTRAIT_WITH_PRIORITIZATION->value !== $templateName && $this->exportFieldDecider->isExportable(
                     FieldDecider::FIELD_SUBMITTER_NAME,
                     $exportConfig,
                     $statement,
@@ -1169,7 +1170,7 @@ class DocxExporter
                     );
                 }
 
-                if (self::TEMPLATE_PORTRAIT_WITH_PRIORITIZATION !== $templateName && $this->isAddressExportable($citizenDetails, $exportConfig, $statement, $anonym)) {
+                if (ExportTemplate::PORTRAIT_WITH_PRIORITIZATION->value !== $templateName && $this->isAddressExportable($citizenDetails, $exportConfig, $statement, $anonym)) {
                     // Adresse
                     $cell2->addText(
                         htmlspecialchars((string) $citizenDetails['postalAddressPartsOfAuthor']),
@@ -1276,8 +1277,8 @@ class DocxExporter
                     });
             }
 
-            // Priorität (redundant in TEMPLATE_PORTRAIT_WITH_PRIORITIZATION as it is already shown in the group heading)
-            if (self::TEMPLATE_PORTRAIT_WITH_PRIORITIZATION !== $templateName && $this->exportFieldDecider->isExportable(FieldDecider::FIELD_PRIORITY, $exportConfig, $statement)) {
+            // Priorität (redundant in ExportTemplate::PORTRAIT_WITH_PRIORITIZATION as it is already shown in the group heading)
+            if (ExportTemplate::PORTRAIT_WITH_PRIORITIZATION->value !== $templateName && $this->exportFieldDecider->isExportable(FieldDecider::FIELD_PRIORITY, $exportConfig, $statement)) {
                 $textRun2 = $cell2->addTextRun($cellHCentered);
                 $textRun2AddText = $this->containerAddTextFunctionConstructor($textRun2, null, null);
                 $textRun2AddText('priority', '');
@@ -1286,7 +1287,7 @@ class DocxExporter
 
             // TODO: implement a configuration system to set which templates should export which data to remove the
             // hardcoded template names here
-            if (0 < $statement->getFragments()->count() && ('landscapeWithFrags' === $templateName || 'portraitWithFrags' === $templateName)) {
+            if (0 < $statement->getFragments()->count() && (ExportTemplate::LANDSCAPE_WITH_FRAGMENTS->value === $templateName || ExportTemplate::PORTRAIT_WITH_FRAGMENTS->value === $templateName)) {
                 $assessmentTable->addRow(100);
                 $assessmentTable->addCell(null, $cellRowContinue);
                 $headerCell = $assessmentTable->addCell($styles['cellWidth'], $cellTop);
@@ -1688,7 +1689,7 @@ class DocxExporter
         $this->createFrontPage($phpWord, $procedure, $orientation);
         $items = $this->convertStatementsForExport($statements, $exportType, $requestPost);
         $typeHeader = $this->translator->trans('fragment');
-        if ('statementsOnly' === $exportType) {
+        if (ExportType::STATEMENTS_ONLY->value === $exportType) {
             $typeHeader = $this->translator->trans('statement');
         }
 

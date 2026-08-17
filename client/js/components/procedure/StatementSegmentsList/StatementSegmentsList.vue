@@ -80,6 +80,7 @@
           </li>
           <li>
             <statement-export-modal
+              :procedure-id="procedure.id"
               data-cy="statementSegmentsList:export"
               is-single-statement-export
               @export="showHintAndDoExport"
@@ -727,10 +728,14 @@ export default {
       }
     },
 
-    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored }) {
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored, uploadedDocxTemplate }) {
       const parameters = {
         procedureId: this.procedure.id,
         statementId: this.statementId,
+      }
+
+      if (uploadedDocxTemplate) {
+        parameters.uploadedDocxTemplate = uploadedDocxTemplate
       }
 
       if (docxHeaders) {
@@ -749,7 +754,9 @@ export default {
       isInstitutionDataCensored && (parameters.isInstitutionDataCensored = isInstitutionDataCensored)
       isCitizenDataCensored && (parameters.isCitizenDataCensored = isCitizenDataCensored)
 
-      if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
+      const hintKey = uploadedDocxTemplate ? 'export.statements.hint.via_template' : 'export.statements.hint'
+
+      if (window.dpconfirm(Translator.trans(hintKey))) {
         window.location.href = Routing.generate(route, parameters)
       }
     },
