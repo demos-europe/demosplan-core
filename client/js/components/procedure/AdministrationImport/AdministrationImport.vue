@@ -35,10 +35,7 @@
       </dp-tab>
     </dp-tabs>
 
-    <dp-loading
-      v-else
-      class="u-mv"
-    />
+    <dp-loading v-else class="u-mv" />
   </div>
 </template>
 
@@ -206,11 +203,7 @@ export default {
   },
 
   mounted () {
-    const promises = [this.loadComponents('email.import')]
-
-    if (hasPermission('feature_import_statement_pdf')) {
-      promises.push(this.loadComponents('import.tabs'))
-    }
+    const promises = [this.loadComponents('import.tabs')]
 
     Promise.allSettled(promises)
       .then(() => {
