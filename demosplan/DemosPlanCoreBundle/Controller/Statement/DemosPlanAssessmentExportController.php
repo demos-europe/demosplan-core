@@ -27,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableExporterStrategy;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Message\ExportAssessmentTableMessage;
+use demosplan\DemosPlanCoreBundle\Response\StreamedFileOutput;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -232,11 +233,9 @@ class DemosPlanAssessmentExportController extends BaseController
         }
 
         $stream = $storage->readStream($fileInfo->getAbsolutePath());
-        $response = new StreamedResponse(static function () use ($stream): void {
-            fpassthru($stream);
-            fclose($stream);
-        });
+        $response = new StreamedResponse(static fn () => StreamedFileOutput::sendAndClose($stream));
         $response->headers->set('Content-Type', 'application/octet-stream');
+        $response->headers->set('Content-Length', (string) $storage->fileSize($fileInfo->getAbsolutePath()));
         $response->headers->set(
             'Content-Disposition',
             'attachment; filename="'.($job->getFileName() ?? $fileInfo->getFileName()).'"'

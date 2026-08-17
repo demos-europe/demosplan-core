@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Export\Odt;
 
 use demosplan\DemosPlanCoreBundle\Exception\OdtProcessingException;
+use demosplan\DemosPlanCoreBundle\Response\StreamedFileOutput;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Writer\ODText;
 use PhpOffice\PhpWord\Writer\WriterInterface;
@@ -57,14 +58,9 @@ class OdtBorderedWriter implements WriterInterface
             // important so ZIP bytes are passed through verbatim on every platform.
             $stream = \fopen($workFile, 'rb');
             if (false !== $stream) {
-                // Stream from current position to EOF straight into php://output in
-                // ~8 KiB chunks. Same destination as echo, i.e. the HTTP response body
-                // under FPM. readfile() does the same in one call but is on FPM's
-                // disable_functions list; this fopen + fpassthru + fclose trio is not.
-                \fpassthru($stream);
-
-                // fpassthru advances the handle's position to EOF but does not close it.
-                \fclose($stream);
+                // Same destination as echo, i.e. the HTTP response body. readfile() would do
+                // this in one call but is on the disable_functions list.
+                StreamedFileOutput::sendAndClose($stream);
             }
 
             // Remove the temp file; bytes are already on the wire.

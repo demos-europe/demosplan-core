@@ -33,6 +33,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Message\ExportProcedureMessage;
+use demosplan\DemosPlanCoreBundle\Response\StreamedFileOutput;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use Doctrine\ORM\EntityManagerInterface;
@@ -392,11 +393,9 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
         }
 
         $stream = $storage->readStream($fileInfo->getAbsolutePath());
-        $response = new StreamedResponse(static function () use ($stream): void {
-            fpassthru($stream);
-            fclose($stream);
-        });
+        $response = new StreamedResponse(static fn () => StreamedFileOutput::sendAndClose($stream));
         $response->headers->set('Content-Type', 'application/octet-stream');
+        $response->headers->set('Content-Length', (string) $storage->fileSize($fileInfo->getAbsolutePath()));
         $response->headers->set(
             'Content-Disposition',
             'attachment; filename="'.($job->getFileName() ?? $fileInfo->getFileName()).'"'

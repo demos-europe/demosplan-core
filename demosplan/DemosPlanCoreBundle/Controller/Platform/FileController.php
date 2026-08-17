@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Response\BinaryFileDownload;
+use demosplan\DemosPlanCoreBundle\Response\StreamedFileOutput;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Exception;
 use League\Flysystem\FilesystemOperator;
@@ -180,10 +181,7 @@ class FileController extends BaseController
         $stream = $storage->readStream($file->getAbsolutePath());
 
         // create a response with the stream content
-        $response = new StreamedResponse(function () use ($stream) {
-            fpassthru($stream);
-            fclose($stream);
-        });
+        $response = new StreamedResponse(static fn () => StreamedFileOutput::sendAndClose($stream));
         $response->headers->set('Content-Type', 'application/octet-stream');
         $response->headers->set(
             'Content-Disposition',
