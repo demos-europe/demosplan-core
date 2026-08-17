@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use Doctrine\DBAL\Exception;
 
 class SegmentEmailSender
