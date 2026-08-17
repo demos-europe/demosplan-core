@@ -6,6 +6,10 @@
 
 ## UNRELEASED
 
+### Fixed
+- Copies of a statement are no longer silently dropped when an assessment table export is imported. The export carries a reference to the statement each row originates from, so every copy arrives, and re-importing the same export adds only what is not there yet.
+- The reminder mail about ending segment deadlines lists every segment, also when several of them share an ID.
+
 ## v4.55.0 (2026-08-12)
 
 ### Changed
