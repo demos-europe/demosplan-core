@@ -640,7 +640,10 @@ class ProcedureService implements ProcedureServiceInterface
 
             $procedureList = $this->procedureRepository->getEntities($conditions, $sortMethods);
 
-            // Add master templates for the user's organization when fetching templates
+            // Add master templates for the user's organization when fetching templates.
+            // This cannot be expressed as a condition on the query above: the platform master
+            // blueprint has customer = NULL, while the query is limited to the current customer
+            // whenever a 'customer' filter key is present. See getMasterTemplatesForUser().
             if ($template && null !== $user->getOrganisationId()) {
                 $masterTemplates = $this->getMasterTemplatesForUser($user);
                 // Merge and deduplicate procedures by their ID to prevent duplicates
@@ -667,6 +670,17 @@ class ProcedureService implements ProcedureServiceInterface
     /**
      * Get master templates that belong to the user's organization.
      * Master templates have masterTemplate = true and are accessible to all users in the same organization.
+     *
+     * This deliberately bypasses the condition-based query in
+     * {@link self::getProcedureAdminList()} rather than contributing a condition to it. The
+     * platform master blueprint is a per-installation singleton that sits outside customer
+     * scope — its customer column is NULL — whereas that query is restricted to the current
+     * customer whenever a 'customer' filter key is present, which the blueprint list handler
+     * always sets. A condition could therefore never match it.
+     *
+     * Ownership is a separate concern and is not bypassed here: whether the blueprint can
+     * actually be opened is decided by
+     * {@link OwnsProcedureConditionFactory::isMasterTemplate()}.
      *
      * @return array<int, Procedure>
      */
