@@ -121,15 +121,21 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         foreach ($parsedMarks as $segmentMark) {
             $segmentId = $segmentMark['segmentId'];
 
-            // Only materialize segments the planner actually confirmed. Confirmed
-            // segments are the ones listed (and schema-validated) in the segments
-            // metadata; a mark whose id is missing there is a leftover the pipeline
-            // could not classify (e.g. images or un-OCR-able tables) and must not
-            // become a Segment. The id is also persisted verbatim as the entity
-            // primary key, so reject any non-UUID id as a safeguard.
+            // Materialize only marks that have an entry in the segments metadata.
+            // This is a presence check, not a confirmation check: the frontend
+            // auto-confirms every remaining proposal (confirmAllUnconfirmedSegments)
+            // before the final save, so the payload carries no status to read. A mark
+            // without a metadata entry is a leftover the pipeline could not classify
+            // (e.g. images or un-OCR-able tables); the UI shows no card, tags or place
+            // for it, so it must not become a Segment.
+            //
+            // The id is persisted verbatim as the entity primary key, so it is also
+            // validated as a UUID. The schema pins segments[].id to 36 chars, so this
+            // can only ever reject a 36-char non-UUID: a safeguard, not the check that
+            // catches the malformed pipeline ids.
             if (!isset($metadataById[$segmentId]) || !Uuid::isValid($segmentId)) {
                 $this->logger->warning(
-                    'Skipping unconfirmed or invalid segment mark during finalization',
+                    'Skipping segment mark without metadata entry or with an invalid id during finalization',
                     ['statementId' => $statement->getId(), 'segmentId' => $segmentId]
                 );
                 continue;
