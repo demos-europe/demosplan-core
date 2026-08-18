@@ -25,7 +25,7 @@
         <slot>
           <keep-alive>
             <component
-              :is="option.name"
+              :is="option.component || option.name"
               :csrf-token="csrfToken"
               :demosplan-ui="demosplanUi"
               class="u-mt"
@@ -44,9 +44,10 @@
 
 <script>
 import * as demosplanUi from '@demos-europe/demosplan-ui'
-import { DpLoading, dpRpc, DpTab, DpTabs, hasAnyPermissions } from '@demos-europe/demosplan-ui'
+import { DpLoading, DpTab, DpTabs, hasAnyPermissions } from '@demos-europe/demosplan-ui'
 import AdministrationImportNone from './AdministrationImportNone'
 import ExcelImport from './ExcelImport/ExcelImport'
+import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import ParticipationImport from './ParticipationImport/ParticipationImport'
 import { shallowRef } from 'vue'
 import StatementFormImport from './StatementFormImport/StatementFormImport'
@@ -177,32 +178,13 @@ export default {
     },
 
     loadComponents (hookName) {
-      const params = {
-        hookName,
-      }
-
-      return dpRpc('addons.assets.load', params)
-        .then(({ data }) => {
-          const result = data[0].result
-
-          for (const key of Object.keys(result)) {
-            const addon = result[key]
-            const contentKey = addon.entry + '.umd.js'
-            const content = addon.content[contentKey]
-
-            /**
-             * The evaluation of the response content automatically binds the vue component
-             * to the window object. This way we can implement it in vue's internals to render
-             * the component.
-             */
-            eval(content)
-            this.$options.components[addon.entry] = window[addon.entry].default
-
-            this.asyncComponents.push({
-              name: addon.entry,
-              title: addon.options.title,
-            })
-          }
+      return loadAddonComponents(hookName)
+        .then((addons) => {
+          this.asyncComponents.push(...addons.map((addon) => ({
+            component: addon.component,
+            name: addon.name,
+            title: addon.options.title,
+          })))
         })
     },
   },

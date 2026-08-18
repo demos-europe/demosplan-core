@@ -71,7 +71,7 @@ export default {
       .then(addons => {
         addons.forEach(addon => {
           this.loadedAddons.push({
-            component: shallowRef(window[addon.name].default),
+            component: shallowRef(addon.component),
             name: addon.name,
           })
         })

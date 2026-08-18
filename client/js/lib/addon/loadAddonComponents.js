@@ -16,7 +16,7 @@ export default async function loadAddonComponents (hookName) {
   }
 
   return await dpRpc('addons.assets.load', params)
-    .then(({ data }) => {
+    .then(async ({ data }) => {
       const result = data[0].result
       const addons = []
 
@@ -32,17 +32,27 @@ export default async function loadAddonComponents (hookName) {
           continue
         }
 
-        const contentKey = addon.entry + '.umd.js'
-        const content = addon.content[contentKey]
+        let component
 
-        /*
-         * While eval is generally a BAD IDEA, we really need to evaluate the code
-         * we're adding dynamically to use the provided addon's script from now on.
-         */
-        eval(content)
+        if (addon.urls) {
+          const urlKey = addon.entry + '.esm.js'
+          const module = await import(/* webpackIgnore: true */ addon.urls[urlKey])
+
+          component = module.default
+        } else {
+          /*
+           * Legacy path for addons still built as UMD bundles. While eval is generally a BAD IDEA,
+           * older addon builds ship no ES module to import(), only a global to eval into existence.
+           * Remove once every addon has migrated to the ESM builder output.
+           */
+          const contentKey = addon.entry + '.umd.js'
+
+          eval(addon.content[contentKey])
+          component = window[addon.entry].default
+        }
 
         addons.push({
-          entry: content,
+          component,
           name: addon.entry,
           options: addon.options ?? '',
         })
