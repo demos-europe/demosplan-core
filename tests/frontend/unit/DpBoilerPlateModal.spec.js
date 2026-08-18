@@ -28,8 +28,8 @@ describe('DpBoilerPlateModal', () => {
   const createContext = () => ({
     boilerplateIdToBeAdded: '',
     textToBeAdded: '',
-    $emit: jest.fn(),
-    resetAndClose: jest.fn(),
+    $emit: vi.fn(),
+    resetAndClose: vi.fn(),
   })
 
   it('stores text and id of the selected boilerplate', () => {

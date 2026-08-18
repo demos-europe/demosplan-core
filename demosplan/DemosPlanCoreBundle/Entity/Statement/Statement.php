@@ -209,6 +209,17 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     protected $internId;
 
     /**
+     * Identifies the statement this one was imported from, when it originates from an assessment
+     * table export of a procedure on another instance.
+     *
+     * Unlike {@link StatementInterface::$externId} this is unambiguous: statement copies share
+     * their externId within a procedure, so only this reference can pair an imported statement
+     * with the statement it came from.
+     */
+    #[ORM\Column(name: 'source_statement_id', type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
+    protected ?string $sourceStatementId = null;
+
+    /**
      * @var User
      */
     #[ORM\JoinColumn(name: '_u_id', referencedColumnName: '_u_id', nullable: true, onDelete: 'RESTRICT')]
@@ -1304,6 +1315,18 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return $this->externId;
     }
 
+    public function setSourceStatementId(?string $sourceStatementId): Statement
+    {
+        $this->sourceStatementId = $sourceStatementId;
+
+        return $this;
+    }
+
+    public function getSourceStatementId(): ?string
+    {
+        return $this->sourceStatementId;
+    }
+
     /**
      * The usual statement pair (original + non original), makes it tricky to ensure
      * a unique internId per procedure, because these pair is a kind of a copy.
@@ -1324,7 +1347,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
-     * @param string $internId
+     * @param string|null $internId
      */
     public function setInternId($internId): Statement
     {
