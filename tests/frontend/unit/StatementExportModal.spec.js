@@ -410,6 +410,7 @@ describe('StatementExportModal', () => {
 
   it('falls back to the default single-statement route when the template permission is missing', async () => {
     const originalHasPermission = globalThis.hasPermission
+
     globalThis.hasPermission = jest.fn(() => false)
 
     try {
