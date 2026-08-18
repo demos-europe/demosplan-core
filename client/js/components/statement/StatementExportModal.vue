@@ -49,8 +49,8 @@
             v-for="(exportType, key) in exportTypes"
             :id="key"
             :key="key"
-            :class="{ 'bg-neutral-light-4 border-l-4 border-interactive rounded-sm' : active === key }"
             class="p-2"
+            :class="{ 'bg-neutral-light-4 border-l-4 border-interactive rounded-sm' : active === key }"
             :data-cy="`exportModal:exportType:${key}`"
             :label="{
               text: Translator.trans(exportType.label),
@@ -83,7 +83,7 @@
           class="mb-1"
           data-cy="exportModal:censoredCitizen"
           :label="{
-            normal: true,
+            regular: true,
             text: Translator.trans('export.censored.citizen'),
           }"
         />
@@ -93,7 +93,7 @@
           class="mb-1"
           data-cy="exportModal:censoredInstitution"
           :label="{
-            normal: true,
+            regular: true,
             text: Translator.trans('export.censored.institution')
           }"
         />
@@ -102,7 +102,7 @@
           v-model="isObscure"
           data-cy="exportModal:obscured"
           :label="{
-            normal: true,
+            regular: true,
             text: Translator.trans('export.docx.obscured')
           }"
         />

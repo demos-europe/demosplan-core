@@ -490,14 +490,22 @@ input.disabled {
     &__element {
         &--checkbox {
             position: relative;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
 
             > input[type='checkbox'] {
                 height: .9em;
                 width: .9em;
+                margin: 0;
+                flex-shrink: 0;
             }
 
             > label,
             > .o-form__label {
+                display: inline-block;
+                width: auto;
+                flex: 1;
                 overflow-wrap: anywhere;
                 word-break: normal;
             }
@@ -505,14 +513,22 @@ input.disabled {
 
         &--radio {
             position: relative;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
 
             > input[type='radio'] {
                 height: .9em;
                 width: .9em;
+                margin: 0;
+                flex-shrink: 0;
             }
 
             > label,
             > .o-form__label {
+                display: inline-block;
+                width: auto;
+                flex: 1;
                 overflow-wrap: anywhere;
                 word-break: normal;
             }
