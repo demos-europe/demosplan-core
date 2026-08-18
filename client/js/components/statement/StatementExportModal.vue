@@ -122,6 +122,7 @@
           class="mb-1"
           data-cy="exportModal:singleStatementCitizen"
           :label="{
+            regular: true,
             text: Translator.trans('export.censored.citizen')
           }"
         />
@@ -131,6 +132,7 @@
           class="mb-1"
           data-cy="exportModal:singleStatementInstitution"
           :label="{
+            regular: true,
             text: Translator.trans('export.censored.institution')
           }"
         />
@@ -139,6 +141,7 @@
           v-model="isObscure"
           data-cy="exportModal:singleStatementObscure"
           :label="{
+            regular: true,
             text: Translator.trans('export.docx.obscured')
           }"
         />
