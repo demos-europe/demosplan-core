@@ -20,7 +20,7 @@ describe('SplitStatement store', () => {
 
     const runAction = ({ segments, availableTags = [], assignableUsers = [] }) => {
       const state = { segments, availableTags, assignableUsers }
-      const commit = jest.fn()
+      const commit = vi.fn()
 
       SplitStatementStore.actions.applyTagDefaultAssignees({ state, commit })
 
@@ -28,12 +28,12 @@ describe('SplitStatement store', () => {
     }
 
     beforeEach(() => {
-      globalThis.hasPermission = jest.fn(() => true)
+      globalThis.hasPermission = vi.fn(() => true)
       globalThis.structuredClone = globalThis.structuredClone || (value => JSON.parse(JSON.stringify(value)))
     })
 
     it('does nothing when the feature permission is disabled', () => {
-      globalThis.hasPermission = jest.fn(() => false)
+      globalThis.hasPermission = vi.fn(() => false)
 
       const commit = runAction({
         segments: [{ id: 'seg1', tags: [{ id: 'tag1' }] }],

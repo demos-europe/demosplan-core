@@ -15,14 +15,14 @@ describe('boilerplate usage tracking', () => {
   let postSpy
 
   beforeEach(() => {
-    handleInsertText = jest.fn()
-    postSpy = jest.spyOn(dpApi, 'post').mockResolvedValue()
-    globalThis.hasPermission = jest.fn(() => true)
-    globalThis.Routing = { generate: jest.fn(() => 'usage-url') }
+    handleInsertText = vi.fn()
+    postSpy = vi.spyOn(dpApi, 'post').mockResolvedValue()
+    globalThis.hasPermission = vi.fn(() => true)
+    globalThis.Routing = { generate: vi.fn(() => 'usage-url') }
   })
 
   afterEach(() => {
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
   })
 
   describe('StatementSegment.insertBoilerplateText', () => {
@@ -45,7 +45,7 @@ describe('boilerplate usage tracking', () => {
     })
 
     it('inserts the text but records nothing without the permission', () => {
-      globalThis.hasPermission = jest.fn(() => false)
+      globalThis.hasPermission = vi.fn(() => false)
 
       StatementSegment.methods.insertBoilerplateText.call(createContext(), '<p>Text</p>', 'boilerplate-id', handleInsertText)
 
@@ -94,7 +94,7 @@ describe('boilerplate usage tracking', () => {
     })
 
     it('records nothing without the permission', () => {
-      globalThis.hasPermission = jest.fn(() => false)
+      globalThis.hasPermission = vi.fn(() => false)
 
       SegmentsBulkEdit.methods.insertBoilerplateText.call(createContext(), '<p>Text</p>', 'boilerplate-id', handleInsertText)
 

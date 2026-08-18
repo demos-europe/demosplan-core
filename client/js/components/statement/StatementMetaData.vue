@@ -10,11 +10,13 @@
 <template>
   <div>
     <slot
+      :author-name="statement.attributes.authorName"
       :formatted-authored-date="formattedAuthoredDate"
       :formatted-submit-date="formattedSubmitDate"
       :initial-organisation-department-name="statement.attributes.initialOrganisationDepartmentName || '-'"
       :initial-organisation-name="statement.attributes.initialOrganisationName || '-'"
       :intern-id="statement.attributes.internId || '-'"
+      :is-submitted-by-citizen="statement.attributes.isSubmittedByCitizen"
       :memo="statement.attributes.memo || '-'"
       :submit-name="submitName"
       :submit-type="submitType"

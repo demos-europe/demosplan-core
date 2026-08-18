@@ -1,22 +1,32 @@
 framework:
     messenger:
-        # Uncomment this (and the failed transport below) to send failed messages to this transport for later handling.
-        # failure_transport: failed
-
         transports:
-            # https://symfony.com/doc/current/messenger.html#transport-configuration
-            # async: '%env(MESSENGER_TRANSPORT_DSN)%'
-            # failed: 'doctrine://default?queue_name=failed'
+            # Long-running exports (e.g. the assessment table export) run here so they are
+            # not bound by the web-request/gateway timeout. Uses the Doctrine connection as
+            # the queue store (auto-creates the messenger_messages table).
+            #
+            # failure_transport is set per transport, not globally: the scheduler transports
+            # consumed by dplan:maintenance must keep their current behaviour (retry, then log
+            # and drop) instead of writing to a failure queue nobody drains.
+            #
+            # The DSN names the connection from doctrine.yaml directly; MESSENGER_TRANSPORT_DSN
+            # in .env is the untouched Symfony recipe default and points at a connection name
+            # that does not exist here.
+            async:
+                dsn: 'doctrine://dplan'
+                failure_transport: failed
+                retry_strategy:
+                    max_retries: 1
+                    delay: 5000
+            failed: 'doctrine://dplan?queue_name=failed'
             sync: 'sync://'
 
         routing:
-            # Route your messages to the transports
-            # 'App\Message\YourMessage': async
+            demosplan\DemosPlanCoreBundle\Message\ExportAssessmentTableMessage: async
+            demosplan\DemosPlanCoreBundle\Message\ExportProcedureMessage: async
 
 # when@test:
 #    framework:
 #        messenger:
 #            transports:
-#                # replace with your transport name here (e.g., my_transport: 'in-memory://')
-#                # For more Messenger testing tools, see https://github.com/zenstruck/messenger-test
 #                async: 'in-memory://'
