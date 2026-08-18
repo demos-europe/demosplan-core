@@ -7,6 +7,7 @@
 ## UNRELEASED
 
 ### Fixed
+- Downloading the result of a background export works for large archives. The file is sent to the browser piece by piece instead of being held in memory as a whole, which could abort the download.
 - Copies of a statement are no longer silently dropped when an assessment table export is imported. The export carries a reference to the statement each row originates from, so every copy arrives, and re-importing the same export adds only what is not there yet.
 - The reminder mail about ending segment deadlines lists every segment, also when several of them share an ID.
 

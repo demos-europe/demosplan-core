@@ -56,6 +56,9 @@ class ExportJobDownloadResponseFactory
         $stream = $storage->readStream($fileInfo->getAbsolutePath());
         $response = new StreamedResponse(static fn () => StreamedFileOutput::sendAndClose($stream));
         $response->headers->set('Content-Type', 'application/octet-stream');
+        // Declared up front so the browser can show real progress for an archive that takes a while
+        // to arrive; the body is sent in chunks, but its total size is known here.
+        $response->headers->set('Content-Length', (string) $storage->fileSize($fileInfo->getAbsolutePath()));
         $response->headers->set(
             'Content-Disposition',
             'attachment; filename="'.($job->getFileName() ?? $fileInfo->getFileName()).'"'

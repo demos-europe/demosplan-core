@@ -59,6 +59,7 @@ class ExportJobDownloadResponseFactoryTest extends UnitTestCase
     {
         // Arrange
         $this->defaultStorageMock->method('fileExists')->willReturn(true);
+        $this->defaultStorageMock->method('fileSize')->willReturn(9);
         $this->defaultStorageMock->expects($this->once())
             ->method('readStream')
             ->with(self::ABSOLUTE_PATH)
@@ -74,6 +75,7 @@ class ExportJobDownloadResponseFactoryTest extends UnitTestCase
             'attachment; filename="Verfahrensexport.zip"',
             $response->headers->get('Content-Disposition')
         );
+        self::assertSame('9', $response->headers->get('Content-Length'));
         self::assertSame('zip-bytes', $this->sendAndCapture($response));
     }
 
