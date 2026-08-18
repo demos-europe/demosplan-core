@@ -29,6 +29,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplate;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplateName;
@@ -75,6 +76,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
         private readonly GlobalConfigInterface $globalConfig,
         LoggerInterface $logger,
         private readonly MapService $mapService,
+        private readonly NameGenerator $nameGenerator,
         private readonly PermissionsInterface $permissions,
         RequestStack $requestStack,
         ServiceImporter $serviceImport,
@@ -705,7 +707,7 @@ class AssessmentTablePdfExporter extends AssessmentTableFileExporterAbstract
             $this->logger->error('Exporting the assessment table as pdf failed.');
             throw new RuntimeException('No content for PDF');
         }
-        $pdf['name'] = $filenamePrefix.'_'.$procedureName.'.pdf';
+        $pdf['name'] = $filenamePrefix.'_'.$this->nameGenerator->shortenProcedureNameForExport($procedureName).'.pdf';
         $this->logger->debug(
             'Got Response: '.DemosPlanTools::varExport($pdf['content'], true)
         );
