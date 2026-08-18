@@ -166,7 +166,7 @@
             getFileByHash: (hash) => Routing.generate('core_file_procedure', { procedureId: procedureId, hash: hash })
           }"
           :toolbar-items="{
-            boilerplate: this.canLinkBoilerplates,
+            boilerplate: canLinkBoilerplate,
             fullscreenButton: false,
             imageButton: true,
             linkButton: true
@@ -659,7 +659,7 @@ export default {
       }
     },
 
-    canLinkBoilerplates () {
+    canLinkBoilerplate () {
       return hasPermission('feature_boilerplate_usage_list')
     },
 
@@ -1152,13 +1152,13 @@ export default {
      * so it stays recognizable as boilerplate content after saving and reloading.
      */
     insertBoilerplateText (text, boilerplateId, handleInsertText) {
-      const textToInsert = boilerplateId && this.canLinkBoilerplates
+      const textToInsert = boilerplateId && this.canLinkBoilerplate
         ? `<div data-boilerplate-id="${boilerplateId}">${text}</div>`
         : text
 
       handleInsertText(textToInsert)
 
-      if (boilerplateId && this.canLinkBoilerplates) {
+      if (boilerplateId && this.canLinkBoilerplate) {
         return dpApi.post(
           Routing.generate('dplan_boilerplate_usage_create', { procedureId: this.procedureId, boilerplateId }),
           {},
