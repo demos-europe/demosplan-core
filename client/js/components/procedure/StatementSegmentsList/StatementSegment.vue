@@ -166,6 +166,7 @@
             getFileByHash: (hash) => Routing.generate('core_file_procedure', { procedureId: procedureId, hash: hash })
           }"
           :toolbar-items="{
+            boilerplate: this.canLinkBoilerplates,
             fullscreenButton: false,
             imageButton: true,
             linkButton: true
@@ -658,6 +659,10 @@ export default {
       }
     },
 
+    canLinkBoilerplates () {
+      return hasPermission('feature_boilerplate_usage_list')
+    },
+
     commentCount () {
       return this.segment.relationships.comments?.data?.length || 0
     },
@@ -1143,11 +1148,17 @@ export default {
     /**
      * Inserts the boilerplate text into the recommendation editor and records
      * the usage of the boilerplate in this segment in the backend.
+     * If the boilerplate id is known, the text is wrapped in a node carrying that id,
+     * so it stays recognizable as boilerplate content after saving and reloading.
      */
     insertBoilerplateText (text, boilerplateId, handleInsertText) {
-      handleInsertText(text)
+      const textToInsert = boilerplateId && this.canLinkBoilerplates
+        ? `<div data-boilerplate-id="${boilerplateId}">${text}</div>`
+        : text
 
-      if (boilerplateId && hasPermission('feature_boilerplate_usage_list')) {
+      handleInsertText(textToInsert)
+
+      if (boilerplateId && this.canLinkBoilerplates) {
         return dpApi.post(
           Routing.generate('dplan_boilerplate_usage_create', { procedureId: this.procedureId, boilerplateId }),
           {},
