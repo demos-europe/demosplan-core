@@ -150,11 +150,21 @@ class ExportJobDownloadResponseFactoryTest extends UnitTestCase
         return $stream;
     }
 
+    /**
+     * Collects through an output handler, because the response flushes its buffer per chunk and a
+     * plain ob_get_clean() would come back empty.
+     */
     private function sendAndCapture(StreamedResponse $response): string
     {
-        ob_start();
-        $response->sendContent();
+        $captured = '';
+        ob_start(static function (string $chunk) use (&$captured): string {
+            $captured .= $chunk;
 
-        return (string) ob_get_clean();
+            return '';
+        });
+        $response->sendContent();
+        ob_end_clean();
+
+        return $captured;
     }
 }
