@@ -20,13 +20,16 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplate;
+use League\Csv\Reader;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Shared\Converter;
 use PhpOffice\PhpWord\Style\Table;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
 use Zenstruck\Foundry\Persistence\Proxy;
 
@@ -43,6 +46,8 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
 
     private Slugify|Proxy|null $slugify;
 
+    private ?string $authorColumnTitle = null;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -51,17 +56,7 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $this->testStatement = StatementFactory::createOne();
         $this->testStatementeMeta = StatementMetaFactory::createOne();
         $this->testStatement->setMeta($this->testStatementeMeta->_real());
-    }
-
-    public function testMapStatementsToPathInZipWithTrueDuplicate(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->sut->mapStatementsToPathInZip(
-            [$this->testStatement->_real(), $this->testStatement->_real()],
-            false,
-            false,
-            ''
-        );
+        $this->authorColumnTitle = $this->getContainer()->get(TranslatorInterface::class)->trans('author');
     }
 
     /**
@@ -109,115 +104,6 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         } else {
             static::assertFalse($censored);
         }
-    }
-
-    /**
-     * Test censoring paths on exporting a multiple segments as zip.
-     *
-     * @dataProvider getCensorParams
-     */
-    public function testCensorshipOnPathOnExportSegmentsInZip(
-        bool $censorCitizenData,
-        bool $censorInstitutionData,
-    ): void {
-        $citizenOrganisation = $this->find(Orga::class, User::ANONYMOUS_USER_ORGA_ID);
-
-        $internalStatement = StatementFactory::createOne();
-        $externalStatement = StatementFactory::createOne(['organisation' => $citizenOrganisation]);
-
-        static::assertTrue($externalStatement->isSubmittedByCitizen());
-        static::assertTrue($internalStatement->isSubmittedByOrganisation());
-
-        $statements = $this->sut->mapStatementsToPathInZip(
-            [$externalStatement->_real(), $internalStatement->_real()],
-            $censorCitizenData,
-            $censorInstitutionData
-        );
-
-        foreach ($statements as $key => $statement) {
-            if ($statement->isSubmittedByCitizen()) {
-                if ($censorCitizenData) {
-                    $expectedAKey = $statement->getExternId().'.docx';
-                    static::assertEquals($expectedAKey, $key);
-                } else {
-                    $expectedAKey = $statement->getExternId().'-einreichende-person-unbekannt-eingangsnummer-unbekannt.docx';
-                    static::assertEquals($expectedAKey, $key);
-                }
-            } elseif ($statement->isSubmittedByOrganisation()) {
-                if ($censorInstitutionData) {
-                    $expectedAKey = $statement->getExternId().'.docx';
-                    static::assertEquals($expectedAKey, $key);
-                } else {
-                    $expectedAKey = $statement->getExternId().'-einreichende-person-unbekannt-eingangsnummer-unbekannt.docx';
-                    static::assertEquals($expectedAKey, $key);
-                }
-            }
-        }
-
-        static::assertTrue($externalStatement->isSubmittedByCitizen());
-        static::assertTrue($internalStatement->isSubmittedByOrganisation());
-    }
-
-    /**
-     * @dataProvider getCensorParams
-     */
-    public function testMapStatementsToPathInZipWithSuperficialDuplicate(
-        bool $censorCitizenData,
-        bool $censorInstitutionData,
-    ): void {
-        $statementA = $this->createMinimalTestStatement('a', 'a', 'a');
-        $statementB = $this->createMinimalTestStatement('b', 'a', 'a');
-
-        $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()],
-            $censorCitizenData,
-            $censorInstitutionData
-        );
-
-        $shouldStatementABeCensored = ($censorCitizenData && $statementA->isSubmittedByCitizen())
-            || ($censorInstitutionData && $statementA->isSubmittedByOrganisation());
-
-        if ($shouldStatementABeCensored) {
-            $expectedAKey = 'statement-extern-id-a.docx';
-        } else {
-            $expectedAKey = 'statement-extern-id-a-statement-author-name-a-statement-intern-id-a.docx';
-        }
-        self::assertArrayHasKey($expectedAKey, $statements);
-        self::assertSame($statementA->_real(), $statements[$expectedAKey]);
-
-        $shouldStatementBBeCensored = ($censorCitizenData && $statementB->isSubmittedByCitizen())
-            || ($censorInstitutionData && $statementB->isSubmittedByOrganisation());
-        if ($shouldStatementBBeCensored) {
-            $expectedBKey = 'statement-extern-id-b.docx';
-        } else {
-            $expectedBKey = 'statement-extern-id-b-statement-author-name-a-statement-intern-id-a.docx';
-        }
-        self::assertArrayHasKey($expectedBKey, $statements);
-        self::assertSame($statementB->_real(), $statements[$expectedBKey]);
-    }
-
-    /**
-     * @dataProvider getCensorParams
-     */
-    public function testMapStatementsToPathInZipWithoutDuplicate(
-        bool $censorCitizenData,
-        bool $censorInstitutionData,
-    ): void {
-        $statementA = $this->createMinimalTestStatement('xyz', 'xyz', 'xyz');
-        $statementB = $this->createMinimalTestStatement('xyz', 'xyz', 'xyz');
-
-        $statements = $this->sut->mapStatementsToPathInZip([$statementA->_real(), $statementB->_real()],
-            $censorCitizenData,
-            $censorInstitutionData,
-            '');
-
-        $expectedAKey = 'statement-extern-id-xyz-statement-author-name-xyz-statement-intern-id-xyz-'.$statementA->getId(
-        ).'.docx';
-        self::assertArrayHasKey($expectedAKey, $statements);
-        self::assertSame($statementA->_real(), $statements[$expectedAKey]);
-        $expectedBKey = 'statement-extern-id-xyz-statement-author-name-xyz-statement-intern-id-xyz-'.$statementB->getId(
-        ).'.docx';
-        self::assertArrayHasKey($expectedBKey, $statements);
-        self::assertSame($statementB->_real(), $statements[$expectedBKey]);
     }
 
     /**
@@ -312,6 +198,58 @@ class SegmentsByStatementsExporterTest extends FunctionalTestCase
         $section = $exportResult->getPhpWord()->getSection(0);
 
         return $section->getElements()[0]->getRows()[0]->getCells()[0]->getElements()[0]->getText();
+    }
+
+    public function testExportAllCsvForUnsegmentedStatement(): void
+    {
+        $this->pushSessionRequestOntoStack();
+        $statement = $this->createMinimalTestStatement('csv-unsegmented', 'csv-unsegmented', 'csv-unsegmented');
+
+        $csv = $this->sut->exportAllCsv($statement->_real());
+
+        static::assertStringStartsWith("\xEF\xBB\xBF", $csv);
+        static::assertStringNotContainsString('Array', $csv);
+
+        $reader = Reader::fromString($csv);
+        $reader->setHeaderOffset(0);
+        $records = iterator_to_array($reader->getRecords(), false);
+
+        static::assertCount(1, $records);
+        static::assertSame('statement_author_name_csv-unsegmented', $records[0][$this->authorColumnTitle]);
+    }
+
+    public function testExportAllCsvForSegmentedStatement(): void
+    {
+        $this->pushSessionRequestOntoStack();
+        $statement = $this->createMinimalTestStatement('csv-segmented', 'csv-segmented', 'csv-segmented');
+        $this->createMinimalTestSegment($statement, 'csv-segment-a');
+        $this->createMinimalTestSegment($statement, 'csv-segment-b');
+
+        $csv = $this->sut->exportAllCsv($statement->_real());
+
+        static::assertStringNotContainsString('Array', $csv);
+
+        $reader = Reader::fromString($csv);
+        $reader->setHeaderOffset(0);
+        $records = iterator_to_array($reader->getRecords(), false);
+
+        static::assertCount(2, $records);
+        // The export inherits the parent statement's author for each of its segments' rows —
+        // segment-level author names are not used, hence both rows share the same value here.
+        $authorNames = array_column($records, $this->authorColumnTitle);
+        static::assertSame(['statement_author_name_csv-segmented', 'statement_author_name_csv-segmented'], $authorNames);
+    }
+
+    /**
+     * `AssessmentTableXlsExporter` (used by `exportAllCsv()`/`exportAllXlsx()` via `selectFormat()`)
+     * requires a session on the request stack the moment any of its methods are called — a
+     * kernel-booted test never establishes one on its own.
+     */
+    private function pushSessionRequestOntoStack(): void
+    {
+        $request = new Request();
+        $request->setSession($this->setUpMockSession());
+        $this->getContainer()->get(RequestStack::class)->push($request);
     }
 
     public function getCensorParams(): array

@@ -700,8 +700,9 @@ export default {
 
       this.measureTooltip = new Overlay({
         element: this.measureTooltipElement,
-        offset: [0, -15],
+        offset: [0, -35],
         positioning: 'bottom-center',
+        stopEvent: false,
       })
       this.map.addOverlay(this.measureTooltip)
       this.measureTooltipElement.parentNode.classList.add(this.prefixClass('pointer-events-none'))

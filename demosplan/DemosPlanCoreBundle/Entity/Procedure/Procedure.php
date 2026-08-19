@@ -229,8 +229,8 @@ class Procedure extends SluggedEntity implements ProcedureInterface
      *
      * @var bool
      */
-    #[ORM\Column(name: '_p_public_participation_publication_enabled', type: 'boolean', nullable: false, options: ['default' => true])]
-    protected $publicParticipationPublicationEnabled = true;
+    #[ORM\Column(name: '_p_public_participation_publication_enabled', type: 'boolean', nullable: false, options: ['default' => false])]
+    protected $publicParticipationPublicationEnabled = false;
 
     /**
      * @var string
@@ -1400,6 +1400,15 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         }
 
         return $orgaIds;
+    }
+
+    /**
+     * Delegates to {@link ProcedureSettings::isAllowUninvitedInstitutions()} so the flag
+     * is reachable by FOSElastica's property accessor when indexing this entity.
+     */
+    public function isAllowUninvitedInstitutions(): bool
+    {
+        return $this->getSettings()->isAllowUninvitedInstitutions();
     }
 
     /**

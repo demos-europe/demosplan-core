@@ -368,7 +368,10 @@ export default {
     isActive (newValue) {
       if (newValue) {
         this.getInstitutionTagCategories()
-        this.loadCustomFieldDefinitions()
+
+        if (hasPermission('feature_organisations_custom_fields')) {
+          this.loadCustomFieldDefinitions()
+        }
       }
     },
   },
@@ -461,6 +464,7 @@ export default {
     },
 
     getInstitutionsByPage (page) {
+      const customFields = hasPermission('feature_organisations_custom_fields') ? ['customFields'] : []
       const args = {
         page: {
           number: page,
@@ -472,7 +476,7 @@ export default {
             'name',
             'createdDate',
             'assignedTags',
-            'customFields',
+            ...customFields,
           ].join(),
           InstitutionTag: [
             'category',
@@ -562,10 +566,6 @@ export default {
     },
 
     loadCustomFieldDefinitions () {
-      if (!hasPermission('feature_organisations_custom_fields')) {
-        return Promise.resolve([])
-      }
-
       return useCustomFields().fetchCustomFields(null, {
         sourceEntity: 'CUSTOMER',
         targetEntity: 'ORGA',
@@ -676,10 +676,11 @@ export default {
   },
 
   mounted () {
+    const customFieldPromises = hasPermission('feature_organisations_custom_fields') ? [this.loadCustomFieldDefinitions()] : []
     const promises = [
       this.getInstitutionsByPage(1),
       this.getInstitutionTagCategories(true),
-      this.loadCustomFieldDefinitions(),
+      ...customFieldPromises,
     ]
 
     Promise.allSettled(promises)

@@ -72,7 +72,6 @@ const PublicStatementStore = {
     localStorageName: '',
     userId: '',
     procedureId: '',
-    showMapHint: false,
     statement: statementStructure,
     storeInitialised: false,
     draftStatements: {},
@@ -108,7 +107,6 @@ const PublicStatementStore = {
 
       const localStorageForUser = `user:${state.userId}:${state.procedureId}`
 
-      state.showMapHint = true
       const userItem = localStorage.getItem(localStorageForUser)
 
       if (userItem) {

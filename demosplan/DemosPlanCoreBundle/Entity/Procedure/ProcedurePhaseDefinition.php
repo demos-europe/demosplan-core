@@ -30,7 +30,6 @@ use Symfony\Component\Validator\Constraints as Assert;
  * Each customer can define their own set of procedure phases for internal and external audiences.
  */
 #[ORM\Table(name: 'procedure_phase_definition')]
-#[ORM\UniqueConstraint(name: 'uniq_name_customer_audience', columns: ['name', 'customer_id', 'audience'])]
 #[ORM\Entity(repositoryClass: ProcedurePhaseDefinitionRepository::class)]
 class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface, ProcedurePhaseDefinitionInterface
 {
@@ -96,6 +95,12 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
     protected bool $closingPhase = false;
 
     /**
+     * Indicates if a ProcedurePhaseDefinition is deleted or not.
+     */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => false])]
+    protected bool $isDeleted = false;
+
+    /**
      * Sort order within the audience.
      * The order is independent per audience: both internal and external phases start at 0.
      */
@@ -113,6 +118,9 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
     #[ORM\Column(type: 'datetime', nullable: false)]
     #[Gedmo\Timestampable(on: 'update')]
     private DateTime $modificationDate;
+
+    #[ORM\Column(type: 'datetime', nullable: true)]
+    private ?DateTime $deletedDate = null;
 
     public function getId(): ?string
     {
@@ -174,6 +182,17 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
         $this->closingPhase = $closingPhase;
     }
 
+    public function isDeleted(): bool
+    {
+        return $this->isDeleted;
+    }
+
+    public function setDeleted(bool $deleted): void
+    {
+        $this->isDeleted = $deleted;
+        $this->deletedDate = $deleted ? new DateTime() : null;
+    }
+
     public function getOrderInAudience(): int
     {
         return $this->orderInAudience;
@@ -220,5 +239,10 @@ class ProcedurePhaseDefinition extends CoreEntity implements UuidEntityInterface
         }
 
         return $this->modificationDate;
+    }
+
+    public function getDeletedDate(): ?DateTime
+    {
+        return $this->deletedDate;
     }
 }

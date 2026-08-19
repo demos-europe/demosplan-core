@@ -27,6 +27,17 @@ use Symfony\Component\Routing\Attribute\Route;
 
 class FileController extends BaseController
 {
+    /**
+     * Raster image types that may be served inline on request. Excludes image/svg+xml, which can execute script when
+     * rendered as a document.
+     */
+    private const INLINE_IMAGE_MIME_TYPES = [
+        'image/gif',
+        'image/jpeg',
+        'image/png',
+        'image/webp',
+    ];
+
     public function __construct(
         private readonly FilesystemOperator $defaultStorage,
         private readonly FilesystemOperator $localStorage,
@@ -40,10 +51,10 @@ class FileController extends BaseController
      */
     #[DplanPermissions('area_main_file')]
     #[Route(path: '/file/{hash}', name: 'core_file', options: ['expose' => true])]
-    public function fileHash(FileService $fileService, string $hash): Response
+    public function fileHash(Request $request, FileService $fileService, string $hash): Response
     {
         try {
-            return $this->prepareResponseWithHash($fileService, $hash, true);
+            return $this->prepareResponseWithHash($fileService, $hash, true, null, $this->isInlineRequested($request));
         } catch (Exception $e) {
             $this->getLogger()->info('Could not serve file: ', [$e]);
             throw new NotFoundHttpException($e->getMessage(), $e);
@@ -70,10 +81,10 @@ class FileController extends BaseController
      */
     #[DplanPermissions('area_main_file')]
     #[Route(path: '/file/{procedureId}/{hash}', name: 'core_file_procedure', options: ['expose' => true])]
-    public function fileProcedure(FileService $fileService, string $procedureId, string $hash): Response
+    public function fileProcedure(Request $request, FileService $fileService, string $procedureId, string $hash): Response
     {
         try {
-            return $this->prepareResponseWithHash($fileService, $hash, true, $procedureId);
+            return $this->prepareResponseWithHash($fileService, $hash, true, $procedureId, $this->isInlineRequested($request));
         } catch (Exception $e) {
             $this->getLogger()->info('Could not serve Procedure file: ', [$e]);
             throw new NotFoundHttpException($e->getMessage(), $e);
@@ -99,7 +110,7 @@ class FileController extends BaseController
     /**
      * @throws Exception
      */
-    protected function prepareResponseWithHash(FileService $fileService, string $hash, bool $strictCheck = false, ?string $procedureId = null): Response
+    protected function prepareResponseWithHash(FileService $fileService, string $hash, bool $strictCheck = false, ?string $procedureId = null, bool $inline = false): Response
     {
         $file = $fileService->getFileInfo($hash, $procedureId);
 
@@ -117,7 +128,12 @@ class FileController extends BaseController
 
         $this->getLogger()->info('trying to serve file ', [$file->getAbsolutePath()]);
 
-        return $this->getStreamedResponse($file);
+        return $this->getStreamedResponse($file, $inline);
+    }
+
+    private function isInlineRequested(Request $request): bool
+    {
+        return 'inline' === $request->query->get('disposition');
     }
 
     private function isValidProcedure(?string $procedureId, FileInfo $file, bool $strictCheck): bool
@@ -173,7 +189,7 @@ class FileController extends BaseController
         return $response;
     }
 
-    private function getStreamedResponse(FileInfo $file): StreamedResponse
+    private function getStreamedResponse(FileInfo $file, bool $inline = false): StreamedResponse
     {
         // check whether file exists using Default storage
         $this->logger->debug('Default storage: ', [$this->defaultStorage::class]);
@@ -197,10 +213,16 @@ class FileController extends BaseController
             fpassthru($stream);
             fclose($stream);
         });
-        $response->headers->set('Content-Type', 'application/octet-stream');
+        /*
+         * Inline is opt-in and restricted to raster images so that a manipulated  disposition parameter can never get
+         * active content rendered in-origin
+         */
+        $serveInline = $inline && in_array($file->getContentType(), self::INLINE_IMAGE_MIME_TYPES, true);
+
+        $response->headers->set('Content-Type', $serveInline ? $file->getContentType() : 'application/octet-stream');
         $response->headers->set(
             'Content-Disposition',
-            'attachment; filename="'.$file->getFileName().'"'
+            ($serveInline ? 'inline' : 'attachment').'; filename="'.$file->getFileName().'"'
         );
 
         return $response;

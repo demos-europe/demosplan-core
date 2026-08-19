@@ -92,12 +92,45 @@
         } %}
     {% endblock pageheader %}
 
-    <component
-        is="{{ isMapEnabled ? 'dp-public-detail' : 'dp-public-detail-no-map' }}"
-        :is-map-enabled="{{ isMapEnabled ? 'true' : 'false' }}"
-        user-id="{{ currentUser.id|default }}"
-        procedure-id="{{ procedure }}"
-        inline-template>
+    {# The scoped slot props are consumed throughout this template, by the blocks projects override,
+       and by the includes rendered below - keep the two destructurings in sync with those usages #}
+    {% if isMapEnabled %}
+        <dp-public-detail
+            :is-map-enabled="{{ isMapEnabled ? 'true' : 'false' }}"
+            user-id="{{ currentUser.id|default }}"
+            procedure-id="{{ procedure }}">
+            <template #default="{
+                activeActionBoxTab,
+                activeStatement,
+                activeTab,
+                checkKeyEvent,
+                foldOpenToolbarItems,
+                handleFullscreenFocus,
+                handleLocationDrawing,
+                prefixClass,
+                setRef,
+                statement,
+                toggleStatementModal,
+                toggleTabs,
+                update,
+                updateStatementAndOpenModal
+            }">
+    {% else %}
+        <dp-public-detail-no-map
+            user-id="{{ currentUser.id|default }}"
+            procedure-id="{{ procedure }}">
+            <template #default="{
+                activeStatement,
+                activeTab,
+                prefixClass,
+                setRef,
+                toggleStatementModal,
+                toggleTabs,
+                updateStatementAndOpenModal
+            }">
+    {% endif %}
+
+    <div>
 
     {# infolist - display meta info of procedure #}
     {% block infolist %}
@@ -481,7 +514,7 @@
                     :allow-anonymous-statements="Boolean({{ proceduresettings.allowAnonymousStatements }})"
                     extra-personal-hint="{% block extra_personal_hint %}{% endblock %}"
                     ext-id="{{ templateVars.number|default }}"
-                    ref="statementModal"
+                    :ref="setRef('statementModal')"
                     :counties="JSON.parse('{{ counties|json_encode|e('js', 'utf-8') }}')"
                     :draft-statement="JSON.parse('{{ templateVars.draftStatement|default([])|json_encode|e('js', 'utf-8') }}')"
                     :feedback-form-fields="JSON.parse('{{ feedbackFields|json_encode|e('js', 'utf-8') }}')"
@@ -496,7 +529,7 @@
                     project-name="{{ projectName }}"
                     :public-participation-publication-enabled="Boolean({{ proceduresettings.publicParticipationPublicationEnabled }})"
                     :public-participation-feedback-enabled="Boolean({{ proceduresettings.publicParticipationFeedbackEnabled|default(false) }})"
-                        :statement-form-fields="JSON.parse('{{ statementFields|json_encode|e('js', 'utf-8') }}')"
+                    :statement-form-fields="JSON.parse('{{ statementFields|json_encode|e('js', 'utf-8') }}')"
                     statement-form-hint-personal-data="{{ templateVars.procedureUiDefinition.statementFormHintPersonalData|default }}"
                     statement-form-hint-recheck="{{ templateVars.procedureUiDefinition.statementFormHintRecheck|default }}"
                     statement-form-hint-statement="{{ templateVars.procedureUiDefinition.statementFormHintStatement|default }}"
@@ -504,7 +537,14 @@
                 ></statement-modal>
             {% endif %}
         </div>
-    </component>
+    </div>
+            </template>
+    {% if isMapEnabled == false %}
+        </dp-public-detail-no-map>
+    {% else %}
+        </dp-public-detail>
+    {% endif %}
+
 
     {# Nojs statement form #}
     {% if hasPermission('feature_new_statement') %}

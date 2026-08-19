@@ -73,6 +73,7 @@ class ProcedureToLegacyConverter
             $procedureArray['allowAnonymousStatements'] = $procedureArray['settings']['allowAnonymousStatements'];
             $procedureArray['expandProcedureDescription'] = $procedureArray['settings']['expandProcedureDescription'];
             $procedureArray['publicParticipationFeedbackEnabled'] = $procedureArray['settings']['publicParticipationFeedbackEnabled'];
+            $procedureArray['allowUninvitedInstitutions'] = $procedureArray['settings']['allowUninvitedInstitutions'];
         }
 
         $procedureArray['isMapEnabled'] = false;
