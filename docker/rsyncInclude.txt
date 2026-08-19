@@ -18,5 +18,6 @@ jest.config.js
 package.json
 stylelint.config.js
 symfony.lock
+vitest.config.ts
 yarn.lock
 .yarnrc.yml
