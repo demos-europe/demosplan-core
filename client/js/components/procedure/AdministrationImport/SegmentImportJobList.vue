@@ -91,7 +91,7 @@
                   v-for="warning in rowData.result.warnings"
                   :key="warning.id"
                 >
-                  {{ Translator.trans('line', { line: warning.lineNumber }) }} {{ warning.message }}
+                  {{ warning.message }}
                 </li>
               </ul>
             </dp-inline-notification>
@@ -229,7 +229,7 @@ export default {
       }
 
       if (job.result.warnings?.length > 0) {
-        summary.push(`${job.result.warnings.length} ${Translator.trans('import.job.warnings')}`)
+        summary.push(Translator.trans('import.job.warnings.count', { count: job.result.warnings.length }))
       }
 
       return summary.join(', ')

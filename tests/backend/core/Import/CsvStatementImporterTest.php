@@ -210,8 +210,30 @@ class CsvStatementImporterTest extends FunctionalTestCase
         self::assertTrue($result->hasWarnings());
         $warnings = $result->getWarningsAsArray();
         self::assertCount(1, $warnings);
-        self::assertSame(3, $warnings[0]['lineNumber']);
+        self::assertStringContainsString('Zeile 3', $warnings[0]['message']);
         self::assertStringContainsString('DUP-001', $warnings[0]['message']);
+    }
+
+    /**
+     * A file with several duplicate Eingangsnummer rows must not produce one warning per row - that
+     * would bury the rest of the result behind an equally long list of near-identical messages.
+     */
+    public function testMultipleDuplicateInternIdsAreCombinedIntoOneWarning(): void
+    {
+        $this->setProcedureAndLogin();
+
+        $result = $this->sut->process($this->fixture('multiple_duplicate_internids.csv'));
+
+        self::assertFalse($result->hasErrors(), $this->describeErrors($result->getErrorsAsArray()));
+        self::assertSame(2, $result->getStatementCount());
+
+        self::assertTrue($result->hasWarnings());
+        $warnings = $result->getWarningsAsArray();
+        self::assertCount(1, $warnings);
+        self::assertStringContainsString('DUP-001', $warnings[0]['message']);
+        self::assertStringContainsString('DUP-002', $warnings[0]['message']);
+        self::assertStringContainsString('Zeile 3', $warnings[0]['message']);
+        self::assertStringContainsString('Zeile 5', $warnings[0]['message']);
     }
 
     /**

@@ -69,6 +69,12 @@ class CsvStatementImporter
     private const INSTITUTION_COLUMNS = [self::COLUMN_INSTITUTION, 'Abteilung'];
 
     /**
+     * Maximum number of skipped duplicates listed by line in the combined warning - files with more
+     * skips than this still only report one warning, just with the tail summarized instead of listed.
+     */
+    private const MAX_LISTED_DUPLICATE_SKIPS = 40;
+
+    /**
      * Eingangsnummer values already used, either by an existing statement or by an earlier row of the
      * file currently being processed - keyed and valued by themselves. Reset at the start of every
      * {@link process()} call, so state from one file never leaks into the next on this shared instance.
@@ -76,6 +82,15 @@ class CsvStatementImporter
      * @var array<non-empty-string, string>
      */
     private array $usedInternIds = [];
+
+    /**
+     * Rows skipped for a duplicate Eingangsnummer during the current {@link process()} call, collected
+     * so they can be reported as a single combined warning instead of one per row. Reset at the start
+     * of every {@link process()} call, same as {@link $usedInternIds}.
+     *
+     * @var list<array{line: int, internId: string}>
+     */
+    private array $duplicateInternIdSkips = [];
 
     public function __construct(
         private readonly CurrentProcedureService $currentProcedureService,
@@ -124,10 +139,13 @@ class CsvStatementImporter
             $this->usedInternIds = $this->statementService->getInternIdsInUse(
                 $this->currentProcedureService->getProcedureWithCertainty()->getId()
             );
+            $this->duplicateInternIdSkips = [];
 
             foreach ($this->readRows($reader) as $fileLine => $row) {
                 $this->processRow($row, $fileLine, $sheetTitle, $result);
             }
+
+            $this->addDuplicateInternIdSkipsWarning($result, $sheetTitle);
         } catch (CsvException|Exception $e) {
             // thrown by the csv parsing only - a violation of a single row never ends up here
             $this->logger->error('[CsvStatementImporter] Could not read CSV file', [
@@ -233,6 +251,38 @@ class CsvStatementImporter
         return $row;
     }
 
+    /**
+     * Reports every row skipped for a duplicate Eingangsnummer as a single combined warning, rather
+     * than one per row - a file with hundreds of duplicates would otherwise bury the rest of the
+     * result behind an equally long list of near-identical messages.
+     */
+    private function addDuplicateInternIdSkipsWarning(SegmentExcelImportResult $result, string $sheetTitle): void
+    {
+        if ([] === $this->duplicateInternIdSkips) {
+            return;
+        }
+
+        $listedSkips = array_slice($this->duplicateInternIdSkips, 0, self::MAX_LISTED_DUPLICATE_SKIPS);
+        $lines = implode(', ', array_map(
+            static fn (array $skip): string => sprintf('Zeile %d (%s)', $skip['line'], $skip['internId']),
+            $listedSkips
+        ));
+
+        $skipCount = count($this->duplicateInternIdSkips);
+        if ($skipCount > self::MAX_LISTED_DUPLICATE_SKIPS) {
+            $lines .= sprintf(', … und %d weitere', $skipCount - self::MAX_LISTED_DUPLICATE_SKIPS);
+        }
+
+        $result->addWarning(
+            $this->translator->trans(
+                'statements.import.csv.warning.duplicate.internid.summary',
+                ['count' => $skipCount, 'lines' => $lines]
+            ),
+            0,
+            $sheetTitle
+        );
+    }
+
     private function toUtf8(string $value): string
     {
         $encoding = mb_detect_encoding($value, self::DETECTABLE_ENCODINGS, true);
@@ -264,20 +314,15 @@ class CsvStatementImporter
             // mirrors StatementSpreadsheetImporter::skipStatement(): the first statement for a given
             // Eingangsnummer wins, later ones are silently dropped instead of failing the whole file.
             // Unlike an error, a warning does not abort the import - but the user still has to be told
-            // this row did not become a statement, or they would not know the file was not imported in full.
+            // this row did not become a statement, or they would not know the file was not imported in
+            // full. Collected rather than reported here directly, so a file with many duplicates ends
+            // up with one combined warning instead of one per skipped row.
             $this->logger->info('[CsvStatementImporter] Skipped row with duplicate Eingangsnummer', [
                 'line'     => $fileLine,
                 'file'     => $sheetTitle,
                 'internId' => $internId,
             ]);
-            $result->addWarning(
-                $this->translator->trans(
-                    'statements.import.csv.warning.duplicate.internid',
-                    ['value' => $internId]
-                ),
-                $fileLine,
-                $sheetTitle
-            );
+            $this->duplicateInternIdSkips[] = ['line' => $fileLine, 'internId' => $internId];
 
             return;
         }
