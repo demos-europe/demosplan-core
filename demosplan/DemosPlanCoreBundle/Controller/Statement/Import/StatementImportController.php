@@ -213,7 +213,7 @@ class StatementImportController extends BaseController
                     'exception'  => $e->getMessage(),
                     'trace'      => $e->getTraceAsString(),
                 ]);
-                $this->getMessageBag()->add('error', 'error.statements.import.queue.failed', ['fileName' => '']);
+                $this->getMessageBag()->add('error', 'error.statements.import.file.not.found');
 
                 continue;
             }
