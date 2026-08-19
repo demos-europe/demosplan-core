@@ -346,10 +346,14 @@ class ImportJobProcessor
 
                 // Create concise error summary for display (TEXT column has 65KB limit)
                 $showErrors = 40;
+                $shownCount = min($showErrors, $errorCount);
+                $firstErrorsLabel = 1 === $shownCount
+                    ? 'Erster Fehler:'
+                    : sprintf('Erste %d Fehler:', $shownCount);
                 $errorSummary = sprintf(
-                    "Validierungsfehler in der Import-Datei: %d Fehler gefunden.\n\nErste %d Fehler:\n\n",
+                    "Validierungsfehler in der Import-Datei: %d Fehler gefunden.\n\n%s\n\n",
                     $errorCount,
-                    min($showErrors, $errorCount)
+                    $firstErrorsLabel
                 );
 
                 // Add first errors to summary
@@ -359,8 +363,10 @@ class ImportJobProcessor
                 }
 
                 if ($errorCount > $showErrors) {
-                    $errorSummary .= sprintf("\n... und %d weitere Fehler", $errorCount - $showErrors
-                    );
+                    $remainingCount = $errorCount - $showErrors;
+                    $errorSummary .= 1 === $remainingCount
+                        ? "\n... und ein weiterer Fehler"
+                        : sprintf("\n... und %d weitere Fehler", $remainingCount);
                 }
 
                 // Store full error details in result field (JSON can handle large data)
