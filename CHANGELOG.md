@@ -6,6 +6,18 @@
 
 ## UNRELEASED
 
+## v4.57.0 (2026-08-19)
+
+### Added
+- The segments list now shows the editing deadline as a column and can be sorted by it
+
+### Fixed
+- Images in statement views show their link below the image again; clicking it opens the image enlarged in a new window
+- The platform blueprint listed under the procedure templates can now be opened by planning agency admins of the owning organisation instead of redirecting with an access-denied message
+- Finishing a statement split is blocked while a segment is still unconfirmed and shows a message to confirm or remove it first, so segments can no longer be saved in a state that prevents the drafts list from loading
+- Forwarding a segment to another user for review no longer fails with an error message
+- A segment's assignment state is updated immediately after claiming or releasing it
+
 ## v4.55.0 (2026-08-12)
 
 ### Changed
