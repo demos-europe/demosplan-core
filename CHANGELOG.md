@@ -11,6 +11,18 @@
 - Copies of a statement are no longer silently dropped when an assessment table export is imported. The export carries a reference to the statement each row originates from, so every copy arrives, and re-importing the same export adds only what is not there yet.
 - The reminder mail about ending segment deadlines lists every segment, also when several of them share an ID.
 
+## v4.57.0 (2026-08-19)
+
+### Added
+- The segments list now shows the editing deadline as a column and can be sorted by it
+
+### Fixed
+- Images in statement views show their link below the image again; clicking it opens the image enlarged in a new window
+- The platform blueprint listed under the procedure templates can now be opened by planning agency admins of the owning organisation instead of redirecting with an access-denied message
+- Finishing a statement split is blocked while a segment is still unconfirmed and shows a message to confirm or remove it first, so segments can no longer be saved in a state that prevents the drafts list from loading
+- Forwarding a segment to another user for review no longer fails with an error message
+- A segment's assignment state is updated immediately after claiming or releasing it
+
 ## v4.55.0 (2026-08-12)
 
 ### Changed
