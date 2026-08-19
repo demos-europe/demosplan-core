@@ -163,6 +163,7 @@
           class="mb-2"
           editor-id="recommendationText"
           :get-boilerplate-title="getBoilerplateTitle"
+          :on-unlink-request="handleUnlinkRequest"
           :routes="{
             getFileByHash: (hash) => Routing.generate('core_file_procedure', { procedureId: procedureId, hash: hash })
           }"
@@ -1074,6 +1075,10 @@ export default {
       const isoDate = reformatDateString(value)
 
       this.updateSegment('deadline', isoDate)
+    },
+
+    handleUnlinkRequest ({ boilerplateId, pos, editorId }) {
+      console.log('unlink requested', { boilerplateId, pos, editorId })
     },
 
     hasPolygonFeatures () {
