@@ -23,7 +23,18 @@
       @modal:toggled="onModalToggle"
     >
       <template v-slot:header>
-        <h2>{{ exportModalTitle }}</h2>
+        <div class="flex items-center gap-4">
+          <dp-button
+            v-if="showBackButton"
+            class="mb-2"
+            data-cy="statementExportModal:back"
+            icon="caret-left"
+            :text="Translator.trans('back')"
+            type="button"
+            variant="subtle"
+          />
+          <h2>{{ exportModalTitle }}</h2>
+        </div>
       </template>
       <fieldset
         v-if="!isSingleStatementExport"
@@ -226,6 +237,27 @@
           @upload-success="file => { uploadedHash = file.hash }"
         />
       </div>
+
+      <fieldset
+        v-if="active === 'xlsx_normal'"
+        class="border-b border-neutral"
+      >
+        <dp-label
+          class="mt-4"
+          :hint="Translator.trans('export.xlsx.scheduled.description')"
+          :text="Translator.trans('export.xlsx.scheduled.export')"
+        />
+        <div class="flex justify-end">
+          <dp-button
+            icon="calendar-blank"
+            :text="Translator.trans('export.xlsx.scheduled.add')"
+            data-cy=""
+            icon-size="medium"
+            variant="outline"
+            @click=""
+          />
+        </div>
+      </fieldset>
 
       <fieldset
         v-if="!isSingleStatementExport"
@@ -478,6 +510,10 @@ export default {
         hasPermission('feature_statement_via_template_export') &&
         this.uploadedHash !== '' &&
         Object.values(this.docxColumns).some(col => col.title)
+    },
+
+    showBackButton () {
+      return true
     },
 
     templateStorageName () {
