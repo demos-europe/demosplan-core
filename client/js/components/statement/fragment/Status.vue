@@ -166,6 +166,7 @@ export default {
 
     voteString () {
       const currentStatus = this.status !== '' ? this.adviceValues.find(val => val.id === this.status).title : 'fragment.vote.none'
+
       return Translator.trans(currentStatus)
     },
 
@@ -174,6 +175,7 @@ export default {
         reviewer: this.archivedReviewerFullName,
         vote: this.voteString,
       }
+
       return Translator.trans(this.transDone, transParams)
     },
   },

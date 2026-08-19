@@ -30,9 +30,11 @@ use PhpOffice\PhpSpreadsheet\Shared\Date;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Range;
+use Symfony\Component\Validator\Constraints\Uuid;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Webmozart\Assert\Assert;
 
 use function is_string;
 
@@ -258,6 +260,35 @@ class StatementFromRowBuilder extends AbstractStatementFromRowBuilder
         return $this->statement->getExternId();
     }
 
+    public function setSourceStatementId(Cell $cell): ?ConstraintViolationListInterface
+    {
+        $sourceStatementId = trim((string) $cell->getValue());
+        if ('' === $sourceStatementId) {
+            $this->getConcreteStatement()->setSourceStatementId(null);
+
+            return null;
+        }
+
+        $violations = $this->validator->validate($sourceStatementId, new Uuid());
+        if (0 !== $violations->count()) {
+            return $violations;
+        }
+
+        $this->getConcreteStatement()->setSourceStatementId($sourceStatementId);
+
+        return null;
+    }
+
+    public function getSourceStatementId(): ?string
+    {
+        return $this->getConcreteStatement()->getSourceStatementId();
+    }
+
+    public function resetInternId(): void
+    {
+        $this->getConcreteStatement()->setInternId(null);
+    }
+
     public function setNumberOfAnonymVotes(Cell $cell): ?ConstraintViolationListInterface
     {
         $this->statement->setNumberOfAnonymVotes($cell->getValue() ?? 0);
@@ -302,7 +333,7 @@ class StatementFromRowBuilder extends AbstractStatementFromRowBuilder
         $newOriginalStatement->setManual();
         $newOriginalStatement->setProcedure($this->procedure);
         $newStatementMeta->setSubmitOrgaId($this->importingUser->getOrganisationId());
-        $newOriginalStatement->setPhase($this->procedure->getPhase());
+        $newOriginalStatement->setPhaseDefinition($this->procedure->getPhaseObject()->getPhaseDefinition());
         $newOriginalStatement->setPublicVerified(Statement::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED);
 
         $violations = $this->findOrCreatePlanningCategory($newOriginalStatement);
@@ -329,6 +360,17 @@ class StatementFromRowBuilder extends AbstractStatementFromRowBuilder
     public function resetStatement(): void
     {
         $this->statement = new Statement();
+    }
+
+    /**
+     * The source statement reference only exists on the concrete entity, not on
+     * {@link StatementInterface}.
+     */
+    private function getConcreteStatement(): Statement
+    {
+        Assert::isInstanceOf($this->statement, Statement::class);
+
+        return $this->statement;
     }
 
     /**

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -24,8 +26,6 @@ interface FactoryInterface
 {
     /**
      * Create and persist entity instances.
-     *
-     * @return mixed
      */
     public function make(int $amount = 1, int $batchSize = 10);
 }

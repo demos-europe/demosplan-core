@@ -166,14 +166,12 @@ class StatementEmailSenderTest extends FunctionalTestCase
         $this->procedure = ProcedureFactory::createOne();
 
         $user = UserFactory::createOne(['email' => $userEmail, 'password' => 'xxx']);
-        $user->setOrga($orga->_real());
+        $user->_real()->setOrga($orga->_real());
+        $orga->_real()->addUser($user->_real());
 
-        $orga->addUser($user->_real());
+        $this->getEntityManager()->flush();
 
-        $user->_save();
-        $orga->_save();
-
-        $this->statement = StatementFactory::createOne(['procedure' => $this->procedure, 'user' => $user, 'publicStatement' => $publicStatement, 'feedback' => $feedback]);
+        $this->statement = StatementFactory::createOne(['procedure' => $this->procedure, 'user' => $user->_real(), 'publicStatement' => $publicStatement, 'feedback' => $feedback]);
 
         $this->currentUserService->setUser($user->_real());
         $this->currentProcedureService->setProcedure($this->procedure->_real());

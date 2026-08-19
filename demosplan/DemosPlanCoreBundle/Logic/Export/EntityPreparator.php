@@ -50,7 +50,7 @@ class EntityPreparator
                 case 'r_procedure_name':
                     $exportConfig->setProcedureNameExportable(true);
                     break;
-                case 'r_phase':
+                case 'r_phaseDefinitionName':
                     $exportConfig->setProcedurePhaseExportable(true);
                     break;
                 case 'r_votes':

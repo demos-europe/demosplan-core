@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Transformers\Segment;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\SegmentTransformerInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -23,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\TextSection;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\DraftsInfoHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\SegmentMarkParser;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
@@ -30,9 +32,11 @@ use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService;
 use demosplan\DemosPlanCoreBundle\Validator\DraftsInfoValidator;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Id\AssignedGenerator;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Exception;
+use InvalidArgumentException;
 use JsonSchema\Exception\InvalidSchemaException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
@@ -52,6 +56,7 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         private readonly MessageBagInterface $messageBag,
         private readonly PlaceService $placeService,
         private readonly SegmentHandler $segmentHandler,
+        private readonly SegmentMarkParser $segmentMarkParser,
         private readonly StatementHandler $statementHandler,
         private readonly StatementService $statementService,
         private readonly TagService $tagService,
@@ -65,8 +70,9 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
      * Transforms DraftsInfo to Segment and TextSection Entities.
      *
      * Supports two formats:
-     * - New order-based format with contentBlocks (segments + text sections)
-     * - Legacy position-based format with segments only
+     * - Order-based format with contentBlocks (segments + text sections)
+     * - Segment-mark format, where the text comes from the <segment-mark> elements
+     *   in textualReference and `segments` only carries the metadata
      *
      * @param string $draftsInfo
      *
@@ -102,58 +108,44 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         $segments = [];
         $textSections = [];
         $procedure = $statement->getProcedure();
-
-        // Detect format: new order-based (contentBlocks) vs legacy position-based (segments)
         $attributes = $draftsInfoArray['data']['attributes'] ?? [];
-        $isOrderBased = isset($attributes['contentBlocks']);
 
-        if ($isOrderBased) {
-            $segmentBlocks = array_filter(
-                $attributes['contentBlocks'],
-                static fn (array $block): bool => 'segment' === ($block['type'] ?? '')
-            );
-            usort($segmentBlocks, static fn (array $a, array $b): int => ($a['order'] ?? 0) <=> ($b['order'] ?? 0));
-
-            $textSectionBlocks = array_filter(
-                $attributes['contentBlocks'],
-                static fn (array $block): bool => 'textSection' === ($block['type'] ?? '')
-            );
-            $draftsList = $segmentBlocks;
+        // Detect format: order-based (contentBlocks) vs segment-mark based (textualReference)
+        if (isset($attributes['contentBlocks'])) {
+            [$drafts, $textSectionBlocks] = $this->extractContentBlockDrafts($attributes);
         } else {
-            $draftsList = $this->draftsInfoHandler->extractDraftsList($draftsInfoArray);
-            // Sort by charEnd position if present
-            $hasCharEnd = !empty(array_filter($draftsList, static fn (array $d): bool => ($d['charEnd'] ?? 0) > 0));
-            if ($hasCharEnd) {
-                usort($draftsList, static fn (array $a, array $b): int => ($a['charEnd'] ?? 0) <=> ($b['charEnd'] ?? 0));
-            }
+            $drafts = $this->extractSegmentMarkDrafts($attributes);
             $textSectionBlocks = [];
         }
 
         // Temporarily change ID generator to AssignedGenerator so Doctrine handles manually-assigned IDs properly
         $segmentMetadata = $this->entityManager->getClassMetadata(Segment::class);
         $originalIdGenerator = $segmentMetadata->idGenerator;
-        $segmentMetadata->setIdGenerator(new \Doctrine\ORM\Id\AssignedGenerator());
+        $segmentMetadata->setIdGenerator(new AssignedGenerator());
 
         $counter = 1;
         $internId = $this->segmentHandler->getNextSegmentOrderNumber($procedure->getId());
-        foreach ($draftsList as $draft) {
+        foreach ($drafts as $draft) {
+            $metadata = $draft['metadata'];
+
             $segment = new Segment();
             $segment->setId($draft['id']);
             $segment->setParentStatementOfSegment($statement);
             $segment->setText($draft['text']);
-            $externId = $statement->getExternId().'-'.$counter;
-            $segment->setExternId($externId);
-            $segment->setOrderInProcedure($isOrderBased ? ($draft['order'] ?? $internId) : $internId);
-            $segment->setPhase('analysis');
-            $segment->setProcedure($statement->getProcedure());
+            $segment->setExternId($statement->getExternId().'-'.$counter);
+            $segment->setOrderInProcedure($draft['order'] ?? $internId);
+            // @todo DPLAN-16766 Is it necessary to determine the audience from the statement (isCreatedByCitizen vs isCreatedByInvitableInstitution) to use the public participation phase object instead?
+            $segment->setPhaseDefinition($procedure->getPhaseObject()->getPhaseDefinition());
+            $segment->setProcedure($procedure);
 
             /** @var Segment $segment */
             $segment = $this->statementService->setPublicVerified(
                 $segment,
                 Statement::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED
             );
-            $segment = $this->setAssigneeIfGiven($segment, $draft);
-            $segment = $this->setPlace($segment, $draft);
+            $segment = $this->setAssigneeIfGiven($segment, $metadata);
+            $segment = $this->setPlace($segment, $metadata);
+            $segment = $this->setDeadlineIfGiven($segment, $metadata);
 
             $this->entityManager->persist($segment);
 
@@ -162,18 +154,14 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
             ++$internId;
         }
 
-        // Restore the original ID generator
+        // Restore the original ID generator (done with manually-assigned segment IDs)
         $segmentMetadata->setIdGenerator($originalIdGenerator);
 
-        // Set tags (junction table entries will be flushed by controller)
-        array_map(
-            function (Segment $segment, array $draft) use ($procedure): void {
-                $tags = $this->getTags($draft['tags'] ?? [], $procedure);
-                $segment->setTags($tags);
-            },
-            $segments,
-            $draftsList
-        );
+        // Set tags after persist (junction table entries will be flushed by controller)
+        foreach ($segments as $index => $segment) {
+            $tags = $this->getTags($drafts[$index]['metadata']['tags'] ?? [], $procedure);
+            $segment->setTags($tags);
+        }
 
         // Create TextSection entities from contentBlocks
         foreach ($textSectionBlocks as $block) {
@@ -193,27 +181,90 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
     }
 
     /**
-     * @param array<string, string> $draft
+     * Normalizes the order-based `contentBlocks` format into drafts plus the raw
+     * text section blocks. Segment blocks carry their own metadata (tags, place).
+     *
+     * @param array<mixed> $attributes
+     *
+     * @return array{0: list<array{id: string, text: string, order: int|null, metadata: array<mixed>}>, 1: list<array<mixed>>}
+     */
+    private function extractContentBlockDrafts(array $attributes): array
+    {
+        $segmentBlocks = array_values(array_filter(
+            $attributes['contentBlocks'],
+            static fn (array $block): bool => 'segment' === ($block['type'] ?? '')
+        ));
+        usort($segmentBlocks, static fn (array $a, array $b): int => ($a['order'] ?? 0) <=> ($b['order'] ?? 0));
+
+        $textSectionBlocks = array_values(array_filter(
+            $attributes['contentBlocks'],
+            static fn (array $block): bool => 'textSection' === ($block['type'] ?? '')
+        ));
+
+        $drafts = array_map(
+            static fn (array $block): array => [
+                'id'       => $block['id'],
+                'text'     => $block['text'],
+                'order'    => $block['order'] ?? null,
+                'metadata' => $block,
+            ],
+            $segmentBlocks
+        );
+
+        return [$drafts, $textSectionBlocks];
+    }
+
+    /**
+     * Normalizes the segment-mark format: the text comes from the `<segment-mark>`
+     * elements in `textualReference`, while `segments` only carries the metadata
+     * (tags, assignee, place, deadline) looked up by segment ID.
+     *
+     * @param array<mixed> $attributes
+     *
+     * @return list<array{id: string, text: string, order: null, metadata: array<mixed>}>
+     */
+    private function extractSegmentMarkDrafts(array $attributes): array
+    {
+        $parsedMarks = $this->segmentMarkParser->parse($attributes['textualReference']);
+
+        $metadataById = [];
+        foreach ($attributes['segments'] as $segmentMetaData) {
+            $metadataById[$segmentMetaData['id']] = $segmentMetaData;
+        }
+
+        return array_map(
+            static fn (array $mark): array => [
+                'id'       => $mark['segmentId'],
+                'text'     => $mark['text'],
+                'order'    => null,
+                'metadata' => $metadataById[$mark['segmentId']] ?? [],
+            ],
+            $parsedMarks
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $metadata
      *
      * @throws NoResultException
      */
-    private function setAssigneeIfGiven(Segment $segment, array $draft): Segment
+    private function setAssigneeIfGiven(Segment $segment, array $metadata): Segment
     {
-        if (null !== data_get($draft, 'assigneeId')) {
-            $segment->setAssignee($this->userService->findWithCertainty($draft['assigneeId']));
+        if (null !== data_get($metadata, 'assigneeId')) {
+            $segment->setAssignee($this->userService->findWithCertainty($metadata['assigneeId']));
         }
 
         return $segment;
     }
 
     /**
-     * @param array<string, string> $draft
+     * @param array<string, mixed> $metadata
      *
      * @throws NoResultException
      */
-    private function setPlace(Segment $segment, array $draft): Segment
+    private function setPlace(Segment $segment, array $metadata): Segment
     {
-        $placeId = $draft['place']['id'] ?? null;
+        $placeId = $metadata['place']['id'] ?? null;
         $place = null !== $placeId && '' !== $placeId
             ? $this->placeService->findWithCertainty($placeId)
             : $this->placeService->findFirstOrderedBySortIndex($segment->getProcedure()->getId());
@@ -221,6 +272,35 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         if (null !== $place) {
             $segment->setPlace($place);
         }
+
+        return $segment;
+    }
+
+    /**
+     * Sets the deadline (Bearbeitungsfrist) from the split metadata, if provided.
+     * The frontend sends it as an ISO date string ("Y-m-d"); a malformed value is
+     * rejected as a client error rather than silently producing a wrong date.
+     *
+     * @param array<string, mixed> $metadata
+     *
+     * @throws InvalidArgumentException on a non-empty value that is not a valid "Y-m-d" date
+     */
+    private function setDeadlineIfGiven(Segment $segment, array $metadata): Segment
+    {
+        $deadline = data_get($metadata, 'deadline');
+        if (!is_string($deadline) || '' === trim($deadline)) {
+            return $segment;
+        }
+
+        $date = DateTime::createFromFormat('!Y-m-d', trim($deadline));
+        $errors = DateTime::getLastErrors();
+        if (!$date instanceof DateTime
+            || (is_array($errors) && ($errors['warning_count'] > 0 || $errors['error_count'] > 0))
+        ) {
+            throw new InvalidArgumentException('Invalid deadline provided; expected format YYYY-MM-DD.');
+        }
+
+        $segment->setDeadline($date);
 
         return $segment;
     }

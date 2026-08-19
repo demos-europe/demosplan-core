@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\UpdateTagEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\TagServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
@@ -100,6 +101,7 @@ class TagService implements TagServiceInterface
         }
 
         $toCreate = new Tag($title, $topic);
+        $toCreate->setSortIndex($this->tagRepository->getNextSortIndex($topic->getId()));
 
         if ($persistAndFlush) {
             $this->tagRepository->addObject($toCreate);
@@ -198,6 +200,15 @@ class TagService implements TagServiceInterface
             $this->boilerplateRepository->updateObject($boilerplate);
             $this->tagRepository->updateObject($tag);
         }
+    }
+
+    /**
+     * Sets or removes the default assignee of a tag.
+     */
+    public function setDefaultAssignee(Tag $tag, ?UserInterface $defaultAssignee): void
+    {
+        $tag->setDefaultAssignee($defaultAssignee);
+        $this->tagRepository->updateObject($tag);
     }
 
     /**

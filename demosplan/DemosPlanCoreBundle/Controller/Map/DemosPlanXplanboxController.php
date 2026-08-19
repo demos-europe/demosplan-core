@@ -28,7 +28,7 @@ class DemosPlanXplanboxController extends BaseController
      * @return Response
      */
     #[DplanPermissions('feature_use_xplanbox')]
-    #[Route(name: 'DemosPlan_xplanbox_get_bounds', path: '/xplanbox/getBounds/{procedureName}', requirements: ['procedureName' => '.+'], options: ['expose' => true])]
+    #[Route(path: '/xplanbox/getBounds/{procedureName}', name: 'DemosPlan_xplanbox_get_bounds', requirements: ['procedureName' => '.+'], options: ['expose' => true])]
     public function getLgvXplanboxBounds(Xplanbox $xplanbox, string $procedureName)
     {
         try {

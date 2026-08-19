@@ -9,6 +9,7 @@
 
 import { getResolutionsFromScales, getScalesAndResolutions } from '@DpJs/components/map/map/utils/utils'
 import ResponseAttributes from './fixtures/dplan_api_map_options_admin.json'
+import { vi } from 'vitest'
 
 describe('DpOlMap/utils', () => {
   /*
@@ -17,9 +18,10 @@ describe('DpOlMap/utils', () => {
    */
   beforeAll(() => {
     Object.defineProperty(window, 'matchMedia', {
-      value: jest.fn((query) => {
+      value: vi.fn((query) => {
         const a = 96
         const number = query.match(/\d+/)[0]
+
         if (number <= a) {
           return {
             matches: true,
@@ -35,6 +37,7 @@ describe('DpOlMap/utils', () => {
 
   it('`getResolutionsFromScales` should return a descending sorted array', () => {
     const resolutions = getResolutionsFromScales(ResponseAttributes.scales, 'm', 96)
+
     expect(typeof resolutions).toBe('object')
     expect(resolutions).toHaveLength(13)
     expect(resolutions[0]).toBeGreaterThan(resolutions[resolutions.length - 1])
@@ -57,6 +60,7 @@ describe('DpOlMap/utils', () => {
       0.06614596562526459,
     ]
     const scalesAndResolutions = getScalesAndResolutions(resolutions, 'm', 96)
+
     expect(typeof scalesAndResolutions).toBe('object')
     expect(scalesAndResolutions).toHaveLength(13)
     expect(typeof scalesAndResolutions[4]).toBe('object')

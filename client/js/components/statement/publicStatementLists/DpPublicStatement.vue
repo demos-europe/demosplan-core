@@ -262,32 +262,25 @@
         class="c-styled-html"
       />
     </div>
-    <dp-details
-      v-if="customFieldsWithValues.length > 0"
+    <custom-fields-list
+      v-if="hasPermission('feature_statements_custom_fields')"
       :class="prefixClass('w-full mt-4')"
-      :summary="Translator.trans('more.data')"
-    >
-      <div
-        v-for="field in customFieldsWithValues"
-        :key="field.id"
-        :class="prefixClass('mb-3')"
-      >
-        <span :class="prefixClass('weight--bold')">{{ field.name }}:</span>
-        <div :class="prefixClass('ml-2')">
-          <div
-            v-for="option in field.selected"
-            :key="option.id"
-          >
-            {{ option.label }}
-          </div>
-        </div>
-      </div>
-    </dp-details>
+      :definition-source-id="procedureId"
+      :list-title="Translator.trans('statement.data')"
+      :resource-id="id"
+      :show-empty="true"
+      mode="readonly"
+      resource-type="DraftStatement"
+      source-entity="PROCEDURE"
+      target-entity="STATEMENT"
+      expandable
+    />
   </dp-table-card>
 </template>
 
 <script>
-import { CleanHtml, DpDetails, DpFlyout, DpInlineNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpFlyout, DpInlineNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
 import DomPurify from 'dompurify'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
@@ -296,7 +289,7 @@ export default {
   name: 'DpPublicStatement',
 
   components: {
-    DpDetails,
+    CustomFieldsList,
     DpFlyout,
     DpInlineNotification,
     DpTableCard,
@@ -431,16 +424,11 @@ export default {
       type: String,
       required: true,
     },
-
-    statementCustomFields: {
-      type: Array,
-      required: false,
-      default: () => [],
-    },
   },
 
   emits: [
     'openMapModal',
+    'openStatementModalFromList',
   ],
 
   data () {
@@ -480,17 +468,12 @@ export default {
     unsavedChangesItem () {
       return (this.unsavedDrafts.findIndex(el => el === this.id) > -1) ? this.menuItems.find(el => el.name === 'edit') : false
     },
-
-    customFieldsWithValues () {
-      return this.statementCustomFields.filter(
-        field => field.selected && field.selected.length > 0,
-      )
-    },
   },
 
   methods: {
     renderAttachments (attachments) {
       const transformedAttachments = attachments.map(a => `<a href="${Routing.generate('core_file_procedure', { hash: a.hash, procedureId: this.procedureId })}">${a.name}</a>`)
+
       return transformedAttachments.length > 0 ? transformedAttachments.join(', ') : Translator.trans('notspecified')
     },
 
@@ -500,9 +483,11 @@ export default {
 
     renderTooltipContent (lines) {
       let content = ''
+
       lines.forEach(ln => {
         content += `${ln}<br />`
       })
+
       return DomPurify.sanitize(content)
     },
   },

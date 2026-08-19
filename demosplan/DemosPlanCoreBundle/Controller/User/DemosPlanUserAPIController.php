@@ -94,7 +94,7 @@ class DemosPlanUserAPIController extends APIController
      * @throws MessageBagException
      */
     #[DplanPermissions('feature_user_get')]
-    #[Route(path: '/api/1.0/user/{userId}/get', methods: ['GET'], name: 'dplan_api_user_get', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/user/{userId}/get', name: 'dplan_api_user_get', options: ['expose' => true], methods: ['GET'])]
     public function getAction(string $userId): APIResponse
     {
         try {
@@ -124,7 +124,7 @@ class DemosPlanUserAPIController extends APIController
      * @throws MessageBagException
      */
     #[DplanPermissions('feature_user_list')]
-    #[Route(path: '/api/1.0/user', methods: ['GET'], name: 'dplan_api_users_get', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/user', name: 'dplan_api_users_get', options: ['expose' => true], methods: ['GET'])]
     public function list(
         AdministratableUserResourceType $userType,
         DrupalFilterParser $filterParser,
@@ -185,11 +185,11 @@ class DemosPlanUserAPIController extends APIController
      * @deprecated Use `/api/2.0/User` instead ({@link GenericApiController::createAction()})
      */
     #[DplanPermissions('feature_user_add')]
-    #[Route(path: '/api/1.0/user', methods: ['POST'], name: 'dplan_api_user_create', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/user', name: 'dplan_api_user_create', options: ['expose' => true], methods: ['POST'])]
     public function create(UserHandler $userHandler): APIResponse
     {
         try {
-            if (!($this->requestData instanceof TopLevel)) {
+            if (!$this->requestData instanceof TopLevel) {
                 throw BadRequestException::normalizerFailed();
             }
 
@@ -238,7 +238,7 @@ class DemosPlanUserAPIController extends APIController
      * @return APIResponse|EmptyResponse
      */
     #[DplanPermissions('feature_user_delete')]
-    #[Route(path: '/api/1.0/user/{id}', methods: ['DELETE'], name: 'dplan_api_user_delete', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/user/{id}', name: 'dplan_api_user_delete', options: ['expose' => true], methods: ['DELETE'])]
     public function delete(string $id): Response
     {
         $this->userService->wipeUser($id);
@@ -247,10 +247,10 @@ class DemosPlanUserAPIController extends APIController
     }
 
     #[DplanPermissions('feature_user_edit')]
-    #[Route(path: '/api/1.0/user/{id}', methods: ['PATCH'], name: 'dplan_api_user_update', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/user/{id}', name: 'dplan_api_user_update', options: ['expose' => true], methods: ['PATCH'])]
     public function update(string $id, UserHandler $userHandler): APIResponse
     {
-        if (!($this->requestData instanceof TopLevel)) {
+        if (!$this->requestData instanceof TopLevel) {
             throw BadRequestException::normalizerFailed();
         }
 

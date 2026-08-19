@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Exception;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
@@ -93,7 +94,7 @@ class DocumentHandler extends CoreHandler
         $statusHash = md5($sessionId.$procedure);
         $status = Json::encode(['bulkImportFilesTotal' => 0, 'bulkImportFilesProcessed' => 0]);
         try {
-            $fs->dumpFile('uploads/files/importStatus_'.$statusHash.'.json', $status);
+            $fs->dumpFile(DemosPlanPath::getPublicPath('uploads/files/importStatus_'.$statusHash.'.json'), $status);
         } catch (IOException $e) {
             $this->logger->warning('Could not dump Statusfile: ', [$e]);
         }
@@ -262,7 +263,7 @@ class DocumentHandler extends CoreHandler
                 );
                 try {
                     $statusHash = md5($sessionId.$procedure);
-                    $fs->dumpFile('uploads/files/importStatus_'.$statusHash.'.json', $status);
+                    $fs->dumpFile(DemosPlanPath::getPublicPath('uploads/files/importStatus_'.$statusHash.'.json'), $status);
                 } catch (IOException $e) {
                     $this->logger->warning('could not update Statusfile: ', [$e]);
                 }
@@ -295,7 +296,7 @@ class DocumentHandler extends CoreHandler
             $keys = array_keys($sessionElementImportList, $entryPath);
             if (is_array($keys)
                 && isset($request[$keys[0]])
-                && 0 < strlen((string) $request[$keys[0]])
+                && '' !== (string) $request[$keys[0]]
             ) {
                 $fileName = $request[$keys[0]]; // here the name is taken from the request
                 // Also ensure the string from request is properly encoded to UTF-8

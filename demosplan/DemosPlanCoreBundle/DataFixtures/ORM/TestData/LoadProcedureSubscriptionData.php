@@ -50,7 +50,7 @@ class LoadProcedureSubscriptionData extends TestFixture implements DependentFixt
         $manager->flush();
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             LoadProcedureData::class,

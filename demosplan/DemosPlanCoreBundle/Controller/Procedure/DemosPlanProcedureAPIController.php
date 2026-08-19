@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceLinkageFactory;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
+use demosplan\DemosPlanCoreBundle\Logic\CustomField\CustomFieldFilterResponseBuilder;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
@@ -78,7 +79,7 @@ class DemosPlanProcedureAPIController extends APIController
     }
 
     #[DplanPermissions('area_public_participation')]
-    #[Route(path: '/api/1.0/procedure', methods: ['GET'], name: 'dplan_api_procedure_')]
+    #[Route(path: '/api/1.0/procedure', name: 'dplan_api_procedure_', methods: ['GET'])]
     public function list(Request $request): APIResponse
     {
         $rawData = $this->forward(
@@ -98,7 +99,7 @@ class DemosPlanProcedureAPIController extends APIController
      * @throws MessageBagException
      */
     #[DplanPermissions('feature_procedures_mark_participated')]
-    #[Route(path: '/api/1.0/procedures/{procedureId}/mark/participated', methods: ['POST'], name: 'dp_api_procedure_mark_participated', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/procedures/{procedureId}/mark/participated', name: 'dp_api_procedure_mark_participated', options: ['expose' => true], methods: ['POST'])]
     public function markParticipated($procedureId)
     {
         try {
@@ -120,7 +121,7 @@ class DemosPlanProcedureAPIController extends APIController
      * @throws MessageBagException
      */
     #[DplanPermissions('feature_procedures_mark_participated')]
-    #[Route(path: '/api/1.0/procedures/{procedureId}/unmark/participated', methods: ['POST'], name: 'dp_api_procedure_unmark_participated', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/procedures/{procedureId}/unmark/participated', name: 'dp_api_procedure_unmark_participated', options: ['expose' => true], methods: ['POST'])]
     public function unMarkParticipated($procedureId)
     {
         try {
@@ -135,13 +136,96 @@ class DemosPlanProcedureAPIController extends APIController
     }
 
     /**
+     * Records the usage of a boilerplate in the recommendation of a segment.
+     * Idempotent: inserting the same boilerplate into the same segment again
+     * keeps the single existing usage entry. Failures are logged but not
+     * surfaced to the user: recording is non-critical, the text was inserted
+     * regardless.
+     */
+    #[DplanPermissions(['feature_boilerplate_usage_list', 'feature_segment_recommendation_edit'])]
+    #[Route(path: '/api/1.0/procedures/{procedureId}/boilerplates/{boilerplateId}/usage', name: 'dplan_boilerplate_usage_create', options: ['expose' => true], methods: ['POST'])]
+    public function createBoilerplateUsage(
+        ProcedureService $procedureService,
+        string $procedureId,
+        string $boilerplateId,
+    ): Response {
+        try {
+            $boilerplate = $procedureService->getBoilerplateOfProcedure($boilerplateId, $procedureId);
+            if (null === $boilerplate) {
+                $this->logger->warning(
+                    'Boilerplate usage not recorded: boilerplate not found in procedure',
+                    ['boilerplateId' => $boilerplateId, 'procedureId' => $procedureId]
+                );
+
+                return $this->renderEmpty(Response::HTTP_NOT_FOUND);
+            }
+
+            $segmentId = $this->getRequestJson('segmentId');
+            $recorded = is_string($segmentId)
+                && $procedureService->addBoilerplateUsage($boilerplate, $segmentId, $procedureId);
+
+            return $recorded
+                ? $this->renderSuccess(Response::HTTP_NO_CONTENT)
+                : $this->renderEmpty(Response::HTTP_BAD_REQUEST);
+        } catch (Exception $e) {
+            $this->logger->error(
+                'Failed to record boilerplate usage',
+                ['boilerplateId' => $boilerplateId, 'procedureId' => $procedureId, 'exception' => $e]
+            );
+
+            return $this->renderEmpty(Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Records the usage of a boilerplate in the recommendations of multiple
+     * segments at once (bulk edit). Idempotent per boilerplate/segment pair.
+     * Failures are logged but not surfaced to the user: recording is
+     * non-critical, the text was inserted regardless.
+     */
+    #[DplanPermissions(['feature_boilerplate_usage_list', 'feature_segment_recommendation_edit'])]
+    #[Route(path: '/api/1.0/procedures/{procedureId}/boilerplates/{boilerplateId}/usages', name: 'dplan_boilerplate_usage_create_bulk', options: ['expose' => true], methods: ['POST'])]
+    public function createBoilerplateUsages(
+        ProcedureService $procedureService,
+        string $procedureId,
+        string $boilerplateId,
+    ): Response {
+        try {
+            $boilerplate = $procedureService->getBoilerplateOfProcedure($boilerplateId, $procedureId);
+            if (null === $boilerplate) {
+                $this->logger->warning(
+                    'Boilerplate usages not recorded: boilerplate not found in procedure',
+                    ['boilerplateId' => $boilerplateId, 'procedureId' => $procedureId]
+                );
+
+                return $this->renderEmpty(Response::HTTP_NOT_FOUND);
+            }
+
+            $segmentIds = $this->getRequestJson('segmentIds');
+            $recorded = is_array($segmentIds)
+                && 0 < $procedureService->addBoilerplateUsages($boilerplate, $segmentIds, $procedureId);
+
+            return $recorded
+                ? $this->renderSuccess(Response::HTTP_NO_CONTENT)
+                : $this->renderEmpty(Response::HTTP_BAD_REQUEST);
+        } catch (Exception $e) {
+            $this->logger->error(
+                'Failed to record boilerplate usages',
+                ['boilerplateId' => $boilerplateId, 'procedureId' => $procedureId, 'exception' => $e]
+            );
+
+            return $this->renderEmpty(Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    /**
      * Returns a JSON with the available filters for the assessment table.
      *
      * @return APIResponse
      */
     #[DplanPermissions('area_admin_assessmenttable')]
-    #[Route(path: '/api/1.0/procedures/{procedureId}/statementemptyfilters', methods: ['GET'], name: 'dp_api_procedure_get_statement_empty_filters', options: ['expose' => true])]
-    #[Route(path: '/api/1.0/procedures/{procedureId}/statementemptyfilters', methods: ['GET'], name: 'dp_api_procedure_get_statement_empty_filters', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/procedures/{procedureId}/statementemptyfilters', name: 'dp_api_procedure_get_statement_empty_filters', options: ['expose' => true], methods: ['GET'])]
+    #[Route(path: '/api/1.0/procedures/{procedureId}/statementemptyfilters', name: 'dp_api_procedure_get_statement_empty_filters', options: ['expose' => true], methods: ['GET'])]
     public function getStatementEmptyFilters(StatementFilterHandler $statementFilterHandler)
     {
         return $this->getStatementEmptyFilter($statementFilterHandler);
@@ -153,7 +237,7 @@ class DemosPlanProcedureAPIController extends APIController
      * @return APIResponse
      */
     #[DplanPermissions('area_admin_assessmenttable')]
-    #[Route(path: '/api/1.0/procedures/{procedureId}/originalstatementemptyfilters', methods: ['GET'], name: 'dp_api_procedure_get_original_statement_empty_filters', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/procedures/{procedureId}/originalstatementemptyfilters', name: 'dp_api_procedure_get_original_statement_empty_filters', options: ['expose' => true], methods: ['GET'])]
     public function getOriginalStatementEmptyFilter(StatementFilterHandler $statementFilterHandler)
     {
         return $this->getStatementEmptyFilter($statementFilterHandler, true);
@@ -166,7 +250,7 @@ class DemosPlanProcedureAPIController extends APIController
      * @return APIResponse
      */
     #[DplanPermissions('area_admin_assessmenttable')]
-    #[Route(path: '/api/1.0/procedures/{procedureId}/originalfilters/{filterHash}', methods: ['GET'], name: 'dp_api_procedure_get_original_filters', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/procedures/{procedureId}/originalfilters/{filterHash}', name: 'dp_api_procedure_get_original_filters', options: ['expose' => true], methods: ['GET'])]
     public function getOriginalStatementFilter(
         AssessmentHandler $assessmentHandler,
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
@@ -174,6 +258,7 @@ class DemosPlanProcedureAPIController extends APIController
         PermissionsInterface $permissions,
         Request $request,
         StatementFilterHandler $statementFilterHandler,
+        CustomFieldFilterResponseBuilder $cfFilterResponseBuilder,
         $procedureId,
         $filterHash = '',
     ) {
@@ -184,6 +269,7 @@ class DemosPlanProcedureAPIController extends APIController
             $permissions,
             $request,
             $statementFilterHandler,
+            $cfFilterResponseBuilder,
             $procedureId,
             $filterHash,
             true
@@ -197,7 +283,7 @@ class DemosPlanProcedureAPIController extends APIController
      * @return APIResponse
      */
     #[DplanPermissions('area_admin_assessmenttable')]
-    #[Route(path: '/api/1.0/procedures/{procedureId}/statementfilters/{filterHash}', methods: ['GET'], name: 'dp_api_procedure_get_statement_filters', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/procedures/{procedureId}/statementfilters/{filterHash}', name: 'dp_api_procedure_get_statement_filters', options: ['expose' => true], methods: ['GET'])]
     public function getNonOriginalStatementFilter(
         AssessmentHandler $assessmentHandler,
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
@@ -205,6 +291,7 @@ class DemosPlanProcedureAPIController extends APIController
         PermissionsInterface $permissions,
         Request $request,
         StatementFilterHandler $statementFilterHandler,
+        CustomFieldFilterResponseBuilder $cfFilterResponseBuilder,
         $procedureId,
         $filterHash = '',
     ) {
@@ -215,6 +302,7 @@ class DemosPlanProcedureAPIController extends APIController
             $permissions,
             $request,
             $statementFilterHandler,
+            $cfFilterResponseBuilder,
             $procedureId,
             $filterHash,
             false
@@ -225,7 +313,7 @@ class DemosPlanProcedureAPIController extends APIController
      * @param string $procedureId
      */
     #[DplanPermissions('area_admin_assessmenttable')]
-    #[Route(path: '/api/1.0/procedures/{procedureId}/updatefilterhash', methods: ['POST'], name: 'dplan_api_procedure_update_filter_hash', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/procedures/{procedureId}/updatefilterhash', name: 'dplan_api_procedure_update_filter_hash', options: ['expose' => true], methods: ['POST'])]
     public function updateNonOriginalFilterSet(
         AssessmentHandler $assessmentHandler,
         Request $request,
@@ -238,7 +326,7 @@ class DemosPlanProcedureAPIController extends APIController
      * @param string $procedureId
      */
     #[DplanPermissions('area_admin_assessmenttable')]
-    #[Route(path: '/api/1.0/procedures/{procedureId}/updatefilterhash/original', methods: ['POST'], name: 'dplan_api_procedure_update_original_filter_hash', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/procedures/{procedureId}/updatefilterhash/original', name: 'dplan_api_procedure_update_original_filter_hash', options: ['expose' => true], methods: ['POST'])]
     public function updateOriginalFilterSet(
         AssessmentHandler $assessmentHandler,
         Request $request,
@@ -297,6 +385,7 @@ class DemosPlanProcedureAPIController extends APIController
         PermissionsInterface $permissions,
         Request $request,
         StatementFilterHandler $statementFilterHandler,
+        CustomFieldFilterResponseBuilder $cfFilterResponseBuilder,
         $procedureId,
         $filterHash,
         $original,
@@ -383,6 +472,16 @@ class DemosPlanProcedureAPIController extends APIController
             $responseData[] = $assessmentTableFilter;
         }
 
+        if ($permissions->hasPermission('feature_statements_custom_fields')) {
+            $cfFilterItems = $cfFilterResponseBuilder->buildFilterItems(
+                $procedureId,
+                $original,
+                $rParams['filters'],
+                $rParams['search'] ?? null,
+            );
+            array_push($responseData, ...$cfFilterItems);
+        }
+
         return $this->renderCollection($responseData, AssessmentTableFilterTransformer::class);
     }
 
@@ -394,7 +493,7 @@ class DemosPlanProcedureAPIController extends APIController
      * @throws MessageBagException
      */
     #[DplanPermissions('area_admin_assessmenttable')]
-    #[Route(path: '/api/1.0/procedures/{procedureId}/statementfilters/delete/{filterSetId}', methods: ['DELETE'], name: 'dplan_api_procedure_delete_statement_filter', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/procedures/{procedureId}/statementfilters/delete/{filterSetId}', name: 'dplan_api_procedure_delete_statement_filter', options: ['expose' => true], methods: ['DELETE'])]
     public function deleteStatementFilter(UserFilterSetService $userFilterSetService, $filterSetId)
     {
         try {
@@ -454,7 +553,7 @@ class DemosPlanProcedureAPIController extends APIController
     }
 
     #[DplanPermissions('area_admin_invitable_institution')]
-    #[Route(path: '/api/1.0/procedure/{procedureId}/relationships/invitedPublicAffairsAgents', methods: ['POST'], name: 'dplan_api_procedure_add_invited_public_affairs_bodies', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/procedure/{procedureId}/relationships/invitedPublicAffairsAgents', name: 'dplan_api_procedure_add_invited_public_affairs_bodies', options: ['expose' => true], methods: ['POST'])]
     public function addInvitedPublicAffairsAgents(
         Request $request,
         ResourceLinkageFactory $linkageFactory,
@@ -483,7 +582,7 @@ class DemosPlanProcedureAPIController extends APIController
      * @throws Exception
      */
     #[DplanPermissions('area_public_participation')]
-    #[Route(name: 'DemosPlan_procedure_search_ajax', path: '/verfahren/suche/ajax', options: ['expose' => true])]
+    #[Route(path: '/verfahren/suche/ajax', name: 'DemosPlan_procedure_search_ajax', options: ['expose' => true])]
     public function searchProceduresAjax(
         ProcedureResourceType $procedureResourceType,
         PublicIndexProcedureLister $procedureLister,
@@ -500,11 +599,11 @@ class DemosPlanProcedureAPIController extends APIController
                 $procedureResourceType->externalName,
                 $procedureResourceType->externalStartDate,
                 $procedureResourceType->externalEndDate,
-                $procedureResourceType->externalPhaseTranslationKey,
+                $procedureResourceType->externalPhaseDefinitionName,
                 $procedureResourceType->name,
                 $procedureResourceType->internalStartDate,
                 $procedureResourceType->internalEndDate,
-                $procedureResourceType->internalPhaseTranslationKey,
+                $procedureResourceType->internalPhaseDefinitionName,
                 $procedureResourceType->daysLeft,
                 $procedureResourceType->internalPhasePermissionset,
                 $procedureResourceType->externalPhasePermissionset

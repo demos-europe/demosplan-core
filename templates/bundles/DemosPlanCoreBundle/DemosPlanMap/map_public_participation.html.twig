@@ -97,7 +97,7 @@
                     procedureTitle: getProcedureName(publicProcedure),
                     periodStart: getProcedureStartDate(publicProcedure)|dplanDateAnnotated ,
                     periodEnd: getProcedureEndDate(publicProcedure)|dplanDateAnnotated ,
-                    phase: getProcedurePhase(publicProcedure) ,
+                    phase: getProcedurePhaseDefinitionName(publicProcedure) ,
                     shortText: publicProcedure.externalDesc,
                     procedureUrl: path('DemosPlan_procedure_public_detail', {'procedure': publicProcedure.ident}) ,
                     ident: publicProcedure.ident

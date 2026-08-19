@@ -19,7 +19,7 @@
     <dp-modal
       ref="exportModalInner"
       content-classes="w-11/12 sm:w-10/12 md:w-10/12 lg:w-8/12 xl:w-7/12 h-fit"
-      content-body-classes="flex flex-col h-14"
+      content-body-classes="flex flex-col"
       @modal:toggled="onModalToggle"
     >
       <h2 class="mb-5">
@@ -28,10 +28,10 @@
 
       <fieldset v-if="!isSingleStatementExport">
         <legend
-          class="o-form__label text-base"
+          class="font-semibold text-base"
           v-text="Translator.trans('export.type')"
         />
-        <div class="grid grid-cols-3 mt-2 mb-3 gap-x-2 gap-y-5">
+        <div class="grid grid-cols-4 mt-2 mb-5 gap-x-2">
           <dp-radio
             v-for="(exportType, key) in exportTypes"
             :id="key"
@@ -45,37 +45,41 @@
             :checked="active === key"
             @change="active = key"
           />
-          <template v-if="active !== 'xlsx_normal'">
-            <dp-checkbox
-              id="censoredCitizen"
-              v-model="isCitizenDataCensored"
-              data-cy="exportModal:censoredCitizen"
-              :label="{
-                text: Translator.trans('export.censored.citizen')
-              }"
-            />
-            <dp-checkbox
-              id="censoredInstitution"
-              v-model="isInstitutionDataCensored"
-              data-cy="exportModal:censoredInstitution"
-              :label="{
-                text: Translator.trans('export.censored.institution')
-              }"
-            />
-            <dp-checkbox
-              id="obscured"
-              v-model="isObscure"
-              data-cy="exportModal:obscured"
-              :label="{
-                text: Translator.trans('export.docx.obscured')
-              }"
-            />
-          </template>
+        </div>
+
+        <div
+          v-if="!['xlsx_normal', 'csv_normal'].includes(active)"
+          class="grid grid-cols-3 mb-3 gap-x-2"
+        >
+          <dp-checkbox
+            id="censoredCitizen"
+            v-model="isCitizenDataCensored"
+            data-cy="exportModal:censoredCitizen"
+            :label="{
+              text: Translator.trans('export.censored.citizen')
+            }"
+          />
+          <dp-checkbox
+            id="censoredInstitution"
+            v-model="isInstitutionDataCensored"
+            data-cy="exportModal:censoredInstitution"
+            :label="{
+              text: Translator.trans('export.censored.institution')
+            }"
+          />
+          <dp-checkbox
+            id="obscured"
+            v-model="isObscure"
+            data-cy="exportModal:obscured"
+            :label="{
+              text: Translator.trans('export.docx.obscured')
+            }"
+          />
         </div>
       </fieldset>
 
       <fieldset v-if="isSingleStatementExport">
-        <div class="flex mt-1 mb-5">
+        <div class="flex mt-1 mb-5 gap-2">
           <dp-checkbox
             id="singleStatementCitizen"
             v-model="isCitizenDataCensored"
@@ -103,10 +107,13 @@
         </div>
       </fieldset>
 
-      <fieldset v-if="['docx_normal', 'zip_normal'].includes(active)">
+      <fieldset
+        v-if="['docx_normal', 'zip_normal'].includes(active)"
+        class="py-0"
+      >
         <legend
           id="docxColumnTitles"
-          class="o-form__label text-base float-left mr-1"
+          class="font-semibold text-base float-left mr-1"
           v-text="Translator.trans('docx.export.column.title')"
         />
         <dp-contextual-help
@@ -127,7 +134,7 @@
         <fieldset v-if="active === 'zip' || isSingleStatementExport">
           <legend
             id="docxFileName"
-            class="o-form__label text-base float-left mr-1"
+            class="font-semibold text-base float-left mr-1"
             v-text="Translator.trans('docx.export.file_name')"
           />
           <dp-contextual-help
@@ -142,9 +149,9 @@
             :placeholder="Translator.trans('docx.export.file_name.placeholder')"
             type="text"
           />
-          <div class="font-size-small mt-2">
+          <div class="text-sm mt-4">
             <span
-              class="weight--bold"
+              class="font-bold"
               v-text="Translator.trans('docx.export.example_file_name')"
             />
             <span v-text="exampleFileName" />
@@ -152,10 +159,44 @@
         </fieldset>
       </fieldset>
 
+      <div
+        v-if="isSingleStatementExport && hasPermission('feature_statement_via_template_export')"
+        class="border-t border-neutral pt-4 mb-4"
+      >
+        <dp-label
+          :hint="Translator.trans('docx.export.via_template.upload.hint')"
+          :text="Translator.trans('docx.export.via_template.upload.label')"
+          :tooltip="Translator.trans('docx.export.via_template.upload.tooltip')"
+          class="mb-1"
+          for="uploadTemplate"
+        />
+        <dp-button
+          :text="Translator.trans('docx.export.via_template.example.label')"
+          class="mb-2"
+          data-cy="exportModal:downloadExampleTemplate"
+          href="/files/statement_template_example_export.docx"
+          icon="download"
+          icon-size="medium"
+          variant="subtle"
+        />
+        <dp-upload-files
+          id="uploadTemplate"
+          allowed-file-types="import"
+          data-cy="exportModal:uploadTemplate"
+          :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash, procedureId })"
+          :max-file-size="5 * 1024 * 1024 /* 5 MB */"
+          :storage-name="templateStorageName"
+          :translations="{ dropHereOr: Translator.trans('form.button.upload.docx', { browse: '{browse}', maxUploadSize: '5 MB' }) }"
+          :tus-endpoint="dplan.paths.tusEndpoint"
+          @file-remove="uploadedHash = ''"
+          @upload-success="file => { uploadedHash = file.hash }"
+        />
+      </div>
+
       <fieldset v-if="!isSingleStatementExport">
         <legend
           id="tagsFilter"
-          class="o-form__label text-base mb-1"
+          class="font-semibold text-base mb-1"
           v-text="Translator.trans('segments.export.filter.tags.only')"
         />
         <filter-flyout
@@ -193,6 +234,26 @@
           </li>
         </ul>
       </fieldset>
+      <dp-input
+        v-if="['docx_normal', 'zip_normal'].includes(active) && !isSingleStatementExport && hasPermissionAdjustPreamble"
+        id="customHeaderText"
+        v-model="customHeaderText"
+        :label="{
+          text: Translator.trans('docx.export.header.custom'),
+          tooltip: Translator.trans('docx.export.header.custom.hint')
+        }"
+        :maxlength="customHeaderMaxLength"
+        :placeholder="Translator.trans('docx.export.header.custom.placeholder')"
+        class="mt-2 mb-4"
+        data-cy="exportModal:customHeaderText"
+        type="text"
+      />
+      <dp-inline-notification
+        v-if="hasLayoutFileAndModifiedColumnHeaders"
+        class="mb-4"
+        :message="Translator.trans('docx.export.via_template.column.headers.warning')"
+        type="warning"
+      />
 
       <dp-button-row
         class="text-right mt-auto"
@@ -214,10 +275,13 @@ import {
   DpButtonRow,
   DpCheckbox,
   DpContextualHelp,
+  DpInlineNotification,
   DpInput,
+  DpLabel,
   DpModal,
   DpRadio,
   dpRpc,
+  DpUploadFiles,
   hasOwnProp,
   sessionStorageMixin,
 } from '@demos-europe/demosplan-ui'
@@ -232,15 +296,24 @@ export default {
     DpButtonRow,
     DpCheckbox,
     DpContextualHelp,
+    DpInlineNotification,
     DpInput,
+    DpLabel,
     DpModal,
     DpRadio,
+    DpUploadFiles,
     FilterFlyout,
   },
 
   mixins: [sessionStorageMixin],
 
   props: {
+    hasPermissionAdjustPreamble: {
+      required: false,
+      type: Boolean,
+      default: false,
+    },
+
     isSingleStatementExport: {
       required: false,
       type: Boolean,
@@ -296,8 +369,16 @@ export default {
           exportPath: 'dplan_statement_xls_export',
           dataCy: 'exportModal:export:xlsx',
         },
+        csv_normal: {
+          label: 'export.csv',
+          hint: Translator.trans('export.csv.hint'),
+          exportPath: 'dplan_statement_csv_export',
+          dataCy: 'exportModal:export:csv',
+        },
       },
       fileName: '',
+      customHeaderText: '',
+      customHeaderMaxLength: 200,
       filter: {
         comparisonOperator: 'ARRAY_CONTAINS_VALUE',
         grouping: {
@@ -316,6 +397,7 @@ export default {
       selectedTags: [],
       selectedTagIds: [],
       singleStatementExportPath: 'dplan_segments_export', /** Used in the statements detail page */
+      uploadedHash: '',
     }
   },
 
@@ -345,10 +427,22 @@ export default {
         if (exampleFileName === this.fileName) {
           exampleFileName += '-837474df23'
         }
+
         exampleFileName += '.docx'
       }
 
       return exampleFileName
+    },
+
+    hasLayoutFileAndModifiedColumnHeaders () {
+      return this.isSingleStatementExport &&
+        hasPermission('feature_statement_via_template_export') &&
+        this.uploadedHash !== '' &&
+        Object.values(this.docxColumns).some(col => col.title)
+    },
+
+    templateStorageName () {
+      return `templateHash_${this.procedureId}`
     },
   },
 
@@ -377,11 +471,13 @@ export default {
 
       result.included?.forEach(resource => {
         const group = this.getGroupedOptions(resource, filter, result)
+
         if (group) {
           groupedOptions.push(group)
         }
 
         const item = this.getUngroupedOptions(resource, filter)
+
         if (item) {
           ungroupedOptions.push(item)
         }
@@ -423,6 +519,7 @@ export default {
         return result || null
       } catch (error) {
         console.error('Failed to fetch filter options', error)
+
         return null
       }
     },
@@ -500,6 +597,11 @@ export default {
     handleExport () {
       const columnTitles = {}
       const shouldConfirm = /^(docx|zip)_/.test(this.active)
+      const exportViaTemplate = this.isSingleStatementExport &&
+        this.uploadedHash !== '' &&
+        hasPermission('feature_statement_via_template_export')
+      const defaultRoute = this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath
+      const route = exportViaTemplate ? 'dplan_statement_via_template_export' : defaultRoute
 
       Object.keys(this.docxColumns).forEach(key => {
         const columnTitle = this.docxColumns[key].title
@@ -515,14 +617,16 @@ export default {
       })
 
       this.$emit('export', {
+        customHeaderText: this.customHeaderText || null,
         docxHeaders: ['docx_normal', 'zip_normal'].includes(this.active) ? columnTitles : null,
         fileNameTemplate: this.fileName || null,
         isCitizenDataCensored: this.isCitizenDataCensored,
         isInstitutionDataCensored: this.isInstitutionDataCensored,
         isObscured: this.isObscure,
-        route: this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath,
+        route,
         shouldConfirm,
         tagFilterIds: this.selectedTagIds,
+        uploadedDocxTemplate: exportViaTemplate ? this.uploadedHash : null,
       })
       this.closeModal()
     },
@@ -569,6 +673,7 @@ export default {
       // Load filter options only when no filters are active. If filters are active, skip loading and scroll to the flyout.
       if (currentQuery && currentQuery.length > 0) {
         this.scrollModalToBottom()
+
         return
       }
 
@@ -580,11 +685,13 @@ export default {
       })
 
       const result = await this.fetchFilterOptions(requestParams)
+
       if (!result) {
         return
       }
 
       const filterDefinition = this.findFilterDefinition(result, path)
+
       if (!filterDefinition) {
         return
       }
@@ -630,11 +737,13 @@ export default {
 
     resetExportModalState () {
       this.active = 'docx_normal'
+      this.customHeaderText = ''
       this.isCitizenDataCensored = false
       this.isInstitutionDataCensored = false
       this.isObscure = false
       this.selectedTagIds = []
       this.selectedTags = []
+      this.uploadedHash = ''
     },
 
     scrollModalToBottom () {
@@ -658,8 +767,14 @@ export default {
       Object.keys(this.docxColumns).forEach(key => {
         const storageKey = `exportModal:docxCol:${key}`
         const storedColumnTitle = this.getItemFromSessionStorage(storageKey)
+
         this.docxColumns[key].title = storedColumnTitle || null /** Setting the value to null will display the placeholder titles of the column */
       })
+
+      /** DpUploadFiles restores its file list from sessionStorage on reload; mirror that hash so the export still routes via template. */
+      const storedTemplate = this.getItemFromSessionStorage(this.templateStorageName)
+
+      this.uploadedHash = Array.isArray(storedTemplate) ? storedTemplate[storedTemplate.length - 1]?.hash ?? '' : ''
     },
 
     setRequestParams ({ additionalQueryParams, filter, path, currentQuery }) {
@@ -689,6 +804,7 @@ export default {
 
       if (!filterFlyout || !Array.isArray(filterFlyout.itemsSelected)) {
         this.selectedTags = []
+
         return
       }
 
@@ -715,6 +831,7 @@ export default {
     updateSelectedTags () {
       if (this.selectedTagIds.length === 0) {
         this.selectedTags = []
+
         return
       }
 

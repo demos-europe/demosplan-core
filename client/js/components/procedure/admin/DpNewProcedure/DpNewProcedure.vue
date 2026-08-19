@@ -359,6 +359,7 @@ export default {
     async setBlueprintData (payload) {
       // Do not copy mail from master blueprint otherwise fetch mail from selected blueprint
       const blueprintData = payload.value === this.masterBlueprintId ? this.emptyBlueprintData : await this.fetchBlueprintData(payload)
+
       this.description = blueprintData.description
 
       if (blueprintData.agencyMainEmailAddress !== '') {

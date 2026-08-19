@@ -32,6 +32,11 @@
       />
     </dp-slidebar>
 
+    <dp-confirm-dialog
+      ref="dissolveGroupConfirmDialog"
+      :message="Translator.trans('check.cluster.release')"
+    />
+
     <dp-sticky-element>
       <header class="border--bottom u-pv-0_5 flow-root">
         <div class="inline-flex space-inline-m">
@@ -46,22 +51,22 @@
             v-if="hasPermission('feature_segment_recommendation_edit')"
             class="btn-group"
           >
-            <button
-              class="btn btn--outline btn--primary"
-              :class="{'is-current': currentAction === 'addRecommendation'}"
+            <a
+              href="#recommendation"
+              class="btn btn--outline btn--primary p-2"
+              :class="{'is-current': currentAction === 'recommendation'}"
               data-cy="addRecommendation"
-              @click="currentAction = 'addRecommendation'"
             >
               {{ Translator.trans('segment.recommendation') }}
-            </button>
-            <button
-              class="btn btn--outline btn--primary"
-              :class="{'is-current': currentAction === 'editText'}"
+            </a>
+            <a
+              href="#details"
+              class="btn btn--outline btn--primary p-2"
+              :class="{'is-current': currentAction === 'details'}"
               data-cy="editText"
-              @click="currentAction = 'editText'"
             >
               {{ Translator.trans('details') }}
-            </button>
+            </a>
           </div>
         </div>
         <ul class="float-right space-inline-s flex items-center">
@@ -80,6 +85,7 @@
           </li>
           <li>
             <statement-export-modal
+              :procedure-id="procedure.id"
               data-cy="statementSegmentsList:export"
               is-single-statement-export
               @export="showHintAndDoExport"
@@ -148,6 +154,26 @@
               />
             </dp-flyout>
           </li>
+          <li v-if="isGroupMember">
+            <dp-button
+              :text="Translator.trans('cluster.element.release', { groupName })"
+              class="ml-2 h-fit"
+              color="warning"
+              data-cy="statementSegmentsList:detachFromGroup"
+              variant="subtle"
+              @click="detachFromGroup"
+            />
+          </li>
+          <li v-if="isCluster">
+            <dp-button
+              :text="Translator.trans('cluster.release')"
+              class="h-fit"
+              color="warning"
+              data-cy="statementSegmentsList:dissolveGroup"
+              variant="subtle"
+              @click="dissolveGroup"
+            />
+          </li>
         </ul>
       </header>
     </dp-sticky-element>
@@ -174,13 +200,13 @@
         @updated-voters="getStatement"
       />
       <segments-recommendations
-        v-if="currentAction === 'addRecommendation' && hasPermission('feature_segment_recommendation_edit')"
+        v-if="currentAction === 'recommendation' && hasPermission('feature_segment_recommendation_edit')"
         :current-user="currentUser"
         :procedure-id="procedure.id"
         :statement-id="statementId"
       />
       <statement-segments-edit
-        v-else-if="currentAction === 'editText'"
+        v-else-if="currentAction === 'details'"
         :current-user="currentUser"
         :editable="editable"
         :has-draft-segments="hasDraftSegments()"
@@ -203,6 +229,7 @@
 import {
   dpApi,
   DpButton,
+  DpConfirmDialog,
   DpFlyout,
   DpSlidebar,
   DpStickyElement,
@@ -212,6 +239,7 @@ import { buildDetailedStatementQuery } from '../Shared/utils/statementQueryBuild
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
 import lscache from 'lscache'
+import { redirectToStatementListWithGroupResolvedToast } from '../Shared/utils/redirectToStatementListWithGroupResolvedToast'
 import { sanitizeUrl } from '@braintree/sanitize-url'
 import SegmentCommentsList from './SegmentCommentsList'
 import SegmentLocationMap from './SegmentLocationMap'
@@ -229,6 +257,7 @@ export default {
   components: {
     DpButton,
     DpClaim,
+    DpConfirmDialog,
     DpFlyout,
     DpSlidebar,
     DpStickyElement,
@@ -337,7 +366,7 @@ export default {
 
   data () {
     return {
-      currentAction: 'addRecommendation',
+      currentAction: 'recommendation',
       isLoading: false,
       procedureMapSettings: {},
       returnLink: Routing.generate('dplan_segments_list', { procedureId: this.procedure.id }),
@@ -403,6 +432,7 @@ export default {
       if (this.statement === null) {
         return '...'
       }
+
       const originalPdfCount = this.originalAttachment.hash ? '1' : '-'
       const additionalAttachmentsCount = this.additionalAttachments.length === 0 ? '-' : this.additionalAttachments.length
 
@@ -445,8 +475,20 @@ export default {
       }
     },
 
+    // The group is identified by the head statement's externId (e.g. "GM7"), reachable via the headStatement relationship
+    groupName () {
+      return this.statement?.relationships?.headStatement?.data ?
+        this.statement.relationships.headStatement.get()?.attributes?.externId || '' :
+        ''
+    },
+
     hasSegments () {
       return Object.keys(this.segments).length > 0
+    },
+
+    // This statement is the group's head (the cluster statement itself), not one of its members
+    isCluster () {
+      return Boolean(this.statement?.attributes?.isCluster)
     },
 
     isCurrentUserAssigned () {
@@ -464,6 +506,11 @@ export default {
       }
 
       return !this.originalAttachment.hash && this.additionalAttachments.length === 0
+    },
+
+    // A statement is a group member when it points to a head statement
+    isGroupMember () {
+      return Boolean(this.statement?.relationships?.headStatement?.data)
     },
 
     navigationSource () {
@@ -506,7 +553,7 @@ export default {
   watch: {
     currentAction: {
       handler () {
-        this.showInfobox = this.currentAction === 'editText'
+        this.showInfobox = this.currentAction === 'details'
       },
       deep: false, // Set default for migrating purpose. To know this occurrence is checked
     },
@@ -553,7 +600,8 @@ export default {
 
         if (isAssignedToCurrentUser === false) {
           const isAssignedToOtherUser = this.statement.hasRelationship('assignee') && this.statement.relationships.assignee.data.id !== this.currentUser.id
-          if (isAssignedToOtherUser && window.dpconfirm(Translator.trans('warning.statement.needLock.generic')) === false) {
+
+          if (isAssignedToOtherUser && globalThis.dpconfirm(Translator.trans('warning.statement.needLock.generic')) === false) {
             return false
           }
         }
@@ -591,6 +639,7 @@ export default {
         .catch((err) => {
           // Restore statement in store in case request failed
           this.restoreStatementAction(this.statement.id)
+
           return err
         })
         .finally(() => {
@@ -598,23 +647,58 @@ export default {
         })
     },
 
-    fetchCustomFields () {
-      const payload = {
-        id: this.procedure.id,
-        fields: {
-          AdminProcedure: [
-            'segmentCustomFields',
-          ].join(),
-          CustomField: [
-            'name',
-            'description',
-            'options',
-          ].join(),
-        },
-        include: ['segmentCustomFields'].join(),
+    async detachFromGroup () {
+      const groupId = this.statement?.relationships?.headStatement?.data?.id
+
+      if (!groupId) {
+        return
       }
 
-      this.getAdminProcedureWithFields(payload)
+      try {
+        /*
+         * Detach this member from its group via the idempotent JSON:API relationship endpoint.
+         * Only the removed member is sent (delta); PATCH renames the group and no longer changes membership.
+         */
+        await dpApi.delete(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${groupId}/relationships/statements`, {}, {}, {
+          data: [{ type: 'Statement', id: this.statement.id }],
+        })
+        dplan.notify.notify('confirm', Translator.trans('confirm.statement.detach.cluster.element', {
+          statementId: this.statementExternId,
+          clusterId: this.groupName,
+        }))
+        // Refetch so the headStatement relationship clears and the button hides
+        this.getStatement()
+      } catch (error) {
+        console.error('Failed to remove statement from group:', error)
+        dplan.notify.notify('error', Translator.trans('error.statement.detach.cluster.element', {
+          statementId: this.statementExternId,
+        }))
+      }
+    },
+
+    async dissolveGroup () {
+      const isConfirmed = await this.$refs.dissolveGroupConfirmDialog.open()
+
+      if (!isConfirmed) {
+        return
+      }
+
+      try {
+        // No body needed: the operation is declared deserialize:false/output:false, backend responds 204.
+        await dpApi.delete(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${this.statement.id}`)
+
+        // This head detail page no longer exists once the group is dissolved — go back to the statement list.
+        redirectToStatementListWithGroupResolvedToast(this.procedure.id, this.statementExternId)
+      } catch (error) {
+        console.error('Failed to dissolve statement group:', error)
+        dplan.notify.notify('error', Translator.trans('error.api.generic'))
+      }
+    },
+
+    getActionFromQueryParams (queryParams) {
+      const action = queryParams.get('action')
+
+      return action?.split('?')[0] || null
     },
 
     getStatement () {
@@ -625,8 +709,27 @@ export default {
       return this.getStatementAction(params)
     },
 
+    handleHashChange () {
+      const hash = globalThis.location.hash.slice(1)
+
+      if (hash === 'recommendation' || hash === 'details') {
+        this.currentAction = hash
+      }
+    },
+
     hasDraftSegments () {
       return Boolean(this.statement?.attributes?.segmentDraftList?.data?.attributes?.segments?.length)
+    },
+
+
+    moveActionToHash (queryParams) {
+      queryParams.delete('action')
+
+      const search = queryParams.toString()
+      const searchPart = search ? `?${search}` : ''
+      const newUrl = `${globalThis.location.pathname}${searchPart}#${this.currentAction}`
+
+      globalThis.history.replaceState({}, '', newUrl)
     },
 
     removeNavigationSourceStorageEntry () {
@@ -642,18 +745,25 @@ export default {
       this.setContent({ prop: 'slidebar', val: { isOpen: false, showTab: '', segmentId: '' } })
     },
 
-    saveStatement (statement) {
-      this.synchronizeAssignee(statement)
-      this.synchronizeFullText(statement)
-      this.setStatement({ ...statement, id: statement.id })
+    saveStatement (changes) {
+      // If changes has an 'id', it's a full statement object (from StatementSegmentsEdit)
+      if (changes.id) {
+        this.saveStatementAction(changes.id)
+          .then(() => dplan.notify.notify('confirm', Translator.trans('confirm.saved')))
+          .catch(() => dplan.notify.error(Translator.trans('error.api.generic')))
 
-      this.saveStatementAction(statement.id)
-        .then(() => {
-          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
-        })
-        .catch(() => {
-          dplan.notify.error(Translator.trans('error.api.generic'))
-        })
+        return
+      }
+
+      // Partial update path — create new objects to avoid mutating store/initial references in place
+      const current = this.statement
+      const mergedAttributes = { ...current.attributes, ...changes.attributes }
+      const mergedRelationships = { ...current.relationships, ...changes.relationships }
+
+      this.setStatement({ ...current, attributes: mergedAttributes, relationships: mergedRelationships, id: current.id })
+      this.saveStatementAction(current.id)
+        .then(() => dplan.notify.notify('confirm', Translator.trans('confirm.saved')))
+        .catch(() => dplan.notify.error(Translator.trans('error.api.generic')))
     },
 
     setDataToUpdate (claimingStatement = false) {
@@ -673,15 +783,25 @@ export default {
     },
 
     setInitialAction () {
-      const queryParams = new URLSearchParams(window.location.search)
-      let action = queryParams.get('action')
+      const hash = globalThis.location.hash.slice(1)
 
-      if (action?.includes('?')) {
-        action = action.split('?')[0]
+      if (hash === 'recommendation' || hash === 'details') {
+        this.currentAction = hash
+
+        return
       }
 
-      const defaultAction = hasPermission('feature_segment_recommendation_edit') ? 'addRecommendation' : 'editText'
-      this.currentAction = action || defaultAction
+      const queryParams = new URLSearchParams(globalThis.location.search)
+      const actionFromParams = this.getActionFromQueryParams(queryParams)
+
+      const defaultAction = hasPermission('feature_segment_recommendation_edit') ? 'recommendation' : 'details'
+      const selectedAction = actionFromParams || defaultAction
+
+      this.currentAction = selectedAction
+
+      if (actionFromParams) {
+        this.moveActionToHash(queryParams)
+      }
     },
 
     setReturnLink () {
@@ -701,10 +821,14 @@ export default {
       }
     },
 
-    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored }) {
+    showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored, uploadedDocxTemplate }) {
       const parameters = {
         procedureId: this.procedure.id,
         statementId: this.statementId,
+      }
+
+      if (uploadedDocxTemplate) {
+        parameters.uploadedDocxTemplate = uploadedDocxTemplate
       }
 
       if (docxHeaders) {
@@ -723,37 +847,10 @@ export default {
       isInstitutionDataCensored && (parameters.isInstitutionDataCensored = isInstitutionDataCensored)
       isCitizenDataCensored && (parameters.isCitizenDataCensored = isCitizenDataCensored)
 
-      if (window.dpconfirm(Translator.trans('export.statements.hint'))) {
+      const hintKey = uploadedDocxTemplate ? 'export.statements.hint.via_template' : 'export.statements.hint'
+
+      if (window.dpconfirm(Translator.trans(hintKey))) {
         window.location.href = Routing.generate(route, parameters)
-      }
-    },
-
-    /**
-     * If `this.statement` has changed its assignee (which does not propagate to the
-     * localStatement in StatementMeta), it must be synced back before applying the
-     * StatementMeta data to `this.statement`.
-     * @param {object} statement - The local statement of StatementMeta.vue.
-     */
-    synchronizeAssignee (statement) {
-      const oldAssignee = JSON.stringify(statement.relationships.assignee.data)
-      const newAssignee = JSON.stringify(this.statement.relationships.assignee.data)
-
-      if (oldAssignee !== newAssignee) {
-        statement.relationships.assignee.data = this.statement.relationships.assignee.data
-      }
-    },
-
-    /**
-     * This prevents the user from unintentionally deleting an unsaved text by synchronizing the local
-     * statement in StatementMeta.vue (which also emits the local statement when saving only metadata)
-     * with the statements from store. The editor automatically updates the state of statements in the
-     * store when registering an input. This only occurs when a statement has not been segmented already.
-     *
-     * @param {object} statement - The local statement of StatementMeta.vue.
-     */
-    synchronizeFullText (statement) {
-      if (statement.attributes.fullText !== this.statement.attributes.fullText && dpconfirm(Translator.trans('statement.save.text'))) {
-        statement.attributes.fullText = this.statement.attributes.fullText
       }
     },
 
@@ -766,7 +863,7 @@ export default {
     },
 
     toggleInfobox () {
-      this.currentAction = 'editText'
+      this.currentAction = 'details'
       this.$refs.metadataFlyout.isExpanded = false
     },
 
@@ -783,6 +880,7 @@ export default {
           },
         },
       }
+
       return dpApi.patch(Routing.generate('api_resource_update', { resourceType: 'Statement', resourceId: this.statement.id }), {}, payload)
         .then(() => {
           const dataToUpdate = this.setDataToUpdate()
@@ -811,16 +909,21 @@ export default {
 
     this.setReturnLink()
 
-    if (hasPermission('field_segments_custom_fields')) {
-      this.fetchCustomFields()
-    }
     this.listAssignableUser({
       include: 'orga',
       fields: {
-        Orga: 'name',
+        AssignableUser: [
+          'firstname',
+          'lastname',
+          'orga',
+        ].join(),
+        orga: 'name',
       },
     })
     this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedure.id, statementId: this.statementId } })
+
+    globalThis.addEventListener('hashchange', this.handleHashChange)
+
     this.fetchProcedureMapSettings({ procedureId: this.procedure.id })
       .then(response => {
         if (response?.attributes) {
@@ -834,6 +937,10 @@ export default {
           .filter(layer => layer.attributes.isEnabled && layer.attributes.hasDefaultVisibility)
           .map(layer => layer.attributes)
       })
+  },
+
+  beforeUnmount () {
+    globalThis.removeEventListener('hashchange', this.handleHashChange)
   },
 }
 </script>

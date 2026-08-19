@@ -49,10 +49,12 @@ export default {
       if (hasOwnProp(state.fragments, statementId) && hasOwnProp(state.fragments[statementId], fragment.id)) {
         return
       }
+
       // If we don't have any fragments for the statement, we have to create an Object for the statement right now
       if (hasOwnProp(state.fragments, statementId) === false) {
         state.fragments[statementId] = { fragments: [] }
       }
+
       state.fragments[statementId].fragments.push(fragment)
     },
 
@@ -72,21 +74,25 @@ export default {
       const statementObj = JSON.parse(JSON.stringify(state.fragments[ids.statementId]))
       const statementFragments = statementObj.fragments
       const fragmentToDelete = statementFragments.findIndex(fragment => fragment.id === ids.fragmentId)
+
       statementFragments.splice(fragmentToDelete, 1)
       statementObj.fragments = statementFragments
 
       if (hasOwnProp(state.fragments[ids.statementId], 'filteredFragments')) {
         const filteredFragments = statementObj.filteredFragments
         const filteredFragmentToDelete = filteredFragments.findIndex(fragment => fragment.id === ids.fragmentId)
+
         if (filteredFragmentToDelete !== -1) {
           filteredFragments.splice(filteredFragmentToDelete, 1)
         } else {
           return undefined
         }
+
         statementObj.filteredFragments = filteredFragments
       }
 
       const fragments = { ...state.fragments }
+
       fragments[ids.statementId] = statementObj
       state.fragments = fragments
 
@@ -96,10 +102,12 @@ export default {
       }
 
       const selectedEntries = JSON.parse(sessionStorage.getItem('selectedFragments')) || {}
+
       if (selectedEntries && hasOwnProp(selectedEntries, state.procedureId) && hasOwnProp(selectedEntries[state.procedureId], ids.fragmentId)) {
         delete selectedEntries[state.procedureId][ids.fragmentId]
         sessionStorage.setItem('selectedFragments', JSON.stringify(selectedEntries))
       }
+
       return Promise.resolve(true)
     },
 
@@ -117,6 +125,7 @@ export default {
           }
         }
       }
+
       state.fragments[statementId] = fragments
     },
 
@@ -142,6 +151,7 @@ export default {
      */
     setProcedureId (state, procedureId) {
       state.procedureId = procedureId
+
       return Promise.resolve(true)
     },
 
@@ -167,6 +177,7 @@ export default {
         state.selectedFragments = { ...state.selectedFragments }
 
         const selectedEntries = JSON.parse(sessionStorage.getItem('selectedFragments')) || {}
+
         selectedEntries[state.procedureId][data.fragmentId].assignee = data.assignee
         sessionStorage.setItem('selectedFragments', JSON.stringify(selectedEntries))
       }
@@ -176,11 +187,13 @@ export default {
        */
       const fragmentId = data.fragmentId
       const statementId = data.statementId
+
       delete data.fragmentId
       delete data.statementId
 
       const fragmentInStore = state.fragments[statementId].fragments.find(frag => frag.id === fragmentId)
       const fragmentIndex = state.fragments[statementId].fragments.findIndex(frag => frag.id === fragmentId)
+
       state.fragments[statementId].fragments[fragmentIndex] = { ...fragmentInStore, ...data }
       state.fragments = { ...state.fragments }
     },
@@ -193,6 +206,7 @@ export default {
      */
     addFragmentToSelectionAction ({ state, commit }, fragment) {
       const selectedFragments = JSON.parse(sessionStorage.getItem('selectedFragments')) || {}
+
       if (hasOwnProp(selectedFragments, state.procedureId) === false) {
         selectedFragments[state.procedureId] = {}
       }
@@ -201,6 +215,7 @@ export default {
 
       sessionStorage.setItem('selectedFragments', JSON.stringify(selectedFragments))
       commit('addFragmentToSelection', fragment)
+
       return Promise.resolve(true)
     },
 
@@ -222,6 +237,7 @@ export default {
 
       // We have to use params.append because params.set does not work in IE11
       const params = new FormData()
+
       params.append('delete', 'delete')
 
       return dpApi.post(url, params)
@@ -229,6 +245,7 @@ export default {
           if (data.code === 200 && data.success === true) {
             commit('deleteFragment', { statementId, fragmentId })
             dplan.notify.notify('confirm', Translator.trans('confirm.fragment.deleted'))
+
             return Promise.resolve(true)
           } else {
             dplan.notify.notify('error', Translator.trans('error.delete'))
@@ -265,6 +282,7 @@ export default {
       }
 
       commit('removeFragmentFromSelection', fragmentId)
+
       return Promise.resolve(true)
     },
 
@@ -275,7 +293,9 @@ export default {
       for (const itemId in state.selectedFragments) {
         commit('removeFragmentFromSelection', itemId)
       }
+
       const sessionStore = JSON.parse(sessionStorage.getItem('selectedFragments'))
+
       if (sessionStore) {
         delete sessionStore[state.procedureId]
         sessionStorage.setItem('selectedFragments', JSON.stringify(sessionStore))
@@ -310,14 +330,17 @@ export default {
       })
         .then(({ data }) => {
           let updateObject = {}
+
           if (assigneeId === '' || assigneeId == null) {
             updateObject = { fragmentId, statementId, assignee: { id: '', name: '', orgaName: '', uId: '' } }
             commit('updateFragment', { ...updateObject, lastClaimedUserId: ignoreLastClaimed ? null : lastClaimed })
           } else {
             const assignee = { id: data.data.id, uId: data.data.id, name: data.data.attributes.name, orgaName: data.data.attributes.orgaName }
+
             updateObject = { fragmentId, statementId, assignee }
             commit('updateFragment', { ...updateObject, lastClaimedUserId: ignoreLastClaimed ? null : lastClaimed })
           }
+
           return updateObject
         })
     },
@@ -328,11 +351,13 @@ export default {
      */
     setProcedureIdAction ({ commit }, procedureId) {
       commit('setProcedureId', procedureId)
+
       return Promise.resolve(true)
     },
 
     setSelectedFragmentsAction ({ state, dispatch }) {
       const selectedFrags = JSON.parse(sessionStorage.getItem('selectedFragments')) || {}
+
       // We dont have to do it if there are no items for this procedure
       if (hasOwnProp(selectedFrags, state.procedureId)) {
         for (const itemId in selectedFrags[state.procedureId]) {
@@ -347,11 +372,14 @@ export default {
             if (initFragment && hasOwnProp(initFragment, 'assigneeId')) {
               item.assignee = { id: initFragment.assigneeId ? initFragment.assigneeId : '' }
             }
+
             dispatch('addFragmentToSelectionAction', item)
           }
         }
       }
+
       sessionStorage.setItem('selectedFragments', JSON.stringify(selectedFrags))
+
       return Promise.resolve(true)
     },
 
@@ -366,18 +394,22 @@ export default {
       }
 
       const payload = JSON.parse(JSON.stringify(data))
+
       // Because BE need paragraphId and not paragraphParentId (same for documents) we have to change it here
       if (hasOwnProp(payload, 'paragraphParentId')) {
         payload.paragraphId = payload.paragraphParentId
         delete payload.paragraphParentId
       }
+
       if (hasOwnProp(payload, 'documentParentId')) {
         payload.documentId = payload.documentParentId
         delete payload.documentParentId
       }
+
       delete payload.id
 
       const params = {}
+
       if (data.notifyReviewer === true) {
         params.notify_reviewer = true
       }
@@ -426,9 +458,11 @@ export default {
           if (hasOwnProp(data, 'elementId')) {
             data.elementTitle = ''
           }
+
           if (hasOwnProp(data, 'paragraphParentId')) {
             data.paragraphParentTitle = ''
           }
+
           if (hasOwnProp(data, 'documentParentId')) {
             data.documentParentTitle = ''
           }
@@ -464,6 +498,7 @@ export default {
             dataToUpdate.paragraphParentId = ''
             dataToUpdate.paragraphParentTitle = ''
           }
+
           // The same with files
           if (dataToUpdate.elementId && data.documentParentId === '') {
             dataToUpdate.documentParentId = ''
@@ -523,6 +558,7 @@ export default {
         .catch(e => {
           console.log('Something happened', e)
           dplan.notify.error(Translator.trans('error.api.generic'))
+
           return e
         })
     },

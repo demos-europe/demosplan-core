@@ -205,6 +205,7 @@ const LayersStore = {
      */
     updateEntity (state, entity) {
       const index = state.apiData.included.findIndex(elem => elem.id === entity.id)
+
       state.apiData.included[index] = entity
     },
 
@@ -226,6 +227,7 @@ const LayersStore = {
 
         return
       }
+
       // From some legacy states, the oldCategoryId and newCategoryId can be 'noIdGiven'
       if (data.oldCategoryId === 'noIdGiven') {
         data.oldCategoryId = null
@@ -306,6 +308,7 @@ const LayersStore = {
 
       // Set new order positions for all child elements
       let layerIndex = null
+
       childElements.forEach((el, idx) => {
         layerIndex = state.apiData.included.findIndex(elem => elem.id === el.id)
         state.apiData.included[layerIndex].attributes[data.orderType] = (data.parentOrder * 100) + idx + 1
@@ -339,6 +342,7 @@ const LayersStore = {
 
       elementsWithVisibilityGroups.forEach((element) => {
         const groupId = element.attributes.visibilityGroupId
+
         if (hasOwnProp(state.visibilityGroups, groupId) === false) {
           state.visibilityGroups[groupId] = state.visibilityGroups.length
         }
@@ -364,6 +368,7 @@ const LayersStore = {
       }
 
       const newMinimap = state.apiData.included.find(elem => elem.id === id)
+
       newMinimap.attributes.isMinimap = true
     },
 
@@ -438,6 +443,7 @@ const LayersStore = {
               defaultVisibility: layer.attributes.hasDefaultVisibility,
               url: legendUrl,
             }
+
             commit('setLegend', legend)
           }
         })
@@ -540,6 +546,7 @@ const LayersStore = {
         })
         .catch(err => {
           console.error('Error: save layer', err)
+          throw err
         })
         .finally(() => {
           commit('setActiveLayerId', '')
@@ -758,15 +765,20 @@ const LayersStore = {
      * @returns {Object} Complete element object or empty object if not found
      */
     element: state => element => {
-      if (typeof state.apiData.included === 'undefined') return {}
+      if (state.apiData.included === undefined) {
+        return {}
+      }
+
       if (element.type === 'ContextualHelp') {
         const helpText = state.apiData.included.filter(current => current.attributes.key === ('gislayer.' + element.id))
+
         if (helpText.length <= 0) {
           return { id: 'no-contextual-help', type: element.type, attributes: { text: '' } }
         } else {
           return helpText[0]
         }
       }
+
       return state.apiData.included.filter(current => {
         return current.id === element.id && current.type === element.type
       })[0]
@@ -780,7 +792,9 @@ const LayersStore = {
      * @returns {Array} Array of GisLayer objects sorted by mapOrder
      */
     gisLayerList: state => type => {
-      if (typeof state.apiData.included === 'undefined') return []
+      if (state.apiData.included === undefined) {
+        return []
+      }
 
       return state.apiData.included
         .filter(current => {
@@ -803,7 +817,10 @@ const LayersStore = {
      * @returns {Array} Array of matching elements
      */
     elementsListByAttribute: state => attribute => {
-      if (typeof state.apiData.included === 'undefined') return []
+      if (state.apiData.included === undefined) {
+        return []
+      }
+
       return state.apiData.included.filter(current => {
         return current.attributes[attribute.type] === attribute.value
       })
@@ -890,6 +907,7 @@ const LayersStore = {
       if (hasOwnProp(state.apiData, 'data')) {
         return state.apiData.data[0].id
       }
+
       return ''
     },
 
@@ -899,15 +917,20 @@ const LayersStore = {
      * @returns {Array} Array of legend objects sorted by treeOrder
      */
     elementListForLegendSidebar: state => {
-      if (typeof state.apiData.included === 'undefined') return []
+      if (state.apiData.included === undefined) {
+        return []
+      }
+
       const legends = state.legends
       const includes = state.apiData.included
 
       const elementList = legends.filter(current => {
         return (includes.find(el => el.id === current.layerId) !== 'undefined')
       })
+
       /* Sort elements by treeOrder before returning the list */
       elementList.sort((a, b) => (a.treeOrder).toString().padEnd(21, '0') - (b.treeOrder).toString().padEnd(21, '0'))
+
       return elementList
     },
 
@@ -919,7 +942,9 @@ const LayersStore = {
      * @returns {number} Number of elements in the group
      */
     visibilityGroupSize: state => visibilityGroupId => {
-      if (!visibilityGroupId || typeof state.apiData.included === 'undefined') return 0
+      if (!visibilityGroupId || state.apiData.included === undefined) {
+        return 0
+      }
 
       return state.apiData.included.filter(current => {
         return current.attributes.visibilityGroupId === visibilityGroupId
@@ -936,7 +961,10 @@ const LayersStore = {
      * @returns {*} Attribute value or empty string if not found
      */
     attributeForElement: state => data => {
-      if (typeof state.apiData.included === 'undefined' || data.id === '') return ''
+      if (state.apiData.included === undefined || data.id === '') {
+        return ''
+      }
+
       return state.apiData.included.filter(current => {
         return current.id === data.id
       })[0].attributes[data.attribute]
@@ -948,7 +976,10 @@ const LayersStore = {
      * @returns {Object} Minimap layer object or default object if none found
      */
     minimapLayer: state => {
-      if (typeof state.apiData.included === 'undefined') { return {} }
+      if (state.apiData.included === undefined) {
+        return {}
+      }
+
       const minimap = state.apiData.included.find(elem => elem.attributes.isMinimap === true)
 
       if (minimap) {

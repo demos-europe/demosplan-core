@@ -12,12 +12,15 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Unit\Controller;
 
+use DateTime;
 use demosplan\DemosPlanCoreBundle\Controller\User\OrganisationSelectionController;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\OAuth\PendingRequestCacheService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentOrganisationService;
 use demosplan\DemosPlanCoreBundle\Logic\ViewRenderer;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
+use demosplan\DemosPlanCoreBundle\ValueObject\PendingRequestData;
 use Doctrine\Common\Collections\ArrayCollection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -45,6 +48,7 @@ class OrganisationSelectionRefererTest extends TestCase
 {
     private OrganisationSelectionController $sut;
     private MockObject&CurrentOrganisationService $currentOrganisationService;
+    private MockObject&PendingRequestCacheService $pendingRequestCacheService;
     private MockObject&User $user;
     private MockObject&Orga $orga;
     private Session $session;
@@ -54,7 +58,8 @@ class OrganisationSelectionRefererTest extends TestCase
         parent::setUp();
 
         $this->currentOrganisationService = $this->createMock(CurrentOrganisationService::class);
-        $this->sut = new OrganisationSelectionController($this->currentOrganisationService);
+        $this->pendingRequestCacheService = $this->createMock(PendingRequestCacheService::class);
+        $this->sut = new OrganisationSelectionController($this->currentOrganisationService, $this->pendingRequestCacheService);
 
         // Set up a multi-org user so selectOrganisation() renders (doesn't auto-redirect)
         $this->orga = $this->createMock(Orga::class);
@@ -66,6 +71,7 @@ class OrganisationSelectionRefererTest extends TestCase
         $organisations = new ArrayCollection([$this->orga, $orgaB]);
 
         $this->user = $this->createMock(User::class);
+        $this->user->method('getId')->willReturn('test-user-id');
         $this->user->method('getOrganisations')->willReturn($organisations);
         $this->user->method('getCurrentOrganisation')->willReturn($this->orga);
 
@@ -146,8 +152,6 @@ class OrganisationSelectionRefererTest extends TestCase
         $this->sut->selectOrganisation(
             $this->createSelectRequest('https://example.com/procedure/list')
         );
-
-        $this->currentOrganisationService->method('setCurrentOrganisation');
 
         $response = $this->sut->switchOrganisation($this->createSwitchRequest());
 
@@ -245,12 +249,115 @@ class OrganisationSelectionRefererTest extends TestCase
     public function testSwitchFallsBackToHomeWhenNoReturnUrl(): void
     {
         // No selectOrganisation call — session is empty
-        $this->currentOrganisationService->method('setCurrentOrganisation');
-
         $response = $this->sut->switchOrganisation($this->createSwitchRequest());
 
         self::assertInstanceOf(RedirectResponse::class, $response);
         // Falls back to the generated route for core_home_loggedin
         self::assertSame('/core_home_loggedin', $response->getTargetUrl());
+    }
+
+    // ===== Cache-based pending request flow =====
+
+    private function createPendingRequestData(string $pageUrl, ?string $orgId): PendingRequestData
+    {
+        $data = new PendingRequestData();
+        $data->fill([
+            'pageUrl'                => $pageUrl,
+            'selectedOrganisationId' => $orgId,
+            'requestUrl'             => null,
+            'method'                 => null,
+            'body'                   => null,
+            'contentType'            => null,
+            'hasFiles'               => false,
+            'filesMetadata'          => null,
+            'timestamp'              => new DateTime(),
+        ]);
+
+        return $data;
+    }
+
+    private function createSwitchRequestForOrg(string $organisationId): Request
+    {
+        $request = Request::create('/organisation/switch-responsibility', 'POST', [
+            '_token'          => 'valid',
+            'organisation_id' => $organisationId,
+        ]);
+        $request->setSession($this->session);
+
+        return $request;
+    }
+
+    public function testSwitchRedirectsToPendingPageWhenSameOrgChosen(): void
+    {
+        // Arrange: cache has pending data for orga-1, user chooses orga-1
+        $pendingOrgId = 'orga-1';
+        $pendingPageUrl = '/verfahren/123/import';
+        $chosenOrgId = 'orga-1';
+
+        $pendingRequest = $this->createPendingRequestData($pendingPageUrl, $pendingOrgId);
+        $this->pendingRequestCacheService->method('retrieve')->willReturn($pendingRequest);
+
+        // Act
+        $response = $this->sut->switchOrganisation($this->createSwitchRequestForOrg($chosenOrgId));
+
+        // Assert: redirects to the pending page because same org was chosen
+        self::assertSame($pendingPageUrl, $response->getTargetUrl());
+    }
+
+    public function testSwitchIgnoresPendingPageWhenDifferentOrgChosen(): void
+    {
+        // Arrange: cache has pending data for orga-2, user chooses orga-1
+        $pendingOrgId = 'orga-2';
+        $pendingPageUrl = '/verfahren/123/import';
+        $chosenOrgId = 'orga-1';
+
+        $pendingRequest = $this->createPendingRequestData($pendingPageUrl, $pendingOrgId);
+        $this->pendingRequestCacheService->method('retrieve')->willReturn($pendingRequest);
+
+        // Act
+        $response = $this->sut->switchOrganisation($this->createSwitchRequestForOrg($chosenOrgId));
+
+        // Assert: redirects to home because a different org was chosen
+        self::assertSame('/core_home_loggedin', $response->getTargetUrl());
+    }
+
+    public function testSwitchDeletesCacheRegardlessOfOrgChoice(): void
+    {
+        // Arrange: cache has pending data for a different org than chosen
+        $pendingRequest = $this->createPendingRequestData('/verfahren/123/import', 'orga-2');
+        $this->pendingRequestCacheService->method('retrieve')->willReturn($pendingRequest);
+
+        // Assert: delete is called exactly once, even though orgs don't match
+        $this->pendingRequestCacheService->expects(self::once())->method('delete');
+
+        // Act
+        $this->sut->switchOrganisation($this->createSwitchRequestForOrg('orga-1'));
+    }
+
+    public function testSwitchFallsBackToHomeWhenNoCacheEntry(): void
+    {
+        // Arrange: no pending data in cache
+        $this->pendingRequestCacheService->method('retrieve')->willReturn(null);
+
+        // Act
+        $response = $this->sut->switchOrganisation($this->createSwitchRequestForOrg('orga-1'));
+
+        // Assert: no pending data, no return URL — falls back to home
+        self::assertSame('/core_home_loggedin', $response->getTargetUrl());
+    }
+
+    public function testSelectOrganisationSkipsRefererStorageWhenCacheEntryExists(): void
+    {
+        // Arrange: cache has pending data (re-auth flow active)
+        $pendingRequest = $this->createPendingRequestData('/verfahren/123/import', 'orga-1');
+        $this->pendingRequestCacheService->method('retrieve')->willReturn($pendingRequest);
+
+        // Act: visit org selection page with a referer
+        $this->sut->selectOrganisation(
+            $this->createSelectRequest('https://example.com/some/page')
+        );
+
+        // Assert: referer is NOT stored — would be the Keycloak callback URL during re-auth
+        self::assertNull($this->session->get('organisation_selection_return_url'));
     }
 }

@@ -19,5 +19,5 @@ ij_visual_guides = 90
 [Makefile]
 indent_style = tab
 
-[*.{js,json,vue}]
+[*.{js,ts,json,vue}]
 indent_size = 2

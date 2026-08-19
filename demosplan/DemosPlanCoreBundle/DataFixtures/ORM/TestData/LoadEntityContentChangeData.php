@@ -53,7 +53,7 @@ class LoadEntityContentChangeData extends TestFixture implements DependentFixtur
         $manager->flush();
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             LoadStatementData::class,

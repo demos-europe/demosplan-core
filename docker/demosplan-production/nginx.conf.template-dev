@@ -45,7 +45,6 @@ server
 
     if (-d /srv/www/public) {
         set $project_server_root /srv/www/public;
-        set $is_mono_repo true;
     }
 
     root $project_server_root;
@@ -56,6 +55,13 @@ server
     index app_dev.php;
 
     default_type text/html;
+
+    # Custom error pages to avoid leaking nginx version information
+    error_page 502 503 504 /custom_error.html;
+    location = /custom_error.html {
+        internal;
+        return 503 '<!DOCTYPE html><html><head><title>Service Temporarily Unavailable</title></head><body><h1>503 Service Temporarily Unavailable</h1></body></html>';
+    }
 
     #https://www.vagrantup.com/docs/synced-folders/virtualbox.html
     sendfile off;
@@ -92,6 +98,24 @@ server
             expires 1y;
             add_header Cache-Control "public, immutable";
         }
+    }
+
+    # php-fpm health endpoints (pool metrics + simple ping). Restricted to loopback.
+    location = /fpm-status {
+        allow 127.0.0.1;
+        deny all;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $fastcgi_script_name;
+        fastcgi_param SCRIPT_NAME     $fastcgi_script_name;
+        fastcgi_pass $PHP_FPM_BETEILIGUNG_SERVICE:9000;
+    }
+    location = /fpm-ping {
+        allow 127.0.0.1;
+        deny all;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $fastcgi_script_name;
+        fastcgi_param SCRIPT_NAME     $fastcgi_script_name;
+        fastcgi_pass $PHP_FPM_BETEILIGUNG_SERVICE:9000;
     }
 
     # Try all locations and relay to app_dev.php as a fallback.

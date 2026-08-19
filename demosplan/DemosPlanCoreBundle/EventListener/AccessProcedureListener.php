@@ -36,7 +36,8 @@ class AccessProcedureListener
 
         // file uploads itself should not be checked for procedure permissions
         // permissions are checked during access
-        if ($controllerEvent->getController()[0] instanceof TusController) {
+        // API Platform uses MainController (object), not an array like standard Symfony controllers
+        if (is_array($controllerEvent->getController()) && $controllerEvent->getController()[0] instanceof TusController) {
             return;
         }
 

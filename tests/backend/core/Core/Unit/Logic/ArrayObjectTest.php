@@ -11,6 +11,7 @@
 namespace Tests\Core\Core\Unit\Logic;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Logic\ArrayObject;
 use Tests\Base\UnitTestCase;
 
@@ -22,7 +23,7 @@ use Tests\Base\UnitTestCase;
 class ArrayObjectTest extends UnitTestCase
 {
     /**
-     * @var \demosplan\DemosPlanCoreBundle\Logic\ArrayObject
+     * @var ArrayObject
      */
     protected $sut;
 
@@ -32,7 +33,8 @@ class ArrayObjectTest extends UnitTestCase
 
         // Use Procedure entity to test magic array access permissions
         // as it extends \demosplan\DemosPlanCoreBundle\Logic\ArrayObject
-        $this->sut = new Procedure();
+        $def = new ProcedurePhaseDefinition();
+        $this->sut = new Procedure($def, $def);
     }
 
     public function testArrayAccess()

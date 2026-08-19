@@ -230,7 +230,7 @@ export default {
       const url = Routing.generate('dplan_statement_segments_list', {
         statementId: rowData.id,
         procedureId: this.procedureId,
-        action: 'editText',
+        action: 'details',
       })
 
       return `${url}${submittersHash}`
@@ -279,8 +279,10 @@ export default {
         if (isSubmittedByCitizen) {
           return organisationName
         }
+
         return departmentName ? organisationName + ', ' + departmentName : organisationName
       }
+
       return departmentName || '-'
     },
 
@@ -288,6 +290,7 @@ export default {
       if (postalCode) {
         return city ? postalCode + ' ' + city : postalCode
       }
+
       return city || '-'
     },
 
@@ -295,6 +298,7 @@ export default {
       if (street) {
         return houseNumber ? street + ' ' + houseNumber : street
       }
+
       return '-'
     },
 

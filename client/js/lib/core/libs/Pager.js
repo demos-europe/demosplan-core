@@ -7,6 +7,8 @@
  * All rights reserved
  */
 
+import $ from 'jquery'
+
 /**
  *  DPPager
  *  Helper script to submit pager select form on change
@@ -17,9 +19,11 @@
  *
  * @deprecated use DpPager.vue instead
  */
+
 export default function Pager () {
   // Auto submit closest form on select
   const pagerSelectEl = $('[data-pager-select]')
+
   pagerSelectEl.on('change', function () {
     //  Set all instances of r_limit to val of triggering r_limit instance
     if ($(this).attr('name') === 'r_limit') {
@@ -34,6 +38,7 @@ export default function Pager () {
    *  see http://www.a11ymatters.com/pattern/pagination/
    */
   const pagerNavEl = $('[data-pager-nav]')
+
   pagerNavEl.find('.c-pager__page-item').each(function (index, item) {
     item = $(item)
     if (item.hasClass('current')) {

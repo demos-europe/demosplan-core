@@ -18,6 +18,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\CustomField\CustomFieldElasticaQueryBuilder;
+use demosplan\DemosPlanCoreBundle\Logic\CustomField\CustomFieldFilterResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
@@ -37,6 +39,7 @@ use Exception;
 use Pagerfanta\Elastica\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Traversable;
 
@@ -118,6 +121,12 @@ class ElasticsearchResultCreator
         private readonly DepartmentRepository $departmentRepository,
         private readonly ProfilerService $profilerService,
         private readonly LoggerInterface $logger,
+        private readonly CustomFieldFilterResolver $customFieldFilterResolver,
+        private readonly CustomFieldElasticaQueryBuilder $customFieldElasticaQueryBuilder,
+        #[Autowire(param: 'elasticsearch_max_result_window')]
+        private readonly int $elasticsearchMaxResultWindow,
+        #[Autowire(param: 'elasticsearch_search_after_batch_size')]
+        private readonly int $searchAfterBatchSize,
     ) {
     }
 
@@ -135,6 +144,21 @@ class ElasticsearchResultCreator
      * @param int                     $aggregationsMinDocumentCount
      * @param bool                    $addAllAggregations
      * @param list<GlobalAggregation> $customAggregations
+     * @param array<string, string[]> $customFieldsToCount          fieldId => option IDs. When non-empty,
+     *                                                              adds one `customFieldOptionCounts_{fieldId}`
+     *                                                              Filter aggregation per entry (each with its
+     *                                                              own facet-exclusion filter), and skips
+     *                                                              applying CF filters to the main query, since
+     *                                                              each field's exclusion state now lives in its
+     *                                                              own aggregation instead. Used by
+     *                                                              CustomFieldFilterResponseBuilder::countForFields();
+     *                                                              callers building the real statement list must
+     *                                                              leave this empty.
+     * @param array<string, string[]> $activeCfFiltersForCount      fieldId => selected option IDs, for every
+     *                                                              currently active custom-field filter — used
+     *                                                              to build each $customFieldsToCount entry's
+     *                                                              exclusion filter. Ignored when
+     *                                                              $customFieldsToCount is empty.
      */
     public function getElasticsearchResult(
         $userFilters,
@@ -148,6 +172,8 @@ class ElasticsearchResultCreator
         $aggregationsMinDocumentCount = 1,
         $addAllAggregations = true,
         array $customAggregations = [],
+        array $customFieldsToCount = [],
+        array $activeCfFiltersForCount = [],
     ): ElasticsearchResult {
         $elasticsearchResultStatement = new ElasticsearchResult();
         try {
@@ -157,6 +183,18 @@ class ElasticsearchResultCreator
                 $aggregationsMinDocumentCount
             );
             [$boolMustFilter, $boolMustNotFilter] = $this->getBasicFilters($procedureId, $userFilters);
+
+            if ([] === $customFieldsToCount) {
+                // Normal path: apply active CF filters to the main query, like every other filter.
+                [$customFieldClauses, $userFilters] = $this->customFieldFilterResolver->resolveCustomFieldFilter($userFilters);
+                array_push($boolMustFilter, ...$customFieldClauses);
+            }
+            // Counting path (CustomFieldFilterResponseBuilder::countForFields()): deliberately skipped. Each field being
+            // counted needs its own facet-exclusion state, which can only be expressed per
+            // aggregation (see CustomFieldElasticaQueryBuilder::buildFacetedOptionCountsAggregations()) —
+            // a single shared top-level filter can't hold N different exclusion states at once.
+            // $userFilters is expected to already be free of `customField_*` keys on this path.
+
             $userFilters = $this->getRenamedUserFilters($userFilters);
             $fragmentFilters = $this->getFragmentFilters($userFilters);
             $userFragmentFilters = $this->statementService->mapRequestFiltersToESFragmentFilters($userFilters);
@@ -300,6 +338,10 @@ class ElasticsearchResultCreator
                 $query->addAggregation($customAggregation);
             }
 
+            foreach ($this->customFieldElasticaQueryBuilder->buildFacetedOptionCountsAggregations($customFieldsToCount, $activeCfFiltersForCount) as $aggregation) {
+                $query->addAggregation($aggregation);
+            }
+
             /****************************************** EINREICHUNG **************************************************/
 
             // Öffentlichkeit/Institution - publicStatement - publicStatement
@@ -328,9 +370,9 @@ class ElasticsearchResultCreator
                 );
                 $query = $this->elasticSearchService->addEsMissingAggregation($query, 'dName.raw');
             }
-            // Verfahrensschritt - phase - phase
-            if ($addAllAggregations || \array_key_exists('phase', $userFilters)) {
-                $query = $this->elasticSearchService->addEsAggregation($query, 'phase');
+            // Verfahrensschritt - phaseDefinitionId
+            if ($addAllAggregations || \array_key_exists('phaseDefinitionId', $userFilters)) {
+                $query = $this->elasticSearchService->addEsAggregation($query, 'phaseDefinitionId');
             }
             // Verschobene Stellungnahmen in dieses Verfahren - movedFromProcedureId - movedFromProcedureId
             if ($addAllAggregations || \array_key_exists('movedFromProcedureId', $userFilters)) {
@@ -677,16 +719,25 @@ class ElasticsearchResultCreator
             }
 
             try {
-                /** @var array|Traversable $resultSet */
-                $resultSet = $paginator->getCurrentPageResults();
-                $result = $resultSet->getResponse()->getData();
-                $elasticsearchResultStatement->setHits($result['hits']);
+                if ((int) $limit > $this->elasticsearchMaxResultWindow) {
+                    // "Fetch everything" path (exports, no-pager lists): a single from+size query
+                    // would exceed index.max_result_window, so page through all hits via search_after.
+                    $batch = $this->elasticSearchService->fetchAllHitsViaSearchAfter($search, $query, $this->searchAfterBatchSize);
+                    $result = $batch['result'];
+                    $elasticsearchResultStatement->setHits($result['hits']);
+                    $esResultAggregations = $batch['aggregations'];
+                } else {
+                    /** @var array|Traversable $resultSet */
+                    $resultSet = $paginator->getCurrentPageResults();
+                    $result = $resultSet->getResponse()->getData();
+                    $elasticsearchResultStatement->setHits($result['hits']);
+                    $esResultAggregations = $resultSet->getAggregations();
+                }
             } catch (ClientException $e) {
                 $this->logger->error('Elasticsearch probably hit a timeout: ', [$e]);
                 throw $e;
             }
 
-            $esResultAggregations = $resultSet->getAggregations();
             $totalHits = $result['hits']['total'];
             if (is_array($totalHits) && array_key_exists('value', $totalHits) && 0 === $totalHits['value']) {
                 $esResultAggregations = $this->addFilterToAggregationsWhenCausedResultIsEmpty(
@@ -749,11 +800,11 @@ class ElasticsearchResultCreator
                     $processedAggregation
                 );
             }
-            // Verfahrensschritt - phase - phase
-            if ($addAllAggregations || \array_key_exists('phase', $userFilters)) {
+            // Verfahrensschritt - phaseDefinitionId
+            if ($addAllAggregations || \array_key_exists('phaseDefinitionId', $userFilters)) {
                 $processedAggregation = $this->elasticSearchService->addAggregationResultToArray(
-                    'phase',
-                    'phase',
+                    'phaseDefinitionId',
+                    'phaseDefinitionId',
                     $esResultAggregations,
                     $processedAggregation
                 );
@@ -1321,6 +1372,15 @@ class ElasticsearchResultCreator
 
             /************************************* ADD AGGREGATIONS TO RESULT (END) **********************************/
 
+            foreach ($esResultAggregations as $key => $value) {
+                if (str_starts_with($key, 'customFieldOptionCounts_')) {
+                    // passed through verbatim (raw ES buckets, nested under 'byOption') —
+                    // consumed directly by CustomFieldFilterResponseBuilder::countForFields(), not
+                    // further processed here.
+                    $processedAggregation[$key] = $value;
+                }
+            }
+
             // add modified Aggregations to Result
             $elasticsearchResultStatement->setAggregations($processedAggregation);
             $elasticsearchResultStatement->setPager($paginator);
@@ -1358,7 +1418,7 @@ class ElasticsearchResultCreator
         $this->profilerService->profilerStart(ProfilerService::ELASTICSEARCH_PROFILER);
         //
         // if a Searchterm is set use it
-        if (\is_string($search) && 0 < \strlen($search)) {
+        if (\is_string($search) && '' !== $search) {
             $usedSearchfields = [];
             if ([] === $searchFields) {
                 $usedSearchfields = \array_values(self::AVAILABLE_SEARCH_FIELDS);
@@ -1583,9 +1643,12 @@ class ElasticsearchResultCreator
                 'oName.sort'         => $sortDirection,
                 'dName.sort'         => $sortDirection,
                 'uName.sort'         => $sortDirection,
-                'cluster.oName.sort' => $sortDirection,
-                'cluster.dName.sort' => $sortDirection,
-                'cluster.uName.sort' => $sortDirection,
+                // The cluster fields are mapped as a nested type, so Elasticsearch requires
+                // an explicit nested context to sort on them. Without it the whole search is
+                // rejected with HTTP 400 and the assessment table shows no statements.
+                'cluster.oName.sort' => ['order' => $sortDirection, 'nested' => ['path' => 'cluster']],
+                'cluster.dName.sort' => ['order' => $sortDirection, 'nested' => ['path' => 'cluster']],
+                'cluster.uName.sort' => ['order' => $sortDirection, 'nested' => ['path' => 'cluster']],
             ];
         }
 

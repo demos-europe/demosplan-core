@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
+use demosplan\DemosPlanCoreBundle\Exception\SettingNotFoundException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\NonUniqueResultException;
@@ -123,13 +124,13 @@ class SettingRepository extends CoreRepository implements ArrayInterface, Object
     /**
      * Set the properties of a Setting.
      *
-     * @param setting|string $setting    ID|Object to be filled
+     * @param Setting|string $setting    ID|Object to be filled
      * @param array          $properties - Holds the values, which should be set as properties of the object
      */
     public function setProperties($setting, $properties)
     {
         if (!$setting instanceof Setting) {
-            $setting = $this->_em->getReference(Setting::class, $setting);
+            $setting = $this->getEntityManager()->getReference(Setting::class, $setting);
         }
 
         if (array_key_exists('content', $properties)) {
@@ -250,6 +251,12 @@ class SettingRepository extends CoreRepository implements ArrayInterface, Object
     public function delete($entityId)
     {
         $toDelete = $this->find($entityId);
+        if (null === $toDelete) {
+            // ORM v3 raises TypeError (extends Error, not Exception) from
+            // remove(null), which bypasses the service-layer catch (Exception)
+            // that callers and tests expect to see.
+            throw SettingNotFoundException::createFromId($entityId);
+        }
         $this->getEntityManager()->remove($toDelete);
         $this->getEntityManager()->flush();
 

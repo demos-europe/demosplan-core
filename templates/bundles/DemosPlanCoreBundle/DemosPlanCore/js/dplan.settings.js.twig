@@ -11,8 +11,11 @@ window.dplan = {
     settings                : {
         debug               : Boolean({{ app.debug|default(0) }}),
         maxUploadSize       : {{ maxUploadSize|default(0) }},
+        publicCSSClassPrefix: "{{ omitPublicCSSClassPrefix|default ? '' : publicCSSClassPrefix|default }}",
+        spellcheck          : {
+            enabled: Boolean({{ hasPermission('feature_spellcheck')|default(0) }})
+        },
         useOpenGeoDb        : Boolean({{ useOpenGeoDb|default(0) }}),
-        publicCSSClassPrefix: "{{ omitPublicCSSClassPrefix|default ? '' : publicCSSClassPrefix|default }}"
     },
 
     paths                   : {

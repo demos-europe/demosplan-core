@@ -59,22 +59,20 @@
               "$id": "#/properties/data/properties/attributes/properties/textualReference",
               "type": "string",
               "title": "The Textualreference Schema",
-              "description": "Text the segments are based on. Segments will be defined based on this text, by means of the list of charStart and charEnd pairs."
+              "description": "HTML containing <segment-mark data-segment-id='uuid'> elements that define segment boundaries and text content."
             },
             "segments": {
               "$id": "#/properties/data/properties/attributes/properties/segments",
               "type": "array",
               "title": "The Segments Schema",
-              "description": "Array with the Segments Drafts",
+              "description": "Array with segment metadata (tags, assignee, place). Text is extracted from textualReference.",
               "items": {
                 "$id": "#/properties/data/properties/attributes/properties/segments/items",
                 "type": "object",
                 "title": "The Items Schema",
-                "description": "Segment Draft.",
+                "description": "Segment metadata.",
                 "required": [
                   "id",
-                  "charStart",
-                  "charEnd",
                   "tags"
                 ],
                 "properties": {
@@ -84,19 +82,7 @@
                     "minLength": 36,
                     "maxLength": 36,
                     "title": "The Id Schema",
-                    "description": "An explanation about the purpose of this instance."
-                  },
-                  "charStart": {
-                    "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/charStart",
-                    "type": "integer",
-                    "title": "The Charstart Schema",
-                    "description": "Tells the position in textualReference where the segment starts"
-                  },
-                  "charEnd": {
-                    "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/charEnd",
-                    "type": "integer",
-                    "title": "The Charend Schema",
-                    "description": "Tells the position in textualReference where the segment ends"
+                    "description": "Segment ID matching the data-segment-id attribute in textualReference."
                   },
                   "assigneeId": {
                     "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/assignee",

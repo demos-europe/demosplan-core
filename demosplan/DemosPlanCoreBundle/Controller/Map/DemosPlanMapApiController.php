@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -24,7 +26,7 @@ class DemosPlanMapApiController extends APIController
      * @throws Exception
      */
     #[DplanPermissions('area_admin')]
-    #[Route(path: '/api/1.0/map/options/admin/{procedureId}', methods: ['GET'], name: 'dplan_api_map_options_admin', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/map/options/admin/{procedureId}', name: 'dplan_api_map_options_admin', options: ['expose' => true], methods: ['GET'])]
     public function optionsAdmin(MapService $mapService, string $procedureId): APIResponse
     {
         // @improve T14122
@@ -37,7 +39,7 @@ class DemosPlanMapApiController extends APIController
      * @throws Exception
      */
     #[DplanPermissions('area_demosplan')]
-    #[Route(path: '/api/1.0/map/options/public/{procedureId}', methods: ['GET'], name: 'dplan_api_map_options_public', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/map/options/public/{procedureId}', name: 'dplan_api_map_options_public', options: ['expose' => true], methods: ['GET'])]
     public function optionsPublic(MapService $mapService, string $procedureId): APIResponse
     {
         // @improve T14122

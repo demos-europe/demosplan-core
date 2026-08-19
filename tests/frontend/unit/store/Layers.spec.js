@@ -12,18 +12,19 @@ import { createStore } from 'vuex'
 import { dpApi } from '@demos-europe/demosplan-ui'
 import Layers from '@DpJs/store/map/Layers'
 import { layersApiResponse } from '../fixtures/layers_api_response'
+import { vi } from 'vitest'
 
 let StubStore
 
 global.Translator = {
-  trans: jest.fn(),
+  trans: vi.fn(),
 }
 
 global.dplan = {}
 
 // Mock Routing (following the pattern from VueConfigLocal.js)
 global.Routing = {
-  generate: jest.fn((route, params) => `/api/${route}/${params?.resourceType || ''}/${params?.resourceId || ''}`),
+  generate: vi.fn((route, params) => `/api/${route}/${params?.resourceType || ''}/${params?.resourceId || ''}`),
 }
 
 // Non-instance tests
@@ -82,12 +83,12 @@ describe('Layers Actions', () => {
     StubStore.commit('Layers/saveOriginalState', layersApiResponse)
 
     // Reset all mocks
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('buildLegends', () => {
     it('should build legend URLs for enabled overlay layers', async () => {
-      const commitSpy = jest.spyOn(StubStore, 'commit')
+      const commitSpy = vi.spyOn(StubStore, 'commit')
 
       await StubStore.dispatch('Layers/buildLegends')
 
@@ -115,8 +116,9 @@ describe('Layers Actions', () => {
     it('should handle layers with multiple layer parameters', async () => {
       // Modify mock data to have a layer with multiple layers
       const overlayLayer = StubStore.state.Layers.apiData.included.find(item => item.id === 'overlay-layer-1')
+
       overlayLayer.attributes.layers = 'layer1,layer2,layer3'
-      const commitSpy = jest.spyOn(StubStore, 'commit')
+      const commitSpy = vi.spyOn(StubStore, 'commit')
 
       await StubStore.dispatch('Layers/buildLegends')
 
@@ -127,14 +129,16 @@ describe('Layers Actions', () => {
 
   describe('saveAll', () => {
     it('should save all layers and categories', async () => {
-      const dispatchSpy = jest.spyOn(StubStore, 'dispatch')
-      jest.spyOn(dpApi, 'patch').mockResolvedValue({ data: {} })
-      jest.spyOn(dpApi, 'get').mockResolvedValue(layersApiResponse)
+      const dispatchSpy = vi.spyOn(StubStore, 'dispatch')
+
+      vi.spyOn(dpApi, 'patch').mockResolvedValue({ data: {} })
+      vi.spyOn(dpApi, 'get').mockResolvedValue(layersApiResponse)
 
       await StubStore.dispatch('Layers/saveAll')
 
       // Should dispatch save for each included element
       const includedCount = layersApiResponse.included.length
+
       /*
        * Each save triggers a 'get' dispatch, and each 'get' triggers a 'buildLegends' dispatch
        * So we have: saveAll + (save + get + buildLegends) * includedCount
@@ -146,8 +150,9 @@ describe('Layers Actions', () => {
   describe('save', () => {
     it('should save a GisLayer resource', async () => {
       const layerResource = layersApiResponse.included.find(item => item.type === 'GisLayer')
-      jest.spyOn(dpApi, 'patch').mockResolvedValue({ data: {} })
-      jest.spyOn(dpApi, 'get').mockResolvedValue(layersApiResponse)
+
+      vi.spyOn(dpApi, 'patch').mockResolvedValue({ data: {} })
+      vi.spyOn(dpApi, 'get').mockResolvedValue(layersApiResponse)
 
       await StubStore.dispatch('Layers/save', layerResource)
 
@@ -165,8 +170,9 @@ describe('Layers Actions', () => {
 
     it('should save a GisLayerCategory resource', async () => {
       const categoryResource = layersApiResponse.included.find(item => item.type === 'GisLayerCategory')
-      jest.spyOn(dpApi, 'patch').mockResolvedValue({ data: {} })
-      jest.spyOn(dpApi, 'get').mockResolvedValue(layersApiResponse)
+
+      vi.spyOn(dpApi, 'patch').mockResolvedValue({ data: {} })
+      vi.spyOn(dpApi, 'get').mockResolvedValue(layersApiResponse)
 
       await StubStore.dispatch('Layers/save', categoryResource)
 
@@ -188,8 +194,8 @@ describe('Layers Actions', () => {
       // Set a procedureId, which is required for the 'get' action called in the 'save' action
       StubStore.commit('Layers/setProcedureId', 'test-procedure-id')
 
-      jest.spyOn(dpApi, 'patch').mockResolvedValue({ data: {} })
-      jest.spyOn(dpApi, 'get').mockResolvedValue(layersApiResponse)
+      vi.spyOn(dpApi, 'patch').mockResolvedValue({ data: {} })
+      vi.spyOn(dpApi, 'get').mockResolvedValue(layersApiResponse)
 
       await StubStore.dispatch('Layers/save', layerResource)
 
@@ -263,7 +269,7 @@ describe('Layers Actions', () => {
       // First set the layer as visible
       StubStore.commit('Layers/setLayerState', { id: 'base-layer-1', key: 'isVisible', value: true })
 
-      const commitSpy = jest.spyOn(StubStore, 'commit')
+      const commitSpy = vi.spyOn(StubStore, 'commit')
 
       await StubStore.dispatch('Layers/toggleBaselayer', {
         id: 'base-layer-1',
@@ -346,7 +352,7 @@ describe('Layers Actions', () => {
     })
 
     it('should handle visibility groups', async () => {
-      const dispatchSpy = jest.spyOn(StubStore, 'dispatch')
+      const dispatchSpy = vi.spyOn(StubStore, 'dispatch')
 
       await StubStore.dispatch('Layers/updateLayerVisibility', {
         id: 'overlay-layer-1',
@@ -376,7 +382,7 @@ describe('Layers Actions', () => {
 
   describe('toggleCategoryAlternatively', () => {
     it('should toggle category alternatively', async () => {
-      const dispatchSpy = jest.spyOn(StubStore, 'dispatch')
+      const dispatchSpy = vi.spyOn(StubStore, 'dispatch')
       const layer = layersApiResponse.included.find(item => item.type === 'GisLayer')
 
       await StubStore.dispatch('Layers/toggleCategoryAlternatively', layer)

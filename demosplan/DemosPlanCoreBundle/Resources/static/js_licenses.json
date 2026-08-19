@@ -35,6 +35,11 @@
         "website": "https://github.com/babel/babel"
     },
     {
+        "package": "@babel/preset-typescript",
+        "license": "MIT",
+        "website": "https://github.com/babel/babel"
+    },
+    {
         "package": "@babel/runtime",
         "license": "MIT",
         "website": "https://github.com/babel/babel"
@@ -73,11 +78,6 @@
         "package": "@fullhuman/postcss-purgecss",
         "license": "MIT",
         "website": "https://github.com/FullHuman/purgecss"
-    },
-    {
-        "package": "@jest/globals",
-        "license": "MIT",
-        "website": "https://github.com/jestjs/jest"
     },
     {
         "package": "@masterportal/masterportalapi",
@@ -120,6 +120,26 @@
         "website": "https://github.com/transloadit/uppy"
     },
     {
+        "package": "@vitejs/plugin-vue",
+        "license": "MIT",
+        "website": "https://github.com/vitejs/vite-plugin-vue"
+    },
+    {
+        "package": "@vitest/coverage-v8",
+        "license": "MIT",
+        "website": "https://github.com/vitest-dev/vitest"
+    },
+    {
+        "package": "@vitest/eslint-plugin",
+        "license": "MIT",
+        "website": "https://github.com/vitest-dev/eslint-plugin-vitest"
+    },
+    {
+        "package": "@vitest/ui",
+        "license": "MIT",
+        "website": "https://github.com/vitest-dev/vitest"
+    },
+    {
         "package": "@vue/compat",
         "license": "MIT",
         "website": "https://github.com/vuejs/core"
@@ -135,11 +155,6 @@
         "website": "https://github.com/vuejs/test-utils"
     },
     {
-        "package": "@vue/vue3-jest",
-        "license": "MIT",
-        "website": "https://github.com/vuejs/vue-jest"
-    },
-    {
         "package": "a11y-datepicker",
         "license": "MIT",
         "website": "https://github.com/mathislucka/a11y-datepicker"
@@ -148,11 +163,6 @@
         "package": "assets-webpack-plugin",
         "license": "MIT",
         "website": "https://github.com/ztoben/assets-webpack-plugin"
-    },
-    {
-        "package": "babel-jest",
-        "license": "MIT",
-        "website": "https://github.com/jestjs/jest"
     },
     {
         "package": "babel-loader",
@@ -192,7 +202,7 @@
     {
         "package": "copy-webpack-plugin",
         "license": "MIT",
-        "website": "https://github.com/webpack-contrib/copy-webpack-plugin"
+        "website": "https://github.com/webpack/copy-webpack-plugin"
     },
     {
         "package": "core-js",
@@ -215,14 +225,54 @@
         "website": "https://github.com/webpack/css-minimizer-webpack-plugin"
     },
     {
-        "package": "d3",
+        "package": "d3-array",
         "license": "ISC",
-        "website": "https://github.com/d3/d3"
+        "website": "https://github.com/d3/d3-array"
+    },
+    {
+        "package": "d3-axis",
+        "license": "ISC",
+        "website": "https://github.com/d3/d3-axis"
+    },
+    {
+        "package": "d3-format",
+        "license": "ISC",
+        "website": "https://github.com/d3/d3-format"
+    },
+    {
+        "package": "d3-interpolate",
+        "license": "ISC",
+        "website": "https://github.com/d3/d3-interpolate"
     },
     {
         "package": "d3-sankey-diagram",
         "license": "MIT",
         "website": "https://github.com/ricklupton/d3-sankey-diagram"
+    },
+    {
+        "package": "d3-scale",
+        "license": "ISC",
+        "website": "https://github.com/d3/d3-scale"
+    },
+    {
+        "package": "d3-selection",
+        "license": "ISC",
+        "website": "https://github.com/d3/d3-selection"
+    },
+    {
+        "package": "d3-shape",
+        "license": "ISC",
+        "website": "https://github.com/d3/d3-shape"
+    },
+    {
+        "package": "d3-time-format",
+        "license": "ISC",
+        "website": "https://github.com/d3/d3-time-format"
+    },
+    {
+        "package": "d3-transition",
+        "license": "ISC",
+        "website": "https://github.com/d3/d3-transition"
     },
     {
         "package": "dayjs",
@@ -253,11 +303,6 @@
         "package": "eslint-plugin-import",
         "license": "MIT",
         "website": "https://github.com/import-js/eslint-plugin-import"
-    },
-    {
-        "package": "eslint-plugin-jest",
-        "license": "MIT",
-        "website": "https://github.com/jest-community/eslint-plugin-jest"
     },
     {
         "package": "eslint-plugin-jquery",
@@ -295,6 +340,11 @@
         "website": "https://github.com/isaacs/node-glob"
     },
     {
+        "package": "globals",
+        "license": "MIT",
+        "website": "https://github.com/sindresorhus/globals"
+    },
+    {
         "package": "intl-messageformat",
         "license": "BSD-3-Clause",
         "website": "https://github.com/formatjs/formatjs"
@@ -303,21 +353,6 @@
         "package": "ismobilejs",
         "license": "MIT",
         "website": "https://github.com/kaimallea/isMobile"
-    },
-    {
-        "package": "jest",
-        "license": "MIT",
-        "website": "https://github.com/jestjs/jest"
-    },
-    {
-        "package": "jest-environment-jsdom",
-        "license": "MIT",
-        "website": "https://github.com/jestjs/jest"
-    },
-    {
-        "package": "jest-junit",
-        "license": "Apache-2.0",
-        "website": "https://github.com/jest-community/jest-junit"
     },
     {
         "package": "jquery",
@@ -348,11 +383,6 @@
         "package": "leaflet.markercluster",
         "license": "MIT",
         "website": "https://github.com/Leaflet/Leaflet.markercluster"
-    },
-    {
-        "package": "license-checker",
-        "license": "BSD-3-Clause",
-        "website": "https://github.com/davglass/license-checker"
     },
     {
         "package": "lscache",
@@ -392,7 +422,7 @@
     {
         "package": "postcss-loader",
         "license": "MIT",
-        "website": "https://github.com/webpack-contrib/postcss-loader"
+        "website": "https://github.com/webpack/postcss-loader"
     },
     {
         "package": "postcss-prefix-selector",
@@ -467,7 +497,7 @@
     {
         "package": "terser-webpack-plugin",
         "license": "MIT",
-        "website": "https://github.com/webpack-contrib/terser-webpack-plugin"
+        "website": "https://github.com/webpack/minimizer-webpack-plugin"
     },
     {
         "package": "timers-browserify",
@@ -480,6 +510,11 @@
         "website": "https://github.com/atomiks/tippyjs"
     },
     {
+        "package": "typescript",
+        "license": "Apache-2.0",
+        "website": "https://github.com/microsoft/TypeScript"
+    },
+    {
         "package": "typescript-eslint",
         "license": "MIT",
         "website": "https://github.com/typescript-eslint/typescript-eslint"
@@ -488,6 +523,16 @@
         "package": "uuid",
         "license": "MIT",
         "website": "https://github.com/uuidjs/uuid"
+    },
+    {
+        "package": "vite",
+        "license": "MIT",
+        "website": "https://github.com/vitejs/vite"
+    },
+    {
+        "package": "vitest",
+        "license": "MIT",
+        "website": "https://github.com/vitest-dev/vitest"
     },
     {
         "package": "vue",
@@ -510,9 +555,9 @@
         "website": "https://github.com/rigor789/vue-scrollto"
     },
     {
-        "package": "vue-sliding-pagination",
+        "package": "vue-tsc",
         "license": "MIT",
-        "website": "https://github.com/eFrane/vue-sliding-pagination"
+        "website": "https://github.com/vuejs/language-tools"
     },
     {
         "package": "vue2-leaflet",

@@ -273,6 +273,7 @@ export default {
           sendEmailCC: this.emailsCC,
           emailAttachments: formattedAttachments,
         }
+
         dpRpc('statement.email.sender', params, this.procedure.id)
           .then(() => {
             this.resetEmailData()

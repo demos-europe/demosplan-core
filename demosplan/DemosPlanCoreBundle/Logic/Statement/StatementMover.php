@@ -327,14 +327,12 @@ class StatementMover
     {
         $placeholderStatement = clone $statementToMove;
 
-        // remove related Entitycollections
-        $placeholderStatement->setFragments([]);
-        $placeholderStatement->setVotes([]);
-        $placeholderStatement->setTags([]);
-        $placeholderStatement->setCounties([]);
-        $placeholderStatement->setMunicipalities([]);
-        $placeholderStatement->setPriorityAreas([]);
-        $placeholderStatement->setFiles([]);
+        // Reset collections via direct assignment instead of per-element setters.
+        // Placeholder is a fresh clone not present in any inverse collection,
+        // so the previous setCounties/setMunicipalities/setPriorityAreas calls
+        // hydrated huge mappedBy collections (e.g. County::$statements) for no
+        // data-side effect.
+        $placeholderStatement->resetCollectionsForPlaceholder();
         $placeholderStatement->setInternId(null);
         $placeholderStatement->setMovedStatement($statementToMove);
         $placeholderStatement->setExternId($statementToMove->getExternId()); // maybe Moved %externId%

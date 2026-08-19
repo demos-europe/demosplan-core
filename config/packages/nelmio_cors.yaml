@@ -1,0 +1,22 @@
+nelmio_cors:
+    defaults:
+        origin_regex: true
+        allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
+        allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE']
+        allow_headers: ['Content-Type', 'Authorization']
+        expose_headers: ['Link']
+        max_age: 3600
+    paths:
+        # The tus resumable-upload endpoint sets its own CORS headers (see TusCors
+        # middleware + tus-php defaults). Without this dedicated rule the global '^/'
+        # policy below overwrites Access-Control-Expose-Headers with just ['Link'],
+        # hiding Upload-Offset from the browser so uploads fail with
+        # "tus: invalid or missing offset value". Wildcards are avoided because the
+        # uploader sends credentials, which forbids '*' for allow-headers/origin.
+        '^/_tus':
+            allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
+            allow_methods: ['GET', 'POST', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS']
+            allow_headers: ['Origin', 'X-Requested-With', 'Content-Type', 'Content-Length', 'Authorization', 'Upload-Length', 'Upload-Offset', 'Upload-Key', 'Upload-Checksum', 'Upload-Metadata', 'Tus-Version', 'Tus-Resumable', 'x-demosplan-file-hash', 'x-demosplan-file-id', 'x-demosplan-procedure-id']
+            expose_headers: ['Location', 'Upload-Offset', 'Upload-Length', 'Upload-Metadata', 'Upload-Expires', 'Upload-Concat', 'Upload-Defer-Length', 'Tus-Version', 'Tus-Resumable', 'Tus-Extension', 'Tus-Max-Size', 'x-demosplan-file-hash', 'x-demosplan-file-id']
+            max_age: 3600
+        '^/': null

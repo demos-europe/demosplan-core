@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, it, jest } from '@jest/globals'
 import DpNewStatement from '../../../client/js/components/assessmenttable/DpNewStatement'
 import { shallowMount } from '@vue/test-utils'
+import { vi } from 'vitest'
 import Vuex from 'vuex'
 
 describe('DpNewStatement', () => {
@@ -9,7 +9,7 @@ describe('DpNewStatement', () => {
   let mockApplyBaseData
 
   beforeEach(() => {
-    mockApplyBaseData = jest.fn(async () => {})
+    mockApplyBaseData = vi.fn(async () => {})
 
     const assessmentTable = {
       namespaced: true,
@@ -56,16 +56,17 @@ describe('DpNewStatement', () => {
       },
       props: {
         procedureId: '123',
-        currentExternalPhase: 'participation',
-        currentInternalPhase: 'evaluation',
+        currentExternalPhase: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+        currentInternalPhase: 'f9e8d7c6-b5a4-3210-fedc-ba0987654321',
       },
     })
   })
 
   it('adds counties from data and sorts them', () => {
-    const sortSelectedSpy = jest.spyOn(wrapper.vm, 'sortSelected')
+    const sortSelectedSpy = vi.spyOn(wrapper.vm, 'sortSelected')
 
     const data = { counties: ['2', '1'] }
+
     wrapper.vm.addLocationPrompt(data)
 
     expect(wrapper.vm.values.counties).toHaveLength(2)
@@ -77,6 +78,7 @@ describe('DpNewStatement', () => {
 
   it('resets counties when no county IDs are provided', () => {
     const data = { counties: [] }
+
     wrapper.vm.addLocationPrompt(data)
 
     expect(wrapper.vm.values.counties).toEqual([])

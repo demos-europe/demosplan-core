@@ -7,7 +7,8 @@
  * All rights reserved
  */
 
-import * as d3 from 'd3'
+import { arc, pie } from 'd3-shape'
+import { scaleOrdinal } from 'd3-scale'
 import { select } from 'd3-selection'
 
 export default class DonutChart {
@@ -42,7 +43,7 @@ export default class DonutChart {
     const width = 150
     const height = 140
     const radius = Math.min(width, height) / 2
-    const color = d3.scaleOrdinal()
+    const color = scaleOrdinal()
       .range(this.color)
 
     const svg = select(this.target)
@@ -53,29 +54,31 @@ export default class DonutChart {
       .append('g')
       .attr('transform', 'translate(' + (width / 2) + ',' + (height / 2) + ')')
 
-    const arc = d3.arc()
+    const arcGenerator = arc()
       .innerRadius(radius - 19)
       .outerRadius(radius - 1)
 
-    const pie = d3.pie()
+    const pieGenerator = pie()
       .value((d) => d.count)
       .sort(null)
 
     // eslint-disable-next-line no-unused-vars
     const path = svg.selectAll('path')
-      .data(pie(data))
+      .data(pieGenerator(data))
       .enter()
       .append('path')
-      .attr('d', arc)
+      .attr('d', arcGenerator)
       .attr('fill', (d, i) => {
         color(d.data.label)
+
         return this.color
       })
       .attr('transform', 'translate(0, 0)')
 
     const percentage = data[0].percentage / 100
+
     svg.append('path')
-      .attr('d', d3.arc()
+      .attr('d', arc()
         .endAngle(Math.PI * 2)
         .startAngle(percentage * Math.PI * 2)
         .innerRadius(radius - 20)
@@ -88,6 +91,7 @@ export default class DonutChart {
     const legendSpacing = 7
 
     const chart = select(this.target)
+
     chart.append('div')
       .data(data)
       .text(d => d.label + ' (' + d.count + ')')
@@ -102,6 +106,7 @@ export default class DonutChart {
         const offset = height * color.domain().length / 2
         const horizontal = -2 * legendRectSize - 11
         const vertical = i * height - offset + 2
+
         return 'translate(' + horizontal + ',' + vertical + ')'
       })
 
@@ -109,6 +114,7 @@ export default class DonutChart {
       .data(data)
       .attr('x', d => {
         const percL = Math.round(d.percentage).toString().length
+
         return percL === 3 ? 10 : percL === 2 ? 15 : 20
       })
       .attr('y', 15)

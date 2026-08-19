@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
+use PhpOffice\PhpSpreadsheet\Cell\Cell;
+use PhpOffice\PhpSpreadsheet\Cell\StringValueBinder;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
@@ -116,6 +118,13 @@ class SimpleSpreadsheetService
                 $formattedData[$key]['recommendation'] = htmlspecialchars_decode((string) $dataSet['recommendation']);
             }
         }
+
+        // Force every cell to TYPE_STRING so PhpSpreadsheet's default value binder does not
+        // interpret citizen-written content as a formula (leading '=') or rewrite numeric/date
+        // looking strings. Prevents export crashes like "Formula Error: Unexpected operator '%'"
+        // on segment text such as '=15%' or '=>...' and preserves leading-zero phone numbers,
+        // German date strings etc. as written.
+        Cell::setValueBinder(new StringValueBinder());
 
         $worksheet->fromArray($formattedData, null, 'A2');
         $phpExcel->setActiveSheetIndex($worksheetIndex);

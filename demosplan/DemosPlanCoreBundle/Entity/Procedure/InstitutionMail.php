@@ -13,63 +13,58 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\InstitutionMailInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Repository\InstitutionMailRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
-/**
- * @ORM\Table(name="institution_mail")
- *
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\InstitutionMailRepository")
- */
+#[ORM\Table(name: 'institution_mail')]
+#[ORM\Entity(repositoryClass: InstitutionMailRepository::class)]
 class InstitutionMail extends CoreEntity implements UuidEntityInterface, InstitutionMailInterface
 {
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="_tm_id", type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: '_tm_id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var Procedure
-     *
-     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure")
-     *
-     * @ORM\JoinColumn(name="_p_id", referencedColumnName="_p_id", nullable=false, onDelete="CASCADE")
      */
+    #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Procedure::class)]
     protected $procedure;
 
     /**
      * @var Orga
-     *
-     * @ORM\ManyToOne(targetEntity="\demosplan\DemosPlanCoreBundle\Entity\User\Orga")
-     *
-     * @ORM\JoinColumn(name="_o_id", referencedColumnName="_o_id", nullable=false, onDelete="cascade")
      */
+    #[ORM\JoinColumn(name: '_o_id', referencedColumnName: '_o_id', nullable: false, onDelete: 'cascade')]
+    #[ORM\ManyToOne(targetEntity: Orga::class)]
     protected $organisation;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="_p_phase", type="string", length=50)
+     * @deprecated Will be removed once all consumers are migrated to phaseDefinition.
+     *             Kept on the entity to avoid data loss; value is synced from phaseDefinition->getName().
      */
+    #[ORM\Column(name: '_p_phase', type: 'string', length: 255)]
     protected $procedurePhase;
+
+    #[ORM\ManyToOne(targetEntity: ProcedurePhaseDefinition::class)]
+    #[ORM\JoinColumn(name: 'phase_definition_id', referencedColumnName: 'id', nullable: false, onDelete: 'RESTRICT')]
+    protected ProcedurePhaseDefinition $phaseDefinition;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
-     *
-     * @ORM\Column(name="_tm_created_date", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: '_tm_created_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createdDate;
 
     public function getId(): ?string
@@ -134,26 +129,6 @@ class InstitutionMail extends CoreEntity implements UuidEntityInterface, Institu
     }
 
     /**
-     * @return string
-     */
-    public function getProcedurePhase()
-    {
-        return $this->procedurePhase;
-    }
-
-    /**
-     * @param string $procedurePhase
-     *
-     * @return InstitutionMail
-     */
-    public function setProcedurePhase($procedurePhase)
-    {
-        $this->procedurePhase = $procedurePhase;
-
-        return $this;
-    }
-
-    /**
      * @return DateTime
      */
     public function getCreatedDate()
@@ -169,6 +144,20 @@ class InstitutionMail extends CoreEntity implements UuidEntityInterface, Institu
     public function setCreatedDate($createdDate)
     {
         $this->createdDate = $createdDate;
+
+        return $this;
+    }
+
+    public function getPhaseDefinition(): ProcedurePhaseDefinition
+    {
+        return $this->phaseDefinition;
+    }
+
+    public function setPhaseDefinition(ProcedurePhaseDefinition $phaseDefinition): self
+    {
+        $this->phaseDefinition = $phaseDefinition;
+        // @deprecated $procedurePhase will be removed once all consumers are migrated to phaseDefinition
+        $this->procedurePhase = $phaseDefinition->getName();
 
         return $this;
     }

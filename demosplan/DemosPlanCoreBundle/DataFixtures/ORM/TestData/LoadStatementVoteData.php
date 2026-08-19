@@ -94,7 +94,7 @@ class LoadStatementVoteData extends TestFixture implements DependentFixtureInter
         $manager->flush();
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             LoadStatementData::class,

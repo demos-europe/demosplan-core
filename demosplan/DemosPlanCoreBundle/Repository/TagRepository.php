@@ -148,6 +148,22 @@ class TagRepository extends CoreRepository implements ObjectInterface
         return $this->findBy(['id' => $ids]);
     }
 
+    /**
+     * Returns the sortIndex to assign to a new tag appended to the given topic.
+     */
+    public function getNextSortIndex(string $topicId): int
+    {
+        $max = $this->getEntityManager()->createQueryBuilder()
+            ->select('MAX(tag.sortIndex)')
+            ->from(Tag::class, 'tag')
+            ->where('tag.topic = :topic')
+            ->setParameter('topic', $topicId)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return null === $max ? 0 : ((int) $max) + 1;
+    }
+
     public function isTagTitleFree(string $procedureId, string $title): bool
     {
         $query = $this->getEntityManager()->createQueryBuilder()

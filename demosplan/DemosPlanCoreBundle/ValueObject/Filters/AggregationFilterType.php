@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -76,7 +78,7 @@ class AggregationFilterType extends ValueObject
         array $aggregationFilterGroups,
         int $missingResourcesSum,
         private readonly bool $itemToManyRelationship,
-        private readonly bool $missingResourcesSumVisible
+        private readonly bool $missingResourcesSumVisible,
     ) {
         $this->id = $id;
         $this->label = $label;

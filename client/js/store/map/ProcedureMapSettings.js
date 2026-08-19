@@ -39,7 +39,9 @@ export default {
     },
 
     fetchProcedureMapSettings ({ commit }, { procedureId, isMaster = false }) {
-      if (!hasPermission('area_admin_map')) return
+      if (!hasPermission('area_admin_map')) {
+        return
+      }
 
       try {
         const resourceType = isMaster ? 'ProcedureTemplate' : 'Procedure'
@@ -50,6 +52,7 @@ export default {
           'defaultMapExtent',
           'scales',
         ]
+
         if (hasPermission('area_procedure_adjustments_general_location')) {
           procedureMapSettingFields.push('coordinate')
         }

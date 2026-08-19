@@ -29,8 +29,8 @@ class StatementMoverTest extends FunctionalTestCase
     /** @var StatementMover */
     protected $sut;
 
-    private StatementService|null $statementService;
-    private StatementDeleter|null $statementDeleter;
+    private ?StatementService $statementService;
+    private ?StatementDeleter $statementDeleter;
 
     protected function setUp(): void
     {
@@ -320,6 +320,98 @@ class StatementMoverTest extends FunctionalTestCase
         static::assertEquals($testStatement->getPublicAllowed(), $movedStatement->getPublicAllowed());
         static::assertEquals(0, $movedStatement->getNumberOfAnonymVotes());
         static::assertEquals(0, $movedStatement->getVotesNum());
+    }
+
+    /**
+     * Regression guard for the placeholder-creation determinism fix.
+     *
+     * `clone $statement` is a shallow copy: every collection field on the
+     * clone points to the same `PersistentCollection` instance as the source.
+     * If that ref is not severed before persist/flush, Doctrine's join-table
+     * inserts and inverse-side mutations become order-dependent and trigger
+     * full hydration of large mappedBy collections. The fix in
+     * `Statement::resetCollectionsForPlaceholder()` reassigns fresh empty
+     * collections directly. This test pins that contract: independent
+     * collection instances + mutating one must not bleed into the other.
+     */
+    public function testPlaceholderCollectionsAreIndependentFromMovedStatement(): void
+    {
+        self::markSkippedForCIElasticsearchUnavailable();
+
+        /** @var Statement $statementToMove */
+        $statementToMove = $this->fixtures->getReference('testStatement20');
+        /** @var Procedure $targetProcedure */
+        $targetProcedure = $this->fixtures->getReference('testProcedure2');
+
+        $movedMunicipalitiesBefore = $statementToMove->getMunicipalities()->count();
+        $movedCountiesBefore = $statementToMove->getCounties()->count();
+        $movedPriorityAreasBefore = $statementToMove->getPriorityAreas()->count();
+
+        $movedStatement = $this->sut->moveStatementToProcedure($statementToMove, $targetProcedure);
+        static::assertInstanceOf(Statement::class, $movedStatement);
+
+        $placeholder = $movedStatement->getPlaceholderStatement();
+        static::assertInstanceOf(Statement::class, $placeholder);
+
+        // each collection on the placeholder must be a different object than on
+        // the moved statement -- otherwise shared PersistentCollection bombs
+        static::assertNotSame(
+            $movedStatement->getMunicipalities(),
+            $placeholder->getMunicipalities(),
+            'placeholder.municipalities shares ref with moved statement'
+        );
+        static::assertNotSame(
+            $movedStatement->getCounties(),
+            $placeholder->getCounties(),
+            'placeholder.counties shares ref with moved statement'
+        );
+        static::assertNotSame(
+            $movedStatement->getPriorityAreas(),
+            $placeholder->getPriorityAreas(),
+            'placeholder.priorityAreas shares ref with moved statement'
+        );
+        static::assertNotSame(
+            $movedStatement->getTags(),
+            $placeholder->getTags()
+        );
+        static::assertNotSame(
+            $movedStatement->getVotes(),
+            $placeholder->getVotes()
+        );
+        static::assertNotSame(
+            $movedStatement->getFragments(),
+            $placeholder->getFragments()
+        );
+
+        // placeholder collections empty by policy
+        static::assertCount(0, $placeholder->getMunicipalities());
+        static::assertCount(0, $placeholder->getCounties());
+        static::assertCount(0, $placeholder->getPriorityAreas());
+        static::assertCount(0, $placeholder->getTags());
+        static::assertCount(0, $placeholder->getVotes());
+        static::assertCount(0, $placeholder->getFragments());
+        static::assertEmpty($placeholder->getFiles());
+
+        // mutating placeholder collections must not affect moved statement
+        $placeholder->getMunicipalities()->clear();
+        $placeholder->getCounties()->clear();
+        $placeholder->getPriorityAreas()->clear();
+
+        static::assertCount(
+            $movedMunicipalitiesBefore,
+            $movedStatement->getMunicipalities(),
+            'moved statement lost municipalities -- placeholder mutation bled through'
+        );
+        static::assertCount(
+            $movedCountiesBefore,
+            $movedStatement->getCounties(),
+            'moved statement lost counties -- placeholder mutation bled through'
+        );
+        static::assertCount(
+            $movedPriorityAreasBefore,
+            $movedStatement->getPriorityAreas(),
+            'moved statement lost priorityAreas -- placeholder mutation bled through'
+        );
     }
 
     public function testHandleInternIdOnCopyStatement(): void

@@ -10,7 +10,7 @@
 /**
  * This is the entrypoint for list_draft.html.twig
  */
-import { DpButton, DpModal, DpUploadFiles, prefixClass } from '@demos-europe/demosplan-ui'
+import { DpButton, DpModal, DpSelect, DpUploadFiles, prefixClass } from '@demos-europe/demosplan-ui'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpPublicDetailNoMap from '@DpJs/components/statement/DpPublicDetailNoMap'
 import DpPublicStatementList from '@DpJs/components/statement/publicStatementLists/DpPublicStatementList'
@@ -19,12 +19,17 @@ import publicStatement from '@DpJs/store/statement/PublicStatement'
 import StatementForm from '@DpJs/lib/statement/StatementForm'
 import StatementModal from '@DpJs/components/statement/publicStatementModal/StatementModal'
 
+/*
+ * DpPublicDetailNoMap renders the Twig markup as scoped slot content, which is compiled in the
+ * scope of this app - so everything the template uses has to be registered here, not on the component
+ */
 const components = {
   DpButton,
   DpMapModal,
   DpModal,
   DpPublicDetailNoMap,
   DpPublicStatementList,
+  DpSelect,
   DpUploadFiles,
   StatementModal,
 }
@@ -36,9 +41,11 @@ const stores = {
 initialize(components, stores).then(() => {
   if (window.location.hash) {
     const elem = document.getElementById(window.location.hash.slice(1))
+
     if (elem) {
       elem.classList.add(prefixClass('target-element'))
     }
   }
+
   StatementForm()
 })

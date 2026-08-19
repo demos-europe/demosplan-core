@@ -54,7 +54,7 @@ class LoadWorkflowPlaceData extends ProdFixture implements DependentFixtureInter
         $manager->flush();
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [LoadProcedureData::class];
     }

@@ -22,8 +22,10 @@
   </button>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent } from 'vue'
+
+export default defineComponent({
   name: 'DpHandle',
 
   props: {
@@ -36,5 +38,5 @@ export default {
   emits: [
     'input',
   ],
-}
+})
 </script>

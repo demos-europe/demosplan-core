@@ -484,7 +484,9 @@ export default {
         },
         include: includeFields.join(),
       })
-        .then(() => { this.isLoading = false })
+        .then(() => {
+          this.isLoading = false
+        })
     },
 
     fetchAllOrganisations (page) {

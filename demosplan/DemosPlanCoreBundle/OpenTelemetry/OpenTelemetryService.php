@@ -39,11 +39,11 @@ class OpenTelemetryService
     private string $tenantId;
 
     public function __construct(
-        #[Autowire('%otel_exporter_endpoint%')] string $otlpEndpoint,
-        #[Autowire('%otel_service_name%')] string $serviceName,
-        #[Autowire('%project_version%')] string $serviceVersion = '1.0.0',
-        #[Autowire('%kernel.environment%')] string $environment = 'prod',
-        #[Autowire('%otel_tenant_id%')] string $tenantId = '',
+        #[Autowire(param: 'otel_exporter_endpoint')] string $otlpEndpoint,
+        #[Autowire(param: 'otel_service_name')] string $serviceName,
+        #[Autowire(param: 'project_version')] string $serviceVersion = '1.0.0',
+        #[Autowire(param: 'kernel.environment')] string $environment = 'prod',
+        #[Autowire(param: 'otel_tenant_id')] string $tenantId = '',
     ) {
         $this->otlpEndpoint = $otlpEndpoint;
         $this->serviceName = $serviceName;
@@ -65,7 +65,7 @@ class OpenTelemetryService
      */
     public function getTracerProvider(): TracerProviderInterface
     {
-        if (null !== $this->tracerProvider) {
+        if ($this->tracerProvider instanceof TracerProviderInterface) {
             return $this->tracerProvider;
         }
 

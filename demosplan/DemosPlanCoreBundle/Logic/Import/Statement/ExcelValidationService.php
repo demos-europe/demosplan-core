@@ -218,7 +218,7 @@ class ExcelValidationService
         ImportValidationResult $result,
         array &$usedInternIds,
     ): void {
-        if (empty($dto->internId) || '' === trim($dto->internId)) {
+        if ('' === $dto->internId || '0' === $dto->internId || '' === trim($dto->internId)) {
             return;
         }
 
@@ -458,7 +458,7 @@ class ExcelValidationService
     private function isEmptyRow(array $values): bool
     {
         foreach ($values as $value) {
-            if (!empty(trim((string) $value))) {
+            if (!in_array(trim((string) $value), ['', '0'], true)) {
                 return false;
             }
         }
@@ -475,7 +475,7 @@ class ExcelValidationService
 
         return match ($type) {
             'intern', 'internal' => 'internal',
-            default => 'external',
+            default              => 'external',
         };
     }
 }

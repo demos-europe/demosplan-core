@@ -12,6 +12,7 @@ namespace Tests\Core\Statement\Functional;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedurePhaseDefinitionData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFragmentFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -933,23 +934,23 @@ class StatementHandlerTest extends FunctionalTestCase
         $statement = $this->fixtures->getReference('testStatementAssigned6');
 
         $updateData = [
-            'ident'          => $statement->getId(),
-            'text'           => 'updated Text 1',
-            'parent'         => $this->fixtures->getReference('testStatement1'),
-            'user'           => $this->fixtures->getReference('testRolePlanningOffice'),
-            'organisation'   => $this->fixtures->getReference('testOrgaFP'),
-            'procedure'      => $this->fixtures->getReference('testProcedure2'),
-            'paragraph'      => $this->fixtures->getReference('testParagraph2Version'),
-            'priority'       => 'priority 1',
-            'externId'       => 'externId 1',
-            'internId'       => 'internId 1',
-            'phase'          => 'configuration',
-            'status'         => 'notSoNew',
-            'sentAssessment' => true,
-            'publicVerified' => Statement::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED,
-            'title'          => 'updated Title 1',
-            'memo'           => 'updated memo 1',
-            'recommendation' => 'updated recommendation 1',
+            'ident'           => $statement->getId(),
+            'text'            => 'updated Text 1',
+            'parent'          => $this->fixtures->getReference('testStatement1'),
+            'user'            => $this->fixtures->getReference('testRolePlanningOffice'),
+            'organisation'    => $this->fixtures->getReference('testOrgaFP'),
+            'procedure'       => $this->fixtures->getReference('testProcedure2'),
+            'paragraph'       => $this->fixtures->getReference('testParagraph2Version'),
+            'priority'        => 'priority 1',
+            'externId'        => 'externId 1',
+            'internId'        => 'internId 1',
+            'phaseDefinition' => $this->fixtures->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_CONFIGURATION_PHASE_DEFINITION),
+            'status'          => 'notSoNew',
+            'sentAssessment'  => true,
+            'publicVerified'  => Statement::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED,
+            'title'           => 'updated Title 1',
+            'memo'            => 'updated memo 1',
+            'recommendation'  => 'updated recommendation 1',
         ];
 
         static::assertEquals($updateData['ident'], $statement->getId());
@@ -960,7 +961,7 @@ class StatementHandlerTest extends FunctionalTestCase
         static::assertNotEquals($updateData['priority'], $statement->getPriority());
         static::assertNotEquals($updateData['externId'], $statement->getExternId());
         static::assertNotEquals($updateData['internId'], $statement->getInternId());
-        static::assertNotEquals($updateData['phase'], $statement->getPhase());
+        static::assertNotEquals($updateData['phaseDefinition'], $statement->getPhaseDefinition());
         static::assertNotEquals($updateData['status'], $statement->getStatus());
         static::assertNotEquals($updateData['sentAssessment'], $statement->getSentAssessment());
         static::assertNotEquals($updateData['publicVerified'], $statement->getPublicVerified());
@@ -976,7 +977,7 @@ class StatementHandlerTest extends FunctionalTestCase
         $statement->setPriority($updateData['priority']);
         $statement->setExternId($updateData['externId']);
         $statement->setInternId($updateData['internId']);
-        $statement->setPhase($updateData['phase']);
+        $statement->setPhaseDefinition($updateData['phaseDefinition']);
         $statement->setStatus($updateData['status']);
         $statement->setSentAssessment($updateData['sentAssessment']);
         $statement->setPublicVerified($updateData['publicVerified']);
@@ -997,7 +998,7 @@ class StatementHandlerTest extends FunctionalTestCase
         static::assertEquals($updatedStatement->getPriority(), $statement->getPriority());
         static::assertEquals($updatedStatement->getExternId(), $statement->getExternId());
         static::assertEquals($updatedStatement->getInternId(), $statement->getInternId());
-        static::assertEquals($updatedStatement->getPhase(), $statement->getPhase());
+        static::assertEquals($updatedStatement->getPhaseDefinition(), $statement->getPhaseDefinition());
         static::assertEquals($updatedStatement->getStatus(), $statement->getStatus());
         static::assertEquals($updatedStatement->getSentAssessment(), $statement->getSentAssessment());
         static::assertEquals($updatedStatement->getPublicVerified(), $statement->getPublicVerified());
@@ -1025,7 +1026,6 @@ class StatementHandlerTest extends FunctionalTestCase
             'r_priority'       => 'priority 1',
             'r_externId'       => 'externId 1',
             'r_internId'       => 'internId 1',
-            'r_phase'          => 'configuration',
             'r_status'         => 'notSoNew',
             'r_sentAssessment' => true,
             'r_publicAllowed'  => false,
@@ -1043,7 +1043,8 @@ class StatementHandlerTest extends FunctionalTestCase
         static::assertNotEquals($updateData['r_priority'], $statement->getPriority());
         static::assertNotEquals($updateData['r_externId'], $statement->getExternId());
         static::assertNotEquals($updateData['r_internId'], $statement->getInternId());
-        static::assertNotEquals($updateData['r_phase'], $statement->getPhase());
+        $configurationPhaseDefinition = $this->fixtures->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_CONFIGURATION_PHASE_DEFINITION);
+        static::assertNotEquals($configurationPhaseDefinition, $statement->getPhaseDefinition());
         static::assertNotEquals($updateData['r_status'], $statement->getStatus());
         static::assertNotEquals($updateData['r_sentAssessment'], $statement->getSentAssessment());
         static::assertNotEquals($updateData['r_publicAllowed'], $statement->getPublicAllowed());
@@ -1065,7 +1066,7 @@ class StatementHandlerTest extends FunctionalTestCase
         static::assertNotEquals($updateData['r_priority'], $updatedStatement->getPriority());
         static::assertNotEquals($updateData['r_externId'], $updatedStatement->getExternId());
         static::assertNotEquals($updateData['r_internId'], $updatedStatement->getInternId());
-        static::assertNotEquals($updateData['r_phase'], $updatedStatement->getPhase());
+        static::assertNotEquals($configurationPhaseDefinition, $updatedStatement->getPhaseDefinition());
         static::assertNotEquals($updateData['r_status'], $updatedStatement->getStatus());
         static::assertNotEquals($updateData['r_sentAssessment'], $updatedStatement->getSentAssessment());
         static::assertNotEquals($updateData['r_publicAllowed'], $updatedStatement->getPublicAllowed());
@@ -1091,7 +1092,7 @@ class StatementHandlerTest extends FunctionalTestCase
         $updatedPriority = 'priority 1';
         $updatedExternId = 'externId 1';
         $updatedInternId = 'internId 1';
-        $updatedPhase = 'configuration';
+        $updatedPhaseDefinition = $this->fixtures->getReference(LoadProcedurePhaseDefinitionData::TEST_INTERNAL_CONFIGURATION_PHASE_DEFINITION);
         $updatedStatus = 'notSoNew';
         $updatedSentAssessment = true;
         $updatedPublicVerified = Statement::PUBLICATION_NO_CHECK_SINCE_NOT_ALLOWED;
@@ -1108,7 +1109,7 @@ class StatementHandlerTest extends FunctionalTestCase
         static::assertNotEquals($statement->getPriority(), $updatedPriority);
         static::assertNotEquals($statement->getExternId(), $updatedExternId);
         static::assertNotEquals($statement->getInternId(), $updatedInternId);
-        static::assertNotEquals($statement->getPhase(), $updatedPhase);
+        static::assertNotEquals($statement->getPhaseDefinition(), $updatedPhaseDefinition);
         static::assertNotEquals($statement->getStatus(), $updatedStatus);
         static::assertNotEquals($statement->getSentAssessment(), $updatedSentAssessment);
         static::assertNotEquals($statement->getPublicVerified(), $updatedPublicVerified);
@@ -1125,7 +1126,7 @@ class StatementHandlerTest extends FunctionalTestCase
         $statement->setPriority($updatedPriority);
         $statement->setExternId($updatedExternId);
         $statement->setInternId($updatedInternId);
-        $statement->setPhase($updatedPhase);
+        $statement->setPhaseDefinition($updatedPhaseDefinition);
         $statement->setStatus($updatedStatus);
         $statement->setSentAssessment($updatedSentAssessment);
         $statement->setPublicVerified($updatedPublicVerified);
@@ -1147,7 +1148,7 @@ class StatementHandlerTest extends FunctionalTestCase
         static::assertEquals($updatedStatement->getExternId(), $updatedExternId);
         // intern id only gets from original statement -> null
         //        static::assertEquals($updatedStatement->getInternId(), $updatedInternId);
-        static::assertEquals($updatedStatement->getPhase(), $updatedPhase);
+        static::assertEquals($updatedStatement->getPhaseDefinition(), $updatedPhaseDefinition);
         static::assertEquals($updatedStatement->getStatus(), $updatedStatus);
         static::assertEquals($updatedStatement->getSentAssessment(), $updatedSentAssessment);
         static::assertEquals($updatedStatement->getPublicVerified(), $updatedPublicVerified);
@@ -1391,13 +1392,13 @@ class StatementHandlerTest extends FunctionalTestCase
             static::assertEquals($clusterHeadStatement->getText(), $statement->getHeadStatement()->getText());
             static::assertEquals($clusterHeadStatement->getExternId(), $statement->getHeadStatement()->getExternId());
             static::assertEquals($clusterHeadStatement->getProcedureId(), $statement->getHeadStatement()->getProcedureId());
-            static::assertEquals($clusterHeadStatement->getPhase(), $statement->getHeadStatement()->getPhase());
+            static::assertEquals($clusterHeadStatement->getPhaseDefinition(), $statement->getHeadStatement()->getPhaseDefinition());
         }
 
         static::assertEquals($statement1->getText(), $clusterHeadStatement->getText());
         static::assertEquals($clusterPrefix.$statement1->getExternId(), $clusterHeadStatement->getExternId());
         static::assertEquals($statement1->getProcedureId(), $clusterHeadStatement->getProcedureId());
-        static::assertEquals($statement1->getPhase(), $clusterHeadStatement->getPhase());
+        static::assertEquals($statement1->getPhaseDefinition(), $clusterHeadStatement->getPhaseDefinition());
 
         static::assertNull($clusterHeadStatement->getHeadStatement());
         static::assertNull($clusterHeadStatement->getAssignee());
@@ -1414,7 +1415,7 @@ class StatementHandlerTest extends FunctionalTestCase
         static::assertEquals($statement1->getMapFile(), $clusterHeadStatement->getMapFile());
         static::assertEquals($statement1->getMemo(), $clusterHeadStatement->getMemo());
         static::assertEquals($statement1->getMunicipalities()->toArray(), $clusterHeadStatement->getMunicipalities()->toArray());
-        static::assertEquals($statement1->getPhase(), $clusterHeadStatement->getPhase());
+        static::assertEquals($statement1->getPhaseDefinition(), $clusterHeadStatement->getPhaseDefinition());
         static::assertEquals($statement1->getPolygon(), $clusterHeadStatement->getPolygon());
         static::assertEquals($statement1->getPriority(), $clusterHeadStatement->getPriority());
         static::assertEquals($statement1->getParagraph(), $clusterHeadStatement->getParagraph());

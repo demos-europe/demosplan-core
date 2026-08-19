@@ -7,6 +7,20 @@
  * All rights reserved
  */
 
+/**
+ * "range" - Character position spans (from/to) in the document.
+ *           Examples: replaceRange(state, from, to, attrs), rangeTracker plugin
+ *           Used when working with positions, not the marks themselves.
+ *
+ * "segmentMark" - ProseMirror mark type for confirmed segments.
+ *                 Renders as: <span data-segment-id="..." data-range-confirmed="true">
+ *                 Mark type name in schema: 'segmentMark'
+ *
+ * "rangeselection" - Temporary mark shown during segment boundary adjustment.
+ *                    Renders as: <span data-range-type="selection">
+ *                    Mark type name in schema: 'rangeselection'
+ */
+
 import {
   createCreatorMenu,
   flattenNode,
@@ -16,11 +30,10 @@ import {
   isSuperset,
   range,
   rangesEqual,
-  serializeRange,
 } from './utilities'
 import { genEditingDecorations, removeMarkByName, replaceMarkInRange, toggleRangeEdit } from './commands'
 import { Plugin, PluginKey } from 'prosemirror-state'
-import { rangeMark, rangeSelectionMark } from './marks'
+import { rangeSelectionMark } from './marks'
 import { Schema } from 'prosemirror-model'
 
 /**
@@ -129,6 +142,7 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
       handleDOMEvents: {
         mousedown (view, e) {
           const isHandle = e.target.getAttribute('data-range-widget') !== null
+
           /**
            * Here, we need to check if the user clicked on a handle. If a handle was clicked, we need to prevent the
            * default behaviour. If we would not prevent the default behaviour, a prosemirror selection would be set close
@@ -137,6 +151,7 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
           if (isHandle) {
             e.preventDefault()
           }
+
           toggleRangeEdit(view, rangeTrackerKey, editingTrackerKey, pluginKey, e.target)
 
           return true
@@ -161,13 +176,17 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
        */
       if (Object.keys(position).length && move.moving) {
         let tr = removeMarkByName(newState, 'rangeselection', 'active')
+
         tr = replaceMarkInRange(newState, position.from, position.to, 'rangeselection', { active: true }, tr)
+
         return tr
       } else {
         const oldEditState = pluginKey.getState(oldState).isEditing
         const newEditState = pluginKey.getState(newState).isEditing
+
         if (oldEditState && !newEditState) {
           const tr = removeMarkByName(newState, 'rangeselection', 'active')
+
           return tr
         }
       }
@@ -176,12 +195,14 @@ const editingDecorations = (pluginKey, editingTrackerKey, rangeTrackerKey, editT
       let updateFunc = (view, state) => {
         if (this.callbackPayload) {
           const payload = [...this.callbackPayload]
+
           this.callbackPayload = null
           this.callbackRunning = true
           editToggleCallback(...payload)
           this.callbackRunning = false
         }
       }
+
       // We need to bind the context of the view method to the updateFunc so that we can access the context when calling it.
       updateFunc = updateFunc.bind(this)
 
@@ -224,9 +245,11 @@ const editStateTracker = (trackerKey, decoPluginKey) => {
           positions: null,
         }
         let returnVal = pluginState
+
         if (meta) {
           returnVal = meta === 'stop-editing' ? defaultReturnVal : meta
         }
+
         if (editMeta?.editing === false) {
           returnVal = defaultReturnVal
         }
@@ -256,7 +279,7 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
     key: rangeTrackerKey,
     state: {
       init (_, state) {
-        const ranges = getMarks(flattenNode(state.doc), 'range', 'rangeId')
+        const ranges = getMarks(flattenNode(state.doc), 'segmentMark', 'segmentId')
 
         return ranges
       },
@@ -265,33 +288,14 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
           return pluginState
         }
 
-        const ranges = getMarks(flattenNode(newState.doc), 'range', 'rangeId')
+        const ranges = getMarks(flattenNode(newState.doc), 'segmentMark', 'segmentId')
         const equal = ranges && pluginState && rangesEqual(pluginState, ranges)
+
         if (equal) {
           return pluginState
         }
 
         if (!equal) {
-          /**
-           * We extract the text from each range and add it as a property so that range text can be handled separately
-           * from the whole document. For example, this allows us to create segments from ranges later on. Prosemirror
-           * will handle correct serialization for us and it will make sure that we get valid HTML, even if a selected
-           * range cuts through nodes.
-           *
-           * However, for the serialization part, we first remove our range and rangeselection marks from the schema
-           * that we use for parsing because we don't want those to appear in the text that we extract.
-           * Under schema.spec.marks we will find an OrderedMap of marks in the current schema (https://github.com/marijnh/orderedmap#readme),
-           * the OrderedMap lets us remove entries by calling its subtract method with the keys that we'd like to remove.
-           */
-          const rangeMarksRemoved = schema.spec.marks.subtract({ rangeselection: null, range: null })
-          const reducedSchema = new Schema({
-            nodes: schema.spec.nodes,
-            marks: rangeMarksRemoved,
-          })
-          Object.entries(ranges).forEach(([id, range]) => {
-            ranges[id].text = serializeRange(range, newState, reducedSchema)
-          })
-
           /**
            * In case prosemirror updates are triggered inside the callback we want to avoid triggering the callback again.
            * This does not allow the calling code to react to changes made by their own callback but it removes
@@ -299,6 +303,7 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
            */
           if (!this.spec.callbackRunning) {
             const rangeChangeMap = generateRangeChangeMap(pluginState, ranges)
+
             this.spec.callbackPayload = [pluginState, ranges, rangeChangeMap]
           }
 
@@ -310,12 +315,14 @@ const rangeTracker = (rangeTrackerKey, schema, rangeChangeCallback = () => {}) =
       let updateFunc = (view, state) => {
         if (this.callbackPayload) {
           const payload = [...this.callbackPayload]
+
           this.callbackPayload = null
           this.callbackRunning = true
           rangeChangeCallback(...payload)
           this.callbackRunning = false
         }
       }
+
       // We need to bind the context of the view method to the updateFunc so that we can access the context when calling it.
       updateFunc = updateFunc.bind(this)
 
@@ -369,12 +376,14 @@ const rangeCreator = (pluginKey, rangeEditingKey) => {
        */
       if (isFullyCovered) {
         tippy = null
+
         return
       }
 
       tippy = createCreatorMenu(view, $anchor.pos, $head.pos)
     }
   }
+
   return new Plugin({
     key: pluginKey,
     view (view) {
@@ -412,8 +421,12 @@ const rangeCreator = (pluginKey, rangeEditingKey) => {
  * @return {{schema, plugins: (prosemirror-plugin|*)[], keys: {rangeTrackerKey, editingDecorationsKey, rangeCreatorKey, editStateTrackerKey}}}
  */
 const initRangePlugin = (schema, rangeChangeCallback, editToggleCallback) => {
-  let marks = schema.spec.marks.addToStart('range', rangeMark)
-  marks = marks.addToStart('rangeselection', rangeSelectionMark)
+  let marks = schema.spec.marks
+
+  if (!marks.get('rangeselection')) {
+    marks = marks.addToStart('rangeselection', rangeSelectionMark)
+  }
+
   const currentSchema = new Schema({
     nodes: schema.spec.nodes,
     marks,

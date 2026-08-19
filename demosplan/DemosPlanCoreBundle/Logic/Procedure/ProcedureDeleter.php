@@ -14,11 +14,16 @@ use demosplan\DemosPlanCoreBundle\Logic\Orga\OrgaDeleter;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use Doctrine\DBAL\ArrayParameterType;
 use Exception;
+use League\Flysystem\FilesystemException;
+use League\Flysystem\FilesystemOperator;
+use Psr\Log\LoggerInterface;
 
 class ProcedureDeleter
 {
     public function __construct(
         private readonly SqlQueriesService $queriesService,
+        private readonly FilesystemOperator $defaultStorage,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -153,14 +158,29 @@ class ProcedureDeleter
         // procedure_user
         $this->deleteProcedureUser($procedureIds, $isDryRun);
 
-        // delete remaining procedure files
+        // delete remaining procedure files (physical + DB)
+        $remainingFiles = $this->queriesService->fetchFromTableByParameter(
+            ['_f_path', '_f_hash'],
+            '_files',
+            'procedure_id',
+            $procedureIds
+        );
+        if (!$isDryRun) {
+            $this->deleteFilesFromStorage($remainingFiles);
+        }
         $this->queriesService->deleteFromTableByIdentifierArray('_files', 'procedure_id', $procedureIds, $isDryRun);
 
         // delete procedure report entries
         $this->deleteReportEntriesByIdentifierAndType($procedureIds, $isDryRun);
 
+        // collect referenced procedure_phase ids before deleting the procedures
+        $phaseIds = $this->collectProcedurePhaseIds($procedureIds);
+
         // delete procedures
         $this->deleteProcedure($procedureIds, $isDryRun);
+
+        // delete the now-orphaned procedure_phase rows
+        $this->deleteProcedurePhases($phaseIds, $isDryRun);
     }
 
     /**
@@ -253,12 +273,7 @@ class ProcedureDeleter
             ),
             'file_id'
         );
-        $this->queriesService->deleteFromTableByIdentifierArray(
-            '_files',
-            '_f_ident',
-            $fileIds,
-            $isDryRun
-        );
+        $this->deleteFiles($fileIds, $isDryRun);
         $this->queriesService->deleteFromTableByIdentifierArray(
             'file_container',
             'entity_id',
@@ -344,7 +359,7 @@ class ProcedureDeleter
     {
         $attachmentData = $this->queriesService->fetchFromTableByParameter(['file_id'], 'statement_import_email_attachments', 'statement_import_email_id', $importEmailIds);
 
-        $this->deleteFiles($attachmentData, $isDryRun);
+        $this->deleteFiles(array_column($attachmentData, 'file_id'), $isDryRun);
         $this->deleteStatementImportEmailAttachments($importEmailIds, $isDryRun);
     }
 
@@ -467,6 +482,48 @@ class ProcedureDeleter
     private function deleteProcedure(array $procedureIds, bool $isDryRun): void
     {
         $this->queriesService->deleteFromTableByIdentifierArray('_procedure', '_p_id', $procedureIds, $isDryRun);
+    }
+
+    /**
+     * Returns the ids of every procedure_phase row referenced by the given procedures
+     * through `_procedure.phase_id` or `_procedure.public_participation_phase_id`.
+     *
+     * @return list<string>
+     *
+     * @throws Exception
+     */
+    private function collectProcedurePhaseIds(array $procedureIds): array
+    {
+        $rows = $this->queriesService->fetchFromTableByParameter(
+            ['phase_id', 'public_participation_phase_id'],
+            '_procedure',
+            '_p_id',
+            $procedureIds
+        );
+
+        $phaseIds = [];
+        foreach ($rows as $row) {
+            if (null !== $row['phase_id'] && '' !== $row['phase_id']) {
+                $phaseIds[] = $row['phase_id'];
+            }
+            if (null !== $row['public_participation_phase_id'] && '' !== $row['public_participation_phase_id']) {
+                $phaseIds[] = $row['public_participation_phase_id'];
+            }
+        }
+
+        return array_values(array_unique($phaseIds));
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteProcedurePhases(array $phaseIds, bool $isDryRun): void
+    {
+        if ([] === $phaseIds) {
+            return;
+        }
+
+        $this->queriesService->deleteFromTableByIdentifierArray('procedure_phase', 'id', $phaseIds, $isDryRun);
     }
 
     /**
@@ -1077,7 +1134,46 @@ class ProcedureDeleter
      */
     private function deleteFiles(array $fileIds, bool $isDryRun): void
     {
+        if ([] === $fileIds) {
+            return;
+        }
+
+        $fileData = $this->queriesService->fetchFromTableByParameter(
+            ['_f_path', '_f_hash'],
+            '_files',
+            '_f_ident',
+            $fileIds
+        );
+
+        if (!$isDryRun) {
+            $this->deleteFilesFromStorage($fileData);
+        }
+
         $this->queriesService->deleteFromTableByIdentifierArray('_files', '_f_ident', $fileIds, $isDryRun);
+    }
+
+    private function deleteFilesFromStorage(array $fileData): void
+    {
+        foreach ($fileData as $file) {
+            $hash = $file['_f_hash'] ?? null;
+            if (null === $hash || '' === $hash) {
+                continue;
+            }
+
+            $path = $file['_f_path'] ?? '';
+            $flysystemPath = '' !== $path
+                ? rtrim($path, '/').'/'.$hash
+                : $hash;
+
+            try {
+                $this->defaultStorage->delete($flysystemPath);
+            } catch (FilesystemException $e) {
+                $this->logger->warning('Could not delete file from storage during procedure deletion', [
+                    'path'  => $flysystemPath,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
     }
 
     /**

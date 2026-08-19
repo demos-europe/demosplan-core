@@ -14,9 +14,7 @@ namespace Tests\Core\Statement\Export;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttachmentInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\FileFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\StatementAttachmentFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementArrayConverter;
@@ -83,12 +81,14 @@ class StatementArrayConverterTest extends FunctionalTestCase
 
         // Create parent statement first
         $parentStatement = $this->createMinimalTestStatement('parent', 'parent123', 'a');
-        $parentStatement->setMemo('Parent memo');
-        $parentStatement->getMeta()->setOrgaCity('Test City');
-        $parentStatement->getMeta()->setOrgaStreet('Test Street');
-        $parentStatement->getMeta()->setOrgaPostalCode('12345');
-        $parentStatement->getMeta()->setOrgaEmail('test@example.com');
-        $parentStatement->getMeta()->setHouseNumber('42');
+        $parentStatement->_withoutAutoRefresh(function ($stmt) {
+            $stmt->setMemo('Parent memo');
+            $stmt->getMeta()->setOrgaCity('Test City');
+            $stmt->getMeta()->setOrgaStreet('Test Street');
+            $stmt->getMeta()->setOrgaPostalCode('12345');
+            $stmt->getMeta()->setOrgaEmail('test@example.com');
+            $stmt->getMeta()->setHouseNumber('42');
+        });
         $parentStatement->_save();
 
         $segment = $this->createMinimalTestSegment($parentStatement, 'Isabel Allende');
@@ -258,22 +258,6 @@ class StatementArrayConverterTest extends FunctionalTestCase
         // These should be arrays/strings, not objects
         self::assertTrue(is_array($result['countyNames']) || is_string($result['countyNames']));
         self::assertIsString($result['phase']);
-    }
-
-    private function createMinimalTestSegment(Statement|Proxy $parentStatement, string $submitterNameSuffix): Segment|Proxy
-    {
-        $segment = SegmentFactory::createOne([
-            'parentStatementOfSegment' => $parentStatement->_real(),
-            'orderInProcedure'         => 1,
-        ]);
-
-        $segment->setPlace(PlaceFactory::createOne([])->_real());
-        $segment->_save();
-
-        $segment->getMeta()->setAuthorName("segment_author_name_$submitterNameSuffix");
-        $segment->_save();
-
-        return $segment->_real();
     }
 
     /**

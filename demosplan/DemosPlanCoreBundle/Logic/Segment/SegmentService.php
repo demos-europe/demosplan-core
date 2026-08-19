@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\RecommendationVersionService;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use Doctrine\ORM\EntityManager;
@@ -32,6 +33,7 @@ class SegmentService extends CoreService implements SegmentServiceInterface
 {
     public function __construct(
         private readonly EntityContentChangeService $entityContentChangeService,
+        private readonly RecommendationVersionService $recommendationVersionService,
         private readonly SegmentValidator $segmentValidator,
         private readonly SegmentRepository $segmentRepository,
         private readonly TransactionService $transactionService,
@@ -140,6 +142,12 @@ class SegmentService extends CoreService implements SegmentServiceInterface
         );
         $this->segmentRepository->persistEntities($contentChanges);
 
+        // Record recommendation versions before the DQL UPDATE runs.
+        // This method bypasses Statement::setRecommendation() (uses raw DQL for performance),
+        // so we must call recordVersion() explicitly here.
+        // @see Statement::setRecommendation() for the ORM-based hook that handles all other paths.
+        $this->recommendationVersionService->recordVersionsForBulkEdit($segments, $recommendationText, $attach);
+
         // do the actual change in the database
         $segmentIds = array_map(static fn (Segment $segment): string => $segment->getId(), $segments);
         $this->segmentRepository->editSegmentRecommendations($segmentIds, $procedureId, $recommendationText, $attach);
@@ -196,6 +204,20 @@ class SegmentService extends CoreService implements SegmentServiceInterface
     public function findByIds(array $ids): array
     {
         return $this->segmentRepository->findByIds($ids);
+    }
+
+    /**
+     * Returns the subset of given IDs that belong to `$procedureId` AND
+     * whose current workflow place has `locked = true`. Delegates to
+     * {{ @see SegmentRepository::findLockedByIds }}.
+     *
+     * @param list<string> $ids
+     *
+     * @return list<Segment>
+     */
+    public function findLockedByIds(array $ids, string $procedureId): array
+    {
+        return $this->segmentRepository->findLockedByIds($ids, $procedureId);
     }
 
     /**
@@ -309,7 +331,7 @@ class SegmentService extends CoreService implements SegmentServiceInterface
                 $user,
                 $creationTime
             );
-            if (null !== $contentChange) {
+            if ($contentChange instanceof EntityContentChange) {
                 $contentChanges[] = $contentChange;
             }
         }

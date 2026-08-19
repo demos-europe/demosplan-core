@@ -46,7 +46,7 @@ class Permission implements ArrayAccess
 {
     private const FIELDS = ['label', 'enabled', 'expose', 'loginRequired'];
 
-    private const MUTABLE_FIELDS = ['enabled', 'active', 'loginRequired'];
+    private const MUTABLE_FIELDS = ['enabled', 'loginRequired'];
 
     /**
      * @var bool general "is this permission enabled" check

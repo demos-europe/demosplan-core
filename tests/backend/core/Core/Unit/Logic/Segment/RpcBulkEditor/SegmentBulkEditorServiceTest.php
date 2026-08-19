@@ -29,6 +29,9 @@ use Tests\Base\RpcApiTest;
 
 class SegmentBulkEditorServiceTest extends RpcApiTest
 {
+    private const DEADLINE_DATE = '2026-06-27';
+    private const EXISTING_DEADLINE_DATE = '2026-06-01';
+
     /** @var SegmentBulkEditorService */
     protected $sut;
     private $procedure;
@@ -77,7 +80,9 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
     {
         $procedure = ProcedureFactory::createOne();
         $segment1 = SegmentFactory::createOne()->setProcedure($procedure->_real());
+        $segment1->_save();
         $segment2 = SegmentFactory::createOne()->setProcedure($procedure->_real());
+        $segment2->_save();
 
         $customField1 = CustomFieldConfigurationFactory::new()
             ->withRelatedProcedure($procedure->_real())
@@ -95,18 +100,24 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
             ['id' => $customField2->getId(), 'value' => $customField2Option2->getId()],
         ];
 
-        $this->sut->updateSegments([$segment1, $segment2], [], [], $this->user, null, $customFieldsValuesToUpdate);
+        $this->sut->updateSegments([$segment1->_real(), $segment2->_real()], [], [], $this->user, null, $customFieldsValuesToUpdate);
 
         // Get custom field values as arrays for easier assertion
-        $segment1Values = array_map(
-            static fn ($value) => $value->getValue(),
-            $segment1->getCustomFields()->getCustomFieldsValues()
-        );
+        $segment1Values = [];
+        $segment1->_withoutAutoRefresh(function ($seg) use (&$segment1Values) {
+            $segment1Values = array_map(
+                static fn ($value) => $value->getValue(),
+                $seg->getCustomFields()->getCustomFieldsValues()
+            );
+        });
 
-        $segment2Values = array_map(
-            static fn ($value) => $value->getValue(),
-            $segment2->getCustomFields()->getCustomFieldsValues()
-        );
+        $segment2Values = [];
+        $segment2->_withoutAutoRefresh(function ($seg) use (&$segment2Values) {
+            $segment2Values = array_map(
+                static fn ($value) => $value->getValue(),
+                $seg->getCustomFields()->getCustomFieldsValues()
+            );
+        });
 
         self::assertContains($customField1Option1->getId(), $segment1Values);
         self::assertContains($customField2Option2->getId(), $segment1Values);
@@ -126,6 +137,31 @@ class SegmentBulkEditorServiceTest extends RpcApiTest
 
         self::assertNull($this->segment1->getAssignee());
         self::assertNull($this->segment2->getAssignee());
+    }
+
+    public function testUpdateSegmentsSetsDeadline(): void
+    {
+        self::assertNull($this->segment1->getDeadline());
+        self::assertNull($this->segment2->getDeadline());
+
+        $deadline = new DateTime(self::DEADLINE_DATE);
+
+        // 'UNKNOWN' assignee sentinel leaves the assignee untouched, isolating the deadline.
+        $this->sut->updateSegments([$this->segment1, $this->segment2], [], [], 'UNKNOWN', null, [], $deadline);
+
+        self::assertSame(self::DEADLINE_DATE, $this->segment1->getDeadline()?->format('Y-m-d'));
+        self::assertSame(self::DEADLINE_DATE, $this->segment2->getDeadline()?->format('Y-m-d'));
+    }
+
+    public function testUpdateSegmentsWithNullDeadlineLeavesExistingDeadlineUntouched(): void
+    {
+        $this->segment1->setDeadline(new DateTime(self::EXISTING_DEADLINE_DATE));
+        $this->segment2->setDeadline(new DateTime(self::EXISTING_DEADLINE_DATE));
+
+        $this->sut->updateSegments([$this->segment1, $this->segment2], [], [], 'UNKNOWN', null, [], null);
+
+        self::assertSame(self::EXISTING_DEADLINE_DATE, $this->segment1->getDeadline()?->format('Y-m-d'));
+        self::assertSame(self::EXISTING_DEADLINE_DATE, $this->segment2->getDeadline()?->format('Y-m-d'));
     }
 
     public function testDetectValidAssignee(): void

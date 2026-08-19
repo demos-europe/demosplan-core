@@ -28,6 +28,7 @@ function highlightActiveLinks (linkSelector) {
 
   // Trigger initial highlighting onpageload
   const event = new CustomEvent('hashchangeevent')
+
   window.dispatchEvent(event)
 }
 
