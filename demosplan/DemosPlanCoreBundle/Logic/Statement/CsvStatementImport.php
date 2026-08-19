@@ -27,7 +27,6 @@ use Exception;
 use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Finder\SplFileInfo;
-use Throwable;
 
 /**
  * Imports statements from a CSV file: parses it, persists the resulting statements in batches,
@@ -50,6 +49,7 @@ readonly class CsvStatementImport
 
     public function __construct(
         private CsvStatementImporter $csvStatementImporter,
+        private ElasticsearchIndexingToggleService $elasticsearchIndexingToggleService,
         private EntityManagerInterface $entityManager,
         private EventDispatcherPostInterface $eventDispatcher,
         private LoggerInterface $logger,
@@ -84,7 +84,7 @@ readonly class CsvStatementImport
             return $result;
         }
 
-        $disabledListeners = $this->disableElasticsearchListeners();
+        $disabledListeners = $this->elasticsearchIndexingToggleService->disableAutoIndexing();
 
         try {
             $statementIds = $this->persistStatementsInBatches($result->getStatements());
@@ -105,7 +105,7 @@ readonly class CsvStatementImport
 
             throw $exception;
         } finally {
-            $this->reEnableElasticsearchListeners($disabledListeners);
+            $this->elasticsearchIndexingToggleService->reEnableAutoIndexing($disabledListeners);
         }
     }
 
@@ -254,59 +254,4 @@ readonly class CsvStatementImport
         }
     }
 
-    /**
-     * Switches off the automatic Elasticsearch indexing for the duration of the import.
-     *
-     * @return array<string, list<object>> the removed listeners, keyed by event name
-     */
-    private function disableElasticsearchListeners(): array
-    {
-        $eventManager = $this->entityManager->getEventManager();
-        $disabledListeners = [];
-
-        $eventsToCheck = [
-            'prePersist', 'postPersist',
-            'preUpdate', 'postUpdate',
-            'preRemove', 'postRemove',
-            'postLoad', 'preFlush', 'onFlush', 'postFlush', 'onClear',
-        ];
-
-        foreach ($eventsToCheck as $eventName) {
-            try {
-                if (!array_key_exists($eventName, $eventManager->getAllListeners())) {
-                    continue;
-                }
-                $listeners = $eventManager->getListeners($eventName);
-            } catch (Throwable) {
-                continue;
-            }
-
-            foreach ($listeners as $listener) {
-                if (str_contains($listener::class, 'Elastica')) {
-                    $eventManager->removeEventListener($eventName, $listener);
-                    $disabledListeners[$eventName][] = $listener;
-                }
-            }
-        }
-
-        $this->logger->info('Elasticsearch auto-indexing disabled during import', [
-            'listeners_disabled' => count($disabledListeners),
-        ]);
-
-        return $disabledListeners;
-    }
-
-    /**
-     * @param array<string, list<object>> $disabledListeners
-     */
-    private function reEnableElasticsearchListeners(array $disabledListeners): void
-    {
-        $eventManager = $this->entityManager->getEventManager();
-
-        foreach ($disabledListeners as $eventName => $listeners) {
-            foreach ($listeners as $listener) {
-                $eventManager->addEventListener($eventName, $listener);
-            }
-        }
-    }
 }
