@@ -622,7 +622,7 @@ export default {
       assignableUserItems: 'items',
     }),
 
-    ...mapState('Boilerplates', ['boilerplates']),
+    ...mapState('Boilerplates', ['boilerplates', 'getBoilerplatesRequestFired']),
 
     ...mapState('Place', {
       placeItems: 'items',
@@ -814,6 +814,10 @@ export default {
   },
 
   methods: {
+    ...mapActions('Boilerplates', [
+      'getBoilerPlates'
+    ]),
+
     ...mapActions('SegmentSlidebar', [
       'toggleSlidebarContent',
     ]),
@@ -1098,6 +1102,12 @@ export default {
         .then(() => {
           this.setSelectedAssignee()
         })
+    },
+
+    initBoilerplates () {
+      if (this.getBoilerplatesRequestFired === false) {
+        this.getBoilerPlates(this.procedureId)
+      }
     },
 
     initPlaces () {
@@ -1470,6 +1480,7 @@ export default {
   mounted () {
     this.initPlaces()
     this.initAssignableUsers()
+    this.initBoilerplates()
 
 
     // Initialize unsaved changes guard
