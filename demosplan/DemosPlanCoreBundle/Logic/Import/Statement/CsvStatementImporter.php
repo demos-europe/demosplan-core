@@ -36,7 +36,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *
  * The entities are neither persisted nor flushed here, see {@link CsvStatementImport}.
  */
-readonly class CsvStatementImporter
+class CsvStatementImporter
 {
     private const DELIMITER = ';';
     private const ENCLOSURE = '"';
@@ -68,13 +68,22 @@ readonly class CsvStatementImporter
      */
     private const INSTITUTION_COLUMNS = [self::COLUMN_INSTITUTION, 'Abteilung'];
 
+    /**
+     * Eingangsnummer values already used, either by an existing statement or by an earlier row of the
+     * file currently being processed - keyed and valued by themselves. Reset at the start of every
+     * {@link process()} call, so state from one file never leaks into the next on this shared instance.
+     *
+     * @var array<non-empty-string, string>
+     */
+    private array $usedInternIds = [];
+
     public function __construct(
-        private CurrentProcedureService $currentProcedureService,
-        private ExcelImporter $statementImporter,
-        private LoggerInterface $logger,
-        private StatementService $statementService,
-        private StatementValidator $statementValidator,
-        private TranslatorInterface $translator,
+        private readonly CurrentProcedureService $currentProcedureService,
+        private readonly ExcelImporter $statementImporter,
+        private readonly LoggerInterface $logger,
+        private readonly StatementService $statementService,
+        private readonly StatementValidator $statementValidator,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -108,16 +117,19 @@ readonly class CsvStatementImporter
                 return $result;
             }
 
-            // Eingangsnummer duplicates have to be known before any row is turned into a statement,
-            // since a later row can duplicate an earlier one - so the whole file is read up front here.
-            // This is not a new memory cost: every statement built below already ends up materialized
-            // in $result before persistence begins, so holding the lighter, still-unbuilt rows first is
-            // strictly cheaper.
-            $rows = iterator_to_array($this->readRows($reader));
-        } catch (CsvException $e) {
-            // thrown by the csv parsing only - a violation of a single row never ends up here, and the
-            // rows are parsed lazily, so this also covers a file that only turns out to be broken
-            // halfway through
+            // mirrors StatementSpreadsheetImporter::process(): a row whose Eingangsnummer is
+            // already used - by an existing statement or an earlier row in this file - is skipped
+            // rather than rejected. Reset for every process() call, so a previous file processed on
+            // this same (shared, re-used) instance never leaks into this one.
+            $this->usedInternIds = $this->statementService->getInternIdsInUse(
+                $this->currentProcedureService->getProcedureWithCertainty()->getId()
+            );
+
+            foreach ($this->readRows($reader) as $fileLine => $row) {
+                $this->processRow($row, $fileLine, $sheetTitle, $result);
+            }
+        } catch (CsvException|Exception $e) {
+            // thrown by the csv parsing only - a violation of a single row never ends up here
             $this->logger->error('[CsvStatementImporter] Could not read CSV file', [
                 'file'      => $sheetTitle,
                 'exception' => $e->getMessage(),
@@ -129,12 +141,6 @@ readonly class CsvStatementImporter
             );
 
             return $result;
-        }
-
-        $duplicateInternIds = $this->findDuplicateInternIds($rows);
-
-        foreach ($rows as $fileLine => $row) {
-            $this->processRow($row, $fileLine, $sheetTitle, $result, $duplicateInternIds);
         }
 
         $this->logger->info('[CsvStatementImporter] CSV parsed', [
@@ -239,53 +245,13 @@ readonly class CsvStatementImporter
     }
 
     /**
-     * Determines which Eingangsnummer values in $rows cannot be used: either because the file itself
-     * uses the same value more than once, or because it is already assigned to an existing statement
-     * in the current procedure. Both would otherwise surface as a raw unique-constraint violation
-     * during persistence - see {@link CsvStatementImport}.
-     *
-     * @param array<int, array<string, string|null>> $rows
-     *
-     * @return array<string, true>
-     */
-    private function findDuplicateInternIds(array $rows): array
-    {
-        $countsInFile = [];
-        foreach ($rows as $row) {
-            $internId = $row[self::COLUMN_INTERN_ID] ?? null;
-            if (null !== $internId) {
-                $countsInFile[$internId] = ($countsInFile[$internId] ?? 0) + 1;
-            }
-        }
-
-        if ([] === $countsInFile) {
-            return [];
-        }
-
-        $duplicatedInFile = array_keys(array_filter(
-            $countsInFile,
-            static fn (int $count): bool => $count > 1
-        ));
-
-        $currentProcedure = $this->currentProcedureService->getProcedureWithCertainty();
-        $usedInDatabase = array_intersect_key(
-            $this->statementService->getInternIdsInUse($currentProcedure->getId()),
-            $countsInFile
-        );
-
-        return array_fill_keys([...$duplicatedInFile, ...array_keys($usedInDatabase)], true);
-    }
-
-    /**
      * @param array<string, string|null> $row
-     * @param array<string, true>        $duplicateInternIds
      */
     private function processRow(
         array $row,
         int $fileLine,
         string $sheetTitle,
         SegmentExcelImportResult $result,
-        array $duplicateInternIds,
     ): void {
         // an empty or entirely absent Institution means a statement submitted by the public, a filled
         // one by that institution - see the class doc comment
@@ -294,10 +260,19 @@ readonly class CsvStatementImporter
             : ExcelImporter::INSTITUTION;
 
         $internId = $row[self::COLUMN_INTERN_ID] ?? null;
-        if (null !== $internId && isset($duplicateInternIds[$internId])) {
-            $result->addError(
+        if (null !== $internId && array_key_exists($internId, $this->usedInternIds)) {
+            // mirrors StatementSpreadsheetImporter::skipStatement(): the first statement for a given
+            // Eingangsnummer wins, later ones are silently dropped instead of failing the whole file.
+            // Unlike an error, a warning does not abort the import - but the user still has to be told
+            // this row did not become a statement, or they would not know the file was not imported in full.
+            $this->logger->info('[CsvStatementImporter] Skipped row with duplicate Eingangsnummer', [
+                'line'     => $fileLine,
+                'file'     => $sheetTitle,
+                'internId' => $internId,
+            ]);
+            $result->addWarning(
                 $this->translator->trans(
-                    'statements.import.csv.error.duplicate.internid',
+                    'statements.import.csv.warning.duplicate.internid',
                     ['value' => $internId]
                 ),
                 $fileLine,
@@ -305,6 +280,10 @@ readonly class CsvStatementImporter
             );
 
             return;
+        }
+
+        if (null !== $internId) {
+            $this->usedInternIds[$internId] = $internId;
         }
 
         $row['publicStatement'] = ExcelImporter::INSTITUTION === $type

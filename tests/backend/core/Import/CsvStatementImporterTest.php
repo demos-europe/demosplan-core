@@ -190,24 +190,49 @@ class CsvStatementImporterTest extends FunctionalTestCase
         self::assertSame(1, $result->getStatementCount());
     }
 
-    public function testDuplicateInternIdWithinFileIsReportedOnBothRowsWithoutThrowing(): void
+    /**
+     * Mirrors StatementSpreadsheetImporter::process(): the first row for a given Eingangsnummer wins,
+     * later rows sharing it are silently skipped instead of failing the whole file. "Silently" only
+     * means the import is not aborted - the user still gets a warning naming the skipped row, so they
+     * know the file was not imported in full.
+     */
+    public function testDuplicateInternIdWithinFileImportsFirstRowAndWarnsAboutLaterOnes(): void
     {
         $this->setProcedureAndLogin();
 
         $result = $this->sut->process($this->fixture('duplicate_internid_in_file.csv'));
 
-        self::assertTrue($result->hasErrors());
-        self::assertSame(0, $result->getStatementCount());
+        self::assertFalse($result->hasErrors(), $this->describeErrors($result->getErrorsAsArray()));
+        self::assertSame(1, $result->getStatementCount());
+        self::assertSame('DUP-001', $result->getStatements()[0]->getInternId());
+        self::assertSame('Erster Text.', $result->getStatements()[0]->getText());
 
-        $lineNumbers = array_column($result->getErrorsAsArray(), 'lineNumber');
-        self::assertSame([2, 3], $lineNumbers);
-
-        $message = $this->describeErrors($result->getErrorsAsArray());
-        self::assertStringContainsString('DUP-001', $message);
-        self::assertStringNotContainsString('SQLSTATE', $message);
+        self::assertTrue($result->hasWarnings());
+        $warnings = $result->getWarningsAsArray();
+        self::assertCount(1, $warnings);
+        self::assertSame(3, $warnings[0]['lineNumber']);
+        self::assertStringContainsString('DUP-001', $warnings[0]['message']);
     }
 
-    public function testInternIdAlreadyUsedInProcedureIsReportedInsteadOfThrowing(): void
+    /**
+     * The importer is a shared, injected service and keeps its used-Eingangsnummer bookkeeping in a
+     * property rather than a fresh local each call - so a second, unrelated process() call on the same
+     * instance (e.g. a second import job picked up by the same worker) must not see rows accepted by an
+     * earlier file, or it would wrongly skip them as duplicates.
+     */
+    public function testUsedInternIdsResetBetweenCallsOnTheSameSharedInstance(): void
+    {
+        $this->setProcedureAndLogin();
+
+        $this->sut->process($this->fixture('duplicate_internid_in_file.csv'));
+        $result = $this->sut->process($this->fixture('duplicate_internid_in_file.csv'));
+
+        self::assertFalse($result->hasErrors(), $this->describeErrors($result->getErrorsAsArray()));
+        self::assertSame(1, $result->getStatementCount());
+        self::assertSame('DUP-001', $result->getStatements()[0]->getInternId());
+    }
+
+    public function testInternIdAlreadyUsedInProcedureIsSkippedWithWarning(): void
     {
         $procedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
         StatementFactory::createOne([
@@ -219,9 +244,13 @@ class CsvStatementImporterTest extends FunctionalTestCase
 
         $result = $this->sut->process($this->fixture('duplicate_internid_in_db.csv'));
 
-        self::assertTrue($result->hasErrors());
+        self::assertFalse($result->hasErrors(), $this->describeErrors($result->getErrorsAsArray()));
         self::assertSame(0, $result->getStatementCount());
-        self::assertStringContainsString('DUP-EXISTING', $this->describeErrors($result->getErrorsAsArray()));
+
+        self::assertTrue($result->hasWarnings());
+        $warnings = $result->getWarningsAsArray();
+        self::assertCount(1, $warnings);
+        self::assertStringContainsString('DUP-EXISTING', $warnings[0]['message']);
     }
 
     public function testInvalidDateIsReportedWithItsLineNumber(): void

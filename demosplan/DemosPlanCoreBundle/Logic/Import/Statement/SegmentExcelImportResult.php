@@ -34,6 +34,15 @@ final class SegmentExcelImportResult
     private $errors = [];
 
     /**
+     * Non-blocking notices, e.g. a row skipped for a duplicate Eingangsnummer - unlike errors, these
+     * never abort the import, but the user still needs to see them to know not everything they
+     * submitted ended up as a statement.
+     *
+     * @var ImportError[]
+     */
+    private $warnings = [];
+
+    /**
      * @var int
      */
     private $segmentCount = 0;
@@ -120,5 +129,31 @@ final class SegmentExcelImportResult
         }
 
         return $errorArray;
+    }
+
+    public function addWarning(
+        string $message,
+        int $currentLineNumber,
+        string $currentWorksheetTitle,
+    ): void {
+        $this->warnings[] = ImportError::fromMessage($message, $currentLineNumber, $currentWorksheetTitle);
+    }
+
+    public function hasWarnings(): bool
+    {
+        return 0 < count($this->warnings);
+    }
+
+    /**
+     * @return array<int, array>
+     */
+    public function getWarningsAsArray(): array
+    {
+        $warningArray = [];
+        foreach ($this->warnings as $key => $warning) {
+            $warningArray[] = $warning->toArray($key);
+        }
+
+        return $warningArray;
     }
 }
