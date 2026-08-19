@@ -16,7 +16,7 @@ use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use demosplan\DemosPlanCoreBundle\Api\StatementSegment\AccessChecker;
-use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Resource as StatementSegmentResource;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use Doctrine\ORM\QueryBuilder;
 
@@ -32,13 +32,26 @@ use Doctrine\ORM\QueryBuilder;
  * assumes it owns the entire query -- it sets its own alias, SELECT, FROM, and WHERE
  * (overwriting, not merging with, whatever other extensions already added).
  *
- * Instead this reuses AccessChecker::getAccessConditions() completely unmodified via
- * SegmentRepository::getEntityIdentifiers(), which runs those EDT conditions in its
- * own isolated, disposable query and returns a plain array of allowed segment IDs.
- * That ID list is safe to apply to API Platform's query afterward as a simple
- * `id IN (...)` restriction, with no alias/parameter/join conflicts. The trade-off is
- * one extra database round-trip per collection request -- the price of reusing the
- * EDT-authored rule verbatim instead of duplicating or re-deriving it.
+ * Instead of running those conditions as their own executed query and feeding the
+ * resulting IDs back in as bound values (two round-trips), this builds a second,
+ * never-executed QueryBuilder for the same conditions via
+ * {@see SegmentRepository::generateAccessConditionQueryBuilder()} and embeds its DQL
+ * as a subquery: `<rootAlias>.id IN (<subquery DQL>)`. Only the outer QueryBuilder is
+ * ever executed, so the database sees one query with a nested SELECT -- the EDT rule
+ * is still reused verbatim, just without materializing it separately first.
+ *
+ * Note: EDT's QueryBuilderPreparer numbers the subquery's bound parameters
+ * positionally from 0 (`?0`, `?1`, ...) on every call. That's only safe to merge onto
+ * the outer QueryBuilder because API Platform's own filters on this resource
+ * (SearchFilter/ExistsFilter/OrderFilter) bind named, not positional, parameters. If a
+ * future filter here starts using positional parameters, this merge would need
+ * renumbering to avoid a collision.
+ *
+ * Important: the $resourceClass parameter API Platform passes here is the *Doctrine
+ * entity* class (Segment::class, from Provider's DoctrineOptions(entityClass: ...)),
+ * not the ApiResource DTO class (StatementSegment\Resource). An earlier version of
+ * this guard compared against the DTO class, which never matched -- this extension's
+ * body never ran, on any request, regardless of anything else in this file.
  */
 final class SegmentDoctrineAccessExtension implements QueryCollectionExtensionInterface
 {
@@ -50,25 +63,21 @@ final class SegmentDoctrineAccessExtension implements QueryCollectionExtensionIn
 
     public function applyToCollection(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, ?Operation $operation = null, array $context = []): void
     {
-        if (StatementSegmentResource::class !== $resourceClass) {
+        if (Segment::class !== $resourceClass) {
             return;
         }
 
-        $allowedIds = $this->segmentRepository->getEntityIdentifiers(
-            $this->accessChecker->getAccessConditions(),
-            [],
-            'id'
+        $subQueryBuilder = $this->segmentRepository->generateAccessConditionQueryBuilder(
+            $this->accessChecker->getAccessConditions()
         );
-
-        if ([] === $allowedIds) {
-            $queryBuilder->andWhere('1 = 0');
-
-            return;
-        }
+        $subAlias = $subQueryBuilder->getRootAliases()[0];
+        $subQueryBuilder->select("$subAlias.id");
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
-        $queryBuilder
-            ->andWhere($queryBuilder->expr()->in("$rootAlias.id", ':allowedSegmentIds'))
-            ->setParameter('allowedSegmentIds', $allowedIds);
+        $queryBuilder->andWhere($queryBuilder->expr()->in("$rootAlias.id", $subQueryBuilder->getDQL()));
+
+        foreach ($subQueryBuilder->getParameters() as $parameter) {
+            $queryBuilder->setParameter($parameter->getName(), $parameter->getValue(), $parameter->getType());
+        }
     }
 }
