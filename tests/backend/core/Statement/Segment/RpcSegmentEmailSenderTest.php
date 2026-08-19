@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\RpcSegmentEmailSender;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentEmailSender;
+use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use stdClass;
@@ -168,11 +169,17 @@ class RpcSegmentEmailSenderTest extends TestCase
         $currentUser = $this->createMock(CurrentUserInterface::class);
         $currentUser->method('hasPermission')->willReturn($hasPermission);
 
+        // Run the wrapped callback so the delegation to sendSegmentsMail is exercised.
+        $transactionService = $this->createMock(TransactionService::class);
+        $transactionService->method('executeAndFlushInTransaction')
+            ->willReturnCallback(static fn (callable $task) => $task());
+
         return new RpcSegmentEmailSender(
             $currentUser,
             $this->createMock(LoggerInterface::class),
             $errorGenerator ?? $this->createMock(RpcErrorGenerator::class),
             $sender ?? $this->createMock(SegmentEmailSender::class),
+            $transactionService,
         );
     }
 

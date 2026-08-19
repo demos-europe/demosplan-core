@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
+use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use Exception;
 use Psr\Log\LoggerInterface;
 use stdClass;
@@ -29,7 +30,9 @@ class RpcSegmentEmailSender implements RpcMethodSolverInterface
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
         protected readonly LoggerInterface $logger,
-        protected RpcErrorGenerator $errorGenerator, private readonly SegmentEmailSender $segmentEmailSender,
+        protected RpcErrorGenerator $errorGenerator,
+        private readonly SegmentEmailSender $segmentEmailSender,
+        private readonly TransactionService $transactionService,
     ) {
     }
 
@@ -43,6 +46,13 @@ class RpcSegmentEmailSender implements RpcMethodSolverInterface
         $expectedProcedureId = $procedure?->getId();
         Assert::stringNotEmpty($expectedProcedureId);
 
+        return $this->transactionService->executeAndFlushInTransaction(
+            fn (): array => $this->processRequests($expectedProcedureId, $rpcRequests)
+        );
+    }
+
+    private function processRequests(string $procedureId, $rpcRequests): array
+    {
         $rpcRequests = is_object($rpcRequests)
             ? [$rpcRequests]
             : $rpcRequests;
@@ -52,14 +62,15 @@ class RpcSegmentEmailSender implements RpcMethodSolverInterface
             try {
                 $this->validateRpcRequest($rpcRequest);
                 $params = $rpcRequest->params;
-                $segmentIds = $params->segmentIds;
-                $recipientMail = $params->recipientMail;
-                $subject = $params->subject;
-                $body = $params->body;
-                $sendEmailCC = $params->sendEmailCC;
-                $replyTo = $params->replyTo ?? null;
-
-                $emailIsSent = $this->segmentEmailSender->sendSegmentsMail($segmentIds, $expectedProcedureId, $recipientMail, $subject, $body, $sendEmailCC, $replyTo);
+                $emailIsSent = $this->segmentEmailSender->sendSegmentsMail(
+                    $params->segmentIds,
+                    $procedureId,
+                    $params->recipientMail,
+                    $params->subject,
+                    $params->body,
+                    $params->sendEmailCC,
+                    $params->replyTo ?? null
+                );
 
                 $resultResponse[] = $this->generateMethodResult($rpcRequest, $emailIsSent);
             } catch (Exception $exception) {

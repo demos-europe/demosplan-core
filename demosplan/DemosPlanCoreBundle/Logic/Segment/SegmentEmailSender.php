@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use Doctrine\DBAL\Exception;
 
 class SegmentEmailSender
@@ -28,6 +29,7 @@ class SegmentEmailSender
         private readonly SegmentService $segmentService,
         private readonly EntityContentChangeService $entityContentChangeService,
         private readonly EditorService $editorService,
+        private readonly TransactionService $transactionService,
     ) {
     }
 
@@ -48,10 +50,10 @@ class SegmentEmailSender
         ?string $replyTo,
     ): bool {
         try {
-            // load the segment(s). prove they exist and give us the procedure it belongs to
+            $segmentIds = array_values(array_unique($segmentIds));
             $segments = $this->segmentService->findByIds($segmentIds);
-            if ([] === $segments) {
-                throw new InvalidDataException('No segments found for the given IDs.');
+            if ([] === $segments || count($segments) !== count($segmentIds)) {
+                throw new InvalidDataException('Not all segments were found for the given IDs.');
             }
             // ensure every segment belongs to the current procedure
             foreach ($segments as $segment) {
@@ -67,13 +69,19 @@ class SegmentEmailSender
             // handle anonymized text before building email variables
             $obscuredBody = null === $body ? null : $this->editorService->obscureString($body);
             $emailVariables = $this->populateEmailVariables($subject, $obscuredBody);
-            // Queue the mail, no attachments as of now
-            $this->sendAbschnitt($sendMailTo, $sentFrom, $ccEmailAddresses, $emailVariables, [], $replyTo);
-            foreach ($segments as $segment) {
-                $this->entityContentChangeService->createSegmentSentByMailChangeEntry($segment, $sendMailTo, new DateTime());
-            }
+            // Queue the mail and write the version-history entries in one transaction so they commit atomically:
+            // a queued mail can never end up without its GDPR audit entry (Important!)
+            // No attachments as of now.
+            $this->transactionService->executeAndFlushInTransaction(function () use (
+                $sendMailTo, $sentFrom, $ccEmailAddresses, $emailVariables, $replyTo, $segments
+            ): void {
+                $this->sendAbschnitt($sendMailTo, $sentFrom, $ccEmailAddresses, $emailVariables, [], $replyTo);
+                foreach ($segments as $segment) {
+                    $this->entityContentChangeService->createSegmentSentByMailChangeEntry($segment, $sendMailTo, new DateTime());
+                }
+            });
         } catch (InvalidDataException) {
-            $this->messageBag->add('error', 'error.segment.send.syntax.email');
+            $this->messageBag->add('error', 'error.segment.send');
 
             return false;
         }
@@ -148,10 +156,10 @@ class SegmentEmailSender
      *
      * @throws Exception
      */
-    public function sendAbschnitt($sendMailTo, $sentFrom, $emailCC, $vars, array $attachments, $replyTo): void
+    private function sendAbschnitt($sendMailTo, $sentFrom, $emailCC, $vars, array $attachments, $replyTo): void
     {
         $this->mailService->sendMail(
-            'dm_abschnitt_versand',
+            'dm_schlussmitteilung',
             'de_DE',
             $sendMailTo,
             $sentFrom,

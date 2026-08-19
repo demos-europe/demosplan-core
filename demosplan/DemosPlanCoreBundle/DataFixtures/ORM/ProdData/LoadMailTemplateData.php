@@ -115,12 +115,6 @@ class LoadMailTemplateData extends ProdFixture
                 'title'    => 'Abgelehnte Freischaltung als ${orga_type} für das Bundesland ${customer} auf bauleitplanung-online.de',
                 'content'  => "Sehr geehrte/r \${firstname} \${lastname},\r\n\r\nSie haben vor kurzer Zeit eine Freischaltung Ihrer Organisation, \${orga_name}, als \${orga_type} für das Bundesland \${customer} beantragt. Ihre Anfrage wurde durch die dort zuständige Stelle geprüft und abgelehnt.\r\n\r\nSollten Sie vermuten, dass hier ein Fehler vorliegt, wenden Sie sich bitte an den Support (support@bauleitplanung-online.de).\r\n\r\nViele Grüße,\r\n\r\nIhr Team von bauleitplanung-online.de\r\n",
             ],
-            [ // row #16
-                'label'    => 'dm_abschnitt_versand',
-                'language' => 'de_DE',
-                'title'    => '${mailsubject}',
-                'content'  => '${mailbody}',
-            ],
         ];
 
         foreach ($mailTemplates as $mailTemplateData) {

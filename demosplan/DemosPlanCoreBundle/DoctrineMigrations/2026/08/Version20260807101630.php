@@ -31,16 +31,6 @@ class Version20260807101630 extends AbstractMigration
     {
         $this->abortIfNotMysql();
         $this->addSql('ALTER TABLE _mail_send ADD _ms_reply_to VARCHAR(4096) DEFAULT NULL');
-        $this->addSql('DELETE FROM _mail_templates WHERE _mt_label = :label AND _mt_language = :language', [
-            'label'    => 'dm_abschnitt_versand',
-            'language' => 'de_DE',
-        ]);
-        $this->addSql('INSERT INTO _mail_templates (_mt_label, _mt_language, _mt_title, _mt_content) VALUES (:label, :language, :title, :content)', [
-            'label'    => 'dm_abschnitt_versand',
-            'language' => 'de_DE',
-            'title'    => '${mailsubject}',
-            'content'  => '${mailbody}',
-        ]);
     }
 
     /**
@@ -49,10 +39,6 @@ class Version20260807101630 extends AbstractMigration
     public function down(Schema $schema): void
     {
         $this->abortIfNotMysql();
-        $this->addSql('DELETE FROM _mail_templates WHERE _mt_label = :label AND _mt_language = :language', [
-            'label'    => 'dm_abschnitt_versand',
-            'language' => 'de_DE',
-        ]);
         $this->addSql('ALTER TABLE _mail_send DROP _ms_reply_to');
     }
 
