@@ -17,13 +17,13 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Validator\StatementValidator;
+use Exception;
 use Generator;
 use League\Csv\Exception as CsvException;
 use League\Csv\Reader;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use UnexpectedValueException;
 
 /**
  * Creates {@link Statement} entities from a CSV file holding one statement per row.
@@ -320,9 +320,17 @@ readonly class CsvStatementImporter
                 $this->toImporterLine($fileLine),
                 $sheetTitle
             );
-        } catch (UnexpectedValueException $e) {
-            // an unmappable submit type aborts createNewOriginalStatement() after reporting itself;
-            // the remaining rows are still worth reading, so this stays a violation of this row
+        } catch (Exception $e) {
+            // createNewOriginalStatement() can abort for many reasons (unmappable submit type,
+            // a procedure without a configured statement element, ...), some of which already
+            // report themselves on the importer beforehand; the remaining rows are still worth
+            // reading, so this stays a violation of this row rather than aborting the whole file
+            $this->logger->error('[CsvStatementImporter] Failed to create statement from row', [
+                'line'      => $fileLine,
+                'file'      => $sheetTitle,
+                'exception' => $e->getMessage(),
+            ]);
+
             if (0 === $this->transferErrors($errorsBefore, $result)) {
                 $result->addError($e->getMessage(), $fileLine, $sheetTitle);
             }
