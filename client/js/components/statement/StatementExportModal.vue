@@ -23,18 +23,7 @@
       @modal:toggled="onModalToggle"
     >
       <template v-slot:header>
-        <div class="flex items-center gap-4">
-          <dp-button
-            v-if="showBackButton"
-            class="mb-2"
-            data-cy="statementExportModal:back"
-            icon="caret-left"
-            :text="Translator.trans('back')"
-            type="button"
-            variant="subtle"
-          />
-          <h2>{{ exportModalTitle }}</h2>
-        </div>
+        <h2>{{ exportModalTitle }}</h2>
       </template>
       <fieldset
         v-if="!isSingleStatementExport"
@@ -489,10 +478,6 @@ export default {
         hasPermission('feature_statement_via_template_export') &&
         this.uploadedHash !== '' &&
         Object.values(this.docxColumns).some(col => col.title)
-    },
-
-    showBackButton () {
-      return false /* Just a mock for now. It will be implemented in the story DPLAN-18153 */
     },
 
     templateStorageName () {
