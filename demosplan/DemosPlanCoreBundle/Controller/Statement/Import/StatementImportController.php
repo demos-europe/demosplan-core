@@ -199,6 +199,10 @@ class StatementImportController extends BaseController
         $procedure = $currentProcedureService->getProcedure();
 
         if (!$procedure instanceof Procedure) {
+            $this->logger->error('Failed to queue statement csv import job: procedure not found', [
+                'procedureId' => $procedureId,
+            ]);
+
             throw ProcedureNotFoundException::createFromId($procedureId);
         }
 
