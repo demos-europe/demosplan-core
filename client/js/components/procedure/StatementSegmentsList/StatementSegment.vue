@@ -162,6 +162,7 @@
         <dp-editor
           class="mb-2"
           editor-id="recommendationText"
+          :get-boilerplate-title="getBoilerplateTitle"
           :routes="{
             getFileByHash: (hash) => Routing.generate('core_file_procedure', { procedureId: procedureId, hash: hash })
           }"
@@ -621,6 +622,8 @@ export default {
       assignableUserItems: 'items',
     }),
 
+    ...mapState('Boilerplates', ['boilerplates']),
+
     ...mapState('Place', {
       placeItems: 'items',
     }),
@@ -1044,6 +1047,10 @@ export default {
     exitEditMode () {
       this.isFullscreen = false
       this.isEditing = false
+    },
+
+    getBoilerplateTitle (boilerplateId) {
+      return this.boilerplates[boilerplateId]?.attributes?.title ?? ''
     },
 
     getUnassignedAssignee () {
