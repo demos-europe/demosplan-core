@@ -14,9 +14,13 @@ namespace Tests\Core\Core\Unit\EventListener;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
+use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
+use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
+use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\EventListener\ExceptionEventSubscriber;
 use demosplan\DemosPlanCoreBundle\Logic\ExceptionService;
 use Exception;
+use InvalidArgumentException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -25,9 +29,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Throwable;
 
 class ExceptionEventSubscriberTest extends TestCase
 {
@@ -387,5 +394,105 @@ class ExceptionEventSubscriberTest extends TestCase
         $sut->handleException($exceptionEvent);
 
         self::assertInstanceOf(APIResponse::class, $exceptionEvent->getResponse());
+    }
+
+    // ========== API Platform Tests ==========
+
+    /**
+     * API Platform dispatches to its own controller, so the APIController branch never matches. Its
+     * requests are recognised by the resource class attribute instead.
+     */
+    private function createApiPlatformExceptionEvent(Throwable $exception): ExceptionEvent
+    {
+        $kernel = $this->createMock(HttpKernelInterface::class);
+        $request = Request::create('/api/3.0/Bookmark');
+        $request->attributes->set('_api_resource_class', 'demosplan\DemosPlanCoreBundle\Api\Bookmark\BookmarkResource');
+
+        return new ExceptionEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST, $exception);
+    }
+
+    /**
+     * @return array<string, array{0: Throwable, 1: int, 2: bool}> exception, expected status, whether
+     *                                                             its message reaches the client
+     */
+    public static function apiPlatformExceptionProvider(): array
+    {
+        return [
+            // Symfony HTTP exceptions carry their own status.
+            'not found'            => [new NotFoundHttpException(self::TEST_ERROR_MESSAGE), Response::HTTP_NOT_FOUND, true],
+            'bad request'          => [new BadRequestHttpException(self::TEST_ERROR_MESSAGE), Response::HTTP_BAD_REQUEST, true],
+            'unprocessable'        => [new UnprocessableEntityHttpException(self::TEST_ERROR_MESSAGE), Response::HTTP_UNPROCESSABLE_ENTITY, true],
+            // The codebase's own exceptions keep the statuses the legacy API stack gives them.
+            'domain not found'     => [new ResourceNotFoundException(self::TEST_ERROR_MESSAGE), Response::HTTP_NOT_FOUND, true],
+            'domain access denied' => [new AccessDeniedException(self::TEST_ERROR_MESSAGE), Response::HTTP_UNAUTHORIZED, true],
+            'domain bad request'   => [new BadRequestException(self::TEST_ERROR_MESSAGE), Response::HTTP_BAD_REQUEST, true],
+            /*
+             * Anything unmapped is a server fault, not the client's: a Webmozart assertion guards an
+             * invariant, so its failure means this code is wrong. Mapping it to 400 would disguise a
+             * bug as a bad request. Its message is withheld because it may carry internals.
+             */
+            'assertion failure'    => [new InvalidArgumentException(self::TEST_ERROR_MESSAGE), Response::HTTP_INTERNAL_SERVER_ERROR, false],
+            'unexpected failure'   => [new Exception(self::TEST_ERROR_MESSAGE), Response::HTTP_INTERNAL_SERVER_ERROR, false],
+        ];
+    }
+
+    /**
+     * @dataProvider apiPlatformExceptionProvider
+     */
+    public function testApiPlatformExceptionIsRenderedWithMappedStatus(Throwable $exception, int $expectedStatus, bool $messageIsExposed): void
+    {
+        $sut = $this->createSut(debug: false);
+        $exceptionEvent = $this->createApiPlatformExceptionEvent($exception);
+
+        $sut->handleException($exceptionEvent);
+
+        $response = $exceptionEvent->getResponse();
+        self::assertInstanceOf(APIResponse::class, $response);
+        self::assertSame($expectedStatus, $response->getStatusCode());
+
+        $error = json_decode((string) $response->getContent(), true)['errors'][0];
+        self::assertSame($expectedStatus, $error['status']);
+
+        if ($messageIsExposed) {
+            self::assertSame(self::TEST_ERROR_MESSAGE, $error['title']);
+
+            return;
+        }
+
+        self::assertNotSame(self::TEST_ERROR_MESSAGE, $error['title']);
+    }
+
+    /**
+     * Without this branch the exception would reach the generic handler and the client would receive a
+     * redirect to the HTML error page instead of a parsable body.
+     */
+    public function testApiPlatformRequestDoesNotFallThroughToTheHtmlErrorPage(): void
+    {
+        $sut = $this->createSut(debug: false);
+        $this->exceptionService->expects(self::never())->method('handleError');
+        $this->exceptionService->expects(self::never())->method('create404Response');
+
+        $exceptionEvent = $this->createApiPlatformExceptionEvent(new NotFoundHttpException('gone'));
+        $sut->handleException($exceptionEvent);
+
+        $response = $exceptionEvent->getResponse();
+        self::assertInstanceOf(APIResponse::class, $response);
+        self::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
+    /**
+     * A plain request without the attribute must keep its previous behaviour.
+     */
+    public function testRequestWithoutApiPlatformAttributeStillUsesTheGenericHandler(): void
+    {
+        $sut = $this->createSut(debug: false);
+        $this->exceptionService->expects(self::once())
+            ->method('handleError')
+            ->willReturn(new Response('generic'));
+
+        $exceptionEvent = $this->createExceptionEvent(new Exception('boom'));
+        $sut->handleException($exceptionEvent);
+
+        self::assertSame('generic', $exceptionEvent->getResponse()?->getContent());
     }
 }

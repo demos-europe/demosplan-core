@@ -12,6 +12,9 @@ namespace demosplan\DemosPlanCoreBundle\EventListener;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
+use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
+use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
+use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ExceptionService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -116,14 +119,14 @@ class ExceptionEventSubscriber implements EventSubscriberInterface
      * reused: its switch predates these operations and knows none of Symfony's HTTP exceptions, so a
      * 404 would arrive as a 400.
      *
-     * Only messages of HTTP exceptions are passed on. They are written for the client by the
-     * provider or processor that threw them, whereas any other throwable may carry internals.
+     * Messages are passed on only for the exceptions that are mapped below: those are raised by our
+     * own providers and processors and worded for the client. An unmapped throwable is unexpected and
+     * may carry internals, so it gets the plain status text.
      */
     private function createApiPlatformErrorResponse(Throwable $exception): APIResponse
     {
-        $status = $exception instanceof HttpExceptionInterface
-            ? $exception->getStatusCode()
-            : Response::HTTP_INTERNAL_SERVER_ERROR;
+        $mappedStatus = $this->mapExceptionToStatus($exception);
+        $status = $mappedStatus ?? Response::HTTP_INTERNAL_SERVER_ERROR;
 
         $this->logger->error('API Platform exception occurred', [
             'exception' => $exception,
@@ -132,9 +135,9 @@ class ExceptionEventSubscriber implements EventSubscriberInterface
 
         $error = [
             'status' => $status,
-            'title'  => $exception instanceof HttpExceptionInterface
-                ? $exception->getMessage()
-                : (Response::$statusTexts[$status] ?? 'Internal Server Error'),
+            'title'  => null === $mappedStatus
+                ? (Response::$statusTexts[$status] ?? 'Internal Server Error')
+                : $exception->getMessage(),
         ];
 
         if ($this->debug) {
@@ -154,6 +157,26 @@ class ExceptionEventSubscriber implements EventSubscriberInterface
         ];
 
         return new APIResponse($data, $status);
+    }
+
+    /**
+     * Keeps the statuses of {@see APIController::handleApiError()} for the exceptions raised in this
+     * codebase, so the same failure is reported alike whichever API version answers it. None of those
+     * classes implements `HttpExceptionInterface`, so without this they would all surface as 500.
+     *
+     * One deviation, deliberate: the legacy mapping falls back to 400, reporting a server fault as the
+     * client's mistake. Null marks an exception this class does not recognise, which the caller
+     * answers as 500 and without passing its message on.
+     */
+    private function mapExceptionToStatus(Throwable $exception): ?int
+    {
+        return match (true) {
+            $exception instanceof HttpExceptionInterface => $exception->getStatusCode(),
+            $exception instanceof ResourceNotFoundException => Response::HTTP_NOT_FOUND,
+            $exception instanceof AccessDeniedException => Response::HTTP_UNAUTHORIZED,
+            $exception instanceof BadRequestException => Response::HTTP_BAD_REQUEST,
+            default => null,
+        };
     }
 
     /**
