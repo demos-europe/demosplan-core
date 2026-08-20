@@ -13,6 +13,9 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Api\Common;
 
 use ApiPlatform\State\Pagination\PaginatorInterface;
+use Closure;
+use IteratorAggregate;
+use Traversable;
 
 /**
  * Decorates an ApiPlatform PaginatorInterface, mapping each yielded item (e.g. a
@@ -24,15 +27,15 @@ use ApiPlatform\State\Pagination\PaginatorInterface;
  *
  * @implements PaginatorInterface<TOut>
  */
-final class MappingPaginator implements \IteratorAggregate, PaginatorInterface
+final class MappingPaginator implements IteratorAggregate, PaginatorInterface
 {
     /**
      * @param PaginatorInterface<TIn> $inner
-     * @param \Closure(TIn): TOut     $map
+     * @param Closure(TIn): TOut      $map
      */
     public function __construct(
         private readonly PaginatorInterface $inner,
-        private readonly \Closure $map,
+        private readonly Closure $map,
     ) {
     }
 
@@ -61,7 +64,7 @@ final class MappingPaginator implements \IteratorAggregate, PaginatorInterface
         return $this->inner->count();
     }
 
-    public function getIterator(): \Traversable
+    public function getIterator(): Traversable
     {
         foreach ($this->inner as $item) {
             yield ($this->map)($item);
