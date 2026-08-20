@@ -14,10 +14,10 @@ namespace Tests\Core\Core\Unit\EventListener;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
+use demosplan\DemosPlanCoreBundle\EventListener\ExceptionEventSubscriber;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
-use demosplan\DemosPlanCoreBundle\EventListener\ExceptionEventSubscriber;
 use demosplan\DemosPlanCoreBundle\Logic\ExceptionService;
 use Exception;
 use InvalidArgumentException;

@@ -80,6 +80,7 @@ class BookmarkProvider implements ProviderInterface
      * shares. The list is a handful of entries per user and procedure, hence no pagination either.
      *
      * @return list<BookmarkResource>
+     *
      * @throws Exception
      */
     private function provideCollection(): array

@@ -171,11 +171,11 @@ class ExceptionEventSubscriber implements EventSubscriberInterface
     private function mapExceptionToStatus(Throwable $exception): ?int
     {
         return match (true) {
-            $exception instanceof HttpExceptionInterface => $exception->getStatusCode(),
+            $exception instanceof HttpExceptionInterface    => $exception->getStatusCode(),
             $exception instanceof ResourceNotFoundException => Response::HTTP_NOT_FOUND,
-            $exception instanceof AccessDeniedException => Response::HTTP_UNAUTHORIZED,
-            $exception instanceof BadRequestException => Response::HTTP_BAD_REQUEST,
-            default => null,
+            $exception instanceof AccessDeniedException     => Response::HTTP_UNAUTHORIZED,
+            $exception instanceof BadRequestException       => Response::HTTP_BAD_REQUEST,
+            default                                         => null,
         };
     }
 
