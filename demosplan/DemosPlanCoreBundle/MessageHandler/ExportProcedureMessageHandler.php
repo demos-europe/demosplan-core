@@ -27,6 +27,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
 
 /**
@@ -50,6 +51,7 @@ class ExportProcedureMessageHandler
         private readonly ExportService $exportService,
         private readonly LoggerInterface $logger,
         private readonly RequestStack $requestStack,
+        private readonly TranslatorInterface $translator,
     ) {
     }
 
@@ -87,7 +89,9 @@ class ExportProcedureMessageHandler
                 $response,
                 $message->getUserId(),
                 null,
-                'Verfahrensexport.zip'
+                // Same key ExportService names the archive after, so the fallback cannot diverge
+                // from it per project or locale.
+                $this->translator->trans('procedure.export_filename').'.zip'
             );
             $job->setFileHash($storedFile->getFileHash());
             $job->setFileName($storedFile->getFileName());
