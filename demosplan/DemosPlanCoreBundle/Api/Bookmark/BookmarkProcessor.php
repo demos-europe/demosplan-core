@@ -93,8 +93,8 @@ class BookmarkProcessor implements ProcessorInterface
             return $this->nameCollisionResponse($data->name);
         }
 
+        /** @var User $user */
         $user = $this->currentUser->getUser();
-        Assert::isInstanceOf($user, User::class);
 
         $bookmark = new Bookmark();
         $bookmark->setName($data->name);
