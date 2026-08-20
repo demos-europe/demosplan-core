@@ -228,10 +228,10 @@ class ExceptionEventSubscriber implements EventSubscriberInterface
              * answered as 500, discarding the violations it carries.
              */
             $exception instanceof ViolationsExceptionInterface => Response::HTTP_BAD_REQUEST,
-            $exception instanceof ResourceNotFoundException => Response::HTTP_NOT_FOUND,
-            $exception instanceof AccessDeniedException     => Response::HTTP_UNAUTHORIZED,
-            $exception instanceof BadRequestException       => Response::HTTP_BAD_REQUEST,
-            default                                         => null,
+            $exception instanceof ResourceNotFoundException    => Response::HTTP_NOT_FOUND,
+            $exception instanceof AccessDeniedException        => Response::HTTP_UNAUTHORIZED,
+            $exception instanceof BadRequestException          => Response::HTTP_BAD_REQUEST,
+            default                                            => null,
         };
     }
 
