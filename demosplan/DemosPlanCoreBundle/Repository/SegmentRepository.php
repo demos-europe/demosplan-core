@@ -19,6 +19,8 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\RecommendationVersionService;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\QueryBuilder;
+use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use Exception;
 
 /**
@@ -383,5 +385,17 @@ class SegmentRepository extends CoreRepository
         $em = $this->getEntityManager();
         $em->remove($segment);
         $em->flush();
+    }
+
+    /**
+     * Builds a QueryBuilder matching the given EDT conditions without executing it, so
+     * callers can embed it as a subquery (e.g. `id IN (...)`) instead of running it as
+     * its own round-trip. See {@see Extension\SegmentDoctrineAccessExtension::applyToCollection()}.
+     *
+     * @param list<ClauseFunctionInterface<bool>> $conditions
+     */
+    public function generateAccessConditionQueryBuilder(array $conditions): QueryBuilder
+    {
+        return $this->objectProvider->generateQueryBuilder($conditions, []);
     }
 }
