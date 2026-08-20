@@ -47,7 +47,6 @@
 
     <div class="layout__item">
       <map-admin-scales
-        v-if="!hasPermission('feature_diplan_karte')"
         :available-scales="procedureMapSettings.attributes.availableScales"
         class="u-mb"
         :selected-scales="procedureMapSettings.attributes.scales || []"
