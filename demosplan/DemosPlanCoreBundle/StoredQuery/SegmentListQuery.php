@@ -16,6 +16,7 @@ use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
 
 class SegmentListQuery extends AbstractStoredQuery
 {
+    public const QUIERY_FORMAT = 'segment_list';
     private const FILTER = 'filter';
     private const PROCEDURE_ID = 'procedureId';
     private const SEARCH_PHRASE = 'searchPhrase';
@@ -46,7 +47,7 @@ class SegmentListQuery extends AbstractStoredQuery
 
     public function getFormat(): string
     {
-        return 'segment_list';
+        return self::QUIERY_FORMAT;
     }
 
     public function fromJson(array $json): void
