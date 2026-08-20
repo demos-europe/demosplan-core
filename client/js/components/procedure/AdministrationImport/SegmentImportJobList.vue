@@ -55,7 +55,7 @@
         <!-- Result Column -->
         <template v-slot:result="rowData">
           <span v-if="rowData.status === 'completed' && rowData.result">
-            {{ resultSummary(rowData) }}
+            {{ formatResultSummary(rowData) }}
           </span>
           <span v-else-if="rowData.status === 'failed'">
             {{ Translator.trans('error.occurred') }}
@@ -221,7 +221,15 @@ export default {
       }
     },
 
-    resultSummary (job) {
+    formatDateTime (dateTimeString) {
+      if (!dateTimeString) {
+        return '-'
+      }
+
+      return formatDate(dateTimeString, 'long')
+    },
+
+    formatResultSummary (job) {
       const summary = [`${job.result.statements || 0} ${Translator.trans('statements')}`]
 
       if (job.importType === 'segments') {
@@ -233,6 +241,19 @@ export default {
       }
 
       return summary.join(', ')
+    },
+
+    handleVisibilityChange () {
+      if (document.hidden) {
+        // Tab hidden - stop polling to save resources
+        this.stopPolling()
+      } else {
+        // Tab visible - reset to fast polling and refresh immediately
+        this.pollInterval = 5000
+        this.isInitialLoad = true  // Show loading spinner when returning to tab
+        this.fetchJobs()
+        this.startPolling()
+      }
     },
 
     hasWarnings (item) {
@@ -319,27 +340,6 @@ export default {
         clearTimeout(this.pollTimeoutId)
         this.pollTimeoutId = null
       }
-    },
-
-    handleVisibilityChange () {
-      if (document.hidden) {
-        // Tab hidden - stop polling to save resources
-        this.stopPolling()
-      } else {
-        // Tab visible - reset to fast polling and refresh immediately
-        this.pollInterval = 5000
-        this.isInitialLoad = true  // Show loading spinner when returning to tab
-        this.fetchJobs()
-        this.startPolling()
-      }
-    },
-
-    formatDateTime (dateTimeString) {
-      if (!dateTimeString) {
-        return '-'
-      }
-
-      return formatDate(dateTimeString, 'long')
     },
   },
 
