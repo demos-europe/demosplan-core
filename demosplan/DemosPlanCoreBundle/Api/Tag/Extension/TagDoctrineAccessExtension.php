@@ -21,17 +21,8 @@ use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
 use Doctrine\ORM\QueryBuilder;
 
 /**
- * Restricts Doctrine-backed Tag collection reads to procedures the current user is
- * allowed to access.
- *
- * This mirrors {@see \demosplan\DemosPlanCoreBundle\Api\StatementSegment\Extension\SegmentDoctrineAccessExtension}:
- * the access rule is authored in EDT condition objects
- * ({@see AccessChecker::getAccessConditions()}), which can't be applied directly to
- * the QueryBuilder API Platform's own Doctrine ORM CollectionProvider builds and
- * shares across extensions. Instead, a second, never-executed QueryBuilder for the
- * same conditions is built via {@see TagRepository::generateAccessConditionQueryBuilder()}
- * and embedded as a subquery: `<rootAlias>.id IN (<subquery DQL>)`. Only the outer
- * QueryBuilder is ever executed.
+ * Restricts GET /3.0/Tag collection queries to procedures the current user is allowed
+ * * to access, by reusing {@see AccessChecker::getAccessConditions()} as a subquery.
  */
 final class TagDoctrineAccessExtension implements QueryCollectionExtensionInterface
 {
@@ -43,8 +34,6 @@ final class TagDoctrineAccessExtension implements QueryCollectionExtensionInterf
 
     public function applyToCollection(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, ?Operation $operation = null, array $context = []): void
     {
-        // $resourceClass here is the Doctrine entity (Tag::class, from Provider's
-        // DoctrineOptions(entityClass: ...)), not the ApiResource DTO class.
         if (Tag::class !== $resourceClass) {
             return;
         }
