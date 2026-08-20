@@ -63,7 +63,7 @@
           <span v-else>-</span>
         </template>
 
-        <!-- Expanded Row Content - Shows full error or skipped-row warnings -->
+        <!-- Expanded Row Content - Shows full error -->
         <template v-slot:expandedContent="rowData">
           <div
             v-if="rowData.status === 'failed' && rowData.error"
@@ -75,25 +75,6 @@
               type="error"
             >
               <pre class="m-0 mt-2 max-h-[200px] w-full overflow-y-auto whitespace-pre-wrap break-words text-sm">{{ rowData.error }}</pre>
-            </dp-inline-notification>
-          </div>
-          <div
-            v-else-if="hasWarnings(rowData)"
-            class="px-1 pb-1"
-          >
-            <strong class="mb-1 block">{{ Translator.trans('import.job.warnings') }}:</strong>
-            <dp-inline-notification
-              :message="Translator.trans('import.job.warnings.hint')"
-              type="warning"
-            >
-              <ul class="m-0 mt-2 max-h-[200px] w-full overflow-y-auto text-sm">
-                <li
-                  v-for="warning in rowData.result.warnings"
-                  :key="warning.id"
-                >
-                  {{ warning.message }}
-                </li>
-              </ul>
             </dp-inline-notification>
           </div>
         </template>
@@ -235,10 +216,6 @@ export default {
         summary.push(`${job.result.segments || 0} ${Translator.trans('segments')}`)
       }
 
-      if (job.result.warnings?.length > 0) {
-        summary.push(Translator.trans('import.job.warnings.count', { count: job.result.warnings.length }))
-      }
-
       return summary.join(', ')
     },
 
@@ -255,20 +232,16 @@ export default {
       }
     },
 
-    hasWarnings (item) {
-      return item.status === 'completed' && item.result?.warnings?.length > 0
-    },
-
     /**
-     * Disables expand buttons for rows without errors or warnings, since there will be no content in the expanded row
-     * Enables expand buttons for rows with errors or warnings, since that content will be displayed in the expanded row
+     * Disables expand buttons for rows without errors, since there will be no content in the expanded row
+     * Enables expand buttons for rows with errors, since the error message will be displayed in the expanded row
      */
     setExpandButtonStates () {
       this.items.forEach((item, index) => {
         const expandButton = this.$el.querySelector(`[data-cy="isExpandableWrapTrigger:${index}"]`)
 
         if (expandButton) {
-          const hasError = (item.status === 'failed' && item.error) || this.hasWarnings(item)
+          const hasError = item.status === 'failed' && item.error
 
           // Remove old event listener if it exists
           if (expandButton._clickHandler) {

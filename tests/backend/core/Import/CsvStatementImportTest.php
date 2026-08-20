@@ -64,7 +64,7 @@ class CsvStatementImportTest extends FunctionalTestCase
         self::assertSame($statementsBefore, $this->countEntries(Statement::class));
     }
 
-    public function testDuplicateInternIdAgainstExistingStatementIsSkippedAndDoesNotThrow(): void
+    public function testDuplicateInternIdAgainstExistingStatementIsReportedAsErrorAndDoesNotThrow(): void
     {
         // this reproduces the original bug: a duplicate Eingangsnummer used to reach flush()
         // unvalidated and surface as a raw UniqueConstraintViolationException
@@ -79,7 +79,7 @@ class CsvStatementImportTest extends FunctionalTestCase
 
         $result = $this->sut->importFromFile($this->fileInfo('duplicate_internid_in_db.csv'));
 
-        self::assertFalse($result->hasErrors());
+        self::assertTrue($result->hasErrors());
         self::assertSame(0, $result->getStatementCount());
         self::assertSame($statementsBefore, $this->countEntries(Statement::class));
     }

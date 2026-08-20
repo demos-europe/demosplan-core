@@ -2092,13 +2092,6 @@ import.job.last_refresh: "Zuletzt aktualisiert"
 import.job.error: "Fehler anzeigen"
 import.job.processing: "Wird verarbeitet..."
 import.job.waiting: "Wartet auf Verarbeitung"
-import.job.warnings: "Hinweise"
-import.job.warnings.count: |
-    {count, plural,
-        =1 { # Hinweis }
-        other { # Hinweise }
-    }
-import.job.warnings.hint: "Nicht alle Zeilen der Datei wurden importiert:"
 import.job.result: "Ergebnis"
 import.job.status.pending: "Ausstehend"
 import.job.status.processing: "Läuft"
@@ -3893,11 +3886,7 @@ statements.grouped.priority: |
 statements.grouprelease: "Freigaben der Institution"
 statements.import: "Stellungnahmen importieren"
 statements.import.csv.error.missing.columns: "In der CSV-Datei fehlen folgende Spalten: {columns}. Bitte verwenden Sie die CSV-Beispieldatei als Vorlage."
-statements.import.csv.warning.duplicate.internid.summary: |
-    {count, plural,
-        =1 { Eine Zeile wurde übersprungen, da ihre Eingangsnummer bereits in diesem Verfahren verwendet wird oder mehrfach in der Datei vorkommt: {lines} }
-        other { # Zeilen wurden übersprungen, da ihre Eingangsnummer bereits in diesem Verfahren verwendet wird oder mehrfach in der Datei vorkommt: {lines} }
-    }
+statements.import.csv.error.duplicate.internid: "Die Eingangsnummer {value} ist nicht eindeutig. Sie wird bereits in diesem Verfahren verwendet oder kommt mehrfach in dieser Datei vor."
 statements.import.csv.error.unreadable: "Die CSV-Datei konnte nicht gelesen werden. Bitte prüfen Sie, ob es sich um eine gültige CSV-Datei handelt."
 statements.import.error.line.summary: "In Zeile {lineNr}:"
 statements.import.error.document.summary: "Im Dokument {doc} traten folgende Fehler auf:"

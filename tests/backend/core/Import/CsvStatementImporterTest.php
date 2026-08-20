@@ -191,49 +191,45 @@ class CsvStatementImporterTest extends FunctionalTestCase
     }
 
     /**
-     * Mirrors StatementSpreadsheetImporter::process(): the first row for a given Eingangsnummer wins,
-     * later rows sharing it are silently skipped instead of failing the whole file. "Silently" only
-     * means the import is not aborted - the user still gets a warning naming the skipped row, so they
-     * know the file was not imported in full.
+     * The first row for a given Eingangsnummer wins; a later row sharing it is reported as an error,
+     * same as any other row-level violation (e.g. an invalid date) - which aborts the whole import.
      */
-    public function testDuplicateInternIdWithinFileImportsFirstRowAndWarnsAboutLaterOnes(): void
+    public function testDuplicateInternIdWithinFileReportsErrorOnLaterRow(): void
     {
         $this->setProcedureAndLogin();
 
         $result = $this->sut->process($this->fixture('duplicate_internid_in_file.csv'));
 
-        self::assertFalse($result->hasErrors(), $this->describeErrors($result->getErrorsAsArray()));
+        self::assertTrue($result->hasErrors());
         self::assertSame(1, $result->getStatementCount());
         self::assertSame('DUP-001', $result->getStatements()[0]->getInternId());
         self::assertSame('Erster Text.', $result->getStatements()[0]->getText());
 
-        self::assertTrue($result->hasWarnings());
-        $warnings = $result->getWarningsAsArray();
-        self::assertCount(1, $warnings);
-        self::assertStringContainsString('Zeile 3', $warnings[0]['message']);
-        self::assertStringContainsString('DUP-001', $warnings[0]['message']);
+        $errors = $result->getErrorsAsArray();
+        self::assertCount(1, $errors);
+        self::assertSame(3, $errors[0]['lineNumber']);
+        self::assertStringContainsString('DUP-001', $errors[0]['message']);
     }
 
     /**
-     * A file with several duplicate Eingangsnummer rows must not produce one warning per row - that
-     * would bury the rest of the result behind an equally long list of near-identical messages.
+     * Several duplicate Eingangsnummer rows in one file must each be reported as their own error,
+     * same as any other row-level violation - the loop keeps reading so the user gets the full list.
      */
-    public function testMultipleDuplicateInternIdsAreCombinedIntoOneWarning(): void
+    public function testMultipleDuplicateInternIdsAreEachReportedAsSeparateError(): void
     {
         $this->setProcedureAndLogin();
 
         $result = $this->sut->process($this->fixture('multiple_duplicate_internids.csv'));
 
-        self::assertFalse($result->hasErrors(), $this->describeErrors($result->getErrorsAsArray()));
+        self::assertTrue($result->hasErrors());
         self::assertSame(2, $result->getStatementCount());
 
-        self::assertTrue($result->hasWarnings());
-        $warnings = $result->getWarningsAsArray();
-        self::assertCount(1, $warnings);
-        self::assertStringContainsString('DUP-001', $warnings[0]['message']);
-        self::assertStringContainsString('DUP-002', $warnings[0]['message']);
-        self::assertStringContainsString('Zeile 3', $warnings[0]['message']);
-        self::assertStringContainsString('Zeile 5', $warnings[0]['message']);
+        $errors = $result->getErrorsAsArray();
+        self::assertCount(2, $errors);
+        self::assertSame(3, $errors[0]['lineNumber']);
+        self::assertStringContainsString('DUP-001', $errors[0]['message']);
+        self::assertSame(5, $errors[1]['lineNumber']);
+        self::assertStringContainsString('DUP-002', $errors[1]['message']);
     }
 
     /**
@@ -246,15 +242,20 @@ class CsvStatementImporterTest extends FunctionalTestCase
     {
         $this->setProcedureAndLogin();
 
-        $this->sut->process($this->fixture('duplicate_internid_in_file.csv'));
-        $result = $this->sut->process($this->fixture('duplicate_internid_in_file.csv'));
+        $firstResult = $this->sut->process($this->fixture('duplicate_internid_in_file.csv'));
+        $secondResult = $this->sut->process($this->fixture('duplicate_internid_in_file.csv'));
 
-        self::assertFalse($result->hasErrors(), $this->describeErrors($result->getErrorsAsArray()));
-        self::assertSame(1, $result->getStatementCount());
-        self::assertSame('DUP-001', $result->getStatements()[0]->getInternId());
+        // both calls see the same in-file duplicate independently - if usedInternIds leaked between
+        // calls, the second call's first row would wrongly be flagged as a duplicate too
+        foreach ([$firstResult, $secondResult] as $result) {
+            self::assertTrue($result->hasErrors());
+            self::assertSame(1, $result->getStatementCount());
+            self::assertSame('DUP-001', $result->getStatements()[0]->getInternId());
+            self::assertCount(1, $result->getErrorsAsArray());
+        }
     }
 
-    public function testInternIdAlreadyUsedInProcedureIsSkippedWithWarning(): void
+    public function testInternIdAlreadyUsedInProcedureIsReportedAsError(): void
     {
         $procedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
         StatementFactory::createOne([
@@ -266,13 +267,12 @@ class CsvStatementImporterTest extends FunctionalTestCase
 
         $result = $this->sut->process($this->fixture('duplicate_internid_in_db.csv'));
 
-        self::assertFalse($result->hasErrors(), $this->describeErrors($result->getErrorsAsArray()));
+        self::assertTrue($result->hasErrors());
         self::assertSame(0, $result->getStatementCount());
 
-        self::assertTrue($result->hasWarnings());
-        $warnings = $result->getWarningsAsArray();
-        self::assertCount(1, $warnings);
-        self::assertStringContainsString('DUP-EXISTING', $warnings[0]['message']);
+        $errors = $result->getErrorsAsArray();
+        self::assertCount(1, $errors);
+        self::assertStringContainsString('DUP-EXISTING', $errors[0]['message']);
     }
 
     public function testInvalidDateIsReportedWithItsLineNumber(): void

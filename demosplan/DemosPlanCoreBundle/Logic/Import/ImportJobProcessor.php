@@ -206,7 +206,7 @@ class ImportJobProcessor
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<string, int>
      */
     private function buildJobResult(ImportJob $job, SegmentExcelImportResult $result): array
     {
@@ -214,12 +214,6 @@ class ImportJobProcessor
 
         if (ImportJobType::SEGMENTS === $job->getImportType()) {
             $jobResult['segments'] = $result->getSegmentCount();
-        }
-
-        // a completed job can still have skipped rows (e.g. a duplicate Eingangsnummer) - the user
-        // needs to see that, or they would not know the file was not imported in full
-        if ($result->hasWarnings()) {
-            $jobResult['warnings'] = $result->getWarningsAsArray();
         }
 
         return $jobResult;
