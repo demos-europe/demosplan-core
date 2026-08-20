@@ -489,7 +489,6 @@ input.disabled {
     // Used to horizontally lay out checkboxes or radios and their corresponding labels.
     &__element {
         &--checkbox {
-            position: relative;
             display: flex;
             align-items: flex-start;
             gap: 10px;
@@ -497,7 +496,7 @@ input.disabled {
             > input[type='checkbox'] {
                 height: .9em;
                 width: .9em;
-                margin: 0;
+                margin: .25em 0 0;
                 flex-shrink: 0;
             }
 
@@ -512,7 +511,6 @@ input.disabled {
         }
 
         &--radio {
-            position: relative;
             display: flex;
             align-items: flex-start;
             gap: 10px;
@@ -520,7 +518,7 @@ input.disabled {
             > input[type='radio'] {
                 height: .9em;
                 width: .9em;
-                margin: 0;
+                margin: .25em 0 0;
                 flex-shrink: 0;
             }
 
