@@ -76,9 +76,9 @@ class Provider implements ProviderInterface
      * sorting via the declared OrderFilter on {@see Resource}, and pagination) applies
      * automatically.
      *
-     * @return PaginatorInterface<TagResource>|list<TagResource>
+     * @return PaginatorInterface<TagResource>
      */
-    private function provideCollection(Operation $operation, array $uriVariables, array $context): PaginatorInterface|array
+    private function provideCollection(Operation $operation, array $uriVariables, array $context): PaginatorInterface
     {
         $operation = $operation->withStateOptions(new DoctrineOptions(
             entityClass: Tag::class,
@@ -91,11 +91,9 @@ class Provider implements ProviderInterface
         $result = $this->doctrineCollectionProvider->provide($operation, $uriVariables, $context);
         $map = static fn (Tag $tag): TagResource => TagResource::fromEntity($tag);
 
-        if ($result instanceof PaginatorInterface) {
-            return new MappingPaginator($result, $map);
-        }
+        Assert::isInstanceOf($result, PaginatorInterface::class);
 
-        return array_map($map, is_array($result) ? $result : iterator_to_array($result));
+        return new MappingPaginator($result, $map);
     }
 
     /**
