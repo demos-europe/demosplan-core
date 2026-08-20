@@ -214,6 +214,7 @@ fos_elastica:
                 coordinate: {type: text, index: true}
                 legalNotice: {type: text, index: false}
                 participationGuestOnly: { type: boolean }
+                allowUninvitedInstitutions: { type: boolean }
             # define callback to check whether entity should be indexed
             indexable_callback: 'shouldBeIndexed'
             persistence:
