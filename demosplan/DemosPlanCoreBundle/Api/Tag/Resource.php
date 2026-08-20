@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Api\Tag;
 
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
@@ -27,7 +28,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 #[ApiResource(
     shortName: 'Tag',
     operations: [
-        new GetCollection(uriTemplate: '/Tag'),
+        new GetCollection(uriTemplate: '/Tag', paginationClientItemsPerPage: true),
         new Get(uriTemplate: '/Tag/{id}'),
     ],
     formats: ['jsonapi'],
@@ -35,6 +36,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
     provider: Provider::class,
 )]
 #[ApiFilter(PropertyFilter::class)]
+#[ApiFilter(OrderFilter::class, properties: ['sortIndex', 'title'])]
 class Resource
 {
     #[ApiProperty(readable: false, identifier: true)]

@@ -12,26 +12,27 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Api\Tag;
 
+use ApiPlatform\Doctrine\Orm\State\CollectionProvider as DoctrineCollectionProvider;
+use ApiPlatform\Doctrine\Orm\State\Options as DoctrineOptions;
 use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\Pagination\PaginatorInterface;
 use ApiPlatform\State\ProviderInterface;
+use demosplan\DemosPlanCoreBundle\Api\Common\MappingPaginator;
 use demosplan\DemosPlanCoreBundle\Api\Tag\Resource as TagResource;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
-use EDT\DqlQuerying\Contracts\OrderBySortMethodInterface;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use InvalidArgumentException;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Webmozart\Assert\Assert;
 
 class Provider implements ProviderInterface
 {
-    private const SORTABLE_PROPERTIES = ['sortIndex', 'title'];
-
     public function __construct(
         private readonly AccessChecker $accessChecker,
         private readonly TagRepository $tagRepository,
-        private readonly SortMethodFactory $sortMethodFactory,
+        private readonly DoctrineCollectionProvider $doctrineCollectionProvider,
     ) {
     }
 
@@ -44,7 +45,7 @@ class Provider implements ProviderInterface
         }
 
         if ($operation instanceof CollectionOperationInterface) {
-            return $this->provideCollection($this->getSortMethods($context));
+            return $this->provideCollection($operation, $uriVariables, $context);
         }
 
         if (isset($uriVariables['id'])) {
@@ -52,23 +53,6 @@ class Provider implements ProviderInterface
         }
 
         return null;
-    }
-
-    private function getSortMethods(array $context): array
-    {
-        if (!$context) {
-            return [];
-        }
-
-        if (!array_key_exists('request', $context)) {
-            return [];
-        }
-
-        $sortQueryParamValue = $context['request']->query->get('sort');
-
-        return in_array($sortQueryParamValue, self::SORTABLE_PROPERTIES, true)
-            ? [$this->sortMethodFactory->propertyAscending([$sortQueryParamValue])]
-            : [];
     }
 
     private function provideSingle(string $id): ?TagResource
@@ -87,20 +71,54 @@ class Provider implements ProviderInterface
     }
 
     /**
-     * @param list<OrderBySortMethodInterface> $sortMethods
+     * Delegates to API Platform's own Doctrine ORM collection provider so that its
+     * extension mechanism (access control via {@see Extension\TagDoctrineAccessExtension},
+     * sorting via the declared OrderFilter on {@see Resource}, and pagination) applies
+     * automatically.
      *
-     * @return list<TagResource>
+     * @return PaginatorInterface<TagResource>|list<TagResource>
      */
-    private function provideCollection(array $sortMethods): array
+    private function provideCollection(Operation $operation, array $uriVariables, array $context): PaginatorInterface|array
     {
-        $tags = $this->tagRepository->getEntities(
-            $this->accessChecker->getAccessConditions(),
-            $sortMethods,
-        );
+        // handleLinks has to be set or API Platform throws an error, but we don't need it to do anything here.
+        $operation = $operation->withStateOptions(new DoctrineOptions(
+            entityClass: Tag::class,
+            handleLinks: static function (): void {
+            }
+        ));
 
-        return array_map(
-            static fn (Tag $tag): TagResource => TagResource::fromEntity($tag),
-            $tags
-        );
+        $context = $this->addPaginationFilters($context);
+        $result = $this->doctrineCollectionProvider->provide($operation, $uriVariables, $context);
+        $map = static fn (Tag $tag): TagResource => TagResource::fromEntity($tag);
+
+        if ($result instanceof PaginatorInterface) {
+            return new MappingPaginator($result, $map);
+        }
+
+        return array_map($map, is_array($result) ? $result : iterator_to_array($result));
+    }
+
+    /**
+     * ApiPlatform's JsonApiProvider only forwards `sort`-derived and `filter[...]`/
+     * `page[...]`-bracket query params into `$context['filters']`. Plain `page`/
+     * `itemsPerPage` params otherwise reach it only via a raw-query-string fallback in
+     * ReadProvider, which is skipped as soon as any other filter (e.g. `sort`) is
+     * present. Since this resource is sortable, that fallback can't be relied upon, so
+     * `page`/`itemsPerPage` are read directly from the request here.
+     */
+    private function addPaginationFilters(array $context): array
+    {
+        $request = $context['request'] ?? null;
+        if (!$request instanceof Request) {
+            return $context;
+        }
+
+        foreach (['page', 'itemsPerPage'] as $parameterName) {
+            if ($request->query->has($parameterName) && !isset($context['filters'][$parameterName])) {
+                $context['filters'][$parameterName] = $request->query->get($parameterName);
+            }
+        }
+
+        return $context;
     }
 }
