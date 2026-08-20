@@ -12,20 +12,23 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Api\Tag;
 
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
+use demosplan\DemosPlanCoreBundle\Api\AssignableUser\AssignableUserResource;
 use demosplan\DemosPlanCoreBundle\Api\TagTopic\Resource as TagTopicResource;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag as TagEntity;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 
 #[ApiResource(
     shortName: 'Tag',
     operations: [
-        new GetCollection(uriTemplate: '/Tag'),
+        new GetCollection(uriTemplate: '/Tag', paginationClientItemsPerPage: true),
         new Get(uriTemplate: '/Tag/{id}'),
     ],
     formats: ['jsonapi'],
@@ -33,6 +36,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag as TagEntity;
     provider: Provider::class,
 )]
 #[ApiFilter(PropertyFilter::class)]
+#[ApiFilter(OrderFilter::class, properties: ['sortIndex', 'title'])]
 class Resource
 {
     #[ApiProperty(readable: false, identifier: true)]
@@ -50,6 +54,9 @@ class Resource
     #[ApiProperty(readable: true, writable: false)]
     public ?string $boilerplateId = null;
 
+    #[ApiProperty(readable: true, writable: false)]
+    public ?AssignableUserResource $defaultAssignee = null;
+
     public static function fromEntity(TagEntity $tag): self
     {
         $resource = new self();
@@ -58,6 +65,10 @@ class Resource
         $resource->sortIndex = $tag->getSortIndex();
         $resource->topic = TagTopicResource::fromEntity($tag->getTopic());
         $resource->boilerplateId = $tag->getBoilerplate()?->getId();
+        $defaultAssignee = $tag->getDefaultAssignee();
+        $resource->defaultAssignee = $defaultAssignee instanceof User
+            ? AssignableUserResource::fromEntity($defaultAssignee)
+            : null;
 
         return $resource;
     }

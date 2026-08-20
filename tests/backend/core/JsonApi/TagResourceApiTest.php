@@ -95,6 +95,35 @@ class TagResourceApiTest extends AbstractApiTest
         self::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
     }
 
+    public function testGetIncludesDefaultAssignee(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $topic = TagTopicFactory::createOne(['procedure' => $procedure]);
+        $assignee = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
+        $tag = TagFactory::createOne(['topic' => $topic, 'defaultAssignee' => $assignee]);
+        $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
+        $this->enablePermissions(['area_statement_segmentation']);
+        $this->loginUserForApiPlatform($user);
+
+        $response = $this->sendRequest(
+            '/api/3.0/Tag/'.$tag->getId().'?include=defaultAssignee',
+            'GET',
+            $user,
+            $procedure
+        );
+
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $content = $response->getContent();
+        self::assertIsString($content);
+        $decoded = Json::decodeToArray($content);
+
+        self::assertSame($assignee->getId(), $decoded['data']['relationships']['defaultAssignee']['data']['id']);
+        self::assertSame(
+            $assignee->getFirstname(),
+            $decoded['included'][0]['attributes']['firstname']
+        );
+    }
+
     public function testGetCollectionIsSortedBySortIndexAscending(): void
     {
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
@@ -150,6 +179,36 @@ class TagResourceApiTest extends AbstractApiTest
         self::assertSame(
             [$tagA->getId(), $tagM->getId(), $tagZ->getId()],
             array_column($data, 'id')
+        );
+    }
+
+    public function testGetCollectionIsPaginated(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $topic = TagTopicFactory::createOne(['procedure' => $procedure]);
+        $tagA = TagFactory::createOne(['topic' => $topic, 'title' => 'A', 'sortIndex' => 10]);
+        $tagB = TagFactory::createOne(['topic' => $topic, 'title' => 'B', 'sortIndex' => 20]);
+        TagFactory::createOne(['topic' => $topic, 'title' => 'C', 'sortIndex' => 30]);
+        $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
+        $this->enablePermissions(['area_statement_segmentation']);
+        $this->loginUserForApiPlatform($user);
+
+        $response = $this->sendRequest(
+            '/api/3.0/Tag?sort=sortIndex&page=1&itemsPerPage=2',
+            'GET',
+            $user,
+            $procedure
+        );
+
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $content = $response->getContent();
+        self::assertIsString($content);
+        $decoded = Json::decodeToArray($content);
+
+        self::assertSame(3, $decoded['meta']['totalItems']);
+        self::assertSame(
+            [$tagA->getId(), $tagB->getId()],
+            array_column($decoded['data'], 'id')
         );
     }
 

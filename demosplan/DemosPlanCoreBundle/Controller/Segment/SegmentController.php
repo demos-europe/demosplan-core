@@ -252,7 +252,7 @@ class SegmentController extends BaseController
     /**
      * List all import jobs for a procedure.
      */
-    #[DplanPermissions('area_statement_segmentation')]
+    #[DplanPermissions('area_admin_import')]
     #[Route(path: '/verfahren/{procedureId}/import/jobs', name: 'dplan_import_jobs_list', methods: ['GET'])]
     public function listImportJobs(
         CurrentProcedureService $currentProcedureService,
@@ -277,7 +277,7 @@ class SegmentController extends BaseController
      * Get import jobs list data (JSON API for Vue component).
      * Returns last 20 jobs only (no pagination needed).
      */
-    #[DplanPermissions('area_statement_segmentation')]
+    #[DplanPermissions('area_admin_import')]
     #[Route(path: '/verfahren/{procedureId}/import/jobs/api', name: 'dplan_import_jobs_api', options: ['expose' => true], methods: ['GET'])]
     public function getImportJobsApi(
         CurrentProcedureService $currentProcedureService,
