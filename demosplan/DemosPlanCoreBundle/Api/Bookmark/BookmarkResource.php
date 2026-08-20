@@ -28,7 +28,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Webmozart\Assert\Assert as TypeAssert;
 
 /**
- * A named segment list view: the referenced stored query holds the filters, the chosen columns, their
+ * A named segment list view: the referenced stored query holds the filters, the searchPhrase, the chosen columns, their
  * order and the sorting, this resource adds the name the user gave it.
  *
  * Writes carry only `name` and `queryHash`. The view itself is already persisted as the query the
