@@ -69,7 +69,7 @@
             v-if="rowData.status === 'failed' && rowData.error"
             class="px-1 pb-1"
           >
-            <strong class="mb-1 block">{{ Translator.trans('import.job.result') }}:</strong>
+            <strong class="mb-1 block">{{ Translator.trans('result') }}:</strong>
             <dp-inline-notification
               :message="Translator.trans('error.occurred')"
               type="error"
