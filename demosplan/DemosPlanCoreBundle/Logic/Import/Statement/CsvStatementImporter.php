@@ -45,6 +45,14 @@ class CsvStatementImporter
     private const DETECTABLE_ENCODINGS = 'UTF-8, ISO-8859-1, ISO-8859-15';
 
     /**
+     * Upper bound on the number of data rows a single file may contain. The whole import runs
+     * synchronously on a worker shared with unrelated scheduled tasks (mail sending, phase
+     * switching, ...), so a file with no cap could block that worker, and the memory it holds,
+     * for an unbounded amount of time.
+     */
+    private const MAX_ROWS = 3_000;
+
+    /**
      * Columns every row must have, regardless of whether the file holds institution statements.
      */
     private const REQUIRED_COLUMNS = [
@@ -125,7 +133,21 @@ class CsvStatementImporter
                 $this->currentProcedureService->getProcedureWithCertainty()->getId()
             );
 
+            $rowCount = 0;
             foreach ($this->readRows($reader) as $fileLine => $row) {
+                if (++$rowCount > self::MAX_ROWS) {
+                    $result->addError(
+                        $this->translator->trans(
+                            'statements.import.csv.error.too_many_rows',
+                            ['limit' => self::MAX_ROWS]
+                        ),
+                        $fileLine,
+                        $sheetTitle
+                    );
+
+                    break;
+                }
+
                 $this->processRow($row, $fileLine, $sheetTitle, $result);
             }
         } catch (CsvException|Exception $e) {
