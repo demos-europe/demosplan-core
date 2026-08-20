@@ -43,20 +43,20 @@ use Webmozart\Assert\Assert as TypeAssert;
         new Get(uriTemplate: self::ITEM_URI_TEMPLATE),
         new Post(
             uriTemplate: '/Bookmark',
+            validationContext: ['groups' => ['bookmark:create']],
             read: false,
             processor: BookmarkProcessor::class,
-            validationContext: ['groups' => ['bookmark:create']],
         ),
         new Patch(
             uriTemplate: self::ITEM_URI_TEMPLATE,
-            processor: BookmarkProcessor::class,
             validationContext: ['groups' => ['bookmark:update']],
+            processor: BookmarkProcessor::class,
         ),
         new Delete(
             uriTemplate: self::ITEM_URI_TEMPLATE,
+            output: false,
             read: false,
             deserialize: false,
-            output: false,
             processor: BookmarkProcessor::class,
         ),
     ],
@@ -73,7 +73,7 @@ class BookmarkResource
     public string $id = '';
 
     #[ApiProperty(readable: true, writable: true)]
-    #[Assert\NotBlank(groups: ['bookmark:create'], message: 'A name is required to create a bookmark.')]
+    #[Assert\NotBlank(message: 'A name is required to create a bookmark.', groups: ['bookmark:create'])]
     #[Assert\Length(max: 255, maxMessage: 'A bookmark name may not exceed {{ limit }} characters.')]
     public ?string $name = null;
 
@@ -82,7 +82,7 @@ class BookmarkResource
      * with. Writable, so a PATCH can repoint an existing bookmark at the view the user is now on.
      */
     #[ApiProperty(readable: true, writable: true)]
-    #[Assert\NotBlank(groups: ['bookmark:create'], message: 'A queryHash is required to create a bookmark.')]
+    #[Assert\NotBlank(message: 'A queryHash is required to create a bookmark.', groups: ['bookmark:create'])]
     public ?string $queryHash = null;
 
     /**
