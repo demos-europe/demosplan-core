@@ -15,9 +15,11 @@ use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Logic\ExceptionService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Throwable;
@@ -69,6 +71,18 @@ class ExceptionEventSubscriber implements EventSubscriberInterface
             return;
         }
 
+        /*
+         * API Platform operations are dispatched to its own MainController rather than to an
+         * APIController, so the branch above never matches them and they would fall through to the
+         * HTML error page - a redirect no API client can use. Answer them in the same error envelope
+         * the other API versions use instead.
+         */
+        if ($this->isApiPlatformRequest($event->getRequest())) {
+            $event->setResponse($this->createApiPlatformErrorResponse($exception));
+
+            return;
+        }
+
         if ($exception instanceof NotFoundHttpException) {
             // log 404
             $this->logger->info($exception->getMessage());
@@ -84,6 +98,62 @@ class ExceptionEventSubscriber implements EventSubscriberInterface
         }
 
         $event->setResponse($this->exceptionService->handleError($exception));
+    }
+
+    /**
+     * Recognised by the request attribute API Platform sets on its own routes, rather than by the
+     * controller instance: the attribute holds in both dispatch modes, whereas the controller is
+     * `MainController` only while `use_symfony_listeners` is false.
+     */
+    private function isApiPlatformRequest(Request $request): bool
+    {
+        return null !== $request->attributes->get('_api_resource_class');
+    }
+
+    /**
+     * Mirrors the envelope of {@see APIController::handleApiError()} so clients see one error format
+     * across API versions, but derives the status from the exception itself. That mapping cannot be
+     * reused: its switch predates these operations and knows none of Symfony's HTTP exceptions, so a
+     * 404 would arrive as a 400.
+     *
+     * Only messages of HTTP exceptions are passed on. They are written for the client by the
+     * provider or processor that threw them, whereas any other throwable may carry internals.
+     */
+    private function createApiPlatformErrorResponse(Throwable $exception): APIResponse
+    {
+        $status = $exception instanceof HttpExceptionInterface
+            ? $exception->getStatusCode()
+            : Response::HTTP_INTERNAL_SERVER_ERROR;
+
+        $this->logger->error('API Platform exception occurred', [
+            'exception' => $exception,
+            'status'    => $status,
+        ]);
+
+        $error = [
+            'status' => $status,
+            'title'  => $exception instanceof HttpExceptionInterface
+                ? $exception->getMessage()
+                : (Response::$statusTexts[$status] ?? 'Internal Server Error'),
+        ];
+
+        if ($this->debug) {
+            $error['detail'] = $exception::class;
+            $error['meta'] = [
+                'file'  => $exception->getFile(),
+                'line'  => $exception->getLine(),
+                'trace' => explode("\n", $exception->getTraceAsString()),
+            ];
+        }
+
+        $data = [
+            'errors'   => [$error],
+            'jsonapi'  => ['version' => '1.0'],
+            'included' => [],
+            'links'    => ['self' => ''],
+        ];
+
+        return new APIResponse($data, $status);
     }
 
     /**
