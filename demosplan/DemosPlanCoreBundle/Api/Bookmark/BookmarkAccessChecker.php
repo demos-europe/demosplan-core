@@ -93,6 +93,6 @@ class BookmarkAccessChecker
      */
     private function getSegmentListFormatMarker(): string
     {
-        return sprintf('"format":"%s"', SegmentListQuery::QUIERY_FORMAT);
+        return sprintf('"format":"%s"', SegmentListQuery::QUERY_FORMAT);
     }
 }
