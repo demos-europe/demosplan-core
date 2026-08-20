@@ -33,13 +33,13 @@
           class="text-base pb-4"
           v-text="Translator.trans('export.type')"
         />
-        <div class="grid grid-cols-4 gap-x-2">
+        <div class="flex flex-row gap-2">
           <dp-radio
             v-for="(exportType, key) in exportTypes"
             :id="key"
             :key="key"
-            class="p-2"
-            :class="{ 'bg-neutral-light-4 border-l-4 border-interactive rounded-sm' : active === key }"
+            class="bg-neutral-light-4 border-l-4 border-interactive rounded-sm p-2"
+            :class="{ 'border-transparent' : active !== key }"
             :data-cy="`exportModal:exportType:${key}`"
             :label="{
               text: Translator.trans(exportType.label),
