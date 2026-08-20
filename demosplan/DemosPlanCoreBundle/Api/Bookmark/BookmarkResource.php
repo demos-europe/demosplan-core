@@ -72,8 +72,15 @@ class BookmarkResource
     #[ApiProperty(readable: false, identifier: true)]
     public string $id = '';
 
+    /**
+     * On update the constraint allows null, because a PATCH may omit the field to leave the name as it
+     * is - but an explicitly empty one is rejected by the validator. Without that the empty string
+     * would reach the processor's assertion, which guards invariants and would answer 500 for what is
+     * really a bad request.
+     */
     #[ApiProperty(readable: true, writable: true)]
     #[Assert\NotBlank(message: 'A name is required to create a bookmark.', groups: ['bookmark:create'])]
+    #[Assert\NotBlank(allowNull: true, message: 'A bookmark name may not be empty.', groups: ['bookmark:update'])]
     #[Assert\Length(max: 255, maxMessage: 'A bookmark name may not exceed {{ limit }} characters.')]
     public ?string $name = null;
 
@@ -83,6 +90,7 @@ class BookmarkResource
      */
     #[ApiProperty(readable: true, writable: true)]
     #[Assert\NotBlank(message: 'A queryHash is required to create a bookmark.', groups: ['bookmark:create'])]
+    #[Assert\NotBlank(allowNull: true, message: 'A queryHash may not be empty.', groups: ['bookmark:update'])]
     public ?string $queryHash = null;
 
     /**
