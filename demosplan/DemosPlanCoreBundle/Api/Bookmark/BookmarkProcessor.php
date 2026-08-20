@@ -227,5 +227,4 @@ class BookmarkProcessor implements ProcessorInterface
 
         return $procedure;
     }
-
 }
