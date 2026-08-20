@@ -54,7 +54,7 @@
     "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "@carbon/icons-vue": "10.99.1",
+    "@carbon/icons-vue": "10.130.0",
     "@carbon/vue": "^3.0.27",
     "@cesium/engine": "^20.0.1",
     "@demos-europe/demosplan-ui": "0.28.0",
