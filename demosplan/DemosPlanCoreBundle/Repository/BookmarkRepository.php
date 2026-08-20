@@ -12,7 +12,6 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Bookmark;
-use demosplan\DemosPlanCoreBundle\Traits\RepositoryLegacyShizzle;
 use Doctrine\ORM\NoResultException;
 use Exception;
 
@@ -21,8 +20,6 @@ use Exception;
  */
 class BookmarkRepository extends FluentRepository
 {
-    use RepositoryLegacyShizzle;
-
     /**
      * @param string $entityId
      *
