@@ -46,7 +46,6 @@ use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Services\HTMLFragmentSlicer;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementBulkEditVO;
 use Doctrine\Common\Collections\Collection;
 use Exception;
@@ -920,7 +919,7 @@ class DemosPlanAssessmentTableController extends BaseController
 
             $departmentId = $currentUser->getUser()->getDepartment()->getId();
 
-            $this->getLogger()->debug('Get Fragment Consideration Versions as Reviewer: '.DemosPlanTools::varExport($isReviewer, true));
+            $this->getLogger()->debug('Get Fragment Consideration Versions as Reviewer: {isReviewer}', ['isReviewer' => $isReviewer]);
 
             $fragmentVersions = $this->statementHandler->getStatementFragmentVersions($fragmentId, $departmentId, $isReviewer);
 
