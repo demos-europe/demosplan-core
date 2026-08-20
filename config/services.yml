@@ -974,6 +974,10 @@ services:
         calls:
             - [ 'setEsStatementFragmentType', [ '@fos_elastica.index.statementFragments' ]]
 
+    demosplan\DemosPlanCoreBundle\Logic\Statement\CsvStatementImport:
+        arguments:
+            $statementPersister: '@fos_elastica.object_persister.statements'
+
     demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxSegmentImport:
         arguments:
             $segmentPersister: '@fos_elastica.object_persister.statementSegments'
