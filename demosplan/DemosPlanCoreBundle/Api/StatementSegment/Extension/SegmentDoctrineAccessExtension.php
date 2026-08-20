@@ -21,37 +21,21 @@ use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use Doctrine\ORM\QueryBuilder;
 
 /**
- * Restricts Doctrine-backed StatementSegment collection reads to procedures the
- * current user is allowed to access.
+ * Restricts StatementSegment collection queries to procedures accessible to the
+ * current user.
  *
- * This extension operates on a plain Doctrine QueryBuilder built and shared by API
- * Platform's own Doctrine ORM CollectionProvider, but the access rule is authored in
- * EDT condition objects ({@see AccessChecker::getAccessConditions()}). Those can't be
- * applied directly to that shared QueryBuilder: the class that turns EDT conditions
- * into DQL (EDT\DqlQuerying\Utilities\QueryBuilderPreparer) is marked @internal and
- * assumes it owns the entire query -- it sets its own alias, SELECT, FROM, and WHERE
- * (overwriting, not merging with, whatever other extensions already added).
+ * Access rules come from EDT conditions ({@see AccessChecker::getAccessConditions()}),
+ * but those cannot be applied directly to API Platform's shared QueryBuilder without
+ * overriding parts of the existing query. So we build a second QueryBuilder via
+ * {@see SegmentRepository::generateAccessConditionQueryBuilder()}, select segment IDs,
+ * and apply it as a subquery: `<rootAlias>.id IN (<subquery DQL>)`.
  *
- * Instead of running those conditions as their own executed query and feeding the
- * resulting IDs back in as bound values (two round-trips), this builds a second,
- * never-executed QueryBuilder for the same conditions via
- * {@see SegmentRepository::generateAccessConditionQueryBuilder()} and embeds its DQL
- * as a subquery: `<rootAlias>.id IN (<subquery DQL>)`. Only the outer QueryBuilder is
- * ever executed, so the database sees one query with a nested SELECT -- the EDT rule
- * is still reused verbatim, just without materializing it separately first.
+ * Subquery parameters are merged into the outer query. This is safe as long as other
+ * filters here continue using named parameters; positional parameter usage could
+ * require renumbering to avoid collisions.
  *
- * Note: EDT's QueryBuilderPreparer numbers the subquery's bound parameters
- * positionally from 0 (`?0`, `?1`, ...) on every call. That's only safe to merge onto
- * the outer QueryBuilder because API Platform's own filters on this resource
- * (SearchFilter/ExistsFilter/OrderFilter) bind named, not positional, parameters. If a
- * future filter here starts using positional parameters, this merge would need
- * renumbering to avoid a collision.
- *
- * Important: the $resourceClass parameter API Platform passes here is the *Doctrine
- * entity* class (Segment::class, from Provider's DoctrineOptions(entityClass: ...)),
- * not the ApiResource DTO class (StatementSegment\Resource). An earlier version of
- * this guard compared against the DTO class, which never matched -- this extension's
- * body never ran, on any request, regardless of anything else in this file.
+ * Note: `$resourceClass` is the Doctrine entity class (`Segment::class`), not the
+ * API resource DTO class.
  */
 final class SegmentDoctrineAccessExtension implements QueryCollectionExtensionInterface
 {
