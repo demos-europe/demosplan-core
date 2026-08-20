@@ -25,273 +25,280 @@
       <template v-slot:header>
         <h2>{{ exportModalTitle }}</h2>
       </template>
-      <fieldset
-        v-if="!isSingleStatementExport"
-        class="border-b border-neutral"
+      <div
+        class="o-modal__transition-wrapper"
+        :style="{ height: contentHeight ? `${contentHeight}px` : 'auto' }"
       >
-        <legend
-          class="text-base pb-4"
-          v-text="Translator.trans('export.type')"
-        />
-        <div class="flex flex-row gap-2">
-          <dp-radio
-            v-for="(exportType, key) in exportTypes"
-            :id="key"
-            :key="key"
-            class="bg-neutral-light-4 border-l-4 border-interactive rounded-sm p-2"
-            :class="{ 'border-transparent' : active !== key }"
-            :data-cy="`exportModal:exportType:${key}`"
-            :label="{
-              text: Translator.trans(exportType.label),
-              bold: true,
-            }"
-            :value="key"
-            :checked="active === key"
-            @change="active = key"
+        <div ref="content">
+          <fieldset
+            v-if="!isSingleStatementExport"
+            class="border-b border-neutral"
+          >
+          <legend
+            class="text-base pb-4"
+            v-text="Translator.trans('export.type')"
           />
-        </div>
-        <dp-inline-notification
-          v-if="exportTypes[active].hint"
-          class="mt-4"
-          :message="exportTypes[active].hint"
-          type="warning"
-        />
-      </fieldset>
-
-      <fieldset
-        v-if="!['xlsx_normal', 'csv_normal'].includes(active)"
-        class="border-b border-neutral"
-      >
-        <legend
-          class="text-base py-4"
-          v-text="Translator.trans('export.options')"
-        />
-        <dp-checkbox
-          id="censoredCitizen"
-          v-model="isCitizenDataCensored"
-          class="mb-1"
-          data-cy="exportModal:censoredCitizen"
-          :label="{
-            regular: true,
-            text: Translator.trans('export.censored.citizen'),
-          }"
-        />
-        <dp-checkbox
-          id="censoredInstitution"
-          v-model="isInstitutionDataCensored"
-          class="mb-1"
-          data-cy="exportModal:censoredInstitution"
-          :label="{
-            regular: true,
-            text: Translator.trans('export.censored.institution')
-          }"
-        />
-        <dp-checkbox
-          id="obscured"
-          v-model="isObscure"
-          data-cy="exportModal:obscured"
-          :label="{
-            regular: true,
-            text: Translator.trans('export.docx.obscured')
-          }"
-        />
-      </fieldset>
-
-      <fieldset
-        v-if="isSingleStatementExport"
-        class="border-b border-neutral"
-      >
-        <legend
-          class="text-base py-4"
-          v-text="Translator.trans('export.options')"
-        />
-        <dp-checkbox
-          id="singleStatementCitizen"
-          v-model="isCitizenDataCensored"
-          class="mb-1"
-          data-cy="exportModal:singleStatementCitizen"
-          :label="{
-            regular: true,
-            text: Translator.trans('export.censored.citizen')
-          }"
-        />
-        <dp-checkbox
-          id="singleStatementInstitution"
-          v-model="isInstitutionDataCensored"
-          class="mb-1"
-          data-cy="exportModal:singleStatementInstitution"
-          :label="{
-            regular: true,
-            text: Translator.trans('export.censored.institution')
-          }"
-        />
-        <dp-checkbox
-          id="singleStatementObscure"
-          v-model="isObscure"
-          data-cy="exportModal:singleStatementObscure"
-          :label="{
-            regular: true,
-            text: Translator.trans('export.docx.obscured')
-          }"
-        />
-      </fieldset>
-
-      <fieldset
-        v-if="['docx_normal', 'zip_normal'].includes(active)"
-        class="border-b border-neutral"
-      >
-        <legend
-          id="docxColumnTitles"
-          class="font-semibold text-base float-left mr-1 py-4"
-          v-text="Translator.trans('docx.export.column.title')"
-        />
-        <dp-contextual-help
-          class="my-4"
-          aria-labelledby="docxColumnTitles"
-          :text="Translator.trans('docx.export.column.title.hint')"
-        />
-        <div class="grid grid-cols-3 gap-3 mt-1">
-          <dp-input
-            v-for="(column, key) in docxColumns"
-            :id="key"
-            :key="key"
-            v-model="column.title"
-            :data-cy="column.dataCy"
-            :placeholder="Translator.trans(column.placeholder)"
-            type="text"
+          <div class="flex flex-row gap-2">
+            <dp-radio
+              v-for="(exportType, key) in exportTypes"
+              :id="key"
+              :key="key"
+              class="bg-neutral-light-4 border-l-4 border-interactive rounded-sm p-2"
+              :class="{ 'border-transparent bg-transparent' : active !== key }"
+              :data-cy="`exportModal:exportType:${key}`"
+              :label="{
+                text: Translator.trans(exportType.label),
+                bold: true,
+              }"
+              :value="key"
+              :checked="active === key"
+              @change="active = key"
+            />
+          </div>
+          <dp-inline-notification
+            v-if="exportTypes[active].hint"
+            class="mt-4"
+            :message="exportTypes[active].hint"
+            type="warning"
           />
-        </div>
+        </fieldset>
+
         <fieldset
-          v-if="active === 'zip' || isSingleStatementExport"
-          class="pb-0"
+          v-if="!['xlsx_normal', 'csv_normal'].includes(active)"
+          class="border-b border-neutral"
         >
           <legend
-            id="docxFileName"
+            class="text-base py-4"
+            v-text="Translator.trans('export.options')"
+          />
+          <dp-checkbox
+            id="censoredCitizen"
+            v-model="isCitizenDataCensored"
+            class="mb-1"
+            data-cy="exportModal:censoredCitizen"
+            :label="{
+              regular: true,
+              text: Translator.trans('export.censored.citizen'),
+            }"
+          />
+          <dp-checkbox
+            id="censoredInstitution"
+            v-model="isInstitutionDataCensored"
+            class="mb-1"
+            data-cy="exportModal:censoredInstitution"
+            :label="{
+              regular: true,
+              text: Translator.trans('export.censored.institution')
+            }"
+          />
+          <dp-checkbox
+            id="obscured"
+            v-model="isObscure"
+            data-cy="exportModal:obscured"
+            :label="{
+              regular: true,
+              text: Translator.trans('export.docx.obscured')
+            }"
+          />
+        </fieldset>
+
+        <fieldset
+          v-if="isSingleStatementExport"
+          class="border-b border-neutral"
+        >
+          <legend
+            class="text-base py-4"
+            v-text="Translator.trans('export.options')"
+          />
+          <dp-checkbox
+            id="singleStatementCitizen"
+            v-model="isCitizenDataCensored"
+            class="mb-1"
+            data-cy="exportModal:singleStatementCitizen"
+            :label="{
+              regular: true,
+              text: Translator.trans('export.censored.citizen')
+            }"
+          />
+          <dp-checkbox
+            id="singleStatementInstitution"
+            v-model="isInstitutionDataCensored"
+            class="mb-1"
+            data-cy="exportModal:singleStatementInstitution"
+            :label="{
+              regular: true,
+              text: Translator.trans('export.censored.institution')
+            }"
+          />
+          <dp-checkbox
+            id="singleStatementObscure"
+            v-model="isObscure"
+            data-cy="exportModal:singleStatementObscure"
+            :label="{
+              regular: true,
+              text: Translator.trans('export.docx.obscured')
+            }"
+          />
+        </fieldset>
+
+        <fieldset
+          v-if="['docx_normal', 'zip_normal'].includes(active)"
+          class="border-b border-neutral"
+        >
+          <legend
+            id="docxColumnTitles"
             class="font-semibold text-base float-left mr-1 py-4"
-            v-text="Translator.trans('docx.export.file_name')"
+            v-text="Translator.trans('docx.export.column.title')"
           />
           <dp-contextual-help
             class="my-4"
-            aria-labelledby="docxFileName"
-            :text="Translator.trans('docx.export.file_name.hint')"
+            aria-labelledby="docxColumnTitles"
+            :text="Translator.trans('docx.export.column.title.hint')"
           />
-          <dp-input
-            id="fileName"
-            v-model="fileName"
-            data-cy="exportModal:fileName"
-            class="mt-1"
-            :placeholder="Translator.trans('docx.export.file_name.placeholder')"
-            type="text"
-          />
-          <div class="text-sm mt-4">
-            <span
-              class="font-bold"
-              v-text="Translator.trans('docx.export.example_file_name')"
+          <div class="grid grid-cols-3 gap-3 mt-1">
+            <dp-input
+              v-for="(column, key) in docxColumns"
+              :id="key"
+              :key="key"
+              v-model="column.title"
+              :data-cy="column.dataCy"
+              :placeholder="Translator.trans(column.placeholder)"
+              type="text"
             />
-            <span v-text="exampleFileName" />
           </div>
-        </fieldset>
-      </fieldset>
-
-      <div
-        v-if="isSingleStatementExport && hasPermission('feature_statement_via_template_export')"
-        class="border-b border-neutral py-4"
-      >
-        <dp-label
-          :hint="Translator.trans('docx.export.via_template.upload.hint')"
-          :text="Translator.trans('docx.export.via_template.upload.label')"
-          :tooltip="Translator.trans('docx.export.via_template.upload.tooltip')"
-          class="mb-1"
-          for="uploadTemplate"
-        />
-        <dp-button
-          :text="Translator.trans('docx.export.via_template.example.label')"
-          class="mb-2"
-          data-cy="exportModal:downloadExampleTemplate"
-          href="/files/statement_template_example_export.docx"
-          icon="download"
-          icon-size="medium"
-          variant="subtle"
-        />
-        <dp-upload-files
-          id="uploadTemplate"
-          allowed-file-types="import"
-          data-cy="exportModal:uploadTemplate"
-          :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash, procedureId })"
-          :max-file-size="5 * 1024 * 1024 /* 5 MB */"
-          :storage-name="templateStorageName"
-          :translations="{ dropHereOr: Translator.trans('form.button.upload.docx', { browse: '{browse}', maxUploadSize: '5 MB' }) }"
-          :tus-endpoint="dplan.paths.tusEndpoint"
-          @file-remove="uploadedHash = ''"
-          @upload-success="file => { uploadedHash = file.hash }"
-        />
-      </div>
-
-      <fieldset
-        v-if="!isSingleStatementExport"
-        class="border-b border-neutral"
-        :class="{ 'border-none': !['docx_normal', 'zip_normal'].includes(active) }"
-      >
-        <legend
-          id="tagsFilter"
-          class="font-semibold text-base mb-1 py-4"
-          v-text="Translator.trans('segments.export.filter.tags.only')"
-        />
-        <filter-flyout
-          ref="filterFlyout"
-          :key="`filter_${filter.labelTranslationKey}`"
-          :additional-query-params="{ searchPhrase: searchTerm }"
-          appearance="basic"
-          :category="{
-            id: `${filter.labelTranslationKey}`,
-            label: Translator.trans('search.list')
-          }"
-          :data-cy="`exportModal:filter:${filter.labelTranslationKey}`"
-          flyout-align="top"
-          flyout-position="relative"
-          :operator="filter.comparisonOperator"
-          :path="filter.rootPath"
-          :show-count="{
-            groupedOptions: true,
-            ungroupedOptions: true
-          }"
-          @filter-apply="getFilterValues"
-          @filter-options:request="loadFilterFlyoutOptions"
-          @update:expanded="(value) => isFilterExpanded = value"
-        />
-        <ul
-          v-if="!isFilterExpanded && selectedTags.length"
-          class="mt-2"
-        >
-          <li
-            v-for="(tag) in selectedTags"
-            :key="tag.id"
-            class="mt-1"
+          <fieldset
+            v-if="active === 'zip' || isSingleStatementExport"
+            class="pb-0"
           >
-            <span>{{ tag.label }}</span>
-          </li>
-        </ul>
-      </fieldset>
-      <dp-input
-        v-if="['docx_normal', 'zip_normal'].includes(active) && !isSingleStatementExport && hasPermissionAdjustPreamble"
-        id="customHeaderText"
-        v-model="customHeaderText"
-        :label="{
-          text: Translator.trans('docx.export.header.custom'),
-          tooltip: Translator.trans('docx.export.header.custom.hint')
-        }"
-        :maxlength="customHeaderMaxLength"
-        :placeholder="Translator.trans('docx.export.header.custom.placeholder')"
-        class="py-4"
-        data-cy="exportModal:customHeaderText"
-        type="text"
-      />
-      <dp-inline-notification
-        v-if="hasLayoutFileAndModifiedColumnHeaders"
-        class="mb-4"
-        :message="Translator.trans('docx.export.via_template.column.headers.warning')"
-        type="warning"
-      />
+            <legend
+              id="docxFileName"
+              class="font-semibold text-base float-left mr-1 py-4"
+              v-text="Translator.trans('docx.export.file_name')"
+            />
+            <dp-contextual-help
+              class="my-4"
+              aria-labelledby="docxFileName"
+              :text="Translator.trans('docx.export.file_name.hint')"
+            />
+            <dp-input
+              id="fileName"
+              v-model="fileName"
+              data-cy="exportModal:fileName"
+              class="mt-1"
+              :placeholder="Translator.trans('docx.export.file_name.placeholder')"
+              type="text"
+            />
+            <div class="text-sm mt-4">
+              <span
+                class="font-bold"
+                v-text="Translator.trans('docx.export.example_file_name')"
+              />
+              <span v-text="exampleFileName" />
+            </div>
+          </fieldset>
+        </fieldset>
+
+        <div
+          v-if="isSingleStatementExport && hasPermission('feature_statement_via_template_export')"
+          class="border-b border-neutral py-4"
+        >
+          <dp-label
+            :hint="Translator.trans('docx.export.via_template.upload.hint')"
+            :text="Translator.trans('docx.export.via_template.upload.label')"
+            :tooltip="Translator.trans('docx.export.via_template.upload.tooltip')"
+            class="mb-1"
+            for="uploadTemplate"
+          />
+          <dp-button
+            :text="Translator.trans('docx.export.via_template.example.label')"
+            class="mb-2"
+            data-cy="exportModal:downloadExampleTemplate"
+            href="/files/statement_template_example_export.docx"
+            icon="download"
+            icon-size="medium"
+            variant="subtle"
+          />
+          <dp-upload-files
+            id="uploadTemplate"
+            allowed-file-types="import"
+            data-cy="exportModal:uploadTemplate"
+            :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash, procedureId })"
+            :max-file-size="5 * 1024 * 1024 /* 5 MB */"
+            :storage-name="templateStorageName"
+            :translations="{ dropHereOr: Translator.trans('form.button.upload.docx', { browse: '{browse}', maxUploadSize: '5 MB' }) }"
+            :tus-endpoint="dplan.paths.tusEndpoint"
+            @file-remove="uploadedHash = ''"
+            @upload-success="file => { uploadedHash = file.hash }"
+          />
+        </div>
+
+        <fieldset
+          v-if="!isSingleStatementExport"
+          class="border-b border-neutral"
+          :class="{ 'border-none': !['docx_normal', 'zip_normal'].includes(active) }"
+        >
+          <legend
+            id="tagsFilter"
+            class="font-semibold text-base mb-1 py-4"
+            v-text="Translator.trans('segments.export.filter.tags.only')"
+          />
+          <filter-flyout
+            ref="filterFlyout"
+            :key="`filter_${filter.labelTranslationKey}`"
+            :additional-query-params="{ searchPhrase: searchTerm }"
+            appearance="basic"
+            :category="{
+              id: `${filter.labelTranslationKey}`,
+              label: Translator.trans('search.list')
+            }"
+            :data-cy="`exportModal:filter:${filter.labelTranslationKey}`"
+            flyout-align="top"
+            flyout-position="relative"
+            :operator="filter.comparisonOperator"
+            :path="filter.rootPath"
+            :show-count="{
+              groupedOptions: true,
+              ungroupedOptions: true
+            }"
+            @filter-apply="getFilterValues"
+            @filter-options:request="loadFilterFlyoutOptions"
+            @update:expanded="(value) => isFilterExpanded = value"
+          />
+          <ul
+            v-if="!isFilterExpanded && selectedTags.length"
+            class="mt-2"
+          >
+            <li
+              v-for="(tag) in selectedTags"
+              :key="tag.id"
+              class="mt-1"
+            >
+              <span>{{ tag.label }}</span>
+            </li>
+          </ul>
+        </fieldset>
+        <dp-input
+          v-if="['docx_normal', 'zip_normal'].includes(active) && !isSingleStatementExport && hasPermissionAdjustPreamble"
+          id="customHeaderText"
+          v-model="customHeaderText"
+          :label="{
+            text: Translator.trans('docx.export.header.custom'),
+            tooltip: Translator.trans('docx.export.header.custom.hint')
+          }"
+          :maxlength="customHeaderMaxLength"
+          :placeholder="Translator.trans('docx.export.header.custom.placeholder')"
+          class="py-4"
+          data-cy="exportModal:customHeaderText"
+          type="text"
+        />
+        <dp-inline-notification
+          v-if="hasLayoutFileAndModifiedColumnHeaders"
+          class="mb-4"
+          :message="Translator.trans('docx.export.via_template.column.headers.warning')"
+          type="warning"
+        />
+        </div>
+      </div>
       <template v-slot:footer>
         <dp-button-row
           class="text-right mt-auto"
@@ -372,6 +379,7 @@ export default {
   data () {
     return {
       active: 'docx_normal',
+      contentHeight: 0,
       docxColumns: {
         col1: {
           dataCy: 'exportModal:input:col1',
@@ -432,12 +440,19 @@ export default {
       isFilterExpanded: false,
       isInstitutionDataCensored: false,
       isObscure: false,
+      resizeObserver: null,
       searchTerm: '',
       selectedTags: [],
       selectedTagIds: [],
       singleStatementExportPath: 'dplan_segments_export', /** Used in the statements detail page */
       uploadedHash: '',
     }
+  },
+
+  watch: {
+    active () {
+      this.updateContentHeight()
+    },
   },
 
   computed: {
@@ -492,6 +507,14 @@ export default {
       setIsLoadingFilterFlyout: 'setIsLoading',
       setUngroupedFilterOptions: 'setUngroupedOptions',
     }),
+
+    updateContentHeight () {
+      this.$nextTick(() => {
+        if (this.$refs.content) {
+          this.contentHeight = this.$refs.content.scrollHeight
+        }
+      })
+    },
 
     buildFilterOption (option) {
       if (!option) {
@@ -764,6 +787,7 @@ export default {
     openModal () {
       this.setInitialValues()
       this.resetExportModalInner()
+      this.updateContentHeight()
     },
 
     resetFilterFlyout () {
@@ -882,6 +906,22 @@ export default {
         .filter(item => item?.condition?.path === 'tags')
         .map(item => item.condition.value)
     },
+  },
+
+  mounted () {
+    this.resizeObserver = new ResizeObserver(() => {
+      this.updateContentHeight()
+    })
+
+    if (this.$refs.content) {
+      this.resizeObserver.observe(this.$refs.content)
+    }
+  },
+
+  beforeUnmount () {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect()
+    }
   },
 }
 </script>

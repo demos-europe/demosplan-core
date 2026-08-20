@@ -110,6 +110,11 @@
         height: auto;
     }
 
+    &__transition-wrapper {
+        overflow: hidden;
+        transition: height 250ms ease-in-out;
+    }
+
     // Can be removed in favor of implementing an `inverted` prop in DpBadge
     &.recommendation-modal {
         li:hover {
