@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Api\Bookmark;
 use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Bookmark;
 use demosplan\DemosPlanCoreBundle\Repository\BookmarkRepository;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
@@ -28,6 +29,7 @@ class BookmarkProvider implements ProviderInterface
     public function __construct(
         private readonly BookmarkAccessChecker $accessChecker,
         private readonly BookmarkRepository $bookmarkRepository,
+        private readonly MessageBagInterface $messageBag,
         private readonly SortMethodFactory $sortMethodFactory,
     ) {
     }
@@ -68,6 +70,8 @@ class BookmarkProvider implements ProviderInterface
                 ['id']
             );
         } catch (InvalidArgumentException) {
+            $this->messageBag->add('error', 'error.bookmark.not.found');
+
             return null;
         }
 

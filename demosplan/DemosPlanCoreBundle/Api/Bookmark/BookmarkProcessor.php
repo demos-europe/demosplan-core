@@ -18,10 +18,12 @@ use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\State\ProcessorInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Bookmark;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\EventListener\DemosPlanResponseEventSubscriber;
 use demosplan\DemosPlanCoreBundle\Exception\DeletionFailedException;
 use demosplan\DemosPlanCoreBundle\Exception\PersistResourceException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
@@ -30,6 +32,7 @@ use demosplan\DemosPlanCoreBundle\Repository\BookmarkRepository;
 use demosplan\DemosPlanCoreBundle\StoredQuery\SegmentListQuery;
 use InvalidArgumentException;
 use LogicException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -51,9 +54,14 @@ class BookmarkProcessor implements ProcessorInterface
         private readonly CurrentProcedureService $currentProcedureService,
         private readonly CurrentUserInterface $currentUser,
         private readonly HashedQueryService $hashedQueryService,
+        private readonly MessageBagInterface $messageBag,
     ) {
     }
 
+    /**
+     * @throws PersistResourceException
+     * @throws DeletionFailedException
+     */
     public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): BookmarkResource|Response|null
     {
         if (!$this->accessChecker->isAvailable()) {
@@ -64,8 +72,7 @@ class BookmarkProcessor implements ProcessorInterface
         if ($operation instanceof Delete) {
             $this->delete((string) ($uriVariables['id'] ?? ''));
 
-            // The operation is declared output: false, so API Platform answers 204.
-            return null;
+            return $this->createDeletionResponse();
         }
 
         Assert::isInstanceOf($data, BookmarkResource::class);
@@ -81,6 +88,9 @@ class BookmarkProcessor implements ProcessorInterface
         throw new LogicException(sprintf('%s is wired as the processor for unsupported operation "%s"; only Post, Patch, and Delete are handled.', self::class, $operation::class));
     }
 
+    /**
+     * @throws PersistResourceException
+     */
     private function create(BookmarkResource $data): BookmarkResource
     {
         // Presence is enforced by the bookmark:create validation group; narrow for static analysis.
@@ -112,6 +122,7 @@ class BookmarkProcessor implements ProcessorInterface
      * Renames a bookmark, repoints it at another stored query, or both. Sending only one of the two
      * fields leaves the other as it is, which is what lets the frontend either rename a view or update
      * it to the one the user is currently looking at.
+     * @throws PersistResourceException
      */
     private function update(string $bookmarkId, BookmarkResource $data): BookmarkResource
     {
@@ -138,7 +149,7 @@ class BookmarkProcessor implements ProcessorInterface
 
     /**
      * The repository catches its own failures and answers with false, so the result has to be checked:
-     * without it a failed deletion would still respond 204 and the frontend would drop an entry that is
+     * without it a failed deletion would still be confirmed and the frontend would drop an entry that is
      * still stored.
      *
      * @throws DeletionFailedException rendered as a 500, since a deletion that fails is not the
@@ -149,6 +160,21 @@ class BookmarkProcessor implements ProcessorInterface
         if (!$this->bookmarkRepository->deleteObject($this->findBookmark($bookmarkId))) {
             throw new DeletionFailedException();
         }
+
+        $this->messageBag->add('confirm', 'confirm.bookmark.deleted');
+    }
+
+    /**
+     * Answered as an empty JSON document rather than by letting API Platform build the response from
+     * the `output: false` declaration: that yields a plain Response, and
+     * {@see DemosPlanResponseEventSubscriber} merges the
+     * message bag into JsonResponses only - the confirmation would be withheld here and then shown on
+     * whatever request comes next. Handing it a JsonResponse also makes it lift the 204 to a 200, which
+     * is the same answer the rest of the JSON:API deletions give.
+     */
+    private function createDeletionResponse(): JsonResponse
+    {
+        return new JsonResponse([], Response::HTTP_NO_CONTENT);
     }
 
     /**
@@ -164,6 +190,8 @@ class BookmarkProcessor implements ProcessorInterface
                 ['id']
             );
         } catch (InvalidArgumentException) {
+            $this->messageBag->add('error', 'error.bookmark.not.found');
+
             throw new NotFoundHttpException(sprintf('Bookmark "%s" not found.', $bookmarkId));
         }
     }
@@ -177,15 +205,21 @@ class BookmarkProcessor implements ProcessorInterface
     {
         $hashedQuery = $this->hashedQueryService->findHashedQueryWithHash($queryHash);
         if (!$hashedQuery instanceof HashedQuery) {
+            $this->messageBag->add('error', 'error.bookmark.query.not.found');
+
             throw new BadRequestHttpException(sprintf('No stored query was found for the given hash: %s', $queryHash));
         }
 
         $storedQuery = $hashedQuery->getStoredQuery();
         if (!$storedQuery instanceof SegmentListQuery) {
+            $this->messageBag->add('error', 'error.bookmark.query.not.found');
+
             throw new BadRequestHttpException(sprintf('The given hash does not belong to a segment list query: %s', $queryHash));
         }
 
         if ($storedQuery->getProcedureId() !== $procedure->getId()) {
+            $this->messageBag->add('error', 'error.bookmark.query.not.found');
+
             throw new BadRequestHttpException(sprintf('The given hash belongs to another procedure: %s', $queryHash));
         }
 
@@ -213,6 +247,8 @@ class BookmarkProcessor implements ProcessorInterface
                 continue;
             }
             if (0 === strcasecmp($bookmark->getName(), $name)) {
+                $this->messageBag->add('error', 'error.bookmark.name.taken', ['name' => $name]);
+
                 throw new UnprocessableEntityHttpException(sprintf('A bookmark named "%s" already exists in this procedure.', $name));
             }
         }
@@ -222,6 +258,8 @@ class BookmarkProcessor implements ProcessorInterface
     {
         $procedure = $this->currentProcedureService->getProcedure();
         if (!$procedure instanceof Procedure) {
+            $this->messageBag->add('error', 'error.bookmark.procedure.missing');
+
             throw new BadRequestHttpException('A procedure context is required for bookmark operations.');
         }
 

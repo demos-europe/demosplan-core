@@ -19,8 +19,10 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\HashedQueryFac
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\TransformMessageBagService;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\AbstractApiTest;
 
 /**
@@ -187,6 +189,10 @@ class BookmarkResourceApiTest extends AbstractApiTest
 
         self::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), $response->getContent());
         self::assertSame(Response::HTTP_BAD_REQUEST, Json::decodeToArray($response->getContent())['errors'][0]['status']);
+        self::assertSame(
+            [$this->translate('error.bookmark.query.not.found')],
+            $this->getMessages($response, 'error')
+        );
     }
 
     public function testDeleteOfAnotherUsersBookmarkIsNotFound(): void
@@ -207,6 +213,10 @@ class BookmarkResourceApiTest extends AbstractApiTest
         );
 
         self::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode(), $response->getContent());
+        self::assertSame(
+            [$this->translate('error.bookmark.not.found')],
+            $this->getMessages($response, 'error')
+        );
         BookmarkFactory::repository()->assert()->count(1);
     }
 
@@ -242,6 +252,10 @@ class BookmarkResourceApiTest extends AbstractApiTest
         );
 
         self::assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $response->getStatusCode(), $response->getContent());
+        self::assertSame(
+            [$this->translate('error.bookmark.name.taken', ['name' => 'Taken'])],
+            $this->getMessages($response, 'error')
+        );
     }
 
     public function testDeleteRemovesTheBookmark(): void
@@ -260,9 +274,33 @@ class BookmarkResourceApiTest extends AbstractApiTest
             $procedure->_real()
         );
 
-        self::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), $response->getContent());
-        self::assertSame('', $response->getContent());
+        // 204 is lifted to 200 by DemosPlanResponseEventSubscriber, which appends the message bag.
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+        self::assertSame(
+            [$this->translate('confirm.bookmark.deleted')],
+            $this->getMessages($response, 'confirm')
+        );
         BookmarkFactory::repository()->assert()->count(0);
+    }
+
+    /**
+     * Message bag entries ride along in `meta.messages`, already translated by
+     * {@see TransformMessageBagService::transformMessageBagToResponseFormat()},
+     * hence the comparison against the translated text rather than against the key.
+     *
+     * @return list<string>
+     */
+    private function getMessages(Response $response, string $severity): array
+    {
+        $content = $response->getContent();
+        self::assertIsString($content);
+
+        return Json::decodeToArray($content)['meta']['messages'][$severity] ?? [];
+    }
+
+    private function translate(string $key, array $parameters = []): string
+    {
+        return self::getContainer()->get(TranslatorInterface::class)->trans($key, $parameters);
     }
 
     protected function getServerParameters(): array
