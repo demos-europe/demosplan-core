@@ -18,6 +18,7 @@ use ApiPlatform\State\ProviderInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Bookmark;
 use demosplan\DemosPlanCoreBundle\Repository\BookmarkRepository;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
+use Exception;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Webmozart\Assert\Assert;
@@ -31,6 +32,9 @@ class BookmarkProvider implements ProviderInterface
     ) {
     }
 
+    /**
+     * @throws Exception
+     */
     public function provide(Operation $operation, array $uriVariables = [], array $context = []): object|array|null
     {
         Assert::same($operation->getClass(), BookmarkResource::class);
@@ -76,6 +80,7 @@ class BookmarkProvider implements ProviderInterface
      * shares. The list is a handful of entries per user and procedure, hence no pagination either.
      *
      * @return list<BookmarkResource>
+     * @throws Exception
      */
     private function provideCollection(): array
     {
