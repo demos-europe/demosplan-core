@@ -157,6 +157,19 @@ describe('DpSegmentRecommendationEmail', () => {
     expect(findField('attachRecommendation').props('disabled')).toBe(true)
   })
 
+  /*
+   * An editor holding nothing that cannot be edited either says less than a sentence stating
+   * that there is no recommendation yet, so only the segment text keeps its editor.
+   */
+  it('replaces the recommendation editor by a notice if the segment has none', async () => {
+    await openFormFor('segment-2', 'M7-3')
+
+    const notifications = wrapper.findAllComponents({ name: 'DpInlineNotification' })
+
+    expect(wrapper.findAllComponents({ name: 'DpEditor' })).toHaveLength(1)
+    expect(notifications.at(-1).props('message')).toBe('segment.recommendation.none')
+  })
+
   it('sends message and segment text, but not the unchecked recommendation', async () => {
     await openFormFor('segment-1', 'M7-2')
     await setField('recipient', 'external@example.org')

@@ -135,6 +135,7 @@
             />
           </template>
           <dp-editor
+            v-if="hasRecommendation"
             :aria-label="Translator.trans('recommendation.text')"
             :toolbar-items="obscureOnlyToolbar"
             :value="recommendationTextToSend"
@@ -142,6 +143,11 @@
             obscure-only
             @input="value => recommendationTextToSend = value"
             @transform-obscure-tag="value => recommendationTextToSend = value"
+          />
+          <dp-inline-notification
+            v-else
+            :message="Translator.trans('segment.recommendation.none')"
+            type="info"
           />
         </dp-accordion>
       </fieldset>
