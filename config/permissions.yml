@@ -1882,10 +1882,12 @@ feature_procedure_templates:
     parent: area_main_procedures
 feature_procedure_user_filter_sets:
     description: |-
-        Save chosen filter combination in assessment table for later use.
-        The filter (or actually filterHash) can be named. In interface it all happens in FilterModal.
+        Save a stored query under a name so it can be reloaded later. Used in two places: the
+        assessment table, where it bookmarks a filter combination (FilterModal), and the segment
+        list, where the saved query also carries the chosen columns, their order and the sorting.
+        The permission name predates the second use and the Bookmark entity behind it.
     expose: true
-    label: 'Bookmarks for filters combos in AT'
+    label: 'Bookmarks for saved queries (assessment table filters, segment list views)'
     loginRequired: true
     parent: area_main_procedures
 feature_procedure_user_restrict_access_edit:
