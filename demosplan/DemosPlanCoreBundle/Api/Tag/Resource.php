@@ -18,9 +18,11 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
+use demosplan\DemosPlanCoreBundle\Api\AssignableUser\AssignableUserResource;
 use demosplan\DemosPlanCoreBundle\Api\TagTopic\Resource as TagTopicResource;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag as TagEntity;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 
 #[ApiResource(
     shortName: 'Tag',
@@ -50,6 +52,9 @@ class Resource
     #[ApiProperty(readable: true, writable: false)]
     public ?string $boilerplateId = null;
 
+    #[ApiProperty(readable: true, writable: false)]
+    public ?AssignableUserResource $defaultAssignee = null;
+
     public static function fromEntity(TagEntity $tag): self
     {
         $resource = new self();
@@ -58,6 +63,10 @@ class Resource
         $resource->sortIndex = $tag->getSortIndex();
         $resource->topic = TagTopicResource::fromEntity($tag->getTopic());
         $resource->boilerplateId = $tag->getBoilerplate()?->getId();
+        $defaultAssignee = $tag->getDefaultAssignee();
+        $resource->defaultAssignee = $defaultAssignee instanceof User
+            ? AssignableUserResource::fromEntity($defaultAssignee)
+            : null;
 
         return $resource;
     }
