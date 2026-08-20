@@ -122,6 +122,7 @@ class BookmarkProcessor implements ProcessorInterface
      * Renames a bookmark, repoints it at another stored query, or both. Sending only one of the two
      * fields leaves the other as it is, which is what lets the frontend either rename a view or update
      * it to the one the user is currently looking at.
+     *
      * @throws PersistResourceException
      */
     private function update(string $bookmarkId, BookmarkResource $data): BookmarkResource
