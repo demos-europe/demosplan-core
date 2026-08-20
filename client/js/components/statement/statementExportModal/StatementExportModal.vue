@@ -32,14 +32,18 @@
             :text="Translator.trans('back')"
             type="button"
             variant="subtle"
+            @click="currentView = 'main'"
           />
           <h2>{{ exportModalTitle }}</h2>
         </div>
       </template>
-      <fieldset
-        v-if="!isSingleStatementExport"
-        class="border-b border-neutral"
-      >
+
+      <!-- Main export view -->
+      <template v-if="currentView === 'main'">
+        <fieldset
+          v-if="!isSingleStatementExport"
+          class="border-b border-neutral"
+        >
         <legend
           class="text-base pb-4"
           v-text="Translator.trans('export.type')"
@@ -244,17 +248,17 @@
       >
         <dp-label
           class="mt-4"
-          :hint="Translator.trans('export.xlsx.scheduled.description')"
-          :text="Translator.trans('export.xlsx.scheduled.export')"
+          :hint="Translator.trans('export.xlsx.scheduled.hint')"
+          :text="Translator.trans('export.xlsx.scheduled')"
         />
         <div class="flex justify-end">
           <dp-button
+            data-cy="exportModal:openScheduledView"
             icon="calendar-blank"
-            :text="Translator.trans('export.xlsx.scheduled.add')"
-            data-cy=""
             icon-size="medium"
+            :text="Translator.trans('export.xlsx.scheduled.add')"
             variant="outline"
-            @click=""
+            @click="currentView = 'scheduled'"
           />
         </div>
       </fieldset>
@@ -324,13 +328,23 @@
         :message="Translator.trans('docx.export.via_template.column.headers.warning')"
         type="warning"
       />
+      </template>
+
+      <!-- Scheduled export view -->
+      <scheduled-export-form
+        v-if="currentView === 'scheduled'"
+        :procedure-id="procedureId"
+        @schedule-created="handleScheduleCreated"
+        @cancel="currentView = 'main'"
+      />
+
       <template v-slot:footer>
         <dp-button-row
           class="text-right mt-auto"
           data-cy="exportModal"
           primary
           secondary
-          :primary-text="Translator.trans('export.statements')"
+          :primary-text="currentView === 'main' ? Translator.trans('export.statements') : Translator.trans('export.xlsx.scheduled.title')"
           :secondary-text="Translator.trans('abort')"
           @primary-action="handleExport"
           @secondary-action="closeModal"
@@ -358,6 +372,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations } from 'vuex'
 import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
+import ScheduledExportForm from '@DpJs/components/statement/statementExportModal/ScheduledExportForm'
 
 export default {
   name: 'StatementExportModal',
@@ -374,6 +389,7 @@ export default {
     DpRadio,
     DpUploadFiles,
     FilterFlyout,
+    ScheduledExportForm,
   },
 
   mixins: [sessionStorageMixin],
@@ -404,6 +420,7 @@ export default {
   data () {
     return {
       active: 'docx_normal',
+      currentView: 'main',
       docxColumns: {
         col1: {
           dataCy: 'exportModal:input:col1',
@@ -478,6 +495,9 @@ export default {
     ]),
 
     exportModalTitle () {
+      if (this.currentView === 'scheduled') {
+        return Translator.trans('export.xlsx.scheduled.title')
+      }
       return this.isSingleStatementExport ? Translator.trans('statement.export.do') : Translator.trans('export.statements')
     },
 
@@ -513,7 +533,7 @@ export default {
     },
 
     showBackButton () {
-      return true
+      return this.currentView === 'scheduled'
     },
 
     templateStorageName () {
@@ -578,6 +598,7 @@ export default {
     },
 
     closeModal () {
+      this.currentView = 'main'
       this.resetExportModalState()
       this.resetFilterFlyout()
       this.resetExportModalInner()
@@ -706,6 +727,12 @@ export default {
       this.closeModal()
     },
 
+    handleScheduleCreated () {
+      // Handle the scheduled export creation here
+      // This will be implemented when backend is ready
+      this.closeModal()
+    },
+
     initInitialFlyoutFilterSelection ({ isInitialWithQuery, groupedOptions, ungroupedOptions }) {
       if (!isInitialWithQuery || this.queryIds.length === 0) {
         return
@@ -812,6 +839,7 @@ export default {
 
     resetExportModalState () {
       this.active = 'docx_normal'
+      this.currentView = 'main'
       this.customHeaderText = ''
       this.isCitizenDataCensored = false
       this.isInstitutionDataCensored = false
