@@ -80,10 +80,10 @@ class Provider implements ProviderInterface
      */
     private function provideCollection(Operation $operation, array $uriVariables, array $context): PaginatorInterface|array
     {
-        // handleLinks has to be set or API Platform throws an error, but we don't need it to do anything here.
         $operation = $operation->withStateOptions(new DoctrineOptions(
             entityClass: Tag::class,
             handleLinks: static function (): void {
+                // handleLinks has to be set or API Platform throws an error, but we don't need it to do anything here.
             }
         ));
 
