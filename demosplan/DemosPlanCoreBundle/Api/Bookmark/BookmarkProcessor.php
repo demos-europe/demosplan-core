@@ -22,18 +22,19 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Bookmark;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\DeletionFailedException;
+use demosplan\DemosPlanCoreBundle\Exception\PersistResourceException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Repository\BookmarkRepository;
 use demosplan\DemosPlanCoreBundle\StoredQuery\SegmentListQuery;
 use InvalidArgumentException;
 use LogicException;
-use RuntimeException;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Webmozart\Assert\Assert;
 
 /**
@@ -80,7 +81,7 @@ class BookmarkProcessor implements ProcessorInterface
         throw new LogicException(sprintf('%s is wired as the processor for unsupported operation "%s"; only Post, Patch, and Delete are handled.', self::class, $operation::class));
     }
 
-    private function create(BookmarkResource $data): BookmarkResource|Response
+    private function create(BookmarkResource $data): BookmarkResource
     {
         // Presence is enforced by the bookmark:create validation group; narrow for static analysis.
         Assert::stringNotEmpty($data->name);
@@ -89,9 +90,7 @@ class BookmarkProcessor implements ProcessorInterface
         $procedure = $this->getCurrentProcedure();
         $hashedQuery = $this->resolveHashedQuery($data->queryHash, $procedure);
 
-        if ($this->nameIsTaken($data->name, null)) {
-            return $this->nameCollisionResponse($data->name);
-        }
+        $this->assertNameIsFree($data->name, null);
 
         /** @var User $user */
         $user = $this->currentUser->getUser();
@@ -103,7 +102,7 @@ class BookmarkProcessor implements ProcessorInterface
         $bookmark->setFilterSet($hashedQuery);
 
         if (!$this->bookmarkRepository->addObject($bookmark)) {
-            throw new RuntimeException('Could not persist the bookmark.');
+            throw new PersistResourceException('Could not persist the bookmark.');
         }
 
         return BookmarkResource::fromEntity($bookmark);
@@ -114,17 +113,14 @@ class BookmarkProcessor implements ProcessorInterface
      * fields leaves the other as it is, which is what lets the frontend either rename a view or update
      * it to the one the user is currently looking at.
      */
-    private function update(string $bookmarkId, BookmarkResource $data): BookmarkResource|Response
+    private function update(string $bookmarkId, BookmarkResource $data): BookmarkResource
     {
         $bookmark = $this->findBookmark($bookmarkId);
 
         if (null !== $data->name) {
             Assert::stringNotEmpty($data->name);
 
-            if ($this->nameIsTaken($data->name, $bookmarkId)) {
-                return $this->nameCollisionResponse($data->name);
-            }
-
+            $this->assertNameIsFree($data->name, $bookmarkId);
             $bookmark->setName($data->name);
         }
 
@@ -134,15 +130,25 @@ class BookmarkProcessor implements ProcessorInterface
         }
 
         if (!$this->bookmarkRepository->updateObject($bookmark)) {
-            throw new RuntimeException('Could not update the bookmark.');
+            throw new PersistResourceException('Could not update the bookmark.');
         }
 
         return BookmarkResource::fromEntity($bookmark);
     }
 
+    /**
+     * The repository catches its own failures and answers with false, so the result has to be checked:
+     * without it a failed deletion would still respond 204 and the frontend would drop an entry that is
+     * still stored.
+     *
+     * @throws DeletionFailedException rendered as a 500, since a deletion that fails is not the
+     *                                 client's mistake. The cause is already in the repository's log
+     */
     private function delete(string $bookmarkId): void
     {
-        $this->bookmarkRepository->deleteObject($this->findBookmark($bookmarkId));
+        if (!$this->bookmarkRepository->deleteObject($this->findBookmark($bookmarkId))) {
+            throw new DeletionFailedException();
+        }
     }
 
     /**
@@ -192,8 +198,13 @@ class BookmarkProcessor implements ProcessorInterface
      *
      * Compared in PHP over the accessible bookmarks: the access conditions already narrow that to the
      * current user, procedure and view kind, and a user holds a handful of them.
+     *
+     * @param string|null $ignoredBookmarkId the bookmark being renamed, so keeping its own name is not
+     *                                       reported as a collision
+     *
+     * @throws UnprocessableEntityHttpException
      */
-    private function nameIsTaken(string $name, ?string $ignoredBookmarkId): bool
+    private function assertNameIsFree(string $name, ?string $ignoredBookmarkId): void
     {
         $bookmarks = $this->bookmarkRepository->getEntities($this->accessChecker->getAccessConditions(), []);
 
@@ -202,11 +213,9 @@ class BookmarkProcessor implements ProcessorInterface
                 continue;
             }
             if (0 === strcasecmp($bookmark->getName(), $name)) {
-                return true;
+                throw new UnprocessableEntityHttpException(sprintf('A bookmark named "%s" already exists in this procedure.', $name));
             }
         }
-
-        return false;
     }
 
     private function getCurrentProcedure(): Procedure
@@ -219,23 +228,4 @@ class BookmarkProcessor implements ProcessorInterface
         return $procedure;
     }
 
-    /**
-     * Returned as a response rather than thrown, following {@see \demosplan\DemosPlanCoreBundle\StateProcessor\StatementGroupProcessor}:
-     * a thrown exception would render as an HTML debug page in dev, whereas the client needs JSON
-     * regardless of environment.
-     */
-    private function nameCollisionResponse(string $name): JsonResponse
-    {
-        $error = [
-            'status' => (string) Response::HTTP_UNPROCESSABLE_ENTITY,
-            'title'  => 'Bookmark name already in use',
-            'detail' => sprintf('A bookmark named "%s" already exists in this procedure.', $name),
-            'source' => ['pointer' => '/data/attributes/name'],
-        ];
-
-        $response = new JsonResponse(['errors' => [$error]], Response::HTTP_UNPROCESSABLE_ENTITY);
-        $response->headers->set('Content-Type', 'application/vnd.api+json');
-
-        return $response;
-    }
 }
