@@ -12,12 +12,14 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Unit\EventListener;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
+use demosplan\DemosPlanCoreBundle\EventListener\ExceptionEventSubscriber;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
-use demosplan\DemosPlanCoreBundle\EventListener\ExceptionEventSubscriber;
+use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ExceptionService;
 use Exception;
 use InvalidArgumentException;
@@ -29,11 +31,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Throwable;
 
 class ExceptionEventSubscriberTest extends TestCase
@@ -42,6 +47,7 @@ class ExceptionEventSubscriberTest extends TestCase
 
     private LoggerInterface&MockObject $logger;
     private ExceptionService&MockObject $exceptionService;
+    private MessageBagInterface&MockObject $messageBag;
 
     protected function setUp(): void
     {
@@ -49,6 +55,7 @@ class ExceptionEventSubscriberTest extends TestCase
 
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->exceptionService = $this->createMock(ExceptionService::class);
+        $this->messageBag = $this->createMock(MessageBagInterface::class);
     }
 
     private function createSut(bool $debug): ExceptionEventSubscriber
@@ -56,6 +63,7 @@ class ExceptionEventSubscriberTest extends TestCase
         return new ExceptionEventSubscriber(
             $this->logger,
             $this->exceptionService,
+            $this->messageBag,
             $debug
         );
     }
@@ -460,6 +468,105 @@ class ExceptionEventSubscriberTest extends TestCase
         }
 
         self::assertNotSame(self::TEST_ERROR_MESSAGE, $error['title']);
+    }
+
+    /**
+     * @return array<string, array{0: Throwable, 1: string}> exception and the translation key the
+     *                                                       frontend renders as a notification
+     */
+    public static function apiPlatformMessageKeyProvider(): array
+    {
+        return [
+            'lost session'       => [new AccessDeniedException(self::TEST_ERROR_MESSAGE), 'error.api.session'],
+            'unexpected failure' => [new Exception(self::TEST_ERROR_MESSAGE), 'error.api.generic'],
+            'assertion failure'  => [new InvalidArgumentException(self::TEST_ERROR_MESSAGE), 'error.api.generic'],
+        ];
+    }
+
+    /**
+     * A translated key is added rather than the exception message, which is written for developers and
+     * for unmapped throwables withheld from the client altogether.
+     *
+     * @dataProvider apiPlatformMessageKeyProvider
+     */
+    public function testApiPlatformErrorAddsATranslatedMessageBagEntry(Throwable $exception, string $expectedKey): void
+    {
+        $sut = $this->createSut(debug: false);
+        $this->messageBag->expects(self::once())->method('add')->with('error', $expectedKey);
+
+        $sut->handleException($this->createApiPlatformExceptionEvent($exception));
+    }
+
+    /**
+     * A ViolationsException extends InvalidArgumentException, so without an explicit arm it would be
+     * taken for an assertion failure and answered as 500 with its violations discarded. They are
+     * forwarded field by field rather than collapsed into one generic line.
+     */
+    public function testApiPlatformViolationsAreForwardedToTheMessageBag(): void
+    {
+        $violations = new ConstraintViolationList([
+            new ConstraintViolation('must not be blank', null, [], null, 'name', ''),
+        ]);
+        $exception = ViolationsException::fromConstraintViolationList($violations);
+
+        $sut = $this->createSut(debug: false);
+        $this->messageBag->expects(self::once())->method('addViolations')->with($violations);
+        $this->messageBag->expects(self::never())->method('add');
+
+        $exceptionEvent = $this->createApiPlatformExceptionEvent($exception);
+        $sut->handleException($exceptionEvent);
+
+        $response = $exceptionEvent->getResponse();
+        self::assertInstanceOf(APIResponse::class, $response);
+        self::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+    }
+
+    /**
+     * @return array<string, array{0: Throwable}>
+     */
+    public static function apiPlatformSilentStatusProvider(): array
+    {
+        return [
+            'bad request'   => [new BadRequestHttpException(self::TEST_ERROR_MESSAGE)],
+            'forbidden'     => [new AccessDeniedHttpException(self::TEST_ERROR_MESSAGE)],
+            'not found'     => [new NotFoundHttpException(self::TEST_ERROR_MESSAGE)],
+            'unprocessable' => [new UnprocessableEntityHttpException(self::TEST_ERROR_MESSAGE)],
+        ];
+    }
+
+    /**
+     * These are situations the client asked for and can phrase itself from the error document. The
+     * legacy stack shows no notification for them either, so adding one here would put a message on
+     * screen where the other API versions stay quiet.
+     *
+     * @dataProvider apiPlatformSilentStatusProvider
+     */
+    public function testApiPlatformClientErrorAddsNoMessageBagEntry(Throwable $exception): void
+    {
+        $sut = $this->createSut(debug: false);
+        $this->messageBag->expects(self::never())->method('add');
+
+        $exceptionEvent = $this->createApiPlatformExceptionEvent($exception);
+        $sut->handleException($exceptionEvent);
+
+        self::assertInstanceOf(APIResponse::class, $exceptionEvent->getResponse());
+    }
+
+    /**
+     * A message bag that cannot accept the entry must not replace the error being reported with one of
+     * its own.
+     */
+    public function testApiPlatformErrorSurvivesAFailingMessageBag(): void
+    {
+        $sut = $this->createSut(debug: false);
+        $this->messageBag->method('add')->willThrowException(new Exception('no session'));
+
+        $exceptionEvent = $this->createApiPlatformExceptionEvent(new NotFoundHttpException('gone'));
+        $sut->handleException($exceptionEvent);
+
+        $response = $exceptionEvent->getResponse();
+        self::assertInstanceOf(APIResponse::class, $response);
+        self::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
 
     /**
