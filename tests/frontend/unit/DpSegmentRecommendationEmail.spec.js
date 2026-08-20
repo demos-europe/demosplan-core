@@ -7,17 +7,23 @@
  * All rights reserved
  */
 
-import { beforeEach, describe, expect, it, jest } from '@jest/globals'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createStore } from 'vuex'
 import DpSegmentRecommendationEmail from '@DpJs/components/statement/statement/DpSegmentRecommendationEmail'
 import { nextTick } from 'vue'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
-const mockDpRpc = jest.fn(() => Promise.resolve())
+const { mockDpRpc } = vi.hoisted(() => ({ mockDpRpc: vi.fn(() => Promise.resolve()) }))
 
-jest.mock('@demos-europe/demosplan-ui', () => ({
-  ...jest.requireActual('@demos-europe/demosplan-ui'),
+/*
+ * `validate` inspects the rendered form, but shallowMount leaves only stubs behind, whose
+ * `required` and `type="email"` attributes make every field look like an empty one. What the
+ * validation does with a form is covered in demosplan-ui, here it only has to let the send pass.
+ */
+vi.mock('@demos-europe/demosplan-ui', async importOriginal => ({
+  ...(await importOriginal()),
   dpRpc: (...args) => mockDpRpc(...args),
+  useDpValidate: () => ({ validate: () => true }),
 }))
 
 describe('DpSegmentRecommendationEmail', () => {
@@ -53,18 +59,28 @@ describe('DpSegmentRecommendationEmail', () => {
 
   /*
    * Children are stubbed by shallowMount, so fields are addressed as components and their
-   * v-model is driven by emitting the event the parent listens to.
+   * v-model is driven by emitting the event the parent listens to. In vue-2-compat mode
+   * `v-model` compiles to `value` + `input`, and DpCheckbox declares `checked` + `change`.
    */
   const findField = id => wrapper.findComponent(`#${id}`)
 
   const setField = async (id, value) => {
-    findField(id).vm.$emit('update:modelValue', value)
+    findField(id).vm.$emit('input', value)
+
+    await nextTick()
+  }
+
+  const setCheckbox = async (id, value) => {
+    findField(id).vm.$emit('change', value)
 
     await nextTick()
   }
 
   beforeEach(() => {
     mockDpRpc.mockClear()
+
+    // `dplan.notify` is used by the mandatory-field branch of the form validation.
+    global.dplan = { notify: { notify: vi.fn() } }
 
     store = createStore({
       modules: {
@@ -123,7 +139,7 @@ describe('DpSegmentRecommendationEmail', () => {
   it('prefills the reply-to address with the address of the current user', async () => {
     await openFormFor('segment-1', 'M7-2')
 
-    expect(findField('replyToEmail').props('modelValue')).toBe('planner@example.org')
+    expect(findField('replyToEmail').attributes('value')).toBe('planner@example.org')
   })
 
   it('takes segment text and recommendation from the store', async () => {
@@ -159,7 +175,7 @@ describe('DpSegmentRecommendationEmail', () => {
   it('appends the recommendation once its checkbox is checked', async () => {
     await openFormFor('segment-1', 'M7-2')
     await setField('message', 'Please have a look')
-    await setField('attachRecommendation', true)
+    await setCheckbox('attachRecommendation', true)
 
     wrapper.findComponent({ name: 'DpButtonRow' }).vm.$emit('primary-action')
 
@@ -175,7 +191,7 @@ describe('DpSegmentRecommendationEmail', () => {
   it('does not carry entries over to the next segment', async () => {
     await openFormFor('segment-1', 'M7-2')
     await setField('recipient', 'external@example.org')
-    await setField('attachSegmentText', false)
+    await setCheckbox('attachSegmentText', false)
 
     await openFormFor('segment-2', 'M7-3')
 
