@@ -10,25 +10,30 @@
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Procedure;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\UserFilterSetInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\BookmarkInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Repository\UserFilterSetRepository;
+use demosplan\DemosPlanCoreBundle\Repository\BookmarkRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Class UserFilterSet.
+ * A view of a procedure saved by a single user under a name of their choosing. The referenced
+ * {@see HashedQuery} holds the stored query itself; this entity only adds the name and the owner.
+ *
+ * The relationship is still called `filterSet` because it maps to the `filter_set_id` column and to
+ * the published JSON:API property of the same name, even though the stored query it points at
+ * carries more than filters.
  */
-#[ORM\Table]
-#[ORM\Entity(repositoryClass: UserFilterSetRepository::class)]
-class UserFilterSet extends CoreEntity implements UuidEntityInterface, UserFilterSetInterface
+#[ORM\Table(name: 'bookmark')]
+#[ORM\Entity(repositoryClass: BookmarkRepository::class)]
+class Bookmark extends CoreEntity implements UuidEntityInterface, BookmarkInterface
 {
     private const ON_DELETE_NO_ACTION = 'NO ACTION';
 
     /**
-     * Unique identification of the GisLayerCategory entry.
+     * Unique identification of the Bookmark entry.
      *
      * @var string|null
      */
