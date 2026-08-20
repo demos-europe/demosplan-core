@@ -199,9 +199,8 @@ export default {
         this.lastRefreshAt = new Date()  // Update last refresh timestamp
 
         // Disable expand buttons in rows without error, since there will be no content in the expanded row
-        await this.$nextTick(() => {
-          this.setExpandButtonStates()
-        })
+        await this.$nextTick()
+        this.setExpandButtonStates()
 
         // Manage polling based on active jobs
         if (this.hasActiveJobs) {
