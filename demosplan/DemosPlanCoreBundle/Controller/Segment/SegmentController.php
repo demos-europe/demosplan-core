@@ -199,8 +199,8 @@ class SegmentController extends BaseController
                 $uploadHash,
                 $fileName,
                 ImportJobType::SEGMENTS,
-                'confirm.segments.import.queued',
-                'error.segments.import.queue.failed',
+                'confirm.import.queued',
+                'error.import.queue.failed',
             );
         }
 

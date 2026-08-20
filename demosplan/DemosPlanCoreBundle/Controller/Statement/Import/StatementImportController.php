@@ -234,8 +234,8 @@ class StatementImportController extends BaseController
                 $uploadHash,
                 $fileName,
                 ImportJobType::STATEMENTS,
-                'confirm.statements.import.queued',
-                'error.statements.import.queue.failed',
+                'confirm.import.queued',
+                'error.import.queue.failed',
             );
         }
 
