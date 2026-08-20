@@ -1672,7 +1672,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@carbon/icon-helpers@npm:^10.53.1, @carbon/icon-helpers@npm:^10.68.0":
+"@carbon/icon-helpers@npm:^10.68.0":
   version: 10.68.0
   resolution: "@carbon/icon-helpers@npm:10.68.0"
   dependencies:
@@ -1681,13 +1681,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@carbon/icons-vue@npm:10.99.1":
-  version: 10.99.1
-  resolution: "@carbon/icons-vue@npm:10.99.1"
+"@carbon/icon-helpers@npm:^10.76.0":
+  version: 10.80.0
+  resolution: "@carbon/icon-helpers@npm:10.80.0"
   dependencies:
-    "@carbon/icon-helpers": "npm:^10.53.1"
     "@ibm/telemetry-js": "npm:^1.5.0"
-  checksum: 10c0/88a70aaa4687a916431ac548ba07e90a012c01c2f11a196b7e7ad976011e812870b6c03d56db59c3061067341d15449aee05c808b2084674d7d63c563b8e416e
+  checksum: 10c0/9b4c3014c1803ec975104b36ff6e386b89943f116adbd90feed5c934cd31f76a61bbe070703d39ff803e03577b337293177052aae73662171fe1be4ef9067d54
+  languageName: node
+  linkType: hard
+
+"@carbon/icons-vue@npm:10.130.0":
+  version: 10.130.0
+  resolution: "@carbon/icons-vue@npm:10.130.0"
+  dependencies:
+    "@carbon/icon-helpers": "npm:^10.76.0"
+    "@ibm/telemetry-js": "npm:^1.5.0"
+  checksum: 10c0/50852b4185f64a13af2f38005fda033cc1a5bf2f72e260ece13048695e75bad176814d08447d309ead4e7e335c8cf5cbe2bea7884655aca2a3d0ffff33888945
   languageName: node
   linkType: hard
 
@@ -7480,7 +7489,7 @@ __metadata:
     "@babel/preset-env": "npm:^7.29.7"
     "@babel/preset-typescript": "npm:^7.29.7"
     "@babel/runtime": "npm:^7.29.7"
-    "@carbon/icons-vue": "npm:10.99.1"
+    "@carbon/icons-vue": "npm:10.130.0"
     "@carbon/vue": "npm:^3.0.27"
     "@cesium/engine": "npm:^20.0.1"
     "@demos-europe/demosplan-ui": "npm:0.28.0"
