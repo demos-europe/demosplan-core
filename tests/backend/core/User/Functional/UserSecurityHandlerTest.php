@@ -12,6 +12,9 @@ namespace Tests\Core\User\Functional;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\UserReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserSecurityHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Totp\TotpAuthenticator;
@@ -22,6 +25,8 @@ class UserSecurityHandlerTest extends FunctionalTestCase
     private $totpAuthenticator;
     private $messageBag;
     private $userService;
+    private $userReportEntryFactory;
+    private $reportService;
     private $userSecurityHandler;
     private $user;
 
@@ -31,10 +36,14 @@ class UserSecurityHandlerTest extends FunctionalTestCase
         $this->messageBag = $this->createMock(MessageBagInterface::class);
         $this->userService = $this->createMock(UserService::class);
         $this->user = $this->createMock(User::class);
+        $this->userReportEntryFactory = $this->createMock(UserReportEntryFactory::class);
+        $this->reportService = $this->createMock(ReportService::class);
         $this->userSecurityHandler = new UserSecurityHandler(
             $this->totpAuthenticator,
             $this->messageBag,
-            $this->userService
+            $this->userService,
+            $this->userReportEntryFactory,
+            $this->reportService
         );
     }
 
@@ -81,6 +90,28 @@ class UserSecurityHandlerTest extends FunctionalTestCase
         $this->messageBag->expects($this->once())->method('add')->with('error', 'error.2fa.code.invalid');
 
         $this->userSecurityHandler->handleUserSecurityPropertiesUpdate($this->user, $updateUserData);
+    }
+
+    public function testResetTwoFactorAuthenticationClearsBothSecondFactors(): void
+    {
+        $user = new User();
+        $user->setTotpEnabled(true);
+        $user->setTotpSecret('someSecret');
+        $user->setAuthCodeEmailEnabled(true);
+        $user->setEmailAuthCode('123456');
+        $this->userService->expects($this->once())->method('updateUserObject')->with($user);
+        $reportEntry = new ReportEntry();
+        $this->userReportEntryFactory->expects($this->once())
+            ->method('createTwoFactorResetEntry')->with($user)->willReturn($reportEntry);
+        $this->reportService->expects($this->once())
+            ->method('persistAndFlushReportEntry')->with($reportEntry);
+
+        $this->userSecurityHandler->resetTwoFactorAuthentication($user);
+
+        self::assertFalse($user->isTotpEnabled());
+        self::assertNull($user->getTotpSecret());
+        self::assertFalse($user->isEmailAuthEnabled());
+        self::assertSame('', $user->getEmailAuthCode());
     }
 
     public function testDisablesEmailAuthWhenDisableEmailCodeProvided()

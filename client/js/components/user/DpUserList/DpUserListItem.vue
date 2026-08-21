@@ -118,6 +118,22 @@
         @user:update="updateUser"
       />
 
+      <div
+        v-if="canResetTwoFactor"
+        class="mb-2"
+      >
+        <p class="lbl__hint mb-1">
+          {{ Translator.trans('2fa.reset.hint') }}
+        </p>
+        <dp-button
+          :busy="isResettingTwoFactor"
+          data-cy="resetTwoFactor"
+          :text="Translator.trans('2fa.reset')"
+          variant="outline"
+          @click="resetTwoFactor"
+        />
+      </div>
+
       <dp-button-row
         form-name="userForm"
         primary
@@ -130,7 +146,7 @@
 </template>
 
 <script>
-import { DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import DpUserFormFields from './DpUserFormFields'
@@ -139,6 +155,7 @@ export default {
   name: 'DpUserListItem',
 
   components: {
+    DpButton,
     DpButtonRow,
     DpIcon,
     DpTableCard,
@@ -176,6 +193,7 @@ export default {
       isOpen: false,
       editMode: false,
       isLoading: true,
+      isResettingTwoFactor: false,
     }
   },
 
@@ -186,6 +204,10 @@ export default {
 
     ariaLabel () {
       return Translator.trans(this.isOpen ? 'aria.collapse' : 'aria.expand')
+    },
+
+    canResetTwoFactor () {
+      return hasPermission('feature_2fa') && true === this.user.attributes.twoFactorEnabled
     },
 
     hasDepartment () {
@@ -265,6 +287,44 @@ export default {
     save () {
       this.isOpen = !this.isOpen
       this.saveUserAction(this.user.id)
+    },
+
+    async resetTwoFactor () {
+      const userName = `${this.user.attributes.firstname} ${this.user.attributes.lastname}`
+
+      if (!await window.dpconfirm(Translator.trans('2fa.reset.confirm', { name: userName }))) {
+        return
+      }
+
+      this.isResettingTwoFactor = true
+
+      const payload = {
+        data: {
+          id: this.user.id,
+          type: 'AdministratableUser',
+          attributes: {
+            twoFactorEnabled: false,
+          },
+        },
+      }
+
+      try {
+        await dpApi.patch(
+          Routing.generate('api_resource_update', { resourceType: 'AdministratableUser', resourceId: this.user.id }),
+          {},
+          payload,
+        )
+        this.setItem({
+          ...this.user,
+          attributes: { ...this.user.attributes, twoFactorEnabled: false },
+        })
+        dplan.notify.notify('confirm', Translator.trans('2fa.reset.success'))
+      } catch (error) {
+        console.error(error)
+        dplan.notify.notify('error', Translator.trans('error.api.generic'))
+      } finally {
+        this.isResettingTwoFactor = false
+      }
     },
 
     updateUser (payload) {
