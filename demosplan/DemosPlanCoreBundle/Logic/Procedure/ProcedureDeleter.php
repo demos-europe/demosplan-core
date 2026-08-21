@@ -106,8 +106,8 @@ class ProcedureDeleter
         // delete import_emails -> attachments
         $this->processImportEmails($procedureIds, $isDryRun);
 
-        // delete user filter sets
-        $this->deleteUserFilterSets($procedureIds, $isDryRun);
+        // delete bookmarks
+        $this->deleteBookmarks($procedureIds, $isDryRun);
 
         // delete hashed queries
         $this->deleteHashedQueries($procedureIds, $isDryRun);
@@ -740,10 +740,10 @@ class ProcedureDeleter
     /**
      * @throws Exception
      */
-    private function deleteUserFilterSets(array $procedureIds, bool $isDryRun): void
+    private function deleteBookmarks(array $procedureIds, bool $isDryRun): void
     {
         $this->queriesService->deleteFromTableByIdentifierArray(
-            'user_filter_set',
+            'bookmark',
             'procedure_id',
             $procedureIds,
             $isDryRun
