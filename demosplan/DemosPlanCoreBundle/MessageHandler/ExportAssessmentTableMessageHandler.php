@@ -88,7 +88,9 @@ class ExportAssessmentTableMessageHandler
                 $response,
                 $message->getUserId(),
                 $message->getProcedureId(),
-                'Abwaegungstabelle'
+                // The export format doubles as extension so the download stays openable even if the
+                // response declares no name.
+                'Abwaegungstabelle.'.$message->getExportFormat()
             );
             $job->setFileHash($storedFile->getFileHash());
             $job->setFileName($storedFile->getFileName());

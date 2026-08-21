@@ -39,7 +39,6 @@ use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\AddressBookEntryVO;
 use Exception;
@@ -85,9 +84,10 @@ class DemosPlanUserController extends BaseController
         }
         $roles = $this->currentUser->getUser()->getRoles();
         $this->getLogger()->info(
-            'Welcomepage for Orga '.DemosPlanTools::varExport($orga->getName(), true).' '.DemosPlanTools::varExport($orga->getId(), true)
+            'Welcomepage for Orga {orgaName} {orgaId}',
+            ['orgaName' => $orga->getName(), 'orgaId' => $orga->getId()]
         );
-        $this->getLogger()->info('Welcomepage Roles '.DemosPlanTools::varExport($roles, true));
+        $this->getLogger()->info('Welcomepage Roles {roles}', ['roles' => $roles]);
 
         $templateVars = $this->checkProfileCompleted();
 
@@ -282,8 +282,13 @@ class DemosPlanUserController extends BaseController
         }
         $templateVars['profileCompleted'] = filter_var($this->currentUser->getUser()->isProfileCompleted(), FILTER_VALIDATE_BOOLEAN);
         $templateVars['newUser'] = filter_var($this->currentUser->getUser()->isNewUser(), FILTER_VALIDATE_BOOLEAN);
-        $this->getLogger()->info('Check Profile completed: '.DemosPlanTools::varExport($templateVars['profileCompleted'], true)
-            .' NewUser: '.DemosPlanTools::varExport($templateVars['newUser'], true));
+        $this->getLogger()->info(
+            'Check Profile completed: {profileCompleted} NewUser: {newUser}',
+            [
+                'profileCompleted' => $templateVars['profileCompleted'],
+                'newUser'          => $templateVars['newUser'],
+            ]
+        );
 
         return $templateVars;
     }

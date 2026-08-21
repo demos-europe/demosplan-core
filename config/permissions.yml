@@ -1882,10 +1882,12 @@ feature_procedure_templates:
     parent: area_main_procedures
 feature_procedure_user_filter_sets:
     description: |-
-        Save chosen filter combination in assessment table for later use.
-        The filter (or actually filterHash) can be named. In interface it all happens in FilterModal.
+        Save a stored query under a name so it can be reloaded later. Used in two places: the
+        assessment table, where it bookmarks a filter combination (FilterModal), and the segment
+        list, where the saved query also carries the chosen columns, their order and the sorting.
+        The permission name predates the second use and the Bookmark entity behind it.
     expose: true
-    label: 'Bookmarks for filters combos in AT'
+    label: 'Bookmarks for saved queries (assessment table filters, segment list views)'
     loginRequired: true
     parent: area_main_procedures
 feature_procedure_user_restrict_access_edit:
@@ -2515,6 +2517,15 @@ feature_statements_fragment_vote:
     label: 'Votum zu Datensatz abgeben'
     loginRequired: true
     parent: feature_statement_fragment
+feature_statements_import_csv:
+    description: |-
+        Allows the user to upload a csv file containing new statements. The file is processed in the
+        background as a queued import job, which makes it suitable for data sets that are too large
+        for a spreadsheet.
+    expose: true
+    label: 'Generate statements from uploaded csv file'
+    loginRequired: true
+    parent: area_statements, area_admin_import
 feature_statements_import_excel:
     description: |-
         Allows the user to upload an excel file containing new statements. These are then validated and
@@ -3216,9 +3227,7 @@ role_participant:
     loginRequired: true
 feature_read_source_statement_via_api:
     description: |
-        Used to gain access to the source-statement file via the api. This permission is a replica of feature_import_statement_pdf
-        because that permission is addon-specific and cannot be used for additional non addon related checks within the core.
-        Access to the source-statement without this addon is necessary, so this permission substitutes the old one.
+        Used to gain access to the source-statement file via the api.
     label: ' used in : Statement list and segment list '
     expose: true
     loginRequired: true

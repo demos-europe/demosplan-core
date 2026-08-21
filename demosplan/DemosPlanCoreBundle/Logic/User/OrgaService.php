@@ -35,7 +35,6 @@ use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaTypeRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitablePublicAgencyResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OrgaResourceType;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\OrgaSignatureValueObject;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\DataProtectionOrganisation;
@@ -494,7 +493,7 @@ class OrgaService implements OrgaServiceInterface
                 $notifications['emailNotificationEndingPhase'] = $settingEndingPhase[0];
             }
         }
-        $this->logger->debug('loadOrgaNotifications Loaded: '.DemosPlanTools::varExport($notifications, true));
+        $this->logger->debug('loadOrgaNotifications Loaded', ['notifications' => $notifications]);
         $orga->setNotifications($notifications);
     }
 
@@ -514,7 +513,7 @@ class OrgaService implements OrgaServiceInterface
         );
         if (is_array($settingSubmissionType) && 1 === count($settingSubmissionType)) {
             $orga->setSubmissionType($settingSubmissionType[0]->getContent());
-            $this->logger->debug('loadOrgaSubmissionType Loaded: '.DemosPlanTools::varExport($settingSubmissionType[0]->getContent(), true));
+            $this->logger->debug('loadOrgaSubmissionType Loaded: {submissionType}', ['submissionType' => $settingSubmissionType[0]->getContent()]);
         }
     }
 
