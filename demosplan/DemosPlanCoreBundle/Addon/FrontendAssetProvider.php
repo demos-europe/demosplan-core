@@ -13,15 +13,17 @@ namespace demosplan\DemosPlanCoreBundle\Addon;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Exception\AddonException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Yaml\Yaml;
 
-final class FrontendAssetProvider
+final readonly class FrontendAssetProvider
 {
     public function __construct(
-        private readonly PermissionsInterface $permissions,
-        private readonly AddonRegistry $registry,
-        private readonly UrlGeneratorInterface $urlGenerator,
+        private AddonRegistry $registry,
+        private LoggerInterface $logger,
+        private PermissionsInterface $permissions,
+        private UrlGeneratorInterface $urlGenerator,
     ) {
     }
 
@@ -58,8 +60,9 @@ final class FrontendAssetProvider
 
         $uiData = $addonInfo->getUIHooks();
         $hookData = $uiData['hooks'][$hookName] ?? null;
+        $addonName = $addonInfo->getName();
 
-        if (!is_array($hookData) || !$this->hasHookPermission($hookData)) {
+        if (!is_array($hookData) || !$this->hasHookPermission($hookData, $addonName, $hookName)) {
             return [];
         }
 
@@ -87,11 +90,13 @@ final class FrontendAssetProvider
     /**
      * @param array<string, string|array> $hookData
      */
-    private function hasHookPermission(array $hookData): bool
+    private function hasHookPermission(array $hookData, string $addonName, string $hookName): bool
     {
         $permissions = $hookData['options']['permissions'] ?? null;
 
         if (null === $permissions) {
+            $this->logger->warning("Addon hook {$addonName}:{$hookName} has no permissions defined, allowing all users to access it.");
+
             return true;
         }
 
@@ -122,6 +127,11 @@ final class FrontendAssetProvider
                 );
                 continue;
             }
+
+            $this->logger->warning(
+                "Addon {$addonInfo->getName()} is using a legacy UMD bundle for frontend assets."
+                . 'Please upgrade demosplan-addon-client-builder to the latest version.'
+            );
 
             // legacy UMD bundle: transport source inline, frontend still `eval`s it.
             // Kept until every addon has migrated to ESM output.
