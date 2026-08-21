@@ -93,7 +93,7 @@ FROM deps AS sbom-php
 # build.sh passes the image version; the context carries no .git for composer to derive one from.
 ARG SBOM_MC_VERSION=0.0.0
 # The generator is not a project dependency: installed globally it stays out of the vendor the SBOM
-# describes. Unpinned on purpose, so every build uses current detection logic.
+# describes. Pinned, so an upstream release cannot change the SBOM without a commit.
 RUN --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=locked \
 # composer global writes into COMPOSER_HOME, which the cache mount leaves owned by root \
     export COMPOSER_HOME=/tmp/composer-global \
@@ -102,7 +102,7 @@ RUN --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=loc
     mkdir -p /srv/www/var/tmp /tmp/sbom && \
     composer global config --no-plugins allow-plugins.cyclonedx/cyclonedx-php-composer true && \
     composer global require --no-progress --no-scripts \
-        cyclonedx/cyclonedx-php-composer && \
+        cyclonedx/cyclonedx-php-composer:6.2.0 && \
     composer CycloneDX:make-sbom \
         --output-format=JSON \
         --output-file=/tmp/sbom/sbom-php.cdx.json \
@@ -119,7 +119,7 @@ RUN --mount=type=cache,target=/var/www/.npm,uid=33,gid=33,sharing=locked \
     --mount=type=cache,target=/var/www/.cache,uid=33,gid=33,sharing=locked \
     mkdir -p /tmp/sbom && \
 # npx resolves the dependency tree without a lockfile, so no install script gets to run \
-    npx --yes --ignore-scripts @cyclonedx/cdxgen \
+    npx --yes --ignore-scripts @cyclonedx/cdxgen@12.8.4 \
         -t yarn \
         -o /tmp/sbom/sbom-js.cdx.json \
         --spec-version 1.5 \
