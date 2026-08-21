@@ -129,14 +129,28 @@ class FragmentElasticsearchRepository extends CoreRepository
             // default
             $esSortFields = [];
 
+            // A fragment's versions can belong to different departments; scope the nested sort to the
+            // department already being queried so we don't sort by another department's edit timestamp
+            $departmentId = null;
+            foreach ($esQuery->getFiltersMust() as $filter) {
+                if (in_array($filter->getField(), ['departmentId', 'versions.modifiedByDepartmentId'], true)) {
+                    $departmentId = $filter->getValue();
+                    break;
+                }
+            }
+
             $esQuery->setSort($esQuery->getAvailableSorts());
             foreach ($esQuery->getSort() as $esQuerySort) {
                 foreach ($esQuerySort->getFields() as $sortField) {
                     // Sorting on a field inside the nested 'versions' mapping requires an explicit nested context
                     if (str_starts_with($sortField->getName(), 'versions.')) {
+                        $nested = ['path' => 'versions'];
+                        if (null !== $departmentId) {
+                            $nested['filter'] = ['term' => ['versions.modifiedByDepartmentId' => $departmentId]];
+                        }
                         $esSortFields[$sortField->getName()] = [
                             'order'  => $sortField->getDirection(),
-                            'nested' => ['path' => 'versions'],
+                            'nested' => $nested,
                         ];
                     } else {
                         $esSortFields[$sortField->getName()] = $sortField->getDirection();
