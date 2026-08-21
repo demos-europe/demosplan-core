@@ -29,7 +29,9 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Transformers\Segment\SegmentTransformerPass;
 use demosplan\DemosPlanCoreBundle\Transformers\Segment\StatementToDraftsInfoTransformer;
+use demosplan\DemosPlanCoreBundle\ValueObject\SegmentationStatus;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Query\QueryException;
 use Exception;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -121,6 +123,7 @@ class DraftsInfoApiController extends APIController
     public function confirmDrafts(
         CurrentUserService $currentUserProvider,
         DraftsInfoHandler $draftsInfoHandler,
+        EntityManagerInterface $entityManager,
         EventDispatcherInterface $eventDispatcher,
         Request $request,
         SegmentHandlerInterface $segmentHandler,
@@ -132,12 +135,14 @@ class DraftsInfoApiController extends APIController
             $data = $request->getContent();
             // save the input JSON into the target statement (referenced in the JSON)
             $statementId = $draftsInfoHandler->save($data);
-            // extract and create the segments from the input JSON
-            /** @var array<int, Segment> $segments */
-            $segments = $transformer->transform(
+            // extract and create the segments and text sections from the input JSON
+            $result = $transformer->transform(
                 $data,
                 SegmentTransformerInterface::DRAFTS_INFO
             );
+
+            $segments = $result['segments'] ?? [];
+            $textSections = $result['textSections'] ?? [];
 
             if (0 === count($segments)) {
                 $this->messageBag->add('error', 'statement.has.no.segments');
@@ -148,9 +153,22 @@ class DraftsInfoApiController extends APIController
             // persist the segments
             $segmentHandler->addSegments($segments);
 
-            // populate the statement's segment collection with fresh segments before dispatching event
-            // this ensures getSegmentsOfStatement() returns the new segments in event subscribers
+            // persist the text sections
+            foreach ($textSections as $textSection) {
+                $entityManager->persist($textSection);
+            }
+            if (count($textSections) > 0) {
+                $entityManager->flush();
+            }
+
+            // Mark statement as segmented so it uses the new order-based format
             $statement = $statementHandler->getStatementWithCertainty($statementId);
+            if (!$statement->isSegmented()) {
+                $statement->setSegmentationStatus(SegmentationStatus::SEGMENTED);
+                $statementHandler->updateStatementObject($statement);
+            }
+
+            // populate the statement's segment collection with fresh segments before dispatching event
             $statement->setSegmentsOfStatement(new ArrayCollection($segments));
 
             // request additional statement processing (asynchronous)
