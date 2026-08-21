@@ -48,7 +48,6 @@
                 :data-cy="`exportModal:exportType:${key}`"
                 :label="{
                   text: Translator.trans(exportType.label),
-                  bold: true,
                 }"
                 :value="key"
                 :checked="active === key"
@@ -909,12 +908,14 @@ export default {
   },
 
   mounted () {
-    this.resizeObserver = new ResizeObserver(() => {
-      this.updateContentHeight()
-    })
+    if (typeof ResizeObserver !== 'undefined') {
+      this.resizeObserver = new ResizeObserver(() => {
+        this.updateContentHeight()
+      })
 
-    if (this.$refs.content) {
-      this.resizeObserver.observe(this.$refs.content)
+      if (this.$refs.content) {
+        this.resizeObserver.observe(this.$refs.content)
+      }
     }
   },
 
