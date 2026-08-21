@@ -14,6 +14,7 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryFragment;
+use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\SortField;
 use demosplan\DemosPlanCoreBundle\Traits\DI\ElasticsearchQueryTrait;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Doctrine\Persistence\ManagerRegistry;
@@ -127,37 +128,8 @@ class FragmentElasticsearchRepository extends CoreRepository
 
             // Sorting
             // default
-            $esSortFields = [];
-
-            // A fragment's versions can belong to different departments; scope the nested sort to the
-            // department already being queried so we don't sort by another department's edit timestamp
-            $departmentId = null;
-            foreach ($esQuery->getFiltersMust() as $filter) {
-                if (in_array($filter->getField(), ['departmentId', 'versions.modifiedByDepartmentId'], true)) {
-                    $departmentId = $filter->getValue();
-                    break;
-                }
-            }
-
             $esQuery->setSort($esQuery->getAvailableSorts());
-            foreach ($esQuery->getSort() as $esQuerySort) {
-                foreach ($esQuerySort->getFields() as $sortField) {
-                    // Sorting on a field inside the nested 'versions' mapping requires an explicit nested context
-                    if (str_starts_with($sortField->getName(), 'versions.')) {
-                        $nested = ['path' => 'versions'];
-                        if (null !== $departmentId) {
-                            $nested['filter'] = ['term' => ['versions.modifiedByDepartmentId' => $departmentId]];
-                        }
-                        $esSortFields[$sortField->getName()] = [
-                            'order'  => $sortField->getDirection(),
-                            'nested' => $nested,
-                        ];
-                    } else {
-                        $esSortFields[$sortField->getName()] = $sortField->getDirection();
-                    }
-                }
-            }
-            $query->addSort($esSortFields);
+            $query->addSort($this->buildSortFields($esQuery, $this->findQueryDepartmentId($esQuery)));
 
             $this->logger->debug('Elasticsearch Fragment Query: '.DemosPlanTools::varExport($query->getQuery(), true));
 
@@ -176,6 +148,58 @@ class FragmentElasticsearchRepository extends CoreRepository
         }
 
         return $result;
+    }
+
+    /**
+     * A fragment's versions can belong to different departments; the sort on a nested version field
+     * needs to be scoped to the department already being queried, to avoid sorting by another
+     * department's edit timestamp.
+     */
+    private function findQueryDepartmentId(QueryFragment $esQuery): ?string
+    {
+        foreach ($esQuery->getFiltersMust() as $filter) {
+            if (in_array($filter->getField(), ['departmentId', 'versions.modifiedByDepartmentId'], true)) {
+                return $filter->getValue();
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array<string, string|array{order: string, nested: array}>
+     */
+    private function buildSortFields(QueryFragment $esQuery, ?string $departmentId): array
+    {
+        $esSortFields = [];
+        foreach ($esQuery->getSort() as $esQuerySort) {
+            foreach ($esQuerySort->getFields() as $sortField) {
+                $esSortFields[$sortField->getName()] = $this->buildSortFieldValue($sortField, $departmentId);
+            }
+        }
+
+        return $esSortFields;
+    }
+
+    /**
+     * @return string|array{order: string, nested: array}
+     */
+    private function buildSortFieldValue(SortField $sortField, ?string $departmentId): array|string
+    {
+        // Sorting on a field inside the nested 'versions' mapping requires an explicit nested context
+        if (!str_starts_with($sortField->getName(), 'versions.')) {
+            return $sortField->getDirection();
+        }
+
+        $nested = ['path' => 'versions'];
+        if (null !== $departmentId) {
+            $nested['filter'] = ['term' => ['versions.modifiedByDepartmentId' => $departmentId]];
+        }
+
+        return [
+            'order'  => $sortField->getDirection(),
+            'nested' => $nested,
+        ];
     }
 
     public function getGlobalConfig(): GlobalConfigInterface
