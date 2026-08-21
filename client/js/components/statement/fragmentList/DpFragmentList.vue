@@ -109,7 +109,7 @@ export default {
 
     /*
      * We have to do such weird stuff because the data-structure is not the same as in the a-table.
-     * we can wait for the JSON-API-Magic or think about refactoring the fragment-store, that we don't have the statement-Layer in between
+     * We can wait for the JSON-API-Magic or think about refactoring the fragment-store, that we don't have the statement-Layer in between
      */
     while (i--) {
       this.$store.commit('Fragment/addFragment', {
