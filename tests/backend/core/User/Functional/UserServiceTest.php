@@ -277,7 +277,7 @@ class UserServiceTest extends FunctionalTestCase
 
     public function testFindDistinctUserByEmailOrLoginReturnsFalseForNonExistentUser(): void
     {
-        $result = $this->sut->findDistinctUserByEmailOrLogin('nonexistent-user-' . uniqid() . '@example.de');
+        $result = $this->sut->findDistinctUserByEmailOrLogin('nonexistent-user-'.uniqid().'@example.de');
         static::assertFalse($result);
     }
 
