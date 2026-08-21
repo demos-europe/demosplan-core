@@ -132,7 +132,15 @@ class FragmentElasticsearchRepository extends CoreRepository
             $esQuery->setSort($esQuery->getAvailableSorts());
             foreach ($esQuery->getSort() as $esQuerySort) {
                 foreach ($esQuerySort->getFields() as $sortField) {
-                    $esSortFields[$sortField->getName()] = $sortField->getDirection();
+                    // Sorting on a field inside the nested 'versions' mapping requires an explicit nested context
+                    if (str_starts_with($sortField->getName(), 'versions.')) {
+                        $esSortFields[$sortField->getName()] = [
+                            'order'  => $sortField->getDirection(),
+                            'nested' => ['path' => 'versions'],
+                        ];
+                    } else {
+                        $esSortFields[$sortField->getName()] = $sortField->getDirection();
+                    }
                 }
             }
             $query->addSort($esSortFields);
