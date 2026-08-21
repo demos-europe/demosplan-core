@@ -9,6 +9,7 @@
 ### Changed
 - Requires `demos-europe/demosplan-addon` ^0.79, and every release from this one on does. The saved filter combinations of the assessment table were renamed `UserFilterSet` → `Bookmark`: entity, database table, repository, service and resource type, and in the contract layer `BookmarkInterface`, `BookmarkPath`, `Paths::bookmark()` and `BaseBookmarkResourceConfigBuilder`. Addons referring to any of the old names have to be updated. The table is renamed by an included migration, so no manual step is needed.
 ### Added
+- Organisation administrators and support can reset the two-factor authentication of a user in the user administration, for cases where access to the second factor was lost. The reset only removes the second factor and can never activate it for someone else. Every reset is recorded in the report so it stays traceable who reset it for whom.
 - Statements can now be imported from a CSV file, in addition to the existing Excel import. The import runs as a background job; files with more than 3,000 rows, a duplicate Eingangsnummer, or an oversized statement text are rejected with a clear error instead of importing only part of the file. (DPLAN-18247)
 
 ### Fixed
