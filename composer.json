@@ -169,7 +169,6 @@
     "symfony/debug-bundle": "6.*.*",
     "symfony/maker-bundle": "^1.30",
     "symfony/phpunit-bridge": "7.*.*",
-    "symfony/var-dumper": "6.*.*",
     "symfony/web-profiler-bundle": "6.*.*",
     "timeweb/phpstan-enum": "^4",
     "vimeo/psalm": "^5",
