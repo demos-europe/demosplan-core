@@ -13,6 +13,7 @@ declare global {
     procedureId: string
     notify: (message: string, type?: string) => void
     settings: Record<string, unknown>
+    loadedAddons: Record<string, unknown[] | 'pending' | undefined>
     [key: string]: unknown
   }
 

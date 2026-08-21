@@ -58,6 +58,7 @@ const dplan: DplanGlobal = {
     debug: false,
     publicCSSClassPrefix: 'dp-',
   },
+  loadedAddons: {},
   debug: false,
   paths: {
     tusEndpoint: 'tus-endpoint',
