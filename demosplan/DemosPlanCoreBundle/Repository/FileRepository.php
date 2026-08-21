@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
+use Doctrine\DBAL\Exception as DBALException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
@@ -61,6 +62,32 @@ class FileRepository extends FluentRepository implements ArrayInterface, ObjectI
         }
 
         return reset($fileInfos);
+    }
+
+    /**
+     * Streams the columns the storage consistency audit needs, for every row including soft deleted ones.
+     *
+     * Entities are deliberately not hydrated: the audit walks the complete table, and four scalar
+     * columns per row keep that affordable.
+     *
+     * @return iterable<array{ident: string, hash: string|null, path: string|null, deleted: bool}>
+     *
+     * @throws DBALException
+     */
+    public function getFileLocationRows(): iterable
+    {
+        $result = $this->getEntityManager()->getConnection()->executeQuery(
+            'SELECT _f_ident AS ident, _f_hash AS hash, _f_path AS path, _f_deleted AS deleted FROM _files'
+        );
+
+        while (false !== ($row = $result->fetchAssociative())) {
+            yield [
+                'ident'   => (string) $row['ident'],
+                'hash'    => null === $row['hash'] ? null : (string) $row['hash'],
+                'path'    => null === $row['path'] ? null : (string) $row['path'],
+                'deleted' => (bool) $row['deleted'],
+            ];
+        }
     }
 
     /**
