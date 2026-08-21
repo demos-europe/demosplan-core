@@ -157,7 +157,6 @@
     "willdurand/js-translation-bundle": "~7.0"
   },
   "require-dev": {
-    "cyclonedx/cyclonedx-php-composer": "^6.0",
     "friendsofphp/php-cs-fixer": "^v3.0",
     "liip/functional-test-bundle": "^4",
     "liip/test-fixtures-bundle": "^3.1.0",
@@ -170,7 +169,6 @@
     "symfony/debug-bundle": "6.*.*",
     "symfony/maker-bundle": "^1.30",
     "symfony/phpunit-bridge": "7.*.*",
-    "symfony/var-dumper": "6.*.*",
     "symfony/web-profiler-bundle": "6.*.*",
     "timeweb/phpstan-enum": "^4",
     "vimeo/psalm": "^5",
@@ -233,7 +231,6 @@
       "bamarni/composer-bin-plugin": true,
       "php-http/discovery": false,
       "endroid/installer": true,
-      "cyclonedx/cyclonedx-php-composer": true,
       "tbachert/spi": false
     },
     "platform": {
