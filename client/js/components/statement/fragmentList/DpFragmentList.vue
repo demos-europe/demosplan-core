@@ -108,11 +108,11 @@ export default {
     let i = fragments ? fragments.length : 0
 
     /*
-     * We have to do such weird stuff because the data-structure is not the same as n the a-table.
-     * we can what for the JSON-API-Magic or think about refactoring the fragment-store, that we don't have the statement-Layer in between
+     * We have to do such weird stuff because the data-structure is not the same as in the a-table.
+     * we can wait for the JSON-API-Magic or think about refactoring the fragment-store, that we don't have the statement-Layer in between
      */
     while (i--) {
-      this.$store.commit('fragment/addFragment', {
+      this.$store.commit('Fragment/addFragment', {
         statementId: this.fragments[i].statement.id,
         fragment: this.fragments[i],
       })
