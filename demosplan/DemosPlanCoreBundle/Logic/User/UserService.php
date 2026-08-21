@@ -518,7 +518,8 @@ class UserService implements UserServiceInterface
         try {
             /** @var Orga $orgaBefore */
             $orgaBefore = $this->orgaRepository->find($orgaId);
-            $showListBefore = $orgaBefore->getShowlist();
+            $currentCustomer = $this->customerService->getCurrentCustomer();
+            $showListBefore = $orgaBefore->getShowlistForCustomer($currentCustomer);
             $emailBefore = $orgaBefore->getEmail2();
             $emailCCBefore = $orgaBefore->getCcEmail2();
 
@@ -545,6 +546,13 @@ class UserService implements UserServiceInterface
             }
 
             $orga = $this->orgaRepository->update($orgaId, $data);
+            // Mirror the showlist write onto the per-customer status row, matching the
+            // orga-level write performed by OrgaRepository::generateObjectValues() under the
+            // `updateShowlist` guard. Dual-write during transition until the orga-level column
+            // is dropped.
+            if (array_key_exists('updateShowlist', $data)) {
+                $this->orgaRepository->updateShowlistForCustomer($orga, $currentCustomer, (bool) ($data['showlist'] ?? false));
+            }
             // update ggf. Notifications
             $orga = $this->orgaService->updateOrgaNotifications($orga, $data);
             $orga = $this->orgaService->updateOrgaSubmissionType($orga, $data);
