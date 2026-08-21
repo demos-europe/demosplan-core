@@ -11,8 +11,8 @@
 namespace Tests\Core\User\Functional;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\UserReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserSecurityHandler;
