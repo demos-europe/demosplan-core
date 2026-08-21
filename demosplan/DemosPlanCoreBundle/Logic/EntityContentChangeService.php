@@ -571,6 +571,29 @@ class EntityContentChangeService
         $this->entityContentChangeRepository->persistEntities([$entry]);
     }
 
+    public function createSegmentSentByMailChangeEntry(Segment $segment, string $recipientMail, DateTime $whenSent): void
+    {
+        $contentChange = $this->generateActualDiff(
+            '',
+            $this->translator->trans('segment.sent.via.mail.value', ['recipient'=>$recipientMail]),
+            'sentViaMail',
+            Segment::class,
+            $this->lockedDiffOptions(),
+        );
+        if (null === $contentChange) {
+            return;
+        }
+        $entry = $this->createEntityContentChangeEntity(
+            $segment,
+            'sentViaMail',
+            $contentChange,
+            $this->determineChanger(false),
+            $this->doctrine->getManager()->getClassMetadata(Segment::class)->getName(),
+            $whenSent,
+        );
+        $this->entityContentChangeRepository->persistAndDelete([$entry], []);
+    }
+
     /**
      * Segment lock feature — Versionsverlauf entries for every segment
      * currently on $place when its `locked` flag toggled.
@@ -1409,6 +1432,9 @@ class EntityContentChangeService
             if ('locked' === $propertyName) {
                 continue;
             }
+            if ('sentViaMail' === $propertyName) {
+                continue;
+            }
             if ('customFields' === $propertyName) {
                 $changes['customFields'] = $this->diffCustomFields(
                     $preUpdateArray['customFields'] ?? null,
@@ -1461,6 +1487,9 @@ class EntityContentChangeService
             * {{ @link EntityContentChangeService::calculateChangesOfStandardFieldsOfPreUpdateArrayAndPostUpdateObject }}.
             */
             if ('locked' === $propertyName) {
+                continue;
+            }
+            if ('sentViaMail' === $propertyName) {
                 continue;
             }
             if ('customFields' === $propertyName && array_key_exists($propertyName, $incomingDataArray)) {

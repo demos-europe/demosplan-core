@@ -2037,6 +2037,12 @@ feature_segment_recommendation_edit:
     label: 'Allows to create, update and delete recommendations of segments.'
     loginRequired: true
     parent: area_statement_segmentation
+feature_segment_send_via_mail:
+    description: |-
+        Allows the user to send individual segments via email to external receivers.
+    expose: true
+    label: 'Allows to send segments via email'
+    loginRequired: true
 feature_segments_copy_to_clipboard:
     description: |-
         Allows the user to copy the currently selected segments in the segment list to the clipboard

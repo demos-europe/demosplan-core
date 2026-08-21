@@ -58,6 +58,9 @@ class MailSend implements IntegerIdEntityInterface, MailSendInterface
     #[ORM\Column(name: '_ms_from', type: 'string', length: 4096, nullable: false)]
     protected $from;
 
+    #[ORM\Column(name: '_ms_reply_to', type: 'string', length: 4096, nullable: true)]
+    protected ?string $replyTo = null;
+
     /**
      * @var string
      *             Length 10000 is a magic number until it is refactored to type="text".
@@ -265,6 +268,18 @@ class MailSend implements IntegerIdEntityInterface, MailSendInterface
     public function getFrom()
     {
         return $this->from;
+    }
+
+    public function setReplyTo(?string $replyTo): self
+    {
+        $this->replyTo = $replyTo;
+
+        return $this;
+    }
+
+    public function getReplyTo(): ?string
+    {
+        return $this->replyTo;
     }
 
     /**

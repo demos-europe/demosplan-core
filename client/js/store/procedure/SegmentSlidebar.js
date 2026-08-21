@@ -13,6 +13,7 @@ const SegmentSlidebarStore = {
 
   state: {
     slidebar: {
+      externId: '',
       isOpen: false,
       segmentId: '',
       showTab: '',
