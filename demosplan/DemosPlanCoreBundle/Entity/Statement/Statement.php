@@ -102,6 +102,14 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     private const ON_DELETE_SET_NULL = 'SET NULL';
 
     /**
+     * Doctrine picks the concrete MySQL column type for `_st_text` from this value: anything up to
+     * 16,777,215 becomes MEDIUMTEXT. That column-type choice itself is not enforced by MySQL - once
+     * created, MEDIUMTEXT accepts up to its own full capacity regardless of this hint - so the same
+     * value is reused below to actually validate the byte length before it ever reaches the database.
+     */
+    private const TEXT_MAX_LENGTH = 15_000_000;
+
+    /**
      * @var string|null
      *                  Generates a UUID in code that confirms to https://www.w3.org/TR/1999/REC-xml-names-19990114/#NT-NCName
      *                  to be able to be used as xs:ID type in XML messages
@@ -452,7 +460,13 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * @var string
      */
-    #[ORM\Column(name: '_st_text', type: 'text', length: 15000000, nullable: false)]
+    #[ORM\Column(name: '_st_text', type: 'text', length: self::TEXT_MAX_LENGTH, nullable: false)]
+    #[Assert\Length(
+        max: self::TEXT_MAX_LENGTH,
+        maxMessage: 'statement.import.invalidTextTooLong',
+        countUnit: Assert\Length::COUNT_BYTES,
+        groups: [Statement::IMPORT_VALIDATION],
+    )]
     protected $text = '';
 
     /**

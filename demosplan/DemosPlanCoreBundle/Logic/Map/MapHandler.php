@@ -255,9 +255,9 @@ class MapHandler extends CoreHandler
                 // is current default visibility of gisLayer different to incoming Visibility? -> update
                 if ($visibility !== $visibilityGroupMember->hasDefaultVisibility()) {
                     $visibilityGroupMember->setDefaultVisibility($visibility);
-                    $updatedGisLayer = $this->entityManager
-                        ->getRepository(GisLayer::class)
-                        ->updateObject($visibilityGroupMember);
+                    /** @var MapRepository $gisLayerRepository */
+                    $gisLayerRepository = $this->entityManager->getRepository(GisLayer::class);
+                    $updatedGisLayer = $gisLayerRepository->updateObject($visibilityGroupMember);
 
                     if (false === $updatedGisLayer instanceof GisLayer) {
                         $doctrineConnection->rollBack();
