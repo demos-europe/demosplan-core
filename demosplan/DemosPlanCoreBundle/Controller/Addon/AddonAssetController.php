@@ -28,14 +28,15 @@ class AddonAssetController extends BaseController
      * FrontendAssetProvider only ever handing out a URL for hooks the requesting user is allowed to see.
      */
     #[Route(
-        path: '/addon-assets/{addonName}/{filename}',
+        path: '/addon-assets/{addonVendor}/{addonName}/{filename}',
         name: 'core_addon_asset',
-        requirements: ['addonName' => '.+'],
         options: ['expose' => true]
     )]
-    public function asset(FrontendAssetProvider $assetProvider, string $addonName, string $filename): Response
+    public function asset(FrontendAssetProvider $assetProvider, string $addonVendor, string $addonName, string $filename): Response
     {
-        $filePath = $assetProvider->resolveAssetFilePath($addonName, $filename);
+        $fullAddonName = $addonVendor . '/' . $addonName;
+
+        $filePath = $assetProvider->resolveAssetFilePath($fullAddonName, $filename);
 
         if (null === $filePath) {
             throw new NotFoundHttpException();
