@@ -47,7 +47,6 @@ use demosplan\DemosPlanCoreBundle\Repository\UserPasswordHistoryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRoleInCustomerRepository;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\TestUserValueObject;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\CustomerResourceInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\OrgaUsersPair;
@@ -150,8 +149,10 @@ class UserService implements UserServiceInterface
             $user = $this->findDistinctUserByEmailOrLogin($login);
 
             if (false === $user) {
-                $this->logger->warning('Could not find one distinct user by login or email. Maybe given email is not unique',
-                    [DemosPlanTools::varExport($login, true)]);
+                $this->logger->warning(
+                    'Could not find one distinct user by login or email. Maybe given email is not unique',
+                    ['login' => $login]
+                );
 
                 return null;
             }
@@ -814,7 +815,7 @@ class UserService implements UserServiceInterface
         try {
             $orga = $this->orgaService->getOrga($organisationId);
             if (null === $orga) {
-                $this->logger->warning('No orga found for orgaId: '.DemosPlanTools::varExport($organisationId, true));
+                $this->logger->warning('No orga found for orgaId: {orgaId}', ['orgaId' => $organisationId]);
 
                 return [];
             }
