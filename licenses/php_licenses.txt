@@ -83,6 +83,7 @@ symfony/cache: MIT
 symfony/css-selector: MIT
 symfony/debug-bundle: MIT
 symfony/dependency-injection: MIT
+symfony/doctrine-messenger: MIT
 symfony/dom-crawler: MIT
 symfony/dotenv: MIT
 symfony/error-handler: MIT
@@ -134,4 +135,4 @@ willdurand/geocoder-bundle: MIT
 willdurand/js-translation-bundle: MIT
 zenstruck/foundry: MIT
 
-As of 13.08.2026 07:29
+As of 19.08.2026 07:15
