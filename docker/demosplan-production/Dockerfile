@@ -82,7 +82,7 @@ RUN --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=loc
     else \
         composer install -o --prefer-dist --no-dev --no-progress; \
     fi && \
-    yarn install --immutable && \
+    YARN_ENABLE_SCRIPTS=false yarn install --immutable && \
     yarn cache clean && \
     rm -rf /srv/www/.cache/*
 
