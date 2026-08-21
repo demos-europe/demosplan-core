@@ -231,7 +231,8 @@
       "bamarni/composer-bin-plugin": true,
       "php-http/discovery": false,
       "endroid/installer": true,
-      "tbachert/spi": false
+      "tbachert/spi": false,
+      "cyclonedx/cyclonedx-php-composer": true
     },
     "platform": {
       "php": "8.2.0"
