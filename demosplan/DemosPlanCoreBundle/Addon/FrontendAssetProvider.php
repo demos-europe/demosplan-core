@@ -75,7 +75,7 @@ final readonly class FrontendAssetProvider
                 throw new AddonException('Entry has no javascript and is thus pretty much useless');
             }
 
-            [$assetContents, $assetUrls] = $this->collectJavascriptAssets($addonInfo, $entries['js']);
+            [$assetContents, $assetUrls] = $this->collectJavascriptAssets($addonInfo, $hookName, $entries['js']);
         } catch (AddonException) {
             return [];
         }
@@ -108,7 +108,7 @@ final readonly class FrontendAssetProvider
      *
      * @return array{0: array<string, string>, 1: array<string, string>}
      */
-    private function collectJavascriptAssets(AddonInfo $addonInfo, array $javascriptEntries): array
+    private function collectJavascriptAssets(AddonInfo $addonInfo, string $hookName, array $javascriptEntries): array
     {
         $assetContents = [];
         $assetUrls = [];
@@ -120,16 +120,24 @@ final readonly class FrontendAssetProvider
 
             if (str_ends_with($entry, '.esm.js')) {
                 // new-format addon build: serve by URL, frontend `import()`s it directly
+                list($addonVendor, $addonName) = explode('/', $addonInfo->getName(), 2);
+
                 $assetUrls[$entry] = $this->urlGenerator->generate(
                     'core_addon_asset',
-                    ['addonName' => $addonInfo->getName(), 'filename' => $entry],
+                    [
+                        'addonVendor' => $addonVendor,
+                        'addonName' => $addonName,
+                        'hookName' => $hookName,
+                        'filename' => $entry
+                    ],
                     UrlGeneratorInterface::ABSOLUTE_URL
                 );
+
                 continue;
             }
 
             $this->logger->warning(
-                "Addon {$addonInfo->getName()} is using a legacy UMD bundle for frontend assets."
+                "Addon {$addonInfo->getName()} is using a legacy UMD bundle for frontend assets. "
                 . 'Please upgrade demosplan-addon-client-builder to the latest version.'
             );
 
@@ -148,26 +156,17 @@ final readonly class FrontendAssetProvider
      * $filename is actually declared in that addon's manifest first. Used by AddonAssetController
      * to serve ESM bundles by URL without trusting the requested filename as a path fragment.
      *
+     * @param string $addonName the full addon name (vendor/addon)
+     * @param string $hookName  the hook name for which the asset is requested
+     * @param string $filename  the requested filename, e.g. "my-bundle.js"
+     *
      * @return string|null the absolute file path, or null if the addon/asset is not valid
      */
-    public function resolveAssetFilePath(string $addonName, string $filename): ?string
+    public function resolveAssetFilePath(string $addonName, string $hookName, string $filename): ?string
     {
         $addonInfo = $this->registry->getAddonInfos()[$addonName] ?? null;
 
-        if (!$addonInfo instanceof AddonInfo || !$addonInfo->isEnabled() || !$addonInfo->hasUIHooks()) {
-            return null;
-        }
-
-        $uiData = $addonInfo->getUIHooks();
-        $manifestPath = DemosPlanPath::getRootPath($addonInfo->getInstallPath()).'/'.$uiData['manifest'];
-
-        // If the requested filename is a source map, validate against the corresponding JS file instead
-        $validationPath = $filename;
-        if (str_ends_with($filename, '.js.map')) {
-            $validationPath = substr($filename, 0, -4);
-        }
-
-        if (!file_exists($manifestPath) || !$this->manifestDeclaresJsAsset($manifestPath, $validationPath)) {
+        if (!$this->checkFileAccess($addonInfo, $hookName, $filename)) {
             return null;
         }
 
@@ -240,5 +239,35 @@ final readonly class FrontendAssetProvider
         }
 
         return $manifestContent['entrypoints'][$entryName]['assets'];
+    }
+
+    private function checkFileAccess(?AddonInfo $addonInfo, string $hookName, string $filename)
+    {
+        if (!$addonInfo instanceof AddonInfo || !$addonInfo->isEnabled() || !$addonInfo->hasUIHooks()) {
+            return false;
+        }
+
+        $uiData = $addonInfo->getUIHooks();
+        if (!array_key_exists($hookName, $uiData['hooks'])) {
+            return false;
+        }
+
+        if (!$this->hasHookPermission($uiData['hooks'][$hookName], $addonInfo->getName(), $hookName)) {
+            return false;
+        }
+
+        $manifestPath = DemosPlanPath::getRootPath($addonInfo->getInstallPath()).'/'.$uiData['manifest'];
+
+        // If the requested filename is a source map, validate against the corresponding JS file instead
+        $validationPath = $filename;
+        if (str_ends_with($filename, '.js.map')) {
+            $validationPath = substr($filename, 0, -4);
+        }
+
+        if (!file_exists($manifestPath) || !$this->manifestDeclaresJsAsset($manifestPath, $validationPath)) {
+            return false;
+        }
+
+        return true;
     }
 }
