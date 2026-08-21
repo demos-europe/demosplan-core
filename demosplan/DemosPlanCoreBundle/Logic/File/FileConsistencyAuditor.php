@@ -81,34 +81,32 @@ class FileConsistencyAuditor
                 continue;
             }
 
-            if ($row['deleted']) {
-                ++$softDeletedRowCount;
-            }
-
-            $foundAt = $objectPathsByHash[$hash] ?? null;
             // Claim the hash even when the object is gone. Several rows may share one object, and
             // the orphan pass must not report an object that a row - misplaced or not - refers to.
             $claimedHashes[$hash] = true;
+            $foundAt = $objectPathsByHash[$hash] ?? [];
 
-            if (null === $foundAt) {
-                if (!$row['deleted']) {
-                    $missingInStorage->add([
-                        'ident'        => $row['ident'],
-                        'hash'         => $hash,
-                        'expectedPath' => $this->getExpectedPath($row['path'], $hash),
-                    ]);
+            if ($row['deleted']) {
+                ++$softDeletedRowCount;
+                if ([] !== $foundAt) {
+                    // Soft deleted rows are removed by CleanupFilesMessageHandler; an object that
+                    // survives several audits points at a delete that keeps failing.
+                    $softDeletedStillInStorage->add(['ident' => $row['ident'], 'path' => $foundAt[0]]);
                 }
                 continue;
             }
 
-            if ($row['deleted']) {
-                // Soft deleted rows are removed by CleanupFilesMessageHandler; an object that
-                // survives several audits points at a delete that keeps failing.
-                $softDeletedStillInStorage->add(['ident' => $row['ident'], 'path' => $foundAt[0]]);
+            $expectedPath = $this->getExpectedPath($row['path'], $hash);
+
+            if ([] === $foundAt) {
+                $missingInStorage->add([
+                    'ident'        => $row['ident'],
+                    'hash'         => $hash,
+                    'expectedPath' => $expectedPath,
+                ]);
                 continue;
             }
 
-            $expectedPath = $this->getExpectedPath($row['path'], $hash);
             if (!$this->isStoredWhereExpected($expectedPath, $foundAt)) {
                 $misplaced->add([
                     'ident'        => $row['ident'],
@@ -118,15 +116,7 @@ class FileConsistencyAuditor
             }
         }
 
-        $orphaned = new AuditFindings(self::SAMPLE_LIMIT);
-        foreach ($objectPathsByHash as $hash => $paths) {
-            if (isset($claimedHashes[$hash])) {
-                continue;
-            }
-            foreach ($paths as $path) {
-                $orphaned->add(['path' => $path]);
-            }
-        }
+        $orphaned = $this->collectOrphanedObjects($objectPathsByHash, $claimedHashes);
 
         return new FileConsistencyReport(
             $databaseRowCount,
@@ -145,6 +135,29 @@ class FileConsistencyAuditor
             microtime(true) - $startedAt,
             $truncated,
         );
+    }
+
+    /**
+     * Objects whose filename no row claims - unreachable from the application, still stored.
+     *
+     * @param array<string, list<string>> $objectPathsByHash
+     * @param array<string, true>         $claimedHashes
+     */
+    private function collectOrphanedObjects(array $objectPathsByHash, array $claimedHashes): AuditFindings
+    {
+        $orphaned = new AuditFindings(self::SAMPLE_LIMIT);
+
+        foreach ($objectPathsByHash as $hash => $paths) {
+            if (isset($claimedHashes[$hash])) {
+                continue;
+            }
+
+            foreach ($paths as $path) {
+                $orphaned->add(['path' => $path]);
+            }
+        }
+
+        return $orphaned;
     }
 
     /**
