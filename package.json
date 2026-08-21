@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "demosplan-core",
-  "version": "v4.55.0",
+  "version": "v4.57.0",
   "scripts": {
     "dev:blp": "cross-env ./fe build blp",
     "dev:bimschgsh": "cross-env ./fe build bimschgsh",
@@ -54,7 +54,7 @@
     "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "@carbon/icons-vue": "10.99.1",
+    "@carbon/icons-vue": "10.130.0",
     "@carbon/vue": "^3.0.27",
     "@cesium/engine": "^20.0.1",
     "@demos-europe/demosplan-ui": "0.28.0",
@@ -73,7 +73,7 @@
     "a11y-datepicker": "^0.9.0",
     "carbon-components": "10.58.15",
     "cesium": "^1.126.0",
-    "core-js": "^3.49.0",
+    "core-js": "^3.50.0",
     "d3-array": "^3.2.4",
     "d3-axis": "^3.0.0",
     "d3-format": "^3.1.0",
@@ -159,12 +159,12 @@
     "postcss-loader": "^8.2.1",
     "postcss-prefix-selector": "^2.1.1",
     "postcss-preset-env": "^10.4.0",
-    "sass-embedded": "^1.98.0",
+    "sass-embedded": "^1.102.0",
     "sass-loader": "^17.0.0",
     "source-map-loader": "^5.0.0",
     "stylelint": "^16.26.1",
     "stylelint-config-standard-scss": "^16.0.0",
-    "tailwindcss": "^4.2.2",
+    "tailwindcss": "^4.3.3",
     "terser-webpack-plugin": "^5.6.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.57.2",

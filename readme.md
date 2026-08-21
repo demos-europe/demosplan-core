@@ -46,3 +46,9 @@ the core features to be activated "permissions" are used as feature toggles.
        @ @@@           #*##@@@@@@@@   @=====***=*===#=#=#@@            
                        @####@@                                         
 ```
+
+# Software Bill of Materials
+
+Container images built with `docker/build.sh` ship CycloneDX SBOMs for their composer and yarn
+dependencies in `/srv/www/sbom`. They are generated during the image build and are not part of
+this repository; see the [container readme](docker/demosplan-production/README.md#sbom).

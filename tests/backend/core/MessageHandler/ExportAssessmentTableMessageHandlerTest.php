@@ -142,7 +142,8 @@ class ExportAssessmentTableMessageHandlerTest extends UnitTestCase
     public function testInvokeFallsBackToDefaultNameWhenResponseCarriesNoDisposition(): void
     {
         // Arrange - a ZIP built by ZipStream inside the stream callback may reach the worker without
-        // a Content-Disposition on the response object; the stored name must still be usable
+        // a Content-Disposition on the response object; the stored name must still carry the
+        // extension, or the browser hands the user a file it cannot open
         $job = new AssessmentTableExportJob();
         $this->mockFindReturning($job);
         $this->responseGeneratorMock->method('__invoke')->willReturn(new StreamedResponse(static function (): void {
@@ -150,14 +151,31 @@ class ExportAssessmentTableMessageHandlerTest extends UnitTestCase
         }));
         $this->fileServiceMock->expects($this->once())
             ->method('saveTemporaryFile')
-            ->with($this->isType('string'), 'Abwaegungstabelle', 'u1', 'proc-1', FileService::VIRUSCHECK_NONE)
+            ->with($this->isType('string'), 'Abwaegungstabelle.zip', 'u1', 'proc-1', FileService::VIRUSCHECK_NONE)
             ->willReturn($this->fileWithHash('hash-1'));
 
         // Act
         ($this->sut)(new ExportAssessmentTableMessage('job-1', 'zip', [], 'u1', 'proc-1', 'c1'));
 
         // Assert
-        self::assertSame('Abwaegungstabelle', $job->getFileName());
+        self::assertSame('Abwaegungstabelle.zip', $job->getFileName());
+    }
+
+    public function testInvokeFallbackNameUsesRequestedExportFormatAsExtension(): void
+    {
+        // Arrange - the fallback extension must follow the requested format, not a fixed guess
+        $job = new AssessmentTableExportJob();
+        $this->mockFindReturning($job);
+        $this->responseGeneratorMock->method('__invoke')->willReturn(new StreamedResponse(static function (): void {
+            echo 'docx-bytes';
+        }));
+        $this->fileServiceMock->method('saveTemporaryFile')->willReturn($this->fileWithHash('hash-1'));
+
+        // Act
+        ($this->sut)(new ExportAssessmentTableMessage('job-1', 'docx', [], 'u1', 'proc-1', 'c1'));
+
+        // Assert
+        self::assertSame('Abwaegungstabelle.docx', $job->getFileName());
     }
 
     public function testInvokeWritesJobStatusThroughStatusWriterEvenWhenExportFails(): void
