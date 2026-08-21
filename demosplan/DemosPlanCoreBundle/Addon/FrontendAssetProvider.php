@@ -26,70 +26,111 @@ final class FrontendAssetProvider
     }
 
     /**
+     * Collect all frontend assets for a given hook name, returning an array of entries with the entry name, options,
+     * and either inline content or a URL to the asset.
+     *
      * @return array<string, array<string, mixed>>
      */
-    public function getFrontendClassesForHook(string $hookName): array
+    public function getFrontendAssets(string $hookName): array
     {
-        $assetList = array_map(function (AddonInfo $addonInfo) use ($hookName) {
-            if (!$addonInfo->isEnabled() || !$addonInfo->hasUIHooks()) {
-                return [];
-            }
+        $assetList = array_map(
+            fn (AddonInfo $addonInfo): array => $this->lookupAssetInfo($addonInfo, $hookName),
+            $this->registry->getAddonInfos()
+        );
 
-            $uiData = $addonInfo->getUIHooks();
-
-            if (!array_key_exists($hookName, $uiData['hooks'])) {
-                return [];
-            }
-
-            $hookData = $uiData['hooks'][$hookName];
-            $manifestPath = DemosPlanPath::getRootPath($addonInfo->getInstallPath()).'/'.$uiData['manifest'];
-
-            // Return if no access granted for that addon at that entrypoint
-            if (array_key_exists('permissions', $hookData['options'])
-                && !$this->permissions->hasPermissions($hookData['options']['permissions'], 'OR')) {
-                return [];
-            }
-
-            try {
-                $entries = $this->getAssetPathsFromManifest($manifestPath, $hookData['entry']);
-
-                if (!array_key_exists('js', $entries)) {
-                    throw new AddonException('Entry has no javascript and is thus pretty much useless');
-                }
-
-                $assetContents = [];
-                $assetUrls = [];
-
-                foreach ($entries['js'] as $entry) {
-                    if (str_ends_with($entry, '.esm.js')) {
-                        // new-format addon build: serve by URL, frontend `import()`s it directly
-                        $assetUrls[$entry] = $this->urlGenerator->generate(
-                            'core_addon_asset',
-                            ['addonName' => $addonInfo->getName(), 'filename' => $entry],
-                            UrlGeneratorInterface::ABSOLUTE_URL
-                        );
-                        continue;
-                    }
-
-                    // legacy UMD bundle: transport source inline, frontend still `eval`s it.
-                    // Kept until every addon has migrated to ESM output.
-                    $entryFilePath = DemosPlanPath::getRootPath($addonInfo->getInstallPath()).'/dist/'.$entry;
-                    // uses local file, no need for flysystem
-                    $assetContents[$entry] = file_get_contents($entryFilePath);
-                }
-
-                if ([] === $assetContents && [] === $assetUrls) {
-                    return [];
-                }
-            } catch (AddonException) {
-                return [];
-            }
-
-            return $this->createAddonFrontendAssetsEntry($hookData, $assetContents, $assetUrls);
-        }, $this->registry->getAddonInfos());
-
-        // avoid exposing addon information unnecessarily
+        // avoid exposing empty entries for disabled addons or those without permission to use the hook
         return array_filter($assetList, fn (array $assetInfo) => [] !== $assetInfo);
+    }
+
+    /**
+     * Lookup the assets for a given addon and hook, returning an array with the entry name, options,
+     * and either inline content or a URL to the asset.
+     *
+     * The legacy UMD bundle format is still supported until we can be sure that all addons have migrated to ESM output.
+     *
+     * @return array{entry: string, options: array, content?: array<string, string>, urls?: array<string, string>}|array{}
+     */
+    private function lookupAssetInfo(AddonInfo $addonInfo, string $hookName): array
+    {
+        if (!$addonInfo->isEnabled() || !$addonInfo->hasUIHooks()) {
+            return [];
+        }
+
+        $uiData = $addonInfo->getUIHooks();
+        $hookData = $uiData['hooks'][$hookName] ?? null;
+
+        if (!is_array($hookData) || !$this->hasHookPermission($hookData)) {
+            return [];
+        }
+
+        $manifestPath = DemosPlanPath::getRootPath($addonInfo->getInstallPath()).'/'.$uiData['manifest'];
+
+        try {
+            $entries = $this->getAssetPathsFromManifest($manifestPath, $hookData['entry']);
+
+            if (!array_key_exists('js', $entries)) {
+                throw new AddonException('Entry has no javascript and is thus pretty much useless');
+            }
+
+            [$assetContents, $assetUrls] = $this->collectJavascriptAssets($addonInfo, $entries['js']);
+        } catch (AddonException) {
+            return [];
+        }
+
+        if ([] === $assetContents && [] === $assetUrls) {
+            return [];
+        }
+
+        return $this->createAddonFrontendAssetsEntry($hookData, $assetContents, $assetUrls);
+    }
+
+    /**
+     * @param array<string, string|array> $hookData
+     */
+    private function hasHookPermission(array $hookData): bool
+    {
+        $permissions = $hookData['options']['permissions'] ?? null;
+
+        if (null === $permissions) {
+            return true;
+        }
+
+        return $this->permissions->hasPermissions($permissions, 'OR');
+    }
+
+    /**
+     * @param array<int, mixed> $javascriptEntries
+     *
+     * @return array{0: array<string, string>, 1: array<string, string>}
+     */
+    private function collectJavascriptAssets(AddonInfo $addonInfo, array $javascriptEntries): array
+    {
+        $assetContents = [];
+        $assetUrls = [];
+
+        foreach ($javascriptEntries as $entry) {
+            if (!is_string($entry)) {
+                continue;
+            }
+
+            if (str_ends_with($entry, '.esm.js')) {
+                // new-format addon build: serve by URL, frontend `import()`s it directly
+                $assetUrls[$entry] = $this->urlGenerator->generate(
+                    'core_addon_asset',
+                    ['addonName' => $addonInfo->getName(), 'filename' => $entry],
+                    UrlGeneratorInterface::ABSOLUTE_URL
+                );
+                continue;
+            }
+
+            // legacy UMD bundle: transport source inline, frontend still `eval`s it.
+            // Kept until every addon has migrated to ESM output.
+            $entryFilePath = DemosPlanPath::getRootPath($addonInfo->getInstallPath()).'/dist/'.$entry;
+            // uses local file, no need for flysystem
+            $assetContents[$entry] = file_get_contents($entryFilePath);
+        }
+
+        return [$assetContents, $assetUrls];
     }
 
     /**
@@ -110,7 +151,13 @@ final class FrontendAssetProvider
         $uiData = $addonInfo->getUIHooks();
         $manifestPath = DemosPlanPath::getRootPath($addonInfo->getInstallPath()).'/'.$uiData['manifest'];
 
-        if (!file_exists($manifestPath) || !$this->manifestDeclaresJsAsset($manifestPath, $filename)) {
+        // If the requested filename is a source map, validate against the corresponding JS file instead
+        $validationPath = $filename;
+        if (str_ends_with($filename, '.js.map')) {
+            $validationPath = substr($filename, 0, -4);
+        }
+
+        if (!file_exists($manifestPath) || !$this->manifestDeclaresJsAsset($manifestPath, $validationPath)) {
             return null;
         }
 
@@ -145,7 +192,7 @@ final class FrontendAssetProvider
     }
 
     /**
-     * Whether the manifest declares $filename as a js asset of any of its entrypoints.
+     * Whether the manifest declares $filename as a js asset of its entrypoints.
      */
     private function manifestDeclaresJsAsset(string $manifestPath, string $filename): bool
     {

@@ -49,7 +49,7 @@ class RpcAddonAssetsLoader implements RpcMethodSolverInterface
                 $this->validateRpcRequest($rpcRequest);
 
                 $hookName = $rpcRequest->params->hookName;
-                $addonsAssetsData = $this->assetProvider->getFrontendClassesForHook($hookName);
+                $addonsAssetsData = $this->assetProvider->getFrontendAssets($hookName);
 
                 $resultResponse[] = $this->generateMethodResult($rpcRequest, $addonsAssetsData);
             } catch (InvalidArgumentException|InvalidSchemaException $exception) {
