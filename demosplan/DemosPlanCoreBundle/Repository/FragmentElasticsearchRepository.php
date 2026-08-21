@@ -158,7 +158,11 @@ class FragmentElasticsearchRepository extends CoreRepository
     private function findQueryDepartmentId(QueryFragment $esQuery): ?string
     {
         foreach ($esQuery->getFiltersMust() as $filter) {
-            if (in_array($filter->getField(), ['departmentId', 'versions.modifiedByDepartmentId'], true)) {
+            // Must filters on these fields may also carry an array (a multi-value filter, or the
+            // [''] of a FilterMissing), which cannot scope the nested sort to a single department
+            if (in_array($filter->getField(), ['departmentId', 'versions.modifiedByDepartmentId'], true)
+                && is_string($filter->getValue())
+            ) {
                 return $filter->getValue();
             }
         }
