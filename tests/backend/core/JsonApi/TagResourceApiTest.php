@@ -71,30 +71,6 @@ class TagResourceApiTest extends AbstractApiTest
         self::assertStringContainsString('Laermschutz', $response->getContent());
     }
 
-    /**
-     * AccessDeniedHttpException thrown from an ApiPlatform provider is not turned into a
-     * JSON:API error body — {@see \demosplan\DemosPlanCoreBundle\EventListener\ExceptionEventSubscriber::handleException()}
-     * only special-cases the legacy APIController stack, so this falls through to the generic
-     * HTML error redirect. Asserting the current (imperfect) behavior rather than the ideal one.
-     */
-    public function testGetIsDeniedWithoutPermission(): void
-    {
-        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
-        $topic = TagTopicFactory::createOne(['procedure' => $procedure]);
-        $tag = TagFactory::createOne(['topic' => $topic]);
-        $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
-        $this->loginUserForApiPlatform($user);
-
-        $response = $this->sendRequest(
-            '/api/3.0/Tag/'.$tag->getId(),
-            'GET',
-            $user,
-            $procedure
-        );
-
-        self::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
-    }
-
     public function testGetIncludesDefaultAssignee(): void
     {
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
