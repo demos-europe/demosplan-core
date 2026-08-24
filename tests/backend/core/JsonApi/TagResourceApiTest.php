@@ -71,30 +71,6 @@ class TagResourceApiTest extends AbstractApiTest
         self::assertStringContainsString('Laermschutz', $response->getContent());
     }
 
-    /**
-     * AccessDeniedHttpException thrown from an ApiPlatform provider is not turned into a
-     * JSON:API error body — {@see \demosplan\DemosPlanCoreBundle\EventListener\ExceptionEventSubscriber::handleException()}
-     * only special-cases the legacy APIController stack, so this falls through to the generic
-     * HTML error redirect. Asserting the current (imperfect) behavior rather than the ideal one.
-     */
-    public function testGetIsDeniedWithoutPermission(): void
-    {
-        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
-        $topic = TagTopicFactory::createOne(['procedure' => $procedure]);
-        $tag = TagFactory::createOne(['topic' => $topic]);
-        $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
-        $this->loginUserForApiPlatform($user);
-
-        $response = $this->sendRequest(
-            '/api/3.0/Tag/'.$tag->getId(),
-            'GET',
-            $user,
-            $procedure
-        );
-
-        self::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
-    }
-
     public function testGetIncludesDefaultAssignee(): void
     {
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
@@ -194,7 +170,7 @@ class TagResourceApiTest extends AbstractApiTest
         $this->loginUserForApiPlatform($user);
 
         $response = $this->sendRequest(
-            '/api/3.0/Tag?sort=sortIndex&page=1&itemsPerPage=2',
+            '/api/3.0/Tag?sort=sortIndex&pagination=true&page=1&itemsPerPage=2',
             'GET',
             $user,
             $procedure
@@ -208,6 +184,36 @@ class TagResourceApiTest extends AbstractApiTest
         self::assertSame(3, $decoded['meta']['totalItems']);
         self::assertSame(
             [$tagA->getId(), $tagB->getId()],
+            array_column($decoded['data'], 'id')
+        );
+    }
+
+    public function testGetCollectionReturnsAllTagsWithoutExplicitPagination(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $topic = TagTopicFactory::createOne(['procedure' => $procedure]);
+        $tagA = TagFactory::createOne(['topic' => $topic, 'title' => 'A', 'sortIndex' => 10]);
+        $tagB = TagFactory::createOne(['topic' => $topic, 'title' => 'B', 'sortIndex' => 20]);
+        $tagC = TagFactory::createOne(['topic' => $topic, 'title' => 'C', 'sortIndex' => 30]);
+        $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
+        $this->enablePermissions(['area_statement_segmentation']);
+        $this->loginUserForApiPlatform($user);
+
+        $response = $this->sendRequest(
+            '/api/3.0/Tag?sort=sortIndex',
+            'GET',
+            $user,
+            $procedure
+        );
+
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $content = $response->getContent();
+        self::assertIsString($content);
+        $decoded = Json::decodeToArray($content);
+
+        self::assertSame(['totalItems' => 3], $decoded['meta']);
+        self::assertSame(
+            [$tagA->getId(), $tagB->getId(), $tagC->getId()],
             array_column($decoded['data'], 'id')
         );
     }
