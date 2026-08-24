@@ -81,6 +81,30 @@ class SegmentEmailSenderTest extends FunctionalTestCase
         $this->assertFailedWithSyntaxError($isEmailSent);
     }
 
+    public function testSendSegmentMailWithTooManyCcRecipientsFails(): void
+    {
+        $procedure = ProcedureFactory::createOne()->_real();
+        $segment = SegmentFactory::createOne(['procedure' => $procedure])->_real();
+        $this->currentProcedureService->setProcedure($procedure);
+
+        $tooManyCc = implode(',', array_map(
+            static fn (int $i): string => "cc$i@test.de",
+            range(1, 21)
+        ));
+
+        $isEmailSent = $this->sut->sendSegmentsMail(
+            [$segment->getId()],
+            $procedure->getId(),
+            self::RECIPIENT,
+            self::SUBJECT,
+            self::BODY,
+            $tooManyCc,
+            null
+        );
+
+        $this->assertFailedWithSyntaxError($isEmailSent);
+    }
+
     public function testSendSegmentMailWithInvalidRecipientEmail(): void
     {
         $procedure = ProcedureFactory::createOne()->_real();
@@ -164,7 +188,7 @@ class SegmentEmailSenderTest extends FunctionalTestCase
         $confirmMessages = $this->messageBag->getConfirmMessages();
         static::assertCount(1, $confirmMessages);
         static::assertSame(
-            $this->translator->trans('confirm.segment.sent'),
+            $this->translator->trans('confirm.segment.queued'),
             $confirmMessages->get(0)->getText()
         );
 
@@ -246,7 +270,7 @@ class SegmentEmailSenderTest extends FunctionalTestCase
         $errorMessages = $this->messageBag->getErrorMessages();
         static::assertCount(1, $errorMessages);
         static::assertSame(
-            $this->translator->trans('error.segment.send'),
+            $this->translator->trans('error.segment.queued'),
             $errorMessages->get(0)->getText()
         );
     }

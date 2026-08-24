@@ -588,7 +588,7 @@ class EntityContentChangeService
             'sentViaMail',
             $contentChange,
             $this->determineChanger(false),
-            $this->doctrine->getManager()->getClassMetadata(Segment::class)->getName(),
+            Segment::class,
             $whenSent,
         );
         $this->entityContentChangeRepository->persistAndDelete([$entry], []);

@@ -18,18 +18,21 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
-use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use Doctrine\DBAL\Exception;
 
 class SegmentEmailSender
 {
+    /**
+     * Upper bound on CC recipients per mail to limit spam / accidental mass-mailing.
+     */
+    private const MAX_CC_RECIPIENTS = 20;
+
     public function __construct(
         private readonly MailService $mailService,
         private readonly MessageBagInterface $messageBag,
         private readonly SegmentService $segmentService,
         private readonly EntityContentChangeService $entityContentChangeService,
         private readonly EditorService $editorService,
-        private readonly TransactionService $transactionService,
     ) {
     }
 
@@ -69,23 +72,19 @@ class SegmentEmailSender
             // handle anonymized text before building email variables
             $obscuredBody = null === $body ? null : $this->editorService->obscureString($body);
             $emailVariables = $this->populateEmailVariables($subject, $obscuredBody);
-            // Queue the mail and write the version-history entries in one transaction so they commit atomically:
-            // a queued mail can never end up without its GDPR audit entry (Important!)
-            // No attachments as of now.
-            $this->transactionService->executeAndFlushInTransaction(function () use (
-                $sendMailTo, $sentFrom, $ccEmailAddresses, $emailVariables, $replyTo, $segments
-            ): void {
-                $this->sendAbschnitt($sendMailTo, $sentFrom, $ccEmailAddresses, $emailVariables, [], $replyTo);
-                foreach ($segments as $segment) {
-                    $this->entityContentChangeService->createSegmentSentByMailChangeEntry($segment, $sendMailTo, new DateTime());
-                }
-            });
+            // Queue the mail and write the version-history audit entries together. The caller
+            // (RpcSegmentEmailSender::execute) wraps this in a transaction so a queued mail can
+            // never end up without its GDPR audit entry. No attachments as of now.
+            $this->sendSegment($sendMailTo, $sentFrom, $ccEmailAddresses, $emailVariables, [], $replyTo);
+            foreach ($segments as $segment) {
+                $this->entityContentChangeService->createSegmentSentByMailChangeEntry($segment, $sendMailTo, new DateTime());
+            }
         } catch (InvalidDataException) {
-            $this->messageBag->add('error', 'error.segment.send');
+            $this->messageBag->add('error', 'error.segment.queued');
 
             return false;
         }
-        $this->messageBag->add('confirm', 'confirm.segment.sent');
+        $this->messageBag->add('confirm', 'confirm.segment.queued');
 
         return true;
     }
@@ -117,6 +116,9 @@ class SegmentEmailSender
         $emailCC = [];
         // split the string into individual email addresses.
         $mailsCC = preg_split('/ *[;,] */', $sendEmailCC);
+        if (count($mailsCC) > self::MAX_CC_RECIPIENTS) {
+            throw new InvalidDataException('Too many CC recipients provided.');
+        }
 
         foreach ($mailsCC as $mail) {
             $mailForCc = trim((string) $mail);
@@ -156,7 +158,7 @@ class SegmentEmailSender
      *
      * @throws Exception
      */
-    private function sendAbschnitt($sendMailTo, $sentFrom, $emailCC, $vars, array $attachments, $replyTo): void
+    private function sendSegment($sendMailTo, $sentFrom, $emailCC, $vars, array $attachments, $replyTo): void
     {
         $this->mailService->sendMail(
             'dm_schlussmitteilung',
