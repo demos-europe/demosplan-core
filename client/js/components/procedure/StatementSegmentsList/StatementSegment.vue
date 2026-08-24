@@ -185,7 +185,8 @@
               editor-id="recommendationText"
               :procedure-id="procedureId"
               :preview-segment-id="segment.id"
-              @insert="(text, boilerplateId) => insertBoilerplateText(text, boilerplateId, modalProps.handleInsertText)"
+              @closed="modalProps.focusEditor"
+              @insert="(text, boilerplateId) => insertBoilerplateText(text, boilerplateId, modalProps.insertBoilerplate, modalProps.handleInsertText)"
             />
             <recommendation-modal
               ref="recommendationModal"
@@ -663,6 +664,12 @@ export default {
       }
     },
 
+    /**
+     * Gates the whole boilerplate-linking feature. Used both to register the editor extension
+     * and to decide whether inserted text gets wrapped in a linked node — those two must
+     * always agree: writing the wrapper while the extension is absent means ProseMirror drops
+     * the unknown markup on load and the next save discards the link for good.
+     */
     canLinkBoilerplate () {
       return hasPermission('feature_boilerplate_usage_list')
     },
@@ -1054,6 +1061,17 @@ export default {
       this.isEditing = false
     },
 
+    /**
+     * Resolves a boilerplate id to its current title for display in the editor node. Passed
+     * into the editor extension, which has no access to the store.
+     *
+     * Returns an empty string when the lookup fails — the boilerplate may have been deleted,
+     * or the store may not be loaded yet (it is currently only fetched when the boilerplate
+     * modal is created). The node renders a generic label in that case.
+     *
+     * @param {String} boilerplateId
+     * @return {String}
+     */
     getBoilerplateTitle (boilerplateId) {
       return this.boilerplates[boilerplateId]?.attributes?.title ?? ''
     },
@@ -1077,6 +1095,17 @@ export default {
       this.updateSegment('deadline', isoDate)
     },
 
+    /**
+     * Called when the user clicks the pencil on a linked boilerplate in the editor.
+     *
+     * TODO DPLAN-18271: still to be implemented — show the confirmation dialog, dissolve the
+     * node so its text stays as plain text, then offer an undo toast for 15 seconds.
+     *
+     * @param {Object} payload
+     * @param {String} payload.boilerplateId
+     * @param {Number} payload.pos Document position of the node, needed to dissolve it
+     * @param {String} payload.editorId Identifies the editor, since one exists per segment
+     */
     handleUnlinkRequest ({ boilerplateId, pos, editorId }) {
       console.log('unlink requested', { boilerplateId, pos, editorId })
     },
@@ -1168,29 +1197,39 @@ export default {
     },
 
     /**
-     * Inserts the boilerplate text into the recommendation editor and records
-     * the usage of the boilerplate in this segment in the backend.
-     * If the boilerplate id is known, the text is wrapped in a node carrying that id,
-     * so it stays recognizable as boilerplate content after saving and reloading.
+     * Inserts the boilerplate text into the recommendation editor and records the usage of
+     * the boilerplate in this segment in the backend.
+     *
+     * With a known id and the permission in place, the text goes in as a boilerplate node
+     * carrying that id, so it stays recognizable and linked across saving and reloading.
+     * Without either, it falls back to plain text — the behaviour every other editor in the
+     * application has.
+     *
+     * Both insertion functions come from DpEditor's `modal` slot; which one applies has to
+     * match `canLinkBoilerplate`, see the comment there.
+     *
+     * @param {String} text Boilerplate text as HTML
+     * @param {String} boilerplateId Empty when the source didn't provide one
+     * @param {Function} insertBoilerplate Inserts as a linked node
+     * @param {Function} handleInsertText Inserts as plain text
+     * @return {Promise}
      */
-    insertBoilerplateText (text, boilerplateId, handleInsertText) {
-      const textToInsert = boilerplateId && this.canLinkBoilerplate
-        ? `<div data-boilerplate-id="${boilerplateId}">${text}</div>`
-        : text
+    insertBoilerplateText (text, boilerplateId, insertBoilerplate, handleInsertText) {
+      if (!boilerplateId || !this.canLinkBoilerplate) {
+        handleInsertText(text)
 
-      handleInsertText(textToInsert)
-
-      if (boilerplateId && this.canLinkBoilerplate) {
-        return dpApi.post(
-          Routing.generate('dplan_boilerplate_usage_create', { procedureId: this.procedureId, boilerplateId }),
-          {},
-          { segmentId: this.segment.id },
-        ).catch(() => {
-          // Recording the usage is non-critical: the text was inserted regardless.
-        })
+        return Promise.resolve()
       }
 
-      return Promise.resolve()
+      insertBoilerplate(boilerplateId, text)
+
+      return dpApi.post(
+        Routing.generate('dplan_boilerplate_usage_create', { procedureId: this.procedureId, boilerplateId }),
+        {},
+        { segmentId: this.segment.id },
+      ).catch(() => {
+        // Recording the usage is non-critical: the text was inserted regardless.
+      })
     },
 
     openBoilerPlate () {

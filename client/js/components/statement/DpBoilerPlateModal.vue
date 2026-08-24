@@ -11,6 +11,7 @@
   <dp-modal
     ref="boilerPlateModal"
     :content-classes="isSegmentAvailable ? 'w-3/5' : 'w-1/2'"
+    @modal:toggled="onModalToggled"
   >
     <h3>{{ Translator.trans('boilerplate.insert') }}</h3>
     <div class="flex overflow-hidden max-h-[50vh]">
@@ -104,6 +105,7 @@ export default {
   },
 
   emits: [
+    'closed',
     'insert',
   ],
 
@@ -171,6 +173,17 @@ export default {
     insertBoilerPlate () {
       this.$emit('insert', this.textToBeAdded, this.boilerplateIdToBeAdded)
       this.resetAndClose()
+    },
+
+    /**
+     * Emitted only once the modal is really gone. The native <dialog> hands focus back to
+     * the element that opened it when it closes, which happens after the 200ms close
+     * animation — so anything that wants focus afterwards has to wait for this.
+     */
+    onModalToggled (isOpen) {
+      if (!isOpen) {
+        this.$emit('closed')
+      }
     },
 
     resetAndClose () {
