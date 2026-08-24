@@ -71,14 +71,15 @@ class Provider implements ProviderInterface
     }
 
     /**
-     * Delegates to API Platform's own Doctrine ORM collection provider so that its
-     * extension mechanism (access control via {@see Extension\TagDoctrineAccessExtension},
-     * sorting via the declared OrderFilter on {@see Resource}, and pagination) applies
-     * automatically.
+     * Fetches the tags via API Platform's Doctrine provider, which also applies access
+     * control, sorting, and pagination for us.
      *
-     * @return PaginatorInterface<TagResource>
+     * Pagination is off by default, so callers get all tags in one response; pass
+     * `pagination=true` in the query to get a paginated, `page`/`itemsPerPage`-controlled response instead.
+     *
+     * @return PaginatorInterface<TagResource>|list<TagResource>
      */
-    private function provideCollection(Operation $operation, array $uriVariables, array $context): PaginatorInterface
+    private function provideCollection(Operation $operation, array $uriVariables, array $context): PaginatorInterface|array
     {
         $operation = $operation->withStateOptions(new DoctrineOptions(
             entityClass: Tag::class,
@@ -91,18 +92,20 @@ class Provider implements ProviderInterface
         $result = $this->doctrineCollectionProvider->provide($operation, $uriVariables, $context);
         $map = static fn (Tag $tag): TagResource => TagResource::fromEntity($tag);
 
-        Assert::isInstanceOf($result, PaginatorInterface::class);
+        if ($result instanceof PaginatorInterface) {
+            return new MappingPaginator($result, $map);
+        }
 
-        return new MappingPaginator($result, $map);
+        Assert::isArray($result);
+
+        return array_map($map, $result);
     }
 
     /**
-     * ApiPlatform's JsonApiProvider only forwards `sort`-derived and `filter[...]`/
-     * `page[...]`-bracket query params into `$context['filters']`. Plain `page`/
-     * `itemsPerPage` params otherwise reach it only via a raw-query-string fallback in
-     * ReadProvider, which is skipped as soon as any other filter (e.g. `sort`) is
-     * present. Since this resource is sortable, that fallback can't be relied upon, so
-     * `page`/`itemsPerPage` are read directly from the request here.
+     * Because this resource supports sorting, API Platform stops forwarding plain
+     * `page`/`itemsPerPage`/`pagination` query params on its own, so we read them
+     * from the URL ourselves and add them to `$context['filters']`, where API
+     * Platform expects to find them.
      */
     private function addPaginationFilters(array $context): array
     {
@@ -111,7 +114,7 @@ class Provider implements ProviderInterface
             return $context;
         }
 
-        foreach (['page', 'itemsPerPage'] as $parameterName) {
+        foreach (['page', 'itemsPerPage', 'pagination'] as $parameterName) {
             if ($request->query->has($parameterName) && !isset($context['filters'][$parameterName])) {
                 $context['filters'][$parameterName] = $request->query->get($parameterName);
             }
