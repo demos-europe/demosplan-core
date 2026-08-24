@@ -284,18 +284,18 @@
             :additional-query-params="{ searchPhrase: searchTerm }"
             appearance="basic"
             :category="{
-            id: `${filter.labelTranslationKey}`,
-            label: Translator.trans('search.list')
-          }"
+              id: `${filter.labelTranslationKey}`,
+              label: Translator.trans('search.list')
+            }"
             :data-cy="`exportModal:filter:${filter.labelTranslationKey}`"
             flyout-align="top"
             flyout-position="relative"
             :operator="filter.comparisonOperator"
             :path="filter.rootPath"
             :show-count="{
-            groupedOptions: true,
-            ungroupedOptions: true
-          }"
+              groupedOptions: true,
+              ungroupedOptions: true
+            }"
             @filter-apply="getFilterValues"
             @filter-options:request="loadFilterFlyoutOptions"
             @update:expanded="(value) => isFilterExpanded = value"
