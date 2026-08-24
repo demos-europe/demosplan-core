@@ -44,12 +44,7 @@
 
 <script>
 import * as demosplanUi from '@demos-europe/demosplan-ui'
-import {
-  DpLoading,
-  DpTab,
-  DpTabs,
-  hasAnyPermissions,
-} from '@demos-europe/demosplan-ui'
+import { DpLoading, DpTab, DpTabs, hasAnyPermissions } from '@demos-europe/demosplan-ui'
 import AdministrationImportNone from './AdministrationImportNone'
 import ExcelImport from './ExcelImport/ExcelImport'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
@@ -194,7 +189,7 @@ export default {
     const promises = [
       loadAddonComponents('import.tabs').then((addons) => {
         this.asyncComponents = addons.map((addon) => ({
-          component: shallowRef(window[addon.name].default),
+          component: addon.component,
           name: addon.name,
           title: addon.options.title,
         }))

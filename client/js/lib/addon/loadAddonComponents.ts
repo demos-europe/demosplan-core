@@ -41,6 +41,8 @@ async function resolveComponent (addon: AddonRpcEntry): Promise<unknown> {
 
   const contentKey = `${addon.entry}.umd.js`
 
+  console.warn(`Loading legacy UMD addon ${addon.entry} via eval. This is not recommended and will be removed in the future.`)
+
   eval(addon.content[contentKey])
 
   return (window as unknown as Record<string, { default: unknown }>)[addon.entry].default
