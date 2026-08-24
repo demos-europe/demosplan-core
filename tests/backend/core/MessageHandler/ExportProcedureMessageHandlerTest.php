@@ -66,7 +66,8 @@ class ExportProcedureMessageHandlerTest extends UnitTestCase
             new ExportResponseFileStore($this->fileServiceMock),
             $this->exportServiceMock,
             $this->loggerMock,
-            $this->createMock(RequestStack::class)
+            $this->createMock(RequestStack::class),
+            $translator
         );
     }
 
@@ -175,6 +176,36 @@ class ExportProcedureMessageHandlerTest extends UnitTestCase
         self::assertSame(ProcedureExportJob::STATUS_COMPLETED, $job->getStatus());
         self::assertSame('hash-1', $job->getFileHash());
         self::assertSame('Verfahrensexport.zip', $job->getFileName());
+    }
+
+    public function testInvokeNamesFileFromTranslationWhenResponseDeclaresNoFilename(): void
+    {
+        // Arrange - a ZIP response without Content-Disposition must still yield the translated
+        // archive name, not a hardcoded literal that diverges per project or locale.
+        $job = new ProcedureExportJob();
+        $this->mockFindReturning($job);
+        $this->exportServiceMock->method('generateProcedureExportZip')->willReturn(
+            new StreamedResponse(static function (): void {
+                echo 'zip-bytes';
+            })
+        );
+
+        $this->fileServiceMock->expects($this->once())
+            ->method('saveTemporaryFile')
+            ->with(
+                $this->isType('string'),
+                'translated:procedure.export_filename.zip',
+                'u1',
+                null,
+                FileService::VIRUSCHECK_NONE
+            )
+            ->willReturn($this->fileWithHash('hash-1'));
+
+        // Act
+        ($this->sut)(new ExportProcedureMessage('job-1', ['p1'], 'u1', 'c1'));
+
+        // Assert
+        self::assertSame('translated:procedure.export_filename.zip', $job->getFileName());
     }
 
     private function mockFindReturning(ProcedureExportJob $job): void
