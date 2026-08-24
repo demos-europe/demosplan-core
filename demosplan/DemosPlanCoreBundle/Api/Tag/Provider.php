@@ -71,16 +71,11 @@ class Provider implements ProviderInterface
     }
 
     /**
-     * Delegates to API Platform's own Doctrine ORM collection provider so that its
-     * extension mechanism (access control via {@see Extension\TagDoctrineAccessExtension},
-     * sorting via the declared OrderFilter on {@see Resource}, and pagination) applies
-     * automatically.
+     * Fetches the tags via API Platform's Doctrine provider, which also applies access
+     * control, sorting, and pagination for us.
      *
-     * Pagination is opt-in on this operation (`paginationEnabled: false`,
-     * `paginationClientEnabled: true` on {@see Resource}) to preserve the legacy EDT
-     * `/2.0/Tag` contract that existing callers were built against: without an explicit
-     * `pagination=true` query param, all tags are returned in one response. Callers that
-     * pass `pagination=true` get a paginated, `page`/`itemsPerPage`-controlled response.
+     * Pagination is off by default, so callers get all tags in one response; pass
+     * `pagination=true` in the query to get a paginated, `page`/`itemsPerPage`-controlled response instead.
      *
      * @return PaginatorInterface<TagResource>|list<TagResource>
      */
