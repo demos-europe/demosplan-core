@@ -267,11 +267,6 @@ final readonly class FrontendAssetProvider
         }
 
         $uiData = $addonInfo->getUIHooks();
-        $hookData = $uiData['hooks'][$hookName] ?? null;
-
-        if (!is_array($hookData) || !$this->hasHookPermission($hookData, $addonInfo->getName(), $hookName)) {
-            return false;
-        }
 
         $manifestPath = DemosPlanPath::getRootPath($addonInfo->getInstallPath()).'/'.$uiData['manifest'];
 
@@ -282,6 +277,12 @@ final readonly class FrontendAssetProvider
         }
 
         if (!file_exists($manifestPath) || !$this->manifestDeclaresJsAsset($manifestPath, $validationPath)) {
+            return false;
+        }
+
+        $hookData = $uiData['hooks'][$hookName] ?? null;
+
+        if (!is_array($hookData) || !$this->hasHookPermission($hookData, $addonInfo->getName(), $hookName)) {
             return false;
         }
 
