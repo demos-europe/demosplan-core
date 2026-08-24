@@ -27,7 +27,7 @@ class RpcAddonAssetsLoader implements RpcMethodSolverInterface
     public function __construct(
         private readonly FrontendAssetProvider $assetProvider,
         private readonly LoggerInterface $logger,
-        private readonly RpcErrorGenerator $errorGenerator
+        private readonly RpcErrorGenerator $errorGenerator,
     ) {
     }
 

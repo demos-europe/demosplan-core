@@ -126,7 +126,7 @@ final readonly class FrontendAssetProvider
                 if (empty($addonVendor) || empty($addonName)) {
                     $this->logger->error(
                         "Addon {$addonInfo->getName()} has an invalid name, cannot generate asset URL for {$entry}. "
-                        . 'Please check the addon manifest.'
+                        .'Please check the addon manifest.'
                     );
 
                     continue;
@@ -136,9 +136,9 @@ final readonly class FrontendAssetProvider
                     'core_addon_asset',
                     [
                         'addonVendor' => $addonVendor,
-                        'addonName' => $addonName,
-                        'hookName' => $hookName,
-                        'filename' => $entry
+                        'addonName'   => $addonName,
+                        'hookName'    => $hookName,
+                        'filename'    => $entry,
                     ],
                     UrlGeneratorInterface::ABSOLUTE_URL
                 );
@@ -148,7 +148,7 @@ final readonly class FrontendAssetProvider
 
             $this->logger->warning(
                 "Addon {$addonInfo->getName()} is using a legacy UMD bundle for frontend assets. "
-                . 'Please upgrade demosplan-addon-client-builder to the latest version.'
+                .'Please upgrade demosplan-addon-client-builder to the latest version.'
             );
 
             // legacy UMD bundle: transport source inline, frontend still `eval`s it.
@@ -254,11 +254,6 @@ final readonly class FrontendAssetProvider
     /**
      * File-level permission checks for serving an addon's built asset file by URL.
      * Validates for scripts and corresponding sourcemap files.
-     *
-     * @param AddonInfo|null $addonInfo
-     * @param string $hookName
-     * @param string $filename
-     * @return bool
      */
     private function checkFileAccess(?AddonInfo $addonInfo, string $hookName, string $filename): bool
     {

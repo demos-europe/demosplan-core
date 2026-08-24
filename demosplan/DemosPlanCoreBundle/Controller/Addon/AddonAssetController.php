@@ -36,10 +36,9 @@ class AddonAssetController extends BaseController
         string $addonVendor,
         string $addonName,
         string $hookName,
-        string $filename
-    ): Response
-    {
-        $fullAddonName = $addonVendor . '/' . $addonName;
+        string $filename,
+    ): Response {
+        $fullAddonName = $addonVendor.'/'.$addonName;
 
         $filePath = $assetProvider->resolveAssetFilePath($fullAddonName, $hookName, $filename);
 
