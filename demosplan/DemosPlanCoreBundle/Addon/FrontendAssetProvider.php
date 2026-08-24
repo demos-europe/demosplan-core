@@ -239,13 +239,13 @@ final readonly class FrontendAssetProvider
     {
         // uses local file, no need for flysystem
         if (!file_exists($manifestPath)) {
-            AddonException::invalidManifest($manifestPath);
+            throw AddonException::invalidManifest($manifestPath);
         }
 
         $manifestContent = Yaml::parseFile($manifestPath);
 
         if (!array_key_exists($entryName, $manifestContent['entrypoints'])) {
-            AddonException::manifestEntryNotFound($entryName);
+            throw AddonException::manifestEntryNotFound($entryName);
         }
 
         return $manifestContent['entrypoints'][$entryName]['assets'];
