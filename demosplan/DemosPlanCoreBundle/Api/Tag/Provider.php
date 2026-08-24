@@ -76,9 +76,15 @@ class Provider implements ProviderInterface
      * sorting via the declared OrderFilter on {@see Resource}, and pagination) applies
      * automatically.
      *
-     * @return PaginatorInterface<TagResource>
+     * Pagination is opt-in on this operation (`paginationEnabled: false`,
+     * `paginationClientEnabled: true` on {@see Resource}) to preserve the legacy EDT
+     * `/2.0/Tag` contract that existing callers were built against: without an explicit
+     * `pagination=true` query param, all tags are returned in one response. Callers that
+     * pass `pagination=true` get a paginated, `page`/`itemsPerPage`-controlled response.
+     *
+     * @return PaginatorInterface<TagResource>|list<TagResource>
      */
-    private function provideCollection(Operation $operation, array $uriVariables, array $context): PaginatorInterface
+    private function provideCollection(Operation $operation, array $uriVariables, array $context): PaginatorInterface|array
     {
         $operation = $operation->withStateOptions(new DoctrineOptions(
             entityClass: Tag::class,
@@ -91,18 +97,22 @@ class Provider implements ProviderInterface
         $result = $this->doctrineCollectionProvider->provide($operation, $uriVariables, $context);
         $map = static fn (Tag $tag): TagResource => TagResource::fromEntity($tag);
 
-        Assert::isInstanceOf($result, PaginatorInterface::class);
+        if ($result instanceof PaginatorInterface) {
+            return new MappingPaginator($result, $map);
+        }
 
-        return new MappingPaginator($result, $map);
+        Assert::isArray($result);
+
+        return array_map($map, $result);
     }
 
     /**
      * ApiPlatform's JsonApiProvider only forwards `sort`-derived and `filter[...]`/
      * `page[...]`-bracket query params into `$context['filters']`. Plain `page`/
-     * `itemsPerPage` params otherwise reach it only via a raw-query-string fallback in
-     * ReadProvider, which is skipped as soon as any other filter (e.g. `sort`) is
-     * present. Since this resource is sortable, that fallback can't be relied upon, so
-     * `page`/`itemsPerPage` are read directly from the request here.
+     * `itemsPerPage`/`pagination` params otherwise reach it only via a raw-query-string
+     * fallback in ReadProvider, which is skipped as soon as any other filter (e.g.
+     * `sort`) is present. Since this resource is sortable, that fallback can't be relied
+     * upon, so these params are read directly from the request here.
      */
     private function addPaginationFilters(array $context): array
     {
@@ -111,7 +121,7 @@ class Provider implements ProviderInterface
             return $context;
         }
 
-        foreach (['page', 'itemsPerPage'] as $parameterName) {
+        foreach (['page', 'itemsPerPage', 'pagination'] as $parameterName) {
             if ($request->query->has($parameterName) && !isset($context['filters'][$parameterName])) {
                 $context['filters'][$parameterName] = $request->query->get($parameterName);
             }
