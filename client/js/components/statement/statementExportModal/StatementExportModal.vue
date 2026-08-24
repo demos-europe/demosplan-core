@@ -246,6 +246,26 @@
           </div>
 
           <fieldset
+            v-if="active === 'xlsx_normal'"
+            class="border-b border-neutral"
+          >
+            <dp-label
+              class="mt-4"
+              :hint="Translator.trans('export.xlsx.scheduled.hint')"
+              :text="Translator.trans('export.xlsx.scheduled')"
+            />
+            <div class="flex justify-end">
+              <dp-button
+                data-cy="exportModal:openScheduledView"
+                icon="calendar-blank"
+                icon-size="medium"
+                :text="Translator.trans('export.xlsx.scheduled.add')"
+                variant="outline"
+                @click="currentView = 'scheduled'"
+              />
+            </div>
+          </fieldset>
+          <fieldset
             v-if="!isSingleStatementExport"
             class="border-b border-neutral"
             :class="{ 'border-none': !['docx_normal', 'zip_normal'].includes(active) }"
@@ -311,6 +331,14 @@
             type="warning"
           />
           </template>
+
+          <!-- Scheduled export view -->
+          <scheduled-export-form
+            v-if="currentView === 'scheduled'"
+            :procedure-id="procedureId"
+            @schedule-created="handleScheduleCreated"
+            @cancel="currentView = 'main'"
+          />
         </div>
       </div>
       <template v-slot:footer>
