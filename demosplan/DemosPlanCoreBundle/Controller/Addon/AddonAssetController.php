@@ -50,7 +50,7 @@ class AddonAssetController extends BaseController
 
         // automatic mime type discovery in the BinaryFileDownload hiding in $this->file() consistently fails
         $mimeType = match (true) {
-            str_ends_with($filePath, '.js') => 'text/javascript; charset=UTF-8',
+            str_ends_with($filePath, '.js')  => 'text/javascript; charset=UTF-8',
             str_ends_with($filePath, '.map') => 'application/json',
             str_ends_with($filePath, '.css') => 'text/css',
 
