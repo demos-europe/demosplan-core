@@ -33,14 +33,14 @@
             :text="Translator.trans('back')"
             type="button"
             variant="subtle"
-            @click="currentView = 'main'"
+            @click="scheduledView = null"
           />
           <h2>{{ exportModalTitle }}</h2>
         </div>
       </template>
 
       <!-- Main export view -->
-      <template v-if="currentView === 'main'">
+      <template v-if="showStatementExport">
         <fieldset
           v-if="!isSingleStatementExport"
           class="border-b border-neutral"
@@ -251,14 +251,20 @@
             :hint="Translator.trans('export.xlsx.scheduled.hint')"
             :text="Translator.trans('export.xlsx.scheduled')"
           />
-          <div class="flex justify-end">
+          <div class="flex justify-end gap-2">
             <dp-button
-              data-cy="exportModal:openScheduledView"
+              data-cy="exportModal:openScheduledView:manage"
+              :text="Translator.trans('export.xlsx.scheduled.manage')"
+              variant="transparent"
+              @click="scheduledView = 'manage'"
+            />
+            <dp-button
+              data-cy="exportModal:openScheduledView:form"
               icon="calendar-blank"
               icon-size="medium"
               :text="Translator.trans('export.xlsx.scheduled.add')"
               variant="outline"
-              @click="currentView = 'scheduled'"
+              @click="scheduledView = 'form'"
             />
           </div>
         </fieldset>
@@ -312,9 +318,9 @@
           id="customHeaderText"
           v-model="customHeaderText"
           :label="{
-          text: Translator.trans('docx.export.header.custom'),
-          tooltip: Translator.trans('docx.export.header.custom.hint')
-        }"
+            text: Translator.trans('docx.export.header.custom'),
+            tooltip: Translator.trans('docx.export.header.custom.hint')
+          }"
           :maxlength="customHeaderMaxLength"
           :placeholder="Translator.trans('docx.export.header.custom.placeholder')"
           class="py-4"
@@ -331,10 +337,11 @@
 
       <!-- Scheduled export view -->
       <scheduled-export-form
-        v-if="currentView === 'scheduled'"
+        v-if="showScheduledExport"
         :procedure-id="procedureId"
+        :view="scheduledView"
         @schedule-created="handleScheduleCreated"
-        @cancel="currentView = 'main'"
+        @cancel="scheduledView = null"
       />
 
       <template v-slot:footer>
@@ -343,7 +350,7 @@
           data-cy="exportModal"
           primary
           secondary
-          :primary-text="currentView === 'main' ? Translator.trans('export.statements') : Translator.trans('export.xlsx.scheduled.title')"
+          :primary-text="showStatementExport ? Translator.trans('export.statements') : Translator.trans('export.xlsx.scheduled.title')"
           :secondary-text="Translator.trans('abort')"
           @primary-action="handleExport"
           @secondary-action="closeModal"
@@ -419,7 +426,7 @@ export default {
   data () {
     return {
       active: 'docx_normal',
-      currentView: 'main',
+      scheduledView: null,
       docxColumns: {
         col1: {
           dataCy: 'exportModal:input:col1',
@@ -532,12 +539,20 @@ export default {
     },
 
     showBackButton () {
-      return this.currentView === 'scheduled'
+      return this.scheduledView !== null
     },
 
     templateStorageName () {
       return `templateHash_${this.procedureId}`
     },
+
+    showScheduledExport () {
+      return this.scheduledView !== null
+    },
+
+    showStatementExport () {
+      return this.scheduledView === null
+    }
   },
 
   methods: {
