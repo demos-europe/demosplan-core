@@ -2422,9 +2422,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@demos-europe/demosplan-ui@npm:0.28.0":
-  version: 0.28.0
-  resolution: "@demos-europe/demosplan-ui@npm:0.28.0"
+"@demos-europe/demosplan-ui@npm:0.29.0":
+  version: 0.29.0
+  resolution: "@demos-europe/demosplan-ui@npm:0.29.0"
   dependencies:
     "@braintree/sanitize-url": "npm:^7.0.0"
     "@floating-ui/dom": "npm:^1.6.0"
@@ -2464,7 +2464,7 @@ __metadata:
     "@vueuse/integrations": "npm:^14.0.0"
     a11y-datepicker: "npm: ^0.9.0"
     dayjs: "npm:^1.11.5"
-    dompurify: "npm:^3.4.5"
+    dompurify: "npm:^3.4.13"
     fscreen: "npm:^1.2.0"
     ismobilejs: "npm:^1.1.1"
     lscache: "npm:^1.3.2"
@@ -2477,7 +2477,7 @@ __metadata:
     vue-click-outside: "npm:^1.1.0"
     vue-multiselect: "npm:^3.1.0"
     vue-sliding-pagination: "npm:^v2.0.0-alpha-1"
-  checksum: 10c0/dd48c8a39f0724d4fb417e2233d972ac514f459b77d95588a741052382629b3622107444cb210896577e4997a6365f08a14caffd12a7ed259f10a15a9580f96b
+  checksum: 10c0/34601e6def4c42478f3b2ec0c8e84fbe7be5ac29b3cea547175731ef5dc834f6e623242d815fed9ddbcd84aab69ed19e160daf63c8ad70e94968129bf4ef4824
   languageName: node
   linkType: hard
 
@@ -7492,7 +7492,7 @@ __metadata:
     "@carbon/icons-vue": "npm:10.130.0"
     "@carbon/vue": "npm:^3.0.27"
     "@cesium/engine": "npm:^20.0.1"
-    "@demos-europe/demosplan-ui": "npm:0.28.0"
+    "@demos-europe/demosplan-ui": "npm:0.29.0"
     "@demos-europe/dp-consent": "npm:^1.3"
     "@efrane/vuex-json-api": "npm:^0.1.3"
     "@eslint/js": "npm:^9.39.1"
@@ -7665,7 +7665,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dompurify@npm:^3.0.2, dompurify@npm:^3.4.13, dompurify@npm:^3.4.5":
+"dompurify@npm:^3.0.2, dompurify@npm:^3.4.13":
   version: 3.4.13
   resolution: "dompurify@npm:3.4.13"
   dependencies:
