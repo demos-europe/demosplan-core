@@ -102,12 +102,10 @@ class Provider implements ProviderInterface
     }
 
     /**
-     * ApiPlatform's JsonApiProvider only forwards `sort`-derived and `filter[...]`/
-     * `page[...]`-bracket query params into `$context['filters']`. Plain `page`/
-     * `itemsPerPage`/`pagination` params otherwise reach it only via a raw-query-string
-     * fallback in ReadProvider, which is skipped as soon as any other filter (e.g.
-     * `sort`) is present. Since this resource is sortable, that fallback can't be relied
-     * upon, so these params are read directly from the request here.
+     * Because this resource supports sorting, API Platform stops forwarding plain
+     * `page`/`itemsPerPage`/`pagination` query params on its own, so we read them
+     * from the URL ourselves and add them to `$context['filters']`, where API
+     * Platform expects to find them.
      */
     private function addPaginationFilters(array $context): array
     {
