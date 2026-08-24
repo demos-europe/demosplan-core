@@ -44,7 +44,12 @@
 
 <script>
 import * as demosplanUi from '@demos-europe/demosplan-ui'
-import { DpLoading, DpTab, DpTabs, hasAnyPermissions } from '@demos-europe/demosplan-ui'
+import {
+  DpLoading,
+  DpTab,
+  DpTabs,
+  hasAnyPermissions,
+} from '@demos-europe/demosplan-ui'
 import AdministrationImportNone from './AdministrationImportNone'
 import ExcelImport from './ExcelImport/ExcelImport'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
@@ -160,9 +165,14 @@ export default {
           permissions: ['feature_statements_participation_import_excel'],
           title: 'import.options.participation',
         },
-      ].filter((component) => {
-        return hasAnyPermissions(component.permissions)
-      }).concat(this.asyncComponents)
+      ]
+        .filter((component) => {
+          return hasAnyPermissions(component.permissions)
+        })
+        .concat(this.asyncComponents)
+        .sort((a, b) => {
+          return Translator.trans(a.title).localeCompare(Translator.trans(b.title))
+        })
     },
   },
 
@@ -173,34 +183,28 @@ export default {
       }
 
       if (window.localStorage.getItem('importCenterActiveTabId')) {
-        this.activeTabId = window.localStorage.getItem('importCenterActiveTabId')
+        this.activeTabId = window.localStorage.getItem(
+          'importCenterActiveTabId',
+        )
       }
-    },
-
-    loadComponents (hookName) {
-      return loadAddonComponents(hookName)
-        .then((addons) => {
-          this.asyncComponents.push(...addons.map((addon) => ({
-            component: addon.component,
-            name: addon.name,
-            title: addon.options.title,
-          })))
-        })
     },
   },
 
   mounted () {
-    const promises = [this.loadComponents('email.import')]
+    const promises = [
+      loadAddonComponents('import.tabs').then((addons) => {
+        this.asyncComponents = addons.map((addon) => ({
+          component: shallowRef(window[addon.name].default),
+          name: addon.name,
+          title: addon.options.title,
+        }))
+      }),
+    ]
 
-    if (hasPermission('feature_import_statement_pdf')) {
-      promises.push(this.loadComponents('import.tabs'))
-    }
-
-    Promise.allSettled(promises)
-      .then(() => {
-        this.allComponentsLoaded = true
-        this.setActiveTabId()
-      })
+    Promise.allSettled(promises).then(() => {
+      this.allComponentsLoaded = true
+      this.setActiveTabId()
+    })
   },
 }
 </script>
