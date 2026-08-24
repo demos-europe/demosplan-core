@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Addon;
 
 use demosplan\DemosPlanCoreBundle\Addon\FrontendAssetProvider;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
-use demosplan\DemosPlanCoreBundle\Response\BinaryFileDownload;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Attribute\Route;
@@ -48,10 +47,6 @@ class AddonAssetController extends BaseController
             throw new NotFoundHttpException();
         }
 
-        $response = new BinaryFileDownload($filePath, $filename, false);
-        $response->headers->set('Content-Type', 'application/javascript');
-        $response->setPublic();
-
-        return $response;
+        return $this->file($filePath, $filename);
     }
 }
