@@ -28,7 +28,12 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 #[ApiResource(
     shortName: 'Tag',
     operations: [
-        new GetCollection(uriTemplate: '/Tag', paginationClientItemsPerPage: true),
+        new GetCollection(
+            uriTemplate: '/Tag',
+            paginationEnabled: false,
+            paginationClientEnabled: true,
+            paginationClientItemsPerPage: true,
+        ),
         new Get(uriTemplate: '/Tag/{id}'),
     ],
     formats: ['jsonapi'],
