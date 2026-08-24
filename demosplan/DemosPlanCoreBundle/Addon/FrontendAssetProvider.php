@@ -251,18 +251,25 @@ final readonly class FrontendAssetProvider
         return $manifestContent['entrypoints'][$entryName]['assets'];
     }
 
-    private function checkFileAccess(?AddonInfo $addonInfo, string $hookName, string $filename)
+    /**
+     * File-level permission checks for serving an addon's built asset file by URL.
+     * Validates for scripts and corresponding sourcemap files.
+     *
+     * @param AddonInfo|null $addonInfo
+     * @param string $hookName
+     * @param string $filename
+     * @return bool
+     */
+    private function checkFileAccess(?AddonInfo $addonInfo, string $hookName, string $filename): bool
     {
         if (!$addonInfo instanceof AddonInfo || !$addonInfo->isEnabled() || !$addonInfo->hasUIHooks()) {
             return false;
         }
 
         $uiData = $addonInfo->getUIHooks();
-        if (!array_key_exists($hookName, $uiData['hooks'])) {
-            return false;
-        }
+        $hookData = $uiData['hooks'][$hookName] ?? null;
 
-        if (!$this->hasHookPermission($uiData['hooks'][$hookName], $addonInfo->getName(), $hookName)) {
+        if (!is_array($hookData) || !$this->hasHookPermission($hookData, $addonInfo->getName(), $hookName)) {
             return false;
         }
 
