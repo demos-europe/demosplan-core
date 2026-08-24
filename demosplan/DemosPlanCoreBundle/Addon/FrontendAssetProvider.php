@@ -122,6 +122,16 @@ final readonly class FrontendAssetProvider
                 // new-format addon build: serve by URL, frontend `import()`s it directly
                 list($addonVendor, $addonName) = explode('/', $addonInfo->getName(), 2);
 
+                // safeguard against malformed addon names, which would break the URL generation
+                if (empty($addonVendor) || empty($addonName)) {
+                    $this->logger->error(
+                        "Addon {$addonInfo->getName()} has an invalid name, cannot generate asset URL for {$entry}. "
+                        . 'Please check the addon manifest.'
+                    );
+
+                    continue;
+                }
+
                 $assetUrls[$entry] = $this->urlGenerator->generate(
                     'core_addon_asset',
                     [
