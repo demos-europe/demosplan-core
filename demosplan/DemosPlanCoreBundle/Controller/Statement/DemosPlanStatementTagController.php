@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\Events\UpdateTagEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
@@ -19,13 +20,17 @@ use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\TagListCsvExporter;
+use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
 use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -149,6 +154,44 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
                 'procedure'    => $procedure,
             ]
         );
+    }
+
+    /**
+     * Exports the list of Tags (and their Topics and boilerplates) of the given procedure as CSV.
+     *
+     * @throws Exception
+     */
+    #[DplanPermissions('area_admin_statements_tag')]
+    #[Route(
+        path: '/verfahren/{procedureId}/schlagworte/export/csv',
+        name: 'DemosPlan_statement_administration_tags_export',
+        options: ['expose' => true],
+        methods: ['GET'],
+        defaults: ['master' => false]
+    )]
+    public function tagListExport(
+        NameGenerator $nameGenerator,
+        TagListCsvExporter $tagListCsvExporter,
+        TagTopicRepository $tagTopicRepository,
+        TranslatorInterface $translator,
+        string $procedureId,
+    ): StreamedResponse {
+        $tagTopics = $tagTopicRepository->findBy(['procedure' => $procedureId], ['createDate' => 'ASC']);
+
+        $response = new StreamedResponse(
+            static function () use ($tagTopics, $tagListCsvExporter) {
+                echo $tagListCsvExporter->export($tagTopics);
+            }
+        );
+
+        $response->headers->set('Pragma', 'no-cache');
+        $response->headers->set('Cache-Control', 'no-cache');
+        $response->headers->set('Content-Type', 'text/plain; charset=utf-8');
+
+        $filename = $translator->trans('tag.list.export').'-'.Carbon::now('Europe/Berlin')->format('d-m-Y-H:i').'.csv';
+        $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($filename));
+
+        return $response;
     }
 
     /**

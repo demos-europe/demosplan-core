@@ -76,4 +76,27 @@ class CsvExporterTest extends TestCase
         static::assertSame(['ID'], $reader->getHeader());
         static::assertCount(0, iterator_to_array($reader->getRecords()));
     }
+
+    public function testGenerateWithCustomDelimiterUsesThatDelimiter(): void
+    {
+        $columnsDefinition = [
+            ['key' => 'topic', 'title' => 'Thema'],
+            ['key' => 'tagName', 'title' => 'Schlagwortname'],
+        ];
+        $formattedData = [['Grundtenor der Stellungnahme', 'Positiv, Zustimmung']];
+
+        $csv = $this->sut->generate($formattedData, $columnsDefinition, ';');
+
+        static::assertStringContainsString('Thema;Schlagwortname', $csv);
+
+        $reader = Reader::fromString($csv);
+        $reader->setDelimiter(';');
+        $reader->setHeaderOffset(0);
+        $records = iterator_to_array($reader->getRecords(), false);
+
+        static::assertSame(
+            ['Thema' => 'Grundtenor der Stellungnahme', 'Schlagwortname' => 'Positiv, Zustimmung'],
+            $records[0]
+        );
+    }
 }
