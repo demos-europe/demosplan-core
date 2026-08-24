@@ -12,21 +12,27 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Bookmark;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\UserFilterSet;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use EDT\PathBuilding\End;
 
 /**
- * @template-extends DplanResourceType<UserFilterSet>
+ * @template-extends DplanResourceType<Bookmark>
  *
  * @property-read End $name
  * @property-read HashedQueryResourceType $filterSet
  * @property-read ProcedureResourceType $procedure
  * @property-read UserResourceType $user
  */
-class UserFilterSetResourceType extends DplanResourceType
+class BookmarkResourceType extends DplanResourceType
 {
+    /**
+     * Deliberately still `UserFilterSet`, even though the class and entity are now named `Bookmark`:
+     * this is the resource type identifier the assessment table requests by string over the API 2.0
+     * endpoint (see `client/js/store/statement/Filter.js`). Renaming it would break that frontend,
+     * which is out of scope until the assessment table moves off the EDT resource types.
+     */
     public static function getName(): string
     {
         return 'UserFilterSet';
@@ -43,7 +49,7 @@ class UserFilterSetResourceType extends DplanResourceType
 
     public function getEntityClass(): string
     {
-        return UserFilterSet::class;
+        return Bookmark::class;
     }
 
     public function isAvailable(): bool

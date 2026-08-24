@@ -176,7 +176,7 @@ class StatementFragmentService
         try {
             return $this->statementFragmentRepository->get($fragmentId);
         } catch (Exception $e) {
-            $this->logger->error('Could not find StatementFragment with id '.DemosPlanTools::varExport($fragmentId, true).': ', [$e]);
+            $this->logger->error('Could not find StatementFragment with id {fragmentId}', ['fragmentId' => $fragmentId, 'exception' => $e]);
 
             return null;
         }

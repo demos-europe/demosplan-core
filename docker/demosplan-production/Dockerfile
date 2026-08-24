@@ -16,7 +16,8 @@ RUN install-php-extensions \
 # silently producing an image without frontend assets.
     && ln -s /usr/local/bin/php /usr/bin/php
 
-FROM php-base AS build
+# Dependency installation, shared by the asset build and the SBOM generation.
+FROM php-base AS deps
 
 # Build dependencies; PHP comes from the base image
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -84,6 +85,49 @@ RUN --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=loc
     YARN_ENABLE_SCRIPTS=false yarn install --immutable && \
     yarn cache clean && \
     rm -rf /srv/www/.cache/*
+
+# SBOM stages. The fpm stage pulls their output in with COPY --from, so buildkit regenerates them
+# only when the lockfiles deps copied in change.
+FROM deps AS sbom-php
+
+# build.sh passes the image version; the context carries no .git for composer to derive one from.
+ARG SBOM_MC_VERSION=0.0.0
+# The generator is not a project dependency: installed globally it stays out of the vendor the SBOM
+# describes. Pinned, so an upstream release cannot change the SBOM without a commit.
+RUN --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=locked \
+# composer global writes into COMPOSER_HOME, which the cache mount leaves owned by root \
+    export COMPOSER_HOME=/tmp/composer-global \
+        COMPOSER_CACHE_DIR=/var/www/.composer/cache && \
+# sys_temp_dir from zzz-dplan.ini points into the source tree, which this stage does not carry \
+    mkdir -p /srv/www/var/tmp /tmp/sbom && \
+    composer global config --no-plugins allow-plugins.cyclonedx/cyclonedx-php-composer true && \
+    composer global require --no-progress --no-scripts \
+        cyclonedx/cyclonedx-php-composer:6.2.0 && \
+    composer CycloneDX:make-sbom \
+        --output-format=JSON \
+        --output-file=/tmp/sbom/sbom-php.cdx.json \
+        --spec-version=1.5 \
+        --mc-version="$SBOM_MC_VERSION" \
+        --omit=dev \
+        --validate
+
+FROM deps AS sbom-js
+
+# package.json, yarn.lock and node_modules come from deps; only the filter is missing
+COPY sbom-prod-filter.php ./
+RUN --mount=type=cache,target=/var/www/.npm,uid=33,gid=33,sharing=locked \
+    --mount=type=cache,target=/var/www/.cache,uid=33,gid=33,sharing=locked \
+    mkdir -p /tmp/sbom && \
+# npx resolves the dependency tree without a lockfile, so no install script gets to run \
+    npx --yes --ignore-scripts @cyclonedx/cdxgen@12.8.4 \
+        -t yarn \
+        -o /tmp/sbom/sbom-js.cdx.json \
+        --spec-version 1.5 \
+        --validate && \
+# cdxgen reports dev dependencies too, drop them to match the composer side \
+    php sbom-prod-filter.php /tmp/sbom/sbom-js.cdx.json package.json
+
+FROM deps AS build
 
 USER root
 # No --link: must preserve www-data ownership of /srv/www set above so subsequent www-data RUN
@@ -160,7 +204,9 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     mkdir -p /opt/uploads && \
     chown -R root:root /srv/www/public && \
     chown -R www-data /opt/uploads && \
-    chown -R www-data /srv/www/public/uploads
+    chown -R www-data /srv/www/public/uploads && \
+# build-time only, see the sbom-js stage \
+    rm -f /srv/www/sbom-prod-filter.php
 
 # Runtime stage - starts fresh WITHOUT build tools (Node.js, npm, composer)
 FROM php-base AS fpm
@@ -199,6 +245,9 @@ WORKDIR /srv/www
 # Copy only built artifacts from build stage (no build tools, no node_modules history)
 COPY --link --from=build /srv/www /srv/www
 COPY --link --from=build /opt/config/parameters.yml /opt/config/parameters.yml
+# Straight from the SBOM stages, so they never enter the build context
+COPY --link --from=sbom-php /tmp/sbom/sbom-php.cdx.json /srv/www/sbom/
+COPY --link --from=sbom-js /tmp/sbom/sbom-js.cdx.json /srv/www/sbom/
 
 # Setup directories and permissions
 RUN rm -rf /srv/www/var/cache/* && \
