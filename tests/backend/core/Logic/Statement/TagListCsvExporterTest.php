@@ -58,14 +58,14 @@ class TagListCsvExporterTest extends TestCase
         $records = iterator_to_array($reader->getRecords(), false);
 
         static::assertSame([
-            'topic'                                        => 'Grundtenor der Stellungnahme',
+            'topic'                                         => 'Grundtenor der Stellungnahme',
             'tag.list.export.column.tag.name'               => 'Positiv, Zustimmung',
             'tag.list.export.column.has.boilerplate'        => 'ja',
             'tag.list.export.column.boilerplate.text'       => 'Text wird übernommen.',
         ], $records[0]);
 
         static::assertSame([
-            'topic'                                        => 'Grundtenor der Stellungnahme',
+            'topic'                                         => 'Grundtenor der Stellungnahme',
             'tag.list.export.column.tag.name'               => 'Negativ, Ablehnung',
             'tag.list.export.column.has.boilerplate'        => 'nein',
             'tag.list.export.column.boilerplate.text'       => '',
