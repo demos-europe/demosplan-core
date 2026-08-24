@@ -30,7 +30,7 @@ class Version20260807101630 extends AbstractMigration
     public function up(Schema $schema): void
     {
         $this->abortIfNotMysql();
-        $this->addSql('ALTER TABLE _mail_send ADD _ms_reply_to VARCHAR(4096) DEFAULT NULL');
+        $this->addSql('ALTER TABLE _mail_send ADD reply_to VARCHAR(4096) DEFAULT NULL');
     }
 
     /**
@@ -39,7 +39,7 @@ class Version20260807101630 extends AbstractMigration
     public function down(Schema $schema): void
     {
         $this->abortIfNotMysql();
-        $this->addSql('ALTER TABLE _mail_send DROP _ms_reply_to');
+        $this->addSql('ALTER TABLE _mail_send DROP reply_to');
     }
 
     /**

@@ -194,7 +194,7 @@ class SegmentEmailSenderTest extends FunctionalTestCase
 
         // Exactly one mail was queued, carrying the reply-to.
         static::assertSame($mailsBefore + 1, $this->countMails());
-        static::assertSame('reply@test.de', $this->getLatestMail()['_ms_reply_to']);
+        static::assertSame('reply@test.de', $this->getLatestMail()['reply_to']);
         static::assertSame('dm_schlussmitteilung', $this->getLatestMail()['_ms_mt_template']);
 
         // A version-history entry was written for the segment.

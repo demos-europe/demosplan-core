@@ -58,7 +58,7 @@ class MailSend implements IntegerIdEntityInterface, MailSendInterface
     #[ORM\Column(name: '_ms_from', type: 'string', length: 4096, nullable: false)]
     protected $from;
 
-    #[ORM\Column(name: '_ms_reply_to', type: 'string', length: 4096, nullable: true)]
+    #[ORM\Column(name: 'reply_to', type: 'string', length: 4096, nullable: true)]
     protected ?string $replyTo = null;
 
     /**
