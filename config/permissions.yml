@@ -475,6 +475,17 @@ area_search_submitter_in_procedures:
     expose: true
     label: 'Enables the search to find procedures that contain statements that were submitted by a specific submitter name.'
     loginRequired: true
+area_search_submitters_cross_procedures:
+    description: |-
+        Enables the page that searches for statements by submitter or author name across all
+        procedures the user can administer, showing matching statements directly (grouped by
+        procedure) instead of a list of procedures to search individually.
+        Complements `feature_json_api_statement_cross_procedures_search`, which gates the
+        underlying JSON:API resource; this permission additionally gates the page and its
+        menu entry.
+    expose: true
+    label: 'Allows access to the cross-procedure submitter search page.'
+    loginRequired: true
 area_sign_language_overview_video:
     description: |-
         To conform to BITV 2.0, a website must publish information on essential contents, navigation and
@@ -1144,6 +1155,19 @@ feature_json_api_statement:
     expose: true
     label: 'Allows access to Statement resources using the JSON:API.'
     loginRequired: false
+feature_json_api_statement_cross_procedures_search:
+    description: |-
+        Enables the AdminStatementCrossProcedureSearch JSON:API resource for cross-procedure submitter / author
+        search. Returns a narrow projection (id, externId, status, authorName, submitName,
+        initialOrganisationName) of statements from procedures the user can administer within
+        the current customer. Granting this permission carries a data-exposure decision: the
+        listed fields cross procedure boundaries.
+        Distinct from `area_search_submitter_in_procedures`, which additionally activates the
+        procedure-list-style "Einreicher suchen" UI flow and the AdminProcedure filter path.
+        This permission gates only the JSON:API resource.
+    expose: true
+    label: 'Allows access to AdminStatementCrossProcedureSearch resources using the JSON:API for cross-procedure submitter search.'
+    loginRequired: true
 feature_json_api_statement_segment:
     descriptions: |-
         When enabled then access to the StatementSegment resources using the JSON:API is granted.
@@ -1858,10 +1882,12 @@ feature_procedure_templates:
     parent: area_main_procedures
 feature_procedure_user_filter_sets:
     description: |-
-        Save chosen filter combination in assessment table for later use.
-        The filter (or actually filterHash) can be named. In interface it all happens in FilterModal.
+        Save a stored query under a name so it can be reloaded later. Used in two places: the
+        assessment table, where it bookmarks a filter combination (FilterModal), and the segment
+        list, where the saved query also carries the chosen columns, their order and the sorting.
+        The permission name predates the second use and the Bookmark entity behind it.
     expose: true
-    label: 'Bookmarks for filters combos in AT'
+    label: 'Bookmarks for saved queries (assessment table filters, segment list views)'
     loginRequired: true
     parent: area_main_procedures
 feature_procedure_user_restrict_access_edit:
@@ -2011,6 +2037,14 @@ feature_segment_recommendation_edit:
     label: 'Allows to create, update and delete recommendations of segments.'
     loginRequired: true
     parent: area_statement_segmentation
+feature_segments_copy_to_clipboard:
+    description: |-
+        Allows the user to copy the currently selected segments in the segment list to the clipboard
+        as tab-separated text, using the currently visible columns, for pasting into Excel or Word.
+    expose: true
+    label: 'Copy selected segments to clipboard'
+    loginRequired: true
+    parent: area_statement_segmentation
 feature_segments_import_excel:
     description: |-
         Allows the user to upload an excel file containing new segments and corresponding statement meta data. These are then validated and
@@ -2019,6 +2053,15 @@ feature_segments_import_excel:
     label: 'Generate segments (with corresponding statements) from uploaded excel file'
     loginRequired: true
     parent: area_statement_segmentation, area_admin_import
+feature_segments_manualsort:
+    description: |-
+        Shows the sorting dropdown on the procedure-wide segment list, allowing the
+        list to be sorted by deadline. The feature is not yet fully implemented and
+        must not be enabled on production instances.
+    expose: true
+    label: 'Allows sorting the segment list by deadline.'
+    loginRequired: true
+    parent: area_statement_segmentation
 feature_segments_of_statement_list:
     description: |-
         The list will contain segments of a specific statement only. Additional
@@ -2192,6 +2235,18 @@ feature_statement_data_protection:
     label: 'Data protection evaluation for public statements'
     loginRequired: false
     parent: feature_statement
+feature_statement_deadline_mail:
+    description: 'Project-level gate that enables the segment deadline reminder emails (backend/cron). Global and evaluable without a logged-in user, so the mail cron can check it. Related: "field_statement_deadline" (the deadline field within procedures) and "feature_statement_deadline_mail_setting" (the per-user opt-out checkbox).'
+    label: 'Enable statement deadline reminder emails (backend)'
+    parent: field_statement_deadline
+    expose: false
+    loginRequired: false
+feature_statement_deadline_mail_setting:
+    description: 'Lets a user enable or disable receiving the segment deadline reminder emails; shown as the opt-out checkbox in the user settings. Enable (role-bound) for the roles that work on deadlines. Companion to the backend gate "feature_statement_deadline_mail".'
+    label: 'Allows user to enable/disable deadline reminder emails for himself.'
+    parent: feature_statement_deadline_mail
+    expose: true
+    loginRequired: true
 feature_statement_delete:
     description: |-
         Allows to delete statements in the application. The deletion is activated regardless of the way the
@@ -2200,6 +2255,18 @@ feature_statement_delete:
         unclaimed.
     expose: true
     label: 'Delete (non-draft, non-original) statements.'
+    loginRequired: true
+feature_statement_delete_cross_procedures:
+    description: |-
+        Allows deletion of statements found via the AdminStatementCrossProcedureSearch resource, i.e. outside of
+        any procedure context. Needed because `feature_statement_delete` is usually only enabled for a procedure
+        the user currently works in, which never applies to the cross-procedure search.
+        Holding this permission alone does not authorize any deletion: every single deletion is additionally
+        verified against the procedure the statement belongs to. The user must be explicitly authorized for that
+        procedure and must hold `feature_statement_delete` within it, so nothing can be deleted that the user
+        could not also delete after entering the procedure.
+    expose: true
+    label: 'Delete statements found via the cross-procedure submitter search.'
     loginRequired: true
 feature_statement_file_filter_set:
     description: 'Set file to filter in statement list.'
@@ -2314,6 +2381,11 @@ feature_statement_search_type_of_submission:
     description: 'Search for submission type in Assessment Table'
     expose: true
     label: 'Search for submission type in Assessment Table'
+    loginRequired: true
+feature_statement_segments_export_csv:
+    description: 'Permission to enable CSV export of statements and their segments from the statement list of a procedure. Embedded images from statements or replies are not included in the export.'
+    expose: true
+    label: 'Enable CSV Export'
     loginRequired: true
 feature_statement_submitter_data_always_editable:
     description: 'Allows editing submitter data fields (name, department, address, dates, phase, submit type) on all statements, not just manual ones. When disabled, these fields can only be edited on manual statements.'
@@ -2445,6 +2517,15 @@ feature_statements_fragment_vote:
     label: 'Votum zu Datensatz abgeben'
     loginRequired: true
     parent: feature_statement_fragment
+feature_statements_import_csv:
+    description: |-
+        Allows the user to upload a csv file containing new statements. The file is processed in the
+        background as a queued import job, which makes it suitable for data sets that are too large
+        for a spreadsheet.
+    expose: true
+    label: 'Generate statements from uploaded csv file'
+    loginRequired: true
+    parent: area_statements, area_admin_import
 feature_statements_import_excel:
     description: |-
         Allows the user to upload an excel file containing new statements. These are then validated and
@@ -2926,7 +3007,7 @@ field_statement_county:
     loginRequired: false
     parent: field_statement
 field_statement_deadline:
-    description: 'Adds a deadline field  (Bearbeitungsfrist).'
+    description: 'Adds a deadline field (Bearbeitungsfrist) within procedures (role/ownership-scoped). The deadline reminder emails are gated separately: "feature_statement_deadline_mail" (global backend/cron gate) and "feature_statement_deadline_mail_setting" (per-user opt-out checkbox).'
     label: 'Statement deadline'
     expose: true
     loginRequired: true
@@ -3146,9 +3227,7 @@ role_participant:
     loginRequired: true
 feature_read_source_statement_via_api:
     description: |
-        Used to gain access to the source-statement file via the api. This permission is a replica of feature_import_statement_pdf
-        because that permission is addon-specific and cannot be used for additional non addon related checks within the core.
-        Access to the source-statement without this addon is necessary, so this permission substitutes the old one.
+        Used to gain access to the source-statement file via the api.
     label: ' used in : Statement list and segment list '
     expose: true
     loginRequired: true

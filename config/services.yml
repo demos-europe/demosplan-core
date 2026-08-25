@@ -849,7 +849,7 @@ services:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
-    demosplan\DemosPlanCoreBundle\Logic\Procedure\UserFilterSetService:
+    demosplan\DemosPlanCoreBundle\Logic\Procedure\BookmarkService:
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Procedure\PrepareReportFromProcedureService:
@@ -973,6 +973,10 @@ services:
         lazy: true
         calls:
             - [ 'setEsStatementFragmentType', [ '@fos_elastica.index.statementFragments' ]]
+
+    demosplan\DemosPlanCoreBundle\Logic\Statement\CsvStatementImport:
+        arguments:
+            $statementPersister: '@fos_elastica.object_persister.statements'
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxSegmentImport:
         arguments:

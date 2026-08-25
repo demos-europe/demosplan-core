@@ -6,10 +6,10 @@
  *
  * All rights reserved
  */
-import { beforeEach, describe, expect, it, jest } from '@jest/globals'
 import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
+import { vi } from 'vitest'
 import Vuex from 'vuex'
 
 describe('SearchModal', () => {
@@ -18,7 +18,7 @@ describe('SearchModal', () => {
 
   beforeEach(() => {
     mutations = {
-      setCurrentSearch: jest.fn(),
+      setCurrentSearch: vi.fn(),
     }
 
     store = new Vuex.Store({

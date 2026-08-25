@@ -426,6 +426,11 @@
     },
     {
         "license": "MIT",
+        "package": "symfony/doctrine-messenger",
+        "website": "https://github.com/symfony/doctrine-messenger"
+    },
+    {
+        "license": "MIT",
         "package": "symfony/dom-crawler",
         "website": "https://github.com/symfony/dom-crawler"
     },

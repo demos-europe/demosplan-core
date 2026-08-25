@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DateInterval;
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -219,6 +221,49 @@ class SegmentRepository extends CoreRepository
             ->setParameter('customFieldSearch', $searchPattern)
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * Returns the non-deleted segments that have an assignee and whose
+     * deadline lies the given interval ahead of today, grouped by assignee.
+     *
+     * Used by the deadline-reminder cron via dedicated calls: one with a
+     * seven-day interval (reminder one week before the deadline) and one
+     * with a zero interval (reminder on the day of the deadline). Deadlines
+     * in the past are never matched, so no reminders go out once a deadline
+     * has lapsed.
+     *
+     * All segments in a group share the same deadline, so the caller can
+     * turn each group into a single bundled reminder mail per assignee. The
+     * caller is also responsible for skipping assignees who disabled the
+     * reminder, as that opt-out lives in the serialized user flags and
+     * cannot be expressed as a query condition.
+     *
+     * The `deadline` column is a pure date, so the target date is compared
+     * on its date part only.
+     *
+     * @return array<string, list<Segment>> segments keyed by assignee id
+     */
+    public function findSegmentsForAssigneesByDeadlineInterval(DateInterval $timeUntilDeadline): array
+    {
+        $targetDeadline = (new DateTime('today'))->add($timeUntilDeadline);
+
+        /** @var list<Segment> $segments */
+        $segments = $this->createQueryBuilder('segment')
+            ->where('segment.deadline = :targetDeadline')
+            ->andWhere('segment.assignee IS NOT NULL')
+            ->andWhere('segment.deleted = false')
+            ->setParameter('targetDeadline', $targetDeadline->format('Y-m-d'))
+            ->addOrderBy('segment.assignee', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        $segmentsByAssignee = [];
+        foreach ($segments as $segment) {
+            $segmentsByAssignee[$segment->getAssigneeId()][] = $segment;
+        }
+
+        return $segmentsByAssignee;
     }
 
     /**
