@@ -1354,6 +1354,13 @@ feature_map_print_layer:
     expose: true
     loginRequired: true
     parent: area_admin_map
+feature_map_scales:
+    description: |-
+        Allow configuring selectable zoom scales for the procedure map
+    label: 'Configure map scales'
+    expose: true
+    loginRequired: true
+    parent: area_admin_map
 feature_map_search_location:
     expose: true
     label: 'Darf ein User nach ORT/PLZ suchen können?'
