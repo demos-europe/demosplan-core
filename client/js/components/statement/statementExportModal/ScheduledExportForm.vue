@@ -9,24 +9,24 @@
 
 <template>
   <div>
-    <template v-if="currentView === 'manage'">
+    <template v-if="props.currentView === 'manage'">
       <div class="flex justify-between items-center pb-4">
         <span class="text-sm inline-block">
-          {{ Translator.trans('export.xlsx.scheduled.active', { number: String(planedExports.length) }) }}
+          {{ Translator.trans('export.xlsx.scheduled.active', { number: String(scheduledExports.length) }) }}
         </span>
         <dp-button
-          data-cy="exportModal:openScheduledView:form"
+          data-cy="scheduledExport:add"
           icon="calendar-blank"
           icon-size="medium"
           :text="Translator.trans('export.xlsx.scheduled.add')"
           variant="outline"
-          @click="currentView = 'form'"
+          @click="() => { editExport = null; $emit('update:currentView', 'add') }"
         />
       </div>
 
       <div class="flex flex-col gap-2">
         <div
-          v-for="exp in planedExports"
+          v-for="scheduledExport in scheduledExports"
           class="border border-neutral p-2">
           <div class="flex flex-row justify-between">
             <div class="flex gap-2">
@@ -41,22 +41,22 @@
             </div>
             <div class="flex justify-between">
               <dp-button
-                data-cy=""
+                data-cy="scheduledExport:edit"
                 icon="edit"
                 icon-size="large"
                 hide-text
-                :text="Translator.trans('export.xlsx.scheduled.add')"
+                :text="Translator.trans('export.xlsx.scheduled.edit')"
                 variant="transparent"
-                @click="currentView = 'form'"
+                @click="() => { editExport = scheduledExport.id; $emit('update:currentView', 'edit') }"
               />
               <dp-button
-                data-cy=""
+                data-cy="scheduledExport:delete"
                 icon="delete"
                 icon-size="large"
                 hide-text
-                :text="Translator.trans('export.xlsx.scheduled.add')"
+                :text="Translator.trans('export.xlsx.scheduled.delete')"
                 variant="transparent"
-                @click=""
+                @click="deleteScheduledExport(scheduledExport.id)"
               />
             </div>
           </div>
@@ -65,11 +65,10 @@
     </template>
 
     <!-- Add/Edit Form -->
-    <template v-if="currentView === 'form'">
+    <template v-if="props.currentView === 'edit' || props.currentView === 'add'">
       <p class="mb-4">
         {{ Translator.trans('export.xlsx.scheduled.description') }}
       </p>
-
       <fieldset class="border-b border-neutral">
         <dp-select
           class="mt-4"
@@ -80,7 +79,6 @@
           :selected="selectedFrequency"
           @select="handleFrequencySelect"
         />
-
         <dp-select
           v-if="dependentSelect"
           class="mt-4"
@@ -112,7 +110,6 @@
         </div>
       </fieldset>
     </template>
-
   </div>
 </template>
 
@@ -121,8 +118,8 @@ import { computed, ref } from 'vue'
 import { DpButton, DpIcon, DpSelect } from '@demos-europe/demosplan-ui'
 
 interface Props {
-  procedureId: string,
-  view: string,
+  procedureId: string
+  currentView?: CurrentView
 }
 
 interface SelectOption {
@@ -139,9 +136,12 @@ interface DependentSelect {
   selected: string
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  currentView: 'manage'
+})
 
-defineEmits<{
+const emit = defineEmits<{
+  'update:currentView': [value: CurrentView]
   'schedule-created': []
   cancel: []
 }>()
@@ -149,9 +149,9 @@ defineEmits<{
 const selectedFrequency = ref('')
 const selectedWeekday = ref('')
 const selectedMonthDay = ref('')
-const currentView = ref(props.view)
+const editExport = ref<string | null>(null)
 
-const planedExports = ref([ // Mock data for now
+const scheduledExports = ref([ // Mock data for now
   {
     id: 'export-1',
     planedExport: 'weekly',
@@ -254,5 +254,9 @@ const handleSelect = (name: DependentSelectName, value: string) => {
   } else {
     selectedMonthDay.value = value
   }
+}
+
+const deleteScheduledExport = (id) => {
+  console.log('removeScheduledExport', id)
 }
 </script>

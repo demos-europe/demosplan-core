@@ -26,21 +26,21 @@
       <template v-slot:header>
         <div class="flex items-center gap-4">
           <dp-button
-            v-if="showBackButton"
+            v-if="isScheduledExportView"
             class="mb-2"
-            data-cy="statementExportModal:back"
+            data-cy="exportModal:back"
             icon="caret-left"
             :text="Translator.trans('back')"
             type="button"
             variant="subtle"
-            @click="scheduledView = null"
+            @click="handleBack"
           />
           <h2>{{ exportModalTitle }}</h2>
         </div>
       </template>
 
-      <!-- Main export view -->
-      <template v-if="showStatementExport">
+      <!-- Statement Export view -->
+      <template v-if="isStatementExportView">
         <fieldset
           v-if="!isSingleStatementExport"
           class="border-b border-neutral"
@@ -253,18 +253,18 @@
           />
           <div class="flex justify-end gap-2">
             <dp-button
-              data-cy="exportModal:openScheduledView:manage"
+              data-cy="exportModal:scheduledExport:manage"
               :text="Translator.trans('export.xlsx.scheduled.manage')"
               variant="transparent"
-              @click="scheduledView = 'manage'"
+              @click="scheduledExportMode = 'manage'"
             />
             <dp-button
-              data-cy="exportModal:openScheduledView:form"
+              data-cy="exportModal:scheduledExport:add"
               icon="calendar-blank"
               icon-size="medium"
               :text="Translator.trans('export.xlsx.scheduled.add')"
               variant="outline"
-              @click="scheduledView = 'form'"
+              @click="scheduledExportMode = 'add'"
             />
           </div>
         </fieldset>
@@ -337,24 +337,37 @@
 
       <!-- Scheduled export view -->
       <scheduled-export-form
-        v-if="showScheduledExport"
+        v-if="isScheduledExportView"
+        v-model:current-view="scheduledExportMode"
         :procedure-id="procedureId"
-        :view="scheduledView"
         @schedule-created="handleScheduleCreated"
-        @cancel="scheduledView = null"
+        @cancel="scheduledExportMode = null"
       />
 
       <template v-slot:footer>
         <dp-button-row
+          v-if="isStatementExportView"
           class="text-right mt-auto"
           data-cy="exportModal"
           primary
           secondary
-          :primary-text="showStatementExport ? Translator.trans('export.statements') : Translator.trans('export.xlsx.scheduled.title')"
+          :primary-text="isStatementExportView ? Translator.trans('export.statements') : Translator.trans('export.xlsx.scheduled.title')"
           :secondary-text="Translator.trans('abort')"
           @primary-action="handleExport"
           @secondary-action="closeModal"
         />
+        <div
+          v-else-if="scheduledExportMode === 'manage'"
+          class="flex"
+        >
+          <dp-button
+            class="ml-auto"
+            data-cy="scheduledExport:close"
+            :text="Translator.trans('close')"
+            variant="outline"
+            @click=""
+          />
+        </div>
       </template>
     </dp-modal>
   </div>
@@ -426,7 +439,7 @@ export default {
   data () {
     return {
       active: 'docx_normal',
-      scheduledView: null,
+      scheduledExportMode: null,
       docxColumns: {
         col1: {
           dataCy: 'exportModal:input:col1',
@@ -501,9 +514,19 @@ export default {
     ]),
 
     exportModalTitle () {
-      if (this.currentView === 'scheduled') {
-        return Translator.trans('export.xlsx.scheduled.title')
+      if (this.scheduledExportMode) {
+        switch (this.scheduledExportMode) {
+          case 'add':
+            return Translator.trans('export.xlsx.scheduled.add')
+          case 'edit':
+            return Translator.trans('export.xlsx.scheduled.edit')
+          case 'manage':
+            return Translator.trans('export.xlsx.scheduled.manage')
+          default:
+            return ''
+        }
       }
+
       return this.isSingleStatementExport ? Translator.trans('statement.export.do') : Translator.trans('export.statements')
     },
 
@@ -538,20 +561,16 @@ export default {
         Object.values(this.docxColumns).some(col => col.title)
     },
 
-    showBackButton () {
-      return this.scheduledView !== null
-    },
-
     templateStorageName () {
       return `templateHash_${this.procedureId}`
     },
 
-    showScheduledExport () {
-      return this.scheduledView !== null
+    isScheduledExportView () {
+      return this.scheduledExportMode !== null
     },
 
-    showStatementExport () {
-      return this.scheduledView === null
+    isStatementExportView () {
+      return this.scheduledExportMode === null
     }
   },
 
@@ -612,7 +631,7 @@ export default {
     },
 
     closeModal () {
-      this.currentView = 'main'
+      this.scheduledExportMode = null
       this.resetExportModalState()
       this.resetFilterFlyout()
       this.resetExportModalInner()
@@ -702,6 +721,24 @@ export default {
       }
 
       this.scrollModalToBottom()
+    },
+
+    handleBack () {
+      this.active = 'xlsx_normal'
+
+      switch (this.scheduledExportMode) {
+        case 'add':
+          this.scheduledExportMode = null
+          break
+        case 'edit':
+          this.scheduledExportMode = 'manage'
+          break
+        case 'manage':
+          this.scheduledExportMode = null
+          break
+        default:
+          this.scheduledExportMode = null
+      }
     },
 
     handleExport () {
