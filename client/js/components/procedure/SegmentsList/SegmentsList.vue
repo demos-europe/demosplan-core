@@ -8,7 +8,12 @@
 </license>
 
 <template>
-  <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-surface': isFullscreen }">
+  <div
+    :class="{
+      'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-surface':
+        isFullscreen,
+    }"
+  >
     <dp-sticky-element
       border
       class="pt-2 pb-3"
@@ -17,7 +22,11 @@
       <div class="flex justify-end gap-2 py-2">
         <dp-button
           v-if="hasPermission('feature_segments_import_excel')"
-          :href="Routing.generate('DemosPlan_procedure_import', { procedureId: procedureId }) + '#ExcelImport'"
+          :href="
+            Routing.generate('DemosPlan_procedure_import', {
+              procedureId: procedureId,
+            }) + '#ExcelImport'
+          "
           :text="Translator.trans('import.options.xls')"
           class="mr-0 h-fit"
           data-cy="segmentsList:importOptionsXLS"
@@ -33,11 +42,11 @@
           :elasticsearch-field-definition="{
             entity: 'statementSegment',
             function: 'search',
-            accessGroup: 'planner'
+            accessGroup: 'planner',
           }"
           :search-term="searchTerm"
           @change-fields="updateSearchFields"
-          @search="term => updateSearchQuery(term)"
+          @search="(term) => updateSearchQuery(term)"
           @reset="handleResetSearch"
         />
         <div class="ml-2 space-x-2">
@@ -46,12 +55,15 @@
             ref="filterFlyout"
             :key="`filter_${filter.labelTranslationKey}`"
             :additional-query-params="{ searchPhrase: searchTerm }"
-            :category="{ id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }"
+            :category="{
+              id: `${filter.labelTranslationKey}:${idx}`,
+              label: Translator.trans(filter.labelTranslationKey),
+            }"
             class="inline-block"
             :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
             align="left"
             :groups-object="filter.groupsObject"
-            :hint="filter.labelTranslationKey!=='tags'"
+            :hint="filter.labelTranslationKey !== 'tags'"
             :initial-query-ids="queryIds"
             :items-object="filter.itemsObject"
             :operator="filter.comparisonOperator"
@@ -59,10 +71,19 @@
             :path="filter.rootPath"
             :show-count="{
               groupedOptions: true,
-              ungroupedOptions: true
+              ungroupedOptions: true,
             }"
             @filter-apply="sendFilterQuery"
-            @filter-options:request="(params) => sendFilterOptionsRequest({ ...params, category: { id: `${filter.labelTranslationKey}:${idx}`, label: Translator.trans(filter.labelTranslationKey) }})"
+            @filter-options:request="
+              (params) =>
+                sendFilterOptionsRequest({
+                  ...params,
+                  category: {
+                    id: `${filter.labelTranslationKey}:${idx}`,
+                    label: Translator.trans(filter.labelTranslationKey),
+                  },
+                })
+            "
           />
         </div>
         <dp-button
@@ -77,8 +98,8 @@
       </div>
       <dp-bulk-edit-header
         v-if="selectedItemsCount > 0"
-        class="mt-2"
         :selected-items-text="Translator.trans('items.selected.multi.page', { count: selectedItemsCount })"
+        class="mt-2"
         @reset-selection="resetSelection"
       >
         <template
@@ -141,7 +162,11 @@
 
         <dp-button
           :icon="isFullscreen ? 'compress' : 'expand'"
-          :text="isFullscreen ? Translator.trans('editor.fullscreen.close') : Translator.trans('editor.fullscreen')"
+          :text="
+            isFullscreen
+              ? Translator.trans('editor.fullscreen.close')
+              : Translator.trans('editor.fullscreen')
+          "
           color="secondary"
           data-cy="editorFullscreen"
           icon-size="medium"
@@ -198,11 +223,11 @@
           >
             <template v-slot:header-tags>
               <span class="inline-flex items-center">
-                {{ Translator.trans('segment.tags') }}
+                {{ Translator.trans("segment.tags") }}
                 <addon-wrapper
                   v-if="hasStyledTopicalTags"
                   hook-name="tag.extend.form"
-                  :addon-props="{ demosplanUi, isIconOnly: true}"
+                  :addon-props="{ demosplanUi, isIconOnly: true }"
                 />
               </span>
             </template>
@@ -301,11 +326,18 @@
               <div class="flex flex-col">
                 <div v-cleanhtml="rowData.attributes.recommendation || '-'" />
                 <span
-                  v-if="hasPermission('feature_enable_recommendation_versions') && getRecommendationVersionNumber(rowData)"
+                  v-if="
+                    hasPermission('feature_enable_recommendation_versions') &&
+                      getRecommendationVersionNumber(rowData)
+                  "
                   class="text-neutral-base"
-                  :class="{ 'mt-2': !recommendationHasHtmlTags(rowData.attributes.recommendation) }"
+                  :class="{
+                    'mt-2': !recommendationHasHtmlTags(
+                      rowData.attributes.recommendation
+                    ),
+                  }"
                 >
-                  {{ Translator.trans('version') }}:
+                  {{ Translator.trans("version") }}:
                   {{ getRecommendationVersionNumber(rowData) }}
                 </span>
               </div>
@@ -316,7 +348,7 @@
                 hook-name="tag.style.segments.list"
                 :addon-props="{
                   demosplanUi,
-                  tags: getTagsBySegment(rowData)
+                  tags: getTagsBySegment(rowData),
                 }"
               />
               <span
@@ -334,7 +366,12 @@
               v-slot:[customField.field]="rowData"
             >
               <div>
-                {{ getCustomFieldOptionLabel(rowData.attributes.customFields, customField.fieldId) }}
+                {{
+                  getCustomFieldOptionLabel(
+                    rowData.attributes.customFields,
+                    customField.fieldId
+                  )
+                }}
               </div>
             </template>
             <template v-slot:flyout="rowData">
@@ -342,55 +379,75 @@
                 <a
                   v-if="hasPermission('feature_segment_recommendation_edit')"
                   class="block leading-[2] whitespace-nowrap"
-                  :href="Routing.generate('dplan_statement_segments_list', {
-                    procedureId: procedureId,
-                    segment: rowData.id,
-                    statementId: rowData.relationships.parentStatement.data.id
-                  })"
+                  :href="
+                    Routing.generate('dplan_statement_segments_list', {
+                      procedureId: procedureId,
+                      segment: rowData.id,
+                      statementId:
+                        rowData.relationships.parentStatement.data.id,
+                    })
+                  "
                   data-cy="segmentsList:segmentsRecommendationsCreate"
                   rel="noopener"
                   @click="storeNavigationContextInLocalStorage"
                 >
-                  {{ Translator.trans('segments.recommendations.create') }}
+                  {{ Translator.trans("segments.recommendations.create") }}
                 </a>
                 <a
                   class="block leading-[2] whitespace-nowrap"
-                  :href="Routing.generate('dplan_statement_segments_list', {
-                    action: 'details',
-                    procedureId: procedureId,
-                    segment: rowData.id,
-                    statementId: rowData.relationships.parentStatement.data.id
-                  })"
+                  :href="
+                    Routing.generate('dplan_statement_segments_list', {
+                      action: 'details',
+                      procedureId: procedureId,
+                      segment: rowData.id,
+                      statementId:
+                        rowData.relationships.parentStatement.data.id,
+                    })
+                  "
                   data-cy="segmentsList:edit"
                   rel="noopener"
                   @click="storeNavigationContextInLocalStorage"
                 >
-                  {{ Translator.trans('details') }}
+                  {{ Translator.trans("details") }}
                 </a>
                 <!-- Version history view -->
                 <button
                   type="button"
                   class="btn--blank o-link--default block leading-[2] whitespace-nowrap"
                   data-cy="segmentsList:segmentVersionHistory"
-                  @click.prevent="showVersionHistory(rowData.id, rowData.attributes.externId)"
+                  @click.prevent="
+                    showVersionHistory(rowData.id, rowData.attributes.externId)
+                  "
                 >
-                  {{ Translator.trans('history') }}
+                  {{ Translator.trans("history") }}
                 </button>
                 <a
                   v-if="hasPermission('feature_read_source_statement_via_api')"
                   class="block leading-[2] whitespace-nowrap"
-                  :class="{'is-disabled': getOriginalPdfAttachmentHashBySegment(rowData) === null}"
+                  :class="{
+                    'is-disabled':
+                      getOriginalPdfAttachmentHashBySegment(rowData) === null,
+                  }"
                   data-cy="segmentsList:originalPDF"
                   target="_blank"
-                  :href="Routing.generate('core_file_procedure', { hash: getOriginalPdfAttachmentHashBySegment(rowData), procedureId: procedureId })"
+                  :href="
+                    Routing.generate('core_file_procedure', {
+                      hash: getOriginalPdfAttachmentHashBySegment(rowData),
+                      procedureId: procedureId,
+                    })
+                  "
                   rel="noopener noreferrer"
                 >
-                  {{ Translator.trans('original.pdf') }}
+                  {{ Translator.trans("original.pdf") }}
                 </a>
               </dp-flyout>
             </template>
             <template v-slot:deadline="rowData">
-              {{ rowData.attributes.deadline ? formatDate(rowData.attributes.deadline) : '' }}
+              {{
+                rowData.attributes.deadline
+                  ? formatDate(rowData.attributes.deadline)
+                  : ""
+              }}
             </template>
           </dp-data-table>
         </div>
@@ -398,7 +455,11 @@
           v-show="scrollbarVisible"
           ref="scrollBar"
           class="h-[16px] z-[11] relative bg-neutral-light-4 mt-[10px]"
-          :class="isFullscreen ? 'fixed bottom-3 left-0 right-0 mx-2' : 'sticky bottom-0 left-0 right-0'"
+          :class="
+            isFullscreen
+              ? 'fixed bottom-3 left-0 right-0 mx-2'
+              : 'sticky bottom-0 left-0 right-0'
+          "
         >
           <div
             :aria-valuenow="scrollPercent"
@@ -426,7 +487,10 @@
       ref="unlockModal"
       :assignable-users="unlockAssignableUsers"
       :places="places"
-      @unlock="payload => unlockSegment(payload, () => applyQuery())"
+      @unlock="
+        (payload) =>
+          unlockSegment(payload, () => applyQuery())
+      "
     />
   </div>
 </template>
@@ -495,7 +559,11 @@ export default {
     cleanhtml: CleanHtml,
   },
 
-  mixins: [fullscreenModeMixin, tableScrollbarMixin, tableSelectAllItems],
+  mixins: [
+    fullscreenModeMixin,
+    tableScrollbarMixin,
+    tableSelectAllItems,
+  ],
 
   props: {
     currentUserId: {
@@ -543,9 +611,7 @@ export default {
     },
   },
 
-  emits: [
-    'show-slidebar',
-  ],
+  emits: ['show-slidebar'],
 
   setup () {
     const { unlockModal, openUnlockModal, unlockSegment } = useSegmentUnlock()
@@ -564,16 +630,67 @@ export default {
       demosplanUi,
       hasStyledTopicalTags: false,
       headerFieldsAvailable: [
-        { field: 'externId', label: Translator.trans('id'), colWidth: '120px', initialMinWidth: 120, fixed: true },
-        { field: 'statementStatus', label: Translator.trans('statement.status'), colWidth: '180px', initialMinWidth: 180 },
-        { field: 'internId', label: Translator.trans('internId.shortened'), colWidth: '120px', initialMinWidth: 120 },
-        { field: 'deadline', label: Translator.trans('deadline'), colWidth: '180px', initialMinWidth: 180 },
-        { field: 'submitter', label: Translator.trans('submitter'), colWidth: '180px', initialMinWidth: 180 },
-        { field: 'address', label: Translator.trans('address'), colWidth: '180px', initialMinWidth: 180 },
-        { field: 'text', label: Translator.trans('text'), colWidth: '270px', initialMinWidth: 270 },
-        { field: 'recommendation', label: Translator.trans('segment.recommendation'), colWidth: '180px', initialMinWidth: 180 },
-        { field: 'tags', label: Translator.trans('segment.tags'), colWidth: '270px', initialMinWidth: 270 },
-        { field: 'place', label: Translator.trans('workflow.place'), colWidth: '180px', initialMinWidth: 180 },
+        {
+          field: 'externId',
+          label: Translator.trans('id'),
+          colWidth: '120px',
+          initialMinWidth: 120,
+          fixed: true,
+        },
+        {
+          field: 'statementStatus',
+          label: Translator.trans('statement.status'),
+          colWidth: '180px',
+          initialMinWidth: 180,
+        },
+        {
+          field: 'internId',
+          label: Translator.trans('internId.shortened'),
+          colWidth: '120px',
+          initialMinWidth: 120,
+        },
+        {
+          field: 'deadline',
+          label: Translator.trans('deadline'),
+          colWidth: '180px',
+          initialMinWidth: 180,
+        },
+        {
+          field: 'submitter',
+          label: Translator.trans('submitter'),
+          colWidth: '180px',
+          initialMinWidth: 180,
+        },
+        {
+          field: 'address',
+          label: Translator.trans('address'),
+          colWidth: '180px',
+          initialMinWidth: 180,
+        },
+        {
+          field: 'text',
+          label: Translator.trans('text'),
+          colWidth: '270px',
+          initialMinWidth: 270,
+        },
+        {
+          field: 'recommendation',
+          label: Translator.trans('segment.recommendation'),
+          colWidth: '180px',
+          initialMinWidth: 180,
+        },
+        {
+          field: 'tags',
+          label: Translator.trans('segment.tags'),
+          colWidth: '270px',
+          initialMinWidth: 270,
+        },
+        {
+          field: 'place',
+          label: Translator.trans('workflow.place'),
+          colWidth: '180px',
+          initialMinWidth: 180,
+        },
       ],
       isCopyingToClipboard: false,
       isLoading: true,
@@ -625,18 +742,23 @@ export default {
 
     assignableUsers () {
       return Object.keys(this.assignableUsersObject).length ?
-        Object.values(this.assignableUsersObject)
-          .map(user => ({
-            name: user.attributes.firstname + ' ' + user.attributes.lastname,
-            id: user.id,
-          })) :
+        Object.values(this.assignableUsersObject).map((user) => ({
+          name: user.attributes.firstname + ' ' + user.attributes.lastname,
+          id: user.id,
+        })) :
         []
     },
 
     // Passed as headerFields to DpDataTable
     availableHeaderFields () {
-      const externIdField = this.headerFieldsAvailable.find(el => el.field === 'externId')
-      const userHeaderFields = this.headerFields.filter(el => el.field !== 'externId' && (el.field !== 'deadline' || hasPermission('field_statement_deadline')))
+      const externIdField = this.headerFieldsAvailable.find(
+        (el) => el.field === 'externId',
+      )
+      const userHeaderFields = this.headerFields.filter(
+        (el) =>
+          el.field !== 'externId' &&
+          (el.field !== 'deadline' || hasPermission('field_statement_deadline')),
+      )
 
       if (!hasPermission('field_segments_custom_fields')) {
         return [
@@ -646,8 +768,10 @@ export default {
       }
 
       const selectedCustomFields = this.customFieldDefinitions
-        .filter(definition => this.currentSelection.includes(`customField_${definition.id}`))
-        .map(definition => ({
+        .filter((definition) =>
+          this.currentSelection.includes(`customField_${definition.id}`),
+        )
+        .map((definition) => ({
           field: `customField_${definition.id}`,
           label: definition.attributes.name,
           colWidth: '180px',
@@ -667,18 +791,26 @@ export default {
 
     // Assignable users including the "not assigned" option, used as the unlock modal default
     unlockAssignableUsers () {
-      return [{ name: Translator.trans('not.assigned'), id: 'noAssigneeId' }, ...this.assignableUsers]
+      return [
+        { name: Translator.trans('not.assigned'), id: 'noAssigneeId' },
+        ...this.assignableUsers,
+      ]
     },
 
     // Overrides tableSelectAllItems mixin to exclude locked segments from selection for users without unlock permission
     currentlySelectedItems () {
-      const toggledIds = new Set(this.toggledItems.map(item => item.id))
+      const toggledIds = new Set(this.toggledItems.map((item) => item.id))
       let selected
 
       if (this.trackDeselected) {
-        selected = this.toggledItems.length === 0 ?
-          this.items.filter(item => this.canUnlock || !item.isPlaceLocked) :
-          this.items.filter(item => (this.canUnlock || !item.isPlaceLocked) && !toggledIds.has(item.id))
+        selected =
+          this.toggledItems.length === 0 ?
+            this.items.filter((item) => this.canUnlock || !item.isPlaceLocked) :
+            this.items.filter(
+              (item) =>
+                (this.canUnlock || !item.isPlaceLocked) &&
+                  !toggledIds.has(item.id),
+            )
       } else {
         selected = this.toggledItems
       }
@@ -691,15 +823,18 @@ export default {
     },
 
     headerFields () {
-      return this.headerFieldsAvailable.filter(headerField => this.currentSelection.includes(headerField.field))
+      return this.headerFieldsAvailable.filter((headerField) =>
+        this.currentSelection.includes(headerField.field),
+      )
     },
 
     items () {
-      return this.v3Segments
-        .map(segment => ({
-          ...segment,
-          isPlaceLocked: !!this.v3Included.Place?.[segment.relationships?.place?.data?.id]?.attributes?.locked,
-        }))
+      return this.v3Segments.map((segment) => ({
+        ...segment,
+        isPlaceLocked:
+          !!this.v3Included.Place?.[segment.relationships?.place?.data?.id]
+            ?.attributes?.locked,
+      }))
     },
 
     /*
@@ -712,31 +847,40 @@ export default {
         return 0
       }
 
-      return this.items.filter(item => item.isPlaceLocked && this.currentlySelectedItems[item.id]).length
+      return this.items.filter(
+        (item) => item.isPlaceLocked && this.currentlySelectedItems[item.id],
+      ).length
     },
 
     noQuery () {
-      return this.searchTerm === '' && this.searchFieldsSelected.length === 0 && Array.isArray(this.appliedFilterQuery) && this.appliedFilterQuery.length === 0
+      return (
+        this.searchTerm === '' &&
+        this.searchFieldsSelected.length === 0 &&
+        Array.isArray(this.appliedFilterQuery) &&
+        this.appliedFilterQuery.length === 0
+      )
     },
 
     places () {
       return Object.keys(this.placesObject).length ?
-        Object.values(this.placesObject)
-          .map(place => ({
-            name: place.attributes.name,
-            id: place.id,
-            locked: place.attributes.locked,
-          })) :
+        Object.values(this.placesObject).map((place) => ({
+          name: place.attributes.name,
+          id: place.id,
+          locked: place.attributes.locked,
+        })) :
         []
     },
 
     queryIds () {
       let ids = []
 
-      if (Array.isArray(this.appliedFilterQuery) === false && Object.values(this.appliedFilterQuery).length > 0) {
+      if (
+        Array.isArray(this.appliedFilterQuery) === false &&
+        Object.values(this.appliedFilterQuery).length > 0
+      ) {
         ids = Object.values(this.appliedFilterQuery)
-          .filter(el => el.condition) // Remove group objects
-          .map(el => {
+          .filter((el) => el.condition) // Remove group objects
+          .map((el) => {
             if (!el.condition.value) {
               return 'unassigned'
             }
@@ -755,19 +899,21 @@ export default {
     selectableColumns () {
       const staticColumns = this.headerFieldsAvailable
         // ExternId should always be displayed, so it shouldn't be selectable
-        .filter(el => el.field !== 'externId' && (el.field !== 'deadline' || hasPermission('field_statement_deadline')))
-        .map(headerField => ([headerField.field, headerField.label]))
+        .filter(
+          (el) => el.field !== 'externId' && (el.field !== 'deadline' || hasPermission('field_statement_deadline')),
+        )
+        .map((headerField) => [headerField.field, headerField.label])
 
       if (!hasPermission('field_segments_custom_fields')) {
         return staticColumns
       }
 
-      const customFields = this.customFieldDefinitions.map(definition => ([`customField_${definition.id}`, definition.attributes.name]))
+      const customFields = this.customFieldDefinitions.map((definition) => [
+        `customField_${definition.id}`,
+        definition.attributes.name,
+      ])
 
-      return [
-        ...staticColumns,
-        ...customFields,
-      ]
+      return [...staticColumns, ...customFields]
     },
 
     selectedCustomFields () {
@@ -776,8 +922,10 @@ export default {
       }
 
       return this.customFieldDefinitions
-        .filter(definition => this.currentSelection.includes(`customField_${definition.id}`))
-        .map(definition => ({
+        .filter((definition) =>
+          this.currentSelection.includes(`customField_${definition.id}`),
+        )
+        .map((definition) => ({
           field: `customField_${definition.id}`,
           fieldId: definition.id,
         }))
@@ -800,9 +948,7 @@ export default {
       fetchAssignableUsers: 'list',
     }),
 
-    ...mapActions('FilterFlyout', [
-      'updateFilterQuery',
-    ]),
+    ...mapActions('FilterFlyout', ['updateFilterQuery']),
 
     ...mapActions('Place', {
       fetchPlaces: 'list',
@@ -840,7 +986,9 @@ export default {
       const search = this.searchTerm !== '' ?
         {
           value: this.searchTerm,
-          ...this.searchFieldsSelected.length !== 0 ? { fieldsToSearch: this.searchFieldsSelected } : {},
+          ...(this.searchFieldsSelected.length !== 0 ?
+            { fieldsToSearch: this.searchFieldsSelected } :
+            {}),
         } :
         undefined
 
@@ -868,7 +1016,7 @@ export default {
        * Translate the filter-flyout selections (place/assignee/tags) into v3 SearchFilter/ExistsFilter params.
        * Multiple values on the same path[] naturally OR together; different paths naturally AND together.
        */
-      Object.values(this.getFilterQuery).forEach(entry => {
+      Object.values(this.getFilterQuery).forEach((entry) => {
         if (!entry.condition) {
           return
         }
@@ -896,7 +1044,10 @@ export default {
            */
           const idsFilter = { ...filter }
 
-          if (hasPermission('feature_segment_lock_by_workflow_place') && !this.canUnlock) {
+          if (
+            hasPermission('feature_segment_lock_by_workflow_place') &&
+            !this.canUnlock
+          ) {
             idsFilter.placeNotLocked = {
               condition: {
                 path: 'place.locked',
@@ -911,9 +1062,15 @@ export default {
           })
         })
         .catch(() => {
-          if (Object.keys(this.getFilterQuery).length > 0 || this.searchTerm !== '') {
+          if (
+            Object.keys(this.getFilterQuery).length > 0 ||
+            this.searchTerm !== ''
+          ) {
             this.resetQuery()
-            dplan.notify.notify('warning', Translator.trans('filter.reset.failed'))
+            dplan.notify.notify(
+              'warning',
+              Translator.trans('filter.reset.failed'),
+            )
           } else {
             dplan.notify.notify('error', Translator.trans('error.generic'))
           }
@@ -922,7 +1079,9 @@ export default {
           this.isLoading = false
           if (this.items.length > 0) {
             this.$nextTick(() => {
-              this.$refs.imageModal.addClickListener(this.$refs.dataTable.$el.querySelectorAll('img'))
+              this.$refs.imageModal.addClickListener(
+                this.$refs.dataTable.$el.querySelectorAll('img'),
+              )
             })
           }
         })
@@ -943,67 +1102,6 @@ export default {
 
     placeFor (rowData) {
       return this.v3Included.Place?.[rowData.relationships.place.data.id]
-    },
-
-    fetchSegmentIds (payload) {
-      return dpRpc('segment.load.id', payload)
-        .then(({ data }) => {
-          const allSegments = data[0]?.result ?? []
-
-          this.storeAllSegments(allSegments)
-          this.allItemsCount = allSegments.length
-        })
-    },
-
-    getCustomFieldOptionLabel (customFields, fieldId) {
-      const customFieldOptionId = customFields?.find(el => el.id === fieldId)?.value || ''
-
-      if (customFieldOptionId === '') {
-        return ''
-      }
-
-      const definition = this.customFieldDefinitions.find(customField => customField.id === fieldId)
-
-      return definition?.attributes.options.find(option => option.id === customFieldOptionId)?.label || ''
-    },
-
-    loadSegmentCustomFields () {
-      const { fetchCustomFields } = useCustomFields()
-
-      return fetchCustomFields(this.procedureId, { sourceEntity: 'PROCEDURE', targetEntity: 'SEGMENT' })
-        .then(definitions => {
-          this.customFieldDefinitions = definitions
-        })
-        .catch(() => { /* Notification already shown by useCustomFieldDefinitions */ })
-    },
-
-    getRecommendationVersionNumber (segment) {
-      const currentVersionId = segment.relationships?.recommendationVersions?.data?.[0]?.id
-
-      if (!currentVersionId) {
-        return ''
-      }
-
-      const versionNumber = this.recommendationVersions[currentVersionId]?.attributes?.versionNumber
-
-      return versionNumber ?
-        String(versionNumber).padStart(3, '0') :
-        ''
-    },
-
-    getTagsBySegment (segment) {
-      const relatedTagIds = segment.relationships.tags?.data.map(tag => tag.id) || []
-
-      return relatedTagIds.map(id => this.v3Included.Tag?.[id]).filter(Boolean)
-    },
-
-    /**
-     * Returns the hash of the original statement attachment.
-     * Always null for now -- the `attachments` relationship isn't requested via
-     * /api/3.0/StatementSegment yet (it was already unavailable in the legacy query too).
-     */
-    getOriginalPdfAttachmentHashBySegment () {
-      return null
     },
 
     copySelectionToClipboard () {
@@ -1184,6 +1282,79 @@ export default {
       return new DOMParser().parseFromString(html, 'text/html').body.textContent || ''
     },
 
+    fetchSegmentIds (payload) {
+      return dpRpc('segment.load.id', payload).then(({ data }) => {
+        const allSegments = data[0]?.result ?? []
+
+        this.storeAllSegments(allSegments)
+        this.allItemsCount = allSegments.length
+      })
+    },
+
+    getCustomFieldOptionLabel (customFields, fieldId) {
+      const customFieldOptionId =
+        customFields?.find((el) => el.id === fieldId)?.value || ''
+
+      if (customFieldOptionId === '') {
+        return ''
+      }
+
+      const definition = this.customFieldDefinitions.find(
+        (customField) => customField.id === fieldId,
+      )
+
+      return (
+        definition?.attributes.options.find(
+          (option) => option.id === customFieldOptionId,
+        )?.label || ''
+      )
+    },
+
+    loadSegmentCustomFields () {
+      const { fetchCustomFields } = useCustomFields()
+
+      return fetchCustomFields(this.procedureId, {
+        sourceEntity: 'PROCEDURE',
+        targetEntity: 'SEGMENT',
+      })
+        .then((definitions) => {
+          this.customFieldDefinitions = definitions
+        })
+        .catch(() => {
+          /* Notification already shown by useCustomFieldDefinitions */
+        })
+    },
+
+    getRecommendationVersionNumber (segment) {
+      const currentVersionId =
+        segment.relationships?.recommendationVersions?.data?.[0]?.id
+
+      if (!currentVersionId) {
+        return ''
+      }
+
+      const versionNumber =
+        this.recommendationVersions[currentVersionId]?.attributes
+          ?.versionNumber
+
+      return versionNumber ? String(versionNumber).padStart(3, '0') : ''
+    },
+
+    getTagsBySegment (segment) {
+      const relatedTagIds = segment.relationships.tags?.data.map((tag) => tag.id) || []
+
+      return relatedTagIds.map((id) => this.v3Included.Tag?.[id]).filter(Boolean)
+    },
+
+    /**
+     * Returns the hash of the original statement attachment.
+     * Always null for now -- the `attachments` relationship isn't requested via
+     * /api/3.0/StatementSegment yet (it was already unavailable in the legacy query too).
+     */
+    getOriginalPdfAttachmentHashBySegment () {
+      return null
+    },
+
     groupName (filterType) {
       if (filterType === 'tags') {
         return null
@@ -1197,7 +1368,10 @@ export default {
       this.storeToggledSegments()
       // Persist currentQueryHash to load the filtered SegmentsList after returning from bulk edit flow.
       lscache.set(this.lsKey.currentQueryHash, this.currentQueryHash)
-      globalThis.location.href = Routing.generate('dplan_segment_bulk_edit_form', { procedureId: this.procedureId })
+      globalThis.location.href = Routing.generate(
+        'dplan_segment_bulk_edit_form',
+        { procedureId: this.procedureId },
+      )
     },
 
     handleResetSearch () {
@@ -1219,8 +1393,10 @@ export default {
 
       // Clear persisted column widths
       Object.keys(localStorage)
-        .filter(key => key.startsWith('dpDataTable:colWidth:segmentsListColumnWidths:'))
-        .forEach(key => localStorage.removeItem(key))
+        .filter((key) =>
+          key.startsWith('dpDataTable:colWidth:segmentsListColumnWidths:'),
+        )
+        .forEach((key) => localStorage.removeItem(key))
 
       this.columnSelectorKey++
     },
@@ -1228,7 +1404,7 @@ export default {
     resetQuery () {
       this.resetSearchQuery()
       this.appliedFilterQuery = []
-      this.$refs.filterFlyout?.forEach(flyout => {
+      this.$refs.filterFlyout?.forEach((flyout) => {
         flyout.reset()
       })
       this.updateQueryHash()
@@ -1271,29 +1447,55 @@ export default {
      * @param params.searchPhrase {String}
      */
     sendFilterOptionsRequest (params) {
-      const { additionalQueryParams, category, currentQuery, filter, isInitialWithQuery, path } = params
-      const isUnusedTag = (filterPath, count, selected) => filterPath === 'tags' && count === 0 && !selected
+      const {
+        additionalQueryParams,
+        category,
+        currentQuery,
+        filter,
+        isInitialWithQuery,
+        path,
+      } = params
+      const isUnusedTag = (filterPath, count, selected) =>
+        filterPath === 'tags' && count === 0 && !selected
 
-      const buildGroupOptions = (resource, resultIncluded, currentQuery, filterPath) => {
-        const filterOptionsIds = resource.relationships.aggregationFilterItems?.data.length > 0 ? resource.relationships.aggregationFilterItems.data.map(item => item.id) : []
-        const options = filterOptionsIds.map(id => {
-          const option = resultIncluded.find(item => item.id === id)
+      const buildGroupOptions = (
+        resource,
+        resultIncluded,
+        currentQuery,
+        filterPath,
+      ) => {
+        const filterOptionsIds =
+          resource.relationships.aggregationFilterItems?.data.length > 0 ?
+            resource.relationships.aggregationFilterItems.data.map(
+              (item) => item.id,
+            ) :
+            []
+        const options = filterOptionsIds
+          .map((id) => {
+            const option = resultIncluded.find((item) => item.id === id)
 
-          if (option) {
-            const { attributes, id } = option
-            const { count, description, label } = attributes
+            if (option) {
+              const { attributes, id } = option
+              const { count, description, label } = attributes
 
-            return {
-              count,
-              description,
-              id,
-              label,
-              selected: currentQuery?.length ? currentQuery.includes(id) : attributes.selected,
+              return {
+                count,
+                description,
+                id,
+                label,
+                selected: currentQuery?.length ?
+                  currentQuery.includes(id) :
+                  attributes.selected,
+              }
             }
-          }
 
-          return null
-        }).filter(option => option !== null && !isUnusedTag(filterPath, option.count, option.selected))
+            return null
+          })
+          .filter(
+            (option) =>
+              option !== null &&
+              !isUnusedTag(filterPath, option.count, option.selected),
+          )
 
         if (options.length === 0) {
           return null
@@ -1324,30 +1526,64 @@ export default {
         requestParams.searchPhrase = null
       }
 
-      dpRpc('segments.facets.list', requestParams, 'filterList')
-        .then(({ data }) => {
-          const result = (hasOwnProp(data, 0) && data[0].id === 'filterList') ? data[0].result : null
+      dpRpc('segments.facets.list', requestParams, 'filterList').then(
+        ({ data }) => {
+          const result =
+            hasOwnProp(data, 0) && data[0].id === 'filterList' ?
+              data[0].result :
+              null
 
           if (result) {
-            const filter = result.data.find(type => type.attributes.path === path)
-            const groupIds = new Set(filter.relationships.aggregationFilterGroups?.data.map(group => group.id) ?? [])
-            const itemIds = new Set(filter.relationships.aggregationFilterItems?.data.map(item => item.id) ?? [])
+            const filter = result.data.find(
+              (type) => type.attributes.path === path,
+            )
+            const groupIds = new Set(
+              filter.relationships.aggregationFilterGroups?.data.map(
+                (group) => group.id,
+              ) ?? [],
+            )
+            const itemIds = new Set(
+              filter.relationships.aggregationFilterItems?.data.map(
+                (item) => item.id,
+              ) ?? [],
+            )
 
             const groupedOptions = (result.included ?? [])
-              .filter(resource => resource.type === 'AggregationFilterGroup' && groupIds.has(resource.id))
-              .map(group => buildGroupOptions(group, result.included, currentQuery, path))
+              .filter(
+                (resource) =>
+                  resource.type === 'AggregationFilterGroup' &&
+                  groupIds.has(resource.id),
+              )
+              .map((group) =>
+                buildGroupOptions(group, result.included, currentQuery, path),
+              )
               .filter(Boolean)
 
             const ungroupedOptions = (result.included ?? [])
-              .filter(resource => resource.type === 'AggregationFilterItem' && itemIds.has(resource.id))
-              .map(resource => {
+              .filter(
+                (resource) =>
+                  resource.type === 'AggregationFilterItem' &&
+                  itemIds.has(resource.id),
+              )
+              .map((resource) => {
                 const { id, attributes } = resource
                 const { count, description, label } = attributes
-                const selected = currentQuery?.length ? currentQuery.includes(id) : attributes.selected
+                const selected = currentQuery?.length ?
+                  currentQuery.includes(id) :
+                  attributes.selected
 
-                return { id, count, description, label, selected, ungrouped: true }
+                return {
+                  id,
+                  count,
+                  description,
+                  label,
+                  selected,
+                  ungrouped: true,
+                }
               })
-              .filter(option => !isUnusedTag(path, option.count, option.selected))
+              .filter(
+                (option) => !isUnusedTag(path, option.count, option.selected),
+              )
 
             // Needs to be added to ungroupedOptions
             if (result.data[0].attributes.path === 'assignee') {
@@ -1356,15 +1592,20 @@ export default {
                 count: result.data[0].attributes.missingResourcesSum,
                 label: Translator.trans('not.assigned'),
                 ungrouped: true,
-                selected: currentQuery?.length ? currentQuery.includes('unassigned') : result.meta.unassigned_selected,
+                selected: currentQuery?.length ?
+                  currentQuery.includes('unassigned') :
+                  result.meta.unassigned_selected,
               })
             }
 
             if (isInitialWithQuery && this.queryIds.length > 0) {
-              const allOptions = [...groupedOptions.flatMap(group => group.options), ...ungroupedOptions]
+              const allOptions = [
+                ...groupedOptions.flatMap((group) => group.options),
+                ...ungroupedOptions,
+              ]
 
-              const currentFlyoutFilterIds = this.queryIds.filter(queryId => {
-                const item = allOptions.find(item => item.id === queryId)
+              const currentFlyoutFilterIds = this.queryIds.filter((queryId) => {
+                const item = allOptions.find((item) => item.id === queryId)
 
                 return item ? item.id : null
               })
@@ -1385,12 +1626,16 @@ export default {
               options: ungroupedOptions,
             })
 
-            this.setIsLoadingFilterFlyout({ categoryId: category.id, isLoading: false })
+            this.setIsLoadingFilterFlyout({
+              categoryId: category.id,
+              isLoading: false,
+            })
             if (this.getIsExpandedByCategoryId(category.id)) {
               document.getElementById(`searchField_${path}`).focus()
             }
           }
-        })
+        },
+      )
     },
 
     setCurrentSelection (selection) {
@@ -1406,7 +1651,10 @@ export default {
       // Persist currentQueryHash to load the filtered SegmentsList after returning to segments list
       lscache.set(this.lsKey.currentQueryHash, this.currentQueryHash)
 
-      globalThis.location.href = Routing.generate('dplan_segment_bulk_edit_form', { procedureId: this.procedureId })
+      globalThis.location.href = Routing.generate(
+        'dplan_segment_bulk_edit_form',
+        { procedureId: this.procedureId },
+      )
     },
 
     storeNavigationContextInLocalStorage () {
@@ -1428,12 +1676,14 @@ export default {
       const isReset = Object.keys(filter).length === 0
 
       if (isReset === false && Object.keys(this.appliedFilterQuery).length) {
-        Object.values(filter).forEach(el => {
+        Object.values(filter).forEach((el) => {
           this.appliedFilterQuery[el.condition.value] = el
         })
       } else {
         if (isReset) {
-          this.appliedFilterQuery = Object.keys(this.getFilterQuery).length ? this.getFilterQuery : []
+          this.appliedFilterQuery = Object.keys(this.getFilterQuery).length ?
+            this.getFilterQuery :
+            []
         } else {
           this.appliedFilterQuery = filter
         }
@@ -1452,7 +1702,9 @@ export default {
     updateQueryHash () {
       const hrefParts = globalThis.location.href.split('/')
       const oldQueryHash = hrefParts[hrefParts.length - 1]
-      const url = Routing.generate('dplan_rpc_segment_list_query_update', { queryHash: oldQueryHash })
+      const url = Routing.generate('dplan_rpc_segment_list_query_update', {
+        queryHash: oldQueryHash,
+      })
 
       const data = { filter: this.getFilterQuery }
 
@@ -1460,20 +1712,28 @@ export default {
         data.searchPhrase = this.searchTerm
       }
 
-      return dpApi.patch(url, {}, data)
+      return dpApi
+        .patch(url, {}, data)
         .then(({ data }) => {
           if (data) {
             this.updateQueryHashInURL(oldQueryHash, data)
             this.currentQueryHash = data
           }
         })
-        .catch(err => console.log(err))
+        .catch((err) => console.log(err))
     },
 
     updateQueryHashInURL (oldQueryHash, newQueryHash) {
-      const newHref = globalThis.location.href.replace(oldQueryHash, newQueryHash)
+      const newHref = globalThis.location.href.replace(
+        oldQueryHash,
+        newQueryHash,
+      )
 
-      globalThis.history.pushState({ html: newHref, pageTitle: document.title }, document.title, newHref)
+      globalThis.history.pushState(
+        { html: newHref, pageTitle: document.title },
+        document.title,
+        newHref,
+      )
     },
 
     updateSearchFields (selectedFields) {
@@ -1510,8 +1770,11 @@ export default {
       lscache.remove(`${this.procedureId}:navigation:source`)
     }
 
-    if (Array.isArray(this.initialFilter) === false && Object.keys(this.initialFilter).length) {
-      Object.values(this.initialFilter).forEach(filter => {
+    if (
+      Array.isArray(this.initialFilter) === false &&
+      Object.keys(this.initialFilter).length
+    ) {
+      Object.values(this.initialFilter).forEach((filter) => {
         if (!filter.condition) {
           return
         }
@@ -1533,7 +1796,9 @@ export default {
       fields: {
         Place: [
           'name',
-          ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+          ...(hasPermission('feature_segment_lock_by_workflow_place') ?
+            ['locked'] :
+            []),
         ].join(),
       },
     })
