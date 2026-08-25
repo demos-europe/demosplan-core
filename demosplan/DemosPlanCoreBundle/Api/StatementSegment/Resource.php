@@ -32,7 +32,14 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag as TagEntity;
 #[ApiResource(
     shortName: 'StatementSegment',
     operations: [
-        new GetCollection(uriTemplate: '/StatementSegment', paginationEnabled: false),
+        new GetCollection(
+            uriTemplate: '/StatementSegment',
+            paginationEnabled: false,
+            paginationClientEnabled: true,
+            paginationClientItemsPerPage: true,
+            // Matches the largest page size offered by the frontend's page-size selector.
+            paginationMaximumItemsPerPage: 100,
+        ),
         new Get(uriTemplate: '/StatementSegment/{id}'),
     ],
     formats: ['jsonapi'],

@@ -126,7 +126,19 @@
         v-if="items.length > 0"
         class="flex justify-between items-center mt-4"
       >
-        <div class="ml-auto flex items-center space-inline-xs">
+        <dp-pager
+          v-if="pagination.currentPage"
+          :key="`pager1_${pagination.currentPage}_${pagination.count}`"
+          :class="{ invisible: isLoading }"
+          :current-page="pagination.currentPage"
+          :limits="pagination.limits"
+          :per-page="pagination.perPage"
+          :total-pages="pagination.totalPages"
+          :total-items="pagination.total"
+          @page-change="applyQuery"
+          @size-change="handleSizeChange"
+        />
+        <div class="flex items-center space-inline-xs">
           <dp-select
             id="applySortSelection"
             :label="{ text: Translator.trans('sorting') }"
@@ -489,7 +501,7 @@
       :places="places"
       @unlock="
         (payload) =>
-          unlockSegment(payload, () => applyQuery())
+          unlockSegment(payload, () => applyQuery(pagination.currentPage))
       "
     />
   </div>
@@ -507,6 +519,7 @@ import {
   DpFlyout,
   DpInlineNotification,
   DpLoading,
+  DpPager,
   dpRpc,
   DpSelect,
   DpStickyElement,
@@ -523,6 +536,7 @@ import fullscreenModeMixin from '@DpJs/components/shared/mixins/fullscreenModeMi
 import ImageModal from '@DpJs/components/shared/ImageModal'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import lscache from 'lscache'
+import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 import StatusBadge from '../Shared/StatusBadge'
@@ -544,6 +558,7 @@ export default {
     DpFlyout,
     DpInlineNotification,
     DpLoading,
+    DpPager,
     DpSelect,
     DpStickyElement,
     FilterFlyout,
@@ -561,6 +576,7 @@ export default {
 
   mixins: [
     fullscreenModeMixin,
+    paginationMixin,
     tableScrollbarMixin,
     tableSelectAllItems,
   ],
@@ -627,6 +643,11 @@ export default {
       defaultColumnSelection: [],
       currentSelection: [],
       customFieldDefinitions: [],
+      defaultPagination: {
+        currentPage: 1,
+        limits: [10, 25, 50, 100],
+        perPage: 10,
+      },
       demosplanUi,
       hasStyledTopicalTags: false,
       headerFieldsAvailable: [
@@ -701,6 +722,7 @@ export default {
         selectedSort: `${this.procedureId}:segmentsListSelectedSort`,
         toggledSegments: `${this.procedureId}:toggledSegments`,
       },
+      pagination: {},
       searchTerm: this.initialSearchTerm,
       searchFieldsSelected: [],
       selectedSort: '',
@@ -930,6 +952,10 @@ export default {
           fieldId: definition.id,
         }))
     },
+
+    storageKeyPagination () {
+      return `${this.currentUserId}:${this.procedureId}:paginationSegmentsList`
+    },
   },
 
   watch: {
@@ -964,10 +990,10 @@ export default {
     applySort (sortValue) {
       this.selectedSort = sortValue
       lscache.set(this.lsKey.selectedSort, sortValue)
-      this.applyQuery()
+      this.applyQuery(1)
     },
 
-    applyQuery () {
+    applyQuery (page) {
       lscache.remove(this.lsKey.allSegments)
       lscache.remove(this.lsKey.toggledSegments)
       this.allItemsCount = null
@@ -995,6 +1021,9 @@ export default {
       const params = new URLSearchParams({
         'parentStatementOfSegment.procedure.id': this.procedureId,
         include: 'parentStatement,assignee,place,tags',
+        pagination: 'true',
+        page,
+        itemsPerPage: this.pagination.perPage,
       })
 
       if (this.searchTerm !== '') {
@@ -1035,7 +1064,25 @@ export default {
         .then(({ data }) => {
           this.v3Segments = data.data
           this.v3Included = this.groupIncludedByType(data.included || [])
-          this.allItemsCount = this.v3Segments.length
+
+          /*
+           * API Platform's jsonapi pagination meta is camelCase and has no `total_pages`, unlike
+           * the snake_case `{ current_page, per_page, total, total_pages }` shape paginationMixin
+           * expects (modelled on the legacy Fractal-based endpoints) - so it is translated here.
+           */
+          const paginationMeta = {
+            count: this.v3Segments.length,
+            current_page: data.meta.currentPage,
+            per_page: data.meta.itemsPerPage,
+            total: data.meta.totalItems,
+            total_pages: Math.ceil(data.meta.totalItems / data.meta.itemsPerPage),
+          }
+
+          this.setLocalStorage(paginationMeta)
+
+          // Fake the count from meta info of paged request, until `fetchSegmentIds()` resolves
+          this.allItemsCount = paginationMeta.total
+          this.updatePagination(paginationMeta)
 
           /*
            * Get all segments (without pagination) to save them in localStorage for bulk editing.
@@ -1132,9 +1179,10 @@ export default {
 
     /*
      * Builds the tab/newline-separated plain-text representation (Excel-paste target) of the
-     * selected segments, matching the currently visible columns and their drag&drop order. All
-     * segments are already loaded into v3Segments (the collection endpoint has pagination
-     * disabled), so there is no need for a supplemental fetch of "missing" segments here.
+     * selected segments, matching the currently visible columns and their drag&drop order.
+     * Only segments from the currently loaded page are resolvable here - a selection spanning
+     * multiple pages (e.g. via "select all") will silently omit rows outside the loaded page,
+     * since there is currently no supplemental fetch for segments outside v3Segments.
      */
     buildClipboardText (selectedIds) {
       const segmentsById = Object.fromEntries(this.v3Segments.map(segment => [segment.id, segment]))
@@ -1376,7 +1424,19 @@ export default {
 
     handleResetSearch () {
       this.resetSearchQuery()
-      this.applyQuery()
+      this.applyQuery(1)
+    },
+
+    handleSizeChange (newSize) {
+      // Compute new page with current page for changed number of items per page
+      const page = Math.floor(
+        (this.pagination.perPage * (this.pagination.currentPage - 1)) /
+          newSize +
+          1,
+      )
+
+      this.pagination.perPage = newSize
+      this.applyQuery(page)
     },
 
     recommendationHasHtmlTags (recommendation) {
@@ -1409,7 +1469,7 @@ export default {
       })
       this.updateQueryHash()
       this.resetSelection()
-      this.applyQuery()
+      this.applyQuery(1)
     },
 
     resetSearchQuery () {
@@ -1691,7 +1751,7 @@ export default {
 
       this.updateQueryHash()
       this.resetSelection()
-      this.applyQuery()
+      this.applyQuery(1)
     },
 
     showVersionHistory (segmentId, externId) {
@@ -1743,7 +1803,7 @@ export default {
     updateSearchQuery (term) {
       this.searchTerm = term
       this.resetSelection()
-      this.applyQuery()
+      this.applyQuery(1)
     },
   },
 
@@ -1786,11 +1846,12 @@ export default {
       })
     }
 
+    this.initPagination()
     if (hasPermission('field_segments_custom_fields')) {
       this.loadSegmentCustomFields()
     }
 
-    this.applyQuery()
+    this.applyQuery(this.pagination.currentPage)
 
     this.fetchPlaces({
       fields: {

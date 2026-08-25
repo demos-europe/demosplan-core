@@ -16,12 +16,15 @@ use ApiPlatform\Doctrine\Orm\State\CollectionProvider as DoctrineCollectionProvi
 use ApiPlatform\Doctrine\Orm\State\Options as DoctrineOptions;
 use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\Pagination\PaginatorInterface;
 use ApiPlatform\State\ProviderInterface;
+use demosplan\DemosPlanCoreBundle\Api\Common\MappingPaginator;
 use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Resource as StatementSegmentResource;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use InvalidArgumentException;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Webmozart\Assert\Assert;
 
@@ -75,9 +78,13 @@ class Provider implements ProviderInterface
      * {@see Extension\SegmentDoctrineAccessExtension},
      * sorting via the declared OrderFilter on {@see StatementSegmentResource}) applies.
      *
-     * @return list<StatementSegmentResource>
+     * Pagination is off by default, so callers get all matching segments in one response;
+     * pass `pagination=true` in the query to get a paginated, `page`/`itemsPerPage`-controlled
+     * response instead.
+     *
+     * @return PaginatorInterface<StatementSegmentResource>|list<StatementSegmentResource>
      */
-    private function provideCollection(Operation $operation, array $uriVariables, array $context): array
+    private function provideCollection(Operation $operation, array $uriVariables, array $context): PaginatorInterface|array
     {
         // handleLinks has to be set or API Platform throws an error, but we don't need it to do anything here.
         $operation = $operation->withStateOptions(new DoctrineOptions(
@@ -86,15 +93,41 @@ class Provider implements ProviderInterface
             }
         ));
 
-        $segments = $this->doctrineCollectionProvider->provide($operation, $uriVariables, $context);
-        $segments = is_array($segments) ? $segments : iterator_to_array($segments);
-
-        return array_map(
-            fn (Segment $segment): StatementSegmentResource => StatementSegmentResource::fromEntity(
-                $segment,
-                $this->statementService->getProcessingStatus($segment->getParentStatementOfSegment())
-            ),
-            $segments
+        $context = $this->addPaginationFilters($context);
+        $result = $this->doctrineCollectionProvider->provide($operation, $uriVariables, $context);
+        $map = fn (Segment $segment): StatementSegmentResource => StatementSegmentResource::fromEntity(
+            $segment,
+            $this->statementService->getProcessingStatus($segment->getParentStatementOfSegment())
         );
+
+        if ($result instanceof PaginatorInterface) {
+            return new MappingPaginator($result, $map);
+        }
+
+        $result = is_array($result) ? $result : iterator_to_array($result);
+
+        return array_map($map, $result);
+    }
+
+    /**
+     * Because this resource supports sorting, API Platform stops forwarding plain
+     * `page`/`itemsPerPage`/`pagination` query params on its own, so we read them
+     * from the URL ourselves and add them to `$context['filters']`, where API
+     * Platform expects to find them.
+     */
+    private function addPaginationFilters(array $context): array
+    {
+        $request = $context['request'] ?? null;
+        if (!$request instanceof Request) {
+            return $context;
+        }
+
+        foreach (['page', 'itemsPerPage', 'pagination'] as $parameterName) {
+            if ($request->query->has($parameterName) && !isset($context['filters'][$parameterName])) {
+                $context['filters'][$parameterName] = $request->query->get($parameterName);
+            }
+        }
+
+        return $context;
     }
 }
