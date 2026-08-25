@@ -163,8 +163,8 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         path: '/verfahren/{procedureId}/schlagworte/export/csv',
         name: 'DemosPlan_statement_administration_tags_export',
         options: ['expose' => true],
-        methods: ['GET'],
-        defaults: ['master' => false]
+        defaults: ['master' => false],
+        methods: ['GET']
     )]
     public function tagListExport(
         NameGenerator $nameGenerator,
