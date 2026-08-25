@@ -15,16 +15,20 @@ namespace Tests\Core\Statement\Functional;
 use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Controller\Statement\DemosPlanStatementTagController;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Export\CsvExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagListCsvExporter;
 use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use Exception;
 use League\Csv\Reader;
 use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\UnitTestCase;
 
@@ -59,7 +63,7 @@ class DemosPlanStatementTagControllerExportTest extends UnitTestCase
         $this->sut = self::getContainer()->get(DemosPlanStatementTagController::class);
     }
 
-    public function testExportReturnsCsvStreamedResponseWithExpectedHeaders(): void
+    public function testExportReturnsCsvResponseWithExpectedHeaders(): void
     {
         $tag = $this->createTag('Positiv, Zustimmung', 'Wird übernommen.');
         $tagTopic = $this->createTagTopic('Grundtenor der Stellungnahme', [$tag]);
@@ -69,15 +73,11 @@ class DemosPlanStatementTagControllerExportTest extends UnitTestCase
 
         $response = $this->callTagListExport();
 
-        self::assertInstanceOf(StreamedResponse::class, $response);
+        self::assertInstanceOf(Response::class, $response);
         self::assertSame('text/plain; charset=utf-8', $response->headers->get('Content-Type'));
         self::assertStringContainsString('.csv', (string) $response->headers->get('Content-Disposition'));
 
-        ob_start();
-        $response->sendContent();
-        $csv = ob_get_clean();
-
-        $reader = Reader::fromString($csv);
+        $reader = Reader::fromString((string) $response->getContent());
         $reader->setDelimiter(';');
         $reader->setHeaderOffset(0);
         $records = iterator_to_array($reader->getRecords(), false);
@@ -96,18 +96,31 @@ class DemosPlanStatementTagControllerExportTest extends UnitTestCase
 
         $response = $this->callTagListExport();
 
-        ob_start();
-        $response->sendContent();
-        $csv = ob_get_clean();
-
-        $reader = Reader::fromString($csv);
+        $reader = Reader::fromString((string) $response->getContent());
         $reader->setDelimiter(';');
         $reader->setHeaderOffset(0);
 
         self::assertCount(0, iterator_to_array($reader->getRecords()));
     }
 
-    private function callTagListExport(): StreamedResponse
+    public function testExportOnRepositoryFailureRedirectsAndAddsErrorMessage(): void
+    {
+        // redirectToRoute() resolves the procedure via ProcedureRepository, so a real
+        // persisted procedure is needed here (unlike the other tests, which never reach that code path).
+        $procedure = ProcedureFactory::createOne();
+        $this->tagTopicRepository->method('findBy')->willThrowException(new Exception('boom'));
+
+        $response = $this->callTagListExport($procedure->getId());
+
+        /** @var MessageBagInterface $messageBag */
+        $messageBag = self::getContainer()->get(MessageBagInterface::class);
+
+        self::assertInstanceOf(RedirectResponse::class, $response);
+        self::assertStringContainsString('schlagworte', (string) $response->getTargetUrl());
+        self::assertNotEmpty($messageBag->getErrorMessages());
+    }
+
+    private function callTagListExport(string $procedureId = self::PROCEDURE_ID): Response
     {
         $exporter = new TagListCsvExporter(new CsvExporter(), new EventDispatcher(), $this->translator);
 
@@ -116,7 +129,7 @@ class DemosPlanStatementTagControllerExportTest extends UnitTestCase
             $exporter,
             $this->tagTopicRepository,
             $this->translator,
-            self::PROCEDURE_ID,
+            $procedureId,
         );
     }
 

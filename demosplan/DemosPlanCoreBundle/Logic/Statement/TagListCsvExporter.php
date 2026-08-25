@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\TagListCsvExportEventInterface;
 use demosplan\DemosPlanCoreBundle\Event\Tag\TagListCsvExportEvent;
 use demosplan\DemosPlanCoreBundle\Logic\Export\CsvExporter;
+use League\Csv\Exception as CsvException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -33,6 +34,8 @@ class TagListCsvExporter
 
     /**
      * @param TagTopicInterface[] $tagTopics
+     *
+     * @throws CsvException
      */
     public function export(array $tagTopics): string
     {

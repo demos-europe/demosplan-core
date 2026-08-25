@@ -30,7 +30,6 @@ use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -158,8 +157,6 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
 
     /**
      * Exports the list of Tags (and their Topics and boilerplates) of the given procedure as CSV.
-     *
-     * @throws Exception
      */
     #[DplanPermissions('area_admin_statements_tag')]
     #[Route(
@@ -175,23 +172,26 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
         TagTopicRepository $tagTopicRepository,
         TranslatorInterface $translator,
         string $procedureId,
-    ): StreamedResponse {
-        $tagTopics = $tagTopicRepository->findBy(['procedure' => $procedureId], ['createDate' => 'ASC']);
+    ): Response {
+        try {
+            $tagTopics = $tagTopicRepository->findBy(['procedure' => $procedureId], ['createDate' => 'ASC']);
+            $csv = $tagListCsvExporter->export($tagTopics);
 
-        $response = new StreamedResponse(
-            static function () use ($tagTopics, $tagListCsvExporter) {
-                echo $tagListCsvExporter->export($tagTopics);
-            }
-        );
+            $response = new Response($csv);
+            $response->headers->set('Pragma', 'no-cache');
+            $response->headers->set('Cache-Control', 'no-cache');
+            $response->headers->set('Content-Type', 'text/plain; charset=utf-8');
 
-        $response->headers->set('Pragma', 'no-cache');
-        $response->headers->set('Cache-Control', 'no-cache');
-        $response->headers->set('Content-Type', 'text/plain; charset=utf-8');
+            $filename = $translator->trans('tag.list.export').'-'.Carbon::now('Europe/Berlin')->format('d-m-Y-H:i').'.csv';
+            $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($filename));
 
-        $filename = $translator->trans('tag.list.export').'-'.Carbon::now('Europe/Berlin')->format('d-m-Y-H:i').'.csv';
-        $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($filename));
+            return $response;
+        } catch (Exception $e) {
+            $this->logger->error('error.export', [$e]);
+            $this->getMessageBag()->add('error', 'error.export');
 
-        return $response;
+            return $this->redirectToRoute('DemosPlan_statement_administration_tags', ['procedure' => $procedureId]);
+        }
     }
 
     /**
