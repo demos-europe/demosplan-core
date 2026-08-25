@@ -22,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\ORMException;
@@ -120,7 +119,7 @@ class ParagraphRepository extends FluentRepository implements ArrayInterface, Ob
             if (is_array($result) && array_key_exists(0, $result)) {
                 $maxOrder = $result[0]['order'];
             } else {
-                $this->getLogger()->warning('could not get max paragraph order. Result '.DemosPlanTools::varExport($result, true));
+                $this->getLogger()->warning('could not get max paragraph order', ['result' => $result]);
             }
 
             return $maxOrder;

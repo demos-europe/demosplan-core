@@ -847,15 +847,8 @@ export default {
         []
     },
 
-    /*
-     * The deadline column was introduced together with the client-side deadline sorting, so it is
-     * only shown when that feature is enabled - on top of the field permission that guards the data itself.
-     */
     hasDeadlineColumn () {
-      return (
-        hasPermission('field_statement_deadline') &&
-        hasPermission('feature_segments_manualsort')
-      )
+      return hasPermission('field_statement_deadline')
     },
 
     // Passed as headerFields to DpDataTable
