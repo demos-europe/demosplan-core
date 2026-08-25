@@ -7545,7 +7545,7 @@ __metadata:
     eslint-plugin-jquery: "npm:^1.5.1"
     eslint-plugin-n: "npm:^17.23.1"
     eslint-plugin-vue: "npm:^10.9.2"
-    eslint-plugin-vuejs-accessibility: "npm:^2.5.0"
+    eslint-plugin-vuejs-accessibility: "npm:^2.6.0"
     font-awesome: "npm:^4.7.0"
     fscreen: "npm:^1.2.0"
     glob: "npm:^13.0.6"
@@ -8315,16 +8315,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-vuejs-accessibility@npm:^2.5.0":
-  version: 2.5.0
-  resolution: "eslint-plugin-vuejs-accessibility@npm:2.5.0"
+"eslint-plugin-vuejs-accessibility@npm:^2.6.0":
+  version: 2.6.0
+  resolution: "eslint-plugin-vuejs-accessibility@npm:2.6.0"
   dependencies:
     aria-query: "npm:^5.3.0"
     vue-eslint-parser: "npm:^9.0.0 || ^10.0.0"
   peerDependencies:
     eslint: ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0
     globals: ">= 13.12.1"
-  checksum: 10c0/4f0e30d8b14b49167bb38ed261385ef5bbe0bacd82bd1b43e71c6210d23017a369b9b6581abaaec3ac806784f11910c2c8fa762e6188ee7d7d647b09c23d5e1d
+  checksum: 10c0/15735e60ae2990e49d9c27a3e60b7852123f53f832351c32377dc3acd068873c878a67ffd03549f3d2974196c70a60740bff9c7f5fed87b1a707bb35230385fd
   languageName: node
   linkType: hard
 
