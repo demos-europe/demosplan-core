@@ -20,7 +20,7 @@
           icon-size="medium"
           :text="Translator.trans('export.xlsx.scheduled.add')"
           variant="outline"
-          @click="() => { editExport = null; $emit('update:view', 'manage:add') }"
+          @click="() => { editingExportId = null; $emit('update:view', 'manage:add') }"
         />
       </div>
 
@@ -47,7 +47,7 @@
                 hide-text
                 :text="Translator.trans('export.xlsx.scheduled.edit')"
                 variant="transparent"
-                @click="() => { editExport = scheduledExport.id; $emit('update:view', 'edit') }"
+                @click="() => { editingExportId = scheduledExport.id; $emit('update:view', 'edit') }"
               />
               <dp-button
                 data-cy="scheduledExport:delete"
@@ -116,6 +116,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { DpButton, DpIcon, DpSelect } from '@demos-europe/demosplan-ui'
+import { useScheduledExportDate } from '@/composables/useScheduledExportDate'
 
 type View = 'add' | 'edit' | 'manage' | 'manage:add'
 
@@ -159,7 +160,7 @@ const currentView = computed(() => {
 const selectedFrequency = ref('')
 const selectedWeekday = ref('')
 const selectedMonthDay = ref('')
-const editExport = ref<string | null>(null)
+const editingExportId = ref<string | null>(null)
 
 const scheduledExports = ref([ // Mock data for now
   {
@@ -244,12 +245,42 @@ const selectedFrequencyLabel = computed(() =>
   frequencyOptions.find(({ value }) => value === selectedFrequency.value)?.label ?? ''
 )
 
+const { getNextExportDate, formatExportDate, getWeekdayNumber } = useScheduledExportDate()
+
 const nextExport = computed(() => {
-  if (selectedFrequency.value === 'weekly') {
-    return weekdayOptions.find(({ value }) => value === selectedWeekday.value)?.label ?? ''
+  if (!selectedFrequency.value) {
+    return ''
   }
 
-  return selectedMonthDay.value
+  if (selectedFrequency.value === 'daily') {
+    const nextDate = getNextExportDate({ interval: 'daily' })
+
+    return formatExportDate(nextDate)
+  }
+
+  if (selectedFrequency.value === 'weekly') {
+    if (!selectedWeekday.value) {
+      return ''
+    }
+
+    const weekday = getWeekdayNumber(selectedWeekday.value)
+    const nextDate = getNextExportDate({ interval: 'weekly', weekday })
+
+    return formatExportDate(nextDate)
+  }
+
+  if (selectedFrequency.value === 'monthly') {
+    if (!selectedMonthDay.value) {
+      return ''
+    }
+
+    const dayOfMonth = parseInt(selectedMonthDay.value, 10)
+    const nextDate = getNextExportDate({ interval: 'monthly', dayOfMonth })
+
+    return formatExportDate(nextDate)
+  }
+
+  return ''
 })
 
 const handleFrequencySelect = (value: string) => {
