@@ -49,6 +49,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag as TagEntity;
 #[ApiFilter(PropertyFilter::class)]
 class Resource
 {
+    #[ApiFilter(SearchFilter::class, properties: ['id' => 'exact'])]
     #[ApiProperty(readable: false, identifier: true)]
     public string $id = '';
 

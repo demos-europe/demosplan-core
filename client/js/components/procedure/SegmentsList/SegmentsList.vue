@@ -1151,6 +1151,45 @@ export default {
       return this.v3Included.Place?.[rowData.relationships.place.data.id]
     },
 
+    /*
+     * Loads full data for selected segment ids that aren't on the currently loaded page -
+     * needed since pagination only keeps one page of segments in v3Segments at a time.
+     * Chunked to keep the request URL length reasonable for large selections. Included
+     * relationships (parentStatement/place/tags) are merged into v3Included so the
+     * existing parentStatementFor()/placeFor()/getTagsBySegment() lookups keep working.
+     */
+    fetchMissingSegments (missingIds) {
+      const chunkSize = 200
+      const idChunks = []
+
+      for (let start = 0; start < missingIds.length; start += chunkSize) {
+        idChunks.push(missingIds.slice(start, start + chunkSize))
+      }
+
+      const fetchChunk = idChunk => {
+        const params = new URLSearchParams({ include: 'parentStatement,assignee,place,tags' })
+
+        idChunk.forEach(id => params.append('id[]', id))
+
+        return dpApi.get(`${Routing.getBaseUrl()}/api/3.0/StatementSegment?${params}`)
+      }
+
+      return idChunks
+        .reduce((chain, idChunk) => chain.then(responses => fetchChunk(idChunk).then(response => [...responses, response])), Promise.resolve([]))
+        .then(responses => {
+          const segments = responses.flatMap(response => response.data.data)
+          const included = responses.flatMap(response => response.data.included || [])
+          const newlyIncluded = this.groupIncludedByType(included)
+
+          this.v3Included = Object.keys(newlyIncluded).reduce((merged, type) => ({
+            ...merged,
+            [type]: { ...merged[type], ...newlyIncluded[type] },
+          }), this.v3Included)
+
+          return segments
+        })
+    },
+
     copySelectionToClipboard () {
       const selectedIds = this.resolveSelectedSegmentIds()
 
@@ -1160,9 +1199,14 @@ export default {
         return
       }
 
+      const loadedIds = new Set(this.v3Segments.map(segment => segment.id))
+      const missingIds = selectedIds.filter(id => !loadedIds.has(id))
+      const fetchMissing = missingIds.length > 0 ? this.fetchMissingSegments(missingIds) : Promise.resolve([])
+
       this.isCopyingToClipboard = true
 
-      this.copyTextToClipboard(this.buildClipboardText(selectedIds))
+      fetchMissing
+        .then(missingSegments => this.copyTextToClipboard(this.buildClipboardText(selectedIds, missingSegments)))
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('segments.copy.clipboard.success', { count: selectedIds.length }))
           this.selectionCopiedToClipboard = true
@@ -1180,12 +1224,11 @@ export default {
     /*
      * Builds the tab/newline-separated plain-text representation (Excel-paste target) of the
      * selected segments, matching the currently visible columns and their drag&drop order.
-     * Only segments from the currently loaded page are resolvable here - a selection spanning
-     * multiple pages (e.g. via "select all") will silently omit rows outside the loaded page,
-     * since there is currently no supplemental fetch for segments outside v3Segments.
+     * `missingSegments` covers ids selected outside the currently loaded page (see
+     * fetchMissingSegments) and is merged in here since it is never added to v3Segments.
      */
-    buildClipboardText (selectedIds) {
-      const segmentsById = Object.fromEntries(this.v3Segments.map(segment => [segment.id, segment]))
+    buildClipboardText (selectedIds, missingSegments = []) {
+      const segmentsById = Object.fromEntries([...this.v3Segments, ...missingSegments].map(segment => [segment.id, segment]))
       const headerFields = this.$refs.dataTable?.orderedHeaderFields || this.availableHeaderFields
 
       return selectedIds
