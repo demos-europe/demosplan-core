@@ -124,7 +124,7 @@ export default {
           const { component, name, options } = addon
 
           return {
-            component: shallowRef(component),
+            component: component,
             name,
             options,
           }

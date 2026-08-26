@@ -21,7 +21,7 @@ import { defineComponent, shallowRef, type ShallowRef } from 'vue'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 
 interface WrappedAddon {
-  component: ShallowRef<unknown>
+  component: ShallowRef
   name: string
 }
 
@@ -75,7 +75,7 @@ export default defineComponent({
       .then(addons => {
         addons.forEach(addon => {
           this.loadedAddons.push({
-            component: shallowRef(addon.component),
+            component: addon.component,
             name: addon.name,
           })
         })
