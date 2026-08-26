@@ -93,17 +93,17 @@
 
       <fieldset class="pb-0">
         <div class="rounded bg-neutral-light-4 p-3 mt-4">
-          <div class="grid grid-cols-2 gap-2 w-6/8">
+          <div class="grid grid-cols-3 gap-2 w-6/8">
           <span>
             {{ `${Translator.trans('export.xlsx.scheduled.interval')}:` }}
           </span>
-            <span class="font-semibold">
+            <span class="font-semibold col-span-2">
             {{ frequencyLabel }}
           </span>
             <span>
           {{ `${Translator.trans('export.xlsx.scheduled.next')}:` }}
           </span>
-            <span class="font-semibold">
+            <span class="font-semibold col-span-2">
             {{ nextExportLabel }}
           </span>
           </div>
