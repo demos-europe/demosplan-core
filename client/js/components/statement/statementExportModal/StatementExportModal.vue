@@ -351,10 +351,21 @@
           data-cy="exportModal"
           primary
           secondary
-          :primary-text="isStatementExportView ? Translator.trans('export.statements') : Translator.trans('export.xlsx.scheduled.title')"
+          :primary-text="Translator.trans('export.statements')"
           :secondary-text="Translator.trans('abort')"
           @primary-action="handleExport"
           @secondary-action="closeModal"
+        />
+        <dp-button-row
+          v-else-if="['add', 'edit'].includes(getBaseScheduledExportMode(scheduledExportMode))"
+          class="text-right mt-auto"
+          data-cy="scheduledExport"
+          primary
+          secondary
+          :primary-text="getBaseScheduledExportMode(scheduledExportMode) === 'add' ? Translator.trans('export.xlsx.scheduled.add') : Translator.trans('export.xlsx.scheduled.edit')"
+          :secondary-text="Translator.trans('abort')"
+          @primary-action="handleExport"
+          @secondary-action="scheduledExportMode = null"
         />
         <div
           v-else-if="scheduledExportMode === 'manage'"
@@ -392,6 +403,7 @@ import {
 import { mapGetters, mapMutations } from 'vuex'
 import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
 import ScheduledExportForm from '@DpJs/components/statement/statementExportModal/ScheduledExportForm'
+import {computed} from 'vue'
 
 export default {
   name: 'StatementExportModal',
@@ -582,6 +594,14 @@ export default {
       setIsLoadingFilterFlyout: 'setIsLoading',
       setUngroupedFilterOptions: 'setUngroupedOptions',
     }),
+
+    getBaseScheduledExportMode (view) {
+      if (view.includes(':')) {
+        return view.split(':')[1]
+      }
+
+      return view
+    },
 
     buildFilterOption (option) {
       if (!option) {

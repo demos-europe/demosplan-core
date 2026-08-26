@@ -101,8 +101,24 @@ const isTomorrow = (date: Date): boolean => {
 }
 
 /**
- * Format date for display in DD.MM.YYYY format
- * If the date is tomorrow, prepends "Tomorrow, " to the formatted date
+ * Get the weekday name for a date
+ */
+const getWeekdayName = (date: Date): string => {
+  const weekdayMap: Record<number, string> = {
+    0: Translator.trans('weekday.sunday'),
+    1: Translator.trans('weekday.monday'),
+    2: Translator.trans('weekday.tuesday'),
+    3: Translator.trans('weekday.wednesday'),
+    4: Translator.trans('weekday.thursday'),
+    5: Translator.trans('weekday.friday'),
+    6: Translator.trans('weekday.saturday'),
+  }
+  return weekdayMap[date.getDay()] || ''
+}
+
+/**
+ * Format date for display in "Day, DD.MM.YYYY" format
+ * If the date is tomorrow, uses "Tomorrow" instead of the weekday name
  */
 const formatExportDate = (date: Date): string => {
   const day = String(date.getDate()).padStart(2, '0')
@@ -114,7 +130,9 @@ const formatExportDate = (date: Date): string => {
     return `${Translator.trans('tomorrow')}, ${formattedDate}`
   }
 
-  return formattedDate
+  const weekdayName = getWeekdayName(date)
+
+  return `${weekdayName}, ${formattedDate}`
 }
 
 /**

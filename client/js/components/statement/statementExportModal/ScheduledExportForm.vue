@@ -36,7 +36,7 @@
               />
               <div>
                 <span class="font-semibold block">XLSX-Datei</span>
-                <span class="text-sm">Wöchentlich, am Montag</span>
+                <span class="text-sm">{{ `${scheduledExport.scheduledExport}, am ${scheduledExport.day}` }}</span>
               </div>
             </div>
             <div class="flex justify-between">
@@ -93,18 +93,18 @@
 
       <fieldset class="pb-0">
         <div class="rounded bg-neutral-light-4 p-3 mt-4">
-          <div class="grid grid-cols-2 gap-2 w-3/5">
+          <div class="grid grid-cols-2 gap-2 w-6/8">
           <span>
             {{ `${Translator.trans('export.xlsx.scheduled.interval')}:` }}
           </span>
             <span class="font-semibold">
-            {{ selectedFrequencyLabel }}
+            {{ frequencyLabel }}
           </span>
             <span>
           {{ `${Translator.trans('export.xlsx.scheduled.next')}:` }}
           </span>
             <span class="font-semibold">
-            {{ nextExport }}
+            {{ nextExportLabel }}
           </span>
           </div>
         </div>
@@ -114,9 +114,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { DpButton, DpIcon, DpSelect } from '@demos-europe/demosplan-ui'
-import { useScheduledExportDate } from '@/composables/useScheduledExportDate'
+import { useScheduledExportDate } from '@DpJs/composables/useScheduledExportDate'
 
 type View = 'add' | 'edit' | 'manage' | 'manage:add'
 
@@ -165,12 +165,12 @@ const editingExportId = ref<string | null>(null)
 const scheduledExports = ref([ // Mock data for now
   {
     id: 'export-1',
-    planedExport: 'weekly',
+    scheduledExport: 'weekly',
     day: 'mo'
   },
   {
     id: 'export-2',
-    planedExport: 'monthly',
+    scheduledExport: 'monthly',
     day: '15',
   },
 ])
@@ -212,6 +212,14 @@ const weekdayOptions: SelectOption[] = [
     label: Translator.trans('weekday.friday'),
     value: 'fr',
   },
+  {
+    label: Translator.trans('weekday.saturday'),
+    value: 'sat',
+  },
+  {
+    label: Translator.trans('weekday.sunday'),
+    value: 'sun',
+  },
 ]
 
 const monthDayOptions: SelectOption[] = ['5', '10', '15', '20', '25', '30'].map(value => ({
@@ -247,7 +255,15 @@ const selectedFrequencyLabel = computed(() =>
 
 const { getNextExportDate, formatExportDate, getWeekdayNumber } = useScheduledExportDate()
 
-const nextExport = computed(() => {
+const frequencyLabel = computed(() => {
+  if (selectedFrequency.value === 'monthly') {
+    return `Am ${selectedMonthDay.value}. Tag jedes Monats`
+  }
+
+  return frequencyOptions.find(({ value }) => value === selectedFrequency.value)?.label ?? ''
+})
+
+const nextExportLabel = computed(() => {
   if (!selectedFrequency.value) {
     return ''
   }
@@ -285,8 +301,8 @@ const nextExport = computed(() => {
 
 const handleFrequencySelect = (value: string) => {
   selectedFrequency.value = value
-  selectedWeekday.value = ''
-  selectedMonthDay.value = ''
+  selectedWeekday.value = 'mo'
+  selectedMonthDay.value = '5'
 }
 
 const handleSelect = (name: DependentSelectName, value: string) => {
@@ -300,4 +316,35 @@ const handleSelect = (name: DependentSelectName, value: string) => {
 const deleteScheduledExport = (id) => {
   console.log('removeScheduledExport', id)
 }
+
+const resetScheduledExportForm = () => {
+  selectedFrequency.value = ''
+  selectedWeekday.value = ''
+  selectedMonthDay.value = ''
+}
+
+const populateScheduledExportForm = (editingExport) => {
+  selectedFrequency.value = editingExport.scheduledExport
+  selectedWeekday.value = editingExport.scheduledExport === 'weekly' ? editingExport.day : ''
+  selectedMonthDay.value = editingExport.scheduledExport === 'monthly' ? editingExport.day : ''
+}
+
+/**
+ * Populate or reset the scheduled export form based on the current view
+ */
+watch([editingExportId, currentView], () => {
+  if (currentView.value === 'add') {
+    resetScheduledExportForm()
+
+    return
+  }
+
+  const editingExport = scheduledExports.value.find(exp => exp.id === editingExportId.value)
+
+  if (!editingExport) {
+    return
+  }
+
+  populateScheduledExportForm(editingExport)
+}, { immediate: true })
 </script>
