@@ -58,7 +58,7 @@
         />
         <fieldset
           v-if="!['xlsx_normal', 'csv_normal'].includes(active)"
-          class="border-b border-neutral"
+          class="pb-0"
         >
           <legend
             class="text-base py-4"
