@@ -66,7 +66,7 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
 
         $conditions = [
             $this->conditionFactory->propertyHasValue(false, Paths::orga()->deleted),
-            $this->conditionFactory->propertyHasValue(true, Paths::orga()->showlist),
+            $this->conditionFactory->propertyHasValue(true, Paths::orga()->statusInCustomers->showlist),
             $this->conditionFactory->propertyHasValue(
                 RoleInterface::GPSORG,
                 Paths::orga()->users->roleInCustomers->role->groupCode
