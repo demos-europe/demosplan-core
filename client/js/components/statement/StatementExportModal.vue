@@ -56,45 +56,44 @@
           :message="exportTypes[active].hint"
           type="warning"
         />
-      </fieldset>
-
-      <fieldset
-        v-if="!['xlsx_normal', 'csv_normal'].includes(active)"
-        class="border-b border-neutral"
-      >
-        <legend
-          class="text-base py-4"
-          v-text="Translator.trans('export.options')"
-        />
-        <dp-checkbox
-          id="censoredCitizen"
-          v-model="isCitizenDataCensored"
-          class="mb-1"
-          data-cy="exportModal:censoredCitizen"
-          :label="{
-            regular: true,
-            text: Translator.trans('export.censored.citizen'),
-          }"
-        />
-        <dp-checkbox
-          id="censoredInstitution"
-          v-model="isInstitutionDataCensored"
-          class="mb-1"
-          data-cy="exportModal:censoredInstitution"
-          :label="{
-            regular: true,
-            text: Translator.trans('export.censored.institution')
-          }"
-        />
-        <dp-checkbox
-          id="obscured"
-          v-model="isObscure"
-          data-cy="exportModal:obscured"
-          :label="{
-            regular: true,
-            text: Translator.trans('export.docx.obscured')
-          }"
-        />
+        <fieldset
+          v-if="!['xlsx_normal', 'csv_normal'].includes(active)"
+          class="pb-0"
+        >
+          <legend
+            class="text-base py-4"
+            v-text="Translator.trans('export.options')"
+          />
+          <dp-checkbox
+            id="censoredCitizen"
+            v-model="isCitizenDataCensored"
+            class="mb-1"
+            data-cy="exportModal:censoredCitizen"
+            :label="{
+              regular: true,
+              text: Translator.trans('export.censored.citizen'),
+            }"
+          />
+          <dp-checkbox
+            id="censoredInstitution"
+            v-model="isInstitutionDataCensored"
+            class="mb-1"
+            data-cy="exportModal:censoredInstitution"
+            :label="{
+              regular: true,
+              text: Translator.trans('export.censored.institution')
+            }"
+          />
+          <dp-checkbox
+            id="obscured"
+            v-model="isObscure"
+            data-cy="exportModal:obscured"
+            :label="{
+              regular: true,
+              text: Translator.trans('export.docx.obscured')
+            }"
+          />
+        </fieldset>
       </fieldset>
 
       <fieldset
@@ -102,7 +101,7 @@
         class="border-b border-neutral"
       >
         <legend
-          class="text-base py-4"
+          class="text-base pb-4"
           v-text="Translator.trans('export.options')"
         />
         <dp-checkbox
@@ -195,7 +194,7 @@
 
       <div
         v-if="isSingleStatementExport && hasPermission('feature_statement_via_template_export')"
-        class="border-b border-neutral py-4"
+        class="pt-4"
       >
         <dp-label
           :hint="Translator.trans('docx.export.via_template.upload.hint')"
@@ -282,7 +281,7 @@
         }"
         :maxlength="customHeaderMaxLength"
         :placeholder="Translator.trans('docx.export.header.custom.placeholder')"
-        class="py-4"
+        class="pt-4"
         data-cy="exportModal:customHeaderText"
         type="text"
       />
