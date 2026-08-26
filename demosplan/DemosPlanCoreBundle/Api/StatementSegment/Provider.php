@@ -18,9 +18,11 @@ use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\PaginatorInterface;
 use ApiPlatform\State\ProviderInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Api\Common\MappingPaginator;
 use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Resource as StatementSegmentResource;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\RecommendationVersionService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use InvalidArgumentException;
@@ -35,6 +37,8 @@ class Provider implements ProviderInterface
         private readonly SegmentRepository $segmentRepository,
         private readonly DoctrineCollectionProvider $doctrineCollectionProvider,
         private readonly StatementService $statementService,
+        private readonly RecommendationVersionService $recommendationVersionService,
+        private readonly CurrentUserInterface $currentUser,
     ) {
     }
 
@@ -69,7 +73,15 @@ class Provider implements ProviderInterface
             return null;
         }
 
-        return StatementSegmentResource::fromEntity($segment, $this->statementService->getProcessingStatus($segment->getParentStatementOfSegment()));
+        $currentVersionNumbers = $this->currentUser->hasPermission('feature_enable_recommendation_versions')
+            ? $this->recommendationVersionService->getCurrentVersionNumbersForSegments([$segment])
+            : [];
+
+        return StatementSegmentResource::fromEntity(
+            $segment,
+            $this->statementService->getProcessingStatus($segment->getParentStatementOfSegment()),
+            $currentVersionNumbers[$segment->getId()] ?? null,
+        );
     }
 
     /**
@@ -95,18 +107,33 @@ class Provider implements ProviderInterface
 
         $context = $this->addPaginationFilters($context);
         $result = $this->doctrineCollectionProvider->provide($operation, $uriVariables, $context);
+
+        /*
+         * Materialized here (rather than left lazy) so the segment ids are available for the
+         * batched recommendation-version lookup below. For the PaginatorInterface case this does
+         * NOT cost an extra query: AbstractPaginator::getIterator() caches its iterator on first
+         * access, so MappingPaginator iterating $result again further down reuses this same,
+         * already-fetched result instead of re-querying.
+         */
+        $segments = $result instanceof PaginatorInterface || !is_array($result)
+            ? iterator_to_array($result)
+            : $result;
+
+        $currentVersionNumbers = $this->currentUser->hasPermission('feature_enable_recommendation_versions')
+            ? $this->recommendationVersionService->getCurrentVersionNumbersForSegments($segments)
+            : [];
+
         $map = fn (Segment $segment): StatementSegmentResource => StatementSegmentResource::fromEntity(
             $segment,
-            $this->statementService->getProcessingStatus($segment->getParentStatementOfSegment())
+            $this->statementService->getProcessingStatus($segment->getParentStatementOfSegment()),
+            $currentVersionNumbers[$segment->getId()] ?? null,
         );
 
         if ($result instanceof PaginatorInterface) {
             return new MappingPaginator($result, $map);
         }
 
-        $result = is_array($result) ? $result : iterator_to_array($result);
-
-        return array_map($map, $result);
+        return array_map($map, $segments);
     }
 
     /**

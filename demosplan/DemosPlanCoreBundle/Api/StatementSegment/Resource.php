@@ -100,8 +100,14 @@ class Resource
     #[ApiProperty(readable: true, writable: false)]
     public ?array $customFields = null;
 
-    public static function fromEntity(SegmentEntity $segment, ?string $parentStatementStatus = null): self
-    {
+    #[ApiProperty(readable: true, writable: false)]
+    public ?int $currentRecommendationVersionNumber = null;
+
+    public static function fromEntity(
+        SegmentEntity $segment,
+        ?string $parentStatementStatus = null,
+        ?int $currentRecommendationVersionNumber = null,
+    ): self {
         $resource = new self();
         $resource->id = $segment->getId();
         $resource->text = $segment->getText();
@@ -118,6 +124,7 @@ class Resource
         )->toArray());
         $resource->deadline = $segment->getDeadline()?->format('Y-m-d');
         $resource->customFields = $segment->getCustomFields()?->toJson();
+        $resource->currentRecommendationVersionNumber = $currentRecommendationVersionNumber;
 
         return $resource;
     }

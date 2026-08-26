@@ -758,10 +758,6 @@ export default {
       placesObject: 'items',
     }),
 
-    ...mapState('RecommendationVersion', {
-      recommendationVersions: 'items',
-    }),
-
     assignableUsers () {
       return Object.keys(this.assignableUsersObject).length ?
         Object.values(this.assignableUsersObject).map((user) => ({
@@ -1417,16 +1413,7 @@ export default {
     },
 
     getRecommendationVersionNumber (segment) {
-      const currentVersionId =
-        segment.relationships?.recommendationVersions?.data?.[0]?.id
-
-      if (!currentVersionId) {
-        return ''
-      }
-
-      const versionNumber =
-        this.recommendationVersions[currentVersionId]?.attributes
-          ?.versionNumber
+      const versionNumber = segment.attributes.currentRecommendationVersionNumber
 
       return versionNumber ? String(versionNumber).padStart(3, '0') : ''
     },

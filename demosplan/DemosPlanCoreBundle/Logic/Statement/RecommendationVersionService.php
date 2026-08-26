@@ -107,6 +107,34 @@ class RecommendationVersionService
         }
     }
 
+    /**
+     * Computes the current recommendation version number for each segment, batched to avoid
+     * N+1 queries and without loading recommendationText. Mirrors the "virtual version" rule
+     * described in the class docblock: no current version (null) if the segment's live
+     * recommendation text is empty, otherwise one more than the highest stored version number.
+     *
+     * @param Segment[] $segments
+     *
+     * @return array<string, int|null> segment/statement id => current version number
+     */
+    public function getCurrentVersionNumbersForSegments(array $segments): array
+    {
+        $statementIds = array_map(
+            static fn (Segment $segment): string => $segment->getId(),
+            $segments
+        );
+        $maxVersionNumbers = $this->repository->getVersionCountsForStatementIds($statementIds);
+
+        $result = [];
+        foreach ($segments as $segment) {
+            $result[$segment->getId()] = '' === $segment->getRecommendation()
+                ? null
+                : ($maxVersionNumbers[$segment->getId()] ?? 0) + 1;
+        }
+
+        return $result;
+    }
+
     private function createVersionIfNeeded(Statement $statement, string $oldRecommendation, int $latestVersionNumber): ?RecommendationVersion
     {
         if ('' === $oldRecommendation && 0 === $latestVersionNumber) {
