@@ -207,7 +207,7 @@ export default {
     },
 
     canResetTwoFactor () {
-      return hasPermission('feature_2fa') && true === this.user.attributes.twoFactorEnabled
+      return hasPermission('feature_2fa') && this.user.attributes.twoFactorEnabled
     },
 
     hasDepartment () {
