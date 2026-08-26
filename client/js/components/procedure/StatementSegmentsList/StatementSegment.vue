@@ -160,6 +160,7 @@
       </div>
       <div v-else>
         <dp-editor
+          ref="editor"
           class="mb-2"
           editor-id="recommendationText"
           :get-boilerplate-title="getBoilerplateTitle"
@@ -220,6 +221,13 @@
             </button>
           </template>
         </dp-editor>
+        <dp-confirm-dialog
+          ref="unlinkBoilerplateDialog"
+          data-cy="unlinkBoilerplate"
+          :confirm-button-text="Translator.trans('boilerplate.link.dissolve')"
+          :header="Translator.trans('boilerplate.link.dissolve')"
+          :message="unlinkBoilerplateConfirmMessage"
+        />
       </div>
       <div
         v-if="hasPermission('feature_enable_recommendation_versions') && recommendationVersionNumber"
@@ -491,6 +499,7 @@ import {
   DpButton,
   DpButtonRow,
   DpCheckbox,
+  DpConfirmDialog,
   DpContextualHelp,
   DpDatepicker,
   DpIcon,
@@ -528,6 +537,7 @@ export default {
     DpButton,
     DpButtonRow,
     DpCheckbox,
+    DpConfirmDialog,
     DpContextualHelp,
     DpClaim,
     DpDatepicker,
@@ -612,6 +622,7 @@ export default {
       isHover: false,
       isSaving: false,
       lockedBeforeSave: false,
+      pendingUnlink: null,
       selectedAssignee: {},
       selectedPlace: { id: '', type: 'Place' },
       showAdditionalFields: false,
@@ -790,6 +801,16 @@ export default {
       }
 
       return '-'
+    },
+
+    /**
+     * Falls back to the generic word for "boilerplate" when the title can't be resolved
+     * (getBoilerplateTitle returns '' — the boilerplate may have been deleted since linking).
+     */
+    unlinkBoilerplateConfirmMessage () {
+      const title = this.pendingUnlink?.title || Translator.trans('boilerplate')
+
+      return Translator.trans('boilerplate.link.dissolve.confirm', { title })
     },
 
     visibleRecommendation () {
@@ -1096,18 +1117,34 @@ export default {
     },
 
     /**
-     * Called when the user clicks the pencil on a linked boilerplate in the editor.
-     *
-     * TODO DPLAN-18271: still to be implemented — show the confirmation dialog, dissolve the
-     * node so its text stays as plain text, then offer an undo toast for 15 seconds.
+     * Called when the user clicks the pencil on a linked boilerplate in the editor. Confirms,
+     * dissolves the node so its text stays as plain paragraphs, then offers an undo toast for
+     * 15 seconds — `editor.commands.undo()` reverses the dissolution in one step since it was
+     * a single transaction.
      *
      * @param {Object} payload
      * @param {String} payload.boilerplateId
      * @param {Number} payload.pos Document position of the node, needed to dissolve it
-     * @param {String} payload.editorId Identifies the editor, since one exists per segment
      */
-    handleUnlinkRequest ({ boilerplateId, pos, editorId }) {
-      console.log('unlink requested', { boilerplateId, pos, editorId })
+    async handleUnlinkRequest ({ boilerplateId, pos }) {
+      this.pendingUnlink = { boilerplateId, pos, title: this.getBoilerplateTitle(boilerplateId) }
+
+      const isConfirmed = await this.$refs.unlinkBoilerplateDialog.open()
+
+      if (!isConfirmed) {
+        return
+      }
+
+      this.$refs.editor.unlinkBoilerplate(pos)
+
+      const title = this.pendingUnlink.title || Translator.trans('boilerplate')
+
+      dplan.notify.confirm({
+        message: Translator.trans('boilerplate.link.dissolved', { title }),
+        actionText: Translator.trans('undo'),
+        hideTimer: 15000,
+        onAction: () => this.$refs.editor.undo(),
+      })
     },
 
     hasPolygonFeatures () {

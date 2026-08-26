@@ -20,8 +20,10 @@
       <dp-notification
         v-for="message in messages"
         :key="message.uid"
+        :hide-timer="message.hideTimer"
         :message="message"
         :role="messageRole"
+        @dp-notify-action="dplan.notify.runAction($event.actionId)"
         @dp-notify-remove="removeMessage"
       />
     </transition-group>
