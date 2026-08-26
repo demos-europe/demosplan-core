@@ -103,12 +103,14 @@ class AccessControlServiceTest extends UnitTestCase
         self::assertSame($permissionToCheck, $accessControlPermission->getPermissionName());
     }
 
-    public function testDuplicatePermissionCreationThrowsException(): void
+    public function testDuplicatePermissionCreationReturnsExistingPermission(): void
     {
         $permissionToCheck = 'my_permission';
-        $this->sut->createPermission($permissionToCheck, $this->testOrga->_real(), $this->testCustomer->_real(), $this->testRole);
-        $createdPermission = $this->sut->createPermission($permissionToCheck, $this->testOrga->_real(), $this->testCustomer->_real(), $this->testRole);
-        $this->assertNull($createdPermission);
+        $firstPermission = $this->sut->createPermission($permissionToCheck, $this->testOrga->_real(), $this->testCustomer->_real(), $this->testRole);
+        $secondPermission = $this->sut->createPermission($permissionToCheck, $this->testOrga->_real(), $this->testCustomer->_real(), $this->testRole);
+
+        self::assertInstanceOf(AccessControl::class, $secondPermission);
+        self::assertSame($firstPermission->getId(), $secondPermission->getId());
     }
 
     public function testGetPermissions(): void
