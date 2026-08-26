@@ -12,10 +12,13 @@ declare(strict_types=1);
 
 namespace Tests\Core\Statement\Segment;
 
+use DateTime;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
+use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeDisplayService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use Tests\Base\FunctionalTestCase;
 
@@ -71,6 +74,30 @@ class SegmentSentViaMailAutoDiffSkipTest extends FunctionalTestCase
             $this->countEntriesFor($segment, 'sentViaMail'),
             'A normal field edit must not auto-create a `sentViaMail` row',
         );
+    }
+
+    public function testSentViaMailEntryIsDisplayableWithoutError(): void
+    {
+        $procedure = ProcedureFactory::createOne()->_real();
+        $segment = SegmentFactory::createOne(['procedure' => $procedure])->_real();
+
+        // Write a sentViaMail audit entry, then render it through the display service.
+        // Regression guard: sentViaMail is a synthetic field with no getter, so the
+        // generic display path used to throw NotYetImplementedException.
+        $this->sut->createSegmentSentByMailChangeEntry($segment, 'recipient@test.de', 'Hello message', new DateTime());
+        $this->getEntityManager()->flush();
+
+        $entry = $this->getEntityManager()->getRepository(EntityContentChange::class)
+            ->findOneBy(['entityId' => $segment->getId(), 'entityField' => 'sentViaMail']);
+        self::assertInstanceOf(EntityContentChange::class, $entry);
+
+        /** @var EntityContentChangeDisplayService $displayService */
+        $displayService = $this->getContainer()->get(EntityContentChangeDisplayService::class);
+
+        $rendered = $displayService->getContentChangeComparisonString($entry);
+
+        self::assertIsString($rendered);
+        self::assertStringContainsString('recipient@test.de', $rendered);
     }
 
     private function countEntriesFor(Segment $segment, string $entityField): int

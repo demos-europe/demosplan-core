@@ -199,6 +199,10 @@ class SegmentEmailSenderTest extends FunctionalTestCase
 
         // A version-history entry was written for the segment.
         static::assertSame(1, $this->countSentViaMailEntriesFor($segment));
+
+        $historyContent = $this->getSentViaMailContentFor($segment);
+        static::assertStringContainsString(self::RECIPIENT, $historyContent);
+        static::assertStringContainsString('body', $historyContent);
     }
 
     public function testSendSegmentMailBulkSendsOneMailAndOneHistoryEntryPerSegment(): void
@@ -306,6 +310,17 @@ class SegmentEmailSenderTest extends FunctionalTestCase
             ->getConnection()
             ->executeQuery(
                 'SELECT COUNT(*) FROM entity_content_change WHERE entity_id = :id AND entity_field = :field',
+                ['id' => $segment->getId(), 'field' => 'sentViaMail'],
+            )
+            ->fetchOne();
+    }
+
+    private function getSentViaMailContentFor(Segment $segment): string
+    {
+        return (string) $this->getEntityManager()
+            ->getConnection()
+            ->executeQuery(
+                'SELECT content_change FROM entity_content_change WHERE entity_id = :id AND entity_field = :field',
                 ['id' => $segment->getId(), 'field' => 'sentViaMail'],
             )
             ->fetchOne();

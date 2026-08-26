@@ -76,8 +76,9 @@ class SegmentEmailSender
             // (RpcSegmentEmailSender::execute) wraps this in a transaction so a queued mail can
             // never end up without its GDPR audit entry. No attachments as of now.
             $this->sendSegment($sendMailTo, $sentFrom, $ccEmailAddresses, $emailVariables, [], $replyTo);
+            $loggedMessage = trim((string) preg_replace('/\s+/', ' ', strip_tags((string) $obscuredBody)));
             foreach ($segments as $segment) {
-                $this->entityContentChangeService->createSegmentSentByMailChangeEntry($segment, $sendMailTo, new DateTime());
+                $this->entityContentChangeService->createSegmentSentByMailChangeEntry($segment, $sendMailTo, $loggedMessage, new DateTime());
             }
         } catch (InvalidDataException) {
             $this->messageBag->add('error', 'error.segment.queued');

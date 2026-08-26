@@ -3357,7 +3357,7 @@ segment.send.via.email.subject.default: "Fachliche Einschätzung bezüglich Absc
 segment.send.via.mail.add.attachments: "Inhalte anhängen"
 segment.send.via.mail.add.attachments.hint: "Folgende Reihenfolge wird in der Mail angezeigt: Nachricht, Abschnittstext, Erwiderung. Geschwärzte Textstellen werden als [****] angezeigt."
 segment.sent.via.mail: "Abschnitt per Mail gesendet"
-segment.sent.via.mail.value: "Gesendet an: {recipient}"
+segment.sent.via.mail.value: "Gesendet an: {recipient} | Nachricht: {message}"
 segment.tags: "Schlagworte"
 segment.tags.none: "Diesem Abschnitt wurden keine Schlagworte zugewiesen."
 segment.text: "Abschnittstext"
