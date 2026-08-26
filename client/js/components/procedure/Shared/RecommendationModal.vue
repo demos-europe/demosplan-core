@@ -121,10 +121,10 @@ export default {
         this.$emit('addons:loaded')
 
         this.modalAddons = addons.map(addon => {
-          const { name, options } = addon
+          const { component, name, options } = addon
 
           return {
-            component: shallowRef(window[name].default),
+            component: shallowRef(component),
             name,
             options,
           }

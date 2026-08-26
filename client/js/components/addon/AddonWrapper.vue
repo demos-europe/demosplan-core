@@ -15,12 +15,17 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import * as demosplanUi from '@demos-europe/demosplan-ui'
+import { defineComponent, shallowRef, type ShallowRef } from 'vue'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
-import { shallowRef } from 'vue'
 
-export default {
+interface WrappedAddon {
+  component: ShallowRef<unknown>
+  name: string
+}
+
+export default defineComponent({
   name: 'AddonWrapper',
 
   props: {
@@ -39,7 +44,6 @@ export default {
     hookName: {
       type: String,
       required: true,
-      default: '',
     },
 
     refComponent: {
@@ -62,7 +66,7 @@ export default {
   data () {
     return {
       demosplanUi: shallowRef(demosplanUi),
-      loadedAddons: [],
+      loadedAddons: [] as WrappedAddon[],
     }
   },
 
@@ -71,7 +75,7 @@ export default {
       .then(addons => {
         addons.forEach(addon => {
           this.loadedAddons.push({
-            component: shallowRef(window[addon.name].default),
+            component: shallowRef(addon.component),
             name: addon.name,
           })
         })
@@ -79,5 +83,5 @@ export default {
         this.$emit('addons:loaded', this.loadedAddons.map(addon => addon.name))
       })
   },
-}
+})
 </script>
