@@ -338,7 +338,7 @@
       <!-- Scheduled export view -->
       <scheduled-export-form
         v-if="isScheduledExportView"
-        v-model:current-view="scheduledExportMode"
+        v-model:view="scheduledExportMode"
         :procedure-id="procedureId"
         @schedule-created="handleScheduleCreated"
         @cancel="scheduledExportMode = null"
@@ -517,6 +517,7 @@ export default {
       if (this.scheduledExportMode) {
         switch (this.scheduledExportMode) {
           case 'add':
+          case 'manage:add':
             return Translator.trans('export.xlsx.scheduled.add')
           case 'edit':
             return Translator.trans('export.xlsx.scheduled.edit')
@@ -728,13 +729,12 @@ export default {
 
       switch (this.scheduledExportMode) {
         case 'add':
-          this.scheduledExportMode = null
-          break
-        case 'edit':
-          this.scheduledExportMode = 'manage'
-          break
         case 'manage':
           this.scheduledExportMode = null
+          break
+        case 'manage:add':
+        case 'edit':
+          this.scheduledExportMode = 'manage'
           break
         default:
           this.scheduledExportMode = null

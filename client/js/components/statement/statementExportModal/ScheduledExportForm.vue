@@ -9,7 +9,7 @@
 
 <template>
   <div>
-    <template v-if="props.currentView === 'manage'">
+    <template v-if="currentView === 'manage'">
       <div class="flex justify-between items-center pb-4">
         <span class="text-sm inline-block">
           {{ Translator.trans('export.xlsx.scheduled.active', { number: String(scheduledExports.length) }) }}
@@ -20,7 +20,7 @@
           icon-size="medium"
           :text="Translator.trans('export.xlsx.scheduled.add')"
           variant="outline"
-          @click="() => { editExport = null; $emit('update:currentView', 'add') }"
+          @click="() => { editExport = null; $emit('update:view', 'manage:add') }"
         />
       </div>
 
@@ -47,7 +47,7 @@
                 hide-text
                 :text="Translator.trans('export.xlsx.scheduled.edit')"
                 variant="transparent"
-                @click="() => { editExport = scheduledExport.id; $emit('update:currentView', 'edit') }"
+                @click="() => { editExport = scheduledExport.id; $emit('update:view', 'edit') }"
               />
               <dp-button
                 data-cy="scheduledExport:delete"
@@ -65,7 +65,7 @@
     </template>
 
     <!-- Add/Edit Form -->
-    <template v-if="props.currentView === 'edit' || props.currentView === 'add'">
+    <template v-if="currentView === 'edit' || currentView === 'add'">
       <p class="mb-4">
         {{ Translator.trans('export.xlsx.scheduled.description') }}
       </p>
@@ -117,9 +117,11 @@
 import { computed, ref } from 'vue'
 import { DpButton, DpIcon, DpSelect } from '@demos-europe/demosplan-ui'
 
+type View = 'add' | 'edit' | 'manage' | 'manage:add'
+
 interface Props {
   procedureId: string
-  currentView?: CurrentView
+  view?: View
 }
 
 interface SelectOption {
@@ -137,14 +139,22 @@ interface DependentSelect {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  currentView: 'manage'
+  view: 'manage'
 })
 
 const emit = defineEmits<{
-  'update:currentView': [value: CurrentView]
+  'update:view': [value: View]
   'schedule-created': []
   cancel: []
 }>()
+
+const currentView = computed(() => {
+  if (props.view?.includes(':')) {
+    return props.view.split(':')[1]
+  }
+
+  return props.view
+})
 
 const selectedFrequency = ref('')
 const selectedWeekday = ref('')
