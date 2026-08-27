@@ -6,6 +6,13 @@
 
 ## UNRELEASED
 
+## v4.54.1 (2026-08-27)
+
+### Fixed
+- Institution tags created under one customer were visible and assignable from any other customer. Tag access is now restricted to the customer the tag belongs to.
+- Institution tags that an institution holds in another customer were removed when updating tags in the current customer. These are now preserved.
+- Institution registration statuses could be delivered in a form that broke the frontend display; this has been corrected.
+
 ## v4.54.0 (2026-08-12)
 
 ### Added
