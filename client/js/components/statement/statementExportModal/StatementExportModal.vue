@@ -253,6 +253,7 @@
           />
           <div class="flex justify-end gap-2">
             <dp-button
+              v-if="scheduledExports.length"
               data-cy="exportModal:scheduledExport:manage"
               :text="`${Translator.trans('export.xlsx.scheduled.manage')} (${scheduledExports.length})`"
               variant="transparent"
