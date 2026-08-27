@@ -96,15 +96,16 @@ const formData = defineModel<{ interval: string; day: number | null }>('formData
 })
 
 const getSelectedDay = () => {
-  if (selectedFrequency.value === 'weekly') {
-    return selectedWeekday.value
-  }
+  switch (selectedFrequency.value) {
+    case 'weekly':
+      return selectedWeekday.value
 
-  if (selectedFrequency.value === 'monthly') {
-    return selectedMonthDay.value
-  }
+    case 'monthly':
+      return selectedMonthDay.value
 
-  return null
+    default:
+      return null
+  }
 }
 
 const selectedFrequency = ref('daily')
