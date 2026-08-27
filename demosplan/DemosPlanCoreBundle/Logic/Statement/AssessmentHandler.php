@@ -215,6 +215,7 @@ class AssessmentHandler extends CoreHandler
         array $exportChoice,
         string $viewMode,
         bool $original = false,
+        bool $includeStatementMetadataRow = false,
     ): DocxExportResult {
         $outputResult = $this->prepareOutputResult($procedureId, $original, $requestPost);
         try {
@@ -259,7 +260,8 @@ class AssessmentHandler extends CoreHandler
                 $viewOrientation,
                 $requestPost,
                 $exportChoice['sortType'],
-                $viewMode
+                $viewMode,
+                $includeStatementMetadataRow
             );
         } catch (Exception $e) {
             $this->getLogger()->warning($e);

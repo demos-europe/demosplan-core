@@ -408,7 +408,8 @@ class ExportService
                 $rParams,
                 $type,
                 AssessmentTableViewMode::DEFAULT_VIEW,
-                false
+                false,
+                true
             );
             $filename = $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['considerationtable'].'/%s.docx';
             switch ($exportType) {
@@ -458,7 +459,8 @@ class ExportService
                 $rParams,
                 $type,
                 AssessmentTableViewMode::DEFAULT_VIEW,
-                false
+                false,
+                true
             );
             $filename = $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['considerationtable'].'/%s.docx';
             switch ($exportType) {

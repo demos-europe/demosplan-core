@@ -164,6 +164,7 @@ class DocxExporter
         array $requestPost,
         string $sortType,
         string $viewMode = AssessmentTableViewMode::DEFAULT_VIEW,
+        bool $includeStatementMetadataRow = false,
     ): WriterInterface {
         /**
          * I tried to use templates with PHPWord 0.13.0, but it is not possible
@@ -386,7 +387,8 @@ class DocxExporter
                         ViewOrientation::createLandscape(),
                         $phpWord,
                         $exportType,
-                        $requestPost
+                        $requestPost,
+                        $includeStatementMetadataRow
                     );
                     break;
                 default:
@@ -613,6 +615,8 @@ class DocxExporter
             'userPosition'              => $statement['meta']['userPosition'] ?? null,
             'isClusterStatement'        => $statement['isClusterStatement'] ?? null,
             'name'                      => $statement['name'] ?? null,
+            'priorityAreaKeys'          => $statement['priorityAreaKeys'] ?? [],
+            'tagNames'                  => $statement['tagNames'] ?? [],
         ];
     }
 
@@ -655,6 +659,7 @@ class DocxExporter
         $exportType,
         bool $numberStatements = false,
         int $statementNumber = 0,
+        bool $includeStatementMetadataRow = false,
     ): void {
         $styles = $this->getDefaultDocxPageStyles($orientation);
 
@@ -678,6 +683,9 @@ class DocxExporter
                 if (isset($item['text'])) {
                     $item['text'] = $this->editorService->handleObscureTags($item['text'], $anonymous);
                     $this->addHtml($cell2, $item['text'], $styles);
+                }
+                if ($includeStatementMetadataRow) {
+                    $this->addStatementMetadataToCell($cell2, $item, $styles);
                 }
 
                 $cell3 = $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $cellStyle);
@@ -705,6 +713,34 @@ class DocxExporter
                 ->addText($movedStatementText, $styles['cellHeadingText'], $styles['textStyleStatementDetailsParagraphStyles']);
 
             $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $cellStyle);
+        }
+    }
+
+    /**
+     * Appends the assigned Potenzialflächen and Schlagworte below the statement text.
+     *
+     * Only used by the Verfahrensexport (see $includeStatementMetadataRow in
+     * {@link renderTableItem}); the standalone Abwägungstabelle export never sets that flag,
+     * so this stays out of it.
+     */
+    private function addStatementMetadataToCell(Cell $cell, array $item, array $styles): void
+    {
+        $priorityAreaKeys = $item['priorityAreaKeys'] ?? [];
+        if ([] !== $priorityAreaKeys) {
+            $cell->addText(
+                $this->translator->trans('potential.area').': '.implode(', ', $priorityAreaKeys),
+                $styles['textStyleStatementDetails'],
+                $styles['textStyleStatementDetailsParagraphStyles']
+            );
+        }
+
+        $tagNames = $item['tagNames'] ?? [];
+        if ([] !== $tagNames) {
+            $cell->addText(
+                $this->translator->trans('tags').': '.implode(', ', $tagNames),
+                $styles['textStyleStatementDetails'],
+                $styles['textStyleStatementDetailsParagraphStyles']
+            );
         }
     }
 
@@ -1959,6 +1995,7 @@ class DocxExporter
         PhpWord $phpWord,
         $exportType,
         array $requestPost,
+        bool $includeStatementMetadataRow = false,
     ): WriterInterface {
         $phpWord->setDefaultFontSize(9);
         $styles = $this->getDefaultDocxPageStyles($orientation);
@@ -1998,7 +2035,8 @@ class DocxExporter
                 $orientation,
                 $exportType,
                 $numberStatements,
-                $statementNumber
+                $statementNumber,
+                $includeStatementMetadataRow
             );
             ++$statementNumber;
         }
