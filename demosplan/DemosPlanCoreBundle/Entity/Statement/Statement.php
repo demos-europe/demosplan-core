@@ -327,9 +327,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="_st_segmentation_status", type="string", length=20, nullable=false)
      */
+    #[ORM\Column(name: '_st_segmentation_status', type: 'string', length: 20, nullable: false)]
     protected $segmentationStatus = 'unsegmented';
 
     /**
@@ -949,11 +948,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * @var Collection<int, TextSection>
-     *
-     * @ORM\OneToMany(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\TextSection", mappedBy="statement", cascade={"persist", "remove"})
-     *
-     * @ORM\OrderBy({"orderInStatement" = "ASC"})
      */
+    #[ORM\OneToMany(targetEntity: TextSection::class, mappedBy: 'statement', cascade: ['persist', 'remove'])]
+    #[ORM\OrderBy(['orderInStatement' => 'ASC'])]
     protected $textSections;
 
     /**

@@ -43,16 +43,14 @@ class Segment extends Statement implements SegmentInterface
      * Kept in sync with orderInProcedure during the transition period.
      *
      * @var int|null
-     *
-     * @ORM\Column(name="order_in_statement", type="integer", nullable=true)
      */
+    #[ORM\Column(name: 'order_in_statement', type: 'integer', nullable: true)]
     private $orderInStatement;
 
     /**
      * @var bool
-     *
-     * @ORM\Column(name="_st_edit_locked", type="boolean", options={"default":false})
      */
+    #[ORM\Column(name: '_st_edit_locked', type: 'boolean', options: ['default' => false])]
     private $editLocked = false;
 
     /**

@@ -12,63 +12,53 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Entity\Statement;
 
+use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\TextSectionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity(repositoryClass="demosplan\DemosPlanCoreBundle\Repository\TextSectionRepository")
- *
- * @ORM\Table(name="text_section")
- */
+#[ORM\Table(name: 'text_section')]
+#[ORM\Entity(repositoryClass: TextSectionRepository::class)]
 class TextSection extends CoreEntity
 {
     /**
      * @var string
-     *
-     * @ORM\Column(name="id", type="string", length=36, options={"fixed":true})
-     *
-     * @ORM\Id
-     *
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     *
-     * @ORM\CustomIdGenerator(class="\demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator")
      */
+    #[ORM\Column(name: 'id', type: 'string', length: 36, options: ['fixed' => true])]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'CUSTOM')]
+    #[ORM\CustomIdGenerator(class: UuidV4Generator::class)]
     protected $id;
 
     /**
      * @var Statement
-     *
-     * @ORM\ManyToOne(targetEntity="demosplan\DemosPlanCoreBundle\Entity\Statement\Statement", inversedBy="textSections")
-     *
-     * @ORM\JoinColumn(name="statement_id", referencedColumnName="_st_id", nullable=false, onDelete="CASCADE")
      */
     #[Assert\NotNull]
+    #[ORM\JoinColumn(name: 'statement_id', referencedColumnName: '_st_id', nullable: false, onDelete: 'CASCADE')]
+    #[ORM\ManyToOne(targetEntity: Statement::class, inversedBy: 'textSections')]
     protected $statement;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="order_in_statement", type="integer", nullable=false)
      */
     #[Assert\NotNull]
     #[Assert\GreaterThan(0)]
+    #[ORM\Column(name: 'order_in_statement', type: 'integer', nullable: false)]
     protected $orderInStatement;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="text_raw", type="text", nullable=false)
      */
     #[Assert\NotBlank]
+    #[ORM\Column(name: 'text_raw', type: 'text', nullable: false)]
     protected $textRaw;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="text", type="text", nullable=false)
      */
     #[Assert\NotBlank]
+    #[ORM\Column(name: 'text', type: 'text', nullable: false)]
     protected $text;
 
     public function getId()
