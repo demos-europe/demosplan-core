@@ -33,8 +33,8 @@
         <div class="flex justify-between">
           <div class="flex gap-2">
             <dp-icon
-              icon="file"
-              size="xlarge"
+              icon="file-xls"
+              size="xxlarge"
             />
             <div>
               <span class="font-semibold block">
@@ -45,7 +45,7 @@
               </span>
             </div>
           </div>
-          <div class="flex gap-2">
+          <div class="flex">
             <dp-button
               data-cy="scheduledExport:edit"
               icon="edit"
@@ -56,6 +56,7 @@
               @click="$emit('edit', scheduledExport.id)"
             />
             <dp-button
+              class="text-status-failed-icon"
               data-cy="scheduledExport:delete"
               icon="delete"
               icon-size="large"
