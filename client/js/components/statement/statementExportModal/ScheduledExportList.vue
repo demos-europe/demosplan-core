@@ -10,9 +10,9 @@
 <template>
   <div>
     <div class="flex justify-between items-center pb-4">
-      <span class="text-sm inline-block">
+      <h3 class="text-sm mb-0">
         {{ Translator.trans('export.xlsx.scheduled.active', { number: String(scheduledExports.length) }) }}
-      </span>
+      </h3>
       <dp-button
         data-cy="scheduledExportList:add"
         icon="calendar-blank"
@@ -23,27 +23,29 @@
       />
     </div>
 
-    <div class="flex flex-col gap-2 max-h-12 overflow-y-auto">
-      <span v-if="!scheduledExports.length">
-        {{ Translator.trans('export.xlsx.scheduled.empty') }}
-      </span>
-      <div
-        v-else
+    <ul
+      v-if="scheduledExports.length"
+      class="flex flex-col gap-2 max-h-12 overflow-y-auto">
+      <li
         v-for="scheduledExport in scheduledExports"
         :key="scheduledExport.id"
         class="border border-neutral p-2">
-        <div class="flex flex-row justify-between">
+        <div class="flex justify-between">
           <div class="flex gap-2">
             <dp-icon
               icon="file"
               size="xlarge"
             />
             <div>
-              <span class="font-semibold block">XLSX-Datei</span>
-              <span class="text-sm">{{ formatScheduledExportDescription(scheduledExport) }}</span>
+              <span class="font-semibold block">
+                {{ Translator.trans('export.xlsx') }}
+              </span>
+              <span class="text-sm">
+                {{ formatScheduledExportDescription(scheduledExport) }}
+              </span>
             </div>
           </div>
-          <div class="flex justify-between">
+          <div class="flex gap-2">
             <dp-button
               data-cy="scheduledExport:edit"
               icon="edit"
@@ -64,8 +66,12 @@
             />
           </div>
         </div>
-      </div>
-    </div>
+      </li>
+    </ul>
+
+    <span v-else>
+      {{ Translator.trans('export.xlsx.scheduled.empty') }}
+    </span>
   </div>
 </template>
 
@@ -96,22 +102,18 @@ const { getFrequencyLabel, getWeekdayLabel, getMonthDayLabel } = useScheduledExp
 const formatScheduledExportDescription = (scheduledExport: ScheduledExport): string => {
   const frequencyLabel = getFrequencyLabel(scheduledExport.interval)
 
-  if (scheduledExport.interval === 'daily') {
-    return frequencyLabel
+  switch (scheduledExport.interval) {
+    case 'daily':
+      return frequencyLabel
+
+    case 'weekly':
+      return `${frequencyLabel}, ${getWeekdayLabel(scheduledExport.day)}`
+
+    case 'monthly':
+      return Translator.trans('export.xlsx.scheduled.interval.monthly.day', { frequency: frequencyLabel, day: getMonthDayLabel(scheduledExport.day) })
+
+    default:
+      return frequencyLabel
   }
-
-  if (scheduledExport.interval === 'weekly') {
-    const weekdayLabel = getWeekdayLabel(scheduledExport.day)
-
-    return `${frequencyLabel}, ${weekdayLabel}`
-  }
-
-  if (scheduledExport.interval === 'monthly') {
-    const monthDayLabel = getMonthDayLabel(scheduledExport.day)
-
-    return `${frequencyLabel}, am ${monthDayLabel} Tag des Monats`
-  }
-
-  return `${frequencyLabel}, ${scheduledExport.day}`
 }
 </script>

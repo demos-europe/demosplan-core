@@ -13,9 +13,13 @@
       {{ Translator.trans('export.xlsx.scheduled.description') }}
     </p>
     <fieldset class="border-b border-neutral">
+      <legend class="sr-only">
+        {{ Translator.trans('export.xlsx.scheduled.add') }}
+      </legend>
+
       <dp-select
         class="mt-4"
-        data-cy="scheduledExport:selectedFrequency"
+        data-cy="scheduledExportForm:selectedFrequency"
         :label="{ text: Translator.trans('export.xlsx.scheduled.interval') }"
         name="frequency"
         :options="frequencyOptions"
@@ -23,35 +27,33 @@
         @select="handleFrequencySelect"
       />
       <dp-select
-        v-if="dependentSelect"
+        v-if="daySelect"
         class="mt-4"
-        :data-cy="`scheduledExport:${dependentSelect.name}`"
-        :label="{ text: dependentSelect.label }"
-        :name="dependentSelect.name"
-        :options="dependentSelect.options"
-        :selected="dependentSelect.selected"
-        @select="value => handleSelect(dependentSelect.name, value)"
+        :data-cy="`scheduledExportForm:${daySelect.name}`"
+        :label="{ text: daySelect.label }"
+        :name="daySelect.name"
+        :options="daySelect.options"
+        :selected="daySelect.selected"
+        @select="value => handleDaySelect(daySelect.name, value)"
       />
     </fieldset>
 
-    <fieldset class="pb-0">
-      <div class="rounded bg-neutral-light-4 p-3 mt-4">
-        <div class="grid grid-cols-3 gap-2">
-          <span>
-            {{ `${Translator.trans('export.xlsx.scheduled.interval')}:` }}
-          </span>
-          <span class="font-semibold col-span-2">
-            {{ frequencyLabel }}
-          </span>
-          <span>
-            {{ `${Translator.trans('export.xlsx.scheduled.next')}:` }}
-          </span>
-          <span class="font-semibold col-span-2">
-            {{ nextExportLabel }}
-          </span>
-        </div>
-      </div>
-    </fieldset>
+    <div class="rounded bg-neutral-light-4 p-3 mt-4">
+      <dl class="grid grid-cols-3 gap-2">
+        <dt>
+          {{ `${Translator.trans('export.xlsx.scheduled.interval')}:` }}
+        </dt>
+        <dd class="font-semibold col-span-2">
+          {{ frequencyLabel }}
+        </dd>
+        <dt>
+          {{ `${Translator.trans('export.xlsx.scheduled.next')}:` }}
+        </dt>
+        <dd class="font-semibold col-span-2">
+          {{ nextExportLabel }}
+        </dd>
+      </dl>
+    </div>
   </div>
 </template>
 
@@ -76,10 +78,10 @@ interface SelectOption {
   value: string | number
 }
 
-type DependentSelectName = 'weekday' | 'monthDay'
+type DaySelectName = 'weekday' | 'monthDay'
 
-interface DependentSelect {
-  name: DependentSelectName
+interface DaySelect {
+  name: DaySelectName
   label: string
   options: SelectOption[]
   selected: string | number
@@ -111,26 +113,27 @@ const selectedMonthDay = ref<number>(5)
 
 const { frequencyOptions, weekdayOptions, monthDayOptions } = useScheduledExportOptions()
 
-const dependentSelect = computed<DependentSelect | null>(() => {
-  if (selectedFrequency.value === 'weekly') {
-    return {
-      name: 'weekday',
-      label: Translator.trans('export.xlsx.scheduled.interval.weekday'),
-      options: weekdayOptions,
-      selected: selectedWeekday.value,
-    }
-  }
+const daySelect = computed<DaySelect | null>(() => {
+  switch (selectedFrequency.value) {
+    case 'weekly':
+      return {
+        name: 'weekday',
+        label: Translator.trans('export.xlsx.scheduled.interval.weekday'),
+        options: weekdayOptions,
+        selected: selectedWeekday.value,
+      }
 
-  if (selectedFrequency.value === 'monthly') {
-    return {
-      name: 'monthDay',
-      label: Translator.trans('export.xlsx.scheduled.interval.monthDay'),
-      options: monthDayOptions,
-      selected: selectedMonthDay.value,
-    }
-  }
+    case 'monthly':
+      return {
+        name: 'monthDay',
+        label: Translator.trans('export.xlsx.scheduled.interval.monthDay'),
+        options: monthDayOptions,
+        selected: selectedMonthDay.value,
+      }
 
-  return null
+    default:
+      return null
+  }
 })
 
 const { getNextExportDate, formatExportDate } = useScheduledExportDate()
@@ -144,29 +147,19 @@ const frequencyLabel = computed(() => {
 })
 
 const nextExportLabel = computed(() => {
-  if (!selectedFrequency.value) {
-    return ''
+  switch (selectedFrequency.value) {
+    case 'daily':
+      return formatExportDate(getNextExportDate({ interval: 'daily' }))
+
+    case 'weekly':
+      return formatExportDate(getNextExportDate({ interval: 'weekly', weekday: selectedWeekday.value }))
+
+    case 'monthly':
+      return formatExportDate(getNextExportDate({ interval: 'monthly', dayOfMonth: selectedMonthDay.value }))
+
+    default:
+      return ''
   }
-
-  if (selectedFrequency.value === 'daily') {
-    const nextDate = getNextExportDate({ interval: 'daily' })
-
-    return formatExportDate(nextDate)
-  }
-
-  if (selectedFrequency.value === 'weekly') {
-    const nextDate = getNextExportDate({ interval: 'weekly', weekday: selectedWeekday.value })
-
-    return formatExportDate(nextDate)
-  }
-
-  if (selectedFrequency.value === 'monthly') {
-    const nextDate = getNextExportDate({ interval: 'monthly', dayOfMonth: selectedMonthDay.value })
-
-    return formatExportDate(nextDate)
-  }
-
-  return ''
 })
 
 const handleFrequencySelect = (value: string) => {
@@ -175,7 +168,7 @@ const handleFrequencySelect = (value: string) => {
   selectedMonthDay.value = 5
 }
 
-const handleSelect = (name: DependentSelectName, value: string | number) => {
+const handleDaySelect = (name: DaySelectName, value: string | number) => {
   const numericValue = typeof value === 'string' ? parseInt(value, 10) : value
 
   if (name === 'weekday') {
