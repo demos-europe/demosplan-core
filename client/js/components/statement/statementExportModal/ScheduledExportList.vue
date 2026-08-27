@@ -24,7 +24,11 @@
     </div>
 
     <div class="flex flex-col gap-2 max-h-12 overflow-y-auto">
+      <span v-if="!scheduledExports.length">
+        {{ Translator.trans('export.xlsx.scheduled.empty') }}
+      </span>
       <div
+        v-else
         v-for="scheduledExport in scheduledExports"
         :key="scheduledExport.id"
         class="border border-neutral p-2">

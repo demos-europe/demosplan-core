@@ -89,6 +89,22 @@ const props = withDefaults(defineProps<Props>(), {
   editingExport: null
 })
 
+const formData = defineModel<{ interval: string; day: number | null }>('formData', {
+  default: () => ({ interval: '', day: null })
+})
+
+const getSelectedDay = () => {
+  if (selectedFrequency.value === 'weekly') {
+    return selectedWeekday.value
+  }
+
+  if (selectedFrequency.value === 'monthly') {
+    return selectedMonthDay.value
+  }
+
+  return null
+}
+
 const selectedFrequency = ref('daily')
 const selectedWeekday = ref<number>(1)
 const selectedMonthDay = ref<number>(5)
@@ -180,6 +196,13 @@ const populateForm = (editingExport: ScheduledExport) => {
   selectedWeekday.value = editingExport.interval === 'weekly' ? editingExport.day : 1
   selectedMonthDay.value = editingExport.interval === 'monthly' ? editingExport.day : 5
 }
+
+watch([selectedFrequency, selectedWeekday, selectedMonthDay], () => {
+  Object.assign(formData.value, {
+    interval: selectedFrequency.value,
+    day: getSelectedDay(),
+  })
+}, { immediate: true })
 
 watch(() => props.editingExport, (editingExport) => {
   if (editingExport) {

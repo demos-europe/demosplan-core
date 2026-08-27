@@ -346,6 +346,7 @@
         />
         <scheduled-export-form-fields
           v-else
+          v-model:formData="currentScheduledExportFormData"
           :editing-export="editingScheduledExport"
         />
       </template>
@@ -370,8 +371,8 @@
           secondary
           :primary-text="getBaseScheduledExportMode(scheduledExportMode) === 'add' ? Translator.trans('export.xlsx.scheduled.add') : Translator.trans('save.changes')"
           :secondary-text="Translator.trans('abort')"
-          @primary-action="handleExport"
-          @secondary-action="scheduledExportMode = null"
+          @primary-action="handleScheduledExport"
+          @secondary-action="handleCancelScheduledExport"
         />
         <div
           v-else-if="scheduledExportMode === 'manage'"
@@ -460,6 +461,10 @@ export default {
       active: 'docx_normal',
       scheduledExportMode: null,
       editingScheduledExportId: null,
+      currentScheduledExportFormData: {
+        interval: '',
+        day: null,
+      },
       scheduledExports: [ // Mock data for now
         {
           id: 'export-1',
@@ -624,6 +629,13 @@ export default {
       setUngroupedFilterOptions: 'setUngroupedOptions',
     }),
 
+    addScheduledExport () {
+      this.scheduledExports.push({
+        id: `export-${Date.now()}`,
+        ...this.currentScheduledExportFormData,
+      })
+    },
+
     getBaseScheduledExportMode (view) {
       if (view.includes(':')) {
         return view.split(':')[1]
@@ -681,10 +693,14 @@ export default {
     },
 
     closeModal () {
-      this.scheduledExportMode = null
+      this.closeScheduledExportMode()
       this.resetExportModalState()
       this.resetFilterFlyout()
       this.resetExportModalInner()
+    },
+
+    closeScheduledExportMode () {
+      this.scheduledExportMode = null
     },
 
     async fetchFilterOptions (requestParams) {
@@ -779,14 +795,14 @@ export default {
       switch (this.scheduledExportMode) {
         case 'add':
         case 'manage':
-          this.scheduledExportMode = null
+          this.closeScheduledExportMode()
           break
         case 'manage:add':
         case 'edit':
-          this.scheduledExportMode = 'manage'
+          this.openManageScheduledExportMode()
           break
         default:
-          this.scheduledExportMode = null
+          this.closeScheduledExportMode()
       }
     },
 
@@ -827,10 +843,27 @@ export default {
       this.closeModal()
     },
 
-    handleScheduleCreated () {
-      // Handle the scheduled export creation here
-      // This will be implemented when backend is ready
-      this.closeModal()
+    handleCancelScheduledExport () {
+      if (this.scheduledExportMode === 'edit' || this.scheduledExportMode === 'manage:add') {
+        this.openManageScheduledExportMode()
+      } else {
+        this.closeScheduledExportMode()
+      }
+
+      this.editingScheduledExportId = null
+    },
+
+    handleScheduledExport () {
+      const scheduledExportMode = this.getBaseScheduledExportMode(this.scheduledExportMode)
+
+      if (scheduledExportMode === 'add' && this.currentScheduledExportFormData.interval) {
+        this.addScheduledExport()
+
+      } else if (scheduledExportMode === 'edit' && this.editingScheduledExportId) {
+        this.updateExistingScheduledExport()
+      }
+
+      this.closeScheduledExportMode()
     },
 
     handleScheduledExportAdd () {
@@ -844,8 +877,7 @@ export default {
     },
 
     handleScheduledExportDelete (exportId) {
-      console.log('deleteScheduledExport', exportId)
-      // TODO: Implement delete logic
+      this.scheduledExports = this.scheduledExports.filter(exp => exp.id !== exportId) // ToDo: mock for now
     },
 
     initInitialFlyoutFilterSelection ({ isInitialWithQuery, groupedOptions, ungroupedOptions }) {
@@ -944,6 +976,10 @@ export default {
       this.resetExportModalInner()
     },
 
+    openManageScheduledExportMode () {
+      this.scheduledExportMode = 'manage'
+    },
+
     resetFilterFlyout () {
       this.$refs.filterFlyout?.reset?.()
     },
@@ -956,6 +992,10 @@ export default {
       this.active = 'docx_normal'
       this.currentView = 'main'
       this.customHeaderText = ''
+      this.currentScheduledExportFormData = {
+        interval: '',
+        day: null,
+      }
       this.editingScheduledExportId = null
       this.isCitizenDataCensored = false
       this.isInstitutionDataCensored = false
@@ -1028,6 +1068,19 @@ export default {
       }
 
       this.selectedTags = filterFlyout.itemsSelected
+    },
+
+    updateExistingScheduledExport () {
+      const index = this.scheduledExports.findIndex(
+        exp => exp.id === this.editingScheduledExportId
+      )
+
+      if (index !== -1) {
+        this.scheduledExports[index] = {
+          ...this.scheduledExports[index],
+          ...this.currentScheduledExportFormData,
+        }
+      }
     },
 
     updateFilterOptionsInStore ({ category, groupedOptions, ungroupedOptions }) {
