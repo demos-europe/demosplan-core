@@ -49,43 +49,15 @@
           @search="(term) => updateSearchQuery(term)"
           @reset="handleResetSearch"
         />
-        <div class="ml-2 space-x-2">
-          <filter-flyout
-            v-for="(filter, idx) in Object.values(filters)"
-            ref="filterFlyout"
-            :key="`filter_${filter.labelTranslationKey}`"
-            :additional-query-params="{ searchPhrase: searchTerm }"
-            :category="{
-              id: `${filter.labelTranslationKey}:${idx}`,
-              label: Translator.trans(filter.labelTranslationKey),
-            }"
-            class="inline-block"
-            :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
-            align="left"
-            :groups-object="filter.groupsObject"
-            :hint="filter.labelTranslationKey !== 'tags'"
-            :initial-query-ids="queryIds"
-            :items-object="filter.itemsObject"
-            :operator="filter.comparisonOperator"
-            :member-of="groupName(filter.labelTranslationKey)"
-            :path="filter.rootPath"
-            :show-count="{
-              groupedOptions: true,
-              ungroupedOptions: true,
-            }"
-            @filter-apply="sendFilterQuery"
-            @filter-options:request="
-              (params) =>
-                sendFilterOptionsRequest({
-                  ...params,
-                  category: {
-                    id: `${filter.labelTranslationKey}:${idx}`,
-                    label: Translator.trans(filter.labelTranslationKey),
-                  },
-                })
-            "
-          />
-        </div>
+        <dp-button
+          class="ml-2 h-fit"
+          data-cy="segmentsList:openFilter"
+          icon="sliders-horizontal"
+          icon-size="medium"
+          :text="filterButtonText"
+          variant="outline"
+          @click="toggleFilterSlidebar"
+        />
         <dp-button
           v-tooltip="Translator.trans('search.filter.reset')"
           class="ml-2 h-fit"
@@ -597,7 +569,6 @@ import {
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CustomSearch from './CustomSearch'
-import FilterFlyout from './FilterFlyout'
 import fullscreenModeMixin from '@DpJs/components/shared/mixins/fullscreenModeMixin'
 import ImageModal from '@DpJs/components/shared/ImageModal'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
@@ -627,7 +598,6 @@ export default {
     DpPager,
     DpSelect,
     DpStickyElement,
-    FilterFlyout,
     ImageModal,
     SegmentUnlockModal,
     StatementMetaTooltip,
@@ -693,7 +663,7 @@ export default {
     },
   },
 
-  emits: ['show-slidebar'],
+  emits: ['reset-filters'],
 
   setup () {
     const { unlockModal, openUnlockModal, unlockSegment } = useSegmentUnlock()
@@ -814,6 +784,11 @@ export default {
       'getIsExpandedByCategoryId',
     ]),
 
+    ...mapGetters('SegmentsListFilter', [
+      'getIsFilterPanelActive',
+      'getIsSlidebarOpen',
+    ]),
+
     ...mapState('Orga', {
       orgaObject: 'items',
     }),
@@ -918,6 +893,12 @@ export default {
       }
 
       return selected.reduce((acc, el) => ({ ...acc, [el.id]: true }), {})
+    },
+
+    filterButtonText () {
+      return this.queryIds.length > 0 ?
+        `${Translator.trans('filter')} (${this.queryIds.length})` :
+        Translator.trans('filter')
     },
 
     hasLockedInSelection () {
@@ -1095,6 +1076,11 @@ export default {
       setIsLoadingFilterFlyout: 'setIsLoading',
       setGroupedFilterOptions: 'setGroupedOptions',
       setUngroupedFilterOptions: 'setUngroupedOptions',
+    }),
+
+    ...mapMutations('SegmentsListFilter', {
+      setIsFilterPanelActive: 'setIsFilterPanelActive',
+      setIsSlidebarOpen: 'setIsSlidebarOpen',
     }),
 
     applySort (sortValue) {
@@ -1662,15 +1648,6 @@ export default {
       return null
     },
 
-    groupName (filterType) {
-      if (filterType === 'tags') {
-        return null
-      }
-
-      // Replace '.' in workflow.places because it is forbidden in group names
-      return `${filterType.replaceAll('.', '-')}_group`
-    },
-
     handleBulkEdit () {
       this.storeToggledSegments()
       // Persist currentQueryHash to load the filtered SegmentsList after returning from bulk edit flow.
@@ -1720,15 +1697,10 @@ export default {
       this.columnSelectorKey++
     },
 
+    // Filters live in SegmentsListFilter (in the slidebar); delegate the reset there via the twig template.
     resetQuery () {
       this.resetSearchQuery()
-      this.appliedFilterQuery = []
-      this.$refs.filterFlyout?.forEach((flyout) => {
-        flyout.reset()
-      })
-      this.updateQueryHash()
-      this.resetSelection()
-      this.applyQuery(1)
+      this.$emit('reset-filters')
     },
 
     resetSearchQuery () {
@@ -1757,17 +1729,14 @@ export default {
     /**
      *
      * @param params {Object}
-     * @param params.additionalQueryParams {Object}
      * @param params.category {Object} id, label
      * @param params.currentQuery {Array}
      * @param params.filter {Object}
      * @param params.isInitialWithQuery {Boolean}
      * @param params.path {String}
-     * @param params.searchPhrase {String}
      */
     sendFilterOptionsRequest (params) {
       const {
-        additionalQueryParams,
         category,
         currentQuery,
         filter,
@@ -1827,7 +1796,7 @@ export default {
         }
       }
       const requestParams = {
-        ...additionalQueryParams,
+        searchPhrase: this.searchTerm,
         filter: {
           ...filter,
           sameProcedure: {
@@ -2014,8 +1983,16 @@ export default {
     },
 
     showVersionHistory (segmentId, externId) {
+      this.setIsFilterPanelActive(false)
+      this.setIsSlidebarOpen(true)
       this.$root.$emit('version:history', segmentId, 'segment', externId)
-      this.$root.$emit('show-slidebar')
+    },
+
+    toggleFilterSlidebar () {
+      const closing = this.getIsSlidebarOpen && this.getIsFilterPanelActive
+
+      this.setIsFilterPanelActive(true)
+      this.setIsSlidebarOpen(!closing)
     },
 
     updateQueryHash () {

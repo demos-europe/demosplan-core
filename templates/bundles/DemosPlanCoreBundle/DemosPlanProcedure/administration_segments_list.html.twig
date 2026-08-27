@@ -7,17 +7,32 @@
         flush: true
     } %}
 
-    {# Version History Slidebar #}
-    <dp-slidebar>
-        <dp-version-history procedure-id="{{ procedure }}"></dp-version-history>
+    {# Shared slidebar - filter panel and version history are both rendered inside it, toggled via the SegmentsListFilter store #}
+    <dp-slidebar
+        :open="$store.getters['SegmentsListFilter/getIsSlidebarOpen']"
+        @close="$store.commit('SegmentsListFilter/setIsSlidebarOpen', false)">
+        <segments-list-filter
+            v-show="$store.getters['SegmentsListFilter/getIsFilterPanelActive']"
+            ref="segmentsListFilter"
+            :filters="JSON.parse('{{ filterNames|json_encode|e('js', 'utf-8') }}')"
+            :initial-filter="JSON.parse('{{ segmentListQuery.filter|json_encode|e('js', 'utf-8') }}')"
+            @filter-apply="$refs.segmentsList.sendFilterQuery($event)"
+            @filter-options:request="$refs.segmentsList.sendFilterOptionsRequest($event)">
+        </segments-list-filter>
+        <dp-version-history
+            v-show="!$store.getters['SegmentsListFilter/getIsFilterPanelActive']"
+            procedure-id="{{ procedure }}">
+        </dp-version-history>
     </dp-slidebar>
 
     <segments-list
+        ref="segmentsList"
         :filters="JSON.parse('{{ filterNames|json_encode|e('js', 'utf-8') }}')"
         procedure-id="{{ procedure }}"
         current-user-id="{{ currentUser.ident }}"
         :initial-filter="JSON.parse('{{ segmentListQuery.filter|json_encode|e('js', 'utf-8') }}')"
-        initial-search-term="{{ segmentListQuery.searchPhrase|default }}">
+        initial-search-term="{{ segmentListQuery.searchPhrase|default }}"
+        @reset-filters="$refs.segmentsListFilter.resetAllFilters()">
     </segments-list>
 {% endblock %}
 
