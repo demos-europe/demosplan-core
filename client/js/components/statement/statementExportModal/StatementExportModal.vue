@@ -254,7 +254,7 @@
           <div class="flex justify-end gap-2">
             <dp-button
               data-cy="exportModal:scheduledExport:manage"
-              :text="Translator.trans('export.xlsx.scheduled.manage')"
+              :text="`${Translator.trans('export.xlsx.scheduled.manage')} (${scheduledExports.length})`"
               variant="transparent"
               @click="scheduledExportMode = 'manage'"
             />
@@ -336,13 +336,19 @@
       </template>
 
       <!-- Scheduled export view -->
-      <scheduled-export-form
-        v-if="isScheduledExportView"
-        v-model:view="scheduledExportMode"
-        :procedure-id="procedureId"
-        @schedule-created="handleScheduleCreated"
-        @cancel="scheduledExportMode = null"
-      />
+      <template v-if="isScheduledExportView">
+        <scheduled-export-list
+          v-if="scheduledExportMode === 'manage'"
+          :scheduled-exports="scheduledExports"
+          @add="handleScheduledExportAdd"
+          @edit="handleScheduledExportEdit"
+          @delete="handleScheduledExportDelete"
+        />
+        <scheduled-export-form-fields
+          v-else
+          :editing-export="editingScheduledExport"
+        />
+      </template>
 
       <template v-slot:footer>
         <dp-button-row
@@ -362,7 +368,7 @@
           data-cy="scheduledExport"
           primary
           secondary
-          :primary-text="getBaseScheduledExportMode(scheduledExportMode) === 'add' ? Translator.trans('export.xlsx.scheduled.add') : Translator.trans('export.xlsx.scheduled.edit')"
+          :primary-text="getBaseScheduledExportMode(scheduledExportMode) === 'add' ? Translator.trans('export.xlsx.scheduled.add') : Translator.trans('save.changes')"
           :secondary-text="Translator.trans('abort')"
           @primary-action="handleExport"
           @secondary-action="scheduledExportMode = null"
@@ -376,7 +382,7 @@
             data-cy="scheduledExport:close"
             :text="Translator.trans('close')"
             variant="outline"
-            @click=""
+            @click="scheduledExportMode = null"
           />
         </div>
       </template>
@@ -402,8 +408,8 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations } from 'vuex'
 import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
-import ScheduledExportForm from '@DpJs/components/statement/statementExportModal/ScheduledExportForm'
-import {computed} from 'vue'
+import ScheduledExportFormFields from '@DpJs/components/statement/statementExportModal/ScheduledExportFormFields'
+import ScheduledExportList from '@DpJs/components/statement/statementExportModal/ScheduledExportList'
 
 export default {
   name: 'StatementExportModal',
@@ -420,7 +426,8 @@ export default {
     DpRadio,
     DpUploadFiles,
     FilterFlyout,
-    ScheduledExportForm,
+    ScheduledExportFormFields,
+    ScheduledExportList,
   },
 
   mixins: [sessionStorageMixin],
@@ -452,6 +459,24 @@ export default {
     return {
       active: 'docx_normal',
       scheduledExportMode: null,
+      editingScheduledExportId: null,
+      scheduledExports: [ // Mock data for now
+        {
+          id: 'export-1',
+          interval: 'weekly',
+          day: 1 // Monday (Date.getDay() value)
+        },
+        {
+          id: 'export-2',
+          interval: 'monthly',
+          day: 15, // 15th day of month
+        },
+        {
+          id: 'export-3',
+          interval: 'daily',
+          day: null
+        },
+      ],
       docxColumns: {
         col1: {
           dataCy: 'exportModal:input:col1',
@@ -584,6 +609,10 @@ export default {
 
     isStatementExportView () {
       return this.scheduledExportMode === null
+    },
+
+    editingScheduledExport () {
+      return this.scheduledExports.find(exp => exp.id === this.editingScheduledExportId) ?? null
     }
   },
 
@@ -804,6 +833,21 @@ export default {
       this.closeModal()
     },
 
+    handleScheduledExportAdd () {
+      this.editingScheduledExportId = null
+      this.scheduledExportMode = 'manage:add'
+    },
+
+    handleScheduledExportEdit (exportId) {
+      this.editingScheduledExportId = exportId
+      this.scheduledExportMode = 'edit'
+    },
+
+    handleScheduledExportDelete (exportId) {
+      console.log('deleteScheduledExport', exportId)
+      // TODO: Implement delete logic
+    },
+
     initInitialFlyoutFilterSelection ({ isInitialWithQuery, groupedOptions, ungroupedOptions }) {
       if (!isInitialWithQuery || this.queryIds.length === 0) {
         return
@@ -912,6 +956,7 @@ export default {
       this.active = 'docx_normal'
       this.currentView = 'main'
       this.customHeaderText = ''
+      this.editingScheduledExportId = null
       this.isCitizenDataCensored = false
       this.isInstitutionDataCensored = false
       this.isObscure = false

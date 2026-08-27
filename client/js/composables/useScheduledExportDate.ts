@@ -8,20 +8,6 @@
  */
 
 /**
- * Map weekday abbreviation to JavaScript Date.getDay() value
- */
-const getWeekdayNumber = (weekdayAbbr: string): number => {
-  const weekdayMap: Record<string, number> = {
-    mo: 1, // Monday
-    tu: 2, // Tuesday
-    we: 3, // Wednesday
-    th: 4, // Thursday
-    fr: 5, // Friday
-  }
-  return weekdayMap[weekdayAbbr] ?? 1
-}
-
-/**
  * Calculate the next export date based on interval and selected day
  */
 const getNextExportDate = ({
@@ -144,7 +130,6 @@ export function useScheduledExportDate() {
   return {
     getNextExportDate,
     formatExportDate,
-    getWeekdayNumber,
     isTomorrow,
   }
 }
