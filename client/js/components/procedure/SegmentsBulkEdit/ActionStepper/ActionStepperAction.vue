@@ -7,12 +7,12 @@
   All rights reserved
 </license>
 
-<documentaion>
+<documentation>
   <!--
     This component provides the spacing and toggle logic for a single action to be used
     within the first step of the ActionStepper component.
   -->
-</documentaion>
+</documentation>
 
 <template>
   <div class="u-pv space-stack-s">

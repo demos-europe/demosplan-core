@@ -10,14 +10,15 @@
  * `applySelectionChange` derives the current range selection from the document via `getMarks`.
  * Mock the utilities module so each test controls whether a selection exists.
  */
-jest.mock('@DpJs/lib/prosemirror/utilities', () => ({
-  flattenNode: jest.fn(() => []),
-  getMarks: jest.fn(),
-  splitsExistingRange: jest.fn(() => false),
+vi.mock('@DpJs/lib/prosemirror/utilities', () => ({
+  flattenNode: vi.fn(() => []),
+  getMarks: vi.fn(),
+  splitsExistingRange: vi.fn(() => false),
 }))
 
 import { applySelectionChange } from '@DpJs/lib/prosemirror/commands'
 import { getMarks } from '@DpJs/lib/prosemirror/utilities'
+import { vi } from 'vitest'
 
 /**
  * Builds a minimal ProseMirror-like view. `state.tr` is a chainable stub that records the meta
@@ -33,7 +34,7 @@ const buildView = () => {
     },
   }
   const state = { doc: {}, tr }
-  const dispatch = jest.fn()
+  const dispatch = vi.fn()
 
   return { view: { state, dispatch }, dispatch, tr, dispatchedMeta }
 }
@@ -44,10 +45,10 @@ const rangeTrackerKey = { getState: () => ({}) }
 
 describe('applySelectionChange', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     // `dplan.notify` / `Translator` are used by the "segment too short" branch.
-    global.dplan = { notify: { notify: jest.fn() } }
-    global.Translator = { trans: jest.fn(key => key) }
+    global.dplan = { notify: { notify: vi.fn() } }
+    global.Translator = { trans: vi.fn(key => key) }
   })
 
   it('does not throw and returns true when there is no active range selection', () => {
