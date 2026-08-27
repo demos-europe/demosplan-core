@@ -122,6 +122,10 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     /**
      * @var bool
      *           Is this orga listed in public toeb list
+     *
+     * @deprecated moved per-customer to {@link OrgaStatusInCustomer::$showlist}; use
+     *             {@link getShowlistForCustomer()} for the current-customer value. Retained for the
+     *             transition dual-write until the column is dropped.
      */
     #[ORM\Column(name: '_o_showlist', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $showlist = true;
@@ -493,6 +497,58 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     public function isShowlist(): bool
     {
         return $this->getShowlist();
+    }
+
+    /**
+     * Returns the per-customer {@link OrgaStatusInCustomer::$showlist} value for the given customer.
+     *
+     * An orga may hold one status row per orgaType within a customer, but `showlist` is a single
+     * per-customer decision: {@link OrgaRepository::updateShowlistForCustomer()} writes every row of
+     * the customer, and {@link Orga::addCustomerAndOrgaType()} makes new rows inherit the value, so
+     * the rows do not diverge. The PUBLIC_AGENCY row is preferred as the canonical one because it is
+     * the grain {@link InvitablePublicAgencyResourceType} filters on; any other row of the customer
+     * is used for orgas that hold no PUBLIC_AGENCY row.
+     *
+     * Defaults to `false` when the orga has no status row in that customer at all, matching the
+     * query paths which inner-join `statusInCustomers` and exclude such orgas entirely. Used as the
+     * backing value of the {@link OrgaResourceType::$showlist} attribute, read per current customer.
+     */
+    public function getShowlistForCustomer(CustomerInterface $customer): bool
+    {
+        $statusesInCustomer = $this->getStatusesInCustomer($customer);
+        if ([] === $statusesInCustomer) {
+            return false;
+        }
+
+        foreach ($statusesInCustomer as $statusInCustomer) {
+            if (OrgaTypeInterface::PUBLIC_AGENCY === $statusInCustomer->getOrgaType()->getName()) {
+                return $statusInCustomer->getShowlist();
+            }
+        }
+
+        return reset($statusesInCustomer)->getShowlist();
+    }
+
+    /**
+     * Returns all status rows the orga holds in the given customer — one per orgaType.
+     *
+     * Compares by id rather than identity to stay correct for detached or session-deserialized
+     * customers (the Doctrine identity map is only reliable within a request).
+     *
+     * @return list<OrgaStatusInCustomer>
+     */
+    public function getStatusesInCustomer(CustomerInterface $customer): array
+    {
+        $customerId = $customer->getId();
+        $statusesInCustomer = [];
+        /** @var OrgaStatusInCustomer $statusInCustomer */
+        foreach ($this->getStatusInCustomers() as $statusInCustomer) {
+            if ($customerId === $statusInCustomer->getCustomer()->getId()) {
+                $statusesInCustomer[] = $statusInCustomer;
+            }
+        }
+
+        return $statusesInCustomer;
     }
 
     public function setGwId(?string $gwId): self
@@ -1153,6 +1209,13 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         $relation->setOrgaType($orgaType);
         $relation->setOrga($this);
         $relation->setStatus($status);
+        // showlist is a per-customer decision, so a new orgaType row adopts the value already set
+        // for this customer. Without this an orga hidden by an admin would silently become visible
+        // again as soon as it gains another orgaType.
+        $existingStatuses = $this->getStatusesInCustomer($customer);
+        if ([] !== $existingStatuses) {
+            $relation->setShowlist($this->getShowlistForCustomer($customer));
+        }
 
         // add to list if not yet exists
         // Collection->contains does not find relation
