@@ -6,6 +6,8 @@
 
 ## UNRELEASED
 
+## v4.58.0 (2026-08-27)
+
 ### Changed
 - Requires `demos-europe/demosplan-addon` ^0.79, and every release from this one on does. The saved filter combinations of the assessment table were renamed `UserFilterSet` → `Bookmark`: entity, database table, repository, service and resource type, and in the contract layer `BookmarkInterface`, `BookmarkPath`, `Paths::bookmark()` and `BaseBookmarkResourceConfigBuilder`. Addons referring to any of the old names have to be updated. The table is renamed by an included migration, so no manual step is needed.
 ### Added
