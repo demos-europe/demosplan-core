@@ -27,7 +27,6 @@
 
     <segments-list
         ref="segmentsList"
-        :filters="JSON.parse('{{ filterNames|json_encode|e('js', 'utf-8') }}')"
         procedure-id="{{ procedure }}"
         current-user-id="{{ currentUser.ident }}"
         :initial-filter="JSON.parse('{{ segmentListQuery.filter|json_encode|e('js', 'utf-8') }}')"

@@ -623,29 +623,6 @@ export default {
       required: true,
     },
 
-    /**
-     * {Object of objects}
-     * {
-     *   assignee: {
-     *     comparisonOperator: string,
-     *     grouping?: {
-     *       labelTranslationKey: string,
-     *       targetPath: string
-     *     },
-     *     labelTranslationKey: string,
-     *     rootPath: string,
-     *     selected: boolean
-     *   },
-     *   place: s. assignee,
-     *   tags: s. assignee
-     * }
-     */
-    filters: {
-      type: Object,
-      required: false,
-      default: () => ({}),
-    },
-
     initialFilter: {
       type: [Object, Array],
       default: () => ({}),
@@ -663,7 +640,7 @@ export default {
     },
   },
 
-  emits: ['reset-filters'],
+  emits: ['resetFilters'],
 
   setup () {
     const { unlockModal, openUnlockModal, unlockSegment } = useSegmentUnlock()
@@ -1700,7 +1677,7 @@ export default {
     // Filters live in SegmentsListFilter (in the slidebar); delegate the reset there via the twig template.
     resetQuery () {
       this.resetSearchQuery()
-      this.$emit('reset-filters')
+      this.$emit('resetFilters')
     },
 
     resetSearchQuery () {

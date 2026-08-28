@@ -297,31 +297,25 @@ export default {
       return category.currentQuery.some((id) => category.appliedQuery.includes(id) === false)
     },
 
-    // Builds the JSON:API filter for a category's selected ids; 'unassigned' maps to IS NULL.
+    // Builds the JSON:API condition for one option id; 'unassigned' maps to IS NULL.
+    buildFilterCondition (category, id) {
+      const condition = id === 'unassigned' ?
+        { path: category.path, operator: 'IS NULL' } :
+        { path: category.path, value: id, operator: category.operator }
+
+      if (category.memberOf) {
+        condition.memberOf = category.memberOf
+      }
+
+      return { condition }
+    },
+
+    // Builds the JSON:API filter map for all of a category's selected ids.
     getFilter (category) {
       const filter = {}
 
       category.currentQuery.forEach((id) => {
-        if (id === 'unassigned') {
-          filter[id] = {
-            condition: {
-              path: category.path,
-              operator: 'IS NULL',
-            },
-          }
-        } else {
-          filter[id] = {
-            condition: {
-              path: category.path,
-              value: id,
-              operator: category.operator,
-            },
-          }
-        }
-
-        if (category.memberOf) {
-          filter[id].condition.memberOf = category.memberOf
-        }
+        filter[id] = this.buildFilterCondition(category, id)
       })
 
       return filter
@@ -448,9 +442,9 @@ export default {
     updateQuery (category, isSelected, option) {
       if (isSelected) {
         category.currentQuery.push(option.id)
-        this.updateFilters({ [option.id]: this.getFilter(category)[option.id] })
+        this.updateFilters({ [option.id]: this.buildFilterCondition(category, option.id) })
       } else {
-        this.updateFilters({ [option.id]: this.getFilter(category)[option.id] })
+        this.updateFilters({ [option.id]: this.buildFilterCondition(category, option.id) })
         category.currentQuery.splice(category.currentQuery.indexOf(option.id), 1)
       }
 
