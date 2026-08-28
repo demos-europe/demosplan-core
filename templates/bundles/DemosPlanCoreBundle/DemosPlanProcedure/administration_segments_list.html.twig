@@ -32,6 +32,8 @@
         current-user-id="{{ currentUser.ident }}"
         :initial-filter="JSON.parse('{{ segmentListQuery.filter|json_encode|e('js', 'utf-8') }}')"
         initial-search-term="{{ segmentListQuery.searchPhrase|default }}"
+        {# Empty when the hash carries no view settings, in which case it arrives as [] rather than {} #}
+        :initial-view-settings="JSON.parse('{{ segmentListQuery.viewSettings|json_encode|e('js', 'utf-8') }}')"
         @reset-filters="$refs.segmentsListFilter.resetAllFilters()">
     </segments-list>
 {% endblock %}
