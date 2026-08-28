@@ -64,6 +64,11 @@ when@test:
                     charset: UTF8
                     memory: false
                     user: test
+                    # The messenger_messages exclusion (see base config above) makes
+                    # SchemaTool::dropDatabase() skip the table while createSchema() still
+                    # recreates it via MessengerTransportDoctrineSchemaListener, causing
+                    # "table already exists" on every SQLite schema rebuild in tests.
+                    schema_filter: ~
 
 when@prod:
     doctrine:
