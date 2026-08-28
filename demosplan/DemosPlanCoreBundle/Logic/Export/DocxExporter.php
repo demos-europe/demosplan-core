@@ -644,15 +644,16 @@ class DocxExporter
      * <p>
      * Fragments can be converted to statement like items using 'formatFragment()' function.
      *
-     * @param Table $assessmentTable
+     * @param Table  $assessmentTable
      * @param array  $item
      * @param bool   $anonymous
      * @param string $exportType
-     * @param array  $renderOptions {
-     *     @var bool $numberStatements
-     *     @var int  $statementNumber
-     *     @var bool $includeStatementMetadataRow
-     * }
+     * @param array  $renderOptions   {
+     *
+     * @var bool $numberStatements
+     * @var int  $statementNumber
+     * @var bool $includeStatementMetadataRow
+     *           }
      *
      * @throws Exception
      */
@@ -2050,8 +2051,8 @@ class DocxExporter
                 $orientation,
                 $exportType,
                 [
-                    'numberStatements' => $numberStatements,
-                    'statementNumber' => $statementNumber,
+                    'numberStatements'            => $numberStatements,
+                    'statementNumber'             => $statementNumber,
                     'includeStatementMetadataRow' => $includeStatementMetadataRow,
                 ]
             );
