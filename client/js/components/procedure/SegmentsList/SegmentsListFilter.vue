@@ -29,6 +29,7 @@ All rights reserved
         :key="category.id"
         class="p-4 border-b border-neutral"
         :data-cy="`segmentsListFilter:${category.id}`"
+        :is-open="getIsExpandedByCategoryId(category.id)"
         :show-border="false"
         :show-status-dot="categoryHasPendingChanges(category)"
         :status-dot-label="Translator.trans('unsaved.changes')"
@@ -211,8 +212,13 @@ export default {
       'getFilterQuery',
       'getGroupedOptionsByCategoryId',
       'getInitialFlyoutFilterIdsByCategoryId',
+      'getIsExpandedByCategoryId',
       'getIsLoadingByCategoryId',
       'getUngroupedOptionsByCategoryId',
+    ]),
+
+    ...mapGetters('SegmentsListFilter', [
+      'getIsSlidebarOpen',
     ]),
 
     hasPendingChanges () {
@@ -246,6 +252,15 @@ export default {
     },
   },
 
+  watch: {
+    // Collapse every accordion whenever the slidebar closes
+    getIsSlidebarOpen (isOpen) {
+      if (isOpen === false) {
+        this.categories.forEach((category) => this.setIsExpanded({ categoryId: category.id, isExpanded: false }))
+      }
+    },
+  },
+
   methods: {
     ...mapActions('FilterFlyout', {
       updateFilters: 'updateFilterQuery',
@@ -258,6 +273,10 @@ export default {
       setUngroupedSelected: 'setUngroupedOptionSelected',
     }),
 
+    ...mapMutations('SegmentsListFilter', {
+      setIsSlidebarOpen: 'setIsSlidebarOpen',
+    }),
+
     applyAllFilters () {
       const mergedFilter = this.categories.reduce((acc, category) => ({ ...acc, ...this.getFilter(category) }), {})
 
@@ -266,6 +285,8 @@ export default {
       this.categories.forEach((category) => {
         category.appliedQuery = JSON.parse(JSON.stringify(category.currentQuery))
       })
+
+      this.setIsSlidebarOpen(false)
     },
 
     categoryHasPendingChanges (category) {
