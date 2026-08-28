@@ -63,7 +63,7 @@ All rights reserved
           >
             <ul
               v-if="getSearchedUngroupedOptions(category).length > 0"
-              class="m-0 p-0 pb-2 list-none border-b border-neutral mb-3"
+              class="m-0 p-0 pb-2 list-none mb-2"
             >
               <filter-flyout-checkbox
                 v-for="option in getSearchedUngroupedOptions(category)"
@@ -99,10 +99,10 @@ All rights reserved
             </span>
 
             <template v-if="getItemsSelected(category).length > 0">
-              <h3 class="text-base font-normal m-2">
+              <h3 class="text-base font-normal pt-3 border-t border-neutral">
                 {{ Translator.trans('filter.active') }}
               </h3>
-              <ul class="m-0 list-none p-2 pt-0">
+              <ul class="m-0 list-none pt-0">
                 <filter-flyout-checkbox
                   v-for="item in getItemsSelected(category)"
                   :key="`itemsSelected_${item.id}`"
