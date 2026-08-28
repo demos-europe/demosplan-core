@@ -644,10 +644,15 @@ class DocxExporter
      * <p>
      * Fragments can be converted to statement like items using 'formatFragment()' function.
      *
-     * @param Table  $assessmentTable
+     * @param Table $assessmentTable
      * @param array  $item
      * @param bool   $anonymous
      * @param string $exportType
+     * @param array  $renderOptions {
+     *     @var bool $numberStatements
+     *     @var int  $statementNumber
+     *     @var bool $includeStatementMetadataRow
+     * }
      *
      * @throws Exception
      */
@@ -657,43 +662,15 @@ class DocxExporter
         $anonymous,
         ViewOrientation $orientation,
         $exportType,
-        bool $numberStatements = false,
-        int $statementNumber = 0,
-        bool $includeStatementMetadataRow = false,
+        array $renderOptions = [],
     ): void {
+        $numberStatements = $renderOptions['numberStatements'] ?? false;
+        $statementNumber = $renderOptions['statementNumber'] ?? 0;
+        $includeStatementMetadataRow = $renderOptions['includeStatementMetadataRow'] ?? false;
+
         $styles = $this->getDefaultDocxPageStyles($orientation);
 
-        if (null === $item['movedToProcedureName']) {
-            // Stellungnahme oder Datensatz und Erwiderung
-            if ('statementsAndFragments' === $exportType && 0 < (is_countable($item['fragments']) ? count($item['fragments']) : 0)) {
-                $this->addFragmentRows($item, $assessmentTable, $styles['cellWidthTotal'] * 0.44, $styles['cellWidthTotal'] * 0.44, $styles, $anonymous);
-            } else {
-                $assessmentTable->addRow();
-                // add submitterData cell
-                $this->addSubmitterData(
-                    $anonymous,
-                    $assessmentTable,
-                    $item,
-                    $styles,
-                    $numberStatements,
-                    $statementNumber
-                );
-                $cellStyle = $styles['cellTop'];
-                $cell2 = $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $cellStyle);
-                if (isset($item['text'])) {
-                    $item['text'] = $this->editorService->handleObscureTags($item['text'], $anonymous);
-                    $this->addHtml($cell2, $item['text'], $styles);
-                }
-                if ($includeStatementMetadataRow) {
-                    $this->addStatementMetadataToCell($cell2, $item, $styles);
-                }
-
-                $cell3 = $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $cellStyle);
-                if (isset($item['recommendation'])) {
-                    $this->addHtml($cell3, $item['recommendation'], $styles);
-                }
-            }
-        } else {
+        if (null !== $item['movedToProcedureName']) {
             // Moved Statement
             $assessmentTable->addRow();
             $this->addSubmitterData(
@@ -713,6 +690,40 @@ class DocxExporter
                 ->addText($movedStatementText, $styles['cellHeadingText'], $styles['textStyleStatementDetailsParagraphStyles']);
 
             $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $cellStyle);
+
+            return;
+        }
+
+        // Stellungnahme oder Datensatz und Erwiderung
+        if ('statementsAndFragments' === $exportType && 0 < (is_countable($item['fragments']) ? count($item['fragments']) : 0)) {
+            $this->addFragmentRows($item, $assessmentTable, $styles['cellWidthTotal'] * 0.44, $styles['cellWidthTotal'] * 0.44, $styles, $anonymous);
+
+            return;
+        }
+
+        $assessmentTable->addRow();
+        // add submitterData cell
+        $this->addSubmitterData(
+            $anonymous,
+            $assessmentTable,
+            $item,
+            $styles,
+            $numberStatements,
+            $statementNumber
+        );
+        $cellStyle = $styles['cellTop'];
+        $cell2 = $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $cellStyle);
+        if (isset($item['text'])) {
+            $item['text'] = $this->editorService->handleObscureTags($item['text'], $anonymous);
+            $this->addHtml($cell2, $item['text'], $styles);
+        }
+        if ($includeStatementMetadataRow) {
+            $this->addStatementMetadataToCell($cell2, $item, $styles);
+        }
+
+        $cell3 = $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $cellStyle);
+        if (isset($item['recommendation'])) {
+            $this->addHtml($cell3, $item['recommendation'], $styles);
         }
     }
 
@@ -2038,9 +2049,11 @@ class DocxExporter
                 $anonymous,
                 $orientation,
                 $exportType,
-                $numberStatements,
-                $statementNumber,
-                $includeStatementMetadataRow
+                [
+                    'numberStatements' => $numberStatements,
+                    'statementNumber' => $statementNumber,
+                    'includeStatementMetadataRow' => $includeStatementMetadataRow,
+                ]
             );
             ++$statementNumber;
         }
