@@ -120,15 +120,7 @@ export default {
         this.tabAddonsLoaded = true
         this.$emit('addons:loaded')
 
-        this.modalAddons = addons.map(addon => {
-          const { component, name, options } = addon
-
-          return {
-            component: component,
-            name,
-            options,
-          }
-        })
+        this.modalAddons = addons
       })
   },
 

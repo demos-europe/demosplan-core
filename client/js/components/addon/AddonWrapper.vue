@@ -17,11 +17,11 @@
 
 <script lang="ts">
 import * as demosplanUi from '@demos-europe/demosplan-ui'
-import { defineComponent, shallowRef, type ShallowRef } from 'vue'
+import { Component, defineComponent, shallowRef, type ShallowRef } from 'vue'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 
 interface WrappedAddon {
-  component: ShallowRef
+  component: ShallowRef<Component>
   name: string
 }
 

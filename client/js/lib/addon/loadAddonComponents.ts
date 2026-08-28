@@ -1,5 +1,5 @@
+import { Component, type ShallowRef, shallowRef } from 'vue'
 import { dpRpc } from '@demos-europe/demosplan-ui'
-import { shallowRef, type ShallowRef } from 'vue'
 
 type AddonHookOptions = Record<string, unknown>
 
@@ -22,7 +22,7 @@ interface AddonRpcResponse {
 }
 
 export interface LoadedAddon {
-  component: ShallowRef
+  component: ShallowRef<Component>
   name: string
   options: AddonHookOptions | string
 }
@@ -77,9 +77,9 @@ export default async function loadAddonComponents (hookName: string): Promise<Lo
     }
 
     addons.push({
-      component: await shallowRef(resolveComponent(addon)),
+      component: shallowRef(await resolveComponent(addon)),
       name: addon.entry,
-      options: addon.options ?? '',
+      options: addon.options ?? {},
     })
   }
 
