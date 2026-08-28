@@ -727,21 +727,25 @@ class DocxExporter
     {
         $priorityAreaKeys = $item['priorityAreaKeys'] ?? [];
         if ([] !== $priorityAreaKeys) {
-            $cell->addText(
-                $this->translator->trans('potential.area').': '.implode(', ', $priorityAreaKeys),
-                $styles['textStyleStatementDetails'],
-                $styles['textStyleStatementDetailsParagraphStyles']
-            );
+            $cell->addTextBreak();
+            $this->addStatementMetadataLine($cell, 'potential.area', $priorityAreaKeys, $styles);
         }
 
         $tagNames = $item['tagNames'] ?? [];
         if ([] !== $tagNames) {
-            $cell->addText(
-                $this->translator->trans('tags').': '.implode(', ', $tagNames),
-                $styles['textStyleStatementDetails'],
-                $styles['textStyleStatementDetailsParagraphStyles']
-            );
+            $cell->addTextBreak();
+            $this->addStatementMetadataLine($cell, 'tags', $tagNames, $styles);
         }
+    }
+
+    /**
+     * Renders "<bold label>: <values>" as a single line, with only the label in bold.
+     */
+    private function addStatementMetadataLine(Cell $cell, string $translationKey, array $values, array $styles): void
+    {
+        $textRun = $cell->addTextRun($styles['textStyleStatementDetailsParagraphStyles']);
+        $textRun->addText($this->translator->trans($translationKey).': ', ['bold' => true]);
+        $textRun->addText(implode(', ', $values));
     }
 
     protected function addSubmitterData(
