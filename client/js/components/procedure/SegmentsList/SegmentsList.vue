@@ -1963,18 +1963,12 @@ export default {
     sendFilterQuery (filter) {
       const isReset = Object.keys(filter).length === 0
 
-      if (isReset === false && Object.keys(this.appliedFilterQuery).length) {
-        Object.values(filter).forEach((el) => {
-          this.appliedFilterQuery[el.condition.value] = el
-        })
+      if (isReset) {
+        this.appliedFilterQuery = Object.keys(this.getFilterQuery).length ?
+          this.getFilterQuery :
+          []
       } else {
-        if (isReset) {
-          this.appliedFilterQuery = Object.keys(this.getFilterQuery).length ?
-            this.getFilterQuery :
-            []
-        } else {
-          this.appliedFilterQuery = filter
-        }
+        this.appliedFilterQuery = filter
       }
 
       this.updateQueryHash()
