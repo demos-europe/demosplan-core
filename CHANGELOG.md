@@ -12,6 +12,7 @@
 - Requires `demos-europe/demosplan-addon` ^0.79, and every release from this one on does. The saved filter combinations of the assessment table were renamed `UserFilterSet` → `Bookmark`: entity, database table, repository, service and resource type, and in the contract layer `BookmarkInterface`, `BookmarkPath`, `Paths::bookmark()` and `BaseBookmarkResourceConfigBuilder`. Addons referring to any of the old names have to be updated. The table is renamed by an included migration, so no manual step is needed.
 ### Added
 - Statements can now be imported from a CSV file, in addition to the existing Excel import. The import runs as a background job; files with more than 3,000 rows, a duplicate Eingangsnummer, or an oversized statement text are rejected with a clear error instead of importing only part of the file. (DPLAN-18247)
+- The nightly maintenance now checks the stored files against the file entries in the database and writes the result to the log: entries whose file is missing from the storage, stored files no entry refers to, files kept at an unexpected path, and files that survived their deletion. The check only reads; `dplan:file:audit-consistency` runs it on demand.
 
 ### Fixed
 - Downloading the result of a background export works for large archives. The file is sent to the browser piece by piece instead of being held in memory as a whole, which could abort the download.
