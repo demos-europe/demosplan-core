@@ -41,7 +41,11 @@ class ManifestConfiguration implements ConfigurationInterface
             ->children()
                 ->scalarNode('entry')->end()
                 ->arrayNode('options')
-                    ->scalarPrototype()->end()
+                    ->variablePrototype()
+                    ->validate()
+                        ->ifTrue(static fn($value): bool => !is_scalar($value) && !is_array($value) && null !== $value)
+                        ->thenInvalid('Hook option values must be scalar or array.')
+                        ->end()
                 ->end()
             ->end()
         ->end();
