@@ -235,6 +235,10 @@ export default {
   methods: {
     ...mapMutations('StatementSegment', ['setItem']),
 
+    ...mapMutations('SegmentSlidebar', {
+      setSlidebarContent: 'setContent',
+    }),
+
     ...mapActions('StatementSegment', {
       saveSegmentAction: 'save',
     }),
@@ -246,7 +250,7 @@ export default {
     },
 
     closeSlidebar () {
-      this.$root.$emit('hide-slidebar')
+      this.setSlidebarContent({ prop: 'slidebar', val: { externId: '', isOpen: false, segmentId: '', showTab: '' } })
     },
 
     initMap () {

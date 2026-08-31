@@ -4,7 +4,6 @@ beberlei/doctrineextensions: BSD-3-Clause
 cebe/php-openapi: MIT
 cocur/slugify: MIT
 composer/composer: MIT
-cyclonedx/cyclonedx-php-composer: Apache-2.0
 demos-europe/demosplan-addon: MIT
 doctrine/annotations: MIT
 doctrine/common: MIT
@@ -37,6 +36,7 @@ intervention/image: MIT
 jfcherng/php-diff: BSD-3-Clause
 jmikola/geojson: MIT
 jms/serializer-bundle: MIT
+khanamiryan/qrcode-detector-decoder: MIT
 knplabs/knp-menu-bundle: MIT
 knpuniversity/oauth2-client-bundle: MIT
 league/csv: MIT
@@ -135,4 +135,4 @@ willdurand/geocoder-bundle: MIT
 willdurand/js-translation-bundle: MIT
 zenstruck/foundry: MIT
 
-As of 19.08.2026 07:15
+As of 31.08.2026 07:11
