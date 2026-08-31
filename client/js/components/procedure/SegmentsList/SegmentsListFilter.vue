@@ -17,8 +17,15 @@ All rights reserved
 </documentation>
 
 <template>
-  <!-- Negative margin is to reset DpSlidebar's u-ml-1_5 -->
-  <div class="flex flex-col flex-1 min-h-0 -ml-5">
+  <!--
+    v-show keeps the panel mounted while another slidebar tab is active,
+    so the local per-category selection state survives.
+    Negative margin is to reset DpSlidebar's u-ml-1_5.
+  -->
+  <div
+    v-show="isVisible"
+    class="flex flex-col flex-1 min-h-0 -ml-5"
+  >
     <h2 class="shrink-0 p-4 pt-0 border-b border-neutral bg-surface shadow-[0_3px_4px_-3px_rgba(0,0,0,0.26)]">
       {{ Translator.trans('filter') }}
     </h2>
@@ -35,7 +42,7 @@ All rights reserved
         :status-dot-label="Translator.trans('unsaved.changes')"
         :title="category.label"
         compressed
-        @item:toggle="(isVisible) => setExpanded(category, isVisible)"
+        @item:toggle="(isExpanded) => setExpanded(category, isExpanded)"
       >
         <div class="pt-3">
           <p
@@ -139,7 +146,7 @@ All rights reserved
 </template>
 
 <script>
-import { computed, onMounted, reactive, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import {
   dataTableSearch,
   DpAccordion,
@@ -197,7 +204,7 @@ export default {
 
     // *** STORE BINDINGS ***
     const getFilterQuery = computed(() => store.getters['FilterFlyout/getFilterQuery'])
-    const getIsSlidebarOpen = computed(() => store.getters['SegmentsListFilter/getIsSlidebarOpen'])
+    const slidebar = computed(() => store.state.SegmentSlidebar.slidebar)
     const getIsExpandedByCategoryId = (categoryId) => store.getters['FilterFlyout/getIsExpandedByCategoryId'](categoryId)
 
     const updateFilters = (query) => store.dispatch('FilterFlyout/updateFilterQuery', query)
@@ -206,7 +213,20 @@ export default {
     const setIsExpanded = (payload) => store.commit('FilterFlyout/setIsExpanded', payload)
     const setIsLoadingMutation = (payload) => store.commit('FilterFlyout/setIsLoading', payload)
     const setUngroupedSelected = (payload) => store.commit('FilterFlyout/setUngroupedOptionSelected', payload)
-    const setIsSlidebarOpen = (isOpen) => store.commit('SegmentsListFilter/setIsSlidebarOpen', isOpen)
+
+    const closeSlidebar = () => {
+      store.commit('SegmentSlidebar/setContent', {
+        prop: 'slidebar',
+        val: { externId: '', isOpen: false, segmentId: '', showTab: '' },
+      })
+    }
+
+    // *** VISIBILITY ***
+    const isVisible = ref(slidebar.value.showTab === 'filter')
+
+    watch(() => slidebar.value.showTab, (showTab) => {
+      isVisible.value = showTab === 'filter'
+    })
 
     // *** CATEGORIES ***
     /*
@@ -356,7 +376,7 @@ export default {
         category.appliedQuery = structuredClone(category.currentQuery)
       })
 
-      setIsSlidebarOpen(false)
+      closeSlidebar()
     }
 
     const resetCategory = (category) => {
@@ -422,7 +442,7 @@ export default {
     }
 
     // Collapse every accordion whenever the slidebar closes
-    watch(getIsSlidebarOpen, (isOpen) => {
+    watch(() => slidebar.value.isOpen, (isOpen) => {
       if (isOpen === false) {
         categories.forEach((category) => setIsExpanded({ categoryId: category.id, isExpanded: false }))
       }
@@ -466,6 +486,7 @@ export default {
       hasSelectedFilters,
       isChecked,
       isLoading,
+      isVisible,
       resetAllFilters,
       resetSearch,
       setExpanded,
