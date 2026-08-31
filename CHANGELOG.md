@@ -5,6 +5,8 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+### Changed
+- Move segments' list inline filter to a slide bar
 
 ## v4.58.0 (2026-08-27)
 
