@@ -7,15 +7,19 @@
   All rights reserved
 </license>
 
-<script>
-import { DpModal, DpMultiselect } from '@demos-europe/demosplan-ui'
+<template>
+  <div>
+    <slot
+      :filter-groups="filterGroups"
+      :strip-raw="stripRaw"
+      :user-selection="userSelection"
+    />
+  </div>
+</template>
 
+<script>
 export default {
   name: 'DpFragmentListFilterModal',
-  components: {
-    DpModal,
-    DpMultiselect,
-  },
   props: {
     filters: {
       type: Array,
@@ -35,7 +39,6 @@ export default {
   },
   data () {
     return {
-      test: '',
       userSelection: {
         procedureName: [],
         voteAdvice: [],
