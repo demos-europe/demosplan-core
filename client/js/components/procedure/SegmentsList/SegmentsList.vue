@@ -1973,7 +1973,7 @@ export default {
       this.setSlidebarContent({ externId, isOpen: true, segmentId, showTab: 'sendViaMail' })
     },
 
-    // Filters are not segment-scoped, hence empty string for so externId/segmentId
+    // Filters are not segment-scoped, hence empty string for externId/segmentId
     toggleFilterSlidebar () {
       const closing = this.slidebar.isOpen && this.slidebar.showTab === 'filter'
 
@@ -1989,7 +1989,7 @@ export default {
 
       const data = { filter: this.getFilterQuery }
 
-      if (this.searchterm !== '') {
+      if (this.searchTerm !== '') {
         data.searchPhrase = this.searchTerm
       }
 
