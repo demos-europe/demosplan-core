@@ -1480,24 +1480,7 @@ class EntityContentChangeService
                 // we use `null` as pre update value.
                 $preUpdateValue = $preUpdateArray[$propertyName] ?? null;
                 $postUpdateValue = $incomingUpdatedObject->$methodName();
-                if (SegmentInterface::RECOMMENDATION_FIELD_NAME === $propertyName && is_string($preUpdateValue)) {
-                    // DPLAN-18271: $preUpdateValue is Doctrine's raw, pre-flush snapshot and
-                    // may still contain a <dp-boilerplate boilerplate-id="…"> reference tag.
-                    // $postUpdateValue came from the real getter, which already substitutes
-                    // any such tag with the boilerplate's current text. Comparing raw against
-                    // substituted would fabricate a "change" on every unrelated save to an
-                    // entity with a linked boilerplate (the tag and its own resolved text are
-                    // never equal as strings, even though nothing changed) and would also
-                    // corrupt the Versionsverlauf rollback walk. Substituting here puts both
-                    // sides in the same, substituted form.
-                    $preUpdateValue = $this->boilerplateTagSubstitutionService->substitute($preUpdateValue);
-                }
-                if ($preUpdateValue instanceof Collection) {
-                    // getOriginalEntityData() seems to be ignore n:m association.
-                    // use getSnapshot() to get "pre update" data
-                    $preUpdateValue->initialize();
-                    $preUpdateValue = $preUpdateValue->getSnapshot();
-                }
+                $preUpdateValue = $this->resolvePreUpdateValueForStandardField($propertyName, $preUpdateValue);
 
                 $contentChangeString = $this->createContentChangeData(
                     $preUpdateValue,
@@ -1513,6 +1496,36 @@ class EntityContentChangeService
         }
 
         return $changes;
+    }
+
+    /**
+     * Resolves the raw pre-update value of a standard (non-customField, non-locked) field
+     * into the form {@see EntityContentChangeService::createContentChangeData} expects to
+     * compare against the post-update getter result.
+     */
+    private function resolvePreUpdateValueForStandardField(string $propertyName, mixed $preUpdateValue): mixed
+    {
+        if (SegmentInterface::RECOMMENDATION_FIELD_NAME === $propertyName && is_string($preUpdateValue)) {
+            // DPLAN-18271: $preUpdateValue is Doctrine's raw, pre-flush snapshot and may
+            // still contain a <dp-boilerplate boilerplate-id="…"> reference tag. The
+            // post-update value came from the real getter, which already substitutes any
+            // such tag with the boilerplate's current text. Comparing raw against
+            // substituted would fabricate a "change" on every unrelated save to an entity
+            // with a linked boilerplate (the tag and its own resolved text are never equal
+            // as strings, even though nothing changed) and would also corrupt the
+            // Versionsverlauf rollback walk. Substituting here puts both sides in the same,
+            // substituted form.
+            $preUpdateValue = $this->boilerplateTagSubstitutionService->substitute($preUpdateValue);
+        }
+
+        if ($preUpdateValue instanceof Collection) {
+            // getOriginalEntityData() seems to be ignore n:m association.
+            // use getSnapshot() to get "pre update" data
+            $preUpdateValue->initialize();
+            $preUpdateValue = $preUpdateValue->getSnapshot();
+        }
+
+        return $preUpdateValue;
     }
 
     /**
