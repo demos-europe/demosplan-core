@@ -69,7 +69,7 @@ class CustomFieldResource
     public ?bool $isRequired = null;
 
     /**
-     * One of {@see \demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface::TYPE_CLASSES}s
+     * One of {@see \demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface::TYPE_CLASSES}s.
      */
     #[ApiProperty(readable: true, writable: false)]
     public ?string $fieldType = null;
