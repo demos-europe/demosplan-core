@@ -84,7 +84,15 @@ class BoilerplateTagSubstitutionService
         }
 
         $ids = [];
-        foreach ($this->findTags($this->parseFragment($embeddedText)) as $tag) {
+        // The fragment must stay referenced for the whole loop (not just as an inline
+        // expression): once nothing holds it, the underlying DOM tree can be freed while
+        // $tag objects from findTags() are still in use, surfacing as a "Couldn't fetch
+        // DOMElement" error on getAttribute() below — observed on a PHP patch version
+        // other than this container's, not reliably forceable here via gc_collect_cycles().
+        // substitute() and materializeBoilerplate() already keep $fragment referenced this
+        // way; this method was the one place that didn't.
+        $fragment = $this->parseFragment($embeddedText);
+        foreach ($this->findTags($fragment) as $tag) {
             $id = $tag->getAttribute(self::ATTRIBUTE_NAME);
             if ('' !== $id && !in_array($id, $ids, true)) {
                 $ids[] = $id;
