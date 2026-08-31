@@ -758,7 +758,7 @@ class DemosPlanProcedureController extends BaseController
             $formFactory,
             new ProcedureFormData(),
             ProcedureFormType::class,
-            true,
+            false,
             true
         );
         // add new data from request to form
