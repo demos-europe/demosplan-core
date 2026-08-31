@@ -1593,15 +1593,38 @@ class ProcedureService implements ProcedureServiceInterface
     }
 
     /**
-     * Removes a boilerplate object from the database.
+     * Flags a boilerplate for deletion (DPLAN-18271). The row itself is not removed here:
+     * materializing this boilerplate's content into every one of its usages could be slow
+     * for a heavily-used boilerplate, and this method must not risk a request timeout.
+     * A recurring background job ({@see \demosplan\DemosPlanCoreBundle\Logic\Procedure\BoilerplateDeletionService})
+     * picks up flagged rows, materializes and deletes them.
      *
      * @param string $boilerplateId
      *
      * @throws Exception
      */
-    public function deleteBoilerplate($boilerplateId): bool
+    public function prepareBoilerplateDeletion($boilerplateId): bool
     {
-        return $this->boilerplateRepository->delete($boilerplateId);
+        $boilerplate = $this->boilerplateRepository->get($boilerplateId);
+        if (null === $boilerplate) {
+            return false;
+        }
+
+        $boilerplate->setPendingDeletion(true);
+        $this->entityManager->persist($boilerplate);
+        $this->entityManager->flush();
+
+        return true;
+    }
+
+    /**
+     * @see BoilerplateRepository::findPendingDeletion()
+     *
+     * @return Boilerplate[]
+     */
+    public function getBoilerplatesPendingDeletion(int $limit): array
+    {
+        return $this->boilerplateRepository->findPendingDeletion($limit);
     }
 
     /**
@@ -2398,9 +2421,13 @@ class ProcedureService implements ProcedureServiceInterface
     }
 
     /**
-     * Segments whose recommendation the given boilerplate was inserted into,
-     * prepared for display on the boilerplate edit page. Returns an empty array
+     * Statements/Segments whose recommendation the given boilerplate was inserted
+     * into, prepared for display on the boilerplate edit page. Returns an empty array
      * for unsaved boilerplates or when the current user may not list usages.
+     *
+     * `statementId` is the top-level Statement the recommendation belongs to: for a
+     * Segment usage that's its parent statement; for a plain top-level Statement usage
+     * (DPLAN-18271 widened this relation to allow both) that's the statement itself.
      *
      * @return array<int, array{externId: string, segmentId: string, statementId: string}>
      *
@@ -2413,11 +2440,18 @@ class ProcedureService implements ProcedureServiceInterface
         }
 
         return array_map(
-            static fn (BoilerplateUsage $usage): array => [
-                'externId'    => $usage->getSegment()->getExternId(),
-                'segmentId'   => $usage->getSegment()->getId(),
-                'statementId' => $usage->getSegment()->getParentStatementOfSegment()->getId(),
-            ],
+            static function (BoilerplateUsage $usage): array {
+                $statementOrSegment = $usage->getStatementOrSegment();
+                $statementId = $statementOrSegment instanceof Segment
+                    ? $statementOrSegment->getParentStatementOfSegment()->getId()
+                    : $statementOrSegment->getId();
+
+                return [
+                    'externId'    => $statementOrSegment->getExternId(),
+                    'segmentId'   => $statementOrSegment->getId(),
+                    'statementId' => $statementId,
+                ];
+            },
             $this->boilerplateUsageRepository->getUsagesForBoilerplate($boilerplateId)
         );
     }

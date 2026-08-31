@@ -525,6 +525,11 @@ class StatementCopier
         }
         // persist to get an ID for the FileContainer copying below
         $this->doctrine->getManager()->persist($newStatement);
+        // DPLAN-18271: the call above passes persistAndFlush=false to
+        // copyStatementObjectWithinProcedure(), so its own reconciliation-triggering
+        // setRecommendation() call was skipped there — do it here instead, now that this
+        // method's own persist() (right above) has assigned the copy a real id.
+        $newStatement->setRecommendation($newStatement->getRecommendationEmbedded());
         if ([] !== $statement->getFiles()) {
             $this->statementService->addFilesToCopiedStatement($newStatement, $statement->getId());
 
@@ -607,6 +612,13 @@ class StatementCopier
 
             if ($persistAndFlush) {
                 $em->persist($newStatement);
+                // DPLAN-18271: $newStatement was created via raw PHP clone() above, so its
+                // raw recommendation carries over verbatim, including any boilerplate tag,
+                // without going through setRecommendation() — no BoilerplateUsage relation
+                // gets reconciled for the copy. Re-set through the setter with the
+                // identical (already-cloned) value now that persist() has assigned a real
+                // id, triggering reconciliation without altering content.
+                $newStatement->setRecommendation($newStatement->getRecommendationEmbedded());
             }
 
             // copy fragments if set

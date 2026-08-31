@@ -42,8 +42,10 @@ class BoilerplateRepository extends FluentRepository implements ArrayInterface, 
     public function getBoilerplates($procedureId)
     {
         // using a trick to get the "nulls last" order
+        // DPLAN-18271: boilerplates pending async deletion must not appear in listings —
+        // they are, conceptually, already gone (see BoilerplateDeletionService).
         $dql = 'SELECT boilerplate, -boilerplate.title as HIDDEN t1 FROM demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate as boilerplate
-        WHERE boilerplate.procedure =:ident  ORDER BY t1 DESC, boilerplate.title ASC';
+        WHERE boilerplate.procedure =:ident AND boilerplate.pendingDeletion = false ORDER BY t1 DESC, boilerplate.title ASC';
         $query = $this->getEntityManager()->createQuery($dql);
         $query->setParameter('ident', $procedureId);
 
@@ -61,7 +63,8 @@ class BoilerplateRepository extends FluentRepository implements ArrayInterface, 
      */
     public function getBoilerplatesWhithoutGroup(string $procedureId): array
     {
-        return $this->findBy(['procedure' => $procedureId, 'group' => null], ['title' => 'asc']);
+        // DPLAN-18271: boilerplates pending async deletion must not appear in listings.
+        return $this->findBy(['procedure' => $procedureId, 'group' => null, 'pendingDeletion' => false], ['title' => 'asc']);
     }
 
     /**
@@ -289,6 +292,18 @@ class BoilerplateRepository extends FluentRepository implements ArrayInterface, 
         }
 
         return false;
+    }
+
+    /**
+     * Batch of boilerplates flagged for deletion (DPLAN-18271), oldest-flagged-first, for
+     * {@see \demosplan\DemosPlanCoreBundle\Logic\Procedure\BoilerplateDeletionService}'s
+     * recurring background job.
+     *
+     * @return Boilerplate[]
+     */
+    public function findPendingDeletion(int $limit): array
+    {
+        return $this->findBy(['pendingDeletion' => true], ['modifyDate' => 'ASC'], $limit);
     }
 
     /**

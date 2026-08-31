@@ -128,6 +128,18 @@ class EntityContentChangeDisplayService
             return $this->renderLockByPlaceSwitchesJson($entityContentChange->getContentChange());
         }
 
+        /*
+         * DPLAN-18271: a boilerplate-materialization notice
+         * ({@see EntityContentChangeService::createBoilerplateMaterializationChangeEntry})
+         * has no before/after — the substituted recommendation text is identical before
+         * and after materialization by design — so there is nothing to diff. Render the
+         * stored notice directly instead of feeding it to the diff/rollback path below,
+         * which expects a diff-shaped payload.
+         */
+        if ($this->isBoilerplateMaterializationChange($entityContentChange->getContentChange())) {
+            return $this->renderBoilerplateMaterializedNotice($entityContentChange->getContentChange());
+        }
+
         // step 1: get the value stored in the parent entities. for example, assignee id or text
         /** @var CoreEntity $currentObject */
         $currentObject = $this->repositoryHelper->getRepository($entityContentChange->getEntityType())->find($entityContentChange->getEntityId());
@@ -154,6 +166,14 @@ class EntityContentChangeDisplayService
         $oneBeforeTheOldVersion = '';
         foreach ($listOfDiffs as $diff) {
             $oneBeforeTheOldVersion = $changingText;
+            if ($this->isBoilerplateMaterializationChange($diff['contentChange'])) {
+                // Identity step: a materialization notice's substituted text never
+                // differs from before to after (see the check above), and its stored
+                // payload isn't diff-shaped, so rollBackTextToPreviousVersion() would
+                // misinterpret it. Leaving $changingText untouched here produces exactly
+                // what rolling back a true no-op diff would have produced.
+                continue;
+            }
             $changingText = $this->getEntityContentChangeRollbackVersionService()
                 ->rollBackTextToPreviousVersion($changingText, $diff['contentChange'], $fieldName, $entityType);
         }
@@ -333,6 +353,43 @@ class EntityContentChangeDisplayService
         return $this->twig->render(
             '@DemosPlanCore/DemosPlanCore/html_diff.html.twig',
             ['diffArray' => $diffArray]
+        );
+    }
+
+    /**
+     * Detects whether a `recommendation` entry's stored `contentChange` is a
+     * {@see EntityContentChangeService::createBoilerplateMaterializationChangeEntry} notice
+     * rather than an ordinary diff. An ordinary diff always decodes to a JSON array, so a
+     * decoded JSON object carrying the
+     * {@see EntityContentChangeService::BOILERPLATE_MATERIALIZED_CONTENT_CHANGE_TYPE}
+     * marker under `type` is unambiguous.
+     */
+    private function isBoilerplateMaterializationChange(string $contentChange): bool
+    {
+        try {
+            $decoded = Json::decodeToArray($contentChange);
+        } catch (Exception) {
+            return false;
+        }
+
+        return EntityContentChangeService::BOILERPLATE_MATERIALIZED_CONTENT_CHANGE_TYPE === ($decoded['type'] ?? null);
+    }
+
+    /**
+     * Renders a boilerplate-materialization notice directly, without a before/after diff —
+     * see {@see EntityContentChangeService::createBoilerplateMaterializationChangeEntry} for
+     * why no diff exists to render.
+     */
+    private function renderBoilerplateMaterializedNotice(string $contentChange): string
+    {
+        $decoded = Json::decodeToArray($contentChange);
+
+        return $this->twig->render(
+            '@DemosPlanCore/DemosPlanCore/boilerplate_materialized_notice.html.twig',
+            [
+                'boilerplateTitle' => $decoded['boilerplateTitle'],
+                'boilerplateText'  => $decoded['boilerplateText'],
+            ]
         );
     }
 

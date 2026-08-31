@@ -86,6 +86,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
     protected $translator;
 
     public function __construct(
+        private readonly BoilerplateDeletionService $boilerplateDeletionService,
         ContentService $contentService,
         private readonly CurrentUserService $currentUser,
         private readonly EntityManagerInterface $entityManager,
@@ -692,13 +693,37 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
         $allBoilerplatesDeleted = true;
         foreach ($boilerplates as $boilerplateId) {
             try {
-                $this->procedureService->deleteBoilerplate($boilerplateId);
+                $this->procedureService->prepareBoilerplateDeletion($boilerplateId);
             } catch (Exception) {
                 $allBoilerplatesDeleted = false;
             }
         }
 
         return $allBoilerplatesDeleted;
+    }
+
+    /**
+     * Materializes and deletes up to $limit boilerplates flagged for deletion
+     * (DPLAN-18271). Called on a recurring tick by
+     * {@see \demosplan\DemosPlanCoreBundle\MessageHandler\PurgePendingBoilerplateDeletionsMessageHandler}.
+     * A boilerplate whose materialization fails is left flagged and retried on the next
+     * tick, matching {@see self::purgeDeletedProcedures()}'s per-item try/catch posture.
+     *
+     * @return int the number of boilerplates purged
+     */
+    public function purgePendingBoilerplateDeletions(int $limit): int
+    {
+        $purgedCount = 0;
+        foreach ($this->procedureService->getBoilerplatesPendingDeletion($limit) as $boilerplate) {
+            try {
+                $this->boilerplateDeletionService->materializeAndDelete($boilerplate);
+                ++$purgedCount;
+            } catch (Exception $e) {
+                $this->logger->warning("Materialize and delete boilerplate '{$boilerplate->getId()}' failed", [$e]);
+            }
+        }
+
+        return $purgedCount;
     }
 
     /**

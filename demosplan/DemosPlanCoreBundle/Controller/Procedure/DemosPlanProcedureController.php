@@ -2734,7 +2734,7 @@ class DemosPlanProcedureController extends BaseController
     {
         $boilerplateToDelete = $this->procedureService->getBoilerplate($boilerplateId);
         $title = null === $boilerplateToDelete ? '' : $boilerplateToDelete->getTitle();
-        $successfully = $this->procedureService->deleteBoilerplate($boilerplateId);
+        $successfully = $this->procedureService->prepareBoilerplateDeletion($boilerplateId);
         if ($successfully) {
             $this->getMessageBag()->add(
                 'confirm',
@@ -2767,7 +2767,7 @@ class DemosPlanProcedureController extends BaseController
         $successfully = $this->procedureService->deleteBoilerplateGroup($boilerplateGroupToDelete);
         /** @var Boilerplate $boilerplate */
         foreach ($boilerplatesOfGroupToDelete as $boilerplate) {
-            $successfully = $successfully && $this->procedureService->deleteBoilerplate($boilerplate->getId());
+            $successfully = $successfully && $this->procedureService->prepareBoilerplateDeletion($boilerplate->getId());
         }
         if ($successfully) {
             $this->getMessageBag()->add(
@@ -2819,7 +2819,7 @@ class DemosPlanProcedureController extends BaseController
         $allDeleted = $this->procedureService->deleteBoilerplateGroupsByIds($boilerplateGroupIds);
         /** @var Boilerplate $boilerplate */
         foreach ($boilerplatesOfGroupsToDelete as $boilerplate) {
-            $allDeleted = $allDeleted && $this->procedureService->deleteBoilerplate($boilerplate->getId());
+            $allDeleted = $allDeleted && $this->procedureService->prepareBoilerplateDeletion($boilerplate->getId());
         }
         if ($allDeleted) {
             $this->getMessageBag()->add('confirm', 'confirm.selected.boilerplateGroups.deleted');
