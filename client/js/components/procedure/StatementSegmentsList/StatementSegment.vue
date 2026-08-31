@@ -1245,6 +1245,10 @@ export default {
      * Both insertion functions come from DpEditor's `modal` slot; which one applies has to
      * match `canLinkBoilerplate`, see the comment there.
      *
+     * `insertBoilerplate` refuses (returns false) if this boilerplate is already linked
+     * elsewhere in the recommendation, or if the cursor is inside an existing one — shown to
+     * the user as a notice, since the modal closes either way and nothing else would tell them.
+     *
      * @param {String} text Boilerplate text as HTML
      * @param {String} boilerplateId Empty when the source didn't provide one
      * @param {Function} insertBoilerplate Inserts as a linked node
@@ -1258,7 +1262,13 @@ export default {
         return Promise.resolve()
       }
 
-      insertBoilerplate(boilerplateId, text)
+      const wasInserted = insertBoilerplate(boilerplateId, text)
+
+      if (!wasInserted) {
+        dplan.notify.error(Translator.trans('boilerplate.link.exists'))
+
+        return Promise.resolve()
+      }
 
       return dpApi.post(
         Routing.generate('dplan_boilerplate_usage_create', { procedureId: this.procedureId, boilerplateId }),
