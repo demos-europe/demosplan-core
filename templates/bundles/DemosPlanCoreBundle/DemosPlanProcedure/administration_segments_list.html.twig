@@ -7,33 +7,23 @@
         flush: true
     } %}
 
-    {# Shared slidebar - filter panel and version history are both rendered inside it, toggled via the SegmentsListFilter store #}
-    <dp-slidebar
-        :open="$store.getters['SegmentsListFilter/getIsSlidebarOpen']"
-        @close="$store.commit('SegmentsListFilter/setIsSlidebarOpen', false)">
-        <segments-list-filter
-            v-show="$store.getters['SegmentsListFilter/getIsFilterPanelActive']"
-            ref="segmentsListFilter"
-            :filters="JSON.parse('{{ filterNames|json_encode|e('js', 'utf-8') }}')"
-            :initial-filter="JSON.parse('{{ segmentListQuery.filter|json_encode|e('js', 'utf-8') }}')"
-            @filter-apply="$refs.segmentsList.sendFilterQuery($event)"
-            @filter-options:request="$refs.segmentsList.sendFilterOptionsRequest($event)">
-        </segments-list-filter>
-        <dp-version-history
-            v-show="!$store.getters['SegmentsListFilter/getIsFilterPanelActive']"
-            procedure-id="{{ procedure }}">
-        </dp-version-history>
-    </dp-slidebar>
+    {# Version history and send-via-mail panels, driven by the SegmentSlidebar store #}
+    <segment-slidebar>
+        <dp-version-history procedure-id="{{ procedure }}"></dp-version-history>
+        <dp-segment-recommendation-email
+            current-user-email="{{ currentUser.email }}"
+            procedure-name="{{ procedureObject.name }}"
+        ></dp-segment-recommendation-email>
+    </segment-slidebar>
 
     <segments-list
-        ref="segmentsList"
+        :filters="JSON.parse('{{ filterNames|json_encode|e('js', 'utf-8') }}')"
         procedure-id="{{ procedure }}"
         current-user-id="{{ currentUser.ident }}"
         :initial-filter="JSON.parse('{{ segmentListQuery.filter|json_encode|e('js', 'utf-8') }}')"
         initial-search-term="{{ segmentListQuery.searchPhrase|default }}"
         {# Empty when the hash carries no view settings, in which case it arrives as [] rather than {} #}
-        :initial-view-settings="JSON.parse('{{ segmentListQuery.viewSettings|json_encode|e('js', 'utf-8') }}')"
-        @reset-filters="$refs.segmentsListFilter.resetAllFilters()">
+        :initial-view-settings="JSON.parse('{{ segmentListQuery.viewSettings|json_encode|e('js', 'utf-8') }}')">
     </segments-list>
 {% endblock %}
 
