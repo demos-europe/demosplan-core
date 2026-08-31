@@ -139,6 +139,7 @@ All rights reserved
 </template>
 
 <script>
+import { computed, onMounted, reactive, watch } from 'vue'
 import {
   dataTableSearch,
   DpAccordion,
@@ -146,8 +147,8 @@ import {
   DpLoading,
   DpResettableInput,
 } from '@demos-europe/demosplan-ui'
-import { mapActions, mapGetters, mapMutations } from 'vuex'
 import FilterFlyoutCheckbox from './FilterFlyoutCheckbox'
+import { useStore } from 'vuex'
 
 export default {
   name: 'SegmentsListFilter',
@@ -191,53 +192,69 @@ export default {
     'filterOptions:request',
   ],
 
-  data () {
-    return {
-      categories: Object.values(this.filters).map((filterDefinition, idx) => ({
-        appliedQuery: [],
-        currentQuery: [],
-        hint: filterDefinition.labelTranslationKey !== 'tags',
-        id: `${filterDefinition.labelTranslationKey}:${idx}`,
-        label: Translator.trans(filterDefinition.labelTranslationKey),
-        memberOf: this.groupName(filterDefinition.labelTranslationKey),
-        operator: filterDefinition.comparisonOperator,
-        path: filterDefinition.rootPath,
-        searchTerm: '',
-      })),
+  setup (props, { emit }) {
+    const store = useStore()
+
+    // *** STORE BINDINGS ***
+    const getFilterQuery = computed(() => store.getters['FilterFlyout/getFilterQuery'])
+    const getIsSlidebarOpen = computed(() => store.getters['SegmentsListFilter/getIsSlidebarOpen'])
+    const getIsExpandedByCategoryId = (categoryId) => store.getters['FilterFlyout/getIsExpandedByCategoryId'](categoryId)
+
+    const updateFilters = (query) => store.dispatch('FilterFlyout/updateFilterQuery', query)
+
+    const setGroupedSelected = (payload) => store.commit('FilterFlyout/setGroupedOptionSelected', payload)
+    const setIsExpanded = (payload) => store.commit('FilterFlyout/setIsExpanded', payload)
+    const setIsLoadingMutation = (payload) => store.commit('FilterFlyout/setIsLoading', payload)
+    const setUngroupedSelected = (payload) => store.commit('FilterFlyout/setUngroupedOptionSelected', payload)
+    const setIsSlidebarOpen = (isOpen) => store.commit('SegmentsListFilter/setIsSlidebarOpen', isOpen)
+
+    // *** CATEGORIES ***
+    /*
+     * Filters within one category are OR-combined by giving them a shared group key (memberOf).
+     * 'tags' is the exception and uses none. Group keys can't contain '.', so 'workflow.place'
+     * from segmentsFilterNames.yaml becomes 'workflow-place_group'.
+     */
+    const groupName = (filterType) => {
+      if (filterType === 'tags') {
+        return null
+      }
+
+      return `${filterType.replaceAll('.', '-')}_group`
     }
-  },
 
-  computed: {
-    ...mapGetters('FilterFlyout', [
-      'getFilterQuery',
-      'getGroupedOptionsByCategoryId',
-      'getInitialFlyoutFilterIdsByCategoryId',
-      'getIsExpandedByCategoryId',
-      'getIsLoadingByCategoryId',
-      'getUngroupedOptionsByCategoryId',
-    ]),
+    const categories = reactive(Object.values(props.filters).map((filterDefinition, idx) => ({
+      appliedQuery: [],
+      currentQuery: [],
+      hint: filterDefinition.labelTranslationKey !== 'tags',
+      id: `${filterDefinition.labelTranslationKey}:${idx}`,
+      label: Translator.trans(filterDefinition.labelTranslationKey),
+      memberOf: groupName(filterDefinition.labelTranslationKey),
+      operator: filterDefinition.comparisonOperator,
+      path: filterDefinition.rootPath,
+      searchTerm: '',
+    })))
 
-    ...mapGetters('SegmentsListFilter', [
-      'getIsSlidebarOpen',
-    ]),
+    const categoryHasPendingChanges = (category) => {
+      if (category.currentQuery.length !== category.appliedQuery.length) {
+        return true
+      }
 
-    hasPendingChanges () {
-      return this.categories.some((category) => this.categoryHasPendingChanges(category))
-    },
+      return category.currentQuery.some((id) => category.appliedQuery.includes(id) === false)
+    }
 
-    hasSelectedFilters () {
-      return this.categories.some((category) => category.currentQuery.length > 0)
-    },
+    const hasPendingChanges = computed(() => categories.some((category) => categoryHasPendingChanges(category)))
+
+    const hasSelectedFilters = computed(() => categories.some((category) => category.currentQuery.length > 0))
 
     // Same extraction as SegmentsList's own `queryIds` computed, applied to the same initialFilter data.
-    queryIds () {
+    const queryIds = computed(() => {
       let ids = []
 
       if (
-        Array.isArray(this.initialFilter) === false &&
-        Object.values(this.initialFilter).length > 0
+        Array.isArray(props.initialFilter) === false &&
+        Object.values(props.initialFilter).length > 0
       ) {
-        ids = Object.values(this.initialFilter)
+        ids = Object.values(props.initialFilter)
           .filter((el) => el.condition) // Remove group objects
           .map((el) => {
             if (!el.condition.value) {
@@ -249,56 +266,39 @@ export default {
       }
 
       return ids
-    },
-  },
+    })
 
-  watch: {
-    // Collapse every accordion whenever the slidebar closes
-    getIsSlidebarOpen (isOpen) {
-      if (isOpen === false) {
-        this.categories.forEach((category) => this.setIsExpanded({ categoryId: category.id, isExpanded: false }))
-      }
-    },
-  },
+    // *** DISPLAY OPTIONS ***
+    const getGroupedOptions = (category) => store.getters['FilterFlyout/getGroupedOptionsByCategoryId'](category.id) || []
 
-  methods: {
-    ...mapActions('FilterFlyout', {
-      updateFilters: 'updateFilterQuery',
-    }),
+    const getUngroupedOptions = (category) => store.getters['FilterFlyout/getUngroupedOptionsByCategoryId'](category.id) || []
 
-    ...mapMutations('FilterFlyout', {
-      setGroupedSelected: 'setGroupedOptionSelected',
-      setIsExpanded: 'setIsExpanded',
-      setIsLoadingMutation: 'setIsLoading',
-      setUngroupedSelected: 'setUngroupedOptionSelected',
-    }),
+    /**
+     * {Array of Objects} selected filterItems, same structure as items
+     */
+    const getItemsSelected = (category) => {
+      const items = [
+        ...getUngroupedOptions(category),
+        ...getGroupedOptions(category).flatMap((group) => group.options),
+      ]
 
-    ...mapMutations('SegmentsListFilter', {
-      setIsSlidebarOpen: 'setIsSlidebarOpen',
-    }),
+      return items.filter((item) => item.selected)
+    }
 
-    applyAllFilters () {
-      const mergedFilter = this.categories.reduce((acc, category) => ({ ...acc, ...this.getFilter(category) }), {})
+    const getSearchedGroupedOptions = (category) => getGroupedOptions(category).map((group) => ({
+      ...group,
+      options: dataTableSearch(category.searchTerm, group.options, ['label']),
+    })).filter((group) => group.options.length > 0)
 
-      this.$emit('filterApply', mergedFilter)
+    const getSearchedUngroupedOptions = (category) => dataTableSearch(category.searchTerm, getUngroupedOptions(category), ['label'])
 
-      this.categories.forEach((category) => {
-        category.appliedQuery = JSON.parse(JSON.stringify(category.currentQuery))
-      })
+    const isChecked = (category, optionId) => category.currentQuery.includes(optionId)
 
-      this.setIsSlidebarOpen(false)
-    },
+    const isLoading = (category) => store.getters['FilterFlyout/getIsLoadingByCategoryId'](category.id) ?? false
 
-    categoryHasPendingChanges (category) {
-      if (category.currentQuery.length !== category.appliedQuery.length) {
-        return true
-      }
-
-      return category.currentQuery.some((id) => category.appliedQuery.includes(id) === false)
-    },
-
-    // Builds the JSON:API condition for one option id; 'unassigned' maps to IS NULL.
-    buildFilterCondition (category, id) {
+    // *** FILTER ACTIONS ***
+    const buildFilterCondition = (category, id) => {
+      // Builds the JSON:API condition for one option id; 'unassigned' maps to IS NULL.
       const condition = id === 'unassigned' ?
         { path: category.path, operator: 'IS NULL' } :
         { path: category.path, value: id, operator: category.operator }
@@ -308,77 +308,23 @@ export default {
       }
 
       return { condition }
-    },
+    }
 
     // Builds the JSON:API filter map for all of a category's selected ids.
-    getFilter (category) {
+    const getFilter = (category) => {
       const filter = {}
 
       category.currentQuery.forEach((id) => {
-        filter[id] = this.buildFilterCondition(category, id)
+        filter[id] = buildFilterCondition(category, id)
       })
 
       return filter
-    },
+    }
 
-    getGroupedOptions (category) {
-      return this.getGroupedOptionsByCategoryId(category.id) || []
-    },
-
-    /**
-     * {Array of Objects} selected filterItems, same structure as items
-     */
-    getItemsSelected (category) {
-      const items = [
-        ...this.getUngroupedOptions(category),
-        ...this.getGroupedOptions(category).flatMap((group) => group.options),
-      ]
-
-      return items.filter((item) => item.selected)
-    },
-
-    getSearchedGroupedOptions (category) {
-      return this.getGroupedOptions(category).map((group) => ({
-        ...group,
-        options: dataTableSearch(category.searchTerm, group.options, ['label']),
-      })).filter((group) => group.options.length > 0)
-    },
-
-    getSearchedUngroupedOptions (category) {
-      return dataTableSearch(category.searchTerm, this.getUngroupedOptions(category), ['label'])
-    },
-
-    getUngroupedOptions (category) {
-      return this.getUngroupedOptionsByCategoryId(category.id) || []
-    },
-
-    /*
-     * Filters within one category are OR-combined by giving them a shared group key (memberOf).
-     * 'tags' is the exception and uses none. Group keys can't contain '.', so 'workflow.places'
-     * becomes 'workflow-places_group'.
-     */
-    groupName (filterType) {
-      if (filterType === 'tags') {
-        return null
-      }
-
-      return `${filterType.replaceAll('.', '-')}_group`
-    },
-
-    isChecked (category, optionId) {
-      return category.currentQuery.includes(optionId)
-    },
-
-    isLoading (category) {
-      return this.getIsLoadingByCategoryId(category.id) ?? false
-    },
-
-    /**
-     * Emits a 'filterOptions:request' event with the provided query parameters.
-     */
-    requestFilterOptions (category, isInitialWithQuery = false) {
+    // Emits a 'filterOptions:request' event with the provided query parameters.
+    const requestFilterOptions = (category, isInitialWithQuery = false) => {
       // For OR groups (memberOf is set), exclude this group's own filters so counts always show full availability
-      let filter = this.getFilterQuery
+      let filter = getFilterQuery.value
 
       if (category.memberOf && !isInitialWithQuery) {
         filter = Object.fromEntries(
@@ -392,46 +338,58 @@ export default {
         )
       }
 
-      this.$emit('filterOptions:request', {
+      emit('filterOptions:request', {
         category: { id: category.id, label: category.label },
         currentQuery: category.currentQuery,
         filter,
         isInitialWithQuery,
         path: category.path,
       })
-    },
+    }
 
-    // Resets every category's selection and notifies the parent, mirroring FilterFlyout's resetAndApply.
-    resetAllFilters () {
-      this.categories.forEach((category) => this.resetCategory(category))
-      this.$emit('filterApply', {})
-    },
+    const applyAllFilters = () => {
+      const mergedFilter = categories.reduce((acc, category) => ({ ...acc, ...getFilter(category) }), {})
 
-    resetCategory (category) {
-      Object.values(this.getFilter(category)).forEach((el) => {
+      emit('filterApply', mergedFilter)
+
+      categories.forEach((category) => {
+        category.appliedQuery = structuredClone(category.currentQuery)
+      })
+
+      setIsSlidebarOpen(false)
+    }
+
+    const resetCategory = (category) => {
+      Object.values(getFilter(category)).forEach((el) => {
         const query = {}
 
         query[el.condition.value ?? 'unassigned'] = el
-        this.updateFilters(query)
+        updateFilters(query)
       })
 
       category.currentQuery = []
       category.appliedQuery = []
 
-      this.requestFilterOptions(category)
-    },
+      requestFilterOptions(category)
+    }
 
-    resetSearch (category) {
+    // Resets every category's selection and notifies the parent, mirroring FilterFlyout's resetAndApply.
+    const resetAllFilters = () => {
+      categories.forEach((category) => resetCategory(category))
+      emit('filterApply', {})
+    }
+
+    const resetSearch = (category) => {
       category.searchTerm = ''
-    },
+    }
 
-    setExpanded (category, isExpanded) {
-      this.setIsExpanded({ categoryId: category.id, isExpanded })
+    const setExpanded = (category, isExpanded) => {
+      setIsExpanded({ categoryId: category.id, isExpanded })
 
       if (isExpanded) {
-        this.requestFilterOptions(category)
+        requestFilterOptions(category)
       }
-    },
+    }
 
     /**
      *
@@ -439,55 +397,80 @@ export default {
      * @param isSelected {Boolean}
      * @param option {Object} - { id: string, label: string, selected: boolean }
      */
-    updateQuery (category, isSelected, option) {
+    const updateQuery = (category, isSelected, option) => {
       if (isSelected) {
         category.currentQuery.push(option.id)
-        this.updateFilters({ [option.id]: this.buildFilterCondition(category, option.id) })
+        updateFilters({ [option.id]: buildFilterCondition(category, option.id) })
       } else {
-        this.updateFilters({ [option.id]: this.buildFilterCondition(category, option.id) })
+        updateFilters({ [option.id]: buildFilterCondition(category, option.id) })
         category.currentQuery.splice(category.currentQuery.indexOf(option.id), 1)
       }
 
       // Update ungroupedOptions
       if (option.ungrouped) {
-        this.setUngroupedSelected({ categoryId: category.id, optionId: option.id, value: isSelected })
+        setUngroupedSelected({ categoryId: category.id, optionId: option.id, value: isSelected })
       } else {
         // Update groupedOptions
-        const group = this.getGroupedOptions(category).find((group) => group.options.some((item) => item.id === option.id))
+        const group = getGroupedOptions(category).find((group) => group.options.some((item) => item.id === option.id))
 
         if (group) {
-          this.setGroupedSelected({ categoryId: category.id, groupId: group.id, optionId: option.id, value: isSelected })
+          setGroupedSelected({ categoryId: category.id, groupId: group.id, optionId: option.id, value: isSelected })
         }
       }
 
-      this.requestFilterOptions(category)
-    },
-  },
+      requestFilterOptions(category)
+    }
 
-  mounted () {
-    this.categories.forEach((category) => {
-      this.setIsLoadingMutation({ categoryId: category.id, isLoading: true })
-      this.setIsExpanded({ categoryId: category.id, isExpanded: false })
-
-      /*
-       * When the page loads with filters in the URL, their ids arrive asynchronously in the FilterFlyout
-       * store; copy them into the category so the matching checkboxes start out selected.
-       */
-      this.$watch(
-        () => this.getInitialFlyoutFilterIdsByCategoryId(category.id),
-        (newIds, oldIds) => {
-          if (newIds && JSON.stringify(newIds) !== JSON.stringify(oldIds)) {
-            category.currentQuery = JSON.parse(JSON.stringify(newIds))
-            category.appliedQuery = JSON.parse(JSON.stringify(newIds))
-          }
-        },
-        { deep: true },
-      )
-
-      if (this.queryIds.length) {
-        this.requestFilterOptions(category, true)
+    // Collapse every accordion whenever the slidebar closes
+    watch(getIsSlidebarOpen, (isOpen) => {
+      if (isOpen === false) {
+        categories.forEach((category) => setIsExpanded({ categoryId: category.id, isExpanded: false }))
       }
     })
+
+    onMounted(() => {
+      categories.forEach((category) => {
+        setIsLoadingMutation({ categoryId: category.id, isLoading: true })
+        setIsExpanded({ categoryId: category.id, isExpanded: false })
+
+        /*
+         * When the page loads with filters in the URL, their ids arrive asynchronously in the FilterFlyout
+         * store; copy them into the category so the matching checkboxes start out selected.
+         */
+        watch(
+          () => store.getters['FilterFlyout/getInitialFlyoutFilterIdsByCategoryId'](category.id),
+          (newIds, oldIds) => {
+            if (newIds && JSON.stringify(newIds) !== JSON.stringify(oldIds)) {
+              category.currentQuery = structuredClone(newIds)
+              category.appliedQuery = structuredClone(newIds)
+            }
+          },
+          { deep: true },
+        )
+
+        if (queryIds.value.length) {
+          requestFilterOptions(category, true)
+        }
+      })
+    })
+
+    return {
+      applyAllFilters,
+      categories,
+      categoryHasPendingChanges,
+      getIsExpandedByCategoryId,
+      getItemsSelected,
+      getSearchedGroupedOptions,
+      getSearchedUngroupedOptions,
+      hasPendingChanges,
+      hasSelectedFilters,
+      isChecked,
+      isLoading,
+      resetAllFilters,
+      resetSearch,
+      setExpanded,
+      updateQuery,
+    }
   },
 }
 </script>
