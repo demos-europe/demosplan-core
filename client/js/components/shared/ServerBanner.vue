@@ -12,7 +12,6 @@
     v-if="isVisible"
     :class="prefixClass('bg-message-warning text-message-warning border border-message-warning relative px-2 pt-2')"
   >
-    <!-- message originates from SERVER_BANNER.md; sanitize before rendering HTML -->
     <div
       v-html="sanitizedMessage"
     />
