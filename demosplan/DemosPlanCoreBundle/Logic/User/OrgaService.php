@@ -338,7 +338,7 @@ class OrgaService implements OrgaServiceInterface
     {
         return $this->getOrganisations([
             $this->conditionFactory->propertyHasValue(1, $this->orgaResourceType->showname),
-            $this->conditionFactory->propertyHasValue(true, $this->orgaResourceType->showlist),
+            $this->conditionFactory->propertyHasValue(true, $this->orgaResourceType->statusInCustomers->showlist),
         ]);
     }
 

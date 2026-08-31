@@ -1354,6 +1354,13 @@ feature_map_print_layer:
     expose: true
     loginRequired: true
     parent: area_admin_map
+feature_map_scales:
+    description: |-
+        Allow configuring selectable zoom scales for the procedure map
+    label: 'Configure map scales'
+    expose: true
+    loginRequired: true
+    parent: area_admin_map
 feature_map_search_location:
     expose: true
     label: 'Darf ein User nach ORT/PLZ suchen können?'
@@ -3227,9 +3234,7 @@ role_participant:
     loginRequired: true
 feature_read_source_statement_via_api:
     description: |
-        Used to gain access to the source-statement file via the api. This permission is a replica of feature_import_statement_pdf
-        because that permission is addon-specific and cannot be used for additional non addon related checks within the core.
-        Access to the source-statement without this addon is necessary, so this permission substitutes the old one.
+        Used to gain access to the source-statement file via the api.
     label: ' used in : Statement list and segment list '
     expose: true
     loginRequired: true
