@@ -31,6 +31,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService;
 use demosplan\DemosPlanCoreBundle\Validator\DraftsInfoValidator;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Id\AssignedGenerator;
 use Doctrine\ORM\NonUniqueResultException;
@@ -162,6 +163,8 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
             $tags = $this->getTags($drafts[$index]['metadata']['tags'] ?? [], $procedure);
             $segment->setTags($tags);
         }
+
+        $statement->setSegmentsOfStatement(new ArrayCollection($segments));
 
         // Create TextSection entities from contentBlocks
         foreach ($textSectionBlocks as $block) {

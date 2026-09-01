@@ -168,9 +168,6 @@ class DraftsInfoApiController extends APIController
                 $statementHandler->updateStatementObject($statement);
             }
 
-            // populate the statement's segment collection with fresh segments before dispatching event
-            $statement->setSegmentsOfStatement(new ArrayCollection($segments));
-
             // request additional statement processing (asynchronous)
             $eventDispatcher->dispatch(new AfterSegmentationEvent($statement), AfterSegmentationEventInterface::class);
 

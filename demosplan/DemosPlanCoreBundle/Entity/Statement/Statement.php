@@ -2315,6 +2315,13 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * Returns either the legacy text field for unsegmented statements,
      * or composes text from segments and text sections for segmented statements.
+     *
+     * @todo DPLAN-12697 Not safe to use as-is: for the legacy segment-mark format the
+     *       frontend still sends, segments only cover the parts of the document wrapped
+     *       in <segment-mark>, and textSections is never populated, so composing here
+     *       silently drops any unmarked remainder text while also losing document order.
+     *       Needs frontend changes (sending order-preserving contentBlocks for segments
+     *       and text sections) before this can compose correctly.
      */
     public function getText(): string
     {
