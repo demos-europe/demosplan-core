@@ -84,27 +84,9 @@ class CustomFieldProvider implements ProviderInterface
     }
 
     /**
-     * `sourceEntity` and `targetEntity` are declared `required: true` on the `GetCollection` operation's
-     * `QueryParameter`s (see {@see CustomFieldResource}), so API Platform's own parameter validation
-     * already rejects a request missing either one (422) before this method runs - they are the
-     * structural scope a set of custom field definitions belongs to (e.g. "the STATEMENT custom fields of
-     * PROCEDURE X"), the same scope {@see CustomFieldConfigurationRepository::getCustomFields()} already
-     * takes as arguments for the relationships on AdminProcedureResourceType/ProcedureTemplateResourceType.
-     * Unlike {@see \demosplan\DemosPlanCoreBundle\Api\StatementSegment\AccessChecker::getAccessConditions()},
-     * {@see CustomFieldAccessChecker::getAccessConditions()} does not by itself restrict non-CUSTOMER-scoped
-     * rows to what the caller may see - it trusts these query parameters to be the scope boundary, which is
-     * why they are `required` rather than optional refinements: omitting them would list every custom
-     * field definition on the platform.
-     *
-     * `sourceEntityId` is required for every source except CUSTOMER, which can't be expressed as a plain
-     * per-parameter `required` flag since it depends on `sourceEntity`'s value - so that one condition
-     * stays manual here. A CUSTOMER-scoped caller does not need to know the current customer's ID, since
-     * {@see CustomFieldAccessChecker::getAccessConditions()} already restricts CUSTOMER-scoped rows to it
-     * (enforced at the query level by {@see Extension\CustomFieldDoctrineAccessExtension}).
-     *
-     * The actual `sourceEntity`/`targetEntity`/`sourceEntityId` equality filtering is handled declaratively
-     * by the `QueryParameter`+`ExactFilter` declarations on {@see CustomFieldResource}'s `GetCollection`
-     * operation - delegated to API Platform's native Doctrine ORM collection provider.
+     * Lists custom fields for one source (e.g. a procedure) and one target type (e.g. STATEMENT).
+     * Both are required so a request can't accidentally return every custom field on the platform.
+     * `sourceEntityId` is not required, becauase for CUSTOMER it is detected automatically instead.
      *
      * @return list<CustomFieldResource>
      */

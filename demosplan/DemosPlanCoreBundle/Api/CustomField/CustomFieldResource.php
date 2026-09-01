@@ -28,14 +28,9 @@ use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use Webmozart\Assert\Assert;
 
 /**
- * A custom field definition attached to a source entity (e.g. a Procedure or the Customer) and applied
- * to a target entity kind (e.g. Statement, Segment). The definition itself (name, description, field
- * type, options, whether it is required) is stored as a serialized value object on the wrapping
- * {@see CustomFieldConfiguration} entity, so `fromEntity()` reads from both.
- *
- * Read-only for now: create/update/delete stay on the legacy
- * {@see \demosplan\DemosPlanCoreBundle\ResourceTypes\CustomFieldResourceType} JSON:API v2 endpoint. Only
- * the read side - which that legacy type never implemented for listing - is migrated here.
+ * Read-only API Platform resource for a custom field definition (name, type, options, etc.), built from
+ * both the {@see CustomFieldConfiguration} entity and its embedded value object via `fromEntity()`.
+ * Create/update/delete still go through the older {@see \demosplan\DemosPlanCoreBundle\ResourceTypes\CustomFieldResourceType} endpoint - only reading is migrated here.
  */
 #[ApiResource(
     shortName: 'CustomField',
@@ -44,20 +39,14 @@ use Webmozart\Assert\Assert;
             uriTemplate: '/CustomField',
             paginationEnabled: false,
             parameters: [
-                // No `provider:` needed here: SparseFieldset::getParameterProvider() always resolves the
-                // provider to that class-string, registered as a service in config/services.yml.
-                // @phpstan-ignore argument.type (SparseFieldset is a Parameter-API-only filter; it deliberately doesn't implement the deprecated ApiPlatform\Metadata\FilterInterface)
                 'fields'         => new QueryParameter(filter: new SparseFieldset()),
                 'sourceEntity'   => new QueryParameter(filter: new ExactFilter(), property: 'sourceEntityClass', required: true),
-                'sourceEntityId' => new QueryParameter(filter: new ExactFilter(), property: 'sourceEntityId', required: true),
+                'sourceEntityId' => new QueryParameter(filter: new ExactFilter(), property: 'sourceEntityId'),
                 'targetEntity'   => new QueryParameter(filter: new ExactFilter(), property: 'targetEntityClass', required: true),
             ]),
         new Get(
             uriTemplate: self::ITEM_URI_TEMPLATE,
             parameters: [
-                // No `provider:` needed here: SparseFieldset::getParameterProvider() always resolves the
-                // provider to that class-string, registered as a service in config/services.yml.
-                // @phpstan-ignore argument.type (SparseFieldset is a Parameter-API-only filter; it deliberately doesn't implement the deprecated ApiPlatform\Metadata\FilterInterface)
                 'fields' => new QueryParameter(filter: new SparseFieldset()),
             ]),
     ],
