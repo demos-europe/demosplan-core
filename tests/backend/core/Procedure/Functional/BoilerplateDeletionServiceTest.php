@@ -216,7 +216,7 @@ class BoilerplateDeletionServiceTest extends FunctionalTestCase
 
     /**
      * DPLAN-18271 Trap 8: "the materialize-then-delete sequence must be transactional -
-     * if rewriting usage N of M fails partway through, the whole deletion must abort."
+     * if rewriting usage N of M fails partway through, the whole deletion must abort.".
      *
      * Forcing the failure alone is not enough to prove this: Doctrine defers writes
      * until flush(), so if nothing had been flushed yet by the time usage #2 fails,

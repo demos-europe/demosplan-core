@@ -81,10 +81,10 @@ class BoilerplateUsageReconciliationService
 
         if ($boilerplate->getProcedureId() !== $statement->getProcedureId()) {
             $this->logger->warning('Ignored a boilerplate tag referencing a boilerplate from a different procedure', [
-                'boilerplateId' => $boilerplateId,
+                'boilerplateId'          => $boilerplateId,
                 'boilerplateProcedureId' => $boilerplate->getProcedureId(),
-                'statementId' => $statement->getId(),
-                'statementProcedureId' => $statement->getProcedureId(),
+                'statementId'            => $statement->getId(),
+                'statementProcedureId'   => $statement->getProcedureId(),
             ]);
 
             return;

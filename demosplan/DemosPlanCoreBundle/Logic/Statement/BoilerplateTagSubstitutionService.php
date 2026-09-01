@@ -114,9 +114,9 @@ class BoilerplateTagSubstitutionService
      * designed state.
      *
      * @param array<string, string>|null $boilerplateTextsById pre-loaded id => text map,
-     *        for bulk callers avoiding N+1 (exports, Elasticsearch populate). When null,
-     *        texts are loaded individually for the ids actually present in
-     *        $embeddedText.
+     *                                                         for bulk callers avoiding N+1 (exports, Elasticsearch populate). When null,
+     *                                                         texts are loaded individually for the ids actually present in
+     *                                                         $embeddedText.
      */
     public function substitute(string $embeddedText, ?array $boilerplateTextsById = null): string
     {

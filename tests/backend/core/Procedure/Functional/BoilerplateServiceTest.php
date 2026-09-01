@@ -292,7 +292,7 @@ class BoilerplateServiceTest extends FunctionalTestCase
 
     /**
      * DPLAN-18271: prepareBoilerplateDeletion() only flags the row for asynchronous
-     * materialize-and-delete ({@see \demosplan\DemosPlanCoreBundle\Logic\Procedure\BoilerplateDeletionService}) —
+     * materialize-and-delete ({@see BoilerplateDeletionService}) —
      * it does not remove it. The former testDeleteBoilerplate asserted an immediate row
      * removal, which is no longer this method's behavior.
      *

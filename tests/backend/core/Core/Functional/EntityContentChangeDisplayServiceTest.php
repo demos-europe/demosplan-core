@@ -37,7 +37,7 @@ class EntityContentChangeDisplayServiceTest extends FunctionalTestCase
     /**
      * DPLAN-18271: a boilerplate-materialization entry has no before/after to diff — the
      * substituted recommendation text is identical before and after materialization by
-     * design (see {@see \demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService::createBoilerplateMaterializationChangeEntry}).
+     * design (see {@see EntityContentChangeService::createBoilerplateMaterializationChangeEntry}).
      * getContentChangeComparisonString() must recognize this and render the stored notice
      * directly instead of feeding it to the generic diff/rollback path, which expects a
      * diff-shaped payload and would either produce a blank comparison or misbehave on the

@@ -532,7 +532,7 @@ class EntityContentChangeService
     /**
      * Versionsverlauf entry for a recommendation whose linked boilerplate was deleted and
      * therefore materialized into the recommendation text (DPLAN-18271,
-     * {@see \demosplan\DemosPlanCoreBundle\Logic\Procedure\BoilerplateDeletionService}).
+     * {@see Procedure\BoilerplateDeletionService}).
      *
      * Deliberately not a before/after diff: the substituted text is, by design, identical
      * before and after materialization — only the raw, unsubstituted form (a
@@ -549,7 +549,7 @@ class EntityContentChangeService
      * Versionsverlauf timeline.
      *
      * Persists without flushing: the surrounding
-     * {@see \demosplan\DemosPlanCoreBundle\Logic\TransactionService::executeAndFlushInTransaction}
+     * {@see TransactionService::executeAndFlushInTransaction}
      * call commits this entry alongside the recommendation update and the boilerplate
      * deletion.
      */

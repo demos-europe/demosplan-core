@@ -1596,7 +1596,7 @@ class ProcedureService implements ProcedureServiceInterface
      * Flags a boilerplate for deletion (DPLAN-18271). The row itself is not removed here:
      * materializing this boilerplate's content into every one of its usages could be slow
      * for a heavily-used boilerplate, and this method must not risk a request timeout.
-     * A recurring background job ({@see \demosplan\DemosPlanCoreBundle\Logic\Procedure\BoilerplateDeletionService})
+     * A recurring background job ({@see BoilerplateDeletionService})
      * picks up flagged rows, materializes and deletes them.
      *
      * @param string $boilerplateId

@@ -31,7 +31,7 @@ use Webmozart\Assert\Assert;
  * flags the boilerplate ({@see Boilerplate::setPendingDeletion()}); this service does the
  * actual work once picked up.
  *
- * Each recommendation is rewritten via {@see \demosplan\DemosPlanCoreBundle\Entity\Statement\Statement::setRecommendation()},
+ * Each recommendation is rewritten via {@see Statement::setRecommendation()},
  * the normal funnel — not a bypass — so version recording, {@see \demosplan\DemosPlanCoreBundle\Logic\Statement\BoilerplateUsageReconciliationService}
  * and ES reindexing all fire exactly as they would for a manual edit. Reconciliation
  * naturally drops the usage relation because the tag is gone; no separate cleanup needed.
