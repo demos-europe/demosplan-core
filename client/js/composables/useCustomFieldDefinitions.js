@@ -97,14 +97,9 @@ export function useCustomFieldDefinitions () {
     // Not a Symfony-named route: API Platform resources aren't exposed to Routing.generate().
     const url = '/api/3.0/CustomField'
 
-    /*
-     * Filter keys match the real CustomFieldConfiguration entity properties (sourceEntityClass/
-     * targetEntityClass), not the API resource's own sourceEntity/targetEntity attribute names -
-     * the backend's SearchFilter binds directly to the backing entity's property paths.
-     */
     const params = {
-      ...(targetEntity && { targetEntityClass: targetEntity }),
-      ...(sourceEntity && { sourceEntityClass: sourceEntity }),
+      ...(targetEntity && { targetEntity }),
+      ...(sourceEntity && { sourceEntity }),
       /*
        * For CUSTOMER source the BE scopes results to the current customer
        * via its access conditions, so we omit the sourceEntityId filter.

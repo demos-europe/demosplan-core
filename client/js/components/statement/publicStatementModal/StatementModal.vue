@@ -195,6 +195,8 @@
             :resource-id="draftStatementId"
             mode="editable"
             resource-type="DraftStatement"
+            source-entity="PROCEDURE"
+            target-entity="STATEMENT"
             @update:value="(value) => handleCustomFieldValueUpdate(customField.id, value)"
           />
         </fieldset>
@@ -1334,15 +1336,10 @@ export default {
         // Not a Symfony-named route: API Platform resources aren't exposed to Routing.generate().
         const url = '/api/3.0/CustomField'
 
-        /*
-         * Filter keys match the real CustomFieldConfiguration entity properties (sourceEntityClass/
-         * targetEntityClass), not the API resource's own sourceEntity/targetEntity attribute names -
-         * the backend's SearchFilter binds directly to the backing entity's property paths.
-         */
         const params = {
-          sourceEntityClass: 'PROCEDURE',
+          sourceEntity: 'PROCEDURE',
           sourceEntityId: this.procedureId,
-          targetEntityClass: 'STATEMENT',
+          targetEntity: 'STATEMENT',
         }
 
         const response = await dpApi.get(url, params)

@@ -43,9 +43,9 @@ use Webmozart\Assert\Assert;
             uriTemplate: '/CustomField',
             paginationEnabled: false,
             parameters: [
-                'sourceEntityClass' => new QueryParameter(filter: new ExactFilter(), property: 'sourceEntityClass'),
-                'sourceEntityId'    => new QueryParameter(filter: new ExactFilter(), property: 'sourceEntityId'),
-                'targetEntityClass' => new QueryParameter(filter: new ExactFilter(), property: 'targetEntityClass'),
+                'sourceEntity'   => new QueryParameter(filter: new ExactFilter(), property: 'sourceEntityClass', required: true),
+                'sourceEntityId' => new QueryParameter(filter: new ExactFilter(), property: 'sourceEntityId', required: true),
+                'targetEntity'   => new QueryParameter(filter: new ExactFilter(), property: 'targetEntityClass', required: true),
             ]),
         new Get(uriTemplate: self::ITEM_URI_TEMPLATE),
     ],
@@ -91,6 +91,10 @@ class CustomFieldResource
     /**
      * One of {@see \demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity}, e.g.
      * `STATEMENT`, `SEGMENT`. Read from `CustomFieldConfiguration::$targetEntityClass`.
+     *
+     * The `targetEntity` query parameter on `GetCollection` (declared above) is aliased to this real
+     * entity property via `QueryParameter(property: 'targetEntityClass', ...)`, so the public name matches
+     * this DTO's own attribute name rather than the underlying column name.
      */
     #[ApiProperty(readable: true, writable: false)]
     public ?string $targetEntity = null;
@@ -98,10 +102,17 @@ class CustomFieldResource
     /**
      * One of {@see \demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity}, e.g.
      * `PROCEDURE`, `CUSTOMER`. Read from `CustomFieldConfiguration::$sourceEntityClass`.
+     *
+     * The `sourceEntity` query parameter on `GetCollection` (declared above) is aliased to this real
+     * entity property via `QueryParameter(property: 'sourceEntityClass', ...)`, see {@see self::$targetEntity}.
      */
     #[ApiProperty(readable: true, writable: false)]
     public ?string $sourceEntity = null;
 
+    /**
+     * Query parameter name and entity property name are identical here, so no `QueryParameter` aliasing
+     * is needed beyond declaring the filter itself.
+     */
     #[ApiProperty(readable: true, writable: false)]
     public ?string $sourceEntityId = null;
 

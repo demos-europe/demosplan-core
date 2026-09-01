@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Api\CustomField;
 
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Doctrine\Orm\State\CollectionProvider as DoctrineCollectionProvider;
 use ApiPlatform\Doctrine\Orm\State\Options as DoctrineOptions;
 use ApiPlatform\Metadata\CollectionOperationInterface;
@@ -85,44 +84,39 @@ class CustomFieldProvider implements ProviderInterface
     }
 
     /**
-     * `sourceEntityClass` and `targetEntityClass` are required query parameters rather than optional
-     * refinements: they are the structural scope a set of custom field definitions belongs to (e.g. "the
-     * STATEMENT custom fields of PROCEDURE X"), the same scope
-     * {@see CustomFieldConfigurationRepository::getCustomFields()} already takes as arguments for the
-     * relationships on AdminProcedureResourceType/ProcedureTemplateResourceType. Unlike
-     * {@see \demosplan\DemosPlanCoreBundle\Api\StatementSegment\AccessChecker::getAccessConditions()},
-     * {@see CustomFieldAccessChecker::getAccessConditions()} does not by itself restrict
-     * non-CUSTOMER-scoped rows to what the caller may see - it trusts these query parameters to be the
-     * scope boundary, so they cannot be treated as merely-optional {@see SearchFilter}s the way
-     * StatementSegment's are: without this check, omitting them would list every custom field definition
-     * on the platform.
+     * `sourceEntity` and `targetEntity` are declared `required: true` on the `GetCollection` operation's
+     * `QueryParameter`s (see {@see CustomFieldResource}), so API Platform's own parameter validation
+     * already rejects a request missing either one (422) before this method runs - they are the
+     * structural scope a set of custom field definitions belongs to (e.g. "the STATEMENT custom fields of
+     * PROCEDURE X"), the same scope {@see CustomFieldConfigurationRepository::getCustomFields()} already
+     * takes as arguments for the relationships on AdminProcedureResourceType/ProcedureTemplateResourceType.
+     * Unlike {@see \demosplan\DemosPlanCoreBundle\Api\StatementSegment\AccessChecker::getAccessConditions()},
+     * {@see CustomFieldAccessChecker::getAccessConditions()} does not by itself restrict non-CUSTOMER-scoped
+     * rows to what the caller may see - it trusts these query parameters to be the scope boundary, which is
+     * why they are `required` rather than optional refinements: omitting them would list every custom
+     * field definition on the platform.
      *
-     * `sourceEntityId` is required for every source except CUSTOMER: a CUSTOMER-scoped caller does not
-     * need to know the current customer's ID, since {@see CustomFieldAccessChecker::getAccessConditions()}
-     * already restricts CUSTOMER-scoped rows to it (enforced at the query level by
-     * {@see Extension\CustomFieldDoctrineAccessExtension}).
+     * `sourceEntityId` is required for every source except CUSTOMER, which can't be expressed as a plain
+     * per-parameter `required` flag since it depends on `sourceEntity`'s value - so that one condition
+     * stays manual here. A CUSTOMER-scoped caller does not need to know the current customer's ID, since
+     * {@see CustomFieldAccessChecker::getAccessConditions()} already restricts CUSTOMER-scoped rows to it
+     * (enforced at the query level by {@see Extension\CustomFieldDoctrineAccessExtension}).
      *
-     * The actual `sourceEntityClass`/`targetEntityClass`/`sourceEntityId` equality filtering, once this
-     * precondition passes, is handled declaratively by the {@see SearchFilter} attributes on
-     * {@see CustomFieldResource} - delegated to API Platform's native Doctrine ORM collection provider.
+     * The actual `sourceEntity`/`targetEntity`/`sourceEntityId` equality filtering is handled declaratively
+     * by the `QueryParameter`+`ExactFilter` declarations on {@see CustomFieldResource}'s `GetCollection`
+     * operation - delegated to API Platform's native Doctrine ORM collection provider.
      *
      * @return list<CustomFieldResource>
      */
     private function provideCollection(Operation $operation, array $uriVariables, array $context): array
     {
         $filters = $context['filters'] ?? [];
-        $sourceEntity = $filters['sourceEntityClass'] ?? null;
+        $sourceEntity = $filters['sourceEntity'] ?? null;
         $sourceEntityId = $filters['sourceEntityId'] ?? null;
-        $targetEntity = $filters['targetEntityClass'] ?? null;
-
-        if (!is_string($sourceEntity) || '' === $sourceEntity
-            || !is_string($targetEntity) || '' === $targetEntity) {
-            throw new BadRequestHttpException('The "sourceEntityClass" and "targetEntityClass" query parameters are required.');
-        }
 
         $isCustomerScoped = CustomFieldSupportedEntity::customer->value === $sourceEntity;
         if (!$isCustomerScoped && (!is_string($sourceEntityId) || '' === $sourceEntityId)) {
-            throw new BadRequestHttpException('The "sourceEntityId" query parameter is required unless "sourceEntityClass" is CUSTOMER.');
+            throw new BadRequestHttpException('The "sourceEntityId" query parameter is required unless "sourceEntity" is CUSTOMER.');
         }
 
         // handleLinks has to be set or API Platform throws an error, but we don't need it to do anything here.
