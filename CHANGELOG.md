@@ -6,6 +6,12 @@
 
 ## UNRELEASED
 
+### Changed
+- api-platform upgraded from 3.4 to 4.3; 3.4.x is blocked by security advisories. Two options in `config/packages/api_platform.yaml` changed: `keep_legacy_inflector` no longer exists in v4 and was removed, and `validator.legacy_query_parameter_validation` is now `validator.query_parameter_validation` (same behaviour; deprecated in 4.2, removal in 5.0). Projects overriding either option must adjust them, otherwise the container fails to compile with an "Unrecognized option" error.
+
+### New dependencies
+- `symfony/type-info ^7.4` — required by api-platform 4.3 and pulled in transitively. It installs alongside Symfony 6.4 without a framework upgrade: the component has no 6.x release, so Symfony Flex exempts it from the `extra.symfony.require: "6.*.*"` constraint rather than filtering it out. No explicit root require is needed.
+
 ## v4.58.0 (2026-08-27)
 
 ### Changed
