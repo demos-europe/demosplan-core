@@ -74,7 +74,7 @@ class CustomFieldResource
     public bool $isRequired = false;
 
     /**
-     * One of {@see \demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface::TYPE_CLASSES}
+     * One of {@see \demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface::TYPE_CLASSES}.
      */
     #[ApiProperty(readable: true, writable: false)]
     public string $fieldType = '';
@@ -86,13 +86,13 @@ class CustomFieldResource
     public array $options = [];
 
     /**
-     * One of {@see \demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity}
+     * One of {@see \demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity}.
      */
     #[ApiProperty(readable: true, writable: false)]
     public string $targetEntity = '';
 
     /**
-     * One of {@see \demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity}
+     * One of {@see \demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity}.
      */
     #[ApiProperty(readable: true, writable: false)]
     public string $sourceEntity = '';
