@@ -12,13 +12,16 @@ declare(strict_types=1);
 
 namespace Tests\Core\Statement\Functional;
 
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\BoilerplateFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\County;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Municipality;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Repository\BoilerplateUsageRepository;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
 use Tests\Base\FunctionalTestCase;
 
@@ -220,6 +223,39 @@ class StatementCopierTest extends FunctionalTestCase
         static::assertInstanceOf(Statement::class, $createdCopy);
 
         static::assertEquals($testStatement->getFragments()->count(), $createdCopy->getFragments()->count());
+    }
+
+    /**
+     * DPLAN-18271: copyStatementObjectWithinProcedure() creates the copy via a raw PHP
+     * clone(), which carries the recommendation's raw tag form over verbatim but bypasses
+     * setRecommendation() — without the fix, the copy would have no reconciled
+     * BoilerplateUsage relation for a tag it visibly still contains.
+     *
+     * @throws \demosplan\DemosPlanCoreBundle\Exception\CopyException
+     */
+    public function testCopyStatementWithinProcedureReconcilesBoilerplateUsage(): void
+    {
+        $procedure = $this->getStatementReference('testStatement')->getProcedure();
+        $boilerplate = BoilerplateFactory::createOne([
+            'procedure' => $procedure,
+            'text'      => 'Aktueller Textbausteininhalt',
+        ])->_real();
+        $freshStatement = StatementFactory::createOne(['procedure' => $procedure])->_real();
+        $this->getEntityManager()->refresh($freshStatement);
+        $freshStatement->setRecommendation("<dp-boilerplate boilerplate-id=\"{$boilerplate->getId()}\"></dp-boilerplate>");
+        $this->getEntityManager()->flush();
+
+        $createdCopy = $this->sut->copyStatementObjectWithinProcedure($freshStatement);
+
+        static::assertInstanceOf(Statement::class, $createdCopy);
+        static::assertSame(
+            "<dp-boilerplate boilerplate-id=\"{$boilerplate->getId()}\"></dp-boilerplate>",
+            $createdCopy->getRecommendationEmbedded()
+        );
+        $usages = self::getContainer()->get(BoilerplateUsageRepository::class)
+            ->findUsagesForStatementOrSegment($createdCopy);
+        static::assertCount(1, $usages);
+        static::assertArrayHasKey($boilerplate->getId(), $usages);
     }
 
     public function testCopyCluster(): void

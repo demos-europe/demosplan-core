@@ -12,11 +12,15 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use Carbon\Carbon;
 use DateTime;
+use DateTimeZone;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
+use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
@@ -24,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentLockEnforcementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\BoilerplateTagSubstitutionService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
@@ -55,6 +60,15 @@ use function array_key_exists;
 class EntityContentChangeService
 {
     /**
+     * Discriminates a `recommendation` entry's stored `contentChange` as a
+     * {@see EntityContentChangeService::createBoilerplateMaterializationChangeEntry} notice
+     * rather than an ordinary diff. An ordinary diff is always stored as a JSON array; this
+     * marker lives under a JSON object's `type` key, so the two are structurally distinct
+     * and never ambiguous — {@see EntityContentChangeDisplayService} relies on this.
+     */
+    final public const BOILERPLATE_MATERIALIZED_CONTENT_CHANGE_TYPE = 'boilerplateMaterialized';
+
+    /**
      * Mapping from classes to a list of properties, with each property mapping to a list of meta information.
      *
      * @var array<class-string, array<non-empty-string, array<non-empty-string, mixed>>>|null
@@ -79,6 +93,7 @@ class EntityContentChangeService
         private readonly LoggerInterface $logger,
         private readonly ManagerRegistry $doctrine,
         private readonly SegmentLockEnforcementService $segmentLockEnforcementService,
+        private readonly BoilerplateTagSubstitutionService $boilerplateTagSubstitutionService,
     ) {
         $this->tokenStorage = $tokenStorage;
     }
@@ -509,7 +524,53 @@ class EntityContentChangeService
             $contentChange,
             $this->determineChanger(false),
             $this->doctrine->getManager()->getClassMetadata(Segment::class)->getName(),
-            new DateTime(),
+            new DateTime('now', new DateTimeZone('Europe/Berlin')),
+        );
+        $this->entityContentChangeRepository->persistEntities([$entry]);
+    }
+
+    /**
+     * Versionsverlauf entry for a recommendation whose linked boilerplate was deleted and
+     * therefore materialized into the recommendation text (DPLAN-18271,
+     * {@see \demosplan\DemosPlanCoreBundle\Logic\Procedure\BoilerplateDeletionService}).
+     *
+     * Deliberately not a before/after diff: the substituted text is, by design, identical
+     * before and after materialization — only the raw, unsubstituted form (a
+     * `<dp-boilerplate>` reference tag) changes, and that raw form is never shown to a
+     * user. Showing a before/after comparison of identical substituted text would look
+     * like a no-op, so the stored `contentChange` is instead a small JSON object carrying
+     * the boilerplate's title and text, structurally distinct from the JSON array every
+     * ordinary diff stores. {@see EntityContentChangeDisplayService} recognizes this shape
+     * and renders a fixed notice instead of attempting a diff, and also skips it as an
+     * identity step when rolling back through the recommendation's other, ordinary diffs.
+     *
+     * Uses `recommendation` as the entity field (not a dedicated field name) so this entry
+     * sits chronologically alongside ordinary recommendation edits in the same
+     * Versionsverlauf timeline.
+     *
+     * Persists without flushing: the surrounding
+     * {@see \demosplan\DemosPlanCoreBundle\Logic\TransactionService::executeAndFlushInTransaction}
+     * call commits this entry alongside the recommendation update and the boilerplate
+     * deletion.
+     */
+    public function createBoilerplateMaterializationChangeEntry(
+        Statement $statementOrSegment,
+        string $boilerplateTitle,
+        string $boilerplateText,
+    ): void {
+        $contentChange = Json::encode([
+            'type'             => self::BOILERPLATE_MATERIALIZED_CONTENT_CHANGE_TYPE,
+            'boilerplateTitle' => $boilerplateTitle,
+            'boilerplateText'  => $boilerplateText,
+        ]);
+
+        $entry = $this->createEntityContentChangeEntity(
+            $statementOrSegment,
+            SegmentInterface::RECOMMENDATION_FIELD_NAME,
+            $contentChange,
+            $this->determineChanger(false),
+            ClassUtils::getClass($statementOrSegment),
+            new DateTime('now', new DateTimeZone('Europe/Berlin')),
         );
         $this->entityContentChangeRepository->persistEntities([$entry]);
     }
@@ -1419,12 +1480,7 @@ class EntityContentChangeService
                 // we use `null` as pre update value.
                 $preUpdateValue = $preUpdateArray[$propertyName] ?? null;
                 $postUpdateValue = $incomingUpdatedObject->$methodName();
-                if ($preUpdateValue instanceof Collection) {
-                    // getOriginalEntityData() seems to be ignore n:m association.
-                    // use getSnapshot() to get "pre update" data
-                    $preUpdateValue->initialize();
-                    $preUpdateValue = $preUpdateValue->getSnapshot();
-                }
+                $preUpdateValue = $this->resolvePreUpdateValueForStandardField($propertyName, $preUpdateValue);
 
                 $contentChangeString = $this->createContentChangeData(
                     $preUpdateValue,
@@ -1440,6 +1496,36 @@ class EntityContentChangeService
         }
 
         return $changes;
+    }
+
+    /**
+     * Resolves the raw pre-update value of a standard (non-customField, non-locked) field
+     * into the form {@see EntityContentChangeService::createContentChangeData} expects to
+     * compare against the post-update getter result.
+     */
+    private function resolvePreUpdateValueForStandardField(string $propertyName, mixed $preUpdateValue): mixed
+    {
+        if (SegmentInterface::RECOMMENDATION_FIELD_NAME === $propertyName && is_string($preUpdateValue)) {
+            // DPLAN-18271: $preUpdateValue is Doctrine's raw, pre-flush snapshot and may
+            // still contain a <dp-boilerplate boilerplate-id="…"> reference tag. The
+            // post-update value came from the real getter, which already substitutes any
+            // such tag with the boilerplate's current text. Comparing raw against
+            // substituted would fabricate a "change" on every unrelated save to an entity
+            // with a linked boilerplate (the tag and its own resolved text are never equal
+            // as strings, even though nothing changed) and would also corrupt the
+            // Versionsverlauf rollback walk. Substituting here puts both sides in the same,
+            // substituted form.
+            $preUpdateValue = $this->boilerplateTagSubstitutionService->substitute($preUpdateValue);
+        }
+
+        if ($preUpdateValue instanceof Collection) {
+            // getOriginalEntityData() seems to be ignore n:m association.
+            // use getSnapshot() to get "pre update" data
+            $preUpdateValue->initialize();
+            $preUpdateValue = $preUpdateValue->getSnapshot();
+        }
+
+        return $preUpdateValue;
     }
 
     /**
@@ -1472,6 +1558,15 @@ class EntityContentChangeService
                 $methodName = $this->getGetterMethodName($preUpdateObject, $propertyName);
                 $postUpdateValue = $incomingDataArray[$propertyName];
                 $preUpdateValue = $preUpdateObject->$methodName();
+                if (SegmentInterface::RECOMMENDATION_FIELD_NAME === $propertyName && is_string($postUpdateValue)) {
+                    // DPLAN-18271: $preUpdateValue already went through the real getter above,
+                    // so it is substituted. $postUpdateValue is the raw incoming form value —
+                    // today this admin form never writes a <dp-boilerplate> tag, so this is a
+                    // no-op in practice, but it keeps the comparison correct by construction
+                    // if that path ever changes. See the sibling reasoning in
+                    // {{ @link EntityContentChangeService::calculateChangesOfStandardFieldsOfPreUpdateArrayAndPostUpdateObject }}.
+                    $postUpdateValue = $this->boilerplateTagSubstitutionService->substitute($postUpdateValue);
+                }
                 $contentChangeString = $this->createContentChangeData(
                     $preUpdateValue,
                     $postUpdateValue,

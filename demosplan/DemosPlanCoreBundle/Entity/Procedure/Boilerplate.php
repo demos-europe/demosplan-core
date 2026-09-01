@@ -114,6 +114,17 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
     #[ORM\Column(name: 'verified', type: 'boolean', nullable: false, options: ['default' => false])]
     protected bool $verified = false;
 
+    /**
+     * True once a delete has been requested (DPLAN-18271): the row itself is not removed
+     * synchronously, since materializing this boilerplate's content into every one of its
+     * usages could be slow for a heavily-used boilerplate. A recurring background job
+     * ({@see \demosplan\DemosPlanCoreBundle\MessageHandler\PurgePendingBoilerplateDeletionsMessageHandler})
+     * picks up rows with this flag set, materializes and deletes them. {@see $modifyDate}
+     * (Gedmo-managed) doubles as the flagged-at timestamp for oldest-first processing order.
+     */
+    #[ORM\Column(name: 'pending_deletion', type: 'boolean', nullable: false, options: ['default' => false])]
+    protected bool $pendingDeletion = false;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
@@ -255,6 +266,16 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
     public function setVerified(bool $verified): void
     {
         $this->verified = $verified;
+    }
+
+    public function isPendingDeletion(): bool
+    {
+        return $this->pendingDeletion;
+    }
+
+    public function setPendingDeletion(bool $pendingDeletion): void
+    {
+        $this->pendingDeletion = $pendingDeletion;
     }
 
     /**
