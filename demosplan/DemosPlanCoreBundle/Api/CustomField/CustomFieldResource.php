@@ -12,12 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Api\CustomField;
 
+use ApiPlatform\Doctrine\Orm\Filter\ExactFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
 use demosplan\DemosPlanCoreBundle\CustomField\AbstractCustomField;
@@ -38,7 +40,14 @@ use Webmozart\Assert\Assert;
 #[ApiResource(
     shortName: 'CustomField',
     operations: [
-        new GetCollection(uriTemplate: '/CustomField', paginationEnabled: false),
+        new GetCollection(
+            uriTemplate: '/CustomField',
+            paginationEnabled: false,
+            parameters: [
+                'sourceEntityClass' => new QueryParameter(filter: new ExactFilter(), property: 'sourceEntityClass'),
+                'sourceEntityId' => new QueryParameter(filter: new ExactFilter(), property: 'sourceEntityId'),
+                'targetEntityClass' => new QueryParameter(filter: new ExactFilter(), property: 'targetEntityClass'),
+            ]),
         new Get(uriTemplate: self::ITEM_URI_TEMPLATE),
     ],
     formats: ['jsonapi'],
@@ -84,11 +93,7 @@ class CustomFieldResource
      * One of {@see \demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity}, e.g.
      * `STATEMENT`, `SEGMENT`. Read from `CustomFieldConfiguration::$targetEntityClass`.
      *
-     * The filter query parameter is `targetEntityClass` (the real entity property), not `targetEntity`
-     * (this DTO's own property name) - {@see SearchFilter} binds directly to the backing entity's
-     * property path.
      */
-    #[ApiFilter(SearchFilter::class, properties: ['targetEntityClass' => 'exact'])]
     #[ApiProperty(readable: true, writable: false)]
     public ?string $targetEntity = null;
 
@@ -96,17 +101,11 @@ class CustomFieldResource
      * One of {@see \demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity}, e.g.
      * `PROCEDURE`, `CUSTOMER`. Read from `CustomFieldConfiguration::$sourceEntityClass`.
      *
-     * The filter query parameter is `sourceEntityClass`, see {@see self::$targetEntity}.
      */
-    #[ApiFilter(SearchFilter::class, properties: ['sourceEntityClass' => 'exact'])]
     #[ApiProperty(readable: true, writable: false)]
     public ?string $sourceEntity = null;
 
-    /**
-     * Now readable, unlike the legacy resource which kept it write/filter-only despite it being a plain
-     * scalar on the entity.
-     */
-    #[ApiFilter(SearchFilter::class, properties: ['sourceEntityId' => 'exact'])]
+
     #[ApiProperty(readable: true, writable: false)]
     public ?string $sourceEntityId = null;
 
