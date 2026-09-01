@@ -98,6 +98,9 @@ export function useCustomFieldDefinitions () {
     const url = '/api/3.0/CustomField'
 
     const params = {
+      fields: {
+        CustomField: ['name', 'description', 'options', 'fieldType', 'isRequired'].join(),
+      },
       ...(targetEntity && { targetEntity }),
       ...(sourceEntity && { sourceEntity }),
       /*

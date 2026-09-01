@@ -1337,6 +1337,9 @@ export default {
         const url = '/api/3.0/CustomField'
 
         const params = {
+          fields: {
+            CustomField: ['name', 'description', 'options', 'fieldType', 'isRequired'].join(),
+          },
           sourceEntity: 'PROCEDURE',
           sourceEntityId: this.procedureId,
           targetEntity: 'STATEMENT',

@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Api\CustomField;
 
 use ApiPlatform\Doctrine\Orm\Filter\ExactFilter;
+use ApiPlatform\JsonApi\Filter\SparseFieldset;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
@@ -43,11 +44,22 @@ use Webmozart\Assert\Assert;
             uriTemplate: '/CustomField',
             paginationEnabled: false,
             parameters: [
+                // No `provider:` needed here: SparseFieldset::getParameterProvider() always resolves the
+                // provider to that class-string, registered as a service in config/services.yml.
+                // @phpstan-ignore argument.type (SparseFieldset is a Parameter-API-only filter; it deliberately doesn't implement the deprecated ApiPlatform\Metadata\FilterInterface)
+                'fields'         => new QueryParameter(filter: new SparseFieldset()),
                 'sourceEntity'   => new QueryParameter(filter: new ExactFilter(), property: 'sourceEntityClass', required: true),
                 'sourceEntityId' => new QueryParameter(filter: new ExactFilter(), property: 'sourceEntityId', required: true),
                 'targetEntity'   => new QueryParameter(filter: new ExactFilter(), property: 'targetEntityClass', required: true),
             ]),
-        new Get(uriTemplate: self::ITEM_URI_TEMPLATE),
+        new Get(
+            uriTemplate: self::ITEM_URI_TEMPLATE,
+            parameters: [
+                // No `provider:` needed here: SparseFieldset::getParameterProvider() always resolves the
+                // provider to that class-string, registered as a service in config/services.yml.
+                // @phpstan-ignore argument.type (SparseFieldset is a Parameter-API-only filter; it deliberately doesn't implement the deprecated ApiPlatform\Metadata\FilterInterface)
+                'fields' => new QueryParameter(filter: new SparseFieldset()),
+            ]),
     ],
     formats: ['jsonapi'],
     routePrefix: ApiPlatformConstants::ROUTE_PREFIX_V3,
