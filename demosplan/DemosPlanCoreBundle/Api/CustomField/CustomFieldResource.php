@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Api\CustomField;
 
 use ApiPlatform\Doctrine\Orm\Filter\ExactFilter;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
@@ -45,7 +44,7 @@ use Webmozart\Assert\Assert;
             paginationEnabled: false,
             parameters: [
                 'sourceEntityClass' => new QueryParameter(filter: new ExactFilter(), property: 'sourceEntityClass'),
-                'sourceEntityId' => new QueryParameter(filter: new ExactFilter(), property: 'sourceEntityId'),
+                'sourceEntityId'    => new QueryParameter(filter: new ExactFilter(), property: 'sourceEntityId'),
                 'targetEntityClass' => new QueryParameter(filter: new ExactFilter(), property: 'targetEntityClass'),
             ]),
         new Get(uriTemplate: self::ITEM_URI_TEMPLATE),
@@ -92,7 +91,6 @@ class CustomFieldResource
     /**
      * One of {@see \demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity}, e.g.
      * `STATEMENT`, `SEGMENT`. Read from `CustomFieldConfiguration::$targetEntityClass`.
-     *
      */
     #[ApiProperty(readable: true, writable: false)]
     public ?string $targetEntity = null;
@@ -100,11 +98,9 @@ class CustomFieldResource
     /**
      * One of {@see \demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity}, e.g.
      * `PROCEDURE`, `CUSTOMER`. Read from `CustomFieldConfiguration::$sourceEntityClass`.
-     *
      */
     #[ApiProperty(readable: true, writable: false)]
     public ?string $sourceEntity = null;
-
 
     #[ApiProperty(readable: true, writable: false)]
     public ?string $sourceEntityId = null;
