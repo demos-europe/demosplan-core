@@ -59,28 +59,25 @@ class CustomFieldResource
     private const ITEM_URI_TEMPLATE = '/CustomField/{id}';
 
     /**
-     * The real {@see CustomFieldConfiguration} UUID. The legacy EDT resource resolved its identifier
-     * from the `name` property instead, which never actually matched what the repository persisted -
-     * fixed here rather than reproduced, since the frontend already round-trips the real UUID it
-     * receives back from the legacy create endpoint.
+     * {@see CustomFieldConfiguration} UUID.
      */
     #[ApiProperty(readable: false, identifier: true)]
     public string $id = '';
 
     #[ApiProperty(readable: true, writable: false)]
-    public ?string $name = null;
+    public string $name = '';
 
     #[ApiProperty(readable: true, writable: false)]
-    public ?string $description = null;
+    public string $description = '';
 
     #[ApiProperty(readable: true, writable: false)]
-    public ?bool $isRequired = null;
+    public bool $isRequired = false;
 
     /**
-     * One of {@see \demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface::TYPE_CLASSES}s.
+     * One of {@see \demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface::TYPE_CLASSES}
      */
     #[ApiProperty(readable: true, writable: false)]
-    public ?string $fieldType = null;
+    public string $fieldType = '';
 
     /**
      * @var list<array{id: string, label: string}>
@@ -89,32 +86,19 @@ class CustomFieldResource
     public array $options = [];
 
     /**
-     * One of {@see \demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity}, e.g.
-     * `STATEMENT`, `SEGMENT`. Read from `CustomFieldConfiguration::$targetEntityClass`.
-     *
-     * The `targetEntity` query parameter on `GetCollection` (declared above) is aliased to this real
-     * entity property via `QueryParameter(property: 'targetEntityClass', ...)`, so the public name matches
-     * this DTO's own attribute name rather than the underlying column name.
+     * One of {@see \demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity}
      */
     #[ApiProperty(readable: true, writable: false)]
-    public ?string $targetEntity = null;
+    public string $targetEntity = '';
 
     /**
-     * One of {@see \demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity}, e.g.
-     * `PROCEDURE`, `CUSTOMER`. Read from `CustomFieldConfiguration::$sourceEntityClass`.
-     *
-     * The `sourceEntity` query parameter on `GetCollection` (declared above) is aliased to this real
-     * entity property via `QueryParameter(property: 'sourceEntityClass', ...)`, see {@see self::$targetEntity}.
+     * One of {@see \demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity}
      */
     #[ApiProperty(readable: true, writable: false)]
-    public ?string $sourceEntity = null;
+    public string $sourceEntity = '';
 
-    /**
-     * Query parameter name and entity property name are identical here, so no `QueryParameter` aliasing
-     * is needed beyond declaring the filter itself.
-     */
     #[ApiProperty(readable: true, writable: false)]
-    public ?string $sourceEntityId = null;
+    public string $sourceEntityId = '';
 
     public static function fromEntity(CustomFieldConfiguration $entity): self
     {
