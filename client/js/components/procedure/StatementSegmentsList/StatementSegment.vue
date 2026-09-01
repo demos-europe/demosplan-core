@@ -159,7 +159,12 @@
         />
       </div>
       <div v-else>
+        <dp-loading
+          v-if="recommendationEmbeddedLoading"
+          data-cy="segmentEditor:loading"
+        />
         <dp-editor
+          v-else
           ref="editor"
           class="mb-2"
           editor-id="recommendationText"
@@ -175,8 +180,8 @@
             linkButton: true
           }"
           :tus-endpoint="dplan.paths.tusEndpoint"
-          :value="segment.attributes.recommendation"
-          @input="value => updateSegment('recommendation', value)"
+          :value="recommendationForEditor"
+          @input="updateRecommendation"
         >
           <template v-slot:modal="modalProps">
             <dp-boiler-plate-modal
@@ -504,6 +509,7 @@ import {
   DpDatepicker,
   DpIcon,
   DpLabel,
+  DpLoading,
   DpMultiselect,
   DpTooltip,
   formatDate,
@@ -512,6 +518,7 @@ import {
   Tooltip,
   VPopover,
 } from '@demos-europe/demosplan-ui'
+import { embedBoilerplateContent, stripBoilerplateContent } from './utils/boilerplateTagContent'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
 import CustomField from '@DpJs/components/customFields/CustomField'
@@ -548,6 +555,7 @@ export default {
     }),
     DpIcon,
     DpLabel,
+    DpLoading,
     DpMultiselect,
     DpTooltip,
     ImageModal,
@@ -623,6 +631,12 @@ export default {
       isSaving: false,
       lockedBeforeSave: false,
       pendingUnlink: null,
+      /*
+       * Tag-form recommendation text (see boilerplateTagContent.js), fetched lazily once
+       * editing starts — null until then, so recommendationForEditor knows not to render yet.
+       */
+      recommendationEmbedded: null,
+      recommendationEmbeddedLoading: false,
       selectedAssignee: {},
       selectedPlace: { id: '', type: 'Place' },
       showAdditionalFields: false,
@@ -813,6 +827,28 @@ export default {
       return Translator.trans('boilerplate.link.dissolve.confirm', { title })
     },
 
+    /**
+     * The recommendation text for the editor's `:value`. Without the permission, this is
+     * unchanged from before — the plain substituted text. With it, boilerplate tags in the
+     * fetched recommendationEmbedded get their current content filled in (see
+     * boilerplateTagContent.js), so linked boilerplates render as their own node in the
+     * editor instead of as plain, unrecognized text.
+     *
+     * `visibleRecommendation` below stays on `segment.attributes.recommendation` — the
+     * read-only view must keep showing the plain substituted text regardless of this.
+     */
+    recommendationForEditor () {
+      if (!this.canLinkBoilerplate) {
+        return this.segment.attributes.recommendation
+      }
+
+      if (this.recommendationEmbedded === null) {
+        return ''
+      }
+
+      return embedBoilerplateContent(this.recommendationEmbedded, this.boilerplates)
+    },
+
     visibleRecommendation () {
       const shortText = this.segment.attributes.recommendation.length > 40 ? this.segment.attributes.recommendation.slice(0, 40) + '...' : this.segment.attributes.recommendation
 
@@ -844,7 +880,7 @@ export default {
 
   methods: {
     ...mapActions('Boilerplates', [
-      'getBoilerPlates'
+      'getBoilerPlates',
     ]),
 
     ...mapActions('SegmentSlidebar', [
@@ -1456,6 +1492,43 @@ export default {
     startEditing () {
       this.isEditing = true
       this.isCollapsed = false
+
+      if (this.canLinkBoilerplate && this.recommendationEmbedded === null) {
+        this.loadRecommendationEmbedded()
+      }
+    },
+
+    /**
+     * Fetches the tag-form recommendation for the editor. A separate, targeted request
+     * rather than part of the segment's normal load: `recommendationEmbedded` is not a
+     * default field (readable(false) on the backend), so the segment's own generic load
+     * never includes it — and it's only needed once editing actually starts, not for every
+     * segment in a list that may never be opened.
+     */
+    loadRecommendationEmbedded () {
+      this.recommendationEmbeddedLoading = true
+
+      const url = Routing.generate('api_resource_get', {
+        resourceType: 'StatementSegment',
+        resourceId: this.segment.id,
+      })
+
+      return dpApi.get(url, { fields: { StatementSegment: 'recommendationEmbedded' } })
+        .then(response => {
+          this.recommendationEmbedded = response?.data?.data?.attributes?.recommendationEmbedded ?? ''
+        })
+        .catch(() => {
+          /*
+           * Falls back to the substituted, already-known text rather than leaving the editor
+           * empty. It has no boilerplate tags in it, so embedBoilerplateContent below passes
+           * it through unchanged — editable, just without any still-linked boilerplates
+           * recognized as such for this session.
+           */
+          this.recommendationEmbedded = this.segment.attributes.recommendation
+        })
+        .finally(() => {
+          this.recommendationEmbeddedLoading = false
+        })
     },
 
     hideAdditionalFields () {
@@ -1559,6 +1632,29 @@ export default {
       this.setSegment({ ...updated, id: this.segment.id })
 
       return relations
+    },
+
+    /**
+     * Handles the editor's `@input`. With the permission, the editor's HTML has boilerplate
+     * tags filled with their current content (see recommendationForEditor) — stripping that
+     * content back out before storing is what keeps the database holding only the empty,
+     * reference-only tag. Without the permission, stored exactly as the editor emits it,
+     * same as before this feature existed.
+     *
+     * Also mirrors the stripped value into `recommendationEmbedded`, which otherwise stays
+     * frozen at whatever `loadRecommendationEmbedded` fetched once at the start of the first
+     * editing session (see its guard in `startEditing`). Without this, leaving and re-entering
+     * edit mode later in the same page session would rebuild `recommendationForEditor` from
+     * that stale snapshot and silently discard anything inserted/removed since.
+     */
+    updateRecommendation (value) {
+      const valueToStore = this.canLinkBoilerplate ? stripBoilerplateContent(value) : value
+
+      if (this.canLinkBoilerplate) {
+        this.recommendationEmbedded = valueToStore
+      }
+
+      this.updateSegment('recommendation', valueToStore)
     },
 
     updateSegment (key, val) {
