@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Api\Tag\Extension;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
+use demosplan\DemosPlanCoreBundle\Api\Common\DoctrineAccessConditionSubqueryTrait;
 use demosplan\DemosPlanCoreBundle\Api\Tag\AccessChecker;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
@@ -22,10 +23,13 @@ use Doctrine\ORM\QueryBuilder;
 
 /**
  * Restricts GET /3.0/Tag collection queries to procedures the current user is allowed
- * * to access, by reusing {@see AccessChecker::getAccessConditions()} as a subquery.
+ * to access, by reusing {@see AccessChecker::getAccessConditions()} as a subquery via
+ * {@see DoctrineAccessConditionSubqueryTrait}.
  */
 final class TagDoctrineAccessExtension implements QueryCollectionExtensionInterface
 {
+    use DoctrineAccessConditionSubqueryTrait;
+
     public function __construct(
         private readonly AccessChecker $accessChecker,
         private readonly TagRepository $tagRepository,
@@ -38,17 +42,9 @@ final class TagDoctrineAccessExtension implements QueryCollectionExtensionInterf
             return;
         }
 
-        $subQueryBuilder = $this->tagRepository->generateAccessConditionQueryBuilder(
-            $this->accessChecker->getAccessConditions()
+        $this->restrictToSubqueryIds(
+            $queryBuilder,
+            $this->tagRepository->generateAccessConditionQueryBuilder($this->accessChecker->getAccessConditions())
         );
-        $subAlias = $subQueryBuilder->getRootAliases()[0];
-        $subQueryBuilder->select("$subAlias.id");
-
-        $rootAlias = $queryBuilder->getRootAliases()[0];
-        $queryBuilder->andWhere($queryBuilder->expr()->in("$rootAlias.id", $subQueryBuilder->getDQL()));
-
-        foreach ($subQueryBuilder->getParameters() as $parameter) {
-            $queryBuilder->setParameter($parameter->getName(), $parameter->getValue(), $parameter->getType());
-        }
     }
 }

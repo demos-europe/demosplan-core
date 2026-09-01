@@ -101,10 +101,10 @@ class CustomFieldProvider implements ProviderInterface
             throw new BadRequestHttpException('The "sourceEntityId" query parameter is required unless "sourceEntity" is CUSTOMER.');
         }
 
-        // handleLinks has to be set or API Platform throws an error, but we don't need it to do anything here.
         $operation = $operation->withStateOptions(new DoctrineOptions(
             entityClass: CustomFieldConfiguration::class,
             handleLinks: static function (): void {
+                // Required by API Platform's DoctrineOptions, or it throws - this resource has no links to handle.
             }
         ));
 
