@@ -16,60 +16,36 @@ use ApiPlatform\Doctrine\Orm\State\CollectionProvider as DoctrineCollectionProvi
 use ApiPlatform\Doctrine\Orm\State\Options as DoctrineOptions;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
-use demosplan\DemosPlanCoreBundle\Api\AssignableUser\AssignableUserAccessChecker;
-use demosplan\DemosPlanCoreBundle\Api\Place\PlaceAccessChecker;
 use demosplan\DemosPlanCoreBundle\Api\StatementSegment\AccessChecker;
 use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Facet\Resource as FacetResource;
-use demosplan\DemosPlanCoreBundle\Api\Tag\AccessChecker as TagAccessChecker;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Logic\CustomField\SegmentCustomFieldUsageCounter;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
-use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
-use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
-use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Webmozart\Assert\Assert;
 
 /**
- * Computes counted options for one segment-list facet at a time (tags, assignee, place, or
- * a SEGMENT custom field), scoped by every other currently active filter - the Doctrine
- * equivalent of the facet-exclusion behaviour the retired `segments.facets.list` RPC provided
- * via Elasticsearch.
+ * Answers "how many segments have each option?" for one filter dropdown at a time (tags,
+ * assignee, place, or a custom field).
+ * It fetches segments that match the current filters, counts how many have each option, then
+ * fills in any missing option with a count of 0 so nothing just disappears.
+ * This replaces the old `segments.facets.list` RPC, which did the same job using Elasticsearch.
  *
- * Static facets (tags/assignee/place) are counted by fetching the already-filtered `Segment`
- * collection via API Platform's own {@see DoctrineCollectionProvider} - the same mechanism
- * {@see \demosplan\DemosPlanCoreBundle\Api\StatementSegment\Provider} uses for the segment list
- * itself - which applies whichever `#[ApiFilter]` {@see Resource} declares (`SearchFilter` on
- * `tags.id`/`assignee.id`/`place.id`/`parentStatementOfSegment.procedure.id`) automatically.
- * It also automatically picks up the globally-registered
- * {@see \demosplan\DemosPlanCoreBundle\Api\StatementSegment\Extension\SegmentDoctrineAccessExtension}
- * (registered against the `Segment` Doctrine entity, not any one API resource, so it applies here
- * too), meaning access-condition scoping needs no separate handling in this class. Counting itself
- * happens in PHP over the returned entities' `getTags()`/`getAssignee()`/`getPlace()`, rather than
- * a SQL `GROUP BY`. Facet exclusion (a filter never zeroes out its own count) is done by removing
- * the current facet's own key from the filters array before fetching.
+ * Static facets (tags/assignee/place) each have their own {@see StaticFacetInterface}
+ * implementation (dispatched by {@see StaticFacetFactory}) - this class stays generic and never
+ * mentions tags/assignee/place by name, so adding a new static facet means adding a new class,
+ * not editing this one.
  */
 class Provider implements ProviderInterface
 {
-    private const STATIC_FACETS = ['tags', 'assignee', 'place'];
-    private const UNASSIGNED_ID = 'unassigned';
-
     public function __construct(
         private readonly AccessChecker $accessChecker,
         private readonly DoctrineCollectionProvider $doctrineCollectionProvider,
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
         private readonly SegmentCustomFieldUsageCounter $customFieldUsageCounter,
-        private readonly PlaceAccessChecker $placeAccessChecker,
-        private readonly PlaceRepository $placeRepository,
-        private readonly TagAccessChecker $tagAccessChecker,
-        private readonly TagRepository $tagRepository,
-        private readonly AssignableUserAccessChecker $assignableUserAccessChecker,
-        private readonly UserRepository $userRepository,
+        private readonly StaticFacetFactory $staticFacetFactory,
     ) {
     }
 
@@ -85,20 +61,27 @@ class Provider implements ProviderInterface
         }
 
         $filters = $context['filters'] ?? [];
-        $facet = $filters['facet'];
+        $requestedFacet = $filters['facet'];
         $procedureId = $filters['parentStatementOfSegment.procedure.id'];
 
-        if (in_array($facet, self::STATIC_FACETS, true)) {
-            return $this->countStaticFacet($operation, $facet, $filters);
+        if ($this->staticFacetFactory->supports($requestedFacet)) {
+            $facet = $this->staticFacetFactory->create($requestedFacet);
+
+            return $this->countStaticFacet($operation, $facet, $requestedFacet, $filters);
         }
 
-        return $this->countCustomFieldFacet($operation, $facet, $procedureId, $filters);
+        return $this->countCustomFieldFacet($operation, $requestedFacet, $procedureId, $filters);
     }
 
     /**
      * Fetches every segment matching every active filter except $excludedKey, via API
-     * Platform's own Doctrine collection machinery - see the class docblock for why that
-     * already covers both `#[ApiFilter]`-declared filtering and access-condition scoping.
+     * Platform's own Doctrine collection machinery - it already applies whichever `#[ApiFilter]`
+     * {@see Resource} declares (`SearchFilter` on
+     * `tags.id`/`assignee.id`/`place.id`/`parentStatementOfSegment.procedure.id`), and it
+     * automatically picks up the globally-registered
+     * {@see \demosplan\DemosPlanCoreBundle\Api\StatementSegment\Extension\SegmentDoctrineAccessExtension}
+     * (registered against the `Segment` Doctrine entity, not any one API resource, so it applies
+     * here too) - meaning access-condition scoping needs no separate handling in this class.
      *
      * `searchPhrase` is applied afterward in PHP (a plain substring match on `segment.text`)
      * since it isn't a declared `#[ApiFilter]` - simpler than the retired RPC's multi-field
@@ -136,29 +119,24 @@ class Provider implements ProviderInterface
     }
 
     /**
-     * Counts how many segments have each option for one facet (tags, assignee, or place).
-     * Options that no segment currently matches still show up with count 0, instead of disappearing.
-     * For "assignee", it also adds one extra "unassigned" option for segments with nobody assigned.
- *
+     * Counts how many segments have each option for one facet.
+     * Options that no segment currently matches still show up with count 0, instead of
+     * disappearing.
+     *
      * @return list<FacetResource>
      */
-    private function countStaticFacet(Operation $operation, string $requestedFacet, array $requestedFilters): array
+    private function countStaticFacet(Operation $operation, StaticFacetInterface $facet, string $requestedFacet, array $requestedFilters): array
     {
         $excludedFilterKey = "{$requestedFacet}.id";
         $segments = $this->fetchFilteredSegments($operation, $requestedFilters, $excludedFilterKey);
         $selectedIds = (array) ($requestedFilters[$excludedFilterKey] ?? []);
 
-        $counts = $this->countOccurrences($segments, $requestedFacet);
-
-        $fullOptionSet = $this->getFullOptionSet($requestedFacet);
+        $counts = $this->countOccurrences($segments, $facet);
+        $fullOptionSet = $facet->getFullOptionSet();
 
         $resources = $this->buildFacetResources($fullOptionSet, $counts, $selectedIds);
 
-        if ('assignee' === $requestedFacet) {
-            $resources[] = $this->countUnassigned($operation, $requestedFilters, $selectedIds);
-        }
-
-        return $resources;
+        return [...$resources, ...$facet->getExtraResources($segments, $selectedIds)];
     }
 
     /**
@@ -166,8 +144,8 @@ class Provider implements ProviderInterface
      * no matches, and marks which ones are currently selected.
      *
      * @param array<string, array{label: string, groupId: ?string, groupLabel: ?string}> $fullOptionSet
-     * @param array<string, int>                                                          $counts
-     * @param list<string>                                                                $selectedIds
+     * @param array<string, int>                                                         $counts
+     * @param list<string>                                                               $selectedIds
      *
      * @return list<FacetResource>
      */
@@ -192,7 +170,6 @@ class Provider implements ProviderInterface
         return $resources;
     }
 
-
     /**
      * Counts how many segments have each option (e.g. how many segments have each tag).
      *
@@ -200,103 +177,16 @@ class Provider implements ProviderInterface
      *
      * @return array<string, int> optionId => count
      */
-    private function countOccurrences(array $segments, string $requestedFacet): array
+    private function countOccurrences(array $segments, StaticFacetInterface $facet): array
     {
         $counts = [];
         foreach ($segments as $segment) {
-            foreach ($this->getFacetValues($segment, $requestedFacet) as $value) {
+            foreach ($facet->getValues($segment) as $value) {
                 $counts[$value->getId()] = ($counts[$value->getId()] ?? 0) + 1;
             }
         }
 
         return $counts;
-    }
-
-    /**
-     * @return iterable<Tag|User|Place>
-     */
-    private function getFacetValues(Segment $segment, string $facet): iterable
-    {
-        return match ($facet) {
-            'tags'     => $segment->getTags(),
-            'assignee' => null !== $segment->getAssignee() ? [$segment->getAssignee()] : [],
-            // Segment::getPlace() is typed to return PlaceInterface (never null), but the
-            // underlying `place_id` column is genuinely nullable (Segment.php:55) - the
-            // type-hint doesn't reflect the DB reality here, so this null check is real, not
-            // dead code, despite what static analysis of the declared type alone would suggest.
-            // @phpstan-ignore notIdentical.alwaysTrue
-            'place' => null !== $segment->getPlace() ? [$segment->getPlace()] : [],
-            default => [],
-        };
-    }
-
-    /**
-     * Gets the value(s) one segment has for a given facet (its tags, or its one assignee, or its
-     * one place) - always as a list, even when there's just one or none, so the code using this
-     * can loop the same way no matter which facet it is.
-     *
-     * @return array<string, array{label: string, groupId: ?string, groupLabel: ?string}>
-     */
-    private function getFullOptionSet(string $facet): array
-    {
-        return match ($facet) {
-            'place' => $this->buildOptionSet(
-                $this->placeRepository->getEntities($this->placeAccessChecker->getAccessConditions(), []),
-                static fn (Place $place): array => [
-                    'label'      => $place->getName(),
-                    'groupId'    => null,
-                    'groupLabel' => null,
-                ],
-            ),
-            'tags' => $this->buildOptionSet(
-                $this->tagRepository->getEntities($this->tagAccessChecker->getAccessConditions(), []),
-                static fn (Tag $tag): array => [
-                    'label'      => $tag->getTitle(),
-                    'groupId'    => $tag->getTopic()->getId(),
-                    'groupLabel' => $tag->getTopic()->getTitle(),
-                ],
-            ),
-            'assignee' => $this->buildOptionSet(
-                $this->userRepository->getEntities($this->assignableUserAccessChecker->getAccessConditions(), []),
-                static fn (User $user): array => [
-                    'label'      => $user->getFullname(),
-                    'groupId'    => null,
-                    'groupLabel' => null,
-                ],
-            ),
-            default => [],
-        };
-    }
-
-    /**
-     * @param list<object>                                                                  $entities
-     * @param callable(object): array{label: string, groupId: ?string, groupLabel: ?string} $describe
-     *
-     * @return array<string, array{label: string, groupId: ?string, groupLabel: ?string}>
-     */
-    private function buildOptionSet(array $entities, callable $describe): array
-    {
-        $optionSet = [];
-        foreach ($entities as $entity) {
-            $optionSet[$entity->getId()] = $describe($entity);
-        }
-
-        return $optionSet;
-    }
-
-    /**
-     * Segments with no assignee are excluded by {@see getFacetValues()} for the `assignee`
-     * facet, so they need a separate tally - same active filters (assignee's own filter
-     * excluded, matching {@see countStaticFacet}), just counting `getAssignee() === null`
-     * instead. Mirrors the retired RPC's `missingResourcesSum`, which the frontend renders as
-     * a synthetic "not assigned" option.
-     */
-    private function countUnassigned(Operation $operation, array $filters, array $selectedIds): FacetResource
-    {
-        $segments = $this->fetchFilteredSegments($operation, $filters, 'assignee.id');
-        $count = count(array_filter($segments, static fn (Segment $segment): bool => null === $segment->getAssignee()));
-
-        return FacetResource::create(self::UNASSIGNED_ID, '', $count, in_array(self::UNASSIGNED_ID, $selectedIds, true));
     }
 
     /**
