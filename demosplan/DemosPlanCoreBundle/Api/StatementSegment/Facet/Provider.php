@@ -89,12 +89,8 @@ class Provider implements ProviderInterface
         }
 
         $filters = $context['filters'] ?? [];
-        $facet = $filters['facet'] ?? null;
-        $procedureId = $filters['parentStatementOfSegment.procedure.id'] ?? null;
-
-        if (!is_string($facet) || '' === $facet || !is_string($procedureId) || '' === $procedureId) {
-            throw new BadRequestHttpException('The "facet" and "parentStatementOfSegment.procedure.id" query parameters are required.');
-        }
+        $facet = $filters['facet'];
+        $procedureId = $filters['parentStatementOfSegment.procedure.id'];
 
         if (in_array($facet, self::STATIC_FACETS, true)) {
             return $this->countStaticFacet($operation, $facet, $filters);

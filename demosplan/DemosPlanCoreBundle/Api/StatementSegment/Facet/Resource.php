@@ -19,6 +19,7 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\QueryParameter;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * One counted option of a segment list facet (a tag, an assignee, a place, or a SEGMENT
@@ -47,7 +48,8 @@ use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
             uriTemplate: '/StatementSegmentFacet',
             paginationEnabled: false,
             parameters: [
-                'facet'        => new QueryParameter(required: true),
+                'facet'        => new QueryParameter(required: true,  constraints: [new NotBlank()]),
+                'parentStatementOfSegment.procedure.id' => new QueryParameter(required: true,  constraints: [new NotBlank()]),
                 'searchPhrase' => new QueryParameter(),
             ],
         ),
