@@ -152,19 +152,7 @@ class Provider implements ProviderInterface
 
         $fullOptionSet = $this->getFullOptionSet($requestedFacet);
 
-        $resources = array_map(
-            static fn (string $id, array $option): FacetResource => FacetResource::create(
-                $id,
-                $option['label'],
-                $counts[$id] ?? 0,
-                in_array($id, $selectedIds, true),
-                null,
-                $option['groupId'],
-                $option['groupLabel'],
-            ),
-            array_keys($fullOptionSet),
-            $fullOptionSet
-        );
+        $resources = $this->buildFacetResources($fullOptionSet, $counts, $selectedIds);
 
         if ('assignee' === $requestedFacet) {
             $resources[] = $this->countUnassigned($operation, $requestedFilters, $selectedIds);
@@ -172,6 +160,38 @@ class Provider implements ProviderInterface
 
         return $resources;
     }
+
+    /**
+     * Combines the full list of options with their counts, defaulting to 0 for any option with
+     * no matches, and marks which ones are currently selected.
+     *
+     * @param array<string, array{label: string, groupId: ?string, groupLabel: ?string}> $fullOptionSet
+     * @param array<string, int>                                                          $counts
+     * @param list<string>                                                                $selectedIds
+     *
+     * @return list<FacetResource>
+     */
+    private function buildFacetResources(array $fullOptionSet, array $counts, array $selectedIds): array
+    {
+        $resources = [];
+        foreach ($fullOptionSet as $id => $option) {
+            $count = $counts[$id] ?? 0;
+            $isSelected = in_array($id, $selectedIds, true);
+
+            $resources[] = FacetResource::create(
+                $id,
+                $option['label'],
+                $count,
+                $isSelected,
+                null,
+                $option['groupId'],
+                $option['groupLabel'],
+            );
+        }
+
+        return $resources;
+    }
+
 
     /**
      * Counts how many segments have each option (e.g. how many segments have each tag).
@@ -211,10 +231,9 @@ class Provider implements ProviderInterface
     }
 
     /**
-     * Enumerates every option that exists for the current procedure, regardless of whether
-     * any segment currently references it - reuses the same access-condition logic the
-     * corresponding read-only API resources already apply, so "which tags/places/users belong
-     * to this procedure" can't drift from those endpoints' own definitions.
+     * Gets the value(s) one segment has for a given facet (its tags, or its one assignee, or its
+     * one place) - always as a list, even when there's just one or none, so the code using this
+     * can loop the same way no matter which facet it is.
      *
      * @return array<string, array{label: string, groupId: ?string, groupLabel: ?string}>
      */
