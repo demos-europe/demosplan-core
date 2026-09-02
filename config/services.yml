@@ -74,6 +74,10 @@ services:
         arguments:
             $strategies: !tagged_iterator entity_custom_field_usage_removal_strategy
 
+    demosplan\DemosPlanCoreBundle\Api\StatementSegment\Facet\StaticFacetFactory:
+        arguments:
+            $facets: !tagged_iterator statement_segment_static_facet
+
 
     DemosEurope\DemosplanAddon\Contracts\Services\TagServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Statement\TagService'
 
