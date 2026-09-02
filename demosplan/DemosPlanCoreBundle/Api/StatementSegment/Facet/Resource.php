@@ -22,24 +22,15 @@ use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
- * One counted option of a segment list facet (a tag, an assignee, a place, or a SEGMENT
- * custom field option). Counts are computed against every currently active filter except
- * the one matching `facet` itself, so picking an option never zeroes out its own count -
- * the same "facet exclusion" behaviour the previous Elasticsearch-based
- * `segments.facets.list` RPC provided, now computed via Doctrine.
- *
- * Only `facet` (a plain control parameter, no Doctrine path) is declared via `parameters:`.
- * The other four are genuinely 2+-level Doctrine paths (`tags.id`,
- * `parentStatementOfSegment.procedure.id`) with no matching relation declared on this flat
- * facet-option DTO's own properties - `ExactFilter` (the `parameters:`-native equality
- * filter) can only auto-join a nested path using metadata precomputed from the *resource's
- * own* PHP properties, which this DTO deliberately doesn't have. `SearchFilter` resolves
- * nested paths by walking the real Doctrine `Segment` entity metadata directly instead, but
- * it's built for the classic `FilterExtension` calling convention (`$context['filters']` as
- * a full `{property: value}` dict) rather than `ParameterExtension`'s per-parameter one
- * (`$context['filters']` as a single value) - the two are not interchangeable, verified
- * empirically. So these four stay on `#[ApiFilter(SearchFilter::class, ...)]` +
- * `FilterExtension`, the combination that actually resolves the joins correctly.
+ * Represents one option (a tag, assignee, place, or custom field value) with its count for
+ * a segment list filter.
+ * The currently selected filter's own value is ignored when counting, so picking an option
+ * never makes its own count drop to zero.
+ * `facet` and `searchPhrase` are simple parameters, so they are declared directly in
+ * `parameters:`.
+ * The other filters (`tags.id`, `assignee.id`, `place.id`,
+ * `parentStatementOfSegment.procedure.id`) need real database joins, so they are declared via
+ * `#[ApiFilter(SearchFilter::class)]` instead.
  */
 #[ApiResource(
     shortName: 'StatementSegmentFacet',
@@ -48,9 +39,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
             uriTemplate: '/StatementSegmentFacet',
             paginationEnabled: false,
             parameters: [
-                'facet'        => new QueryParameter(required: true,  constraints: [new NotBlank()]),
-                'parentStatementOfSegment.procedure.id' => new QueryParameter(required: true,  constraints: [new NotBlank()]),
-                'searchPhrase' => new QueryParameter(),
+                'facet'                                 => new QueryParameter(required: true, constraints: [new NotBlank()]),
+                'parentStatementOfSegment.procedure.id' => new QueryParameter(required: true, constraints: [new NotBlank()]),
+                'searchPhrase'                          => new QueryParameter(),
             ],
         ),
     ],
