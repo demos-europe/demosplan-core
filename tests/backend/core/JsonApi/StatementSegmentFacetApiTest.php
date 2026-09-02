@@ -19,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagTopicFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Symfony\Component\HttpFoundation\Response;
@@ -52,8 +51,12 @@ class StatementSegmentFacetApiTest extends AbstractApiTest
     public function testTagFacetCountsExcludeItsOwnFilter(): void
     {
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
-        $tagA = TagFactory::createOne(['title' => 'Schallschutz']);
-        $tagB = TagFactory::createOne(['title' => 'Positiv, Zustimmung']);
+        // Tag's topic has its own `procedure` default (a fresh one per Foundry's
+        // TagTopicFactory::defaults()), so it must be overridden explicitly to match - the
+        // tags/assignee/place facets are enumerated via `tag.topic.procedure.id = :procedureId`.
+        $topic = TagTopicFactory::createOne(['procedure' => $procedure]);
+        $tagA = TagFactory::createOne(['title' => 'Schallschutz', 'topic' => $topic]);
+        $tagB = TagFactory::createOne(['title' => 'Positiv, Zustimmung', 'topic' => $topic]);
 
         // parentStatementOfSegment's own procedure must explicitly match, since both the
         // facet filter (`parentStatementOfSegment.procedure.id`) and the access conditions
@@ -104,10 +107,45 @@ class StatementSegmentFacetApiTest extends AbstractApiTest
         self::assertTrue($tagBEntry['attributes']['selected']);
     }
 
+    public function testTagWithNoMatchingSegmentsStillAppearsWithZeroCount(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $topic = TagTopicFactory::createOne(['procedure' => $procedure]);
+        $usedTag = TagFactory::createOne(['title' => 'Schallschutz', 'topic' => $topic]);
+        // Belongs to the same procedure, but no segment ever references it - the facet must
+        // still enumerate it (with count 0), not silently drop it, so users can see and select
+        // options that don't currently match anything.
+        $unusedTag = TagFactory::createOne(['title' => 'Unused', 'topic' => $topic]);
+
+        $parentStatement = StatementFactory::new(['procedure' => $procedure]);
+        SegmentFactory::createOne(['procedure' => $procedure, 'parentStatementOfSegment' => $parentStatement, 'tags' => [$usedTag]]);
+
+        $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
+        $this->enablePermissions(['area_admin_statement_list']);
+        $this->loginUserForApiPlatform($user);
+
+        $response = $this->sendRequest(
+            self::FACET_ROUTE.'?facet=tags&parentStatementOfSegment.procedure.id='.$procedure->getId(),
+            'GET',
+            $user,
+            $procedure
+        );
+
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $content = $response->getContent();
+        self::assertIsString($content);
+        $data = Json::decodeToArray($content)['data'];
+        $counts = array_combine(array_column($data, 'id'), array_column(array_column($data, 'attributes'), 'count'));
+
+        self::assertSame(1, $counts[$usedTag->getId()]);
+        self::assertArrayHasKey($unusedTag->getId(), $counts);
+        self::assertSame(0, $counts[$unusedTag->getId()]);
+    }
+
     public function testTagsAreGroupedByTopic(): void
     {
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
-        $topic = TagTopicFactory::createOne(['title' => 'Lärm']);
+        $topic = TagTopicFactory::createOne(['title' => 'Lärm', 'procedure' => $procedure]);
         $tagA = TagFactory::createOne(['title' => 'Schallschutz', 'topic' => $topic]);
         $tagB = TagFactory::createOne(['title' => 'Baulärm', 'topic' => $topic]);
 
@@ -140,14 +178,20 @@ class StatementSegmentFacetApiTest extends AbstractApiTest
     public function testAssigneeFacetIncludesUnassignedCount(): void
     {
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
-        $assignee = UserFactory::createOne();
+
+        // `assignee` is enumerated via ProcedureService::getAuthorizedUsers(), which is scoped to
+        // the *logged-in* user's own Orga (filtered by planning-agency/hearing-authority role) -
+        // not any arbitrary user. Reusing the logged-in test user as the assignee guarantees it
+        // passes that check, rather than needing to fabricate a matching Orga/role for a
+        // separate user.
+        $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
+        $assignee = $user;
 
         $parentStatement = StatementFactory::new(['procedure' => $procedure]);
         SegmentFactory::createOne(['procedure' => $procedure, 'parentStatementOfSegment' => $parentStatement, 'assignee' => $assignee]);
         SegmentFactory::createOne(['procedure' => $procedure, 'parentStatementOfSegment' => $parentStatement, 'assignee' => null]);
         SegmentFactory::createOne(['procedure' => $procedure, 'parentStatementOfSegment' => $parentStatement, 'assignee' => null]);
 
-        $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
         $this->enablePermissions(['area_admin_statement_list']);
         $this->loginUserForApiPlatform($user);
 
@@ -171,7 +215,8 @@ class StatementSegmentFacetApiTest extends AbstractApiTest
     public function testSearchPhraseNarrowsCounts(): void
     {
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
-        $tag = TagFactory::createOne(['title' => 'Schallschutz']);
+        $topic = TagTopicFactory::createOne(['procedure' => $procedure]);
+        $tag = TagFactory::createOne(['title' => 'Schallschutz', 'topic' => $topic]);
 
         $parentStatement = StatementFactory::new(['procedure' => $procedure]);
         SegmentFactory::createOne(['procedure' => $procedure, 'parentStatementOfSegment' => $parentStatement, 'tags' => [$tag], 'text' => 'Lärmschutzwand am Bahndamm']);

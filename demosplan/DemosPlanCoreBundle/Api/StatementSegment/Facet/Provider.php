@@ -16,12 +16,21 @@ use ApiPlatform\Doctrine\Orm\Extension\FilterExtension;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
+use demosplan\DemosPlanCoreBundle\Api\AssignableUser\AssignableUserAccessChecker;
+use demosplan\DemosPlanCoreBundle\Api\Place\PlaceAccessChecker;
 use demosplan\DemosPlanCoreBundle\Api\StatementSegment\AccessChecker;
 use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Facet\Resource as FacetResource;
+use demosplan\DemosPlanCoreBundle\Api\Tag\AccessChecker as TagAccessChecker;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Logic\CustomField\SegmentCustomFieldUsageCounter;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
+use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
+use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
+use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -53,19 +62,18 @@ class Provider implements ProviderInterface
     private const STATIC_FACETS = ['tags', 'assignee', 'place'];
     private const UNASSIGNED_ID = 'unassigned';
 
-    /** @var array<string, string> facet name => DQL expression for the option's label */
-    private const ASSOCIATION_LABEL_EXPRESSIONS = [
-        'tags'     => 'facetAssoc.title',
-        'assignee' => "CONCAT(facetAssoc.firstname, ' ', facetAssoc.lastname)",
-        'place'    => 'facetAssoc.name',
-    ];
-
     public function __construct(
         private readonly AccessChecker $accessChecker,
         private readonly SegmentRepository $segmentRepository,
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
         private readonly SegmentCustomFieldUsageCounter $customFieldUsageCounter,
         private readonly FilterExtension $filterExtension,
+        private readonly PlaceAccessChecker $placeAccessChecker,
+        private readonly PlaceRepository $placeRepository,
+        private readonly TagAccessChecker $tagAccessChecker,
+        private readonly TagRepository $tagRepository,
+        private readonly AssignableUserAccessChecker $assignableUserAccessChecker,
+        private readonly UserRepository $userRepository,
     ) {
     }
 
@@ -129,42 +137,107 @@ class Provider implements ProviderInterface
     }
 
     /**
+     * Every option usable in the procedure is returned, not just the ones with at least one
+     * matching segment under the current filters - an option with zero matches still gets
+     * `count: 0` rather than being silently absent, matching the retired RPC's behaviour
+     * (its `FacetFactory` enumerated the full option set independently of the Elasticsearch
+     * aggregation and merged counts in afterward). The counting query below only produces
+     * `optionId => count` for options that DO have matches; {@see getFullOptionSet()} supplies
+     * everything else, defaulted to 0.
+     *
      * @return list<FacetResource>
      */
     private function countStaticFacet(Operation $operation, string $facet, array $filters): array
     {
         $qb = $this->baseQueryBuilder($operation, $filters, "{$facet}.id");
         $rootAlias = $qb->getRootAliases()[0];
-        $labelExpression = self::ASSOCIATION_LABEL_EXPRESSIONS[$facet];
         $selectedIds = (array) ($filters["{$facet}.id"] ?? []);
 
-        $qb->join("$rootAlias.$facet", 'facetAssoc');
-        $selectParts = ['facetAssoc.id AS optionId', "$labelExpression AS optionLabel", "COUNT(DISTINCT $rootAlias.id) AS optionCount"];
-        $groupByParts = ['facetAssoc.id', 'optionLabel'];
+        $qb->join("$rootAlias.$facet", 'facetAssoc')
+            ->select('facetAssoc.id AS optionId, COUNT(DISTINCT '.$rootAlias.'.id) AS optionCount')
+            ->groupBy('facetAssoc.id');
 
-        // Tags are grouped by topic in the filter flyout (segmentsFilterNames.yaml's
-        // `tags.grouping`) - the other static facets have no grouping concept.
-        if ('tags' === $facet) {
-            $qb->leftJoin('facetAssoc.topic', 'facetGroup');
-            $selectParts[] = 'facetGroup.id AS groupId';
-            $selectParts[] = 'facetGroup.title AS groupLabel';
-            $groupByParts[] = 'groupId';
-            $groupByParts[] = 'groupLabel';
+        $counts = [];
+        foreach ($qb->getQuery()->getResult() as $row) {
+            $counts[$row['optionId']] = (int) $row['optionCount'];
         }
 
-        $rows = $qb
-            ->select(implode(', ', $selectParts))
-            ->groupBy(implode(', ', $groupByParts))
-            ->getQuery()
-            ->getResult();
+        $fullOptionSet = $this->getFullOptionSet($facet);
 
-        $resources = $this->mapRowsToResources($rows, $selectedIds);
+        $resources = array_map(
+            static fn (string $id, array $option): FacetResource => FacetResource::create(
+                $id,
+                $option['label'],
+                $counts[$id] ?? 0,
+                in_array($id, $selectedIds, true),
+                null,
+                $option['groupId'],
+                $option['groupLabel'],
+            ),
+            array_keys($fullOptionSet),
+            $fullOptionSet
+        );
 
         if ('assignee' === $facet) {
             $resources[] = $this->countUnassigned($operation, $filters, $selectedIds);
         }
 
         return $resources;
+    }
+
+    /**
+     * Enumerates every option that exists for the current procedure, regardless of whether
+     * any segment currently references it - reuses the same access-condition logic the
+     * corresponding read-only API resources already apply, so "which tags/places/users belong
+     * to this procedure" can't drift from those endpoints' own definitions.
+     *
+     * @return array<string, array{label: string, groupId: ?string, groupLabel: ?string}>
+     */
+    private function getFullOptionSet(string $facet): array
+    {
+        return match ($facet) {
+            'place' => $this->buildOptionSet(
+                $this->placeRepository->getEntities($this->placeAccessChecker->getAccessConditions(), []),
+                static fn (Place $place): array => [
+                    'label'      => $place->getName(),
+                    'groupId'    => null,
+                    'groupLabel' => null,
+                ],
+            ),
+            'tags' => $this->buildOptionSet(
+                $this->tagRepository->getEntities($this->tagAccessChecker->getAccessConditions(), []),
+                static fn (Tag $tag): array => [
+                    'label'      => $tag->getTitle(),
+                    'groupId'    => $tag->getTopic()->getId(),
+                    'groupLabel' => $tag->getTopic()->getTitle(),
+                ],
+            ),
+            'assignee' => $this->buildOptionSet(
+                $this->userRepository->getEntities($this->assignableUserAccessChecker->getAccessConditions(), []),
+                static fn (User $user): array => [
+                    'label'      => $user->getFullname(),
+                    'groupId'    => null,
+                    'groupLabel' => null,
+                ],
+            ),
+            default => [],
+        };
+    }
+
+    /**
+     * @param list<object>                                                                  $entities
+     * @param callable(object): array{label: string, groupId: ?string, groupLabel: ?string} $describe
+     *
+     * @return array<string, array{label: string, groupId: ?string, groupLabel: ?string}>
+     */
+    private function buildOptionSet(array $entities, callable $describe): array
+    {
+        $optionSet = [];
+        foreach ($entities as $entity) {
+            $optionSet[$entity->getId()] = $describe($entity);
+        }
+
+        return $optionSet;
     }
 
     /**
@@ -186,27 +259,6 @@ class Provider implements ProviderInterface
             ->getSingleScalarResult();
 
         return FacetResource::create(self::UNASSIGNED_ID, '', $count, in_array(self::UNASSIGNED_ID, $selectedIds, true));
-    }
-
-    /**
-     * @param array<int, array{optionId: string, optionLabel: string, optionCount: int, groupId?: ?string, groupLabel?: ?string}> $rows
-     *
-     * @return list<FacetResource>
-     */
-    private function mapRowsToResources(array $rows, array $selectedIds): array
-    {
-        return array_map(
-            static fn (array $row): FacetResource => FacetResource::create(
-                (string) $row['optionId'],
-                (string) $row['optionLabel'],
-                (int) $row['optionCount'],
-                in_array((string) $row['optionId'], $selectedIds, true),
-                null,
-                isset($row['groupId']) ? (string) $row['groupId'] : null,
-                isset($row['groupLabel']) ? (string) $row['groupLabel'] : null,
-            ),
-            $rows
-        );
     }
 
     /**
