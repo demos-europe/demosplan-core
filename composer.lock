@@ -14836,16 +14836,16 @@
         },
         {
             "name": "symfony/form",
-            "version": "v6.4.44",
+            "version": "v6.4.45",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/form.git",
-                "reference": "8e28c46ad733ee40c42b9cf242cb52b2d6b1ffef"
+                "reference": "03810456895dfc7e7fca450806e4eb21669927c8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/form/zipball/8e28c46ad733ee40c42b9cf242cb52b2d6b1ffef",
-                "reference": "8e28c46ad733ee40c42b9cf242cb52b2d6b1ffef",
+                "url": "https://api.github.com/repos/symfony/form/zipball/03810456895dfc7e7fca450806e4eb21669927c8",
+                "reference": "03810456895dfc7e7fca450806e4eb21669927c8",
                 "shasum": ""
             },
             "require": {
@@ -14913,7 +14913,7 @@
             "description": "Allows to easily create, process and reuse HTML forms",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/form/tree/v6.4.44"
+                "source": "https://github.com/symfony/form/tree/v6.4.45"
             },
             "funding": [
                 {
@@ -14933,7 +14933,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-08-21T16:18:55+00:00"
+            "time": "2026-08-29T12:19:25+00:00"
         },
         {
             "name": "symfony/framework-bundle",
@@ -18533,16 +18533,16 @@
         },
         {
             "name": "symfony/serializer",
-            "version": "v6.4.44",
+            "version": "v6.4.45",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/serializer.git",
-                "reference": "3372b3c367d41542ca99291f8340897544002094"
+                "reference": "ad3c87d8d47e05e60fb8cd347348f2246c5e3aea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/serializer/zipball/3372b3c367d41542ca99291f8340897544002094",
-                "reference": "3372b3c367d41542ca99291f8340897544002094",
+                "url": "https://api.github.com/repos/symfony/serializer/zipball/ad3c87d8d47e05e60fb8cd347348f2246c5e3aea",
+                "reference": "ad3c87d8d47e05e60fb8cd347348f2246c5e3aea",
                 "shasum": ""
             },
             "require": {
@@ -18611,7 +18611,7 @@
             "description": "Handles serializing and deserializing data structures, including object graphs, into array structures or other formats like XML and JSON.",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/serializer/tree/v6.4.44"
+                "source": "https://github.com/symfony/serializer/tree/v6.4.45"
             },
             "funding": [
                 {
@@ -18631,7 +18631,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-08-22T09:04:22+00:00"
+            "time": "2026-08-29T08:24:03+00:00"
         },
         {
             "name": "symfony/service-contracts",
