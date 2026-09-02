@@ -19,9 +19,6 @@ use ApiPlatform\State\ProviderInterface;
 use demosplan\DemosPlanCoreBundle\Api\StatementSegment\AccessChecker;
 use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Facet\Resource as FacetResource;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-use demosplan\DemosPlanCoreBundle\Logic\CustomField\SegmentCustomFieldUsageCounter;
-use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Webmozart\Assert\Assert;
@@ -36,16 +33,17 @@ use Webmozart\Assert\Assert;
  * Static facets (tags/assignee/place) each have their own {@see StaticFacetInterface}
  * implementation (dispatched by {@see StaticFacetFactory}) - this class stays generic and never
  * mentions tags/assignee/place by name, so adding a new static facet means adding a new class,
- * not editing this one.
+ * not editing this one. Custom fields are a dynamic, per-procedure family (unlike the fixed
+ * tags/assignee/place trio), so they're handled by the separately-injected
+ * {@see CustomFieldFacet} instead of going through {@see StaticFacetFactory}.
  */
 class Provider implements ProviderInterface
 {
     public function __construct(
         private readonly AccessChecker $accessChecker,
         private readonly DoctrineCollectionProvider $doctrineCollectionProvider,
-        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
-        private readonly SegmentCustomFieldUsageCounter $customFieldUsageCounter,
         private readonly StaticFacetFactory $staticFacetFactory,
+        private readonly CustomFieldFacet $customFieldFacet,
     ) {
     }
 
@@ -70,7 +68,20 @@ class Provider implements ProviderInterface
             return $this->countStaticFacet($operation, $facet, $requestedFacet, $filters);
         }
 
-        return $this->countCustomFieldFacet($operation, $requestedFacet, $procedureId, $filters);
+        if ($this->customFieldFacet->supports($requestedFacet, $procedureId)) {
+            // Custom fields aren't declared #[ApiFilter] properties (they're per-procedure/
+            // dynamic) - nothing to exclude here, only the static facets' own filters need that.
+            // Selected ids use the same "{$facet}.id" key as the static facets (not a
+            // "customField_" prefix) so the frontend's rootPath can serve both the `facet`
+            // query param and the selected-filter key with one string, exactly like tags/
+            // assignee/place already do.
+            $segments = $this->fetchFilteredSegments($operation, $filters, null);
+            $selectedIds = (array) ($filters["{$requestedFacet}.id"] ?? []);
+
+            return $this->customFieldFacet->getResources($requestedFacet, $procedureId, $segments, $selectedIds);
+        }
+
+        throw new BadRequestHttpException(sprintf('Unknown facet "%s".', $requestedFacet));
     }
 
     /**
@@ -187,41 +198,5 @@ class Provider implements ProviderInterface
         }
 
         return $counts;
-    }
-
-    /**
-     * @return list<FacetResource>
-     */
-    private function countCustomFieldFacet(Operation $operation, string $customFieldId, string $procedureId, array $filters): array
-    {
-        $configs = $this->customFieldConfigurationRepository->findCustomFieldConfigurationByCriteria(
-            CustomFieldSupportedEntity::procedure->value,
-            $procedureId,
-            CustomFieldSupportedEntity::segment->value,
-            $customFieldId,
-        );
-
-        if (null === $configs || [] === $configs) {
-            throw new BadRequestHttpException(sprintf('No SEGMENT custom field with id "%s" found for this procedure.', $customFieldId));
-        }
-
-        $options = $configs[0]->getConfiguration()->getOptions();
-        if ([] === $options) {
-            return [];
-        }
-
-        // Custom fields aren't declared #[ApiFilter] properties (they're per-procedure/
-        // dynamic) - nothing to exclude here, only the static facets' own filters need that.
-        $segments = $this->fetchFilteredSegments($operation, $filters, null);
-
-        $counts = $this->customFieldUsageCounter->countOptionUsage($segments, $customFieldId);
-        $selectedIds = (array) ($filters["customField_{$customFieldId}"] ?? []);
-
-        return array_values(array_filter(array_map(
-            static fn ($option) => 0 < ($counts[$option->getId()] ?? 0)
-                ? FacetResource::create($option->getId(), $option->getLabel(), $counts[$option->getId()], in_array($option->getId(), $selectedIds, true))
-                : null,
-            $options
-        )));
     }
 }
