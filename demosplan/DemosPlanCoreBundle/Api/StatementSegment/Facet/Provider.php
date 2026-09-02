@@ -148,12 +148,7 @@ class Provider implements ProviderInterface
         $segments = $this->fetchFilteredSegments($operation, $requestedFilters, $excludedFilterKey);
         $selectedIds = (array) ($requestedFilters[$excludedFilterKey] ?? []);
 
-        $counts = [];
-        foreach ($segments as $segment) {
-            foreach ($this->getFacetValues($segment, $requestedFacet) as $value) {
-                $counts[$value->getId()] = ($counts[$value->getId()] ?? 0) + 1;
-            }
-        }
+        $counts = $this->countOccurrences($segments, $requestedFacet);
 
         $fullOptionSet = $this->getFullOptionSet($requestedFacet);
 
@@ -176,6 +171,25 @@ class Provider implements ProviderInterface
         }
 
         return $resources;
+    }
+
+    /**
+     * Counts how many segments have each option (e.g. how many segments have each tag).
+     *
+     * @param list<Segment> $segments
+     *
+     * @return array<string, int> optionId => count
+     */
+    private function countOccurrences(array $segments, string $requestedFacet): array
+    {
+        $counts = [];
+        foreach ($segments as $segment) {
+            foreach ($this->getFacetValues($segment, $requestedFacet) as $value) {
+                $counts[$value->getId()] = ($counts[$value->getId()] ?? 0) + 1;
+            }
+        }
+
+        return $counts;
     }
 
     /**
