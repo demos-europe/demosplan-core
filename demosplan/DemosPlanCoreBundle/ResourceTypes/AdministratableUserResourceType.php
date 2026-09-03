@@ -22,7 +22,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer;
-use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
@@ -469,7 +468,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
 
     /**
      * @return list<non-empty-string> the role codes among self::PROCEDURE_MANAGEMENT_ROLE_CODES that this user
-     *                                 currently holds for the given customer
+     *                                currently holds for the given customer
      */
     private function getUserProcedureManagementRoleCodes(UserInterface $user, CustomerInterface $customer): array
     {
