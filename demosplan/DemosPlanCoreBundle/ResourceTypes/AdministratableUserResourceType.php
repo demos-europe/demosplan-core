@@ -436,12 +436,20 @@ final class AdministratableUserResourceType extends DplanResourceType implements
      * Grants or removes the individual procedure-creation permission for this user, for each of RMOPSA/RMOPHA
      * the user currently holds.
      *
+     * No-ops entirely unless the acting user holds feature_manage_procedure_creation_permission — the same
+     * permission that gates the equivalent organisation-wide toggle — so a project that never enables this
+     * feature for any role cannot have it triggered via a crafted request either.
+     *
      * Per role, no-ops if the user does not (or no longer) have that role, or if the organisation already
      * grants procedure-creation org-wide for it — in that case per-user configuration must first be unlocked
      * by disabling the organisation-wide grant for that role, so a request cannot bypass that precondition.
      */
     private function updateCanManageProcedures(UserInterface $user, bool $canManageProcedures): void
     {
+        if (!$this->currentUser->hasPermission('feature_manage_procedure_creation_permission')) {
+            return;
+        }
+
         $orga = $user->getOrga();
         $customer = $user->getCurrentCustomer();
         if (!$orga instanceof OrgaInterface || !$customer instanceof CustomerInterface) {

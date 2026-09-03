@@ -152,7 +152,7 @@
 
     <!-- Individual procedure-management permission (RMOPSA / RMOPHA only) -->
     <div
-      v-if="isProcedureManagementRoleSelected"
+      v-if="hasPermission('feature_manage_procedure_creation_permission') && isProcedureManagementRoleSelected"
       class="w-1/2 pr-3 mt-3 whitespace-normal"
     >
       <dp-checkbox
