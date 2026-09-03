@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\User\UserRoleInCustomer;
+use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
@@ -29,6 +30,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\UserAccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserSecurityHandler;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\UserResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
@@ -40,6 +42,7 @@ use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\CallbackAttributeSetBehavior;
+use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToMany\CallbackToManyRelationshipSetBehavior;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipSetBehavior;
@@ -82,7 +85,8 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         private readonly UserHandler $userHandler,
         private readonly AccessControlService $accessControlService,
         private readonly RoleHandler $roleHandler,
-        private readonly UserAccessControlService $userAccessControlService)
+        private readonly UserAccessControlService $userAccessControlService,
+        private readonly UserSecurityHandler $userSecurityHandler)
     {
     }
 
@@ -284,6 +288,28 @@ final class AdministratableUserResourceType extends DplanResourceType implements
                 },
                 DefaultField::YES
             );
+
+        if ($this->currentUser->hasPermission('feature_2fa')) {
+            $configBuilder->twoFactorEnabled
+                ->setReadableByCallable(
+                    static fn (UserInterface $user): bool => $user->isTotpEnabled() || $user->isEmailAuthEnabled(),
+                    DefaultField::YES
+                )
+                ->addUpdateBehavior(
+                    new CallbackAttributeSetBehaviorFactory(
+                        [],
+                        function (UserInterface $user, bool $twoFactorEnabled): array {
+                            if ($twoFactorEnabled) {
+                                throw new BadRequestException('Two factor authentication can only be reset, not enabled, by an administrator.');
+                            }
+                            $this->userSecurityHandler->resetTwoFactorAuthentication($user);
+
+                            return [];
+                        },
+                        OptionalField::YES,
+                    )
+                );
+        }
 
         $configBuilder->roles
             ->addUpdateBehavior(
