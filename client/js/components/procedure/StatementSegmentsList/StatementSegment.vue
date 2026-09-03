@@ -1179,7 +1179,7 @@ export default {
         message: Translator.trans('boilerplate.link.dissolved', { title }),
         actionText: Translator.trans('undo'),
         hideTimer: 15000,
-        onAction: () => this.$refs.editor.undo(),
+        onAction: () => this.$refs.editor?.undo(),
       })
     },
 
