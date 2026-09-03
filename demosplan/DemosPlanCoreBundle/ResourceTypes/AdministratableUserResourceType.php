@@ -12,7 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
@@ -24,6 +26,9 @@ use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\UserAccessControlService;
+use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\UserResourceConfigBuilder;
@@ -35,6 +40,7 @@ use EDT\JsonApi\RequestHandling\ModifiedEntity;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use EDT\Wrapping\EntityDataInterface;
+use EDT\Wrapping\PropertyBehavior\Attribute\CallbackAttributeSetBehavior;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToMany\CallbackToManyRelationshipSetBehavior;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipSetBehavior;
@@ -53,16 +59,31 @@ use InvalidArgumentException;
  * @property-read End $login
  * @property-read End $email
  * @property-read End $deleted
+ * @property-read End $canManageProcedures
+ * @property-read End $procedureCreationEnabledForOrga
  * @property-read OrgaResourceType $orga
  * @property-read UserRoleInCustomerResourceType $roleInCustomers
  * @property-read RoleResourceType $roles @deprecated use relation to {@link AdministratableUserResourceType::$roleInCustomers} instead
  */
 final class AdministratableUserResourceType extends DplanResourceType implements ReadableEsResourceTypeInterface
 {
+    /**
+     * Roles for which the individual procedure-creation permission ($canManageProcedures) is applicable.
+     *
+     * @var list<non-empty-string>
+     */
+    private const PROCEDURE_MANAGEMENT_ROLE_CODES = [
+        RoleInterface::PLANNING_AGENCY_ADMIN,
+        RoleInterface::HEARING_AUTHORITY_ADMIN,
+    ];
+
     public function __construct(private readonly QueryUser $esQuery,
         private readonly JsonApiEsService $jsonApiEsService,
         private readonly UserRepository $userRepository,
-        private readonly UserHandler $userHandler)
+        private readonly UserHandler $userHandler,
+        private readonly AccessControlService $accessControlService,
+        private readonly RoleHandler $roleHandler,
+        private readonly UserAccessControlService $userAccessControlService)
     {
     }
 
@@ -202,6 +223,69 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->setReadableByCallable(static fn (User $user): bool => $user->getNoPiwik(), DefaultField::YES)
             ->setSortable();
 
+        // Whether this specific user has been individually granted the right to create/manage procedures
+        // (as RMOPSA or RMOPHA), independent of the organisation-wide grant. Only meaningful while the
+        // organisation-wide grant (see $procedureCreationEnabledForOrga) is disabled for that role.
+        $configBuilder->canManageProcedures
+            ->setReadableByCallable(
+                function (User $user): bool {
+                    $customer = $user->getCurrentCustomer();
+                    if (!$customer instanceof CustomerInterface) {
+                        return false;
+                    }
+
+                    foreach ($this->getUserProcedureManagementRoleCodes($user, $customer) as $roleCode) {
+                        $role = $this->roleHandler->getRoleByCode($roleCode);
+                        if ($role instanceof RoleInterface
+                            && $this->userAccessControlService->userPermissionExists($user, AccessControlService::CREATE_PROCEDURES_PERMISSION, $role)) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                },
+                DefaultField::YES
+            )
+            ->addUpdateBehavior(
+                CallbackAttributeSetBehavior::createFactory(
+                    [],
+                    // Intentionally a no-op: this attribute must merely be accepted by EDT here so it
+                    // is part of the request payload. The actual grant/removal happens in updateEntity(),
+                    // executed after the roles relationship behavior, so the user's final (post-update)
+                    // role set is what gets evaluated instead of depending on undocumented behavior order.
+                    static fn (User $user, bool $canManageProcedures): array => [],
+                    OptionalField::YES
+                )
+            );
+
+        // Whether the organisation this user belongs to already grants procedure-creation rights to
+        // every user of this user's RMOPSA/RMOPHA role in it (org-wide `access_control` grant). While
+        // true (for a role this user has), per-user configuration via $canManageProcedures has no
+        // effect for that role and should not be offered as editable in the UI.
+        $configBuilder->procedureCreationEnabledForOrga
+            ->setReadableByCallable(
+                function (User $user): bool {
+                    $orga = $user->getOrga();
+                    $customer = $user->getCurrentCustomer();
+                    if (!$orga instanceof OrgaInterface || !$customer instanceof CustomerInterface) {
+                        return false;
+                    }
+
+                    $roleCodes = $this->getUserProcedureManagementRoleCodes($user, $customer);
+                    if ([] === $roleCodes) {
+                        return false;
+                    }
+
+                    return $this->accessControlService->permissionExist(
+                        AccessControlService::CREATE_PROCEDURES_PERMISSION,
+                        $orga,
+                        $customer,
+                        $roleCodes
+                    );
+                },
+                DefaultField::YES
+            );
+
         $configBuilder->roles
             ->addUpdateBehavior(
                 CallbackToManyRelationshipSetBehavior::createFactory(function (User $user, array $newRoles): array {
@@ -331,14 +415,69 @@ final class AdministratableUserResourceType extends DplanResourceType implements
     {
         $userAttributes = $entityData->getAttributes();
 
-        if (array_key_exists($this->email->getAsNamesInDotNotation(), $userAttributes)) {
-            $modifiedEntity = parent::updateEntity($entityId, $entityData);
-            $this->userHandler->inviteUser($modifiedEntity->getEntity());
+        // Executed once, after the roles relationship (if present in the same request) has already
+        // been applied, so the user's final role set is what gets evaluated below.
+        $modifiedEntity = parent::updateEntity($entityId, $entityData);
 
-            return $modifiedEntity;
+        if (array_key_exists($this->email->getAsNamesInDotNotation(), $userAttributes)) {
+            $this->userHandler->inviteUser($modifiedEntity->getEntity());
         }
 
-        return parent::updateEntity($entityId, $entityData);
+        if (array_key_exists($this->canManageProcedures->getAsNamesInDotNotation(), $userAttributes)) {
+            $this->updateCanManageProcedures(
+                $modifiedEntity->getEntity(),
+                (bool) $userAttributes[$this->canManageProcedures->getAsNamesInDotNotation()]
+            );
+        }
+
+        return $modifiedEntity;
+    }
+
+    /**
+     * Grants or removes the individual procedure-creation permission for this user, for each of RMOPSA/RMOPHA
+     * the user currently holds.
+     *
+     * Per role, no-ops if the user does not (or no longer) have that role, or if the organisation already
+     * grants procedure-creation org-wide for it — in that case per-user configuration must first be unlocked
+     * by disabling the organisation-wide grant for that role, so a request cannot bypass that precondition.
+     */
+    private function updateCanManageProcedures(UserInterface $user, bool $canManageProcedures): void
+    {
+        $orga = $user->getOrga();
+        $customer = $user->getCurrentCustomer();
+        if (!$orga instanceof OrgaInterface || !$customer instanceof CustomerInterface) {
+            return;
+        }
+
+        foreach ($this->getUserProcedureManagementRoleCodes($user, $customer) as $roleCode) {
+            $role = $this->roleHandler->getRoleByCode($roleCode);
+            if (!$role instanceof RoleInterface) {
+                continue;
+            }
+
+            if ($this->accessControlService->permissionExist(AccessControlService::CREATE_PROCEDURES_PERMISSION, $orga, $customer, [$roleCode])) {
+                continue;
+            }
+
+            if ($canManageProcedures) {
+                $this->userAccessControlService->createUserPermission($user, AccessControlService::CREATE_PROCEDURES_PERMISSION, $role);
+            } else {
+                $this->userAccessControlService->removeUserPermission($user, AccessControlService::CREATE_PROCEDURES_PERMISSION, $role);
+            }
+        }
+    }
+
+    /**
+     * @return list<non-empty-string> the role codes among self::PROCEDURE_MANAGEMENT_ROLE_CODES that this user
+     *                                 currently holds for the given customer
+     */
+    private function getUserProcedureManagementRoleCodes(UserInterface $user, CustomerInterface $customer): array
+    {
+        $userRoleCodes = $user->getDplanroles($customer)->map(
+            static fn (RoleInterface $role): string => $role->getCode()
+        )->toArray();
+
+        return array_values(array_intersect(self::PROCEDURE_MANAGEMENT_ROLE_CODES, $userRoleCodes));
     }
 
     public function deleteEntity(string $userId): void
@@ -361,6 +500,10 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             $roleInCustomer = $user->removeRoleInCustomer($role, $this->currentCustomerService->getCurrentCustomer());
             $role->removeUserRoleInCustomer($roleInCustomer);
             $this->getTypes()->getUserRoleInCustomerResourceType()->deleteEntity($roleInCustomer->getId());
+
+            // The user no longer has this role, so any individually granted permission tied to it
+            // (e.g. RMOPSA's procedure-creation right) is stale and must not be left behind.
+            $this->userAccessControlService->removeUserPermission($user, AccessControlService::CREATE_PROCEDURES_PERMISSION, $role);
         }
 
         // Add new roles that the user does not already have
