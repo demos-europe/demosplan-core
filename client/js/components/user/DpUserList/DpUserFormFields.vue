@@ -338,7 +338,7 @@ export default {
      */
     isProcedureManagementRoleSelected () {
       return (this.localUser.relationships.roles.data || []).some(
-        roleRef => ['RMOPSA', 'RMOPHA'].includes(this.roles[roleRef.id]?.attributes?.code)
+        roleRef => ['RMOPSA', 'RMOPHA'].includes(this.roles[roleRef.id]?.attributes?.code),
       )
     },
 
