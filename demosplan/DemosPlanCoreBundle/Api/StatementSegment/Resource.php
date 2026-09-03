@@ -57,21 +57,33 @@ class Resource
     #[ApiProperty(readable: true, writable: false)]
     public string $text = '';
 
+    #[ApiFilter(SearchFilter::class, strategy: 'ipartial')]
     #[ApiProperty(readable: true, writable: false)]
     public string $externId = '';
 
+    #[ApiFilter(SearchFilter::class, strategy: 'ipartial')]
     #[ApiProperty(readable: true, writable: false)]
     public ?string $internId = null;
 
     #[ApiProperty(readable: true, writable: false)]
     public int $orderInProcedure = 0;
 
+    #[ApiFilter(SearchFilter::class, strategy: 'ipartial')]
     #[ApiProperty(readable: true, writable: false)]
     public string $recommendation = '';
 
     #[ApiFilter(SearchFilter::class, properties: [
-        'parentStatementOfSegment.id'            => 'exact',
-        'parentStatementOfSegment.procedure.id'  => 'exact',
+        'parentStatementOfSegment.id'                      => 'exact',
+        'parentStatementOfSegment.procedure.id'            => 'exact',
+        'parentStatementOfSegment.externId'                => 'ipartial',
+        'parentStatementOfSegment.internId'                => 'ipartial',
+        'parentStatementOfSegment.memo'                    => 'ipartial',
+        'parentStatementOfSegment.meta.orgaName'           => 'ipartial',
+        'parentStatementOfSegment.meta.orgaDepartmentName' => 'ipartial',
+        'parentStatementOfSegment.meta.submitName'         => 'ipartial',
+        'parentStatementOfSegment.meta.orgaCity'           => 'ipartial',
+        'parentStatementOfSegment.meta.orgaPostalCode'     => 'ipartial',
+        'parentStatementOfSegment.meta.orgaStreet'         => 'ipartial',
     ])]
     #[ApiFilter(OrderFilter::class, properties: [
         'parentStatementOfSegment.original.internId',
