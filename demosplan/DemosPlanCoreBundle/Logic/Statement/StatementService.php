@@ -2609,7 +2609,7 @@ class StatementService implements StatementServiceInterface
                 }
             }
         } catch (Exception $e) {
-            $this->logger->error('Get HeadStatement IDs of statements : '.DemosPlanTools::varExport($statementIds, true).' failed: ', [$e]);
+            $this->logger->error('Get HeadStatement IDs of statements failed', ['statementIds' => $statementIds, 'exception' => $e]);
         }
 
         return $result;

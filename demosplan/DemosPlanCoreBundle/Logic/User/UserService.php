@@ -47,7 +47,6 @@ use demosplan\DemosPlanCoreBundle\Repository\UserPasswordHistoryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRoleInCustomerRepository;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\TestUserValueObject;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\CustomerResourceInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\OrgaUsersPair;
@@ -150,8 +149,10 @@ class UserService implements UserServiceInterface
             $user = $this->findDistinctUserByEmailOrLogin($login);
 
             if (false === $user) {
-                $this->logger->warning('Could not find one distinct user by login or email. Maybe given email is not unique',
-                    [DemosPlanTools::varExport($login, true)]);
+                $this->logger->warning(
+                    'Could not find one distinct user by login or email. Maybe given email is not unique',
+                    ['login' => $login]
+                );
 
                 return null;
             }
@@ -517,7 +518,8 @@ class UserService implements UserServiceInterface
         try {
             /** @var Orga $orgaBefore */
             $orgaBefore = $this->orgaRepository->find($orgaId);
-            $showListBefore = $orgaBefore->getShowlist();
+            $currentCustomer = $this->customerService->getCurrentCustomer();
+            $showListBefore = $orgaBefore->getShowlistForCustomer($currentCustomer);
             $emailBefore = $orgaBefore->getEmail2();
             $emailCCBefore = $orgaBefore->getCcEmail2();
 
@@ -544,6 +546,13 @@ class UserService implements UserServiceInterface
             }
 
             $orga = $this->orgaRepository->update($orgaId, $data);
+            // Mirror the showlist write onto the per-customer status row, matching the
+            // orga-level write performed by OrgaRepository::generateObjectValues() under the
+            // `updateShowlist` guard. Dual-write during transition until the orga-level column
+            // is dropped.
+            if (array_key_exists('updateShowlist', $data)) {
+                $this->orgaRepository->updateShowlistForCustomer($orga, $currentCustomer, (bool) ($data['showlist'] ?? false));
+            }
             // update ggf. Notifications
             $orga = $this->orgaService->updateOrgaNotifications($orga, $data);
             $orga = $this->orgaService->updateOrgaSubmissionType($orga, $data);
@@ -814,7 +823,7 @@ class UserService implements UserServiceInterface
         try {
             $orga = $this->orgaService->getOrga($organisationId);
             if (null === $orga) {
-                $this->logger->warning('No orga found for orgaId: '.DemosPlanTools::varExport($organisationId, true));
+                $this->logger->warning('No orga found for orgaId: {orgaId}', ['orgaId' => $organisationId]);
 
                 return [];
             }

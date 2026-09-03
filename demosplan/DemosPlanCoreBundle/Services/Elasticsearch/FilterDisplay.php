@@ -19,7 +19,7 @@ class FilterDisplay
     /** @var string */
     protected $titleKey;
     /** @var FilterValue[] */
-    protected $values;
+    protected $values = [];
     /** @var string|null */
     protected $aggregationNullValue;
     /** @var bool */
