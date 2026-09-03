@@ -53,7 +53,7 @@
           class="ml-2 h-fit"
           data-cy="segmentsList:openFilter"
           icon="sliders-horizontal"
-          icon-size="medium"
+          icon-size="small"
           :text="filterButtonText"
           variant="outline"
           @click="toggleFilterSlidebar"
