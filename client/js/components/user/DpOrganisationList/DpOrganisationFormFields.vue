@@ -1038,7 +1038,7 @@ export default {
     },
 
     isPlanningOfficeOrMunicipalityAcceptedOrPending () {
-      return this.registrationStatuses.some(registration => (registration.status === 'accepted' || registration.status === 'pending') && (registration.type === 'OPAUTH' || registration.type === 'OLAUTH'))
+      return this.registrationStatuses.some(registration => (registration.status === 'accepted' || registration.status === 'pending') && (registration.type === 'OPAUTH' || registration.type === 'OLAUTH' || registration.type === 'OHAUTH'))
     },
 
     /**
