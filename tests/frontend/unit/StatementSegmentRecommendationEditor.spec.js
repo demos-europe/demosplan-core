@@ -61,7 +61,6 @@ describe('StatementSegment recommendation embedding', () => {
     const createContext = () => ({
       segment: { id: 'segment-id', attributes: { recommendation: 'fallback text' } },
       recommendationEmbedded: null,
-      recommendationEmbeddedLoading: false,
     })
 
     beforeEach(() => {
@@ -77,11 +76,7 @@ describe('StatementSegment recommendation embedding', () => {
       getSpy.mockResolvedValue({ data: { data: { attributes: { recommendationEmbedded: '<p>Tag-Form</p>' } } } })
       const context = createContext()
 
-      const promise = StatementSegment.methods.loadRecommendationEmbedded.call(context)
-
-      expect(context.recommendationEmbeddedLoading).toBe(true)
-
-      await promise
+      await StatementSegment.methods.loadRecommendationEmbedded.call(context)
 
       expect(globalThis.Routing.generate).toHaveBeenCalledWith(
         'api_resource_get',
@@ -89,7 +84,6 @@ describe('StatementSegment recommendation embedding', () => {
       )
       expect(getSpy).toHaveBeenCalledWith('segment-url', { fields: { StatementSegment: 'recommendationEmbedded' } })
       expect(context.recommendationEmbedded).toBe('<p>Tag-Form</p>')
-      expect(context.recommendationEmbeddedLoading).toBe(false)
     })
 
     it('falls back to the substituted recommendation when the request fails', async () => {
@@ -99,7 +93,65 @@ describe('StatementSegment recommendation embedding', () => {
       await StatementSegment.methods.loadRecommendationEmbedded.call(context)
 
       expect(context.recommendationEmbedded).toBe('fallback text')
+    })
+  })
+
+  describe('startEditing', () => {
+    const createContext = (overrides = {}) => ({
+      isEditing: false,
+      isCollapsed: true,
+      canLinkBoilerplate: true,
+      recommendationEmbedded: null,
+      recommendationEmbeddedLoading: false,
+      initBoilerplates: vi.fn(),
+      loadRecommendationEmbedded: vi.fn(),
+      ...overrides,
+    })
+
+    it('does nothing beyond opening the editor without the permission', () => {
+      const context = createContext({ canLinkBoilerplate: false })
+
+      StatementSegment.methods.startEditing.call(context)
+
+      expect(context.isEditing).toBe(true)
+      expect(context.isCollapsed).toBe(false)
+      expect(context.initBoilerplates).not.toHaveBeenCalled()
+      expect(context.loadRecommendationEmbedded).not.toHaveBeenCalled()
       expect(context.recommendationEmbeddedLoading).toBe(false)
+    })
+
+    it('loads boilerplates and the tag-form recommendation together, then clears the loading flag once both settle', async () => {
+      let resolveBoilerplates
+      let resolveRecommendation
+      const context = createContext({
+        initBoilerplates: vi.fn(() => new Promise(resolve => {
+          resolveBoilerplates = resolve
+        })),
+        loadRecommendationEmbedded: vi.fn(() => new Promise(resolve => {
+          resolveRecommendation = resolve
+        })),
+      })
+
+      StatementSegment.methods.startEditing.call(context)
+
+      expect(context.recommendationEmbeddedLoading).toBe(true)
+
+      resolveBoilerplates()
+      await Promise.resolve()
+      expect(context.recommendationEmbeddedLoading).toBe(true)
+
+      resolveRecommendation()
+      await new Promise(resolve => setTimeout(resolve))
+      expect(context.recommendationEmbeddedLoading).toBe(false)
+    })
+
+    it('does not re-fetch the tag-form recommendation on a later edit in the same session', () => {
+      const context = createContext({ recommendationEmbedded: '<p>already loaded</p>' })
+
+      StatementSegment.methods.startEditing.call(context)
+
+      expect(context.loadRecommendationEmbedded).not.toHaveBeenCalled()
+      expect(context.initBoilerplates).toHaveBeenCalled()
     })
   })
 })

@@ -1213,7 +1213,7 @@ export default {
 
     initBoilerplates () {
       if (this.getBoilerplatesRequestFired === false) {
-        this.getBoilerPlates(this.procedureId)
+        return this.getBoilerPlates(this.procedureId)
       }
     },
 
@@ -1489,25 +1489,39 @@ export default {
       this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'history' } })
     },
 
+    /**
+     * Both fetches are only needed once editing starts, not for every segment in a list.
+     * Gated on one flag via Promise.all (see SegmentsBulkEdit.vue's mounted()) rather than
+     * each fetch flipping it alone, since recommendationForEditor needs both to be done.
+     */
     startEditing () {
       this.isEditing = true
       this.isCollapsed = false
 
-      if (this.canLinkBoilerplate && this.recommendationEmbedded === null) {
-        this.loadRecommendationEmbedded()
+      if (!this.canLinkBoilerplate) {
+        return
       }
+
+      this.recommendationEmbeddedLoading = true
+
+      const promises = [this.initBoilerplates()]
+
+      if (this.recommendationEmbedded === null) {
+        promises.push(this.loadRecommendationEmbedded())
+      }
+
+      Promise.all(promises).then(() => {
+        this.recommendationEmbeddedLoading = false
+      })
     },
 
     /**
      * Fetches the tag-form recommendation for the editor. A separate, targeted request
      * rather than part of the segment's normal load: `recommendationEmbedded` is not a
      * default field (readable(false) on the backend), so the segment's own generic load
-     * never includes it — and it's only needed once editing actually starts, not for every
-     * segment in a list that may never be opened.
+     * never includes it.
      */
     loadRecommendationEmbedded () {
-      this.recommendationEmbeddedLoading = true
-
       const url = Routing.generate('api_resource_get', {
         resourceType: 'StatementSegment',
         resourceId: this.segment.id,
@@ -1525,9 +1539,6 @@ export default {
            * recognized as such for this session.
            */
           this.recommendationEmbedded = this.segment.attributes.recommendation
-        })
-        .finally(() => {
-          this.recommendationEmbeddedLoading = false
         })
     },
 
@@ -1667,8 +1678,6 @@ export default {
   mounted () {
     this.initPlaces()
     this.initAssignableUsers()
-    this.initBoilerplates()
-
 
     // Initialize unsaved changes guard
     this.initUnsavedChangesGuard({
