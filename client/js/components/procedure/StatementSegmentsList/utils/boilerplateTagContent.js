@@ -21,6 +21,7 @@
  */
 export function embedBoilerplateContent (tagFormHtml, boilerplatesById) {
   const wrapper = document.createElement('div')
+
   wrapper.innerHTML = tagFormHtml
 
   wrapper.querySelectorAll('dp-boilerplate').forEach(element => {
@@ -44,6 +45,7 @@ export function embedBoilerplateContent (tagFormHtml, boilerplatesById) {
  */
 export function stripBoilerplateContent (contentFormHtml) {
   const wrapper = document.createElement('div')
+
   wrapper.innerHTML = contentFormHtml
 
   wrapper.querySelectorAll('dp-boilerplate').forEach(element => {
