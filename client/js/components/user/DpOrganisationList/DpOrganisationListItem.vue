@@ -227,12 +227,14 @@ export default {
 
       const shouldRemoveIndividualGrants = await this.$refs.procedureCreationConflictDialog.open()
 
-      // DpConfirmDialog resolves as soon as Confirm/Decline is clicked, before the underlying
-      // DpModal's CSS-animation-driven close sequence has actually finished (DpModal.close() only
-      // calls the native dialog.close() once its `animationend` handler fires). Triggering another
-      // reactive update (setItem below) while that's still in flight risks interrupting the
-      // animation — and if `animationend` then never fires, the native <dialog> stays open forever
-      // and blocks the entire page until reload. Wait for the dialog to actually finish closing first.
+      /*
+       * DpConfirmDialog resolves as soon as Confirm/Decline is clicked, before the underlying
+       * DpModal's CSS-animation-driven close sequence has actually finished (DpModal.close() only
+       * calls the native dialog.close() once its `animationend` handler fires). Triggering another
+       * reactive update (setItem below) while that's still in flight risks interrupting the
+       * animation — and if `animationend` then never fires, the native <dialog> stays open forever
+       * and blocks the entire page until reload. Wait for the dialog to actually finish closing first.
+       */
       await this.waitForDialogToFullyClose()
 
       this.setItem({
