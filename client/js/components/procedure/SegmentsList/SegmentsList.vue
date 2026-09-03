@@ -619,6 +619,7 @@ import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMi
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
+import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
 
 export default {
   name: 'SegmentsList',
@@ -1113,6 +1114,55 @@ export default {
       lscache.set(this.lsKey.selectedSort, sortValue)
     },
 
+    /**
+     * Transforms the payload from EDT 2.0 nested structure to API Platform 3.0 flat structure.
+     * The Vuex JSON:API library will convert this object directly to query parameters.
+     *
+     * @param {Object} payload - Original payload with EDT-style nested filters
+     * @returns {Object} - Flattened payload for API Platform 3.0
+     */
+    transformToApiPlatform (payload) {
+      const apiPayload = {
+        include: payload.include,
+        fields: payload.fields,
+      }
+
+      // Transform filters: flatten nested condition structure
+      if (payload.filter) {
+        Object.values(payload.filter).forEach(filterValue => {
+          if (filterValue?.condition) {
+            const { path, value, operator } = filterValue.condition
+
+            // Handle array values (IN operator) - use brackets format
+            if (operator === 'IN' && Array.isArray(value)) {
+              apiPayload[`${path}[]`] = value
+            } else {
+              apiPayload[path] = value
+            }
+          }
+        })
+      }
+
+      // Transform pagination
+      if (payload.page) {
+        apiPayload.page = payload.page.number
+        apiPayload.itemsPerPage = payload.page.size
+        apiPayload.pagination = true  // Enable client-controlled pagination
+      }
+
+      // Transform sort - API Platform accepts array or comma-separated string
+      if (payload.sort) {
+        apiPayload.sort = payload.sort.split(',').map(s => s.trim())
+      }
+
+      // Transform search - use the text filter
+      if (payload.search) {
+        apiPayload.text = payload.search.value
+      }
+
+      return apiPayload
+    },
+
     applyQuery (page) {
       lscache.remove(this.lsKey.allSegments)
       lscache.remove(this.lsKey.toggledSegments)
@@ -1122,7 +1172,7 @@ export default {
         ...this.getFilterQuery,
         sameProcedure: {
           condition: {
-            path: 'parentStatement.procedure.id',
+            path: 'parentStatementOfSegment.procedure.id',  // API Platform 3.0 field name
             value: this.procedureId,
           },
         },
@@ -1133,13 +1183,14 @@ export default {
         include,
         /*
          * Client-side sorting needs the whole list at once, so it comes without a pager and requests
-         * 1000 items - the hard server-side cap (JsonApiPaginationParser::MAX_PAGE_SIZE).
+         * 1000 items - the hard server-side cap for API Platform paginationMaximumItemsPerPage.
          */
         page: hasPermission('feature_segments_manualsort') ?
           { number: 1, size: 1000 } :
           { number: page, size: this.pagination.perPage },
         // Baseline order so the list stays stable when selectedSort is '' (deadline sort, if active, is applied on top of this client-side).
-        sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
+        // API Platform 3.0 field names:
+        sort: 'parentStatementOfSegment.submit,orderInProcedure',
         filter,
         fields,
       }
@@ -1153,8 +1204,11 @@ export default {
         }
       }
 
+      // Transform to API Platform 3.0 format
+      const apiPayload = this.transformToApiPlatform(payload)
+
       this.isLoading = true
-      this.fetchSegments(payload)
+      this.fetchSegments(apiPayload)
         .then((data) => {
           /**
            * We need to set the localStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
@@ -1178,7 +1232,7 @@ export default {
           ) {
             idsFilter.placeNotLocked = {
               condition: {
-                path: 'place.locked',
+                path: 'place.locked',  // Already correct for API Platform 3.0
                 value: false,
               },
             }
@@ -1239,11 +1293,10 @@ export default {
       }
 
       const statementSegmentInclude = [
+        'parentStatement',
         'assignee',
         'place',
         'tags',
-        'parentStatement.genericAttachments.file',
-        'parentStatement.sourceAttachment.file',
       ]
 
       if (hasPermission('field_segments_custom_fields')) {
@@ -1256,21 +1309,16 @@ export default {
       }
 
       const fields = {
-        File: [
-          'hash',
-        ].join(),
-        GenericStatementAttachment: [
-          'file',
+        AssignableUser: [
+          'name',
         ].join(),
         Place: [
           'name',
           ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
         ].join(),
-        SourceStatementAttachment: ['file'].join(),
         Statement: [
           'authoredDate',
           'authorName',
-          'genericAttachments',
           'isSubmittedByCitizen',
           'initialOrganisationDepartmentName',
           'initialOrganisationName',
@@ -1280,7 +1328,6 @@ export default {
           'initialOrganisationCity',
           'internId',
           'memo',
-          'sourceAttachment',
           'status',
           'submitDate',
           'submitName',
@@ -1541,7 +1588,8 @@ export default {
 
     /*
      * Loads full attribute data for selected segment ids that aren't in the Vuex store yet — only
-     * possible when "select all" spans more segments than the 1000-row main-fetch cap. Deliberately
+     * possible when "select all" spans more segments than the 1000-row main-fetch cap. Uses the
+     * apiUrl helper to ensure we hit the same API version (3.0) as the main fetch. Deliberately
      * bypasses the mapped `fetchSegments` ('list') action, which would reset the currently displayed
      * table; the raw JSON:API response is turned into standalone lookup maps instead.
      */
@@ -1554,18 +1602,11 @@ export default {
         idChunks.push(missingIds.slice(start, start + chunkSize))
       }
 
-      const fetchChunk = idChunk => dpApi.get(Routing.generate('api_resource_list', { resourceType: 'StatementSegment' }), {
+      // API Platform 3.0 format: use 'id[]' for multiple values (array filter)
+      const fetchChunk = idChunk => dpApi.get(apiUrl('StatementSegment', 'list'), {
         include,
         fields,
-        filter: {
-          idIsOneOf: {
-            condition: {
-              path: 'id',
-              value: idChunk,
-              operator: 'IN',
-            },
-          },
-        },
+        'id[]': idChunk,  // API Platform 3.0 array filter format
       })
 
       return idChunks
