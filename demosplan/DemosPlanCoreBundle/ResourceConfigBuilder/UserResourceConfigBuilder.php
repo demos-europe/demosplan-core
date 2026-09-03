@@ -29,6 +29,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, UserInterface> $invited
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, UserInterface> $newsletter
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, UserInterface> $noPiwik
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, UserInterface> $twoFactorEnabled
  * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,UserInterface,RoleInterface> $roles
  * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,UserInterface,DepartmentInterface> $department
  * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,\DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface,OrgaInterface> $orga
