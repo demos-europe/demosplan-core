@@ -18,8 +18,8 @@ All rights reserved
 
 <template>
   <!--
-    v-show hides the panel mounted while another slidebar tab is active,
-    the applied per-category selection state survives (unapplied changes are discarded).
+    v-show hides the panel while another slidebar tab is active,
+    the applied selection state survives (unapplied changes are discarded).
     Negative margin is to reset DpSlidebar's u-ml-1_5.
   -->
   <div
