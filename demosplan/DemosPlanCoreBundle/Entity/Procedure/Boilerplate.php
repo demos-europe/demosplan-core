@@ -20,6 +20,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\BoilerplateDeletionService;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -124,6 +125,16 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
      */
     #[ORM\Column(name: 'pending_deletion', type: 'boolean', nullable: false, options: ['default' => false])]
     protected bool $pendingDeletion = false;
+
+    /**
+     * Counts consecutive failed {@see BoilerplateDeletionService::materializeAndDelete}
+     * attempts for this boilerplate. Updated via DQL, not the setter, by
+     * {@see BoilerplateRepository::handleDeletionFailure} — a failed attempt closes the
+     * EntityManager for the rest of that request, so this bookkeeping deliberately
+     * bypasses the UnitOfWork rather than relying on it.
+     */
+    #[ORM\Column(name: 'deletion_failure_count', type: 'integer', nullable: false, options: ['default' => 0])]
+    protected int $deletionFailureCount = 0;
 
     public function __construct()
     {
@@ -276,6 +287,11 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
     public function setPendingDeletion(bool $pendingDeletion): void
     {
         $this->pendingDeletion = $pendingDeletion;
+    }
+
+    public function getDeletionFailureCount(): int
+    {
+        return $this->deletionFailureCount;
     }
 
     /**

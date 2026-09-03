@@ -31,9 +31,11 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
+use demosplan\DemosPlanCoreBundle\MessageHandler\PurgePendingBoilerplateDeletionsMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\PublicAffairsAgentHandler;
+use demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository;
 use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\Sort;
@@ -50,6 +52,12 @@ use function array_key_exists;
 
 class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
 {
+    /**
+     * Boilerplate deletion gives up and re-exposes a boilerplate after this
+     * many consecutive failed attempts, rather than retrying forever.
+     */
+    private const MAX_BOILERPLATE_DELETION_ATTEMPTS = 10;
+
     /**
      * @var ServiceStorage
      */
@@ -87,6 +95,7 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
 
     public function __construct(
         private readonly BoilerplateDeletionService $boilerplateDeletionService,
+        private readonly BoilerplateRepository $boilerplateRepository,
         ContentService $contentService,
         private readonly CurrentUserService $currentUser,
         private readonly EntityManagerInterface $entityManager,
@@ -705,9 +714,9 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
     /**
      * Materializes and deletes up to $limit boilerplates flagged for deletion
      * (DPLAN-18271). Called on a recurring tick by
-     * {@see \demosplan\DemosPlanCoreBundle\MessageHandler\PurgePendingBoilerplateDeletionsMessageHandler}.
-     * A boilerplate whose materialization fails is left flagged and retried on the next
-     * tick, matching {@see self::purgeDeletedProcedures()}'s per-item try/catch posture.
+     * {@see PurgePendingBoilerplateDeletionsMessageHandler}.
+     * A failure stops the whole batch for this tick (unlike {@see self::purgeDeletedProcedures()}),
+     * since a failed flush closes the EntityManager for the rest of the request.
      *
      * @return int the number of boilerplates purged
      */
@@ -719,7 +728,14 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                 $this->boilerplateDeletionService->materializeAndDelete($boilerplate);
                 ++$purgedCount;
             } catch (Exception $e) {
-                $this->logger->warning("Materialize and delete boilerplate '{$boilerplate->getId()}' failed", [$e]);
+                // A failed flush closes the EntityManager for the rest of this request
+                // (Doctrine's own behavior, not something this loop controls), and any
+                // leftover, never-flushed side effects from this attempt could otherwise
+                // silently corrupt a later, unrelated boilerplate's attempt in the same
+                // batch. Stop the whole batch here rather than continuing to the next one.
+                $this->boilerplateRepository->handleDeletionFailure($boilerplate->getId(), self::MAX_BOILERPLATE_DELETION_ATTEMPTS);
+
+                break;
             }
         }
 

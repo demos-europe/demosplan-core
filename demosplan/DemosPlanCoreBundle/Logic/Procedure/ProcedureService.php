@@ -1524,7 +1524,7 @@ class ProcedureService implements ProcedureServiceInterface
         try {
             $boilerplateCategory = $this->boilerplateCategoryRepository->findOneBy(['procedure' => $procedureId, 'title' => $category]);
 
-            return $boilerplateCategory instanceof BoilerplateCategory ? $boilerplateCategory->getBoilerplates()->toArray() : [];
+            return $boilerplateCategory instanceof BoilerplateCategory ? $boilerplateCategory->getBoilerplatesExcludingPendingDeletion() : [];
         } catch (Exception $e) {
             throw new HttpException($e->getCode(), $e->getMessage(), $e);
         }

@@ -21,7 +21,7 @@ class Version20260827130729 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'refs DPLAN-18271: add pending_deletion flag to boilerplate for async delete-time materialization';
+        return 'refs DPLAN-18271: add pending_deletion flag and deletion_failure_count to boilerplate for async delete-time materialization';
     }
 
     /**
@@ -32,6 +32,7 @@ class Version20260827130729 extends AbstractMigration
         $this->abortIfNotMysql();
 
         $this->addSql('ALTER TABLE _predefined_texts ADD pending_deletion TINYINT(1) DEFAULT 0 NOT NULL');
+        $this->addSql('ALTER TABLE _predefined_texts ADD deletion_failure_count INT DEFAULT 0 NOT NULL');
     }
 
     /**
@@ -42,6 +43,7 @@ class Version20260827130729 extends AbstractMigration
         $this->abortIfNotMysql();
 
         $this->addSql('ALTER TABLE _predefined_texts DROP pending_deletion');
+        $this->addSql('ALTER TABLE _predefined_texts DROP deletion_failure_count');
     }
 
     /**

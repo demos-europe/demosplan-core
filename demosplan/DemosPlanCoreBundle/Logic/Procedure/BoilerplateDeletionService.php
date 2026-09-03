@@ -13,33 +13,30 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\RecommendationVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\BoilerplateTagSubstitutionService;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
+use demosplan\DemosPlanCoreBundle\MessageHandler\PurgePendingBoilerplateDeletionsMessageHandler;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository;
+use Doctrine\DBAL\ConnectionException;
+use Doctrine\ORM\OptimisticLockException;
 use Webmozart\Assert\Assert;
 
 /**
  * Materializes a {@see Boilerplate}'s content into every one of its usages, then deletes
- * the boilerplate row itself (DPLAN-18271, "Boilerplate deletion" — option (b)).
+ * the row itself. Runs asynchronously off a recurring background job
+ * ({@see PurgePendingBoilerplateDeletionsMessageHandler}), not synchronously in the delete
+ * request, since rewriting a heavily-used boilerplate's usages could be slow.
  *
- * Runs asynchronously off a recurring background job
- * ({@see \demosplan\DemosPlanCoreBundle\MessageHandler\PurgePendingBoilerplateDeletionsMessageHandler}),
- * not synchronously in the delete request: rewriting every usage of a heavily-used
- * boilerplate could be slow, and the request must not risk a timeout. The request only
- * flags the boilerplate ({@see Boilerplate::setPendingDeletion()}); this service does the
- * actual work once picked up.
- *
- * Each recommendation is rewritten via {@see Statement::setRecommendation()},
- * the normal funnel — not a bypass — so version recording, {@see \demosplan\DemosPlanCoreBundle\Logic\Statement\BoilerplateUsageReconciliationService}
- * and ES reindexing all fire exactly as they would for a manual edit. Reconciliation
- * naturally drops the usage relation because the tag is gone; no separate cleanup needed.
- *
- * The whole sequence is atomic: if rewriting any one usage fails, the entire deletion is
- * aborted and the boilerplate row is left in place (still flagged, so it retries on the
- * next tick) — never left with some usages materialized and others still pointing at a
- * boilerplate that no longer exists.
+ * Atomic per boilerplate: if rewriting any one usage fails, the whole deletion for that
+ * boilerplate is aborted and left flagged for retry. A failure also ends the caller's
+ * whole purge-batch loop for that tick ({@see ProcedureHandler::purgePendingBoilerplateDeletions()}):
+ * a failed flush closes the EntityManager for the rest of the request (Doctrine's own
+ * behavior), and leftover, never-flushed entities from this attempt (e.g. a scheduled
+ * {@see RecommendationVersion}) would otherwise corrupt a later, unrelated boilerplate in
+ * the same batch.
  */
 class BoilerplateDeletionService
 {
@@ -51,13 +48,22 @@ class BoilerplateDeletionService
     ) {
     }
 
+    /**
+     * @throws OptimisticLockException
+     * @throws ConnectionException
+     */
     public function materializeAndDelete(Boilerplate $boilerplate): bool
     {
         $boilerplateId = $boilerplate->getId();
         $boilerplateTitle = $boilerplate->getTitle();
         $replacementText = $boilerplate->getText();
 
-        return $this->transactionService->executeAndFlushInTransaction(
+        // The cast is redundant at runtime (the closure below is already declared `: bool`)
+        // — it's here so PhpStorm's native inspection, which doesn't resolve
+        // executeAndFlushInTransaction()'s generic template (`callable(EntityManager): T` /
+        // `@phpstan-return T`), sees an unambiguous bool instead of flagging the closure
+        // argument itself. PHPStan CLI resolves the generic correctly either way.
+        return (bool) $this->transactionService->executeAndFlushInTransaction(
             function () use ($boilerplate, $boilerplateId, $boilerplateTitle, $replacementText): bool {
                 foreach ($boilerplate->getUsages() as $usage) {
                     $statementOrSegment = $usage->getStatementOrSegment();

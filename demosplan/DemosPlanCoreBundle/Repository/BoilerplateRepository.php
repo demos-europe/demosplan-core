@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\BoilerplateDeletionService;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\NoResultException;
@@ -295,8 +296,8 @@ class BoilerplateRepository extends FluentRepository implements ArrayInterface, 
     }
 
     /**
-     * Batch of boilerplates flagged for deletion (DPLAN-18271), oldest-flagged-first, for
-     * {@see \demosplan\DemosPlanCoreBundle\Logic\Procedure\BoilerplateDeletionService}'s
+     * Batch of boilerplates flagged for deletion, oldest-flagged-first, for
+     * {@see BoilerplateDeletionService}'s
      * recurring background job.
      *
      * @return Boilerplate[]
@@ -304,6 +305,47 @@ class BoilerplateRepository extends FluentRepository implements ArrayInterface, 
     public function findPendingDeletion(int $limit): array
     {
         return $this->findBy(['pendingDeletion' => true], ['modifyDate' => 'ASC'], $limit);
+    }
+
+    /**
+     * Records a failed {@see BoilerplateDeletionService::materializeAndDelete}
+     * attempt. If this attempt is the $maxAttempts-th failure, gives up on this boilerplate:
+     * resets `pendingDeletion` to false (so it becomes visible again — a deliberate,
+     * user-facing signal that deletion failed, not a silent retry-forever), resets the
+     * counter so a future retry starts fresh, and logs at `error` level so it reaches
+     * Sentry. Otherwise, just increments the counter and logs at `info` — a routine,
+     * often-transient failure that is expected to self-heal on a later attempt shouldn't
+     * make noise on every occurrence.
+     *
+     * Uses DQL for the writes, not the entity's setters: a failed materializeAndDelete()
+     * attempt closes the caller's EntityManager for the rest of the request (Doctrine's own
+     * behavior on any failed flush), so persist()/flush() are not an option here. DQL
+     * UPDATE bypasses the UnitOfWork and compiles straight to SQL via the Connection, which
+     * `EntityManager::close()` never touches.
+     */
+    public function handleDeletionFailure(string $id, int $maxAttempts): void
+    {
+        $entityManager = $this->getEntityManager();
+
+        $currentFailureCount = $entityManager->createQuery(
+            'SELECT b.deletionFailureCount FROM '.Boilerplate::class.' b WHERE b.ident = :id'
+        )->setParameter('id', $id)->getSingleScalarResult();
+
+        if ($currentFailureCount >= $maxAttempts - 1) {
+            $entityManager->createQuery(
+                'UPDATE '.Boilerplate::class.' b SET b.pendingDeletion = false, b.deletionFailureCount = 0 WHERE b.ident = :id'
+            )->setParameter('id', $id)->execute();
+
+            $this->logger->error("Giving up on deleting boilerplate '{$id}' after {$maxAttempts} failed attempts; it is visible again.");
+
+            return;
+        }
+
+        $entityManager->createQuery(
+            'UPDATE '.Boilerplate::class.' b SET b.deletionFailureCount = b.deletionFailureCount + 1 WHERE b.ident = :id'
+        )->setParameter('id', $id)->execute();
+
+        $this->logger->info("Materialize and delete boilerplate '{$id}' failed (attempt {$currentFailureCount}/{$maxAttempts}).");
     }
 
     /**
