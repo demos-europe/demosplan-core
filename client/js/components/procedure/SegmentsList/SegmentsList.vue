@@ -126,8 +126,20 @@
         v-if="items.length > 0"
         class="flex justify-between items-center mt-4"
       >
+        <div
+          v-if="hasPermission('feature_segments_manualsort')"
+          class="ml-auto flex items-center space-inline-xs"
+        >
+          <dp-select
+            id="applySortSelection"
+            :label="{ text: Translator.trans('sorting') }"
+            :options="sortOptions"
+            :selected="selectedSort"
+            @select="applySort"
+          />
+        </div>
         <dp-pager
-          v-if="pagination.currentPage"
+          v-if="pagination.currentPage && !hasPermission('feature_segments_manualsort')"
           :key="`pager1_${pagination.currentPage}_${pagination.count}`"
           :class="{ invisible: isLoading }"
           :current-page="pagination.currentPage"
@@ -138,15 +150,6 @@
           @page-change="applyQuery"
           @size-change="handleSizeChange"
         />
-        <div class="flex items-center space-inline-xs">
-          <dp-select
-            id="applySortSelection"
-            :label="{ text: Translator.trans('sorting') }"
-            :options="sortOptions"
-            :selected="selectedSort"
-            @select="applySort"
-          />
-        </div>
       </div>
       <div
         v-show="!isLoading"
@@ -251,7 +254,11 @@
                 <template v-slot:popover>
                   <statement-meta-tooltip
                     :assignable-users="assignableUsers"
-                    :statement="parentStatementFor(rowData)"
+                    :statement="
+                      statementsObject[
+                        rowData.relationships.parentStatement.data.id
+                      ]
+                    "
                     :segment="rowData"
                     :places="places"
                   />
@@ -271,62 +278,121 @@
             <template v-slot:statementStatus="rowData">
               <status-badge
                 class="mt-0.5 max-w-fit !block o-hellip--nowrap"
-                :status="parentStatementFor(rowData).attributes.status"
+                :status="
+                  statementsObject[
+                    rowData.relationships.parentStatement.data.id
+                  ].attributes.status
+                "
               />
             </template>
             <template v-slot:internId="rowData">
               <div class="o-hellip__wrapper">
                 <div
-                  v-tooltip="parentStatementFor(rowData).attributes.internId"
+                  v-tooltip="
+                    statementsObject[
+                      rowData.relationships.parentStatement.data.id
+                    ].attributes.internId
+                  "
                   class="o-hellip--nowrap text-right"
                   dir="rtl"
                 >
-                  {{ parentStatementFor(rowData).attributes.internId }}
+                  {{
+                    statementsObject[
+                      rowData.relationships.parentStatement.data.id
+                      ].attributes.internId
+                  }}
                 </div>
               </div>
             </template>
             <template v-slot:submitter="rowData">
               <ul class="o-list max-w-12">
                 <li
-                  v-if="parentStatementFor(rowData).attributes.authorName !== ''"
+                  v-if="
+                    statementsObject[
+                      rowData.relationships.parentStatement.data.id
+                    ].attributes.authorName !== ''
+                  "
                   class="o-list__item o-hellip--nowrap"
                 >
-                  {{ parentStatementFor(rowData).attributes.authorName }}
+                  {{
+                    statementsObject[
+                      rowData.relationships.parentStatement.data.id
+                      ].attributes.authorName
+                  }}
                 </li>
                 <li
                   v-else
                   class="o-list__item o-hellip--nowrap"
                 >
-                  {{ parentStatementFor(rowData).attributes.submitName }}
+                  {{
+                    statementsObject[
+                      rowData.relationships.parentStatement.data.id
+                      ].attributes.submitName
+                  }}
                 </li>
                 <li
-                  v-if="parentStatementFor(rowData).attributes.initialOrganisationName !== ''"
+                  v-if="
+                    statementsObject[
+                      rowData.relationships.parentStatement.data.id
+                    ].attributes.initialOrganisationName !== ''
+                  "
                   class="o-list__item o-hellip--nowrap"
                 >
-                  {{ parentStatementFor(rowData).attributes.initialOrganisationName }}
+                  {{
+                    statementsObject[
+                      rowData.relationships.parentStatement.data.id
+                      ].attributes.initialOrganisationName
+                  }}
                 </li>
               </ul>
             </template>
             <template v-slot:address="rowData">
               <ul class="o-list">
                 <li
-                  v-if="parentStatementFor(rowData).attributes.initialOrganisationStreet !== ''"
+                  v-if="
+                    statementsObject[
+                      rowData.relationships.parentStatement.data.id
+                    ].attributes.initialOrganisationStreet !== ''
+                  "
                   class="o-list__item o-hellip--nowrap"
                 >
-                  {{ parentStatementFor(rowData).attributes.initialOrganisationStreet }}
-                  {{ parentStatementFor(rowData).attributes.initialOrganisationHouseNumber }}
+                  {{
+                    statementsObject[
+                      rowData.relationships.parentStatement.data.id
+                      ].attributes.initialOrganisationStreet
+                  }}
+                  {{
+                    statementsObject[
+                      rowData.relationships.parentStatement.data.id
+                      ].attributes.initialOrganisationHouseNumber
+                  }}
                 </li>
                 <li
-                  v-if="parentStatementFor(rowData).attributes.initialOrganisationPostalCode !== ''"
+                  v-if="
+                    statementsObject[
+                      rowData.relationships.parentStatement.data.id
+                    ].attributes.initialOrganisationPostalCode !== ''
+                  "
                   class="o-list__item o-hellip--nowrap"
                 >
-                  {{ parentStatementFor(rowData).attributes.initialOrganisationPostalCode }}
-                  {{ parentStatementFor(rowData).attributes.initialOrganisationCity }}
+                  {{
+                    statementsObject[
+                      rowData.relationships.parentStatement.data.id
+                      ].attributes.initialOrganisationPostalCode
+                  }}
+                  {{
+                    statementsObject[
+                      rowData.relationships.parentStatement.data.id
+                      ].attributes.initialOrganisationCity
+                  }}
                 </li>
               </ul>
             </template>
             <template v-slot:place="rowData">
-              {{ placeFor(rowData).attributes.name }}
+              {{
+                placesObject[rowData.relationships.place.data.id].attributes
+                  .name
+              }}
             </template>
             <template v-slot:text="rowData">
               <text-content-renderer
@@ -360,11 +426,11 @@
                 hook-name="tag.style.segments.list"
                 :addon-props="{
                   demosplanUi,
-                  tags: getTagsBySegment(rowData),
+                  tags: getTagsBySegment(rowData.id),
                 }"
               />
               <span
-                v-for="tag in getTagsBySegment(rowData)"
+                v-for="tag in getTagsBySegment(rowData.id)"
                 v-else
                 :key="tag.id"
                 class="rounded-md color--grey-dark bg-color--grey-light-2 px-1 py-0.5 mx-0.5 my-1 inline-block"
@@ -735,11 +801,9 @@ export default {
       selectedSort: '',
       selectionCopiedToClipboard: false,
       sortOptions: [
-        { value: 'internId-desc', label: Translator.trans('sort.internId.descending') },
-        { value: 'internId-asc', label: Translator.trans('sort.internId.ascending') },
+        { value: '-deadline', label: Translator.trans('sort.deadline.descending') },
+        { value: 'deadline', label: Translator.trans('sort.deadline.ascending') },
       ],
-      v3Segments: [],
-      v3Included: {},
     }
   },
 
@@ -765,6 +829,22 @@ export default {
       placesObject: 'items',
     }),
 
+    ...mapState('RecommendationVersion', {
+      recommendationVersions: 'items',
+    }),
+
+    ...mapState('Statement', {
+      statementsObject: 'items',
+    }),
+
+    ...mapState('StatementSegment', {
+      segmentsObject: 'items',
+    }),
+
+    ...mapState('Tag', {
+      tagsObject: 'items',
+    }),
+
     assignableUsers () {
       return Object.keys(this.assignableUsersObject).length ?
         Object.values(this.assignableUsersObject).map((user) => ({
@@ -772,6 +852,10 @@ export default {
           id: user.id,
         })) :
         []
+    },
+
+    hasDeadlineColumn () {
+      return hasPermission('field_statement_deadline')
     },
 
     // Passed as headerFields to DpDataTable
@@ -782,7 +866,7 @@ export default {
       const userHeaderFields = this.headerFields.filter(
         (el) =>
           el.field !== 'externId' &&
-          (el.field !== 'deadline' || hasPermission('field_statement_deadline')),
+          (el.field !== 'deadline' || this.hasDeadlineColumn),
       )
 
       if (!hasPermission('field_segments_custom_fields')) {
@@ -834,7 +918,7 @@ export default {
             this.items.filter(
               (item) =>
                 (this.canUnlock || !item.isPlaceLocked) &&
-                  !toggledIds.has(item.id),
+                !toggledIds.has(item.id),
             )
       } else {
         selected = this.toggledItems
@@ -854,12 +938,38 @@ export default {
     },
 
     items () {
-      return this.v3Segments.map((segment) => ({
+      const mapped = Object.values(this.segmentsObject).map((segment) => ({
         ...segment,
         isPlaceLocked:
-          !!this.v3Included.Place?.[segment.relationships?.place?.data?.id]
+          !!this.placesObject[segment.relationships?.place?.data?.id]
             ?.attributes?.locked,
       }))
+
+      if (this.selectedSort === '' || !hasPermission('feature_segments_manualsort')) {
+        return mapped
+      }
+
+      // Deadline sorting happens client-side, so segments without a deadline always sort last, regardless of direction.
+      const direction = this.selectedSort.startsWith('-') ? -1 : 1
+
+      return mapped.sort((a, b) => {
+        const deadlineA = a.attributes.deadline
+        const deadlineB = b.attributes.deadline
+
+        if (!deadlineA && !deadlineB) {
+          return 0
+        }
+
+        if (!deadlineA) {
+          return 1
+        }
+
+        if (!deadlineB) {
+          return -1
+        }
+
+        return direction * (new Date(deadlineA) - new Date(deadlineB))
+      })
     },
 
     /*
@@ -925,7 +1035,7 @@ export default {
       const staticColumns = this.headerFieldsAvailable
         // ExternId should always be displayed, so it shouldn't be selectable
         .filter(
-          (el) => el.field !== 'externId' && (el.field !== 'deadline' || hasPermission('field_statement_deadline')),
+          (el) => el.field !== 'externId' && (el.field !== 'deadline' || this.hasDeadlineColumn),
         )
         .map((headerField) => [headerField.field, headerField.label])
 
@@ -983,6 +1093,10 @@ export default {
       fetchPlaces: 'list',
     }),
 
+    ...mapActions('StatementSegment', {
+      fetchSegments: 'list',
+    }),
+
     ...mapMutations('FilterFlyout', {
       setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
       setIsLoadingFilterFlyout: 'setIsLoading',
@@ -997,7 +1111,6 @@ export default {
     applySort (sortValue) {
       this.selectedSort = sortValue
       lscache.set(this.lsKey.selectedSort, sortValue)
-      this.applyQuery(1)
     },
 
     applyQuery (page) {
@@ -1005,7 +1118,6 @@ export default {
       lscache.remove(this.lsKey.toggledSegments)
       this.allItemsCount = null
 
-      // Still needed for fetchSegmentIds() below, which uses the legacy RPC's Drupal-style filter shape.
       const filter = {
         ...this.getFilterQuery,
         sameProcedure: {
@@ -1015,81 +1127,43 @@ export default {
           },
         },
       }
+      const { include, fields } = this.buildSegmentFetchOptions()
 
-      const search = this.searchTerm !== '' ?
-        {
+      const payload = {
+        include,
+        /*
+         * Client-side sorting needs the whole list at once, so it comes without a pager and requests
+         * 1000 items - the hard server-side cap (JsonApiPaginationParser::MAX_PAGE_SIZE).
+         */
+        page: hasPermission('feature_segments_manualsort') ?
+          { number: 1, size: 1000 } :
+          { number: page, size: this.pagination.perPage },
+        // Baseline order so the list stays stable when selectedSort is '' (deadline sort, if active, is applied on top of this client-side).
+        sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
+        filter,
+        fields,
+      }
+
+      if (this.searchTerm !== '') {
+        payload.search = {
           value: this.searchTerm,
           ...(this.searchFieldsSelected.length !== 0 ?
             { fieldsToSearch: this.searchFieldsSelected } :
             {}),
-        } :
-        undefined
-
-      const params = new URLSearchParams({
-        'parentStatementOfSegment.procedure.id': this.procedureId,
-        include: 'parentStatement,assignee,place,tags',
-        pagination: 'true',
-        page,
-        itemsPerPage: this.pagination.perPage,
-      })
-
-      if (this.searchTerm !== '') {
-        params.set('text', this.searchTerm)
-      }
-
-      if ('internId-desc' === this.selectedSort) {
-        params.append('order[parentStatementOfSegment.original.internId]', 'desc')
-      } else if ('internId-asc' === this.selectedSort) {
-        params.append('order[parentStatementOfSegment.original.internId]', 'asc')
-      } else {
-        // Baseline order so the list stays stable when no sort is selected.
-        params.append('order[parentStatementOfSegment.submit]', 'asc')
-        params.append('order[parentStatementOfSegment.externId]', 'asc')
-        params.append('order[orderInProcedure]', 'asc')
-      }
-
-      /*
-       * Translate the filter-flyout selections (place/assignee/tags) into v3 SearchFilter/ExistsFilter params.
-       * Multiple values on the same path[] naturally OR together; different paths naturally AND together.
-       */
-      Object.values(this.getFilterQuery).forEach((entry) => {
-        if (!entry.condition) {
-          return
         }
-
-        const { path, value, operator } = entry.condition
-
-        if (operator === 'IS NULL') {
-          params.append(`exists[${path}]`, 'false')
-        } else {
-          params.append(`${path}.id[]`, value)
-        }
-      })
+      }
 
       this.isLoading = true
-      dpApi.get(`${Routing.getBaseUrl()}/api/3.0/StatementSegment?${params}`)
-        .then(({ data }) => {
-          this.v3Segments = data.data
-          this.v3Included = this.groupIncludedByType(data.included || [])
-
-          /*
-           * API Platform's jsonapi pagination meta is camelCase and has no `total_pages`, unlike
-           * the snake_case `{ current_page, per_page, total, total_pages }` shape paginationMixin
-           * expects (modelled on the legacy Fractal-based endpoints) - so it is translated here.
+      this.fetchSegments(payload)
+        .then((data) => {
+          /**
+           * We need to set the localStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
            */
-          const paginationMeta = {
-            count: this.v3Segments.length,
-            current_page: data.meta.currentPage,
-            per_page: data.meta.itemsPerPage,
-            total: data.meta.totalItems,
-            total_pages: Math.ceil(data.meta.totalItems / data.meta.itemsPerPage),
-          }
-
-          this.setLocalStorage(paginationMeta)
+          this.setLocalStorage(data.meta.pagination)
 
           // Fake the count from meta info of paged request, until `fetchSegmentIds()` resolves
-          this.allItemsCount = paginationMeta.total
-          this.updatePagination(paginationMeta)
+          this.allItemsCount = data.meta.pagination.total
+          this.updatePagination(data.meta.pagination)
 
           /*
            * Get all segments (without pagination) to save them in localStorage for bulk editing.
@@ -1112,7 +1186,7 @@ export default {
 
           this.fetchSegmentIds({
             filter: idsFilter,
-            search,
+            search: payload.search,
           })
         })
         .catch(() => {
@@ -1141,60 +1215,95 @@ export default {
         })
     },
 
-    groupIncludedByType (included) {
-      return included.reduce((byType, resource) => {
-        byType[resource.type] = byType[resource.type] || {}
-        byType[resource.type][resource.id] = resource
-
-        return byType
-      }, {})
-    },
-
-    parentStatementFor (rowData) {
-      return this.v3Included.Statement?.[rowData.relationships.parentStatement.data.id]
-    },
-
-    placeFor (rowData) {
-      return this.v3Included.Place?.[rowData.relationships.place.data.id]
-    },
-
     /*
-     * Loads full data for selected segment ids that aren't on the currently loaded page -
-     * needed since pagination only keeps one page of segments in v3Segments at a time.
-     * Chunked to keep the request URL length reasonable for large selections. Included
-     * relationships (parentStatement/place/tags) are merged into v3Included so the
-     * existing parentStatementFor()/placeFor()/getTagsBySegment() lookups keep working.
+     * Builds the `include`/`fields` portion of a StatementSegment JSON:API request. Shared by
+     * applyQuery() (the main list fetch) and fetchMissingSegments() (the supplemental fetch for
+     * selected segments outside the currently loaded batch), so both requests always resolve the
+     * same relationships/attributes and copying-to-clipboard never sees a different data shape
+     * depending on where a segment's data came from.
      */
-    fetchMissingSegments (missingIds) {
-      const chunkSize = 200
-      const idChunks = []
+    buildSegmentFetchOptions () {
+      const statementSegmentFields = [
+        'assignee',
+        'externId',
+        'orderInProcedure',
+        'parentStatement',
+        'place',
+        'tags',
+        'text',
+        'recommendation',
+      ]
 
-      for (let start = 0; start < missingIds.length; start += chunkSize) {
-        idChunks.push(missingIds.slice(start, start + chunkSize))
+      if (this.hasDeadlineColumn) {
+        statementSegmentFields.push('deadline')
       }
 
-      const fetchChunk = idChunk => {
-        const params = new URLSearchParams({ include: 'parentStatement,assignee,place,tags' })
+      const statementSegmentInclude = [
+        'assignee',
+        'place',
+        'tags',
+        'parentStatement.genericAttachments.file',
+        'parentStatement.sourceAttachment.file',
+      ]
 
-        idChunk.forEach(id => params.append('id[]', id))
-
-        return dpApi.get(`${Routing.getBaseUrl()}/api/3.0/StatementSegment?${params}`)
+      if (hasPermission('field_segments_custom_fields')) {
+        statementSegmentFields.push('customFields')
       }
 
-      return idChunks
-        .reduce((chain, idChunk) => chain.then(responses => fetchChunk(idChunk).then(response => [...responses, response])), Promise.resolve([]))
-        .then(responses => {
-          const segments = responses.flatMap(response => response.data.data)
-          const included = responses.flatMap(response => response.data.included || [])
-          const newlyIncluded = this.groupIncludedByType(included)
+      if (hasPermission('feature_enable_recommendation_versions')) {
+        statementSegmentFields.push('recommendationVersions')
+        statementSegmentInclude.push('recommendationVersions')
+      }
 
-          this.v3Included = Object.keys(newlyIncluded).reduce((merged, type) => ({
-            ...merged,
-            [type]: { ...merged[type], ...newlyIncluded[type] },
-          }), this.v3Included)
+      const fields = {
+        File: [
+          'hash',
+        ].join(),
+        GenericStatementAttachment: [
+          'file',
+        ].join(),
+        Place: [
+          'name',
+          ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+        ].join(),
+        SourceStatementAttachment: ['file'].join(),
+        Statement: [
+          'authoredDate',
+          'authorName',
+          'genericAttachments',
+          'isSubmittedByCitizen',
+          'initialOrganisationDepartmentName',
+          'initialOrganisationName',
+          'initialOrganisationStreet',
+          'initialOrganisationHouseNumber',
+          'initialOrganisationPostalCode',
+          'initialOrganisationCity',
+          'internId',
+          'memo',
+          'sourceAttachment',
+          'status',
+          'submitDate',
+          'submitName',
+          'submitType',
+        ].join(),
+        StatementSegment: statementSegmentFields.join(),
+        Tag: [
+          'title',
+        ].join(),
+      }
 
-          return segments
-        })
+      if (hasPermission('feature_enable_recommendation_versions')) {
+        fields.RecommendationVersion = [
+          'versionNumber',
+          'recommendationText',
+          'createdAt',
+        ].join()
+      }
+
+      return {
+        include: statementSegmentInclude.join(),
+        fields,
+      }
     },
 
     copySelectionToClipboard () {
@@ -1206,14 +1315,15 @@ export default {
         return
       }
 
-      const loadedIds = new Set(this.v3Segments.map(segment => segment.id))
-      const missingIds = selectedIds.filter(id => !loadedIds.has(id))
-      const fetchMissing = missingIds.length > 0 ? this.fetchMissingSegments(missingIds) : Promise.resolve([])
+      const missingIds = selectedIds.filter(id => !this.segmentsObject[id])
+      const fetchMissing = missingIds.length > 0 ?
+        this.fetchMissingSegments(missingIds) :
+        Promise.resolve({ segmentsById: {}, statementsById: {}, placesById: {}, tagsById: {}, recommendationVersionsById: {} })
 
       this.isCopyingToClipboard = true
 
       fetchMissing
-        .then(missingSegments => this.copyTextToClipboard(this.buildClipboardText(selectedIds, missingSegments)))
+        .then(supplemental => this.copyTextToClipboard(this.buildClipboardText(selectedIds, supplemental)))
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('segments.copy.clipboard.success', { count: selectedIds.length }))
           this.selectionCopiedToClipboard = true
@@ -1231,17 +1341,40 @@ export default {
     /*
      * Builds the tab/newline-separated plain-text representation (Excel-paste target) of the
      * selected segments, matching the currently visible columns and their drag&drop order.
-     * `missingSegments` covers ids selected outside the currently loaded page (see
-     * fetchMissingSegments) and is merged in here since it is never added to v3Segments.
+     * `supplemental` provides data for segment ids not yet in the Vuex store (see
+     * fetchMissingSegments) and must be merged in locally rather than read from `this.*` directly,
+     * since it is never committed to the store.
      */
-    buildClipboardText (selectedIds, missingSegments = []) {
-      const segmentsById = Object.fromEntries([...this.v3Segments, ...missingSegments].map(segment => [segment.id, segment]))
+    buildClipboardText (selectedIds, supplemental) {
+      const segmentsById = {
+        ...this.segmentsObject,
+        ...supplemental.segmentsById,
+      }
+      const context = {
+        statementsById: {
+          ...this.statementsObject,
+          ...supplemental.statementsById,
+        },
+        placesById: {
+          ...this.placesObject,
+          ...supplemental.placesById,
+        },
+        tagsById: {
+          ...this.tagsObject,
+          ...supplemental.tagsById,
+        },
+        recommendationVersionsById: {
+          ...this.recommendationVersions,
+          ...supplemental.recommendationVersionsById,
+        },
+        hasRecommendationVersions: hasPermission('feature_enable_recommendation_versions'),
+      }
       const headerFields = this.$refs.dataTable?.orderedHeaderFields || this.availableHeaderFields
 
       return selectedIds
         .map(id => segmentsById[id])
         .map(segment => headerFields
-          .map(headerField => this.sanitizeClipboardCell(segment ? this.getClipboardCellValue(headerField, segment) : ''))
+          .map(headerField => this.sanitizeClipboardCell(segment ? this.getClipboardCellValue(headerField, segment, context) : ''))
           .join('\t'))
         .join('\n')
     },
@@ -1277,8 +1410,8 @@ export default {
       })
     },
 
-    getClipboardAddress (segment) {
-      const statement = this.parentStatementFor(segment)
+    getClipboardAddress (segment, context) {
+      const statement = this.getClipboardParentStatement(segment, context)
 
       if (!statement) {
         return ''
@@ -1297,34 +1430,37 @@ export default {
       return parts.join(', ')
     },
 
-    getClipboardCellValue (headerField, segment) {
+    getClipboardCellValue (headerField, segment, context) {
       if (headerField.field.startsWith('customField_')) {
         return this.getCustomFieldOptionLabel(segment.attributes.customFields, headerField.field.replace('customField_', ''))
       }
 
       switch (headerField.field) {
         case 'address':
-          return this.getClipboardAddress(segment)
+          return this.getClipboardAddress(segment, context)
         case 'deadline':
           return segment.attributes.deadline ? formatDate(segment.attributes.deadline) : ''
         case 'externId':
           return segment.attributes.externId || ''
         case 'internId':
-          return this.parentStatementFor(segment)?.attributes.internId || ''
+          return this.getClipboardParentStatement(segment, context)?.attributes.internId || ''
         case 'place':
-          return this.v3Included.Place?.[segment.relationships?.place?.data?.id]?.attributes.name || ''
+          return context.placesById[segment.relationships?.place?.data?.id]?.attributes.name || ''
         case 'recommendation':
-          return this.getClipboardRecommendation(segment)
+          return this.getClipboardRecommendation(segment, context)
         case 'statementStatus': {
-          const status = this.parentStatementFor(segment)?.attributes.status
+          const status = this.getClipboardParentStatement(segment, context)?.attributes.status
 
           return status ? Translator.trans(status) : ''
         }
 
         case 'submitter':
-          return this.getClipboardSubmitter(segment)
+          return this.getClipboardSubmitter(segment, context)
         case 'tags':
-          return this.getTagsBySegment(segment).map(tag => tag.attributes.title).filter(Boolean).join(', ')
+          return (segment.relationships?.tags?.data || [])
+            .map(tag => context.tagsById[tag.id]?.attributes?.title)
+            .filter(Boolean)
+            .join(', ')
         case 'text':
           return this.stripHtmlForClipboard(segment.attributes.text)
         default:
@@ -1332,15 +1468,26 @@ export default {
       }
     },
 
-    getClipboardRecommendation (segment) {
+    getClipboardParentStatement (segment, context) {
+      return context.statementsById[segment.relationships?.parentStatement?.data?.id]
+    },
+
+    getClipboardRecommendation (segment, context) {
       const text = this.stripHtmlForClipboard(segment.attributes.recommendation) || '-'
-      const versionNumber = hasPermission('feature_enable_recommendation_versions') ? this.getRecommendationVersionNumber(segment) : ''
+      const versionNumber = context.hasRecommendationVersions ? this.getClipboardRecommendationVersionNumber(segment, context) : ''
 
       return versionNumber ? `${text} ${Translator.trans('version')}: ${versionNumber}` : text
     },
 
-    getClipboardSubmitter (segment) {
-      const statement = this.parentStatementFor(segment)
+    getClipboardRecommendationVersionNumber (segment, context) {
+      const versionId = segment.relationships?.recommendationVersions?.data?.[0]?.id
+      const versionNumber = versionId && context.recommendationVersionsById[versionId]?.attributes?.versionNumber
+
+      return versionNumber ? String(versionNumber).padStart(3, '0') : ''
+    },
+
+    getClipboardSubmitter (segment, context) {
+      const statement = this.getClipboardParentStatement(segment, context)
 
       if (!statement) {
         return ''
@@ -1378,6 +1525,63 @@ export default {
       }
 
       return new DOMParser().parseFromString(html, 'text/html').body.textContent || ''
+    },
+
+    buildResourceMapById (resources) {
+      return resources.reduce((resourceMap, resource) => {
+        resourceMap[resource.id] = resource
+
+        return resourceMap
+      }, {})
+    },
+
+    buildResourceMapByType (resources, type) {
+      return this.buildResourceMapById(resources.filter(resource => resource.type === type))
+    },
+
+    /*
+     * Loads full attribute data for selected segment ids that aren't in the Vuex store yet — only
+     * possible when "select all" spans more segments than the 1000-row main-fetch cap. Deliberately
+     * bypasses the mapped `fetchSegments` ('list') action, which would reset the currently displayed
+     * table; the raw JSON:API response is turned into standalone lookup maps instead.
+     */
+    fetchMissingSegments (missingIds) {
+      const { include, fields } = this.buildSegmentFetchOptions()
+      const chunkSize = 200
+      const idChunks = []
+
+      for (let start = 0; start < missingIds.length; start += chunkSize) {
+        idChunks.push(missingIds.slice(start, start + chunkSize))
+      }
+
+      const fetchChunk = idChunk => dpApi.get(Routing.generate('api_resource_list', { resourceType: 'StatementSegment' }), {
+        include,
+        fields,
+        filter: {
+          idIsOneOf: {
+            condition: {
+              path: 'id',
+              value: idChunk,
+              operator: 'IN',
+            },
+          },
+        },
+      })
+
+      return idChunks
+        .reduce((chain, idChunk) => chain.then(responses => fetchChunk(idChunk).then(response => [...responses, response])), Promise.resolve([]))
+        .then(responses => {
+          const segments = responses.flatMap(response => response.data.data)
+          const included = responses.flatMap(response => response.data.included || [])
+
+          return {
+            segmentsById: this.buildResourceMapById(segments),
+            statementsById: this.buildResourceMapByType(included, 'Statement'),
+            placesById: this.buildResourceMapByType(included, 'Place'),
+            tagsById: this.buildResourceMapByType(included, 'Tag'),
+            recommendationVersionsById: this.buildResourceMapByType(included, 'RecommendationVersion'),
+          }
+        })
     },
 
     fetchSegmentIds (payload) {
@@ -1424,23 +1628,48 @@ export default {
     },
 
     getRecommendationVersionNumber (segment) {
-      const versionNumber = segment.attributes.currentRecommendationVersionNumber
+      const currentVersionId =
+        segment.relationships?.recommendationVersions?.data?.[0]?.id
+
+      if (!currentVersionId) {
+        return ''
+      }
+
+      const versionNumber =
+        this.recommendationVersions[currentVersionId]?.attributes
+          ?.versionNumber
 
       return versionNumber ? String(versionNumber).padStart(3, '0') : ''
     },
 
-    getTagsBySegment (segment) {
-      const relatedTagIds = segment.relationships.tags?.data.map((tag) => tag.id) || []
+    getTagsBySegment (id) {
+      const segment = this.segmentsObject[id]
+      const relatedTagIds =
+        segment.relationships.tags &&
+        segment.relationships.tags.data.map((tag) => tag.id)
 
-      return relatedTagIds.map((id) => this.v3Included.Tag?.[id]).filter(Boolean)
+      return relatedTagIds.map((id) => this.tagsObject[id])
     },
 
     /**
-     * Returns the hash of the original statement attachment.
-     * Always null for now -- the `attachments` relationship isn't requested via
-     * /api/3.0/StatementSegment yet (it was already unavailable in the legacy query too).
+     * Returns the hash of the original statement attachment
      */
-    getOriginalPdfAttachmentHashBySegment () {
+    getOriginalPdfAttachmentHashBySegment (segment) {
+      const parentStatement = segment.rel('parentStatement')
+
+      if (parentStatement.hasRelationship('attachments')) {
+        const originalAttachment = Object.values(
+          parentStatement.relationships.attachments.list(),
+        ).find(
+          (attachment) =>
+            attachment.attributes.attachmentType === 'source_statement',
+        )
+
+        if (originalAttachment) {
+          return originalAttachment.rel('file').attributes.hash
+        }
+      }
+
       return null
     },
 
@@ -1472,8 +1701,8 @@ export default {
       // Compute new page with current page for changed number of items per page
       const page = Math.floor(
         (this.pagination.perPage * (this.pagination.currentPage - 1)) /
-          newSize +
-          1,
+        newSize +
+        1,
       )
 
       this.pagination.perPage = newSize
@@ -1526,8 +1755,8 @@ export default {
      * Returns the true set of selected segment ids, independent of `currentlySelectedItems`
      * (which silently truncates to the loaded page/batch once `trackDeselected` is active — see
      * the override above). When "select all" is active, the full filtered-set id list (written to
-     * `lscache` by fetchSegmentIds()/storeAllSegments()) minus the individually deselected ids is
-     * the true selection.
+     * `lscache` by fetchSegmentIds()/storeAllSegments(), covering the >1000-segment case too) minus
+     * the individually deselected ids is the true selection.
      */
     resolveSelectedSegmentIds () {
       if (this.trackDeselected) {
@@ -1871,7 +2100,7 @@ export default {
 
     const storedSort = lscache.get(this.lsKey.selectedSort)
 
-    if (storedSort) {
+    if (storedSort && hasPermission('feature_segments_manualsort')) {
       this.selectedSort = storedSort
     }
 
