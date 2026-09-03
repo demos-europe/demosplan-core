@@ -15,6 +15,10 @@
 2fa.totp.enable: "Zwei-Faktor-Authentifizierung per App aktivieren"
 2fa.code: "Zwei-Faktor-Authentifizierungscode"
 2fa.email.subject: 'Zwei-Faktor-Authentifizierung für Ihr {projectName} Konto'
+2fa.reset: "Zwei-Faktor-Authentifizierung zurücksetzen"
+2fa.reset.confirm: "Soll die Zwei-Faktor-Authentifizierung für {name} wirklich zurückgesetzt werden? Der Nutzer kann sich danach allein mit Passwort anmelden und die Zwei-Faktor-Authentifizierung neu einrichten."
+2fa.reset.hint: "Für dieses Konto ist die Zwei-Faktor-Authentifizierung aktiviert. Setzen Sie sie zurück, falls der Zugriff auf den zweiten Faktor verloren gegangen ist."
+2fa.reset.success: "Die Zwei-Faktor-Authentifizierung wurde zurückgesetzt."
 2fa.email.login.explanation: '<p class="weight--normal">Sollten Sie nach kurzer Zeit keine Email bekommen haben, brechen Sie den Vorgang bitte ab und melden sich erneut an. Bei der Anmeldung wird automatisch eine Email an die im System hinterlegte Adresse verschickt.</p>'
 abort: "Abbrechen"
 abort.and.back: "Abbrechen und zurück"

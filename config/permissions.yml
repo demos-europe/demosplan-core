@@ -591,6 +591,7 @@ area_use_mastertoeblist:
     label: 'use Mastertöbliste'
     loginRequired: true
 feature_2fa:
+    expose: true
     label: 'Allow two-factor authentication'
     loginRequired: true
 feature_admin_assessmenttable_export_docx:
