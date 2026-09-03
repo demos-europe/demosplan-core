@@ -292,5 +292,4 @@ class BoilerplateDeletionServiceTest extends FunctionalTestCase
         }
         static::assertCount(3, $this->boilerplateUsageRepository->getUsagesForBoilerplate($boilerplateId));
     }
-
 }
