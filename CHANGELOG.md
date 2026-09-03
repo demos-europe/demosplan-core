@@ -6,6 +6,13 @@
 
 ## UNRELEASED
 
+### Added
+- Individual users with the Fachplaner-Admin or Anhörungsbehörde-Admin role can now be granted or denied the right to create/manage procedures separately from their organisation, via a new checkbox on the user administration form. Only available while the organisation doesn't already grant this right to everyone holding that role. (DPLAN-18348)
+
+### Fixed
+- Disabling "Darf Verfahren anlegen" for an organisation now actually takes effect; it was previously silently re-enabled again for organisations with an accepted registration status. (DPLAN-18348)
+- "Darf Verfahren anlegen" now also applies to Anhörungsbehörde organisations, not just Kommune. (DPLAN-18348)
+
 ## v4.58.0 (2026-08-27)
 
 ### Changed
