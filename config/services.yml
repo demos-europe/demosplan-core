@@ -18,6 +18,10 @@ services:
         tags:
         - { name: api_platform.doctrine.orm.query_extension.collection, priority: 0 }
 
+    demosplan\DemosPlanCoreBundle\Api\StatementSegment\Extension\SegmentTextSearchExtension:
+        tags:
+        - { name: api_platform.doctrine.orm.query_extension.collection, priority: 0 }
+
     demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService: ~
 
     demosplan\DemosPlanCoreBundle\Logic\AzureUserDataMapper: ~
