@@ -18,8 +18,8 @@ All rights reserved
 
 <template>
   <!--
-    v-show keeps the panel mounted while another slidebar tab is active,
-    so the local per-category selection state survives.
+    v-show hides the panel mounted while another slidebar tab is active,
+    the applied per-category selection state survives (unapplied changes are discarded).
     Negative margin is to reset DpSlidebar's u-ml-1_5.
   -->
   <div
@@ -403,6 +403,24 @@ export default {
       category.searchTerm = ''
     }
 
+    // Remove filters that were selected or deselected but not applied for this category
+    const restoreAppliedFilterQuery = (category) => {
+      const diverged = [
+        ...category.currentQuery.filter(id => category.appliedQuery.includes(id) === false),
+        ...category.appliedQuery.filter(id => category.currentQuery.includes(id) === false),
+      ]
+
+      diverged.forEach(id => updateFilters({ [id]: buildFilterCondition(category, id) }))
+    }
+
+    // Reset search, discard unapplied filter changes and collapse the category on close
+    const handleClose = (category) => {
+      resetSearch(category)
+      restoreAppliedFilterQuery(category)
+      category.currentQuery = structuredClone(category.appliedQuery)
+      setIsExpanded({ categoryId: category.id, isExpanded: false })
+    }
+
     const setExpanded = (category, isExpanded) => {
       setIsExpanded({ categoryId: category.id, isExpanded })
 
@@ -441,10 +459,15 @@ export default {
       requestFilterOptions(category)
     }
 
-    // Collapse every accordion whenever the slidebar closes
-    watch(() => slidebar.value.isOpen, (isOpen) => {
-      if (isOpen === false) {
-        categories.forEach((category) => setIsExpanded({ categoryId: category.id, isExpanded: false }))
+    /*
+     * Discard unapplied changes and collapse accordions whenever the filter panel stops showing
+     * (slidebar closed or switched to another tab)
+     */
+    const isFilterActive = computed(() => slidebar.value.isOpen && slidebar.value.showTab === 'filter')
+
+    watch(isFilterActive, (isActive, wasActive) => {
+      if (wasActive && isActive === false) {
+        categories.forEach((category) => handleClose(category))
       }
     })
 

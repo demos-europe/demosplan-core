@@ -46,6 +46,7 @@
           }"
           :search-term="searchTerm"
           @change-fields="updateSearchFields"
+          @search-focus="closeFilterSlidebar"
           @search="(term) => updateSearchQuery(term)"
           @reset="handleResetSearch"
         />
@@ -1971,6 +1972,12 @@ export default {
 
     showSendViaMail (segmentId, externId) {
       this.setSlidebarContent({ externId, isOpen: true, segmentId, showTab: 'sendViaMail' })
+    },
+
+    closeFilterSlidebar () {
+      if (this.slidebar.isOpen && this.slidebar.showTab === 'filter') {
+        this.setSlidebarContent({ externId: '', isOpen: false, segmentId: '', showTab: '' })
+      }
     },
 
     // Filters are not segment-scoped, hence empty string for externId/segmentId
