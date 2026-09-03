@@ -23,6 +23,8 @@ class ServerBannerLoaderTest extends UnitTestCase
 
     private ?string $bannerPath = null;
 
+    private ?bool $bannerExistedBeforeTest = false;
+
     private ?string $preexistingBannerContent = null;
 
     protected function setUp(): void
@@ -31,27 +33,27 @@ class ServerBannerLoaderTest extends UnitTestCase
 
         $this->sut = new ServerBannerLoader();
         $this->bannerPath = DemosPlanPath::getRootPath('SERVER_BANNER.md');
+        $this->bannerExistedBeforeTest = file_exists($this->bannerPath);
 
         // Preserve any banner file that may already exist on disk so the test
-        // never clobbers real state, then start from a clean slate.
-        if (is_readable($this->bannerPath)) {
+        // never loses real content. Its ownership/permissions are left untouched
+        // because the file itself is never deleted, only its contents overwritten.
+        if ($this->bannerExistedBeforeTest) {
             $this->preexistingBannerContent = file_get_contents($this->bannerPath);
-            unlink($this->bannerPath);
         }
     }
 
     protected function tearDown(): void
     {
-        if (null !== $this->bannerPath && file_exists($this->bannerPath)) {
-            unlink($this->bannerPath);
-        }
-
-        if (null !== $this->preexistingBannerContent) {
+        if ($this->bannerExistedBeforeTest) {
             file_put_contents($this->bannerPath, $this->preexistingBannerContent);
+        } elseif (file_exists($this->bannerPath)) {
+            unlink($this->bannerPath);
         }
 
         $this->sut = null;
         $this->bannerPath = null;
+        $this->bannerExistedBeforeTest = false;
         $this->preexistingBannerContent = null;
 
         parent::tearDown();
@@ -59,6 +61,10 @@ class ServerBannerLoaderTest extends UnitTestCase
 
     public function testGetServerBannerReturnsNullWhenFileDoesNotExist(): void
     {
+        if ($this->bannerExistedBeforeTest) {
+            static::markTestSkipped('A SERVER_BANNER.md already exists on disk; skipping to leave it untouched.');
+        }
+
         static::assertFileDoesNotExist($this->bannerPath);
 
         static::assertNull($this->sut->getServerBanner());
