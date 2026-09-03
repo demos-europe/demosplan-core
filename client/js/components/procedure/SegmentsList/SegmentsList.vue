@@ -1188,7 +1188,7 @@ export default {
         page: hasPermission('feature_segments_manualsort') ? 1 : page,
         itemsPerPage: hasPermission('feature_segments_manualsort') ? 1000 : this.pagination.perPage,
         'parentStatementOfSegment.procedure.id': this.procedureId,
-        //filter,
+        filter,
       }
 
       if (this.searchTerm !== '') {
