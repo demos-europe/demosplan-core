@@ -1170,29 +1170,25 @@ export default {
 
       const filter = {
         ...this.getFilterQuery,
-        sameProcedure: {
-          condition: {
-            path: 'parentStatementOfSegment.procedure.id',  // API Platform 3.0 field name
-            value: this.procedureId,
-          },
-        },
+        'parentStatementOfSegment.procedure.id': this.procedureId,
       }
       const { include, fields } = this.buildSegmentFetchOptions()
 
       const payload = {
         include,
+        fields,
+        pagination: 'true',
         /*
          * Client-side sorting needs the whole list at once, so it comes without a pager and requests
          * 1000 items - the hard server-side cap for API Platform paginationMaximumItemsPerPage.
          */
-        page: hasPermission('feature_segments_manualsort') ?
-          { number: 1, size: 1000 } :
-          { number: page, size: this.pagination.perPage },
-        // Baseline order so the list stays stable when selectedSort is '' (deadline sort, if active, is applied on top of this client-side).
-        // API Platform 3.0 field names:
-        sort: 'parentStatementOfSegment.submit,orderInProcedure',
-        filter,
-        fields,
+        'order[parentStatementOfSegment.submit]': 'asc',
+        'order[parentStatementOfSegment.externId]': 'asc',
+        'order[orderInProcedure]': 'asc',
+        page: hasPermission('feature_segments_manualsort') ? 1 : page,
+        itemsPerPage: hasPermission('feature_segments_manualsort') ? 1000 : this.pagination.perPage,
+        'parentStatementOfSegment.procedure.id': this.procedureId,
+        //filter,
       }
 
       if (this.searchTerm !== '') {
@@ -1205,10 +1201,10 @@ export default {
       }
 
       // Transform to API Platform 3.0 format
-      const apiPayload = this.transformToApiPlatform(payload)
+      //const apiPayload = this.transformToApiPlatform(payload)
 
       this.isLoading = true
-      this.fetchSegments(apiPayload)
+      this.fetchSegments(payload)
         .then((data) => {
           /**
            * We need to set the localStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
@@ -1309,14 +1305,14 @@ export default {
       }
 
       const fields = {
-        AssignableUser: [
+        assignee: [
           'name',
         ].join(),
-        Place: [
+        place: [
           'name',
           ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
         ].join(),
-        Statement: [
+        parentStatement: [
           'authoredDate',
           'authorName',
           'isSubmittedByCitizen',
@@ -1334,13 +1330,13 @@ export default {
           'submitType',
         ].join(),
         StatementSegment: statementSegmentFields.join(),
-        Tag: [
+        tags: [
           'title',
         ].join(),
       }
 
       if (hasPermission('feature_enable_recommendation_versions')) {
-        fields.RecommendationVersion = [
+        fields.recommendationVersion = [
           'versionNumber',
           'recommendationText',
           'createdAt',
