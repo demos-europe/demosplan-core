@@ -14,6 +14,7 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Logger\ApiLoggerInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -35,6 +36,7 @@ use demosplan\DemosPlanCoreBundle\Exception\NullPointerException;
 use demosplan\DemosPlanCoreBundle\Exception\OrgaNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiPaginationParser;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\UserAccessControlService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
@@ -330,10 +332,57 @@ class DemosPlanOrganisationAPIController extends APIController
                 if (OrgaType::MUNICIPALITY === $orgaStatusInCustomer->getOrgaType()->getName()) {
                     $availableOrgaRoles[] = $this->roleHandler->getRoleByCode(RoleInterface::PLANNING_AGENCY_ADMIN);
                 }
+
+                if (OrgaType::HEARING_AUTHORITY_AGENCY === $orgaStatusInCustomer->getOrgaType()->getName()) {
+                    $availableOrgaRoles[] = $this->roleHandler->getRoleByCode(RoleInterface::HEARING_AUTHORITY_ADMIN);
+                }
             }
         }
 
         return $availableOrgaRoles;
+    }
+
+    /**
+     * Lists users who currently hold an individual (per-user) grant of the procedure-creation permission for
+     * this orga, restricted to the roles the org-wide checkbox itself targets (see getAvailableOrgaRoles()).
+     * Used by the frontend to warn an admin, before enabling the org-wide grant, that these individual
+     * grants already exist and would become redundant.
+     */
+    #[DplanPermissions('feature_manage_procedure_creation_permission')]
+    #[Route(path: '/api/1.0/organisation/{id}/procedure-creation-permission/individual-grants', name: 'dplan_api_organisation_procedure_creation_individual_grants', options: ['expose' => true], methods: ['GET'])]
+    public function getIndividualProcedureCreationGrants(
+        string $id,
+        OrgaHandler $orgaHandler,
+        CustomerHandler $customerHandler,
+        UserAccessControlService $userAccessControlService,
+    ): APIResponse {
+        $orga = $orgaHandler->getOrga($id);
+        if (!$orga instanceof Orga) {
+            throw OrgaNotFoundException::createFromId($id);
+        }
+
+        $roleCodes = array_map(
+            static fn (RoleInterface $role): string => $role->getCode(),
+            $this->getAvailableOrgaRoles($orga)
+        );
+
+        $users = $userAccessControlService->getUsersWithPermissionInOrga(
+            $orga,
+            $customerHandler->getCurrentCustomer(),
+            AccessControlService::CREATE_PROCEDURES_PERMISSION,
+            $roleCodes
+        );
+
+        $data = array_map(
+            static fn (UserInterface $user): array => [
+                'id'        => $user->getId(),
+                'firstname' => $user->getFirstname(),
+                'lastname'  => $user->getLastname(),
+            ],
+            $users
+        );
+
+        return new APIResponse(['data' => $data]);
     }
 
     /**
@@ -426,6 +475,7 @@ class DemosPlanOrganisationAPIController extends APIController
         Request $request,
         UserHandler $userHandler,
         AccessControlService $accessControlPermission,
+        UserAccessControlService $userAccessControlService,
         EventDispatcherInterface $eventDispatcher,
         string $id): APIResponse
     {
@@ -443,6 +493,12 @@ class DemosPlanOrganisationAPIController extends APIController
                 throw OrgaNotFoundException::createFromId($orgaId);
             }
             $orgaDataArray = $requestData;
+
+            // Transient flag, not a real Orga attribute — extract it before the writability whitelist
+            // check below (which would otherwise reject it as unknown).
+            $removeIndividualProcedureCreationGrants = true === ($orgaDataArray['attributes']['removeIndividualProcedureCreationGrants'] ?? false);
+            unset($orgaDataArray['attributes']['removeIndividualProcedureCreationGrants']);
+
             $orgaHandler->checkWritabilityOfAttributes($orgaDataArray['attributes']);
 
             $pendingStatus = OrgaStatusInCustomer::STATUS_PENDING;
@@ -471,6 +527,15 @@ class DemosPlanOrganisationAPIController extends APIController
                     if (true === $orgaDataArray['attributes']['canCreateProcedures']) {
                         $accessControlPermission->createPermissions(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $availableOrgaRoles);
                         $canCreateProcedures = true;
+
+                        if ($removeIndividualProcedureCreationGrants) {
+                            $userAccessControlService->removePermissionForUsersInOrga(
+                                $preUpdateOrga,
+                                $customerHandler->getCurrentCustomer(),
+                                AccessControlService::CREATE_PROCEDURES_PERMISSION,
+                                array_map(static fn (RoleInterface $role): string => $role->getCode(), $availableOrgaRoles)
+                            );
+                        }
                     } else {
                         $accessControlPermission->removePermissions(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $availableOrgaRoles);
                         $canCreateProcedures = false;
@@ -505,7 +570,11 @@ class DemosPlanOrganisationAPIController extends APIController
                 $userHandler->manageStatusChangeNotifications($updatedOrga, OrgaTypeInterface::PLANNING_AGENCY, $customersWithPendingPlanningAgency, $currentCustomer);
                 $userHandler->manageStatusChangeNotifications($updatedOrga, OrgaTypeInterface::HEARING_AUTHORITY_AGENCY, $customersWithPendingHearingAuthority, $currentCustomer);
 
-                $userHandler->ensureAccessControl($updatedOrga, $currentCustomer);
+                // Skip when the admin just explicitly disabled procedure-creation for this orga above —
+                // otherwise this would immediately re-grant it within the very same request.
+                if (false !== $canCreateProcedures) {
+                    $userHandler->ensureAccessControl($updatedOrga, $currentCustomer);
+                }
 
                 try {
                     $newOrgaCreatedEvent = new OrgaAdminEditedEvent($updatedOrga, $canCreateProcedures);
