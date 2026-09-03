@@ -65,6 +65,7 @@ class Resource
     #[ApiProperty(readable: true, writable: false)]
     public ?string $internId = null;
 
+    #[ApiFilter(OrderFilter::class)]
     #[ApiProperty(readable: true, writable: false)]
     public int $orderInProcedure = 0;
 
@@ -88,6 +89,7 @@ class Resource
     #[ApiFilter(OrderFilter::class, properties: [
         'parentStatementOfSegment.original.internId',
         'parentStatementOfSegment.submit',
+        'parentStatementOfSegment.externId',
     ])]
     #[ApiProperty(readable: true, writable: false)]
     public ?StatementResource $parentStatement = null;
