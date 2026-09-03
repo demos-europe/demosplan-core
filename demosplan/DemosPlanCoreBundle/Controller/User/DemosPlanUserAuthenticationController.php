@@ -150,7 +150,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         TotpAuthenticatorInterface $totpAuthenticator,
     ): RedirectResponse {
         $user = $currentUser->getUser();
-        if (!$user->isTotpEnabled()) {
+        if (!$user->isTotpEnabled() && null === $user->getTotpSecret()) {
             $user->setTotpSecret($totpAuthenticator->generateSecret());
             $entityManager->flush();
         }

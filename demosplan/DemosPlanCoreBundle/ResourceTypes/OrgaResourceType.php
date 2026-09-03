@@ -177,7 +177,7 @@ final class OrgaResourceType extends DplanResourceType implements OrgaResourceTy
             $this->createAttribute($this->emailNotificationNewStatement)->readable(true, $this->getEmailNotificationNewStatement(...)),
             $this->createAttribute($this->postalcode)->readable(true, static fn (Orga $orga): string => $orga->getPostalcode()),
             $this->createAttribute($this->reviewerEmail)->aliasedPath($this->emailReviewerAdmin)->readable(true),
-            $this->createAttribute($this->showlist)->readable(true),
+            $this->createAttribute($this->showlist)->readable(true, fn (Orga $orga): bool => $orga->getShowlistForCustomer($this->currentCustomerService->getCurrentCustomer())),
             $this->createAttribute($this->showname)->readable(true),
             $this->createAttribute($this->state)->readable(true, static fn (Orga $orga): string => $orga->getState()),
             $this->createAttribute($this->street)->readable(true, static fn (Orga $orga): string => $orga->getStreet()),
@@ -280,14 +280,17 @@ final class OrgaResourceType extends DplanResourceType implements OrgaResourceTy
 
     public function getRegistrationStatuses(Orga $orga): array
     {
-        return $this->getRegistration($orga)
+        // array_values() reindexes sequentially: getRegistration() may return a collection
+        // filtered down from a larger one, whose keys would otherwise stay non-sequential and
+        // make json_encode() emit a JSON object instead of an array.
+        return array_values($this->getRegistration($orga)
             ->map(
                 static fn (OrgaStatusInCustomer $orgaStatusInCustomer) => [
                     OrgaResourceType::REGISTRATION_STATUSES_STATUS    => $orgaStatusInCustomer->getStatus(),
                     OrgaResourceType::REGISTRATION_STATUSES_TYPE      => $orgaStatusInCustomer->getOrgaType()->getName(),
                     OrgaResourceType::REGISTRATION_STATUSES_SUBDOMAIN => $orgaStatusInCustomer->getCustomer()->getSubdomain(),
                 ]
-            )->toArray();
+            )->toArray());
     }
 
     public function getEmailNotificationNewStatement(Orga $orga): bool

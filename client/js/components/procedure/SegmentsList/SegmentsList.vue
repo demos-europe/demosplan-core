@@ -499,6 +499,15 @@
                 >
                   {{ Translator.trans("history") }}
                 </button>
+                <button
+                  v-if="hasPermission('feature_segment_send_via_mail')"
+                  type="button"
+                  class="btn--blank o-link--default block leading-[2] whitespace-nowrap"
+                  data-cy="segmentsList:segmentSendViaMail"
+                  @click.prevent="showSendViaMail(rowData.id, rowData.attributes.externId)"
+                >
+                  {{ Translator.trans('segment.send.via.email') }}
+                </button>
                 <a
                   v-if="hasPermission('feature_read_source_statement_via_api')"
                   class="block leading-[2] whitespace-nowrap"
@@ -693,8 +702,6 @@ export default {
     },
   },
 
-  emits: ['show-slidebar'],
-
   setup () {
     const { unlockModal, openUnlockModal, unlockSegment } = useSegmentUnlock()
 
@@ -847,15 +854,8 @@ export default {
         []
     },
 
-    /*
-     * The deadline column was introduced together with the client-side deadline sorting, so it is
-     * only shown when that feature is enabled - on top of the field permission that guards the data itself.
-     */
     hasDeadlineColumn () {
-      return (
-        hasPermission('field_statement_deadline') &&
-        hasPermission('feature_segments_manualsort')
-      )
+      return hasPermission('field_statement_deadline')
     },
 
     // Passed as headerFields to DpDataTable
@@ -1102,6 +1102,10 @@ export default {
       setIsLoadingFilterFlyout: 'setIsLoading',
       setGroupedFilterOptions: 'setGroupedOptions',
       setUngroupedFilterOptions: 'setUngroupedOptions',
+    }),
+
+    ...mapMutations('SegmentSlidebar', {
+      setSlidebarState: 'setContent',
     }),
 
     applySort (sortValue) {
@@ -1705,6 +1709,10 @@ export default {
       this.applyQuery(page)
     },
 
+    setSlidebarContent (val) {
+      this.setSlidebarState({ prop: 'slidebar', val })
+    },
+
     recommendationHasHtmlTags (recommendation) {
       const div = document.createElement('div')
 
@@ -2021,8 +2029,12 @@ export default {
     },
 
     showVersionHistory (segmentId, externId) {
+      this.setSlidebarContent({ externId, isOpen: true, segmentId, showTab: 'history' })
       this.$root.$emit('version:history', segmentId, 'segment', externId)
-      this.$root.$emit('show-slidebar')
+    },
+
+    showSendViaMail (segmentId, externId) {
+      this.setSlidebarContent({ externId, isOpen: true, segmentId, showTab: 'sendViaMail' })
     },
 
     updateQueryHash () {
