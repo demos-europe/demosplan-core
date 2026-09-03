@@ -35,13 +35,13 @@ use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Bookmark;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\UserFilterSet;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
@@ -849,7 +849,7 @@ class ProcedureServiceTest extends FunctionalTestCase
         $relatedBoilerplates = $this->getEntries(Boilerplate::class, ['procedure' => $procedureId]);
         $relatedBoilerplateCategories = $this->getEntries(BoilerplateCategory::class, ['procedure' => $procedureId]);
         $relatedFilterSets = $this->getEntries(HashedQuery::class, ['procedure' => $procedureId]);
-        $relatedUserFilterSets = $this->getEntries(UserFilterSet::class, ['procedure' => $procedureId]);
+        $relatedBookmarks = $this->getEntries(Bookmark::class, ['procedure' => $procedureId]);
         $relatedStatementFragments = $this->getEntries(StatementFragment::class, ['procedure' => $procedureId]);
 
         // check cluster
@@ -924,7 +924,7 @@ class ProcedureServiceTest extends FunctionalTestCase
             ['procedure' => $procedureId]
         );
         $relatedFilterSetsAfter = $this->getEntries(HashedQuery::class, ['procedure' => $procedureId]);
-        $relatedUserFilterSetsAfter = $this->getEntries(UserFilterSet::class, ['procedure' => $procedureId]);
+        $relatedBookmarksAfter = $this->getEntries(Bookmark::class, ['procedure' => $procedureId]);
         $relatedStatementFragmentsAfter = $this->getEntries(StatementFragment::class, ['procedure' => $procedureId]);
 
         $relatedPriorityAreasAfter = [];

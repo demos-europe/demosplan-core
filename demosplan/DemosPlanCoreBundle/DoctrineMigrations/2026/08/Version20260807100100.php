@@ -31,6 +31,10 @@ class Version20260807100100 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
+        if ($schema->hasTable('procedure_export_job')) {
+            return;
+        }
+
         $this->addSql('
             CREATE TABLE procedure_export_job (
                 id CHAR(36) NOT NULL,
@@ -55,6 +59,10 @@ class Version20260807100100 extends AbstractMigration
     public function down(Schema $schema): void
     {
         $this->abortIfNotMysql();
+
+        if (!$schema->hasTable('procedure_export_job')) {
+            return;
+        }
 
         $this->addSql('DROP TABLE procedure_export_job');
     }
