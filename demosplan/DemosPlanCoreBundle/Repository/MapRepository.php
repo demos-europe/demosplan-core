@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Repositories\MapRepositoryInterface;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
@@ -104,10 +105,14 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
             }
 
             if ($this->isGlobal($newGisLayer)) {
-                $allProcedures = $this->getEntityManager()->getRepository(Procedure::class)->findAll();
+                // Only procedures of the layer's own customer receive a copy. Using findAll()
+                // here would push one customer's layer into every other customer's procedures,
+                // their blueprints and the platform master template.
+                $targetProcedures = $this->getEntityManager()->getRepository(Procedure::class)
+                    ->findBy(['customer' => $newGisLayer->getCustomer()]);
                 $gisLayerCategoryRepository = $this->getEntityManager()->getRepository(GisLayerCategory::class);
 
-                foreach ($allProcedures as $singleProcedure) {
+                foreach ($targetProcedures as $singleProcedure) {
                     $copyOfGisLayer = clone $newGisLayer;
                     $copyOfGisLayer->setIdent(null);
                     $copyOfGisLayer->setCreateDate(null);
@@ -115,6 +120,8 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
                     $copyOfGisLayer->setDeleteDate(null);
                     $copyOfGisLayer->setGId($newGisLayer->getIdent());
                     $copyOfGisLayer->setProcedureId($singleProcedure->getId());
+                    // The copy is scoped by its procedure; only the global original carries a customer.
+                    $copyOfGisLayer->setCustomer(null);
                     $rootCategory = $gisLayerCategoryRepository->getRootLayerCategory($singleProcedure->getId());
                     if ($rootCategory instanceof GisLayerCategory) {
                         $copyOfGisLayer->setCategory($rootCategory);
@@ -129,6 +136,35 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
             $this->logger->warning('GisLayer could not be added. ', [$e]);
             throw $e;
         }
+    }
+
+    /**
+     * Global layers (those without a procedure) that the given customer may administer:
+     * its own ones plus those without a customer, which predate customer scoping and
+     * therefore still apply platform-wide.
+     *
+     * @return GisLayer[]
+     */
+    public function findGlobalLayersForCustomer(?CustomerInterface $customer): array
+    {
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder()
+            ->select('g')
+            ->from(GisLayer::class, 'g');
+
+        return $queryBuilder
+            ->where('g.procedureId = :noProcedure')
+            ->andWhere('g.deleted = false')
+            ->andWhere('g.enabled = true')
+            ->andWhere($queryBuilder->expr()->orX(
+                'g.customer = :customer',
+                'g.customer IS NULL'
+            ))
+            ->setParameter('noProcedure', '')
+            ->setParameter('customer', $customer)
+            ->orderBy('g.type', 'DESC')
+            ->addOrderBy('g.name', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 
     /**
@@ -648,6 +684,9 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
         }
         if (array_key_exists('gId', $data)) {
             $gisLayer->setGlobalLayerId($data['gId']);
+        }
+        if (array_key_exists('customer', $data)) {
+            $gisLayer->setCustomer($data['customer']);
         }
         if (array_key_exists('xplan', $data)) {
             $gisLayer->setXplan($data['xplan']);

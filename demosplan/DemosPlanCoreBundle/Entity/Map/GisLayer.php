@@ -12,11 +12,13 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Map;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ContextualHelpInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
 use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Repository\MapRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -183,6 +185,17 @@ class GisLayer extends CoreEntity implements GisLayerInterface
      * @var array
      */
     protected $globalGis;
+
+    /**
+     * Customer a global layer belongs to. Only set on global layers (those without a
+     * procedure); it limits which procedures the layer is copied into. Null on layers
+     * that predate customer scoping, which stay visible to every customer.
+     *
+     * @var Customer|null
+     */
+    #[ORM\JoinColumn(name: 'customer_id', referencedColumnName: '_c_id', nullable: true)]
+    #[ORM\ManyToOne(targetEntity: Customer::class)]
+    protected $customer;
 
     /**
      * The service version for the layer.
@@ -662,6 +675,18 @@ class GisLayer extends CoreEntity implements GisLayerInterface
     /**
      * @return bool
      */
+    public function getCustomer(): ?CustomerInterface
+    {
+        return $this->customer;
+    }
+
+    public function setCustomer(?CustomerInterface $customer): self
+    {
+        $this->customer = $customer;
+
+        return $this;
+    }
+
     public function isGlobalLayer()
     {
         return $this->globalLayer;
