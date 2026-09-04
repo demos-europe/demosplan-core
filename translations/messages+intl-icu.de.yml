@@ -2875,6 +2875,12 @@ procedure.by.phase.public: |
         other {# Verfahren nach Phase (Öffentlichkeit)}
     }
 procedure.canCreate: 'Kommune oder Planungsbüro darf Verfahren anlegen'
+procedure.canManage: 'Darf Verfahren verwalten'
+procedure.canManage.hint.enabledForOrga: 'Die Berechtigung, Verfahren anzulegen, ist für diese Organisation bereits generell aktiviert. Um dies für einzelne Personen zu steuern, deaktivieren Sie die Option zunächst in der Organisationsverwaltung.'
+procedure.canManage.orgaWideConflict.header: 'Individuelle Berechtigungen vorhanden'
+procedure.canManage.orgaWideConflict.message: "Folgende Personen verfügen bereits individuell über die Berechtigung, Verfahren anzulegen:\n{users}\n\nMöchten Sie diese individuellen Berechtigungen entfernen, da die Berechtigung nun für die gesamte Organisation aktiviert wird?"
+procedure.canManage.orgaWideConflict.confirm: 'Individuelle Berechtigungen entfernen'
+procedure.canManage.orgaWideConflict.decline: 'Beibehalten'
 procedure.description.expand: "\"Planungsanlass\" beim Seitenaufruf ausgeklappt darstellen"
 procedure.create: "Neues Verfahren anlegen"
 procedure.created: "Verfahren angelegt"

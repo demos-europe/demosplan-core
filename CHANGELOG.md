@@ -9,6 +9,13 @@
 ### Changed
 - api-platform upgraded from 3.4 to 4.3; 3.4.x is blocked by security advisories. Two options in `config/packages/api_platform.yaml` changed: `keep_legacy_inflector` no longer exists in v4 and was removed, and `validator.legacy_query_parameter_validation` is now `validator.query_parameter_validation` (same behaviour; deprecated in 4.2, removal in 5.0). Projects overriding either option must adjust them, otherwise the container fails to compile with an "Unrecognized option" error.
 
+### Added
+- Individual users with the Fachplaner-Admin or Anhörungsbehörde-Admin role can now be granted or denied the right to create/manage procedures separately from their organisation, via a new checkbox on the user administration form. Only available while the organisation doesn't already grant this right to everyone holding that role. (DPLAN-18348)
+
+### Fixed
+- Disabling "Darf Verfahren anlegen" for an organisation now actually takes effect; it was previously silently re-enabled again for organisations with an accepted registration status. (DPLAN-18348)
+- "Darf Verfahren anlegen" now also applies to Anhörungsbehörde organisations, not just Kommune. (DPLAN-18348)
+
 ### New dependencies
 - `symfony/type-info ^7.4` — required by api-platform 4.3 and pulled in transitively. It installs alongside Symfony 6.4 without a framework upgrade: the component has no 6.x release, so Symfony Flex exempts it from the `extra.symfony.require: "6.*.*"` constraint rather than filtering it out. No explicit root require is needed.
 

@@ -149,6 +149,29 @@
         </template>
       </dp-multiselect>
     </div>
+
+    <!-- Individual procedure-management permission (RMOPSA / RMOPHA only) -->
+    <div
+      v-if="hasPermission('feature_manage_procedure_creation_permission') && isProcedureManagementRoleSelected"
+      class="w-1/2 pr-3 mt-3 whitespace-normal"
+    >
+      <dp-checkbox
+        v-if="!localUser.attributes.procedureCreationEnabledForOrga"
+        :id="userId + ':canManageProcedures'"
+        v-model="localUser.attributes.canManageProcedures"
+        data-cy="userFormField:canManageProcedures"
+        :label="{
+          text: Translator.trans('procedure.canManage'),
+          bold: true
+        }"
+        @change="emitUserUpdate"
+      />
+      <dp-inline-notification
+        v-else
+        type="warning"
+        :message="Translator.trans('procedure.canManage.hint.enabledForOrga')"
+      />
+    </div>
   </div>
   <dp-inline-notification
     v-if="isCreateItem"
@@ -159,7 +182,7 @@
 </template>
 
 <script>
-import { dpApi, DpInlineNotification, DpInput, DpMultiselect, DpSelect, hasOwnProp, sortAlphabetically } from '@demos-europe/demosplan-ui'
+import { dpApi, DpCheckbox, DpInlineNotification, DpInput, DpMultiselect, DpSelect, hasOwnProp, sortAlphabetically } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { nextTick } from 'vue'
 import qs from 'qs'
@@ -168,6 +191,7 @@ export default {
   name: 'DpUserFormFields',
 
   components: {
+    DpCheckbox,
     DpInlineNotification,
     DpInput,
     DpMultiselect,
@@ -305,6 +329,17 @@ export default {
 
     isDepartmentSet () {
       return this.localUser.relationships.department.data?.id !== ''
+    },
+
+    /**
+     * Whether RMOPSA (Fachplaner-Admin) or RMOPHA (Anhörungsbehörde-Admin) is among the currently
+     * selected roles for this user. The individual procedure-management permission checkbox is only
+     * relevant for those roles.
+     */
+    isProcedureManagementRoleSelected () {
+      return (this.localUser.relationships.roles.data || []).some(
+        roleRef => ['RMOPSA', 'RMOPHA'].includes(this.roles[roleRef.id]?.attributes?.code),
+      )
     },
 
     isManagingSingleOrganisation () {

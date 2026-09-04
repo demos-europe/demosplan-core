@@ -74,11 +74,20 @@
         @secondary-action="reset"
       />
     </div>
+
+    <dp-confirm-dialog
+      ref="procedureCreationConflictDialog"
+      :confirm-button-text="Translator.trans('procedure.canManage.orgaWideConflict.confirm')"
+      :decline-button-text="Translator.trans('procedure.canManage.orgaWideConflict.decline')"
+      :header="Translator.trans('procedure.canManage.orgaWideConflict.header')"
+      icon="warning"
+      :message="procedureCreationConflictMessage"
+    />
   </dp-table-card>
 </template>
 
 <script>
-import { dpApi, DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButtonRow, DpConfirmDialog, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { defineAsyncComponent } from 'vue'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
@@ -88,6 +97,7 @@ export default {
 
   components: {
     DpButtonRow,
+    DpConfirmDialog,
     DpIcon,
     DpOrganisationFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationFormFields')),
     DpTableCard,
@@ -155,6 +165,7 @@ export default {
       isOpen: false,
       isLoading: true,
       moduleSubstring: (this.moduleName !== '') ? `/${this.moduleName}` : '',
+      procedureCreationConflictMessage: '',
     }
   },
 
@@ -188,6 +199,79 @@ export default {
   },
 
   methods: {
+    /**
+     * If the "Darf Verfahren anlegen" checkbox is being newly enabled for this orga, and there are
+     * users who already hold that permission individually, ask whether those individual grants should
+     * be removed now that the organisation grants it to everyone. Sets a transient attribute on the
+     * item so the outgoing save request can act on the answer.
+     */
+    async checkProcedureCreationOrgaWideConflicts () {
+      const isEnablingOrgaWideProcedureCreation = this.organisation.attributes.canCreateProcedures === true &&
+        this.initialOrganisation.attributes.canCreateProcedures !== true
+
+      if (!isEnablingOrgaWideProcedureCreation) {
+        return
+      }
+
+      const url = Routing.generate('dplan_api_organisation_procedure_creation_individual_grants', { id: this.organisation.id })
+      const response = await dpApi.get(url)
+      const users = response.data.data || []
+
+      if (users.length === 0) {
+        return
+      }
+
+      this.procedureCreationConflictMessage = Translator.trans('procedure.canManage.orgaWideConflict.message', {
+        users: users.map(user => `– ${user.firstname} ${user.lastname}`).join('\n'),
+      })
+
+      const shouldRemoveIndividualGrants = await this.$refs.procedureCreationConflictDialog.open()
+
+      /*
+       * DpConfirmDialog resolves as soon as Confirm/Decline is clicked, before the underlying
+       * DpModal's CSS-animation-driven close sequence has actually finished (DpModal.close() only
+       * calls the native dialog.close() once its `animationend` handler fires). Triggering another
+       * reactive update (setItem below) while that's still in flight risks interrupting the
+       * animation — and if `animationend` then never fires, the native <dialog> stays open forever
+       * and blocks the entire page until reload. Wait for the dialog to actually finish closing first.
+       */
+      await this.waitForDialogToFullyClose()
+
+      this.setItem({
+        ...this.organisation,
+        attributes: {
+          ...this.organisation.attributes,
+          removeIndividualProcedureCreationGrants: shouldRemoveIndividualGrants,
+        },
+      })
+    },
+
+    /**
+     * Polls the native <dialog> element's `open` property until it's actually false (or a safety
+     * timeout is hit), rather than assuming a fixed animation duration.
+     */
+    waitForDialogToFullyClose (maxWaitMs = 2000, pollIntervalMs = 50) {
+      const dialogEl = this.$refs.procedureCreationConflictDialog?.$refs?.confirmDialog?.$refs?.dialog
+
+      if (!dialogEl) {
+        return Promise.resolve()
+      }
+
+      return new Promise(resolve => {
+        const startedAt = Date.now()
+
+        const check = () => {
+          if (!dialogEl.open || Date.now() - startedAt >= maxWaitMs) {
+            resolve()
+          } else {
+            setTimeout(check, pollIntervalMs)
+          }
+        }
+
+        check()
+      })
+    },
+
     createAddonPayload () {
       return {
         type: this.addonPayload.resourceType,
@@ -237,8 +321,10 @@ export default {
       return this.$store.dispatch(`Orga${this.moduleSubstring}/restoreFromInitial`, payload)
     },
 
-    save () {
+    async save () {
       if (this.dpValidate.organisationForm) {
+        await this.checkProcedureCreationOrgaWideConflicts()
+
         this.isOpen = !this.isOpen
         const addonExists = Boolean(window.dplan.loadedAddons['interface.fields.to.transmit'])
         const addonHasValue = this.addonPayload.value || this.addonPayload.initValue
