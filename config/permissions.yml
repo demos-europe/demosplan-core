@@ -591,6 +591,7 @@ area_use_mastertoeblist:
     label: 'use Mastertöbliste'
     loginRequired: true
 feature_2fa:
+    expose: true
     label: 'Allow two-factor authentication'
     loginRequired: true
 feature_admin_assessmenttable_export_docx:
@@ -1354,6 +1355,13 @@ feature_map_print_layer:
     expose: true
     loginRequired: true
     parent: area_admin_map
+feature_map_scales:
+    description: |-
+        Allow configuring selectable zoom scales for the procedure map
+    label: 'Configure map scales'
+    expose: true
+    loginRequired: true
+    parent: area_admin_map
 feature_map_search_location:
     expose: true
     label: 'Darf ein User nach ORT/PLZ suchen können?'
@@ -2037,6 +2045,12 @@ feature_segment_recommendation_edit:
     label: 'Allows to create, update and delete recommendations of segments.'
     loginRequired: true
     parent: area_statement_segmentation
+feature_segment_send_via_mail:
+    description: |-
+        Allows the user to send individual segments via email to external receivers.
+    expose: true
+    label: 'Allows to send segments via email'
+    loginRequired: true
 feature_segments_copy_to_clipboard:
     description: |-
         Allows the user to copy the currently selected segments in the segment list to the clipboard
