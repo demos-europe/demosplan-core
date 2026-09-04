@@ -262,6 +262,14 @@ parameters:
     # Delete any sent emails after this timespan in days from email sent queue. Default 90 days
     email_delete_after_days: 90
 
+    # Resource ceilings for the consumer that builds the asynchronous exports (transport "async",
+    # started by dplan:maintenance). A single large export can peak above a gigabyte, so raise this
+    # on projects with big procedures; the consumer exits and is restarted after every job, which is
+    # what keeps that peak from accumulating.
+    async_export_memory_limit: "1536M"
+    # Seconds after which an idle export consumer exits and is restarted.
+    async_export_time_limit: 3600
+
     master_procedure_phase: configuration #the default phase for new procedures, see procedurephases.yml
 
     # caching. When apcu is not available use "filesystem"
