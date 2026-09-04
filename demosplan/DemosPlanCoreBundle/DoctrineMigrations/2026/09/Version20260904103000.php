@@ -28,7 +28,7 @@ final class Version20260904103000 extends AbstractMigration
 {
     public function getDescription(): string
     {
-        return 'Add customer_id to _gis to scope global GIS layers to a single customer';
+        return 'chore: (refs: DPLAN-18357) Add customer_id to _gis to scope global GIS layers to a single customer';
     }
 
     /**
