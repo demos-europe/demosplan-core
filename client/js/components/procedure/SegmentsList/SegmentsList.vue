@@ -299,7 +299,7 @@
                   {{
                     statementsObject[
                       rowData.relationships.parentStatement.data.id
-                      ].attributes.internId
+                    ].attributes.internId
                   }}
                 </div>
               </div>
@@ -317,7 +317,7 @@
                   {{
                     statementsObject[
                       rowData.relationships.parentStatement.data.id
-                      ].attributes.authorName
+                    ].attributes.authorName
                   }}
                 </li>
                 <li
@@ -327,7 +327,7 @@
                   {{
                     statementsObject[
                       rowData.relationships.parentStatement.data.id
-                      ].attributes.submitName
+                    ].attributes.submitName
                   }}
                 </li>
                 <li
@@ -341,7 +341,7 @@
                   {{
                     statementsObject[
                       rowData.relationships.parentStatement.data.id
-                      ].attributes.initialOrganisationName
+                    ].attributes.initialOrganisationName
                   }}
                 </li>
               </ul>
@@ -359,12 +359,12 @@
                   {{
                     statementsObject[
                       rowData.relationships.parentStatement.data.id
-                      ].attributes.initialOrganisationStreet
+                    ].attributes.initialOrganisationStreet
                   }}
                   {{
                     statementsObject[
                       rowData.relationships.parentStatement.data.id
-                      ].attributes.initialOrganisationHouseNumber
+                    ].attributes.initialOrganisationHouseNumber
                   }}
                 </li>
                 <li
@@ -378,12 +378,12 @@
                   {{
                     statementsObject[
                       rowData.relationships.parentStatement.data.id
-                      ].attributes.initialOrganisationPostalCode
+                    ].attributes.initialOrganisationPostalCode
                   }}
                   {{
                     statementsObject[
                       rowData.relationships.parentStatement.data.id
-                      ].attributes.initialOrganisationCity
+                    ].attributes.initialOrganisationCity
                   }}
                 </li>
               </ul>
