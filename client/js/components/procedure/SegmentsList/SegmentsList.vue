@@ -46,46 +46,19 @@
           }"
           :search-term="searchTerm"
           @change-fields="updateSearchFields"
+          @search-focus="closeFilterSlidebar"
           @search="(term) => updateSearchQuery(term)"
           @reset="handleResetSearch"
         />
-        <div class="ml-2 space-x-2">
-          <filter-flyout
-            v-for="(filter, idx) in Object.values(filters)"
-            ref="filterFlyout"
-            :key="`filter_${filter.labelTranslationKey}`"
-            :additional-query-params="{ searchPhrase: searchTerm }"
-            :category="{
-              id: `${filter.labelTranslationKey}:${idx}`,
-              label: Translator.trans(filter.labelTranslationKey),
-            }"
-            class="inline-block"
-            :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
-            align="left"
-            :groups-object="filter.groupsObject"
-            :hint="filter.labelTranslationKey !== 'tags'"
-            :initial-query-ids="queryIds"
-            :items-object="filter.itemsObject"
-            :operator="filter.comparisonOperator"
-            :member-of="groupName(filter.labelTranslationKey)"
-            :path="filter.rootPath"
-            :show-count="{
-              groupedOptions: true,
-              ungroupedOptions: true,
-            }"
-            @filter-apply="sendFilterQuery"
-            @filter-options:request="
-              (params) =>
-                sendFilterOptionsRequest({
-                  ...params,
-                  category: {
-                    id: `${filter.labelTranslationKey}:${idx}`,
-                    label: Translator.trans(filter.labelTranslationKey),
-                  },
-                })
-            "
-          />
-        </div>
+        <dp-button
+          class="ml-2 h-fit"
+          data-cy="segmentsList:openFilter"
+          icon="sliders-horizontal"
+          icon-size="small"
+          :text="filterButtonText"
+          variant="outline"
+          @click="toggleFilterSlidebar"
+        />
         <dp-button
           v-tooltip="Translator.trans('search.filter.reset')"
           class="ml-2 h-fit"
@@ -606,7 +579,6 @@ import {
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import CustomSearch from './CustomSearch'
-import FilterFlyout from './FilterFlyout'
 import fullscreenModeMixin from '@DpJs/components/shared/mixins/fullscreenModeMixin'
 import ImageModal from '@DpJs/components/shared/ImageModal'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
@@ -636,7 +608,6 @@ export default {
     DpPager,
     DpSelect,
     DpStickyElement,
-    FilterFlyout,
     ImageModal,
     SegmentUnlockModal,
     StatementMetaTooltip,
@@ -662,29 +633,6 @@ export default {
       required: true,
     },
 
-    /**
-     * {Object of objects}
-     * {
-     *   assignee: {
-     *     comparisonOperator: string,
-     *     grouping?: {
-     *       labelTranslationKey: string,
-     *       targetPath: string
-     *     },
-     *     labelTranslationKey: string,
-     *     rootPath: string,
-     *     selected: boolean
-     *   },
-     *   place: s. assignee,
-     *   tags: s. assignee
-     * }
-     */
-    filters: {
-      type: Object,
-      required: false,
-      default: () => ({}),
-    },
-
     initialFilter: {
       type: [Object, Array],
       default: () => ({}),
@@ -701,6 +649,8 @@ export default {
       type: String,
     },
   },
+
+  emits: ['resetFilters'],
 
   setup () {
     const { unlockModal, openUnlockModal, unlockSegment } = useSegmentUnlock()
@@ -833,6 +783,10 @@ export default {
       recommendationVersions: 'items',
     }),
 
+    ...mapState('SegmentSlidebar', [
+      'slidebar',
+    ]),
+
     ...mapState('Statement', {
       statementsObject: 'items',
     }),
@@ -925,6 +879,12 @@ export default {
       }
 
       return selected.reduce((acc, el) => ({ ...acc, [el.id]: true }), {})
+    },
+
+    filterButtonText () {
+      return this.queryIds.length > 0 ?
+        `${Translator.trans('filter')} (${this.queryIds.length})` :
+        Translator.trans('filter')
     },
 
     hasLockedInSelection () {
@@ -1087,7 +1047,7 @@ export default {
       fetchAssignableUsers: 'list',
     }),
 
-    ...mapActions('FilterFlyout', ['updateFilterQuery']),
+    ...mapActions('FilterFlyout', ['commitFilterQuery', 'discardUnappliedChanges', 'updateFilterQuery']),
 
     ...mapActions('Place', {
       fetchPlaces: 'list',
@@ -1114,6 +1074,9 @@ export default {
     },
 
     applyQuery (page) {
+      // Drop unapplied filter selections before reading getFilterQuery, then close the panel
+      this.discardUnappliedChanges()
+      this.closeFilterSlidebar()
       lscache.remove(this.lsKey.allSegments)
       lscache.remove(this.lsKey.toggledSegments)
       this.allItemsCount = null
@@ -1673,15 +1636,6 @@ export default {
       return null
     },
 
-    groupName (filterType) {
-      if (filterType === 'tags') {
-        return null
-      }
-
-      // Replace '.' in workflow.places because it is forbidden in group names
-      return `${filterType.replaceAll('.', '-')}_group`
-    },
-
     handleBulkEdit () {
       this.storeToggledSegments()
       // Persist currentQueryHash to load the filtered SegmentsList after returning from bulk edit flow.
@@ -1735,15 +1689,10 @@ export default {
       this.columnSelectorKey++
     },
 
+    // Filters live in SegmentsListFilter (in the slidebar); delegate the reset there via the twig template.
     resetQuery () {
       this.resetSearchQuery()
-      this.appliedFilterQuery = []
-      this.$refs.filterFlyout?.forEach((flyout) => {
-        flyout.reset()
-      })
-      this.updateQueryHash()
-      this.resetSelection()
-      this.applyQuery(1)
+      this.$emit('resetFilters')
     },
 
     resetSearchQuery () {
@@ -1772,17 +1721,14 @@ export default {
     /**
      *
      * @param params {Object}
-     * @param params.additionalQueryParams {Object}
      * @param params.category {Object} id, label
      * @param params.currentQuery {Array}
      * @param params.filter {Object}
      * @param params.isInitialWithQuery {Boolean}
      * @param params.path {String}
-     * @param params.searchPhrase {String}
      */
     sendFilterOptionsRequest (params) {
       const {
-        additionalQueryParams,
         category,
         currentQuery,
         filter,
@@ -1842,7 +1788,7 @@ export default {
         }
       }
       const requestParams = {
-        ...additionalQueryParams,
+        searchPhrase: this.searchTerm,
         filter: {
           ...filter,
           sameProcedure: {
@@ -2005,22 +1951,16 @@ export default {
       })
     },
 
-    // Called by apply as well as by reset in filterFlyout
+    // Called by apply as well as by reset in SegmentsListFilter
     sendFilterQuery (filter) {
       const isReset = Object.keys(filter).length === 0
 
-      if (isReset === false && Object.keys(this.appliedFilterQuery).length) {
-        Object.values(filter).forEach((el) => {
-          this.appliedFilterQuery[el.condition.value] = el
-        })
+      if (isReset) {
+        this.appliedFilterQuery = Object.keys(this.getFilterQuery).length ?
+          this.getFilterQuery :
+          []
       } else {
-        if (isReset) {
-          this.appliedFilterQuery = Object.keys(this.getFilterQuery).length ?
-            this.getFilterQuery :
-            []
-        } else {
-          this.appliedFilterQuery = filter
-        }
+        this.appliedFilterQuery = filter
       }
 
       this.updateQueryHash()
@@ -2037,6 +1977,19 @@ export default {
       this.setSlidebarContent({ externId, isOpen: true, segmentId, showTab: 'sendViaMail' })
     },
 
+    closeFilterSlidebar () {
+      if (this.slidebar.isOpen && this.slidebar.showTab === 'filter') {
+        this.setSlidebarContent({ externId: '', isOpen: false, segmentId: '', showTab: '' })
+      }
+    },
+
+    // Filters are not segment-scoped, hence empty string for externId/segmentId
+    toggleFilterSlidebar () {
+      const closing = this.slidebar.isOpen && this.slidebar.showTab === 'filter'
+
+      this.setSlidebarContent({ externId: '', isOpen: !closing, segmentId: '', showTab: 'filter' })
+    },
+
     updateQueryHash () {
       const hrefParts = globalThis.location.href.split('/')
       const oldQueryHash = hrefParts[hrefParts.length - 1]
@@ -2046,7 +1999,7 @@ export default {
 
       const data = { filter: this.getFilterQuery }
 
-      if (this.searchterm !== '') {
+      if (this.searchTerm !== '') {
         data.searchPhrase = this.searchTerm
       }
 
@@ -2123,6 +2076,9 @@ export default {
         this.updateFilterQuery(query)
       })
     }
+
+    // Snapshot the initial filters as applied so the first applyQuery does not discard them
+    this.commitFilterQuery()
 
     this.initPagination()
     if (hasPermission('field_segments_custom_fields')) {
