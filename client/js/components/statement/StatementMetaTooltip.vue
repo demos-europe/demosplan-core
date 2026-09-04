@@ -158,14 +158,14 @@ export default {
 
     segmentAssignee () {
       return this.segment?.relationships?.assignee?.data ?
-        this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id) || {} :
+        this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id) :
         {}
     },
 
     // Object with id and name
     segmentPlace () {
       return Object.keys(this.segment).length && this.segment.relationships.place ?
-        this.places.find(place => place.id === this.segment.relationships.place.data.id) || {} :
+        this.places.find(place => place.id === this.segment.relationships.place.data.id) :
         {}
     },
   },
