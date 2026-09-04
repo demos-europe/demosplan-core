@@ -43,6 +43,8 @@ const FilterFlyoutStore = {
      * Used to show/hide loading spinner in each filter flyout
      */
     isLoading: {},
+    // Copy of filterQuery at the last apply/reset. Includes OR-group wrappers, used to discard unapplied changes.
+    lastAppliedFilterQuery: {},
     /**
      * Ungrouped filter options, stored in ungroupedOptions by categoryId of the filter flyout:
      * Object with categoryIds as keys and array of ungrouped options as values
@@ -168,6 +170,10 @@ const FilterFlyoutStore = {
       state.isLoading[categoryId] = isLoading
     },
 
+    setLastAppliedFilterQuery (state, filterQuery) {
+      state.lastAppliedFilterQuery = filterQuery
+    },
+
     /**
      *
      * @param state
@@ -202,6 +208,16 @@ const FilterFlyoutStore = {
   },
 
   actions: {
+    // Save the current filterQuery as the last applied state (call after apply/reset).
+    commitFilterQuery ({ commit, state }) {
+      commit('setLastAppliedFilterQuery', structuredClone(state.filterQuery))
+    },
+
+    // Restore filterQuery to the last applied state, dropping unapplied selections. Runs synchronously.
+    discardUnappliedChanges ({ commit, state }) {
+      commit('setFilterQuery', structuredClone(state.lastAppliedFilterQuery))
+    },
+
     /**
      * Adds or removes filters from the filterQuery
      * @param commit
@@ -290,6 +306,8 @@ const FilterFlyoutStore = {
     getIsLoadingByCategoryId: (state) => (categoryId) => {
       return state.isLoading[categoryId]
     },
+
+    getLastAppliedFilterQuery: (state) => state.lastAppliedFilterQuery,
 
     /**
      *

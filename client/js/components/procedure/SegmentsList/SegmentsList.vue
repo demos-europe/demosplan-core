@@ -1047,7 +1047,7 @@ export default {
       fetchAssignableUsers: 'list',
     }),
 
-    ...mapActions('FilterFlyout', ['updateFilterQuery']),
+    ...mapActions('FilterFlyout', ['commitFilterQuery', 'discardUnappliedChanges', 'updateFilterQuery']),
 
     ...mapActions('Place', {
       fetchPlaces: 'list',
@@ -1074,6 +1074,9 @@ export default {
     },
 
     applyQuery (page) {
+      // Drop unapplied filter selections before reading getFilterQuery, then close the panel
+      this.discardUnappliedChanges()
+      this.closeFilterSlidebar()
       lscache.remove(this.lsKey.allSegments)
       lscache.remove(this.lsKey.toggledSegments)
       this.allItemsCount = null
@@ -2073,6 +2076,9 @@ export default {
         this.updateFilterQuery(query)
       })
     }
+
+    // Snapshot the initial filters as applied so the first applyQuery does not discard them
+    this.commitFilterQuery()
 
     this.initPagination()
     if (hasPermission('field_segments_custom_fields')) {

@@ -207,6 +207,8 @@ export default {
     const slidebar = computed(() => store.state.SegmentSlidebar.slidebar)
     const getIsExpandedByCategoryId = (categoryId) => store.getters['FilterFlyout/getIsExpandedByCategoryId'](categoryId)
 
+    const commitFilterQuery = () => store.dispatch('FilterFlyout/commitFilterQuery')
+    const discardUnappliedChanges = () => store.dispatch('FilterFlyout/discardUnappliedChanges')
     const updateFilters = (query) => store.dispatch('FilterFlyout/updateFilterQuery', query)
 
     const setGroupedSelected = (payload) => store.commit('FilterFlyout/setGroupedOptionSelected', payload)
@@ -370,12 +372,16 @@ export default {
     const applyAllFilters = () => {
       const mergedFilter = categories.reduce((acc, category) => ({ ...acc, ...getFilter(category) }), {})
 
-      emit('filterApply', mergedFilter)
-
       categories.forEach((category) => {
         category.appliedQuery = structuredClone(category.currentQuery)
       })
 
+      /*
+       * Snapshot the applied query before emitting: the emit synchronously triggers applyQuery,
+       * which discards unapplied changes against this snapshot.
+       */
+      commitFilterQuery()
+      emit('filterApply', mergedFilter)
       closeSlidebar()
     }
 
@@ -396,6 +402,7 @@ export default {
     // Resets every category's selection and notifies the parent, mirroring FilterFlyout's resetAndApply.
     const resetAllFilters = () => {
       categories.forEach((category) => resetCategory(category))
+      commitFilterQuery()
       emit('filterApply', {})
     }
 
@@ -403,20 +410,9 @@ export default {
       category.searchTerm = ''
     }
 
-    // Remove filters that were selected or deselected but not applied for this category
-    const restoreAppliedFilterQuery = (category) => {
-      const diverged = [
-        ...category.currentQuery.filter(id => category.appliedQuery.includes(id) === false),
-        ...category.appliedQuery.filter(id => category.currentQuery.includes(id) === false),
-      ]
-
-      diverged.forEach(id => updateFilters({ [id]: buildFilterCondition(category, id) }))
-    }
-
-    // Reset search, discard unapplied filter changes and collapse the category on close
-    const handleClose = (category) => {
+    // Sync the local view to the applied state after the store discards unapplied changes
+    const resetCategoryView = (category) => {
       resetSearch(category)
-      restoreAppliedFilterQuery(category)
       category.currentQuery = structuredClone(category.appliedQuery)
       setIsExpanded({ categoryId: category.id, isExpanded: false })
     }
@@ -460,14 +456,15 @@ export default {
     }
 
     /*
-     * Discard unapplied changes and collapse accordions whenever the filter panel stops showing
+     * Discard unapplied changes and collapse accordions when the filter panel stops showing
      * (slidebar closed or switched to another tab)
      */
     const isFilterActive = computed(() => slidebar.value.isOpen && slidebar.value.showTab === 'filter')
 
     watch(isFilterActive, (isActive, wasActive) => {
       if (wasActive && isActive === false) {
-        categories.forEach((category) => handleClose(category))
+        discardUnappliedChanges()
+        categories.forEach((category) => resetCategoryView(category))
       }
     })
 
