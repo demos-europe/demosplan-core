@@ -12,12 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Mailer;
 
+use demosplan\DemosPlanCoreBundle\Entity\MailSend;
+use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use Scheb\TwoFactorBundle\Mailer\AuthCodeMailerInterface;
 use Scheb\TwoFactorBundle\Model\Email\TwoFactorInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mime\Address;
-use Symfony\Component\Mime\Email;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 
@@ -25,7 +24,7 @@ class TwoFactorMailer implements AuthCodeMailerInterface
 {
     public function __construct(
         private readonly Environment $twig,
-        private readonly MailerInterface $mailer,
+        private readonly MailService $mailService,
         private readonly TranslatorInterface $translator,
         private readonly ParameterBagInterface $parameterBag,
     ) {
@@ -33,18 +32,26 @@ class TwoFactorMailer implements AuthCodeMailerInterface
 
     public function sendAuthCode(TwoFactorInterface $user): void
     {
-        $authCode = $user->getEmailAuthCode();
-        $emailContent = $this->twig->render(
-            '@DemosPlanCore/DemosPlanCore/email/2fa_email_auth.html.twig',
-            ['authCode' => $authCode]
+        $vars = [
+            'mailsubject' => $this->translator->trans(
+                '2fa.email.subject',
+                ['projectName' => $this->parameterBag->get('project_name')]
+            ),
+            'mailbody'    => $this->twig->render(
+                '@DemosPlanCore/DemosPlanCore/email/2fa_email_auth.html.twig',
+                ['authCode' => $user->getEmailAuthCode()]
+            ),
+        ];
+
+        $this->mailService->sendMail(
+            'dm_subscription',
+            'de_DE',
+            $user->getEmailAuthRecipient(),
+            '',
+            '',
+            '',
+            MailSend::MAIL_SCOPE_EXTERN,
+            $vars
         );
-        $message = new Email();
-        $message
-            ->to($user->getEmailAuthRecipient())
-            ->from(new Address($this->parameterBag->get('email_system'), ''))
-            ->subject($this->translator->trans('2fa.email.subject', ['projectName' => $this->parameterBag->get('project_name')]))
-            ->text($emailContent)
-        ;
-        $this->mailer->send($message);
     }
 }
