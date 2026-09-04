@@ -1115,52 +1115,36 @@ export default {
     },
 
     /**
-     * Transforms the payload from EDT 2.0 nested structure to API Platform 3.0 flat structure.
-     * The Vuex JSON:API library will convert this object directly to query parameters.
-     *
-     * @param {Object} payload - Original payload with EDT-style nested filters
-     * @returns {Object} - Flattened payload for API Platform 3.0
+     * Transforms EDT-style filters to API Platform 3.0 format.
+     * EDT: filter[uuid][condition][path/value/operator]
+     * AP3: path.id[]=uuid or path[exists]=false for IS NULL
      */
-    transformToApiPlatform (payload) {
-      const apiPayload = {
-        include: payload.include,
-        fields: payload.fields,
-      }
+    transformFiltersToApiPlatform (edtFilters) {
+      const apiFilters = {}
 
-      // Transform filters: flatten nested condition structure
-      if (payload.filter) {
-        Object.values(payload.filter).forEach(filterValue => {
-          if (filterValue?.condition) {
-            const { path, value, operator } = filterValue.condition
+      Object.values(edtFilters).forEach(({ condition } = {}) => {
+        if (!condition) {
+          return
+        }
 
-            // Handle array values (IN operator) - use brackets format
-            if (operator === 'IN' && Array.isArray(value)) {
-              apiPayload[`${path}[]`] = value
-            } else {
-              apiPayload[path] = value
-            }
-          }
-        })
-      }
+        const { path, value, operator } = condition
 
-      // Transform pagination
-      if (payload.page) {
-        apiPayload.page = payload.page.number
-        apiPayload.itemsPerPage = payload.page.size
-        apiPayload.pagination = true  // Enable client-controlled pagination
-      }
+        // Handle IS NULL operator (e.g., "unassigned")
+        if (operator === 'IS NULL') {
+          apiFilters[`exists[${path}]`] = false
+          return
+        }
 
-      // Transform sort - API Platform accepts array or comma-separated string
-      if (payload.sort) {
-        apiPayload.sort = payload.sort.split(',').map(s => s.trim())
-      }
+        const key = `${path}.id`
 
-      // Transform search - use the text filter
-      if (payload.search) {
-        apiPayload.text = payload.search.value
-      }
+        // Merge multiple values for the same path
+        apiFilters[key] = [
+          ...(apiFilters[key] ?? []),
+          value
+        ]
+      })
 
-      return apiPayload
+      return apiFilters
     },
 
     applyQuery (page) {
@@ -1168,11 +1152,8 @@ export default {
       lscache.remove(this.lsKey.toggledSegments)
       this.allItemsCount = null
 
-      const filter = {
-        ...this.getFilterQuery,
-        'parentStatementOfSegment.procedure.id': this.procedureId,
-      }
       const { include, fields } = this.buildSegmentFetchOptions()
+      const filter = this.transformFiltersToApiPlatform(this.getFilterQuery)
 
       const payload = {
         include,
@@ -1182,13 +1163,15 @@ export default {
          * Client-side sorting needs the whole list at once, so it comes without a pager and requests
          * 1000 items - the hard server-side cap for API Platform paginationMaximumItemsPerPage.
          */
-        'order[parentStatementOfSegment.submit]': 'asc',
-        'order[parentStatementOfSegment.externId]': 'asc',
-        'order[orderInProcedure]': 'asc',
+        order: {
+          'parentStatementOfSegment.submit': 'asc',
+          'parentStatementOfSegment.externId': 'asc',
+          orderInProcedure: 'asc',
+        },
         page: hasPermission('feature_segments_manualsort') ? 1 : page,
         itemsPerPage: hasPermission('feature_segments_manualsort') ? 1000 : this.pagination.perPage,
         'parentStatementOfSegment.procedure.id': this.procedureId,
-        filter,
+        ...filter,
       }
 
       if (this.searchTerm !== '') {
@@ -1200,38 +1183,36 @@ export default {
         }
       }
 
-      // Transform to API Platform 3.0 format
-      //const apiPayload = this.transformToApiPlatform(payload)
-
       this.isLoading = true
       this.fetchSegments(payload)
         .then((data) => {
           /**
            * We need to set the localStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
            */
-          this.setLocalStorage(data.meta.pagination)
+          const pagination = {
+            total: data.meta.totalItems,
+            per_page: data.meta.itemsPerPage,
+            current_page: data.meta.currentPage,
+          }
+
+          this.setLocalStorage(pagination)
 
           // Fake the count from meta info of paged request, until `fetchSegmentIds()` resolves
-          this.allItemsCount = data.meta.pagination.total
-          this.updatePagination(data.meta.pagination)
+          this.allItemsCount = pagination.total
+          this.updatePagination(pagination)
 
           /*
            * Get all segments (without pagination) to save them in localStorage for bulk editing.
            * If 'feature_segment_lock_by_workflow_place' is active, users without `feature_administrate_segment_lock`
            * must not be able to bulk-edit segments whose workflow place is locked, so exclude them from the ID set.
            */
-          const idsFilter = { ...filter }
+          const idsFilter = {...this.getFilterQuery}
 
           if (
             hasPermission('feature_segment_lock_by_workflow_place') &&
             !this.canUnlock
           ) {
-            idsFilter.placeNotLocked = {
-              condition: {
-                path: 'place.locked',  // Already correct for API Platform 3.0
-                value: false,
-              },
-            }
+            idsFilter['place.locked'] = false
           }
 
           this.fetchSegmentIds({
@@ -1239,7 +1220,8 @@ export default {
             search: payload.search,
           })
         })
-        .catch(() => {
+        .catch((err) => {
+          console.log('err: ', err)
           if (
             Object.keys(this.getFilterQuery).length > 0 ||
             this.searchTerm !== ''
@@ -1300,14 +1282,10 @@ export default {
       }
 
       if (hasPermission('feature_enable_recommendation_versions')) {
-        statementSegmentFields.push('recommendationVersions')
-        statementSegmentInclude.push('recommendationVersions')
+        statementSegmentFields.push('currentRecommendationVersionNumber')
       }
 
       const fields = {
-        assignee: [
-          'name',
-        ].join(),
         place: [
           'name',
           ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
@@ -1333,14 +1311,6 @@ export default {
         tags: [
           'title',
         ].join(),
-      }
-
-      if (hasPermission('feature_enable_recommendation_versions')) {
-        fields.recommendationVersion = [
-          'versionNumber',
-          'recommendationText',
-          'createdAt',
-        ].join()
       }
 
       return {
