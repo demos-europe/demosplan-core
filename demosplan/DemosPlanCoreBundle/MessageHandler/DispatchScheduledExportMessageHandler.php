@@ -16,7 +16,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobMaintenance;
 use demosplan\DemosPlanCoreBundle\Message\MaintainExportJobsMessage;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 use Throwable;
 
 /**
