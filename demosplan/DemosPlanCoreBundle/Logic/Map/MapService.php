@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Map;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayerCategory;
@@ -18,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\AttachedChildException;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementOrDraftStatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
@@ -27,6 +29,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\MasterTemplateService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository;
 use demosplan\DemosPlanCoreBundle\Repository\MapRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
@@ -85,6 +88,7 @@ class MapService
         MapScreenshotter $mapScreenshotter,
         private readonly MasterTemplateService $masterTemplateService,
         private readonly StatementService $statementService,
+        private readonly CustomerService $customerService,
         private readonly LoggerInterface $logger,
     ) {
         $this->fileService = $fileService;
@@ -192,17 +196,7 @@ class MapService
         // $search und $sort werden bisher bei den GislayerListen nicht verwendet, deshalb werden sie nicht weiter beachtet
 
         $listOfGlobalGisLayers = $this->mapRepository
-            ->findBy(
-                [
-                    'procedureId' => '',
-                    'deleted'     => false,
-                    'enabled'     => true,
-                ],
-                [
-                    'type' => 'desc',
-                    'name' => 'asc',
-                ]
-            );
+            ->findGlobalLayersForCustomer($this->getCurrentCustomer());
 
         return array_map($this->convertToLegacy(...), $listOfGlobalGisLayers);
     }
@@ -266,6 +260,12 @@ class MapService
     public function addGis($data)
     {
         try {
+            // A layer without a procedure is global and is copied into every procedure of
+            // its customer, so it has to be bound to the customer it is created in.
+            if (!isset($data['pId']) || '' === $data['pId']) {
+                $data['customer'] = $this->getCurrentCustomer();
+            }
+
             $singleGis = $this->mapRepository->add($data);
             // convert to Legacy Array
             $singleGis = $this->convertToLegacy($singleGis);
@@ -274,6 +274,16 @@ class MapService
         } catch (Exception $e) {
             $this->logger->warning('Fehler beim Anlegen eines GisLayers: ', [$e]);
             throw $e;
+        }
+    }
+
+    private function getCurrentCustomer(): ?CustomerInterface
+    {
+        try {
+            return $this->customerService->getCurrentCustomer();
+        } catch (CustomerNotFoundException) {
+            // e.g. CLI context, where no subdomain resolves to a customer
+            return null;
         }
     }
 
