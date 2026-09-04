@@ -14,6 +14,7 @@ namespace Tests\Core\Statement\Export;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementAttachmentInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\FileFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\BoilerplateFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\StatementAttachmentFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -121,6 +122,35 @@ class StatementArrayConverterTest extends FunctionalTestCase
         self::assertArrayHasKey('topicNames', $result);
         self::assertArrayHasKey('tags', $result);
         self::assertIsArray($result['tags']);
+    }
+
+    /**
+     * DPLAN-18271 step 9 (exports audit, Trap 4): convertIntoExportableArray() is the
+     * shared data-building step feeding the assessment table Excel/PDF export pipeline
+     * (via EntityHelper::toArray(), which resolves each property through its real getter
+     * method, not raw reflection). Proves the `recommendation` export field is
+     * tag-substituted, not the raw tag form.
+     */
+    public function testConvertIntoExportableArraySubstitutesBoilerplateTagInRecommendation(): void
+    {
+        $this->loginTestUser();
+
+        $parentStatement = $this->createMinimalTestStatement('parent-bp', 'parent-bp123', 'a');
+        $parentStatement->_save();
+
+        $segment = $this->createMinimalTestSegment($parentStatement, 'b');
+        $boilerplate = BoilerplateFactory::createOne([
+            'procedure' => $segment->getProcedure(),
+            'text'      => 'Aktueller Textbausteininhalt',
+        ])->_real();
+        $this->getEntityManager()->refresh($segment);
+        $segment->setRecommendation("Hallo, <dp-boilerplate boilerplate-id=\"{$boilerplate->getId()}\"></dp-boilerplate> mit Grüßen");
+        $this->getEntityManager()->flush();
+
+        $result = $this->sut->convertIntoExportableArray($segment);
+
+        self::assertSame('Hallo, Aktueller Textbausteininhalt mit Grüßen', $result['recommendation']);
+        self::assertStringNotContainsString('dp-boilerplate', (string) $result['recommendation']);
     }
 
     /**

@@ -15,7 +15,12 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
+use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\BoilerplateDeletionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\BoilerplateTagSubstitutionService;
+use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
+use demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\BoilerplateVO;
 use Exception;
 use Tests\Base\FunctionalTestCase;
@@ -286,27 +291,38 @@ class BoilerplateServiceTest extends FunctionalTestCase
     }
 
     /**
+     * DPLAN-18271: prepareBoilerplateDeletion() only flags the row for asynchronous
+     * materialize-and-delete ({@see BoilerplateDeletionService}) —
+     * it does not remove it. The former testDeleteBoilerplate asserted an immediate row
+     * removal, which is no longer this method's behavior.
+     *
      * @throws Exception
      */
-    public function testDeleteBoilerplate()
+    public function testPrepareBoilerplateDeletionFlagsWithoutRemovingRow()
     {
         $numberOfEntriesBefore = $this->countEntries(Boilerplate::class);
 
-        $doNotDelete = $this->fixtures->getReference('testBoilerplate1');
-        $toDelete = $this->fixtures->getReference('testBoilerplate2');
-        $this->sut->deleteBoilerplate($toDelete->getIdent());
+        $doNotFlag = $this->fixtures->getReference('testBoilerplate1');
+        $toFlag = $this->fixtures->getReference('testBoilerplate2');
+        $result = $this->sut->prepareBoilerplateDeletion($toFlag->getIdent());
 
-        $numberOfEntriesAfter = $this->countEntries(Boilerplate::class);
+        static::assertTrue($result);
+        static::assertEquals($numberOfEntriesBefore, $this->countEntries(Boilerplate::class));
 
-        static::assertEquals($numberOfEntriesBefore - 1, $numberOfEntriesAfter);
-        static::assertNotNull($this->sut->getBoilerplate($doNotDelete->getIdent()));
-        // getBoilerplate wirft exception bei abfrage eines nicht existenten
-        try {
-            $this->sut->getBoilerplate($toDelete->getIdent());
-            $this->fail('Expected Exception');
-        } catch (Exception $e) {
-            static::assertEquals(0, $e->getCode());
-        }
+        $untouched = $this->sut->getBoilerplate($doNotFlag->getIdent());
+        static::assertNotNull($untouched);
+        static::assertFalse($untouched->isPendingDeletion());
+
+        $flagged = $this->sut->getBoilerplate($toFlag->getIdent());
+        static::assertNotNull($flagged);
+        static::assertTrue($flagged->isPendingDeletion());
+    }
+
+    public function testPrepareBoilerplateDeletionReturnsFalseForNonExistentBoilerplate()
+    {
+        $result = $this->sut->prepareBoilerplateDeletion('does-not-exist');
+
+        static::assertFalse($result);
     }
 
     public function testAddBoilerplateToCategory()
@@ -450,8 +466,22 @@ class BoilerplateServiceTest extends FunctionalTestCase
         // Ensure the boilerplate is associated with the category
         static::assertContains($boilerplate, $category->getBoilerplates());
 
-        // Delete the boilerplate and verify it is removed
-        $this->sut->deleteBoilerplate($boilerplate->getId());
+        // DPLAN-18271: the row is only physically removed by BoilerplateDeletionService
+        // (the async materialize-and-delete job), not by prepareBoilerplateDeletion()
+        // (which only flags it) — this test is specifically about cascade behavior on
+        // physical row removal, so it drives the deletion service directly.
+        //
+        // Instantiated directly rather than fetched from the container: it has no
+        // consumers yet at this point in the implementation, so the DI container's
+        // dead-code elimination removes it as an unused private service (same reasoning
+        // as BoilerplateTagSubstitutionServiceTest).
+        $boilerplateDeletionService = new BoilerplateDeletionService(
+            self::getContainer()->get(BoilerplateTagSubstitutionService::class),
+            self::getContainer()->get(BoilerplateRepository::class),
+            self::getContainer()->get(TransactionService::class),
+            self::getContainer()->get(EntityContentChangeService::class),
+        );
+        $boilerplateDeletionService->materializeAndDelete($boilerplate);
 
         $deletedBoilerplate = $this->getEntries(Boilerplate::class, ['ident' => $boilerplate->getId()]);
         static::assertCount(0, $deletedBoilerplate);

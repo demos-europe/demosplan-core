@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\BoilerplateDeletionService;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\NoResultException;
@@ -42,8 +43,10 @@ class BoilerplateRepository extends FluentRepository implements ArrayInterface, 
     public function getBoilerplates($procedureId)
     {
         // using a trick to get the "nulls last" order
+        // DPLAN-18271: boilerplates pending async deletion must not appear in listings —
+        // they are, conceptually, already gone (see BoilerplateDeletionService).
         $dql = 'SELECT boilerplate, -boilerplate.title as HIDDEN t1 FROM demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate as boilerplate
-        WHERE boilerplate.procedure =:ident  ORDER BY t1 DESC, boilerplate.title ASC';
+        WHERE boilerplate.procedure =:ident AND boilerplate.pendingDeletion = false ORDER BY t1 DESC, boilerplate.title ASC';
         $query = $this->getEntityManager()->createQuery($dql);
         $query->setParameter('ident', $procedureId);
 
@@ -61,7 +64,8 @@ class BoilerplateRepository extends FluentRepository implements ArrayInterface, 
      */
     public function getBoilerplatesWhithoutGroup(string $procedureId): array
     {
-        return $this->findBy(['procedure' => $procedureId, 'group' => null], ['title' => 'asc']);
+        // DPLAN-18271: boilerplates pending async deletion must not appear in listings.
+        return $this->findBy(['procedure' => $procedureId, 'group' => null, 'pendingDeletion' => false], ['title' => 'asc']);
     }
 
     /**
@@ -289,6 +293,59 @@ class BoilerplateRepository extends FluentRepository implements ArrayInterface, 
         }
 
         return false;
+    }
+
+    /**
+     * Batch of boilerplates flagged for deletion, oldest-flagged-first, for
+     * {@see BoilerplateDeletionService}'s
+     * recurring background job.
+     *
+     * @return Boilerplate[]
+     */
+    public function findPendingDeletion(int $limit): array
+    {
+        return $this->findBy(['pendingDeletion' => true], ['modifyDate' => 'ASC'], $limit);
+    }
+
+    /**
+     * Records a failed {@see BoilerplateDeletionService::materializeAndDelete}
+     * attempt. If this attempt is the $maxAttempts-th failure, gives up on this boilerplate:
+     * resets `pendingDeletion` to false (so it becomes visible again — a deliberate,
+     * user-facing signal that deletion failed, not a silent retry-forever), resets the
+     * counter so a future retry starts fresh, and logs at `error` level so it reaches
+     * Sentry. Otherwise, just increments the counter and logs at `info` — a routine,
+     * often-transient failure that is expected to self-heal on a later attempt shouldn't
+     * make noise on every occurrence.
+     *
+     * Uses DQL for the writes, not the entity's setters: a failed materializeAndDelete()
+     * attempt closes the caller's EntityManager for the rest of the request (Doctrine's own
+     * behavior on any failed flush), so persist()/flush() are not an option here. DQL
+     * UPDATE bypasses the UnitOfWork and compiles straight to SQL via the Connection, which
+     * `EntityManager::close()` never touches.
+     */
+    public function handleDeletionFailure(string $id, int $maxAttempts): void
+    {
+        $entityManager = $this->getEntityManager();
+
+        $currentFailureCount = $entityManager->createQuery(
+            'SELECT b.deletionFailureCount FROM '.Boilerplate::class.' b WHERE b.ident = :id'
+        )->setParameter('id', $id)->getSingleScalarResult();
+
+        if ($currentFailureCount >= $maxAttempts - 1) {
+            $entityManager->createQuery(
+                'UPDATE '.Boilerplate::class.' b SET b.pendingDeletion = false, b.deletionFailureCount = 0 WHERE b.ident = :id'
+            )->setParameter('id', $id)->execute();
+
+            $this->logger->error("Giving up on deleting boilerplate '{$id}' after {$maxAttempts} failed attempts; it is visible again.");
+
+            return;
+        }
+
+        $entityManager->createQuery(
+            'UPDATE '.Boilerplate::class.' b SET b.deletionFailureCount = b.deletionFailureCount + 1 WHERE b.ident = :id'
+        )->setParameter('id', $id)->execute();
+
+        $this->logger->info("Materialize and delete boilerplate '{$id}' failed (attempt {$currentFailureCount}/{$maxAttempts}).");
     }
 
     /**

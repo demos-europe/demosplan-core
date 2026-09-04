@@ -28,6 +28,9 @@ export default {
      * @param {string} [message.linkUrl] Link url of the message
      * @param {string} [message.linkText] Link text of the message
      * @param {boolean} [message.persist] Allow non-error notifications to persist (SessionTimer usage)
+     * @param {string} [message.actionText] Label of an action button (e.g. "Undo")
+     * @param {number} [message.actionId] Key NotificationStoreAdapter uses to look up the action's handler — the handler itself is not stored here, it isn't serializable
+     * @param {number} [message.hideTimer] Milliseconds before the message auto-hides
      */
     add (state, message) {
       state.messages.push({
@@ -36,6 +39,9 @@ export default {
         linkUrl: message.linkUrl || '',
         linkText: message.linkText || '',
         persist: message.persist || false,
+        actionText: message.actionText || '',
+        actionId: message.actionId || null,
+        hideTimer: message.hideTimer,
         uid: state.uid++,
       })
     },
