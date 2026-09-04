@@ -919,7 +919,7 @@ export default {
             this.items.filter(
               (item) =>
                 (this.canUnlock || !item.isPlaceLocked) &&
-                !toggledIds.has(item.id),
+                  !toggledIds.has(item.id),
             )
       } else {
         selected = this.toggledItems
