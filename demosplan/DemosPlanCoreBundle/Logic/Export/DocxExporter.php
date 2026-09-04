@@ -794,9 +794,6 @@ class DocxExporter
             return '';
         }
         try {
-            $text = self::replaceTags($text);
-            $text = $this->htmlSanitizer->sanitizeCssForPhpWord($text);
-            Html::addHtml($cell, $text, false);
             $text = $this->replaceTags($text);
             // remove STX (start of text) EOT (end of text) special chars
             $text = str_replace([chr(2), chr(3)], '', $text);
@@ -805,6 +802,8 @@ class DocxExporter
             if ($this->writerSelector->isOdtFormat()) {
                 $this->odtHtmlProcessor->processHtmlForCell($cell, $text);
             } else {
+                // non-numeric CSS line-height values crash PHPWord's DOCX HTML parser
+                $text = $this->htmlSanitizer->sanitizeCssForPhpWord($text);
                 Html::addHtml($cell, $text, false);
             }
         } catch (Exception $e) {
