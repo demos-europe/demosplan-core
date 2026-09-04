@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\BoilerplateDeletionService;
+use demosplan\DemosPlanCoreBundle\MessageHandler\PurgePendingBoilerplateDeletionsMessageHandler;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -119,7 +120,7 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
      * True once a delete has been requested (DPLAN-18271): the row itself is not removed
      * synchronously, since materializing this boilerplate's content into every one of its
      * usages could be slow for a heavily-used boilerplate. A recurring background job
-     * ({@see \demosplan\DemosPlanCoreBundle\MessageHandler\PurgePendingBoilerplateDeletionsMessageHandler})
+     * ({@see PurgePendingBoilerplateDeletionsMessageHandler})
      * picks up rows with this flag set, materializes and deletes them. {@see $modifyDate}
      * (Gedmo-managed) doubles as the flagged-at timestamp for oldest-first processing order.
      */

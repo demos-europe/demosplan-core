@@ -12,7 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository;
+use demosplan\DemosPlanCoreBundle\Services\HTMLFragmentSlicer;
 use DOMDocumentFragment;
 use DOMElement;
 use DOMNode;

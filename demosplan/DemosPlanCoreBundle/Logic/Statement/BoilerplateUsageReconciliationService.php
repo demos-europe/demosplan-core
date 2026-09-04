@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateUsage;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\RecommendationVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateUsageRepository;

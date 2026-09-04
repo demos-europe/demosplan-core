@@ -27,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\BoilerplateDeletionService;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentLockEnforcementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\BoilerplateTagSubstitutionService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
@@ -532,7 +533,7 @@ class EntityContentChangeService
     /**
      * Versionsverlauf entry for a recommendation whose linked boilerplate was deleted and
      * therefore materialized into the recommendation text (DPLAN-18271,
-     * {@see Procedure\BoilerplateDeletionService}).
+     * {@see BoilerplateDeletionService}).
      *
      * Deliberately not a before/after diff: the substituted text is, by design, identical
      * before and after materialization — only the raw, unsubstituted form (a

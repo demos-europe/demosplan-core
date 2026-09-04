@@ -2332,18 +2332,6 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
-     * Set recommendation.
-     *
-     * Before overwriting the value, records the old recommendation as a version
-     * via {@see RecommendationVersionService::recordVersion()} if the service is
-     * available (injected via {@see RecommendationVersionEntityListener} on postLoad).
-     *
-     * WARNING: Do not call this method more than once per request on the same entity.
-     * Each call with a changed value creates a new recommendation version entry.
-     *
-     * @param string $recommendation
-     */
-    /**
      * Before overwriting, records a version and reconciles {@see BoilerplateUsage} rows
      * against the tags in the new, raw (tag-form) value. Change detection for the version
      * (should we record at all) happens on the *raw* tag form — not the substituted form —
