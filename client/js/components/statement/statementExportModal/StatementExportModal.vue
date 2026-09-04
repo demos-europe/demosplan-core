@@ -24,275 +24,336 @@
       @modal:toggled="onModalToggle"
     >
       <template v-slot:header>
-        <h2>{{ exportModalTitle }}</h2>
-      </template>
-      <fieldset
-        v-if="!isSingleStatementExport"
-        class="border-b border-neutral"
-      >
-        <legend
-          class="text-base pb-4"
-          v-text="Translator.trans('export.type')"
-        />
-        <div class="flex flex-row gap-2">
-          <dp-radio
-            v-for="(exportType, key) in exportTypes"
-            :id="key"
-            :key="key"
-            class="bg-neutral-light-4 border-l-4 border-interactive rounded-sm p-2"
-            :class="{ 'border-transparent bg-transparent' : active !== key }"
-            :data-cy="`exportModal:exportType:${key}`"
-            :label="{
-              text: Translator.trans(exportType.label),
-            }"
-            :value="key"
-            :checked="active === key"
-            @change="active = key"
+        <div class="flex items-center gap-4">
+          <dp-button
+            v-if="isScheduledExportView"
+            class="mb-2"
+            data-cy="exportModal:back"
+            icon="caret-left"
+            :text="Translator.trans('back')"
+            type="button"
+            variant="subtle"
+            @click="handleBack"
           />
+          <h2>{{ exportModalTitle }}</h2>
         </div>
-        <dp-inline-notification
-          v-if="exportTypes[active].hint"
-          class="mt-4"
-          :message="exportTypes[active].hint"
-          type="warning"
-        />
+      </template>
+
+      <!-- Statement Export view -->
+      <template v-if="isStatementExportView">
         <fieldset
-          v-if="!['xlsx_normal', 'csv_normal'].includes(active)"
-          class="pb-0"
+          v-if="!isSingleStatementExport"
+          class="border-b border-neutral"
         >
           <legend
-            class="text-base py-4"
+            class="text-base pb-4"
+            v-text="Translator.trans('export.type')"
+          />
+          <div class="flex flex-row gap-2">
+            <dp-radio
+              v-for="(exportType, key) in exportTypes"
+              :id="key"
+              :key="key"
+              class="bg-neutral-light-4 border-l-4 border-interactive rounded-sm p-2"
+              :class="{ 'border-transparent bg-transparent' : active !== key }"
+              :data-cy="`exportModal:exportType:${key}`"
+              :label="{
+                text: Translator.trans(exportType.label),
+              }"
+              :value="key"
+              :checked="active === key"
+              @change="active = key"
+            />
+          </div>
+          <dp-inline-notification
+            v-if="exportTypes[active].hint"
+            class="mt-4"
+            :message="exportTypes[active].hint"
+            type="warning"
+          />
+          <fieldset
+            v-if="!['xlsx_normal', 'csv_normal'].includes(active)"
+            class="pb-0"
+          >
+            <legend
+              class="text-base py-4"
+              v-text="Translator.trans('export.options')"
+            />
+            <dp-checkbox
+              id="censoredCitizen"
+              v-model="isCitizenDataCensored"
+              class="mb-1"
+              data-cy="exportModal:censoredCitizen"
+              :label="{
+                regular: true,
+                text: Translator.trans('export.censored.citizen'),
+              }"
+            />
+            <dp-checkbox
+              id="censoredInstitution"
+              v-model="isInstitutionDataCensored"
+              class="mb-1"
+              data-cy="exportModal:censoredInstitution"
+              :label="{
+                regular: true,
+                text: Translator.trans('export.censored.institution')
+              }"
+            />
+            <dp-checkbox
+              id="obscured"
+              v-model="isObscure"
+              data-cy="exportModal:obscured"
+              :label="{
+                regular: true,
+                text: Translator.trans('export.docx.obscured')
+              }"
+            />
+          </fieldset>
+        </fieldset>
+
+        <fieldset
+          v-if="isSingleStatementExport"
+          class="border-b border-neutral"
+        >
+          <legend
+            class="text-base pb-4"
             v-text="Translator.trans('export.options')"
           />
           <dp-checkbox
-            id="censoredCitizen"
+            id="singleStatementCitizen"
             v-model="isCitizenDataCensored"
             class="mb-1"
-            data-cy="exportModal:censoredCitizen"
+            data-cy="exportModal:singleStatementCitizen"
             :label="{
               regular: true,
-              text: Translator.trans('export.censored.citizen'),
+              text: Translator.trans('export.censored.citizen')
             }"
           />
           <dp-checkbox
-            id="censoredInstitution"
+            id="singleStatementInstitution"
             v-model="isInstitutionDataCensored"
             class="mb-1"
-            data-cy="exportModal:censoredInstitution"
+            data-cy="exportModal:singleStatementInstitution"
             :label="{
               regular: true,
               text: Translator.trans('export.censored.institution')
             }"
           />
           <dp-checkbox
-            id="obscured"
+            id="singleStatementObscure"
             v-model="isObscure"
-            data-cy="exportModal:obscured"
+            data-cy="exportModal:singleStatementObscure"
             :label="{
               regular: true,
               text: Translator.trans('export.docx.obscured')
             }"
           />
         </fieldset>
-      </fieldset>
 
-      <fieldset
-        v-if="isSingleStatementExport"
-        class="border-b border-neutral"
-      >
-        <legend
-          class="text-base pb-4"
-          v-text="Translator.trans('export.options')"
-        />
-        <dp-checkbox
-          id="singleStatementCitizen"
-          v-model="isCitizenDataCensored"
-          class="mb-1"
-          data-cy="exportModal:singleStatementCitizen"
-          :label="{
-            regular: true,
-            text: Translator.trans('export.censored.citizen')
-          }"
-        />
-        <dp-checkbox
-          id="singleStatementInstitution"
-          v-model="isInstitutionDataCensored"
-          class="mb-1"
-          data-cy="exportModal:singleStatementInstitution"
-          :label="{
-            regular: true,
-            text: Translator.trans('export.censored.institution')
-          }"
-        />
-        <dp-checkbox
-          id="singleStatementObscure"
-          v-model="isObscure"
-          data-cy="exportModal:singleStatementObscure"
-          :label="{
-            regular: true,
-            text: Translator.trans('export.docx.obscured')
-          }"
-        />
-      </fieldset>
-
-      <fieldset
-        v-if="['docx_normal', 'zip_normal'].includes(active)"
-        class="border-b border-neutral"
-      >
-        <legend
-          id="docxColumnTitles"
-          class="font-semibold text-base float-left mr-1 py-4"
-          v-text="Translator.trans('docx.export.column.title')"
-        />
-        <dp-contextual-help
-          class="my-4"
-          aria-labelledby="docxColumnTitles"
-          :text="Translator.trans('docx.export.column.title.hint')"
-        />
-        <div class="grid grid-cols-3 gap-3 mt-1">
-          <dp-input
-            v-for="(column, key) in docxColumns"
-            :id="key"
-            :key="key"
-            v-model="column.title"
-            :data-cy="column.dataCy"
-            :placeholder="Translator.trans(column.placeholder)"
-            type="text"
-          />
-        </div>
         <fieldset
-          v-if="active === 'zip' || isSingleStatementExport"
-          class="pb-0"
+          v-if="['docx_normal', 'zip_normal'].includes(active)"
+          class="border-b border-neutral"
         >
           <legend
-            id="docxFileName"
+            id="docxColumnTitles"
             class="font-semibold text-base float-left mr-1 py-4"
-            v-text="Translator.trans('docx.export.file_name')"
+            v-text="Translator.trans('docx.export.column.title')"
           />
           <dp-contextual-help
             class="my-4"
-            aria-labelledby="docxFileName"
-            :text="Translator.trans('docx.export.file_name.hint')"
+            aria-labelledby="docxColumnTitles"
+            :text="Translator.trans('docx.export.column.title.hint')"
           />
-          <dp-input
-            id="fileName"
-            v-model="fileName"
-            data-cy="exportModal:fileName"
-            class="mt-1"
-            :placeholder="Translator.trans('docx.export.file_name.placeholder')"
-            type="text"
-          />
-          <div class="text-sm mt-4">
-            <span
-              class="font-bold"
-              v-text="Translator.trans('docx.export.example_file_name')"
+          <div class="grid grid-cols-3 gap-3 mt-1">
+            <dp-input
+              v-for="(column, key) in docxColumns"
+              :id="key"
+              :key="key"
+              v-model="column.title"
+              :data-cy="column.dataCy"
+              :placeholder="Translator.trans(column.placeholder)"
+              type="text"
             />
-            <span v-text="exampleFileName" />
+          </div>
+          <fieldset
+            v-if="active === 'zip' || isSingleStatementExport"
+            class="pb-0"
+          >
+            <legend
+              id="docxFileName"
+              class="font-semibold text-base float-left mr-1 py-4"
+              v-text="Translator.trans('docx.export.file_name')"
+            />
+            <dp-contextual-help
+              class="my-4"
+              aria-labelledby="docxFileName"
+              :text="Translator.trans('docx.export.file_name.hint')"
+            />
+            <dp-input
+              id="fileName"
+              v-model="fileName"
+              data-cy="exportModal:fileName"
+              class="mt-1"
+              :placeholder="Translator.trans('docx.export.file_name.placeholder')"
+              type="text"
+            />
+            <div class="text-sm mt-4">
+              <span
+                class="font-bold"
+                v-text="Translator.trans('docx.export.example_file_name')"
+              />
+              <span v-text="exampleFileName" />
+            </div>
+          </fieldset>
+        </fieldset>
+
+        <div
+          v-if="isSingleStatementExport && hasPermission('feature_statement_via_template_export')"
+          class="pt-4"
+        >
+          <dp-label
+            :hint="Translator.trans('docx.export.via_template.upload.hint')"
+            :text="Translator.trans('docx.export.via_template.upload.label')"
+            :tooltip="Translator.trans('docx.export.via_template.upload.tooltip')"
+            class="mb-1"
+            for="uploadTemplate"
+          />
+          <dp-button
+            :text="Translator.trans('docx.export.via_template.example.label')"
+            class="mb-2"
+            data-cy="exportModal:downloadExampleTemplate"
+            href="/files/statement_template_example_export.docx"
+            icon="download"
+            icon-size="medium"
+            variant="subtle"
+          />
+          <dp-upload-files
+            id="uploadTemplate"
+            allowed-file-types="import"
+            data-cy="exportModal:uploadTemplate"
+            :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash, procedureId })"
+            :max-file-size="5 * 1024 * 1024 /* 5 MB */"
+            :storage-name="templateStorageName"
+            :translations="{ dropHereOr: Translator.trans('form.button.upload.docx', { browse: '{browse}', maxUploadSize: '5 MB' }) }"
+            :tus-endpoint="dplan.paths.tusEndpoint"
+            @file-remove="uploadedHash = ''"
+            @upload-success="file => { uploadedHash = file.hash }"
+          />
+        </div>
+
+        <fieldset
+          v-if="active === 'xlsx_normal'"
+          class="border-b border-neutral"
+        >
+          <dp-label
+            class="mt-4"
+            :hint="Translator.trans('export.xlsx.scheduled.hint')"
+            :text="Translator.trans('export.xlsx.scheduled')"
+          />
+          <div class="flex justify-end gap-2">
+            <dp-button
+              v-if="scheduledExports.length"
+              data-cy="exportModal:scheduledExport:manage"
+              :text="`${Translator.trans('export.xlsx.scheduled.manage')} (${scheduledExports.length})`"
+              variant="transparent"
+              @click="scheduledExportMode = 'manage'"
+            />
+            <dp-button
+              data-cy="exportModal:scheduledExport:add"
+              icon="calendar-blank"
+              icon-size="medium"
+              :text="Translator.trans('export.xlsx.scheduled.add')"
+              variant="outline"
+              @click="scheduledExportMode = 'add'"
+            />
           </div>
         </fieldset>
-      </fieldset>
-
-      <div
-        v-if="isSingleStatementExport && hasPermission('feature_statement_via_template_export')"
-        class="pt-4"
-      >
-        <dp-label
-          :hint="Translator.trans('docx.export.via_template.upload.hint')"
-          :text="Translator.trans('docx.export.via_template.upload.label')"
-          :tooltip="Translator.trans('docx.export.via_template.upload.tooltip')"
-          class="mb-1"
-          for="uploadTemplate"
-        />
-        <dp-button
-          :text="Translator.trans('docx.export.via_template.example.label')"
-          class="mb-2"
-          data-cy="exportModal:downloadExampleTemplate"
-          href="/files/statement_template_example_export.docx"
-          icon="download"
-          icon-size="medium"
-          variant="subtle"
-        />
-        <dp-upload-files
-          id="uploadTemplate"
-          allowed-file-types="import"
-          data-cy="exportModal:uploadTemplate"
-          :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash, procedureId })"
-          :max-file-size="5 * 1024 * 1024 /* 5 MB */"
-          :storage-name="templateStorageName"
-          :translations="{ dropHereOr: Translator.trans('form.button.upload.docx', { browse: '{browse}', maxUploadSize: '5 MB' }) }"
-          :tus-endpoint="dplan.paths.tusEndpoint"
-          @file-remove="uploadedHash = ''"
-          @upload-success="file => { uploadedHash = file.hash }"
-        />
-      </div>
-
-      <fieldset
-        v-if="!isSingleStatementExport"
-        class="border-b border-neutral"
-        :class="{ 'border-none': !['docx_normal', 'zip_normal'].includes(active) }"
-      >
-        <legend
-          id="tagsFilter"
-          class="font-semibold text-base mb-1 py-4"
-          v-text="Translator.trans('segments.export.filter.tags.only')"
-        />
-        <filter-flyout
-          ref="filterFlyout"
-          :key="`filter_${filter.labelTranslationKey}`"
-          :additional-query-params="{ searchPhrase: searchTerm }"
-          appearance="basic"
-          :category="{
-            id: `${filter.labelTranslationKey}`,
-            label: Translator.trans('search.list')
-          }"
-          :data-cy="`exportModal:filter:${filter.labelTranslationKey}`"
-          flyout-align="top"
-          flyout-position="relative"
-          :operator="filter.comparisonOperator"
-          :path="filter.rootPath"
-          :show-count="{
-            groupedOptions: true,
-            ungroupedOptions: true
-          }"
-          @filter-apply="getFilterValues"
-          @filter-options:request="loadFilterFlyoutOptions"
-          @update:expanded="(value) => isFilterExpanded = value"
-        />
-        <ul
-          v-if="!isFilterExpanded && selectedTags.length"
-          class="mt-2"
+        <fieldset
+          v-if="!isSingleStatementExport"
+          class="border-b border-neutral"
+          :class="{ 'border-none': !['docx_normal', 'zip_normal'].includes(active) }"
         >
-          <li
-            v-for="(tag) in selectedTags"
-            :key="tag.id"
-            class="mt-1"
+          <legend
+            id="tagsFilter"
+            class="font-semibold text-base mb-1 py-4"
+            v-text="Translator.trans('segments.export.filter.tags.only')"
+          />
+          <filter-flyout
+            ref="filterFlyout"
+            :key="`filter_${filter.labelTranslationKey}`"
+            :additional-query-params="{ searchPhrase: searchTerm }"
+            appearance="basic"
+            :category="{
+              id: `${filter.labelTranslationKey}`,
+              label: Translator.trans('search.list')
+            }"
+            :data-cy="`exportModal:filter:${filter.labelTranslationKey}`"
+            flyout-align="top"
+            flyout-position="relative"
+            :operator="filter.comparisonOperator"
+            :path="filter.rootPath"
+            :show-count="{
+              groupedOptions: true,
+              ungroupedOptions: true
+            }"
+            @filter-apply="getFilterValues"
+            @filter-options:request="loadFilterFlyoutOptions"
+            @update:expanded="(value) => isFilterExpanded = value"
+          />
+          <ul
+            v-if="!isFilterExpanded && selectedTags.length"
+            class="mt-2"
           >
-            <span>{{ tag.label }}</span>
-          </li>
-        </ul>
-      </fieldset>
-      <dp-input
-        v-if="['docx_normal', 'zip_normal'].includes(active) && !isSingleStatementExport && hasPermissionAdjustPreamble"
-        id="customHeaderText"
-        v-model="customHeaderText"
-        :label="{
-          text: Translator.trans('docx.export.header.custom'),
-          tooltip: Translator.trans('docx.export.header.custom.hint')
-        }"
-        :maxlength="customHeaderMaxLength"
-        :placeholder="Translator.trans('docx.export.header.custom.placeholder')"
-        class="pt-4"
-        data-cy="exportModal:customHeaderText"
-        type="text"
-      />
-      <dp-inline-notification
-        v-if="hasLayoutFileAndModifiedColumnHeaders"
-        class="mb-4"
-        :message="Translator.trans('docx.export.via_template.column.headers.warning')"
-        type="warning"
-      />
+            <li
+              v-for="(tag) in selectedTags"
+              :key="tag.id"
+              class="mt-1"
+            >
+              <span>{{ tag.label }}</span>
+            </li>
+          </ul>
+        </fieldset>
+        <dp-input
+          v-if="['docx_normal', 'zip_normal'].includes(active) && !isSingleStatementExport && hasPermissionAdjustPreamble"
+          id="customHeaderText"
+          v-model="customHeaderText"
+          :label="{
+            text: Translator.trans('docx.export.header.custom'),
+            tooltip: Translator.trans('docx.export.header.custom.hint')
+          }"
+          :maxlength="customHeaderMaxLength"
+          :placeholder="Translator.trans('docx.export.header.custom.placeholder')"
+          class="py-4"
+          data-cy="exportModal:customHeaderText"
+          type="text"
+        />
+        <dp-inline-notification
+          v-if="hasLayoutFileAndModifiedColumnHeaders"
+          class="mb-4"
+          :message="Translator.trans('docx.export.via_template.column.headers.warning')"
+          type="warning"
+        />
+      </template>
+
+      <!-- Scheduled export view -->
+      <template v-if="isScheduledExportView">
+        <scheduled-export-list
+          v-if="scheduledExportMode === 'manage'"
+          :scheduled-exports="scheduledExports"
+          @add="handleScheduledExportAdd"
+          @edit="handleScheduledExportEdit"
+          @delete="handleScheduledExportDelete"
+        />
+        <scheduled-export-form-fields
+          v-else
+          v-model:formData="currentScheduledExportFormData"
+          :editing-export="editingScheduledExport"
+        />
+      </template>
+
       <template v-slot:footer>
         <dp-button-row
+          v-if="isStatementExportView"
           class="text-right mt-auto"
           data-cy="exportModal"
           primary
@@ -302,6 +363,29 @@
           @primary-action="handleExport"
           @secondary-action="closeModal"
         />
+        <dp-button-row
+          v-else-if="['add', 'edit'].includes(getBaseScheduledExportMode(scheduledExportMode))"
+          class="text-right mt-auto"
+          data-cy="scheduledExport"
+          primary
+          secondary
+          :primary-text="getBaseScheduledExportMode(scheduledExportMode) === 'add' ? Translator.trans('export.xlsx.scheduled.add') : Translator.trans('save.changes')"
+          :secondary-text="Translator.trans('abort')"
+          @primary-action="handleScheduledExport"
+          @secondary-action="handleCancelScheduledExport"
+        />
+        <div
+          v-else-if="scheduledExportMode === 'manage'"
+          class="flex"
+        >
+          <dp-button
+            class="ml-auto"
+            data-cy="scheduledExport:close"
+            :text="Translator.trans('close')"
+            variant="outline"
+            @click="scheduledExportMode = null"
+          />
+        </div>
       </template>
     </dp-modal>
   </div>
@@ -325,6 +409,8 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations } from 'vuex'
 import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
+import ScheduledExportFormFields from '@DpJs/components/statement/statementExportModal/ScheduledExportFormFields'
+import ScheduledExportList from '@DpJs/components/statement/statementExportModal/ScheduledExportList'
 
 export default {
   name: 'StatementExportModal',
@@ -341,6 +427,8 @@ export default {
     DpRadio,
     DpUploadFiles,
     FilterFlyout,
+    ScheduledExportFormFields,
+    ScheduledExportList,
   },
 
   mixins: [sessionStorageMixin],
@@ -371,6 +459,29 @@ export default {
   data () {
     return {
       active: 'docx_normal',
+      scheduledExportMode: null,
+      editingScheduledExportId: null,
+      currentScheduledExportFormData: {
+        interval: '',
+        day: null,
+      },
+      scheduledExports: [ // Mock data for now
+        {
+          id: 'export-1',
+          interval: 'weekly',
+          day: 1 // Monday (Date.getDay() value)
+        },
+        {
+          id: 'export-2',
+          interval: 'monthly',
+          day: 15, // 15th day of month
+        },
+        {
+          id: 'export-3',
+          interval: 'daily',
+          day: null
+        },
+      ],
       docxColumns: {
         col1: {
           dataCy: 'exportModal:input:col1',
@@ -445,6 +556,20 @@ export default {
     ]),
 
     exportModalTitle () {
+      if (this.scheduledExportMode) {
+        switch (this.scheduledExportMode) {
+          case 'add':
+          case 'manage:add':
+            return Translator.trans('export.xlsx.scheduled.add')
+          case 'edit':
+            return Translator.trans('export.xlsx.scheduled.edit')
+          case 'manage':
+            return Translator.trans('export.xlsx.scheduled.manage')
+          default:
+            return ''
+        }
+      }
+
       return this.isSingleStatementExport ? Translator.trans('statement.export.do') : Translator.trans('export.statements')
     },
 
@@ -482,6 +607,18 @@ export default {
     templateStorageName () {
       return `templateHash_${this.procedureId}`
     },
+
+    isScheduledExportView () {
+      return this.scheduledExportMode !== null
+    },
+
+    isStatementExportView () {
+      return this.scheduledExportMode === null
+    },
+
+    editingScheduledExport () {
+      return this.scheduledExports.find(exp => exp.id === this.editingScheduledExportId) ?? null
+    }
   },
 
   methods: {
@@ -491,6 +628,21 @@ export default {
       setIsLoadingFilterFlyout: 'setIsLoading',
       setUngroupedFilterOptions: 'setUngroupedOptions',
     }),
+
+    addScheduledExport () {
+      this.scheduledExports.push({
+        id: `export-${Date.now()}`,
+        ...this.currentScheduledExportFormData,
+      })
+    },
+
+    getBaseScheduledExportMode (view) {
+      if (view.includes(':')) {
+        return view.split(':')[1]
+      }
+
+      return view
+    },
 
     buildFilterOption (option) {
       if (!option) {
@@ -541,9 +693,14 @@ export default {
     },
 
     closeModal () {
+      this.closeScheduledExportMode()
       this.resetExportModalState()
       this.resetFilterFlyout()
       this.resetExportModalInner()
+    },
+
+    closeScheduledExportMode () {
+      this.scheduledExportMode = null
     },
 
     async fetchFilterOptions (requestParams) {
@@ -632,6 +789,23 @@ export default {
       this.scrollModalToBottom()
     },
 
+    handleBack () {
+      this.active = 'xlsx_normal'
+
+      switch (this.scheduledExportMode) {
+        case 'add':
+        case 'manage':
+          this.closeScheduledExportMode()
+          break
+        case 'manage:add':
+        case 'edit':
+          this.openManageScheduledExportMode()
+          break
+        default:
+          this.closeScheduledExportMode()
+      }
+    },
+
     handleExport () {
       const columnTitles = {}
       const shouldConfirm = /^(docx|zip)_/.test(this.active)
@@ -667,6 +841,43 @@ export default {
         uploadedDocxTemplate: exportViaTemplate ? this.uploadedHash : null,
       })
       this.closeModal()
+    },
+
+    handleCancelScheduledExport () {
+      if (this.scheduledExportMode === 'edit' || this.scheduledExportMode === 'manage:add') {
+        this.openManageScheduledExportMode()
+      } else {
+        this.closeScheduledExportMode()
+      }
+
+      this.editingScheduledExportId = null
+    },
+
+    handleScheduledExport () {
+      const scheduledExportMode = this.getBaseScheduledExportMode(this.scheduledExportMode)
+
+      if (scheduledExportMode === 'add' && this.currentScheduledExportFormData.interval) {
+        this.addScheduledExport()
+
+      } else if (scheduledExportMode === 'edit' && this.editingScheduledExportId) {
+        this.updateExistingScheduledExport()
+      }
+
+      this.closeScheduledExportMode()
+    },
+
+    handleScheduledExportAdd () {
+      this.editingScheduledExportId = null
+      this.scheduledExportMode = 'manage:add'
+    },
+
+    handleScheduledExportEdit (exportId) {
+      this.editingScheduledExportId = exportId
+      this.scheduledExportMode = 'edit'
+    },
+
+    handleScheduledExportDelete (exportId) {
+      this.scheduledExports = this.scheduledExports.filter(exp => exp.id !== exportId) // ToDo: mock for now
     },
 
     initInitialFlyoutFilterSelection ({ isInitialWithQuery, groupedOptions, ungroupedOptions }) {
@@ -765,6 +976,10 @@ export default {
       this.resetExportModalInner()
     },
 
+    openManageScheduledExportMode () {
+      this.scheduledExportMode = 'manage'
+    },
+
     resetFilterFlyout () {
       this.$refs.filterFlyout?.reset?.()
     },
@@ -775,7 +990,13 @@ export default {
 
     resetExportModalState () {
       this.active = 'docx_normal'
+      this.currentView = 'main'
       this.customHeaderText = ''
+      this.currentScheduledExportFormData = {
+        interval: '',
+        day: null,
+      }
+      this.editingScheduledExportId = null
       this.isCitizenDataCensored = false
       this.isInstitutionDataCensored = false
       this.isObscure = false
@@ -847,6 +1068,19 @@ export default {
       }
 
       this.selectedTags = filterFlyout.itemsSelected
+    },
+
+    updateExistingScheduledExport () {
+      const index = this.scheduledExports.findIndex(
+        exp => exp.id === this.editingScheduledExportId
+      )
+
+      if (index !== -1) {
+        this.scheduledExports[index] = {
+          ...this.scheduledExports[index],
+          ...this.currentScheduledExportFormData,
+        }
+      }
     },
 
     updateFilterOptionsInStore ({ category, groupedOptions, ungroupedOptions }) {
