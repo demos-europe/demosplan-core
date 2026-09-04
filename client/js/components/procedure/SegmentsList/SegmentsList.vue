@@ -1206,7 +1206,7 @@ export default {
            * If 'feature_segment_lock_by_workflow_place' is active, users without `feature_administrate_segment_lock`
            * must not be able to bulk-edit segments whose workflow place is locked, so exclude them from the ID set.
            */
-          const idsFilter = {...this.getFilterQuery}
+          const idsFilter = { ...this.getFilterQuery }
 
           if (
             hasPermission('feature_segment_lock_by_workflow_place') &&
@@ -1708,8 +1708,8 @@ export default {
       // Compute new page with current page for changed number of items per page
       const page = Math.floor(
         (this.pagination.perPage * (this.pagination.currentPage - 1)) /
-        newSize +
-        1,
+          newSize +
+          1,
       )
 
       this.pagination.perPage = newSize
