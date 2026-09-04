@@ -1114,14 +1114,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-transform-object-assign@npm:^7.27.1":
-  version: 7.27.1
-  resolution: "@babel/plugin-transform-object-assign@npm:7.27.1"
+"@babel/plugin-transform-object-assign@npm:^7.29.7":
+  version: 7.29.7
+  resolution: "@babel/plugin-transform-object-assign@npm:7.29.7"
   dependencies:
-    "@babel/helper-plugin-utils": "npm:^7.27.1"
+    "@babel/helper-plugin-utils": "npm:^7.29.7"
   peerDependencies:
     "@babel/core": ^7.0.0-0
-  checksum: 10c0/3aa28124ea34e9919f5e7012a42e189320bbc84845f724aa4704677f135cb812eed98d9b0d0fa79026bd978863ab5cea32b4642ba48e9ae642028f3c3c3a842b
+  checksum: 10c0/c6a0bfbe3e847cfa306eed334dcc6a7832bb0aa5063ab54826f0484b153f9e3c1cda2adc463b79be6186cb6a228545862b246120fb893e6bd72be097c615083a
   languageName: node
   linkType: hard
 
@@ -7412,7 +7412,7 @@ __metadata:
     "@babel/plugin-proposal-object-rest-spread": "npm:^7.20.7"
     "@babel/plugin-syntax-dynamic-import": "npm:^7.8.3"
     "@babel/plugin-transform-modules-commonjs": "npm:^7.29.7"
-    "@babel/plugin-transform-object-assign": "npm:^7.27.1"
+    "@babel/plugin-transform-object-assign": "npm:^7.29.7"
     "@babel/plugin-transform-runtime": "npm:^7.29.0"
     "@babel/preset-env": "npm:^7.29.7"
     "@babel/preset-typescript": "npm:^7.29.7"
