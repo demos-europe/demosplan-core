@@ -7,8 +7,17 @@
 ## UNRELEASED
 
 ### Changed
+- api-platform upgraded from 3.4 to 4.3; 3.4.x is blocked by security advisories. Two options in `config/packages/api_platform.yaml` changed: `keep_legacy_inflector` no longer exists in v4 and was removed, and `validator.legacy_query_parameter_validation` is now `validator.query_parameter_validation` (same behaviour; deprecated in 4.2, removal in 5.0). Projects overriding either option must adjust them, otherwise the container fails to compile with an "Unrecognized option" error.
+
+### New dependencies
+- `symfony/type-info ^7.4` — required by api-platform 4.3 and pulled in transitively. It installs alongside Symfony 6.4 without a framework upgrade: the component has no 6.x release, so Symfony Flex exempts it from the `extra.symfony.require: "6.*.*"` constraint rather than filtering it out. No explicit root require is needed.
+
+## v4.58.0 (2026-08-27)
+
+### Changed
 - Requires `demos-europe/demosplan-addon` ^0.79, and every release from this one on does. The saved filter combinations of the assessment table were renamed `UserFilterSet` → `Bookmark`: entity, database table, repository, service and resource type, and in the contract layer `BookmarkInterface`, `BookmarkPath`, `Paths::bookmark()` and `BaseBookmarkResourceConfigBuilder`. Addons referring to any of the old names have to be updated. The table is renamed by an included migration, so no manual step is needed.
 ### Added
+- Organisation administrators and support can reset the two-factor authentication of a user in the user administration, for cases where access to the second factor was lost. The reset only removes the second factor and can never activate it for someone else. Every reset is recorded in the report so it stays traceable who reset it for whom.
 - Statements can now be imported from a CSV file, in addition to the existing Excel import. The import runs as a background job; files with more than 3,000 rows, a duplicate Eingangsnummer, or an oversized statement text are rejected with a clear error instead of importing only part of the file. (DPLAN-18247)
 
 ### Fixed
@@ -32,6 +41,13 @@
 
 ### Changed
 - The zip upload for planning documents now accepts files up to 2 GB
+
+## v4.54.1 (2026-08-27)
+
+### Fixed
+- Institution tags created under one customer were visible and assignable from any other customer. Tag access is now restricted to the customer the tag belongs to.
+- Institution tags that an institution holds in another customer were removed when updating tags in the current customer. These are now preserved.
+- Institution registration statuses could be delivered in a form that broke the frontend display; this has been corrected.
 
 ## v4.54.0 (2026-08-12)
 

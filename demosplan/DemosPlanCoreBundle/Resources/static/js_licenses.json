@@ -392,7 +392,7 @@
     {
         "package": "mini-css-extract-plugin",
         "license": "MIT",
-        "website": "https://github.com/webpack-contrib/mini-css-extract-plugin"
+        "website": "https://github.com/webpack/mini-css-extract-plugin"
     },
     {
         "package": "ol",
