@@ -41,6 +41,10 @@ parameters:
                 translationKey: "workflow.place"
                 noHighlighting: true
                 class: 'demosplan\DemosPlanCoreBundle\Entity\Workflow\Place'
+            sentViaMail:
+                fieldType: "string"
+                translationKey: "segment.sent.via.mail"
+                noHighlighting: true
             tags:
                 fieldType: "array"
                 translationKey: "segment.tags"
