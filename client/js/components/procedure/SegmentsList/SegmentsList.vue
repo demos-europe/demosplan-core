@@ -619,6 +619,7 @@ import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMi
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
+import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
 
 export default {
   name: 'SegmentsList',
@@ -1113,35 +1114,64 @@ export default {
       lscache.set(this.lsKey.selectedSort, sortValue)
     },
 
+    /**
+     * Transforms EDT-style filters to API Platform 3.0 format.
+     * EDT: filter[uuid][condition][path/value/operator]
+     * AP3: path.id[]=uuid or path[exists]=false for IS NULL
+     */
+    transformFiltersToApiPlatform (edtFilters) {
+      const apiFilters = {}
+
+      Object.values(edtFilters).forEach(({ condition } = {}) => {
+        if (!condition) {
+          return
+        }
+
+        const { path, value, operator } = condition
+
+        // Handle IS NULL operator (e.g., "unassigned")
+        if (operator === 'IS NULL') {
+          apiFilters[`exists[${path}]`] = false
+          return
+        }
+
+        const key = `${path}.id`
+
+        // Merge multiple values for the same path
+        apiFilters[key] = [
+          ...(apiFilters[key] ?? []),
+          value
+        ]
+      })
+
+      return apiFilters
+    },
+
     applyQuery (page) {
       lscache.remove(this.lsKey.allSegments)
       lscache.remove(this.lsKey.toggledSegments)
       this.allItemsCount = null
 
-      const filter = {
-        ...this.getFilterQuery,
-        sameProcedure: {
-          condition: {
-            path: 'parentStatement.procedure.id',
-            value: this.procedureId,
-          },
-        },
-      }
       const { include, fields } = this.buildSegmentFetchOptions()
+      const filter = this.transformFiltersToApiPlatform(this.getFilterQuery)
 
       const payload = {
         include,
+        fields,
+        pagination: 'true',
         /*
          * Client-side sorting needs the whole list at once, so it comes without a pager and requests
-         * 1000 items - the hard server-side cap (JsonApiPaginationParser::MAX_PAGE_SIZE).
+         * 1000 items - the hard server-side cap for API Platform paginationMaximumItemsPerPage.
          */
-        page: hasPermission('feature_segments_manualsort') ?
-          { number: 1, size: 1000 } :
-          { number: page, size: this.pagination.perPage },
-        // Baseline order so the list stays stable when selectedSort is '' (deadline sort, if active, is applied on top of this client-side).
-        sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
-        filter,
-        fields,
+        order: {
+          'parentStatementOfSegment.submit': 'asc',
+          'parentStatementOfSegment.externId': 'asc',
+          orderInProcedure: 'asc',
+        },
+        page: hasPermission('feature_segments_manualsort') ? 1 : page,
+        itemsPerPage: hasPermission('feature_segments_manualsort') ? 1000 : this.pagination.perPage,
+        'parentStatementOfSegment.procedure.id': this.procedureId,
+        ...filter,
       }
 
       if (this.searchTerm !== '') {
@@ -1159,29 +1189,30 @@ export default {
           /**
            * We need to set the localStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
            */
-          this.setLocalStorage(data.meta.pagination)
+          const pagination = {
+            total: data.meta.totalItems,
+            per_page: data.meta.itemsPerPage,
+            current_page: data.meta.currentPage,
+          }
+
+          this.setLocalStorage(pagination)
 
           // Fake the count from meta info of paged request, until `fetchSegmentIds()` resolves
-          this.allItemsCount = data.meta.pagination.total
-          this.updatePagination(data.meta.pagination)
+          this.allItemsCount = pagination.total
+          this.updatePagination(pagination)
 
           /*
            * Get all segments (without pagination) to save them in localStorage for bulk editing.
            * If 'feature_segment_lock_by_workflow_place' is active, users without `feature_administrate_segment_lock`
            * must not be able to bulk-edit segments whose workflow place is locked, so exclude them from the ID set.
            */
-          const idsFilter = { ...filter }
+          const idsFilter = { ...this.getFilterQuery }
 
           if (
             hasPermission('feature_segment_lock_by_workflow_place') &&
             !this.canUnlock
           ) {
-            idsFilter.placeNotLocked = {
-              condition: {
-                path: 'place.locked',
-                value: false,
-              },
-            }
+            idsFilter['place.locked'] = false
           }
 
           this.fetchSegmentIds({
@@ -1189,7 +1220,8 @@ export default {
             search: payload.search,
           })
         })
-        .catch(() => {
+        .catch((err) => {
+          console.log('err: ', err)
           if (
             Object.keys(this.getFilterQuery).length > 0 ||
             this.searchTerm !== ''
@@ -1239,11 +1271,10 @@ export default {
       }
 
       const statementSegmentInclude = [
+        'parentStatement',
         'assignee',
         'place',
         'tags',
-        'parentStatement.genericAttachments.file',
-        'parentStatement.sourceAttachment.file',
       ]
 
       if (hasPermission('field_segments_custom_fields')) {
@@ -1251,26 +1282,17 @@ export default {
       }
 
       if (hasPermission('feature_enable_recommendation_versions')) {
-        statementSegmentFields.push('recommendationVersions')
-        statementSegmentInclude.push('recommendationVersions')
+        statementSegmentFields.push('currentRecommendationVersionNumber')
       }
 
       const fields = {
-        File: [
-          'hash',
-        ].join(),
-        GenericStatementAttachment: [
-          'file',
-        ].join(),
-        Place: [
+        place: [
           'name',
           ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
         ].join(),
-        SourceStatementAttachment: ['file'].join(),
-        Statement: [
+        parentStatement: [
           'authoredDate',
           'authorName',
-          'genericAttachments',
           'isSubmittedByCitizen',
           'initialOrganisationDepartmentName',
           'initialOrganisationName',
@@ -1280,24 +1302,15 @@ export default {
           'initialOrganisationCity',
           'internId',
           'memo',
-          'sourceAttachment',
           'status',
           'submitDate',
           'submitName',
           'submitType',
         ].join(),
         StatementSegment: statementSegmentFields.join(),
-        Tag: [
+        tags: [
           'title',
         ].join(),
-      }
-
-      if (hasPermission('feature_enable_recommendation_versions')) {
-        fields.RecommendationVersion = [
-          'versionNumber',
-          'recommendationText',
-          'createdAt',
-        ].join()
       }
 
       return {
@@ -1541,7 +1554,8 @@ export default {
 
     /*
      * Loads full attribute data for selected segment ids that aren't in the Vuex store yet — only
-     * possible when "select all" spans more segments than the 1000-row main-fetch cap. Deliberately
+     * possible when "select all" spans more segments than the 1000-row main-fetch cap. Uses the
+     * apiUrl helper to ensure we hit the same API version (3.0) as the main fetch. Deliberately
      * bypasses the mapped `fetchSegments` ('list') action, which would reset the currently displayed
      * table; the raw JSON:API response is turned into standalone lookup maps instead.
      */
@@ -1554,18 +1568,11 @@ export default {
         idChunks.push(missingIds.slice(start, start + chunkSize))
       }
 
-      const fetchChunk = idChunk => dpApi.get(Routing.generate('api_resource_list', { resourceType: 'StatementSegment' }), {
+      // API Platform 3.0 format: use 'id[]' for multiple values (array filter)
+      const fetchChunk = idChunk => dpApi.get(apiUrl('StatementSegment', 'list'), {
         include,
         fields,
-        filter: {
-          idIsOneOf: {
-            condition: {
-              path: 'id',
-              value: idChunk,
-              operator: 'IN',
-            },
-          },
-        },
+        'id[]': idChunk,  // API Platform 3.0 array filter format
       })
 
       return idChunks

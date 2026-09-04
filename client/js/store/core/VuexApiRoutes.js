@@ -112,6 +112,10 @@ const api3_0Modules = {
     'list',
     'get',
   ],
+  StatementSegment: [
+    'list',
+    'get'
+  ],
 }
 
 const crudActions = [
