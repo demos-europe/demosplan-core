@@ -230,7 +230,7 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
         $segments[1] = $segments[1]->_real();
         $resultSegments = [];
         /** @var Segment[] $segments */
-        $segments = $this->segmentBulkEditService->updateSegments(
+        [$segments] = $this->segmentBulkEditService->updateSegments(
             $segments,
             [],
             [],
