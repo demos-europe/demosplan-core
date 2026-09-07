@@ -10,6 +10,51 @@
 export default {
   methods: {
     /**
+     * Normalize pagination data from both EDT 2.0 and API Platform 3.0 formats.
+     * @param {object} meta - Meta object from API response (data.meta).
+     * @returns {object} - Normalized pagination object with EDT 2.0 structure.
+     */
+    normalizePagination (meta) {
+      // API Platform 3.0 format
+      if ('totalItems' in meta) {
+        const {
+          totalItems,
+          currentPage,
+          itemsPerPage,
+        } = meta
+
+        return {
+          count: totalItems,
+          currentPage,
+          perPage: itemsPerPage,
+          total: totalItems,
+          totalPages: null,
+        }
+      }
+
+      // EDT 2.0 format
+      if (meta.pagination) {
+        const {
+          count,
+          current_page: currentPage,
+          per_page: perPage,
+          total,
+          total_pages: totalPages,
+        } = meta.pagination
+
+        return {
+          count,
+          currentPage,
+          perPage,
+          total,
+          totalPages,
+        }
+      }
+
+      return meta
+    },
+
+    /**
      * Set pagination for current page and items per page to default or stored values.
      */
     initPagination () {
@@ -29,28 +74,30 @@ export default {
 
     /**
      * Update pagination with data from the DB and local Storage.
-     * @param {object} data - Pagination data from the DB via API.
+     * @param {object} data - Pagination data from the DB via API (supports both EDT 2.0 and API Platform 3.0).
      */
     updatePagination (data) {
+      const normalized = this.normalizePagination(data)
       const currentPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).currentPage)
       const perPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).perPage)
 
       this.pagination = {
-        count: data.count,
+        count: normalized.count,
         currentPage,
         limits: this.defaultPagination.limits,
         perPage,
-        total: data.total,
-        totalPages: data.total_pages || null, // Total page count is not provided by API Platform 3.0
+        total: normalized.total,
+        totalPages: normalized.totalPages,
       }
     },
 
     /**
      * Set local storage for pagination.
-     * @param {object} data - Pagination data from the DB via API.
+     * @param {object} data - Pagination data from the DB via API (supports both EDT 2.0 and API Platform 3.0).
      */
     setLocalStorage (data) {
-      const paginationData = { currentPage: data.current_page, perPage: data.per_page }
+      const normalized = this.normalizePagination(data)
+      const paginationData = { currentPage: normalized.currentPage, perPage: normalized.perPage }
 
       window.localStorage.setItem(this.storageKeyPagination, JSON.stringify(paginationData))
     },

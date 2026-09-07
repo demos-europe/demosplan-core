@@ -1120,10 +1120,22 @@ export default {
     applyQuery (page) {
       lscache.remove(this.lsKey.allSegments)
       lscache.remove(this.lsKey.toggledSegments)
+
       this.allItemsCount = null
+      const hasManualSort = hasPermission('feature_segments_manualsort')
 
       const { include, fields } = this.buildSegmentFetchOptions()
-      const filter = this.transformFiltersToApiPlatform(this.getFilterQuery)
+
+      const filter = {
+        ...this.transformFiltersToApiPlatform(this.getFilterQuery),
+        'parentStatementOfSegment.procedure.id': this.procedureId,
+      }
+
+      const order = {
+        'parentStatementOfSegment.submit': 'asc',
+        'parentStatementOfSegment.externId': 'asc',
+        orderInProcedure: 'asc',
+      }
 
       const payload = {
         include,
@@ -1133,14 +1145,9 @@ export default {
          * Client-side sorting needs the whole list at once, so it comes without a pager and requests
          * 1000 items - the hard server-side cap for API Platform paginationMaximumItemsPerPage.
          */
-        order: {
-          'parentStatementOfSegment.submit': 'asc',
-          'parentStatementOfSegment.externId': 'asc',
-          orderInProcedure: 'asc',
-        },
-        page: hasPermission('feature_segments_manualsort') ? 1 : page,
-        itemsPerPage: hasPermission('feature_segments_manualsort') ? 1000 : this.pagination.perPage,
-        'parentStatementOfSegment.procedure.id': this.procedureId,
+        order,
+        page: hasManualSort ? 1 : page,
+        itemsPerPage: hasManualSort ? 1000 : this.pagination.perPage,
         ...filter,
       }
 
@@ -1159,17 +1166,11 @@ export default {
           /**
            * We need to set the localStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
            */
-          const pagination = {
-            total: data.meta.totalItems,
-            per_page: data.meta.itemsPerPage,
-            current_page: data.meta.currentPage,
-          }
-
-          this.setLocalStorage(pagination)
+          this.setLocalStorage(data.meta)
 
           // Fake the count from meta info of paged request, until `fetchSegmentIds()` resolves
-          this.allItemsCount = pagination.total
-          this.updatePagination(pagination)
+          this.allItemsCount = data.meta.totalItems
+          this.updatePagination(data.meta)
 
           /*
            * Get all segments (without pagination) to save them in localStorage for bulk editing.
