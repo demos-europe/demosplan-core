@@ -409,6 +409,10 @@ export default {
       'commentsList',
     ]),
 
+    ...mapState('Tag', {
+      tagsItems: 'items',
+    }),
+
     additionalAttachments () {
       if (this.statement?.hasRelationship('genericAttachments')) {
         const attachments = this.statement.relationships.genericAttachments.list()
@@ -601,6 +605,14 @@ export default {
     ...mapActions('SegmentSlidebar', [
       'toggleSlidebarContent',
     ]),
+
+    ...mapActions('Tag', {
+      listTags: 'list',
+    }),
+
+    ...mapActions('TagTopic', {
+      listTagTopics: 'list',
+    }),
 
     checkStatementClaim () {
       if (this.statementClaimChecked === false) {
@@ -930,6 +942,11 @@ export default {
       },
     })
     this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedure.id, statementId: this.statementId } })
+
+    if (Object.keys(this.tagsItems).length === 0) {
+      this.listTagTopics()
+      this.listTags({ include: 'topic' })
+    }
 
     globalThis.addEventListener('hashchange', this.handleHashChange)
 

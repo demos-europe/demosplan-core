@@ -225,6 +225,12 @@
           {{ `${Translator.trans('version')}: ${recommendationVersionNumber}` }}
         </span>
       </div>
+      <segment-tags
+        v-if="isAssignedToMe && !isLocked"
+        :segment-id="segment.id"
+        :tags="segmentTags"
+        @update="updateSegmentTags"
+      />
       <div v-if="isAssignedToMe && !isLocked">
         <dp-checkbox
           :id="'showWorkflowFields_' + segment.id"
@@ -515,6 +521,7 @@ import {
   formatDate,
   prefixClassMixin,
   reformatDateString,
+  sortAlphabetically,
   Tooltip,
   VPopover,
 } from '@demos-europe/demosplan-ui'
@@ -526,6 +533,7 @@ import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import ImageModal from '@DpJs/components/shared/ImageModal'
 import RecommendationModal from '../Shared/RecommendationModal'
+import SegmentTags from './SegmentTags'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useUnsavedChangesGuard } from '@DpJs/composables/useUnsavedChangesGuard'
@@ -557,6 +565,7 @@ export default {
     DpTooltip,
     ImageModal,
     RecommendationModal,
+    SegmentTags,
     TextContentRenderer,
     VPopover,
   },
@@ -651,6 +660,10 @@ export default {
       'slidebar',
     ]),
 
+    ...mapState('Tag', {
+      tagsItems: 'items',
+    }),
+
     assignableUsers () {
       const assigneeOptions = Object.values({ ...this.assignableUserItems })
         .map(assignableUser => {
@@ -725,11 +738,16 @@ export default {
       const currentAssigneeId = (this.selectedAssignee?.id && this.selectedAssignee.id !== 'noAssigneeId') ? this.selectedAssignee.id : null
       const hasAssigneeChanges = initialAssigneeId !== currentAssigneeId
 
+      const initialTagIds = (initialSegment.relationships?.tags?.data || []).map(tag => tag.id).sort()
+      const currentTagIds = (this.segment.relationships?.tags?.data || []).map(tag => tag.id).sort()
+      const hasTagChanges = JSON.stringify(initialTagIds) !== JSON.stringify(currentTagIds)
+
       return (
         hasRecommendationChanges ||
         hasDeadlineChanges ||
         hasPlaceChanges ||
         hasAssigneeChanges ||
+        hasTagChanges ||
         this.hasCustomFieldChanges
       )
     },
@@ -781,6 +799,18 @@ export default {
         {}
     },
 
+    segmentTags () {
+      const ids = this.segment.relationships?.tags?.data?.map(ref => ref.id) || []
+      const included = this.segment.hasRelationship('tags') ? Object.values(this.segment.rel('tags')).filter(Boolean) : []
+
+      return sortAlphabetically(
+        ids
+          .map(id => included.find(tag => tag.id === id) || this.tagsItems[id])
+          .filter(Boolean),
+        'attributes.title',
+      )
+    },
+
     shouldShowButtonRow () {
       return this.isAssignedToMe &&
         !this.isLocked &&
@@ -788,11 +818,7 @@ export default {
     },
 
     tagsAsString () {
-      if (this.segment.hasRelationship('tags')) {
-        return Object.values(this.segment.rel('tags')).map(el => el.attributes.title).join(', ')
-      }
-
-      return '-'
+      return this.segmentTags.length ? this.segmentTags.map(tag => tag.attributes.title).join(', ') : '-'
     },
 
     visibleRecommendation () {
@@ -1468,6 +1494,20 @@ export default {
 
     updateSegment (key, val) {
       const updated = { ...this.segment, ...{ attributes: { ...this.segment.attributes, ...{ [key]: val } } } }
+
+      this.setSegment({ ...updated, id: this.segment.id })
+    },
+
+    updateSegmentTags (newTags) {
+      const updated = {
+        ...this.segment,
+        relationships: {
+          ...this.segment.relationships,
+          tags: {
+            data: newTags.map(tag => ({ id: tag.id, type: 'Tag' })),
+          },
+        },
+      }
 
       this.setSegment({ ...updated, id: this.segment.id })
     },
