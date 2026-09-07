@@ -951,7 +951,7 @@ export default {
     const hasTopics = Object.keys(this.tagTopicsItems).length > 0
 
     if (!hasTopics) {
-      this.listTagTopics()
+      this.listTagTopics({ page: { size: 1000 } })
     }
 
     if (!hasTags) {
