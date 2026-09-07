@@ -25,12 +25,12 @@ class CsvExporter
      * @throws CannotInsertRecord
      * @throws Exception
      */
-    public function generate(array $formattedData, array $columnsDefinition): string
+    public function generate(array $formattedData, array $columnsDefinition, string $delimiter = ','): string
     {
         $csv = Writer::fromString('');
         $csv->setOutputBOM(Bom::Utf8); // Add UTF-8 BOM - Excel needs this to properly display special characters in CSV files
 
-        $csv->setDelimiter(',');
+        $csv->setDelimiter($delimiter);
         $csv->setEnclosure('"');
         $csv->setEscape('\\');
 
