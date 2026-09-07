@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\MessageHandler;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Message\PurgePendingBoilerplateDeletionsMessage;
 use demosplan\DemosPlanCoreBundle\Traits\InitializesAnonymousUserPermissionsTrait;
@@ -28,6 +29,7 @@ final class PurgePendingBoilerplateDeletionsMessageHandler
 
     public function __construct(
         private readonly ProcedureHandler $procedureHandler,
+        private readonly PermissionsInterface $permissions,
         private readonly LoggerInterface $logger,
     ) {
     }
