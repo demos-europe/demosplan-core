@@ -164,11 +164,17 @@ function fetchTagTopicByTagId (): Promise<Record<string, string | null>> {
     tagTopicByTagIdPromise = (dpApi as unknown as { get: DpApiGet }).get(Routing.generate('api_resource_list', { resourceType: 'Tag' }), {
       include: 'topic',
       fields: { Tag: 'topic' },
-    }).then((response) => response.data.data.reduce((map: Record<string, string | null>, tag: Tag) => {
-      map[tag.id] = tag.relationships?.topic?.data?.id ?? null
+    })
+      .then(response => response.data.data.reduce((map: Record<string, string | null>, tag: Tag) => {
+        map[tag.id] = tag.relationships?.topic?.data?.id ?? null
 
-      return map
-    }, {} as Record<string, string | null>))
+        return map
+      }, {} as Record<string, string | null>))
+      .catch(() => {
+        tagTopicByTagIdPromise = null
+
+        return {}
+      })
   }
 
   return tagTopicByTagIdPromise
