@@ -413,6 +413,10 @@ export default {
       tagsItems: 'items',
     }),
 
+    ...mapState('TagTopic', {
+      tagTopicsItems: 'items',
+    }),
+
     additionalAttachments () {
       if (this.statement?.hasRelationship('genericAttachments')) {
         const attachments = this.statement.relationships.genericAttachments.list()
@@ -943,8 +947,14 @@ export default {
     })
     this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedure.id, statementId: this.statementId } })
 
-    if (Object.keys(this.tagsItems).length === 0) {
+    const hasTags = Object.keys(this.tagsItems).length > 0
+    const hasTopics = Object.keys(this.tagTopicsItems).length > 0
+
+    if (!hasTopics) {
       this.listTagTopics()
+    }
+
+    if (!hasTags) {
       this.listTags({ include: 'topic' })
     }
 
