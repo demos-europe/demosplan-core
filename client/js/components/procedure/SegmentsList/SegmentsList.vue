@@ -253,7 +253,6 @@
                 </div>
                 <template v-slot:popover>
                   <statement-meta-tooltip
-                    v-if="statementsObject[rowData.relationships.parentStatement.data.id]"
                     :assignable-users="assignableUsers"
                     :statement="
                       statementsObject[
