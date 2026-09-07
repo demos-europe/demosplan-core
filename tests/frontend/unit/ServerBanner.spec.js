@@ -25,16 +25,26 @@ describe('ServerBanner', () => {
     await wrapper.findComponent({ name: 'DpButton' }).vm.$emit('click')
 
     expect(wrapper.find('div').exists()).toBe(false)
-    expect(sessionStorage.getItem(storageKey)).toBe('1')
+    expect(sessionStorage.getItem(storageKey)).toBe(message)
   })
 
   it('does not render if the banner was already dismissed earlier in this session', () => {
-    sessionStorage.setItem(storageKey, '1')
+    sessionStorage.setItem(storageKey, message)
 
     const dismissedWrapper = shallowMountWithGlobalMocks(ServerBanner, {
       props: { message },
     })
 
     expect(dismissedWrapper.find('div').exists()).toBe(false)
+  })
+
+  it('renders again if the message changed since it was last dismissed', () => {
+    sessionStorage.setItem(storageKey, 'some earlier message')
+
+    const changedWrapper = shallowMountWithGlobalMocks(ServerBanner, {
+      props: { message },
+    })
+
+    expect(changedWrapper.find('div').exists()).toBe(true)
   })
 })

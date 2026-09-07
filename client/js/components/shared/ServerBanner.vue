@@ -11,6 +11,7 @@
   <div
     v-if="isVisible"
     :class="prefixClass('bg-message-warning text-message-warning border border-message-warning relative px-2 pt-2')"
+    role="alert"
   >
     <div
       v-html="sanitizedMessage"
@@ -20,7 +21,7 @@
       :text="Translator.trans('close')"
       hide-text
       icon="x"
-      variant="subtle"
+      variant="transparent"
       @click="dismiss"
     />
   </div>
@@ -39,11 +40,11 @@ const props = defineProps({
 })
 
 const storageKey = 'serverBannerDismissed'
-const isVisible = ref(sessionStorage.getItem(storageKey) === null)
+const isVisible = ref(sessionStorage.getItem(storageKey) !== props.message)
 const sanitizedMessage = computed(() => DomPurify.sanitize(props.message))
 
 const dismiss = () => {
   isVisible.value = false
-  sessionStorage.setItem(storageKey, '1')
+  sessionStorage.setItem(storageKey, props.message)
 }
 </script>
