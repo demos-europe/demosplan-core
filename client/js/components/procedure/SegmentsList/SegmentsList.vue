@@ -1177,13 +1177,23 @@ export default {
            * If 'feature_segment_lock_by_workflow_place' is active, users without `feature_administrate_segment_lock`
            * must not be able to bulk-edit segments whose workflow place is locked, so exclude them from the ID set.
            */
-          const idsFilter = { ...this.getFilterQuery }
+          const idsFilter = {
+            ...this.getFilterQuery,
+            sameProcedure: {
+              condition: {
+                path: 'parentStatement.procedure.id',
+                value: this.procedureId,
+              },
+            },
+          }
 
-          if (
-            hasPermission('feature_segment_lock_by_workflow_place') &&
-            !this.canUnlock
-          ) {
-            idsFilter['place.locked'] = false
+          if (hasPermission('feature_segment_lock_by_workflow_place') && !this.canUnlock) {
+            idsFilter.placeNotLocked = {
+              condition: {
+                path: 'place.locked',
+                value: false,
+              },
+            }
           }
 
           this.fetchSegmentIds({
@@ -1192,11 +1202,7 @@ export default {
           })
         })
         .catch((err) => {
-          console.log('err: ', err)
-          if (
-            Object.keys(this.getFilterQuery).length > 0 ||
-            this.searchTerm !== ''
-          ) {
+          if (Object.keys(this.getFilterQuery).length > 0 || this.searchTerm !== '') {
             this.resetQuery()
             dplan.notify.notify(
               'warning',
@@ -1232,9 +1238,9 @@ export default {
         'orderInProcedure',
         'parentStatement',
         'place',
+        'recommendation',
         'tags',
         'text',
-        'recommendation',
       ]
 
       if (this.hasDeadlineColumn) {
@@ -1242,8 +1248,8 @@ export default {
       }
 
       const statementSegmentInclude = [
-        'parentStatement',
         'assignee',
+        'parentStatement',
         'place',
         'tags',
       ]
@@ -1256,6 +1262,13 @@ export default {
         statementSegmentFields.push('currentRecommendationVersionNumber')
       }
 
+      /**
+       * API Platform (3.0)
+       *
+       * Key naming convention:
+       * - Main resource type: PascalCase (e.g., 'StatementSegment') - matches ResourceType::getName()
+       * - Related resources: camelCase (e.g., 'parentStatement', 'place', 'tags') - matches relationship property names
+       */
       const fields = {
         place: [
           'name',
