@@ -112,6 +112,7 @@ import { CleanHtml, dpApi, DpButton, DpMultiselect, sortAlphabetically } from '@
 import { computed, inject, onMounted, type PropType, ref } from 'vue'
 // eslint-disable-next-line import/extensions -- vue-tsc can't resolve an extensionless .vue import (see eslint.config.js:286-288)
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper.vue'
+import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import { useStore } from 'vuex'
 
@@ -161,7 +162,7 @@ let tagTopicByTagIdPromise: Promise<Record<string, string | null>> | null = null
 
 function fetchTagTopicByTagId (): Promise<Record<string, string | null>> {
   if (tagTopicByTagIdPromise === null) {
-    tagTopicByTagIdPromise = (dpApi as unknown as { get: DpApiGet }).get(Routing.generate('api_resource_list', { resourceType: 'Tag' }), {
+    tagTopicByTagIdPromise = (dpApi as unknown as { get: DpApiGet }).get(apiUrl('Tag'), {
       include: 'topic',
       fields: { Tag: 'topic' },
     })
