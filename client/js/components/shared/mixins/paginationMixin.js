@@ -41,7 +41,7 @@ export default {
         limits: this.defaultPagination.limits,
         perPage,
         total: data.total,
-        totalPages: data.total_pages,
+        totalPages: data.total_pages || null, // Total page count is not provided by API Platform 3.0
       }
     },
 

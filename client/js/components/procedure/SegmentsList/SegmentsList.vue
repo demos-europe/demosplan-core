@@ -253,6 +253,7 @@
                 </div>
                 <template v-slot:popover>
                   <statement-meta-tooltip
+                    v-if="statementsObject[rowData.relationships.parentStatement.data.id]"
                     :assignable-users="assignableUsers"
                     :statement="
                       statementsObject[
@@ -618,6 +619,7 @@ import StatusBadge from '../Shared/StatusBadge'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
+import { useFilterTransform } from '@DpJs/composables/useFilterTransform'
 import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
 import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
 
@@ -705,8 +707,9 @@ export default {
 
   setup () {
     const { unlockModal, openUnlockModal, unlockSegment } = useSegmentUnlock()
+    const { transformFiltersToApiPlatform } = useFilterTransform()
 
-    return { unlockModal, openUnlockModal, unlockSegment }
+    return { unlockModal, openUnlockModal, unlockSegment, transformFiltersToApiPlatform }
   },
 
   data () {
@@ -1112,39 +1115,6 @@ export default {
     applySort (sortValue) {
       this.selectedSort = sortValue
       lscache.set(this.lsKey.selectedSort, sortValue)
-    },
-
-    /**
-     * Transforms EDT-style filters to API Platform 3.0 format.
-     * EDT: filter[uuid][condition][path/value/operator]
-     * AP3: path.id[]=uuid or path[exists]=false for IS NULL
-     */
-    transformFiltersToApiPlatform (edtFilters) {
-      const apiFilters = {}
-
-      Object.values(edtFilters).forEach(({ condition } = {}) => {
-        if (!condition) {
-          return
-        }
-
-        const { path, value, operator } = condition
-
-        // Handle IS NULL operator (e.g., "unassigned")
-        if (operator === 'IS NULL') {
-          apiFilters[`exists[${path}]`] = false
-          return
-        }
-
-        const key = `${path}.id`
-
-        // Merge multiple values for the same path
-        apiFilters[key] = [
-          ...(apiFilters[key] ?? []),
-          value
-        ]
-      })
-
-      return apiFilters
     },
 
     applyQuery (page) {
@@ -1572,7 +1542,7 @@ export default {
       const fetchChunk = idChunk => dpApi.get(apiUrl('StatementSegment', 'list'), {
         include,
         fields,
-        'id[]': idChunk,  // API Platform 3.0 array filter format
+        id: idChunk,  // API Platform 3.0 array filter format
       })
 
       return idChunks
