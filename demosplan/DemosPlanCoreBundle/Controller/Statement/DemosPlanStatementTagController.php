@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use Carbon\Carbon;
 use DemosEurope\DemosplanAddon\Contracts\Events\UpdateTagEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
@@ -19,8 +20,11 @@ use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\TagListCsvExporter;
+use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
 use demosplan\DemosPlanCoreBundle\Traits\CanTransformRequestVariablesTrait;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -149,6 +153,45 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
                 'procedure'    => $procedure,
             ]
         );
+    }
+
+    /**
+     * Exports the list of Tags (and their Topics and boilerplates) of the given procedure as CSV.
+     */
+    #[DplanPermissions('area_admin_statements_tag')]
+    #[Route(
+        path: '/verfahren/{procedureId}/schlagworte/export/csv',
+        name: 'DemosPlan_statement_administration_tags_export',
+        options: ['expose' => true],
+        defaults: ['master' => false],
+        methods: ['GET']
+    )]
+    public function tagListExport(
+        NameGenerator $nameGenerator,
+        TagListCsvExporter $tagListCsvExporter,
+        TagTopicRepository $tagTopicRepository,
+        TranslatorInterface $translator,
+        string $procedureId,
+    ): Response {
+        try {
+            $tagTopics = $tagTopicRepository->findBy(['procedure' => $procedureId], ['createDate' => 'ASC']);
+            $csv = $tagListCsvExporter->export($tagTopics);
+
+            $response = new Response($csv);
+            $response->headers->set('Pragma', 'no-cache');
+            $response->headers->set('Cache-Control', 'no-cache');
+            $response->headers->set('Content-Type', 'text/plain; charset=utf-8');
+
+            $filename = $translator->trans('tag.list.export').'-'.Carbon::now('Europe/Berlin')->format('d-m-Y-H:i').'.csv';
+            $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($filename));
+
+            return $response;
+        } catch (Exception $e) {
+            $this->logger->error('error.export', [$e]);
+            $this->getMessageBag()->add('error', 'error.export');
+
+            return $this->redirectToRoute('DemosPlan_statement_administration_tags', ['procedure' => $procedureId]);
+        }
     }
 
     /**

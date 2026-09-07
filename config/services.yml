@@ -919,6 +919,8 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory: ~
 
+    demosplan\DemosPlanCoreBundle\Logic\Report\UserReportEntryFactory: ~
+
     demosplan\DemosPlanCoreBundle\Logic\Report\ExportReportService:
         lazy: true
 
