@@ -348,7 +348,7 @@ export default {
         serviceTypeOptions.push({ value: 'wmts', label: 'WMTS' })
       }
 
-      if (hasPermission('feature_diplan_karte')) {
+      if (hasPermission('feature_map_oaf')) {
         serviceTypeOptions.push({ value: 'OAF', label: 'OGC API – Features (OAF)' })
       }
 
@@ -384,6 +384,7 @@ export default {
     convertOgcUriToEpsgLabel (ogcUri) {
       // Handle EPSG URIs
       const epsgMatch = ogcUri.match(/\/EPSG\/\d+\/(\d+)$/i)
+
       if (epsgMatch) {
         return `EPSG:${epsgMatch[1]}`
       }
@@ -416,6 +417,7 @@ export default {
       if (nextSlashIndex !== -1) {
         endIndex = nextSlashIndex
       }
+
       if (nextQueryIndex !== -1 && nextQueryIndex < endIndex) {
         endIndex = nextQueryIndex
       }
@@ -696,6 +698,7 @@ export default {
      */
     setProjectionFromOgcUri (ogcUri) {
       const epsgLabel = this.convertOgcUriToEpsgLabel(ogcUri)
+
       this.projection = epsgLabel
       dplan.notify.confirm(Translator.trans('map.layer.oaf.projection.detected', { projection: epsgLabel }))
     },
@@ -717,6 +720,7 @@ export default {
       // Check if URL contains /collections/ (case-insensitive)
       if (collectionsIndex === -1) {
         const errorMessage = Translator.trans('error.map.layer.oaf.missing.collections')
+
         dplan.notify.error(errorMessage)
 
         return false
@@ -728,6 +732,7 @@ export default {
 
       if (hasNoCollectionName) {
         const errorMessage = Translator.trans('error.map.layer.oaf.collections.end')
+
         dplan.notify.error(errorMessage)
 
         return false
@@ -766,6 +771,7 @@ export default {
         }
 
         this.getOafProjection()
+
         return
       }
 
@@ -787,6 +793,7 @@ export default {
       // Check if URL contains SERVICE parameter
       if (!upperUrl.includes('SERVICE=')) {
         const errorMessage = Translator.trans('error.map.layer.missing.service')
+
         dplan.notify.error(errorMessage)
 
         return false

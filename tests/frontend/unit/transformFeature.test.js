@@ -8,88 +8,92 @@
  */
 
 import { transformFeatureCollection, transformGeometry } from '@DpJs/lib/map/transformFeature'
+import proj4 from 'proj4'
+import { vi } from 'vitest'
 
 // Mock proj4 to avoid dependency on actual projections
-jest.mock('proj4', () => {
-  return jest.fn(() => ({
-    // Mock transformation: simply add 1000 to each coordinate
-    forward: jest.fn((coord) => [coord[0] + 1000, coord[1] + 1000])
-  }))
+vi.mock('proj4', () => {
+  return {
+    default: vi.fn(() => ({
+      // Mock transformation: simply add 1000 to each coordinate
+      forward: vi.fn((coord) => [coord[0] + 1000, coord[1] + 1000]),
+    })),
+  }
 })
 
 describe('transformFeature', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('transformGeometry', () => {
     it('transforms Point geometry', () => {
       const pointGeometry = {
         type: 'Point',
-        coordinates: [10, 20]
+        coordinates: [10, 20],
       }
 
       const result = transformGeometry(pointGeometry, 'EPSG:4326', 'EPSG:3857')
 
       expect(result).toEqual({
         type: 'Point',
-        coordinates: [1010, 1020]
+        coordinates: [1010, 1020],
       })
     })
 
     it('transforms LineString geometry', () => {
       const lineStringGeometry = {
         type: 'LineString',
-        coordinates: [[10, 20], [30, 40]]
+        coordinates: [[10, 20], [30, 40]],
       }
 
       const result = transformGeometry(lineStringGeometry, 'EPSG:4326', 'EPSG:3857')
 
       expect(result).toEqual({
         type: 'LineString',
-        coordinates: [[1010, 1020], [1030, 1040]]
+        coordinates: [[1010, 1020], [1030, 1040]],
       })
     })
 
     it('transforms MultiPoint geometry', () => {
       const multiPointGeometry = {
         type: 'MultiPoint',
-        coordinates: [[10, 20], [30, 40]]
+        coordinates: [[10, 20], [30, 40]],
       }
 
       const result = transformGeometry(multiPointGeometry, 'EPSG:4326', 'EPSG:3857')
 
       expect(result).toEqual({
         type: 'MultiPoint',
-        coordinates: [[1010, 1020], [1030, 1040]]
+        coordinates: [[1010, 1020], [1030, 1040]],
       })
     })
 
     it('transforms Polygon geometry', () => {
       const polygonGeometry = {
         type: 'Polygon',
-        coordinates: [[[10, 20], [30, 40], [50, 60], [10, 20]]]
+        coordinates: [[[10, 20], [30, 40], [50, 60], [10, 20]]],
       }
 
       const result = transformGeometry(polygonGeometry, 'EPSG:4326', 'EPSG:3857')
 
       expect(result).toEqual({
         type: 'Polygon',
-        coordinates: [[[1010, 1020], [1030, 1040], [1050, 1060], [1010, 1020]]]
+        coordinates: [[[1010, 1020], [1030, 1040], [1050, 1060], [1010, 1020]]],
       })
     })
 
     it('transforms MultiLineString geometry', () => {
       const multiLineStringGeometry = {
         type: 'MultiLineString',
-        coordinates: [[[10, 20], [30, 40]], [[50, 60], [70, 80]]]
+        coordinates: [[[10, 20], [30, 40]], [[50, 60], [70, 80]]],
       }
 
       const result = transformGeometry(multiLineStringGeometry, 'EPSG:4326', 'EPSG:3857')
 
       expect(result).toEqual({
         type: 'MultiLineString',
-        coordinates: [[[1010, 1020], [1030, 1040]], [[1050, 1060], [1070, 1080]]]
+        coordinates: [[[1010, 1020], [1030, 1040]], [[1050, 1060], [1070, 1080]]],
       })
     })
 
@@ -98,8 +102,8 @@ describe('transformFeature', () => {
         type: 'MultiPolygon',
         coordinates: [
           [[[10, 20], [30, 40], [50, 60], [10, 20]]],
-          [[[70, 80], [90, 100], [110, 120], [70, 80]]]
-        ]
+          [[[70, 80], [90, 100], [110, 120], [70, 80]]],
+        ],
       }
 
       const result = transformGeometry(multiPolygonGeometry, 'EPSG:4326', 'EPSG:3857')
@@ -108,15 +112,15 @@ describe('transformFeature', () => {
         type: 'MultiPolygon',
         coordinates: [
           [[[1010, 1020], [1030, 1040], [1050, 1060], [1010, 1020]]],
-          [[[1070, 1080], [1090, 1100], [1110, 1120], [1070, 1080]]]
-        ]
+          [[[1070, 1080], [1090, 1100], [1110, 1120], [1070, 1080]]],
+        ],
       })
     })
 
     it('returns original geometry for unknown type', () => {
       const unknownGeometry = {
         type: 'UnknownType',
-        coordinates: [10, 20]
+        coordinates: [10, 20],
       }
 
       const result = transformGeometry(unknownGeometry, 'EPSG:4326', 'EPSG:3857')
@@ -127,13 +131,12 @@ describe('transformFeature', () => {
     it('uses default target projection when not specified', () => {
       const pointGeometry = {
         type: 'Point',
-        coordinates: [10, 20]
+        coordinates: [10, 20],
       }
 
       transformGeometry(pointGeometry, 'EPSG:4326')
 
       // Check that proj4 was called with correct parameters
-      const proj4 = require('proj4')
       expect(proj4).toHaveBeenCalledWith('EPSG:4326', 'EPSG:3857')
     })
 
@@ -141,7 +144,7 @@ describe('transformFeature', () => {
       const pointGeometry = {
         type: 'Point',
         coordinates: [10, 20],
-        customProperty: 'test'
+        customProperty: 'test',
       }
 
       const result = transformGeometry(pointGeometry, 'EPSG:4326', 'EPSG:3857')
@@ -159,23 +162,23 @@ describe('transformFeature', () => {
             type: 'Feature',
             geometry: {
               type: 'Point',
-              coordinates: [10, 20]
+              coordinates: [10, 20],
             },
             properties: {
-              name: 'Feature 1'
-            }
+              name: 'Feature 1',
+            },
           },
           {
             type: 'Feature',
             geometry: {
               type: 'LineString',
-              coordinates: [[30, 40], [50, 60]]
+              coordinates: [[30, 40], [50, 60]],
             },
             properties: {
-              name: 'Feature 2'
-            }
-          }
-        ]
+              name: 'Feature 2',
+            },
+          },
+        ],
       }
 
       const result = transformFeatureCollection(featureCollection, 'EPSG:4326', 'EPSG:3857')
@@ -201,11 +204,11 @@ describe('transformFeature', () => {
             type: 'Feature',
             geometry: {
               type: 'Point',
-              coordinates: [10, 20]
+              coordinates: [10, 20],
             },
-            properties: {}
-          }
-        ]
+            properties: {},
+          },
+        ],
       }
 
       const result = transformFeatureCollection(featureCollection, 'EPSG:4326', 'EPSG:3857')
@@ -221,24 +224,23 @@ describe('transformFeature', () => {
             type: 'Feature',
             geometry: {
               type: 'Point',
-              coordinates: [10, 20]
+              coordinates: [10, 20],
             },
-            properties: {}
-          }
-        ]
+            properties: {},
+          },
+        ],
       }
 
       transformFeatureCollection(featureCollection, 'EPSG:4326')
 
       // Check that proj4 was called with correct parameters
-      const proj4 = require('proj4')
       expect(proj4).toHaveBeenCalledWith('EPSG:4326', 'EPSG:3857')
     })
 
     it('handles empty feature collection', () => {
       const featureCollection = {
         type: 'FeatureCollection',
-        features: []
+        features: [],
       }
 
       const result = transformFeatureCollection(featureCollection, 'EPSG:4326', 'EPSG:3857')
@@ -256,14 +258,14 @@ describe('transformFeature', () => {
             id: 'test-id',
             geometry: {
               type: 'Point',
-              coordinates: [10, 20]
+              coordinates: [10, 20],
             },
             properties: {
               name: 'Test Feature',
-              description: 'A test feature'
-            }
-          }
-        ]
+              description: 'A test feature',
+            },
+          },
+        ],
       }
 
       const result = transformFeatureCollection(featureCollection, 'EPSG:4326', 'EPSG:3857')
