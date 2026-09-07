@@ -619,7 +619,7 @@ import StatusBadge from '../Shared/StatusBadge'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
-import { useFilterTransform } from '@DpJs/composables/useFilterTransform'
+import { useApiPlatformFilters } from '@DpJs/composables/useApiPlatformFilters'
 import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
 import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
 
@@ -707,7 +707,7 @@ export default {
 
   setup () {
     const { unlockModal, openUnlockModal, unlockSegment } = useSegmentUnlock()
-    const { transformFiltersToApiPlatform } = useFilterTransform()
+    const { transformFiltersToApiPlatform } = useApiPlatformFilters()
 
     return { unlockModal, openUnlockModal, unlockSegment, transformFiltersToApiPlatform }
   },

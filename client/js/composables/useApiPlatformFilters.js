@@ -10,7 +10,7 @@
 /**
  * Composable for transforming EDT-style filters to API Platform 3.0 format.
  */
-export function useFilterTransform () {
+export function useApiPlatformFilters () {
   /**
    * Transforms EDT-style filters to API Platform 3.0 format.
    * EDT: filter[uuid][condition][path/value/operator]
