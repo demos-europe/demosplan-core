@@ -1128,7 +1128,7 @@ export default {
       const payload = {
         include,
         fields,
-        pagination: 'true',
+        pagination: true,
         /*
          * Client-side sorting needs the whole list at once, so it comes without a pager and requests
          * 1000 items - the hard server-side cap for API Platform paginationMaximumItemsPerPage.
