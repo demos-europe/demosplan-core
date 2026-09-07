@@ -11,11 +11,11 @@
 namespace Tests\Core\Customer;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Permission\UserAccessControlFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedurePhaseDefinitionFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
-use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControl;
 use demosplan\DemosPlanCoreBundle\Entity\Permission\UserAccessControl;
@@ -34,7 +34,7 @@ class CustomerDeleterTest extends FunctionalTestCase
 {
     /** @var array<int, Customer|Proxy>|null */
     private ?array $testCustomers;
-    private null|Customer|Proxy $testCustomerToDelete;
+    private Customer|Proxy|null $testCustomerToDelete;
     private ?Customer $customerToDelete;
     private ?Customer $otherCustomer;
     /** @var CustomerDeleter */
