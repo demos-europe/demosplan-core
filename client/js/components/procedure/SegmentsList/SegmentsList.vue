@@ -1551,7 +1551,6 @@ export default {
         idChunks.push(missingIds.slice(start, start + chunkSize))
       }
 
-      // API Platform 3.0 format: use 'id[]' for multiple values (array filter)
       const fetchChunk = idChunk => dpApi.get(apiUrl('StatementSegment', 'list'), {
         include,
         fields,
