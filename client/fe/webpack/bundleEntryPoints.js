@@ -60,6 +60,7 @@ function bundleEntryPoints (config) {
 
   // Scan addon bundles (generic, not addon-specific)
   const addonBundleGlob = path.resolve(__dirname, config.relativeRoot) + '/addons/vendor/demos-europe/demosplan-addon-*/client/js/bundles/**/*.js'
+
   glob.sync(addonBundleGlob).forEach(filename => {
     let parts = filename.split('/')
     const bundle = parts[parts.length - 2]
