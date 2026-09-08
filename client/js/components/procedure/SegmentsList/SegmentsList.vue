@@ -99,18 +99,6 @@
         v-if="items.length > 0"
         class="flex justify-between items-center mt-4"
       >
-        <div
-          v-if="hasPermission('feature_segments_manualsort')"
-          class="ml-auto flex items-center space-inline-xs"
-        >
-          <dp-select
-            id="applySortSelection"
-            :label="{ text: Translator.trans('sorting') }"
-            :options="sortOptions"
-            :selected="selectedSort"
-            @select="applySort"
-          />
-        </div>
         <dp-pager
           v-if="pagination.currentPage && !hasPermission('feature_segments_manualsort')"
           :key="`pager1_${pagination.currentPage}_${pagination.count}`"
@@ -123,6 +111,19 @@
           @page-change="applyQuery"
           @size-change="handleSizeChange"
         />
+        <div class="ml-auto flex items-center space-inline-xs">
+          <dp-label
+            class="mb-0"
+            for="applySortSelection"
+            :text="Translator.trans('sorting')"
+          />
+          <dp-select
+            id="applySortSelection"
+            :options="sortOptions"
+            :selected="selectedSort"
+            @select="applySort"
+          />
+        </div>
       </div>
       <div
         v-show="!isLoading"
@@ -566,6 +567,7 @@ import {
   DpDataTable,
   DpFlyout,
   DpInlineNotification,
+  DpLabel,
   DpLoading,
   DpPager,
   dpRpc,
@@ -606,6 +608,7 @@ export default {
     DpDataTable,
     DpFlyout,
     DpInlineNotification,
+    DpLabel,
     DpLoading,
     DpPager,
     DpSelect,
