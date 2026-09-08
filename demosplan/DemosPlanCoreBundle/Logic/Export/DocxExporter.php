@@ -697,7 +697,7 @@ class DocxExporter
 
         // Stellungnahme oder Datensatz und Erwiderung
         if ('statementsAndFragments' === $exportType && 0 < (is_countable($item['fragments']) ? count($item['fragments']) : 0)) {
-            $this->addFragmentRows($item, $assessmentTable, $styles['cellWidthTotal'] * 0.44, $styles['cellWidthTotal'] * 0.44, $styles, $anonymous);
+            $this->addFragmentRows($item, $assessmentTable, $styles['cellWidthTotal'] * 0.44, $styles['cellWidthTotal'] * 0.44, $styles, $anonymous, $includeStatementMetadataRow);
 
             return;
         }
@@ -732,8 +732,8 @@ class DocxExporter
      * Appends the assigned Potenzialflächen and Schlagworte below the statement text.
      *
      * Only used by the Verfahrensexport (see $includeStatementMetadataRow in
-     * {@link renderTableItem}); the standalone Abwägungstabelle export never sets that flag,
-     * so this stays out of it.
+     * {@link renderTableItem} and {@link addFragmentRows}); the standalone Abwägungstabelle
+     * export never sets that flag, so this stays out of it.
      */
     private function addStatementMetadataToCell(Cell $cell, array $item, array $styles): void
     {
@@ -971,6 +971,10 @@ class DocxExporter
      * @param int     $recommendationCellWidth
      * @param array   $styles
      * @param bool    $anonymous
+     * @param bool    $includeStatementMetadataRow appends the statement's priority areas/tags
+     *                                              (see {@link addStatementMetadataToCell}) to
+     *                                              the first fragment's text cell, since fragments
+     *                                              have no cell of their own to carry statement-level data
      */
     protected function addFragmentRows(
         $item,
@@ -978,7 +982,8 @@ class DocxExporter
         $textCellWidth,
         $recommendationCellWidth,
         $styles,
-        $anonymous): void
+        $anonymous,
+        bool $includeStatementMetadataRow = false): void
     {
         foreach ($item['fragments'] as $index => $fragment) {
             $assessmentTable->addRow();
@@ -996,6 +1001,9 @@ class DocxExporter
                 // T6679:
                 $fragment['text'] = $this->editorService->handleObscureTags($fragment['text'], $anonymous);
                 $this->addHtml($cell2, $fragment['text'], $styles);
+            }
+            if (0 === $index && $includeStatementMetadataRow) {
+                $this->addStatementMetadataToCell($cell2, $item, $styles);
             }
 
             $cell3 = $assessmentTable->addCell($recommendationCellWidth, $cellStyle);
