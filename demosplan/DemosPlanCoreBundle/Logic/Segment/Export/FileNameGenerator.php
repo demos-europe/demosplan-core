@@ -15,8 +15,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Export;
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FileNameGenerator
