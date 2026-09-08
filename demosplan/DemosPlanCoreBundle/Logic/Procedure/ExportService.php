@@ -408,7 +408,7 @@ class ExportService
                 $rParams,
                 $type,
                 AssessmentTableViewMode::DEFAULT_VIEW,
-                includeStatementMetadataRow:  true
+                includeStatementMetadataRow: true
             );
             $filename = $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['considerationtable'].'/%s.docx';
             switch ($exportType) {
@@ -458,7 +458,7 @@ class ExportService
                 $rParams,
                 $type,
                 AssessmentTableViewMode::DEFAULT_VIEW,
-                includeStatementMetadataRow:  true
+                includeStatementMetadataRow: true
             );
             $filename = $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['considerationtable'].'/%s.docx';
             switch ($exportType) {
