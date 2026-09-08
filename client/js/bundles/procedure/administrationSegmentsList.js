@@ -17,10 +17,12 @@ import { initialize } from '@DpJs/InitVue'
 import SegmentSlidebar from '@DpJs/components/procedure/SegmentsList/SegmentSlidebar'
 import SegmentSlidebarStore from '@DpJs/store/procedure/SegmentSlidebar'
 import SegmentsList from '@DpJs/components/procedure/SegmentsList/SegmentsList'
+import SegmentsListFilter from '@DpJs/components/procedure/SegmentsList/SegmentsListFilter'
 
 const components = {
   SegmentsList,
   SegmentSlidebar,
+  SegmentsListFilter,
   DpSegmentRecommendationEmail,
   DpVersionHistory,
 }
