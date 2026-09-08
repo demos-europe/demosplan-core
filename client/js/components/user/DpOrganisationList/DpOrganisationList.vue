@@ -29,7 +29,7 @@
       </template>
       <template v-else-if="Object.keys(pendingOrgs).length">
         <ul
-          class="o-list o-list--card u-mb"
+          class="o-list space-y-2 u-mb"
           data-cy="pendingOrganisationList"
         >
           <dp-organisation-list-item
@@ -37,7 +37,7 @@
             :key="`pendingOrganisation:${idx}`"
             :additional-field-options="additionalFieldOptions"
             :available-orga-types="availableOrgaTypes"
-            class="o-list__item"
+            class="o-list__item bg-surface border border-neutral"
             data-cy="pendingOrganisationListBlk"
             module-name="Pending"
             :organisation="item"
@@ -154,13 +154,13 @@
         class="layout__item u-1-of-1"
         data-cy="organisationList"
       >
-        <ul class="o-list o-list--card u-mb">
+        <ul class="o-list space-y-2 u-mb">
           <dp-organisation-list-item
             v-for="(item, idx) in items"
             :key="`organisation:${idx}`"
             :additional-field-options="additionalFieldOptions"
             :available-orga-types="availableOrgaTypes"
-            class="o-list__item"
+            class="o-list__item bg-surface border border-neutral"
             data-cy="organisationListBlk"
             :selected="hasOwnProp(itemSelections, item.id) && itemSelections[item.id] === true"
             :selectable="hasPermission('feature_orga_delete')"
