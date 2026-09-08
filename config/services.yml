@@ -22,6 +22,12 @@ services:
         tags:
         - { name: api_platform.doctrine.orm.query_extension.collection, priority: 0 }
 
+    demosplan\DemosPlanCoreBundle\Api\StatementSegment\Extension\SegmentDeterministicOrderExtension:
+        tags:
+        # Must run after api_platform's own filter extension (priority -16, applies OrderFilter)
+        # so addOrderBy() appends this tiebreaker instead of running before it exists.
+        - { name: api_platform.doctrine.orm.query_extension.collection, priority: -20 }
+
     demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService: ~
 
     demosplan\DemosPlanCoreBundle\Logic\AzureUserDataMapper: ~
@@ -918,6 +924,8 @@ services:
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory: ~
+
+    demosplan\DemosPlanCoreBundle\Logic\Report\UserReportEntryFactory: ~
 
     demosplan\DemosPlanCoreBundle\Logic\Report\ExportReportService:
         lazy: true
