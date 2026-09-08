@@ -972,9 +972,9 @@ class DocxExporter
      * @param array   $styles
      * @param bool    $anonymous
      * @param bool    $includeStatementMetadataRow appends the statement's priority areas/tags
-     *                                              (see {@link addStatementMetadataToCell}) to
-     *                                              the first fragment's text cell, since fragments
-     *                                              have no cell of their own to carry statement-level data
+     *                                             (see {@link addStatementMetadataToCell}) to
+     *                                             the first fragment's text cell, since fragments
+     *                                             have no cell of their own to carry statement-level data
      */
     protected function addFragmentRows(
         $item,
