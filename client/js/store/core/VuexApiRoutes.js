@@ -112,11 +112,10 @@ const api3_0Modules = {
     'list',
     'get',
   ],
-  StatementSegment: [
-    'list',
-    'get'
-  ],
 }
+
+// Store bundle-specific 3.0 overrides (set during store initialization)
+let bundleApi3Modules = {}
 
 const crudActions = [
   'list',
@@ -149,15 +148,35 @@ const buildRoute = (version, module, action) => {
 const generateApi2_0Routes = (apiModules) => apiModules
   .flatMap(typeName => crudActions.map(action => buildRoute('2.0', typeName, action)))
 
-const generateApi3_0Routes = () => Object.entries(api3_0Modules)
-  .flatMap(([typeName, actions]) => actions.map(action => buildRoute('3.0', typeName, action)))
+/**
+ * Generate API 3.0 routes for modules.
+ *
+ * @param {Object} additionalModules - Additional modules to add for the page
+ *                                     Example: { StatementSegment: ['list', 'get'] }
+ * @returns {Array} - Array of route objects
+ */
+const generateApi3_0Routes = (additionalModules = {}) => {
+  // Store bundle overrides for use by apiUrl() / resolveApiRoute()
+  bundleApi3Modules = additionalModules
+
+  // Base modules respect exclusions
+  const baseRoutes = Object.entries(api3_0Modules)
+    .flatMap(([typeName, actions]) => actions.map(action => buildRoute('3.0', typeName, action)))
+
+  // Additional modules from bundle bypass exclusions
+  const additionalRoutes = Object.entries(additionalModules)
+    .flatMap(([typeName, actions]) => actions.map(action => buildRoute('3.0', typeName, action)))
+
+  return [...baseRoutes, ...additionalRoutes]
+}
 
 /*
  * Resolve the path for a module + action, applying the same precedence as initStore():
  * explicit 1.0 and generated 3.0 routes win over the generic 2.0 one.
+ * Uses bundleApi3Modules set during store initialization.
  */
 const resolveApiRoute = (module, action) => {
-  const override = [...api1_0Routes, ...generateApi3_0Routes()]
+  const override = [...api1_0Routes, ...generateApi3_0Routes(bundleApi3Modules)]
     .find(route => route.module === module && route.action === action)
 
   return override ? override.url : buildRoute('2.0', module, action).url

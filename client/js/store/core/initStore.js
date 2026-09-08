@@ -48,13 +48,13 @@ const handleResponse = async (response, messages = {}) => {
   return checkResponse({ data: payload, status: '200', ok: 'ok', url: payload.url }, messages)
 }
 
-function initStore (storeModules, apiStoreModules, presetStoreModules) {
+function initStore (storeModules, apiStoreModules, presetStoreModules, api3ModulesOverride = {}) {
   const staticModules = { notify, ...storeModules }
   // Order is important here - the latter overwrite the former
   const VuexApiRoutes = [
     ...generateApi2_0Routes(apiStoreModules),
     ...api1_0Routes,
-    ...generateApi3_0Routes(),
+    ...generateApi3_0Routes(api3ModulesOverride),
   ]
   // This should probably be replaced with an adapter to our existing routes
   const router = new StaticRouter(VuexApiRoutes)

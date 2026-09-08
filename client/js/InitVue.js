@@ -35,10 +35,10 @@ import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 import SessionTimer from '@DpJs/components/shared/SessionTimer'
 import UnsavedChangesDialog from '@DpJs/components/shared/UnsavedChangesDialog'
 
-function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}, modifyApp = () => {}) {
+function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}, modifyApp = () => {}, api3ModulesOverride = {}) {
   bootstrap()
 
-  return initStore(storeModules, apiStoreModules, presetStoreModules).then(store => {
+  return initStore(storeModules, apiStoreModules, presetStoreModules, api3ModulesOverride).then(store => {
     configureCompat({
       RENDER_FUNCTION: false,
     })
