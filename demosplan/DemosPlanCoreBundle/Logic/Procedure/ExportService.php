@@ -408,8 +408,7 @@ class ExportService
                 $rParams,
                 $type,
                 AssessmentTableViewMode::DEFAULT_VIEW,
-                false,
-                true
+                includeStatementMetadataRow:  true
             );
             $filename = $procedureName.'/'.$this->literals['statements'].'/'.$this->literals['considerationtable'].'/%s.docx';
             switch ($exportType) {
