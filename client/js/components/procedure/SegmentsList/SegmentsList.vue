@@ -804,8 +804,8 @@ export default {
       selectedSort: '',
       selectionCopiedToClipboard: false,
       sortOptions: [
-        { value: '-deadline', label: Translator.trans('sort.deadline.descending') },
-        { value: 'deadline', label: Translator.trans('sort.deadline.ascending') },
+        { value: 'internId-desc', label: Translator.trans('sort.internId.descending') },
+        { value: 'internId-asc', label: Translator.trans('sort.internId.ascending') },
       ],
     }
   },
@@ -1114,6 +1114,10 @@ export default {
     applySort (sortValue) {
       this.selectedSort = sortValue
       lscache.set(this.lsKey.selectedSort, sortValue)
+
+      if (!hasPermission('feature_segments_manualsort')) {
+        this.applyQuery(1)
+      }
     },
 
     applyQuery (page) {
@@ -1130,11 +1134,17 @@ export default {
         'parentStatementOfSegment.procedure.id': this.procedureId,
       }
 
-      const order = {
+      const defaultOrder = {
         'parentStatementOfSegment.submit': 'asc',
         'parentStatementOfSegment.externId': 'asc',
         orderInProcedure: 'asc',
       }
+
+      const [sortBy, direction] = this.selectedSort?.split('-') ?? []
+
+      const order = sortBy === 'internId'
+        ? { 'parentStatementOfSegment.original.internId': direction }
+        : defaultOrder
 
       const payload = {
         include,
