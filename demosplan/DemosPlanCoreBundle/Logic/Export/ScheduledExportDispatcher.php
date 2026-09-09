@@ -30,7 +30,7 @@ class ScheduledExportDispatcher
      * How long a finished export stays downloadable. Bounded because the artefact is a document full
      * of personal data, not just to save storage.
      * TODO: Needs to be adjusted so that the retention period is double the time of the scheduled export period,
-     * TODO: e.g.: the user wants an automatic export every week, so the retention time is two weeks
+     * TODO: e.g.: the user wants an automatic export every week, so the retention time is two weeks.
      */
     public const RESULT_RETENTION = '-7 days';
 
@@ -73,7 +73,6 @@ class ScheduledExportDispatcher
      */
     public function failStaleJobs(): int
     {
-
     }
 
     /**
@@ -83,24 +82,24 @@ class ScheduledExportDispatcher
     {
         $purged = 0;
 
-            foreach ($this->findJobsBefore(self::FINAL_STATUSES, self::RESULT_RETENTION) as $job) {
-                $fileHash = $job->getFileHash();
-                if (null !== $fileHash) {
-                    try {
-                        $this->fileService->deleteFile($fileHash);
-                    } catch (Throwable $e) {
-                        // Keep going: an unreferenced file is cleaned up by removeOrphanedFiles(),
-                        // whereas keeping the row would retry the same failure every run.
-                        $this->logger->warning('Maintenance: could not delete expired export file', [
-                            'jobId'     => $job->getId(),
-                            'fileHash'  => $fileHash,
-                            'exception' => $e->getMessage(),
-                        ]);
-                    }
+        foreach ($this->findJobsBefore(self::FINAL_STATUSES, self::RESULT_RETENTION) as $job) {
+            $fileHash = $job->getFileHash();
+            if (null !== $fileHash) {
+                try {
+                    $this->fileService->deleteFile($fileHash);
+                } catch (Throwable $e) {
+                    // Keep going: an unreferenced file is cleaned up by removeOrphanedFiles(),
+                    // whereas keeping the row would retry the same failure every run.
+                    $this->logger->warning('Maintenance: could not delete expired export file', [
+                        'jobId'     => $job->getId(),
+                        'fileHash'  => $fileHash,
+                        'exception' => $e->getMessage(),
+                    ]);
                 }
-                $this->entityManager->remove($job);
-                ++$purged;
             }
+            $this->entityManager->remove($job);
+            ++$purged;
+        }
         $this->entityManager->flush();
 
         if (0 < $purged) {
@@ -111,7 +110,7 @@ class ScheduledExportDispatcher
     }
 
     /**
-     * @param string[]                              $statuses
+     * @param string[] $statuses
      *
      * @return AsyncExportJobInterface[]
      */
