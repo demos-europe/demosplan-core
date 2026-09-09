@@ -157,7 +157,7 @@
     >
       <dp-checkbox
         :id="userId + ':canManageProcedures'"
-        v-model="localUser.attributes.canManageProcedures"
+        v-model="canManageProceduresDisplay"
         data-cy="userFormField:canManageProcedures"
         :disabled="localUser.attributes.procedureCreationEnabledForOrga"
         :label="{
@@ -351,6 +351,21 @@ export default {
         .filter(el => el.subdomain === this.subdomain)
 
       return isOrgaAcceptedAsType(registrationStatuses, ['OLAUTH', 'OHAUTH'])
+    },
+
+    /**
+     * While the org-wide grant is active, this FPA effectively has the right regardless of their
+     * own individual grant - show the (disabled) checkbox as checked to reflect that, rather than
+     * the underlying individual grant, which the backend ignores while org-wide is active anyway.
+     */
+    canManageProceduresDisplay: {
+      get () {
+        return this.localUser.attributes.procedureCreationEnabledForOrga || this.localUser.attributes.canManageProcedures
+      },
+
+      set (value) {
+        this.localUser.attributes.canManageProcedures = value
+      },
     },
 
     /**
