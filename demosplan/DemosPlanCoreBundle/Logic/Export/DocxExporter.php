@@ -729,11 +729,12 @@ class DocxExporter
     }
 
     /**
-     * Appends the assigned Potenzialflächen and Schlagworte below the statement text.
+     * Appends the assigned Potenzialflächen and Schlagworte below the given item's text.
      *
-     * Only used by the Verfahrensexport (see $includeStatementMetadataRow in
-     * {@link renderTableItem} and {@link addFragmentRows}); the standalone Abwägungstabelle
-     * export never sets that flag, so this stays out of it.
+     * $item may be a statement or a fragment array — each carries its own
+     * priorityAreaKeys/tagNames. Only used by the Verfahrensexport (see
+     * $includeStatementMetadataRow in {@link renderTableItem} and {@link addFragmentRows});
+     * the standalone Abwägungstabelle export never sets that flag, so this stays out of it.
      */
     private function addStatementMetadataToCell(Cell $cell, array $item, array $styles): void
     {
@@ -971,10 +972,11 @@ class DocxExporter
      * @param int     $recommendationCellWidth
      * @param array   $styles
      * @param bool    $anonymous
-     * @param bool    $includeStatementMetadataRow appends the statement's priority areas/tags
-     *                                             (see {@link addStatementMetadataToCell}) to
-     *                                             the first fragment's text cell, since fragments
-     *                                             have no cell of their own to carry statement-level data
+     * @param bool    $includeStatementMetadataRow appends each fragment's own priority areas/tags
+     *                                             (see {@link addStatementMetadataToCell}) below
+     *                                             its text, since fragments can be assigned
+     *                                             different priority areas/tags than the statement
+     *                                             or each other
      */
     protected function addFragmentRows(
         $item,
@@ -1002,8 +1004,8 @@ class DocxExporter
                 $fragment['text'] = $this->editorService->handleObscureTags($fragment['text'], $anonymous);
                 $this->addHtml($cell2, $fragment['text'], $styles);
             }
-            if (0 === $index && $includeStatementMetadataRow) {
-                $this->addStatementMetadataToCell($cell2, $item, $styles);
+            if ($includeStatementMetadataRow) {
+                $this->addStatementMetadataToCell($cell2, $fragment, $styles);
             }
 
             $cell3 = $assessmentTable->addCell($recommendationCellWidth, $cellStyle);
@@ -1211,6 +1213,9 @@ class DocxExporter
             // as it has the same behaviour
             $item['recommendation'] = $statementFragment->getConsideration();
             $item['text'] = $statementFragment->getText();
+            // the fragment has its own priority areas/tags, distinct from the parent statement's
+            $item['priorityAreaKeys'] = $statementFragment->getPriorityAreaKeys();
+            $item['tagNames'] = $statementFragment->getTagNames();
         }
 
         $item['elementId'] = $tmpElementId;
