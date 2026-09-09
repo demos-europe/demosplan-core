@@ -35,10 +35,24 @@ import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 import SessionTimer from '@DpJs/components/shared/SessionTimer'
 import UnsavedChangesDialog from '@DpJs/components/shared/UnsavedChangesDialog'
 
-function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}, modifyApp = () => {}, api3ModulesOverride = {}) {
+/**
+ * Initialize Vue application
+ *
+ * @param {Object} components - Vue components to register
+ * @param {Object} storeModules - Vuex store modules
+ * @param {Array} apiStoreModules - API store modules
+ * @param {Object} presetStoreModules - Preset store modules
+ * @param {Function} modifyApp - Callback to modify the Vue app instance
+ * @param {Object} api3AdditionalModules - Page-specific modules to use API 3.0 instead of 2.0
+ *                                         Enables gradual migration to API Platform 3.0 without
+ *                                         refactoring all components at once. Different pages can
+ *                                         use different API versions for the same resource types.
+ */
+
+function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}, modifyApp = () => {}, api3AdditionalModules = {}) {
   bootstrap()
 
-  return initStore(storeModules, apiStoreModules, presetStoreModules, api3ModulesOverride).then(store => {
+  return initStore(storeModules, apiStoreModules, presetStoreModules, api3AdditionalModules).then(store => {
     configureCompat({
       RENDER_FUNCTION: false,
     })

@@ -156,10 +156,8 @@ const generateApi2_0Routes = (apiModules) => apiModules
  * @returns {Array} - Array of route objects
  */
 const generateApi3_0Routes = (additionalModules = {}) => {
-  // Store bundle overrides for use by apiUrl() / resolveApiRoute()
   bundleApi3Modules = additionalModules
 
-  // Base modules respect exclusions
   const baseRoutes = Object.entries(api3_0Modules)
     .flatMap(([typeName, actions]) => actions.map(action => buildRoute('3.0', typeName, action)))
 

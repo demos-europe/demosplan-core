@@ -40,12 +40,14 @@ const apiStores = [
   'TagTopic',
 ]
 
-// Use API Platform 3.0 for StatementSegment on this page
-const api3ModulesOverride = {
+/**
+ * Use API Platform 3.0 for StatementSegment on this page
+ */
+const api3AdditionalModules = {
   StatementSegment: [
     'list',
     'get',
   ],
 }
 
-initialize(components, stores, apiStores, {}, () => {}, api3ModulesOverride)
+initialize(components, stores, apiStores, {}, () => {}, api3AdditionalModules)

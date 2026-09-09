@@ -1203,8 +1203,8 @@ export default {
        * API Platform (3.0)
        *
        * Key naming convention:
-       * - Main resource type: PascalCase (e.g., 'StatementSegment') - matches ResourceType::getName()
-       * - Related resources: camelCase (e.g., 'parentStatement', 'place', 'tags') - matches relationship property names
+       * - Main resource type: PascalCase - matches ResourceType::getName()
+       * - Related resources: camelCase - matches relationship property names
        */
       const fields = {
         place: [

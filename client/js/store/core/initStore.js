@@ -48,13 +48,23 @@ const handleResponse = async (response, messages = {}) => {
   return checkResponse({ data: payload, status: '200', ok: 'ok', url: payload.url }, messages)
 }
 
-function initStore (storeModules, apiStoreModules, presetStoreModules, api3ModulesOverride = {}) {
+/**
+ * Initialize Vuex store with API route configuration
+ *
+ * @param {Object} storeModules - Static Vuex modules
+ * @param {Array} apiStoreModules - API modules (defaults to 2.0 routes)
+ * @param {Object} presetStoreModules - Preset modules configuration
+ * @param {Object} api3AdditionalModules - Page-specific modules to use API 3.0 instead of 2.0
+ *                                         Enables gradual migration to API Platform 3.0 by allowing
+ *                                         different pages to use different API versions.
+ */
+function initStore (storeModules, apiStoreModules, presetStoreModules, api3AdditionalModules = {}) {
   const staticModules = { notify, ...storeModules }
   // Order is important here - the latter overwrite the former
   const VuexApiRoutes = [
     ...generateApi2_0Routes(apiStoreModules),
     ...api1_0Routes,
-    ...generateApi3_0Routes(api3ModulesOverride),
+    ...generateApi3_0Routes(api3AdditionalModules),
   ]
   // This should probably be replaced with an adapter to our existing routes
   const router = new StaticRouter(VuexApiRoutes)
