@@ -71,6 +71,8 @@
 
 ## v4.53.0 (2026-07-30)
 
+## v4.52.1 (2026-09-05)
+
 ## v4.52.0 (2026-07-29)
 
 ### Added
@@ -102,6 +104,7 @@
 - Institution coordinators without a second organisation email address are now redirected to the welcome page until they provide it.
 
 ## v4.49.0 (2026-07-15)
+
 ## v4.48.0 (2026-07-07)
 
 ### Added
