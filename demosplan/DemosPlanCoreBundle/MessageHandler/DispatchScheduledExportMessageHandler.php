@@ -19,7 +19,7 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Throwable;
 
 /**
- * Reacts to the daily scheduler tick and starts a run for every due xlsx export schedule
+ * Reacts to the daily scheduler tick and starts a run for every due xlsx export schedule.
  */
 #[AsMessageHandler]
 final class DispatchScheduledExportMessageHandler
