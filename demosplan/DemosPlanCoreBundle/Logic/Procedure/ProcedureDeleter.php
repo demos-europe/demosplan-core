@@ -142,6 +142,9 @@ class ProcedureDeleter
         // export fields configuration
         $this->deleteExportFieldsConfiguration($procedureIds, $isDryRun);
 
+        // assessment table export jobs
+        $this->deleteAssessmentTableExportJobs($procedureIds, $isDryRun);
+
         // maillane connection fixme does this table exist in all projects?
         $this->deleteMaillaneConnection($procedureIds, $isDryRun);
 
@@ -442,6 +445,14 @@ class ProcedureDeleter
     private function deleteExportFieldsConfiguration(array $procedureIds, $isDryRun): void
     {
         $this->queriesService->deleteFromTableByIdentifierArray('export_fields_configuration', 'procedure_id', $procedureIds, $isDryRun);
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteAssessmentTableExportJobs(array $procedureIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray('assessment_table_export_job', 'procedure_id', $procedureIds, $isDryRun);
     }
 
     /**
