@@ -535,11 +535,11 @@ class DocxExporter
      * @param array  $item
      * @param bool   $anonymous
      * @param string $exportType
-     * @param array  $renderOptions {
-     *                              Number statements: bool $numberStatements,
-     *                              Statement number: int $statementNumber,
-     *                              Include metadata: bool $includeStatementMetadataRow,
-     *                              }
+     * @param array  $renderOptions   {
+     *                                Number statements: bool $numberStatements,
+     *                                Statement number: int $statementNumber,
+     *                                Include metadata: bool $includeStatementMetadataRow,
+     *                                }
      *
      * @throws Exception
      */
