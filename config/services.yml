@@ -10,9 +10,19 @@ services:
 
     Cocur\Slugify\Slugify: ~
 
+    # Not autodiscovered: this vendor class lives outside our own service-autodiscovery glob, but is
+    # required at runtime as a service - ApiPlatform\JsonApi\Filter\SparseFieldset's
+    # ParameterProviderFilterInterface::getParameterProvider() always resolves to this class-string,
+    # regardless of any provider instance passed directly on a QueryParameter attribute.
+    ApiPlatform\JsonApi\Filter\SparseFieldsetParameterProvider: ~
+
     demosplan\DemosPlanCoreBundle\Transformers\AssessmentTable\StatementBulkEditTransformer:
         tags:
             - name: dplan.json_api_transformer
+
+    demosplan\DemosPlanCoreBundle\Api\CustomField\Extension\CustomFieldDoctrineAccessExtension:
+        tags:
+        - { name: api_platform.doctrine.orm.query_extension.collection, priority: 0 }
 
     demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService: ~
 

@@ -195,6 +195,8 @@
             :resource-id="draftStatementId"
             mode="editable"
             resource-type="DraftStatement"
+            source-entity="PROCEDURE"
+            target-entity="STATEMENT"
             @update:value="(value) => handleCustomFieldValueUpdate(customField.id, value)"
           />
         </fieldset>
@@ -1331,40 +1333,16 @@ export default {
       }
 
       try {
-        const url = Routing.generate('api_resource_list', {
-          resourceType: 'CustomField',
-        })
+        // Not a Symfony-named route: API Platform resources aren't exposed to Routing.generate().
+        const url = '/api/3.0/CustomField'
 
         const params = {
           fields: {
-            CustomField: [
-              'name',
-              'description',
-              'options',
-              'fieldType',
-              'isRequired',
-            ].join(),
+            CustomField: ['name', 'description', 'options', 'fieldType', 'isRequired'].join(),
           },
-          filter: {
-            sourceEntity: {
-              condition: {
-                path: 'sourceEntity',
-                value: 'PROCEDURE',
-              },
-            },
-            sourceEntityId: {
-              condition: {
-                path: 'sourceEntityId',
-                value: this.procedureId,
-              },
-            },
-            targetEntity: {
-              condition: {
-                path: 'targetEntity',
-                value: 'STATEMENT',
-              },
-            },
-          },
+          sourceEntity: 'PROCEDURE',
+          sourceEntityId: this.procedureId,
+          targetEntity: 'STATEMENT',
         }
 
         const response = await dpApi.get(url, params)

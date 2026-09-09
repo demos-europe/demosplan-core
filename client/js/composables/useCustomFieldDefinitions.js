@@ -94,44 +94,20 @@ export function useCustomFieldDefinitions () {
       return pendingFetches.get(cacheKey)
     }
 
-    const url = Routing.generate('api_resource_list', {
-      resourceType: 'CustomField',
-    })
+    // Not a Symfony-named route: API Platform resources aren't exposed to Routing.generate().
+    const url = '/api/3.0/CustomField'
 
     const params = {
       fields: {
         CustomField: ['name', 'description', 'options', 'fieldType', 'isRequired'].join(),
       },
-      filter: {
-        /*
-         * For CUSTOMER source the BE scopes results to the current customer
-         * via its access conditions, so we omit the sourceEntityId filter.
-         */
-        ...(sourceEntity !== 'CUSTOMER' && {
-          sourceEntityId: {
-            condition: {
-              path: 'sourceEntityId',
-              value: definitionSourceId,
-            },
-          },
-        }),
-        ...(targetEntity && {
-          targetEntity: {
-            condition: {
-              path: 'targetEntity',
-              value: targetEntity,
-            },
-          },
-        }),
-        ...(sourceEntity && {
-          sourceEntity: {
-            condition: {
-              path: 'sourceEntity',
-              value: sourceEntity,
-            },
-          },
-        }),
-      },
+      ...(targetEntity && { targetEntity }),
+      ...(sourceEntity && { sourceEntity }),
+      /*
+       * For CUSTOMER source the BE scopes results to the current customer
+       * via its access conditions, so we omit the sourceEntityId filter.
+       */
+      ...(sourceEntity !== 'CUSTOMER' && { sourceEntityId: definitionSourceId }),
     }
 
     const fetchPromise = dpApi.get(url, params)
