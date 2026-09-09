@@ -380,7 +380,7 @@
                 <span
                   v-if="
                     hasPermission('feature_enable_recommendation_versions') &&
-                      getRecommendationVersionNumber(rowData)
+                      rowData.attributes.currentRecommendationVersionNumber
                   "
                   class="text-neutral-base"
                   :class="{
@@ -390,7 +390,7 @@
                   }"
                 >
                   {{ Translator.trans("version") }}:
-                  {{ getRecommendationVersionNumber(rowData) }}
+                  {{ rowData.attributes.currentRecommendationVersionNumber }}
                 </span>
               </div>
             </template>
@@ -783,10 +783,6 @@ export default {
 
     ...mapState('Place', {
       placesObject: 'items',
-    }),
-
-    ...mapState('RecommendationVersion', {
-      recommendationVersions: 'items',
     }),
 
     ...mapState('SegmentSlidebar', [
@@ -1550,7 +1546,6 @@ export default {
             statementsById: this.buildResourceMapByType(included, 'Statement'),
             placesById: this.buildResourceMapByType(included, 'Place'),
             tagsById: this.buildResourceMapByType(included, 'Tag'),
-            recommendationVersionsById: this.buildResourceMapByType(included, 'RecommendationVersion'),
           }
         })
     },
@@ -1596,21 +1591,6 @@ export default {
         .catch(() => {
           /* Notification already shown by useCustomFieldDefinitions */
         })
-    },
-
-    getRecommendationVersionNumber (segment) {
-      const currentVersionId =
-        segment.relationships?.recommendationVersions?.data?.[0]?.id
-
-      if (!currentVersionId) {
-        return ''
-      }
-
-      const versionNumber =
-        this.recommendationVersions[currentVersionId]?.attributes
-          ?.versionNumber
-
-      return versionNumber ? String(versionNumber).padStart(3, '0') : ''
     },
 
     getTagsBySegment (id) {

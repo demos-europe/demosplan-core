@@ -33,7 +33,6 @@ const stores = {
 const apiStores = [
   'AssignableUser',
   'Place',
-  'RecommendationVersion',
   'Statement',
   'StatementSegment',
   'Tag',
