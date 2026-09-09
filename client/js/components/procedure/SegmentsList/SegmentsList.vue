@@ -1471,7 +1471,6 @@ export default {
     getSelectedSortParams () {
       const sortPaths = {
         internId: 'parentStatementOfSegment.original.internId',
-        deadline: 'parentStatementOfSegment.deadline',
       }
 
       const [sortBy, direction] = this.selectedSort?.split('-') ?? []
@@ -1537,7 +1536,7 @@ export default {
       const fetchChunk = idChunk => dpApi.get(apiUrl('StatementSegment', 'list'), {
         include,
         fields,
-        id: idChunk,  // API Platform 3.0 array filter format
+        id: idChunk,
       })
 
       return idChunks

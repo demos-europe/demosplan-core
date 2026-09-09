@@ -152,7 +152,6 @@ const generateApi2_0Routes = (apiModules) => apiModules
  * Generate API 3.0 routes for modules.
  *
  * @param {Object} additionalModules - Additional modules to add for the page
- *                                     Example: { StatementSegment: ['list', 'get'] }
  * @returns {Array} - Array of route objects
  */
 const generateApi3_0Routes = (additionalModules = {}) => {
@@ -161,7 +160,6 @@ const generateApi3_0Routes = (additionalModules = {}) => {
   const baseRoutes = Object.entries(api3_0Modules)
     .flatMap(([typeName, actions]) => actions.map(action => buildRoute('3.0', typeName, action)))
 
-  // Additional modules from bundle bypass exclusions
   const additionalRoutes = Object.entries(additionalModules)
     .flatMap(([typeName, actions]) => actions.map(action => buildRoute('3.0', typeName, action)))
 
