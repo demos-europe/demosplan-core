@@ -17,6 +17,9 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\Constraint\DateStringConstraint;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -201,6 +204,42 @@ class StatementExcelImporterTest extends FunctionalTestCase
         static::assertEquals($allowedValues['system'], $this->sut->mapSubmitType('Beteiligungsplattform'));
         static::assertEquals($allowedValues['unknown'], $this->sut->mapSubmitType('Unbekannt'));
         static::assertEquals($allowedValues['unspecified'], $this->sut->mapSubmitType('Sonstige'));
+    }
+
+    public function testProcessWeitereEinreichendeEntryCreatesProcedurePersonWithContactData(): void
+    {
+        // Arrange
+        $currentProcedure = ProcedureFactory::createOne()->_real();
+        $statement = StatementFactory::createOne(['procedure' => $currentProcedure])->_real();
+        $personData = [
+            'ReferenzStatement' => 'excelId1',
+            'Name'              => 'Weitere Einreichende Person',
+            'E-Mail'            => 'weitere-einreichende@example.com',
+            'Straße'            => 'Musterstraße',
+            'Hausnummer'        => '12',
+            'PLZ'               => '12345',
+            'Ort'               => 'Musterstadt',
+        ];
+        $reflectedSut = new \ReflectionClass($this->sut);
+        $reflectedSut->getProperty('excelIdToStatementMapping')->setValue($this->sut, ['excelId1' => $statement]);
+
+        // Act
+        $reflectedSut->getMethod('processWeitereEinreichendeEntry')
+            ->invoke($this->sut, $personData, $currentProcedure);
+
+        // Assert
+        $addedSubmitters = $statement->getSimilarStatementSubmitters()->filter(
+            static fn (ProcedurePerson $procedurePerson): bool => 'Weitere Einreichende Person' === $procedurePerson->getFullName()
+        );
+        static::assertCount(1, $addedSubmitters);
+
+        /** @var ProcedurePerson $procedurePerson */
+        $procedurePerson = $addedSubmitters->first();
+        static::assertSame('weitere-einreichende@example.com', $procedurePerson->getEmailAddress());
+        static::assertSame('Musterstraße', $procedurePerson->getStreetName());
+        static::assertSame('12', $procedurePerson->getStreetNumber());
+        static::assertSame('12345', $procedurePerson->getPostalCode());
+        static::assertSame('Musterstadt', $procedurePerson->getCity());
     }
 
     private function extract(SplFileInfo $fileInfo): array
