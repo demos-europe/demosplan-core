@@ -975,6 +975,8 @@ services:
         lazy: true
         calls:
             - [ 'setEsStatementFragmentType', [ '@fos_elastica.index.statementFragments' ]]
+        arguments:
+            $esStatementPersister: '@fos_elastica.object_persister.statements'
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\CsvStatementImport:
         arguments:
