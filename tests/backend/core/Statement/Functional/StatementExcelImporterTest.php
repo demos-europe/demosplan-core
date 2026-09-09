@@ -28,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\ExcelImporter;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use ReflectionClass;
 use Symfony\Component\Finder\SplFileInfo;
 use Tests\Base\FunctionalTestCase;
 
@@ -220,7 +221,7 @@ class StatementExcelImporterTest extends FunctionalTestCase
             'PLZ'               => '12345',
             'Ort'               => 'Musterstadt',
         ];
-        $reflectedSut = new \ReflectionClass($this->sut);
+        $reflectedSut = new ReflectionClass($this->sut);
         $reflectedSut->getProperty('excelIdToStatementMapping')->setValue($this->sut, ['excelId1' => $statement]);
 
         // Act
