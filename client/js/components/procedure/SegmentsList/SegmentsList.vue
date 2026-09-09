@@ -769,6 +769,7 @@ export default {
     ...mapGetters('FilterFlyout', [
       'getFilterQuery',
       'getIsExpandedByCategoryId',
+      'getLastAppliedFilterQuery',
     ]),
 
     ...mapState('Orga', {
@@ -1047,7 +1048,7 @@ export default {
       fetchAssignableUsers: 'list',
     }),
 
-    ...mapActions('FilterFlyout', ['commitFilterQuery', 'discardUnappliedChanges', 'updateFilterQuery']),
+    ...mapActions('FilterFlyout', ['commitFilterQuery', 'updateFilterQuery']),
 
     ...mapActions('Place', {
       fetchPlaces: 'list',
@@ -1074,15 +1075,12 @@ export default {
     },
 
     applyQuery (page) {
-      // Drop unapplied filter selections before reading getFilterQuery, then close the panel
-      this.discardUnappliedChanges()
-      this.closeFilterSlidebar()
       lscache.remove(this.lsKey.allSegments)
       lscache.remove(this.lsKey.toggledSegments)
       this.allItemsCount = null
 
       const filter = {
-        ...this.getFilterQuery,
+        ...this.getLastAppliedFilterQuery,
         sameProcedure: {
           condition: {
             path: 'parentStatement.procedure.id',
@@ -1154,7 +1152,7 @@ export default {
         })
         .catch(() => {
           if (
-            Object.keys(this.getFilterQuery).length > 0 ||
+            Object.keys(this.getLastAppliedFilterQuery).length > 0 ||
             this.searchTerm !== ''
           ) {
             this.resetQuery()
@@ -2077,7 +2075,7 @@ export default {
       })
     }
 
-    // Snapshot the initial filters as applied so the first applyQuery does not discard them
+    // Snapshot the initial filters as applied so the first applyQuery fetches with them
     this.commitFilterQuery()
 
     this.initPagination()

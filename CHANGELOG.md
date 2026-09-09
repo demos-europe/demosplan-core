@@ -5,6 +5,8 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+## v4.59.0 (2026-09-09)
 - uses TagListCsvExportEventInterface
 - dpends on demosplan-addon version >= v0.82
 
