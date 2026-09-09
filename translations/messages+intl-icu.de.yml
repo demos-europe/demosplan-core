@@ -2876,7 +2876,8 @@ procedure.by.phase.public: |
     }
 procedure.canCreate: 'Alle Nutzenden der Organisation mit der Rolle Fachplanung-Admin können Verfahren anlegen'
 procedure.canManage: 'Darf Verfahren verwalten'
-procedure.canManage.hint.enabledForOrga: 'Die Berechtigung, Verfahren anzulegen, ist für diese Organisation bereits generell aktiviert. Um dies für einzelne Personen zu steuern, deaktivieren Sie die Option zunächst in der Organisationsverwaltung.'
+procedure.canManage.hint.disabledForOrga: 'Die Berechtigung, Verfahren anzulegen, ist in dieser Organisation nicht für alle Nutzenden mit der Rolle Fachplanung-Admin aktiviert. Aktivieren sie diese Option, um dieser Person das Recht individuell zu erteilen.'
+procedure.canManage.hint.enabledForOrga: 'Die Berechtigung, Verfahren anzulegen, ist für alle Nutzenden dieser Organisation mit der Rolle Fachplanung-Admin aktiviert. Um nur einzelnen Nutzenden die Berechtigung zu erteilen, kontaktieren Sie das Support-Team.'
 procedure.canManage.orga.none: 'Aktuell hat niemand in dieser Organisation die Berechtigung, Verfahren anzulegen. Sie können die Berechtigung für einzelne Nutzende mit der Rolle Fachplanung-Admin in der Nutzendenverwaltung erteilen.'
 procedure.canManage.orga.users: 'Nutzende mit der Berechtigung, Verfahren anzulegen:'
 procedure.canManage.orga.users.more: |

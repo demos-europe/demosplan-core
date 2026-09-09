@@ -153,23 +153,24 @@
     <!-- Individual procedure-management permission (RMOPSA / RMOPHA only) -->
     <div
       v-if="hasPermission('feature_manage_procedure_creation_permission') && isProcedureManagementRoleSelected && isOrgaAcceptedAsMunicipalityOrHearingAuthority"
-      class="w-1/2 pr-3 mt-3 whitespace-normal"
+      class="w-1/2 pr-3 mt-3 whitespace-normal flex items-center gap-1"
     >
       <dp-checkbox
-        v-if="!localUser.attributes.procedureCreationEnabledForOrga"
         :id="userId + ':canManageProcedures'"
         v-model="localUser.attributes.canManageProcedures"
         data-cy="userFormField:canManageProcedures"
+        :disabled="localUser.attributes.procedureCreationEnabledForOrga"
         :label="{
           text: Translator.trans('procedure.canManage'),
           bold: true
         }"
         @change="emitUserUpdate"
       />
-      <dp-inline-notification
-        v-else
-        type="warning"
-        :message="Translator.trans('procedure.canManage.hint.enabledForOrga')"
+      <dp-contextual-help
+        data-cy="userFormField:canManageProcedures:hint"
+        :text="localUser.attributes.procedureCreationEnabledForOrga ?
+          Translator.trans('procedure.canManage.hint.enabledForOrga') :
+          Translator.trans('procedure.canManage.hint.disabledForOrga')"
       />
     </div>
   </div>
@@ -182,7 +183,7 @@
 </template>
 
 <script>
-import { dpApi, DpCheckbox, DpInlineNotification, DpInput, DpMultiselect, DpSelect, hasOwnProp, sortAlphabetically } from '@demos-europe/demosplan-ui'
+import { dpApi, DpCheckbox, DpContextualHelp, DpInlineNotification, DpInput, DpMultiselect, DpSelect, hasOwnProp, sortAlphabetically } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { isOrgaAcceptedAsType } from '@DpJs/lib/shared/isOrgaAcceptedAsType'
 import { nextTick } from 'vue'
@@ -193,6 +194,7 @@ export default {
 
   components: {
     DpCheckbox,
+    DpContextualHelp,
     DpInlineNotification,
     DpInput,
     DpMultiselect,
