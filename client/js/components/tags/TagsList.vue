@@ -2,6 +2,19 @@
   <div>
     <tags-list-header />
 
+    <div class="flex items-center u-mb-0_5">
+      <a
+        :href="exportTagListUrl"
+        download
+      >
+        <i
+          class="fa fa-download"
+          aria-hidden="true"
+        />
+        {{ Translator.trans('tag.list.export') }}
+      </a>
+    </div>
+
     <tags-create-form
       :is-master-procedure="isMasterProcedure"
       :procedure-id="procedureId"
@@ -137,6 +150,12 @@ export default {
     ...mapState('TagTopic', {
       TagTopic: 'items',
     }),
+
+    exportTagListUrl () {
+      return Routing.generate('DemosPlan_statement_administration_tags_export', {
+        procedureId: this.procedureId,
+      })
+    },
 
     transformedCategories () {
       // Sort topics naturally (handles numbers: "1, 2, 3, 11, 12" instead of "1, 11, 12, 2, 3")

@@ -8,11 +8,12 @@
  */
 
 import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
+import { vi } from 'vitest'
 
 describe('Boilerplates store', () => {
   beforeAll(() => {
     globalThis.Translator = {
-      trans: jest.fn(key => key),
+      trans: vi.fn(key => key),
     }
   })
 

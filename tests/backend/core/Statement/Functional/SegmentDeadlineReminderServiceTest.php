@@ -15,8 +15,10 @@ namespace Tests\Core\Statement\Functional;
 use DateInterval;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\MailTemplateFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentDeadlineReminderService;
 use Tests\Base\FunctionalTestCase;
@@ -89,6 +91,43 @@ class SegmentDeadlineReminderServiceTest extends FunctionalTestCase
         $this->sut->sendSegmentDeadlineReminderMails();
 
         self::assertSame(0, $this->countQueuedMailsTo($assignee->getEmail()));
+    }
+
+    public function testListsSegmentsSharingAnExternIdSeparately(): void
+    {
+        // Statements imported from another instance can share their extern id, and so can their
+        // segments. Each segment still needs its own line and link in the reminder.
+        $assignee = $this->createAssignee('reminder-duplicate-externid@test.example');
+        $deadline = $this->todayPlus('P7D');
+        $procedure = ProcedureFactory::createOne();
+        $place = PlaceFactory::createOne(['procedure' => $procedure]);
+        $segmentAttributes = [
+            'assignee'  => $assignee,
+            'deadline'  => $deadline,
+            'externId'  => 'M1-1',
+            'place'     => $place,
+            'procedure' => $procedure,
+        ];
+        $firstSegment = SegmentFactory::createOne($segmentAttributes);
+        $secondSegment = SegmentFactory::createOne($segmentAttributes);
+
+        $this->sut->sendSegmentDeadlineReminderMails();
+
+        $mailBody = $this->getQueuedMailBodyTo($assignee->getEmail());
+        self::assertSame(2, substr_count($mailBody, 'M1-1'));
+        self::assertStringContainsString('segment='.$firstSegment->getId(), $mailBody);
+        self::assertStringContainsString('segment='.$secondSegment->getId(), $mailBody);
+    }
+
+    private function getQueuedMailBodyTo(string $email): string
+    {
+        foreach ($this->mailService->getMailsToSend() as $mail) {
+            if ($email === $mail->getTo()) {
+                return $mail->getContent();
+            }
+        }
+
+        self::fail('No mail queued to '.$email);
     }
 
     private function createAssignee(string $email): object

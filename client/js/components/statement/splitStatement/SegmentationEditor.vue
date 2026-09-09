@@ -23,6 +23,7 @@
 </template>
 
 <script>
+import { buildInlineImageFigure, defaultInlineImageLabel, resolveLinkLabel } from '@DpJs/lib/shared/inlineImageAnchors'
 import { DOMParser, DOMSerializer, Schema } from 'prosemirror-model'
 import { addListNodes } from 'prosemirror-schema-list'
 import { EditorState } from 'prosemirror-state'
@@ -148,19 +149,21 @@ export default {
               return { dom: anchor, contentDOM: anchor }
             }
 
-            const wrapper = document.createElement('span')
-            const img = document.createElement('img')
+            /*
+             * The marked text is document content, so the link is returned as
+             * contentDOM for ProseMirror to fill (label left empty).
+             */
+            const { wrapper, link } = buildInlineImageFigure(document, { src: mark.attrs.href, alt: '', label: null })
 
-            img.setAttribute('src', mark.attrs.href)
-            img.setAttribute('alt', '')
-            img.setAttribute('loading', 'lazy')
-            const label = document.createElement('span')
+            return { dom: wrapper, contentDOM: link }
+          },
+        },
+        nodeViews: {
+          image: (node) => {
+            const label = resolveLinkLabel(node.attrs.alt, node.attrs.src, defaultInlineImageLabel())
+            const { wrapper } = buildInlineImageFigure(document, { src: node.attrs.src, alt: node.attrs.alt || '', label })
 
-            label.className = 'sr-only'
-            wrapper.appendChild(img)
-            wrapper.appendChild(label)
-
-            return { dom: wrapper, contentDOM: label }
+            return { dom: wrapper }
           },
         },
       })

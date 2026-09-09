@@ -155,4 +155,74 @@ class ZipExportServiceTest extends FunctionalTestCase
         self::assertStringStartsWith('STN-42_', $result);
         self::assertStringEndsWith('.pdf', $result);
     }
+
+    public function testLeavesDirectorySegmentAtExactMaxLengthUntouched(): void
+    {
+        $directory = str_repeat('d', 60);
+
+        self::assertSame(
+            $directory.'/file.pdf',
+            $this->sut->sanitizeZipPath($directory.'/file.pdf')
+        );
+    }
+
+    public function testTruncatesOverlongDirectorySegment(): void
+    {
+        $directory = str_repeat('e', 120);
+
+        $result = $this->sut->sanitizeZipPath($directory.'/file.pdf');
+
+        [$resultDirectory] = explode('/', $result);
+        self::assertSame(60, strlen($resultDirectory));
+        self::assertSame(str_repeat('e', 51).'_'.hash('crc32', $directory), $resultDirectory);
+        self::assertStringEndsWith('/file.pdf', $result);
+    }
+
+    public function testKeepsTruncatedDirectoriesWithSharedPrefixApart(): void
+    {
+        // Planning document titles routinely share their opening words, so cutting
+        // them to a fixed length must not merge two categories into one folder.
+        $first = str_repeat('f', 80).'-first';
+        $second = str_repeat('f', 80).'-second';
+
+        self::assertNotSame(
+            $this->sut->sanitizeZipPath($first.'/file.pdf'),
+            $this->sut->sanitizeZipPath($second.'/file.pdf')
+        );
+    }
+
+    public function testTruncatesEveryDirectorySegmentOfANestedPath(): void
+    {
+        $result = $this->sut->sanitizeZipPath(
+            str_repeat('g', 120).'/'.str_repeat('h', 120).'/file.pdf'
+        );
+
+        $segments = explode('/', $result);
+        self::assertCount(3, $segments);
+        self::assertSame(60, strlen($segments[0]));
+        self::assertSame(60, strlen($segments[1]));
+        self::assertSame('file.pdf', $segments[2]);
+    }
+
+    public function testOverlongDirectoryNoLongerClampsTheFileName(): void
+    {
+        // Before directory segments were capped, a single overlong one consumed the
+        // whole path budget and every file below it was cut down to "<1 char>.pdf".
+        $result = $this->sut->sanitizeZipPath(
+            str_repeat('i', 250).'/Anlage_1_Plantext_Kapitel_4.5.1.pdf'
+        );
+
+        self::assertStringEndsWith('/Anlage_1_Plantext_Kapitel_4.5.1.pdf', $result);
+        self::assertLessThanOrEqual(200, strlen($result));
+    }
+
+    public function testTruncatedDirectoryDoesNotKeepATrailingSeparator(): void
+    {
+        $directory = str_repeat('j', 50).' .'.str_repeat('k', 60);
+
+        $result = $this->sut->sanitizeZipPath($directory.'/file.pdf');
+
+        [$resultDirectory] = explode('/', $result);
+        self::assertSame(str_repeat('j', 50).'_'.hash('crc32', $directory), $resultDirectory);
+    }
 }

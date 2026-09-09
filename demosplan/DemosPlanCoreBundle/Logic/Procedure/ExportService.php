@@ -69,7 +69,7 @@ class ExportService
      * The maximum length a procedure name to be used as folder name may have before it is
      * shortened.
      */
-    private const MAX_PROCEDURE_NAME_LENGTH = 50;
+    private const MAX_PROCEDURE_NAME_LENGTH = NameGenerator::MAX_PROCEDURE_NAME_LENGTH_IN_EXPORTS;
 
     /**
      * @var array

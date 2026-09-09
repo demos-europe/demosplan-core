@@ -12,8 +12,8 @@ Bitte schließen Sie die Bearbeitung bis dahin ab.
         {% for place, segments in places %}
 
             Schritt "{{ place }}"
-                {% for segmentExternId, link in segments %}
-                  - Abschnitt <a href="{{ link }}">{{ segmentExternId }}</a>
+                {% for segment in segments %}
+                  - Abschnitt <a href="{{ segment.link }}">{{ segment.externId }}</a>
                 {% endfor %}
         {% endfor %}
 {% endfor %}

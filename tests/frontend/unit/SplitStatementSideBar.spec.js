@@ -78,11 +78,11 @@ describe('SplitStatement SideBar', () => {
             uncategorizedTags: state => state.uncategorizedTags,
           },
           actions: {
-            updateCurrentTags: jest.fn(),
+            updateCurrentTags: vi.fn(),
           },
           mutations: {
-            locallyUpdateSegments: jest.fn(),
-            setProperty: jest.fn(),
+            locallyUpdateSegments: vi.fn(),
+            setProperty: vi.fn(),
           },
         },
       },

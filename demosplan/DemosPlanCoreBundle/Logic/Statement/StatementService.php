@@ -733,6 +733,16 @@ class StatementService implements StatementServiceInterface
     }
 
     /**
+     * @param non-empty-string $procedureId
+     *
+     * @return array<non-empty-string, non-empty-string>
+     */
+    public function getSourceStatementIdsInUse(string $procedureId): array
+    {
+        return $this->statementRepository->getSourceStatementIdsInUse($procedureId);
+    }
+
+    /**
      * Takes an array of statement IDs and retrieves the corresponding statement entities from doctrine.
      *
      * @param string                    $procedureId   all statements must be in this procedure
@@ -2599,7 +2609,7 @@ class StatementService implements StatementServiceInterface
                 }
             }
         } catch (Exception $e) {
-            $this->logger->error('Get HeadStatement IDs of statements : '.DemosPlanTools::varExport($statementIds, true).' failed: ', [$e]);
+            $this->logger->error('Get HeadStatement IDs of statements failed', ['statementIds' => $statementIds, 'exception' => $e]);
         }
 
         return $result;

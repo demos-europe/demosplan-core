@@ -9,6 +9,7 @@
 
 import DpPublicLayerListCategory from '@DpJs/components/map/publicdetail/controls/layerlist/DpPublicLayerListCategory'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
+import { vi } from 'vitest'
 
 const propsData = {
   group: {
@@ -53,7 +54,7 @@ describe('DpPublicLayerListCategory', () => {
   })
 
   it.skip('should compute the contextualHelp-ID correctly', () => {
-    const layerfromStoreMock = jest.fn()
+    const layerfromStoreMock = vi.fn()
 
     layerfromStoreMock.mockReturnValue([{
       layers: [],
@@ -94,7 +95,7 @@ describe('DpPublicLayerListCategory', () => {
   })
 
   it.skip('should compute the isTopLevelCategory correct', () => {
-    const layerfromStoreMock = jest.fn()
+    const layerfromStoreMock = vi.fn()
 
     layerfromStoreMock.mockReturnValue([{
       layers: [],
@@ -111,7 +112,7 @@ describe('DpPublicLayerListCategory', () => {
     const wrapper = shallowMountWithGlobalMocks(DpPublicLayerListCategory, {
       propsData,
       computed: {
-        elementListForLayerSidebar: () => jest.fn().mockReturnValue([]),
+        elementListForLayerSidebar: () => vi.fn().mockReturnValue([]),
         rootId: () => 'xxx-rootID',
       },
       stubs: {

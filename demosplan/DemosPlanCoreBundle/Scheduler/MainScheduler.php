@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Scheduler;
 use demosplan\DemosPlanCoreBundle\Message\AddonMaintenanceMessage;
 use demosplan\DemosPlanCoreBundle\Message\CheckMailBouncesMessage;
 use demosplan\DemosPlanCoreBundle\Message\FetchStatementGeoDataMessage;
+use demosplan\DemosPlanCoreBundle\Message\MaintainExportJobsMessage;
 use demosplan\DemosPlanCoreBundle\Message\ProcessImportJobsMessage;
 use demosplan\DemosPlanCoreBundle\Message\PurgeDeletedProceduresMessage;
 use demosplan\DemosPlanCoreBundle\Message\PurgeExpiredOAuthTokensMessage;
@@ -35,6 +36,9 @@ class MainScheduler implements ScheduleProviderInterface
     // OAuth token cleanup purges entries older than 60 minutes — no need to run more frequently.
     private const OAUTH_CLEANUP_OFFSET = '1 hour';
 
+    // Export jobs are closed out after hours and their results kept for days, so hourly is plenty.
+    private const EXPORT_JOB_CLEANUP_OFFSET = '1 hour';
+
     public function __construct(private readonly LockFactory $lockFactory)
     {
     }
@@ -51,6 +55,7 @@ class MainScheduler implements ScheduleProviderInterface
             ->add(RecurringMessage::every(self::MAINTENANCE_OFFSET, new SwitchProcedurePhasesMessage()))
             ->add(RecurringMessage::every(self::MAINTENANCE_OFFSET, new ProcessImportJobsMessage()))
             ->add(RecurringMessage::every(self::OAUTH_CLEANUP_OFFSET, new PurgeExpiredOAuthTokensMessage()))
+            ->add(RecurringMessage::every(self::EXPORT_JOB_CLEANUP_OFFSET, new MaintainExportJobsMessage()))
             ->lock($this->lockFactory->createLock('demosplan_main_scheduler_lock'))
         ;
     }

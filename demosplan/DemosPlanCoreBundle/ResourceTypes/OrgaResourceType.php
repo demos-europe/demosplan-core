@@ -177,7 +177,7 @@ final class OrgaResourceType extends DplanResourceType implements OrgaResourceTy
             $this->createAttribute($this->emailNotificationNewStatement)->readable(true, $this->getEmailNotificationNewStatement(...)),
             $this->createAttribute($this->postalcode)->readable(true, static fn (Orga $orga): string => $orga->getPostalcode()),
             $this->createAttribute($this->reviewerEmail)->aliasedPath($this->emailReviewerAdmin)->readable(true),
-            $this->createAttribute($this->showlist)->readable(true),
+            $this->createAttribute($this->showlist)->readable(true, fn (Orga $orga): bool => $orga->getShowlistForCustomer($this->currentCustomerService->getCurrentCustomer())),
             $this->createAttribute($this->showname)->readable(true),
             $this->createAttribute($this->state)->readable(true, static fn (Orga $orga): string => $orga->getState()),
             $this->createAttribute($this->street)->readable(true, static fn (Orga $orga): string => $orga->getStreet()),

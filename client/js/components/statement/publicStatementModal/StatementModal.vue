@@ -18,14 +18,16 @@
         v-if="showHeader"
         v-slot:header
       >
-        <span :class="prefixClass('color-highlight')">
-          <i
-            aria-hidden="true"
-            class="fa"
-            :class="commentingIcon"
-          />
-          {{ Translator.trans('statement.yours') }}
-        </span>
+        <h2>
+          <span :class="prefixClass('color-highlight')">
+            <i
+              aria-hidden="true"
+              class="fa"
+              :class="commentingIcon"
+            />
+            {{ Translator.trans('statement.yours') }}
+          </span>
+        </h2>
       </template>
       <template v-slot:closeButton>
         <button

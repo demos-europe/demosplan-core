@@ -15,7 +15,7 @@
   >
     <!-- Modal header -->
     <template v-slot:header>
-      {{ Translator.trans('statement.copy.to.procedure') }}
+      <h2>{{ Translator.trans('statement.copy.to.procedure') }}</h2>
     </template>
 
     <!-- Modal content -->

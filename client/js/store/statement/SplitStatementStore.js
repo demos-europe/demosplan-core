@@ -9,6 +9,7 @@
 
 import { dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { transformJsonApiToPi, transformPiToJsonApi } from './storeHelpers/SplitStatementStore/PiTagsToJSONApi'
+import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
 
 const SplitStatementStore = {
   namespaced: true,
@@ -390,8 +391,7 @@ const SplitStatementStore = {
     },
 
     fetchTags ({ commit }) {
-      const url = Routing.generate('api_resource_list', { resourceType: 'Tag' })
-
+      const url = apiUrl('Tag')
       const include = hasPermission('feature_tag_default_assignee') ? 'topic,defaultAssignee' : 'topic'
 
       return dpApi.get(url, { include, sort: 'sortIndex' })
