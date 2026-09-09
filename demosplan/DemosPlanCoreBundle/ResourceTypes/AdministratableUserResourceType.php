@@ -40,6 +40,7 @@ use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\RequestHandling\ModifiedEntity;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
+use EDT\Wrapping\CreationDataInterface;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\CallbackAttributeSetBehavior;
 use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
@@ -259,6 +260,16 @@ final class AdministratableUserResourceType extends DplanResourceType implements
                     static fn (User $user, bool $canManageProcedures): array => [],
                     OptionalField::YES
                 )
+            )
+            ->addCreationBehavior(
+                CallbackAttributeSetBehavior::createFactory(
+                    [],
+                    // Same no-op as the update behavior above; the grant is applied in createEntity(),
+                    // executed after the roles relationship behavior so the newly created user's role
+                    // set is what gets evaluated.
+                    static fn (User $user, bool $canManageProcedures): array => [],
+                    OptionalField::YES
+                )
             );
 
         // Whether the organisation this user belongs to already grants procedure-creation rights to
@@ -451,6 +462,31 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         if (array_key_exists($this->canManageProcedures->getAsNamesInDotNotation(), $userAttributes)) {
             $this->updateCanManageProcedures(
                 $modifiedEntity->getEntity(),
+                (bool) $userAttributes[$this->canManageProcedures->getAsNamesInDotNotation()]
+            );
+        }
+
+        return $modifiedEntity;
+    }
+
+    public function createEntity(CreationDataInterface $entityData): ModifiedEntity
+    {
+        $userAttributes = $entityData->getAttributes();
+
+        // Executed once, after the roles relationship has already been applied, so the newly
+        // created user's role set is what gets evaluated below.
+        $modifiedEntity = parent::createEntity($entityData);
+
+        if (array_key_exists($this->canManageProcedures->getAsNamesInDotNotation(), $userAttributes)) {
+            $newUser = $modifiedEntity->getEntity();
+
+            // A freshly created User never goes through Doctrine's postLoad (DoctrineUserListener),
+            // which normally sets these; updateCanManageProcedures()'s role lookup needs both.
+            $newUser->setCurrentCustomer($this->currentCustomerService->getCurrentCustomer());
+            $newUser->setRolesAllowed($this->globalConfig->getRolesAllowed());
+
+            $this->updateCanManageProcedures(
+                $newUser,
                 (bool) $userAttributes[$this->canManageProcedures->getAsNamesInDotNotation()]
             );
         }
