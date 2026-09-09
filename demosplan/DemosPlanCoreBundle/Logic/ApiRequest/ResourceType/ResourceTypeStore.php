@@ -30,7 +30,6 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomerLoginSupportContactResou
 use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomerResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\CustomFieldResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\DepartmentResourceType;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\DraftStatementResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\EmailResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\FaqCategoryResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\FaqResourceType;
