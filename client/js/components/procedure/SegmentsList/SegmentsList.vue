@@ -580,6 +580,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
 import CustomSearch from './CustomSearch'
 import fullscreenModeMixin from '@DpJs/components/shared/mixins/fullscreenModeMixin'
 import ImageModal from '@DpJs/components/shared/ImageModal'
@@ -591,10 +592,9 @@ import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaToolti
 import StatusBadge from '../Shared/StatusBadge'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
-import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useApiPlatformFilters } from '@DpJs/composables/useApiPlatformFilters'
+import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
-import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
 
 export default {
   name: 'SegmentsList',
