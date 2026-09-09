@@ -55,6 +55,7 @@
     >
       <!-- Form fields -->
       <dp-organisation-form-fields
+        ref="organisationFormFields"
         :additional-field-options="additionalFieldOptions"
         :available-orga-types="availableOrgaTypes"
         :initial-organisation="initialOrganisation"
@@ -63,6 +64,7 @@
         @addon:update="updateAddonPayload"
         @addon-options:loaded="setAdditionalFieldOptions"
         @organisation:update="updateOrganisation"
+        @procedure-creation-toggled="canCreateProceduresCurrent = $event"
       />
 
       <!-- Button row -->
@@ -77,18 +79,17 @@
     </div>
 
     <dp-confirm-dialog
-      ref="procedureCreationConflictDialog"
-      :confirm-button-text="Translator.trans('procedure.canManage.orgaWideConflict.confirm')"
-      :decline-button-text="Translator.trans('procedure.canManage.orgaWideConflict.decline')"
-      :header="Translator.trans('procedure.canManage.orgaWideConflict.header')"
+      ref="procedureCreationToggleDialog"
+      :confirm-button-text="Translator.trans('procedure.canCreate.confirmToggle.continue')"
+      :header="procedureCreationToggleHeader"
       icon="warning"
-      :message="procedureCreationConflictMessage"
+      :message="procedureCreationToggleMessage"
     />
   </dp-table-card>
 </template>
 
 <script>
-import { dpApi, DpButtonRow, DpConfirmDialog, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { DpButtonRow, DpConfirmDialog, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { defineAsyncComponent } from 'vue'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
@@ -163,11 +164,12 @@ export default {
         url: '',
         value: '',
       },
+      canCreateProceduresCurrent: null,
+      canCreateProceduresOnOpen: null,
       isOpen: false,
       isLoading: true,
       isSaving: false,
       moduleSubstring: (this.moduleName !== '') ? `/${this.moduleName}` : '',
-      procedureCreationConflictMessage: '',
     }
   },
 
@@ -198,62 +200,96 @@ export default {
     icon () {
       return this.isOpen ? 'chevron-up' : 'chevron-down'
     },
+
+    isEnablingProcedureCreation () {
+      const current = this.canCreateProceduresCurrent ?? this.organisation.attributes.canCreateProcedures
+
+      return current === true && this.canCreateProceduresOnOpen !== true
+    },
+
+    isDisablingProcedureCreation () {
+      const current = this.canCreateProceduresCurrent ?? this.organisation.attributes.canCreateProcedures
+
+      return current !== true && this.canCreateProceduresOnOpen === true
+    },
+
+    procedureCreationToggleHeader () {
+      if (this.isEnablingProcedureCreation) {
+        return Translator.trans('procedure.canCreate.confirmEnable.header')
+      }
+
+      if (this.isDisablingProcedureCreation) {
+        return Translator.trans('procedure.canCreate.confirmDisable.header')
+      }
+
+      return ''
+    },
+
+    procedureCreationToggleMessage () {
+      if (this.isEnablingProcedureCreation) {
+        return Translator.trans('procedure.canCreate.confirmEnable.message')
+      }
+
+      if (this.isDisablingProcedureCreation) {
+        return Translator.trans('procedure.canCreate.confirmDisable.message')
+      }
+
+      return ''
+    },
+  },
+
+  watch: {
+    /**
+     * The store's "initial" snapshot (used elsewhere for reset/cancel) gets reset to match the
+     * current item on every successful save - so it can't be used to detect a toggle across more
+     * than one save in the same session. Capture our own baseline instead, exactly when the form
+     * is opened for editing.
+     */
+    isOpen (isOpenNow) {
+      if (isOpenNow) {
+        this.canCreateProceduresOnOpen = this.organisation.attributes.canCreateProcedures
+        this.canCreateProceduresCurrent = null
+      }
+    },
   },
 
   methods: {
     /**
-     * If the "Darf Verfahren anlegen" checkbox is being newly enabled for this orga, and there are
-     * users who already hold that permission individually, ask whether those individual grants should
-     * be removed now that the organisation grants it to everyone. Sets a transient attribute on the
-     * item so the outgoing save request can act on the answer.
+     * If the "Darf Verfahren anlegen" checkbox was toggled (either direction) since the form was
+     * opened, the change must be confirmed before it's saved. Declining reverts it, so the rest of
+     * the form can still be saved unaffected.
+     *
+     * @return {Promise<boolean>} whether the toggle (if any) was confirmed
      */
-    async checkProcedureCreationOrgaWideConflicts () {
-      const isEnablingOrgaWideProcedureCreation = this.organisation.attributes.canCreateProcedures === true &&
-        this.initialOrganisation.attributes.canCreateProcedures !== true
-
-      if (!isEnablingOrgaWideProcedureCreation) {
-        return
+    async confirmProcedureCreationToggle () {
+      if (!this.isEnablingProcedureCreation && !this.isDisablingProcedureCreation) {
+        return true
       }
 
-      const url = Routing.generate('dplan_api_organisation_procedure_creation_individual_grants', { id: this.organisation.id })
-      const response = await dpApi.get(url)
-      const users = response.data.data || []
+      const confirmed = await this.$refs.procedureCreationToggleDialog.open()
 
-      if (users.length === 0) {
-        return
+      await this.waitForDialogToFullyClose(this.$refs.procedureCreationToggleDialog)
+
+      if (!confirmed) {
+        this.setItem({
+          ...this.organisation,
+          attributes: {
+            ...this.organisation.attributes,
+            canCreateProcedures: this.canCreateProceduresOnOpen,
+          },
+        })
+        this.canCreateProceduresCurrent = null
       }
 
-      this.procedureCreationConflictMessage = Translator.trans('procedure.canManage.orgaWideConflict.message', {
-        users: users.map(user => `– ${user.firstname} ${user.lastname}`).join('\n'),
-      })
-
-      const shouldRemoveIndividualGrants = await this.$refs.procedureCreationConflictDialog.open()
-
-      /*
-       * DpConfirmDialog resolves as soon as Confirm/Decline is clicked, before the underlying
-       * DpModal's CSS-animation-driven close sequence has actually finished (DpModal.close() only
-       * calls the native dialog.close() once its `animationend` handler fires). Triggering another
-       * reactive update (setItem below) while that's still in flight risks interrupting the
-       * animation — and if `animationend` then never fires, the native <dialog> stays open forever
-       * and blocks the entire page until reload. Wait for the dialog to actually finish closing first.
-       */
-      await this.waitForDialogToFullyClose()
-
-      this.setItem({
-        ...this.organisation,
-        attributes: {
-          ...this.organisation.attributes,
-          removeIndividualProcedureCreationGrants: shouldRemoveIndividualGrants,
-        },
-      })
+      return confirmed
     },
 
     /**
      * Polls the native <dialog> element's `open` property until it's actually false (or a safety
      * timeout is hit), rather than assuming a fixed animation duration.
      */
-    waitForDialogToFullyClose (maxWaitMs = 2000, pollIntervalMs = 50) {
-      const dialogEl = this.$refs.procedureCreationConflictDialog?.$refs?.confirmDialog?.$refs?.dialog
+    waitForDialogToFullyClose (dialogRef, maxWaitMs = 2000, pollIntervalMs = 50) {
+      const dialogEl = dialogRef?.$refs?.confirmDialog?.$refs?.dialog
 
       if (!dialogEl) {
         return Promise.resolve()
@@ -332,19 +368,23 @@ export default {
         this.isSaving = true
 
         try {
-          await this.checkProcedureCreationOrgaWideConflicts()
+          const toggleConfirmed = await this.confirmProcedureCreationToggle()
+
+          if (!toggleConfirmed) {
+            return
+          }
+
+          this.isOpen = !this.isOpen
+          const addonExists = Boolean(window.dplan.loadedAddons['interface.fields.to.transmit'])
+          const addonHasValue = this.addonPayload.value || this.addonPayload.initValue
+
+          if (addonExists && addonHasValue) {
+            await this.handleAddonRequest().then(() => this.submitOrganisationForm())
+          } else {
+            await this.submitOrganisationForm()
+          }
         } finally {
           this.isSaving = false
-        }
-
-        this.isOpen = !this.isOpen
-        const addonExists = Boolean(window.dplan.loadedAddons['interface.fields.to.transmit'])
-        const addonHasValue = this.addonPayload.value || this.addonPayload.initValue
-
-        if (addonExists && addonHasValue) {
-          this.handleAddonRequest().then(() => this.submitOrganisationForm())
-        } else {
-          this.submitOrganisationForm()
         }
       } else {
         dplan.notify.notify('error', Translator.trans('error.mandatoryfields.no_asterisk'))
@@ -352,9 +392,10 @@ export default {
     },
 
     saveOrganisationAction (payload) {
-      this.$store.dispatch(`Orga${this.moduleSubstring}/save`, payload)
+      return this.$store.dispatch(`Orga${this.moduleSubstring}/save`, payload)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+          this.$refs.organisationFormFields?.fetchUsersWithIndividualProcedureCreationPermissionIfNeeded()
           /*
            * Reload organisations and pending organisations in case an organisation has to be moved to the other list, i.e.
            * a) the registrationStatuses of a pending organisation no longer contain a status of 'pending' or b) the registrationStatuses of an activated organisation now
@@ -392,7 +433,7 @@ export default {
         additionalAttributes.push('emailNotificationNewStatement')
       }
 
-      this.saveOrganisationAction({
+      return this.saveOrganisationAction({
         id: this.organisation.id,
         options: {
           attributes: {

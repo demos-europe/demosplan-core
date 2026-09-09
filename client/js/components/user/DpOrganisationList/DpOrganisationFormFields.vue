@@ -392,7 +392,7 @@
           :label="{
             text: Translator.trans('procedure.canCreate')
           }"
-          @change="emitOrganisationUpdate"
+          @change="onCanCreateProceduresChange"
         />
 
         <template v-if="hasPermission('feature_manage_procedure_creation_permission') && isMunicipalityOrHearingAuthorityAccepted && !localOrganisation.attributes.canCreateProcedures">
@@ -1024,6 +1024,7 @@ export default {
     'addon:update',
     'addonOptions:loaded',
     'organisation:update',
+    'procedureCreationToggled',
     'reset:complete',
   ],
 
@@ -1164,11 +1165,34 @@ export default {
       })
     },
 
+    /**
+     * Emitted in addition to the regular organization:update, so the parent can track the toggle
+     * independently of the store - a background refresh of the organizations list (triggered by
+     * an unrelated save elsewhere) can overwrite the `organization` prop with server state while
+     * this one is still being edited, which would otherwise make an in-progress enable/disable
+     * detection based on that prop flicker back to "unchanged".
+     */
+    onCanCreateProceduresChange (checked) {
+      this.emitOrganisationUpdate()
+      // Under @vue/compat this listener runs before the legacy v-model write, so localOrganisation is still stale here
+      this.$emit('procedureCreationToggled', checked)
+    },
+
     async fetchUsersWithIndividualProcedureCreationPermission () {
       const url = Routing.generate('dplan_api_organisation_procedure_creation_individual_grants', { id: this.organisation.id })
       const response = await dpApi.get(url)
 
       this.usersWithIndividualProcedureCreationPermission = response.data.data || []
+    },
+
+    /**
+     * Refetches the individual-grants list whenever the organization's data changes (e.g. after a
+     * save) so the list shown below the org-wide checkbox is updated
+     */
+    fetchUsersWithIndividualProcedureCreationPermissionIfNeeded () {
+      if (hasPermission('feature_manage_procedure_creation_permission') && this.isMunicipalityOrHearingAuthorityAccepted) {
+        this.fetchUsersWithIndividualProcedureCreationPermission()
+      }
     },
 
     hasChanged (field) {
@@ -1233,10 +1257,7 @@ export default {
 
   created () {
     this.setInitialOrganisation()
-
-    if (hasPermission('feature_manage_procedure_creation_permission') && this.isMunicipalityOrHearingAuthorityAccepted) {
-      this.fetchUsersWithIndividualProcedureCreationPermission()
-    }
+    this.fetchUsersWithIndividualProcedureCreationPermissionIfNeeded()
   },
 
   mounted () {
