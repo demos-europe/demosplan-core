@@ -71,7 +71,6 @@ class ScheduledExportDispatcher
         return $dispatched;
     }
 
-
     private function findDueSchedules(DateTime $today): array
     {
         return $this->entityManager->createQueryBuilder()
@@ -94,10 +93,10 @@ class ScheduledExportDispatcher
     private function nextOccurrenceAfter(ExportSchedule $schedule, DateTime $from): DateTime
     {
         return match ($schedule->getFrequency()) {
-            ExportSchedule::FREQUENCY_DAILY => (clone $from)->modify('+1 day'),
-            ExportSchedule::FREQUENCY_WEEKLY => $this->nextWeekdayAfter($from, $schedule->getWeekday()),
+            ExportSchedule::FREQUENCY_DAILY   => (clone $from)->modify('+1 day'),
+            ExportSchedule::FREQUENCY_WEEKLY  => $this->nextWeekdayAfter($from, $schedule->getWeekday()),
             ExportSchedule::FREQUENCY_MONTHLY => $this->nextDayOfMonthAfter($from, $schedule->getDayOfMonth()),
-            default => throw new InvalidArgumentException("Unknown export schedule frequency: {$schedule->getFrequency()}"),
+            default                           => throw new InvalidArgumentException("Unknown export schedule frequency: {$schedule->getFrequency()}"),
         };
     }
 
