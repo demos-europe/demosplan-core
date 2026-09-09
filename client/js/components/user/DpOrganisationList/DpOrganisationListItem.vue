@@ -67,6 +67,7 @@
 
       <!-- Button row -->
       <dp-button-row
+        :disabled="isSaving"
         form-name="organisationForm"
         :primary="editable"
         secondary
@@ -164,6 +165,7 @@ export default {
       },
       isOpen: false,
       isLoading: true,
+      isSaving: false,
       moduleSubstring: (this.moduleName !== '') ? `/${this.moduleName}` : '',
       procedureCreationConflictMessage: '',
     }
@@ -322,8 +324,18 @@ export default {
     },
 
     async save () {
+      if (this.isSaving) {
+        return
+      }
+
       if (this.dpValidate.organisationForm) {
-        await this.checkProcedureCreationOrgaWideConflicts()
+        this.isSaving = true
+
+        try {
+          await this.checkProcedureCreationOrgaWideConflicts()
+        } finally {
+          this.isSaving = false
+        }
 
         this.isOpen = !this.isOpen
         const addonExists = Boolean(window.dplan.loadedAddons['interface.fields.to.transmit'])
