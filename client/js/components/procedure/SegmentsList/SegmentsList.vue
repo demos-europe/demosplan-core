@@ -1087,11 +1087,11 @@ export default {
       const { include, fields } = this.buildSegmentFetchOptions()
 
       const defaultFilter = {
-        'parentStatementOfSegment.procedure.id': this.procedureId
+        'parentStatementOfSegment.procedure.id': this.procedureId,
       }
       const filter = {
         ...this.transformFiltersToApiPlatform(this.getFilterQuery),
-        ...defaultFilter
+        ...defaultFilter,
       }
 
       const defaultOrder = {
@@ -1472,9 +1472,9 @@ export default {
       const [sortBy, direction] = this.selectedSort?.split('-') ?? []
       const sortPath = sortPaths[sortBy]
 
-      return sortPath && direction
-        ? { [sortPath]: direction }
-        : null
+      return sortPath && direction ?
+        { [sortPath]: direction } :
+        null
     },
 
     /**

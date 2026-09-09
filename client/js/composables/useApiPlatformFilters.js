@@ -41,7 +41,7 @@ export function useApiPlatformFilters () {
       // Safely append value to array, initializing array if key doesn't exist
       apiFilters[key] = [
         ...(apiFilters[key] ?? []),
-        value
+        value,
       ]
     })
 
@@ -49,6 +49,6 @@ export function useApiPlatformFilters () {
   }
 
   return {
-    transformFiltersToApiPlatform
+    transformFiltersToApiPlatform,
   }
 }
