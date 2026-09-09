@@ -340,6 +340,7 @@ export default {
      */
     isOrgaAcceptedAsMunicipalityOrHearingAuthority () {
       const orga = this.organisations[this.currentUserOrga.id]
+
       if (!orga) {
         return false
       }
