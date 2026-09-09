@@ -10,7 +10,10 @@
 
 namespace Tests\Core\Import;
 
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\ExcelValidationService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use Symfony\Component\Finder\SplFileInfo;
 use Tests\Base\FunctionalTestCase;
 
@@ -92,6 +95,47 @@ class ExcelValidationServiceTest extends FunctionalTestCase
         $errors = $result->getErrors();
         $errorMessages = implode(' ', array_column($errors, 'message'));
         self::assertStringContainsString('Doppelter Abschnitt Interner ID', $errorMessages);
+    }
+
+    public function testDuplicateEingangsnummerWithinFile(): void
+    {
+        // Arrange - two statements sharing the same Eingangsnummer (= statement internId)
+        $fileInfo = $this->createSplFileInfo('duplicate_eingangsnummer.xlsx');
+
+        // Act
+        $result = $this->sut->validateExcelFile($fileInfo);
+
+        // Assert
+        self::assertTrue($result->hasErrors());
+
+        $errors = $result->getErrors();
+        $errorMessages = implode(' ', array_column($errors, 'message'));
+        self::assertStringContainsString('Doppelte Eingangsnummer', $errorMessages);
+        self::assertStringContainsString('DUP-100', $errorMessages);
+    }
+
+    public function testEingangsnummerAlreadyUsedInProcedure(): void
+    {
+        // Arrange - a statement with the imported Eingangsnummer already exists in the procedure
+        $procedure = ProcedureFactory::createOne();
+        StatementFactory::createOne([
+            'procedure' => $procedure,
+            'internId'  => 'EXISTING-100',
+        ]);
+        self::getContainer()->get(CurrentProcedureService::class)->setProcedure($procedure->_real());
+
+        $fileInfo = $this->createSplFileInfo('existing_eingangsnummer.xlsx');
+
+        // Act
+        $result = $this->sut->validateExcelFile($fileInfo);
+
+        // Assert
+        self::assertTrue($result->hasErrors());
+
+        $errors = $result->getErrors();
+        $errorMessages = implode(' ', array_column($errors, 'message'));
+        self::assertStringContainsString('EXISTING-100', $errorMessages);
+        self::assertStringContainsString('bereits vergeben', $errorMessages);
     }
 
     public function testStatementWithoutSegments(): void
