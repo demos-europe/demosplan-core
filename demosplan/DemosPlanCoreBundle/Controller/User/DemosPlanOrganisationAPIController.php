@@ -494,11 +494,6 @@ class DemosPlanOrganisationAPIController extends APIController
             }
             $orgaDataArray = $requestData;
 
-            // Transient flag, not a real Orga attribute — extract it before the writability whitelist
-            // check below (which would otherwise reject it as unknown).
-            $removeIndividualProcedureCreationGrants = true === ($orgaDataArray['attributes']['removeIndividualProcedureCreationGrants'] ?? false);
-            unset($orgaDataArray['attributes']['removeIndividualProcedureCreationGrants']);
-
             $orgaHandler->checkWritabilityOfAttributes($orgaDataArray['attributes']);
 
             $pendingStatus = OrgaStatusInCustomer::STATUS_PENDING;
@@ -528,14 +523,14 @@ class DemosPlanOrganisationAPIController extends APIController
                         $accessControlPermission->createPermissions(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $availableOrgaRoles);
                         $canCreateProcedures = true;
 
-                        if ($removeIndividualProcedureCreationGrants) {
-                            $userAccessControlService->removePermissionForUsersInOrga(
-                                $preUpdateOrga,
-                                $customerHandler->getCurrentCustomer(),
-                                AccessControlService::CREATE_PROCEDURES_PERMISSION,
-                                array_map(static fn (RoleInterface $role): string => $role->getCode(), $availableOrgaRoles)
-                            );
-                        }
+                        // Individual grants become redundant once every user with the role gets the permission org-wide
+                        // and are removed
+                        $userAccessControlService->removePermissionForUsersInOrga(
+                            $preUpdateOrga,
+                            $customerHandler->getCurrentCustomer(),
+                            AccessControlService::CREATE_PROCEDURES_PERMISSION,
+                            array_map(static fn (RoleInterface $role): string => $role->getCode(), $availableOrgaRoles)
+                        );
                     } else {
                         $accessControlPermission->removePermissions(AccessControlService::CREATE_PROCEDURES_PERMISSION, $preUpdateOrga, $customerHandler->getCurrentCustomer(), $availableOrgaRoles);
                         $canCreateProcedures = false;
