@@ -12,36 +12,30 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\MessageHandler;
 
-use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobMaintenance;
-use demosplan\DemosPlanCoreBundle\Message\MaintainExportJobsMessage;
+use demosplan\DemosPlanCoreBundle\Logic\Export\ScheduledExportDispatcher;
+use demosplan\DemosPlanCoreBundle\Message\DispatchScheduledExportMessage;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Throwable;
 
 /**
- * Closes out abandoned export jobs and deletes export results past their retention window.
+ * Reacts to the daily scheduler tick and starts a run for every due xlsx export schedule
  */
 #[AsMessageHandler]
 final class DispatchScheduledExportMessageHandler
 {
     public function __construct(
-        private readonly ExportJobMaintenance $exportJobMaintenance,
+        private readonly ScheduledExportDispatcher $scheduledExportDispatcher,
         private readonly LoggerInterface $logger,
     ) {
     }
 
-    public function __invoke(MaintainExportJobsMessage $message): void
+    public function __invoke(DispatchScheduledExportMessage $message): void
     {
         try {
-            $this->exportJobMaintenance->failStaleJobs();
+            $this->scheduledExportDispatcher->dispatchDueExports();
         } catch (Throwable $exception) {
-            $this->logger->error('Maintenance: failed to close out abandoned export jobs', [$exception]);
-        }
-
-        try {
-            $this->exportJobMaintenance->purgeExpiredResults();
-        } catch (Throwable $exception) {
-            $this->logger->error('Maintenance: failed to purge expired export jobs', [$exception]);
+            $this->logger->error('Maintenance: Failed to dispatch due scheduled xlsx exports', [$exception]);
         }
     }
 }
