@@ -13,116 +13,117 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Export;
 
 use DateTime;
-use demosplan\DemosPlanCoreBundle\Entity\Export\AsyncExportJobInterface;
-use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\ExportSchedule;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\ScheduledExportJob;
+use demosplan\DemosPlanCoreBundle\Message\GenerateScheduledExportMessage;
 use Doctrine\ORM\EntityManagerInterface;
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use Throwable;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
- * Keeps the export job tables and the files they point at from growing without bound, and stops jobs
- * from sitting in a non-final state forever.
+ * Finds rows due today and starts one run for each.
+ *
+ * Runs once a day, driven by the daily maintenance schedule, so "due" is decided per calendar day -
+ * schedules carry a day (or weekday/day-of-month), never a time of day.
  */
 class ScheduledExportDispatcher
 {
-    /**
-     * How long a finished export stays downloadable. Bounded because the artefact is a document full
-     * of personal data, not just to save storage.
-     * TODO: Needs to be adjusted so that the retention period is double the time of the scheduled export period,
-     * TODO: e.g.: the user wants an automatic export every week, so the retention time is two weeks.
-     */
-    public const RESULT_RETENTION = '-7 days';
-
-    /**
-     * A job still unfinished after this long is not slow, it is abandoned - the worker was killed
-     * mid-export, or none is running at all. Matches {@link RunningExportJobLookup::STALE_AFTER}, so
-     * a job stops being handed back and gets closed out at the same point.
-     */
-    public const STALE_AFTER = RunningExportJobLookup::STALE_AFTER;
-
-    private const STALE_REASON = 'error.export';
-
-    /**
-     * @var string[]
-     */
-    private const ACTIVE_STATUSES = [
-        AsyncExportJobInterface::STATUS_PENDING,
-        AsyncExportJobInterface::STATUS_PROCESSING,
-    ];
-
-    /**
-     * @var string[]
-     */
-    private const FINAL_STATUSES = [
-        AsyncExportJobInterface::STATUS_COMPLETED,
-        AsyncExportJobInterface::STATUS_FAILED,
-    ];
-
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly FileService $fileService,
         private readonly LoggerInterface $logger,
-        private readonly TranslatorInterface $translator,
+        private readonly MessageBusInterface $messageBus,
     ) {
     }
 
     /**
-     * Mark jobs that never reached a final status as failed, so the browser stops polling them and
-     * the export can be started again.
+     * Starts a run for every schedule that is due and has not already run today, then advances each
+     * schedule to its next occurrence.
      */
-    public function failStaleJobs(): int
+    public function dispatchDueExports(): int
     {
-    }
+        $today = new DateTime('today');
+        $dispatched = 0;
 
-    /**
-     * Delete finished jobs past the retention window together with the exported file.
-     */
-    public function purgeExpiredResults(): int
-    {
-        $purged = 0;
+        foreach ($this->findDueSchedules($today) as $schedule) {
+            $job = new ScheduledExportJob();
+            $job->setUserId($schedule->getUserId());
+            $job->setProcedureId($schedule->getProcedureId());
+            $job->setScheduleId((string) $schedule->getId());
+            $job->setParametersHash($schedule->getParametersHash());
+            $this->entityManager->persist($job);
+            $this->entityManager->flush();
 
-        foreach ($this->findJobsBefore(self::FINAL_STATUSES, self::RESULT_RETENTION) as $job) {
-            $fileHash = $job->getFileHash();
-            if (null !== $fileHash) {
-                try {
-                    $this->fileService->deleteFile($fileHash);
-                } catch (Throwable $e) {
-                    // Keep going: an unreferenced file is cleaned up by removeOrphanedFiles(),
-                    // whereas keeping the row would retry the same failure every run.
-                    $this->logger->warning('Maintenance: could not delete expired export file', [
-                        'jobId'     => $job->getId(),
-                        'fileHash'  => $fileHash,
-                        'exception' => $e->getMessage(),
-                    ]);
-                }
-            }
-            $this->entityManager->remove($job);
-            ++$purged;
-        }
-        $this->entityManager->flush();
+            $this->messageBus->dispatch(new GenerateScheduledExportMessage((string) $job->getId()));
 
-        if (0 < $purged) {
-            $this->logger->info('Maintenance: purged expired export jobs', ['count' => $purged]);
+            $schedule->setLastRunAt($today);
+            $schedule->setNextRunAt($this->nextOccurrenceAfter($schedule, $today));
+            $schedule->setModifiedDate(new DateTime());
+            $this->entityManager->flush();
+
+            ++$dispatched;
         }
 
-        return $purged;
+        if (0 < $dispatched) {
+            $this->logger->info('Dispatched scheduled XLSX Synopse exports', ['count' => $dispatched]);
+        }
+
+        return $dispatched;
     }
 
-    /**
-     * @param string[] $statuses
-     *
-     * @return AsyncExportJobInterface[]
-     */
-    private function findJobsBefore(array $statuses, string $maxAge): array
+
+    private function findDueSchedules(DateTime $today): array
     {
         return $this->entityManager->createQueryBuilder()
-            ->select('job')
-            ->andWhere('job.status IN (:statuses)')
-            ->andWhere('job.modifiedDate < :before')
-            ->setParameter('statuses', $statuses)
-            ->setParameter('before', new DateTime($maxAge))
+            ->select('schedule')
+            ->from(ExportSchedule::class, 'schedule')
+            ->andWhere('schedule.nextRunAt <= :today')
+            // Parenthesised deliberately: without the parentheses, AND binds tighter than OR and this
+            // would match every schedule with an old lastRunAt, regardless of nextRunAt.
+            ->andWhere('(schedule.lastRunAt IS NULL OR schedule.lastRunAt < :today)')
+            ->setParameter('today', $today)
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * Smallest date strictly after $from that matches the schedule's frequency. Self-correcting: if a
+     * run was skipped (worker downtime, tick failure), the next occurrence is still computed relative
+     * to when it actually ran, not relative to the missed date, so schedules never pile up catch-up runs.
+     */
+    private function nextOccurrenceAfter(ExportSchedule $schedule, DateTime $from): DateTime
+    {
+        return match ($schedule->getFrequency()) {
+            ExportSchedule::FREQUENCY_DAILY => (clone $from)->modify('+1 day'),
+            ExportSchedule::FREQUENCY_WEEKLY => $this->nextWeekdayAfter($from, $schedule->getWeekday()),
+            ExportSchedule::FREQUENCY_MONTHLY => $this->nextDayOfMonthAfter($from, $schedule->getDayOfMonth()),
+            default => throw new InvalidArgumentException("Unknown export schedule frequency: {$schedule->getFrequency()}"),
+        };
+    }
+
+    private function nextWeekdayAfter(DateTime $from, int $weekday): DateTime
+    {
+        $currentWeekday = (int) $from->format('N');
+        $daysUntilNext = ($weekday - $currentWeekday + 7) % 7;
+        $daysUntilNext = 0 === $daysUntilNext ? 7 : $daysUntilNext;
+
+        return (clone $from)->modify("+{$daysUntilNext} days");
+    }
+
+    /**
+     * Safe to build the date directly (no month-end overflow, e.g. no "31 February") because
+     * $dayOfMonth is restricted by the frontend to at most 25, which exists in every month.
+     */
+    private function nextDayOfMonthAfter(DateTime $from, int $dayOfMonth): DateTime
+    {
+        $candidate = clone $from;
+        $candidate->setDate((int) $from->format('Y'), (int) $from->format('n'), $dayOfMonth);
+        $candidate->setTime(0, 0);
+
+        if ($candidate <= $from) {
+            $candidate->modify('+1 month');
+        }
+
+        return $candidate;
     }
 }
