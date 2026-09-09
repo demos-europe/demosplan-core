@@ -6,6 +6,8 @@
 
 ## UNRELEASED
 
+## v4.60.0 (2026-09-09)
+
 ## v4.59.0 (2026-09-09)
 - uses TagListCsvExportEventInterface
 - dpends on demosplan-addon version >= v0.82
