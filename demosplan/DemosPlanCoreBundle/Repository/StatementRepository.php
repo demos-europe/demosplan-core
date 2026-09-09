@@ -544,6 +544,26 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
     }
 
     /**
+     * @param non-empty-string $procedureId
+     *
+     * @return array<non-empty-string, non-empty-string>
+     */
+    public function getSourceStatementIdsInUse(string $procedureId): array
+    {
+        $query = $this->getEntityManager()
+            ->createQueryBuilder()
+            ->select('statement.sourceStatementId')
+            ->from(Statement::class, 'statement')
+            ->where('statement.procedure = :procedureId')
+            ->andWhere('statement.sourceStatementId IS NOT NULL')
+            ->setParameter('procedureId', $procedureId)
+            ->getQuery();
+        $sourceStatementIds = array_column($query->getScalarResult(), 'sourceStatementId');
+
+        return array_combine($sourceStatementIds, $sourceStatementIds);
+    }
+
+    /**
      * Some Statements does not have any StatementMeta. Whysoever.
      */
     protected function ensureHasMeta(Statement $statement): Statement

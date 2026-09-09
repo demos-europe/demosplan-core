@@ -40,7 +40,7 @@ class StatementClusterConditions
             $this->conditionFactory->propertyHasValue(true, ['clusterStatement']),
             $this->conditionFactory->propertyHasValue(false, ['deleted']),
             $this->conditionFactory->propertyIsNull(['headStatement']),
-            $this->conditionFactory->propertyIsNull(['movedStatement']),
+            $this->conditionFactory->propertyIsNull(['movedStatement', 'id']),
             $this->conditionFactory->propertyHasValue($procedureId, ['procedure', 'id']),
         ];
     }

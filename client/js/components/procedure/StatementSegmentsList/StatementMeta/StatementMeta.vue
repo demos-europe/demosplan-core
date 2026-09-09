@@ -58,14 +58,20 @@
           @save="(data) => save(data)"
         />
 
-        <statement-submitter
-          ref="statementSubmitter"
+        <statement-meta-group
           :editable="editable"
-          :procedure="procedure"
+          :procedure-id="procedure.id"
           :statement="statement"
-          :statement-form-definitions="statementFormDefinitions"
-          @save="(data) => save(data)"
-        />
+        >
+          <statement-submitter
+            ref="statementSubmitter"
+            :editable="editable"
+            :procedure="procedure"
+            :statement="statement"
+            :statement-form-definitions="statementFormDefinitions"
+            @save="(data) => save(data)"
+          />
+        </statement-meta-group>
 
         <statement-publication-and-voting
           v-if="hasPermission('feature_statements_vote') || hasPermission('feature_statements_publication')"
@@ -150,6 +156,7 @@ import { mapActions, mapMutations, mapState } from 'vuex'
 import StatementEntry from './StatementEntry'
 import StatementMetaAttachments from './StatementMetaAttachments'
 import StatementMetaFinalEmail from './StatementMetaFinalEmail'
+import StatementMetaGroup from './StatementMetaGroup'
 import StatementMetaLocationAndDocumentReference from './StatementMetaLocationAndDocumentReference'
 import StatementMetaMultiselect from './StatementMetaMultiselect'
 import StatementPublicationAndVoting from './StatementPublicationAndVoting'
@@ -164,6 +171,7 @@ export default {
     StatementEntry,
     StatementMetaAttachments,
     StatementMetaFinalEmail,
+    StatementMetaGroup,
     StatementMetaLocationAndDocumentReference,
     StatementMetaMultiselect,
     StatementPublicationAndVoting,

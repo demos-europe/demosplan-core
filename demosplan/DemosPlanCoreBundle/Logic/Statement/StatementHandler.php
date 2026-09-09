@@ -1663,6 +1663,32 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         if (null != $data['tagTitle'] && $data['tagTitle'] != $tag->getTitle()) {
             $this->tagService->renameTag($tag->getId(), $data['tagTitle']);
         }
+        if (null !== ($data['defaultAssigneeId'] ?? null)) {
+            $this->updateTagDefaultAssignee($tag, $data['defaultAssigneeId'], $procedureId);
+        }
+    }
+
+    /**
+     * Sets or removes the default assignee of a tag. An empty user ID removes the assignment.
+     * Only users authorized in the given procedure may be set.
+     *
+     * @throws InvalidArgumentException
+     */
+    private function updateTagDefaultAssignee(Tag $tag, string $userId, string $procedureId): void
+    {
+        if ('' === $userId) {
+            $this->tagService->setDefaultAssignee($tag, null);
+
+            return;
+        }
+
+        $authorizedUser = $this->procedureService->getAuthorizedUsers($procedureId)
+            ->first(static fn (User $user): bool => $user->getId() === $userId);
+        if (!$authorizedUser instanceof User) {
+            throw new InvalidArgumentException("User with the ID '$userId' is not authorized in the procedure with the ID '$procedureId'");
+        }
+
+        $this->tagService->setDefaultAssignee($tag, $authorizedUser);
     }
 
     /**

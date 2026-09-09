@@ -28,4 +28,16 @@ class StatementResource
 {
     #[ApiProperty(readable: false, identifier: true)]
     public string $id = '';
+
+    #[ApiProperty(readable: true, writable: false)]
+    public ?string $externId = null;
+
+    #[ApiProperty(readable: true, writable: false)]
+    public bool $isSubmittedByCitizen = false;
+
+    #[ApiProperty(readable: true, writable: false)]
+    public string $authorName = '';
+
+    #[ApiProperty(readable: true, writable: false)]
+    public string $initialOrganisationName = '';
 }

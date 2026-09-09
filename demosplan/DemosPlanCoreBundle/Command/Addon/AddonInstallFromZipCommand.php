@@ -119,6 +119,10 @@ class AddonInstallFromZipCommand extends CoreCommand
 
         $this->setGlobalPaths();
 
+        if (null !== $path) {
+            $this->setZipPaths($path);
+        }
+
         if (null === $path) {
             try {
                 if ($input->getOption('local')) {

@@ -12,8 +12,8 @@ Untenstehend finden Sie eine Auflistung der zugewiesenen Abschnitte:
         {% for place, segments in places %}
 
             Schritt "{{ place }}"
-                {% for segmentExternId, link in segments %}
-                  - Abschnitt <a href="{{ link }}">{{ segmentExternId }}</a>
+                {% for segmentExternId, segment in segments %}
+                  - Abschnitt <a href="{{ segment.link }}">{{ segmentExternId }}</a>{% if segment.deadline %} (Bearbeitungsfrist: {{ segment.deadline|date('d.m.Y') }}){% endif %}
                 {% endfor %}
         {% endfor %}
 {% endfor %}

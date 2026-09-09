@@ -214,6 +214,7 @@ fos_elastica:
                 coordinate: {type: text, index: true}
                 legalNotice: {type: text, index: false}
                 participationGuestOnly: { type: boolean }
+                allowUninvitedInstitutions: { type: boolean }
             # define callback to check whether entity should be indexed
             indexable_callback: 'shouldBeIndexed'
             persistence:
@@ -644,6 +645,11 @@ fos_elastica:
                                 sort:  {type: icu_collation_keyword}
                                 # sort : { type : string, analyzer : naturalsort }
                         sortIndex: {type: integer, index: false}
+                customFieldsForIndex:
+                    type: nested
+                    properties:
+                        id: {type: keyword, index: true}
+                        value: {type: keyword, index: true}
 
             # define callback to check whether entity should be indexed
             indexable_callback: 'shouldBeIndexed'

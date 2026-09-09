@@ -9,7 +9,10 @@
 
 <template>
   <div v-if="statement">
-    <dp-slidebar @close="resetSlidebar">
+    <dp-slidebar
+      :open="slidebar.isOpen"
+      @close="resetSlidebar"
+    >
       <dp-version-history
         v-show="slidebar.showTab === 'history'"
         class="u-pr"
@@ -30,7 +33,16 @@
         :segment-id="slidebar.segmentId"
         :statement-id="statementId"
       />
+      <dp-segment-recommendation-email
+        :current-user-email="currentUser.email"
+        :procedure-name="procedure.name"
+      />
     </dp-slidebar>
+
+    <dp-confirm-dialog
+      ref="dissolveGroupConfirmDialog"
+      :message="Translator.trans('check.cluster.release')"
+    />
 
     <dp-sticky-element>
       <header class="border--bottom u-pv-0_5 flow-root">
@@ -149,6 +161,26 @@
               />
             </dp-flyout>
           </li>
+          <li v-if="isGroupMember">
+            <dp-button
+              :text="Translator.trans('cluster.element.release', { groupName })"
+              class="ml-2 h-fit"
+              color="warning"
+              data-cy="statementSegmentsList:detachFromGroup"
+              variant="subtle"
+              @click="detachFromGroup"
+            />
+          </li>
+          <li v-if="isCluster">
+            <dp-button
+              :text="Translator.trans('cluster.release')"
+              class="h-fit"
+              color="warning"
+              data-cy="statementSegmentsList:dissolveGroup"
+              variant="subtle"
+              @click="dissolveGroup"
+            />
+          </li>
         </ul>
       </header>
     </dp-sticky-element>
@@ -204,6 +236,7 @@
 import {
   dpApi,
   DpButton,
+  DpConfirmDialog,
   DpFlyout,
   DpSlidebar,
   DpStickyElement,
@@ -211,8 +244,10 @@ import {
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { buildDetailedStatementQuery } from '../Shared/utils/statementQueryBuilder'
 import DpClaim from '@DpJs/components/statement/DpClaim'
+import DpSegmentRecommendationEmail from '@DpJs/components/statement/statement/DpSegmentRecommendationEmail'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
 import lscache from 'lscache'
+import { redirectToStatementListWithGroupResolvedToast } from '../Shared/utils/redirectToStatementListWithGroupResolvedToast'
 import { sanitizeUrl } from '@braintree/sanitize-url'
 import SegmentCommentsList from './SegmentCommentsList'
 import SegmentLocationMap from './SegmentLocationMap'
@@ -230,7 +265,9 @@ export default {
   components: {
     DpButton,
     DpClaim,
+    DpConfirmDialog,
     DpFlyout,
+    DpSegmentRecommendationEmail,
     DpSlidebar,
     DpStickyElement,
     DpVersionHistory,
@@ -447,8 +484,20 @@ export default {
       }
     },
 
+    // The group is identified by the head statement's externId (e.g. "GM7"), reachable via the headStatement relationship
+    groupName () {
+      return this.statement?.relationships?.headStatement?.data ?
+        this.statement.relationships.headStatement.get()?.attributes?.externId || '' :
+        ''
+    },
+
     hasSegments () {
       return Object.keys(this.segments).length > 0
+    },
+
+    // This statement is the group's head (the cluster statement itself), not one of its members
+    isCluster () {
+      return Boolean(this.statement?.attributes?.isCluster)
     },
 
     isCurrentUserAssigned () {
@@ -466,6 +515,11 @@ export default {
       }
 
       return !this.originalAttachment.hash && this.additionalAttachments.length === 0
+    },
+
+    // A statement is a group member when it points to a head statement
+    isGroupMember () {
+      return Boolean(this.statement?.relationships?.headStatement?.data)
     },
 
     navigationSource () {
@@ -602,6 +656,54 @@ export default {
         })
     },
 
+    async detachFromGroup () {
+      const groupId = this.statement?.relationships?.headStatement?.data?.id
+
+      if (!groupId) {
+        return
+      }
+
+      try {
+        /*
+         * Detach this member from its group via the idempotent JSON:API relationship endpoint.
+         * Only the removed member is sent (delta); PATCH renames the group and no longer changes membership.
+         */
+        await dpApi.delete(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${groupId}/relationships/statements`, {}, {}, {
+          data: [{ type: 'Statement', id: this.statement.id }],
+        })
+        dplan.notify.notify('confirm', Translator.trans('confirm.statement.detach.cluster.element', {
+          statementId: this.statementExternId,
+          clusterId: this.groupName,
+        }))
+        // Refetch so the headStatement relationship clears and the button hides
+        this.getStatement()
+      } catch (error) {
+        console.error('Failed to remove statement from group:', error)
+        dplan.notify.notify('error', Translator.trans('error.statement.detach.cluster.element', {
+          statementId: this.statementExternId,
+        }))
+      }
+    },
+
+    async dissolveGroup () {
+      const isConfirmed = await this.$refs.dissolveGroupConfirmDialog.open()
+
+      if (!isConfirmed) {
+        return
+      }
+
+      try {
+        // No body needed: the operation is declared deserialize:false/output:false, backend responds 204.
+        await dpApi.delete(`${Routing.getBaseUrl()}/api/3.0/StatementGroup/${this.statement.id}`)
+
+        // This head detail page no longer exists once the group is dissolved — go back to the statement list.
+        redirectToStatementListWithGroupResolvedToast(this.procedure.id, this.statementExternId)
+      } catch (error) {
+        console.error('Failed to dissolve statement group:', error)
+        dplan.notify.notify('error', Translator.trans('error.api.generic'))
+      }
+    },
+
     getActionFromQueryParams (queryParams) {
       const action = queryParams.get('action')
 
@@ -649,7 +751,7 @@ export default {
         this.$refs.locationMap.resetCurrentMap()
       }
 
-      this.setContent({ prop: 'slidebar', val: { isOpen: false, showTab: '', segmentId: '' } })
+      this.setContent({ prop: 'slidebar', val: { externId: '', isOpen: false, showTab: '', segmentId: '' } })
     },
 
     saveStatement (changes) {
@@ -819,7 +921,12 @@ export default {
     this.listAssignableUser({
       include: 'orga',
       fields: {
-        Orga: 'name',
+        AssignableUser: [
+          'firstname',
+          'lastname',
+          'orga',
+        ].join(),
+        orga: 'name',
       },
     })
     this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedure.id, statementId: this.statementId } })

@@ -34,13 +34,13 @@ use demosplan\DemosPlanCoreBundle\Entity\News\News;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Bookmark;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\NotificationReceiver;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSubscription;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureType;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\UserFilterSet;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\Setting;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
@@ -848,7 +848,7 @@ class ProcedureServiceTest extends FunctionalTestCase
         $relatedBoilerplates = $this->getEntries(Boilerplate::class, ['procedure' => $procedureId]);
         $relatedBoilerplateCategories = $this->getEntries(BoilerplateCategory::class, ['procedure' => $procedureId]);
         $relatedFilterSets = $this->getEntries(HashedQuery::class, ['procedure' => $procedureId]);
-        $relatedUserFilterSets = $this->getEntries(UserFilterSet::class, ['procedure' => $procedureId]);
+        $relatedBookmarks = $this->getEntries(Bookmark::class, ['procedure' => $procedureId]);
         $relatedStatementFragments = $this->getEntries(StatementFragment::class, ['procedure' => $procedureId]);
 
         // check cluster
@@ -923,7 +923,7 @@ class ProcedureServiceTest extends FunctionalTestCase
             ['procedure' => $procedureId]
         );
         $relatedFilterSetsAfter = $this->getEntries(HashedQuery::class, ['procedure' => $procedureId]);
-        $relatedUserFilterSetsAfter = $this->getEntries(UserFilterSet::class, ['procedure' => $procedureId]);
+        $relatedBookmarksAfter = $this->getEntries(Bookmark::class, ['procedure' => $procedureId]);
         $relatedStatementFragmentsAfter = $this->getEntries(StatementFragment::class, ['procedure' => $procedureId]);
 
         $relatedPriorityAreasAfter = [];
@@ -2763,9 +2763,58 @@ Email:',
         static::assertEquals($exprectedBoilerplates, $boilerplates);
     }
 
+    /**
+     * Create a new + fresh testing procedure based on the given blueprint.
+     */
+    private function createProcedureFromBlueprint(Procedure $blueprint, string $name, string $shortUrl): Procedure
+    {
+        $procedureData = [
+            'copymaster'   => $blueprint->getId(),
+            'desc'         => '',
+            'startDate'    => '01.02.2012',
+            'endDate'      => '01.02.2012',
+            'externalName' => $name,
+            'name'         => $name,
+            'master'       => false,
+            'orgaId'       => $this->testProcedure->getOrgaId(),
+            'orgaName'     => $this->testProcedure->getOrga()->getName(),
+            'logo'         => 'some:logodata:string',
+            'shortUrl'     => $shortUrl,
+            'customer'     => $this->getCustomerReference(LoadCustomerData::DEMOS),
+        ];
+
+        return $this->getEntityManager()->getRepository(Procedure::class)->add($procedureData);
+    }
+
+    public function testCopyBoilerplatesSetsVerified(): void
+    {
+        /** @var Procedure $blueprintWithBoilerplates */
+        $blueprintWithBoilerplates = $this->getReference('testmasterProcedureWithBoilerplates');
+
+        $newProcedure = $this->createProcedureFromBlueprint($blueprintWithBoilerplates, 'testVerified', 'myShortUrlVerified');
+
+        $this->sut->copyBoilerplates($blueprintWithBoilerplates->getId(), $newProcedure);
+
+        // copied boilerplates are marked as verified
+        /** @var Boilerplate[] $newBoilerplates */
+        $newBoilerplates = $this->getEntries(Boilerplate::class, ['procedure' => $newProcedure->getId()]);
+        static::assertNotEmpty($newBoilerplates);
+        foreach ($newBoilerplates as $newBoilerplate) {
+            static::assertTrue($newBoilerplate->isVerified());
+        }
+
+        // boilerplates of the blueprint itself remain untouched
+        /** @var Boilerplate[] $sourceBoilerplates */
+        $sourceBoilerplates = $this->getEntries(Boilerplate::class, ['procedure' => $blueprintWithBoilerplates->getId()]);
+        static::assertNotEmpty($sourceBoilerplates);
+        foreach ($sourceBoilerplates as $sourceBoilerplate) {
+            static::assertFalse($sourceBoilerplate->isVerified());
+        }
+    }
+
     public function testCopyBoilerplatesWithReference(): void
     {
-        /** @var Procedure $blueprintWit$blueprinthBoilerplates */
+        /** @var Procedure $blueprintWithBoilerplates */
         $blueprintWithBoilerplates = $this->getReference('testmasterProcedureWithBoilerplates');
 
         $sourceBoilerplates = $this->getEntries(Boilerplate::class, ['procedure' => $blueprintWithBoilerplates->getId()]);
@@ -2784,23 +2833,7 @@ Email:',
         $numberOfAllCategoriesBefore = $this->countEntries(BoilerplateCategory::class);
         $numberOfAllGroupesBefore = $this->countEntries(BoilerplateGroup::class);
 
-        // create new + fresh testing procedure
-        $procedureData = [
-            'copymaster'   => $blueprintWithBoilerplates->getId(),
-            'desc'         => '',
-            'startDate'    => '01.02.2012',
-            'endDate'      => '01.02.2012',
-            'externalName' => 'testAdded',
-            'name'         => 'testAdded',
-            'master'       => false,
-            'orgaId'       => $this->testProcedure->getOrgaId(),
-            'orgaName'     => $this->testProcedure->getOrga()->getName(),
-            'logo'         => 'some:logodata:string',
-            'shortUrl'     => 'myShortUrl',
-            'customer'     => $this->getCustomerReference(LoadCustomerData::DEMOS),
-        ];
-        $procedureRepository = $this->getEntityManager()->getRepository(Procedure::class);
-        $newProcedure = $procedureRepository->add($procedureData);
+        $newProcedure = $this->createProcedureFromBlueprint($blueprintWithBoilerplates, 'testAdded', 'myShortUrl');
         $newProcedureId = $newProcedure->getId();
         $sourceProcedure = $blueprintWithBoilerplates;
 

@@ -41,14 +41,14 @@ class SwitchElementStatesMessageHandlerTest extends UnitTestCase
             ->method('autoSwitchElementsState')
             ->willReturn(5);
 
-        $logger = $this->createLoggerMockWithCapture(2);
+        $logger = $this->createLoggerMockWithCapture(1);
         $this->sut = new SwitchElementStatesMessageHandler($this->elementService, $this->permissions, $logger);
 
         // Act
         ($this->sut)(new SwitchElementStatesMessage());
 
         // Assert
-        $this->assertSame(['switchStatesOfToday', 'Switched states of 5 elements.'], $this->getCapturedLoggerCalls());
+        $this->assertSame(['Switched states of 5 elements.'], $this->getCapturedLoggerCalls());
     }
 
     public function testInvokeDoesNotLogWhenNoElementsSwitched(): void
@@ -58,7 +58,7 @@ class SwitchElementStatesMessageHandlerTest extends UnitTestCase
             ->method('autoSwitchElementsState')
             ->willReturn(0);
 
-        $logger = $this->createLoggerMockWithSingleCall('switchStatesOfToday');
+        $logger = $this->createLoggerMockWithCapture(0);
         $this->sut = new SwitchElementStatesMessageHandler($this->elementService, $this->permissions, $logger);
 
         // Act

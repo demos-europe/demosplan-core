@@ -6,17 +6,18 @@
  */
 
 // Mock the prosemirror commands so we can assert whether the range machinery is invoked.
-jest.mock('@DpJs/lib/prosemirror/commands', () => ({
-  activateRangeEdit: jest.fn(),
-  applySelectionChange: jest.fn(),
-  removeRange: jest.fn(),
-  setRange: jest.fn(),
+vi.mock('@DpJs/lib/prosemirror/commands', () => ({
+  activateRangeEdit: vi.fn(),
+  applySelectionChange: vi.fn(),
+  removeRange: vi.fn(),
+  setRange: vi.fn(),
   // `setRangeEditingState` is curried: setRangeEditingState(view, ...)(id, state).
-  setRangeEditingState: jest.fn(() => jest.fn()),
+  setRangeEditingState: vi.fn(() => vi.fn()),
 }))
 
 import { activateRangeEdit, setRangeEditingState } from '@DpJs/lib/prosemirror/commands'
 import SplitStatementView from '@DpJs/components/statement/splitStatement/SplitStatementView'
+import { vi } from 'vitest'
 
 const { enableEditMode, disableEditMode } = SplitStatementView.methods
 
@@ -38,11 +39,11 @@ const buildContext = (ranges = {}) => ({
     },
   },
   segmentById: id => ({ id, tags: [] }),
-  setProperty: jest.fn(),
+  setProperty: vi.fn(),
 })
 
 describe('SplitStatementView edit-mode range-less guards', () => {
-  beforeEach(() => jest.clearAllMocks())
+  beforeEach(() => vi.clearAllMocks())
 
   describe('enableEditMode', () => {
     it('opens the editor but skips range activation for a segment without a range', () => {

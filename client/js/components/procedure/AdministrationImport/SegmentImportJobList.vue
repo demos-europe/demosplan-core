@@ -17,9 +17,9 @@
         v-if="items.length > 0"
         :header-fields="headerFields"
         :items="items"
-        is-expandable
-        track-by="id"
         data-cy="segmentImportJobList"
+        track-by="id"
+        is-expandable
       >
         <!-- Job ID Column -->
         <template v-slot:id="{ id }">
@@ -31,23 +31,23 @@
           <div class="text-center">
             <dp-contextual-help
               v-if="rowData.status === 'pending'"
-              icon="clock"
               :text="Translator.trans('import.job.status.pending')"
+              icon="clock"
             />
             <dp-contextual-help
               v-else-if="rowData.status === 'processing'"
-              icon="hourglass"
               :text="Translator.trans('import.job.status.processing')"
+              icon="hourglass"
             />
             <dp-contextual-help
               v-else-if="rowData.status === 'completed'"
-              icon="check"
               :text="Translator.trans('terminated')"
+              icon="check"
             />
             <dp-contextual-help
               v-else-if="rowData.status === 'failed'"
-              icon="warning"
               :text="Translator.trans('error')"
+              icon="warning"
             />
           </div>
         </template>
@@ -55,7 +55,7 @@
         <!-- Result Column -->
         <template v-slot:result="rowData">
           <span v-if="rowData.status === 'completed' && rowData.result">
-            {{ rowData.result.statements || 0 }} {{ Translator.trans('statements') }}, {{ rowData.result.segments || 0 }} {{ Translator.trans('segments') }}
+            {{ formatResultSummary(rowData) }}
           </span>
           <span v-else-if="rowData.status === 'failed'">
             {{ Translator.trans('error.occurred') }}
@@ -69,12 +69,12 @@
             v-if="rowData.status === 'failed' && rowData.error"
             class="px-1 pb-1"
           >
-            <strong class="mb-1 block">{{ Translator.trans('import.job.result') }}:</strong>
+            <strong class="mb-1 block">{{ Translator.trans('result') }}:</strong>
             <dp-inline-notification
               :message="Translator.trans('error.occurred')"
               type="error"
             >
-              <pre class="m-0 mt-2 max-h-[200px] overflow-auto text-sm">{{ rowData.error }}</pre>
+              <pre class="m-0 mt-2 max-h-[200px] w-full overflow-y-auto whitespace-pre-wrap break-words text-sm">{{ rowData.error }}</pre>
             </dp-inline-notification>
           </div>
         </template>
@@ -180,9 +180,8 @@ export default {
         this.lastRefreshAt = new Date()  // Update last refresh timestamp
 
         // Disable expand buttons in rows without error, since there will be no content in the expanded row
-        await this.$nextTick(() => {
-          this.setExpandButtonStates()
-        })
+        await this.$nextTick()
+        this.setExpandButtonStates()
 
         // Manage polling based on active jobs
         if (this.hasActiveJobs) {
@@ -199,6 +198,37 @@ export default {
           this.isLoading = false
           this.isInitialLoad = false
         }
+      }
+    },
+
+    formatDateTime (dateTimeString) {
+      if (!dateTimeString) {
+        return '-'
+      }
+
+      return formatDate(dateTimeString, 'long')
+    },
+
+    formatResultSummary (job) {
+      const summary = [`${job.result.statements || 0} ${Translator.trans('statements')}`]
+
+      if (job.importType === 'segments') {
+        summary.push(`${job.result.segments || 0} ${Translator.trans('segments')}`)
+      }
+
+      return summary.join(', ')
+    },
+
+    handleVisibilityChange () {
+      if (document.hidden) {
+        // Tab hidden - stop polling to save resources
+        this.stopPolling()
+      } else {
+        // Tab visible - reset to fast polling and refresh immediately
+        this.pollInterval = 5000
+        this.isInitialLoad = true  // Show loading spinner when returning to tab
+        this.fetchJobs()
+        this.startPolling()
       }
     },
 
@@ -282,27 +312,6 @@ export default {
         clearTimeout(this.pollTimeoutId)
         this.pollTimeoutId = null
       }
-    },
-
-    handleVisibilityChange () {
-      if (document.hidden) {
-        // Tab hidden - stop polling to save resources
-        this.stopPolling()
-      } else {
-        // Tab visible - reset to fast polling and refresh immediately
-        this.pollInterval = 5000
-        this.isInitialLoad = true  // Show loading spinner when returning to tab
-        this.fetchJobs()
-        this.startPolling()
-      }
-    },
-
-    formatDateTime (dateTimeString) {
-      if (!dateTimeString) {
-        return '-'
-      }
-
-      return formatDate(dateTimeString, 'long')
     },
   },
 

@@ -1403,6 +1403,15 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     }
 
     /**
+     * Delegates to {@link ProcedureSettings::isAllowUninvitedInstitutions()} so the flag
+     * is reachable by FOSElastica's property accessor when indexing this entity.
+     */
+    public function isAllowUninvitedInstitutions(): bool
+    {
+        return $this->getSettings()->isAllowUninvitedInstitutions();
+    }
+
+    /**
      * Is procedure added to Organisation.
      *
      * @param string $orgaId

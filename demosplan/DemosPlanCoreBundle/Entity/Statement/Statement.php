@@ -42,6 +42,7 @@ use demosplan\DemosPlanCoreBundle\Constraint\MatchingSubmitTypesConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\OriginalReferenceConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\PrePersistUniqueInternIdConstraint;
 use demosplan\DemosPlanCoreBundle\Constraint\SimilarStatementSubmittersSameProcedureConstraint;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Doctrine\Generator\NCNameGenerator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -99,6 +100,14 @@ use UnexpectedValueException;
 class Statement extends CoreEntity implements UuidEntityInterface, StatementInterface
 {
     private const ON_DELETE_SET_NULL = 'SET NULL';
+
+    /**
+     * Doctrine picks the concrete MySQL column type for `_st_text` from this value: anything up to
+     * 16,777,215 becomes MEDIUMTEXT. That column-type choice itself is not enforced by MySQL - once
+     * created, MEDIUMTEXT accepts up to its own full capacity regardless of this hint - so the same
+     * value is reused below to actually validate the byte length before it ever reaches the database.
+     */
+    private const TEXT_MAX_LENGTH = 15_000_000;
 
     /**
      * @var string|null
@@ -206,6 +215,17 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     #[Assert\Length(max: 255)]
     #[ORM\Column(name: '_st_intern_id', type: 'string', length: 255, nullable: true, options: ['fixed' => true, 'comment' => 'manuelle Eingangsnummer'])]
     protected $internId;
+
+    /**
+     * Identifies the statement this one was imported from, when it originates from an assessment
+     * table export of a procedure on another instance.
+     *
+     * Unlike {@link StatementInterface::$externId} this is unambiguous: statement copies share
+     * their externId within a procedure, so only this reference can pair an imported statement
+     * with the statement it came from.
+     */
+    #[ORM\Column(name: 'source_statement_id', type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
+    protected ?string $sourceStatementId = null;
 
     /**
      * @var User
@@ -440,7 +460,13 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * @var string
      */
-    #[ORM\Column(name: '_st_text', type: 'text', length: 15000000, nullable: false)]
+    #[ORM\Column(name: '_st_text', type: 'text', length: self::TEXT_MAX_LENGTH, nullable: false)]
+    #[Assert\Length(
+        max: self::TEXT_MAX_LENGTH,
+        maxMessage: 'statement.import.invalidTextTooLong',
+        countUnit: Assert\Length::COUNT_BYTES,
+        groups: [Statement::IMPORT_VALIDATION],
+    )]
     protected $text = '';
 
     /**
@@ -815,6 +841,12 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     #[ORM\JoinColumn(name: 'assignee', referencedColumnName: '_u_id', nullable: true, onDelete: self::ON_DELETE_SET_NULL)]
     #[ORM\ManyToOne(targetEntity: User::class)]
     protected $assignee;
+
+    /**
+     * @var DateTime|null
+     */
+    #[ORM\Column(name: 'deadline_date', type: 'date', nullable: true)]
+    protected $deadline;
 
     /**
      * The representative Statement defines the cluster.
@@ -1297,6 +1329,18 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return $this->externId;
     }
 
+    public function setSourceStatementId(?string $sourceStatementId): Statement
+    {
+        $this->sourceStatementId = $sourceStatementId;
+
+        return $this;
+    }
+
+    public function getSourceStatementId(): ?string
+    {
+        return $this->sourceStatementId;
+    }
+
     /**
      * The usual statement pair (original + non original), makes it tricky to ensure
      * a unique internId per procedure, because these pair is a kind of a copy.
@@ -1317,7 +1361,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
-     * @param string $internId
+     * @param string|null $internId
      */
     public function setInternId($internId): Statement
     {
@@ -3204,6 +3248,18 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         $this->assignee = $assignee;
     }
 
+    public function getDeadline(): ?DateTime
+    {
+        return $this->deadline;
+    }
+
+    public function setDeadline(?DateTime $deadline): self
+    {
+        $this->deadline = $deadline;
+
+        return $this;
+    }
+
     /**
      * Returns the cluster which this Statement belongs to.
      *
@@ -4213,5 +4269,19 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function setCustomFields(?CustomFieldValuesList $customFields): void
     {
         $this->customFields = $customFields;
+    }
+
+    /**
+     * List-of-objects projection of {@see self::$customFields} for the `customFieldsForIndex`
+     * nested mapping (config/packages/fos_elastica.yaml). FOSElastica's ORM transformer walks a
+     * nested mapping's sub-properties (`id`, `value`) via PropertyAccessor against each element —
+     * it requires actual objects with getId()/getValue(), not plain arrays, so this exposes the
+     * {@see CustomFieldValue} elements directly rather than {@see CustomFieldValuesList::toJson()}.
+     *
+     * @return CustomFieldValue[]
+     */
+    public function getCustomFieldsForIndex(): array
+    {
+        return $this->customFields?->getCustomFieldsValues() ?? [];
     }
 }

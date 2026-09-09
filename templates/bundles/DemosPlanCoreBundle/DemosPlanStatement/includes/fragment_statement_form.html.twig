@@ -19,7 +19,8 @@
             mark: true,
             obscure: hasPermission('feature_obscure_text')
          }"
-        v-model="fragmentText">
+        :value="fragmentText"
+        @input="value => updateField('fragmentText', value)">
     </dp-editor>
 
     {# meta #}
@@ -53,7 +54,8 @@
                 {% endfor %}
                 <dp-multiselect
                     id="r_tags[]"
-                    v-model="tags"
+                    :value="tags"
+                    @input="value => updateField('tags', value)"
                     class="u-mt-0_25 weight--normal"
                     data-cy="fragmentTopicsTags"
                     group-label="groupName"
@@ -115,7 +117,8 @@
                     {% endfor %}
                     <dp-multiselect
                         id="r_counties[]"
-                        v-model="counties"
+                        :value="counties"
+                        @input="value => updateField('counties', value)"
                         class="u-mt-0_25 weight--normal"
                         data-cy="fragmentCounties"
                         label="name"
@@ -157,7 +160,8 @@
                     {% endfor %}
                     <dp-multiselect
                         id="r_municipalities[]"
-                        v-model="municipalities"
+                        :value="municipalities"
+                        @input="value => updateField('municipalities', value)"
                         class="u-mt-0_25 weight--normal"
                         data-cy="fragmentMunicipalities"
                         label="name"
@@ -200,7 +204,8 @@
                     {% endfor %}
                     <dp-multiselect
                         id="r_priorityAreas[]"
-                        v-model="priorityAreas"
+                        :value="priorityAreas"
+                        @input="value => updateField('priorityAreas', value)"
                         class="u-mt-0_25 weight--normal"
                         data-cy="fragmentPriorityAreas"
                         label="name"
@@ -260,7 +265,8 @@
                     {% set agencies = agencies|merge([{ id: departmentId, name: department.orga.name ~ ', ' ~ department.name }]) %}
                 {% endfor %}
                 <dp-multiselect
-                    v-model="department"
+                    :value="department"
+                    @input="value => updateField('department', value)"
                     :allow-empty="false"
                     class="inline-block"
                     label="name"

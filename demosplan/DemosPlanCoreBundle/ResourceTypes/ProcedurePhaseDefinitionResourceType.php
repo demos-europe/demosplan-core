@@ -26,6 +26,7 @@ use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\ProcedurePhaseDefinitionResourceConfigBuilder;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
+use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathException;
 use EDT\Wrapping\EntityDataInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\CallbackAttributeSetBehavior;
@@ -33,6 +34,11 @@ use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 
 /**
  * @template-extends DplanResourceType<ProcedurePhaseDefinition>
+ *
+ * @property-read End $id
+ * @property-read End $audience
+ * @property-read End $orderInAudience
+ * @property-read End $isDeleted
  */
 final class ProcedurePhaseDefinitionResourceType extends DplanResourceType implements ProcedurePhaseDefinitionResourceTypeInterface
 {
@@ -217,7 +223,8 @@ final class ProcedurePhaseDefinitionResourceType extends DplanResourceType imple
 
         $configBuilder->orderInAudience
             ->setReadableByPath(DefaultField::YES)
-            ->setSortable();
+            ->setSortable()
+            ->setFilterable();
 
         $configBuilder->customer
             ->setRelationshipType($this->resourceTypeStore->getCustomerResourceType())

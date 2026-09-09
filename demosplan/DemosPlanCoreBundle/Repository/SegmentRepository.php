@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DateInterval;
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -76,6 +78,57 @@ class SegmentRepository extends CoreRepository
     public function findByIds(array $ids): array
     {
         return $this->findBy(['id' => $ids]);
+    }
+
+    /**
+     * Returns the subset of the given IDs that belong to `$procedureId`,
+     * in a single round-trip. Out-of-procedure IDs are simply absent from
+     * the result, so callers neither need a per-segment procedure check
+     * nor leak the existence of segments belonging to a different procedure.
+     *
+     * @param array<int, string> $ids
+     *
+     * @return array<int, Segment>
+     *
+     * @throws Exception
+     */
+    public function findByIdsForProcedure(array $ids, string $procedureId): array
+    {
+        if ([] === $ids) {
+            return [];
+        }
+
+        return $this->findBy(['id' => $ids, 'procedure' => $procedureId]);
+    }
+
+    /**
+     * Subset of the given IDs that belong to `$procedureId` AND whose workflow
+     * place is not locked, in a single round-trip. The direct complement of
+     * {{ @see SegmentRepository::findLockedByIds }}: every segment always has a
+     * place ({{ @see Segment::getPlace }} is non-nullable), so an inner join
+     * suffices.
+     *
+     * @param array<int, string> $ids
+     *
+     * @return array<int, Segment>
+     *
+     * @throws Exception
+     */
+    public function findUnlockedByIdsForProcedure(array $ids, string $procedureId): array
+    {
+        if ([] === $ids) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('s')
+            ->innerJoin('s.place', 'p')
+            ->where('s.id IN (:ids)')
+            ->andWhere('s.procedure = :procedureId')
+            ->andWhere('p.locked = false')
+            ->setParameter('ids', $ids)
+            ->setParameter('procedureId', $procedureId)
+            ->getQuery()
+            ->getResult();
     }
 
     /**
@@ -168,6 +221,49 @@ class SegmentRepository extends CoreRepository
             ->setParameter('customFieldSearch', $searchPattern)
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * Returns the non-deleted segments that have an assignee and whose
+     * deadline lies the given interval ahead of today, grouped by assignee.
+     *
+     * Used by the deadline-reminder cron via dedicated calls: one with a
+     * seven-day interval (reminder one week before the deadline) and one
+     * with a zero interval (reminder on the day of the deadline). Deadlines
+     * in the past are never matched, so no reminders go out once a deadline
+     * has lapsed.
+     *
+     * All segments in a group share the same deadline, so the caller can
+     * turn each group into a single bundled reminder mail per assignee. The
+     * caller is also responsible for skipping assignees who disabled the
+     * reminder, as that opt-out lives in the serialized user flags and
+     * cannot be expressed as a query condition.
+     *
+     * The `deadline` column is a pure date, so the target date is compared
+     * on its date part only.
+     *
+     * @return array<string, list<Segment>> segments keyed by assignee id
+     */
+    public function findSegmentsForAssigneesByDeadlineInterval(DateInterval $timeUntilDeadline): array
+    {
+        $targetDeadline = (new DateTime('today'))->add($timeUntilDeadline);
+
+        /** @var list<Segment> $segments */
+        $segments = $this->createQueryBuilder('segment')
+            ->where('segment.deadline = :targetDeadline')
+            ->andWhere('segment.assignee IS NOT NULL')
+            ->andWhere('segment.deleted = false')
+            ->setParameter('targetDeadline', $targetDeadline->format('Y-m-d'))
+            ->addOrderBy('segment.assignee', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        $segmentsByAssignee = [];
+        foreach ($segments as $segment) {
+            $segmentsByAssignee[$segment->getAssigneeId()][] = $segment;
+        }
+
+        return $segmentsByAssignee;
     }
 
     /**

@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use Carbon\Carbon;
+use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
@@ -115,16 +116,8 @@ class EntityContentChangeDisplayService
             );
         }
 
-        /*
-         * Segment-lock feature: {{ @link Segment::isLocked }} returns a bool,
-         * but the stored content_change uses the translated full-word
-         * vocabulary ("Gesperrt"/"Entsperrt"). Feeding a string-cast bool
-         * ("1"/"") into a rollback walk over translated strings would corrupt
-         * the trace, so we bypass the generic path — see
-         * {{ @link EntityContentChangeDisplayService::renderLockByPlaceSwitchesJson }}.
-         */
-        if ('locked' === $fieldName) {
-            return $this->renderLockByPlaceSwitchesJson($entityContentChange->getContentChange());
+        if ('locked' === $fieldName || 'sentViaMail' === $fieldName) {
+            return $this->renderStoredDiffJson($entityContentChange->getContentChange());
         }
 
         // step 1: get the value stored in the parent entities. for example, assignee id or text
@@ -249,7 +242,9 @@ class EntityContentChangeDisplayService
         $service = $this->getEntityContentChangeService();
         $stringRepresentation = '';
         if (null !== $currentThing && 'date' === $service->getMappingValue($fieldName, $entityType, 'fieldType')) {
-            $stringRepresentation = date('Y-m-d', $currentThing);
+            $stringRepresentation = $currentThing instanceof DateTimeInterface
+                ? $currentThing->format('Y-m-d')
+                : date('Y-m-d', $currentThing);
         }
 
         if (null !== $currentThing && 'dateTime' === $service->getMappingValue($fieldName, $entityType, 'fieldType')) {
@@ -265,7 +260,7 @@ class EntityContentChangeDisplayService
             sort($currentThingArray);
 
             $stringRepresentation = $service->convertToVersionString($currentThingArray);
-        } elseif (is_object($currentThing)) {
+        } elseif (is_object($currentThing) && !$currentThing instanceof DateTimeInterface) {
             /** @var CoreEntity $currentThing */
             $stringRepresentation = $currentThing->getEntityContentChangeIdentifier();
         }
@@ -306,7 +301,7 @@ class EntityContentChangeDisplayService
      * @throws SyntaxError
      * @throws Exception
      */
-    private function renderLockByPlaceSwitchesJson(?string $jsonString): ?string
+    private function renderStoredDiffJson(?string $jsonString): ?string
     {
         if (null === $jsonString) {
             return null;
@@ -320,7 +315,7 @@ class EntityContentChangeDisplayService
             // failure here points at out-of-band data corruption. Skip this
             // row instead of breaking the whole Versionsverlauf.
             $this->logger->warning(
-                'Malformed locked-state diff JSON in entity_content_change',
+                'Malformed diff JSON in entity_content_change',
                 ['exception' => $e],
             );
 

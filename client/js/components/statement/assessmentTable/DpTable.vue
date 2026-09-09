@@ -68,6 +68,11 @@
       type="hidden"
       name="currentTableSort"
     >
+    <input
+      type="hidden"
+      name="_token"
+      :value="csrfToken"
+    >
 
     <!-- Top pager -->
     <dp-pager

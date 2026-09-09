@@ -39,7 +39,6 @@ use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\AddressBookEntryVO;
 use Exception;
@@ -85,9 +84,10 @@ class DemosPlanUserController extends BaseController
         }
         $roles = $this->currentUser->getUser()->getRoles();
         $this->getLogger()->info(
-            'Welcomepage for Orga '.DemosPlanTools::varExport($orga->getName(), true).' '.DemosPlanTools::varExport($orga->getId(), true)
+            'Welcomepage for Orga {orgaName} {orgaId}',
+            ['orgaName' => $orga->getName(), 'orgaId' => $orga->getId()]
         );
-        $this->getLogger()->info('Welcomepage Roles '.DemosPlanTools::varExport($roles, true));
+        $this->getLogger()->info('Welcomepage Roles {roles}', ['roles' => $roles]);
 
         $templateVars = $this->checkProfileCompleted();
 
@@ -282,8 +282,13 @@ class DemosPlanUserController extends BaseController
         }
         $templateVars['profileCompleted'] = filter_var($this->currentUser->getUser()->isProfileCompleted(), FILTER_VALIDATE_BOOLEAN);
         $templateVars['newUser'] = filter_var($this->currentUser->getUser()->isNewUser(), FILTER_VALIDATE_BOOLEAN);
-        $this->getLogger()->info('Check Profile completed: '.DemosPlanTools::varExport($templateVars['profileCompleted'], true)
-            .' NewUser: '.DemosPlanTools::varExport($templateVars['newUser'], true));
+        $this->getLogger()->info(
+            'Check Profile completed: {profileCompleted} NewUser: {newUser}',
+            [
+                'profileCompleted' => $templateVars['profileCompleted'],
+                'newUser'          => $templateVars['newUser'],
+            ]
+        );
 
         return $templateVars;
     }
@@ -530,7 +535,15 @@ class DemosPlanUserController extends BaseController
             // Store status before update to compare it to the status after the update
             $newsletterStatusBefore = $userBefore->getNewsletter();
 
-            $user = $userHandler->updateUser($userBefore->getId(), $request->request->all());
+            $requestData = $request->request->all();
+            // Convert the segment deadline reminder checkbox ('on' / absent) into a bool
+            // on this profile-edit path only. Keeping it out of the shared updateUser()
+            // means callers that omit the field leave the flag untouched, so its
+            // default-on value is preserved.
+            $requestData[UserFlagKey::SEGMENT_DEADLINE_REMINDER_ENABLED->value] =
+                'on' === ($requestData[UserFlagKey::SEGMENT_DEADLINE_REMINDER_ENABLED->value] ?? null);
+
+            $user = $userHandler->updateUser($userBefore->getId(), $requestData);
             if ($user instanceof User) {
                 // soll eine Benachrichtigung verschickt werden, dass sich der Newsletterstatus verändert hat?
                 if ($newsletterStatusBefore !== $user->getNewsletter()) {

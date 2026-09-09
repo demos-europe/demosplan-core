@@ -8,6 +8,7 @@
  */
 
 import { _resetUnsavedChangesGuard, useUnsavedChangesGuard } from '@DpJs/composables/useUnsavedChangesGuard'
+import { vi } from 'vitest'
 
 // Helper to flush all pending promises and timers
 const flushPromises = () => new Promise(resolve => setTimeout(resolve, 0))
@@ -23,7 +24,7 @@ const createLink = (href) => {
 
 const clickLink = (link) => {
   const event = new MouseEvent('click', { bubbles: true, cancelable: true })
-  const preventDefaultSpy = jest.spyOn(event, 'preventDefault')
+  const preventDefaultSpy = vi.spyOn(event, 'preventDefault')
 
   link.dispatchEvent(event)
 
@@ -38,7 +39,7 @@ const dispatchDialogResult = (action) => {
 
 const dispatchBeforeUnload = () => {
   const event = new Event('beforeunload', { cancelable: true })
-  const preventDefaultSpy = jest.spyOn(event, 'preventDefault')
+  const preventDefaultSpy = vi.spyOn(event, 'preventDefault')
 
   globalThis.dispatchEvent(event)
 
@@ -67,17 +68,17 @@ describe('useUnsavedChangesGuard', () => {
     document.body.appendChild(dialogElement)
 
     mockComponent1 = {
-      hasUnsavedChanges: jest.fn(() => false),
-      saveUnsavedChanges: jest.fn(() => Promise.resolve()),
-      onDiscardChanges: jest.fn(() => Promise.resolve()),
-      onCancelNavigation: jest.fn(() => Promise.resolve()),
+      hasUnsavedChanges: vi.fn(() => false),
+      saveUnsavedChanges: vi.fn(() => Promise.resolve()),
+      onDiscardChanges: vi.fn(() => Promise.resolve()),
+      onCancelNavigation: vi.fn(() => Promise.resolve()),
     }
 
     mockComponent2 = {
-      hasUnsavedChanges: jest.fn(() => false),
-      saveUnsavedChanges: jest.fn(() => Promise.resolve()),
-      onDiscardChanges: jest.fn(() => Promise.resolve()),
-      onCancelNavigation: jest.fn(() => Promise.resolve()),
+      hasUnsavedChanges: vi.fn(() => false),
+      saveUnsavedChanges: vi.fn(() => Promise.resolve()),
+      onDiscardChanges: vi.fn(() => Promise.resolve()),
+      onCancelNavigation: vi.fn(() => Promise.resolve()),
     }
 
     Object.defineProperty(globalThis, 'location', {
@@ -91,12 +92,12 @@ describe('useUnsavedChangesGuard', () => {
 
   afterEach(() => {
     dialogElement?.remove()
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('initialization', () => {
     it('should register global listeners only once', () => {
-      const addEventListenerSpy = jest.spyOn(globalThis, 'addEventListener')
+      const addEventListenerSpy = vi.spyOn(globalThis, 'addEventListener')
 
       const { init: init1 } = useUnsavedChangesGuard()
       const { init: init2 } = useUnsavedChangesGuard()
@@ -163,7 +164,7 @@ describe('useUnsavedChangesGuard', () => {
       })
 
       const event = new Event('beforeunload', { cancelable: true })
-      const preventDefaultSpy = jest.spyOn(event, 'preventDefault')
+      const preventDefaultSpy = vi.spyOn(event, 'preventDefault')
 
       globalThis.dispatchEvent(event)
 
@@ -199,7 +200,7 @@ describe('useUnsavedChangesGuard', () => {
       })
 
       const link = createLink('https://example.com')
-      const dialogShowListener = jest.fn()
+      const dialogShowListener = vi.fn()
 
       document.addEventListener('unsaved-changes-dialog:show', dialogShowListener)
 
@@ -227,7 +228,7 @@ describe('useUnsavedChangesGuard', () => {
       document.body.appendChild(button)
 
       const event = new MouseEvent('click', { bubbles: true, cancelable: true })
-      const preventDefaultSpy = jest.spyOn(event, 'preventDefault')
+      const preventDefaultSpy = vi.spyOn(event, 'preventDefault')
 
       button.dispatchEvent(event)
 

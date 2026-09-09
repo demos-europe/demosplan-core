@@ -1,0 +1,5 @@
+Institution;Abteilung;Name;E-Mail;Straße;Hausnummer;PLZ;Ort;Einreichungsdatum;Verfassungsdatum;Art der Einreichung;Eingangsnummer;Stellungnahmetext;Memo
+Amt für Beispiele;MFG;Lina Larssen;;Teststr.;1;12049;Berlin;07-04-2018;11-02-2018;Brief;DUP-001;Erster Text.;Notiz
+Amt für Beispiele;MFG;Otto Otten;;Teststr.;2;12049;Berlin;07-04-2018;11-02-2018;Brief;DUP-001;Zweiter Text.;Notiz
+Amt für Beispiele;MFG;Peter Schmidt;;Teststr.;3;12049;Berlin;07-04-2018;11-02-2018;Brief;DUP-002;Dritter Text.;Notiz
+Amt für Beispiele;MFG;Anna Klein;;Teststr.;4;12049;Berlin;07-04-2018;11-02-2018;Brief;DUP-002;Vierter Text.;Notiz

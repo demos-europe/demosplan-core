@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use Cocur\Slugify\Slugify;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Slug;
 use demosplan\DemosPlanCoreBundle\Entity\User\Address;
@@ -208,6 +209,34 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
     }
 
     /**
+     * Updates the per-customer {@link OrgaStatusInCustomer::$showlist} value for the given orga.
+     *
+     * Writes every status row the orga holds in that customer, not just the PUBLIC_AGENCY one:
+     * `showlist` is a single per-customer decision, while {@link OrgaService::getParticipants()}
+     * matches *any* orgaType row of the customer. Writing one row only would leave an orga that
+     * holds several orgaTypes listed after being hidden.
+     *
+     * Mirrors the orga-level write performed in {@link generateObjectValues()} under the
+     * `updateShowlist` guard, so the per-customer rows stay in sync during the transition until
+     * the orga-level column is dropped. No-op when no status row exists for the given customer.
+     * Flushes at the write site so the change survives even if the later report path is skipped.
+     */
+    public function updateShowlistForCustomer(Orga $orga, CustomerInterface $customer, bool $showlist): void
+    {
+        $statusesInCustomer = $orga->getStatusesInCustomer($customer);
+        if ([] === $statusesInCustomer) {
+            return;
+        }
+
+        $em = $this->getEntityManager();
+        foreach ($statusesInCustomer as $statusInCustomer) {
+            $statusInCustomer->setShowlist($showlist);
+            $em->persist($statusInCustomer);
+        }
+        $em->flush();
+    }
+
+    /**
      * Adds a User to an Organisation.
      *
      * @param string $orgaId
@@ -382,7 +411,10 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
         // Therefore we need to take extra care and measures to ensure that
         // this flag is not accidentally set to false.
         // Due to this updateShowlist needs to be explicitly set directly or
-        // via UserHandler->setCanUpdateShowList() in backend
+        // via UserHandler->setCanUpdateShowList() in backend.
+        // This writes the legacy orga-level column; the per-customer mirror is written by
+        // OrgaRepository::updateShowlistForCustomer(), called from UserService::updateOrga()
+        // under the same `updateShowlist` guard. Dual-write, intentional during transition.
         if (array_key_exists('updateShowlist', $data)) {
             $entity->setShowlist((bool) $data['showlist']);
         }
@@ -626,6 +658,11 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
             $organisation->setDeleted(true);
             $organisation->setShowname(false);
             $organisation->setShowlist(false);
+            // Hide the orga in every customer's status row (GDPR wipe).
+            foreach ($organisation->getStatusInCustomers() as $statusInCustomer) {
+                $statusInCustomer->setShowlist(false);
+                $em->persist($statusInCustomer);
+            }
 
             $em->persist($organisation);
             $em->flush();

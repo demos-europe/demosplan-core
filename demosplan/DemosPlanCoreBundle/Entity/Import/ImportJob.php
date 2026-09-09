@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\ImportJobRepository;
+use demosplan\DemosPlanCoreBundle\Types\ImportJobType;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -84,6 +85,12 @@ class ImportJob extends CoreEntity
      */
     #[ORM\Column(name: 'status', type: 'string', length: 50)]
     protected $status = self::STATUS_PENDING;
+
+    /**
+     * Determines which importer processes this job.
+     */
+    #[ORM\Column(name: 'import_type', type: 'string', length: 32, enumType: ImportJobType::class, options: ['default' => ImportJobType::SEGMENTS->value])]
+    protected ImportJobType $importType = ImportJobType::SEGMENTS;
 
     /**
      * @var DateTime|null
@@ -187,6 +194,18 @@ class ImportJob extends CoreEntity
     public function setStatus(string $status): self
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    public function getImportType(): ImportJobType
+    {
+        return $this->importType;
+    }
+
+    public function setImportType(ImportJobType $importType): self
+    {
+        $this->importType = $importType;
 
         return $this;
     }

@@ -12,13 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Api\AssignableUser\AssignableUserAccessChecker;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathException;
 
 /**
  * @template-extends DplanResourceType<User>
@@ -30,7 +28,7 @@ use EDT\Querying\Contracts\PathException;
  */
 final class AssignableUserResourceType extends DplanResourceType
 {
-    public function __construct(private readonly ProcedureService $procedureService)
+    public function __construct(private readonly AssignableUserAccessChecker $accessChecker)
     {
     }
 
@@ -46,34 +44,12 @@ final class AssignableUserResourceType extends DplanResourceType
 
     public function isAvailable(): bool
     {
-        return $this->currentUser->hasPermission('feature_json_api_user');
+        return $this->accessChecker->isAvailable();
     }
 
-    /**
-     * @throws PathException
-     */
     protected function getAccessConditions(): array
     {
-        $currentProcedure = $this->currentProcedureService->getProcedure();
-        if (!$currentProcedure instanceof Procedure) {
-            // you need a procedure to know who can be an assignee
-            return [$this->conditionFactory->false()];
-        }
-
-        $authorizedUsers = $this->procedureService->getAuthorizedUsers($currentProcedure->getId());
-        $authorizedUserIds = [];
-        /** @var User $user */
-        foreach ($authorizedUsers as $user) {
-            $authorizedUserIds[] = $user->getId();
-        }
-        if (0 < count($authorizedUsers)) {
-            // only return users that are on the list of authorized users
-            return [] === $authorizedUserIds
-                ? [$this->conditionFactory->false()]
-                : [$this->conditionFactory->propertyHasAnyOfValues($authorizedUserIds, $this->id)];
-        }
-
-        return [$this->conditionFactory->false()];
+        return $this->accessChecker->getAccessConditions();
     }
 
     protected function getProperties(): array

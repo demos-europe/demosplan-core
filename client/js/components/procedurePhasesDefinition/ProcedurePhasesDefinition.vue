@@ -118,15 +118,20 @@ All rights reserved
         >
           <div class="overflow-x-auto pb-3 has-scrollable-content">
             <dp-data-table
+              :column-width-storage-key="`procedurePhases:${section.audience}`"
               :data-cy="`procedurePhases:dataTable:${section.audience}`"
               :flyout-width="flyoutWidth"
               :header-fields="headerFields"
               :items="section.audiencePhases"
+              :lock-drag-and-drop-hint="Translator.trans('procedure.phase.configuration.not.movable')"
               density="spacious"
+              lock-drag-and-drop-by="isFixedOrderPhase"
               track-by="id"
               has-borders
               has-flyout
+              is-draggable
               is-resizable
+              @changed-order="handleReorder(section.audience, $event)"
             >
               <template v-slot:name="phase">
                 <dp-input
@@ -193,6 +198,21 @@ All rights reserved
                   :addon-props="{
                     hasAttemptedSubmit,
                     isEditing: editingRowId === phase.id,
+                    phaseId: phase.id,
+                    savedRowPayload: savedAddonRowPayloads[phase.id] || null,
+                  }"
+                  hook-name="phase.list.fields"
+                  @edit-change="handleAddonEditChange"
+                  @edit-start="handleAddonEditStart"
+                />
+              </template>
+
+              <template v-slot:portalPhase="phase">
+                <addon-wrapper
+                  :addon-props="{
+                    hasAttemptedSubmit,
+                    isEditing: editingRowId === phase.id,
+                    isPortalPhase: true,
                     phaseId: phase.id,
                     savedRowPayload: savedAddonRowPayloads[phase.id] || null,
                   }"
@@ -291,6 +311,7 @@ import {
   DpLoading,
   DpMultiselect,
   DpRadio,
+  dpRpc,
   DpSelect,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
@@ -379,6 +400,7 @@ export default {
       { field: 'permissionSet', label: Translator.trans('permissionset.label'), colWidth: '270px', initialMinWidth: 270 },
       { field: 'participationState', label: Translator.trans('participation.state.finished'), colWidth: '160px', initialMinWidth: 160 },
       ...(isAddonActive.value ? [{ field: 'phaseCode', label: Translator.trans('procedure.phase.code'), colWidth: '160px', initialMinWidth: 160 }] : []),
+      ...(isAddonActive.value ? [{ field: 'portalPhase', label: Translator.trans('portal.procedure.phase'), colWidth: '240px', initialMinWidth: 240 }] : []),
     ])
 
     const detectPhaseListAddon = () => {
@@ -431,8 +453,50 @@ export default {
         })
     }
 
+    /**
+     * The configuration phase (orderInAudience 0) is locked for dragging via
+     * lock-drag-and-drop-by, so it can neither be moved nor be a drop target.
+     *
+     * The backend counts positions among the non-configuration phases only, so it is excluded
+     * before the index is read off the reordered list.
+     */
+    const handleReorder = (audience, { newIndex, oldIndex }) => {
+      if (newIndex === oldIndex) {
+        return
+      }
+
+      const listBackup = [...phaseDefinitions.value]
+      const otherPhases = phaseDefinitions.value.filter(phase => phase.audience !== audience)
+      const sectionPhases = phaseDefinitions.value.filter(phase => phase.audience === audience)
+      const movedPhase = sectionPhases[oldIndex]
+
+      sectionPhases.splice(oldIndex, 1)
+      sectionPhases.splice(newIndex, 0, movedPhase)
+
+      const backendIndex = sectionPhases
+        .filter(phase => phase.orderInAudience !== 0)
+        .indexOf(movedPhase)
+
+      phaseDefinitions.value = [...otherPhases, ...sectionPhases]
+
+      dpRpc('procedurePhaseDefinitionList.reorder', {
+        phaseDefinitionId: movedPhase.id,
+        newIndex: backendIndex,
+      })
+        .then(() => {
+          dplan.notify.confirm(Translator.trans('confirm.saved'))
+        })
+        .catch(err => {
+          // Reset optimistically triggered sort on error
+          phaseDefinitions.value = listBackup
+          console.error(err)
+          dplan.notify.error(Translator.trans('error.api.generic'))
+        })
+    }
+
     const mapPhaseToRow = (phase) => ({
       id: phase.id,
+      isFixedOrderPhase: phase.orderInAudience === 0,
       name: phase.name,
       orderInAudience: phase.orderInAudience,
       participationState: phase.participationState,
@@ -454,8 +518,8 @@ export default {
     const newPhaseAddonPayload = ref({
       attributes: null,
       parentRelationshipName: '',
+      relationships: null,
       resourceType: '',
-      value: '',
     })
 
     const isNewPhaseNameDuplicate = computed(() => isNameTakenInAudience({
@@ -464,12 +528,13 @@ export default {
     }))
 
     const buildNewPhaseAddonRequest = (parentId) => {
-      const { attributes, parentRelationshipName, resourceType } = newPhaseAddonPayload.value
+      const { attributes, parentRelationshipName, relationships, resourceType } = newPhaseAddonPayload.value
 
       return {
         type: resourceType,
         attributes,
         relationships: {
+          ...relationships,
           [parentRelationshipName]: {
             data: {
               type: 'ProcedurePhaseDefinition',
@@ -492,8 +557,8 @@ export default {
       newPhaseAddonPayload.value = {
         attributes: null,
         parentRelationshipName: '',
+        relationships: null,
         resourceType: '',
-        value: '',
       }
       newPhase.value = {
         audience: '',
@@ -513,7 +578,7 @@ export default {
 
     const createPhase = () => {
       isLoading.value = true
-      let phaseCodeFailed = false
+      let addonMappingFailed = false
 
       dpApi.post(Routing.generate('api_resource_create', { resourceType: 'ProcedurePhaseDefinition' }), {}, {
         data: {
@@ -528,9 +593,8 @@ export default {
       })
         .then(response => {
           const newPhaseId = response.data.data.id
-          const phaseCode = newPhaseAddonPayload.value.value
 
-          if (!phaseCode) {
+          if (!newPhaseAddonPayload.value.resourceType) {
             return null
           }
 
@@ -539,24 +603,24 @@ export default {
             {},
             { data: buildNewPhaseAddonRequest(newPhaseId) },
           )
-            .then(phaseCodeResponse => {
-              // Push the new code into savedAddonRowPayloads so the row's addon cell renders the value without waiting for cache refetch
+            .then(addonMappingResponse => {
+              // Push the new mapping into savedAddonRowPayloads so the row's addon cells render without waiting for cache refetch
               savedAddonRowPayloads.value = {
                 ...savedAddonRowPayloads.value,
                 [newPhaseId]: {
-                  code: phaseCode,
-                  resourceId: phaseCodeResponse.data.data.id,
+                  ...newPhaseAddonPayload.value.savedRowPayload,
+                  mappingId: addonMappingResponse.data.data.id,
                 },
               }
             })
-            .catch(phaseCodeErr => {
-              console.error(phaseCodeErr)
-              phaseCodeFailed = true
+            .catch(addonMappingErr => {
+              console.error(addonMappingErr)
+              addonMappingFailed = true
             })
         })
         .then(() => {
-          if (phaseCodeFailed) {
-            dplan.notify.error(Translator.trans('procedure.phase.code.create.failed'))
+          if (addonMappingFailed) {
+            dplan.notify.error(Translator.trans('procedure.phase.mapping.create.failed'))
           } else {
             dplan.notify.confirm(Translator.trans('procedure.phase.create.success'))
           }
@@ -615,11 +679,27 @@ export default {
     }
 
     const cancelEdit = () => {
+      clearAddonRowState(editingRowId.value)
       draftCoreRowValue.value = { ...initialCoreRowValue.value }
       editingRowId.value = null
     }
 
+    const clearAddonRowState = (phaseId) => {
+      delete draftAddonRowPayloads[phaseId]
+      delete initialAddonRowPayloads[phaseId]
+    }
+
+    /*
+     * Both addon cells (cockpit code + portal phase) fire `edit-start` for the
+     * same phaseId with an identical full-mapping payload.
+     * Snapshot the original state only the first time edit-start is emitted.
+     * Since the second emit contains the same data, ignore it.
+     */
     const handleAddonEditStart = (payload) => {
+      if (initialAddonRowPayloads[payload.phaseId]) {
+        return
+      }
+
       draftAddonRowPayloads[payload.phaseId] = payload
       // Clone so the snapshot can't change if `payload` is ever mutated later.
       initialAddonRowPayloads[payload.phaseId] = structuredClone(payload)
@@ -634,77 +714,29 @@ export default {
     }
 
     /*
-     * Picks the right HTTP request on edit based on the row's draft payload:
-     *   - empty value, no record yet  → skip (edit opened on a blank row, saved without typing)
-     *   - empty value, record exists  → DELETE
-     *   - new value, no record yet    → POST
-     *   - new value, record exists    → PATCH
-     * Resolves to { code, resourceId } — the new state core stores in
-     * `savedAddonRowPayloads` so the cell can re-render without a refetch.
-     *
-     * The PATCH body intentionally omits the parent relationship — the
-     * backend only accepts that field on create, not on update.
+     * Sends PATCH request to update the row's mapping. Every phase already has exactly
+     * one mapping (backend-guaranteed), so an edit only ever updates it. Resolves
+     * to `savedRowPayload`, which core stores in `savedAddonRowPayloads` so the
+     * cells re-render without a refetch.
      */
     const sendAddonEditRequest = (draftPayload) => {
-      const { attributes, parentRelationshipName, resourceId, resourceType, value } = draftPayload
-
-      if (value === '' && resourceId === null) {
-        return null
-      }
-
-      if (value === '' && resourceId !== null) {
-        return dpApi.delete(
-          Routing.generate('api_resource_delete', {
-            resourceType,
-            resourceId,
-          }),
-        ).then(() => ({
-          code: '',
-          resourceId: null,
-        }))
-      }
-
-      if (value !== '' && resourceId === null) {
-        return dpApi.post(
-          Routing.generate('api_resource_create', { resourceType }),
-          {},
-          {
-            data: {
-              type: resourceType,
-              attributes,
-              relationships: {
-                [parentRelationshipName]: {
-                  data: {
-                    type: 'ProcedurePhaseDefinition',
-                    id: editingRowId.value,
-                  },
-                },
-              },
-            },
-          },
-        ).then(response => ({
-          code: value,
-          resourceId: response.data.data.id,
-        }))
-      }
+      const { attributes, mappingId, relationships, resourceType, savedRowPayload } = draftPayload
 
       return dpApi.patch(
         Routing.generate('api_resource_update', {
           resourceType,
-          resourceId,
+          resourceId: mappingId,
         }),
         {},
         {
           data: {
             type: resourceType,
-            id: resourceId,
+            id: mappingId,
             attributes,
+            relationships,
           },
         },
-      ).then(() => ({
-        code: value,
-        resourceId,
-      }))
+      ).then(() => savedRowPayload)
     }
 
     /*
@@ -782,9 +814,9 @@ export default {
           return
         }
 
-        const hasPhaseCodeChanged = draftPayload.value !== initialPayload.value || draftPayload.resourceId !== initialPayload.resourceId
+        const hasAddonPayloadChanged = draftPayload.changeDetectionValue !== initialPayload.changeDetectionValue
 
-        if (hasPhaseCodeChanged) {
+        if (hasAddonPayloadChanged) {
           addonRequest = sendAddonEditRequest(draftPayload)
         }
       }
@@ -792,6 +824,7 @@ export default {
       const coreRequest = sendCoreEditRequest(id)
 
       if (!addonRequest && !coreRequest) {
+        clearAddonRowState(id)
         editingRowId.value = null
 
         return
@@ -801,23 +834,19 @@ export default {
 
       Promise.all([
         addonRequest ?
-          addonRequest.then(({ code, resourceId }) => {
+          addonRequest.then(savedRowPayload => {
             savedAddonRowPayloads.value = {
               ...savedAddonRowPayloads.value,
-              [id]: {
-                code,
-                resourceId,
-              },
+              [id]: savedRowPayload,
             }
           }) :
           Promise.resolve(),
         coreRequest || Promise.resolve(),
       ])
         .then(() => {
+          clearAddonRowState(id)
           editingRowId.value = null
-          dplan.notify.confirm(Translator.trans(
-            coreRequest ? 'confirm.all.changes.saved' : 'procedure.phase.code.edit.success',
-          ))
+          dplan.notify.confirm(Translator.trans('confirm.all.changes.saved'))
 
           if (coreRequest) {
             phaseDefinitions.value = phaseDefinitions.value.map(phase =>
@@ -841,7 +870,7 @@ export default {
         })
     }
 
-    // *** DELETE PHASE LOGIC ***
+    // *** DELETE PHASE LOGIC *** (Soft delete: PATCHes isDeleted=true)
     const confirmDeleteDialog = ref(null)
 
     const deletePhase = async (id) => {
@@ -849,6 +878,14 @@ export default {
 
       if (!isConfirmed) {
         return
+      }
+
+      if (isCreating.value) {
+        resetForm()
+      }
+
+      if (editingRowId.value !== null) {
+        cancelEdit()
       }
 
       try {
@@ -886,6 +923,7 @@ export default {
       flyoutWidth,
       handleAddonEditChange,
       handleAddonEditStart,
+      handleReorder,
       handleSaveEditClick,
       hasAttemptedSubmit,
       headerFields,

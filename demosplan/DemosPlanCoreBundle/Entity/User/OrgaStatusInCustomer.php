@@ -71,6 +71,15 @@ class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, Or
     #[ORM\Column(type: 'string', length: 255, nullable: false)]
     protected $status;
 
+    /**
+     * Whether this orga may be listed in the public-agency invitation list for the
+     * customer/orgaType this row represents.
+     *
+     * @var bool
+     */
+    #[ORM\Column(type: 'boolean', nullable: false, options: ['default' => true])]
+    protected $showlist = true;
+
     public function getId(): ?string
     {
         return $this->id;
@@ -122,5 +131,17 @@ class OrgaStatusInCustomer extends CoreEntity implements UuidEntityInterface, Or
             OrgaStatusInCustomerInterface::STATUS_ACCEPTED, OrgaStatusInCustomerInterface::STATUS_REJECTED, OrgaStatusInCustomerInterface::STATUS_PENDING => $status,
             default                                                                                                                                       => throw new InvalidArgumentException("Invalid status {$status}"),
         };
+    }
+
+    public function getShowlist(): bool
+    {
+        return $this->showlist;
+    }
+
+    public function setShowlist(bool $showlist): self
+    {
+        $this->showlist = $showlist;
+
+        return $this;
     }
 }

@@ -36,7 +36,7 @@ final class SwitchElementStatesMessageHandler
     {
         $this->initializeAnonymousUserPermissions();
 
-        $this->logger->info('switchStatesOfToday');
+        $this->logger->debug('switchStatesOfToday');
 
         $affectedElements = 0;
 

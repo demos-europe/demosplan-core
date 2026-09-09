@@ -6,6 +6,8 @@ scheb_two_factor:
     totp:
         enabled: true
         issuer: '%project_name%'
+        # Accepted clock drift in seconds; the default is 1, not one 30s step.
+        leeway: 15
         template: '@DemosPlanCore/DemosPlanUser/2fa.html.twig'
     email:
         enabled: true
