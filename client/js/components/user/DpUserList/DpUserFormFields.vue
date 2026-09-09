@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div class="whitespace-nowrap py-4">
+  <div class="whitespace-nowrap pb-4">
     <div class="inline-block w-1/2 pr-3">
       <dp-input
         :id="userId + ':firstName'"
@@ -52,7 +52,7 @@
 
     <div class="w-1/2 pr-3 inline-block">
       <label
-        class="mb-1.5 mt-3"
+        class="mb-0.5"
         :for="userId + ':organisationId'"
       >
         {{ Translator.trans('organisation') }}*
@@ -116,7 +116,7 @@
       <dp-multiselect
         :id="userId + ':userRoles'"
         ref="rolesDropdown"
-        class="u-mb-0_5 whitespace-normal"
+        class="whitespace-normal"
         :custom-label="option =>`${ roles[option.id].attributes.name }`"
         data-cy="roles"
         label="name"
@@ -152,7 +152,7 @@
 
     <!-- Individual procedure-management permission (RMOPSA / RMOPHA only) -->
     <div
-      v-if="hasPermission('feature_manage_procedure_creation_permission') && isProcedureManagementRoleSelected"
+      v-if="hasPermission('feature_manage_procedure_creation_permission') && isProcedureManagementRoleSelected && isOrgaAcceptedAsMunicipalityOrHearingAuthority"
       class="w-1/2 pr-3 mt-3 whitespace-normal"
     >
       <dp-checkbox
@@ -175,7 +175,7 @@
   </div>
   <dp-inline-notification
     v-if="isCreateItem"
-    class="mt-4"
+    class="my-2"
     type="info"
     :message="Translator.trans('user.automated.email.info')"
   />
@@ -184,6 +184,7 @@
 <script>
 import { dpApi, DpCheckbox, DpInlineNotification, DpInput, DpMultiselect, DpSelect, hasOwnProp, sortAlphabetically } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import { isOrgaAcceptedAsType } from '@DpJs/lib/shared/isOrgaAcceptedAsType'
 import { nextTick } from 'vue'
 import qs from 'qs'
 
@@ -205,6 +206,7 @@ export default {
     },
     presetUserOrgaId: 'presetUserOrgaId',
     projectName: 'projectName',
+    subdomain: 'subdomain',
   },
 
   props: {
@@ -329,6 +331,23 @@ export default {
 
     isDepartmentSet () {
       return this.localUser.relationships.department.data?.id !== ''
+    },
+
+    /**
+     * RMOPSA/RMOPHA are only meaningful for orgs accepted as Kommune or Anhörungsbehörde —
+     * e.g. Planungsbüro orgs use a different role (RMOPPO) entirely. "Pending" doesn't count:
+     * the backend only grants the permission once actually accepted.
+     */
+    isOrgaAcceptedAsMunicipalityOrHearingAuthority () {
+      const orga = this.organisations[this.currentUserOrga.id]
+      if (!orga) {
+        return false
+      }
+
+      const registrationStatuses = Object.values(orga.attributes.registrationStatuses || {})
+        .filter(el => el.subdomain === this.subdomain)
+
+      return isOrgaAcceptedAsType(registrationStatuses, ['OLAUTH', 'OHAUTH'])
     },
 
     /**

@@ -325,7 +325,7 @@
 
           <div
             v-if="showAddStatusForm"
-            class="layout"
+            class="layout flex items-end"
           >
             <!-- Select row  -->
             <div class="layout__item u-1-of-4">
@@ -362,7 +362,7 @@
             </div>
 
             <!-- Button row  -->
-            <div class="layout__item u-1-of-2 u-mt-0_5 space-inline-m">
+            <div class="layout__item u-1-of-2 space-inline-m">
               <button
                 class="btn btn--primary"
                 data-cy="orgaFormField:saveNewRegistrationStatus"
@@ -384,17 +384,61 @@
         </template>
 
         <dp-checkbox
-          v-if="hasPermission('feature_manage_procedure_creation_permission') && isPlanningOfficeOrMunicipalityAcceptedOrPending"
+          v-if="hasPermission('feature_manage_procedure_creation_permission') && isMunicipalityOrHearingAuthorityAccepted"
           :id="`${organisation.id}:procedureCreatePermission`"
           v-model="localOrganisation.attributes.canCreateProcedures"
           class="mt-2"
           data-cy="orgaFormField:procedureCreatePermission"
           :label="{
-            text: Translator.trans('procedure.canCreate'),
-            bold: true
+            text: Translator.trans('procedure.canCreate')
           }"
           @change="emitOrganisationUpdate"
         />
+
+        <template v-if="hasPermission('feature_manage_procedure_creation_permission') && isMunicipalityOrHearingAuthorityAccepted && !localOrganisation.attributes.canCreateProcedures">
+          <p
+            v-if="usersWithIndividualProcedureCreationPermission.length === 0"
+            class="mt-1 lbl__hint"
+            data-cy="orgaFormField:procedureCreatePermission:hintEmpty"
+          >
+            {{ Translator.trans('procedure.canManage.orga.none') }}
+          </p>
+          <template v-else>
+            <p
+              class="mt-1 u-mb-0_25"
+              data-cy="orgaFormField:procedureCreatePermission:usersLabel"
+            >
+              {{ Translator.trans('procedure.canManage.orga.users') }}
+            </p>
+            <ul
+              class="list-disc u-ml-0_75 u-mb-0"
+              data-cy="orgaFormField:procedureCreatePermission:usersList"
+            >
+              <li
+                v-for="user in visibleProcedureCreationUsers"
+                :key="user.id"
+                class="u-mb-0_25"
+              >
+                {{ user.firstname }} {{ user.lastname }}
+              </li>
+            </ul>
+            <dp-details
+              v-if="collapsedProcedureCreationUsers.length > 0"
+              data-cy="orgaFormField:procedureCreatePermission:usersMore"
+              :summary="Translator.trans('procedure.canManage.orga.users.more', { count: collapsedProcedureCreationUsers.length })"
+            >
+              <ul class="list-disc u-ml-0_75 u-mb-0">
+                <li
+                  v-for="user in collapsedProcedureCreationUsers"
+                  :key="user.id"
+                  class="u-mb-0_25"
+                >
+                  {{ user.firstname }} {{ user.lastname }}
+                </li>
+              </ul>
+            </dp-details>
+          </template>
+        </template>
       </div>
 
       <div
@@ -851,8 +895,9 @@
 </template>
 
 <script>
-import { CleanHtml, DpCheckbox, DpDetails, DpEditor, DpSelect, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { CleanHtml, dpApi, DpCheckbox, DpDetails, DpEditor, DpSelect, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import { isOrgaAcceptedAsType } from '@DpJs/lib/shared/isOrgaAcceptedAsType'
 
 export default {
   name: 'DpOrganisationFormFields',
@@ -999,11 +1044,13 @@ export default {
           label: Translator.trans('rejected'),
         },
       ],
+      procedureCreationUsersVisibleLimit: 5,
       showAddStatusForm: false,
       statusForm: {
         status: 'pending',
         type: 'TöB',
       },
+      usersWithIndividualProcedureCreationPermission: [],
     }
   },
 
@@ -1018,6 +1065,10 @@ export default {
      * A.k.a. Mandanten / Bundesländer
      * @return {String}
      */
+    collapsedProcedureCreationUsers () {
+      return this.usersWithIndividualProcedureCreationPermission.slice(this.procedureCreationUsersVisibleLimit)
+    },
+
     customers () {
       if (hasOwnProp(this.organisation.relationships, 'customers') === false) {
         return ''
@@ -1037,8 +1088,8 @@ export default {
       }
     },
 
-    isPlanningOfficeOrMunicipalityAcceptedOrPending () {
-      return this.registrationStatuses.some(registration => (registration.status === 'accepted' || registration.status === 'pending') && (registration.type === 'OPAUTH' || registration.type === 'OLAUTH' || registration.type === 'OHAUTH'))
+    isMunicipalityOrHearingAuthorityAccepted () {
+      return isOrgaAcceptedAsType(this.registrationStatuses, ['OLAUTH', 'OHAUTH'])
     },
 
     /**
@@ -1075,6 +1126,10 @@ export default {
         registrationStatuses :
         []
     },
+
+    visibleProcedureCreationUsers () {
+      return this.usersWithIndividualProcedureCreationPermission.slice(0, this.procedureCreationUsersVisibleLimit)
+    },
   },
 
   watch: {
@@ -1107,6 +1162,13 @@ export default {
       Vue.nextTick(() => {
         this.$emit('organisation:update', this.localOrganisation)
       })
+    },
+
+    async fetchUsersWithIndividualProcedureCreationPermission () {
+      const url = Routing.generate('dplan_api_organisation_procedure_creation_individual_grants', { id: this.organisation.id })
+      const response = await dpApi.get(url)
+
+      this.usersWithIndividualProcedureCreationPermission = response.data.data || []
     },
 
     hasChanged (field) {
@@ -1171,6 +1233,10 @@ export default {
 
   created () {
     this.setInitialOrganisation()
+
+    if (hasPermission('feature_manage_procedure_creation_permission') && this.isMunicipalityOrHearingAuthorityAccepted) {
+      this.fetchUsersWithIndividualProcedureCreationPermission()
+    }
   },
 
   mounted () {

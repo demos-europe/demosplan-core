@@ -182,6 +182,7 @@ export default {
     return {
       presetUserOrgaId: this.presetUserOrgaId,
       projectName: this.projectName,
+      subdomain: this.subdomain,
     }
   },
 
@@ -196,6 +197,12 @@ export default {
     },
 
     presetUserOrgaId: {
+      type: String,
+      required: false,
+      default: '',
+    },
+
+    subdomain: {
       type: String,
       required: false,
       default: '',

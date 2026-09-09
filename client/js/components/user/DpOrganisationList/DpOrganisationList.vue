@@ -8,10 +8,10 @@
 </license>
 
 <template>
-  <div class="u-mt-0_5">
+  <div class="mt-2">
     <!-- Pending organisations list (renders only when the orga-self-registration feature is enabled) -->
     <template v-if="hasPermission('area_organisations_applications_manage')">
-      <h3>
+      <h3 class="u-mt-2">
         {{ Translator.trans('organisations.pending') }}
       </h3>
       <template v-if="pendingOrganisationsLoading">
@@ -23,7 +23,7 @@
           v-for="(idx) in pendingOrgs"
           v-else
           :key="`skeleton:${idx}`"
-          class="u-mb-0_5"
+          class="mb-2"
           height="54px"
         />
       </template>

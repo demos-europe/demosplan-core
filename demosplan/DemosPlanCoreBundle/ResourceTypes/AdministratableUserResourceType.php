@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
@@ -529,11 +530,32 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             }
 
             if ($canManageProcedures) {
+                if (!$this->isOrgaAcceptedForRole($orga, $customer, $roleCode)) {
+                    continue;
+                }
                 $this->userAccessControlService->createUserPermission($user, AccessControlService::CREATE_PROCEDURES_PERMISSION, $role);
             } else {
                 $this->userAccessControlService->removeUserPermission($user, AccessControlService::CREATE_PROCEDURES_PERMISSION, $role);
             }
         }
+    }
+
+    /**
+     * Whether the organization is accepted for the orga type that {@link OrgaTypeInterface::ORGATYPE_ROLE}
+     * associates with the given role code, e.g. RMOPSA requires an accepted MUNICIPALITY (Kommune) type.
+     * Only gates granting the permission - revoking it is always allowed regardless of orga type.
+     */
+    private function isOrgaAcceptedForRole(OrgaInterface $orga, CustomerInterface $customer, string $roleCode): bool
+    {
+        $acceptedTypes = $orga->getTypes($customer->getSubdomain(), true);
+
+        foreach (OrgaTypeInterface::ORGATYPE_ROLE as $orgaType => $roleCodes) {
+            if (in_array($roleCode, $roleCodes, true)) {
+                return in_array($orgaType, $acceptedTypes, true);
+            }
+        }
+
+        return false;
     }
 
     /**
