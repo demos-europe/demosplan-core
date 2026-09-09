@@ -66,7 +66,7 @@ class LoadUserData extends ProdFixture implements DependentFixtureInterface
         );
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             LoadRolesData::class,

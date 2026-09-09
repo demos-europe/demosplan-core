@@ -38,8 +38,10 @@ export default {
   methods: {
     inviteToeb () {
       const form = document.querySelector('form#orgalistForm')
+
       this.selectedToebIds.forEach(id => {
         const additionalParam = document.createElement('input')
+
         additionalParam.setAttribute('name', 'orga_add[]')
         additionalParam.setAttribute('value', id)
         additionalParam.setAttribute('type', 'hidden')

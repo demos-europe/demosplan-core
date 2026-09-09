@@ -24,7 +24,7 @@ class HttpErrorController extends BaseController
      * Create custom 404 Response.
      */
     #[DplanPermissions('area_demosplan')]
-    #[Route(path: 'notfound', methods: ['GET'], name: 'core_404')]
+    #[Route(path: 'notfound', name: 'core_404', methods: ['GET'])]
     public function custom404(Request $request): Response
     {
         $content = '';
@@ -56,7 +56,7 @@ class HttpErrorController extends BaseController
      * Create custom 500 page.
      */
     #[DplanPermissions('area_demosplan')]
-    #[Route(path: 'error', methods: ['GET'], name: 'core_500')]
+    #[Route(path: 'error', name: 'core_500', methods: ['GET'])]
     public function custom500(TranslatorInterface $translator): Response
     {
         $content = 'Ein Fehler ist aufgetreten';

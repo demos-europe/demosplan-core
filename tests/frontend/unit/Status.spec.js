@@ -7,7 +7,6 @@
  * All rights reserved
  */
 
-import { beforeEach, describe, expect, it } from '@jest/globals'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 import Status from '@DpJs/components/statement/fragment/Status'
 

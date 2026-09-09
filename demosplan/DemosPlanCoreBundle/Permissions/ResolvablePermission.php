@@ -58,10 +58,10 @@ class ResolvablePermission
      * @param non-empty-string $name
      * @param non-empty-string $label
      */
-    public function __construct(#[Assert\NotBlank(normalizer: 'trim', allowNull: false)]
+    public function __construct(#[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
         #[Assert\Type(type: 'string')]
         #[Assert\Regex(pattern: '/^[a-z]+(_[a-z]+)*$/')]
-        private readonly string $name, #[Assert\NotBlank(normalizer: 'trim', allowNull: false)]
+        private readonly string $name, #[Assert\NotBlank(allowNull: false, normalizer: 'trim')]
         #[Assert\Type(type: 'string')]
         private readonly string $label, #[Assert\NotNull]
         #[Assert\Type(type: 'string')]

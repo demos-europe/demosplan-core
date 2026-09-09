@@ -169,6 +169,7 @@ export default {
 
     isInstitution () {
       const currentOrg = this.allOrganisations.find(org => org.id === this.currentOrganisation.id)
+
       return currentOrg ? currentOrg.relationships?.masterToeb?.data !== null : false
     },
   },
@@ -216,6 +217,7 @@ export default {
             departments: org.departments,
           }
         }
+
         // Convert to required format
         return { id: org.id, title: org.attributes?.name, departments: org.departments }
       })
@@ -246,11 +248,13 @@ export default {
 
     getDepartmentName () {
       const department = Object.values(this.departmentsList).find(el => el.id === this.user?.relationships?.department.data?.id)
+
       return department?.attributes?.name ?? ''
     },
 
     getOrgaName () {
       const orga = this.allOrganisations.find(el => el.id === this.user?.relationships?.orga?.data?.id)
+
       return orga?.attributes?.name ?? ''
     },
 
@@ -260,6 +264,7 @@ export default {
       } else {
         this.findAvailableOrganisations()
       }
+
       this.$emit('card:toggle')
     },
 
@@ -269,6 +274,7 @@ export default {
     resetCurrentDepartment () {
       const noDepartmentOption = this.currentOrganisation.departments.find(dep => dep.title === 'Keine Abteilung')
       const firstDepartmentOption = this.currentOrganisation.departments[0]
+
       this.currentDepartment = noDepartmentOption || firstDepartmentOption
     },
 

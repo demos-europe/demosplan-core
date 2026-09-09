@@ -39,7 +39,6 @@ use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\AddressBookEntryVO;
 use Exception;
@@ -71,7 +70,7 @@ class DemosPlanUserController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_demosplan')]
-    #[Route(name: 'DemosPlan_user_complete_data', path: '/willkommen')]
+    #[Route(path: '/willkommen', name: 'DemosPlan_user_complete_data')]
     public function newUserCompleteData(
         MailService $mailService,
         OrgaService $orgaService,
@@ -85,9 +84,10 @@ class DemosPlanUserController extends BaseController
         }
         $roles = $this->currentUser->getUser()->getRoles();
         $this->getLogger()->info(
-            'Welcomepage for Orga '.DemosPlanTools::varExport($orga->getName(), true).' '.DemosPlanTools::varExport($orga->getId(), true)
+            'Welcomepage for Orga {orgaName} {orgaId}',
+            ['orgaName' => $orga->getName(), 'orgaId' => $orga->getId()]
         );
-        $this->getLogger()->info('Welcomepage Roles '.DemosPlanTools::varExport($roles, true));
+        $this->getLogger()->info('Welcomepage Roles {roles}', ['roles' => $roles]);
 
         $templateVars = $this->checkProfileCompleted();
 
@@ -277,13 +277,18 @@ class DemosPlanUserController extends BaseController
     protected function checkProfileCompleted(): array
     {
         $templateVars = [];
-        if (!($this->currentUser->getUser() instanceof User)) {
+        if (!$this->currentUser->getUser() instanceof User) {
             throw new SessionUnavailableException('Session korrupt');
         }
         $templateVars['profileCompleted'] = filter_var($this->currentUser->getUser()->isProfileCompleted(), FILTER_VALIDATE_BOOLEAN);
         $templateVars['newUser'] = filter_var($this->currentUser->getUser()->isNewUser(), FILTER_VALIDATE_BOOLEAN);
-        $this->getLogger()->info('Check Profile completed: '.DemosPlanTools::varExport($templateVars['profileCompleted'], true)
-            .' NewUser: '.DemosPlanTools::varExport($templateVars['newUser'], true));
+        $this->getLogger()->info(
+            'Check Profile completed: {profileCompleted} NewUser: {newUser}',
+            [
+                'profileCompleted' => $templateVars['profileCompleted'],
+                'newUser'          => $templateVars['newUser'],
+            ]
+        );
 
         return $templateVars;
     }
@@ -296,7 +301,7 @@ class DemosPlanUserController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_report_invitable_institutionlistchanges')]
-    #[Route(name: 'DemosPlan_orga_toeblist_changes', path: '/organisations/visibilitylog')]
+    #[Route(path: '/organisations/visibilitylog', name: 'DemosPlan_orga_toeblist_changes')]
     public function showInvitableInstitutionVisibilityChanges(UserService $userService)
     {
         $templateVars = [];
@@ -312,7 +317,7 @@ class DemosPlanUserController extends BaseController
     }
 
     #[DplanPermissions('feature_plain_language')]
-    #[Route(name: 'DemosPlan_switch_language', path: '/language')]
+    #[Route(path: '/language', name: 'DemosPlan_switch_language')]
     public function switchLanguage(EventDispatcherPostInterface $eventDispatcherPost, Request $request): RedirectResponse
     {
         // change url:
@@ -340,7 +345,7 @@ class DemosPlanUserController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_portal_user')]
-    #[Route(name: 'DemosPlan_user_portal', path: '/portal/user')]
+    #[Route(path: '/portal/user', name: 'DemosPlan_user_portal')]
     public function portalUser(
         CurrentUserService $currentUser,
         ContentService $contentService,
@@ -382,7 +387,7 @@ class DemosPlanUserController extends BaseController
      * @throws MessageBagException
      */
     #[DplanPermissions('area_manage_users')]
-    #[Route(name: 'DemosPlan_user_add', path: '/user/add')]
+    #[Route(path: '/user/add', name: 'DemosPlan_user_add')]
     public function addUser(Request $request, UserHandler $userHandler): RedirectResponse
     {
         try {
@@ -412,7 +417,7 @@ class DemosPlanUserController extends BaseController
      * @throws MessageBagException
      */
     #[DplanPermissions('feature_citizen_registration')]
-    #[Route(name: 'DemosPlan_citizen_register', path: '/user/register', methods: ['POST'], options: ['expose' => true])]
+    #[Route(path: '/user/register', name: 'DemosPlan_citizen_register', options: ['expose' => true], methods: ['POST'])]
     public function registerCitizen(
         CsrfTokenManagerInterface $csrfTokenManager,
         EventDispatcherPostInterface $eventDispatcherPost,
@@ -503,7 +508,7 @@ class DemosPlanUserController extends BaseController
      * @throws MessageBagException
      */
     #[DplanPermissions('feature_citizen_registration')]
-    #[Route(name: 'DemosPlan_citizen_registration_form', path: '/user/register', methods: ['GET'], options: ['expose' => true])]
+    #[Route(path: '/user/register', name: 'DemosPlan_citizen_registration_form', options: ['expose' => true], methods: ['GET'])]
     public function showRegisterCitizenForm()
     {
         $title = 'user.register';
@@ -522,7 +527,7 @@ class DemosPlanUserController extends BaseController
      * @throws MessageBagException
      */
     #[DplanPermissions('area_portal_user')]
-    #[Route(name: 'DemosPlan_user_edit', path: '/user/edit')]
+    #[Route(path: '/user/edit', name: 'DemosPlan_user_edit')]
     public function editUser(CurrentUserService $currentUser, ContentService $contentService, MailService $mailService, Request $request, UserHandler $userHandler): RedirectResponse
     {
         try {
@@ -530,7 +535,15 @@ class DemosPlanUserController extends BaseController
             // Store status before update to compare it to the status after the update
             $newsletterStatusBefore = $userBefore->getNewsletter();
 
-            $user = $userHandler->updateUser($userBefore->getId(), $request->request->all());
+            $requestData = $request->request->all();
+            // Convert the segment deadline reminder checkbox ('on' / absent) into a bool
+            // on this profile-edit path only. Keeping it out of the shared updateUser()
+            // means callers that omit the field leave the flag untouched, so its
+            // default-on value is preserved.
+            $requestData[UserFlagKey::SEGMENT_DEADLINE_REMINDER_ENABLED->value] =
+                'on' === ($requestData[UserFlagKey::SEGMENT_DEADLINE_REMINDER_ENABLED->value] ?? null);
+
+            $user = $userHandler->updateUser($userBefore->getId(), $requestData);
             if ($user instanceof User) {
                 // soll eine Benachrichtigung verschickt werden, dass sich der Newsletterstatus verändert hat?
                 if ($newsletterStatusBefore !== $user->getNewsletter()) {
@@ -574,7 +587,7 @@ class DemosPlanUserController extends BaseController
      * @throws MessageBagException
      */
     #[DplanPermissions('area_admin_orga_address_book')]
-    #[Route(name: 'DemosPlan_create_addresses_entry', path: '/organisation/adressen/erstellen/{organisationId}', methods: ['POST'])]
+    #[Route(path: '/organisation/adressen/erstellen/{organisationId}', name: 'DemosPlan_create_addresses_entry', methods: ['POST'])]
     public function createAddressBookEntry(
         AddressBookEntryService $addressBookEntryService,
         OrgaService $orgaService,
@@ -641,7 +654,7 @@ class DemosPlanUserController extends BaseController
      * @throws MessageBagException
      */
     #[DplanPermissions('area_admin_orga_address_book')]
-    #[Route(name: 'DemosPlan_delete_email_addresses_entry', path: '/organisation/adressen/loeschen/{organisationId}', methods: ['POST'])]
+    #[Route(path: '/organisation/adressen/loeschen/{organisationId}', name: 'DemosPlan_delete_email_addresses_entry', methods: ['POST'])]
     public function deleteAddressBookEntries(AddressBookEntryService $addressBookEntryService, Request $request, $organisationId)
     {
         $checkResult = $this->checkUserOrganisation($organisationId, 'DemosPlan_get_address_book_entries');
@@ -681,7 +694,7 @@ class DemosPlanUserController extends BaseController
      * @throws MessageBagException
      */
     #[DplanPermissions(['area_portal_user', 'feature_statement_gdpr_consent'])]
-    #[Route(name: 'DemosPlan_user_statements', path: '/portal/user/statements', options: ['expose' => true])]
+    #[Route(path: '/portal/user/statements', name: 'DemosPlan_user_statements', options: ['expose' => true])]
     public function statementList(CurrentUserService $currentUser, StatementService $statementService)
     {
         $templateVars = [];
@@ -707,7 +720,7 @@ class DemosPlanUserController extends BaseController
      * @throws MessageBagException
      */
     #[DplanPermissions(['area_portal_user', 'feature_statement_gdpr_consent_may_revoke'])]
-    #[Route(name: 'DemosPlan_revoke_statement', path: '/portal/user/statement/{statementId}/revoke')]
+    #[Route(path: '/portal/user/statement/{statementId}/revoke', name: 'DemosPlan_revoke_statement')]
     public function revokeGDPRConsentForStatement(
         CurrentUserService $currentUser,
         StatementAnonymizeService $statementAnonymizeService,

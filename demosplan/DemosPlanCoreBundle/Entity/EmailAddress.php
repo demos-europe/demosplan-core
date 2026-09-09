@@ -52,7 +52,7 @@ class EmailAddress extends CoreEntity implements UuidEntityInterface, EmailAddre
      */
     #[Assert\NotBlank(allowNull: false)]
     #[Assert\Email(mode: 'strict')]
-    #[ORM\Column(type: 'string', length: 254, nullable: false, unique: true)]
+    #[ORM\Column(type: 'string', length: 254, unique: true, nullable: false)]
     protected $fullAddress;
 
     public function getId(): ?string

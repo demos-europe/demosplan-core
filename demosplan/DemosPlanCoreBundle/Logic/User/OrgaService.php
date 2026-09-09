@@ -35,7 +35,6 @@ use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaTypeRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitablePublicAgencyResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\OrgaResourceType;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\OrgaSignatureValueObject;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\DataProtectionOrganisation;
@@ -339,7 +338,7 @@ class OrgaService implements OrgaServiceInterface
     {
         return $this->getOrganisations([
             $this->conditionFactory->propertyHasValue(1, $this->orgaResourceType->showname),
-            $this->conditionFactory->propertyHasValue(true, $this->orgaResourceType->showlist),
+            $this->conditionFactory->propertyHasValue(true, $this->orgaResourceType->statusInCustomers->showlist),
         ]);
     }
 
@@ -352,7 +351,7 @@ class OrgaService implements OrgaServiceInterface
      *
      * * `invitable_institution`: Institutionen
      * * `planningagency`: Planungsbüros
-     * * `procedure.agency`: Verfahrensträger
+     * * `municipality`: Kommune (project-overrides: Gemeinde, Bezirk, Verfahrensträger)
      *
      * @return array<string, int<0, max>>
      */
@@ -420,9 +419,9 @@ class OrgaService implements OrgaServiceInterface
      *
      * * `invitable_institution`: Institutionen
      * * `planningagency`: Planungsbüros
-     * * `procedure.agency`: Verfahrensträger
+     * * `municipality`: Kommune (project-overrides: Gemeinde, Bezirk, Verfahrensträger)
      *
-     * @return array{'procedure.agency': int<0, max>, 'planningagency': int<0, max>, 'invitable_institution': int<0, max>}
+     * @return array{'municipality': int<0, max>, 'planningagency': int<0, max>, 'invitable_institution': int<0, max>}
      */
     protected function getAcceptedOrgaCountByType(Customer $customerContext): array
     {
@@ -433,7 +432,7 @@ class OrgaService implements OrgaServiceInterface
         return [
             'invitable_institution' => $institutionCount,
             'planningagency'        => $planningAgencyCount,
-            'procedure.agency'      => $municipalityCount,
+            'municipality'          => $municipalityCount,
         ];
     }
 
@@ -494,7 +493,7 @@ class OrgaService implements OrgaServiceInterface
                 $notifications['emailNotificationEndingPhase'] = $settingEndingPhase[0];
             }
         }
-        $this->logger->debug('loadOrgaNotifications Loaded: '.DemosPlanTools::varExport($notifications, true));
+        $this->logger->debug('loadOrgaNotifications Loaded', ['notifications' => $notifications]);
         $orga->setNotifications($notifications);
     }
 
@@ -514,7 +513,7 @@ class OrgaService implements OrgaServiceInterface
         );
         if (is_array($settingSubmissionType) && 1 === count($settingSubmissionType)) {
             $orga->setSubmissionType($settingSubmissionType[0]->getContent());
-            $this->logger->debug('loadOrgaSubmissionType Loaded: '.DemosPlanTools::varExport($settingSubmissionType[0]->getContent(), true));
+            $this->logger->debug('loadOrgaSubmissionType Loaded: {submissionType}', ['submissionType' => $settingSubmissionType[0]->getContent()]);
         }
     }
 

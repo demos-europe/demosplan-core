@@ -77,8 +77,8 @@ class GdprConsentRevokeToken extends CoreEntity implements UuidEntityInterface, 
      */
     #[ORM\JoinTable(
         name: 'gdpr_consent_revoke_token_statements',
-        joinColumns: [new ORM\JoinColumn(name: 'token_id', referencedColumnName: 'id', nullable: false)],
-        inverseJoinColumns: [new ORM\JoinColumn(name: 'statement_id', referencedColumnName: '_st_id', unique: true, nullable: false)]
+        joinColumns: [new ORM\JoinColumn(name: 'token_id', referencedColumnName: 'id')],
+        inverseJoinColumns: [new ORM\JoinColumn(name: 'statement_id', referencedColumnName: '_st_id', unique: true)]
     )]
     #[ORM\ManyToMany(targetEntity: Statement::class)]
     protected $statements;
@@ -92,7 +92,7 @@ class GdprConsentRevokeToken extends CoreEntity implements UuidEntityInterface, 
      *
      * @var string
      */
-    #[ORM\Column(type: 'string', length: 12, nullable: false, unique: true, options: ['fixed' => true])]
+    #[ORM\Column(type: 'string', length: 12, unique: true, nullable: false, options: ['fixed' => true])]
     protected $token;
 
     /**

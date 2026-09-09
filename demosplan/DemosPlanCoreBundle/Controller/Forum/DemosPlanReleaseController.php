@@ -40,7 +40,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      * @throws MessageBagException
      */
     #[DplanPermissions('area_development')]
-    #[Route(name: 'DemosPlan_forum_development', path: '/development')]
+    #[Route(path: '/development', name: 'DemosPlan_forum_development')]
     public function developmentIndex(Breadcrumb $breadcrumb, TranslatorInterface $translator)
     {
         $templateVars = [];
@@ -84,7 +84,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      * @return RedirectResponse|Response
      */
     #[DplanPermissions('feature_forum_dev_release_edit')]
-    #[Route(name: 'DemosPlan_forum_development_release_new', path: '/development/release/new')]
+    #[Route(path: '/development/release/new', name: 'DemosPlan_forum_development_release_new')]
     public function newRelease(Request $request)
     {
         // Anlegen eines neuen release
@@ -125,7 +125,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      * @return RedirectResponse|Response
      */
     #[DplanPermissions('feature_forum_dev_release_edit')]
-    #[Route(name: 'DemosPlan_forum_development_release_edit', path: '/development/{releaseId}/edit')]
+    #[Route(path: '/development/{releaseId}/edit', name: 'DemosPlan_forum_development_release_edit')]
     public function editRelease(Request $request, $releaseId)
     {
         $storageResult = [];
@@ -167,7 +167,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      * @param string $token
      */
     #[DplanPermissions('feature_forum_dev_release_edit')]
-    #[Route(name: 'DemosPlan_forum_development_release_delete', path: '/development/delete/{releaseId}/{token}')]
+    #[Route(path: '/development/delete/{releaseId}/{token}', name: 'DemosPlan_forum_development_release_delete')]
     public function deleteRelease($releaseId, $token): RedirectResponse
     {
         // Token zum Überprüfen erstellen
@@ -198,7 +198,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      * @return RedirectResponse|Response
      */
     #[DplanPermissions('feature_forum_dev_release_edit')]
-    #[Route(name: 'DemosPlan_forum_development_release_list', path: '/development/release/list')]
+    #[Route(path: '/development/release/list', name: 'DemosPlan_forum_development_release_list')]
     public function releaseList()
     {
         $templateVars = [];
@@ -231,7 +231,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      * @throws Exception
      */
     #[DplanPermissions('area_development')]
-    #[Route(name: 'DemosPlan_forum_development_release_detail', path: '/development/{releaseId}')]
+    #[Route(path: '/development/{releaseId}', name: 'DemosPlan_forum_development_release_detail')]
     public function releaseDetail(CurrentUserInterface $currentUser, $releaseId)
     {
         $templateVars = [];
@@ -285,7 +285,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      * @throws MessageBagException
      */
     #[DplanPermissions('area_development')]
-    #[Route(name: 'DemosPlan_forum_development_release_voting', path: '/development/{releaseId}/voting')]
+    #[Route(path: '/development/{releaseId}/voting', name: 'DemosPlan_forum_development_release_voting')]
     public function saveVotesForUserStories(
         Request $request,
         TranslatorInterface $translator,
@@ -367,7 +367,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      * @return RedirectResponse|Response
      */
     #[DplanPermissions('feature_forum_dev_story_edit')]
-    #[Route(name: 'DemosPlan_forum_development_userstory_new', path: '/development/{releaseId}/story/new')]
+    #[Route(path: '/development/{releaseId}/story/new', name: 'DemosPlan_forum_development_userstory_new')]
     public function newUserStory(Request $request, $releaseId)
     {
         // Anlegen eines neuen release
@@ -408,7 +408,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      * @return RedirectResponse|Response
      */
     #[DplanPermissions('feature_forum_dev_story_edit')]
-    #[Route(name: 'DemosPlan_forum_development_userstory_edit', path: '/development/{releaseId}/story/edit/{storyId}')]
+    #[Route(path: '/development/{releaseId}/story/edit/{storyId}', name: 'DemosPlan_forum_development_userstory_edit')]
     public function editUserStory(Request $request, $releaseId, $storyId)
     {
         $templateVars = [];
@@ -457,7 +457,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      * @param string $token
      */
     #[DplanPermissions('feature_forum_dev_story_edit')]
-    #[Route(name: 'DemosPlan_forum_development_userstory_delete', path: '/development/{releaseId}/story/delete/{storyId}/{token}')]
+    #[Route(path: '/development/{releaseId}/story/delete/{storyId}/{token}', name: 'DemosPlan_forum_development_userstory_delete')]
     public function deleteUserStory($releaseId, $storyId, $token): RedirectResponse
     {
         // Token zum Überprüfen erstellen
@@ -487,7 +487,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      * @throws Exception
      */
     #[DplanPermissions('area_development')]
-    #[Route(name: 'DemosPlan_forum_development_userstory_detail', path: '/development/story/{storyId}')]
+    #[Route(path: '/development/story/{storyId}', name: 'DemosPlan_forum_development_userstory_detail')]
     public function userStoryDetail(CurrentUserInterface $currentUser, $storyId)
     {
         $templateVars = [];
@@ -564,7 +564,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      * @throws Exception
      */
     #[DplanPermissions('area_development')]
-    #[Route(name: 'DemosPlan_forum_development_userstory_threadentry_new', path: '/development/{storyId}/entry/new')]
+    #[Route(path: '/development/{storyId}/entry/new', name: 'DemosPlan_forum_development_userstory_threadentry_new')]
     public function newThreadEntryForUserStory(
         Request $request,
         TranslatorInterface $translator,
@@ -626,7 +626,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      * @throws Exception
      */
     #[DplanPermissions('area_development')]
-    #[Route(name: 'DemosPlan_forum_development_userstory_threadentry_edit', path: '/development/{storyId}/entry/{threadEntryId}/edit')]
+    #[Route(path: '/development/{storyId}/entry/{threadEntryId}/edit', name: 'DemosPlan_forum_development_userstory_threadentry_edit')]
     public function editThreadEntryOfUserStory(
         CurrentUserInterface $currentUser,
         FileUploadService $fileUploadService,
@@ -724,7 +724,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      * @param string $token
      */
     #[DplanPermissions('area_development')]
-    #[Route(name: 'DemosPlan_forum_development_userstory_threadentry_delete', path: '/development/{storyId}/entry/{threadEntryId}/delete/{token}')]
+    #[Route(path: '/development/{storyId}/entry/{threadEntryId}/delete/{token}', name: 'DemosPlan_forum_development_userstory_threadentry_delete')]
     public function deleteThreadEntryOfUserStory(CurrentUserInterface $currentUser, PermissionsInterface $permissions, $storyId, $threadEntryId, $token): RedirectResponse
     {
         $storageResult = [];
@@ -753,11 +753,10 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
                 $this->getMessageBag()->add('confirm', 'confirm.thread.deleted');
 
                 return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', ['storyId' => $storyId]);
-            } else {
-                $this->getMessageBag()->add('error', 'error.delete');
-
-                return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', ['storyId' => $storyId]);
             }
+            $this->getMessageBag()->add('error', 'error.delete');
+
+            return $this->redirectToRoute('DemosPlan_forum_development_userstory_detail', ['storyId' => $storyId]);
         }
 
         $this->getMessageBag()->add('error', 'error.authorisation');
@@ -774,7 +773,7 @@ class DemosPlanReleaseController extends DemosPlanForumBaseController
      * @return RedirectResponse|Response
      */
     #[DplanPermissions('feature_forum_dev_release_edit')]
-    #[Route(name: 'DemosPlan_forum_development_release_export', path: '/development/{releaseId}/export')]
+    #[Route(path: '/development/{releaseId}/export', name: 'DemosPlan_forum_development_release_export')]
     public function exportRelease(
         CsvHelper $csvHelper,
         Environment $twig,

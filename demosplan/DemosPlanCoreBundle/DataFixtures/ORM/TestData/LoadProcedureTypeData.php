@@ -88,7 +88,7 @@ class LoadProcedureTypeData extends TestFixture implements DependentFixtureInter
         $this->setReference(self::BPLAN, $procedureType);
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             LoadProcedureBehaviorDefinitionData::class,

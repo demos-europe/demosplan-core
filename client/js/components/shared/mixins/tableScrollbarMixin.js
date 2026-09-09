@@ -115,6 +115,7 @@ export default {
       const onMousemove = (moveEvent) => {
         const dx = moveEvent.clientX - startX
         const scrollRatio = dx / (trackWidth - thumbWidth)
+
         this.dataTableContainerElement.scrollLeft = startScrollLeft + scrollRatio * (scrollWidth - clientWidth)
       }
 
@@ -145,6 +146,7 @@ export default {
        * Outside fullscreen, 18px reserves space for the sticky scrollbar.
        */
       const offset = this.isFullscreen ? 24 : 18
+
       this.$refs.scrollContainer.style.maxHeight = `calc(100vh - ${top}px - ${offset}px)`
     },
   },

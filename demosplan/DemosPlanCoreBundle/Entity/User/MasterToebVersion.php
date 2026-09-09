@@ -215,10 +215,9 @@ class MasterToebVersion extends CoreEntity implements UuidEntityInterface, Maste
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: '_mtv_version_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $versionDate;
 
     public function __construct()
@@ -576,7 +575,7 @@ class MasterToebVersion extends CoreEntity implements UuidEntityInterface, Maste
      */
     public function setDocumentAgreement($documentAgreement): MasterToebVersion
     {
-        $this->documentAgreement = 0 == strcmp($documentAgreement, 'x') ? 1 : $documentAgreement;
+        $this->documentAgreement = 0 === strcmp($documentAgreement, 'x') ? 1 : $documentAgreement;
 
         return $this;
     }
@@ -591,7 +590,7 @@ class MasterToebVersion extends CoreEntity implements UuidEntityInterface, Maste
      */
     public function setDocumentNotice($documentNotice): MasterToebVersion
     {
-        $this->documentNotice = 0 == strcmp($documentNotice, 'x') ? 1 : $documentNotice;
+        $this->documentNotice = 0 === strcmp($documentNotice, 'x') ? 1 : $documentNotice;
 
         return $this;
     }
@@ -606,7 +605,7 @@ class MasterToebVersion extends CoreEntity implements UuidEntityInterface, Maste
      */
     public function setDocumentAssessment($documentAssessment): MasterToebVersion
     {
-        $this->documentAssessment = 0 == strcmp($documentAssessment, 'x') ? 1 : $documentAssessment;
+        $this->documentAssessment = 0 === strcmp($documentAssessment, 'x') ? 1 : $documentAssessment;
 
         return $this;
     }
@@ -624,7 +623,7 @@ class MasterToebVersion extends CoreEntity implements UuidEntityInterface, Maste
      */
     public function setRegistered($registered): MasterToebVersion
     {
-        $this->registered = 0 == strcmp($registered, 'x') ? 1 : (int) $registered;
+        $this->registered = 0 === strcmp($registered, 'x') ? 1 : (int) $registered;
 
         return $this;
     }

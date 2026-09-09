@@ -7,15 +7,19 @@
   All rights reserved
 </license>
 
-<script>
-import { DpModal, DpMultiselect } from '@demos-europe/demosplan-ui'
+<template>
+  <div>
+    <slot
+      :filter-groups="filterGroups"
+      :strip-raw="stripRaw"
+      :user-selection="userSelection"
+    />
+  </div>
+</template>
 
+<script>
 export default {
   name: 'DpFragmentListFilterModal',
-  components: {
-    DpModal,
-    DpMultiselect,
-  },
   props: {
     filters: {
       type: Array,
@@ -35,7 +39,6 @@ export default {
   },
   data () {
     return {
-      test: '',
       userSelection: {
         procedureName: [],
         voteAdvice: [],
@@ -64,6 +67,7 @@ export default {
       // Set correct permissions for some filter fields
       Object.values(groups).forEach(group => group.values.forEach(el => {
         const permissionsToCheck = this.permissionFields[el.name]
+
         el.hasPermission = permissionsToCheck ? permissionsToCheck.every(permission => hasPermission(permission.replace(/([-_]\w)/g, g => g[1].toUpperCase()))) : true
       }))
 
@@ -81,9 +85,11 @@ export default {
     // On mounted set initially selected filters by taking applied filters and finding the correct multiselect option in all options
     this.appliedFilters.forEach(filter => {
       const foundFilterInAllOptions = this.filters.find(el => el.name === filter.field)
+
       if (foundFilterInAllOptions) {
         const foundFilterValues = foundFilterInAllOptions.values
         let initialFilters
+
         if (Array.isArray(foundFilterValues)) {
           initialFilters = foundFilterValues.filter(val => filter.value.includes(val.value)) || filter.value
         } else if (typeof foundFilterValues === 'object') {

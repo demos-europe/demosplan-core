@@ -32,8 +32,8 @@ class DemosPlanMailController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_procedure_send_submitter_email')]
-    #[Route(name: 'dplan_procedure_mail_send_all_submitters_view', path: '/verfahren/{procedureId}/mail', methods: ['HEAD', 'GET'])]
-    #[Route(name: 'dplan_procedure_mail_send_all_submitters_send', path: '/verfahren/{procedureId}/mail', methods: ['POST'])]
+    #[Route(path: '/verfahren/{procedureId}/mail', name: 'dplan_procedure_mail_send_all_submitters_view', methods: ['HEAD', 'GET'])]
+    #[Route(path: '/verfahren/{procedureId}/mail', name: 'dplan_procedure_mail_send_all_submitters_send', methods: ['POST'])]
     public function sendAllSubmitters(
         CurrentUserService $currentUser,
         FormFactoryInterface $formFactory,
@@ -145,7 +145,7 @@ class DemosPlanMailController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_procedure_send_submitter_email')]
-    #[Route(name: 'dplan_procedure_mail_send_all_submitters_confirm_view', path: '/verfahren/{procedureId}/mailconfirm', methods: ['HEAD', 'GET'])]
+    #[Route(path: '/verfahren/{procedureId}/mailconfirm', name: 'dplan_procedure_mail_send_all_submitters_confirm_view', methods: ['HEAD', 'GET'])]
     public function sendAllSubmittersConfirmView(Request $request, SubmitterService $submitterService, $procedureId)
     {
         // @improve T14122
@@ -187,7 +187,7 @@ class DemosPlanMailController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_procedure_send_submitter_email')]
-    #[Route(name: 'dplan_procedure_mail_send_all_submitters_confirm_send', path: '/verfahren/{procedureId}/mailconfirm', methods: ['POST'])]
+    #[Route(path: '/verfahren/{procedureId}/mailconfirm', name: 'dplan_procedure_mail_send_all_submitters_confirm_send', methods: ['POST'])]
     public function sendAllSubmittersConfirmSend(
         CurrentUserService $currentUser,
         Request $request,

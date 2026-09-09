@@ -31,6 +31,7 @@ use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -242,9 +243,9 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     /**
      * Adds the tag filter information to the info sheet.
      *
-     * @param \PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $infoSheet The info sheet
-     * @param StatementExportTagFilter                      $tagFilter The tag filter
-     * @param int                                           $row       Current row number (passed by reference)
+     * @param Worksheet                $infoSheet The info sheet
+     * @param StatementExportTagFilter $tagFilter The tag filter
+     * @param int                      $row       Current row number (passed by reference)
      */
     private function addTagFilterInfo($infoSheet, StatementExportTagFilter $tagFilter, int &$row): void
     {
@@ -444,6 +445,11 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
             'statement.final.sent',
             30
         );
+
+        // Carries the statement id so an instance importing this export can pair its statements
+        // with the ones they originate from. The extern id cannot serve that purpose: statement
+        // copies share it within a procedure.
+        $columnsDefinition[] = $this->createColumnDefinition('id', 'statement.source.reference', 40);
 
         return $columnsDefinition;
     }

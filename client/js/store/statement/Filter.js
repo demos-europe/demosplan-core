@@ -36,6 +36,10 @@ const Filter = {
     filterList: [],
     // Available options for filters
     filterListOptions: {},
+    // Available options for custom field filters, keyed by fieldId (UUID)
+    customFieldFilterListOptions: {},
+    // Active CF filter entries in { name, value } shape for use by FilterModalSelectItem
+    activeCfFilterEntries: [],
     filters: {},
     original: false,
     procedureId: null,
@@ -53,6 +57,10 @@ const Filter = {
       state.appliedOptions = options
     },
 
+    setActiveCfFilterEntries (state, entries) {
+      state.activeCfFilterEntries = entries
+    },
+
     /**
      * Called by getFilterOptionsAction, loads available options of currently selected filters into filterListOptions
      * @param updatedFilters   filters to load options for
@@ -60,10 +68,18 @@ const Filter = {
     loadAvailableFilterListOptions (state, updatedFilters) {
       if (updatedFilters.length) {
         updatedFilters.forEach(filter => {
-          state.filterListOptions[filter.id] = filter.attributes.options
+          if ('customField' === filter.attributes?.type && filter.attributes?.fieldId) {
+            state.customFieldFilterListOptions = {
+              ...state.customFieldFilterListOptions,
+              [filter.attributes.fieldId]: filter.attributes.options ?? [],
+            }
+          } else {
+            state.filterListOptions[filter.id] = filter.attributes.options
+          }
         })
       } else {
         state.filterListOptions = {}
+        state.customFieldFilterListOptions = {}
       }
     },
 
@@ -114,6 +130,7 @@ const Filter = {
       if (!state.filters[filterId]) {
         state.filters[filterId] = {}
       }
+
       state.filters[filterId].isLoading = isLoading
     },
 
@@ -286,6 +303,7 @@ const Filter = {
       })
         .then(response => {
           let filtersToUpdateInStore
+
           // Update only options for one filter
           if (data.filterId) {
             filtersToUpdateInStore = response.data.data.filter(filter => filter.id === data.filterId)
@@ -319,6 +337,7 @@ const Filter = {
           FilterSet: ['hash', 'name'].join(),
         },
       }
+
       return dpApi.get(url, params)
         .then(({ data }) => commit('updateUserFilterSets', data))
         .catch((err) => {
@@ -360,6 +379,19 @@ const Filter = {
   },
 
   getters: {
+    activeCfFilterEntries: state => state.activeCfFilterEntries,
+
+    // { [fieldId]: { [optionId]: count } } — built from CF items returned by the filter options endpoint
+    customFieldOptionCounts: (state) => {
+      const counts = {}
+
+      Object.entries(state.customFieldFilterListOptions).forEach(([fieldId, options]) => {
+        counts[fieldId] = Object.fromEntries((options ?? []).map(o => [o.value, o.count]))
+      })
+
+      return counts
+    },
+
     // Get all selected filter options with corresponding filterName, needed for updateFilterHash
     allSelectedFilterOptionsWithFilterName: state => {
       const optionsForFilterHash = []
@@ -422,6 +454,7 @@ const Filter = {
           return Object.values(allOptions).filter(option => option.count !== 0)
         }
       }
+
       return []
     },
 
@@ -448,6 +481,7 @@ const Filter = {
 
         return selectedFilterOptions.length ? selectedFilterOptions : []
       }
+
       return []
     },
 

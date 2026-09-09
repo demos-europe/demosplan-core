@@ -73,7 +73,7 @@ class OzgKeycloakStaticUserDataProvider
      *
      * @return array<string, array<string, mixed>>
      */
-    private static function buildAvailableUsers(): array
+    private function buildAvailableUsers(): array
     {
         return [
             // 2 affiliations x 2 responsibilities = 4 orgs (Fachplaner Admin)
@@ -191,7 +191,7 @@ class OzgKeycloakStaticUserDataProvider
      */
     public function getUserData(string $userKey): ?array
     {
-        return self::buildAvailableUsers()[$userKey] ?? null;
+        return $this->buildAvailableUsers()[$userKey] ?? null;
     }
 
     /**
@@ -201,7 +201,7 @@ class OzgKeycloakStaticUserDataProvider
      */
     public function getAvailableUserKeys(): array
     {
-        return array_keys(self::buildAvailableUsers());
+        return array_keys($this->buildAvailableUsers());
     }
 
     /**
@@ -209,6 +209,6 @@ class OzgKeycloakStaticUserDataProvider
      */
     public function hasUser(string $userKey): bool
     {
-        return array_key_exists($userKey, self::buildAvailableUsers());
+        return array_key_exists($userKey, $this->buildAvailableUsers());
     }
 }

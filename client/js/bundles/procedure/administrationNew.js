@@ -26,6 +26,7 @@ initialize(components, stores)
     // Prevent multiple form submits
     document.addEventListener('customValidationPassed', (e) => {
       const form = e.detail.form
+
       try {
         form.querySelector('[type="submit"]').setAttribute('disabled', 'disabled')
       } catch (e) {

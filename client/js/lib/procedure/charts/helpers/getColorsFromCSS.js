@@ -17,6 +17,7 @@ function getColorsFromCSS (cssColorClasses) {
 
   if (colors.constructor === Array) {
     colors = colors.map(color => getColorFromCSS(color))
+
     return colors
   }
 }
@@ -29,6 +30,7 @@ function getColorsFromCSS (cssColorClasses) {
 function getColorFromCSS (className) {
   const body = document.getElementsByTagName('body')[0]
   const div = document.createElement('div')
+
   div.className = className
   div.id = 'tmpIdToGetColor'
   body.appendChild(div)
@@ -36,6 +38,7 @@ function getColorFromCSS (className) {
   const color = window.getComputedStyle(tmpDiv).getPropertyValue('color')
 
   body.removeChild(tmpDiv)
+
   return color
 }
 

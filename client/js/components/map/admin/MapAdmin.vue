@@ -47,6 +47,7 @@
 
     <div class="layout__item">
       <map-admin-scales
+        v-if="hasPermission('feature_map_scales')"
         :available-scales="procedureMapSettings.attributes.availableScales"
         class="u-mb"
         :selected-scales="procedureMapSettings.attributes.scales || []"
@@ -311,6 +312,7 @@ export default {
 
   async mounted () {
     const settings = await this.fetchProcedureMapSettings({ procedureId: this.procedureId, isMaster: this.isMaster })
+
     this.procedureMapSettings = JSON.parse(JSON.stringify(settings))
     this.mapSettingsLoaded = true
   },

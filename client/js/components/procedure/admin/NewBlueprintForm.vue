@@ -299,9 +299,11 @@ export default {
         },
         include: 'agencyExtraEmailAddresses',
       }
+
       return dpApi.get(url, params)
         .then(({ data }) => {
           this.isLoading = false
+
           return {
             mainMail: data.data.attributes.agencyMainEmailAddress,
             agencyMailAddresses: data.included.filter(el => el.type === 'AgencyEmailAddress').map(el => ({ mail: el.attributes.fullAddress })),
@@ -316,6 +318,7 @@ export default {
     async setValuesFromSelectedBlueprint (blueprintId) {
       // Do not copy mail from master blueprint otherwise fetch mail from selected blueprint
       const blueprint = await this.fetchSelectedBlueprint(blueprintId)
+
       this.mainEmail = blueprintId === this.masterBlueprintId ? '' : blueprint.mainMail
       this.emailAddresses = blueprintId === this.masterBlueprintId ? [] : blueprint.agencyMailAddresses
     },

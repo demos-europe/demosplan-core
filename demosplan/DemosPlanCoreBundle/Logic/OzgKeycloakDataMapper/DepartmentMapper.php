@@ -37,7 +37,7 @@ class DepartmentMapper
         }
 
         // If no department in ozgKeycloak token, use default
-        if (empty($departmentNameInToken)) {
+        if ('' === $departmentNameInToken || '0' === $departmentNameInToken) {
             $departmentToSet = $this->getDefaultDepartment($orga);
             $this->updateUserDeparment($user, $departmentToSet);
 
@@ -60,7 +60,7 @@ class DepartmentMapper
     public function findOrCreateDepartment(Orga $orga, string $departmentNameInToken): Department
     {
         // If no organisational unit is provided, use default department
-        if (empty($departmentNameInToken)) {
+        if ('' === $departmentNameInToken || '0' === $departmentNameInToken) {
             return $this->getDefaultDepartment($orga);
         }
 
@@ -89,7 +89,7 @@ class DepartmentMapper
         $this->entityManager->persist($orga);
         $this->entityManager->flush();
 
-        $this->logger->info('Created new department for organisational unit',
+        $this->logger->info('oauthAuthenticator: Created new department for organisational unit',
             [
                 'departmentName' => $departmentNameInToken,
                 'orgaName'       => $orga->getName(),

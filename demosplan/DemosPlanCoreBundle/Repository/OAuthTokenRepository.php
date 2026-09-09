@@ -43,7 +43,7 @@ class OAuthTokenRepository extends CoreRepository
     public function deleteByUserId(string $userId): void
     {
         $token = $this->findByUserId($userId);
-        if (null !== $token) {
+        if ($token instanceof OAuthToken) {
             $this->getEntityManager()->remove($token);
             $this->getEntityManager()->flush();
         }
@@ -67,7 +67,7 @@ class OAuthTokenRepository extends CoreRepository
     {
         $oauthToken = $this->findByUserId($userId);
 
-        if (null === $oauthToken) {
+        if (!$oauthToken instanceof OAuthToken) {
             return false;
         }
 
@@ -75,7 +75,7 @@ class OAuthTokenRepository extends CoreRepository
 
         $expiresAt = $oauthToken->getAccessTokenExpiresAt();
 
-        return null !== $expiresAt && $expiresAt > new DateTime('now', $timezone);
+        return $expiresAt instanceof DateTime && $expiresAt > new DateTime('now', $timezone);
     }
 
     /**

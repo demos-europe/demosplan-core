@@ -60,6 +60,12 @@ abstract class AbstractStatementFromRowBuilder
 
     abstract public function getExternId(): string;
 
+    abstract public function setSourceStatementId(Cell $cell): ?ConstraintViolationListInterface;
+
+    abstract public function getSourceStatementId(): ?string;
+
+    abstract public function resetInternId(): void;
+
     abstract public function setMemo(Cell $cell): ?ConstraintViolationListInterface;
 
     abstract public function setFeedback(Cell $cell): ?ConstraintViolationListInterface;

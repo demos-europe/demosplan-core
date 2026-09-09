@@ -119,7 +119,9 @@ export default {
     value: {
       required: false,
       type: [Object, String],
-      default: () => { return {} },
+      default: () => {
+        return {}
+      },
     },
 
     labelGridCols: {
@@ -162,12 +164,15 @@ export default {
       const emitData = {
         id: this.entityId,
       }
+
       emitData[this.fieldKey] = this.selected.id
+
       return emitData
     },
 
     reset () {
       const editFieldComponent = this.$children.find(child => child.$options.name === 'DpEditField')
+
       editFieldComponent.$data.loading = false
       editFieldComponent.$data.editingEnabled = false
       this.$emit('toggleEditing', false)
@@ -193,6 +198,7 @@ export default {
       // First check if value is an object, if not - create and object from string
       if (typeof this.value === 'string' && this.value !== '') {
         const objectValue = this.options.find((option) => option.id === this.value)
+
         if (objectValue) {
           this.selected = objectValue
         } else {

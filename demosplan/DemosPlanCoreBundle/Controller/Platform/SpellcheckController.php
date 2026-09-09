@@ -24,7 +24,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class SpellcheckController extends APIController
 {
     #[DplanPermissions('feature_spellcheck')]
-    #[Route(path: '/api/1.0/spellcheck/check', methods: ['POST'], name: 'core_spellcheck_check', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/spellcheck/check', name: 'core_spellcheck_check', options: ['expose' => true], methods: ['POST'])]
     public function checkText(Request $request, LanguageToolService $languageToolService): Response
     {
         try {
@@ -35,7 +35,7 @@ class SpellcheckController extends APIController
     }
 
     #[DplanPermissions('feature_spellcheck')]
-    #[Route(path: '/api/1.0/spellcheck/languages', methods: ['GET'], name: 'core_spellcheck_languages', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/spellcheck/languages', name: 'core_spellcheck_languages', options: ['expose' => true], methods: ['GET'])]
     public function getLanguages(LanguageToolService $languageToolService): Response
     {
         try {

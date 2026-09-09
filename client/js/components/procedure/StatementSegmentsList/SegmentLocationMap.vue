@@ -235,6 +235,10 @@ export default {
   methods: {
     ...mapMutations('StatementSegment', ['setItem']),
 
+    ...mapMutations('SegmentSlidebar', {
+      setSlidebarContent: 'setContent',
+    }),
+
     ...mapActions('StatementSegment', {
       saveSegmentAction: 'save',
     }),
@@ -246,7 +250,7 @@ export default {
     },
 
     closeSlidebar () {
-      this.$root.$emit('hide-slidebar')
+      this.setSlidebarContent({ prop: 'slidebar', val: { externId: '', isOpen: false, segmentId: '', showTab: '' } })
     },
 
     initMap () {
@@ -315,6 +319,7 @@ export default {
       const extentLine = this.$refs.drawLine.getExtent()
 
       let completeExtend = extend(extentPolygon, extentPoint)
+
       completeExtend = extend(completeExtend, extentLine)
 
       this.$refs.map.map.updateSize()
@@ -352,6 +357,7 @@ export default {
         },
         id: this.segment.id,
       }
+
       this.setItem(storePayload)
     },
   },

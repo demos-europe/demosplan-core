@@ -106,14 +106,20 @@ class JsonApiActionService
     }
 
     /**
+     * @param array<int, ClauseFunctionInterface<bool>> $additionalConditions extra conditions merged
+     *                                                                        into the parsed request
+     *                                                                        filters; applied on both the
+     *                                                                        Doctrine and Elasticsearch paths
+     *
      * @throws QueryException
      * @throws UserNotFoundException
      */
     public function getObjectsByQueryParams(
         ParameterBag $query,
         ResourceTypeInterface $type,
+        array $additionalConditions = [],
     ): ApiListResult {
-        $filters = $this->getFilters($query);
+        $filters = [...$this->getFilters($query), ...$additionalConditions];
         $sortMethods = $this->getSorting($query);
 
         return $this->getObjects($type, $filters, $sortMethods, $query);

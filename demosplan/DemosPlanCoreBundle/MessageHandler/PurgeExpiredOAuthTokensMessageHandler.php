@@ -28,7 +28,7 @@ final class PurgeExpiredOAuthTokensMessageHandler
     public function __construct(
         private readonly OAuthTokenRepository $oauthTokenRepository,
         private readonly LoggerInterface $logger,
-        #[Autowire('%oauth_token_timezone%')]
+        #[Autowire(param: 'oauth_token_timezone')]
         string $tokenTimezone,
     ) {
         $this->tokenTimezone = new DateTimeZone($tokenTimezone);

@@ -70,11 +70,13 @@ export default class DonutChart {
       .attr('d', arcGenerator)
       .attr('fill', (d, i) => {
         color(d.data.label)
+
         return this.color
       })
       .attr('transform', 'translate(0, 0)')
 
     const percentage = data[0].percentage / 100
+
     svg.append('path')
       .attr('d', arc()
         .endAngle(Math.PI * 2)
@@ -89,6 +91,7 @@ export default class DonutChart {
     const legendSpacing = 7
 
     const chart = select(this.target)
+
     chart.append('div')
       .data(data)
       .text(d => d.label + ' (' + d.count + ')')
@@ -103,6 +106,7 @@ export default class DonutChart {
         const offset = height * color.domain().length / 2
         const horizontal = -2 * legendRectSize - 11
         const vertical = i * height - offset + 2
+
         return 'translate(' + horizontal + ',' + vertical + ')'
       })
 
@@ -110,6 +114,7 @@ export default class DonutChart {
       .data(data)
       .attr('x', d => {
         const percL = Math.round(d.percentage).toString().length
+
         return percL === 3 ? 10 : percL === 2 ? 15 : 20
       })
       .attr('y', 15)

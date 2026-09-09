@@ -16,10 +16,12 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\ResourceTypeService;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -46,24 +48,23 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
      * @var TagTopicInterface
      */
     #[Assert\NotNull(groups: [ResourceTypeService::VALIDATION_GROUP_DEFAULT, 'segments_import'])]
-    #[Assert\Type(groups: ['segments_import'], type: 'demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic')]
+    #[Assert\Type(type: 'demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic', groups: ['segments_import'])]
     #[ORM\JoinColumn(name: '_tt_id', referencedColumnName: '_tt_id', nullable: false)]
-    #[ORM\ManyToOne(targetEntity: TagTopic::class, inversedBy: 'tags', cascade: ['persist'])]
+    #[ORM\ManyToOne(targetEntity: TagTopic::class, cascade: ['persist'], inversedBy: 'tags')]
     protected $topic;
 
     /**
      * @var string
      */
-    #[Assert\NotBlank(groups: [ResourceTypeService::VALIDATION_GROUP_DEFAULT, 'segments_import'], message: 'Tag title may not be empty.')]
+    #[Assert\NotBlank(message: 'Tag title may not be empty.', groups: [ResourceTypeService::VALIDATION_GROUP_DEFAULT, 'segments_import'])]
     #[ORM\Column(name: '_t_title', type: 'string', length: 255, nullable: false)]
     protected $title = '';
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: '_t_create_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createDate;
 
     /**
@@ -81,6 +82,13 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
 
     #[ORM\Column(name: '_t_sort_index', type: 'integer', nullable: false, options: ['default' => 0])]
     protected int $sortIndex = 0;
+
+    /**
+     * User that is automatically set as assignee of a segment when this tag is added to it.
+     */
+    #[ORM\JoinColumn(name: 'default_assignee_id', referencedColumnName: '_u_id', onDelete: 'SET NULL')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    protected ?UserInterface $defaultAssignee = null;
 
     /**
      * Create a Tag-Entity.
@@ -265,10 +273,18 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
         return $this->sortIndex;
     }
 
-    public function setSortIndex(int $sortIndex): self
+    public function getDefaultAssignee(): ?UserInterface
+    {
+        return $this->defaultAssignee;
+    }
+
+    public function setDefaultAssignee(?UserInterface $defaultAssignee): void
+    {
+        $this->defaultAssignee = $defaultAssignee;
+    }
+
+    public function setSortIndex(int $sortIndex): void
     {
         $this->sortIndex = $sortIndex;
-
-        return $this;
     }
 }

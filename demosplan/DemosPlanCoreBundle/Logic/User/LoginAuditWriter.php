@@ -84,7 +84,7 @@ class LoginAuditWriter
 
     private function extractUserAgent(?Request $request): ?string
     {
-        if (null === $request) {
+        if (!$request instanceof Request) {
             return null;
         }
 
@@ -98,7 +98,7 @@ class LoginAuditWriter
      */
     private function hashSessionId(?Request $request): ?string
     {
-        if (null === $request || !$request->hasSession()) {
+        if (!$request instanceof Request || !$request->hasSession()) {
             return null;
         }
 

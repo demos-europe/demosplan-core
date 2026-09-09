@@ -41,6 +41,7 @@ const LocationStore = {
           for (; i < l; i++) {
             locations.push(suggestions[i].value)
           }
+
           commit('set', locations)
         })
     },

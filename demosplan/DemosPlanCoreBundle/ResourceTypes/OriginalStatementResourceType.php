@@ -18,14 +18,13 @@ use DemosEurope\DemosplanAddon\Contracts\Events\IsOriginalStatementAvailableEven
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\OriginalStatementResourceTypeInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\IsOriginalStatementAvailableEvent;
-use demosplan\DemosPlanCoreBundle\Exception\UndefinedPhaseException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementProcedurePhaseResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\OriginalStatementResourceConfigBuilder;
@@ -52,7 +51,6 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         private readonly QueryStatement $esQuery,
         private readonly FileService $fileService,
         private readonly StatementService $statementService,
-        private readonly StatementProcedurePhaseResolver $statementProcedurePhaseResolver,
         private readonly FileContainerRepository $fileContainerRepository,
         private readonly JsonApiEsService $jsonApiEsService,
     ) {
@@ -122,15 +120,8 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         $originalStatementConfig->textIsTruncated
             ->setReadableByCallable(static fn (Statement $statement): bool => $statement->getText() !== $statement->getTextShort());
         $originalStatementConfig->procedurePhase
-            ->setReadableByCallable(function (Statement $statement): ?array {
-                try {
-                    return $this->statementProcedurePhaseResolver->getProcedurePhaseVO($statement->getPhase(), $statement->isSubmittedByCitizen())->jsonSerialize();
-                } catch (UndefinedPhaseException $e) {
-                    $this->logger->error($e->getMessage());
-
-                    return null;
-                }
-            });
+            ->setRelationshipType($this->resourceTypeStore->getProcedurePhaseDefinitionResourceType())
+            ->setReadableByCallable(static fn (Statement $statement): ProcedurePhaseDefinition => $statement->getPhaseDefinition());
         $originalStatementConfig->elements
         ->setRelationshipType($this->resourceTypeStore->getPlanningDocumentCategoryDetailsResourceType())
         ->setReadableByPath()->aliasedPath(Paths::statement()->element);

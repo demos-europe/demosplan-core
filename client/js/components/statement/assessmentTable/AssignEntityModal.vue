@@ -15,7 +15,7 @@
   >
     <!-- modal header -->
     <template v-slot:header>
-      {{ Translator.trans('assignment.entity.assign.to.other', { entity: Translator.trans(entityType) }) }}
+      <h2>{{ Translator.trans('assignment.entity.assign.to.other', { entity: Translator.trans(entityType) }) }}</h2>
     </template>
 
     <!--the height of the div below (220px) is needed because the multiselect dropdown will cause the modal to have a scroll when opened (see: https://github.com/shentao/vue-multiselect/issues/723). Once this github issue is solved and dropdown will overlay modal content, the height class and button top margin can be removed.
@@ -153,6 +153,7 @@ export default {
         this.entityId = this.assignEntityModal.entityId
         this.entityType = this.assignEntityModal.entityType
         const initialUser = this.users.find(user => user.id === this.assignEntityModal.initialAssigneeId)
+
         this.selected = initialUser || { id: '', name: '-' }
         this.initialAssigneeId = this.assignEntityModal.initialAssigneeId
         this.parentStatementId = this.assignEntityModal.parentStatementId ? this.assignEntityModal.parentStatementId : ''

@@ -15,12 +15,10 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\ClusterStatementResourceType;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
-use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use Exception;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
@@ -31,8 +29,7 @@ class StatementClusterService
     protected $statementService;
 
     public function __construct(
-        private readonly ClusterStatementResourceType $clusterStatementResourceType,
-        private readonly DqlConditionFactory $conditionFactory,
+        private readonly StatementClusterConditions $clusterConditions,
         private readonly StatementCopier $statementCopier,
         private readonly StatementRepository $statementRepository,
         private readonly ManagerRegistry $doctrine,
@@ -112,15 +109,11 @@ class StatementClusterService
         return $this->statementService->updateStatementFromObject($copiedHeadStatement, true, true, true);
     }
 
-    public function getClustersOfProcedure(string $procedureId)
+    public function getClustersOfProcedure(string $procedureId): array
     {
-        $sortMethods = $this->clusterStatementResourceType->getDefaultSortMethods();
-        $conditions = $this->clusterStatementResourceType->getAccessConditions();
-        $conditions[] = $this->conditionFactory->propertyHasValue(
-            $procedureId,
-            $this->clusterStatementResourceType->procedure->id
+        return $this->statementRepository->getEntities(
+            $this->clusterConditions->forProcedure($procedureId),
+            $this->clusterConditions->defaultSortMethods()
         );
-
-        return $this->statementRepository->getEntities($conditions, $sortMethods);
     }
 }

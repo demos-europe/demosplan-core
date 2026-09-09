@@ -279,8 +279,10 @@ export default {
         if (isSubmittedByCitizen) {
           return organisationName
         }
+
         return departmentName ? organisationName + ', ' + departmentName : organisationName
       }
+
       return departmentName || '-'
     },
 
@@ -288,6 +290,7 @@ export default {
       if (postalCode) {
         return city ? postalCode + ' ' + city : postalCode
       }
+
       return city || '-'
     },
 
@@ -295,6 +298,7 @@ export default {
       if (street) {
         return houseNumber ? street + ' ' + houseNumber : street
       }
+
       return '-'
     },
 

@@ -38,14 +38,14 @@ class StatementVote implements UuidEntityInterface, StatementVoteInterface
      * @var StatementInterface
      *                         onDelete="CASCADE": Delete this Vote, in case of related Statement will be deleted
      */
-    #[ORM\JoinColumn(name: '_st_id', nullable: false, referencedColumnName: '_st_id', onDelete: 'CASCADE')]
+    #[ORM\JoinColumn(name: '_st_id', referencedColumnName: '_st_id', nullable: false, onDelete: 'CASCADE')]
     #[ORM\ManyToOne(targetEntity: Statement::class, inversedBy: 'votes')]
     protected $statement;
 
     /**
      * @var UserInterface|null
      */
-    #[ORM\JoinColumn(name: '_u_id', nullable: true, referencedColumnName: '_u_id', onDelete: 'RESTRICT')]
+    #[ORM\JoinColumn(name: '_u_id', referencedColumnName: '_u_id', nullable: true, onDelete: 'RESTRICT')]
     #[ORM\ManyToOne(targetEntity: User::class)]
     protected $user;
 
@@ -82,26 +82,23 @@ class StatementVote implements UuidEntityInterface, StatementVoteInterface
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: '_st_v_created_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createdDate;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="update")
      */
     #[ORM\Column(name: '_st_v_modified_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modifiedDate;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="update")
      */
     #[ORM\Column(name: '_st_v_deleted_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     protected $deletedDate;
 
     /**

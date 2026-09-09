@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -73,6 +75,7 @@ final class OrgaStatusInCustomerFactory extends PersistentProxyObjectFactory
             'orga'     => OrgaFactory::new(),
             'orgaType' => OrgaTypeFactory::new(),
             'status'   => OrgaStatusInCustomerInterface::STATUS_ACCEPTED,
+            'showlist' => true,
         ];
     }
 

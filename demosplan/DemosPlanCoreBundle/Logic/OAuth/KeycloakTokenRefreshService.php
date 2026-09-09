@@ -54,7 +54,7 @@ class KeycloakTokenRefreshService
         private readonly OAuthTokenStorageService $tokenStorageService,
         private readonly OzgKeycloakSessionManager $ozgKeycloakSessionManager,
         private readonly TokenExpirationService $tokenExpirationService,
-        #[Autowire('%oauth_token_timezone%')]
+        #[Autowire(param: 'oauth_token_timezone')]
         string $tokenTimezone,
     ) {
         $this->tokenTimezone = new DateTimeZone($tokenTimezone);
@@ -68,7 +68,7 @@ class KeycloakTokenRefreshService
      */
     public function hasValidTokens(SessionInterface $session, OAuthToken $oauthToken): bool
     {
-        $this->logger->debug('Token check threshold reached - performing validation', [
+        $this->logger->debug('oauthAuthenticator: Token check threshold reached - performing validation', [
             'user_id'      => $oauthToken->getUser()->getId(),
             'current_time' => date('Y-m-d H:i:s', time()),
         ]);
@@ -96,10 +96,10 @@ class KeycloakTokenRefreshService
     {
         $userId = $oauthToken->getUser()->getId();
 
-        $this->logger->info('Access token expired - checking refresh token', ['user_id' => $userId]);
+        $this->logger->info('oauthAuthenticator: Access token expired - checking refresh token', ['user_id' => $userId]);
 
         if ($this->tokenExpirationService->isRefreshTokenExpired($oauthToken)) {
-            $this->logger->info('Refresh token also expired', ['user_id' => $userId]);
+            $this->logger->info('oauthAuthenticator: Refresh token also expired', ['user_id' => $userId]);
 
             return false;
         }
@@ -107,12 +107,12 @@ class KeycloakTokenRefreshService
         $refreshSuccess = $this->refreshTokensForUser($userId);
 
         if (!$refreshSuccess) {
-            $this->logger->error('Token refresh failed', ['user_id' => $userId]);
+            $this->logger->error('oauthAuthenticator: Token refresh failed', ['user_id' => $userId]);
 
             return false;
         }
 
-        $this->logger->info('Token refresh successful - continuing request', ['user_id' => $userId]);
+        $this->logger->info('oauthAuthenticator: Token refresh successful - continuing request', ['user_id' => $userId]);
 
         return true;
     }
@@ -143,10 +143,10 @@ class KeycloakTokenRefreshService
         }
 
         try {
-            $this->logger->info('Starting token refresh', ['user_id' => $userId]);
+            $this->logger->info('oauthAuthenticator: Starting token refresh', ['user_id' => $userId]);
 
             if ($wasContested && $this->oauthTokenRepository->haveTokensBeenRefreshed($userId, $this->tokenTimezone)) {
-                $this->logger->info('Token already refreshed by concurrent process - skipping own KeyCloak call', [
+                $this->logger->info('oauthAuthenticator: Token already refreshed by concurrent process - skipping own KeyCloak call', [
                     'user_id' => $userId,
                 ]);
 
@@ -160,7 +160,7 @@ class KeycloakTokenRefreshService
                 // Get the OAuth2 client
                 $client = $this->clientRegistry->getClient('keycloak_ozg');
 
-                $this->logger->debug('Calling KeyCloak to refresh access token', [
+                $this->logger->debug('oauthAuthenticator: Calling KeyCloak to refresh access token', [
                     'user_id'              => $userId,
                     'refresh_token_length' => strlen($tokenData->getRefreshToken()),
                 ]);
@@ -169,7 +169,7 @@ class KeycloakTokenRefreshService
                 // This returns a new AccessToken object with ALL tokens rotated
                 $newAccessToken = $client->refreshAccessToken($tokenData->getRefreshToken());
 
-                $this->logger->info('Token refresh successful', [
+                $this->logger->info('oauthAuthenticator: Token refresh successful', [
                     'user_id'                  => $userId,
                     'new_access_token_length'  => strlen($newAccessToken->getToken()),
                     'new_refresh_token_length' => strlen($newAccessToken->getRefreshToken() ?? ''),
@@ -180,15 +180,15 @@ class KeycloakTokenRefreshService
                 // Store the new tokens (all tokens have been rotated by KeyCloak)
                 $this->tokenStorageService->storeTokens($userId, $newAccessToken);
 
-                $this->logger->info('New tokens stored successfully', ['user_id' => $userId]);
+                $this->logger->info('oauthAuthenticator: New tokens stored successfully', ['user_id' => $userId]);
 
                 return true;
             }
 
-            $this->logger->warning('No tokens or no refresh token available for user', ['user_id' => $userId]);
+            $this->logger->warning('oauthAuthenticator: No tokens or no refresh token available for user', ['user_id' => $userId]);
         } catch (IdentityProviderException $e) {
             // OAuth2-specific errors (invalid token, expired refresh token, network issues, etc.)
-            $this->logger->error('OAuth2 provider error during token refresh', [
+            $this->logger->error('oauthAuthenticator: OAuth2 provider error during token refresh', [
                 'user_id'       => $userId,
                 'error'         => $e->getMessage(),
                 'response_body' => $e->getResponseBody(),
@@ -196,7 +196,7 @@ class KeycloakTokenRefreshService
             ]);
         } catch (Exception $e) {
             // General errors (encryption, database, etc.)
-            $this->logger->error('Token refresh failed', [
+            $this->logger->error('oauthAuthenticator: Token refresh failed', [
                 'user_id'         => $userId,
                 'error'           => $e->getMessage(),
                 'exception_class' => get_class($e),

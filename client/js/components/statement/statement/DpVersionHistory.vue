@@ -14,7 +14,7 @@
 </documentation>
 
 <template>
-  <div>
+  <div v-if="isVisible">
     <h2 class="u-mb-0_75">
       {{ versionHistoryHeading }}
     </h2>
@@ -85,6 +85,7 @@ export default {
   components: {
     DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
+
       return DpInlineNotification
     }),
     DpLoading,
@@ -104,14 +105,30 @@ export default {
       entity: '',
       entityId: null,
       externId: '',
+      isVisible: false,
       isLoading: true,
       times: [],
     }
   },
 
   computed: {
+    /*
+     * Only the segment pages register the SegmentSlidebar store; on the assessment table this
+     * component is mounted without it, so the panel state is read defensively.
+     */
+    slidebarTab () {
+      return this.$store.hasModule('SegmentSlidebar') ?
+        this.$store.state.SegmentSlidebar.slidebar.showTab :
+        null
+    },
+
     versionHistoryHeading () {
+      if (this.entity === '' || this.externId === '') {
+        return Translator.trans('history')
+      }
+
       let entityKey
+
       switch (this.entity) {
         case 'statement':
           if (this.externId.includes('GM')) {
@@ -119,6 +136,7 @@ export default {
           } else {
             entityKey = Translator.trans('statement')
           }
+
           break
         case 'fragment':
           entityKey = Translator.trans('fragment')
@@ -132,7 +150,27 @@ export default {
     },
   },
 
+  watch: {
+    // Another panel of the segment slidebar took over, so this one steps back.
+    slidebarTab (newTab) {
+      if (newTab !== null && newTab !== 'history') {
+        this.isVisible = false
+      }
+    },
+  },
+
   methods: {
+    handleEntityUpdated (entityId, entityType) {
+      this.updateVersionHistory(entityId, entityType)
+    },
+
+    handleVersionHistory (entityId, entityType, externId) {
+      this.isVisible = true
+      this.externId = externId
+      this.loadItems(entityId, entityType)
+      this.entity = entityType
+    },
+
     loadItems (id, type) {
       this.isLoading = true
       const route = type === 'statement' ?
@@ -148,6 +186,7 @@ export default {
           { statementFragmentId: id, procedureId: this.procedureId }
 
       this.entityId = id
+
       return dpApi({
         method: 'GET',
         url: Routing.generate(route, params),
@@ -167,16 +206,13 @@ export default {
   },
 
   mounted () {
-    // Emitted by TableCardFlyoutMenu
-    this.$root.$on('version:history', (entityId, entityType, externId) => {
-      this.externId = externId
-      this.loadItems(entityId, entityType)
-      this.entity = entityType
-    })
+    this.$root.$on('entity:updated', this.handleEntityUpdated)
+    this.$root.$on('version:history', this.handleVersionHistory)
+  },
 
-    this.$root.$on('entity:updated', (entityId, entityType) => {
-      this.updateVersionHistory(entityId, entityType)
-    })
+  beforeUnmount () {
+    this.$root.$off('entity:updated', this.handleEntityUpdated)
+    this.$root.$off('version:history', this.handleVersionHistory)
   },
 }
 </script>

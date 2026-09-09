@@ -1,10 +1,13 @@
-# See the configuration reference at https://symfony.com/bundles/SchebTwoFactorBundle/5.x/configuration.html
+# See the configuration reference at https://symfony.com/bundles/SchebTwoFactorBundle/6.x/configuration.html
 scheb_two_factor:
     security_tokens:
+        - Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken
         - Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken
     totp:
         enabled: true
         issuer: '%project_name%'
+        # Accepted clock drift in seconds; the default is 1, not one 30s step.
+        leeway: 15
         template: '@DemosPlanCore/DemosPlanUser/2fa.html.twig'
     email:
         enabled: true

@@ -105,6 +105,13 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     private bool $expandProcedureDescription = false;
 
     /**
+     * Allows institutions that were not invited to this procedure to still submit a Stellungnahme,
+     * even when the "Institutionen verwalten" invitation restriction is otherwise enforced.
+     */
+    #[ORM\Column(name: 'allow_uninvited_institutions', type: 'boolean', nullable: false, options: ['default' => false])]
+    private bool $allowUninvitedInstitutions = false;
+
+    /**
      * @var string
      */
     #[ORM\Column(name: '_ps_plan_text', type: 'text', length: 65535, nullable: false)]
@@ -177,10 +184,10 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     #[ORM\Column(name: '_ps_pictogram', type: 'string', length: 256, nullable: true)]
     protected $pictogram;
 
-    #[ORM\Column(name: '_ps_pictogram_copyright', type: 'string', nullable: false, length: 512, options: ['default' => ''])]
+    #[ORM\Column(name: '_ps_pictogram_copyright', type: 'string', length: 512, nullable: false, options: ['default' => ''])]
     protected string $pictogramCopyright = '';
 
-    #[ORM\Column(name: '_ps_pictogram_alt_text', type: 'string', nullable: false, length: 512, options: ['default' => ''])]
+    #[ORM\Column(name: '_ps_pictogram_alt_text', type: 'string', length: 512, nullable: false, options: ['default' => ''])]
     protected string $pictogramAltText = '';
 
     /**
@@ -258,7 +265,7 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
      * Enable publication of Feedback possibility.
      */
     #[ORM\Column(name: '_p_public_participation_feedback_enabled', type: 'boolean', nullable: false, options: ['default' => true])]
-    protected bool $publicParticipationFeedbackEnabled = false;
+    protected bool $publicParticipationFeedbackEnabled = true;
 
     public function __construct()
     {
@@ -827,48 +834,6 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     }
 
     /**
-     * Returns the internal phase to which will be switch, when the time(dateOfSwitchPhase) has come.
-     *
-     * @return string
-     */
-    public function getDesignatedPhase()
-    {
-        return $this->procedure->getPhaseObject()->getDesignatedPhase();
-    }
-
-    /**
-     * @param string $designatedPhase
-     *
-     * @return $this
-     */
-    public function setDesignatedPhase($designatedPhase)
-    {
-        $this->procedure->getPhaseObject()->setDesignatedPhase($designatedPhase);
-
-        return $this;
-    }
-
-    /**
-     * Returns the external phase to which will be switch, when the time(dateOfSwitchPublicPhase) has come.
-     *
-     * @return string
-     */
-    public function getDesignatedPublicPhase()
-    {
-        return $this->procedure->getPublicParticipationPhaseObject()->getDesignatedPhase();
-    }
-
-    /**
-     * @param string $designatedPublicPhase
-     */
-    public function setDesignatedPublicPhase($designatedPublicPhase): self
-    {
-        $this->procedure->getPublicParticipationPhaseObject()->setDesignatedPhase($designatedPublicPhase);
-
-        return $this;
-    }
-
-    /**
      * Returns the date which is defined for switching the current phase of the procedure to the designated phase.
      * Null is a valid value in this case and indicates that no date is set.
      *
@@ -1108,5 +1073,17 @@ class ProcedureSettings extends CoreEntity implements UuidEntityInterface, Proce
     public function isPublicParticipationFeedbackEnabled(): bool
     {
         return $this->publicParticipationFeedbackEnabled;
+    }
+
+    public function isAllowUninvitedInstitutions(): bool
+    {
+        return $this->allowUninvitedInstitutions;
+    }
+
+    public function setAllowUninvitedInstitutions(bool $allowUninvitedInstitutions): self
+    {
+        $this->allowUninvitedInstitutions = $allowUninvitedInstitutions;
+
+        return $this;
     }
 }

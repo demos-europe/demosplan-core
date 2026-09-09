@@ -7,6 +7,20 @@
  * All rights reserved
  */
 
+/**
+ * "range" - Character position spans (from/to) in the document.
+ *           Examples: replaceRange(state, from, to, attrs), rangeTracker plugin
+ *           Used when working with positions, not the marks themselves.
+ *
+ * "segmentMark" - ProseMirror mark type for confirmed segments.
+ *                 Renders as: <span data-segment-id="..." data-range-confirmed="true">
+ *                 Mark type name in schema: 'segmentMark'
+ *
+ * "rangeselection" - Temporary mark shown during segment boundary adjustment.
+ *                    Renders as: <span data-range-type="selection">
+ *                    Mark type name in schema: 'rangeselection'
+ */
+
 import { Decoration, DecorationSet } from 'prosemirror-view'
 import { flattenNode, getMarks, splitsExistingRange } from './utilities'
 import { TextSelection } from 'prosemirror-state'
@@ -20,8 +34,8 @@ import { v4 as uuidv4 } from 'uuid'
 const applySelectionChange = (view, editStateTrackerKey, rangeTrackerKey) => {
   const { state, dispatch } = view
 
-  const rangeId = editStateTrackerKey.getState(state).id
-  const range = rangeTrackerKey.getState(state)[rangeId]
+  const segmentId = editStateTrackerKey.getState(state).id
+  const range = rangeTrackerKey.getState(state)[segmentId]
 
   /**
    * We get the current rangeselection here so that we can use these new positions to apply them to the range
@@ -29,8 +43,21 @@ const applySelectionChange = (view, editStateTrackerKey, rangeTrackerKey) => {
    */
   const nodes = flattenNode(state.doc)
   const marks = getMarks(nodes, 'rangeselection', 'rangeType')
-  const { from, to } = marks.selection
   let tr = state.tr
+
+  /**
+   * When there is no active range selection, the segment being edited has no adjustable boundary in
+   * the document (e.g. its segmentMark is missing from the textual reference, or only metadata such
+   * as tags or place was changed). There is nothing to apply to the document: stop the range edit
+   * cleanly and let the caller persist the segment metadata instead of throwing.
+   */
+  if (!marks.selection) {
+    dispatch(disableRangeEdit(view, editStateTrackerKey, tr))
+
+    return true
+  }
+
+  const { from, to } = marks.selection
 
   if (to - from < 10) {
     dplan.notify.notify('warning', Translator.trans('warning.segment.too_short'))
@@ -43,7 +70,7 @@ const applySelectionChange = (view, editStateTrackerKey, rangeTrackerKey) => {
    * This replaces the old range with a new range. It also removes any ranges which might now be covered by the new range.
    */
   tr = removeRange(state, range.from, range.to, tr)
-  tr = replaceRange(state, from, to, { rangeId, isActive: true, isConfirmed: true }, tr)
+  tr = replaceRange(state, from, to, { segmentId, isActive: true, isConfirmed: true }, tr)
   tr = disableRangeEdit(view, editStateTrackerKey, tr)
 
   dispatch(tr)
@@ -73,7 +100,7 @@ const replaceRange = (state, from, to, rangeAttrs, tr = false) => {
     throw new Error('Ranges can not be split in two parts.')
   }
 
-  return replaceMarkInRange(state, from, to, 'range', rangeAttrs, tr)
+  return replaceMarkInRange(state, from, to, 'segmentMark', rangeAttrs, tr)
 }
 
 /**
@@ -87,7 +114,7 @@ const replaceRange = (state, from, to, rangeAttrs, tr = false) => {
  *
  */
 const removeRange = (state, from, to, tr = false) => {
-  const rangeMarkType = state.config.schema.marks.range
+  const rangeMarkType = state.config.schema.marks.segmentMark
   let transaction = tr || state.tr
 
   transaction = transaction.removeMark(from, to, rangeMarkType)
@@ -113,6 +140,7 @@ const removeMarkByName = (state, markName, markAttr, tr = false) => {
 
   Object.values(marks).forEach(mark => {
     const { from, to } = mark
+
     transaction.removeMark(from, to, markType)
   })
 
@@ -126,13 +154,14 @@ const removeMarkByName = (state, markName, markAttr, tr = false) => {
 const setRangeEditingState = (view, rangeTrackerKey, editingDecorationsKey) => (id, editingState) => {
   const { dispatch, state } = view
   const range = rangeTrackerKey.getState(state)[id]
-  const { from, to, isConfirmed, rangeId } = range
+  const { from, to, isConfirmed, segmentId } = range
 
   if (!range) {
     throw new Error('Range not found')
   }
 
-  let tr = replaceRange(state, from, to, { rangeId, isConfirmed, isActive: editingState })
+  let tr = replaceRange(state, from, to, { segmentId, isConfirmed, isActive: editingState })
+
   tr = tr.setMeta(editingDecorationsKey, { editing: editingState, from, to, id })
 
   dispatch(tr)
@@ -168,6 +197,7 @@ const replaceMarkInRange = (state, from, to, markKey, markAttrs, tr = false) => 
     from = transaction.doc.content.size
     console.warn(`Range ${JSON.stringify(newAttrs)} was truncated from the start because it exceeded the document size.`)
   }
+
   if (to > transaction.doc.content.size) {
     to = transaction.doc.content.size
     console.warn(`Range ${JSON.stringify(newAttrs)} was truncated at the end because it exceeded the document size.`)
@@ -176,6 +206,7 @@ const replaceMarkInRange = (state, from, to, markKey, markAttrs, tr = false) => 
   transaction = transaction.removeMark(from, to, markType)
 
   const newMark = markType.create(newAttrs)
+
   transaction = transaction.addMark(from, to, newMark)
   const markCollection = getMarks(flattenNode(transaction.doc), markKey, 'pmId')
   const currentMarkCollection = markCollection[pmId]
@@ -183,6 +214,7 @@ const replaceMarkInRange = (state, from, to, markKey, markAttrs, tr = false) => 
   currentMarkCollection.marks.forEach(m => {
     transaction = transaction.removeMark(m.from, m.to, markType)
     const uniqueMark = markType.create({ ...newAttrs, pmId: uuidv4() })
+
     transaction = transaction.addMark(m.from, m.to, uniqueMark)
   })
 
@@ -215,6 +247,7 @@ const setRange = (view) => (from, to, rangeAttrs) => {
  */
 const makeDecoration = (id, pos, isActive = false) => {
   const el = document.createElement('span')
+
   el.setAttribute('data-range-widget', id)
   el.setAttribute('data-range-widget-pos', pos)
 
@@ -250,11 +283,12 @@ const genEditingDecorations = (state, from, to, id, activePosition = null) => {
  * @param {prosemirror-view} view
  * @param {prosemirror-pluginkey} rangeTrackerKey
  * @param {prosemirror-pluginkey} editStateTrackerKey
- * @param {String} rangeId
- * @param {Number} activationPosition
+ * @param {String} segmentId
+ * @param {{active: Number, fixed: Number}|null} positions The active (movable) and fixed handle positions.
+ *        Defaults to activating the end handle and fixing the start handle when omitted.
  *
  */
-const activateRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, rangeId, positions = { active: null, fixed: null }) => {
+const activateRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, segmentId, positions = null) => {
   const { state, dispatch } = view
   let tr = state.tr
 
@@ -262,15 +296,22 @@ const activateRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, rangeId, 
    * This block sets the cursor near the activated range handle. It then toggles the range editing mode by notifying
    * the editStateTracker-plugin via a meta message.
    */
-  tr = tr.setSelection(TextSelection.near(state.doc.resolve(positions.active)))
-  const range = rangeTrackerKey.getState(state)[rangeId]
-  tr = tr.setMeta(editStateTrackerKey, { id: rangeId, pos: positions.active, moving: true, positions })
+  const range = rangeTrackerKey.getState(state)[segmentId]
+
+  /**
+   * `positions.active` is the handle that follows the cursor, `positions.fixed` stays put. When no positions are
+   * provided (edit mode is first entered), default to activating the end handle and fixing the start handle.
+   */
+  const resolvedPositions = positions ?? { active: range.to, fixed: range.from }
+
+  tr = tr.setSelection(TextSelection.near(state.doc.resolve(resolvedPositions.active)))
+  tr = tr.setMeta(editStateTrackerKey, { id: segmentId, pos: resolvedPositions.active, moving: true, positions: resolvedPositions })
   dispatch(tr)
 
   /**
    * Set range attributes to active and moving so that optional styling can be applied via CSS.
    */
-  setRange(view)(range.from, range.to, { rangeId, isActive: true, isMoving: true, isConfirmed: range.isConfirmed })
+  setRange(view)(range.from, range.to, { segmentId, isActive: true, isMoving: true, isConfirmed: range.isConfirmed })
 
   /**
    * The view needs to receive focus after activating range edit.
@@ -289,6 +330,7 @@ const activateRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, rangeId, 
 const disableRangeEdit = (view, editStateTrackerKey, tr = null) => {
   const { state } = view
   let transaction = tr || state.tr
+
   transaction = transaction.setMeta(editStateTrackerKey, 'stop-editing')
 
   return transaction
@@ -307,7 +349,7 @@ const toggleRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, decorationT
   if (rangeId) {
     const { state } = view
     const pos = parseInt(target.getAttribute('data-range-widget-pos'))
-    const currentlyActivePosition = decorationTrackerKey.getState(state).activeDecorationPosition
+    const { position, activeDecorationPosition: currentlyActivePosition } = decorationTrackerKey.getState(state)
 
     /**
      * If the handle position equals the position of the currently active handle, the user clicked on the same handle
@@ -318,14 +360,25 @@ const toggleRangeEdit = (view, rangeTrackerKey, editStateTrackerKey, decorationT
     }
 
     /**
-     * This code block is called whenever the user clicks a handle that is not already active. It moves the activation
-     * state from the handle that is currently active to the handle which was just clicked.
+     * If the current range positions are not available, fall back to the default activation
+     * (end handle active) rather than resolving an undefined position.
      */
-    const nodes = flattenNode(state.doc)
-    const marks = getMarks(nodes, 'rangeselection', 'rangeType')
-    const { from, to } = marks.selection
-    const activationPosition = currentlyActivePosition === from ? to : from
-    const fixedPosition = currentlyActivePosition === from ? from : to
+    const { from, to } = position
+
+    if (from === undefined || to === undefined) {
+      activateRangeEdit(view, rangeTrackerKey, editStateTrackerKey, rangeId)
+
+      return true
+    }
+
+    /**
+     * This code block is called whenever the user clicks a handle that is not already active. It activates the handle
+     * that was just clicked and fixes the opposite boundary. Both positions are taken from the *current* (possibly
+     * edited) range so that an in-progress adjustment of the other handle is preserved when switching handles.
+     */
+    const activationPosition = pos === from ? from : to
+    const fixedPosition = pos === from ? to : from
+
     activateRangeEdit(view, rangeTrackerKey, editStateTrackerKey, rangeId, { active: activationPosition, fixed: fixedPosition })
   }
 }

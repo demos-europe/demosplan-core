@@ -52,6 +52,7 @@ const ProcedureStore = {
 
       const pathArray = window.location.pathname.split('/')
       const lastParam = pathArray[pathArray.length - 1]
+
       if (pathArray[pathArray.length - 2] === 'plaene') {
         urlParams.orgaSlug = lastParam
       }
@@ -68,6 +69,7 @@ const ProcedureStore = {
               id: el.id,
             }
           })
+
           commit('setProcedures', procedures)
         })
         commit('setProperty', { prop: 'isLoading', val: false })

@@ -9,8 +9,11 @@
 
 <template>
   <div>
+    <p class="mb-1">
+      {{ Translator.trans('bulk.edit.stepper.progress', { step, total: totalSteps }) }}
+    </p>
     <h3
-      class="u-mb-0_5"
+      class="mb-2"
       v-text="stepTitle"
     />
 
@@ -20,15 +23,15 @@
       <div class="u-mt flow-root">
         <dp-button
           :href="sanitizedReturnLink"
-          :text="Translator.trans('back.to.segments.list')"
+          :text="mergedTranslations.back"
           color="secondary"
-          icon="chevron-left"
+          icon="arrow-left"
         />
         <dp-button
-          class="float-right"
           :disabled="!valid"
-          icon-after="chevron-right"
-          :text="Translator.trans('continue.confirm')"
+          :text="mergedTranslations.confirm"
+          class="float-right"
+          icon-after="arrow-right"
           @click="$emit('confirm')"
         />
       </div>
@@ -39,16 +42,16 @@
 
       <div class="u-mt flow-root">
         <dp-button
+          :text="mergedTranslations.edit"
           color="secondary"
-          icon="chevron-left"
-          :text="Translator.trans('bulk.edit.actions.edit')"
+          icon="arrow-left"
           @click="$emit('edit')"
         />
         <dp-button
-          class="float-right"
           :busy="busy"
-          icon-after="chevron-right"
-          :text="Translator.trans('bulk.edit.actions.apply')"
+          :text="mergedTranslations.apply"
+          class="float-right"
+          icon-after="arrow-right"
           @click="$emit('apply')"
         />
       </div>
@@ -57,10 +60,12 @@
     <template v-if="step === 3">
       <slot name="step-3" />
 
-      <div class="u-mt">
+      <div class="u-mt flow-root">
         <dp-button
           :href="sanitizedReturnLink"
-          :text="Translator.trans('back.to.segments.list')"
+          :text="mergedTranslations.backToList"
+          class="float-right"
+          icon-after="arrow-right"
         />
       </div>
     </template>
@@ -84,11 +89,6 @@ export default {
       required: true,
     },
 
-    valid: {
-      type: Boolean,
-      required: true,
-    },
-
     returnLink: {
       required: true,
       type: String,
@@ -104,6 +104,23 @@ export default {
       type: Number,
       default: 1,
     },
+
+    totalSteps: {
+      type: Number,
+      required: false,
+      default: 3,
+    },
+
+    translations: {
+      type: Object,
+      required: false,
+      default: () => ({}),
+    },
+
+    valid: {
+      type: Boolean,
+      required: true,
+    },
   },
 
   emits: [
@@ -113,6 +130,25 @@ export default {
   ],
 
   computed: {
+    defaultTranslations () {
+      return {
+        back: Translator.trans('back.to.segments.list'),
+        backToList: Translator.trans('back.to.segments.list'),
+        confirm: Translator.trans('continue.confirm'),
+        apply: Translator.trans('bulk.edit.actions.apply'),
+        edit: Translator.trans('bulk.edit.actions.edit'),
+        stepTitles: [
+          Translator.trans('bulk.edit.title.actions.choose', { count: this.selectedElements }),
+          Translator.trans('bulk.edit.title.actions.apply', { count: this.selectedElements }),
+          Translator.trans('confirm.saved.plural'),
+        ],
+      }
+    },
+
+    mergedTranslations () {
+      return { ...this.defaultTranslations, ...this.translations }
+    },
+
     sanitizedReturnLink () {
       return sanitizeUrl(this.returnLink)
     },
@@ -121,11 +157,7 @@ export default {
       if (this.selectedElements === 0) {
         return Translator.trans('warning.entries.no.selected')
       } else {
-        return Translator.trans([
-          'bulk.edit.title.actions.choose',
-          'bulk.edit.title.actions.apply',
-          'confirm.saved.plural',
-        ][this.step - 1], { count: this.selectedElements })
+        return this.mergedTranslations.stepTitles[this.step - 1] || ''
       }
     },
   },

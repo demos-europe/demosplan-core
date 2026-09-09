@@ -13,6 +13,26 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 class NameGenerator
 {
     /**
+     * The maximum length of the procedure name part of an export file or folder name.
+     *
+     * Procedure names are effectively unbounded in length. Embedded unshortened into
+     * export entry names they produce paths Windows Explorer refuses to extract
+     * (MAX_PATH ~260, shared with the destination folder path).
+     */
+    public const MAX_PROCEDURE_NAME_LENGTH_IN_EXPORTS = 30;
+
+    /**
+     * Shortens a procedure name to the part usable within an export file or folder name.
+     *
+     * Trailing whitespace and dots are stripped so the shortened name does not collide
+     * with the separator or extension that is appended to it.
+     */
+    public function shortenProcedureNameForExport(string $procedureName): string
+    {
+        return rtrim(mb_substr($procedureName, 0, self::MAX_PROCEDURE_NAME_LENGTH_IN_EXPORTS), " \t\n\r\0\x0B.");
+    }
+
+    /**
      * Generiere den Downloadfilename aus dem übergebenen Dateinamen
      * Der IE braucht eine Extrabehandlung.
      *

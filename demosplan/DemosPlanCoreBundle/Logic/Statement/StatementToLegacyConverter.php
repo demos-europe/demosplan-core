@@ -23,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Logic\DateHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Doctrine\Common\Collections\Collection;
 use Exception;
 use Psr\Log\LoggerInterface;
@@ -55,6 +54,7 @@ class StatementToLegacyConverter
             $statementArray = $this->convertStatementAttributes($statementArray, $statement->getStatementAttributes());
             $statementArray = $this->handleDocumentConversion($statementArray);
             $statementArray = $this->convertProcedure($statementArray);
+            $statementArray = $this->convertPhaseDefinition($statementArray, $statement);
             $statementArray = $this->convertOrga($statementArray);
             $statementArray = $this->convertStatementMeta($statementArray);
             $statementArray = $this->convertVotes($statementArray);
@@ -109,8 +109,8 @@ class StatementToLegacyConverter
             } catch (Exception) {
                 // Some old entries may not yet refer to a ParagraphVersion
                 $this->logger->error(
-                    'No ParagraphVersion found for Id '
-                    .DemosPlanTools::varExport($statementArray['paragraph']->getId(), true)
+                    'No ParagraphVersion found for Id {paragraphId}',
+                    ['paragraphId' => $statementArray['paragraph']->getId()]
                 );
                 unset($statementArray['paragraph']);
                 $statementArray['paragraphId'] = null;
@@ -165,7 +165,10 @@ class StatementToLegacyConverter
     {
         if ($statementArray['procedure'] instanceof Procedure) {
             try {
-                $statementArray['procedure'] = $this->entityHelper->toArray($statementArray['procedure']);
+                $procedure = $statementArray['procedure'];
+                $phaseDefinitionName = $procedure->getPhaseObject()->getPhaseDefinition()->getName();
+                $publicParticipationPhaseDefinitionName = $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName();
+                $statementArray['procedure'] = $this->entityHelper->toArray($procedure);
                 $statementArray['procedure']['settings'] = $this->entityHelper->toArray(
                     $statementArray['procedure']['settings']
                 );
@@ -180,15 +183,22 @@ class StatementToLegacyConverter
                     isset($statementArray['procedure']['planningOffices']) ?
                         $this->entityHelper->toArray($statementArray['procedure']['planningOffices']) :
                         [];
+                $statementArray['procedure']['phaseDefinitionName'] = $phaseDefinitionName;
+                $statementArray['procedure']['publicParticipationPhaseDefinitionName'] = $publicParticipationPhaseDefinitionName;
             } catch (Exception $e) {
                 $this->logger->warning(
-                    'Could not convert  Statement Procedure to Legacy. Statement: '.DemosPlanTools::varExport(
-                        $statementArray['id'],
-                        true
-                    ).$e
+                    'Could not convert Statement Procedure to Legacy. Statement: {statementId}',
+                    ['statementId' => $statementArray['id'], 'exception' => $e]
                 );
             }
         }
+
+        return $statementArray;
+    }
+
+    private function convertPhaseDefinition(array $statementArray, Statement $statement): array
+    {
+        $statementArray['phaseDefinition'] = $this->entityHelper->toArray($statement->getPhaseDefinition());
 
         return $statementArray;
     }
@@ -200,10 +210,8 @@ class StatementToLegacyConverter
                 $statementArray['organisation'] = $this->entityHelper->toArray($statementArray['organisation']);
             } catch (Exception $e) {
                 $this->logger->warning(
-                    'Could not convert Statement Organisation to Legacy. Statement: '.DemosPlanTools::varExport(
-                        $statementArray['id'],
-                        true
-                    ).$e
+                    'Could not convert Statement Organisation to Legacy. Statement: {statementId}',
+                    ['statementId' => $statementArray['id'], 'exception' => $e]
                 );
             }
         }
@@ -218,9 +226,8 @@ class StatementToLegacyConverter
                 $statementArray['meta'] = $this->entityHelper->toArray($statementArray['meta']);
             } catch (Exception $e) {
                 $this->logger->warning(
-                    'Could not convert Statement Meta to Legacy. Statement: '
-                    .DemosPlanTools::varExport($statementArray['id'], true)
-                    .$e
+                    'Could not convert Statement Meta to Legacy. Statement: {statementId}',
+                    ['statementId' => $statementArray['id'], 'exception' => $e]
                 );
             }
         }

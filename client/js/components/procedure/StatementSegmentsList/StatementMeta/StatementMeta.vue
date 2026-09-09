@@ -58,14 +58,20 @@
           @save="(data) => save(data)"
         />
 
-        <statement-submitter
-          ref="statementSubmitter"
+        <statement-meta-group
           :editable="editable"
-          :procedure="procedure"
+          :procedure-id="procedure.id"
           :statement="statement"
-          :statement-form-definitions="statementFormDefinitions"
-          @save="(data) => save(data)"
-        />
+        >
+          <statement-submitter
+            ref="statementSubmitter"
+            :editable="editable"
+            :procedure="procedure"
+            :statement="statement"
+            :statement-form-definitions="statementFormDefinitions"
+            @save="(data) => save(data)"
+          />
+        </statement-meta-group>
 
         <statement-publication-and-voting
           v-if="hasPermission('feature_statements_vote') || hasPermission('feature_statements_publication')"
@@ -150,6 +156,7 @@ import { mapActions, mapMutations, mapState } from 'vuex'
 import StatementEntry from './StatementEntry'
 import StatementMetaAttachments from './StatementMetaAttachments'
 import StatementMetaFinalEmail from './StatementMetaFinalEmail'
+import StatementMetaGroup from './StatementMetaGroup'
 import StatementMetaLocationAndDocumentReference from './StatementMetaLocationAndDocumentReference'
 import StatementMetaMultiselect from './StatementMetaMultiselect'
 import StatementPublicationAndVoting from './StatementPublicationAndVoting'
@@ -164,6 +171,7 @@ export default {
     StatementEntry,
     StatementMetaAttachments,
     StatementMetaFinalEmail,
+    StatementMetaGroup,
     StatementMetaLocationAndDocumentReference,
     StatementMetaMultiselect,
     StatementPublicationAndVoting,
@@ -286,6 +294,7 @@ export default {
       const yyyy = today.getFullYear()
 
       today = dd + '.' + mm + '.' + yyyy
+
       return today
     },
 
@@ -309,6 +318,7 @@ export default {
       if (this.storageStatement[this.statement.id].relationships.assignee.data) {
         return this.currentUserId === this.storageStatement[this.statement.id].relationships.assignee.data.id
       }
+
       return false
     },
 
@@ -333,7 +343,9 @@ export default {
       if (!this.statement.attributes.submitType) {
         return '-'
       }
+
       const option = this.submitTypeOptions.find(option => option.value === this.statement.attributes.submitType)
+
       return option ? Translator.trans(option.label) : ''
     },
   },
@@ -358,13 +370,16 @@ export default {
     },
 
     handleScroll () {
-      if (this.isScrolling) return
+      if (this.isScrolling) {
+        return
+      }
 
       const sections = this.menuEntries.map(entry => document.querySelector(`#${entry.id}`))
       const scrollPosition = window.scrollY + 62
 
       for (let i = sections.length - 1; i >= 0; i--) {
         const section = sections[i]
+
         if (section && section.offsetTop <= scrollPosition) {
           this.activeItem = this.menuEntries[i].id
           break
@@ -423,6 +438,7 @@ export default {
     scrollToItem (id) {
       this.isScrolling = true
       const element = document.querySelector(`#${id}`)
+
       if (element) {
         const headerOffset = 62
         const elementPosition = element.getBoundingClientRect().top + window.pageYOffset

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -39,7 +41,7 @@ class DraftsInfoController extends BaseController
     // it is unknown what happens if they both use it but it will be nothing good.
     // Instead of receiving the statement ID the BE should chose a statement by
     // itself in this route.
-    #[Route(name: 'dplan_drafts_list_claim', methods: 'POST', path: '/verfahren/{procedureId}/statements/{statementId}/drafts-list', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedureId}/statements/{statementId}/drafts-list', name: 'dplan_drafts_list_claim', options: ['expose' => true], methods: 'POST')]
     public function startSegmentation(
         CurrentUserService $currentUser,
         StatementService $statementService,
@@ -69,7 +71,7 @@ class DraftsInfoController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_statement_segmentation')]
-    #[Route(name: 'dplan_drafts_list_edit', methods: 'GET', path: '/verfahren/{procedureId}/statement/{statementId}/drafts-list', options: ['expose' => true])]
+    #[Route(path: '/verfahren/{procedureId}/statement/{statementId}/drafts-list', name: 'dplan_drafts_list_edit', options: ['expose' => true], methods: 'GET')]
     public function edit(
         string $procedureId,
         string $statementId,

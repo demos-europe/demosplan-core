@@ -79,7 +79,7 @@ class SecurityUserProvider implements UserProviderInterface, PasswordUpgraderInt
         }
 
         $userEntity = $this->userRepository->findOneBy(['login' => $login]);
-        if (!$userEntity) {
+        if (!$userEntity instanceof User) {
             throw new UserNotFoundException(sprintf('No user found for "%s"', $login));
         }
 

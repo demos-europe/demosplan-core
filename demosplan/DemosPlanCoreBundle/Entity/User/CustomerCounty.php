@@ -45,7 +45,7 @@ class CustomerCounty extends CoreEntity implements UuidEntityInterface, Customer
      * @var CustomerInterface
      */
     #[ORM\JoinColumn(referencedColumnName: '_c_id', nullable: false)]
-    #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'customerCounties', cascade: ['remove'])]
+    #[ORM\ManyToOne(targetEntity: Customer::class, cascade: ['remove'], inversedBy: 'customerCounties')]
     protected $customer;
 
     /**
@@ -54,7 +54,7 @@ class CustomerCounty extends CoreEntity implements UuidEntityInterface, Customer
      * @var CountyInterface
      */
     #[ORM\JoinColumn(referencedColumnName: '_c_id', nullable: false)]
-    #[ORM\ManyToOne(targetEntity: County::class, inversedBy: 'customerCounties', cascade: ['remove'])]
+    #[ORM\ManyToOne(targetEntity: County::class, cascade: ['remove'], inversedBy: 'customerCounties')]
     protected $county;
 
     /**

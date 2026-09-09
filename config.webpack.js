@@ -32,6 +32,7 @@ const baseConfig = {
   devtool: (config.isProduction) ? false : 'eval',
   plugins: (() => {
     let plugins = webpackDefaultPlugins
+
     switch (config.mode) {
       case 'development':
         plugins = plugins.concat(webpackDevOnlyPlugins)

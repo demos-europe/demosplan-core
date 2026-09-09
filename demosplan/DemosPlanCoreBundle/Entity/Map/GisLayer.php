@@ -12,11 +12,13 @@ namespace demosplan\DemosPlanCoreBundle\Entity\Map;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ContextualHelpInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
 use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Help\ContextualHelp;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Repository\MapRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
@@ -104,7 +106,7 @@ class GisLayer extends CoreEntity implements GisLayerInterface
     /**
      * @var string
      */
-    #[ORM\Column(name: '_p_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
+    #[ORM\Column(name: '_p_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     protected $procedureId = '';
 
     /**
@@ -174,7 +176,7 @@ class GisLayer extends CoreEntity implements GisLayerInterface
      *
      * @var string
      */
-    #[ORM\Column(name: '_g_global_id', type: 'string', length: 36, options: ['fixed' => true], nullable: true)]
+    #[ORM\Column(name: '_g_global_id', type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
     protected $gId;
 
     /**
@@ -183,6 +185,17 @@ class GisLayer extends CoreEntity implements GisLayerInterface
      * @var array
      */
     protected $globalGis;
+
+    /**
+     * Customer a global layer belongs to. Only set on global layers (those without a
+     * procedure); it limits which procedures the layer is copied into. Null on layers
+     * that predate customer scoping, which stay visible to every customer.
+     *
+     * @var Customer|null
+     */
+    #[ORM\JoinColumn(name: 'customer_id', referencedColumnName: '_c_id', nullable: true)]
+    #[ORM\ManyToOne(targetEntity: Customer::class)]
+    protected $customer;
 
     /**
      * The service version for the layer.
@@ -200,26 +213,23 @@ class GisLayer extends CoreEntity implements GisLayerInterface
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: '_g_create_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createDate;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="update")
      */
     #[ORM\Column(name: '_g_modify_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modifyDate;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: '_g_delete_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $deleteDate;
 
     /**
@@ -235,7 +245,7 @@ class GisLayer extends CoreEntity implements GisLayerInterface
      * Many GisLayers has one GisLayerCategory
      */
     #[ORM\JoinColumn(name: 'category_id', referencedColumnName: 'id')]
-    #[ORM\ManyToOne(targetEntity: GisLayerCategory::class, inversedBy: 'gisLayers', cascade: ['persist'])]
+    #[ORM\ManyToOne(targetEntity: GisLayerCategory::class, cascade: ['persist'], inversedBy: 'gisLayers')]
     protected $category;
 
     /**
@@ -255,7 +265,7 @@ class GisLayer extends CoreEntity implements GisLayerInterface
      *
      * @var string
      */
-    #[ORM\Column(type: 'string', length: 36, options: ['default' => null], nullable: true)]
+    #[ORM\Column(type: 'string', length: 36, nullable: true, options: ['default' => null])]
     protected $visibilityGroupId;
 
     /**
@@ -665,6 +675,18 @@ class GisLayer extends CoreEntity implements GisLayerInterface
     /**
      * @return bool
      */
+    public function getCustomer(): ?CustomerInterface
+    {
+        return $this->customer;
+    }
+
+    public function setCustomer(?CustomerInterface $customer): self
+    {
+        $this->customer = $customer;
+
+        return $this;
+    }
+
     public function isGlobalLayer()
     {
         return $this->globalLayer;

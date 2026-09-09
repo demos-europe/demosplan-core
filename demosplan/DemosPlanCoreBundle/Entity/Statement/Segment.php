@@ -28,7 +28,7 @@ class Segment extends Statement implements SegmentInterface
     /**
      * @var Collection<int, SegmentCommentInterface>
      */
-    #[ORM\OneToMany(targetEntity: SegmentComment::class, mappedBy: 'segment', orphanRemoval: true, cascade: ['remove'])]
+    #[ORM\OneToMany(targetEntity: SegmentComment::class, mappedBy: 'segment', cascade: ['remove'], orphanRemoval: true)]
     protected $comments;
 
     /**
@@ -113,6 +113,15 @@ class Segment extends Statement implements SegmentInterface
     public function getPlaceId(): string
     {
         return $this->place->getId();
+    }
+
+    /**
+     * Used by the segment lock content change display — no PHP code calls this
+     * directly, so static analysis will not surface a caller.
+     */
+    public function isLocked(): bool
+    {
+        return $this->place->isLocked();
     }
 
     public function addComment(SegmentCommentInterface $comment): self

@@ -68,14 +68,14 @@ class DemosPlanClaimAPIController extends APIController
     }
 
     #[DplanPermissions('feature_statement_assignment')]
-    #[Route(path: '/api/1.0/statement/{statementId}/relationships/assignee', methods: ['PATCH'], name: 'dplan_claim_statements_api', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/statement/{statementId}/relationships/assignee', name: 'dplan_claim_statements_api', options: ['expose' => true], methods: ['PATCH'])]
     public function updateStatementAssignment(string $statementId): APIResponse
     {
         return $this->updateStatementOrStatementFragmentAssignment($statementId, Statement::class);
     }
 
     #[DplanPermissions('feature_statement_assignment')]
-    #[Route(path: '/api/1.0/fragment/{entityId}/relationships/assignee', methods: ['PATCH'], name: 'dplan_claim_fragments_api', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/fragment/{entityId}/relationships/assignee', name: 'dplan_claim_fragments_api', options: ['expose' => true], methods: ['PATCH'])]
     public function updateFragmentAssignment(string $entityId): APIResponse
     {
         return $this->updateStatementOrStatementFragmentAssignment($entityId, StatementFragment::class);
@@ -111,7 +111,7 @@ class DemosPlanClaimAPIController extends APIController
             ],
         ];
         try {
-            if (!($this->requestData instanceof TopLevel)) {
+            if (!$this->requestData instanceof TopLevel) {
                 throw BadRequestException::normalizerFailed();
             }
 

@@ -49,13 +49,13 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
      * @var Orga
      */
     #[ORM\JoinColumn(name: '_o_id', referencedColumnName: '_o_id', onDelete: 'SET NULL')]
-    #[ORM\OneToOne(targetEntity: Orga::class, cascade: ['persist'], inversedBy: 'masterToeb')]
+    #[ORM\OneToOne(targetEntity: Orga::class, inversedBy: 'masterToeb', cascade: ['persist'])]
     protected $orga;
 
     /**
      * @var string
      */
-    #[ORM\Column(name: '_o_id', type: 'string', length: 36, options: ['fixed' => true], nullable: true)]
+    #[ORM\Column(name: '_o_id', type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
     protected $oId;
 
     /**
@@ -192,18 +192,16 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: '_mt_created_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createdDate;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="update")
      */
     #[ORM\Column(name: '_mt_modified_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modifiedDate;
 
     public function __construct()
@@ -223,6 +221,9 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $this->getId();
     }
 
+    /**
+     * @return string|null
+     */
     public function getGatewayGroup()
     {
         return $this->gatewayGroup;
@@ -238,6 +239,9 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getOrgaName()
     {
         return $this->orgaName;
@@ -300,6 +304,9 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $return;
     }
 
+    /**
+     * @return Department|null
+     */
     public function getDepartment()
     {
         return $this->department;
@@ -328,6 +335,9 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $return;
     }
 
+    /**
+     * @return string|null
+     */
     public function getDepartmentName()
     {
         return $this->departmentName;
@@ -343,6 +353,9 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getSign()
     {
         return $this->sign;
@@ -376,6 +389,9 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getCcEmail()
     {
         return $this->ccEmail;
@@ -391,6 +407,9 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getContactPerson()
     {
         return $this->contactPerson;
@@ -408,6 +427,9 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getMemo()
     {
         return $this->memo;
@@ -443,6 +465,9 @@ class MasterToeb extends CoreEntity implements UuidEntityInterface, MasterToebIn
         return $this;
     }
 
+    /**
+     * @return int
+     */
     public function getDistrictEimsbuettel()
     {
         return (int) $this->districtEimsbuettel;

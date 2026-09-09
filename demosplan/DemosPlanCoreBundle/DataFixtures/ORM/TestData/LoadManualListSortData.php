@@ -58,7 +58,7 @@ class LoadManualListSortData extends TestFixture implements DependentFixtureInte
         $this->setReference('testManualListSortFaq', $manualListSort3);
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             LoadNewsData::class,

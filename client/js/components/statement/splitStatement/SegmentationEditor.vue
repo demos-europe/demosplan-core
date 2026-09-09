@@ -23,14 +23,14 @@
 </template>
 
 <script>
+import { buildInlineImageFigure, defaultInlineImageLabel, resolveLinkLabel } from '@DpJs/lib/shared/inlineImageAnchors'
 import { DOMParser, DOMSerializer, Schema } from 'prosemirror-model'
 import { addListNodes } from 'prosemirror-schema-list'
 import { EditorState } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
 import { initRangePlugin } from '@DpJs/lib/prosemirror/plugins'
 import { schema } from 'prosemirror-schema-basic'
-import { setRange } from '@DpJs/lib/prosemirror/commands'
-import { v4 as uuid } from 'uuid'
+import { segmentMark } from '@DpJs/lib/prosemirror/marks'
 
 export default {
   name: 'SegmentationEditor',
@@ -94,9 +94,11 @@ export default {
           }],
           toDOM (node) {
             const { href, class: className } = node.attrs
+
             return ['a', { href, class: className }, 0]
           },
         },
+        segmentMark,
       },
       maxRange: 0,
     }
@@ -119,6 +121,7 @@ export default {
         marks: this.getExtendedMarks(),
       })
       const wrapper = document.createElement('div')
+
       wrapper.innerHTML = this.initStatementText ?? ''
       const rangePlugin = initRangePlugin(proseSchema, this.rangeChangeCallback, this.editToggleCallback)
       const parsedContent = DOMParser.fromSchema(rangePlugin.schema).parse(wrapper, { preserveWhitespace: true })
@@ -137,33 +140,38 @@ export default {
 
             if (!className.split(/\s+/).includes('pdf_importer_image')) {
               const anchor = document.createElement('a')
+
               anchor.setAttribute('href', mark.attrs.href)
               if (className) {
                 anchor.setAttribute('class', className)
               }
+
               return { dom: anchor, contentDOM: anchor }
             }
 
-            const wrapper = document.createElement('span')
-            const img = document.createElement('img')
-            img.setAttribute('src', mark.attrs.href)
-            img.setAttribute('alt', '')
-            img.setAttribute('loading', 'lazy')
-            const label = document.createElement('span')
-            label.className = 'sr-only'
-            wrapper.appendChild(img)
-            wrapper.appendChild(label)
-            return { dom: wrapper, contentDOM: label }
+            /*
+             * The marked text is document content, so the link is returned as
+             * contentDOM for ProseMirror to fill (label left empty).
+             */
+            const { wrapper, link } = buildInlineImageFigure(document, { src: mark.attrs.href, alt: '', label: null })
+
+            return { dom: wrapper, contentDOM: link }
+          },
+        },
+        nodeViews: {
+          image: (node) => {
+            const label = resolveLinkLabel(node.attrs.alt, node.attrs.src, defaultInlineImageLabel())
+            const { wrapper } = buildInlineImageFigure(document, { src: node.attrs.src, alt: node.attrs.alt || '', label })
+
+            return { dom: wrapper }
           },
         },
       })
 
-      const transformedSegments = this.transformSegments(this.segments.filter(segment => segment.charEnd <= this.maxRange))
-      transformedSegments.forEach(segment => setRange(view)(segment.from, segment.to, segment.attributes))
-
       const getContent = (schema) => (state) => {
         const container = document.createElement('div')
         const serialized = DOMSerializer.fromSchema(schema).serializeFragment(state.doc.content, { document: window.document }, container)
+
         return serialized.innerHTML
       }
 
@@ -181,21 +189,6 @@ export default {
 
       this.$emit('prosemirror:maxRange', this.maxRange)
       this.$emit('prosemirror:initialized', prosemirrorStateWrapper)
-    },
-
-    transformSegments (segments) {
-      const segmentsCpy = JSON.parse(JSON.stringify(segments))
-      return segmentsCpy.map(segment => {
-        return {
-          attributes: {
-            rangeId: segment.id,
-            isConfirmed: segment.status === 'confirmed',
-            pmId: uuid(),
-          },
-          from: segment.charStart,
-          to: segment.charEnd,
-        }
-      })
     },
   },
 

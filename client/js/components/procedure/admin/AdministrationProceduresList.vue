@@ -309,11 +309,10 @@ export default {
             'externalName',
             'externalStartDate',
             'externalEndDate',
-            'externalPhaseTranslationKey',
+            'externalPhaseDefinitionName',
             'internalStartDate',
             'internalEndDate',
-            'internalPhaseIdentifier',
-            'internalPhaseTranslationKey',
+            'internalPhaseDefinitionName',
             'originalStatementsCount',
             'statementsCount',
           ].join(),
@@ -339,11 +338,11 @@ export default {
             name: el.attributes.name,
             externalName: el.attributes.externalName,
             externalEndDate: formatDate(el.attributes.externalEndDate),
-            externalPhase: el.attributes.externalPhaseTranslationKey,
+            externalPhase: el.attributes.externalPhaseDefinitionName,
             externalStartDate: formatDate(el.attributes.externalStartDate),
             id: el.id,
             internalEndDate: formatDate(el.attributes.internalEndDate),
-            internalPhase: el.attributes.internalPhaseTranslationKey,
+            internalPhase: el.attributes.internalPhaseDefinitionName,
             internalStartDate: formatDate(el.attributes.internalStartDate),
             originalStatementsCount: el.attributes.originalStatementsCount,
             statementsCount: el.attributes.statementsCount,
@@ -377,6 +376,7 @@ export default {
     statementsTooltipCount (statementsCount, originalStatementsCount) {
       const statements = Translator.trans('procedures.statements.count.description', { statements: statementsCount })
       const originalStatements = Translator.trans('procedures.statements.count.original.description', { statements: originalStatementsCount })
+
       return `${statements.trim()}, ${originalStatements.trim()}`
     },
   },

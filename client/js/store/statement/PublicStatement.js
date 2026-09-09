@@ -72,7 +72,6 @@ const PublicStatementStore = {
     localStorageName: '',
     userId: '',
     procedureId: '',
-    showMapHint: false,
     statement: statementStructure,
     draftStatements: {},
     unsavedDrafts: [],
@@ -81,6 +80,7 @@ const PublicStatementStore = {
   mutations: {
     addUnsavedDraft (state, id) {
       const idx = state.unsavedDrafts.findIndex(el => el === id)
+
       if (idx < 0) {
         state.unsavedDrafts.push(id)
         localStorage.setItem(`unsavedDrafts:${state.userId}:${state.procedureId}`, JSON.stringify(state.unsavedDrafts))
@@ -105,16 +105,19 @@ const PublicStatementStore = {
       state.localStorageName = ''
 
       const localStorageForUser = `user:${state.userId}:${state.procedureId}`
-      state.showMapHint = true
+
       const userItem = localStorage.getItem(localStorageForUser)
+
       if (userItem) {
         const userState = JSON.parse(userItem)
+
         Object.keys(userState).forEach(el => {
           state[el] = userState[el]
         })
       }
 
       const unsavedDraftsStorage = localStorage.getItem(`unsavedDrafts:${state.userId}:${state.procedureId}`)
+
       state.unsavedDrafts = unsavedDraftsStorage ? JSON.parse(unsavedDraftsStorage) : []
       state.unsavedDrafts.forEach(draftId => {
         state.initDraftStatements[draftId] = localStorage.getItem(`init:publicStatement:${state.userId}:${state.procedureId}:${draftId}`)
@@ -133,9 +136,11 @@ const PublicStatementStore = {
 
       const localStorageForUser = `user:${state.userId}:${state.procedureId}`
       let userState = {}
+
       if (localStorage.getItem(localStorageForUser)) {
         userState = JSON.parse(localStorage.getItem(localStorageForUser))
       }
+
       userState = { ...userState, [data.key]: data.val }
       localStorage.setItem(localStorageForUser, JSON.stringify(userState))
     },
@@ -146,6 +151,7 @@ const PublicStatementStore = {
 
     updateStatement (state, data) {
       const statementId = data.r_ident || state.statement.r_ident || ''
+
       if (hasOwnProp(data, 'r_ident') && data.r_ident !== '') {
         state.localStorageName = `publicStatement:${state.userId}:${state.procedureId}:${data.r_ident}`
       } else {
@@ -166,6 +172,7 @@ const PublicStatementStore = {
 
     updateDeleteFile (state, hash) {
       const idx = state.statement.delete_file.findIndex(el => el === hash)
+
       if (idx > -1) {
         state.statement.delete_file.splice(idx, 1)
       } else {
@@ -195,6 +202,7 @@ const PublicStatementStore = {
 
     removeUnsavedDraft (state, id) {
       const idx = state.unsavedDrafts.findIndex(el => el === id)
+
       if (idx > -1) {
         state.unsavedDrafts.splice(idx, 1)
         localStorage.setItem(`unsavedDrafts:${state.userId}:${state.procedureId}`, JSON.stringify(state.unsavedDrafts))
@@ -206,9 +214,11 @@ const PublicStatementStore = {
       if (Object.keys(state.initForm).length === 0) {
         state.initForm = '{}'
       }
+
       if (hasOwnProp(state.statement, 'r_ident')) {
         delete state.initDraftStatements[state.statement.r_ident]
       }
+
       state.statement = JSON.parse(state.initForm)
       localStorage.removeItem(state.localStorageName)
     },

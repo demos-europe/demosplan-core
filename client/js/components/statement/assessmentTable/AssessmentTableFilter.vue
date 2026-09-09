@@ -491,8 +491,10 @@ export default {
             isCluster: statement.isCluster,
           }
         }
+
         payload.statements = statements
       }
+
       this.setSelectionAction(payload)
     },
 
@@ -502,6 +504,7 @@ export default {
      */
     toggleViewMode (mode) {
       const form = document.bpform
+
       form.r_view_mode.value = mode
       window.submitForm(null, 'viewMode')
     },

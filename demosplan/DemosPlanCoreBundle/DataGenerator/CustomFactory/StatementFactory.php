@@ -291,7 +291,7 @@ class StatementFactory extends FactoryBase
         try {
             $user = $this->userService->getUserByFields(['login' => $userLogin]);
         } catch (Exception $e) {
-            throw new DataProviderException($e);
+            throw new DataProviderException($e, $e->getCode(), $e);
         }
 
         if (1 === count($user) && $user[0] instanceof User) {
@@ -309,7 +309,7 @@ class StatementFactory extends FactoryBase
         try {
             $this->orga = $this->orgaService->getOrgaByFields(['name' => $orgaId]);
         } catch (Exception $e) {
-            throw new DataProviderException($e);
+            throw new DataProviderException($e, $e->getCode(), $e);
         }
     }
 
@@ -321,7 +321,7 @@ class StatementFactory extends FactoryBase
         try {
             $this->procedure = $this->procedureService->getProcedure($procedureId);
         } catch (Exception $e) {
-            throw new DataProviderException($e);
+            throw new DataProviderException($e, $e->getCode(), $e);
         }
     }
 }

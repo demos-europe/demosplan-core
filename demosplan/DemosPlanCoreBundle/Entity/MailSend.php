@@ -58,6 +58,9 @@ class MailSend implements IntegerIdEntityInterface, MailSendInterface
     #[ORM\Column(name: '_ms_from', type: 'string', length: 4096, nullable: false)]
     protected $from;
 
+    #[ORM\Column(name: 'reply_to', type: 'string', length: 4096, nullable: true)]
+    protected ?string $replyTo = null;
+
     /**
      * @var string
      *             Length 10000 is a magic number until it is refactored to type="text".
@@ -94,18 +97,16 @@ class MailSend implements IntegerIdEntityInterface, MailSendInterface
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: '_ms_created_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createdDate;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: '_ms_send_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $sendDate;
 
     /**
@@ -140,10 +141,9 @@ class MailSend implements IntegerIdEntityInterface, MailSendInterface
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="update")
      */
     #[ORM\Column(name: '_ms_last_status_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     protected $lastStatusDate;
 
     /**
@@ -268,6 +268,18 @@ class MailSend implements IntegerIdEntityInterface, MailSendInterface
     public function getFrom()
     {
         return $this->from;
+    }
+
+    public function setReplyTo(?string $replyTo): self
+    {
+        $this->replyTo = $replyTo;
+
+        return $this;
+    }
+
+    public function getReplyTo(): ?string
+    {
+        return $this->replyTo;
     }
 
     /**

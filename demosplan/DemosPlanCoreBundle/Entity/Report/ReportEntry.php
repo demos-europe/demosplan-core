@@ -36,6 +36,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntryInterface
 {
     final public const GROUP_PROCEDURE = 'procedure';
+    final public const GROUP_PROCEDURE_PHASE_DEFINITION = 'procedurePhaseDefinition';
     final public const GROUP_SINGLE_DOCUMENT = 'singleDocument';
     final public const GROUP_PLAN_DRAW = 'planDraw';
     final public const GROUP_PARAGRAPH = 'paragraph';
@@ -43,6 +44,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
     final public const GROUP_STATEMENT = 'statement';
     final public const GROUP_MASTER_PUBLIC_AGENCY = 'mastertoeb';
     final public const GROUP_ORGA = 'orga';
+    final public const GROUP_USER = 'user';
 
     final public const CATEGORY_ADD = 'add';
     final public const CATEGORY_ANONYMIZE_META = 'anonymizeMeta';
@@ -59,6 +61,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
     final public const CATEGORY_MOVE = 'move';
     final public const CATEGORY_ORGA_SHOWLIST_CHANGE = 'orgaShowlistChange';
     final public const CATEGORY_REGISTER_INVITATION = 'register_invitation';
+    final public const CATEGORY_RESET_TWO_FACTOR = 'resetTwoFactor';
     final public const CATEGORY_STATEMENT_SYNC_INSOURCE = 'syncStatementSourceCategory';
     final public const CATEGORY_STATEMENT_SYNC_INTARGET = 'syncStatementTargetCategory';
     final public const CATEGORY_UPDATE = 'update';
@@ -67,10 +70,12 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
     final public const LEVEL_INFO = 'INFO';
 
     final public const IDENTIFIER_TYPE_PROCEDURE = 'procedure';
+    final public const IDENTIFIER_TYPE_PROCEDURE_PHASE_DEFINITION = 'procedurePhaseDefinition';
     final public const IDENTIFIER_TYPE_STATEMENT = 'statement';
     final public const IDENTIFIER_TYPE_FINAL_MAIL = 'finalMail';
     final public const IDENTIFIER_TYPE_MASTER_PUBLIC_AGENCY = 'masterToeb';
     final public const IDENTIFIER_TYPE_ORGANISATION = 'orga';
+    final public const IDENTIFIER_TYPE_USER = 'user';
 
     /**
      * @var string|null
@@ -99,12 +104,12 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
      * @var string
      */
     #[ORM\Column(name: '_re_level', type: 'string', length: 255, nullable: false, options: ['fixed' => true])]
-    protected $level = 'INFO';
+    protected $level = ReportEntry::LEVEL_INFO;
 
     /**
      * @var string
      */
-    #[ORM\Column(name: '_u_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
+    #[ORM\Column(name: '_u_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     protected $userId;
 
     /**
@@ -119,7 +124,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
      *
      * @deprecated this property doesn't seem to be in use anymore
      */
-    #[ORM\Column(name: '_s_id', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
+    #[ORM\Column(name: '_s_id', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     protected $sessionId = '';
 
     /**
@@ -133,7 +138,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
      * @var string
      */
     #[Assert\NotBlank]
-    #[ORM\Column(name: '_re_identifier', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
+    #[ORM\Column(name: '_re_identifier', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     protected $identifier;
 
     /**
@@ -148,21 +153,20 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
      * @var string always in JSON format (a simple string is considered valid JSON)
      */
     #[Assert\NotBlank]
-    #[ORM\Column(name: '_re_message', type: 'text', nullable: false, length: 15000000)]
+    #[ORM\Column(name: '_re_message', type: 'text', length: 15000000, nullable: false)]
     protected $message;
 
     /**
      * @var string
      */
-    #[ORM\Column(name: '_re_incoming', type: 'text', nullable: false, length: 15000000)]
+    #[ORM\Column(name: '_re_incoming', type: 'text', length: 15000000, nullable: false)]
     protected $incoming = '';
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create"), updateable = true
      */
     #[ORM\Column(name: '_re_created_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createDate;
 
     /**

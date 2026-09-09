@@ -44,7 +44,7 @@ class InstitutionTagCategory extends CoreEntity implements UuidEntityInterface, 
     protected string $name;
 
     #[ORM\JoinColumn(referencedColumnName: '_c_id', nullable: false)]
-    #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: 'customerCategories', cascade: ['persist'])]
+    #[ORM\ManyToOne(targetEntity: Customer::class, cascade: ['persist'], inversedBy: 'customerCategories')]
     protected Customer $customer;
 
     /**
@@ -53,16 +53,12 @@ class InstitutionTagCategory extends CoreEntity implements UuidEntityInterface, 
     #[ORM\OneToMany(targetEntity: InstitutionTag::class, mappedBy: 'category', cascade: ['remove'])]
     protected $tags;
 
-    /**
-     * @Gedmo\Timestampable(on="create")
-     */
     #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected DateTime $creationDate;
 
-    /**
-     * @Gedmo\Timestampable(on="update")
-     */
     #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     private DateTime $modificationDate;
 
     public function getId(): ?string
@@ -88,6 +84,11 @@ class InstitutionTagCategory extends CoreEntity implements UuidEntityInterface, 
     public function setName(string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getCustomer(): Customer
+    {
+        return $this->customer;
     }
 
     public function setCustomer(CustomerInterface $customer): void

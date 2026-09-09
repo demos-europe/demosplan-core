@@ -27,7 +27,7 @@ class VirusCheckRabbitmq implements VirusCheckInterface
 
     public function __construct(
         private readonly GlobalConfigInterface $globalConfig,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -66,7 +66,7 @@ class VirusCheckRabbitmq implements VirusCheckInterface
             $this->logger->warning('File could not be checked. Response: '.DemosPlanTools::varExport($replies, true));
         } catch (AMQPTimeoutException $e) {
             $this->logger->error('Error in virusCheck:', [$e]);
-            throw new TimeoutException($e->getMessage());
+            throw new TimeoutException($e->getMessage(), $e->getCode(), $e);
         }
 
         return true;

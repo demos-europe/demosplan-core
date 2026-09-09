@@ -25,6 +25,7 @@ function toggleFlyout (e) {
 
     // Only redirect if there's a valid href and it's not a button
     const href = flyoutLink.getAttribute('href')
+
     if (href && href !== '#' && href !== window.location.href) {
       window.location.href = href
     }
@@ -53,8 +54,10 @@ function closeFlyout (e) {
 
 function closeAllFlyouts () {
   const flyouts = document.querySelectorAll('[data-touch-flyout]')
+
   flyouts.forEach(flyout => {
     const flyoutBox = flyout.parentElement
+
     flyoutBox.classList.remove('is-expanded')
     flyout.classList.remove('is-current')
   })

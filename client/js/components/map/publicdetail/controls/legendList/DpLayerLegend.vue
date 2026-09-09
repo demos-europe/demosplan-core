@@ -130,9 +130,11 @@ export default {
 
     planPdfTitle () {
       let fileInfo = ''
+
       if (this.planPdf.mimeType && this.planPdf.size) {
         fileInfo = ` (${this.planPdf.mimeType}, ${this.planPdf.size})`
       }
+
       return `${Translator.trans('legend.download')}${fileInfo}`
     },
   },
@@ -144,6 +146,7 @@ export default {
 
     toggle () {
       const unfolded = this.unfolded = !this.unfolded
+
       if (unfolded) {
         this.$emit('layerLegend:unfolded')
       }

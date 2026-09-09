@@ -41,18 +41,16 @@ class Video implements UuidEntityInterface, VideoInterface
 
     /**
      * @var DateTimeInterface
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     private $creationDate;
 
     /**
      * @var DateTimeInterface
-     *
-     * @Gedmo\Timestampable(on="update")
      */
     #[ORM\Column(type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     private $modificationDate;
 
     /**

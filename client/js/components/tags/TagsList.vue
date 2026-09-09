@@ -2,6 +2,19 @@
   <div>
     <tags-list-header />
 
+    <div class="flex items-center u-mb-0_5">
+      <a
+        :href="exportTagListUrl"
+        download
+      >
+        <i
+          class="fa fa-download"
+          aria-hidden="true"
+        />
+        {{ Translator.trans('tag.list.export') }}
+      </a>
+    </div>
+
     <tags-create-form
       :is-master-procedure="isMasterProcedure"
       :procedure-id="procedureId"
@@ -33,11 +46,18 @@
 
           <addon-wrapper hook-name="tag.extend.form" />
 
-          <div class="ml-1 flex-0 w-9">
+          <div
+            v-if="hasPermission('feature_tag_default_assignee')"
+            class="ml-1 flex-none w-10"
+          >
+            {{ Translator.trans('assignee') }}
+          </div>
+
+          <div class="ml-1 flex-none w-9">
             {{ Translator.trans('boilerplates') }}
           </div>
 
-          <div class="ml-1 flex-0 w-8 text-right">
+          <div class="ml-1 flex-none w-8 text-right">
             {{ Translator.trans('actions') }}
           </div>
         </div>
@@ -131,6 +151,12 @@ export default {
       TagTopic: 'items',
     }),
 
+    exportTagListUrl () {
+      return Routing.generate('DemosPlan_statement_administration_tags_export', {
+        procedureId: this.procedureId,
+      })
+    },
+
     transformedCategories () {
       // Sort topics naturally (handles numbers: "1, 2, 3, 11, 12" instead of "1, 11, 12, 2, 3")
       return Object.values(this.TagTopic)
@@ -145,11 +171,12 @@ export default {
             children: tags.map(tag => {
               const { attributes, id, relationships, type } = tag
               const boilerplate = relationships?.boilerplate?.get ? relationships.boilerplate.get() : null
+              const defaultAssignee = relationships?.defaultAssignee?.get ? relationships.defaultAssignee.get() : null
 
               return {
                 attributes,
                 id,
-                relationships: { boilerplate },
+                relationships: { boilerplate, defaultAssignee },
                 type,
               }
             }),
@@ -184,8 +211,10 @@ export default {
     // Apply tagList.reorder RPC response — sync sortIndex in the Tag store for every changed tag
     applyReorderResponse (response) {
       const result = response.data[0].result
+
       for (const [id, { sortIndex }] of Object.entries(result)) {
         const tag = this.Tag[id]
+
         if (tag) {
           this.updateTag({
             ...tag,
@@ -193,6 +222,7 @@ export default {
           })
         }
       }
+
       dplan.notify.confirm(Translator.trans('confirm.saved'))
     },
 
@@ -203,12 +233,15 @@ export default {
     // Persist cross-topic move via tagList.reorder RPC — optimistic update on both topics + rollback
     crossTopicReorder (tagId, newIndex, targetTopicId) {
       const newParent = this.TagTopic[targetTopicId]
+
       if (!newParent) {
         return
       }
+
       const oldParent = Object.values(this.TagTopic).find(topic =>
         topic.relationships?.tags.data.some(tag => tag.id === tagId),
       )
+
       if (!oldParent) {
         return
       }
@@ -218,6 +251,7 @@ export default {
 
       const newSourceData = oldSourceData.filter(tag => tag.id !== tagId)
       const newTargetData = [...oldTargetData]
+
       newTargetData.splice(newIndex, 0, { type: 'Tag', id: tagId })
 
       this.updateTagTopic({
@@ -280,23 +314,37 @@ export default {
     },
 
     loadTagsAndTopics () {
-      if (this.dataIsRequested) return
+      if (this.dataIsRequested) {
+        return
+      }
 
       this.dataIsRequested = true
+      const hasDefaultAssignee = hasPermission('feature_tag_default_assignee')
       const topicAttributes = [
         'title',
         'tags',
       ]
+      const tagAttributes = hasDefaultAssignee ?
+        ['boilerplate', 'defaultAssignee', 'sortIndex', 'title'] :
+        ['boilerplate', 'sortIndex', 'title']
+      const include = hasDefaultAssignee ?
+        'tags,tags.boilerplate,tags.defaultAssignee' :
+        'tags,tags.boilerplate'
+      const fields = {
+        Tag: tagAttributes.join(),
+        TagTopic: topicAttributes.join(),
+        Boilerplate: [
+          'title',
+        ].join(),
+      }
+
+      if (hasDefaultAssignee) {
+        fields.AssignableUser = ['firstname', 'lastname'].join()
+      }
 
       this.listTagTopics({
-        fields: {
-          Tag: ['boilerplate', 'sortIndex', 'title'].join(),
-          TagTopic: topicAttributes.join(),
-          Boilerplate: [
-            'title',
-          ].join(),
-        },
-        include: 'tags,tags.boilerplate',
+        fields,
+        include,
         sort: 'title',
       }).then(() => {
         this.dataIsRequested = false
@@ -313,6 +361,7 @@ export default {
 
       const oldTagsData = [...(topic.relationships?.tags?.data || [])]
       const newTagsData = oldTagsData.filter(tag => tag.id !== tagId)
+
       newTagsData.splice(newIndex, 0, { type: 'Tag', id: tagId })
 
       // Optimistic UI update

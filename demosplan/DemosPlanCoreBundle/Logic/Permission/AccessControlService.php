@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Permission;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
@@ -22,9 +23,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
 use demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use InvalidArgumentException;
-use Psr\Log\LoggerInterface;
 
 /**
  * This file is part of the package demosplan.
@@ -42,7 +41,6 @@ class AccessControlService
         private readonly AccessControlRepository $accessControlPermissionRepository,
         private readonly RoleHandler $roleHandler,
         private readonly OrgaService $orgaService,
-        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -55,26 +53,25 @@ class AccessControlService
 
     public function createPermission(string $permissionName, OrgaInterface $orga, CustomerInterface $customer, RoleInterface $role): ?AccessControl
     {
-        try {
-            $permission = new AccessControl();
-            $permission->setPermissionName($permissionName);
-            $permission->setOrga($orga);
-            $permission->setCustomer($customer);
-            $permission->setRole($role);
-            $this->accessControlPermissionRepository->add($permission);
+        $existingPermission = $this->accessControlPermissionRepository->findOneBy([
+            'permission'   => $permissionName,
+            'organisation' => $orga,
+            'customer'     => $customer,
+            'role'         => $role,
+        ]);
 
-            return $permission;
-        } catch (UniqueConstraintViolationException $exception) {
-            $this->logger->warning('Unique constraint violation occurred while trying to create a permission.', [
-                'exception'      => $exception->getMessage(),
-                'permissionName' => $permissionName,
-                'orga'           => $orga->getId(),
-                'customer'       => $customer->getId(),
-                'role'           => $role->getId(),
-            ]);
+        if ($existingPermission instanceof AccessControl) {
+            return $existingPermission;
         }
 
-        return null;
+        $permission = new AccessControl();
+        $permission->setPermissionName($permissionName);
+        $permission->setOrga($orga);
+        $permission->setCustomer($customer);
+        $permission->setRole($role);
+        $this->accessControlPermissionRepository->add($permission);
+
+        return $permission;
     }
 
     public function getPermissions(?OrgaInterface $orga, ?CustomerInterface $customer, array $roles): array
@@ -155,7 +152,7 @@ class AccessControlService
         ]);
 
         // If a permission is found, remove it
-        if ($permission) {
+        if ($permission instanceof EntityInterface) {
             $this->accessControlPermissionRepository->persistAndDelete([], [$permission]);
         }
     }
@@ -187,16 +184,15 @@ class AccessControlService
                 $foundPermissions = $this->getEnabledPermissionNames($role, $orga, $customer, $permissionToCheck);
 
                 // If we found permissions for this role, return true immediately
-                if (!empty($foundPermissions)) {
+                if ([] !== $foundPermissions) {
                     return true;
                 }
             }
 
             // No permissions found for any of the provided roles
             return false;
-        } else {
-            $permissions = $this->getEnabledPermissionNames(null, $orga, $customer, $permissionToCheck);
         }
+        $permissions = $this->getEnabledPermissionNames(null, $orga, $customer, $permissionToCheck);
 
         return [] !== $permissions;
     }

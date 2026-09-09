@@ -81,7 +81,7 @@ class Paragraph extends CoreEntity implements UuidEntityInterface, ParagraphInte
     /**
      * @var string
      */
-    #[ORM\Column(name: '_pd_category', type: 'string', length: 36, options: ['fixed' => true], nullable: false)]
+    #[ORM\Column(name: '_pd_category', type: 'string', length: 36, nullable: false, options: ['fixed' => true])]
     protected $category;
 
     /**
@@ -117,31 +117,28 @@ class Paragraph extends CoreEntity implements UuidEntityInterface, ParagraphInte
     /**
      * @var string
      */
-    #[ORM\Column(name: '_pd_lockreason', type: 'string', nullable: false, length: 300, options: ['default' => ''])]
+    #[ORM\Column(name: '_pd_lockreason', type: 'string', length: 300, nullable: false, options: ['default' => ''])]
     protected $lockReason = '';
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: '_pd_create_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createDate;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="update")
      */
     #[ORM\Column(name: '_pd_modify_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modifyDate;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: '_pd_delete_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $deleteDate;
 
     /**

@@ -74,7 +74,7 @@ class LogoutSubscriber implements EventSubscriberInterface
             try {
                 $this->oauthTokenStorageService->deleteTokensUnlessPendingData($user->getId());
             } catch (Exception $e) {
-                $this->logger->warning('Failed to delete OAuth tokens on logout', ['error' => $e->getMessage()]);
+                $this->logger->warning('oauthAuthenticator: Failed to delete OAuth tokens on logout', ['error' => $e->getMessage()]);
             }
 
             // Keycloak logout
@@ -83,14 +83,14 @@ class LogoutSubscriber implements EventSubscriberInterface
                 $keycloakToken = $event->getRequest()->getSession()->get(OzgKeycloakSessionManager::KEYCLOAK_TOKEN);
                 $event->getRequest()->getSession()->invalidate();
 
-                $this->logger->info('Redirecting to Keycloak for logout initial', [$logoutRoute]);
+                $this->logger->info('oauthAuthenticator: Redirecting to Keycloak for logout initial', [$logoutRoute]);
 
                 // add additional parameters to keycloak logout url for redirect
                 try {
                     $logoutRoute = $this->ozgKeycloakSessionManager->getLogoutUrl($logoutRoute, $keycloakToken);
-                    $this->logger->info('Redirecting to Keycloak for logout adjusted', [$logoutRoute]);
+                    $this->logger->info('oauthAuthenticator: Redirecting to Keycloak for logout adjusted', [$logoutRoute]);
                 } catch (Exception $e) {
-                    $this->logger->error('Could not get current customer', [$e->getMessage()]);
+                    $this->logger->error('oauthAuthenticator: Could not get current customer', [$e->getMessage()]);
                 }
                 $response = $this->redirect($logoutRoute);
             }

@@ -259,6 +259,7 @@ export default {
     handlePageChange (group, page) {
       // Convert snail to camel and prepend list
       const actionName = 'list' + group.charAt(0).toUpperCase() + group.slice(1).replace(/_([a-z])/g, (match, p1) => p1.toUpperCase())
+
       return this[actionName]({
         procedureId: this.procedureId,
         page: {
@@ -303,7 +304,9 @@ export default {
       })
       .map(groupName => {
         return this.handlePageChange(groupName, 1)
-      })).then(() => { this.isFirstLoad = false })
+      })).then(() => {
+      this.isFirstLoad = false
+    })
   },
 }
 </script>

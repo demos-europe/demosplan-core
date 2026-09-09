@@ -32,10 +32,8 @@ class UserPasswordHistory
     #[ORM\Column(type: 'string', length: 255)]
     private string $hashedPassword;
 
-    /**
-     * @Gedmo\Timestampable(on="create")
-     */
     #[ORM\Column(type: 'datetime')]
+    #[Gedmo\Timestampable(on: 'create')]
     private DateTime $createdDate;
 
     public function __construct(User $user, string $hashedPassword)

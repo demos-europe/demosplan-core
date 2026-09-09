@@ -30,11 +30,6 @@
         "website": "https://github.com/composer/composer"
     },
     {
-        "license": "Apache-2.0",
-        "package": "cyclonedx/cyclonedx-php-composer",
-        "website": "https://github.com/CycloneDX/cyclonedx-php-composer"
-    },
-    {
         "license": "MIT",
         "package": "demos-europe/demosplan-addon",
         "website": "https://github.com/demos-europe/demosplan-addon"
@@ -48,6 +43,16 @@
         "license": "MIT",
         "package": "doctrine/common",
         "website": "https://github.com/doctrine/common"
+    },
+    {
+        "license": "MIT",
+        "package": "doctrine/data-fixtures",
+        "website": "https://github.com/doctrine/data-fixtures"
+    },
+    {
+        "license": "MIT",
+        "package": "doctrine/dbal",
+        "website": "https://github.com/doctrine/dbal"
     },
     {
         "license": "MIT",
@@ -103,6 +108,11 @@
         "license": "MIT",
         "package": "endroid/qr-code-bundle",
         "website": "https://github.com/endroid/qr-code-bundle"
+    },
+    {
+        "license": "MIT",
+        "package": "enqueue/elastica-bundle",
+        "website": "https://github.com/php-enqueue/enqueue-elastica-bundle"
     },
     {
         "license": "MIT",
@@ -181,6 +191,11 @@
     },
     {
         "license": "MIT",
+        "package": "khanamiryan/qrcode-detector-decoder",
+        "website": "https://github.com/khanamiryan/php-qrcode-detector-decoder"
+    },
+    {
+        "license": "MIT",
         "package": "knplabs/knp-menu-bundle",
         "website": "https://github.com/KnpLabs/KnpMenuBundle"
     },
@@ -243,6 +258,11 @@
         "license": "MIT",
         "package": "masterminds/html5",
         "website": "https://github.com/Masterminds/html5-php"
+    },
+    {
+        "license": "MIT",
+        "package": "nelmio/cors-bundle",
+        "website": "https://github.com/nelmio/NelmioCorsBundle"
     },
     {
         "license": "MIT",
@@ -403,6 +423,11 @@
         "license": "MIT",
         "package": "symfony/dependency-injection",
         "website": "https://github.com/symfony/dependency-injection"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/doctrine-messenger",
+        "website": "https://github.com/symfony/doctrine-messenger"
     },
     {
         "license": "MIT",

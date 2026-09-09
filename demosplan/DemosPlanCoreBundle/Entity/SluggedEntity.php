@@ -21,6 +21,13 @@ use Doctrine\ORM\Mapping as ORM;
 abstract class SluggedEntity extends CoreEntity implements UuidEntityInterface, SluggedEntityInterface
 {
     /**
+     * Doctrine ManyToMany association is configured on each concrete subclass (different join tables per entity).
+     *
+     * @var Collection<int, SlugInterface>
+     */
+    protected $slugs;
+
+    /**
      * @var SlugInterface
      */
     #[ORM\JoinColumn(referencedColumnName: 'id', nullable: false)]

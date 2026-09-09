@@ -35,7 +35,7 @@ class DemosPlanDepartmentController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_demosplan')]
-    #[Route(name: 'DemosPlan_user_verify_department_switch_or_update', path: '/department/verifychanges', methods: ['GET'])]
+    #[Route(path: '/department/verifychanges', name: 'DemosPlan_user_verify_department_switch_or_update', methods: ['GET'])]
     public function verifyDepartmentSwitchOrUpdate(AuthenticationUtils $authenticationUtils, Request $request)
     {
         try {
@@ -67,7 +67,7 @@ class DemosPlanDepartmentController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_manage_departments')]
-    #[Route(name: 'DemosPlan_department_list', path: '/department/list/{orgaId}')]
+    #[Route(path: '/department/list/{orgaId}', name: 'DemosPlan_department_list')]
     public function listDepartments(
         CurrentUserService $currentUser,
         CustomerHandler $customerHandler,
@@ -117,7 +117,7 @@ class DemosPlanDepartmentController extends BaseController
      * @throws MessageBagException
      */
     #[DplanPermissions('feature_department_add')]
-    #[Route(name: 'DemosPlan_department_add', path: '/department/add')]
+    #[Route(path: '/department/add', name: 'DemosPlan_department_add')]
     public function addDepartment(Request $request, UserHandler $userHandler)
     {
         $requestPost = $request->request;
@@ -155,7 +155,7 @@ class DemosPlanDepartmentController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_manage_orgas')]
-    #[Route(name: 'DemosPlan_department_edit', path: '/department/edit/{departmentId}')]
+    #[Route(path: '/department/edit/{departmentId}', name: 'DemosPlan_department_edit')]
     public function editDepartment()
     {
         return $this->render(
@@ -178,7 +178,7 @@ class DemosPlanDepartmentController extends BaseController
      * @throws Exception
      */
     #[DplanPermissions('area_manage_departments')]
-    #[Route(name: 'DemosPlan_departments_admin', path: '/departments/admin/{orgaId}')]
+    #[Route(path: '/departments/admin/{orgaId}', name: 'DemosPlan_departments_admin')]
     public function adminDepartments(Request $request, UserHandler $userHandler, $orgaId): RedirectResponse
     {
         // wenn der request gefüllt ist, bearbeite ihn

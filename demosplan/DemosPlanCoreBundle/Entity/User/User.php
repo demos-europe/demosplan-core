@@ -136,18 +136,16 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: '_u_created_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $createdDate;
 
     /**
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="update")
      */
     #[ORM\Column(name: '_u_modified_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modifiedDate;
 
     /**
@@ -165,7 +163,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     /**
      * @var string
      */
-    #[ORM\Column(name: '_u_gw_id', type: 'string', length: 36, options: ['fixed' => true], nullable: true)]
+    #[ORM\Column(name: '_u_gw_id', type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
     protected $gwId;
 
     /**
@@ -914,13 +912,13 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
      *
      * @param string $flagKey
      */
-    protected function getFlagValue($flagKey): bool
+    protected function getFlagValue($flagKey, bool $default = false): bool
     {
         if (is_array($this->flags) && array_key_exists($flagKey, $this->flags)) {
             return (bool) $this->flags[$flagKey];
         }
 
-        return false;
+        return $default;
     }
 
     /**
@@ -932,7 +930,7 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     public function getOrga(): ?OrgaInterface
     {
         // Return session-selected organisation if set (multi-responsibility support)
-        if (null !== $this->currentOrganisation) {
+        if ($this->currentOrganisation instanceof OrgaInterface) {
             return $this->currentOrganisation;
         }
 
@@ -1603,6 +1601,20 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
     public function setDraftStatementSubmissionReminderEnabled(bool $draftStatementSubmissionReminderEnabled)
     {
         $this->setFlagValue(UserFlagKey::DRAFT_STATEMENT_SUBMISSION_REMINDER_ENABLED->value, $draftStatementSubmissionReminderEnabled);
+    }
+
+    /**
+     * Defaults to enabled: a user receives segment deadline reminders unless
+     * they have explicitly turned the setting off.
+     */
+    public function getSegmentDeadlineReminderEnabled(): bool
+    {
+        return $this->getFlagValue(UserFlagKey::SEGMENT_DEADLINE_REMINDER_ENABLED->value, true);
+    }
+
+    public function setSegmentDeadlineReminderEnabled(bool $segmentDeadlineReminderEnabled)
+    {
+        $this->setFlagValue(UserFlagKey::SEGMENT_DEADLINE_REMINDER_ENABLED->value, $segmentDeadlineReminderEnabled);
     }
 
     /**

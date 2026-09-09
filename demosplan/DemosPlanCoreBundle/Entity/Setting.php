@@ -75,7 +75,7 @@ class Setting extends CoreEntity implements UuidEntityInterface, SettingInterfac
      *
      * @var string
      */
-    #[ORM\Column(name: '_s_orga_id', type: 'string', length: 36, options: ['fixed' => true], nullable: true)]
+    #[ORM\Column(name: '_s_orga_id', type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
     protected $orgaId;
 
     /**
@@ -94,20 +94,18 @@ class Setting extends CoreEntity implements UuidEntityInterface, SettingInterfac
      * Date of creation.
      *
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="create")
      */
     #[ORM\Column(name: '_s_create_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'create')]
     protected $created;
 
     /**
      * Date of last modifying.
      *
      * @var DateTime
-     *
-     * @Gedmo\Timestampable(on="update")
      */
     #[ORM\Column(name: '_s_modified_date', type: 'datetime', nullable: false)]
+    #[Gedmo\Timestampable(on: 'update')]
     protected $modified;
 
     /**

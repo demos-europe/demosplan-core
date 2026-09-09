@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureSetti
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use Tests\Base\FunctionalTestCase;
 
 class MapServiceTest extends FunctionalTestCase
@@ -164,11 +165,42 @@ class MapServiceTest extends FunctionalTestCase
         $this->sut->addGis($data);
         $numberOfEntriesAfter = $this->countEntries(GisLayer::class);
 
-        // es werden Anzahl aller Einträge von vorher + den neuen global Eintrag + Anzahl der Verfahren erwartet.
-        $numberOfProcedures = $this->countEntries(Procedure::class);
+        // es werden Anzahl aller Einträge von vorher + den neuen global Eintrag
+        // + Anzahl der Verfahren des aktuellen Mandanten erwartet.
         static::assertEquals(
-            $numberOfEntriesBefore + $numberOfProcedures + 1,
+            $numberOfEntriesBefore + $this->countProceduresOfCurrentCustomer() + 1,
             $numberOfEntriesAfter
+        );
+    }
+
+    public function testAddGlobalGisSkipsProceduresOfOtherCustomers(): void
+    {
+        $otherCustomerProcedure = $this->getEntries(
+            Procedure::class,
+            ['customer' => null]
+        )[0] ?? null;
+        static::assertInstanceOf(Procedure::class, $otherCustomerProcedure);
+
+        $layersBefore = $this->countEntries(
+            GisLayer::class,
+            ['procedureId' => $otherCustomerProcedure->getId()]
+        );
+
+        $this->sut->addGis([
+            'type'     => 'base',
+            'name'     => 'globale testkarte',
+            'url'      => 'http://www.globaletestkarte.de',
+            'Layer'    => '0',
+            'pId'      => '',
+            'globalId' => null,
+        ]);
+
+        static::assertSame(
+            $layersBefore,
+            $this->countEntries(
+                GisLayer::class,
+                ['procedureId' => $otherCustomerProcedure->getId()]
+            )
         );
     }
 
@@ -217,15 +249,22 @@ class MapServiceTest extends FunctionalTestCase
         ];
         $globalLayer = $this->sut->addGis($data);
 
-        $numberOfProcedures = $this->countEntries(Procedure::class);
+        $numberOfCopies = $this->countProceduresOfCurrentCustomer();
         $numberOfEntriesBefore = $this->countEntries(GisLayer::class);
         $this->sut->deleteGis($globalLayer['ident']);
         $numberOfEntriesAfter = $this->countEntries(GisLayer::class);
 
         static::assertEquals(
-            $numberOfEntriesBefore - $numberOfProcedures - 1,
+            $numberOfEntriesBefore - $numberOfCopies - 1,
             $numberOfEntriesAfter
         );
+    }
+
+    private function countProceduresOfCurrentCustomer(): int
+    {
+        $customer = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer();
+
+        return $this->countEntries(Procedure::class, ['customer' => $customer]);
     }
 
     public function testDeleteGis()

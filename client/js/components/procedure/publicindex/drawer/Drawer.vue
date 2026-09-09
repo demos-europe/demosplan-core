@@ -97,7 +97,9 @@ export default {
       if (!this.currentProcedureId) {
         return null
       }
+
       const curr = this.procedures.find(el => el.id === this.currentProcedureId)
+
       return curr || null
     },
 
@@ -105,6 +107,7 @@ export default {
       if (this.currentView === 'DpDetailView') {
         return ''
       }
+
       return `${this.procedureCount} ${Translator.trans('participation.procedures')}`
     },
   },
@@ -120,6 +123,7 @@ export default {
 
     toggleList () {
       const val = this.currentView !== 'DpList' ? 'DpList' : ''
+
       this.setProperty({ prop: 'currentView', val })
     },
   },
@@ -127,6 +131,7 @@ export default {
   created () {
     const matchMedia = new MatchMedia()
     const currentBreakpoint = matchMedia.getCurrentBreakpoint()
+
     // Don't show the procedure list on mobile by default
     if (currentBreakpoint === 'palm') {
       this.setProperty({ prop: 'isDrawerOpened', val: false })
