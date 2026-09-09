@@ -100,7 +100,7 @@
         class="flex justify-between items-center mt-4"
       >
         <dp-pager
-          v-if="pagination.currentPage && !hasPermission('feature_segments_manualsort')"
+          v-if="pagination.currentPage"
           :key="`pager1_${pagination.currentPage}_${pagination.count}`"
           :class="{ invisible: isLoading }"
           :current-page="pagination.currentPage"
@@ -911,7 +911,7 @@ export default {
             ?.attributes?.locked,
       }))
 
-      if (this.selectedSort === '' || !hasPermission('feature_segments_manualsort')) {
+      if (this.selectedSort === '') {
         return mapped
       }
 
@@ -1077,10 +1077,7 @@ export default {
     applySort (sortValue) {
       this.selectedSort = sortValue
       lscache.set(this.lsKey.selectedSort, sortValue)
-
-      if (!hasPermission('feature_segments_manualsort')) {
-        this.applyQuery(1)
-      }
+      this.applyQuery(1)
     },
 
     applyQuery (page) {
@@ -1091,13 +1088,14 @@ export default {
       lscache.remove(this.lsKey.toggledSegments)
 
       this.allItemsCount = null
-      const hasManualSort = hasPermission('feature_segments_manualsort')
-
       const { include, fields } = this.buildSegmentFetchOptions()
 
+      const defaultFilter = {
+        'parentStatementOfSegment.procedure.id': this.procedureId
+      }
       const filter = {
         ...this.transformFiltersToApiPlatform(this.getFilterQuery),
-        'parentStatementOfSegment.procedure.id': this.procedureId,
+        ...defaultFilter
       }
 
       const defaultOrder = {
@@ -1105,24 +1103,15 @@ export default {
         'parentStatementOfSegment.externId': 'asc',
         orderInProcedure: 'asc',
       }
-
-      const [sortBy, direction] = this.selectedSort?.split('-') ?? []
-
-      const order = sortBy === 'internId'
-        ? { 'parentStatementOfSegment.original.internId': direction }
-        : defaultOrder
+      const order = this.getSelectedSortParams() ?? defaultOrder
 
       const payload = {
         include,
         fields,
         pagination: true,
-        /*
-         * Client-side sorting needs the whole list at once, so it comes without a pager and requests
-         * 1000 items - the hard server-side cap for API Platform paginationMaximumItemsPerPage.
-         */
         order,
-        page: hasManualSort ? 1 : page,
-        itemsPerPage: hasManualSort ? 1000 : this.pagination.perPage,
+        page,
+        itemsPerPage: this.pagination.perPage,
         ...filter,
       }
 
@@ -1147,36 +1136,9 @@ export default {
           this.allItemsCount = data.meta.totalItems
           this.updatePagination(data.meta)
 
-          /*
-           * Get all segments (without pagination) to save them in localStorage for bulk editing.
-           * If 'feature_segment_lock_by_workflow_place' is active, users without `feature_administrate_segment_lock`
-           * must not be able to bulk-edit segments whose workflow place is locked, so exclude them from the ID set.
-           */
-          const idsFilter = {
-            ...this.getFilterQuery,
-            sameProcedure: {
-              condition: {
-                path: 'parentStatement.procedure.id',
-                value: this.procedureId,
-              },
-            },
-          }
-
-          if (hasPermission('feature_segment_lock_by_workflow_place') && !this.canUnlock) {
-            idsFilter.placeNotLocked = {
-              condition: {
-                path: 'place.locked',
-                value: false,
-              },
-            }
-          }
-
-          this.fetchSegmentIds({
-            filter: idsFilter,
-            search: payload.search,
-          })
+          this.fetchBulkEditSegmentIds(payload.search)
         })
-        .catch((err) => {
+        .catch(() => {
           if (Object.keys(this.getFilterQuery).length > 0 || this.searchTerm !== '') {
             this.resetQuery()
             dplan.notify.notify(
@@ -1382,6 +1344,37 @@ export default {
       })
     },
 
+    /**
+     * Get all segments (without pagination) to save them in localStorage for bulk editing.
+     * If 'feature_segment_lock_by_workflow_place' is active, users without `feature_administrate_segment_lock`
+     * must not be able to bulk-edit segments whose workflow place is locked, so exclude them from the ID set.
+     */
+    fetchBulkEditSegmentIds (search) {
+      const idsFilter = {
+        ...this.getFilterQuery,
+        sameProcedure: {
+          condition: {
+            path: 'parentStatement.procedure.id',
+            value: this.procedureId,
+          },
+        },
+      }
+
+      if (hasPermission('feature_segment_lock_by_workflow_place') && !this.canUnlock) {
+        idsFilter.placeNotLocked = {
+          condition: {
+            path: 'place.locked',
+            value: false,
+          },
+        }
+      }
+
+      this.fetchSegmentIds({
+        filter: idsFilter,
+        search,
+      })
+    },
+
     getClipboardAddress (segment, context) {
       const statement = this.getClipboardParentStatement(segment, context)
 
@@ -1473,6 +1466,20 @@ export default {
 
       // Drop empty parts so anonymous submissions do not end up with a leading separator
       return parts.filter(Boolean).join(', ')
+    },
+
+    getSelectedSortParams () {
+      const sortPaths = {
+        internId: 'parentStatementOfSegment.original.internId',
+        deadline: 'parentStatementOfSegment.deadline',
+      }
+
+      const [sortBy, direction] = this.selectedSort?.split('-') ?? []
+      const sortPath = sortPaths[sortBy]
+
+      return sortPath && direction
+        ? { [sortPath]: direction }
+        : null
     },
 
     /**
@@ -2055,7 +2062,7 @@ export default {
 
     const storedSort = lscache.get(this.lsKey.selectedSort)
 
-    if (storedSort && hasPermission('feature_segments_manualsort')) {
+    if (storedSort) {
       this.selectedSort = storedSort
     }
 

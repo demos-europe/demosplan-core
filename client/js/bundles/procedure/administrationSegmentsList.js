@@ -42,7 +42,10 @@ const apiStores = [
 
 // Use API Platform 3.0 for StatementSegment on this page
 const api3ModulesOverride = {
-  StatementSegment: ['list', 'get'],
+  StatementSegment: [
+    'list',
+    'get',
+  ],
 }
 
 initialize(components, stores, apiStores, {}, () => {}, api3ModulesOverride)

@@ -10,46 +10,19 @@
 export default {
   methods: {
     /**
-     * Normalize pagination data from both EDT 2.0 and API Platform 3.0 formats.
-     * @param {object} meta - Meta object from API response (data.meta).
-     * @returns {object} - Normalized pagination object with EDT 2.0 structure.
+     * Normalize pagination data from EDT 2.0 and API Platform 3.0 responses.
+     *
+     * @param {object} data - Pagination data from the API response.
+     * @returns {object} Normalized pagination data.
      */
     normalizePagination (data) {
-      // API Platform 3.0 format
-      if ('totalItems' in data) {
-        const {
-          totalItems,
-          currentPage,
-          itemsPerPage,
-        } = data
-
-        return {
-          count: totalItems,
-          currentPage,
-          perPage: itemsPerPage,
-          total: totalItems,
-          totalPages: null,
-        }
-      } else {
-        // EDT 2.0 format
-        const {
-          count,
-          current_page: currentPage,
-          per_page: perPage,
-          total,
-          total_pages: totalPages,
-        } = data
-
-        return {
-          count,
-          currentPage,
-          perPage,
-          total,
-          totalPages,
-        }
+      return {
+        count: data.count ?? data.totalItems,
+        currentPage: data.current_page ?? data.currentPage,
+        perPage: data.per_page ?? data.itemsPerPage,
+        total: data.total ?? data.totalItems,
+        totalPages: data.total_pages ?? null,
       }
-
-      return meta
     },
 
     /**
@@ -76,7 +49,6 @@ export default {
      */
     updatePagination (data) {
       const normalized = this.normalizePagination(data)
-      console.log('updatePagination - normalized', normalized)
       const currentPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).currentPage)
       const perPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).perPage)
 
@@ -95,11 +67,7 @@ export default {
      * @param {object} data - Pagination data from the DB via API (supports both EDT 2.0 and API Platform 3.0).
      */
     setLocalStorage (data) {
-      console.log('data', data)
       const normalized = this.normalizePagination(data)
-      console.log('setLocalStorage - normalized', normalized)
-
-      console.log('normalized', normalized)
       const paginationData = { currentPage: normalized.currentPage, perPage: normalized.perPage }
 
       window.localStorage.setItem(this.storageKeyPagination, JSON.stringify(paginationData))
