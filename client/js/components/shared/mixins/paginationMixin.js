@@ -17,10 +17,10 @@ export default {
      */
     normalizePagination (data) {
       return {
-        count: data.count ?? data.totalItems,
-        currentPage: data.current_page ?? data.currentPage,
-        perPage: data.per_page ?? data.itemsPerPage,
-        total: data.total ?? data.totalItems,
+        count: data.count ?? data.totalItems ?? 0,
+        currentPage: data.current_page ?? data.currentPage ?? 1,
+        perPage: data.per_page ?? data.itemsPerPage ?? 10,
+        total: data.total ?? data.totalItems ?? 0,
         totalPages: data.total_pages ?? null,
       }
     },
