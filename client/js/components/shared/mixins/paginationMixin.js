@@ -16,10 +16,13 @@ export default {
      * @returns {object} Normalized pagination data.
      */
     normalizePagination (data) {
+      const defaultCurrentPage = this.defaultPagination?.currentPage ?? 1
+      const defaultPerPage = this.defaultPagination?.perPage ?? 10
+
       return {
         count: data.count ?? data.totalItems ?? 0,
-        currentPage: data.current_page ?? data.currentPage ?? 1,
-        perPage: data.per_page ?? data.itemsPerPage ?? 10,
+        currentPage: data.current_page ?? data.currentPage ?? defaultCurrentPage,
+        perPage: data.per_page ?? data.itemsPerPage ?? defaultPerPage,
         total: data.total ?? data.totalItems ?? 0,
         totalPages: data.total_pages ?? null,
       }
@@ -29,8 +32,8 @@ export default {
      * Set pagination for current page and items per page to default or stored values.
      */
     initPagination () {
-      let currentPage = this.defaultPagination.currentPage
-      let perPage = this.defaultPagination.perPage
+      let currentPage = this.defaultPagination?.currentPage ?? 1
+      let perPage = this.defaultPagination?.perPage ?? 10
 
       if (window.localStorage.getItem(this.storageKeyPagination)) {
         currentPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).currentPage)
@@ -64,7 +67,7 @@ export default {
       this.pagination = {
         count: normalized.count,
         currentPage,
-        limits: this.defaultPagination.limits,
+        limits: this.defaultPagination?.limits ?? [10, 25, 50, 100],
         perPage,
         total: normalized.total,
         totalPages: normalized.totalPages,

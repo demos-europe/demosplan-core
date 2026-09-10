@@ -92,6 +92,21 @@ describe('paginationMixin', () => {
     it('returns default values for empty pagination data', () => {
       expect(context.normalizePagination({})).toEqual({
         count: 0,
+        currentPage: 1, // from defaultPagination.currentPage
+        perPage: 25, // from defaultPagination.perPage
+        total: 0,
+        totalPages: null,
+      })
+    })
+
+    it('falls back to hardcoded defaults when defaultPagination is not provided', () => {
+      const contextWithoutDefaults = {
+        defaultPagination: undefined,
+        ...paginationMixin.methods,
+      }
+
+      expect(contextWithoutDefaults.normalizePagination({})).toEqual({
+        count: 0,
         currentPage: 1,
         perPage: 10,
         total: 0,
@@ -125,6 +140,23 @@ describe('paginationMixin', () => {
       expect(context.pagination).toEqual({
         currentPage: 3,
         perPage: 50,
+      })
+    })
+
+    it('falls back to hardcoded defaults when defaultPagination is not provided', () => {
+      const contextWithoutDefaults = {
+        defaultPagination: undefined,
+        storageKeyPagination: 'test-pagination',
+        pagination: null,
+        ...paginationMixin.methods,
+      }
+
+      mockStoredPagination(null)
+      contextWithoutDefaults.initPagination()
+
+      expect(contextWithoutDefaults.pagination).toEqual({
+        currentPage: 1,
+        perPage: 10,
       })
     })
   })
