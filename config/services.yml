@@ -28,6 +28,10 @@ services:
         # so addOrderBy() appends this tiebreaker instead of running before it exists.
         - { name: api_platform.doctrine.orm.query_extension.collection, priority: -20 }
 
+    demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\AssigneeOrUnassignedFilter:
+        tags:
+        - { name: api_platform.filter }
+
     demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService: ~
 
     demosplan\DemosPlanCoreBundle\Logic\AzureUserDataMapper: ~

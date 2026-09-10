@@ -20,9 +20,11 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
 use demosplan\DemosPlanCoreBundle\Api\AssignableUser\AssignableUserResource;
 use demosplan\DemosPlanCoreBundle\Api\Place\PlaceResource;
+use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\AssigneeOrUnassignedFilter;
 use demosplan\DemosPlanCoreBundle\Api\Tag\Resource as TagResource;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementResource;
@@ -39,6 +41,13 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag as TagEntity;
             paginationClientItemsPerPage: true,
             // Matches the largest page size offered by the frontend's page-size selector.
             paginationMaximumItemsPerPage: 100,
+            parameters: [
+                // Use only when a specific assignee and "unassigned" are both selected together.
+                'assigneeOrUnassigned' => new QueryParameter(
+                    filter: AssigneeOrUnassignedFilter::class,
+                    castToArray: true,
+                ),
+            ],
         ),
         new Get(uriTemplate: '/StatementSegment/{id}'),
     ],
