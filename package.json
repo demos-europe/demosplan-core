@@ -151,7 +151,7 @@
     "eslint-plugin-vue": "^10.9.2",
     "eslint-plugin-vuejs-accessibility": "^2.6.0",
     "glob": "^13.0.6",
-    "globals": "15.13.0",
+    "globals": "17.8.0",
     "jsdom": "^29.1.0",
     "mini-css-extract-plugin": "^2.10.2",
     "postcss": "^8.5.26",
@@ -189,7 +189,7 @@
     "ff esr"
   ],
   "resolutions": {
-    "globals": "15.13.0",
+    "globals": "17.8.0",
     "prosemirror-model": "1.25.2",
     "prosemirror-view": "1.40.1",
     "prosemirror-state": "1.4.3",
