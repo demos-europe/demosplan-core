@@ -900,38 +900,11 @@ export default {
     },
 
     items () {
-      const mapped = Object.values(this.segmentsObject).map((segment) => ({
+      return Object.values(this.segmentsObject)
+        .map((segment) => ({
         ...segment,
-        isPlaceLocked:
-          !!this.placesObject[segment.relationships?.place?.data?.id]
-            ?.attributes?.locked,
+        isPlaceLocked: !!this.placesObject[segment.relationships?.place?.data?.id]?.attributes?.locked,
       }))
-
-      if (this.selectedSort === '') {
-        return mapped
-      }
-
-      // Deadline sorting happens client-side, so segments without a deadline always sort last, regardless of direction.
-      const direction = this.selectedSort.startsWith('-') ? -1 : 1
-
-      return mapped.sort((a, b) => {
-        const deadlineA = a.attributes.deadline
-        const deadlineB = b.attributes.deadline
-
-        if (!deadlineA && !deadlineB) {
-          return 0
-        }
-
-        if (!deadlineA) {
-          return 1
-        }
-
-        if (!deadlineB) {
-          return -1
-        }
-
-        return direction * (new Date(deadlineA) - new Date(deadlineB))
-      })
     },
 
     /*
