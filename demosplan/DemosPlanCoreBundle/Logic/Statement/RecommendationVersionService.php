@@ -78,6 +78,33 @@ class RecommendationVersionService
     }
 
     /**
+     * DPLAN-18271, Clarified Decision 10: a version entry is desired whenever the tag
+     * form actually changed — including unlink, where the substituted (rendered) text
+     * stays byte-identical before and after (the boilerplate's live content, now frozen
+     * in). {@see recordVersion()}'s own equality check compares whatever it is given, so
+     * calling it with two substituted values that happen to coincide would wrongly skip
+     * recording — this method exists so Hook A can decide change on the raw/tag form
+     * while still storing a substituted snapshot.
+     *
+     * @return RecommendationVersion|null the newly created version entity, or null if
+     *                                    skipped (no change, or first recommendation being set)
+     */
+    public function recordVersionIfTagFormChanged(
+        Statement $statement,
+        string $oldRawRecommendation,
+        string $newRawRecommendation,
+        string $oldSubstitutedRecommendation,
+    ): ?RecommendationVersion {
+        if ($oldRawRecommendation === $newRawRecommendation) {
+            return null;
+        }
+
+        $latestVersionNumber = $this->repository->getLatestVersionNumber($statement->getId());
+
+        return $this->createVersionIfNeeded($statement, $oldSubstitutedRecommendation, $latestVersionNumber);
+    }
+
+    /**
      * Batch-aware version of {@see recordVersion()} for bulk edits.
      *
      * Pre-fetches all latest version numbers in a single query to avoid N+1.

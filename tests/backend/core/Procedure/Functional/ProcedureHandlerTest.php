@@ -12,11 +12,16 @@ namespace Tests\Core\Procedure\Functional;
 
 use Carbon\Carbon;
 use DateTime;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\BoilerplateFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceLinkageFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository;
 use Exception;
 use Tests\Base\FunctionalTestCase;
 
@@ -44,6 +49,49 @@ class ProcedureHandlerTest extends FunctionalTestCase
     {
         $procedures = $this->sut->getAllProceduresWithSoonEndingPhases(7);
         static::assertCount(1, $procedures);
+    }
+
+    /**
+     * DPLAN-18271: called on a recurring tick by
+     * {@see \demosplan\DemosPlanCoreBundle\MessageHandler\PurgePendingBoilerplateDeletionsMessageHandler}.
+     * Also the first real proof that DI resolves BoilerplateDeletionService into
+     * ProcedureHandler's constructor — no prior test exercised that wiring.
+     */
+    public function testPurgePendingBoilerplateDeletionsProcessesAllFlaggedBoilerplates(): void
+    {
+        $entityManager = self::getContainer()->get('doctrine.orm.entity_manager');
+        $boilerplateWithUsage = BoilerplateFactory::createOne(['text' => 'Inhalt A'])->_real();
+        $boilerplateWithUsageId = $boilerplateWithUsage->getId();
+        $boilerplateWithoutUsage = BoilerplateFactory::createOne(['text' => 'Inhalt B'])->_real();
+        $boilerplateWithoutUsageId = $boilerplateWithoutUsage->getId();
+        $segment = SegmentFactory::createOne([
+            'procedure'                => $boilerplateWithUsage->getProcedure(),
+            'parentStatementOfSegment' => StatementFactory::new(['procedure' => $boilerplateWithUsage->getProcedure()]),
+        ])->_real();
+        $entityManager->refresh($segment);
+        $segment->setRecommendation("<dp-boilerplate boilerplate-id=\"{$boilerplateWithUsageId}\"></dp-boilerplate>");
+        $entityManager->flush();
+
+        $procedureService = self::getContainer()->get(ProcedureService::class);
+        static::assertTrue($procedureService->prepareBoilerplateDeletion($boilerplateWithUsageId));
+        static::assertTrue($procedureService->prepareBoilerplateDeletion($boilerplateWithoutUsageId));
+
+        $purgedCount = $this->sut->purgePendingBoilerplateDeletions(5);
+
+        static::assertSame(2, $purgedCount);
+        static::assertSame('Inhalt A', $segment->getRecommendationEmbedded());
+        $boilerplateRepository = self::getContainer()->get(BoilerplateRepository::class);
+        static::assertNull($boilerplateRepository->get($boilerplateWithUsageId));
+        static::assertNull($boilerplateRepository->get($boilerplateWithoutUsageId));
+    }
+
+    public function testPurgePendingBoilerplateDeletionsRespectsTheLimit(): void
+    {
+        BoilerplateFactory::createMany(3, ['pendingDeletion' => true]);
+
+        $purgedCount = $this->sut->purgePendingBoilerplateDeletions(2);
+
+        static::assertSame(2, $purgedCount);
     }
 
     /**

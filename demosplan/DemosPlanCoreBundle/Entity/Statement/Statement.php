@@ -59,10 +59,14 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\EventListener\BoilerplateTagSubstitutionEntityListener;
+use demosplan\DemosPlanCoreBundle\EventListener\BoilerplateUsageReconciliationEntityListener;
 use demosplan\DemosPlanCoreBundle\EventListener\DoctrineStatementListener;
 use demosplan\DemosPlanCoreBundle\EventListener\RecommendationVersionEntityListener;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\BoilerplateTagSubstitutionService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\BoilerplateUsageReconciliationService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\RecommendationVersionService;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Services\HTMLFragmentSlicer;
@@ -685,6 +689,18 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      * Null for newly created entities (not loaded from DB).
      */
     private ?RecommendationVersionService $recommendationVersionService = null;
+
+    /**
+     * Injected via {@see BoilerplateTagSubstitutionEntityListener} on postLoad.
+     * Null for newly created entities (not loaded from DB).
+     */
+    private ?BoilerplateTagSubstitutionService $boilerplateTagSubstitutionService = null;
+
+    /**
+     * Injected via {@see BoilerplateUsageReconciliationEntityListener} on postLoad.
+     * Null for newly created entities (not loaded from DB).
+     */
+    private ?BoilerplateUsageReconciliationService $boilerplateUsageReconciliationService = null;
 
     /**
      * @var StatementAttribute[]
@@ -2300,20 +2316,40 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
-     * Set recommendation.
-     *
-     * Before overwriting the value, records the old recommendation as a version
-     * via {@see RecommendationVersionService::recordVersion()} if the service is
-     * available (injected via {@see RecommendationVersionEntityListener} on postLoad).
-     *
-     * WARNING: Do not call this method more than once per request on the same entity.
-     * Each call with a changed value creates a new recommendation version entry.
-     *
-     * @param string $recommendation
+     * @see BoilerplateTagSubstitutionEntityListener::postLoad()
+     */
+    public function setBoilerplateTagSubstitutionService(BoilerplateTagSubstitutionService $service): void
+    {
+        $this->boilerplateTagSubstitutionService = $service;
+    }
+
+    /**
+     * @see BoilerplateUsageReconciliationEntityListener::postLoad()
+     */
+    public function setBoilerplateUsageReconciliationService(BoilerplateUsageReconciliationService $service): void
+    {
+        $this->boilerplateUsageReconciliationService = $service;
+    }
+
+    /**
+     * Before overwriting, records a version and reconciles {@see BoilerplateUsage} rows
+     * against the tags in the new, raw (tag-form) value. Change detection for the version
+     * (should we record at all) happens on the *raw* tag form — not the substituted form —
+     * per Clarified Decision 10: an unlink (tag replaced by its own materialized content)
+     * must still get a version entry even though the substituted/rendered text is
+     * byte-identical before and after. Only the *stored snapshot* is substituted (version
+     * history never contains a <dp-boilerplate> tag, DPLAN-18271 plan Trap 5). Getting
+     * which form goes where backwards is the exact mistake Trap 5 warns about.
      */
     public function setRecommendation($recommendation): Statement
     {
-        $this->recommendationVersionService?->recordVersion($this, $this->recommendation, $recommendation);
+        $this->recommendationVersionService?->recordVersionIfTagFormChanged(
+            $this,
+            $this->recommendation,
+            $recommendation,
+            $this->getRecommendation()
+        );
+        $this->boilerplateUsageReconciliationService?->reconcile($this, $recommendation);
 
         $this->recommendation = $recommendation;
 
@@ -2321,9 +2357,35 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
-     * Get recommendation.
+     * Get recommendation, with any <dp-boilerplate boilerplate-id="…"> reference tag
+     * (DPLAN-18271) substituted by the boilerplate's current text. This is what every
+     * consumer except the editor and the setter's own reconciliation logic should call —
+     * exports, emails, version-history snapshots, Elasticsearch, the JSON:API
+     * `recommendation` attribute, addons. Falls back to the raw, unsubstituted value if
+     * the service was not injected (new entity not yet loaded from the DB) — see
+     * {@see BoilerplateTagSubstitutionEntityListener}.
      */
     public function getRecommendation(): string
+    {
+        return $this->substituteBoilerplateTags($this->recommendation);
+    }
+
+    private function substituteBoilerplateTags(string $embeddedText): string
+    {
+        if (null === $this->boilerplateTagSubstitutionService) {
+            return $embeddedText;
+        }
+
+        return $this->boilerplateTagSubstitutionService->substitute($embeddedText);
+    }
+
+    /**
+     * Get recommendation exactly as stored, with any <dp-boilerplate boilerplate-id="…">
+     * reference tag left in place, unsubstituted. Only the editor's load path and the
+     * setter's own reconciliation logic should ever read this — see the DPLAN-18271 plan,
+     * "Decided Design", hard invariant 4.
+     */
+    public function getRecommendationEmbedded(): string
     {
         return $this->recommendation;
     }
@@ -2333,7 +2395,11 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      */
     public function addRecommendationParagraph($additionalRecommendationParagraphText): Statement
     {
-        $oldRecommendationText = $this->getRecommendation();
+        // Reads the tag form, not the substituted form (DPLAN-18271 plan, Trap 2):
+        // appending to the substituted text and writing it back would replace every
+        // <dp-boilerplate> tag with plain content, silently destroying its link on the
+        // next save.
+        $oldRecommendationText = $this->getRecommendationEmbedded();
         $newRecommendationText = $oldRecommendationText.$additionalRecommendationParagraphText;
         $this->setRecommendation($newRecommendationText);
 
@@ -2342,7 +2408,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     public function getRecommendationShort(): string
     {
-        return HTMLFragmentSlicer::getShortened($this->recommendation);
+        return HTMLFragmentSlicer::getShortened($this->getRecommendation());
     }
 
     /**

@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedurePhaseDefinitionData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureTypeData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\BoilerplateFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureSettingsFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -2761,6 +2762,32 @@ Email:',
 
         $boilerplates = $this->sut->getBoilerplatesOfCategory($testProcedureId, 'consideration');
         static::assertEquals($exprectedBoilerplates, $boilerplates);
+    }
+
+    /**
+     * DPLAN-18271: a boilerplate awaiting async deletion is, conceptually, already gone —
+     * getBoilerplatesOfCategory() feeds the email/news-notes boilerplate pickers and must
+     * not keep offering one the user just deleted until the background purge job runs.
+     */
+    public function testGetBoilerplatesOfCategoryExcludesPendingDeletion(): void
+    {
+        $entityManager = self::getContainer()->get('doctrine.orm.entity_manager');
+        $procedure = ProcedureFactory::createOne()->_real();
+
+        $category = new BoilerplateCategory();
+        $category->setProcedure($procedure);
+        $category->setTitle('excludesPendingDeletionCategory');
+        $entityManager->persist($category);
+
+        $liveBoilerplate = BoilerplateFactory::createOne(['procedure' => $procedure])->_real();
+        $pendingDeletionBoilerplate = BoilerplateFactory::createOne(['procedure' => $procedure, 'pendingDeletion' => true])->_real();
+        $category->addBoilerplate($liveBoilerplate);
+        $category->addBoilerplate($pendingDeletionBoilerplate);
+        $entityManager->flush();
+
+        $boilerplates = $this->sut->getBoilerplatesOfCategory($procedure->getId(), 'excludesPendingDeletionCategory');
+
+        static::assertSame([$liveBoilerplate], $boilerplates);
     }
 
     /**

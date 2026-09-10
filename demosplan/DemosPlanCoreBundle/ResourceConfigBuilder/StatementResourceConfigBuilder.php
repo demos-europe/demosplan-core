@@ -57,6 +57,7 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $publicAllowed @deprecated Use {@link StatementResourceType::$publicVerified} instead
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $publicVerifiedTranslation
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $recommendationIsTruncated
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $recommendationEmbedded
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $submitDate @deprecated Move into StatementSubmitData resource type or something similar
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $textIsTruncated
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $userGroup @deprecated Move into separate resource type (maybe StatementSubmitData resource type or something similar)

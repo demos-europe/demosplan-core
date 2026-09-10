@@ -42,7 +42,7 @@ class BoilerplateUsageRepositoryTest extends FunctionalTestCase
         // assert
         static::assertNotNull($usage->getId());
         static::assertSame($boilerplate, $usage->getBoilerplate());
-        static::assertSame($segment, $usage->getSegment());
+        static::assertSame($segment, $usage->getStatementOrSegment());
         static::assertNotNull($usage->getCreateDate());
         static::assertSame(1, $this->countEntries(BoilerplateUsage::class, ['boilerplate' => $boilerplate]));
     }
@@ -128,8 +128,8 @@ class BoilerplateUsageRepositoryTest extends FunctionalTestCase
 
         // assert
         static::assertCount(2, $usages);
-        static::assertSame('M100-1', $usages[0]->getSegment()->getExternId());
-        static::assertSame('M100-2', $usages[1]->getSegment()->getExternId());
+        static::assertSame('M100-1', $usages[0]->getStatementOrSegment()->getExternId());
+        static::assertSame('M100-2', $usages[1]->getStatementOrSegment()->getExternId());
     }
 
     public function testGetUsagesForBoilerplateExcludesDeletedSegments(): void
@@ -153,7 +153,7 @@ class BoilerplateUsageRepositoryTest extends FunctionalTestCase
 
         // assert
         static::assertCount(1, $usages);
-        static::assertSame($segment->getId(), $usages[0]->getSegment()->getId());
+        static::assertSame($segment->getId(), $usages[0]->getStatementOrSegment()->getId());
     }
 
     public function testGetUsagesForBoilerplateReturnsEmptyArrayWithoutUsages(): void

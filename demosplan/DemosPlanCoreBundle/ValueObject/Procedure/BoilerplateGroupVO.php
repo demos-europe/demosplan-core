@@ -54,7 +54,7 @@ class BoilerplateGroupVO extends ValueObject
     {
         $this->setId($group->getId());
         $this->setTitle($group->getTitle());
-        $this->setBoilerplates($group->getBoilerplates()->toArray());
+        $this->setBoilerplates($group->getBoilerplatesExcludingPendingDeletion());
         $this->setProcedure($group->getProcedure());
         $this->lock();
     }
