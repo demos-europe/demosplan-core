@@ -14,7 +14,7 @@
     role="alert"
   >
     <div
-      v-html="sanitizedMessage"
+      v-cleanhtml="props.message"
     />
     <dp-button
       :class="prefixClass('absolute top-2 right-2')"
@@ -28,9 +28,10 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
-import { DpButton, prefixClass } from '@demos-europe/demosplan-ui'
-import DomPurify from 'dompurify'
+import { CleanHtml, DpButton, prefixClass } from '@demos-europe/demosplan-ui'
+import { ref } from 'vue'
+
+const vCleanhtml = CleanHtml
 
 const props = defineProps({
   message: {
@@ -41,7 +42,6 @@ const props = defineProps({
 
 const storageKey = 'serverBannerDismissed'
 const isVisible = ref(sessionStorage.getItem(storageKey) !== props.message)
-const sanitizedMessage = computed(() => DomPurify.sanitize(props.message))
 
 const dismiss = () => {
   isVisible.value = false
