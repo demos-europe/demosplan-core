@@ -43,16 +43,16 @@ import UnsavedChangesDialog from '@DpJs/components/shared/UnsavedChangesDialog'
  * @param {Array} apiStoreModules - API store modules
  * @param {Object} presetStoreModules - Preset store modules
  * @param {Function} modifyApp - Callback to modify the Vue app instance
- * @param {Object} api3AdditionalModules - Page-specific modules to use API 3.0 instead of 2.0
+ * @param {Object} pageSpecificApi3Modules - Page-specific modules to use API 3.0 instead of 2.0
  *                                         Enables gradual migration to API Platform 3.0 without
  *                                         refactoring all components at once. Different pages can
  *                                         use different API versions for the same resource types.
  */
 
-function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}, modifyApp = () => {}, api3AdditionalModules = {}) {
+function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}, modifyApp = () => {}, pageSpecificApi3Modules = {}) {
   bootstrap()
 
-  return initStore(storeModules, apiStoreModules, presetStoreModules, api3AdditionalModules).then(store => {
+  return initStore(storeModules, apiStoreModules, presetStoreModules, pageSpecificApi3Modules).then(store => {
     configureCompat({
       RENDER_FUNCTION: false,
     })

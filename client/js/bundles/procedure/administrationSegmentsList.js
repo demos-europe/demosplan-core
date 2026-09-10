@@ -42,11 +42,11 @@ const apiStores = [
 /**
  * Use API Platform 3.0 for StatementSegment on this page
  */
-const api3AdditionalModules = {
+const pageSpecificApi3Modules = {
   StatementSegment: [
     'list',
     'get',
   ],
 }
 
-initialize(components, stores, apiStores, {}, () => {}, api3AdditionalModules)
+initialize(components, stores, apiStores, {}, () => {}, pageSpecificApi3Modules)
