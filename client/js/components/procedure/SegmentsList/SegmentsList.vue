@@ -1337,7 +1337,7 @@ export default {
     },
 
     /**
-     * Get all segments (without pagination) to save them in localStorage for bulk editing.
+     * Get all segment ids (without pagination) to save them in localStorage for bulk editing.
      * If 'feature_segment_lock_by_workflow_place' is active, users without `feature_administrate_segment_lock`
      * must not be able to bulk-edit segments whose workflow place is locked, so exclude them from the ID set.
      */
