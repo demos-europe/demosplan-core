@@ -5,6 +5,10 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+## v4.60.0 (2026-09-09)
+
+## v4.59.0 (2026-09-09)
 - uses TagListCsvExportEventInterface
 - dpends on demosplan-addon version >= v0.82
 
@@ -67,6 +71,8 @@
 
 ## v4.53.0 (2026-07-30)
 
+## v4.52.1 (2026-09-05)
+
 ## v4.52.0 (2026-07-29)
 
 ### Added
@@ -98,6 +104,7 @@
 - Institution coordinators without a second organisation email address are now redirected to the welcome page until they provide it.
 
 ## v4.49.0 (2026-07-15)
+
 ## v4.48.0 (2026-07-07)
 
 ### Added

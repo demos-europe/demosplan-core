@@ -377,8 +377,8 @@ export default {
       })
 
       /*
-       * Snapshot the applied query before emitting: the emit synchronously triggers applyQuery,
-       * which discards unapplied changes against this snapshot.
+       * Snapshot the current selection as applied before emitting: applyQuery reads this snapshot
+       * (getLastAppliedFilterQuery) for the fetch, so it must be up to date first.
        */
       commitFilterQuery()
       emit('filterApply', mergedFilter)
