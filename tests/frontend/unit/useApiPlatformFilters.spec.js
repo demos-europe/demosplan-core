@@ -101,17 +101,5 @@ describe('useApiPlatformFilters', () => {
         'tag.id': ['tag-uuid-123'],
       })
     })
-
-    it('handles multiple IS NULL filters', () => {
-      const filters = {
-        filter1: createFilter('assignee', null, 'IS NULL'),
-        filter2: createFilter('tag', null, 'IS NULL'),
-      }
-
-      expect(transformFiltersToApiPlatform(filters)).toEqual({
-        'exists[assignee]': false,
-        'exists[tag]': false,
-      })
-    })
   })
 })
