@@ -28,6 +28,8 @@ const SplitStatementStore = {
     // Segment currently being edited
     editingSegment: null,
     initialData: null,
+    // Last successfully saved/loaded editor HTML, used to revert `initText` on a failed draft save
+    initialInitText: '',
     initialSegments: [],
     initText: '',
     // Loading state for save+finish button
@@ -279,6 +281,7 @@ const SplitStatementStore = {
           commit('setProperty', { prop: 'initialSegments', val: segments })
           commit('setProperty', { prop: 'segments', val: segments })
           commit('setProperty', { prop: 'initText', val: initText })
+          commit('setProperty', { prop: 'initialInitText', val: initText })
           commit('setProperty', { prop: 'contentBlocks', val: contentBlocks })
 
           const segmentTags = state.segments.reduce((acc, seg) => {
@@ -428,8 +431,13 @@ const SplitStatementStore = {
     saveSegmentsDrafts ({ state, commit, dispatch }, triggerNotifications = false) {
       const dataToSend = structuredClone(state.initialData)
 
-      dataToSend.attributes.textualReference = state.initText
-      dataToSend.attributes.segments = structuredClone(state.segments)
+      /*
+       * A previously loaded/saved legacy shape may still carry these - contentBlocks is the only
+       * format sent going forward, so drop them rather than sending both (a payload satisfying
+       * both the legacy and contentBlocks schema branches fails "oneOf" validation).
+       */
+      delete dataToSend.attributes.textualReference
+      delete dataToSend.attributes.segments
       dataToSend.attributes.contentBlocks = structuredClone(state.contentBlocks)
 
       const payload = {
@@ -448,7 +456,8 @@ const SplitStatementStore = {
       }), {}, { data: payload })
         .then(() => {
           commit('setProperty', { prop: 'initialData', val: dataToSend })
-          commit('setProperty', { prop: 'initialSegments', val: dataToSend.attributes.segments })
+          commit('setProperty', { prop: 'initialSegments', val: structuredClone(state.segments) })
+          commit('setProperty', { prop: 'initialInitText', val: state.initText })
 
           if (triggerNotifications) {
             dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
@@ -458,7 +467,7 @@ const SplitStatementStore = {
           dplan.notify.notify('error', Translator.trans('error.api.generic'))
 
           commit('setProperty', { prop: 'segments', val: structuredClone(state.initialSegments) })
-          commit('setProperty', { prop: 'initText', val: state.initialData.attributes.textualReference })
+          commit('setProperty', { prop: 'initText', val: state.initialInitText })
           commit('setProperty', { prop: 'needsEditorRefresh', val: true })
         })
     },
@@ -466,7 +475,9 @@ const SplitStatementStore = {
     saveSegmentsFinal ({ dispatch, state, commit }) {
       const dataToSend = structuredClone(state.initialData)
 
-      dataToSend.attributes.segments = structuredClone(state.segments)
+      // See saveSegmentsDrafts: contentBlocks is the only format sent going forward.
+      delete dataToSend.attributes.textualReference
+      delete dataToSend.attributes.segments
       dataToSend.attributes.contentBlocks = structuredClone(state.contentBlocks)
       dataToSend.attributes.statementText = state.statementText
 
@@ -521,6 +532,7 @@ const SplitStatementStore = {
       commit('setProperty', { prop: 'initialData', val: initialData })
       commit('setProperty', { prop: 'segments', val: initialData.attributes.segments })
       commit('setProperty', { prop: 'initText', val: initialData.attributes.textualReference })
+      commit('setProperty', { prop: 'initialInitText', val: initialData.attributes.textualReference })
       commit('setProperty', { prop: 'contentBlocks', val: [] })
     },
 
@@ -573,6 +585,7 @@ const SplitStatementStore = {
     editingSegment: (state) => state.editingSegment,
     editingSegmentId: (state) => state.editingSegment ? state.editingSegment.id : null,
     initialData: (state) => state.initialData,
+    initialInitText: (state) => state.initialInitText,
     initialSegments: (state) => state.initialSegments,
     initText: (state) => state.initText,
     isBusy: (state) => state.isBusy,

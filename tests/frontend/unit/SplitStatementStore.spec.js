@@ -132,17 +132,23 @@ describe('SplitStatement store', () => {
         attributes: {
           statementId: 'statement-1',
           procedureId: 'procedure-1',
+          /*
+           * A previously loaded/saved draft may still carry the legacy fields (e.g. seeded by
+           * setInitialData, or loaded from an old-format in-progress draft) - they must be
+           * stripped before sending, never sent alongside contentBlocks.
+           */
           textualReference: '<p>Old legacy HTML</p>',
           segments: [],
         },
       },
       initText: '<segment-mark data-segment-id="a">Text</segment-mark>',
+      initialInitText: '<p>Old legacy HTML</p>',
       segments: [{ id: 'a', tags: [] }],
       initialSegments: [],
       contentBlocks: [{ type: 'segment', order: 1, id: 'a', text: 'Text', textRaw: 'Text', status: 'confirmed', tags: [] }],
     })
 
-    it('saveSegmentsDrafts sends contentBlocks alongside the legacy fields', async () => {
+    it('saveSegmentsDrafts sends only contentBlocks, dropping any legacy fields carried over from initialData', async () => {
       const state = buildState()
       const commit = vi.fn()
 
@@ -152,15 +158,46 @@ describe('SplitStatement store', () => {
       const dataToSend = mockDpApiPatch.mock.calls[0][2].data.attributes.segmentDraftList.data
 
       expect(dataToSend.attributes.contentBlocks).toEqual(state.contentBlocks)
-      /*
-       * Legacy fields are still sent too (harmless once contentBlocks is present server-side) -
-       * saveSegmentsDrafts' own success handler re-syncs initialData/initialSegments from them.
-       */
-      expect(dataToSend.attributes.textualReference).toBe(state.initText)
-      expect(dataToSend.attributes.segments).toEqual(state.segments)
+      // A payload carrying both shapes fails the schema's "oneOf" - only contentBlocks may be sent.
+      expect(dataToSend.attributes).not.toHaveProperty('textualReference')
+      expect(dataToSend.attributes).not.toHaveProperty('segments')
     })
 
-    it('saveSegmentsFinal sends contentBlocks', async () => {
+    it('saveSegmentsDrafts re-syncs initialSegments/initialInitText from live state on success', async () => {
+      const state = buildState()
+      const commit = vi.fn((mutation, payload) => {
+        if (mutation === 'setProperty') {
+          state[payload.prop] = payload.val
+        }
+      })
+
+      await SplitStatementStore.actions.saveSegmentsDrafts({ state, commit, dispatch: vi.fn() }, false)
+
+      expect(state.initialSegments).toEqual([{ id: 'a', tags: [] }])
+      expect(state.initialInitText).toBe('<segment-mark data-segment-id="a">Text</segment-mark>')
+    })
+
+    it('saveSegmentsDrafts reverts initText from initialInitText (not from initialData) on failure', async () => {
+      mockDpApiPatch.mockImplementationOnce(() => Promise.reject(new Error('network error')))
+      global.dplan = { notify: { notify: vi.fn() } }
+      global.Translator = { trans: key => key }
+
+      const state = buildState()
+      const commit = vi.fn((mutation, payload) => {
+        if (mutation === 'setProperty') {
+          state[payload.prop] = payload.val
+        }
+      })
+
+      await SplitStatementStore.actions.saveSegmentsDrafts({ state, commit, dispatch: vi.fn() }, false)
+
+      expect(state.initText).toBe(state.initialInitText)
+
+      delete global.dplan
+      delete global.Translator
+    })
+
+    it('saveSegmentsFinal sends only contentBlocks (plus statementText), dropping any legacy fields', async () => {
       const state = buildState()
       const commit = vi.fn()
 
@@ -170,6 +207,8 @@ describe('SplitStatement store', () => {
       const dataToSend = mockDpApiPost.mock.calls[0][2].data
 
       expect(dataToSend.attributes.contentBlocks).toEqual(state.contentBlocks)
+      expect(dataToSend.attributes).not.toHaveProperty('textualReference')
+      expect(dataToSend.attributes).not.toHaveProperty('segments')
     })
   })
 
