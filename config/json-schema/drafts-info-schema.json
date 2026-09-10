@@ -34,99 +34,144 @@
           "$id": "#/properties/data/properties/attributes",
           "type": "object",
           "title": "The Attributes Schema",
-          "required": [
-            "statementId",
-            "procedureId",
-            "textualReference",
-            "segments"
-          ],
-          "properties": {
-            "statementId": {
-              "$id": "#/properties/data/properties/attributes/properties/statementId",
-              "type": "string",
-              "minLength": 36,
-              "maxLength": 36,
-              "title": "The Statementid Schema"
-            },
-            "procedureId": {
-              "$id": "#/properties/data/properties/attributes/properties/procedureId",
-              "type": "string",
-              "minLength": 36,
-              "maxLength": 36,
-              "title": "The Procedureid Schema"
-            },
-            "textualReference": {
-              "$id": "#/properties/data/properties/attributes/properties/textualReference",
-              "type": "string",
-              "title": "The Textualreference Schema",
-              "description": "HTML containing <segment-mark data-segment-id='uuid'> elements that define segment boundaries and text content."
-            },
-            "segments": {
-              "$id": "#/properties/data/properties/attributes/properties/segments",
-              "type": "array",
-              "title": "The Segments Schema",
-              "description": "Array with segment metadata (tags, assignee, place). Text is extracted from textualReference.",
-              "items": {
-                "$id": "#/properties/data/properties/attributes/properties/segments/items",
-                "type": "object",
-                "title": "The Items Schema",
-                "description": "Segment metadata.",
-                "required": [
-                  "id",
-                  "tags"
-                ],
-                "properties": {
-                  "id": {
-                    "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/id",
-                    "type": "string",
-                    "minLength": 36,
-                    "maxLength": 36,
-                    "title": "The Id Schema",
-                    "description": "Segment ID matching the data-segment-id attribute in textualReference."
-                  },
-                  "assigneeId": {
-                    "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/assignee",
-                    "type": "string",
-                    "minLength": 36,
-                    "maxLength": 36
-                  },
-                  "placeId": {
-                    "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/place",
-                    "type": "string",
-                    "minLength": 36,
-                    "maxLength": 36
-                  },
-                  "tags": {
-                    "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/tags",
-                    "type": "array",
-                    "title": "The Tags Schema",
-                    "items": {
-                      "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/tags/items",
-                      "type": "object",
-                      "title": "The Tag Items Schema",
-                      "required": [
-                        "tagName", "id"
-                      ],
-                      "properties": {
-                        "tagName": {
-                          "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/tags/items/properties/tagName",
-                          "type": "string",
-                          "title": "Tagname Schema",
-                          "description": "Tag name as stored by PI and dev backend"
-                        },
-                        "id": {
-                          "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/tags/items/properties/id",
-                          "type": "string",
-                          "title": "The id Schema",
-                          "description": "Tag id as stored by PI and Dev backend. When no dplan tag could be found it may be empty."
+          "oneOf": [
+            {
+              "required": [
+                "statementId",
+                "procedureId",
+                "textualReference",
+                "segments"
+              ],
+              "properties": {
+                "statementId": {
+                  "$id": "#/properties/data/properties/attributes/properties/statementId",
+                  "type": "string",
+                  "minLength": 36,
+                  "maxLength": 36,
+                  "title": "The Statementid Schema"
+                },
+                "procedureId": {
+                  "$id": "#/properties/data/properties/attributes/properties/procedureId",
+                  "type": "string",
+                  "minLength": 36,
+                  "maxLength": 36,
+                  "title": "The Procedureid Schema"
+                },
+                "textualReference": {
+                  "$id": "#/properties/data/properties/attributes/properties/textualReference",
+                  "type": "string",
+                  "title": "The Textualreference Schema",
+                  "description": "HTML containing <segment-mark data-segment-id='uuid'> elements that define segment boundaries and text content."
+                },
+                "segments": {
+                  "$id": "#/properties/data/properties/attributes/properties/segments",
+                  "type": "array",
+                  "title": "The Segments Schema",
+                  "description": "Array with segment metadata (tags, assignee, place). Text is extracted from textualReference.",
+                  "items": {
+                    "$id": "#/properties/data/properties/attributes/properties/segments/items",
+                    "type": "object",
+                    "title": "The Items Schema",
+                    "description": "Segment metadata.",
+                    "required": [
+                      "id",
+                      "tags"
+                    ],
+                    "properties": {
+                      "id": {
+                        "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/id",
+                        "type": "string",
+                        "minLength": 36,
+                        "maxLength": 36,
+                        "title": "The Id Schema",
+                        "description": "Segment ID matching the data-segment-id attribute in textualReference."
+                      },
+                      "assigneeId": {
+                        "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/assignee",
+                        "type": "string",
+                        "minLength": 36,
+                        "maxLength": 36
+                      },
+                      "placeId": {
+                        "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/place",
+                        "type": "string",
+                        "minLength": 36,
+                        "maxLength": 36
+                      },
+                      "tags": {
+                        "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/tags",
+                        "type": "array",
+                        "title": "The Tags Schema",
+                        "items": {
+                          "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/tags/items",
+                          "type": "object",
+                          "title": "The Tag Items Schema",
+                          "required": [
+                            "tagName", "id"
+                          ],
+                          "properties": {
+                            "tagName": {
+                              "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/tags/items/properties/tagName",
+                              "type": "string",
+                              "title": "Tagname Schema",
+                              "description": "Tag name as stored by PI and dev backend"
+                            },
+                            "id": {
+                              "$id": "#/properties/data/properties/attributes/properties/segments/items/properties/tags/items/properties/id",
+                              "type": "string",
+                              "title": "The id Schema",
+                              "description": "Tag id as stored by PI and Dev backend. When no dplan tag could be found it may be empty."
+                            }
+                          }
                         }
                       }
                     }
                   }
                 }
               }
+            },
+            {
+              "required": [
+                "statementId",
+                "procedureId",
+                "contentBlocks"
+              ],
+              "properties": {
+                "statementId": {
+                  "type": "string",
+                  "minLength": 36,
+                  "maxLength": 36
+                },
+                "procedureId": {
+                  "type": "string",
+                  "minLength": 36,
+                  "maxLength": 36
+                },
+                "contentBlocks": {
+                  "$id": "#/properties/data/properties/attributes/properties/contentBlocks",
+                  "type": "array",
+                  "title": "The Content Blocks Schema",
+                  "description": "Order-based content blocks (segments and text sections), replacing textualReference + segments.",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "type",
+                      "order"
+                    ],
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "enum": ["segment", "textSection"]
+                      },
+                      "order": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
             }
-          }
+          ]
         }
       }
     }

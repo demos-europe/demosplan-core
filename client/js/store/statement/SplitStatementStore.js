@@ -7,6 +7,7 @@
  * All rights reserved
  */
 
+import { deriveFromContentBlocks, deriveFromLegacy } from './storeHelpers/SplitStatementStore/ContentBlocks'
 import { dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { transformJsonApiToPi, transformPiToJsonApi } from './storeHelpers/SplitStatementStore/PiTagsToJSONApi'
 import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
@@ -21,6 +22,7 @@ const SplitStatementStore = {
     availablePlaces: [],
     availableTags: [],
     categorizedTags: [],
+    contentBlocks: [],
     currentlyHighlightedSegmentId: null,
     editModeActive: false,
     // Segment currently being edited
@@ -266,23 +268,18 @@ const SplitStatementStore = {
           }
 
           const initialData = data.data.attributes.segmentDraftList.data
-          const segments = initialData.attributes.segments
 
           commit('setProperty', { prop: 'initialData', val: initialData })
-          commit('setProperty', { prop: 'initialSegments', val: segments })
 
-          // This should not be neccessary once the BE always sends a place
-          segments.forEach((segment, idx) => {
-            if (hasOwnProp(segment, 'place') === false) {
-              if (state.availablePlaces.length > 0) {
-                segments[idx].place = { id: state.availablePlaces[0].value, name: state.availablePlaces[0].label }
-              } else {
-                segments[idx].place = { id: '', name: '' }
-              }
-            }
-          })
+          const isContentBlocksFormat = hasOwnProp(initialData.attributes, 'contentBlocks')
+          const { segments, initText, contentBlocks } = isContentBlocksFormat ?
+            deriveFromContentBlocks(initialData.attributes.contentBlocks, state.availablePlaces) :
+            deriveFromLegacy(initialData.attributes, state.availablePlaces)
+
+          commit('setProperty', { prop: 'initialSegments', val: segments })
           commit('setProperty', { prop: 'segments', val: segments })
-          commit('setProperty', { prop: 'initText', val: initialData.attributes.textualReference })
+          commit('setProperty', { prop: 'initText', val: initText })
+          commit('setProperty', { prop: 'contentBlocks', val: contentBlocks })
 
           const segmentTags = state.segments.reduce((acc, seg) => {
             const tagNames = seg.tags || []
@@ -433,6 +430,7 @@ const SplitStatementStore = {
 
       dataToSend.attributes.textualReference = state.initText
       dataToSend.attributes.segments = structuredClone(state.segments)
+      dataToSend.attributes.contentBlocks = structuredClone(state.contentBlocks)
 
       const payload = {
         id: state.statementId,
@@ -469,6 +467,7 @@ const SplitStatementStore = {
       const dataToSend = structuredClone(state.initialData)
 
       dataToSend.attributes.segments = structuredClone(state.segments)
+      dataToSend.attributes.contentBlocks = structuredClone(state.contentBlocks)
       dataToSend.attributes.statementText = state.statementText
 
       return dpApi.post(Routing.generate('dplan_drafts_list_confirm', {
@@ -522,6 +521,7 @@ const SplitStatementStore = {
       commit('setProperty', { prop: 'initialData', val: initialData })
       commit('setProperty', { prop: 'segments', val: initialData.attributes.segments })
       commit('setProperty', { prop: 'initText', val: initialData.attributes.textualReference })
+      commit('setProperty', { prop: 'contentBlocks', val: [] })
     },
 
     /**
@@ -567,6 +567,7 @@ const SplitStatementStore = {
     assignableUsers: (state) => state.assignableUsers,
     availablePlaces: (state) => state.availablePlaces,
     categorizedTags: (state) => state.categorizedTags,
+    contentBlocks: (state) => state.contentBlocks,
     currentlyHighlightedSegmentId: (state) => state.currentlyHighlightedSegmentId,
     editModeActive: (state) => state.editModeActive,
     editingSegment: (state) => state.editingSegment,

@@ -171,7 +171,7 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
             $textSection = new TextSection();
             $textSection->setStatement($statement);
             $textSection->setOrderInStatement($block['order'] ?? 0);
-            $textSection->setTextRaw($block['text'] ?? '');
+            $textSection->setTextRaw($block['textRaw'] ?? $block['text'] ?? '');
             $textSection->setText($block['text'] ?? '');
             $statement->addTextSection($textSection);
             $textSections[] = $textSection;
