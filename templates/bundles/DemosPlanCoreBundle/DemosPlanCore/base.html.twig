@@ -53,6 +53,9 @@
 
         {# Mount vue instance to this wrapper #}
         <div id="app" class="o-page__wrapper">
+            {% if serverBanner is defined and serverBanner is not empty %}
+                <server-banner :message="JSON.parse('{{ serverBanner|json_encode|e('js', 'utf-8') }}')"></server-banner>
+            {% endif %}
 
             {% block a11y_jump_navigation %}
                 {# @improve T17928 investigate focus vs. visibility  #}
