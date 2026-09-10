@@ -45,12 +45,21 @@ export default {
 
     /**
      * Update pagination with data from the DB and local Storage.
+     * Falls back to API-provided values if localStorage is empty.
      * @param {object} data - Pagination data from the DB via API (supports both EDT 2.0 and API Platform 3.0).
      */
     updatePagination (data) {
       const normalized = this.normalizePagination(data)
-      const currentPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).currentPage)
-      const perPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).perPage)
+      const storedPagination = window.localStorage.getItem(this.storageKeyPagination)
+
+      let currentPage = normalized.currentPage
+      let perPage = normalized.perPage
+
+      if (storedPagination) {
+        const parsed = JSON.parse(storedPagination)
+        currentPage = Number(parsed.currentPage)
+        perPage = Number(parsed.perPage)
+      }
 
       this.pagination = {
         count: normalized.count,

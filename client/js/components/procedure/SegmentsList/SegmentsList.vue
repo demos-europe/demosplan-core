@@ -390,7 +390,7 @@
                   }"
                 >
                   {{ Translator.trans("version") }}:
-                  {{ rowData.attributes.currentRecommendationVersionNumber }}
+                  {{ formatRecommendationVersionNumber(rowData.attributes.currentRecommendationVersionNumber) }}
                 </span>
               </div>
             </template>
@@ -1293,10 +1293,6 @@ export default {
           ...this.tagsObject,
           ...supplemental.tagsById,
         },
-        recommendationVersionsById: {
-          ...this.recommendationVersions,
-          ...supplemental.recommendationVersionsById,
-        },
         hasRecommendationVersions: hasPermission('feature_enable_recommendation_versions'),
       }
       const headerFields = this.$refs.dataTable?.orderedHeaderFields || this.availableHeaderFields
@@ -1371,6 +1367,10 @@ export default {
       })
     },
 
+    formatRecommendationVersionNumber (versionNumber) {
+      return versionNumber ? String(versionNumber).padStart(3, '0') : ''
+    },
+
     getClipboardAddress (segment, context) {
       const statement = this.getClipboardParentStatement(segment, context)
 
@@ -1435,16 +1435,9 @@ export default {
 
     getClipboardRecommendation (segment, context) {
       const text = this.stripHtmlForClipboard(segment.attributes.recommendation) || '-'
-      const versionNumber = context.hasRecommendationVersions ? this.getClipboardRecommendationVersionNumber(segment, context) : ''
+      const versionNumber = context.hasRecommendationVersions ? this.formatRecommendationVersionNumber(segment.attributes.currentRecommendationVersionNumber) : ''
 
       return versionNumber ? `${text} ${Translator.trans('version')}: ${versionNumber}` : text
-    },
-
-    getClipboardRecommendationVersionNumber (segment, context) {
-      const versionId = segment.relationships?.recommendationVersions?.data?.[0]?.id
-      const versionNumber = versionId && context.recommendationVersionsById[versionId]?.attributes?.versionNumber
-
-      return versionNumber ? String(versionNumber).padStart(3, '0') : ''
     },
 
     getClipboardSubmitter (segment, context) {

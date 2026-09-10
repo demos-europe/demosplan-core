@@ -129,6 +129,56 @@ describe('paginationMixin', () => {
     })
   })
 
+  describe('updatePagination', () => {
+    it('falls back to API values when localStorage is empty', () => {
+      mockStoredPagination(null)
+
+      const paginationData = {
+        current_page: 3,
+        per_page: 50,
+        count: 20,
+        total: 150,
+        total_pages: 3,
+      }
+
+      context.updatePagination(paginationData)
+
+      expect(context.pagination).toEqual({
+        count: 20,
+        currentPage: 3,
+        limits: [10, 25, 50, 100],
+        perPage: 50,
+        total: 150,
+        totalPages: 3,
+      })
+    })
+
+    it('uses localStorage values when available', () => {
+      mockStoredPagination({
+        currentPage: 5,
+        perPage: 100,
+      })
+
+      const paginationData = {
+        current_page: 3,
+        per_page: 50,
+        count: 20,
+        total: 150,
+      }
+
+      context.updatePagination(paginationData)
+
+      expect(context.pagination).toEqual({
+        count: 20,
+        currentPage: 5,
+        limits: [10, 25, 50, 100],
+        perPage: 100,
+        total: 150,
+        totalPages: null,
+      })
+    })
+  })
+
   describe('pagination workflow', () => {
     it('initializes, stores and updates pagination', () => {
       mockStoredPagination(null)
