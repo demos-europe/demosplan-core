@@ -60,6 +60,7 @@ export default {
 
       if (storedPagination) {
         const parsed = JSON.parse(storedPagination)
+
         currentPage = Number(parsed.currentPage)
         perPage = Number(parsed.perPage)
       }
