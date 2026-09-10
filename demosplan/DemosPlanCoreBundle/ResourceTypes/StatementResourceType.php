@@ -44,6 +44,7 @@ use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\StatementResourceConfigB
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryStatement;
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
+use demosplan\DemosPlanCoreBundle\Transformers\Segment\StatementToDraftsInfoTransformer;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
@@ -94,6 +95,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly ProcedurePhaseDefinitionService $procedurePhaseDefinitionService,
         private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository,
         private readonly FileContainerRepository $fileContainerRepository,
+        private readonly StatementToDraftsInfoTransformer $statementToDraftsInfoTransformer,
         private readonly CustomFieldValueCreator $customFieldValueCreator,
     ) {
         parent::__construct($htmlSanitizer, $statementService);
@@ -398,9 +400,19 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 ->aliasedPath(Paths::statement()->draftsListJson)
                 ->readable(false, function (Statement $statement): ?array {
                     $draftsListJson = $statement->getDraftsListJson();
+
+                    // If no drafts list JSON exists yet, generate a default structure
                     if ('' === $draftsListJson) {
+                        // For segmented statements, delegate to transformer
+                        if ($statement->isSegmented()) {
+                            $json = $this->statementToDraftsInfoTransformer->transform($statement->getId());
+
+                            return Json::decodeToArray($json);
+                        }
+
                         return null;
                     }
+
                     $data = Json::decodeToArray($draftsListJson);
                     if ($this->draftsListJsonMigrator->needsMigration($data)) {
                         $data = $this->draftsListJsonMigrator->migrate($data);
@@ -434,6 +446,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         // updatable with special permission and on manual statements only
         if ($this->currentUser->hasPermission('area_admin_statement_list')) {
             $configBuilder->fullText
+                ->readable(true, static fn (Statement $statement): string => $statement->getText())
                 ->updatable($statementConditions)
                 ->aliasedPath(Paths::statement()->text);
             $configBuilder->initialOrganisationName

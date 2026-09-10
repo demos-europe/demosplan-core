@@ -66,6 +66,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\RecommendationVersionService;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Services\HTMLFragmentSlicer;
+use demosplan\DemosPlanCoreBundle\ValueObject\SegmentationStatus;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -323,6 +324,12 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      */
     #[ORM\Column(name: '_st_status', type: 'string', length: 50, nullable: false, options: ['fixed' => true])]
     protected $status = 'new';
+
+    /**
+     * @var string
+     */
+    #[ORM\Column(name: '_st_segmentation_status', type: 'string', length: 20, nullable: false)]
+    protected $segmentationStatus = 'unsegmented';
 
     /**
      * @var DateTime
@@ -940,6 +947,13 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     protected $segmentsOfStatement;
 
     /**
+     * @var Collection<int, TextSection>
+     */
+    #[ORM\OneToMany(targetEntity: TextSection::class, mappedBy: 'statement', cascade: ['persist', 'remove'])]
+    #[ORM\OrderBy(['orderInStatement' => 'ASC'])]
+    protected $textSections;
+
+    /**
      * Virtual property to include the methods result in the legacy array format.
      *
      * @var bool
@@ -1023,6 +1037,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         $this->cluster = new ArrayCollection();
         $this->children = new ArrayCollection();
         $this->segmentsOfStatement = new ArrayCollection();
+        $this->textSections = new ArrayCollection();
         $this->anonymizations = new ArrayCollection();
         $this->attachments = new ArrayCollection();
         $this->similarStatementSubmitters = new ArrayCollection();
@@ -1628,6 +1643,23 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function getStatus()
     {
         return $this->status;
+    }
+
+    public function setSegmentationStatus(SegmentationStatus $segmentationStatus): Statement
+    {
+        $this->segmentationStatus = $segmentationStatus->value;
+
+        return $this;
+    }
+
+    public function getSegmentationStatus(): string
+    {
+        return $this->segmentationStatus;
+    }
+
+    public function isSegmented(): bool
+    {
+        return SegmentationStatus::SEGMENTED->value === $this->segmentationStatus;
     }
 
     /**
@@ -2280,15 +2312,47 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
 
     /**
      * Get text.
+     *
+     * Returns either the legacy text field for unsegmented statements,
+     * or composes text from segments and text sections for segmented statements.
+     *
+     * @todo DPLAN-12697 Not safe to use as-is: for the legacy segment-mark format the
+     *       frontend still sends, segments only cover the parts of the document wrapped
+     *       in <segment-mark>, and textSections is never populated, so composing here
+     *       silently drops any unmarked remainder text while also losing document order.
+     *       Needs frontend changes (sending order-preserving contentBlocks for segments
+     *       and text sections) before this can compose correctly.
      */
     public function getText(): string
     {
-        return $this->text;
+        if (!$this->isSegmented()) {
+            return $this->text;
+        }
+
+        $allParts = [];
+
+        foreach ($this->getSegmentsOfStatement() as $segment) {
+            $allParts[] = [
+                'order' => $segment->getOrderInStatement(),
+                'text'  => $segment->getText(),
+            ];
+        }
+
+        foreach ($this->getTextSections() as $textSection) {
+            $allParts[] = [
+                'order' => $textSection->getOrderInStatement(),
+                'text'  => $textSection->getText(),
+            ];
+        }
+
+        usort($allParts, fn ($a, $b) => $a['order'] <=> $b['order']);
+
+        return implode(' ', array_column($allParts, 'text'));
     }
 
     public function getTextShort(): string
     {
-        return HTMLFragmentSlicer::getShortened($this->text);
+        return HTMLFragmentSlicer::getShortened($this->getText());
     }
 
     /**
@@ -4269,6 +4333,31 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function setCustomFields(?CustomFieldValuesList $customFields): void
     {
         $this->customFields = $customFields;
+    }
+
+    /**
+     * @return Collection<int, TextSection>
+     */
+    public function getTextSections(): Collection
+    {
+        return $this->textSections;
+    }
+
+    public function addTextSection(TextSection $textSection): self
+    {
+        if (!$this->textSections->contains($textSection)) {
+            $this->textSections->add($textSection);
+            $textSection->setStatement($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTextSection(TextSection $textSection): self
+    {
+        $this->textSections->removeElement($textSection);
+
+        return $this;
     }
 
     /**
