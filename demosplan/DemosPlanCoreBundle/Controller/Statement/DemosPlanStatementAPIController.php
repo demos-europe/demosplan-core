@@ -55,7 +55,6 @@ use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use Exception;
 use League\Fractal\Resource\Collection;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;

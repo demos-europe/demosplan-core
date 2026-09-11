@@ -1637,7 +1637,7 @@ class DemosPlanStatementController extends BaseController
         } else {
             $draftListFilterVO = $draftFilterList[$procedureId][$templateName];
         }
-        /** @var DraftStatementListFilters $draftListFilterVO */
+        /* @var DraftStatementListFilters $draftListFilterVO */
 
         if ($request->query->has('reset')) {
             $draftFilterList[$procedureId][$templateName] = new DraftStatementListFilters();

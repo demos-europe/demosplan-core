@@ -23,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
 use demosplan\DemosPlanCoreBundle\Transformers\EntityContentChangeComparisonTransformer;
 use demosplan\DemosPlanCoreBundle\Transformers\HistoryDayTransformer;
 use Doctrine\ORM\EntityNotFoundException;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 

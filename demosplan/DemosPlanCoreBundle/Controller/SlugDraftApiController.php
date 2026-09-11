@@ -19,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
 use demosplan\DemosPlanCoreBundle\Transformers\SlugDraftTransformer;
 use demosplan\DemosPlanCoreBundle\ValueObject\SlugDraftValueObject;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
