@@ -176,8 +176,6 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     /**
      * A read-only procedure stays reachable for reference but cannot be modified any more.
      * Enforced via Permissions::setProcedurePermissions().
-     *
-     * @var bool
      */
     #[ORM\Column(name: 'read_only', type: 'boolean', nullable: false, options: ['default' => false])]
     protected bool $readOnly = false;

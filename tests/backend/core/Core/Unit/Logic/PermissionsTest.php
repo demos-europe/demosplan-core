@@ -3495,6 +3495,7 @@ class PermissionsTest extends FunctionalTestCase
 
         return $procedureRepositoryMock;
     }
+
     /**
      * A read-only procedure grants the read set instead of the owner's normal procedure
      * permissions, so writes are never enabled in the first place.
