@@ -45,6 +45,18 @@ export default {
 
     setStatementData (data) {
       this.updateStatement({ r_ident: this.draftStatementId, ...data })
+    },
+
+    /**
+     * Native radio inputs cannot be unchecked by clicking them again. This handler is bound via
+     * @click (which fires before the browser applies the checked state) so that clicking an
+     * already-checked location radio deselects it instead of being a no-op.
+     */
+    toggleLocationSelection (event, additionalReset = {}) {
+      if (event.target.checked) {
+        event.target.checked = false
+        this.setStatementData({ r_location: '', location_is_set: '', ...additionalReset })
+      }
     }
   }
 }

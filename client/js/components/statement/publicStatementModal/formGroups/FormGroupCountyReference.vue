@@ -37,6 +37,7 @@
         name="r_location"
         :checked="statement.location_is_set === 'county'"
         @change="() => { setStatementData({ r_location: 'county', location_is_set: 'county' }) }"
+        @click.native="toggleLocationSelection($event, { r_county: '' })"
         value="county" />
       <select
         v-if="statement.location_is_set === 'county'"
@@ -70,6 +71,7 @@
         name="r_location"
         :checked="statement.location_is_set === 'notLocated'"
         @change="() => { setStatementData({r_location: 'notLocated', location_is_set: 'notLocated'}) }"
+        @click.native="toggleLocationSelection($event)"
         value="notLocated" />
     </div>
   </fieldset>

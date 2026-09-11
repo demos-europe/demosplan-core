@@ -115,7 +115,7 @@
               id="negative_report_true"
               data-cy="statementModal:indicationerror"
               :checked="formData.r_isNegativeReport === '1'"
-              @change="() => { setStatementData({ r_isNegativeReport: '1'}) }"
+              @change="() => { setStatementData({ r_isNegativeReport: '1'}); clearLocationValidationState() }"
               :label="{
                 hint: Translator.trans('link.title.indicationerror'),
                 text: Translator.trans('indicationerror')
@@ -1211,6 +1211,20 @@ export default {
         r_paragraph_title: ''
       }
       this.setStatementData(elementFields)
+    },
+
+    /*
+     * The vanilla dpValidate lib marks the whole location fieldset invalid on blur once it's
+     * empty, without rechecking whether it's still required - clear that leftover state once
+     * Fehlanzeige makes the location optional again.
+     */
+    clearLocationValidationState () {
+      const fieldset = document.getElementById('locationFieldset')
+      if (!fieldset) {
+        return
+      }
+      const errorClass = this.prefixClass('is-invalid')
+      fieldset.querySelectorAll(`.${errorClass}`).forEach(el => el.classList.remove(errorClass))
     },
 
     removeNotificationsFromStore () {
