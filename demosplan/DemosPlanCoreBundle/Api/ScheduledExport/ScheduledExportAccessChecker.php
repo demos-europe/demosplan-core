@@ -17,10 +17,13 @@ use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
-use demosplan\DemosPlanCoreBundle\StoredQuery\SegmentListQuery;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 
+/**
+ * Access rules for scheduled Synopse exports, shared by the provider and the processor so that reads
+ * and writes cannot drift apart.
+ */
 class ScheduledExportAccessChecker
 {
     public function __construct(
@@ -32,13 +35,11 @@ class ScheduledExportAccessChecker
 
     public function isAvailable(): bool
     {
-        return $this->currentUser->hasAllPermissions(
-            'area_statement_segmentation',
-            'feature_procedure_user_filter_sets'
-        );
+        return $this->currentUser->hasPermission('feature_admin_scheduled_xlsx_export');
     }
 
     /**
+     * Restricts to the current user's own schedules within the current procedure.
      * @return list<ClauseFunctionInterface<bool>>
      */
     public function getAccessConditions(): array
@@ -54,23 +55,8 @@ class ScheduledExportAccessChecker
         }
 
         return [
-            $this->conditionFactory->propertyHasValue($user->getId(), Paths::scheduledExport()->user->id),
-            $this->conditionFactory->propertyHasValue($procedure->getId(), Paths::scheduledExport()->procedure->id),
-            $this->conditionFactory->propertyHasStringContainingCaseInsensitiveValue(
-                $this->getSegmentListFormatMarker(),
-                Paths::scheduledExport()->filterSet->storedQuery
-            ),
+            $this->conditionFactory->propertyHasValue($user->getId(), Paths::exportSchedule()->userId),
+            $this->conditionFactory->propertyHasValue($procedure->getId(), Paths::exportSchedule()->procedureId),
         ];
-    }
-
-    /**
-     * Derived from the query class rather than hardcoded, so the two cannot drift apart. It mirrors
-     * how the format is written by
-     * {@see \demosplan\DemosPlanCoreBundle\Doctrine\Type\StoredQueryType::convertToDatabaseValue()},
-     * which encodes `['format' => ..., 'query' => ...]` with `json_encode` - hence no spaces.
-     */
-    private function getSegmentListFormatMarker(): string
-    {
-        return sprintf('"format":"%s"', SegmentListQuery::QUERY_FORMAT);
     }
 }
