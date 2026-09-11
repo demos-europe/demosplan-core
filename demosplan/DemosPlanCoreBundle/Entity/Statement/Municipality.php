@@ -122,7 +122,8 @@ class Municipality extends CoreEntity implements UuidEntityInterface, Municipali
     {
         $successful = false;
         if (!$this->statements->contains($statement)) {
-            $successful = $this->statements->add($statement);
+            $this->statements->add($statement);
+            $successful = true;
         }
 
         return $successful;

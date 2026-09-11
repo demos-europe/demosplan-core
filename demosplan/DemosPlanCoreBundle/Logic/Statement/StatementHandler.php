@@ -4049,7 +4049,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * @param string $statementId
      * @param string $fragmentId
      *
-     * @return array|null;
+     * @return array|null
      */
     public function getFragmentOfStatementES($statementId, $fragmentId)
     {

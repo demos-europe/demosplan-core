@@ -1297,7 +1297,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     }
 
     /**
-     * @return array
+     * @return array|null
      */
     protected function handleSaveAllDepartments(ParameterBag $requestData)
     {
@@ -1314,17 +1314,21 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             } catch (Exception) {
                 $this->logger->error("Failed updating Department {$ident}.");
 
-                return $this->getSession()->getFlashBag()->set(
+                $this->getSession()->getFlashBag()->set(
                     'error',
                     'Die Abteilung konnte nicht aktualisiert werden!'
                 );
+
+                return null;
             }
         }
 
-        return $this->getSession()->getFlashBag()->set(
+        $this->getSession()->getFlashBag()->set(
             'confirm',
             $this->translator->trans('confirm.all.changes.saved')
         );
+
+        return null;
     }
 
     /**
