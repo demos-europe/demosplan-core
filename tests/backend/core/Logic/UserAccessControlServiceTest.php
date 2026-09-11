@@ -328,4 +328,119 @@ class UserAccessControlServiceTest extends FunctionalTestCase
             self::assertSame($this->testUser->_real(), $userPermission->getUser());
         }
     }
+
+    public function testGetUsersWithPermissionInOrgaReturnsMatchingUsers(): void
+    {
+        // Arrange
+        $permission = 'feature_statement_bulk_edit';
+        $this->sut->createUserPermission($this->testUser->_real(), $permission, $this->testRole);
+
+        // Act - query using the user's actual resolved current customer, not the fixture's
+        // $this->testCustomer: DoctrineUserListener::postLoad() overwrites currentCustomer on every
+        // User hydration with whatever CustomerService::getCurrentCustomer() resolves to, which is
+        // what createUserPermission() actually stored the grant under.
+        $users = $this->sut->getUsersWithPermissionInOrga(
+            $this->testOrga->_real(),
+            $this->testUser->_real()->getCurrentCustomer(),
+            $permission,
+            [$this->testRole->getCode()]
+        );
+
+        // Assert
+        self::assertCount(1, $users);
+        self::assertSame($this->testUser->_real(), $users[0]);
+    }
+
+    public function testGetUsersWithPermissionInOrgaDeduplicatesUsersWithMultipleQualifyingRoles(): void
+    {
+        // Arrange - a user holding two of the qualifying roles, granted the same permission for each
+        $permission = 'feature_statement_bulk_edit';
+        $this->testUser->_real()->addDplanRole($this->differentRole);
+        $this->testUser->_save();
+
+        $this->sut->createUserPermission($this->testUser->_real(), $permission, $this->testRole);
+        $this->sut->createUserPermission($this->testUser->_real(), $permission, $this->differentRole);
+
+        // Act
+        $users = $this->sut->getUsersWithPermissionInOrga(
+            $this->testOrga->_real(),
+            $this->testUser->_real()->getCurrentCustomer(),
+            $permission,
+            [$this->testRole->getCode(), $this->differentRole->getCode()]
+        );
+
+        // Assert - the user must appear only once, despite matching two separate grant rows
+        self::assertCount(1, $users);
+        self::assertSame($this->testUser->_real(), $users[0]);
+    }
+
+    public function testGetUsersWithPermissionInOrgaReturnsEmptyArrayWhenNoneMatch(): void
+    {
+        // Act
+        $users = $this->sut->getUsersWithPermissionInOrga(
+            $this->testOrga->_real(),
+            $this->testCustomer->_real(),
+            'feature_statement_bulk_edit',
+            [$this->testRole->getCode()]
+        );
+
+        // Assert
+        self::assertSame([], $users);
+    }
+
+    public function testRemovePermissionForUsersInOrgaRemovesAllMatchingGrants(): void
+    {
+        // Arrange
+        $permission = 'feature_statement_bulk_edit';
+        $this->sut->createUserPermission($this->testUser->_real(), $permission, $this->testRole);
+        $this->sut->createUserPermission($this->testUser2->_real(), $permission, $this->testRole);
+
+        // Act - same reasoning as above: use the actual resolved current customer
+        $this->sut->removePermissionForUsersInOrga(
+            $this->testOrga->_real(),
+            $this->testUser->_real()->getCurrentCustomer(),
+            $permission,
+            [$this->testRole->getCode()]
+        );
+
+        // Assert
+        self::assertFalse($this->sut->userPermissionExists($this->testUser->_real(), $permission, $this->testRole));
+        self::assertFalse($this->sut->userPermissionExists($this->testUser2->_real(), $permission, $this->testRole));
+    }
+
+    public function testRemovePermissionForUsersInOrgaLeavesOtherRolesUntouched(): void
+    {
+        // Arrange - same user, same permission, granted via two different roles
+        $permission = 'feature_statement_bulk_edit';
+        $this->testUser->_real()->addDplanRole($this->differentRole);
+        $this->testUser->_save();
+
+        $this->sut->createUserPermission($this->testUser->_real(), $permission, $this->testRole);
+        $this->sut->createUserPermission($this->testUser->_real(), $permission, $this->differentRole);
+
+        // Act - only remove the grant tied to testRole
+        $this->sut->removePermissionForUsersInOrga(
+            $this->testOrga->_real(),
+            $this->testUser->_real()->getCurrentCustomer(),
+            $permission,
+            [$this->testRole->getCode()]
+        );
+
+        // Assert
+        self::assertFalse($this->sut->userPermissionExists($this->testUser->_real(), $permission, $this->testRole));
+        self::assertTrue($this->sut->userPermissionExists($this->testUser->_real(), $permission, $this->differentRole));
+    }
+
+    public function testRemovePermissionForUsersInOrgaNoOpsWhenNothingMatches(): void
+    {
+        // Act & Assert - should not throw when there is nothing to remove
+        $this->sut->removePermissionForUsersInOrga(
+            $this->testOrga->_real(),
+            $this->testCustomer->_real(),
+            'feature_statement_bulk_edit',
+            [$this->testRole->getCode()]
+        );
+
+        self::assertTrue(true);
+    }
 }

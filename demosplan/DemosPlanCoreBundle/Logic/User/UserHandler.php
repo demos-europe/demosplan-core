@@ -2170,13 +2170,37 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     }
 
     /**
-     * Ensures access_control records exist for all ACCEPTED org types.
+     * Snapshot of which customers currently have each procedure-creation orga type ACCEPTED.
+     * Take it before mutating the orga and pass it to {@see ensureAccessControl()} so only
+     * types accepted by that mutation get the org-wide grant.
+     *
+     * @return array<string, list<string>> orga type name => accepted customer IDs
+     */
+    public function getAcceptedCustomerIdsByProcedureCreationType(Orga $orga): array
+    {
+        $result = [];
+        foreach (array_keys(self::ORGA_TYPE_TO_PROCEDURE_CREATION_ROLE) as $orgaType) {
+            $result[$orgaType] = array_map(
+                static fn (Customer $c): string => $c->getId(),
+                $orga->getCustomersByActivationStatus($orgaType, OrgaStatusInCustomerInterface::STATUS_ACCEPTED)
+            );
+        }
+
+        return $result;
+    }
+
+    /**
+     * Ensures access_control records exist for ACCEPTED org types.
      * Works for both create (direct ACCEPTED) and update (PENDING→ACCEPTED or direct ACCEPTED).
      * Safe to call multiple times — duplicates are handled by the unique constraint in AccessControlService.
      *
-     * @param Customer|null $customer if provided, only process this customer; if null, process all customers
+     * @param Customer|null               $customer                      if provided, only process this customer; if null, process all customers
+     * @param array<string, list<string>> $previouslyAcceptedCustomerIds customers that were already ACCEPTED per orga type
+     *                                                                   before the current change. Those are skipped because the
+     *                                                                   admin may have revoked the org-wide grant on purpose, and a
+     *                                                                   type accepted on top of them inherits that decision
      */
-    public function ensureAccessControl(Orga $orga, ?Customer $customer): void
+    public function ensureAccessControl(Orga $orga, ?Customer $customer, array $previouslyAcceptedCustomerIds = []): void
     {
         foreach (self::ORGA_TYPE_TO_PROCEDURE_CREATION_ROLE as $orgaType => $roleCode) {
             $acceptedCustomers = $orga->getCustomersByActivationStatus(
@@ -2191,7 +2215,17 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 );
             }
 
+            $skipIds = $previouslyAcceptedCustomerIds[$orgaType] ?? [];
+            $acceptedCustomers = array_filter(
+                $acceptedCustomers,
+                static fn (Customer $c) => !in_array($c->getId(), $skipIds, true)
+            );
+
             foreach ($acceptedCustomers as $acceptedCustomer) {
+                if (!$this->isOrgaWideProcedureCreationEnabledForPreviousTypes($orga, $acceptedCustomer, $previouslyAcceptedCustomerIds)) {
+                    continue;
+                }
+
                 $this->accessControlService->addPermissionToGivenRole($orga, $acceptedCustomer, $roleCode);
                 $this->logger->info('Ensured access_control record', [
                     'orga'     => $orga->getName(),
@@ -2201,6 +2235,37 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 ]);
             }
         }
+    }
+
+    /**
+     * The org-wide checkbox is a single toggle for all procedure-creation types of an orga, so a type
+     * accepted later has to inherit its current state. True when no type was accepted before (default on)
+     * or when at least one previously accepted type still holds the grant.
+     *
+     * @param array<string, list<string>> $previouslyAcceptedCustomerIds
+     */
+    private function isOrgaWideProcedureCreationEnabledForPreviousTypes(
+        Orga $orga,
+        Customer $customer,
+        array $previouslyAcceptedCustomerIds,
+    ): bool {
+        $previousRoleCodes = [];
+        foreach (self::ORGA_TYPE_TO_PROCEDURE_CREATION_ROLE as $orgaType => $roleCode) {
+            if (in_array($customer->getId(), $previouslyAcceptedCustomerIds[$orgaType] ?? [], true)) {
+                $previousRoleCodes[] = $roleCode;
+            }
+        }
+
+        if ([] === $previousRoleCodes) {
+            return true;
+        }
+
+        return $this->accessControlService->permissionExist(
+            AccessControlService::CREATE_PROCEDURES_PERMISSION,
+            $orga,
+            $customer,
+            $previousRoleCodes
+        );
     }
 
     /**
