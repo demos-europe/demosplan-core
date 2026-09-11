@@ -27,7 +27,7 @@ describe('paginationMixin', () => {
 
   const mockStoredPagination = (pagination) => {
     localStorageMock.getItem.mockReturnValue(
-      pagination ? JSON.stringify(pagination) : null
+      pagination ? JSON.stringify(pagination) : null,
     )
   }
 
@@ -92,8 +92,8 @@ describe('paginationMixin', () => {
     it('returns default values for empty pagination data', () => {
       expect(context.normalizePagination({})).toEqual({
         count: 0,
-        currentPage: 1, // from defaultPagination.currentPage
-        perPage: 25, // from defaultPagination.perPage
+        currentPage: 1, // From defaultPagination.currentPage
+        perPage: 25, // From defaultPagination.perPage
         total: 0,
         totalPages: null,
       })
@@ -236,7 +236,7 @@ describe('paginationMixin', () => {
         JSON.stringify({
           currentPage: 2,
           perPage: 50,
-        })
+        }),
       )
 
       mockStoredPagination({

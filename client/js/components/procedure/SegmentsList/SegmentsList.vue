@@ -902,9 +902,9 @@ export default {
     items () {
       return Object.values(this.segmentsObject)
         .map((segment) => ({
-        ...segment,
-        isPlaceLocked: !!this.placesObject[segment.relationships?.place?.data?.id]?.attributes?.locked,
-      }))
+          ...segment,
+          isPlaceLocked: !!this.placesObject[segment.relationships?.place?.data?.id]?.attributes?.locked,
+        }))
     },
 
     /*
