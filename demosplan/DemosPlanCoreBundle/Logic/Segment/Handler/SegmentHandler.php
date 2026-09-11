@@ -21,7 +21,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Interfaces\SegmentHandlerInterfa
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 use Exception;
 use Psr\Log\LoggerInterface;
 

@@ -30,7 +30,7 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\Query;
 use Exception;
 use InvalidArgumentException;

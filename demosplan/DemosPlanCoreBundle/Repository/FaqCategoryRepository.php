@@ -17,7 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 use Exception;
 use UnexpectedValueException;
 

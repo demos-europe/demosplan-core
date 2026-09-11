@@ -18,7 +18,7 @@ use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class CustomerService implements CustomerServiceInterface

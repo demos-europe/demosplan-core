@@ -23,7 +23,7 @@ use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureTypeResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureUiDefinitionResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementFieldDefinitionResourceType;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 
 class ResourcePersister
 {

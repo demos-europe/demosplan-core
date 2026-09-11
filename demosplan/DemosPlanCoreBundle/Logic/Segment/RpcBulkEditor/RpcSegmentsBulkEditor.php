@@ -41,7 +41,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 use Exception;
 use JsonException;

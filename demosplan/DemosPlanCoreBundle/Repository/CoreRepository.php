@@ -22,7 +22,7 @@ use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 use Exception;
 use Illuminate\Support\Collection;
 use LogicException;

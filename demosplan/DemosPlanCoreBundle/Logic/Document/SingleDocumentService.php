@@ -25,7 +25,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Report\SingleDocumentReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentVersionRepository;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 use Exception;
 use Psr\Log\LoggerInterface;
 use ReflectionException;

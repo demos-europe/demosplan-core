@@ -27,7 +27,7 @@ use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 
 class SegmentService extends CoreService implements SegmentServiceInterface
 {

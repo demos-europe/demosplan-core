@@ -14,7 +14,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Location;
 use demosplan\DemosPlanCoreBundle\Repository\LocationRepository;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Persistence\ObjectManager;
 use GuzzleHttp\Client;

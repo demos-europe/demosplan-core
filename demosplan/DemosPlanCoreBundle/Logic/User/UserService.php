@@ -52,7 +52,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\User\CustomerResourceInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\OrgaUsersPair;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use DOMDocument;
 use Exception;

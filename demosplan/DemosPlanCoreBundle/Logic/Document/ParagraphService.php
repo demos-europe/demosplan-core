@@ -25,7 +25,7 @@ use demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 use Exception;
 use Psr\Log\LoggerInterface;
 use ReflectionException;

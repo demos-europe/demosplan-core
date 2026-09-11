@@ -24,7 +24,7 @@ use demosplan\DemosPlanCoreBundle\Repository\ContentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SettingRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 use Exception;
 use InvalidArgumentException;

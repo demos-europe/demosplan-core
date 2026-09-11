@@ -31,7 +31,7 @@ use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Illuminate\Support\Collection as SupportCollection;

@@ -17,7 +17,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ImmutableObjectInterface;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\Query\ResultSetMapping;
 use proj4php\Point;
 use proj4php\Proj;

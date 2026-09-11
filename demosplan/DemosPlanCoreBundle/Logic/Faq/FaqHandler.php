@@ -32,7 +32,7 @@ use demosplan\DemosPlanCoreBundle\Repository\RoleRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\FaqResourceType;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 use Exception;
 use Illuminate\Support\Collection;
 use Symfony\Component\Validator\Validator\ValidatorInterface;

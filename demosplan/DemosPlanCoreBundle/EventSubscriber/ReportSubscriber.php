@@ -27,7 +27,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\SingleDocumentReportEntryFactory;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 use EDT\JsonApi\Event\AfterCreationEvent;
 use EDT\JsonApi\Event\AfterDeletionEvent;
 use EDT\JsonApi\Event\AfterUpdateEvent;

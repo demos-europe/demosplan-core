@@ -24,7 +24,7 @@ use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 use Exception;
 
 use function array_key_exists;
