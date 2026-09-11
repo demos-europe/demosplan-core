@@ -61,6 +61,7 @@
         />
       </dp-bulk-edit-header>
       <statement-export-modal
+        v-if="hasPermission('feature_segments_of_statement_list_export') || hasPermission('feature_admin_assessmenttable_export_statement_generic_xlsx') || hasPermission('feature_statement_segments_export_csv')"
         :has-permission-adjust-preamble="hasPermission('feature_adjust_preamble_export_file')"
         :procedure-id="procedureId"
         :procedure-name="procedureName"
@@ -138,7 +139,7 @@
             v-text="externId"
           />
           <dp-claim
-            v-if="!synchronized"
+            v-if="!synchronized && hasPermission('feature_statement_claim')"
             :assigned-id="assignee.id || ''"
             :assigned-name="assignee.name || ''"
             :assigned-organisation="assignee.orgaName || ''"
@@ -199,7 +200,7 @@
         <template v-slot:flyout="{ assignee, id, originalId, originalPdf, segmentsCount, synchronized }">
           <dp-flyout data-cy="listStatements:statementActionsMenu">
             <button
-              v-if="hasPermission('area_statement_segmentation')"
+              v-if="hasPermission('feature_segmentation_start')"
               :class="{
                 'is-disabled': segmentsCount > 0 && segmentsCount !== '-',
                 'hover:underline active:underline': segmentsCount <= 0 || segmentsCount === '-' }"
@@ -242,6 +243,7 @@
               {{ Translator.trans('statement.original') }}
             </a>
             <button
+              v-if="hasPermission('feature_statement_delete')"
               :class="{
                 'is-disabled': synchronized || assignee.id !== currentUserId,
                 'hover:underline active:underline': !(synchronized || assignee.id !== currentUserId) }"

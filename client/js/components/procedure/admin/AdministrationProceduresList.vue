@@ -131,20 +131,35 @@
         <div v-text="Translator.trans('public')" />
       </template>
 
-      <template v-slot:name="{ creationDate, externalName, id, name }">
+      <template v-slot:name="{ creationDate, externalName, id, name, readOnly }">
         <a
           data-cy="procedurePath"
           :data-cy-procedure-id="id"
-          :href="Routing.generate('DemosPlan_procedure_dashboard', { procedure: id })"
+          :href="getProcedureLink(id, readOnly)"
         >
           <strong v-text="name" />
         </a>
+        <span
+          v-if="readOnly"
+          class="flash flash-info u-ml-0_25"
+          data-cy="procedureReadOnlyBadge"
+          v-text="Translator.trans('procedure.read.only')"
+        />
         <div v-if="externalName !== name">
           <strong v-text="`(${Translator.trans('public.participation.name')}: ${externalName})`" />
         </div>
         <div>
           <strong v-text="`${Translator.trans('from.date')} ${creationDate}`" />
         </div>
+        <button
+          v-if="hasPermission('feature_procedure_read_only_toggle')"
+          class="btn--blank o-link--default u-ml-0_25"
+          data-cy="procedureReadOnlyToggle"
+          type="button"
+          @click="toggleReadOnly(id, readOnly)"
+        >
+          {{ readOnly ? Translator.trans('procedure.read.only.reactivate') : Translator.trans('procedure.read.only.set') }}
+        </button>
       </template>
 
       <template
@@ -314,6 +329,7 @@ export default {
             'internalEndDate',
             'internalPhaseDefinitionName',
             'originalStatementsCount',
+            'readOnly',
             'statementsCount',
           ].join(),
         },
@@ -345,6 +361,7 @@ export default {
             internalPhase: el.attributes.internalPhaseDefinitionName,
             internalStartDate: formatDate(el.attributes.internalStartDate),
             originalStatementsCount: el.attributes.originalStatementsCount,
+            readOnly: el.attributes.readOnly,
             statementsCount: el.attributes.statementsCount,
           }))
         })
@@ -353,6 +370,43 @@ export default {
         })
         .finally(() => {
           this.isLoading = false
+        })
+    },
+
+    getProcedureLink (procedureId, readOnly) {
+      if (readOnly) {
+        return Routing.generate('dplan_procedure_statement_list', { procedureId: procedureId })
+      }
+
+      return Routing.generate('DemosPlan_procedure_dashboard', { procedure: procedureId })
+    },
+
+    toggleReadOnly (procedureId, readOnly) {
+      const confirmText = readOnly ? 'confirm.procedure.read.only.reactivate' : 'confirm.procedure.read.only.set'
+      if (!dpconfirm(Translator.trans(confirmText))) {
+        return
+      }
+
+      const url = Routing.generate('api_resource_update', { resourceType: 'Procedure', resourceId: procedureId })
+      const payload = {
+        data: {
+          id: procedureId,
+          type: 'Procedure',
+          attributes: {
+            readOnly: !readOnly,
+          },
+        },
+      }
+
+      dpApi.patch(url, {}, payload)
+        .then(() => {
+          const procedure = this.items.find(item => item.id === procedureId)
+          if (procedure) {
+            procedure.readOnly = !readOnly
+          }
+        })
+        .catch(e => {
+          console.error(e)
         })
     },
 

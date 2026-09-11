@@ -1801,6 +1801,16 @@ feature_procedure_planning_area_match:
     expose: true
     label: 'Check, if statement and map reference belong to the same planning area'
     loginRequired: false
+feature_procedure_read_only_toggle:
+    description: |-
+        Allows to switch a procedure into a read-only (archived) state and back, from the
+        admin procedure list. Inside a read-only procedure the permission set is reduced to
+        the outside-procedure baseline plus a read allowlist; this permission is granted
+        globally (procedure-list scope) so it survives that reduction.
+    expose: true
+    label: 'Set procedures to read-only and reactivate them'
+    loginRequired: true
+    parent: area_admin_procedures
 feature_procedure_preview:
     description: 'Show procedure preview for Fachplaner Admin before procedure is published, to know what it will look like.'
     label: 'Show preview of precedures'
@@ -1862,6 +1872,12 @@ feature_procedure_require_location:
     label: 'Procedure has to be geolocalized'
     loginRequired: false
     parent: area_main_procedures
+feature_procedure_submitter_export:
+    description: 'Download the submitter list of a procedure as XLSX.'
+    expose: true
+    label: 'Export the list of submitters of a procedure'
+    loginRequired: true
+    parent: area_admin_submitters
 feature_procedure_single_document_upload_zip:
     description: 'allows to upload Zip-Files for a procedure in addition to the general allowed filetypes'
     label: 'allows to upload Zip-Files for a procedure in addition to the general allowed filetypes'
@@ -2025,6 +2041,31 @@ feature_enable_recommendation_versions:
     expose: true
     label: 'Enables recommendation version display and export.'
     loginRequired: true
+feature_segment_edit:
+    description: |-
+        Allows editing a segment: its text, tags, place, assignee (claim) and parent
+        statement relation. Kept separate from `feature_json_api_statement_segment`,
+        which only grants read access to segments and must stay available on its own
+        (e.g. read-only procedures).
+    expose: true
+    label: 'Edit segments (text, tags, place, assignee)'
+    loginRequired: true
+    parent: area_statement_segmentation
+feature_segment_delete:
+    description: 'Delete a single segment of a statement from within a procedure.'
+    expose: true
+    label: 'Delete segments'
+    loginRequired: true
+    parent: area_statement_segmentation
+feature_segmentation_start:
+    description: |-
+        Claim a statement and enter the segmentation editor to split it into segments
+        (`dplan_drafts_list_claim`, `dplan_drafts_list_edit`). Kept separate from
+        `area_statement_segmentation`, which also gates the (read-only) segment list.
+    expose: true
+    label: 'Split a statement into segments'
+    loginRequired: true
+    parent: area_statement_segmentation
 feature_segment_polygon_read:
     description: |-
         Allows read-access to the statementSegment polygon property via StatementSegmentResourceType
@@ -2082,9 +2123,20 @@ feature_segments_of_statement_list:
         JSON:API permissions will be needed.
         This permission is also used for a kind of "statement detail view"!
         (Which includes a list of segments of the current statement.)
+        View-only: exporting from this view needs
+        `feature_segments_of_statement_list_export` in addition.
     expose: false
     label: 'Allows access to a view showing the segments of a specific statement.'
     loginRequired: true
+feature_segments_of_statement_list_export:
+    description: |-
+        Allows exporting (DOCX/XLSX/CSV) from the statement-specific segment view/list
+        that `feature_segments_of_statement_list` grants access to. Kept separate so the
+        view can stay accessible without also allowing exports (e.g. read-only procedures).
+    expose: true
+    label: 'Allows exporting from the statement-specific segment view.'
+    loginRequired: true
+    parent: feature_segments_of_statement_list
 feature_send_assigned_task_notification_email:
     description: |-
         Creates e-mails for users with a summary of all segments assigned to them in the last 24 hours for a given customer.
@@ -2187,6 +2239,16 @@ feature_statement_assignment:
     label: 'Statements can only be modified by one user at the time'
     loginRequired: true
     parent: feature_statement
+feature_statement_claim:
+    description: |-
+        Allows a statement to be claimed/unclaimed (assigned to the current user) from the
+        statement list. Kept separate from `feature_statement_assignment`, which is granted
+        outside any procedure context and therefore cannot be used on its own to gate a
+        procedure-scoped write action.
+    expose: true
+    label: 'Claim or unclaim a statement'
+    loginRequired: true
+    parent: area_admin_statement_list
 feature_statement_bulk_edit:
     description: 'In assessment table, if this feature is active, after selecting multiple statements, appears menu with options to edit them in batch.'
     label: 'Allows changes of multiple statements at once'

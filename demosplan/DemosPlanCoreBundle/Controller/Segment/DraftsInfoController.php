@@ -35,7 +35,7 @@ class DraftsInfoController extends BaseController
      *
      * @throws StatementNotFoundException
      */
-    #[DplanPermissions('area_statement_segmentation')]
+    #[DplanPermissions('feature_segmentation_start')]
     // TODO: receiving the statement ID here may result in concurrency problems
     // because multiple users may be shown the same butten (with the same ID) and
     // it is unknown what happens if they both use it but it will be nothing good.
@@ -70,7 +70,7 @@ class DraftsInfoController extends BaseController
      *
      * @throws Exception
      */
-    #[DplanPermissions('area_statement_segmentation')]
+    #[DplanPermissions('feature_segmentation_start')]
     #[Route(path: '/verfahren/{procedureId}/statement/{statementId}/drafts-list', name: 'dplan_drafts_list_edit', options: ['expose' => true], methods: 'GET')]
     public function edit(
         string $procedureId,
