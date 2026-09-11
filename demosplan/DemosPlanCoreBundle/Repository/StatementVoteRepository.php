@@ -55,9 +55,8 @@ class StatementVoteRepository extends CoreRepository implements ArrayInterface, 
                 $vote = $this->generateObjectValues($vote, $data);
 
                 return $this->addObject($vote);
-            } else {
-                throw new InvalidArgumentException('Trying to add a StatementVote without related Statement.');
             }
+            throw new InvalidArgumentException('Trying to add a StatementVote without related Statement.');
         } catch (Exception $e) {
             $this->logger->warning('Create StatementVote failed Message: ', [$e]);
             throw $e;

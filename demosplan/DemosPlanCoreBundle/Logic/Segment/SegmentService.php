@@ -26,8 +26,8 @@ use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityNotFoundException;
-use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 
 class SegmentService extends CoreService implements SegmentServiceInterface
 {

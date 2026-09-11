@@ -15,8 +15,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic;
 use DemosEurope\DemosplanAddon\Contracts\Services\TransactionServiceInterface;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 

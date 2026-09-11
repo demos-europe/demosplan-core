@@ -27,8 +27,8 @@ use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\ConnectionException;
-use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 use EDT\ConditionFactory\ConditionFactoryInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
@@ -83,7 +83,7 @@ class RpcPlaceListReorder implements RpcMethodSolverInterface
         ProcedureService $procedureService,
         RpcErrorGenerator $errorGenerator,
         private readonly SortMethodFactory $sortMethodFactory,
-        private readonly TransactionService $transactionService
+        private readonly TransactionService $transactionService,
     ) {
         $this->conditionFactory = $conditionFactory;
         $this->errorGenerator = $errorGenerator;

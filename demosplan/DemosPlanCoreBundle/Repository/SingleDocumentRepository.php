@@ -17,8 +17,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
-use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\NoResultException;
 use Exception;
 
 /**

@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCategory;
-use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\TransactionRequiredException;
 
 /**

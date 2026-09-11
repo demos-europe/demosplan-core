@@ -25,8 +25,8 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\EmailAddressService;
 use demosplan\DemosPlanCoreBundle\Logic\TokenFactory;
 use demosplan\DemosPlanCoreBundle\Repository\GdprConsentRevokeTokenRepository;
-use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 use Exception;
 
 class GdprConsentRevokeTokenService

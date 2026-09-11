@@ -16,8 +16,8 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Repository\AddressBookEntryRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\AddressBookEntryVO;
 use Doctrine\Common\Collections\Criteria;
-use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 use Exception;
 use Psr\Log\LoggerInterface;
 

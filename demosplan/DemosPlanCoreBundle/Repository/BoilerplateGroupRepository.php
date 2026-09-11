@@ -17,8 +17,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateGroup;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
-use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 
 /**
  * @template-extends FluentRepository<BoilerplateGroup>

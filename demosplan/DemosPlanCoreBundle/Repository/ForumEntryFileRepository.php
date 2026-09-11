@@ -16,10 +16,10 @@ use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntryFile;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 
 /**

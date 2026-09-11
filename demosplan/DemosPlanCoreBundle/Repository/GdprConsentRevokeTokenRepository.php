@@ -17,10 +17,10 @@ use demosplan\DemosPlanCoreBundle\Exception\GdprConsentRevokeTokenNotFoundExcept
 use demosplan\DemosPlanCoreBundle\Exception\StatementAlreadyConnectedToGdprConsentRevokeTokenException;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\Exception\ORMException;
 
 /**
  * @template-extends CoreRepository<GdprConsentRevokeToken>

@@ -13,8 +13,8 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureUiDefinition;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
-use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 
 /**
  * @template-extends FluentRepository<ProcedureUiDefinition>

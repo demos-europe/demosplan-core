@@ -14,8 +14,8 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Entity\ExportFieldsConfiguration;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
-use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 
 /**
  * @template-extends CoreRepository<ExportFieldsConfiguration>

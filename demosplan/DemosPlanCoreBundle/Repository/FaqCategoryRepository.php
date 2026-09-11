@@ -14,10 +14,10 @@ use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\FaqCategory;
 use demosplan\DemosPlanCoreBundle\Entity\PlatformFaqCategory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\Exception\ORMException;
 use Exception;
 use UnexpectedValueException;
 

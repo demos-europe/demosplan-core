@@ -15,9 +15,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\OriginalStatementAnonymizationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\Exception\ORMException;
 
 class OriginalStatementAnonymizationService
 {

@@ -14,8 +14,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementAttribute;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
-use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\NoResultException;
 use Exception;
 use InvalidArgumentException;
 

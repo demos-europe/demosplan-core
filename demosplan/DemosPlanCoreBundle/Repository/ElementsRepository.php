@@ -129,9 +129,8 @@ class ElementsRepository extends CoreRepository implements ArrayInterface, Objec
                 // no element will match the condition 'key is one of those in this empty array'
                 // hence just return no elements
                 return [];
-            } else {
-                $queryBuilder = $queryBuilder->andWhere($queryBuilder->expr()->in('element.'.$whereKey, $whereArray));
             }
+            $queryBuilder = $queryBuilder->andWhere($queryBuilder->expr()->in('element.'.$whereKey, $whereArray));
         }
         $elements = $queryBuilder->getQuery()->getResult();
 

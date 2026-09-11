@@ -23,8 +23,8 @@ use demosplan\DemosPlanCoreBundle\Logic\Faq\FaqHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
-use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
 use Exception;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -278,9 +278,9 @@ class FaqController extends BaseController
                     $this->getMessageBag()->add('confirm', 'faq.created');
 
                     return $this->redirectToRoute('DemosPlan_faq_administration_faq');
-                } else {
-                    return $this->redirectToRoute('DemosPlan_faq_administration_faq_new');
                 }
+
+                return $this->redirectToRoute('DemosPlan_faq_administration_faq_new');
             }
         }
 

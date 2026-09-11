@@ -15,10 +15,10 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\GdprConsent;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\Exception\ORMException;
 
 /**
  * @template-extends CoreRepository<GdprConsent>
