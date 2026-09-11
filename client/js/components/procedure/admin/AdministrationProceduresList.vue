@@ -383,6 +383,7 @@ export default {
 
     toggleReadOnly (procedureId, readOnly) {
       const confirmText = readOnly ? 'confirm.procedure.read.only.reactivate' : 'confirm.procedure.read.only.set'
+
       if (!dpconfirm(Translator.trans(confirmText))) {
         return
       }
@@ -401,6 +402,7 @@ export default {
       dpApi.patch(url, {}, payload)
         .then(() => {
           const procedure = this.items.find(item => item.id === procedureId)
+
           if (procedure) {
             procedure.readOnly = !readOnly
           }
