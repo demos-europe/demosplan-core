@@ -40,6 +40,7 @@ class ScheduledExportAccessChecker
 
     /**
      * Restricts to the current user's own schedules within the current procedure.
+     *
      * @return list<ClauseFunctionInterface<bool>>
      */
     public function getAccessConditions(): array
