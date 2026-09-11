@@ -34,7 +34,6 @@ class FileContainerRepository extends FluentRepository implements ObjectInterfac
     public function getFiles(string $entityClass, string $id, string $field): array
     {
         try {
-            /** @var FileContainer|null $files */
             $files = $this->findBy(['entityId' => $id, 'entityClass' => $entityClass, 'entityField' => $field]);
             if (null !== $files) {
                 $fileEntities = [];
@@ -87,7 +86,6 @@ class FileContainerRepository extends FluentRepository implements ObjectInterfac
     public function getFileStrings($entityClass, $id, $field): array
     {
         try {
-            /** @var FileContainer|null $files */
             $files = $this->findBy(['entityId' => $id, 'entityClass' => $entityClass, 'entityField' => $field]);
             if (null !== $files) {
                 return collect($files)

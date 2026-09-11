@@ -168,7 +168,6 @@ final class FrontController
             Debug::enable();
         }
 
-        /** @var DemosPlanKernel|HttpCache $kernel */
         $kernel = new DemosPlanKernel($activeProject, $environment, $debug);
         $kernel = new HttpCache($kernel);
 

@@ -55,8 +55,6 @@ class HttpCall
      *
      * @param string|array $data
      *
-     * @return mixed
-     *
      * @throws InvalidArgumentException
      */
     public function request(string $method, ?string $path, $data): array

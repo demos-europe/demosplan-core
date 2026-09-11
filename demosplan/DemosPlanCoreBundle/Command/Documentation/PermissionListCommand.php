@@ -89,7 +89,6 @@ class PermissionListCommand extends CoreCommand
     {
         $projectPermissions = [];
 
-        /** @var SplFileInfo[] $projects */
         $projects = (new Finder())
             ->directories()
             ->depth(0)

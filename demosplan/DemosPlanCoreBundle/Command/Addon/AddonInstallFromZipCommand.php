@@ -340,8 +340,6 @@ class AddonInstallFromZipCommand extends CoreCommand
     }
 
     /**
-     * @return BasePackage|CompleteAliasPackage|CompletePackage|RootAliasPackage|RootPackage|InputDefinition
-     *
      * @throws JsonException
      */
     public function loadPackageDefinition(): PackageInterface

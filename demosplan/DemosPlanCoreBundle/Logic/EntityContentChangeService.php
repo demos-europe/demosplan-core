@@ -1108,9 +1108,9 @@ class EntityContentChangeService
     }
 
     /**
-     * @param string|CoreEntity|int|null $contentChange diff of values
-     * @param Department|User            $changer       (juristic) person who is executing the change. Can be a
-     *                                                  department or a user.
+     * @param string           $contentChange diff of values
+     * @param Department|User $changer       (juristic) person who is executing the change. Can be a
+     *                                       department or a user.
      */
     public function createEntityContentChangeEntity(
         CoreEntity $updatedObject,

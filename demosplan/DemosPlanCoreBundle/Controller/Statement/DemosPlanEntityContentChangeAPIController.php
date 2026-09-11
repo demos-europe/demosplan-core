@@ -49,9 +49,6 @@ class DemosPlanEntityContentChangeAPIController extends APIController
     }
 
     // @improve T12984
-    /**
-     * @return APIResponse|JsonResponse
-     */
     #[DplanPermissions('feature_statement_fragment_content_changes_view')]
     #[Route(path: '/api/1.0/statements/{procedureId}/statementfragment/{statementFragmentId}/history', name: 'dplan_api_statement_fragment_history', options: ['expose' => true], methods: ['GET'])]
     public function getStatementFragmentHistory(
