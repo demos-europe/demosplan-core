@@ -181,7 +181,7 @@ class FrontendAssetProviderTest extends TestCase
         array $hookOptions,
         bool $enabled = true,
         string $entry = 'TestEntry',
-        string $installPath = self::INSTALL_PATH
+        string $installPath = self::INSTALL_PATH,
     ): AddonInfo {
         return new AddonInfo(
             self::ADDON_NAME,

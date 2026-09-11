@@ -20,7 +20,7 @@ final readonly class FrontendAssetProvider
 {
     public function __construct(
         private PermissionEvaluatorInterface $permissionEvaluator,
-        private AddonRegistry $registry
+        private AddonRegistry $registry,
     ) {
     }
 

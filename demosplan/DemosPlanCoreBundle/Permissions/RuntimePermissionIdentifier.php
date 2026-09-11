@@ -27,7 +27,7 @@ final readonly class RuntimePermissionIdentifier implements PermissionIdentifier
      */
     private function __construct(
         private string $permissionName,
-        private ?string $addonIdentifier
+        private ?string $addonIdentifier,
     ) {
     }
 
