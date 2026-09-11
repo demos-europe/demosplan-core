@@ -153,7 +153,7 @@
     <!-- Individual procedure-management permission (RMOPSA / RMOPHA only) -->
     <div
       v-if="hasPermission('feature_manage_procedure_creation_permission') && isProcedureManagementRoleSelected && isOrgaAcceptedAsMunicipalityOrHearingAuthority"
-      class="w-1/2 pr-3 mt-3 whitespace-normal flex items-center gap-1"
+      class="w-1/2 pr-3 mt-4 whitespace-normal flex items-center gap-1"
     >
       <dp-checkbox
         :id="userId + ':canManageProcedures'"
