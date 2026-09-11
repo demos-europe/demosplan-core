@@ -1232,6 +1232,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     {
         if (!$this->priorityAreas->contains($priorityArea)) {
             $this->priorityAreas->add($priorityArea);
+
             return $priorityArea->addStatement($this);
         }
 
@@ -1807,6 +1808,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     {
         if (!$this->counties->contains($county)) {
             $this->counties->add($county);
+
             return $county->addStatement($this);
         }
 
@@ -1866,6 +1868,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     {
         if (!$this->municipalities->contains($municipality)) {
             $this->municipalities->add($municipality);
+
             return $municipality->addStatement($this);
         }
 
@@ -3017,6 +3020,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     {
         if (!$this->tags->contains($tag)) {
             $this->tags->add($tag);
+
             return $tag->addStatement($this);
         }
 
