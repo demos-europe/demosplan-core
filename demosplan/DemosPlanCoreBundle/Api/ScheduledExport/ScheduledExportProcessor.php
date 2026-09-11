@@ -38,8 +38,6 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Webmozart\Assert\Assert;
 
-/**
- */
 class ScheduledExportProcessor implements ProcessorInterface
 {
     public function __construct(
@@ -113,7 +111,6 @@ class ScheduledExportProcessor implements ProcessorInterface
     }
 
     /**
-     *
      * @throws PersistResourceException
      */
     private function update(string $scheduledExportId, ScheduledExportResource $data): ScheduledExportResource
@@ -143,8 +140,9 @@ class ScheduledExportProcessor implements ProcessorInterface
      * The repository catches its own failures and answers with false, so the result has to be checked:
      * without it a failed deletion would still be confirmed and the frontend would drop an entry that is
      * still stored.
+     *
      * @throws DeletionFailedException rendered as a 500, since a deletion that fails is not the
-     * client's mistake. The cause is already in the repository's log
+     *                                 client's mistake. The cause is already in the repository's log
      */
     private function delete(string $scheduledExportId): void
     {
