@@ -10,70 +10,123 @@
 
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
-use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface;
 use demosplan\DemosPlanCoreBundle\Exception\AddonException;
+use demosplan\DemosPlanCoreBundle\Permissions\RuntimePermissionIdentifier;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Symfony\Component\Yaml\Yaml;
 
-final class FrontendAssetProvider
+final readonly class FrontendAssetProvider
 {
-    public function __construct(private readonly PermissionsInterface $permissions, private readonly AddonRegistry $registry)
-    {
+    public function __construct(
+        private PermissionEvaluatorInterface $permissionEvaluator,
+        private AddonRegistry $registry,
+    ) {
     }
 
     /**
-     * @return array<string, array<string, mixed>>>
+     * @return array<string, array<string, mixed>>
      */
     public function getFrontendClassesForHook(string $hookName): array
     {
-        $assetList = array_map(function (AddonInfo $addonInfo) use ($hookName) {
-            if (!$addonInfo->isEnabled() || !$addonInfo->hasUIHooks()) {
-                return [];
+        $assetList = [];
+
+        foreach ($this->registry->getAddonInfos() as $addonName => $addonInfo) {
+            $assets = $this->getFrontendClassForHook($addonName, $addonInfo, $hookName);
+
+            // avoid exposing addon information unnecessarily
+            if ([] !== $assets) {
+                $assetList[$addonName] = $assets;
             }
+        }
 
-            $uiData = $addonInfo->getUIHooks();
+        return $assetList;
+    }
 
-            if (!array_key_exists($hookName, $uiData['hooks'])) {
-                return [];
+    /**
+     * @return array<string, mixed>
+     */
+    private function getFrontendClassForHook(string $addonName, AddonInfo $addonInfo, string $hookName): array
+    {
+        if (!$addonInfo->isEnabled() || !$addonInfo->hasUIHooks()) {
+            return [];
+        }
+
+        $uiData = $addonInfo->getUIHooks();
+
+        if (!array_key_exists($hookName, $uiData['hooks'])) {
+            return [];
+        }
+
+        $hookData = $uiData['hooks'][$hookName];
+
+        // Return if no access granted for that addon at that entrypoint
+        if (!$this->isHookEnabled($addonName, $hookData['options'])) {
+            return [];
+        }
+
+        $manifestPath = DemosPlanPath::getRootPath($addonInfo->getInstallPath()).'/'.$uiData['manifest'];
+        $assetContents = $this->readAssetContents($addonInfo, $manifestPath, $hookData['entry']);
+
+        if ([] === $assetContents) {
+            return [];
+        }
+
+        return $this->createAddonFrontendAssetsEntry($hookData, $assetContents);
+    }
+
+    /**
+     * @return array<string, string> mapping from asset name to asset content, empty if unreadable
+     */
+    private function readAssetContents(AddonInfo $addonInfo, string $manifestPath, string $entryName): array
+    {
+        try {
+            $entries = $this->getAssetPathsFromManifest($manifestPath, $entryName);
+
+            if (!array_key_exists('js', $entries)) {
+                throw new AddonException('Entry has no javascript and is thus pretty much useless');
             }
+        } catch (AddonException) {
+            return [];
+        }
 
-            $hookData = $uiData['hooks'][$hookName];
-            $manifestPath = DemosPlanPath::getRootPath($addonInfo->getInstallPath()).'/'.$uiData['manifest'];
+        $assetContents = [];
 
-            // Return if no access granted for that addon at that entrypoint
-            if (array_key_exists('permissions', $hookData['options'])
-                && !$this->permissions->hasPermissions($hookData['options']['permissions'], 'OR')) {
-                return [];
+        foreach ($entries['js'] as $entry) {
+            // Try to get the content of the actual asset
+            $entryFilePath = DemosPlanPath::getRootPath($addonInfo->getInstallPath()).'/dist/'.$entry;
+            // uses local file, no need for flysystem
+            $assetContents[$entry] = file_get_contents($entryFilePath);
+        }
+
+        return $assetContents;
+    }
+
+    /**
+     * A hook may be guarded by permissions declared either by the addon itself or by the core.
+     * Addon permissions live in a collection of their own, so they have to be addressed with the
+     * owning addon as identifier - a plain name lookup would only ever reach the core permissions.
+     *
+     * @param array<string, mixed> $hookOptions
+     */
+    private function isHookEnabled(string $addonName, array $hookOptions): bool
+    {
+        if (!array_key_exists('permissions', $hookOptions)) {
+            return true;
+        }
+
+        foreach ($hookOptions['permissions'] as $permissionName) {
+            $addonPermission = RuntimePermissionIdentifier::forAddon($permissionName, $addonName);
+            $identifier = $this->permissionEvaluator->isPermissionKnown($addonPermission)
+                ? $addonPermission
+                : RuntimePermissionIdentifier::forCore($permissionName);
+
+            if ($this->permissionEvaluator->isPermissionEnabled($identifier)) {
+                return true;
             }
+        }
 
-            try {
-                $entries = $this->getAssetPathsFromManifest($manifestPath, $hookData['entry']);
-
-                if (!array_key_exists('js', $entries)) {
-                    throw new AddonException('Entry has no javascript and is thus pretty much useless');
-                }
-
-                $assetContents = [];
-
-                foreach ($entries['js'] as $entry) {
-                    // Try to get the content of the actual asset
-                    $entryFilePath = DemosPlanPath::getRootPath($addonInfo->getInstallPath()).'/dist/'.$entry;
-                    // uses local file, no need for flysystem
-                    $assetContents[$entry] = file_get_contents($entryFilePath);
-                }
-
-                if ([] === $assetContents) {
-                    return [];
-                }
-            } catch (AddonException) {
-                return [];
-            }
-
-            return $this->createAddonFrontendAssetsEntry($hookData, $assetContents);
-        }, $this->registry->getAddonInfos());
-
-        // avoid exposing addon information unnecessarily
-        return array_filter($assetList, fn (array $assetInfo) => [] !== $assetInfo);
+        return false;
     }
 
     /**
@@ -104,13 +157,13 @@ final class FrontendAssetProvider
     {
         // uses local file, no need for flysystem
         if (!file_exists($manifestPath)) {
-            AddonException::invalidManifest($manifestPath);
+            throw AddonException::invalidManifest($manifestPath);
         }
 
         $manifestContent = Yaml::parseFile($manifestPath);
 
         if (!array_key_exists($entryName, $manifestContent['entrypoints'])) {
-            AddonException::manifestEntryNotFound($entryName);
+            throw AddonException::manifestEntryNotFound($entryName);
         }
 
         return $manifestContent['entrypoints'][$entryName]['assets'];
