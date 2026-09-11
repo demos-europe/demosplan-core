@@ -94,8 +94,6 @@ class DemosPlanMasterToebController extends BaseController
      *
      * @param string $userId
      *
-     * @return Response
-     *
      * @throws \Exception
      */
     #[DplanPermissions('area_report_mastertoeblist')]

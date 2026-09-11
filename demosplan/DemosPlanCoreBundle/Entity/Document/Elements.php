@@ -493,7 +493,7 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
     }
 
     /**
-     * @return Collection<int,Elements>|Elements[]
+     * @return Collection<int,Elements>
      */
     public function getChildren(): Collection
     {
@@ -509,7 +509,7 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
     }
 
     /**
-     * @return Collection<int,Orga>|Orga[]
+     * @return Collection<int,Orga>
      */
     public function getOrganisations(): Collection
     {

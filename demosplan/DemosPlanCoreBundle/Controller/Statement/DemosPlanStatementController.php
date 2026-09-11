@@ -795,8 +795,6 @@ class DemosPlanStatementController extends BaseController
      * @param string $procedure
      * @param string $statementId
      *
-     * @return RedirectResponse|Response
-     *
      * @throws Exception
      */
     #[DplanPermissions('feature_statements_like_may_like')]
@@ -836,8 +834,6 @@ class DemosPlanStatementController extends BaseController
      * Speichere eine Stellungnahme via Ajax-Aufruf.
      *
      * @param string $procedure Procedure Id
-     *
-     * @return Response
      *
      * initially use area_demosplan, specific permissions are checked below
      *
@@ -1038,8 +1034,6 @@ class DemosPlanStatementController extends BaseController
 
     /**
      * Edit Statement.
-     *
-     * @return RedirectResponse|Response
      *
      * @throws Exception
      */
@@ -1571,8 +1565,6 @@ class DemosPlanStatementController extends BaseController
      * @param string $procedureId      Needed for initializing
      * @param string $draftStatementId
      *
-     * @return Response
-     *
      * @throws Exception
      */
     #[DplanPermissions('area_statements')]
@@ -1639,13 +1631,13 @@ class DemosPlanStatementController extends BaseController
             $draftFilterList[$procedureId][$templateName] = null;
         }
 
-        /** @var DraftStatementListFilters $draftListFilterVO */
         $draftListFilterVO = null;
         if (!$draftFilterList[$procedureId][$templateName] instanceof DraftStatementListFilters) {
             $draftListFilterVO = new DraftStatementListFilters();
         } else {
             $draftListFilterVO = $draftFilterList[$procedureId][$templateName];
         }
+        /* @var DraftStatementListFilters $draftListFilterVO */
 
         if ($request->query->has('reset')) {
             $draftFilterList[$procedureId][$templateName] = new DraftStatementListFilters();

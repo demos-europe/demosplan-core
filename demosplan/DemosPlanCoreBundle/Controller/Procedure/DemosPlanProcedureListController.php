@@ -534,8 +534,6 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
 
     /**
      * (Umkreis-)Suche nach Verfahren in der öffentlichen Beteiligung.
-     *
-     * @return Response
      */
     #[DplanPermissions('area_public_participation')]
     #[Route(path: '/suggest/procedureLocation/json', name: 'DemosPlan_procedure_public_suggest_procedure_location_json', options: ['expose' => true])]

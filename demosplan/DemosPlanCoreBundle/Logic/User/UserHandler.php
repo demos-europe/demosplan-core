@@ -1810,7 +1810,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             }
 
             // if one of the related departments have a user, return false
-            /** @var Department[] $departments */
+            /** @var Collection<int, Department> $departments */
             $departments = $organisation->getDepartments();
             foreach ($departments as $department) {
                 if ($requiredRelationsAreSolved && !$department->getUsers()->isEmpty()) {

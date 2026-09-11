@@ -255,8 +255,7 @@ class StatementSubmissionNotifier
     /**
      * Send Notification because Statement needs to be checked by Planner.
      *
-     * @param array|Statement $statement
-     * @param string[]        $ccs
+     * @param string[] $ccs
      *
      * @throws Throwable
      * @throws Twig_Error_Loader

@@ -173,8 +173,6 @@ class DemosPlanDepartmentController extends BaseController
      *
      * @param string $orgaId
      *
-     * @return RedirectResponse|Response
-     *
      * @throws Exception
      */
     #[DplanPermissions('area_manage_departments')]
