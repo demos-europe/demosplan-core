@@ -289,6 +289,7 @@ export default {
         'comments.submitter',
         'place',
         'tags',
+        'tags.topic',
       ]
 
       if (hasPermission('feature_enable_recommendation_versions')) {
