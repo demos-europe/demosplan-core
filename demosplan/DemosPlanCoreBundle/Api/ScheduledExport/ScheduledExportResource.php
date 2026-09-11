@@ -21,21 +21,11 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
+use DateTime;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Bookmark;
-use demosplan\DemosPlanCoreBundle\StoredQuery\SegmentListQuery;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\ExportSchedule;
 use Symfony\Component\Validator\Constraints as Assert;
-use Webmozart\Assert\Assert as TypeAssert;
 
-/**
- * A named segment list view: the referenced stored query holds the filters, the searchPhrase, the chosen columns, their
- * order and the sorting, this resource adds the name the user gave it.
- *
- * Writes carry only `name` and `queryHash`. The view itself is already persisted as the query the
- * list URL points at, so saving one means naming a hash the user is currently on - there is nothing
- * to re-validate or re-hash here. The read side additionally exposes the query's contents, so the
- * frontend can render a filter preview and mark the active view without a second request.
- */
 #[ApiResource(
     shortName: 'ScheduledExport',
     operations: [
@@ -72,60 +62,67 @@ class ScheduledExportResource
     #[ApiProperty(readable: false, identifier: true)]
     public string $id = '';
 
+    #[ApiProperty(readable: true, writable: true)]
+    #[Assert\NotBlank(message: 'A frequency is required to create a scheduled export.', groups: ['scheduledExport:create'])]
+    #[Assert\NotBlank(allowNull: true, message: 'A frequency may not be empty.', groups: ['scheduledExport:update'])]
+    #[Assert\Choice(choices: ['daily', 'weekly', 'monthly'], message: 'Frequency must be one of: daily, weekly, monthly.')]
+    public ?string $frequency = null;
+
     /**
-     * On update the constraint allows null, because a PATCH may omit the field to leave the name as it
-     * is - but an explicitly empty one is rejected by the validator. Without that the empty string
-     * would reach the processor's assertion, which guards invariants and would answer 500 for what is
-     * really a bad request.
+     * Only meaningful when {@see $frequency} is weekly. Never required by a validation group here,
+     * since whether it is needed depends on frequency's value rather than on which operation is
+     * running - that cross-field check happens in the processor instead.
      */
     #[ApiProperty(readable: true, writable: true)]
-    public ?string $name = null;
+    #[Assert\Range(min: 1, max: 7, notInRangeMessage: 'Weekday must be between 1 (Monday) and 7 (Sunday).')]
+    public ?int $weekday = null;
 
     /**
-     * The hash of the stored query this bookmark points at, which is what the segment list URL ends
-     * with. Writable, so a PATCH can repoint an existing bookmark at the view the user is now on.
+     * Only meaningful when {@see $frequency} is monthly. Same reasoning as {@see $weekday}: always
+     * optional here, required-when-monthly is enforced in the processor.
      */
     #[ApiProperty(readable: true, writable: true)]
-    #[Assert\NotBlank(message: 'A queryHash is required to create a bookmark.', groups: ['bookmark:create'])]
-    #[Assert\NotBlank(allowNull: true, message: 'A queryHash may not be empty.', groups: ['bookmark:update'])]
-    public ?string $queryHash = null;
+    #[Assert\Choice(choices: [1, 5, 10, 15, 20, 25], message: 'Day of month must be one of the allowed presets.')]
+    public ?int $dayOfMonth = null;
+
+    #[ApiProperty(readable: true, writable: true)]
+    #[Assert\NotBlank(message: 'Parameters are required to create a scheduled export.', groups: ['scheduledExport:create'])]
+    #[Assert\NotBlank(allowNull: true, message: 'Parameters may not be empty.', groups: ['scheduledExport:update'])]
+    public ?string $parameters = null;
+
+    #[ApiProperty(readable: false, writable: false)]
+    public string $procedureId = '';
+
+    #[ApiProperty(readable: false, writable: false)]
+    public string $parametersHash = '';
+
+    #[ApiProperty(readable: false, writable: false)]
+    public string $userId = '';
+
+    #[ApiProperty(readable: true, writable: false)]
+    public string $nextRunAt = '';
 
     /**
-     * @var array the filter of the referenced query, in the format the JSON:API implementation uses
+     * Null until the schedule has actually fired once.
      */
     #[ApiProperty(readable: true, writable: false)]
-    public array $filter = [];
+    public ?string $lastRunAt = null;
 
-    #[ApiProperty(readable: true, writable: false)]
-    public ?string $searchPhrase = null;
-
-    /**
-     * @var array{selectedColumns?: list<string>, columnOrder?: list<string>, sorting?: string}
-     */
-    #[ApiProperty(readable: true, writable: false)]
-    public array $viewSettings = [];
-
-    /**
-     * Used by the provider and by the processor after a write, so both answer with the same shape.
-     *
-     * The stored query is asserted to be a segment list one rather than checked gracefully: only
-     * {@see BookmarkAccessChecker::getAccessConditions()} hands entities to this method, and it filters
-     * on that format in the query itself, so anything else here is a programming error rather than bad
-     * input.
-     */
-    public static function fromEntity(ScheduledExport $scheduledExport): self
+    public static function fromEntity(ExportSchedule $exportSchedule): self
     {
-        $hashedQuery = $scheduledExport->getFilterSet();
-        $storedQuery = $hashedQuery->getStoredQuery();
-        TypeAssert::isInstanceOf($storedQuery, SegmentListQuery::class);
+        $lastRunAt = $exportSchedule->getLastRunAt();
 
         $resource = new self();
-        $resource->id = $scheduledExport->getId();
-        $resource->name = $scheduledExport->getName();
-        $resource->queryHash = $hashedQuery->getHash();
-        $resource->filter = $storedQuery->getFilter();
-        $resource->searchPhrase = $storedQuery->getSearchPhrase();
-        $resource->viewSettings = $storedQuery->getViewSettings();
+        $resource->id = $exportSchedule->getId();
+        $resource->frequency = $exportSchedule->getFrequency();
+        $resource->weekday = $exportSchedule->getWeekday();
+        $resource->dayOfMonth = $exportSchedule->getDayOfMonth();
+        $resource->parameters = $exportSchedule->getParameters();
+        $resource->procedureId = $exportSchedule->getProcedureId();
+        $resource->parametersHash = $exportSchedule->getParametersHash();
+        $resource->userId = $exportSchedule->getUserId();
+        $resource->nextRunAt = $exportSchedule->getNextRunAt()->format(DateTime::ATOM);
+        $resource->lastRunAt = $lastRunAt instanceof DateTime ? $lastRunAt->format(DateTime::ATOM) : null;
 
         return $resource;
     }
