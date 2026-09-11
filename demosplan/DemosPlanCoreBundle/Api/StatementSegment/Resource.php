@@ -117,6 +117,7 @@ class Resource
     #[ApiProperty(readable: true, writable: false)]
     public array $tags = [];
 
+    #[ApiFilter(OrderFilter::class)]
     #[ApiProperty(readable: true, writable: false)]
     public ?string $deadline = null;
 
