@@ -30,8 +30,6 @@ class ScheduledExportAccessChecker
     ) {
     }
 
-    /**
-     */
     public function isAvailable(): bool
     {
         return $this->currentUser->hasAllPermissions(
@@ -41,7 +39,6 @@ class ScheduledExportAccessChecker
     }
 
     /**
-     *
      * @return list<ClauseFunctionInterface<bool>>
      */
     public function getAccessConditions(): array
