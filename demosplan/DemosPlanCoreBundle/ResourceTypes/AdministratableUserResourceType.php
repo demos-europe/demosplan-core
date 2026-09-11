@@ -250,28 +250,33 @@ final class AdministratableUserResourceType extends DplanResourceType implements
                     return false;
                 },
                 DefaultField::YES
-            )
-            ->addUpdateBehavior(
-                CallbackAttributeSetBehavior::createFactory(
-                    [],
-                    // Intentionally a no-op: this attribute must merely be accepted by EDT here so it
-                    // is part of the request payload. The actual grant/removal happens in updateEntity(),
-                    // executed after the roles relationship behavior, so the user's final (post-update)
-                    // role set is what gets evaluated instead of depending on undocumented behavior order.
-                    static fn (User $user, bool $canManageProcedures): array => [],
-                    OptionalField::YES
-                )
-            )
-            ->addCreationBehavior(
-                CallbackAttributeSetBehavior::createFactory(
-                    [],
-                    // Same no-op as the update behavior above; the grant is applied in createEntity(),
-                    // executed after the roles relationship behavior so the newly created user's role
-                    // set is what gets evaluated.
-                    static fn (User $user, bool $canManageProcedures): array => [],
-                    OptionalField::YES
-                )
             );
+
+        // Only holders of the permission may send the attribute; everyone else gets an API error instead of a silent no-op
+        if ($this->currentUser->hasPermission('feature_manage_user_procedure_creation_permission')) {
+            $configBuilder->canManageProcedures
+                ->addUpdateBehavior(
+                    CallbackAttributeSetBehavior::createFactory(
+                        [],
+                        // Intentionally a no-op: this attribute must merely be accepted by EDT here so it
+                        // is part of the request payload. The actual grant/removal happens in updateEntity(),
+                        // executed after the roles relationship behavior, so the user's final (post-update)
+                        // role set is what gets evaluated instead of depending on undocumented behavior order.
+                        static fn (User $user, bool $canManageProcedures): array => [],
+                        OptionalField::YES
+                    )
+                )
+                ->addCreationBehavior(
+                    CallbackAttributeSetBehavior::createFactory(
+                        [],
+                        // Same no-op as the update behavior above; the grant is applied in createEntity(),
+                        // executed after the roles relationship behavior so the newly created user's role
+                        // set is what gets evaluated.
+                        static fn (User $user, bool $canManageProcedures): array => [],
+                        OptionalField::YES
+                    )
+                );
+        }
 
         // Whether the organisation this user belongs to already grants procedure-creation rights to
         // every user of this user's RMOPSA/RMOPHA role in it (org-wide `access_control` grant). While
@@ -499,9 +504,8 @@ final class AdministratableUserResourceType extends DplanResourceType implements
      * Grants or removes the individual procedure-creation permission for this user, for each of RMOPSA/RMOPHA
      * the user currently holds.
      *
-     * No-ops entirely unless the acting user holds feature_manage_procedure_creation_permission — the same
-     * permission that gates the equivalent organisation-wide toggle — so a project that never enables this
-     * feature for any role cannot have it triggered via a crafted request either.
+     * Only reachable by holders of feature_manage_user_procedure_creation_permission, since the attribute is
+     * registered as writable only for them.
      *
      * Per role, no-ops if the user does not (or no longer) have that role, or if the organisation already
      * grants procedure-creation org-wide for it — in that case per-user configuration must first be unlocked
@@ -509,10 +513,6 @@ final class AdministratableUserResourceType extends DplanResourceType implements
      */
     private function updateCanManageProcedures(UserInterface $user, bool $canManageProcedures): void
     {
-        if (!$this->currentUser->hasPermission('feature_manage_procedure_creation_permission')) {
-            return;
-        }
-
         $orga = $user->getOrga();
         $customer = $user->getCurrentCustomer();
         if (!$orga instanceof OrgaInterface || !$customer instanceof CustomerInterface) {

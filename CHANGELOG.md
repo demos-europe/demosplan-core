@@ -10,7 +10,7 @@
 - api-platform upgraded from 3.4 to 4.3; 3.4.x is blocked by security advisories. Two options in `config/packages/api_platform.yaml` changed: `keep_legacy_inflector` no longer exists in v4 and was removed, and `validator.legacy_query_parameter_validation` is now `validator.query_parameter_validation` (same behaviour; deprecated in 4.2, removal in 5.0). Projects overriding either option must adjust them, otherwise the container fails to compile with an "Unrecognized option" error.
 
 ### Added
-- Support users can now grant the right to create procedures to individual users with the Fachplanung-Admin or Anhörungsbehörde-Admin
+- The right to create procedures can now be granted to individual users with the Fachplanung-Admin or Anhörungsbehörde-Admin
   role via a checkbox in the user administration form. Alternatively, the right can be activated for all users with those roles in
   organization settings
 

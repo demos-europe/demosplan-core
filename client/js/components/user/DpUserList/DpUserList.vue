@@ -481,6 +481,17 @@ export default {
       } else {
         arr.push(this.departmentList())
         arr.push(this.roleList())
+        // The user form needs the own orga's registration statuses
+        arr.push(this.organisationList({
+          filter: {
+            ownOrga: {
+              condition: {
+                path: 'id',
+                value: this.presetUserOrgaId,
+              },
+            },
+          },
+        }))
       }
 
       Promise.all(arr)
