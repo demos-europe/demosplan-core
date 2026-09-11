@@ -78,7 +78,9 @@
       />
     </div>
 
+    <!-- DpModal caches its header-slot check on first render, so re-create the dialog whenever the header changes -->
     <dp-confirm-dialog
+      :key="procedureCreationToggleHeader"
       ref="procedureCreationToggleDialog"
       :confirm-button-text="Translator.trans('procedure.canCreate.confirmToggle.continue')"
       :header="procedureCreationToggleHeader"
