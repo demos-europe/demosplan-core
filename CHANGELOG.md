@@ -5,6 +5,10 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+## v4.60.0 (2026-09-09)
+
+## v4.59.0 (2026-09-09)
 - uses TagListCsvExportEventInterface
 - dpends on demosplan-addon version >= v0.82
 
@@ -22,6 +26,7 @@
 ### Added
 - Organisation administrators and support can reset the two-factor authentication of a user in the user administration, for cases where access to the second factor was lost. The reset only removes the second factor and can never activate it for someone else. Every reset is recorded in the report so it stays traceable who reset it for whom.
 - Statements can now be imported from a CSV file, in addition to the existing Excel import. The import runs as a background job; files with more than 3,000 rows, a duplicate Eingangsnummer, or an oversized statement text are rejected with a clear error instead of importing only part of the file. (DPLAN-18247)
+- The nightly maintenance now checks the stored files against the file entries in the database and writes the result to the log: entries whose file is missing from the storage, stored files no entry refers to, files kept at an unexpected path, and files that survived their deletion. The check only reads; `dplan:file:audit-consistency` runs it on demand.
 
 ### Fixed
 - Downloading the result of a background export works for large archives. The file is sent to the browser piece by piece instead of being held in memory as a whole, which could abort the download.
@@ -67,6 +72,8 @@
 
 ## v4.53.0 (2026-07-30)
 
+## v4.52.1 (2026-09-05)
+
 ## v4.52.0 (2026-07-29)
 
 ### Added
@@ -98,6 +105,7 @@
 - Institution coordinators without a second organisation email address are now redirected to the welcome page until they provide it.
 
 ## v4.49.0 (2026-07-15)
+
 ## v4.48.0 (2026-07-07)
 
 ### Added
