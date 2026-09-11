@@ -501,6 +501,8 @@ class DemosPlanOrganisationAPIController extends APIController
             $customersWithPendingPlanner = $preUpdateOrga->getCustomersByActivationStatus(OrgaTypeInterface::MUNICIPALITY, $pendingStatus);
             $customersWithPendingPlanningAgency = $preUpdateOrga->getCustomersByActivationStatus(OrgaTypeInterface::PLANNING_AGENCY, $pendingStatus);
             $customersWithPendingHearingAuthority = $preUpdateOrga->getCustomersByActivationStatus(OrgaTypeInterface::HEARING_AUTHORITY_AGENCY, $pendingStatus);
+            // Snapshot now: $preUpdateOrga is the same managed entity that updateOrga() mutates below
+            $acceptedCustomersBeforeUpdate = $userHandler->getAcceptedCustomerIdsByProcedureCreationType($preUpdateOrga);
             if (is_array($orgaDataArray['attributes']) && array_key_exists('showlist', $orgaDataArray['attributes'])) {
                 // explicitly set that show list may be updated
                 $userHandler->setCanUpdateShowList(true);
@@ -565,10 +567,12 @@ class DemosPlanOrganisationAPIController extends APIController
                 $userHandler->manageStatusChangeNotifications($updatedOrga, OrgaTypeInterface::PLANNING_AGENCY, $customersWithPendingPlanningAgency, $currentCustomer);
                 $userHandler->manageStatusChangeNotifications($updatedOrga, OrgaTypeInterface::HEARING_AUTHORITY_AGENCY, $customersWithPendingHearingAuthority, $currentCustomer);
 
-                // Skip when the admin just explicitly disabled procedure-creation for this orga above —
-                // otherwise this would immediately re-grant it within the very same request.
+                // Grant org-wide procedure creation only for types accepted by this request. Types that were
+                // already accepted may have had the grant revoked on purpose, and the form omits unchanged
+                // attributes, so their absence in the payload says nothing about the admin's intent.
+                // Skip entirely when the admin explicitly disabled it above.
                 if (false !== $canCreateProcedures) {
-                    $userHandler->ensureAccessControl($updatedOrga, $currentCustomer);
+                    $userHandler->ensureAccessControl($updatedOrga, $currentCustomer, $acceptedCustomersBeforeUpdate);
                 }
 
                 try {
