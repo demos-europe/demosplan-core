@@ -74,7 +74,7 @@ WORKDIR /srv/www
 # yarn install in the next RUN cannot mkdir /srv/www/node_modules.
 COPY composer.json composer.lock package.json yarn.lock .yarnrc.yml ./
 # do not use --no-scripts, as we do not need all the aws stuff
-RUN --mount=type=secret,id=ado,env=ADO_NPM_AUTH_IDENT \
+RUN --mount=type=secret,id=ado,env=ADO_NPM_AUTH_IDENT,required=false \
     --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=locked \
     --mount=type=cache,target=/var/www/.yarn,uid=33,gid=33,sharing=locked \
     --mount=type=cache,target=/var/www/.cache,uid=33,gid=33,sharing=locked \
