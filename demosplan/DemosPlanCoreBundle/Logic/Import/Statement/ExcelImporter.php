@@ -204,7 +204,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $worksheets = $this->sortWorkSheets($worksheets);
 
         foreach ($worksheets as $worksheet) {
-            /** @var string{'Legende'|'weitere Einreichende'|'Öffentlichkeit'|'Institution'} $currentWorksheetTitle */
+            /** @var 'Legende'|'weitere Einreichende'|'Öffentlichkeit'|'Institution' $currentWorksheetTitle */
             $currentWorksheetTitle = $worksheet->getTitle() ?? '';
             if (self::PUBLIC === $currentWorksheetTitle
                 || self::INSTITUTION === $currentWorksheetTitle

@@ -451,7 +451,7 @@ class StatementFragment extends CoreEntity implements UuidEntityInterface, State
     /**
      * Returns the names of all Tags assigned to this Statement.
      *
-     * @return array()
+     * @return string[]
      */
     public function getTagNames()
     {
