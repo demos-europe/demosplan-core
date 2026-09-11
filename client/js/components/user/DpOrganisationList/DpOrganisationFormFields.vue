@@ -952,7 +952,8 @@ export default {
         return {
           attributes: {
             addressExtension: '',
-            canCreateProcedures: false,
+            // New organizations get the orga-wide procedure-creation grant unless the admin opts out
+            canCreateProcedures: true,
             ccEmail2: '',
             city: '',
             dataProtection: '',
