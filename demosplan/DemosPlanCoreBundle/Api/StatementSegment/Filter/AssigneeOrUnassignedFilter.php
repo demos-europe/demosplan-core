@@ -65,10 +65,10 @@ final class AssigneeOrUnassignedFilter implements FilterInterface
     {
         return [
             'assigneeOrUnassigned' => [
-                'property' => 'assignee',
-                'type' => 'string',
+                'property'      => 'assignee',
+                'type'          => 'string',
                 'is_collection' => true,
-                'description' => 'Filter by one or more assignee ids; include an empty entry to also match segments with no assignee.',
+                'description'   => 'Filter by one or more assignee ids; include an empty entry to also match segments with no assignee.',
             ],
         ];
     }
