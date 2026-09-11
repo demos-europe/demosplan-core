@@ -44,7 +44,7 @@
                             class="{{ 'w-full h-auto'|prefixClass }}"
                             src="{{ publicProcedure.pictogram|default ? path('core_logo', {'hash': publicProcedure.pictogram|getFile('hash')}) : asset('img/procedure-placeholder.gif') }}"
                             loading="lazy"
-                            alt="{{ publicProcedure.pictogramAltText|default ? publicProcedure.pictogramAltText : 'Abbildung für ' ~ procedureDisplayName }}">
+                            alt="{{ publicProcedure.pictogramAltText|default ? publicProcedure.pictogramAltText : 'Piktogramm für das Verfahren ' ~ procedureDisplayName }}">
                         {% if publicProcedure.pictogramCopyright|default %}
                             <div class="{{ 'text-sm color--grey u-mt-0_125 break-words'|prefixClass }}">
                                 © {{ publicProcedure.pictogramCopyright }}
