@@ -23,9 +23,9 @@ use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphVersionRepository;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Exception;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
@@ -251,12 +251,11 @@ class ParagraphService implements ParagraphServiceInterface
         $paragraph = $this->paragraphRepository->get($paragraphId);
         if (0 === count($paragraph->getChildren())) {
             return $paragraph->getOrder();
-        } else {
-            $returnValue = 0;
-            foreach ($paragraph->getChildren() as $child) {
-                $childOrder = $this->calculateLastOrder($child->getId());
-                $returnValue = max($childOrder, $returnValue);
-            }
+        }
+        $returnValue = 0;
+        foreach ($paragraph->getChildren() as $child) {
+            $childOrder = $this->calculateLastOrder($child->getId());
+            $returnValue = max($childOrder, $returnValue);
         }
 
         return $returnValue;

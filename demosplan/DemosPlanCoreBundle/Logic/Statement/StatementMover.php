@@ -32,9 +32,9 @@ use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Psr\Log\LoggerInterface;
 
 class StatementMover
