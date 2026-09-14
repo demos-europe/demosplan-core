@@ -1145,6 +1145,8 @@ email.subject.procedure.subscription: "Planverfahren bei demosplan in der Beteil
 email.subject.procedure: "Stellungnahme zur Kenntnis - {procedure_name}"
 email.subject.public.confirm: "Ihre Stellungnahme zum Verfahren {procedure_name} ist eingegangen"
 email.subject.segment.deadline.reminder: "Erinnerung an Ihre Bearbeitungsfrist - {date}"
+email.subject.scheduled.export.completed: "Ihr geplanter Excel-Export steht zum Download bereit"
+email.subject.scheduled.export.failed: "Ihr geplanter Excel-Export konnte nicht erstellt werden"
 email.subject.reviewer.admin.orga.new.fragment: "Information über Zuweisung eines Datensatzes in demosplan"
 email.subject.reviewer.admin.orga.reassign.fragment: "Information über Zurückweisung eines Datensatzes in demosplan"
 email.subject.orga.new: "Neue zu prüfende Organisation"
