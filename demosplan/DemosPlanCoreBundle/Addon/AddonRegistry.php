@@ -32,7 +32,10 @@ class AddonRegistry implements ArrayAccess
     }
 
     /**
-     * @param Definition[] $addonInfos
+     * The compiler pass passes {@link Definition}s here, which the container resolves into the
+     * actual instances before this method ever runs.
+     *
+     * @param AddonInfo[] $addonInfos
      */
     public function boot(array $addonInfos = [])
     {
