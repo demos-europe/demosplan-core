@@ -1133,10 +1133,10 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     public function addAddressBookEntry(AddressBookEntryInterface $addressBookEntry): bool
     {
         if (!$this->addressBookEntries->contains($addressBookEntry)) {
-            $addedAddressBookEntrySuccessful = $this->addressBookEntries->add($addressBookEntry);
+            $this->addressBookEntries->add($addressBookEntry);
             $addressBookEntry->setOrganisation($this);
 
-            return $addedAddressBookEntrySuccessful;
+            return true;
         }
 
         return false;

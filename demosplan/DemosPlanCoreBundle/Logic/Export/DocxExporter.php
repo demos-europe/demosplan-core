@@ -167,6 +167,7 @@ class DocxExporter
         array $requestPost,
         string $sortType,
         string $viewMode = AssessmentTableViewMode::DEFAULT_VIEW,
+        bool $includeStatementMetadataRow = false,
     ): WriterInterface {
         /**
          * I tried to use templates with PHPWord 0.13.0, but it is not possible
@@ -389,7 +390,8 @@ class DocxExporter
                         ViewOrientation::createLandscape(),
                         $phpWord,
                         $exportType,
-                        $requestPost
+                        $requestPost,
+                        $includeStatementMetadataRow
                     );
                     break;
                 default:
@@ -533,6 +535,11 @@ class DocxExporter
      * @param array  $item
      * @param bool   $anonymous
      * @param string $exportType
+     * @param array  $renderOptions {
+     *                              Number statements: bool $numberStatements,
+     *                              Statement number: int $statementNumber,
+     *                              Include metadata: bool $includeStatementMetadataRow,
+     *                              }
      *
      * @throws Exception
      */
@@ -542,40 +549,15 @@ class DocxExporter
         $anonymous,
         ViewOrientation $orientation,
         $exportType,
-        bool $numberStatements = false,
-        int $statementNumber = 0,
+        array $renderOptions = [],
     ): void {
+        $numberStatements = $renderOptions['numberStatements'] ?? false;
+        $statementNumber = $renderOptions['statementNumber'] ?? 0;
+        $includeStatementMetadataRow = $renderOptions['includeStatementMetadataRow'] ?? false;
+
         $styles = $this->getDefaultDocxPageStyles($orientation);
 
-        if (null === $item['movedToProcedureName']) {
-            // Stellungnahme oder Datensatz und Erwiderung
-            if (ExportType::STATEMENTS_AND_FRAGMENTS->value === $exportType && 0 < (is_countable($item['fragments']) ? count($item['fragments']) : 0)) {
-                $this->addFragmentRows($item, $assessmentTable, $styles['cellWidthTotal'] * 0.44, $styles['cellWidthTotal'] * 0.44, $styles, $anonymous);
-            } else {
-                $assessmentTable->addRow();
-                // add submitterData cell
-                $this->addSubmitterData(
-                    $anonymous,
-                    $assessmentTable,
-                    $item,
-                    $styles,
-                    $numberStatements,
-                    $statementNumber
-                );
-                $cellStyle = $styles['cellTop'];
-                $cell2 = $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $cellStyle);
-                if (isset($item['text'])) {
-                    $item['text'] = $this->editorService->handleObscureTags($item['text'], $anonymous);
-                    $this->addHtml($cell2, $item['text'], $styles);
-                }
-
-                $cell3 = $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $cellStyle);
-                $this->addVotePlaText($cell3, $item);
-                if (isset($item['recommendation'])) {
-                    $this->addHtml($cell3, $item['recommendation'], $styles);
-                }
-            }
-        } else {
+        if (null !== $item['movedToProcedureName']) {
             // Moved Statement
             $assessmentTable->addRow();
             $this->addSubmitterData(
@@ -595,7 +577,74 @@ class DocxExporter
                 ->addText($movedStatementText, $styles['cellHeadingText'], $styles['textStyleStatementDetailsParagraphStyles']);
 
             $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $cellStyle);
+
+            return;
         }
+
+        // Stellungnahme oder Datensatz und Erwiderung
+        if (ExportType::STATEMENTS_AND_FRAGMENTS->value === $exportType && 0 < (is_countable($item['fragments']) ? count($item['fragments']) : 0)) {
+            $this->addFragmentRows($item, $assessmentTable, $styles['cellWidthTotal'] * 0.44, $styles['cellWidthTotal'] * 0.44, $styles, $anonymous, $includeStatementMetadataRow);
+
+            return;
+        }
+
+        $assessmentTable->addRow();
+        // add submitterData cell
+        $this->addSubmitterData(
+            $anonymous,
+            $assessmentTable,
+            $item,
+            $styles,
+            $numberStatements,
+            $statementNumber
+        );
+        $cellStyle = $styles['cellTop'];
+        $cell2 = $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $cellStyle);
+        if (isset($item['text'])) {
+            $item['text'] = $this->editorService->handleObscureTags($item['text'], $anonymous);
+            $this->addHtml($cell2, $item['text'], $styles);
+        }
+        if ($includeStatementMetadataRow) {
+            $this->addStatementMetadataToCell($cell2, $item, $styles);
+        }
+
+        $cell3 = $assessmentTable->addCell($styles['cellWidthTotal'] * 0.44, $cellStyle);
+        $this->addVotePlaText($cell3, $item);
+        if (isset($item['recommendation'])) {
+            $this->addHtml($cell3, $item['recommendation'], $styles);
+        }
+    }
+
+    /**
+     * Appends the assigned Potenzialflächen and Schlagworte below the statement text.
+     *
+     * Only used by the Verfahrensexport (see $includeStatementMetadataRow in
+     * {@link renderTableItem} and {@link addFragmentRows}); the standalone Abwägungstabelle
+     * export never sets that flag, so this stays out of it.
+     */
+    private function addStatementMetadataToCell(Cell $cell, array $item, array $styles): void
+    {
+        $priorityAreaKeys = $item['priorityAreaKeys'] ?? [];
+        if ([] !== $priorityAreaKeys) {
+            $cell->addTextBreak();
+            $this->addStatementMetadataLine($cell, 'potential.area', $priorityAreaKeys, $styles);
+        }
+
+        $tagNames = $item['tagNames'] ?? [];
+        if ([] !== $tagNames) {
+            $cell->addTextBreak();
+            $this->addStatementMetadataLine($cell, 'tags', $tagNames, $styles);
+        }
+    }
+
+    /**
+     * Renders "<bold label>: <values>" as a single line, with only the label in bold.
+     */
+    private function addStatementMetadataLine(Cell $cell, string $translationKey, array $values, array $styles): void
+    {
+        $textRun = $cell->addTextRun($styles['textStyleStatementDetailsParagraphStyles']);
+        $textRun->addText($this->translator->trans($translationKey).': ', ['bold' => true]);
+        $textRun->addText(implode(', ', $values));
     }
 
     /**
@@ -743,6 +792,10 @@ class DocxExporter
      * @param int     $recommendationCellWidth
      * @param array   $styles
      * @param bool    $anonymous
+     * @param bool    $includeStatementMetadataRow appends the statement's priority areas/tags
+     *                                             (see {@link addStatementMetadataToCell}) to
+     *                                             the first fragment's text cell, since fragments
+     *                                             have no cell of their own to carry statement-level data
      */
     protected function addFragmentRows(
         $item,
@@ -750,7 +803,8 @@ class DocxExporter
         $textCellWidth,
         $recommendationCellWidth,
         $styles,
-        $anonymous): void
+        $anonymous,
+        bool $includeStatementMetadataRow = false): void
     {
         foreach ($item['fragments'] as $index => $fragment) {
             $assessmentTable->addRow();
@@ -768,6 +822,9 @@ class DocxExporter
                 // T6679:
                 $fragment['text'] = $this->editorService->handleObscureTags($fragment['text'], $anonymous);
                 $this->addHtml($cell2, $fragment['text'], $styles);
+            }
+            if (0 === $index && $includeStatementMetadataRow) {
+                $this->addStatementMetadataToCell($cell2, $item, $styles);
             }
 
             $cell3 = $assessmentTable->addCell($recommendationCellWidth, $cellStyle);
@@ -1673,6 +1730,7 @@ class DocxExporter
         PhpWord $phpWord,
         $exportType,
         array $requestPost,
+        bool $includeStatementMetadataRow = false,
     ): WriterInterface {
         $phpWord->setDefaultFontSize(9);
         $styles = $this->getDefaultDocxPageStyles($orientation);
@@ -1711,8 +1769,11 @@ class DocxExporter
                 $anonymous,
                 $orientation,
                 $exportType,
-                $numberStatements,
-                $statementNumber
+                [
+                    'numberStatements'            => $numberStatements,
+                    'statementNumber'             => $statementNumber,
+                    'includeStatementMetadataRow' => $includeStatementMetadataRow,
+                ]
             );
             ++$statementNumber;
         }
