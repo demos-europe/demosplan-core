@@ -22,6 +22,7 @@ use Exception;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Webmozart\Assert\Assert;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\ExportSchedule;
 
 class ScheduledExportProvider implements ProviderInterface
 {
@@ -78,24 +79,20 @@ class ScheduledExportProvider implements ProviderInterface
     }
 
     /**
-     * Sorted by name, which is the only stable order available: the entity carries no created or
-     * modified timestamp, so offering recency would need a migration on a table the assessment table
-     * shares. The list is a handful of entries per user and procedure, hence no pagination either.
-     *
      * @return list<ScheduledExportResource>
      *
      * @throws Exception
      */
     private function provideCollection(): array
     {
-        $scheduledExport = $this->scheduledExportRepository->getEntities(
+        $scheduledExports = $this->scheduledExportRepository->getEntities(
             $this->accessChecker->getAccessConditions(),
-            [$this->sortMethodFactory->propertyAscending(['name'])]
+            [$this->sortMethodFactory->propertyAscending(['nextRunAt'])]
         );
 
         return array_map(
-            static fn (ScheduledExport $scheduledExport): ScheduledExportResource => ScheduledExportResource::fromEntity($scheduledExport),
-            $scheduledExport
+            static fn (ExportSchedule $scheduledExport): ScheduledExportResource => ScheduledExportResource::fromEntity($scheduledExport),
+            $scheduledExports
         );
     }
 }
