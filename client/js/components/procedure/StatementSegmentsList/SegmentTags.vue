@@ -48,13 +48,13 @@
             {{ tag.attributes.title }}
           </span>
           <dp-button
+            :text="Translator.trans('remove')"
             color="secondary"
             data-cy="segmentTags:removeTag"
-            hide-text
             icon="close"
             icon-size="small"
-            :text="Translator.trans('remove')"
             variant="transparent"
+            hide-text
             @click="removeTag(tag.id)"
           />
         </span>
@@ -62,14 +62,14 @@
     </div>
 
     <dp-multiselect
-      :close-on-select="false"
       :clear-on-select="false"
-      group-label="title"
-      group-values="tags"
+      :close-on-select="false"
       :group-select="false"
-      label="title"
       :options="groupedOptions"
       :placeholder="Translator.trans('segment.tags.add')"
+      group-label="title"
+      group-values="tags"
+      label="title"
       track-by="id"
       @input="onSelect"
     >
