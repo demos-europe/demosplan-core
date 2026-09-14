@@ -260,6 +260,22 @@ class LoadUserData extends TestFixture
 
         $manager->persist($role14);
 
+        $role15 = new Role();
+        $role15->setName('Anhörungsbehörde-Admin')
+            ->setCode(Role::HEARING_AUTHORITY_ADMIN)
+            ->setGroupCode('GHEAUT')
+            ->setGroupName('Anhörungsbehörde');
+
+        $manager->persist($role15);
+
+        $role16 = new Role();
+        $role16->setName('Anhörungsbehörde-Sachbearbeiter')
+            ->setCode(Role::HEARING_AUTHORITY_WORKER)
+            ->setGroupCode('GHEAUT')
+            ->setGroupName('Anhörungsbehörde');
+
+        $manager->persist($role16);
+
         $this->setReference('testRolePublicAgencyCoordination', $role1);
         $this->setReference('testRoleCitiz', $role2);
         $this->setReference('testRoleFP', $role3);

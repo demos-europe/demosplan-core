@@ -433,14 +433,14 @@ class UserAccessControlServiceTest extends FunctionalTestCase
 
     public function testRemovePermissionForUsersInOrgaNoOpsWhenNothingMatches(): void
     {
-        // Act & Assert - should not throw when there is nothing to remove
+        $this->expectNotToPerformAssertions();
+
+        // Act - should not throw when there is nothing to remove
         $this->sut->removePermissionForUsersInOrga(
             $this->testOrga->_real(),
             $this->testCustomer->_real(),
             'feature_statement_bulk_edit',
             [$this->testRole->getCode()]
         );
-
-        self::assertTrue(true);
     }
 }
