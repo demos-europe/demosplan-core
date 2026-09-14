@@ -114,8 +114,6 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
      */
     private function getSegmentsAndTextSections(array $draftsInfoArray, Statement $statement): array
     {
-        $segments = [];
-        $textSections = [];
         $procedure = $statement->getProcedure();
         $attributes = $draftsInfoArray['data']['attributes'] ?? [];
 
@@ -126,6 +124,33 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
             $drafts = $this->extractSegmentMarkDrafts($attributes);
             $textSectionBlocks = [];
         }
+
+        $segments = $this->createSegments($drafts, $statement, $procedure);
+        $statement->setSegmentsOfStatement(new ArrayCollection($segments));
+        $textSections = $this->createTextSections($textSectionBlocks, $statement);
+
+        return [
+            'segments'     => $segments,
+            'textSections' => $textSections,
+        ];
+    }
+
+    /**
+     * Creates Segment entities from DraftsInfo.
+     *
+     * @param list<array{id: string, text: string, order: int|null, metadata: array<mixed>}> $drafts
+     *        normalized draft entries
+     *
+     * @see self::extractContentBlockDrafts()
+     * @see self::extractSegmentMarkDrafts()
+     *
+     * @return array<int, Segment>
+     *
+     * @throws Exception
+     */
+    private function createSegments(array $drafts, Statement $statement, Procedure $procedure): array
+    {
+        $segments = [];
 
         // Temporarily change ID generator to AssignedGenerator so Doctrine handles manually-assigned IDs properly
         $segmentMetadata = $this->entityManager->getClassMetadata(Segment::class);
@@ -172,9 +197,21 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
             $segment->setTags($tags);
         }
 
-        $statement->setSegmentsOfStatement(new ArrayCollection($segments));
+        return $segments;
+    }
 
-        // Create TextSection entities from contentBlocks
+    /**
+     * @param list<array{type: 'textSection', order?: int, text?: string}> $textSectionBlocks
+     *                                                                     empty for the segment-mark format, or
+     *                                                                     when contentBlocks contains no remaining
+     *                                                                     text (fully segmented statement)
+     *
+     * @return array<int, TextSection>
+     */
+    private function createTextSections(array $textSectionBlocks, Statement $statement): array
+    {
+        $textSections = [];
+
         foreach ($textSectionBlocks as $block) {
             $textSection = new TextSection();
             $textSection->setStatement($statement);
@@ -185,10 +222,7 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
             $textSections[] = $textSection;
         }
 
-        return [
-            'segments'     => $segments,
-            'textSections' => $textSections,
-        ];
+        return $textSections;
     }
 
     /**
