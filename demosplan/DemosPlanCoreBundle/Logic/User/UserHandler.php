@@ -63,9 +63,9 @@ use demosplan\DemosPlanCoreBundle\Validator\PasswordValidator;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\EmailAddressVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\CustomerResourceInterface;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Exception;
 use Illuminate\Support\Collection;
 use LogicException;
@@ -1297,7 +1297,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     }
 
     /**
-     * @return array
+     * @return array|null
      */
     protected function handleSaveAllDepartments(ParameterBag $requestData)
     {
@@ -1314,17 +1314,21 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             } catch (Exception) {
                 $this->logger->error("Failed updating Department {$ident}.");
 
-                return $this->getSession()->getFlashBag()->set(
+                $this->getSession()->getFlashBag()->set(
                     'error',
                     'Die Abteilung konnte nicht aktualisiert werden!'
                 );
+
+                return null;
             }
         }
 
-        return $this->getSession()->getFlashBag()->set(
+        $this->getSession()->getFlashBag()->set(
             'confirm',
             $this->translator->trans('confirm.all.changes.saved')
         );
+
+        return null;
     }
 
     /**
