@@ -24,9 +24,9 @@ export function useApiPlatformFilters () {
    * path.id[]=uuid
    * exists[path]=false
    *
-   * Grouped OR filters with "OrUnassigned" postfix use the `memberOf` value as the API filter key.
-   * IS NULL inside an OR group is represented by an empty string.
-   * OR groups without "OrUnassigned" postfix are treated as regular ungrouped filters.
+   * Special handling for OR groups:
+   * - IS NULL operators in OR groups use the `memberOf` value as the API filter key (with empty string)
+   * - Regular values in OR groups are treated as ungrouped filters (path.id format)
    *
    * @param {Object} edtFilters
    * @returns {Object}
@@ -49,9 +49,8 @@ export function useApiPlatformFilters () {
       const { path, value, operator, memberOf } = condition
       const isNull = operator === IS_NULL
       const isOrGroup = memberOf && groupedFilters[memberOf]?.conjunction === OR
-      const isOrUnassignedGroup = isOrGroup && memberOf.endsWith('OrUnassigned')
 
-      if (isOrUnassignedGroup) {
+      if (isOrGroup && isNull) {
         apiFilters[memberOf] ??= []
         apiFilters[memberOf].push(isNull ? '' : value)
 
