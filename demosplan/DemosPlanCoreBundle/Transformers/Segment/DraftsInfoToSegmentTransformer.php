@@ -98,6 +98,14 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
     }
 
     /**
+     * Returns true for text formats.
+     */
+    public function supports(string $format): bool
+    {
+        return self::DRAFTS_INFO === $format;
+    }
+
+    /**
      * @param array<mixed> $draftsInfoArray
      *
      * @return array{segments: array<int, Segment>, textSections: array<int, TextSection>}
@@ -359,13 +367,5 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         }
 
         return $tags;
-    }
-
-    /**
-     * Returns true for text formats.
-     */
-    public function supports(string $format): bool
-    {
-        return self::DRAFTS_INFO === $format;
     }
 }
