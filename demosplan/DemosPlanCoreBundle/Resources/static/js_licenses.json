@@ -80,11 +80,6 @@
         "website": "https://github.com/FullHuman/purgecss"
     },
     {
-        "package": "@jest/globals",
-        "license": "MIT",
-        "website": "https://github.com/jestjs/jest"
-    },
-    {
         "package": "@masterportal/masterportalapi",
         "license": "MIT",
         "website": "git+https://bitbucket.org/geowerkstatt-hamburg/masterportalapi"
@@ -125,6 +120,26 @@
         "website": "https://github.com/transloadit/uppy"
     },
     {
+        "package": "@vitejs/plugin-vue",
+        "license": "MIT",
+        "website": "https://github.com/vitejs/vite-plugin-vue"
+    },
+    {
+        "package": "@vitest/coverage-v8",
+        "license": "MIT",
+        "website": "https://github.com/vitest-dev/vitest"
+    },
+    {
+        "package": "@vitest/eslint-plugin",
+        "license": "MIT",
+        "website": "https://github.com/vitest-dev/eslint-plugin-vitest"
+    },
+    {
+        "package": "@vitest/ui",
+        "license": "MIT",
+        "website": "https://github.com/vitest-dev/vitest"
+    },
+    {
         "package": "@vue/compat",
         "license": "MIT",
         "website": "https://github.com/vuejs/core"
@@ -140,11 +155,6 @@
         "website": "https://github.com/vuejs/test-utils"
     },
     {
-        "package": "@vue/vue3-jest",
-        "license": "MIT",
-        "website": "https://github.com/vuejs/vue-jest"
-    },
-    {
         "package": "a11y-datepicker",
         "license": "MIT",
         "website": "https://github.com/mathislucka/a11y-datepicker"
@@ -153,11 +163,6 @@
         "package": "assets-webpack-plugin",
         "license": "MIT",
         "website": "https://github.com/ztoben/assets-webpack-plugin"
-    },
-    {
-        "package": "babel-jest",
-        "license": "MIT",
-        "website": "https://github.com/jestjs/jest"
     },
     {
         "package": "babel-loader",
@@ -300,11 +305,6 @@
         "website": "https://github.com/import-js/eslint-plugin-import"
     },
     {
-        "package": "eslint-plugin-jest",
-        "license": "MIT",
-        "website": "https://github.com/jest-community/eslint-plugin-jest"
-    },
-    {
         "package": "eslint-plugin-jquery",
         "license": "MIT",
         "website": "https://github.com/dgraham/eslint-plugin-jquery"
@@ -340,6 +340,11 @@
         "website": "https://github.com/isaacs/node-glob"
     },
     {
+        "package": "globals",
+        "license": "MIT",
+        "website": "https://github.com/sindresorhus/globals"
+    },
+    {
         "package": "intl-messageformat",
         "license": "BSD-3-Clause",
         "website": "https://github.com/formatjs/formatjs"
@@ -348,21 +353,6 @@
         "package": "ismobilejs",
         "license": "MIT",
         "website": "https://github.com/kaimallea/isMobile"
-    },
-    {
-        "package": "jest",
-        "license": "MIT",
-        "website": "https://github.com/jestjs/jest"
-    },
-    {
-        "package": "jest-environment-jsdom",
-        "license": "MIT",
-        "website": "https://github.com/jestjs/jest"
-    },
-    {
-        "package": "jest-junit",
-        "license": "Apache-2.0",
-        "website": "https://github.com/jest-community/jest-junit"
     },
     {
         "package": "jquery",
@@ -432,7 +422,7 @@
     {
         "package": "postcss-loader",
         "license": "MIT",
-        "website": "https://github.com/webpack-contrib/postcss-loader"
+        "website": "https://github.com/webpack/postcss-loader"
     },
     {
         "package": "postcss-prefix-selector",
@@ -535,6 +525,16 @@
         "website": "https://github.com/uuidjs/uuid"
     },
     {
+        "package": "vite",
+        "license": "MIT",
+        "website": "https://github.com/vitejs/vite"
+    },
+    {
+        "package": "vitest",
+        "license": "MIT",
+        "website": "https://github.com/vitest-dev/vitest"
+    },
+    {
         "package": "vue",
         "license": "MIT",
         "website": "https://github.com/vuejs/core"
@@ -555,9 +555,9 @@
         "website": "https://github.com/rigor789/vue-scrollto"
     },
     {
-        "package": "vue-sliding-pagination",
+        "package": "vue-tsc",
         "license": "MIT",
-        "website": "https://github.com/eFrane/vue-sliding-pagination"
+        "website": "https://github.com/vuejs/language-tools"
     },
     {
         "package": "vue2-leaflet",

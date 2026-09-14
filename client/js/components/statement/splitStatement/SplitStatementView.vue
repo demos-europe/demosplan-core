@@ -199,6 +199,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
 import CardPane from './CardPane'
 import dayjs from 'dayjs'
 import { EditorState } from 'prosemirror-state'
@@ -600,9 +601,7 @@ export default {
     },
 
     fetchAssignableUsers () {
-      const url = Routing.generate('api_resource_list', { resourceType: 'AssignableUser' })
-
-      return dpApi.get(url, { sort: 'lastname' })
+      return dpApi.get(apiUrl('AssignableUser'), { sort: 'lastname' })
         .then(response => {
           this.assignableUsers = response.data.data.map(assignableUser => {
             return {
@@ -616,8 +615,7 @@ export default {
     },
 
     fetchAvailablePlaces () {
-      return dpApi.get(Routing.generate('api_resource_list', {
-        resourceType: 'Place',
+      return dpApi.get(apiUrl('Place'), {
         fields: {
           Place: [
             'name',
@@ -626,7 +624,7 @@ export default {
           ].join(),
         },
         sort: 'sortIndex',
-      })).then((response) => {
+      }).then((response) => {
         const availablePlaces = response.data.data.map(place => {
           return {
             name: place.attributes.name,

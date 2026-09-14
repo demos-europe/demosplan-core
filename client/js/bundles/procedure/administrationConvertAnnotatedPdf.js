@@ -12,9 +12,10 @@
  */
 
 import DpConvertAnnotatedPdf from '@DpJs/components/procedure/imageAnnotator/DpConvertAnnotatedPdf'
+import { DpInlineNotification } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 
-const components = { DpConvertAnnotatedPdf }
+const components = { DpConvertAnnotatedPdf, DpInlineNotification }
 const stores = {}
 const apiStores = []
 

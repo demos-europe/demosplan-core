@@ -1,7 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it } from '@jest/globals'
 import { enableAutoUnmount } from '@vue/test-utils'
 import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
+import { vi } from 'vitest'
 
 describe('ExportModal', () => {
   const props = {
@@ -108,7 +108,7 @@ describe('ExportModal', () => {
             'dp-modal': {
               template: '<div><slot /></div>',
               methods: {
-                toggle: jest.fn(),
+                toggle: vi.fn(),
               },
             },
           },
@@ -141,7 +141,7 @@ describe('ExportModal', () => {
   })
 
   it('triggers a "submit" event when the submit button is clicked', async () => {
-    wrapper.vm.submit = jest.fn()
+    wrapper.vm.submit = vi.fn()
     wrapper.vm.handleSubmit()
 
     const event = wrapper.emitted('submit')

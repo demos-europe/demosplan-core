@@ -32,6 +32,13 @@ use ZipStream\ZipStream;
 class ZipExportService
 {
     /**
+     * Keeps generated ZIP entry paths well under Windows' ~260 character
+     * MAX_PATH, leaving headroom for whatever destination folder the user
+     * extracts the archive into.
+     */
+    private const MAX_ZIP_ENTRY_PATH_LENGTH = 200;
+
+    /**
      * @var array<int,string>
      */
     private $filesAdded = [];
@@ -73,7 +80,7 @@ class ZipExportService
      */
     public function addFileToZipStream(string $filePath, string $zipPath, ZipStream $zip): void
     {
-        $zipPath = (new UnicodeString($zipPath))->ascii()->toString();
+        $zipPath = $this->sanitizeZipPath($zipPath);
         $fs = new Filesystem();
         if ($this->defaultStorage->fileExists($filePath)) {
             $zip->addFileFromStream($zipPath, $this->defaultStorage->readStream($filePath));
@@ -97,14 +104,17 @@ class ZipExportService
         ZipStream $zip,
         string $fileNamePrefix,
     ): void {
-        $path = (new UnicodeString($folderPath.$fileNamePrefix.$fileInfo->getFileName()))->ascii()->toString();
-        $pathHash = md5((string) $path);
-        if (in_array($pathHash, $this->filesAdded, true)) {
+        // Dedup on the sanitized path so the guard matches the entry name that is
+        // actually written. Otherwise two titles differing only by a trailing
+        // space (or dot) would compare as distinct, both pass this guard, then
+        // sanitize to the same entry name and collide as a duplicate ZIP entry.
+        $path = $this->sanitizeZipPath($folderPath.$fileNamePrefix.$fileInfo->getFileName());
+        if (in_array($path, $this->filesAdded, true)) {
             $this->logger->warning('File already present in Zip', ['path' => $path]);
 
             return;
         }
-        $this->filesAdded[] = $pathHash;
+        $this->filesAdded[] = $path;
 
         $this->logger->info(
             'Try to add File to Zip',
@@ -148,7 +158,7 @@ class ZipExportService
         $streamRead = fopen('php://temp', 'rwb');
         fwrite($streamRead, $string);
         rewind($streamRead);
-        $zip->addFileFromStream((new UnicodeString($filename))->ascii()->toString(), $streamRead);
+        $zip->addFileFromStream($this->sanitizeZipPath($filename), $streamRead);
         fclose($streamRead);
     }
 
@@ -213,5 +223,89 @@ class ZipExportService
         if (!$writer instanceof WriterInterface && !$writer instanceof PDF) {
             throw InvalidParameterTypeException::fromTypes($writer::class, [WriterInterface::class, PDF::class]);
         }
+    }
+
+    /**
+     * Normalizes a ZIP entry name so it stays valid on Windows.
+     *
+     * Besides folding to ASCII, each path segment is trimmed of surrounding
+     * whitespace and trailing dots. Windows silently strips trailing spaces and
+     * dots from file/directory names on extraction; the resulting mismatch
+     * between the archive's entry names and the paths actually created makes the
+     * built-in Windows extractor (and PowerShell's Expand-Archive) report the
+     * archive as invalid ("Der zip-komprimierte Ordner ist ungültig"), even
+     * though tools like 7-zip open it fine. Interior dots (e.g. "Kapitel 4.5.1"
+     * or the ".pdf" extension) are preserved because only trailing dots are
+     * stripped.
+     *
+     * Public so other ZIP-building sites (e.g. ZipResponseGenerator,
+     * DemosPlanDocumentController) can reuse the same normalization.
+     */
+    public function sanitizeZipPath(string $zipPath): string
+    {
+        $zipPath = (new UnicodeString($zipPath))->ascii()->toString();
+
+        $segments = array_map(
+            static fn (string $segment): string => rtrim(trim($segment), ' .'),
+            explode('/', $zipPath)
+        );
+
+        // Drop segments that trimmed to nothing (e.g. a title of only spaces or
+        // dots). Keeping them would re-introduce empty path components such as
+        // "proc//file.pdf", which is exactly the kind of malformed entry name
+        // Windows rejects on extraction. Compared explicitly against '' so a
+        // legitimate segment named "0" is not dropped by array_filter.
+        $segments = array_values(array_filter(
+            $segments,
+            static fn (string $segment): bool => '' !== $segment
+        ));
+
+        $segments = $this->truncateLastSegmentToFitPathLength($segments);
+
+        return implode('/', $segments);
+    }
+
+    /**
+     * Truncates only the last path segment (the entry's file name) so the
+     * joined entry path stays within MAX_ZIP_ENTRY_PATH_LENGTH.
+     *
+     * Directory/file names built from user content -- a procedure title or an
+     * uploaded attachment's original filename -- are effectively unbounded in
+     * length and can otherwise produce entry paths that Windows Explorer
+     * refuses to extract (MAX_PATH ~260, shared with the destination folder
+     * path), even though the archive itself is perfectly valid. The extension
+     * is preserved so the file type stays recognizable.
+     *
+     * @param array<int,string> $segments
+     *
+     * @return array<int,string>
+     */
+    private function truncateLastSegmentToFitPathLength(array $segments): array
+    {
+        if ([] === $segments) {
+            return $segments;
+        }
+
+        $lastIndex = count($segments) - 1;
+        $precedingLength = array_sum(array_map('strlen', array_slice($segments, 0, $lastIndex)))
+            + $lastIndex; // one '/' separator per preceding segment
+
+        $availableLength = max(1, self::MAX_ZIP_ENTRY_PATH_LENGTH - $precedingLength);
+        $segments[$lastIndex] = $this->truncateFileName($segments[$lastIndex], $availableLength);
+
+        return $segments;
+    }
+
+    private function truncateFileName(string $fileName, int $maxLength): string
+    {
+        if (strlen($fileName) <= $maxLength) {
+            return $fileName;
+        }
+
+        $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+        $extensionSuffix = '' === $extension ? '' : '.'.$extension;
+        $baseNameLength = max(1, $maxLength - strlen($extensionSuffix));
+
+        return substr($fileName, 0, $baseNameLength).$extensionSuffix;
     }
 }

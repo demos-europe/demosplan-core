@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementSegmentResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
@@ -34,6 +35,7 @@ use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathException;
 use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
 use Elastica\Index;
+use InvalidArgumentException;
 
 /**
  * @template-implements ReadableEsResourceTypeInterface<SegmentInterface>
@@ -49,6 +51,7 @@ use Elastica\Index;
  * @property-read StatementResourceType $parentStatement
  * @property-read StatementResourceType $parentStatementOfSegment Do not expose! Alias usage only.
  * @property-read AssignableUserResourceType $assignee
+ * @property-read End $deadline
  * @property-read TagResourceType $tags
  * @property-read PlaceResourceType $place
  * @property-read SegmentCommentResourceType $comments
@@ -237,6 +240,16 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
                 );
         }
 
+        if ($this->currentUser->hasPermission('field_statement_deadline')) {
+            $properties[] = $this->createAttribute($this->deadline)
+                ->readable(true, static fn (Segment $segment): ?string => $segment->getDeadline()?->format('Y-m-d'))
+                ->updatable([], static function (Segment $segment, ?string $value): array {
+                    $segment->setDeadline(self::parseDeadline($value));
+
+                    return [];
+                });
+        }
+
         if ($this->currentUser->hasPermission('feature_enable_recommendation_versions')) {
             $properties[] = $this->createToManyRelationship($this->recommendationVersions)
                 ->setRelationshipType($this->resourceTypeStore->getRecommendationVersionResourceType())
@@ -254,5 +267,31 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
     public function getUpdateValidationGroups(): array
     {
         return [ResourceTypeService::VALIDATION_GROUP_DEFAULT, SegmentInterface::VALIDATION_GROUP_SEGMENT_MANDATORY];
+    }
+
+    /**
+     * Parses an incoming deadline value (ISO date "Y-m-d") into a DateTime, or null when empty.
+     *
+     * Strictly validates the format so a malformed value surfaces as a client error
+     * (400) instead of an uncaught exception (500) from the DateTime constructor.
+     *
+     * @throws InvalidArgumentException on a non-empty value that is not a valid "Y-m-d" date
+     */
+    private static function parseDeadline(?string $value): ?DateTime
+    {
+        $value = trim($value ?? '');
+        if ('' === $value) {
+            return null;
+        }
+
+        $date = DateTime::createFromFormat('!Y-m-d', $value);
+        $errors = DateTime::getLastErrors();
+        if (!$date instanceof DateTime
+            || (is_array($errors) && ($errors['warning_count'] > 0 || $errors['error_count'] > 0))
+        ) {
+            throw new InvalidArgumentException('Invalid deadline provided; expected format YYYY-MM-DD.');
+        }
+
+        return $date;
     }
 }

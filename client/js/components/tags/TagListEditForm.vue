@@ -16,14 +16,19 @@
       :addon-props="{ tag: nodeElement }"
       hook-name="tag.edit.form"
     />
-    <div class="text-center w-9">
+    <div
+      v-if="hasPermission('feature_tag_default_assignee')"
+      class="ml-1 flex-none w-10 break-words"
+      v-text="defaultAssigneeName"
+    />
+    <div class="ml-1 flex-none w-9 text-center">
       <dp-contextual-help
         v-if="nodeElement.relationships?.boilerplate"
         icon="file"
         :text="nodeElement.relationships.boilerplate.attributes.title"
       />
     </div>
-    <div class="flex-0 justify-center w-8 flex">
+    <div class="ml-1 flex-none justify-center w-8 flex">
       <button
         v-if="isInEditState !== nodeElement.id && nodeElement.type !== 'Tag'"
         :aria-label="Translator.trans('item.edit')"
@@ -151,6 +156,14 @@ export default {
         title: '',
       },
     }
+  },
+
+  computed: {
+    defaultAssigneeName () {
+      const assignee = this.nodeElement.relationships?.defaultAssignee
+
+      return assignee ? `${assignee.attributes.firstname} ${assignee.attributes.lastname}` : ''
+    },
   },
 
   methods: {

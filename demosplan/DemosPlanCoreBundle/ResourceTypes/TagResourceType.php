@@ -172,6 +172,13 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
             ->setRelationshipType($this->resourceTypeStore->getBoilerplateResourceType())
             ->setReadableByPath()->setSortable()->setFilterable();
 
+        if ($this->currentUser->hasPermission('feature_tag_default_assignee')) {
+            $configBuilder->defaultAssignee
+                ->setRelationshipType($this->resourceTypeStore->getAssignableUserResourceType())
+                ->setReadableByPath()->setSortable()->setFilterable()
+                ->updatable();
+        }
+
         $configBuilder->addCreationBehavior(
             new FixedSetBehavior(
                 function (

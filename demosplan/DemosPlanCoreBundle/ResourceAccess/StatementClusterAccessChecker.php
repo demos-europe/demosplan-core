@@ -13,12 +13,20 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceAccess;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementClusterConditions;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class StatementClusterAccessChecker
 {
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
+        private readonly CurrentProcedureService $currentProcedureService,
+        private readonly DqlConditionFactory $conditionFactory,
+        private readonly StatementClusterConditions $clusterConditions,
     ) {
     }
 
@@ -32,5 +40,20 @@ class StatementClusterAccessChecker
         if (!$this->isClusterAccessAllowed()) {
             throw new AccessDeniedHttpException('Access denied: insufficient permissions to access statement groups');
         }
+    }
+
+    /**
+     * Mirrors ClusterStatementResourceType::getAccessConditions().
+     *
+     * @return list<ClauseFunctionInterface<bool>>
+     */
+    public function getAccessConditions(): array
+    {
+        $procedure = $this->currentProcedureService->getProcedure();
+        if (!$procedure instanceof Procedure) {
+            return [$this->conditionFactory->false()];
+        }
+
+        return $this->clusterConditions->forProcedure($procedure->getId());
     }
 }

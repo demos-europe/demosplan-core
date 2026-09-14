@@ -33,11 +33,18 @@
 
           <addon-wrapper hook-name="tag.extend.form" />
 
-          <div class="ml-1 flex-0 w-9">
+          <div
+            v-if="hasPermission('feature_tag_default_assignee')"
+            class="ml-1 flex-none w-10"
+          >
+            {{ Translator.trans('assignee') }}
+          </div>
+
+          <div class="ml-1 flex-none w-9">
             {{ Translator.trans('boilerplates') }}
           </div>
 
-          <div class="ml-1 flex-0 w-8 text-right">
+          <div class="ml-1 flex-none w-8 text-right">
             {{ Translator.trans('actions') }}
           </div>
         </div>
@@ -145,11 +152,12 @@ export default {
             children: tags.map(tag => {
               const { attributes, id, relationships, type } = tag
               const boilerplate = relationships?.boilerplate?.get ? relationships.boilerplate.get() : null
+              const defaultAssignee = relationships?.defaultAssignee?.get ? relationships.defaultAssignee.get() : null
 
               return {
                 attributes,
                 id,
-                relationships: { boilerplate },
+                relationships: { boilerplate, defaultAssignee },
                 type,
               }
             }),
@@ -292,20 +300,32 @@ export default {
       }
 
       this.dataIsRequested = true
+      const hasDefaultAssignee = hasPermission('feature_tag_default_assignee')
       const topicAttributes = [
         'title',
         'tags',
       ]
+      const tagAttributes = hasDefaultAssignee ?
+        ['boilerplate', 'defaultAssignee', 'sortIndex', 'title'] :
+        ['boilerplate', 'sortIndex', 'title']
+      const include = hasDefaultAssignee ?
+        'tags,tags.boilerplate,tags.defaultAssignee' :
+        'tags,tags.boilerplate'
+      const fields = {
+        Tag: tagAttributes.join(),
+        TagTopic: topicAttributes.join(),
+        Boilerplate: [
+          'title',
+        ].join(),
+      }
+
+      if (hasDefaultAssignee) {
+        fields.AssignableUser = ['firstname', 'lastname'].join()
+      }
 
       this.listTagTopics({
-        fields: {
-          Tag: ['boilerplate', 'sortIndex', 'title'].join(),
-          TagTopic: topicAttributes.join(),
-          Boilerplate: [
-            'title',
-          ].join(),
-        },
-        include: 'tags,tags.boilerplate',
+        fields,
+        include,
         sort: 'title',
       }).then(() => {
         this.dataIsRequested = false

@@ -15,37 +15,85 @@ namespace demosplan\DemosPlanCoreBundle\ApiResources;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Delete;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\StateProcessor\StatementGroupProcessor;
+use demosplan\DemosPlanCoreBundle\StateProcessor\StatementGroupRelationshipProcessor;
 use demosplan\DemosPlanCoreBundle\StateProvider\StatementGroupStateProvider;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'StatementGroup',
     operations: [
-        new Get(uriTemplate: '/StatementGroup/{id}'),
+        new GetCollection(uriTemplate: '/StatementGroup'),
+        new Get(uriTemplate: self::ITEM_URI_TEMPLATE),
         new Post(
             uriTemplate: '/StatementGroup',
             read: false,
             processor: StatementGroupProcessor::class,
+            validationContext: ['groups' => ['statementgroup:create']],
+        ),
+        new Patch(
+            uriTemplate: self::ITEM_URI_TEMPLATE,
+            processor: StatementGroupProcessor::class,
+            validationContext: ['groups' => ['statementgroup:update']],
+        ),
+        new Delete(
+            uriTemplate: self::ITEM_URI_TEMPLATE,
+            read: false,
+            deserialize: false,
+            output: false,
+            processor: StatementGroupProcessor::class,
+        ),
+        new Post(
+            uriTemplate: '/StatementGroup/{id}/relationships/statements',
+            read: false,
+            deserialize: false,
+            processor: StatementGroupRelationshipProcessor::class,
+        ),
+        new Delete(
+            uriTemplate: '/StatementGroup/{id}/relationships/statements',
+            read: false,
+            deserialize: false,
+            output: false,
+            processor: StatementGroupRelationshipProcessor::class,
         ),
     ],
     formats: ['jsonapi'],
-    routePrefix: '/3.0',
+    routePrefix: ApiPlatformConstants::ROUTE_PREFIX_V3,
     provider: StatementGroupStateProvider::class,
 )]
 #[ApiFilter(PropertyFilter::class)]
 class StatementGroupResource
 {
+    private const ITEM_URI_TEMPLATE = '/StatementGroup/{id}';
+
     #[ApiProperty(readable: false, identifier: true)]
     public string $id;
 
     #[ApiProperty(readable: true, writable: true)]
     public ?string $groupName = null;
 
+    #[ApiProperty(readable: true, writable: false)]
+    public ?string $externId = null;
+
+    #[ApiProperty(readable: true, writable: false)]
+    public bool $isSubmittedByCitizen = false;
+
+    #[ApiProperty(readable: true, writable: false)]
+    public string $authorName = '';
+
+    #[ApiProperty(readable: true, writable: false)]
+    public string $initialOrganisationName = '';
+
     #[ApiProperty(readable: false, writable: true)]
+    #[Assert\NotBlank(groups: ['statementgroup:create'], message: 'headStatementId is required to create a statement group.')]
+    #[Assert\Blank(groups: ['statementgroup:update'], message: 'headStatementId cannot be changed via PATCH.')]
     public ?string $headStatementId = null;
 
     /** @var StatementResource[] */
@@ -64,10 +112,20 @@ class StatementGroupResource
         $resource = new self();
         $resource->id = $statement->getId();
         $resource->groupName = $statement->getName();
+        $resource->externId = $statement->getExternId();
+        $resource->isSubmittedByCitizen = $statement->isSubmittedByCitizen();
+        // Submission-time snapshots, not the live org; return '' not null.
+        $resource->authorName = $statement->getMeta()->getAuthorName();
+        $resource->initialOrganisationName = $statement->getMeta()->getOrgaName();
         $resource->statements = array_map(
             static function (Statement $member): StatementResource {
                 $statementResource = new StatementResource();
                 $statementResource->id = $member->getId();
+                $statementResource->externId = $member->getExternId();
+                $statementResource->isSubmittedByCitizen = $member->isSubmittedByCitizen();
+                // Submission-time snapshots, not the live org; return '' not null.
+                $statementResource->authorName = $member->getMeta()->getAuthorName();
+                $statementResource->initialOrganisationName = $member->getMeta()->getOrgaName();
 
                 return $statementResource;
             },

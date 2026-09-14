@@ -5,24 +5,23 @@
  * being saved as a broken, never-confirmed segment.
  */
 
+import { setRange } from '@DpJs/lib/prosemirror/commands'
+import SplitStatementView from '@DpJs/components/statement/splitStatement/SplitStatementView'
+import { vi } from 'vitest'
+
 /*
  * Mock the prosemirror commands so we can assert whether/how the range machinery is invoked.
  * `setRange` is curried: setRange(view)(from, to, attrs).
  */
-import { afterAll, beforeAll, beforeEach, describe, expect, it, jest } from '@jest/globals'
+const mockSetRangeInner = vi.fn()
 
-const mockSetRangeInner = jest.fn()
-
-jest.mock('@DpJs/lib/prosemirror/commands', () => ({
-  activateRangeEdit: jest.fn(),
-  applySelectionChange: jest.fn(),
-  removeRange: jest.fn(),
-  setRange: jest.fn(() => mockSetRangeInner),
-  setRangeEditingState: jest.fn(() => jest.fn()),
+vi.mock('@DpJs/lib/prosemirror/commands', () => ({
+  activateRangeEdit: vi.fn(),
+  applySelectionChange: vi.fn(),
+  removeRange: vi.fn(),
+  setRange: vi.fn(() => mockSetRangeInner),
+  setRangeEditingState: vi.fn(() => vi.fn()),
 }))
-
-import { setRange } from '@DpJs/lib/prosemirror/commands'
-import SplitStatementView from '@DpJs/components/statement/splitStatement/SplitStatementView'
 
 const { confirmAllUnconfirmedSegments, saveAndFinish, clickTrackerSaveButton } = SplitStatementView.methods
 
@@ -39,11 +38,11 @@ const buildContext = (segments, ranges) => ({
       rangeTrackerKey: { getState: () => ranges },
     },
   },
-  locallyUpdateSegments: jest.fn(),
+  locallyUpdateSegments: vi.fn(),
 })
 
 describe('SplitStatementView.confirmAllUnconfirmedSegments', () => {
-  beforeEach(() => jest.clearAllMocks())
+  beforeEach(() => vi.clearAllMocks())
 
   it('confirms only the unconfirmed segments and marks them confirmed in the store', () => {
     const segments = [
@@ -128,16 +127,16 @@ const buildFinishContext = (initialSegments, ranges) => {
     ignoreProsemirrorUpdates: false,
     prosemirror: {
       view: { state: {} },
-      getContent: jest.fn(() => '<p>statement</p>'),
+      getContent: vi.fn(() => '<p>statement</p>'),
       keyAccess: {
         rangeTrackerKey: { getState: () => ranges },
       },
     },
-    setProperty: jest.fn(),
+    setProperty: vi.fn(),
     clickTrackerSaveButton,
     confirmAllUnconfirmedSegments,
     // Mirrors the SplitStatementStore locallyUpdateSegments mutation: merge updates into state by id.
-    locallyUpdateSegments: jest.fn(updatedSegments => {
+    locallyUpdateSegments: vi.fn(updatedSegments => {
       state.segments = state.segments.map(segment => {
         const updated = updatedSegments.find(candidate => candidate.id === segment.id)
 
@@ -145,7 +144,7 @@ const buildFinishContext = (initialSegments, ranges) => {
       })
     }),
     // Stands in for the store action that POSTs to the backend; captures what would be sent.
-    saveSegmentsFinal: jest.fn(function () {
+    saveSegmentsFinal: vi.fn(function () {
       postedSegments = this.segments.map(segment => ({ ...segment }))
 
       return Promise.resolve(true)
@@ -161,7 +160,7 @@ describe('SplitStatementView.saveAndFinish — backend payload', () => {
   beforeAll(() => {
     originalDpconfirm = window.dpconfirm
     global.Translator = { trans: key => key }
-    global.dplan = { notify: { error: jest.fn() } }
+    global.dplan = { notify: { error: vi.fn() } }
   })
 
   afterAll(() => {
@@ -171,8 +170,8 @@ describe('SplitStatementView.saveAndFinish — backend payload', () => {
   })
 
   beforeEach(() => {
-    jest.clearAllMocks()
-    window.dpconfirm = jest.fn(() => true)
+    vi.clearAllMocks()
+    window.dpconfirm = vi.fn(() => true)
   })
 
   it('confirms every proposal before the segments are sent to the backend', async () => {

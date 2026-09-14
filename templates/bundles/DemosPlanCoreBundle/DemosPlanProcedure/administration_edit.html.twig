@@ -847,6 +847,17 @@
                                         :selected-current-phase="state.selectedInternalPhase">
                                     </auto-switch-procedure-phase-form>
                                 {% endif %}
+
+                                {% if hasPermission('field_procedure_allow_uninvited_institutions') %}
+                                    <dp-checkbox
+                                        id="allowUninvitedInstitutions"
+                                        :checked="{{ proceduresettings.allowUninvitedInstitutions ? 'true' : 'false' }}"
+                                        :label="{ text: Translator.trans('procedure.institutions.allow_uninvited') }"
+                                        class="mb-4"
+                                        data-cy="procedure:allowUninvitedInstitutions"
+                                        name="r_allowUninvitedInstitutions">
+                                    </dp-checkbox>
+                                {% endif %}
                             </div>
 
                             <label class="o-wizard__mark u-mb-0">

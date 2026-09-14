@@ -351,6 +351,64 @@ class SegmentsExportController extends BaseController
     }
 
     /**
+     * @throws UserNotFoundException
+     * @throws QueryException
+     * @throws Exception
+     */
+    #[DplanPermissions(
+        'feature_statement_segments_export_csv'
+    )]
+    #[Route(
+        path: '/verfahren/{procedureId}/abschnitte/export/csv',
+        name: 'dplan_statement_csv_export',
+        options: ['expose' => true],
+        methods: 'GET'
+    )]
+    public function exportByStatementsFilterCsv(
+        FileNameGenerator $fileNameGenerator,
+        JsonApiActionService $jsonApiActionService,
+        SegmentsByStatementsExporter $exporter,
+        StatementResourceType $statementResourceType,
+        string $procedureId,
+    ): StreamedResponse {
+        // Push the tag filter into the query so only statements carrying a matching tag are
+        // loaded, instead of loading every statement of the procedure and discarding the rest
+        // in PHP.
+        $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
+        $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions($tagsFilter, $statementResourceType, $procedureId);
+
+        /** @var Statement[] $statementEntities */
+        $statementEntities = array_values(
+            $jsonApiActionService->getObjectsByQueryParams(
+                $this->requestStack->getCurrentRequest()->query,
+                $statementResourceType,
+                $tagConditions
+            )->getList()
+        );
+
+        // Trim each loaded statement to only its matching segments. Runs on the already-narrowed set.
+        $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
+
+        $response = new StreamedResponse(
+            static function () use ($statementEntities, $exporter) {
+                echo $exporter->exportAllCsv(...$statementEntities);
+            }
+        );
+
+        $response->headers->set('Pragma', 'no-cache');
+        $response->headers->set('Cache-Control', 'no-cache');
+        $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
+
+        $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
+        // generating file name based on it being a filtered export or not
+        $noTagsFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
+        $fileName = 0 === count($tagsFilter) && 0 === count($noTagsFilter) ? $fileNameGenerator->getSynopseFileName($procedure, 'csv') : $fileNameGenerator->getFilteredSynopseFileName($procedure, 'csv');
+        $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($fileName));
+
+        return $response;
+    }
+
+    /**
      * @throws QueryException
      * @throws UserNotFoundException
      * @throws Exception

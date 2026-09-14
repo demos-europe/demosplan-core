@@ -966,6 +966,7 @@ class LoadUserData extends TestFixture
         $orga->setShowlist(true);
         $orga->setGwId('123456789012345678901234567890123456');
         $orga->setGatewayName('myGwname');
+        $orga->setEmail2('functional-test-fp-orga@example.com');
         $orga->addSlug(new Slug('orga1Slug'));
         $orga->addAddress($address);
 
