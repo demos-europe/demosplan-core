@@ -25,3 +25,9 @@ parameters:
     excludePaths:
         - %rootDir%/../../../vendor
     level: 1
+
+    ignoreErrors:
+        -
+            identifier: generics.interfaceConflict
+            path: %rootDir%/../../../demosplan/DemosPlanCoreBundle/ResourceTypes/*.php
+            # EDT is deprecated and being phased out; not worth reconciling generic bounds

@@ -208,7 +208,8 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     {
         $successful = false;
         if (!$this->statements->contains($statement)) {
-            $successful = $this->statements->add($statement);
+            $this->statements->add($statement);
+            $successful = true;
         }
 
         return $successful;
