@@ -239,6 +239,8 @@ export default {
         StatementSegment: statementSegmentFields.join(),
         SegmentComment: ['creationDate', 'text', 'submitter', 'place'].join(),
         Place: placeFields.join(),
+        Tag: ['title', 'topic'].join(),
+        TagTopic: ['title'].join(),
       }
 
       if (hasPermission('feature_enable_recommendation_versions')) {
