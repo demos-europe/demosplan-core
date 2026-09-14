@@ -19,55 +19,73 @@
       class="pt-2 pb-3"
       :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }"
     >
-      <div class="flex justify-end gap-2 py-2">
-        <dp-button
-          v-if="hasPermission('feature_segments_import_excel')"
-          :href="
-            Routing.generate('DemosPlan_procedure_import', {
-              procedureId: procedureId,
-            }) + '#ExcelImport'
-          "
-          :text="Translator.trans('import.options.xls')"
-          class="mr-0 h-fit"
-          data-cy="segmentsList:importOptionsXLS"
-          icon="download"
-          icon-size="medium"
-          variant="subtle"
-        />
-      </div>
-      <div class="flex items-start mb-2">
-        <custom-search
-          id="customSearch"
-          ref="customSearch"
-          :elasticsearch-field-definition="{
-            entity: 'statementSegment',
-            function: 'search',
-            accessGroup: 'planner',
-          }"
-          :search-term="searchTerm"
-          @change-fields="updateSearchFields"
-          @search-focus="closeFilterSlidebar"
-          @search="(term) => updateSearchQuery(term)"
-          @reset="handleResetSearch"
-        />
-        <dp-button
-          class="ml-2 h-fit"
-          data-cy="segmentsList:openFilter"
-          icon="sliders-horizontal"
-          icon-size="small"
-          :text="filterButtonText"
-          variant="outline"
-          @click="toggleFilterSlidebar"
-        />
-        <dp-button
-          v-tooltip="Translator.trans('search.filter.reset')"
-          class="ml-2 h-fit"
-          data-cy="segmentsList:resetFilter"
-          :disabled="noQuery"
-          :text="Translator.trans('reset')"
-          variant="outline"
-          @click="resetQuery"
-        />
+      <div class="flex justify-between items-start py-2">
+        <div class="flex items-start">
+          <custom-search
+            id="customSearch"
+            ref="customSearch"
+            :elasticsearch-field-definition="{
+              entity: 'statementSegment',
+              function: 'search',
+              accessGroup: 'planner',
+            }"
+            :search-term="searchTerm"
+            @change-fields="updateSearchFields"
+            @search-focus="closeFilterSlidebar"
+            @search="(term) => updateSearchQuery(term)"
+            @reset="handleResetSearch"
+          />
+          <dp-button
+            class="ml-2 h-fit"
+            data-cy="segmentsList:openFilter"
+            icon="sliders-horizontal"
+            icon-size="small"
+            :text="filterButtonText"
+            variant="outline"
+            @click="toggleFilterSlidebar"
+          />
+          <dp-button
+            v-tooltip="Translator.trans('search.filter.reset')"
+            class="ml-2 h-fit"
+            data-cy="segmentsList:resetFilter"
+            :disabled="noQuery"
+            :text="Translator.trans('reset')"
+            variant="outline"
+            @click="resetQuery"
+          />
+        </div>
+        <div class="flex gap-2">
+          <dp-button
+            v-if="hasPermission('feature_segments_import_excel')"
+            :href="
+              Routing.generate('DemosPlan_procedure_import', {
+                procedureId: procedureId,
+              }) + '#ExcelImport'
+            "
+            :text="Translator.trans('import.options.xls')"
+            class="mr-0 h-fit"
+            data-cy="segmentsList:importOptionsXLS"
+            icon="download"
+            icon-size="medium"
+            variant="subtle"
+          />
+
+          <segments-export-modal/>
+
+          <dp-button
+            :icon="isFullscreen ? 'compress' : 'expand'"
+            :text="
+              isFullscreen
+                ? Translator.trans('editor.fullscreen.close')
+                : Translator.trans('editor.fullscreen')
+            "
+            data-cy="editorFullscreen"
+            icon-size="medium"
+            variant="outline"
+            hide-text
+            @click="handleFullscreenMode"
+          />
+        </div>
       </div>
       <dp-bulk-edit-header
         v-if="selectedItemsCount > 0"
@@ -97,7 +115,7 @@
       </dp-bulk-edit-header>
       <div
         v-if="items.length > 0"
-        class="flex justify-between items-center mt-4"
+        class="flex justify-between items-center mt-2"
       >
         <div
           v-if="hasPermission('feature_segments_manualsort')"
@@ -147,21 +165,6 @@
             @selection-changed="setCurrentSelection"
           />
         </div>
-
-        <dp-button
-          :icon="isFullscreen ? 'compress' : 'expand'"
-          :text="
-            isFullscreen
-              ? Translator.trans('editor.fullscreen.close')
-              : Translator.trans('editor.fullscreen')
-          "
-          color="secondary"
-          data-cy="editorFullscreen"
-          icon-size="medium"
-          variant="subtle"
-          hide-text
-          @click="handleFullscreenMode"
-        />
       </div>
     </dp-sticky-element>
 
@@ -584,6 +587,7 @@ import ImageModal from '@DpJs/components/shared/ImageModal'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
+import SegmentsExportModal from './SegmentsExportModal'
 import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 import StatusBadge from '../Shared/StatusBadge'
@@ -609,6 +613,7 @@ export default {
     DpSelect,
     DpStickyElement,
     ImageModal,
+    SegmentsExportModal,
     SegmentUnlockModal,
     StatementMetaTooltip,
     StatusBadge,
