@@ -16,6 +16,7 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Repository\ScheduledExportRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -27,7 +28,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Index(name: 'export_schedule_due_lookup', columns: ['next_run_at'])]
 // Covers the "my scheduled exports" list in the export flow.
 #[ORM\Index(name: 'export_schedule_user_lookup', columns: ['user_id'])]
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: ScheduledExportRepository::class)]
 class ExportSchedule extends CoreEntity implements UuidEntityInterface
 {
     public const FREQUENCY_DAILY = 'daily';
