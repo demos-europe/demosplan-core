@@ -237,12 +237,15 @@ export default {
      * from segmentsFilterNames.yaml becomes 'workflow-place_group'.
      */
     const groupName = (filterType) => {
-      const filterGroups = {
-        assignee: 'assigneeOrUnassigned',
-        ['workflow.place']: 'workflowPlaceGroup', // ToDo: Mockdata
+      if (filterType === 'tags') {
+        return null
       }
 
-      return filterGroups[filterType] ?? null
+      if (filterType === 'assignee') {
+        return 'assigneeOrUnassigned'
+      }
+
+      return `${filterType.replaceAll('.', '-')}_group`
     }
 
     const categories = reactive(Object.values(props.filters).map((filterDefinition, idx) => ({
