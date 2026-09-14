@@ -52,7 +52,7 @@
             @click="resetQuery"
           />
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1">
           <dp-button
             v-if="hasPermission('feature_segments_import_excel')"
             :href="
