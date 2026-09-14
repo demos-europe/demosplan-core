@@ -17,18 +17,19 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\State\ProcessorInterface;
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\HashedQuery;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\ExportSchedule;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\EventListener\DemosPlanResponseEventSubscriber;
 use demosplan\DemosPlanCoreBundle\Exception\DeletionFailedException;
 use demosplan\DemosPlanCoreBundle\Exception\PersistResourceException;
-use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
+use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobFingerprint;
+use demosplan\DemosPlanCoreBundle\Logic\Export\ExportScheduleRunCalculator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Repository\ScheduledExportRepository;
-use demosplan\DemosPlanCoreBundle\StoredQuery\SegmentListQuery;
 use InvalidArgumentException;
 use LogicException;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -42,10 +43,10 @@ class ScheduledExportProcessor implements ProcessorInterface
 {
     public function __construct(
         private readonly ScheduledExportAccessChecker $accessChecker,
-        private readonly ScheduledExportRepository $bookmarkRepository,
+        private readonly ScheduledExportRepository $scheduledExportRepository,
         private readonly CurrentProcedureService $currentProcedureService,
         private readonly CurrentUserInterface $currentUser,
-        private readonly HashedQueryService $hashedQueryService,
+        private readonly ExportScheduleRunCalculator $runCalculator,
         private readonly MessageBagInterface $messageBag,
     ) {
     }
@@ -86,51 +87,80 @@ class ScheduledExportProcessor implements ProcessorInterface
     private function create(ScheduledExportResource $data): ScheduledExportResource
     {
         // Presence is enforced by the scheduledExport:create validation group; narrow for static analysis.
-        Assert::stringNotEmpty($data->name);
-        Assert::stringNotEmpty($data->queryHash);
+        Assert::stringNotEmpty($data->frequency);
+        Assert::stringNotEmpty($data->parameters);
+        $this->assertFrequencyFieldsConsistent($data->frequency, $data->weekday, $data->dayOfMonth);
 
         $procedure = $this->getCurrentProcedure();
-        $hashedQuery = $this->resolveHashedQuery($data->queryHash, $procedure);
-
-        $this->assertNameIsFree($data->name, null);
 
         /** @var User $user */
         $user = $this->currentUser->getUser();
 
-        $scheduledExport = new ScheduledExport();
-        $scheduledExport->setName($data->name);
-        $scheduledExport->setUser($user);
-        $scheduledExport->setProcedure($procedure);
-        $scheduledExport->setFilterSet($hashedQuery);
+        $scheduledExport = new ExportSchedule();
+        $scheduledExport->setUserId($user->getId());
+        $scheduledExport->setProcedureId($procedure->getId());
+        $scheduledExport->setFrequency($data->frequency);
+        $scheduledExport->setWeekday($data->weekday);
+        $scheduledExport->setDayOfMonth($data->dayOfMonth);
+        $scheduledExport->setParameters($data->parameters);
+        $scheduledExport->setParametersHash(ExportJobFingerprint::forScheduledExport($data->parameters));
+        $scheduledExport->setNextRunAt($this->runCalculator->firstRunAtOrAfter($scheduledExport, new DateTime()));
 
         if (!$this->scheduledExportRepository->addObject($scheduledExport)) {
-            throw new PersistResourceException('Could not persist the bookmark.');
+            throw new PersistResourceException('Could not persist the scheduled export.');
         }
 
         return ScheduledExportResource::fromEntity($scheduledExport);
     }
 
     /**
+     * Only frequency, weekday, and dayOfMonth affect when the schedule is next due, so nextRunAt is
+     * only recomputed when one of those three was actually sent - touching only parameters (or
+     * nothing at all) leaves the existing due date alone.
+     *
      * @throws PersistResourceException
      */
     private function update(string $scheduledExportId, ScheduledExportResource $data): ScheduledExportResource
     {
         $scheduledExport = $this->findScheduledExport($scheduledExportId);
+        $timingChanged = false;
 
-        if (null !== $data->name) {
-            Assert::stringNotEmpty($data->name);
-
-            $this->assertNameIsFree($data->name, $scheduledExportId);
-            $scheduledExport->setName($data->name);
+        if (null !== $data->frequency) {
+            Assert::stringNotEmpty($data->frequency);
+            $scheduledExport->setFrequency($data->frequency);
+            $timingChanged = true;
         }
 
-        if (null !== $data->queryHash) {
-            Assert::stringNotEmpty($data->queryHash);
-            $scheduledExport->setFilterSet($this->resolveHashedQuery($data->queryHash, $this->getCurrentProcedure()));
+        if (null !== $data->weekday) {
+            $scheduledExport->setWeekday($data->weekday);
+            $timingChanged = true;
         }
 
-        if (!$this->bookmarkRepository->updateObject($scheduledExport)) {
-            throw new PersistResourceException('Could not update the bookmark.');
+        if (null !== $data->dayOfMonth) {
+            $scheduledExport->setDayOfMonth($data->dayOfMonth);
+            $timingChanged = true;
+        }
+
+        $this->assertFrequencyFieldsConsistent(
+            $scheduledExport->getFrequency(),
+            $scheduledExport->getWeekday(),
+            $scheduledExport->getDayOfMonth()
+        );
+
+        if (null !== $data->parameters) {
+            Assert::stringNotEmpty($data->parameters);
+            $scheduledExport->setParameters($data->parameters);
+            $scheduledExport->setParametersHash(ExportJobFingerprint::forScheduledExport($data->parameters));
+        }
+
+        if ($timingChanged) {
+            $scheduledExport->setNextRunAt($this->runCalculator->firstRunAtOrAfter($scheduledExport, new DateTime()));
+        }
+
+        $scheduledExport->setModifiedDate(new DateTime());
+
+        if (!$this->scheduledExportRepository->updateObject($scheduledExport)) {
+            throw new PersistResourceException('Could not update the scheduled export.');
         }
 
         return ScheduledExportResource::fromEntity($scheduledExport);
@@ -146,7 +176,7 @@ class ScheduledExportProcessor implements ProcessorInterface
      */
     private function delete(string $scheduledExportId): void
     {
-        if (!$this->scheduledExportRepository->deleteObject($this->findBookmark($scheduledExportId))) {
+        if (!$this->scheduledExportRepository->deleteObject($this->findScheduledExport($scheduledExportId))) {
             throw new DeletionFailedException();
         }
 
@@ -167,10 +197,10 @@ class ScheduledExportProcessor implements ProcessorInterface
     }
 
     /**
-     * Looked up through the access conditions, so another user's scheduled Export, another procedure's, or one
-     * belonging to the assessment table is indistinguishable from a nonexistent one.
+     * Looked up through the access conditions, so another user's schedule, or one in another
+     * procedure, is indistinguishable from a nonexistent one.
      */
-    private function findScheduledExport(string $scheduledExportId): ScheduledExport
+    private function findScheduledExport(string $scheduledExportId): ExportSchedule
     {
         try {
             return $this->scheduledExportRepository->getEntityByIdentifier(
@@ -181,33 +211,28 @@ class ScheduledExportProcessor implements ProcessorInterface
         } catch (InvalidArgumentException) {
             $this->messageBag->add('error', 'error.scheduledExport.not.found');
 
-            throw new NotFoundHttpException(sprintf('Scheduled Export "%s" not found.', $scheduledExportId));
+            throw new NotFoundHttpException(sprintf('Scheduled export "%s" not found.', $scheduledExportId));
         }
     }
 
-    private function resolveHashedQuery(string $queryHash, Procedure $procedure): HashedQuery
+    /**
+     * weekday/dayOfMonth are always optional at the DTO level (see ScheduledExportResource), since
+     * whether either is required depends on frequency rather than on which operation is running - so
+     * that cross-field rule is enforced here instead of via a validation group.
+     */
+    private function assertFrequencyFieldsConsistent(string $frequency, ?int $weekday, ?int $dayOfMonth): void
     {
-        $hashedQuery = $this->hashedQueryService->findHashedQueryWithHash($queryHash);
-        if (!$hashedQuery instanceof HashedQuery) {
-            $this->messageBag->add('error', 'error.scheduledExport.query.not.found');
+        if (ExportSchedule::FREQUENCY_WEEKLY === $frequency && null === $weekday) {
+            $this->messageBag->add('error', 'error.scheduledExport.weekday.required');
 
-            throw new BadRequestHttpException(sprintf('No stored query was found for the given hash: %s', $queryHash));
+            throw new BadRequestHttpException('A weekday is required for a weekly export schedule.');
         }
 
-        $storedQuery = $hashedQuery->getStoredQuery();
-        if (!$storedQuery instanceof SegmentListQuery) {
-            $this->messageBag->add('error', 'error.scheduledExport.query.not.found');
+        if (ExportSchedule::FREQUENCY_MONTHLY === $frequency && null === $dayOfMonth) {
+            $this->messageBag->add('error', 'error.scheduledExport.dayOfMonth.required');
 
-            throw new BadRequestHttpException(sprintf('The given hash does not belong to a segment list query: %s', $queryHash));
+            throw new BadRequestHttpException('A day of month is required for a monthly export schedule.');
         }
-
-        if ($storedQuery->getProcedureId() !== $procedure->getId()) {
-            $this->messageBag->add('error', 'error.scheduledExport.query.not.found');
-
-            throw new BadRequestHttpException(sprintf('The given hash belongs to another procedure: %s', $queryHash));
-        }
-
-        return $hashedQuery;
     }
 
     private function getCurrentProcedure(): Procedure
@@ -216,7 +241,7 @@ class ScheduledExportProcessor implements ProcessorInterface
         if (!$procedure instanceof Procedure) {
             $this->messageBag->add('error', 'error.scheduledExport.procedure.missing');
 
-            throw new BadRequestHttpException('A procedure context is required for scheduled Export operations.');
+            throw new BadRequestHttpException('A procedure context is required for scheduled export operations.');
         }
 
         return $procedure;
