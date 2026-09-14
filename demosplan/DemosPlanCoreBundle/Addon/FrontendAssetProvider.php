@@ -11,8 +11,8 @@
 namespace demosplan\DemosPlanCoreBundle\Addon;
 
 use DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface;
+use DemosEurope\DemosplanAddon\Permission\PermissionIdentifier;
 use demosplan\DemosPlanCoreBundle\Exception\AddonException;
-use demosplan\DemosPlanCoreBundle\Permissions\RuntimePermissionIdentifier;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Symfony\Component\Yaml\Yaml;
 
@@ -116,10 +116,10 @@ final readonly class FrontendAssetProvider
         }
 
         foreach ($hookOptions['permissions'] as $permissionName) {
-            $addonPermission = RuntimePermissionIdentifier::forAddon($permissionName, $addonName);
+            $addonPermission = PermissionIdentifier::forAddon($permissionName, $addonName);
             $identifier = $this->permissionEvaluator->isPermissionKnown($addonPermission)
                 ? $addonPermission
-                : RuntimePermissionIdentifier::forCore($permissionName);
+                : PermissionIdentifier::forCore($permissionName);
 
             if ($this->permissionEvaluator->isPermissionEnabled($identifier)) {
                 return true;
