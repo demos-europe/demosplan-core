@@ -11,18 +11,19 @@
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\ExportSchedule;
 use Doctrine\ORM\NoResultException;
 use Exception;
 
 /**
- * @template-extends FluentRepository<ScheduledExport>
+ * @template-extends FluentRepository<ExportSchedule>
  */
 class ScheduledExportRepository extends FluentRepository
 {
     /**
      * @param string $entityId
      *
-     * @return ScheduledExport|null
+     * @return ExportSchedule|null
      */
     public function get($entityId)
     {
@@ -34,7 +35,7 @@ class ScheduledExportRepository extends FluentRepository
     }
 
     /**
-     * @param ScheduledExport $entity
+     * @param ExportSchedule $entity
      *
      * @return bool
      */
@@ -54,7 +55,7 @@ class ScheduledExportRepository extends FluentRepository
     }
 
     /**
-     * @param ScheduledExport $entity
+     * @param ExportSchedule $entity
      *
      * @return bool
      */
@@ -74,7 +75,7 @@ class ScheduledExportRepository extends FluentRepository
     }
 
     /**
-     * @param ScheduledExport $scheduledExport
+     * @param ExportSchedule $scheduledExport
      *
      * @return bool - true if successfully deleted the given entity, otherwise false
      */
