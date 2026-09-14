@@ -11,34 +11,60 @@
  * Composable for transforming EDT-style filters to API Platform 3.0 format.
  */
 export function useApiPlatformFilters () {
+  const IS_NULL = 'IS NULL'
+  const OR = 'OR'
+
   /**
    * Transforms EDT-style filters to API Platform 3.0 format.
-   * EDT: filter[uuid][condition][path/value/operator]
-   * AP3: path.id[]=uuid or exists[path]=false for IS NULL
    *
-   * @param {Object} edtFilters - EDT 2.0 filter object
-   * @returns {Object} - API Platform 3.0 filter object
+   * EDT:
+   * filter[uuid][condition][path/value/operator]
+   *
+   * API Platform 3:
+   * path.id[]=uuid
+   * exists[path]=false
+   *
+   * Grouped OR filters use the `memberOf` value as the API filter key.
+   * IS NULL inside an OR group is represented by an empty string.
+   *
+   * @param {Object} edtFilters
+   * @returns {Object}
    */
   const transformFiltersToApiPlatform = (edtFilters) => {
     const apiFilters = {}
-    const unassigned = 'IS NULL'
+    const groupedFilters = {}
+
+    Object.entries(edtFilters).forEach(([key, { condition, group } = {}]) => {
+      if (group) {
+        groupedFilters[key] = { conjunction: group.conjunction }
+      }
+    })
 
     Object.values(edtFilters).forEach(({ condition } = {}) => {
       if (!condition) {
         return
       }
 
-      const { path, value, operator } = condition
+      const { path, value, operator, memberOf } = condition
+      const isNull = operator === IS_NULL
+      const isOrGroup = memberOf && groupedFilters[memberOf]?.conjunction === OR
 
-      if (operator === unassigned) {
+      if (isOrGroup) {
+        apiFilters[memberOf] ??= []
+        apiFilters[memberOf].push(isNull ? '' : value)
+
+        return
+      }
+
+      if (isNull) {
         apiFilters[`exists[${path}]`] = false
 
         return
       }
 
+      // Handle ungrouped value filters
       const key = `${path}.id`
 
-      // Safely append value to array, initializing array if key doesn't exist
       apiFilters[key] = [
         ...(apiFilters[key] ?? []),
         value,

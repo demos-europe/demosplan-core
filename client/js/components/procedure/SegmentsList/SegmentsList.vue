@@ -757,6 +757,8 @@ export default {
       selectedSort: '',
       selectionCopiedToClipboard: false,
       sortOptions: [
+        { value: 'deadline-desc', label: Translator.trans('sort.deadline.descending') },
+        { value: 'deadline-asc', label: Translator.trans('sort.deadline.ascending') },
         { value: 'internId-desc', label: Translator.trans('sort.internId.descending') },
         { value: 'internId-asc', label: Translator.trans('sort.internId.ascending') },
       ],
@@ -1433,6 +1435,7 @@ export default {
     getSelectedSortParams () {
       const sortPaths = {
         internId: 'parentStatementOfSegment.original.internId',
+        deadline: 'deadline',
       }
 
       const [sortBy, direction] = this.selectedSort?.split('-') ?? []
