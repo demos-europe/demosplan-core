@@ -61,8 +61,8 @@
         />
       </dp-bulk-edit-header>
       <statement-export-modal
-        :is-export-disabled="!hasStatements"
         :has-permission-adjust-preamble="hasPermission('feature_adjust_preamble_export_file')"
+        :is-export-disabled="!hasStatements"
         :procedure-id="procedureId"
         :procedure-name="procedureName"
         data-cy="listStatements:export"
