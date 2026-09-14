@@ -20,7 +20,7 @@
       :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }"
     >
       <div class="flex justify-between items-start py-2">
-        <div class="flex items-start">
+        <div class="flex items-start gap-2">
           <custom-search
             id="customSearch"
             ref="customSearch"
@@ -36,7 +36,6 @@
             @reset="handleResetSearch"
           />
           <dp-button
-            class="ml-2 h-fit"
             data-cy="segmentsList:openFilter"
             icon="sliders-horizontal"
             icon-size="small"
@@ -46,7 +45,6 @@
           />
           <dp-button
             v-tooltip="Translator.trans('search.filter.reset')"
-            class="ml-2 h-fit"
             data-cy="segmentsList:resetFilter"
             :disabled="noQuery"
             :text="Translator.trans('reset')"
@@ -54,7 +52,7 @@
             @click="resetQuery"
           />
         </div>
-        <div class="flex gap-2">
+        <div class="flex items-center gap-2">
           <dp-button
             v-if="hasPermission('feature_segments_import_excel')"
             :href="
@@ -63,7 +61,6 @@
               }) + '#ExcelImport'
             "
             :text="Translator.trans('import.options.xls')"
-            class="mr-0 h-fit"
             data-cy="segmentsList:importOptionsXLS"
             icon="download"
             icon-size="medium"
@@ -114,12 +111,12 @@
         />
       </dp-bulk-edit-header>
       <div
-        v-if="items.length > 0"
-        class="flex justify-between items-center mt-2"
+        v-show="!isLoading"
+        class="flex items-center gap-2 mt-2 mb-3"
       >
         <div
-          v-if="hasPermission('feature_segments_manualsort')"
-          class="ml-auto flex items-center space-inline-xs"
+          v-if="items.length > 0 && hasPermission('feature_segments_manualsort')"
+          class="flex items-center"
         >
           <dp-select
             id="applySortSelection"
@@ -130,9 +127,8 @@
           />
         </div>
         <dp-pager
-          v-if="pagination.currentPage && !hasPermission('feature_segments_manualsort')"
+          v-if="items.length > 0 && pagination.currentPage && !hasPermission('feature_segments_manualsort')"
           :key="`pager1_${pagination.currentPage}_${pagination.count}`"
-          :class="{ invisible: isLoading }"
           :current-page="pagination.currentPage"
           :limits="pagination.limits"
           :per-page="pagination.perPage"
@@ -141,12 +137,7 @@
           @page-change="applyQuery"
           @size-change="handleSizeChange"
         />
-      </div>
-      <div
-        v-show="!isLoading"
-        class="flex justify-end gap-2 py-2"
-      >
-        <div class="flex gap-2">
+        <div class="flex gap-2 ml-auto">
           <dp-button
             :text="Translator.trans('column.selection.reset')"
             color="secondary"

@@ -10,12 +10,11 @@ All rights reserved
 <template>
   <div>
     <dp-button
-      class="mr-0 h-fit"
       data-cy="exportModal:open"
       icon="export"
       icon-size="medium"
-      :text="Translator.trans('export.verb')"
       variant="subtle"
+      :text="Translator.trans('export.verb')"
     />
   </div>
 </template>
