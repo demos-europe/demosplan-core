@@ -92,7 +92,7 @@
             :id="`segmentTags_${segmentId}_option_${props.option.id}`"
             type="checkbox"
             class="shrink-0 m-0"
-            :checked="isAssigned(props.option.id)"
+            :checked="props.option.assigned"
           >
           {{ props.option.title }}
         </label>
@@ -145,6 +145,10 @@ interface TagOption {
   title: string
 }
 
+interface AssignableTagOption extends TagOption {
+  assigned: boolean
+}
+
 /*
  * The demosplan-ui `dpApi` export is untyped plain JS: `.get` is attached to the base function at
  * runtime, so TypeScript only sees the base signature. Cast locally rather than typing the library.
@@ -152,7 +156,7 @@ interface TagOption {
 type DpApiGet = (url: string, params?: Record<string, unknown>) => Promise<{ data: { data: Tag[] } }>
 
 interface GroupedTagOption extends TagOption {
-  tags: TagOption[]
+  tags: AssignableTagOption[]
 }
 
 /*
@@ -227,13 +231,13 @@ const groupedOptions = computed<GroupedTagOption[]>(() => {
     tags: sortAlphabetically(
       categorizedTags.value.filter(tag => tagTopicByTagId.value[tag.id] === topic.id),
       'attributes.title',
-    ).map((tag: Tag) => ({ title: tag.attributes.title, id: tag.id })),
+    ).map((tag: Tag) => ({ title: tag.attributes.title, id: tag.id, assigned: isAssigned(tag.id) })),
   }))
 
   const uncategorized = {
     title: Translator.trans('category.none'),
     id: 'category.none',
-    tags: uncategorizedTags.value.map(tag => ({ title: tag.attributes.title, id: tag.id })),
+    tags: uncategorizedTags.value.map(tag => ({ title: tag.attributes.title, id: tag.id, assigned: isAssigned(tag.id) })),
   }
 
   return [...categorized, uncategorized].filter(group => group.tags.length > 0)
