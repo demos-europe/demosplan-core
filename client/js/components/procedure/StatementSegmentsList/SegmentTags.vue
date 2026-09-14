@@ -86,6 +86,7 @@
           class="weight--normal text-sm mx-1 mt-0 mb-1 flex items-center gap-2 cursor-pointer"
           :for="`segmentTags_${segmentId}_option_${props.option.id}`"
           @click.prevent
+          @keydown.prevent
         >
           <input
             :id="`segmentTags_${segmentId}_option_${props.option.id}`"
