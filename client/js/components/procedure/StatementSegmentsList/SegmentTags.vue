@@ -172,8 +172,10 @@ function fetchTagTopicByTagId (): Promise<Record<string, string | null>> {
 
         return map
       }, {} as Record<string, string | null>))
-      .catch(() => {
+      .catch(err => {
         tagTopicByTagIdPromise = null
+        console.error(err)
+        dplan.notify.error(Translator.trans('error.api.generic'))
 
         return {}
       })
