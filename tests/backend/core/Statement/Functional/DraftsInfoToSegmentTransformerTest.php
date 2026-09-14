@@ -44,6 +44,12 @@ class DraftsInfoToSegmentTransformerTest extends FunctionalTestCase
     private const NON_UUID_ID = '21929_24762';
     /** 36 chars, so it passes the schema, but not a UUID — the only input that reaches the UUID gate. */
     private const METADATA_NON_UUID_ID = 'not-a-uuid-but-exactly-36-chars-long';
+    private const FIRST_TAG_NAME = 'First tag';
+    private const SECOND_TAG_NAME = 'Second tag';
+    private const EXTERN_ID_FIELD = 'externId';
+    private const PROCEDURE_FIELD = 'procedure';
+    private const STATEMENT_EXTERN_ID = 'ST-1';
+    private const FIRST_SEGMENT_EXTERN_ID = 'ST-1-1';
 
     protected function setUp(): void
     {
@@ -57,9 +63,9 @@ class DraftsInfoToSegmentTransformerTest extends FunctionalTestCase
      */
     public function testConfirmedSegmentsAreMaterialized(): void
     {
-        $statement = StatementFactory::createOne(['externId' => 'ST-1']);
+        $statement = StatementFactory::createOne([self::EXTERN_ID_FIELD => self::STATEMENT_EXTERN_ID]);
         $procedure = $statement->getProcedure();
-        PlaceFactory::createOne(['procedure' => $procedure]);
+        PlaceFactory::createOne([self::PROCEDURE_FIELD => $procedure]);
 
         $textualReference =
             '<p><segment-mark data-segment-id="'.self::CONFIRMED_ID.'">First confirmed</segment-mark></p>'
@@ -84,7 +90,7 @@ class DraftsInfoToSegmentTransformerTest extends FunctionalTestCase
         );
         self::assertStringContainsString('First confirmed', $segments[0]->getText());
         // extern ids stay contiguous and keyed off the parent statement.
-        self::assertSame('ST-1-1', $segments[0]->getExternId());
+        self::assertSame(self::FIRST_SEGMENT_EXTERN_ID, $segments[0]->getExternId());
         self::assertSame('ST-1-2', $segments[1]->getExternId());
     }
 
@@ -98,9 +104,9 @@ class DraftsInfoToSegmentTransformerTest extends FunctionalTestCase
      */
     public function testMarksWithoutMetadataEntryAreSkippedWhileOthersSurvive(): void
     {
-        $statement = StatementFactory::createOne(['externId' => 'ST-1']);
+        $statement = StatementFactory::createOne([self::EXTERN_ID_FIELD => self::STATEMENT_EXTERN_ID]);
         $procedure = $statement->getProcedure();
-        PlaceFactory::createOne(['procedure' => $procedure]);
+        PlaceFactory::createOne([self::PROCEDURE_FIELD => $procedure]);
 
         // Order: orphan UUID, segment with metadata, corrupted pipeline id. Only
         // the middle one is listed in the segments metadata below.
@@ -121,7 +127,7 @@ class DraftsInfoToSegmentTransformerTest extends FunctionalTestCase
         self::assertCount(1, $segments);
         self::assertSame(self::CONFIRMED_ID, $segments[0]->getId());
         self::assertStringContainsString('Confirmed segment', $segments[0]->getText());
-        self::assertSame('ST-1-1', $segments[0]->getExternId());
+        self::assertSame(self::FIRST_SEGMENT_EXTERN_ID, $segments[0]->getExternId());
 
         $materializedIds = array_map(static fn (Segment $segment): string => $segment->getId(), $segments);
         self::assertNotContains(self::ORPHAN_VALID_UUID, $materializedIds);
@@ -140,9 +146,9 @@ class DraftsInfoToSegmentTransformerTest extends FunctionalTestCase
      */
     public function testMetadataSegmentWithNonUuidIdIsSkipped(): void
     {
-        $statement = StatementFactory::createOne(['externId' => 'ST-1']);
+        $statement = StatementFactory::createOne([self::EXTERN_ID_FIELD => self::STATEMENT_EXTERN_ID]);
         $procedure = $statement->getProcedure();
-        PlaceFactory::createOne(['procedure' => $procedure]);
+        PlaceFactory::createOne([self::PROCEDURE_FIELD => $procedure]);
 
         // Guards the point of this test: at any other length the schema would
         // reject the payload and the UUID gate would never be reached.
@@ -168,7 +174,7 @@ class DraftsInfoToSegmentTransformerTest extends FunctionalTestCase
         self::assertSame(self::CONFIRMED_ID, $segments[0]->getId());
         self::assertStringContainsString('Valid id', $segments[0]->getText());
         // The skipped mark came first, so the surviving segment still starts at -1.
-        self::assertSame('ST-1-1', $segments[0]->getExternId());
+        self::assertSame(self::FIRST_SEGMENT_EXTERN_ID, $segments[0]->getExternId());
     }
 
     /**
@@ -185,15 +191,15 @@ class DraftsInfoToSegmentTransformerTest extends FunctionalTestCase
      */
     public function testTagsStayWithTheirOwnSegmentWhenAMarkIsSkipped(): void
     {
-        $statement = StatementFactory::createOne(['externId' => 'ST-1']);
+        $statement = StatementFactory::createOne([self::EXTERN_ID_FIELD => self::STATEMENT_EXTERN_ID]);
         $procedure = $statement->getProcedure();
-        PlaceFactory::createOne(['procedure' => $procedure]);
+        PlaceFactory::createOne([self::PROCEDURE_FIELD => $procedure]);
 
-        $topic = TagTopicFactory::createOne(['procedure' => $procedure]);
-        $firstTag = TagFactory::createOne(['title' => 'First tag', 'topic' => $topic]);
-        $secondTag = TagFactory::createOne(['title' => 'Second tag', 'topic' => $topic]);
+        $topic = TagTopicFactory::createOne([self::PROCEDURE_FIELD => $procedure]);
+        $firstTag = TagFactory::createOne(['title' => self::FIRST_TAG_NAME, 'topic' => $topic]);
+        $secondTag = TagFactory::createOne(['title' => self::SECOND_TAG_NAME, 'topic' => $topic]);
 
-        // Order: skipped orphan, segment tagged 'First tag', segment tagged 'Second tag'.
+        // Order: skipped orphan, segment tagged FIRST_TAG_NAME, segment tagged SECOND_TAG_NAME.
         $textualReference =
             '<p><segment-mark data-segment-id="'.self::ORPHAN_VALID_UUID.'">Orphan</segment-mark></p>'
             .'<p><segment-mark data-segment-id="'.self::CONFIRMED_ID.'">First</segment-mark></p>'
@@ -206,11 +212,11 @@ class DraftsInfoToSegmentTransformerTest extends FunctionalTestCase
             [
                 [
                     'id'   => self::CONFIRMED_ID,
-                    'tags' => [['id' => $firstTag->getId(), 'tagName' => 'First tag']],
+                    'tags' => [['id' => $firstTag->getId(), 'tagName' => self::FIRST_TAG_NAME]],
                 ],
                 [
                     'id'   => self::SECOND_CONFIRMED_ID,
-                    'tags' => [['id' => $secondTag->getId(), 'tagName' => 'Second tag']],
+                    'tags' => [['id' => $secondTag->getId(), 'tagName' => self::SECOND_TAG_NAME]],
                 ],
             ]
         );
@@ -219,9 +225,9 @@ class DraftsInfoToSegmentTransformerTest extends FunctionalTestCase
 
         self::assertCount(2, $segments);
         self::assertSame(self::CONFIRMED_ID, $segments[0]->getId());
-        self::assertSame(['First tag'], $this->tagTitlesOf($segments[0]));
+        self::assertSame([self::FIRST_TAG_NAME], $this->tagTitlesOf($segments[0]));
         self::assertSame(self::SECOND_CONFIRMED_ID, $segments[1]->getId());
-        self::assertSame(['Second tag'], $this->tagTitlesOf($segments[1]));
+        self::assertSame([self::SECOND_TAG_NAME], $this->tagTitlesOf($segments[1]));
     }
 
     /**
