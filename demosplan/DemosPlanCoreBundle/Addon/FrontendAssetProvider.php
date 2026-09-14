@@ -22,7 +22,7 @@ final class FrontendAssetProvider
     }
 
     /**
-     * @return array<string, array<string, mixed>>>
+     * @return array<string, array<string, mixed>>
      */
     public function getFrontendClassesForHook(string $hookName): array
     {
