@@ -16,13 +16,13 @@ use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\ExportSchedule;
 use demosplan\DemosPlanCoreBundle\Repository\ScheduledExportRepository;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Exception;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Webmozart\Assert\Assert;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\ExportSchedule;
 
 class ScheduledExportProvider implements ProviderInterface
 {
