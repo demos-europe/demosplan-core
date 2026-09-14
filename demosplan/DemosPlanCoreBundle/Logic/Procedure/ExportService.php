@@ -423,7 +423,7 @@ class ExportService
                 $rParams,
                 $type,
                 AssessmentTableViewMode::DEFAULT_VIEW,
-                false
+                includeStatementMetadataRow: true
             );
             $filename = $this->buildConsiderationTableDocxFilename($procedureName, $exportType, false);
 
@@ -464,7 +464,7 @@ class ExportService
                 $rParams,
                 $type,
                 AssessmentTableViewMode::DEFAULT_VIEW,
-                false
+                includeStatementMetadataRow: true
             );
             $filename = $this->buildConsiderationTableDocxFilename($procedureName, $exportType, true);
 
