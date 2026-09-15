@@ -1631,7 +1631,7 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     {
         $planningOfficeIds = [];
 
-        /** @var Orga[] $planningOffices */
+        /** @var Collection<int, Orga> $planningOffices */
         $planningOffices = $this->getPlanningOffices();
         foreach ($planningOffices as $organisation) {
             $planningOfficeIds[] = $organisation->getId();

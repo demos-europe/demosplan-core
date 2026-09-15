@@ -102,8 +102,6 @@ class DemosPlanUserListController extends DemosPlanUserController
      * Administrate users.
      * In this case administrate means, save or delete users.
      *
-     * @return RedirectResponse|Response
-     *
      * @throws MessageBagException
      */
     #[DplanPermissions('area_manage_users')]

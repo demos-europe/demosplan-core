@@ -80,8 +80,6 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     /**
      * Passwort ändern.
      *
-     * @return Response
-     *
      * @throws Exception
      */
     #[DplanPermissions('area_mydata_password')]
@@ -105,8 +103,6 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
     /**
      * Request change of email.
      * Send Mail to verify change of E-Mail-Address.
-     *
-     * @return RedirectResponse|Response
      *
      * @throws Exception
      */
