@@ -123,9 +123,19 @@ class Provider implements ProviderInterface
             ? $this->recommendationVersionService->getCurrentVersionNumbersForSegments($segments)
             : [];
 
+        // Deduplicated by id: many segments share the same parent statement, and
+        // getProcessingStatuses() would otherwise redo the same per-statement work
+        // once per segment instead of once per distinct statement.
+        $parentStatements = [];
+        foreach ($segments as $segment) {
+            $parentStatement = $segment->getParentStatementOfSegment();
+            $parentStatements[$parentStatement->getId()] = $parentStatement;
+        }
+        $processingStatuses = $this->statementService->getProcessingStatuses(array_values($parentStatements));
+
         $map = fn (Segment $segment): StatementSegmentResource => StatementSegmentResource::fromEntity(
             $segment,
-            $this->statementService->getProcessingStatus($segment->getParentStatementOfSegment()),
+            $processingStatuses[$segment->getParentStatementOfSegment()->getId()] ?? null,
             $currentVersionNumbers[$segment->getId()] ?? null,
         );
 
