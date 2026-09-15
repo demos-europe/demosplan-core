@@ -25,7 +25,7 @@ class TextSectionFactoryTest extends FunctionalTestCase
         $textSection = TextSectionFactory::createOne();
 
         // Assert
-        self::assertInstanceOf(TextSection::class, $textSection->object());
+        self::assertInstanceOf(TextSection::class, $textSection->_real());
         self::assertNotNull($textSection->getId());
         self::assertNotNull($textSection->getStatement());
         self::assertEquals(1, $textSection->getOrderInStatement());
@@ -45,7 +45,7 @@ class TextSectionFactoryTest extends FunctionalTestCase
         ]);
 
         // Assert
-        self::assertSame($statement->object(), $textSection->getStatement());
+        self::assertSame($statement->_real(), $textSection->getStatement());
         self::assertEquals(1, $textSection->getOrderInStatement());
     }
 
@@ -61,7 +61,7 @@ class TextSectionFactoryTest extends FunctionalTestCase
         ]);
 
         // Assert
-        self::assertSame($statement->object(), $textSection->getStatement());
+        self::assertSame($statement->_real(), $textSection->getStatement());
         self::assertEquals(5, $textSection->getOrderInStatement());
     }
 
@@ -87,9 +87,9 @@ class TextSectionFactoryTest extends FunctionalTestCase
         ]);
 
         // Assert
-        self::assertSame($statement->object(), $preamble->getStatement());
-        self::assertSame($statement->object(), $interlude->getStatement());
-        self::assertSame($statement->object(), $conclusion->getStatement());
+        self::assertSame($statement->_real(), $preamble->getStatement());
+        self::assertSame($statement->_real(), $interlude->getStatement());
+        self::assertSame($statement->_real(), $conclusion->getStatement());
         self::assertNotSame($preamble->getId(), $interlude->getId());
         self::assertNotSame($interlude->getId(), $conclusion->getId());
     }

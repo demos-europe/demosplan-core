@@ -5,6 +5,13 @@
  * being saved as a broken, never-confirmed segment.
  */
 
+import { addListNodes } from 'prosemirror-schema-list'
+import { DOMParser } from 'prosemirror-model'
+import { EditorState } from 'prosemirror-state'
+import { initRangePlugin } from '@DpJs/lib/prosemirror/plugins'
+import { schema } from 'prosemirror-schema-basic'
+import { Schema } from 'prosemirror-model'
+import { segmentMark } from '@DpJs/lib/prosemirror/marks'
 import { setRange } from '@DpJs/lib/prosemirror/commands'
 import SplitStatementView from '@DpJs/components/statement/splitStatement/SplitStatementView'
 import { vi } from 'vitest'
@@ -23,7 +30,26 @@ vi.mock('@DpJs/lib/prosemirror/commands', () => ({
   setRangeEditingState: vi.fn(() => vi.fn()),
 }))
 
-const { confirmAllUnconfirmedSegments, saveAndFinish, clickTrackerSaveButton } = SplitStatementView.methods
+const { confirmAllUnconfirmedSegments, extractContentBlocks, saveAndFinish, clickTrackerSaveButton, updateContentBlocks } = SplitStatementView.methods
+
+/**
+ * Builds a real, minimal ProseMirror EditorState long enough to safely slice any of the
+ * `ranges` positions used by these tests (extractContentBlocks needs real doc/schema access,
+ * even though the actual segmentMark ranges are supplied via the mocked rangeTrackerKey below).
+ */
+const buildRealEditorState = (textLength = 100) => {
+  const proseSchema = new Schema({
+    nodes: addListNodes(schema.spec.nodes, 'paragraph block*', 'block'),
+    marks: schema.spec.marks.update('segmentMark', segmentMark),
+  })
+  const rangePlugin = initRangePlugin(proseSchema, () => {}, () => {})
+  const wrapper = document.createElement('div')
+
+  wrapper.innerHTML = `<p>${'x'.repeat(textLength)}</p>`
+  const doc = DOMParser.fromSchema(rangePlugin.schema).parse(wrapper, { preserveWhitespace: true })
+
+  return EditorState.create({ doc, plugins: rangePlugin.plugins })
+}
 
 /**
  * Builds a mock component context. `segments` is the store segment list; `ranges` maps
@@ -117,24 +143,33 @@ describe('SplitStatementView.confirmAllUnconfirmedSegments', () => {
  */
 const buildFinishContext = (initialSegments, ranges) => {
   // Backing store state; `segments` reads from it so store mutations are visible to the send step.
-  const state = { segments: initialSegments.map(segment => ({ ...segment })) }
+  const state = { segments: initialSegments.map(segment => ({ ...segment })), contentBlocks: [] }
   let postedSegments = null
+  let postedContentBlocks = null
 
   const context = {
     get segments () {
       return state.segments
     },
+    get contentBlocks () {
+      return state.contentBlocks
+    },
     ignoreProsemirrorUpdates: false,
     prosemirror: {
-      view: { state: {} },
+      view: { state: buildRealEditorState() },
       getContent: vi.fn(() => '<p>statement</p>'),
       keyAccess: {
         rangeTrackerKey: { getState: () => ranges },
       },
     },
-    setProperty: vi.fn(),
+    segmentById: id => state.segments.find(segment => segment.id === id),
+    setProperty: vi.fn(({ prop, val }) => {
+      state[prop] = val
+    }),
     clickTrackerSaveButton,
     confirmAllUnconfirmedSegments,
+    extractContentBlocks,
+    updateContentBlocks,
     // Mirrors the SplitStatementStore locallyUpdateSegments mutation: merge updates into state by id.
     locallyUpdateSegments: vi.fn(updatedSegments => {
       state.segments = state.segments.map(segment => {
@@ -146,12 +181,13 @@ const buildFinishContext = (initialSegments, ranges) => {
     // Stands in for the store action that POSTs to the backend; captures what would be sent.
     saveSegmentsFinal: vi.fn(function () {
       postedSegments = this.segments.map(segment => ({ ...segment }))
+      postedContentBlocks = this.contentBlocks
 
       return Promise.resolve(true)
     }),
   }
 
-  return { context, getPostedSegments: () => postedSegments }
+  return { context, getPostedSegments: () => postedSegments, getPostedContentBlocks: () => postedContentBlocks }
 }
 
 describe('SplitStatementView.saveAndFinish — backend payload', () => {
@@ -186,11 +222,11 @@ describe('SplitStatementView.saveAndFinish — backend payload', () => {
       { id: 'c', status: false, tags: [] },
     ]
     const ranges = {
-      a: { from: 1, to: 10, isConfirmed: true },
-      b: { from: 11, to: 20, isConfirmed: false },
-      c: { from: 21, to: 30, isConfirmed: false },
+      a: { segmentId: 'a', from: 1, to: 10, isConfirmed: true },
+      b: { segmentId: 'b', from: 11, to: 20, isConfirmed: false },
+      c: { segmentId: 'c', from: 21, to: 30, isConfirmed: false },
     }
-    const { context, getPostedSegments } = buildFinishContext(segments, ranges)
+    const { context, getPostedSegments, getPostedContentBlocks } = buildFinishContext(segments, ranges)
 
     await saveAndFinish.call(context)
 
@@ -204,6 +240,14 @@ describe('SplitStatementView.saveAndFinish — backend payload', () => {
 
     expect(posted).toHaveLength(3)
     expect(posted.every(segment => segment.status === 'confirmed')).toBe(true)
+
+    /*
+     * UpdateContentBlocks() was wired in between confirming and sending, so the contentBlocks
+     * payload reflects all three segment ranges, in document order.
+     */
+    const postedContentBlocks = getPostedContentBlocks()
+
+    expect(postedContentBlocks.filter(block => block.type === 'segment').map(block => block.id)).toEqual(['a', 'b', 'c'])
   })
 
   it('does not send anything to the backend when the user cancels the confirm dialog', async () => {

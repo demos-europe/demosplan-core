@@ -49,7 +49,7 @@ class StatementSegmentationStatusTest extends FunctionalTestCase
         $statement = StatementFactory::createOne();
         $statement->setSegmentationStatus(SegmentationStatus::SEGMENTED);
         $statement->_save();
-        $statementId = $statement->object()->getId();
+        $statementId = $statement->_real()->getId();
 
         // Act - Clear and reload from DB
         $this->getEntityManager()->clear();
@@ -65,7 +65,7 @@ class StatementSegmentationStatusTest extends FunctionalTestCase
     {
         // Arrange & Act
         $statement = StatementFactory::createOne();
-        $statementId = $statement->object()->getId();
+        $statementId = $statement->_real()->getId();
 
         // Clear and reload to check DB default
         $this->getEntityManager()->clear();

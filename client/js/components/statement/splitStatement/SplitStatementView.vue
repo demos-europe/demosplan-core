@@ -32,7 +32,7 @@
           </h1>
 
           <ul
-            v-if="segmentationStatus === 'inUserSegmentation'"
+            v-if="splitProgressStatus === 'inUserSegmentation'"
             class="float-right u-pt-0_25 u-m-0"
           >
             <li class="inline-block">
@@ -63,18 +63,18 @@
           class: 'u-mb',
           processingTime: processingTime,
           statementId: statementId,
-          status: segmentationStatus
+          status: splitProgressStatus
         }"
         hook-name="split.statement.preprocessor"
         @addons:loaded="fetchSegments"
-        @segmentation-status:change="setSegmentationStatus"
+        @segmentation-status:change="setSplitProgressStatus"
       />
 
       <transition
         name="slide-fade"
         mode="out-in"
       >
-        <div v-if="segmentationStatus === 'inUserSegmentation'">
+        <div v-if="splitProgressStatus === 'inUserSegmentation'">
           <transition
             name="slide-fade"
             mode="out-in"
@@ -319,7 +319,7 @@ export default {
         offset: '',
       },
       prosemirror: null,
-      segmentationStatus: 'processing',
+      splitProgressStatus: 'processing',
       showInfobox: false,
       tagsCounter: 0,
     }
@@ -435,7 +435,7 @@ export default {
      * @return {number|number}
      */
     calculateProcessingTime () {
-      const statementLength = this.initialData.attributes.textualReference.length
+      const statementLength = this.initText.length
 
       this.processingTime = statementLength > 4000 ? Math.round(statementLength / 2000) + 3 : 0
     },
@@ -478,7 +478,7 @@ export default {
     },
 
     determineIfStatementReady (counter = 0) {
-      if (this.segmentationStatus === 'aiSegmented' || this.segmentationStatus === 'inUserSegmentation') {
+      if (this.splitProgressStatus === 'aiSegmented' || this.splitProgressStatus === 'inUserSegmentation') {
         return
       }
 
@@ -494,7 +494,7 @@ export default {
              */
             if (data.data.attributes.segmentDraftList !== null) {
               this.fetchInitialData().then(() => {
-                this.segmentationStatus = 'aiSegmented'
+                this.splitProgressStatus = 'aiSegmented'
               })
 
               return
@@ -600,6 +600,127 @@ export default {
       return wrapper.innerHTML.trim()
     },
 
+    /**
+     * Serializes the current ProseMirror document into the order-based `contentBlocks` shape:
+     * a `segment` block for every segmentMark range (metadata merged in from the store), and a
+     * `textSection` block for every non-blank gap in between. Blocks share one continuous
+     * `order` sequence (starting at 1, required by TextSection::orderInStatement) so both the
+     * array order and the `order` field reflect the document's actual order.
+     *
+     * @returns {Array<Object>}
+     */
+    extractContentBlocks () {
+      const { state } = this.prosemirror.view
+      const { schema, doc } = state
+      const serializer = DOMSerializer.fromSchema(schema)
+
+      const serializeRange = (from, to) => {
+        const wrapper = document.createElement('div')
+
+        wrapper.appendChild(serializer.serializeFragment(doc.slice(from, to).content))
+
+        /*
+         * A sliced range is either entirely inside one segmentMark or entirely outside any mark,
+         * so the <span data-segment-id> wrapper the serializer produces is pure redundant
+         * ProseMirror editing-session markup (data-range-active/-moving/-pm-id, ...) at this
+         * point - the block's own `type`/`id` already carries that information. Unwrap it,
+         * keeping only its semantic content, mirroring extractHtmlWithSegmentMarks()'s cleanup.
+         */
+        wrapper.querySelectorAll('span[data-segment-id]').forEach(span => {
+          span.replaceWith(...Array.from(span.childNodes))
+        })
+
+        return wrapper.innerHTML
+      }
+
+      /*
+       * A gap boundary that lands exactly at the start/end of a sibling block's content (e.g. a
+       * segment occupying a whole paragraph, with plain text before/after it in their own
+       * paragraphs) makes doc.slice() reach one position into that sibling - producing a
+       * spurious empty node (e.g. a trailing "<p></p>") in the sliced fragment. Both positions
+       * are pushed outward, past any such boundary, to the equivalent position one level up -
+       * the same document location, just not "inside" the neighboring block. This only ever
+       * shrinks a gap by skipping positions that provably have no content on the relevant side,
+       * so real content is never affected.
+       */
+      const normalizeGapStart = (pos) => {
+        let resolved = doc.resolve(pos)
+
+        while (resolved.depth > 0 && resolved.parentOffset === resolved.parent.content.size) {
+          pos += 1
+          resolved = doc.resolve(pos)
+        }
+
+        return pos
+      }
+
+      const normalizeGapEnd = (pos) => {
+        let resolved = doc.resolve(pos)
+
+        while (resolved.depth > 0 && resolved.parentOffset === 0) {
+          pos -= 1
+          resolved = doc.resolve(pos)
+        }
+
+        return pos
+      }
+
+      const ranges = Object.values(this.prosemirror.keyAccess.rangeTrackerKey.getState(state))
+        .sort((a, b) => a.from - b.from)
+
+      const blocks = []
+      let order = 1
+      let cursor = 0
+
+      const pushTextSection = (rawFrom, rawTo) => {
+        const from = normalizeGapStart(rawFrom)
+        const to = normalizeGapEnd(rawTo)
+
+        if (from >= to) {
+          return
+        }
+
+        const plainText = doc.textBetween(from, to)
+
+        if (plainText.trim() === '') {
+          return
+        }
+
+        blocks.push({
+          type: 'textSection',
+          order: order++,
+          text: plainText,
+          textRaw: serializeRange(from, to),
+        })
+      }
+
+      ranges.forEach(range => {
+        pushTextSection(cursor, range.from)
+
+        const segmentMeta = this.segmentById(range.segmentId) || {}
+        const html = serializeRange(range.from, range.to)
+
+        blocks.push({
+          type: 'segment',
+          order: order++,
+          id: range.segmentId,
+          text: html,
+          textRaw: html,
+          status: range.isConfirmed ? 'confirmed' : false,
+          tags: segmentMeta.tags ?? [],
+          ...(segmentMeta.place ? { place: segmentMeta.place } : {}),
+          ...(segmentMeta.assigneeId ? { assigneeId: segmentMeta.assigneeId } : {}),
+          ...(segmentMeta.deadline ? { deadline: segmentMeta.deadline } : {}),
+        })
+
+        cursor = range.to
+      })
+
+      pushTextSection(cursor, doc.content.size)
+
+      return blocks
+    },
+
     fetchAssignableUsers () {
       return dpApi.get(apiUrl('AssignableUser'), { sort: 'lastname' })
         .then(response => {
@@ -650,7 +771,7 @@ export default {
               this.fetchTags()
             }
 
-            this.segmentationStatus = 'inUserSegmentation'
+            this.splitProgressStatus = 'inUserSegmentation'
           })
       }
     },
@@ -770,6 +891,7 @@ export default {
       const { id } = this.segmentById(segmentId)
 
       setRange(this.prosemirror.view)(range.from, range.to, { segmentId: id, isConfirmed: true })
+      this.updateContentBlocks()
       this.acceptSegmentProposal()
       this.ignoreProsemirrorUpdates = false
     },
@@ -875,6 +997,7 @@ export default {
       this.prosemirror.view.dispatch(tr)
       this.ignoreProsemirrorUpdates = false
       this.updateTextualReference()
+      this.updateContentBlocks()
       this.deleteSegmentAction(segmentId)
       this.isSegmentDraftUpdated = true
       this.setCurrentTime()
@@ -949,6 +1072,7 @@ export default {
           try {
             // Confirming completes any remaining proposals so they are saved in a valid, confirmed state
             this.confirmAllUnconfirmedSegments()
+            this.updateContentBlocks()
             const currentStatementText = this.prosemirror.getContent(this.prosemirror.view.state)
 
             this.setProperty({ prop: 'statementText', val: currentStatementText })
@@ -1003,6 +1127,7 @@ export default {
 
       this.disableEditMode()
       this.updateTextualReference()
+      this.updateContentBlocks()
       this.saveSegmentsDrafts(true)
       this.isSegmentDraftUpdated = true
       this.setCurrentTime()
@@ -1038,8 +1163,8 @@ export default {
       })
     },
 
-    setSegmentationStatus (status) {
-      this.segmentationStatus = status
+    setSplitProgressStatus (status) {
+      this.splitProgressStatus = status
     },
 
     /**
@@ -1095,6 +1220,17 @@ export default {
       this.setProperty({
         prop: 'initText',
         val: textualReference,
+      })
+    },
+
+    /**
+     * Recomputes the order-based `contentBlocks` from the current ProseMirror state and commits
+     * them to the store, so the next draft/final save sends an up-to-date payload.
+     */
+    updateContentBlocks () {
+      this.setProperty({
+        prop: 'contentBlocks',
+        val: this.extractContentBlocks(),
       })
     },
 

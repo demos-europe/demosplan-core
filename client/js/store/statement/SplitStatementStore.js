@@ -7,6 +7,7 @@
  * All rights reserved
  */
 
+import { deriveFromContentBlocks, deriveFromLegacy } from './storeHelpers/SplitStatementStore/ContentBlocks'
 import { dpApi, dpRpc, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { transformJsonApiToPi, transformPiToJsonApi } from './storeHelpers/SplitStatementStore/PiTagsToJSONApi'
 import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
@@ -21,11 +22,14 @@ const SplitStatementStore = {
     availablePlaces: [],
     availableTags: [],
     categorizedTags: [],
+    contentBlocks: [],
     currentlyHighlightedSegmentId: null,
     editModeActive: false,
     // Segment currently being edited
     editingSegment: null,
     initialData: null,
+    // Last successfully saved/loaded editor HTML, used to revert `initText` on a failed draft save
+    initialInitText: '',
     initialSegments: [],
     initText: '',
     // Loading state for save+finish button
@@ -266,23 +270,19 @@ const SplitStatementStore = {
           }
 
           const initialData = data.data.attributes.segmentDraftList.data
-          const segments = initialData.attributes.segments
 
           commit('setProperty', { prop: 'initialData', val: initialData })
-          commit('setProperty', { prop: 'initialSegments', val: segments })
 
-          // This should not be neccessary once the BE always sends a place
-          segments.forEach((segment, idx) => {
-            if (hasOwnProp(segment, 'place') === false) {
-              if (state.availablePlaces.length > 0) {
-                segments[idx].place = { id: state.availablePlaces[0].value, name: state.availablePlaces[0].label }
-              } else {
-                segments[idx].place = { id: '', name: '' }
-              }
-            }
-          })
+          const isContentBlocksFormat = hasOwnProp(initialData.attributes, 'contentBlocks')
+          const { segments, initText, contentBlocks } = isContentBlocksFormat ?
+            deriveFromContentBlocks(initialData.attributes.contentBlocks, state.availablePlaces) :
+            deriveFromLegacy(initialData.attributes, state.availablePlaces)
+
+          commit('setProperty', { prop: 'initialSegments', val: segments })
           commit('setProperty', { prop: 'segments', val: segments })
-          commit('setProperty', { prop: 'initText', val: initialData.attributes.textualReference })
+          commit('setProperty', { prop: 'initText', val: initText })
+          commit('setProperty', { prop: 'initialInitText', val: initText })
+          commit('setProperty', { prop: 'contentBlocks', val: contentBlocks })
 
           const segmentTags = state.segments.reduce((acc, seg) => {
             const tagNames = seg.tags || []
@@ -431,8 +431,14 @@ const SplitStatementStore = {
     saveSegmentsDrafts ({ state, commit, dispatch }, triggerNotifications = false) {
       const dataToSend = structuredClone(state.initialData)
 
-      dataToSend.attributes.textualReference = state.initText
-      dataToSend.attributes.segments = structuredClone(state.segments)
+      /*
+       * A previously loaded/saved legacy shape may still carry these - contentBlocks is the only
+       * format sent going forward, so drop them rather than sending both (a payload satisfying
+       * both the legacy and contentBlocks schema branches fails "oneOf" validation).
+       */
+      delete dataToSend.attributes.textualReference
+      delete dataToSend.attributes.segments
+      dataToSend.attributes.contentBlocks = structuredClone(state.contentBlocks)
 
       const payload = {
         id: state.statementId,
@@ -450,7 +456,8 @@ const SplitStatementStore = {
       }), {}, { data: payload })
         .then(() => {
           commit('setProperty', { prop: 'initialData', val: dataToSend })
-          commit('setProperty', { prop: 'initialSegments', val: dataToSend.attributes.segments })
+          commit('setProperty', { prop: 'initialSegments', val: structuredClone(state.segments) })
+          commit('setProperty', { prop: 'initialInitText', val: state.initText })
 
           if (triggerNotifications) {
             dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
@@ -460,7 +467,7 @@ const SplitStatementStore = {
           dplan.notify.notify('error', Translator.trans('error.api.generic'))
 
           commit('setProperty', { prop: 'segments', val: structuredClone(state.initialSegments) })
-          commit('setProperty', { prop: 'initText', val: state.initialData.attributes.textualReference })
+          commit('setProperty', { prop: 'initText', val: state.initialInitText })
           commit('setProperty', { prop: 'needsEditorRefresh', val: true })
         })
     },
@@ -468,7 +475,10 @@ const SplitStatementStore = {
     saveSegmentsFinal ({ dispatch, state, commit }) {
       const dataToSend = structuredClone(state.initialData)
 
-      dataToSend.attributes.segments = structuredClone(state.segments)
+      // See saveSegmentsDrafts: contentBlocks is the only format sent going forward.
+      delete dataToSend.attributes.textualReference
+      delete dataToSend.attributes.segments
+      dataToSend.attributes.contentBlocks = structuredClone(state.contentBlocks)
       dataToSend.attributes.statementText = state.statementText
 
       return dpApi.post(Routing.generate('dplan_drafts_list_confirm', {
@@ -522,6 +532,8 @@ const SplitStatementStore = {
       commit('setProperty', { prop: 'initialData', val: initialData })
       commit('setProperty', { prop: 'segments', val: initialData.attributes.segments })
       commit('setProperty', { prop: 'initText', val: initialData.attributes.textualReference })
+      commit('setProperty', { prop: 'initialInitText', val: initialData.attributes.textualReference })
+      commit('setProperty', { prop: 'contentBlocks', val: [] })
     },
 
     /**
@@ -567,11 +579,13 @@ const SplitStatementStore = {
     assignableUsers: (state) => state.assignableUsers,
     availablePlaces: (state) => state.availablePlaces,
     categorizedTags: (state) => state.categorizedTags,
+    contentBlocks: (state) => state.contentBlocks,
     currentlyHighlightedSegmentId: (state) => state.currentlyHighlightedSegmentId,
     editModeActive: (state) => state.editModeActive,
     editingSegment: (state) => state.editingSegment,
     editingSegmentId: (state) => state.editingSegment ? state.editingSegment.id : null,
     initialData: (state) => state.initialData,
+    initialInitText: (state) => state.initialInitText,
     initialSegments: (state) => state.initialSegments,
     initText: (state) => state.initText,
     isBusy: (state) => state.isBusy,
