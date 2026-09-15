@@ -6,6 +6,11 @@
 
 ## UNRELEASED
 
+## v4.57.1 (2026-09-15)
+
+### Fixed
+- Finalizing segmented statements no longer fails when unclassified or invalid segment markers are left over
+
 ## v4.57.0 (2026-08-19)
 
 ### Added
