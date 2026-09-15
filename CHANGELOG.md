@@ -72,6 +72,11 @@
 
 ## v4.53.0 (2026-07-30)
 
+## v4.52.2 (2026-09-15)
+
+### Added
+- Pictogram alt text and copyright are now shown on the public procedure list
+
 ## v4.52.1 (2026-09-05)
 
 ## v4.52.0 (2026-07-29)
