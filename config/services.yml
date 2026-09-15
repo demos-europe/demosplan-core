@@ -14,18 +14,14 @@ services:
         tags:
             - name: dplan.json_api_transformer
 
-    demosplan\DemosPlanCoreBundle\Api\StatementSegment\Extension\SegmentDoctrineAccessExtension:
-        tags:
-        - { name: api_platform.doctrine.orm.query_extension.collection, priority: 0 }
-
-    demosplan\DemosPlanCoreBundle\Api\StatementSegment\Extension\SegmentTextSearchExtension:
-        tags:
-        - { name: api_platform.doctrine.orm.query_extension.collection, priority: 0 }
+    # SegmentDoctrineAccessExtension/SegmentTextSearchExtension already get autoconfigured
+    # (default priority) via the bundle-wide resource glob -- no entry needed, would double-tag.
 
     demosplan\DemosPlanCoreBundle\Api\StatementSegment\Extension\SegmentDeterministicOrderExtension:
+        # autoconfigure: false avoids double-tagging while keeping this non-default priority.
+        autoconfigure: false
         tags:
-        # Must run after api_platform's own filter extension (priority -16, applies OrderFilter)
-        # so addOrderBy() appends this tiebreaker instead of running before it exists.
+        # Must run after the filter extension (-16) so addOrderBy() appends, not replaces.
         - { name: api_platform.doctrine.orm.query_extension.collection, priority: -20 }
 
     demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\AssigneeOrUnassignedFilter:
