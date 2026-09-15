@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\BoilerplateFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
@@ -31,6 +32,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentBulkEditorService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Tests\Base\FunctionalTestCase;
 
@@ -496,6 +498,35 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
         static::assertStringContainsString('Updated text via array', $newText);
         static::assertStringContainsString($originalMemo, $oldMemo);
         static::assertStringContainsString('Updated memo via array', $newMemo);
+    }
+
+    /**
+     * DPLAN-18271: calculateChanges() compares Doctrine's raw, pre-flush snapshot
+     * (getOriginalEntityData()) against the real getter's result for every tracked field.
+     * For `recommendation` specifically, the raw snapshot may still hold a
+     * <dp-boilerplate> reference tag while the getter always returns the substituted
+     * text — comparing those directly would fabricate a "recommendation changed" entry
+     * on every save of a linked segment, even when only an unrelated field (here: text)
+     * was actually edited.
+     */
+    public function testCalculateChangesDoesNotFlagRecommendationWhenOnlyAnUnrelatedFieldChangesOnALinkedSegment(): void
+    {
+        $entityManager = $this->getContainer()->get(EntityManagerInterface::class);
+        $boilerplate = BoilerplateFactory::createOne(['text' => 'Aktueller Textbausteininhalt'])->_real();
+        $segment = SegmentFactory::createOne([
+            'procedure'                => $boilerplate->getProcedure(),
+            'parentStatementOfSegment' => StatementFactory::new(['procedure' => $boilerplate->getProcedure()]),
+        ])->_real();
+        $entityManager->refresh($segment);
+        $segment->setRecommendation("<dp-boilerplate boilerplate-id=\"{$boilerplate->getId()}\"></dp-boilerplate>");
+        $entityManager->flush();
+
+        $segment->setText('Ein voellig unabhaengiger Text');
+
+        $changes = $this->sut->calculateChanges($segment, Segment::class);
+
+        static::assertArrayHasKey('text', $changes);
+        static::assertArrayNotHasKey('recommendation', $changes);
     }
 
     public function testCalculateChangesWithNoChanges(): void

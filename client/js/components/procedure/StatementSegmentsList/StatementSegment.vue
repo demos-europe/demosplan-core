@@ -159,20 +159,29 @@
         />
       </div>
       <div v-else>
+        <dp-loading
+          v-if="recommendationEmbeddedLoading"
+          data-cy="segmentEditor:loading"
+        />
         <dp-editor
+          v-else
+          ref="editor"
           class="mb-2"
           editor-id="recommendationText"
+          :get-boilerplate-title="getBoilerplateTitle"
+          :on-unlink-request="handleUnlinkRequest"
           :routes="{
             getFileByHash: (hash) => Routing.generate('core_file_procedure', { procedureId: procedureId, hash: hash })
           }"
           :toolbar-items="{
+            boilerplate: canLinkBoilerplate,
             fullscreenButton: false,
             imageButton: true,
             linkButton: true
           }"
           :tus-endpoint="dplan.paths.tusEndpoint"
-          :value="segment.attributes.recommendation"
-          @input="value => updateSegment('recommendation', value)"
+          :value="recommendationForEditor"
+          @input="updateRecommendation"
         >
           <template v-slot:modal="modalProps">
             <dp-boiler-plate-modal
@@ -182,7 +191,8 @@
               editor-id="recommendationText"
               :procedure-id="procedureId"
               :preview-segment-id="segment.id"
-              @insert="(text, boilerplateId) => insertBoilerplateText(text, boilerplateId, modalProps.handleInsertText)"
+              @closed="modalProps.focusEditor"
+              @insert="(text, boilerplateId) => insertBoilerplateText(text, boilerplateId, modalProps.insertBoilerplate, modalProps.handleInsertText)"
             />
             <recommendation-modal
               ref="recommendationModal"
@@ -216,6 +226,13 @@
             </button>
           </template>
         </dp-editor>
+        <dp-confirm-dialog
+          ref="unlinkBoilerplateDialog"
+          data-cy="unlinkBoilerplate"
+          :confirm-button-text="Translator.trans('boilerplate.link.dissolve')"
+          :header="Translator.trans('boilerplate.link.dissolve')"
+          :message="unlinkBoilerplateConfirmMessage"
+        />
       </div>
       <div
         v-if="hasPermission('feature_enable_recommendation_versions') && recommendationVersionNumber"
@@ -506,10 +523,12 @@ import {
   DpButton,
   DpButtonRow,
   DpCheckbox,
+  DpConfirmDialog,
   DpContextualHelp,
   DpDatepicker,
   DpIcon,
   DpLabel,
+  DpLoading,
   DpMultiselect,
   DpTooltip,
   formatDate,
@@ -518,6 +537,7 @@ import {
   Tooltip,
   VPopover,
 } from '@demos-europe/demosplan-ui'
+import { embedBoilerplateContent, stripBoilerplateContent } from './utils/boilerplateTagContent'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
 import CustomField from '@DpJs/components/customFields/CustomField'
@@ -543,6 +563,7 @@ export default {
     DpButton,
     DpButtonRow,
     DpCheckbox,
+    DpConfirmDialog,
     DpContextualHelp,
     DpClaim,
     DpDatepicker,
@@ -553,6 +574,7 @@ export default {
     }),
     DpIcon,
     DpLabel,
+    DpLoading,
     DpMultiselect,
     DpTooltip,
     ImageModal,
@@ -627,6 +649,13 @@ export default {
       isHover: false,
       isSaving: false,
       lockedBeforeSave: false,
+      pendingUnlink: null,
+      /*
+       * Tag-form recommendation text (see boilerplateTagContent.js), fetched lazily once
+       * editing starts — null until then, so recommendationForEditor knows not to render yet.
+       */
+      recommendationEmbedded: null,
+      recommendationEmbeddedLoading: false,
       selectedAssignee: {},
       selectedPlace: { id: '', type: 'Place' },
       showAdditionalFields: false,
@@ -638,6 +667,8 @@ export default {
     ...mapState('AssignableUser', {
       assignableUserItems: 'items',
     }),
+
+    ...mapState('Boilerplates', ['boilerplates', 'getBoilerplatesRequestFired']),
 
     ...mapState('Place', {
       placeItems: 'items',
@@ -675,6 +706,16 @@ export default {
       } else {
         return { id: '', name: '', orgaName: '' }
       }
+    },
+
+    /**
+     * Gates the whole boilerplate-linking feature. Used both to register the editor extension
+     * and to decide whether inserted text gets wrapped in a linked node — those two must
+     * always agree: writing the wrapper while the extension is absent means ProseMirror drops
+     * the unknown markup on load and the next save discards the link for good.
+     */
+    canLinkBoilerplate () {
+      return hasPermission('feature_boilerplate_usage_list')
     },
 
     commentCount () {
@@ -795,6 +836,38 @@ export default {
       return '-'
     },
 
+    /**
+     * Falls back to the generic word for "boilerplate" when the title can't be resolved
+     * (getBoilerplateTitle returns '' — the boilerplate may have been deleted since linking).
+     */
+    unlinkBoilerplateConfirmMessage () {
+      const title = this.pendingUnlink?.title || Translator.trans('boilerplate')
+
+      return Translator.trans('boilerplate.link.dissolve.confirm', { title })
+    },
+
+    /**
+     * The recommendation text for the editor's `:value`. Without the permission, this is
+     * unchanged from before — the plain substituted text. With it, boilerplate tags in the
+     * fetched recommendationEmbedded get their current content filled in (see
+     * boilerplateTagContent.js), so linked boilerplates render as their own node in the
+     * editor instead of as plain, unrecognized text.
+     *
+     * `visibleRecommendation` below stays on `segment.attributes.recommendation` — the
+     * read-only view must keep showing the plain substituted text regardless of this.
+     */
+    recommendationForEditor () {
+      if (!this.canLinkBoilerplate) {
+        return this.segment.attributes.recommendation
+      }
+
+      if (this.recommendationEmbedded === null) {
+        return ''
+      }
+
+      return embedBoilerplateContent(this.recommendationEmbedded, this.boilerplates)
+    },
+
     visibleRecommendation () {
       const shortText = this.segment.attributes.recommendation.length > 40 ? this.segment.attributes.recommendation.slice(0, 40) + '...' : this.segment.attributes.recommendation
 
@@ -825,6 +898,10 @@ export default {
   },
 
   methods: {
+    ...mapActions('Boilerplates', [
+      'getBoilerPlates',
+    ]),
+
     ...mapActions('SegmentSlidebar', [
       'toggleSlidebarContent',
     ]),
@@ -1060,6 +1137,21 @@ export default {
       this.isEditing = false
     },
 
+    /**
+     * Resolves a boilerplate id to its current title for display in the editor node. Passed
+     * into the editor extension, which has no access to the store.
+     *
+     * Returns an empty string when the lookup fails — the boilerplate may have been deleted,
+     * or the store may not be loaded yet (it is currently only fetched when the boilerplate
+     * modal is created). The node renders a generic label in that case.
+     *
+     * @param {String} boilerplateId
+     * @return {String}
+     */
+    getBoilerplateTitle (boilerplateId) {
+      return this.boilerplates[boilerplateId]?.attributes?.title ?? ''
+    },
+
     getUnassignedAssignee () {
       return {
         id: 'noAssigneeId',
@@ -1077,6 +1169,37 @@ export default {
       const isoDate = reformatDateString(value)
 
       this.updateSegment('deadline', isoDate)
+    },
+
+    /**
+     * Called when the user clicks the pencil on a linked boilerplate in the editor. Confirms,
+     * dissolves the node so its text stays as plain paragraphs, then offers an undo toast for
+     * 15 seconds — `editor.commands.undo()` reverses the dissolution in one step since it was
+     * a single transaction.
+     *
+     * @param {Object} payload
+     * @param {String} payload.boilerplateId
+     * @param {Number} payload.pos Document position of the node, needed to dissolve it
+     */
+    async handleUnlinkRequest ({ boilerplateId, pos }) {
+      this.pendingUnlink = { boilerplateId, pos, title: this.getBoilerplateTitle(boilerplateId) }
+
+      const isConfirmed = await this.$refs.unlinkBoilerplateDialog.open()
+
+      if (!isConfirmed) {
+        return
+      }
+
+      this.$refs.editor.unlinkBoilerplate(pos)
+
+      const title = this.pendingUnlink.title || Translator.trans('boilerplate')
+
+      dplan.notify.confirm({
+        message: Translator.trans('boilerplate.link.dissolved', { title }),
+        actionText: Translator.trans('undo'),
+        hideTimer: 15000,
+        onAction: () => this.$refs.editor?.undo(),
+      })
     },
 
     hasPolygonFeatures () {
@@ -1105,6 +1228,12 @@ export default {
         .then(() => {
           this.setSelectedAssignee()
         })
+    },
+
+    initBoilerplates () {
+      if (this.getBoilerplatesRequestFired === false) {
+        return this.getBoilerPlates(this.procedureId)
+      }
     },
 
     initPlaces () {
@@ -1160,23 +1289,49 @@ export default {
     },
 
     /**
-     * Inserts the boilerplate text into the recommendation editor and records
-     * the usage of the boilerplate in this segment in the backend.
+     * Inserts the boilerplate text into the recommendation editor and records the usage of
+     * the boilerplate in this segment in the backend.
+     *
+     * With a known id and the permission in place, the text goes in as a boilerplate node
+     * carrying that id, so it stays recognizable and linked across saving and reloading.
+     * Without either, it falls back to plain text — the behaviour every other editor in the
+     * application has.
+     *
+     * Both insertion functions come from DpEditor's `modal` slot; which one applies has to
+     * match `canLinkBoilerplate`, see the comment there.
+     *
+     * `insertBoilerplate` refuses (returns false) if this boilerplate is already linked
+     * elsewhere in the recommendation, or if the cursor is inside an existing one — shown to
+     * the user as a notice, since the modal closes either way and nothing else would tell them.
+     *
+     * @param {String} text Boilerplate text as HTML
+     * @param {String} boilerplateId Empty when the source didn't provide one
+     * @param {Function} insertBoilerplate Inserts as a linked node
+     * @param {Function} handleInsertText Inserts as plain text
+     * @return {Promise}
      */
-    insertBoilerplateText (text, boilerplateId, handleInsertText) {
-      handleInsertText(text)
+    insertBoilerplateText (text, boilerplateId, insertBoilerplate, handleInsertText) {
+      if (!boilerplateId || !this.canLinkBoilerplate) {
+        handleInsertText(text)
 
-      if (boilerplateId && hasPermission('feature_boilerplate_usage_list')) {
-        return dpApi.post(
-          Routing.generate('dplan_boilerplate_usage_create', { procedureId: this.procedureId, boilerplateId }),
-          {},
-          { segmentId: this.segment.id },
-        ).catch(() => {
-          // Recording the usage is non-critical: the text was inserted regardless.
-        })
+        return Promise.resolve()
       }
 
-      return Promise.resolve()
+      const wasInserted = insertBoilerplate(boilerplateId, text)
+
+      if (!wasInserted) {
+        dplan.notify.error(Translator.trans('boilerplate.link.exists'))
+
+        return Promise.resolve()
+      }
+
+      return dpApi.post(
+        Routing.generate('dplan_boilerplate_usage_create', { procedureId: this.procedureId, boilerplateId }),
+        {},
+        { segmentId: this.segment.id },
+      ).catch(() => {
+        // Recording the usage is non-critical: the text was inserted regardless.
+      })
     },
 
     openBoilerPlate () {
@@ -1358,9 +1513,57 @@ export default {
       this.toggleSlidebarContent({ prop: 'slidebar', val: { externId: this.segment.attributes.externId, isOpen: true, segmentId: this.segment.id, showTab: 'sendViaMail' } })
     },
 
+    /**
+     * Both fetches are only needed once editing starts, not for every segment in a list.
+     * Gated on one flag via Promise.all (see SegmentsBulkEdit.vue's mounted()) rather than
+     * each fetch flipping it alone, since recommendationForEditor needs both to be done.
+     */
     startEditing () {
       this.isEditing = true
       this.isCollapsed = false
+
+      if (!this.canLinkBoilerplate) {
+        return
+      }
+
+      this.recommendationEmbeddedLoading = true
+
+      const promises = [this.initBoilerplates()]
+
+      if (this.recommendationEmbedded === null) {
+        promises.push(this.loadRecommendationEmbedded())
+      }
+
+      Promise.all(promises).then(() => {
+        this.recommendationEmbeddedLoading = false
+      })
+    },
+
+    /**
+     * Fetches the tag-form recommendation for the editor. A separate, targeted request
+     * rather than part of the segment's normal load: `recommendationEmbedded` is not a
+     * default field (readable(false) on the backend), so the segment's own generic load
+     * never includes it.
+     */
+    loadRecommendationEmbedded () {
+      const url = Routing.generate('api_resource_get', {
+        resourceType: 'StatementSegment',
+        resourceId: this.segment.id,
+      })
+
+      return dpApi.get(url, { fields: { StatementSegment: 'recommendationEmbedded' } })
+        .then(response => {
+          this.recommendationEmbedded = response?.data?.data?.attributes?.recommendationEmbedded ?? ''
+        })
+        .catch(() => {
+          /*
+           * Falls back to the substituted, already-known text rather than leaving the editor
+           * empty. It has no boilerplate tags in it, so embedBoilerplateContent below passes
+           * it through unchanged — editable, just without any still-linked boilerplates
+           * recognized as such for this session.
+           */
+          this.recommendationEmbedded = this.segment.attributes.recommendation
+        })
     },
 
     hideAdditionalFields () {
@@ -1466,6 +1669,29 @@ export default {
       return relations
     },
 
+    /**
+     * Handles the editor's `@input`. With the permission, the editor's HTML has boilerplate
+     * tags filled with their current content (see recommendationForEditor) — stripping that
+     * content back out before storing is what keeps the database holding only the empty,
+     * reference-only tag. Without the permission, stored exactly as the editor emits it,
+     * same as before this feature existed.
+     *
+     * Also mirrors the stripped value into `recommendationEmbedded`, which otherwise stays
+     * frozen at whatever `loadRecommendationEmbedded` fetched once at the start of the first
+     * editing session (see its guard in `startEditing`). Without this, leaving and re-entering
+     * edit mode later in the same page session would rebuild `recommendationForEditor` from
+     * that stale snapshot and silently discard anything inserted/removed since.
+     */
+    updateRecommendation (value) {
+      const valueToStore = this.canLinkBoilerplate ? stripBoilerplateContent(value) : value
+
+      if (this.canLinkBoilerplate) {
+        this.recommendationEmbedded = valueToStore
+      }
+
+      this.updateSegment('recommendation', valueToStore)
+    },
+
     updateSegment (key, val) {
       const updated = { ...this.segment, ...{ attributes: { ...this.segment.attributes, ...{ [key]: val } } } }
 
@@ -1476,7 +1702,6 @@ export default {
   mounted () {
     this.initPlaces()
     this.initAssignableUsers()
-
 
     // Initialize unsaved changes guard
     this.initUnsavedChangesGuard({

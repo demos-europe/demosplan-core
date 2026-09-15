@@ -1,0 +1,24 @@
+{% set tags_with_obscure = ['ins','del','dp-obscure'] %}
+{% set tags_without_obscure = ['ins','del'] %}
+
+<table>
+    <thead>
+        <tr class="sr-only">
+            <th scope="col">{{ 'added.removed'|trans }}</th>
+            <th scope="col">{{ 'changes'|trans }}</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td></td>
+            <td>
+                <div class="m-1">
+                    <p>{{ 'boilerplate.materialized.in.recommendation'|trans({ title: boilerplateTitle }) }}</p>
+                    {{ boilerplateText|wysiwyg(
+                        hasPermission('feature_obscure_text') ? tags_with_obscure : tags_without_obscure
+                    ) }}
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>

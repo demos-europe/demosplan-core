@@ -174,7 +174,7 @@
                             data-checkable-parent-id="{{ boilerplateGroup.id|default }}">
                     </td>
                     <td class="o-hellip--td">
-                        {% if boilerplateGroup.boilerplates|length > 0 %}
+                        {% if boilerplateGroup.boilerplatesExcludingPendingDeletion|length > 0 %}
                             <i
                                 class="fa u-mr-0_125 fa-folder-open align-middle"
                                 aria-hidden="true">
@@ -219,7 +219,7 @@
                         </dp-flyout>
                     </td>
                     <td>
-                        {% if boilerplateGroup.boilerplates|length > 0 %}
+                        {% if boilerplateGroup.boilerplatesExcludingPendingDeletion|length > 0 %}
                             <div
                                 class="text-right u-pr-0_5 o-toggle__trigger js__toggleAnything is-active-toggle"
                                 data-cy="administrationListBoilerplate:boilerplateGroupToggle"
@@ -229,7 +229,7 @@
                         {% endif %}
                     </td>
                 </tr>
-                {% for boilerplate in boilerplateGroup.boilerplates %}
+                {% for boilerplate in boilerplateGroup.boilerplatesExcludingPendingDeletion %}
                     {% include '@DemosPlanCore/DemosPlanProcedure/administration_list_boilerplate_entry.html.twig' %}
                 {% endfor %}
             {% endfor %}
