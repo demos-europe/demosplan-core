@@ -3437,7 +3437,7 @@ class StatementService implements StatementServiceInterface
         foreach ($statements as $statement) {
             $count = $counts[$statement->getId()] ?? ['total' => 0, 'solved' => 0];
             $statuses[$statement->getId()] = match (true) {
-                0 === $count['total']                => self::STATEMENT_STATUS_NEW,
+                0 === $count['total']                 => self::STATEMENT_STATUS_NEW,
                 $count['total'] === $count['solved']  => self::STATEMENT_STATUS_COMPLETED,
                 default                               => self::STATEMENT_STATUS_PROCESSING,
             };
