@@ -36,7 +36,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag as TagEntity;
     operations: [
         new GetCollection(
             uriTemplate: '/StatementSegment',
-            paginationEnabled: false,
+            paginationEnabled: true,
             paginationClientEnabled: true,
             paginationClientItemsPerPage: true,
             // Matches the largest page size offered by the frontend's page-size selector.
