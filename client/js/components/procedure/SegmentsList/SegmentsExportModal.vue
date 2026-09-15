@@ -15,17 +15,94 @@ All rights reserved
       icon-size="medium"
       variant="subtle"
       :text="Translator.trans('export.verb')"
+      @click="openModal"
     />
+
+    <dp-modal
+      ref="exportModal"
+      content-classes="w-11/12 sm:w-9/12 md:w-7/12 lg:w-6/12 xl:w-5/12 h-fit"
+    >
+      <template v-slot:header>
+        <h2>{{ exportModalTitle }}</h2>
+      </template>
+
+      <fieldset>
+        <legend
+          class="text-base pb-4"
+          v-text="Translator.trans('export.type')"
+        />
+        <div class="flex flex-row gap-2">
+          <dp-radio
+            v-for="(exportType, key) in exportTypes"
+            :id="key"
+            :key="key"
+            class="bg-neutral-light-4 border-l-4 border-interactive rounded-sm p-2"
+            :class="{ 'border-transparent bg-transparent' : active !== key }"
+            :data-cy="`exportModal:exportType:${key}`"
+            :label="{
+              text: Translator.trans(exportType.label),
+            }"
+            :value="key"
+            :checked="active === key"
+            @change="active = key"
+          />
+        </div>
+        <dp-inline-notification
+          v-if="exportTypes[active].hint"
+          class="mt-4"
+          :message="exportTypes[active].hint"
+          type="warning"
+        />
+        <p class="text-base pt-4">
+          {{ Translator.trans('export.segments.column.hint') }}
+        </p>
+      </fieldset>
+
+      <template v-slot:footer>
+        <dp-button-row
+          class="text-right mt-auto"
+          data-cy="exportModal"
+          primary
+          secondary
+          :primary-text="Translator.trans('export.segments')"
+          :secondary-text="Translator.trans('abort')"
+        />
+      </template>
+    </dp-modal>
   </div>
 </template>
 
-<script>
-import { DpButton } from '@demos-europe/demosplan-ui'
-export default {
-  name: 'SegmentsExportModal',
+<script setup>
+import { computed, ref } from 'vue'
+import { DpButton, DpButtonRow, DpInlineNotification, DpModal, DpRadio } from '@demos-europe/demosplan-ui'
 
-  components: {
-    DpButton,
-  }
+const props = defineProps({
+  isSingleSegmentExport: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+})
+
+const exportModalTitle = computed(() =>
+  props.isSingleSegmentExport ? Translator.trans('export.single.segment') : Translator.trans('export.segments'),
+)
+
+const active = ref('xlsx_normal')
+const exportModal = ref(null)
+
+const exportTypes = {
+  xlsx_normal: {
+    label: 'export.xlsx',
+    hint: Translator.trans('export.xlsx.hint'),
+  },
+  csv_normal: {
+    label: 'export.csv',
+    hint: Translator.trans('export.csv.hint'),
+  },
+}
+
+const openModal = () => {
+  exportModal.value?.toggle()
 }
 </script>
