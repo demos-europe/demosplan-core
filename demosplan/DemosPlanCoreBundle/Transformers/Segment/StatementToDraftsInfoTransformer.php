@@ -24,7 +24,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Validator\DraftsInfoValidator;
 use demosplan\DemosPlanCoreBundle\Validator\SegmentableStatementValidator;
-use Faker\Provider\Uuid;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Transforms a Statement to DraftsInfo (with one single DraftSegment containing
@@ -52,11 +52,17 @@ class StatementToDraftsInfoTransformer implements DraftsInfoTransformerInterface
         $this->segmentableStatementValidator->validate($statementId);
         /** @var Statement $statement */
         $statement = $this->statementHandler->getStatement($statementId);
+
+        // For segmented statements, build from segments + text sections directly
+        if ($statement->isSegmented()) {
+            return $this->transformSegmentedStatement($statement);
+        }
+
         $result = $statement->getDraftsListJson();
         if (empty($result)) {
             $text = $statement->getText();
             $draftsInfo['data'] = [
-                'id'         => Uuid::uuid(),
+                'id'         => Uuid::uuid4()->toString(),
                 'type'       => 'slicing transaction',
                 'attributes' => [
                     'statementId'      => $statement->getId(),
@@ -73,6 +79,58 @@ class StatementToDraftsInfoTransformer implements DraftsInfoTransformerInterface
         $this->draftsInfoValidator->validate($result);
 
         return $this->adaptDraftsInfo($result, $statement->getProcedureId());
+    }
+
+    /**
+     * Transform an already-segmented statement into drafts info format.
+     */
+    private function transformSegmentedStatement(Statement $statement): string
+    {
+        $contentBlocks = [];
+        $allBlocks = [];
+
+        foreach ($statement->getSegmentsOfStatement() as $segment) {
+            $allBlocks[] = [
+                'type'    => 'segment',
+                'order'   => $segment->getOrderInStatement(),
+                'id'      => $segment->getId(),
+                'text'    => $segment->getText(),
+                'textRaw' => $segment->getText(),
+                'tags'    => [],
+                'place'   => $segment->getPlace()?->getId(),
+            ];
+        }
+
+        foreach ($statement->getTextSections() as $textSection) {
+            $allBlocks[] = [
+                'type'    => 'textSection',
+                'order'   => $textSection->getOrderInStatement(),
+                'text'    => $textSection->getText(),
+                'textRaw' => $textSection->getTextRaw(),
+            ];
+        }
+
+        usort($allBlocks, fn ($a, $b) => $a['order'] <=> $b['order']);
+
+        foreach ($allBlocks as $block) {
+            $contentBlocks[] = $block;
+        }
+
+        $draftsInfo = [
+            'data' => [
+                'id'         => Uuid::uuid4()->toString(),
+                'type'       => 'slicing transaction',
+                'attributes' => [
+                    'statementId'        => $statement->getId(),
+                    'procedureId'        => $statement->getProcedureId(),
+                    'segmentationStatus' => 'SEGMENTED',
+                    'contentBlocks'      => $contentBlocks,
+                    'textualReference'   => $statement->getText(),
+                ],
+            ],
+        ];
+
+        return Json::encode($draftsInfo);
     }
 
     /**
