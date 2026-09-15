@@ -55,6 +55,7 @@
     >
       <!-- Form fields -->
       <dp-organisation-form-fields
+        ref="organisationFormFields"
         :additional-field-options="additionalFieldOptions"
         :available-orga-types="availableOrgaTypes"
         :initial-organisation="initialOrganisation"
@@ -63,10 +64,12 @@
         @addon:update="updateAddonPayload"
         @addon-options:loaded="setAdditionalFieldOptions"
         @organisation:update="updateOrganisation"
+        @procedure-creation-toggled="canCreateProceduresCurrent = $event"
       />
 
       <!-- Button row -->
       <dp-button-row
+        :disabled="isSaving"
         form-name="organisationForm"
         :primary="editable"
         secondary
@@ -74,11 +77,21 @@
         @secondary-action="reset"
       />
     </div>
+
+    <!-- DpModal caches its header-slot check on first render, so re-create the dialog whenever the header changes -->
+    <dp-confirm-dialog
+      :key="procedureCreationToggleHeader"
+      ref="procedureCreationToggleDialog"
+      :confirm-button-text="Translator.trans('procedure.canCreate.confirmToggle.continue')"
+      :header="procedureCreationToggleHeader"
+      icon="warning"
+      :message="procedureCreationToggleMessage"
+    />
   </dp-table-card>
 </template>
 
 <script>
-import { dpApi, DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { DpButtonRow, DpConfirmDialog, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { defineAsyncComponent } from 'vue'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
@@ -88,6 +101,7 @@ export default {
 
   components: {
     DpButtonRow,
+    DpConfirmDialog,
     DpIcon,
     DpOrganisationFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationFormFields')),
     DpTableCard,
@@ -152,8 +166,11 @@ export default {
         url: '',
         value: '',
       },
+      canCreateProceduresCurrent: null,
+      canCreateProceduresOnOpen: null,
       isOpen: false,
       isLoading: true,
+      isSaving: false,
       moduleSubstring: (this.moduleName !== '') ? `/${this.moduleName}` : '',
     }
   },
@@ -185,9 +202,116 @@ export default {
     icon () {
       return this.isOpen ? 'chevron-up' : 'chevron-down'
     },
+
+    isEnablingProcedureCreation () {
+      const current = this.canCreateProceduresCurrent ?? this.organisation.attributes.canCreateProcedures
+
+      return current === true && this.canCreateProceduresOnOpen !== true
+    },
+
+    isDisablingProcedureCreation () {
+      const current = this.canCreateProceduresCurrent ?? this.organisation.attributes.canCreateProcedures
+
+      return current !== true && this.canCreateProceduresOnOpen === true
+    },
+
+    procedureCreationToggleHeader () {
+      if (this.isEnablingProcedureCreation) {
+        return Translator.trans('procedure.canCreate.confirmEnable.header')
+      }
+
+      if (this.isDisablingProcedureCreation) {
+        return Translator.trans('procedure.canCreate.confirmDisable.header')
+      }
+
+      return ''
+    },
+
+    procedureCreationToggleMessage () {
+      if (this.isEnablingProcedureCreation) {
+        return Translator.trans('procedure.canCreate.confirmEnable.message')
+      }
+
+      if (this.isDisablingProcedureCreation) {
+        return Translator.trans('procedure.canCreate.confirmDisable.message')
+      }
+
+      return ''
+    },
+  },
+
+  watch: {
+    /**
+     * The store's "initial" snapshot (used elsewhere for reset/cancel) gets reset to match the
+     * current item on every successful save - so it can't be used to detect a toggle across more
+     * than one save in the same session. Capture our own baseline instead, exactly when the form
+     * is opened for editing.
+     */
+    isOpen (isOpenNow) {
+      if (isOpenNow) {
+        this.canCreateProceduresOnOpen = this.organisation.attributes.canCreateProcedures
+        this.canCreateProceduresCurrent = null
+      }
+    },
   },
 
   methods: {
+    /**
+     * If the "Darf Verfahren anlegen" checkbox was toggled (either direction) since the form was
+     * opened, the change must be confirmed before it's saved. Declining reverts it, so the rest of
+     * the form can still be saved unaffected.
+     *
+     * @return {Promise<boolean>} whether the toggle (if any) was confirmed
+     */
+    async confirmProcedureCreationToggle () {
+      if (!this.isEnablingProcedureCreation && !this.isDisablingProcedureCreation) {
+        return true
+      }
+
+      const confirmed = await this.$refs.procedureCreationToggleDialog.open()
+
+      await this.waitForDialogToFullyClose(this.$refs.procedureCreationToggleDialog)
+
+      if (!confirmed) {
+        this.setItem({
+          ...this.organisation,
+          attributes: {
+            ...this.organisation.attributes,
+            canCreateProcedures: this.canCreateProceduresOnOpen,
+          },
+        })
+        this.canCreateProceduresCurrent = null
+      }
+
+      return confirmed
+    },
+
+    /**
+     * Polls the native <dialog> element's `open` property until it's actually false (or a safety
+     * timeout is hit), rather than assuming a fixed animation duration.
+     */
+    waitForDialogToFullyClose (dialogRef, maxWaitMs = 2000, pollIntervalMs = 50) {
+      const dialogEl = dialogRef?.$refs?.confirmDialog?.$refs?.dialog
+
+      if (!dialogEl) {
+        return Promise.resolve()
+      }
+
+      return new Promise(resolve => {
+        const startedAt = Date.now()
+
+        const check = () => {
+          if (!dialogEl.open || Date.now() - startedAt >= maxWaitMs) {
+            resolve()
+          } else {
+            setTimeout(check, pollIntervalMs)
+          }
+        }
+
+        check()
+      })
+    },
+
     createAddonPayload () {
       return {
         type: this.addonPayload.resourceType,
@@ -237,16 +361,32 @@ export default {
       return this.$store.dispatch(`Orga${this.moduleSubstring}/restoreFromInitial`, payload)
     },
 
-    save () {
-      if (this.dpValidate.organisationForm) {
-        this.isOpen = !this.isOpen
-        const addonExists = Boolean(window.dplan.loadedAddons['interface.fields.to.transmit'])
-        const addonHasValue = this.addonPayload.value || this.addonPayload.initValue
+    async save () {
+      if (this.isSaving) {
+        return
+      }
 
-        if (addonExists && addonHasValue) {
-          this.handleAddonRequest().then(() => this.submitOrganisationForm())
-        } else {
-          this.submitOrganisationForm()
+      if (this.dpValidate.organisationForm) {
+        this.isSaving = true
+
+        try {
+          const toggleConfirmed = await this.confirmProcedureCreationToggle()
+
+          if (!toggleConfirmed) {
+            return
+          }
+
+          this.isOpen = !this.isOpen
+          const addonExists = Boolean(window.dplan.loadedAddons['interface.fields.to.transmit'])
+          const addonHasValue = this.addonPayload.value || this.addonPayload.initValue
+
+          if (addonExists && addonHasValue) {
+            await this.handleAddonRequest().then(() => this.submitOrganisationForm())
+          } else {
+            await this.submitOrganisationForm()
+          }
+        } finally {
+          this.isSaving = false
         }
       } else {
         dplan.notify.notify('error', Translator.trans('error.mandatoryfields.no_asterisk'))
@@ -254,9 +394,10 @@ export default {
     },
 
     saveOrganisationAction (payload) {
-      this.$store.dispatch(`Orga${this.moduleSubstring}/save`, payload)
+      return this.$store.dispatch(`Orga${this.moduleSubstring}/save`, payload)
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+          this.$refs.organisationFormFields?.fetchUsersWithIndividualProcedureCreationPermissionIfNeeded()
           /*
            * Reload organisations and pending organisations in case an organisation has to be moved to the other list, i.e.
            * a) the registrationStatuses of a pending organisation no longer contain a status of 'pending' or b) the registrationStatuses of an activated organisation now
@@ -294,7 +435,7 @@ export default {
         additionalAttributes.push('emailNotificationNewStatement')
       }
 
-      this.saveOrganisationAction({
+      return this.saveOrganisationAction({
         id: this.organisation.id,
         options: {
           attributes: {
