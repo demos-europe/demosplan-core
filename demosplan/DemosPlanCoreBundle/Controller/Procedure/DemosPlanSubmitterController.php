@@ -43,7 +43,7 @@ class DemosPlanSubmitterController extends BaseController
         );
     }
 
-    #[DplanPermissions('area_admin_submitters')]
+    #[DplanPermissions('feature_procedure_submitter_export')]
     #[Route(path: '/verfahren/{procedureId}/einreicher/export', name: 'dplan_admin_procedure_submitter_export', options: ['expose' => true], methods: ['GET'])]
     public function export(
         Request $request,

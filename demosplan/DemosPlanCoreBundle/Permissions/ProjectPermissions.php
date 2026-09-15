@@ -26,9 +26,9 @@ abstract class ProjectPermissions extends Permissions implements ProjectPermissi
         return $this;
     }
 
-    public function setProcedurePermissions(): void
+    protected function setFullProcedurePermissions(): void
     {
-        parent::setProcedurePermissions();
+        parent::setFullProcedurePermissions();
 
         $this->projectProcedurePermissions();
     }

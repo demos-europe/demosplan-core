@@ -176,25 +176,37 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
         $recommendation = $this->createAttribute($this->recommendation)->readable(true);
         $polygon = $this->createAttribute($this->polygon);
 
+        $text = $this->createAttribute($this->text)->readable(true);
+        $parentStatement = $this->createToOneRelationship($this->parentStatement)
+            ->setRelationshipType($this->resourceTypeStore->getStatementResourceType())
+            ->readable()->aliasedPath($this->parentStatementOfSegment);
+        $assignee = $this->createToOneRelationship($this->assignee)->readable();
+        $tags = $this->createToManyRelationship($this->tags)->readable();
+        // for now all segments have a place, this may change however
+        $place = $this->createToOneRelationship($this->place)->readable();
+
         $properties = [
             $this->createIdentifier()->readable(),
             $recommendation,
             $polygon,
-            $this->createAttribute($this->text)->readable(true)->updatable(),
+            $text,
             $this->createAttribute($this->externId)->readable(true),
             $this->createAttribute($this->internId)->readable(true),
             $this->createAttribute($this->orderInProcedure)->readable(true),
-            $this->createToOneRelationship($this->parentStatement)
-                ->setRelationshipType($this->resourceTypeStore->getStatementResourceType())
-                ->readable()->updatable()->aliasedPath($this->parentStatementOfSegment),
-            $this->createToOneRelationship($this->assignee)->readable()->updatable(),
-            $this->createToManyRelationship($this->tags)->readable()->updatable(),
-            // for now all segments have a place, this may change however
-            $this->createToOneRelationship($this->place)->readable()
-                // for now everyone that is allowed to access
-                // segments is allowed to change its place
-                ->updatable(),
+            $parentStatement,
+            $assignee,
+            $tags,
+            $place,
         ];
+
+        if ($this->currentUser->hasPermission('feature_segment_edit')) {
+            $text->updatable();
+            $parentStatement->updatable();
+            $assignee->updatable();
+            $tags->updatable();
+            // for now everyone allowed to edit segments is allowed to change its place
+            $place->updatable();
+        }
 
         if ($this->currentUser->hasPermission('feature_segment_comment_list_on_segment')) {
             $properties[] = $this->createToManyRelationship($this->comments)->readable();

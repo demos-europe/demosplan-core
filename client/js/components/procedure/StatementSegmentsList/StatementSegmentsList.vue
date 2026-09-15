@@ -77,7 +77,7 @@
           </div>
         </div>
         <ul class="float-right space-inline-s flex items-center">
-          <li v-if="!statement.attributes.synchronized">
+          <li v-if="!statement.attributes.synchronized && hasPermission('feature_statement_claim')">
             <dp-claim
               class="rounded-button px-1 py-0.5 leading-[2] whitespace-nowrap text-interactive hover:text-interactive-hover hover:bg-interactive-subtle-hover active:text-interactive-active active:bg-interactive-subtle-active"
               :assigned-id="currentAssignee.id"
@@ -90,7 +90,7 @@
               @click="toggleClaimStatement"
             />
           </li>
-          <li>
+          <li v-if="hasPermission('feature_segments_of_statement_list_export')">
             <statement-export-modal
               :procedure-id="procedure.id"
               data-cy="statementSegmentsList:export"
@@ -474,7 +474,7 @@ export default {
     },
     // TO DO: add check for original statement
     editable () {
-      return this.isCurrentUserAssigned && !this.statement.attributes.synchronized
+      return hasPermission('feature_segment_edit') && this.isCurrentUserAssigned && !this.statement.attributes.synchronized
     },
 
     filteredAttachments () {
