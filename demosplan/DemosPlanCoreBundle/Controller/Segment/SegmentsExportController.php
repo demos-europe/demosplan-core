@@ -240,8 +240,6 @@ class SegmentsExportController extends BaseController
             )->getList()
         );
 
-        $noTagsFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
-
         // Trim each loaded statement to only its matching segments and collect the matched tag
         // titles for the export header. Runs on the already-narrowed statement set.
         $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
@@ -278,9 +276,12 @@ class SegmentsExportController extends BaseController
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
+
         // generating file name based on it being filtered by tags or not
-        0 === count($tagsFilter) && 0 === count($noTagsFilter) ?
-            $this->setResponseHeaders($response, $fileNameGenerator->getSynopseFileName($procedure, 'docx')) : $this->setResponseHeaders($response, $fileNameGenerator->getFilteredSynopseFileName($procedure, 'docx'));
+        $noFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
+        $isFiltered = 0 < count($tagsFilter) || 0 < count($noFilter);
+        $fileName = $fileNameGenerator->getSynopseFileName($procedure, 'docx', $isFiltered);
+        $this->setResponseHeaders($response, $fileName);
 
         return $response;
     }
@@ -341,10 +342,11 @@ class SegmentsExportController extends BaseController
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8'
         );
 
-        $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         // generating file name based on it being a filtered export or not
-        $noTagsFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
-        $fileName = 0 === count($tagsFilter) && 0 === count($noTagsFilter) ? $fileNameGenerator->getSynopseFileName($procedure, 'xlsx') : $fileNameGenerator->getFilteredSynopseFileName($procedure, 'xlsx');
+        $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
+        $noFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
+        $isFiltered = 0 < count($tagsFilter) || 0 < count($noFilter);
+        $fileName = $fileNameGenerator->getSynopseFileName($procedure, 'xlsx', $isFiltered);
         $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($fileName));
 
         return $response;
@@ -399,10 +401,11 @@ class SegmentsExportController extends BaseController
         $response->headers->set('Cache-Control', 'no-cache');
         $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
 
-        $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         // generating file name based on it being a filtered export or not
-        $noTagsFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
-        $fileName = 0 === count($tagsFilter) && 0 === count($noTagsFilter) ? $fileNameGenerator->getSynopseFileName($procedure, 'csv') : $fileNameGenerator->getFilteredSynopseFileName($procedure, 'csv');
+        $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
+        $noFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
+        $isFiltered = 0 < count($tagsFilter) || 0 < count($noFilter);
+        $fileName = $fileNameGenerator->getSynopseFileName($procedure, 'csv', $isFiltered);
         $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($fileName));
 
         return $response;
