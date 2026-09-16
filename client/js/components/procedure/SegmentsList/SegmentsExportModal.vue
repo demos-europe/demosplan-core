@@ -11,10 +11,11 @@ All rights reserved
   <div>
     <dp-button
       data-cy="exportModal:open"
+      :disabled="isExportDisabled"
+      :text="Translator.trans('export.verb')"
       icon="export"
       icon-size="medium"
       variant="subtle"
-      :text="Translator.trans('export.verb')"
       @click="openModal"
     />
 
@@ -110,6 +111,12 @@ const props = defineProps({
     type: Array,
     required: false,
     default: () => [],
+  },
+
+  isExportDisabled: {
+    type: Boolean,
+    required: false,
+    default: false,
   },
 
   searchTerm: {

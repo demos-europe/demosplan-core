@@ -69,6 +69,7 @@
 
           <segments-export-modal
             :applied-filters="appliedFiltersSummary"
+            :is-export-disabled="!hasSegments"
             :search-term="searchTerm"
             @open="closeFilterSlidebar"
           />
@@ -949,6 +950,10 @@ export default {
 
     hasLockedInSelection () {
       return this.lockedInSelectionCount > 0
+    },
+
+    hasSegments () {
+      return !this.isLoading && this.items.length > 0
     },
 
     headerFields () {
