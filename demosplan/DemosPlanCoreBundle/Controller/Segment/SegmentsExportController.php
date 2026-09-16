@@ -24,19 +24,17 @@ use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UnknownPlaceholdersException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\FileNameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Export\StatementZipPathResolver;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportFilter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementViaTemplateExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use Doctrine\ORM\Query\QueryException;
-use EDT\JsonApi\RequestHandling\UrlParameter;
 use Exception;
 use PhpOffice\PhpWord\IOFactory;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -217,32 +215,14 @@ class SegmentsExportController extends BaseController
     public function exportByStatementsFilter(
         FileNameGenerator $fileNameGenerator,
         SegmentsByStatementsExporter $exporter,
-        StatementResourceType $statementResourceType,
-        JsonApiActionService $requestHandler,
+        StatementExportFilter $statementExportFilter,
         string $procedureId,
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
         $tableHeaders = $this->requestStack->getCurrentRequest()->query->all(self::TABLE_HEADERS_PARAMETER);
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
 
-        // Push the tag filter into the query so only statements carrying a matching tag are
-        // loaded, instead of loading every statement of the procedure and discarding the rest
-        // in PHP.
-        $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
-        $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions($tagsFilter, $statementResourceType, $procedureId);
-
-        /** @var Statement[] $statementEntities */
-        $statementEntities = array_values(
-            $requestHandler->getObjectsByQueryParams(
-                $this->requestStack->getCurrentRequest()->query,
-                $statementResourceType,
-                $tagConditions
-            )->getList()
-        );
-
-        // Trim each loaded statement to only its matching segments and collect the matched tag
-        // titles for the export header. Runs on the already-narrowed statement set.
-        $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
+        $statementEntities = $statementExportFilter->filter($procedureId);
         $exportFilteredByTagsWithTopics = $this->statementExportTagFilter->getFilteredTagsWithTitles();
         $customHeaderText = $this->requestStack->getCurrentRequest()->query->get(self::CUSTOM_HEADER_TEXT_PARAMETER) ?? '';
 
@@ -278,9 +258,8 @@ class SegmentsExportController extends BaseController
         );
 
         // generating file name based on it being filtered by tags or not
-        $noFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
-        $isFiltered = 0 < count($tagsFilter) || 0 < count($noFilter);
-        $fileName = $fileNameGenerator->getSynopseFileName($procedure, 'docx', $isFiltered);
+        $fileName =
+            $fileNameGenerator->getSynopseFileName($procedure, 'docx', $statementExportFilter->isFiltered());
         $this->setResponseHeaders($response, $fileName);
 
         return $response;
@@ -302,28 +281,11 @@ class SegmentsExportController extends BaseController
     )]
     public function exportByStatementsFilterXls(
         FileNameGenerator $fileNameGenerator,
-        JsonApiActionService $jsonApiActionService,
         SegmentsByStatementsExporter $exporter,
-        StatementResourceType $statementResourceType,
+        StatementExportFilter $statementExportFilter,
         string $procedureId,
     ): StreamedResponse {
-        // Push the tag filter into the query so only statements carrying a matching tag are
-        // loaded, instead of loading every statement of the procedure and discarding the rest
-        // in PHP.
-        $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
-        $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions($tagsFilter, $statementResourceType, $procedureId);
-
-        /** @var Statement[] $statementEntities */
-        $statementEntities = array_values(
-            $jsonApiActionService->getObjectsByQueryParams(
-                $this->requestStack->getCurrentRequest()->query,
-                $statementResourceType,
-                $tagConditions
-            )->getList()
-        );
-
-        // Trim each loaded statement to only its matching segments. Runs on the already-narrowed set.
-        $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
+        $statementEntities = $statementExportFilter->filter($procedureId);
 
         $response = new StreamedResponse(
             function () use ($statementEntities, $exporter) {
@@ -344,9 +306,8 @@ class SegmentsExportController extends BaseController
 
         // generating file name based on it being a filtered export or not
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
-        $noFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
-        $isFiltered = 0 < count($tagsFilter) || 0 < count($noFilter);
-        $fileName = $fileNameGenerator->getSynopseFileName($procedure, 'xlsx', $isFiltered);
+        $fileName =
+            $fileNameGenerator->getSynopseFileName($procedure, 'xlsx', $statementExportFilter->isFiltered());
         $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($fileName));
 
         return $response;
@@ -368,28 +329,11 @@ class SegmentsExportController extends BaseController
     )]
     public function exportByStatementsFilterCsv(
         FileNameGenerator $fileNameGenerator,
-        JsonApiActionService $jsonApiActionService,
         SegmentsByStatementsExporter $exporter,
-        StatementResourceType $statementResourceType,
+        StatementExportFilter $statementExportFilter,
         string $procedureId,
     ): StreamedResponse {
-        // Push the tag filter into the query so only statements carrying a matching tag are
-        // loaded, instead of loading every statement of the procedure and discarding the rest
-        // in PHP.
-        $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
-        $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions($tagsFilter, $statementResourceType, $procedureId);
-
-        /** @var Statement[] $statementEntities */
-        $statementEntities = array_values(
-            $jsonApiActionService->getObjectsByQueryParams(
-                $this->requestStack->getCurrentRequest()->query,
-                $statementResourceType,
-                $tagConditions
-            )->getList()
-        );
-
-        // Trim each loaded statement to only its matching segments. Runs on the already-narrowed set.
-        $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
+        $statementEntities = $statementExportFilter->filter($procedureId);
 
         $response = new StreamedResponse(
             static function () use ($statementEntities, $exporter) {
@@ -403,9 +347,8 @@ class SegmentsExportController extends BaseController
 
         // generating file name based on it being a filtered export or not
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
-        $noFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
-        $isFiltered = 0 < count($tagsFilter) || 0 < count($noFilter);
-        $fileName = $fileNameGenerator->getSynopseFileName($procedure, 'csv', $isFiltered);
+        $fileName =
+            $fileNameGenerator->getSynopseFileName($procedure, 'csv', $statementExportFilter->isFiltered());
         $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($fileName));
 
         return $response;
@@ -425,8 +368,7 @@ class SegmentsExportController extends BaseController
     public function exportPackagedStatements(
         FileNameGenerator $fileNameGenerator,
         SegmentsByStatementsExporter $exporter,
-        StatementResourceType $statementResourceType,
-        JsonApiActionService $requestHandler,
+        StatementExportFilter $statementExportFilter,
         StatementZipPathResolver $zipPathResolver,
         ZipExportService $zipExportService,
         string $procedureId,
@@ -441,26 +383,7 @@ class SegmentsExportController extends BaseController
         $customHeaderText = $this->requestStack->getCurrentRequest()->query->get(self::CUSTOM_HEADER_TEXT_PARAMETER) ?? '';
 
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
-        // This method applies mostly the same restrictions as the generic API access to retrieve statements.
-        // It validates filter and search parameters and limits the returned statement entities to those
-        // the user is allowed to see. The actual exporter hardcodes which segments of the statements are included
-        // in the export and which properties of the statements and segments are exposed.
-        // Push the tag filter into the query so only statements carrying a matching tag are
-        // loaded, instead of loading every statement of the procedure and discarding the rest
-        // in PHP.
-        $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
-        $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions($tagsFilter, $statementResourceType, $procedureId);
-
-        $statementResult = $requestHandler->getObjectsByQueryParams(
-            $this->requestStack->getCurrentRequest()->query,
-            $statementResourceType,
-            $tagConditions
-        );
-        /** @var Statement[] $statements */
-        $statements = array_values($statementResult->getList());
-
-        // Trim each loaded statement to only its matching segments. Runs on the already-narrowed set.
-        $statements = $this->statementExportTagFilter->filterStatementsByTags($statements, $tagsFilter);
+        $statements = $statementExportFilter->filter($procedureId);
 
         $statementsWithCensoring = [];
         foreach ($statements as $statement) {
