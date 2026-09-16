@@ -91,6 +91,7 @@ All rights reserved
           secondary
           :primary-text="Translator.trans('export.segments')"
           :secondary-text="Translator.trans('abort')"
+          @secondary-action="closeModal"
         />
       </template>
     </dp-modal>
@@ -116,6 +117,8 @@ const props = defineProps({
   },
 })
 
+const emit = defineEmits(['open'])
+
 const hasAppliedFilters = computed(() =>
   props.appliedFilters.length > 0 || props.searchTerm !== '',
 )
@@ -135,6 +138,12 @@ const exportTypes = {
 }
 
 const openModal = () => {
+  active.value = 'xlsx_normal'
+  emit('open')
+  exportModal.value?.toggle()
+}
+
+const closeModal = () => {
   exportModal.value?.toggle()
 }
 </script>

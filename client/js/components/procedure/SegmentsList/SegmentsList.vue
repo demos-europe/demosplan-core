@@ -70,6 +70,7 @@
           <segments-export-modal
             :applied-filters="appliedFiltersSummary"
             :search-term="searchTerm"
+            @open="closeFilterSlidebar"
           />
 
           <dp-button
