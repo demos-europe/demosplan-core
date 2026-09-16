@@ -39,10 +39,12 @@ updates:
       babel:
         patterns:
           - "@babel/*"
-        # @babel-plugin-* and @babel/eslint have different update cycles and with that
-        # different a versioning. therefore we can't group them with the other babel packages
+        # @babel/eslint-* has a different update cycle/versioning than the rest of the
+        # monorepo, so it can't be grouped with it. Actively-maintained @babel/plugin-*
+        # packages release in lockstep with @babel/core - only exclude a specific plugin
+        # here if it's confirmed to have genuinely independent versioning (e.g. deprecated
+        # or folded-into-core plugins that no longer get monorepo-wide releases).
         exclude-patterns:
-          - "@babel/plugin-*"
           - "@babel/eslint-*"
       sentry:
         patterns:
