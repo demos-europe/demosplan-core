@@ -90,6 +90,7 @@
           />
         </template>
         <dp-button
+          v-if="hasPermission('feature_segments_bulk_edit')"
           :text="Translator.trans('segments.bulk.edit')"
           variant="solid"
           @click.prevent="handleBulkEdit"
@@ -226,10 +227,11 @@
                 </div>
                 <template v-slot:popover>
                   <statement-meta-tooltip
+                    v-if="statementsObject[rowData.relationships?.parentStatement?.data?.id]"
                     :assignable-users="assignableUsers"
                     :statement="
                       statementsObject[
-                        rowData.relationships.parentStatement.data.id
+                        rowData.relationships?.parentStatement?.data?.id
                       ]
                     "
                     :segment="rowData"
@@ -253,8 +255,8 @@
                 class="mt-0.5 max-w-fit !block o-hellip--nowrap"
                 :status="
                   statementsObject[
-                    rowData.relationships.parentStatement.data.id
-                  ].attributes.status
+                    rowData.relationships?.parentStatement?.data?.id
+                  ]?.attributes?.status
                 "
               />
             </template>
@@ -263,16 +265,16 @@
                 <div
                   v-tooltip="
                     statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.internId
+                      rowData.relationships?.parentStatement?.data?.id
+                    ]?.attributes?.internId
                   "
                   class="o-hellip--nowrap text-right"
                   dir="rtl"
                 >
                   {{
                     statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.internId
+                      rowData.relationships?.parentStatement?.data?.id
+                    ]?.attributes?.internId
                   }}
                 </div>
               </div>
@@ -282,15 +284,15 @@
                 <li
                   v-if="
                     statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.authorName !== ''
+                      rowData.relationships?.parentStatement?.data?.id
+                    ]?.attributes?.authorName !== ''
                   "
                   class="o-list__item o-hellip--nowrap"
                 >
                   {{
                     statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.authorName
+                      rowData.relationships?.parentStatement?.data?.id
+                    ]?.attributes?.authorName
                   }}
                 </li>
                 <li
@@ -299,22 +301,22 @@
                 >
                   {{
                     statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.submitName
+                      rowData.relationships?.parentStatement?.data?.id
+                    ]?.attributes?.submitName
                   }}
                 </li>
                 <li
                   v-if="
                     statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationName !== ''
+                      rowData.relationships?.parentStatement?.data?.id
+                    ]?.attributes?.initialOrganisationName !== ''
                   "
                   class="o-list__item o-hellip--nowrap"
                 >
                   {{
                     statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationName
+                      rowData.relationships?.parentStatement?.data?.id
+                    ]?.attributes?.initialOrganisationName
                   }}
                 </li>
               </ul>
@@ -324,39 +326,39 @@
                 <li
                   v-if="
                     statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationStreet !== ''
+                      rowData.relationships?.parentStatement?.data?.id
+                    ]?.attributes?.initialOrganisationStreet !== ''
                   "
                   class="o-list__item o-hellip--nowrap"
                 >
                   {{
                     statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationStreet
+                      rowData.relationships?.parentStatement?.data?.id
+                    ]?.attributes?.initialOrganisationStreet
                   }}
                   {{
                     statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationHouseNumber
+                      rowData.relationships?.parentStatement?.data?.id
+                    ]?.attributes?.initialOrganisationHouseNumber
                   }}
                 </li>
                 <li
                   v-if="
                     statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationPostalCode !== ''
+                      rowData.relationships?.parentStatement?.data?.id
+                    ]?.attributes?.initialOrganisationPostalCode !== ''
                   "
                   class="o-list__item o-hellip--nowrap"
                 >
                   {{
                     statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationPostalCode
+                      rowData.relationships?.parentStatement?.data?.id
+                    ]?.attributes?.initialOrganisationPostalCode
                   }}
                   {{
                     statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationCity
+                      rowData.relationships?.parentStatement?.data?.id
+                    ]?.attributes?.initialOrganisationCity
                   }}
                 </li>
               </ul>
@@ -435,7 +437,7 @@
                       procedureId: procedureId,
                       segment: rowData.id,
                       statementId:
-                        rowData.relationships.parentStatement.data.id,
+                        rowData.relationships?.parentStatement?.data?.id,
                     })
                   "
                   data-cy="segmentsList:segmentsRecommendationsCreate"
@@ -452,7 +454,7 @@
                       procedureId: procedureId,
                       segment: rowData.id,
                       statementId:
-                        rowData.relationships.parentStatement.data.id,
+                        rowData.relationships?.parentStatement?.data?.id,
                     })
                   "
                   data-cy="segmentsList:edit"
@@ -1616,6 +1618,10 @@ export default {
      * Returns the hash of the original statement attachment
      */
     getOriginalPdfAttachmentHashBySegment (segment) {
+      if (!segment.relationships?.parentStatement?.data) {
+        return null
+      }
+
       const parentStatement = segment.rel('parentStatement')
 
       if (parentStatement.hasRelationship('attachments')) {

@@ -19,6 +19,8 @@ use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
@@ -31,6 +33,7 @@ use EDT\PathBuilding\End;
  * @property-read End                                 $name
  * @property-read End                                 $master
  * @property-read End                                 $deleted
+ * @property-read End                                 $readOnly
  * @property-read End                                 $agencyMainEmailAddress
  * @property-read OrgaResourceType                    $owningOrganisation
  * @property-read InvitedPublicAgencyResourceType     $invitedOrganisations
@@ -71,6 +74,8 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         private readonly DraftStatementService $draftStatementService,
         private readonly ProcedureAccessEvaluator $accessEvaluator,
         private readonly ProcedureExtension $procedureExtension,
+        private readonly ProcedureReportEntryFactory $procedureReportEntryFactory,
+        private readonly ReportService $reportService,
     ) {
     }
 
@@ -86,7 +91,14 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
 
     public function isAvailable(): bool
     {
-        return $this->hasAdminPermissions() || $this->currentUser->hasPermission('area_public_participation');
+        return $this->hasAdminPermissions()
+            || $this->currentUser->hasPermission('area_public_participation')
+            || $this->currentUser->hasPermission('feature_procedure_read_only_toggle');
+    }
+
+    public function isUpdateAllowed(): bool
+    {
+        return $this->currentUser->hasPermission('feature_procedure_read_only_toggle');
     }
 
     protected function getAccessConditions(): array
@@ -197,6 +209,26 @@ final class ProcedureResourceType extends DplanResourceType implements Procedure
         if ($this->hasAdminPermissions()) {
             $owningOrganisation->readable()->sortable()->filterable();
             $properties[] = $this->createAttribute($this->agencyMainEmailAddress)->readable(true)->sortable()->filterable();
+        }
+
+        // toggled from the procedure list, i.e. outside any procedure context, so this must not
+        // depend on hasAdminPermissions(), which relies on procedure-scoped permissions
+        if ($this->hasAdminPermissions() || $this->currentUser->hasPermission('feature_procedure_read_only_toggle')) {
+            $readOnly = $this->createAttribute($this->readOnly)
+                ->readable()
+                ->sortable()
+                ->filterable();
+            if ($this->currentUser->hasPermission('feature_procedure_read_only_toggle')) {
+                $readOnly->updatable([], function (Procedure $procedure, bool $newReadOnly): array {
+                    $procedure->setReadOnly($newReadOnly);
+                    $this->reportService->persistAndFlushReportEntry(
+                        $this->procedureReportEntryFactory->createReadOnlyToggleEntry($procedure, $newReadOnly)
+                    );
+
+                    return [];
+                });
+            }
+            $properties[] = $readOnly;
         }
 
         if ($this->currentUser->hasPermission('area_procedure_type_edit')) {

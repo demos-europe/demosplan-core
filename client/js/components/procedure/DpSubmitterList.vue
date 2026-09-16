@@ -13,6 +13,7 @@
 
     <div class="flex items-center u-pv-0_5">
       <a
+        v-if="hasPermission('feature_procedure_submitter_export')"
         :href="exportSubmitterList"
         download
       >
@@ -268,7 +269,7 @@ export default {
         name: authorName || submitName || '-',
         organisationAndDepartment: this.handleOrgaAndDepartment(departmentName, organisationName, isSubmittedByCitizen),
         postalCodeAndCity: this.handleOrgaPostalCodeAndOrgaCity(city, postalCode),
-        similarSubmittersCount: resourceObj.relationships.similarStatementSubmitters.data.length || '-',
+        similarSubmittersCount: resourceObj.relationships?.similarStatementSubmitters?.data.length || '-',
         statement: externId,
         street: this.handleOrgaStreet(street, houseNumber),
       }

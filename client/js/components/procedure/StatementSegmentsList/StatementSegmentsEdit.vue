@@ -63,7 +63,7 @@
               </dp-tooltip>
             </template>
             <dp-claim
-              v-else
+              v-else-if="hasPermission('feature_segment_edit')"
               class="c-at-item__row-icon inline-block"
               :assigned-id="assigneeBySegment(segment.id).id"
               :assigned-name="assigneeBySegment(segment.id).name"
@@ -489,7 +489,7 @@ export default {
     },
 
     isAssigneeEditable (segment) {
-      if (this.isSegmentLocked(segment)) {
+      if (!hasPermission('feature_segment_edit') || this.isSegmentLocked(segment)) {
         return false
       }
 
