@@ -1,0 +1,22 @@
+{% extends '@DemosPlanCore/DemosPlanCore/email.html.twig' %}
+{% block body_plain %}
+
+Guten Tag,
+
+Ihr geplanter Excel-Export konnte leider nicht erstellt werden.
+
+{% if templateVars.reason %}
+Grund: {{ templateVars.reason }}
+{% endif %}
+
+Sie können den Export erneut über den Export-Dialog konfigurieren.
+
+Viele Grüße
+
+Ihr Team von {{ projectName }}
+
+-------------------------------------------------------------------
+
+Diese Nachricht wurde automatisch erstellt. Bitte antworten Sie nicht auf diese E-Mail.
+
+{% endblock body_plain %}
