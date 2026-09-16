@@ -16,14 +16,21 @@ use Cocur\Slugify\Slugify;
 use DateTime;
 use DateTimeZone;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\SegmentXlsxExportColumnsEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\SegmentXlsxExportDataEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Event\Segment\SegmentXlsxExportColumnsEvent;
+use demosplan\DemosPlanCoreBundle\Event\Segment\SegmentXlsxExportDataEvent;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\RecommendationConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementArrayConverter;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
 use demosplan\DemosPlanCoreBundle\ValueObject\ExportOrgaInfoHeader;
 use PhpOffice\PhpWord\Element\Footer;
@@ -35,6 +42,8 @@ use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\Shared\Html;
 use PhpOffice\PhpWord\Writer\WriterInterface;
+use ReflectionException;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 abstract class SegmentsExporter
@@ -45,12 +54,16 @@ abstract class SegmentsExporter
     protected array $styles;
 
     public function __construct(
+        protected readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
         protected readonly CurrentUserInterface $currentUser,
+        protected readonly EventDispatcherInterface $eventDispatcher,
         private readonly HtmlHelper $htmlHelper,
         protected readonly ImageLinkConverter $imageLinkConverter,
+        protected readonly RecommendationConverter $recommendationConverter,
         protected Slugify $slugify,
         StyleInitializer $styleInitializer,
         protected TranslatorInterface $translator,
+        protected StatementArrayConverter $statementArrayConverter,
         private readonly DocumentWriterSelector $writerSelector,
         int $smallColumnWidth = 1550,
         int $wideColumnWidth = 6950,
@@ -470,5 +483,37 @@ abstract class SegmentsExporter
         }
 
         return $table;
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    protected function collectExportData(Segment ...$segments): array
+    {
+        $exportData = [];
+        $convertedSegments = $this->recommendationConverter->convertImagesToReferencesInRecommendations(
+                $this->sortSegmentsByOrderInProcedure($segments)
+        );
+
+        foreach ($segments as $segment) {
+            $convertedData = $this->statementArrayConverter->convertIntoExportableArray($segment);
+            $dataEvent = new SegmentXlsxExportDataEvent($segment, $convertedData);
+            $this->eventDispatcher->dispatch($dataEvent, SegmentXlsxExportDataEventInterface::class);
+            $exportData[] = $dataEvent->getExportData();
+        }
+
+        return $this->recommendationConverter->updateRecommendationsWithTextReferences(
+            $exportData,
+            $convertedSegments
+        );
+    }
+
+    protected function getSegmentColumnDefinitions(): array
+    {
+        $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('segments');
+        $columnsEvent = new SegmentXlsxExportColumnsEvent($columnsDefinition);
+        $this->eventDispatcher->dispatch($columnsEvent, SegmentXlsxExportColumnsEventInterface::class);
+
+        return $columnsEvent->getColumnsDefinition();
     }
 }

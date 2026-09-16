@@ -14,13 +14,9 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use DemosEurope\DemosplanAddon\Contracts\Events\SegmentXlsxExportColumnsEventInterface;
-use DemosEurope\DemosplanAddon\Contracts\Events\SegmentXlsxExportDataEventInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Event\Segment\SegmentXlsxExportColumnsEvent;
-use demosplan\DemosPlanCoreBundle\Event\Segment\SegmentXlsxExportDataEvent;
 use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Logic\Export\CsvExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
@@ -54,27 +50,31 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     private const SEGMENT_TEXT_AND_RECOMMENDATION_COLUMN_WIDTH = 6950;
 
     public function __construct(
-        private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
+        AssessmentTableXlsExporter $assessmentTableXlsExporter,
         private readonly CsvExporter $csvExporter,
         CurrentUserInterface $currentUser,
-        private readonly EventDispatcherInterface $eventDispatcher,
+        EventDispatcherInterface $eventDispatcher,
         HtmlHelper $htmlHelper,
         protected ImageManager $imageManager,
         ImageLinkConverter $imageLinkConverter,
-        private readonly RecommendationConverter $recommendationConverter,
+        RecommendationConverter $recommendationConverter,
         Slugify $slugify,
         StyleInitializer $styleInitializer,
         TranslatorInterface $translator,
-        private readonly StatementArrayConverter $statementArrayConverter,
+        StatementArrayConverter $statementArrayConverter,
         DocumentWriterSelector $writerSelector,
     ) {
         parent::__construct(
+            $assessmentTableXlsExporter,
             $currentUser,
+            $eventDispatcher,
             $htmlHelper,
             $imageLinkConverter,
+            $recommendationConverter,
             $slugify,
             $styleInitializer,
             $translator,
+            $statementArrayConverter,
             $writerSelector,
             self::SEGMENT_ID_COLUMN_WIDTH,
             self::SEGMENT_TEXT_AND_RECOMMENDATION_COLUMN_WIDTH);
@@ -127,7 +127,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     {
         Settings::setOutputEscapingEnabled(true);
 
-        [$exportData, $columnsDefinition] = $this->collectExportData(...$statements);
+        $exportData = $this->collectExportData(...$statements);
+        $columnsDefinition = $this->getSegmentColumnDefinitions();
 
         $writer = $this->assessmentTableXlsExporter->createExcel($exportData, $columnsDefinition);
 
@@ -144,7 +145,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      */
     public function exportAllCsv(Statement ...$statements): string
     {
-        [$exportData, $columnsDefinition] = $this->collectExportData(...$statements);
+        $exportData = $this->collectExportData(...$statements);
+        $columnsDefinition = $this->getSegmentColumnDefinitions();
         $attributesToExport = array_column($columnsDefinition, 'key');
         $formattedData = $this->assessmentTableXlsExporter->prepareDataForExcelExport($exportData, false, $attributesToExport);
 
@@ -157,45 +159,22 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      * the xlsx and csv exports, which only differ in how this data is serialized.
      *
      * @return array{0: array<int, array<string, mixed>>, 1: array<int, array<string, mixed>>}
+     * @throws ReflectionException
      */
-    private function collectExportData(Statement ...$statements): array
+    protected function collectExportData(Statement ...$statements): array
     {
         $exportData = [];
-        $convertedSegments = [];
-        // unfortunately for xlsx export data needs to be an array
         foreach ($statements as $statement) {
-            $segmentsOrStatements = collect([$statement]);
-            if (!$statement->getSegmentsOfStatement()->isEmpty()) {
-                $segmentsOrStatements = $statement->getSegmentsOfStatement();
-                $convertedSegments[] =
-                    $this->recommendationConverter->convertImagesToReferencesInRecommendations(
-                        $this->sortSegmentsByOrderInProcedure($segmentsOrStatements->toArray())
-                    );
+            if ($statement->isAlreadySegmented()) {
+                $segments = $statement->getSegmentsOfStatement();
+                array_push($exportData, ...parent::collectExportData(...$segments));
+                continue;
             }
-            foreach ($segmentsOrStatements as $segmentOrStatement) {
-                $convertedData = $this->statementArrayConverter->convertIntoExportableArray($segmentOrStatement);
-                if ($segmentOrStatement instanceof Segment) {
-                    $dataEvent = new SegmentXlsxExportDataEvent($segmentOrStatement, $convertedData);
-                    $this->eventDispatcher->dispatch($dataEvent, SegmentXlsxExportDataEventInterface::class);
-                    $convertedData = $dataEvent->getExportData();
-                }
-                $exportData[] = $convertedData;
-            }
+
+            $exportData[] = $this->statementArrayConverter->convertIntoExportableArray($statement);
         }
 
-        foreach ($convertedSegments as $convertedSegment) {
-            $exportData = $this->recommendationConverter->updateRecommendationsWithTextReferences(
-                $exportData,
-                $convertedSegment
-            );
-        }
-
-        $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('segments');
-        $columnsEvent = new SegmentXlsxExportColumnsEvent($columnsDefinition);
-        $this->eventDispatcher->dispatch($columnsEvent, SegmentXlsxExportColumnsEventInterface::class);
-        $columnsDefinition = $columnsEvent->getColumnsDefinition();
-
-        return [$exportData, $columnsDefinition];
+        return $exportData;
     }
 
     public function exportStatementSegmentsInSeparateDocx(
