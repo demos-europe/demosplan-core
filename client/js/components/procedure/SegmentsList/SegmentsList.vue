@@ -67,7 +67,10 @@
             variant="subtle"
           />
 
-          <segments-export-modal/>
+          <segments-export-modal
+            :applied-filters="appliedFiltersSummary"
+            :search-term="searchTerm"
+          />
 
           <dp-button
             :icon="isFullscreen ? 'compress' : 'expand'"
@@ -629,6 +632,13 @@ export default {
       required: true,
     },
 
+    // Filter definitions from segmentsFilterNames.yaml, used in export modal
+    filterNames: {
+      type: Object,
+      required: false,
+      default: () => ({}),
+    },
+
     initialFilter: {
       type: [Object, Array],
       default: () => ({}),
@@ -762,6 +772,11 @@ export default {
       customFields: 'items',
     }),
 
+    ...mapState('FilterFlyout', {
+      groupedFilterOptions: 'groupedOptions',
+      ungroupedFilterOptions: 'ungroupedOptions',
+    }),
+
     ...mapGetters('FilterFlyout', [
       'getFilterQuery',
       'getIsExpandedByCategoryId',
@@ -857,6 +872,34 @@ export default {
       ]
     },
 
+    // Filter categories for the export modal, shaped [{ label, values: [String] }]
+    appliedFiltersSummary () {
+      const LABEL_PENDING = '…'
+      const valuesByPath = {}
+
+      Object.values(this.getLastAppliedFilterQuery).forEach((filter) => {
+        if (!filter.condition) {
+          return
+        }
+
+        const { path, value } = filter.condition
+
+        valuesByPath[path] = [...(valuesByPath[path] ?? []), value ?? 'unassigned']
+      })
+
+      return Object.entries(valuesByPath).map(([path, values]) => {
+        const labelKey = Object.values(this.filterNames).find(
+          (filterName) => filterName.rootPath === path,
+        )?.labelTranslationKey
+
+        return {
+          label: Translator.trans(labelKey ?? path),
+          // Never surface a raw UUID; show a placeholder until the label resolves
+          values: values.map((id) => this.filterSummaryLabels[id] ?? LABEL_PENDING),
+        }
+      })
+    },
+
     // Overrides tableSelectAllItems mixin to exclude locked segments from selection for users without unlock permission
     currentlySelectedItems () {
       const toggledIds = new Set(this.toggledItems.map((item) => item.id))
@@ -882,6 +925,25 @@ export default {
       return this.queryIds.length > 0 ?
         `${Translator.trans('filter')} (${this.queryIds.length})` :
         Translator.trans('filter')
+    },
+
+    // Option label by filter value id, sourced from the filter flyout's fetched options
+    filterSummaryLabels () {
+      // Seed the unassigned label so it resolves regardless of which category was fetched
+      const labels = { unassigned: Translator.trans('not.assigned') }
+
+      Object.values(this.groupedFilterOptions).forEach((groups) =>
+        groups.forEach((group) =>
+          group.options.forEach((option) => {
+            labels[option.id] = option.label
+          })))
+
+      Object.values(this.ungroupedFilterOptions).forEach((options) =>
+        options.forEach((option) => {
+          labels[option.id] = option.label
+        }))
+
+      return labels
     },
 
     hasLockedInSelection () {

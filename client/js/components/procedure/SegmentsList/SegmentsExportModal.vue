@@ -23,10 +23,10 @@ All rights reserved
       content-classes="w-11/12 sm:w-9/12 md:w-7/12 lg:w-6/12 xl:w-5/12 h-fit"
     >
       <template v-slot:header>
-        <h2>{{ exportModalTitle }}</h2>
+        <h2>{{ Translator.trans('export.segments') }}</h2>
       </template>
 
-      <fieldset>
+      <fieldset class="pb-0">
         <legend
           class="text-base pb-4"
           v-text="Translator.trans('export.type')"
@@ -47,13 +47,38 @@ All rights reserved
             @change="active = key"
           />
         </div>
+
         <dp-inline-notification
           v-if="exportTypes[active].hint"
           class="mt-4"
           :message="exportTypes[active].hint"
           type="warning"
         />
-        <p class="text-base pt-4">
+
+        <div
+          v-if="hasAppliedFilters"
+          class="pt-4"
+          data-cy="exportModal:appliedFilters"
+        >
+          <p class="font-semibold">
+            {{ Translator.trans('export.segments.filter.applied') }}
+          </p>
+          <div class="bg-neutral-light-4 rounded-lg p-1.5 mt-1.5 flex flex-col gap-1.5">
+            <div
+              v-for="filter in appliedFilters"
+              :key="filter.label"
+            >
+              <span class="font-semibold">{{ filter.label }}:</span>
+              {{ filter.values.join(', ') }}
+            </div>
+            <div v-if="searchTerm !== ''">
+              <span class="font-semibold">{{ Translator.trans('search') }}:</span>
+              {{ searchTerm }}
+            </div>
+          </div>
+        </div>
+
+        <p class="text-base pt-4 mb-0">
           {{ Translator.trans('export.segments.column.hint') }}
         </p>
       </fieldset>
@@ -77,15 +102,22 @@ import { computed, ref } from 'vue'
 import { DpButton, DpButtonRow, DpInlineNotification, DpModal, DpRadio } from '@demos-europe/demosplan-ui'
 
 const props = defineProps({
-  isSingleSegmentExport: {
-    type: Boolean,
+  // Shaped [{ label, values: [String] }] — built by SegmentsList
+  appliedFilters: {
+    type: Array,
     required: false,
-    default: false,
+    default: () => [],
+  },
+
+  searchTerm: {
+    type: String,
+    required: false,
+    default: '',
   },
 })
 
-const exportModalTitle = computed(() =>
-  props.isSingleSegmentExport ? Translator.trans('export.single.segment') : Translator.trans('export.segments'),
+const hasAppliedFilters = computed(() =>
+  props.appliedFilters.length > 0 || props.searchTerm !== '',
 )
 
 const active = ref('xlsx_normal')
