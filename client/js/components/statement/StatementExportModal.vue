@@ -29,7 +29,7 @@
       </template>
       <fieldset
         v-if="!isSingleStatementExport"
-        class="border-b border-neutral"
+        :class="{ 'border-b border-neutral': !['xlsx_normal', 'csv_normal'].includes(active) }"
       >
         <legend
           class="text-base pb-4"
@@ -234,7 +234,8 @@
       >
         <legend
           id="tagsFilter"
-          class="font-semibold text-base mb-1 py-4"
+          :class="['xlsx_normal', 'csv_normal'].includes(active) ? 'pt-2 pb-4' : 'py-4'"
+          class="font-semibold text-base mb-1"
           v-text="Translator.trans('segments.export.filter.tags.only')"
         />
         <filter-flyout
