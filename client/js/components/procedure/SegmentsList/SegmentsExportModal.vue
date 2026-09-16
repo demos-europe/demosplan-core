@@ -63,18 +63,20 @@ All rights reserved
           <p class="font-semibold">
             {{ Translator.trans('export.segments.filter.applied') }}
           </p>
-          <div class="bg-neutral-light-4 rounded-lg p-1.5 mt-1.5 flex flex-col gap-1.5">
-            <div
-              v-for="filter in appliedFilters"
-              :key="filter.label"
-            >
-              <span class="font-semibold">{{ filter.label }}:</span>
-              {{ filter.values.join(', ') }}
-            </div>
-            <div v-if="searchTerm !== ''">
-              <span class="font-semibold">{{ Translator.trans('search') }}:</span>
-              {{ searchTerm }}
-            </div>
+          <div class="bg-neutral-light-4 rounded-lg p-1.5 mt-1.5">
+            <dl class="description-list-inline w-full">
+              <template
+                v-for="filter in appliedFilters"
+                :key="filter.label"
+              >
+                <dt>{{ filter.label }}:</dt>
+                <dd>{{ filter.values.join(', ') }}</dd>
+              </template>
+              <template v-if="searchTerm !== ''">
+                <dt>{{ Translator.trans('search') }}:</dt>
+                <dd>{{ searchTerm }}</dd>
+              </template>
+            </dl>
           </div>
         </div>
 
