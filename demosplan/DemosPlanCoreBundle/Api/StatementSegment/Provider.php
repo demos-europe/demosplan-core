@@ -90,9 +90,9 @@ class Provider implements ProviderInterface
      * {@see Extension\SegmentDoctrineAccessExtension},
      * sorting via the declared OrderFilter on {@see StatementSegmentResource}) applies.
      *
-     * Pagination is off by default, so callers get all matching segments in one response;
-     * pass `pagination=true` in the query to get a paginated, `page`/`itemsPerPage`-controlled
-     * response instead.
+     * Pagination is on by default and client-controlled via `page`/`itemsPerPage` (capped at
+     * paginationMaximumItemsPerPage); pass `pagination=false` to get all matching segments in
+     * one unbounded response instead.
      *
      * @return PaginatorInterface<StatementSegmentResource>|list<StatementSegmentResource>
      */
@@ -147,17 +147,20 @@ class Provider implements ProviderInterface
     }
 
     /**
-     * Because this resource supports sorting, API Platform stops forwarding plain
-     * `page`/`itemsPerPage`/`pagination` query params on its own, so we read them
-     * from the URL ourselves and add them to `$context['filters']`, where API
-     * Platform expects to find them.
+     * Tops up `$context['filters']` with the plain `page`/`itemsPerPage`/`pagination` query
+     * params, which is where API Platform's pagination reads them from.
+     *
+     * API Platform's own JsonApiProvider is meant to hoist these off the query string, but for
+     * this operation they were observed not to arrive, so they are read from the request as a
+     * fallback. Values already present are never overwritten, so this is a no-op whenever the
+     * built-in hoisting does work.
      */
     private function addPaginationFilters(array $context): array
     {
         $request = $context['request'] ?? null;
-        if (!$request instanceof Request) {
-            return $context;
-        }
+        // Guard rather than skip: silently dropping the params would return every segment
+        // unbounded instead of the requested page, which is hard to spot from the response.
+        Assert::isInstanceOf($request, Request::class, 'Cannot read pagination parameters: no request in the provider context.');
 
         foreach (['page', 'itemsPerPage', 'pagination'] as $parameterName) {
             if ($request->query->has($parameterName) && !isset($context['filters'][$parameterName])) {

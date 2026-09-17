@@ -82,6 +82,9 @@ class Resource
     #[ApiProperty(readable: true, writable: false)]
     public string $recommendation = '';
 
+    // Exposed as `parentStatement` because that is the public name the legacy EDT resource
+    // already aliases onto this association; filter/sort keys have to use the real Doctrine
+    // association name `parentStatementOfSegment`, as they resolve against the Segment entity.
     #[ApiFilter(SearchFilter::class, properties: [
         'parentStatementOfSegment.id'                      => 'exact',
         'parentStatementOfSegment.procedure.id'            => 'exact',
