@@ -777,10 +777,14 @@ export default {
     },
 
     places () {
-      return this.$store.state.Place ?
-        Object.values(this.$store.state.Place.items)
-          .map(pl => ({ ...pl.attributes, id: pl.id })) :
-        []
+      return Object.values(this.placeItems)
+        .map(place => {
+          return {
+            ...place.attributes,
+            id: place.id,
+            type: place.type,
+          }
+        })
     },
 
     recommendationVersionNumber () {
@@ -1363,9 +1367,12 @@ export default {
     },
 
     setSelectedPlace () {
-      if (this.segment.relationships.place) {
-        this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
+      // Places may still be loading; initPlaces re-runs this once they arrive
+      if (!this.segment.relationships.place || this.places.length === 0) {
+        return
       }
+
+      this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
     },
 
     showComments () {
