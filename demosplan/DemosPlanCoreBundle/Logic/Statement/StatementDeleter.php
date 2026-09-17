@@ -12,12 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\AssessableStatementDeletedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementPreDeleteEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
+use demosplan\DemosPlanCoreBundle\Event\Statement\AssessableStatementDeletedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\StatementPreDeleteEvent;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -176,6 +178,8 @@ class StatementDeleter
                     $attachedFileIdents = \collect($statement->getAttachments())
                         ->map(static fn (StatementAttachment $attachment): string => $attachment->getFile()->getIdent());
 
+                    $wasOriginal = $statement->isOriginal();
+                    $wasSegmented = $statement->isAlreadySegmented();
                     $this->statementAttachmentService->deleteStatementAttachments($statement->getAttachments()->getValues());
                     $deleted = $this->statementRepository->delete($statementId);
                     // add report:
@@ -196,6 +200,14 @@ class StatementDeleter
                     }
 
                     $this->entityContentChangeService->deleteByEntityIds([$statementId]);
+
+                    if ($deleted && !$wasOriginal) {
+                        $this->eventDispatcher->dispatch(
+                            new AssessableStatementDeletedEvent($statement, $wasSegmented),
+                            AssessableStatementDeletedEventInterface::class
+                        );
+                    }
+
                     $success = true;
                 } catch (DemosException $demosException) {
                     $this->logger->error(self::DELETE_ERROR_MESSAGE, [$demosException]);

@@ -12,9 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Segment;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\StatementsExportedEventInterface;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Event\Export\StatementsExportedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
@@ -33,6 +35,7 @@ use PhpOffice\PhpWord\IOFactory;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use ZipStream\ZipStream;
 
 class SegmentsExportController extends BaseController
@@ -46,6 +49,7 @@ class SegmentsExportController extends BaseController
     private const CUSTOM_HEADER_TEXT_PARAMETER = 'customHeaderText';
 
     public function __construct(
+        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly NameGenerator $nameGenerator,
         private readonly ProcedureHandler $procedureHandler,
         private readonly RequestStack $requestStack,
@@ -79,6 +83,18 @@ class SegmentsExportController extends BaseController
         $statement = $statementHandler->getStatementWithCertainty($statementId);
         $censorCitizenData = $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER);
         $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
+
+        $this->eventDispatcher->dispatch(
+            new StatementsExportedEvent(
+                $procedure,
+                [$statement],
+                StatementsExportedEventInterface::FORMAT_DOCX,
+                $censorCitizenData,
+                $censorInstitutionData,
+                $isObscure
+            ),
+            StatementsExportedEventInterface::class
+        );
 
         $response = new StreamedResponse(
             static function () use ($procedure, $statement, $segmentsExporter, $tableHeaders, $censorCitizenData, $censorInstitutionData, $isObscure) {
@@ -141,6 +157,18 @@ class SegmentsExportController extends BaseController
         $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
         // geschwärzt
         $obscureParameter = $this->getBooleanQueryParameter(self::OBSCURE_PARAMETER);
+
+        $this->eventDispatcher->dispatch(
+            new StatementsExportedEvent(
+                $procedure,
+                $statementEntities,
+                StatementsExportedEventInterface::FORMAT_DOCX,
+                $censorCitizenData,
+                $censorInstitutionData,
+                $obscureParameter
+            ),
+            StatementsExportedEventInterface::class
+        );
 
         $response = new StreamedResponse(
             function () use (
@@ -225,6 +253,20 @@ class SegmentsExportController extends BaseController
         );
 
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
+
+        // xlsx exports have no anonymization option at all, unlike the docx/zip exports below
+        $this->eventDispatcher->dispatch(
+            new StatementsExportedEvent(
+                $procedure,
+                $statementEntities,
+                StatementsExportedEventInterface::FORMAT_XLSX,
+                false,
+                false,
+                false
+            ),
+            StatementsExportedEventInterface::class
+        );
+
         // generating file name based on it being a filtered export or not
         $noTagsFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
         $fileName = 0 === count($tagsFilter) && 0 === count($noTagsFilter) ? $fileNameGenerator->getSynopseFileName($procedure, 'xlsx') : $fileNameGenerator->getFilteredSynopseFileName($procedure, 'xlsx');
@@ -275,6 +317,18 @@ class SegmentsExportController extends BaseController
         // Apply tag filtering after JsonAPI filtering
         $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
         $statements = $this->statementExportTagFilter->filterStatementsByTags($statements, $tagsFilter);
+
+        $this->eventDispatcher->dispatch(
+            new StatementsExportedEvent(
+                $procedure,
+                $statements,
+                StatementsExportedEventInterface::FORMAT_DOCX_PER_STATEMENT,
+                $censorCitizenData,
+                $censorInstitutionData,
+                $obscureParameter
+            ),
+            StatementsExportedEventInterface::class
+        );
 
         $statements = $exporter->mapStatementsToPathInZip(
             $statements,

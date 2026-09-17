@@ -15,16 +15,19 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment\RpcBulkEditor;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\SegmentAssignmentOrPlaceChangeEventInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\SegmentRecommendationsSavedEventInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\EntityValidator\TagValidator;
+use demosplan\DemosPlanCoreBundle\Event\Segment\SegmentAssignmentOrPlaceChangeEvent;
+use demosplan\DemosPlanCoreBundle\Event\Segment\SegmentRecommendationsSavedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotAssignableException;
@@ -48,6 +51,7 @@ use JsonException;
 use JsonSchema\Exception\InvalidSchemaException;
 use Psr\Log\LoggerInterface;
 use stdClass;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * You find general RPC API usage information
@@ -70,7 +74,15 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
     final public const SEGMENTS_BULK_EDIT_METHOD = 'segment.bulk.edit';
 
-    public function __construct(protected CurrentProcedureService $currentProcedure, protected CurrentUserInterface $currentUser, protected LoggerInterface $logger, protected JsonSchemaValidator $jsonValidator, protected PlaceService $placeService, protected ProcedureService $procedureService, protected RpcErrorGenerator $errorGenerator, protected SegmentHandler $segmentHandler, protected SegmentValidator $segmentValidator, protected TagService $tagService, protected TagValidator $tagValidator, private readonly TransactionService $transactionService, protected UserHandler $userHandler, protected SegmentBulkEditorService $segmentBulkEditorService)
+    /**
+     * Collected during {@see execute()} and dispatched only after its transaction has committed,
+     * so a later failure in the same request can never dispatch an event for a change that ends up rolled back.
+     *
+     * @var array<int, SegmentRecommendationsSavedEvent|SegmentAssignmentOrPlaceChangeEvent>
+     */
+    private array $pendingDecisionLogEvents = [];
+
+    public function __construct(protected CurrentProcedureService $currentProcedure, protected CurrentUserInterface $currentUser, private readonly EventDispatcherInterface $eventDispatcher, protected LoggerInterface $logger, protected JsonSchemaValidator $jsonValidator, protected PlaceService $placeService, protected ProcedureService $procedureService, protected RpcErrorGenerator $errorGenerator, protected SegmentHandler $segmentHandler, protected SegmentValidator $segmentValidator, protected TagService $tagService, protected TagValidator $tagValidator, private readonly TransactionService $transactionService, protected UserHandler $userHandler, protected SegmentBulkEditorService $segmentBulkEditorService)
     {
     }
 
@@ -84,7 +96,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
      */
     public function execute(?ProcedureInterface $procedure, $rpcRequests): array
     {
-        return $this->transactionService->executeAndFlushInTransaction(function (EntityManager $entityManager) use (
+        $result = $this->transactionService->executeAndFlushInTransaction(function (EntityManager $entityManager) use (
             $procedure,
             $rpcRequests
         ): array {
@@ -107,9 +119,29 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                     $segmentIds = $rpcRequest->params->segmentIds;
                     $segments = $this->segmentBulkEditorService->getValidSegments($segmentIds, $procedureId);
 
+                    $previousAssignees = [];
+                    $previousPlaces = [];
+                    $previousRecommendationTexts = [];
+                    foreach ($segments as $segment) {
+                        $previousAssignees[$segment->getId()] = $segment->getAssignee();
+                        $previousPlaces[$segment->getId()] = $segment->getPlace();
+                        $previousRecommendationTexts[$segment->getId()] = $segment->getRecommendation();
+                    }
+
                     // update texts directly in database for performance reasons
                     $recommendationTextEdit = $rpcRequest->params->recommendationTextEdit;
                     $this->segmentBulkEditorService->updateRecommendations($segments, $recommendationTextEdit, $procedureId, $entityType, $methodCallTime);
+                    $recommendationEditIsNoOp = null === $recommendationTextEdit
+                        || ($recommendationTextEdit->attach && '' === $recommendationTextEdit->text);
+                    if (!$recommendationEditIsNoOp) {
+                        $this->pendingDecisionLogEvents[] = new SegmentRecommendationsSavedEvent(
+                            $segments,
+                            $recommendationTextEdit->text,
+                            $recommendationTextEdit->attach,
+                            $previousRecommendationTexts,
+                            $this->currentUser->getUser()
+                        );
+                    }
 
                     // update entities with new tags, workflowPlace and assignee
                     $addTagIds = $this->segmentBulkEditorService->getValidTags($rpcRequest->params->addTagIds, $procedureId);
@@ -140,6 +172,27 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                         $customFields
                     );
 
+                    $changedSegments = [];
+                    $changedPreviousAssignees = [];
+                    $changedPreviousPlaces = [];
+                    /** @var SegmentInterface $segment */
+                    foreach ($segments as $segment) {
+                        $previousAssignee = $previousAssignees[$segment->getId()] ?? null;
+                        $previousPlace = $previousPlaces[$segment->getId()] ?? null;
+                        if ($segment->getAssignee() !== $previousAssignee || $segment->getPlace() !== $previousPlace) {
+                            $changedSegments[] = $segment;
+                            $changedPreviousAssignees[$segment->getId()] = $previousAssignee;
+                            $changedPreviousPlaces[$segment->getId()] = $previousPlace;
+                        }
+                    }
+                    if ([] !== $changedSegments) {
+                        $this->pendingDecisionLogEvents[] = new SegmentAssignmentOrPlaceChangeEvent(
+                            $changedSegments,
+                            $changedPreviousAssignees,
+                            $changedPreviousPlaces
+                        );
+                    }
+
                     $resultSegments = [...$resultSegments, ...$segments];
                     $resultResponse[] = $this->generateMethodResult($rpcRequest);
                 } catch (InvalidArgumentException|InvalidSchemaException|UserNotAssignableException $e) {
@@ -157,6 +210,18 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
             return $resultResponse;
         });
+        // we are past the transaction here
+        //that transaction would have thrown an exception on rollback preventing this event from being dispatched as intended
+        foreach ($this->pendingDecisionLogEvents as $decisionLogEvent) {
+            $eventInterface = $decisionLogEvent instanceof SegmentRecommendationsSavedEvent
+                ? SegmentRecommendationsSavedEventInterface::class
+                : SegmentAssignmentOrPlaceChangeEventInterface::class;
+            $this->eventDispatcher->dispatch($decisionLogEvent, $eventInterface);
+        }
+
+        $this->pendingDecisionLogEvents = [];
+
+        return $result;
     }
 
     /**
