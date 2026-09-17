@@ -852,7 +852,8 @@ export default {
     },
 
     showAdditionalFields (newVal) {
-      if (!newVal) {
+      // Check if fields are hidden and if this is a "hide fields after save", in which case the deadline value should not be reverted
+      if (!newVal && !this.isSaving) {
         this.revertAdditionalFields()
       }
     },
