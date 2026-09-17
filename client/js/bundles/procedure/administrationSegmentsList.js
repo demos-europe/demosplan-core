@@ -33,10 +33,20 @@ const stores = {
 const apiStores = [
   'AssignableUser',
   'Place',
-  'RecommendationVersion',
+  'Statement',
   'StatementSegment',
   'Tag',
   'TagTopic',
 ]
 
-initialize(components, stores, apiStores)
+/**
+ * Use API Platform 3.0 for StatementSegment on this page
+ */
+const pageSpecificApi3Modules = {
+  StatementSegment: [
+    'list',
+    'get',
+  ],
+}
+
+initialize(components, stores, apiStores, {}, () => {}, pageSpecificApi3Modules)
