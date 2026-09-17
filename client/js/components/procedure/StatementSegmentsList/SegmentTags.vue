@@ -91,7 +91,7 @@
           <input
             :id="`segmentTags_${segmentId}_option_${props.option.id}`"
             type="checkbox"
-            class="shrink-0 m-0"
+            class="shrink-0 m-0 pointer-events-none"
             :checked="props.option.assigned"
           >
           {{ props.option.title }}
