@@ -660,6 +660,10 @@ export default {
       'slidebar',
     ]),
 
+    ...mapState('StatementSegment', {
+      initialSegments: 'initial',
+    }),
+
     ...mapState('Tag', {
       tagsItems: 'items',
     }),
@@ -724,7 +728,7 @@ export default {
         return false
       }
 
-      const initialSegment = this.$store.state.StatementSegment?.initial[this.segment.id]
+      const initialSegment = this.initialSegments?.[this.segment.id]
 
       if (!initialSegment) {
         return false
@@ -845,6 +849,18 @@ export default {
       },
       deep: false, // Set default for migrating purpose. To know this occurrence is checked
       immediate: true, // This ensures the handler is executed immediately after the component is created
+    },
+
+    showAdditionalFields (newVal) {
+      if (!newVal) {
+        this.revertAdditionalFields()
+      }
+    },
+
+    showWorkflowFields (newVal) {
+      if (!newVal) {
+        this.revertWorkflowFields()
+      }
     },
   },
 
@@ -1235,6 +1251,21 @@ export default {
     restoreRelationships (comments) {
       this.restoreComments(comments)
       this.setProperty({ prop: 'isLoading', val: false })
+    },
+
+    revertAdditionalFields () {
+      const initialSegment = this.initialSegments?.[this.segment.id]
+
+      if (initialSegment) {
+        this.updateSegment('deadline', initialSegment.attributes.deadline)
+      }
+
+      this.restoreInitialCustomFields()
+    },
+
+    revertWorkflowFields () {
+      this.setSelectedAssignee()
+      this.setSelectedPlace()
     },
 
     rollbackFailedSave (comments) {
