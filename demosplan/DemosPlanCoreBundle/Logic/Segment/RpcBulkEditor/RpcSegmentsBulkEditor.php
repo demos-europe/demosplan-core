@@ -211,7 +211,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
             return $resultResponse;
         });
         // we are past the transaction here
-        //that transaction would have thrown an exception on rollback preventing this event from being dispatched as intended
+        // that transaction would have thrown an exception on rollback preventing this event from being dispatched as intended
         foreach ($this->pendingDecisionLogEvents as $decisionLogEvent) {
             $eventInterface = $decisionLogEvent instanceof SegmentRecommendationsSavedEvent
                 ? SegmentRecommendationsSavedEventInterface::class

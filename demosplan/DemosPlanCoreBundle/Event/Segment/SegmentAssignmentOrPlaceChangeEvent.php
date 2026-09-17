@@ -19,9 +19,9 @@ use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 class SegmentAssignmentOrPlaceChangeEvent extends DPlanEvent implements SegmentAssignmentOrPlaceChangeEventInterface
 {
     /**
-     * @param array<int, SegmentInterface>    $segments
-     * @param array<string, ?UserInterface>   $previousAssignees keyed by segment id
-     * @param array<string, ?PlaceInterface>  $previousPlaces    keyed by segment id
+     * @param array<int, SegmentInterface>   $segments
+     * @param array<string, ?UserInterface>  $previousAssignees keyed by segment id
+     * @param array<string, ?PlaceInterface> $previousPlaces    keyed by segment id
      */
     public function __construct(
         protected array $segments,
