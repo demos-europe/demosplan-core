@@ -6,6 +6,11 @@
 
 ## UNRELEASED
 
+## v4.57.2 (2026-09-17)
+
+### Fixed
+- Forwarding a segment to another user for review no longer fails with a validation error when the segment has comments
+
 ## v4.57.1 (2026-09-15)
 
 ### Fixed
