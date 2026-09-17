@@ -812,9 +812,7 @@ export default {
     },
 
     shouldShowButtonRow () {
-      return this.isAssignedToMe &&
-        !this.isLocked &&
-        (this.isEditing || this.showWorkflowFields || this.showAdditionalFields)
+      return this.isAssignedToMe && !this.isLocked
     },
 
     tagsAsString () {
