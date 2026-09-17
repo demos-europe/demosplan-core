@@ -93,6 +93,7 @@
             type="checkbox"
             class="shrink-0 m-0 pointer-events-none"
             :checked="props.option.assigned"
+            tabindex="-1"
           >
           {{ props.option.title }}
         </label>
