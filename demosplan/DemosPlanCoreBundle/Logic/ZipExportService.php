@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use demosplan\DemosPlanCoreBundle\Exception\InvalidParameterTypeException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Exception;
@@ -39,6 +40,12 @@ class ZipExportService
     private const MAX_ZIP_ENTRY_PATH_LENGTH = 200;
 
     /**
+     * Keeps a single directory name from consuming the whole entry path budget,
+     * leaving room for the nested directories and the file name below it.
+     */
+    private const MAX_ZIP_DIRECTORY_SEGMENT_LENGTH = 60;
+
+    /**
      * @var array<int,string>
      */
     private $filesAdded = [];
@@ -47,6 +54,7 @@ class ZipExportService
         private readonly FilesystemOperator $defaultStorage,
         private readonly FileService $fileService,
         private readonly LoggerInterface $logger,
+        private readonly NameGenerator $nameGenerator,
     ) {
     }
 
@@ -60,7 +68,7 @@ class ZipExportService
      */
     public function buildZipStreamResponse(string $name, callable $fillZipFunction): StreamedResponse
     {
-        return new StreamedResponse(function () use ($name, $fillZipFunction): void {
+        $response = new StreamedResponse(function () use ($name, $fillZipFunction): void {
             $zip = new ZipStream(
                 // do not compress files
                 defaultDeflateLevel: -1,
@@ -73,6 +81,18 @@ class ZipExportService
 
             $zip->finish();
         });
+
+        // ZipStream emits these itself, but only through header() once the callback runs. Declaring
+        // them on the response as well - like the other file response generators do - keeps the name
+        // available to callers that consume the response without sending it, e.g. a background
+        // export worker storing the archive for a later download.
+        $response->headers->set('Content-Type', 'application/zip');
+        $response->headers->set(
+            'Content-Disposition',
+            $this->nameGenerator->generateDownloadFilename($name)
+        );
+
+        return $response;
     }
 
     /**
@@ -238,6 +258,10 @@ class ZipExportService
      * or the ".pdf" extension) are preserved because only trailing dots are
      * stripped.
      *
+     * Segment lengths are capped as well: directories to
+     * MAX_ZIP_DIRECTORY_SEGMENT_LENGTH, the joined path to
+     * MAX_ZIP_ENTRY_PATH_LENGTH.
+     *
      * Public so other ZIP-building sites (e.g. ZipResponseGenerator,
      * DemosPlanDocumentController) can reuse the same normalization.
      */
@@ -260,9 +284,53 @@ class ZipExportService
             static fn (string $segment): bool => '' !== $segment
         ));
 
+        $segments = $this->truncateDirectorySegments($segments);
         $segments = $this->truncateLastSegmentToFitPathLength($segments);
 
         return implode('/', $segments);
+    }
+
+    /**
+     * Truncates every directory segment to MAX_ZIP_DIRECTORY_SEGMENT_LENGTH.
+     *
+     * Directory names are built from user content as well -- a planning document
+     * category title reaches 250 characters in practice -- and a single one of
+     * those can exceed MAX_ZIP_ENTRY_PATH_LENGTH on its own. Without this,
+     * {@link truncateLastSegmentToFitPathLength} has no budget left and clamps the
+     * file name down to a single character, so every file in such a folder ends up
+     * under the same entry name.
+     *
+     * @param array<int,string> $segments
+     *
+     * @return array<int,string>
+     */
+    private function truncateDirectorySegments(array $segments): array
+    {
+        $lastIndex = count($segments) - 1;
+        foreach ($segments as $index => $segment) {
+            if ($index === $lastIndex) {
+                continue;
+            }
+            $segments[$index] = $this->truncateDirectoryName($segment);
+        }
+
+        return $segments;
+    }
+
+    private function truncateDirectoryName(string $directoryName): string
+    {
+        if (strlen($directoryName) <= self::MAX_ZIP_DIRECTORY_SEGMENT_LENGTH) {
+            return $directoryName;
+        }
+
+        // A hash of the full name keeps truncated directories apart: titles that
+        // share their opening words -- "Maßnahme 4 des Ministeriums für ..." and
+        // "Maßnahme 5 des Ministeriums für ..." -- would otherwise collapse into a
+        // single folder and mix their documents.
+        $hashSuffix = '_'.hash('crc32', $directoryName);
+        $keptLength = self::MAX_ZIP_DIRECTORY_SEGMENT_LENGTH - strlen($hashSuffix);
+
+        return rtrim(substr($directoryName, 0, $keptLength), ' .').$hashSuffix;
     }
 
     /**

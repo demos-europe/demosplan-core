@@ -16,8 +16,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Forum\DevelopmentRelease;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Exception;
 
 /**

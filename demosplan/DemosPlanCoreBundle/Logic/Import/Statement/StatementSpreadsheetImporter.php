@@ -35,6 +35,12 @@ use function array_key_exists;
 
 class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
 {
+    /**
+     * Column carrying the id of the statement a row originates from. Absent from exports created
+     * before it existed, and empty wherever the value was lost on the way.
+     */
+    protected const COLUMN_SOURCE_REFERENCE = 'Referenz';
+
     public function __construct(CurrentProcedureService $currentProcedureService, CurrentUserService $currentUser, ElementsService $elementsService, OrgaService $orgaService, StatementCopier $statementCopier, StatementService $statementService, TranslatorInterface $translator, ValidatorInterface $validator, private readonly EntityManagerInterface $entityManager)
     {
         parent::__construct($currentProcedureService, $currentUser, $elementsService, $orgaService, $statementCopier, $statementService, $translator, $validator);
@@ -109,9 +115,16 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
             'Mitzeichnende'                 => $builder->setNumberOfAnonymVotes(...),
             'Verfahrensschritt'             => null,
             'Art der Einreichung'           => null,
+            self::COLUMN_SOURCE_REFERENCE   => $builder->setSourceStatementId(...),
         ];
 
         return [$callBackMap, $builder];
+    }
+
+    private function skipStatement(AbstractStatementFromRowBuilder $builder, string $skippedIdentifier): void
+    {
+        $this->skippedStatements[$skippedIdentifier] = ($this->skippedStatements[$skippedIdentifier] ?? 0) + 1;
+        $builder->resetStatement();
     }
 
     private function getStatementFromRowBuilder(ProcedureInterface $procedure): StatementFromRowBuilder
@@ -150,6 +163,7 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
 
         $usedExternIds = $this->statementService->getExternIdsInUse($currentProcedure->getId());
         $usedInternIds = $this->statementService->getInternIdsInUse($currentProcedure->getId());
+        $usedSourceStatementIds = $this->statementService->getSourceStatementIdsInUse($currentProcedure->getId());
 
         // loop through all rows and (if valid) create corresponding original statements and statement copies
         [$columnCallbacks, $builder] = $this->getColumnCallbacks($headIterator);
@@ -177,22 +191,42 @@ class StatementSpreadsheetImporter extends AbstractStatementSpreadsheetImporter
 
             $internId = $builder->getInternId();
             $externId = $builder->getExternId();
+            // Null unless the export carried a reference column. Statement copies share extern
+            // and intern id with the statement they were copied from, so where a reference is
+            // available it is the only reliable identity.
+            $sourceStatementId = $builder->getSourceStatementId();
 
-            if (null !== $internId && array_key_exists($internId, $usedInternIds)) {
-                // skip statements with existing intern IDs
-                $this->skippedStatements[$internId] = ($this->skippedStatements[$internId] ?? 0) + 1;
-                $builder->resetStatement();
-                continue;
-            }
-            if (array_key_exists($externId, $usedExternIds)) {
-                // skip statements with existing extern IDs
-                $this->skippedStatements[$externId] = ($this->skippedStatements[$externId] ?? 0) + 1;
-                $builder->resetStatement();
-                continue;
+            if (null !== $sourceStatementId) {
+                if (array_key_exists($sourceStatementId, $usedSourceStatementIds)) {
+                    // skip statements already imported from the same source statement
+                    $this->skipStatement($builder, $externId);
+                    continue;
+                }
+                $usedSourceStatementIds[$sourceStatementId] = $sourceStatementId;
+                // The intern id has to stay unique per procedure, so only the first statement
+                // imported for a given one keeps it. That mirrors the source, where a copy has no
+                // intern id of its own and reports the one of the statement it was copied from.
+                if (null !== $internId && array_key_exists($internId, $usedInternIds)) {
+                    $builder->resetInternId();
+                    $internId = null;
+                }
+            } else {
+                if (null !== $internId && array_key_exists($internId, $usedInternIds)) {
+                    // skip statements with existing intern IDs
+                    $this->skipStatement($builder, $internId);
+                    continue;
+                }
+                if (array_key_exists($externId, $usedExternIds)) {
+                    // skip statements with existing extern IDs
+                    $this->skipStatement($builder, $externId);
+                    continue;
+                }
             }
 
             $usedExternIds[$externId] = $externId;
-            $usedInternIds[$internId] = $internId;
+            if (null !== $internId) {
+                $usedInternIds[$internId] = $internId;
+            }
 
             // create the original statement and its copy if valid
             $originalStatementOrViolations = $builder->buildStatementAndReset();

@@ -61,9 +61,9 @@ use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
@@ -176,7 +176,7 @@ class StatementFragmentService
         try {
             return $this->statementFragmentRepository->get($fragmentId);
         } catch (Exception $e) {
-            $this->logger->error('Could not find StatementFragment with id '.DemosPlanTools::varExport($fragmentId, true).': ', [$e]);
+            $this->logger->error('Could not find StatementFragment with id {fragmentId}', ['fragmentId' => $fragmentId, 'exception' => $e]);
 
             return null;
         }

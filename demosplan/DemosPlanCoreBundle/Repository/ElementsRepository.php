@@ -21,7 +21,7 @@ use demosplan\DemosPlanCoreBundle\Exception\StatementElementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
@@ -129,9 +129,8 @@ class ElementsRepository extends CoreRepository implements ArrayInterface, Objec
                 // no element will match the condition 'key is one of those in this empty array'
                 // hence just return no elements
                 return [];
-            } else {
-                $queryBuilder = $queryBuilder->andWhere($queryBuilder->expr()->in('element.'.$whereKey, $whereArray));
             }
+            $queryBuilder = $queryBuilder->andWhere($queryBuilder->expr()->in('element.'.$whereKey, $whereArray));
         }
         $elements = $queryBuilder->getQuery()->getResult();
 

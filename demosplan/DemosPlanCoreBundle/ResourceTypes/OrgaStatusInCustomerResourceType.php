@@ -22,6 +22,7 @@ use EDT\PathBuilding\End;
  * @property-read CustomerResourceType $customer
  * @property-read OrgaResourceType $orga
  * @property-read OrgaTypeResourceType $orgaType
+ * @property-read End $showlist
  * @property-read End $status
  */
 final class OrgaStatusInCustomerResourceType extends DplanResourceType
@@ -63,6 +64,7 @@ final class OrgaStatusInCustomerResourceType extends DplanResourceType
             $this->createToOneRelationship($this->orgaType)->readable()->sortable()->filterable(),
             $this->createToOneRelationship($this->orga)->readable()->sortable()->filterable(),
             $this->createAttribute($this->status)->readable(true)->filterable()->sortable(),
+            $this->createAttribute($this->showlist)->readable(true)->filterable()->sortable(),
         ];
 
         if ($this->resourceTypeStore->getCustomerResourceType()->isReferencable()) {

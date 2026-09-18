@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\ReadableEsResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\UserSecurityHandler;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\UserResourceConfigBuilder;
 use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\AbstractQuery;
@@ -35,6 +36,7 @@ use EDT\JsonApi\RequestHandling\ModifiedEntity;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use EDT\Wrapping\EntityDataInterface;
+use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToMany\CallbackToManyRelationshipSetBehavior;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipSetBehavior;
@@ -62,7 +64,8 @@ final class AdministratableUserResourceType extends DplanResourceType implements
     public function __construct(private readonly QueryUser $esQuery,
         private readonly JsonApiEsService $jsonApiEsService,
         private readonly UserRepository $userRepository,
-        private readonly UserHandler $userHandler)
+        private readonly UserHandler $userHandler,
+        private readonly UserSecurityHandler $userSecurityHandler)
     {
     }
 
@@ -201,6 +204,28 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         $configBuilder->noPiwik
             ->setReadableByCallable(static fn (User $user): bool => $user->getNoPiwik(), DefaultField::YES)
             ->setSortable();
+
+        if ($this->currentUser->hasPermission('feature_2fa')) {
+            $configBuilder->twoFactorEnabled
+                ->setReadableByCallable(
+                    static fn (UserInterface $user): bool => $user->isTotpEnabled() || $user->isEmailAuthEnabled(),
+                    DefaultField::YES
+                )
+                ->addUpdateBehavior(
+                    new CallbackAttributeSetBehaviorFactory(
+                        [],
+                        function (UserInterface $user, bool $twoFactorEnabled): array {
+                            if ($twoFactorEnabled) {
+                                throw new BadRequestException('Two factor authentication can only be reset, not enabled, by an administrator.');
+                            }
+                            $this->userSecurityHandler->resetTwoFactorAuthentication($user);
+
+                            return [];
+                        },
+                        OptionalField::YES,
+                    )
+                );
+        }
 
         $configBuilder->roles
             ->addUpdateBehavior(

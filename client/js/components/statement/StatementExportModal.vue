@@ -18,52 +18,69 @@
 
     <dp-modal
       ref="exportModalInner"
-      content-classes="w-11/12 sm:w-10/12 md:w-10/12 lg:w-8/12 xl:w-7/12 h-fit"
+      content-classes="w-11/12 sm:w-9/12 md:w-7/12 lg:w-6/12 xl:w-5/12 h-fit"
       content-body-classes="flex flex-col"
+      enable-smooth-height-transition
       @modal:toggled="onModalToggle"
     >
-      <h2 class="mb-5">
-        {{ exportModalTitle }}
-      </h2>
-
-      <fieldset v-if="!isSingleStatementExport">
+      <template v-slot:header>
+        <h2>{{ exportModalTitle }}</h2>
+      </template>
+      <fieldset
+        v-if="!isSingleStatementExport"
+        class="border-b border-neutral"
+      >
         <legend
-          class="font-semibold text-base"
+          class="text-base pb-4"
           v-text="Translator.trans('export.type')"
         />
-        <div class="grid grid-cols-4 mt-2 mb-5 gap-x-2">
+        <div class="flex flex-row gap-2">
           <dp-radio
             v-for="(exportType, key) in exportTypes"
             :id="key"
             :key="key"
+            class="bg-neutral-light-4 border-l-4 border-interactive rounded-sm p-2"
+            :class="{ 'border-transparent bg-transparent' : active !== key }"
             :data-cy="`exportModal:exportType:${key}`"
             :label="{
-              hint: active === key ? exportType.hint : '',
-              text: Translator.trans(exportType.label)
+              text: Translator.trans(exportType.label),
             }"
             :value="key"
             :checked="active === key"
             @change="active = key"
           />
         </div>
-
-        <div
+        <dp-inline-notification
+          v-if="exportTypes[active].hint"
+          class="mt-4"
+          :message="exportTypes[active].hint"
+          type="warning"
+        />
+        <fieldset
           v-if="!['xlsx_normal', 'csv_normal'].includes(active)"
-          class="grid grid-cols-3 mb-3 gap-x-2"
+          class="pb-0"
         >
+          <legend
+            class="text-base py-4"
+            v-text="Translator.trans('export.options')"
+          />
           <dp-checkbox
             id="censoredCitizen"
             v-model="isCitizenDataCensored"
+            class="mb-1"
             data-cy="exportModal:censoredCitizen"
             :label="{
-              text: Translator.trans('export.censored.citizen')
+              regular: true,
+              text: Translator.trans('export.censored.citizen'),
             }"
           />
           <dp-checkbox
             id="censoredInstitution"
             v-model="isInstitutionDataCensored"
+            class="mb-1"
             data-cy="exportModal:censoredInstitution"
             :label="{
+              regular: true,
               text: Translator.trans('export.censored.institution')
             }"
           />
@@ -72,55 +89,67 @@
             v-model="isObscure"
             data-cy="exportModal:obscured"
             :label="{
+              regular: true,
               text: Translator.trans('export.docx.obscured')
             }"
           />
-        </div>
+        </fieldset>
       </fieldset>
 
-      <fieldset v-if="isSingleStatementExport">
-        <div class="flex mt-1 mb-5 gap-2">
-          <dp-checkbox
-            id="singleStatementCitizen"
-            v-model="isCitizenDataCensored"
-            data-cy="exportModal:singleStatementCitizen"
-            :label="{
-              text: Translator.trans('export.censored.citizen')
-            }"
-          />
-          <dp-checkbox
-            id="singleStatementInstitution"
-            v-model="isInstitutionDataCensored"
-            data-cy="exportModal:singleStatementInstitution"
-            :label="{
-              text: Translator.trans('export.censored.institution')
-            }"
-          />
-          <dp-checkbox
-            id="singleStatementObscure"
-            v-model="isObscure"
-            data-cy="exportModal:singleStatementObscure"
-            :label="{
-              text: Translator.trans('export.docx.obscured')
-            }"
-          />
-        </div>
+      <fieldset
+        v-if="isSingleStatementExport"
+        class="border-b border-neutral"
+      >
+        <legend
+          class="text-base pb-4"
+          v-text="Translator.trans('export.options')"
+        />
+        <dp-checkbox
+          id="singleStatementCitizen"
+          v-model="isCitizenDataCensored"
+          class="mb-1"
+          data-cy="exportModal:singleStatementCitizen"
+          :label="{
+            regular: true,
+            text: Translator.trans('export.censored.citizen')
+          }"
+        />
+        <dp-checkbox
+          id="singleStatementInstitution"
+          v-model="isInstitutionDataCensored"
+          class="mb-1"
+          data-cy="exportModal:singleStatementInstitution"
+          :label="{
+            regular: true,
+            text: Translator.trans('export.censored.institution')
+          }"
+        />
+        <dp-checkbox
+          id="singleStatementObscure"
+          v-model="isObscure"
+          data-cy="exportModal:singleStatementObscure"
+          :label="{
+            regular: true,
+            text: Translator.trans('export.docx.obscured')
+          }"
+        />
       </fieldset>
 
       <fieldset
         v-if="['docx_normal', 'zip_normal'].includes(active)"
-        class="py-0"
+        class="border-b border-neutral"
       >
         <legend
           id="docxColumnTitles"
-          class="font-semibold text-base float-left mr-1"
+          class="font-semibold text-base float-left mr-1 py-4"
           v-text="Translator.trans('docx.export.column.title')"
         />
         <dp-contextual-help
+          class="my-4"
           aria-labelledby="docxColumnTitles"
           :text="Translator.trans('docx.export.column.title.hint')"
         />
-        <div class="grid grid-cols-3 gap-3 mt-1 mb-3">
+        <div class="grid grid-cols-3 gap-3 mt-1">
           <dp-input
             v-for="(column, key) in docxColumns"
             :id="key"
@@ -131,13 +160,17 @@
             type="text"
           />
         </div>
-        <fieldset v-if="active === 'zip' || isSingleStatementExport">
+        <fieldset
+          v-if="active === 'zip' || isSingleStatementExport"
+          class="pb-0"
+        >
           <legend
             id="docxFileName"
-            class="font-semibold text-base float-left mr-1"
+            class="font-semibold text-base float-left mr-1 py-4"
             v-text="Translator.trans('docx.export.file_name')"
           />
           <dp-contextual-help
+            class="my-4"
             aria-labelledby="docxFileName"
             :text="Translator.trans('docx.export.file_name.hint')"
           />
@@ -161,7 +194,7 @@
 
       <div
         v-if="isSingleStatementExport && hasPermission('feature_statement_via_template_export')"
-        class="border-t border-neutral pt-4 mb-4"
+        class="pt-4"
       >
         <dp-label
           :hint="Translator.trans('docx.export.via_template.upload.hint')"
@@ -193,10 +226,14 @@
         />
       </div>
 
-      <fieldset v-if="!isSingleStatementExport">
+      <fieldset
+        v-if="!isSingleStatementExport"
+        class="border-b border-neutral"
+        :class="{ 'border-none': !['docx_normal', 'zip_normal'].includes(active) }"
+      >
         <legend
           id="tagsFilter"
-          class="font-semibold text-base mb-1"
+          class="font-semibold text-base mb-1 py-4"
           v-text="Translator.trans('segments.export.filter.tags.only')"
         />
         <filter-flyout
@@ -244,7 +281,7 @@
         }"
         :maxlength="customHeaderMaxLength"
         :placeholder="Translator.trans('docx.export.header.custom.placeholder')"
-        class="mt-2 mb-4"
+        class="pt-4"
         data-cy="exportModal:customHeaderText"
         type="text"
       />
@@ -254,17 +291,18 @@
         :message="Translator.trans('docx.export.via_template.column.headers.warning')"
         type="warning"
       />
-
-      <dp-button-row
-        class="text-right mt-auto"
-        data-cy="exportModal"
-        primary
-        secondary
-        :primary-text="Translator.trans('export.statements')"
-        :secondary-text="Translator.trans('abort')"
-        @primary-action="handleExport"
-        @secondary-action="closeModal"
-      />
+      <template v-slot:footer>
+        <dp-button-row
+          class="text-right mt-auto"
+          data-cy="exportModal"
+          primary
+          secondary
+          :primary-text="Translator.trans('export.statements')"
+          :secondary-text="Translator.trans('abort')"
+          @primary-action="handleExport"
+          @secondary-action="closeModal"
+        />
+      </template>
     </dp-modal>
   </div>
 </template>

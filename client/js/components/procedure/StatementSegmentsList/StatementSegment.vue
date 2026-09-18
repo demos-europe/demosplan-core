@@ -225,6 +225,12 @@
           {{ `${Translator.trans('version')}: ${recommendationVersionNumber}` }}
         </span>
       </div>
+      <segment-tags
+        v-if="isAssignedToMe && !isLocked"
+        :segment-id="segment.id"
+        :tags="segmentTags"
+        @update="updateSegmentTags"
+      />
       <div v-if="isAssignedToMe && !isLocked">
         <dp-checkbox
           :id="'showWorkflowFields_' + segment.id"
@@ -432,6 +438,25 @@
         </button>
 
         <button
+          v-if="hasPermission('feature_segment_send_via_mail')"
+          v-tooltip="{
+            container: `#segment_${segment.id}`,
+            content: Translator.trans('segment.send.via.email')
+          }"
+          class="segment-list-toolbar__button btn--blank"
+          :class="{ 'is-active' : slidebar.showTab === 'sendViaMail' && slidebar.segmentId === segment.id }"
+          type="button"
+          :aria-label="Translator.trans('segment.send.via.email')"
+          data-cy="segmentSendViaMail"
+          @click.prevent="showSendViaMail"
+        >
+          <dp-icon
+            class="inline-block"
+            icon="mail"
+          />
+        </button>
+
+        <button
           v-if="hasPermission('feature_segment_comment_list_on_segment')"
           v-tooltip="{
             container: `#segment_${segment.id}`,
@@ -496,6 +521,7 @@ import {
   formatDate,
   prefixClassMixin,
   reformatDateString,
+  sortAlphabetically,
   Tooltip,
   VPopover,
 } from '@demos-europe/demosplan-ui'
@@ -507,6 +533,7 @@ import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import ImageModal from '@DpJs/components/shared/ImageModal'
 import RecommendationModal from '../Shared/RecommendationModal'
+import SegmentTags from './SegmentTags'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useUnsavedChangesGuard } from '@DpJs/composables/useUnsavedChangesGuard'
@@ -538,6 +565,7 @@ export default {
     DpTooltip,
     ImageModal,
     RecommendationModal,
+    SegmentTags,
     TextContentRenderer,
     VPopover,
   },
@@ -633,7 +661,12 @@ export default {
     ]),
 
     ...mapState('StatementSegment', {
+      initialSegments: 'initial',
       segmentItems: 'items',
+    }),
+
+    ...mapState('Tag', {
+      tagsItems: 'items',
     }),
 
     assignableUsers () {
@@ -696,7 +729,7 @@ export default {
         return false
       }
 
-      const initialSegment = this.$store.state.StatementSegment?.initial[this.segment.id]
+      const initialSegment = this.initialSegments?.[this.segment.id]
 
       if (!initialSegment) {
         return false
@@ -710,11 +743,16 @@ export default {
       const currentAssigneeId = (this.selectedAssignee?.id && this.selectedAssignee.id !== 'noAssigneeId') ? this.selectedAssignee.id : null
       const hasAssigneeChanges = initialAssigneeId !== currentAssigneeId
 
+      const initialTagIds = (initialSegment.relationships?.tags?.data || []).map(tag => tag.id).sort()
+      const currentTagIds = (this.segment.relationships?.tags?.data || []).map(tag => tag.id).sort()
+      const hasTagChanges = JSON.stringify(initialTagIds) !== JSON.stringify(currentTagIds)
+
       return (
         hasRecommendationChanges ||
         hasDeadlineChanges ||
         hasPlaceChanges ||
         hasAssigneeChanges ||
+        hasTagChanges ||
         this.hasCustomFieldChanges
       )
     },
@@ -740,10 +778,14 @@ export default {
     },
 
     places () {
-      return this.$store.state.Place ?
-        Object.values(this.$store.state.Place.items)
-          .map(pl => ({ ...pl.attributes, id: pl.id })) :
-        []
+      return Object.values(this.placeItems)
+        .map(place => {
+          return {
+            ...place.attributes,
+            id: place.id,
+            type: place.type,
+          }
+        })
     },
 
     recommendationVersionNumber () {
@@ -766,18 +808,24 @@ export default {
         {}
     },
 
+    segmentTags () {
+      const ids = this.segment.relationships?.tags?.data?.map(ref => ref.id) || []
+      const included = this.segment.hasRelationship('tags') ? Object.values(this.segment.rel('tags')).filter(Boolean) : []
+
+      return sortAlphabetically(
+        ids
+          .map(id => included.find(tag => tag.id === id) || this.tagsItems[id])
+          .filter(Boolean),
+        'attributes.title',
+      )
+    },
+
     shouldShowButtonRow () {
-      return this.isAssignedToMe &&
-        !this.isLocked &&
-        (this.isEditing || this.showWorkflowFields || this.showAdditionalFields)
+      return this.isAssignedToMe && !this.isLocked
     },
 
     tagsAsString () {
-      if (this.segment.hasRelationship('tags')) {
-        return Object.values(this.segment.rel('tags')).map(el => el.attributes.title).join(', ')
-      }
-
-      return '-'
+      return this.segmentTags.length ? this.segmentTags.map(tag => tag.attributes.title).join(', ') : '-'
     },
 
     visibleRecommendation () {
@@ -806,6 +854,19 @@ export default {
       },
       deep: false, // Set default for migrating purpose. To know this occurrence is checked
       immediate: true, // This ensures the handler is executed immediately after the component is created
+    },
+
+    showAdditionalFields (newVal) {
+      // Check if fields are hidden and if this is a "hide fields after save", in which case the deadline value should not be reverted
+      if (!newVal && !this.isSaving) {
+        this.revertAdditionalFields()
+      }
+    },
+
+    showWorkflowFields (newVal) {
+      if (!newVal) {
+        this.revertWorkflowFields()
+      }
     },
   },
 
@@ -1188,6 +1249,21 @@ export default {
       this.setSegment({ ...storedSegment, relationships, id: storedSegment.id })
     },
 
+    revertAdditionalFields () {
+      const initialSegment = this.initialSegments?.[this.segment.id]
+
+      if (initialSegment) {
+        this.updateSegment('deadline', initialSegment.attributes.deadline)
+      }
+
+      this.restoreInitialCustomFields()
+    },
+
+    revertWorkflowFields () {
+      this.setSelectedAssignee()
+      this.setSelectedPlace()
+    },
+
     rollbackFailedSave (readOnlyRelationships) {
       dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
       this.restoreSegmentAction(this.segment.id)
@@ -1294,9 +1370,12 @@ export default {
     },
 
     setSelectedPlace () {
-      if (this.segment.relationships.place) {
-        this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
+      // Places may still be loading; initPlaces re-runs this once they arrive
+      if (!this.segment.relationships.place || this.places.length === 0) {
+        return
       }
+
+      this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
     },
 
     showComments () {
@@ -1317,7 +1396,6 @@ export default {
         },
       })
       this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'comments' } })
-      this.$root.$emit('show-slidebar')
     },
 
     showMap () {
@@ -1327,7 +1405,6 @@ export default {
 
       this.$parent.$parent.resetSlidebar()
       this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'map' } })
-      this.$root.$emit('show-slidebar')
     },
 
     showSegmentVersionHistory () {
@@ -1336,8 +1413,15 @@ export default {
       }
 
       this.$root.$emit('version:history', this.segment.id, 'segment', this.segment.attributes.externId)
-      this.$root.$emit('show-slidebar')
-      this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'history' } })
+      this.toggleSlidebarContent({ prop: 'slidebar', val: { externId: this.segment.attributes.externId, isOpen: true, segmentId: this.segment.id, showTab: 'history' } })
+    },
+
+    showSendViaMail () {
+      if (this.checkIfToolIsActive('sendViaMail')) {
+        return
+      }
+
+      this.toggleSlidebarContent({ prop: 'slidebar', val: { externId: this.segment.attributes.externId, isOpen: true, segmentId: this.segment.id, showTab: 'sendViaMail' } })
     },
 
     startEditing () {
@@ -1458,6 +1542,20 @@ export default {
 
     updateSegment (key, val) {
       const updated = { ...this.segment, ...{ attributes: { ...this.segment.attributes, ...{ [key]: val } } } }
+
+      this.setSegment({ ...updated, id: this.segment.id })
+    },
+
+    updateSegmentTags (newTags) {
+      const updated = {
+        ...this.segment,
+        relationships: {
+          ...this.segment.relationships,
+          tags: {
+            data: newTags.map(tag => ({ id: tag.id, type: 'Tag' })),
+          },
+        },
+      }
 
       this.setSegment({ ...updated, id: this.segment.id })
     },
