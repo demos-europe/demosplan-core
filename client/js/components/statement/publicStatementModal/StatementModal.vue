@@ -279,6 +279,8 @@
                   </a>
                   <label :class="prefixClass('lbl--text float-right')">
                     <input
+                      :checked="formData.r_isNegativeReport === '1' || formData.delete_file.includes(file.hash)"
+                      :disabled="formData.r_isNegativeReport !== '0'"
                       :value="file.hash"
                       name="delete_file[]"
                       @change="() => updateDeleteFile(file.hash)"
@@ -682,15 +684,17 @@ import { mapMutations, mapState } from 'vuex'
 import dayjs from 'dayjs'
 import StatementModalRecheck from './StatementModalRecheck'
 
-// Fields a negative report (Fehlanzeige) must not carry; the backend only swaps the element category and would keep them otherwise
+/*
+ * Fields a negative report (Fehlanzeige) must not carry; the backend only swaps the element category and would keep them otherwise.
+ * 'notLocated' is required: only that value makes the backend drop polygon, priority area and county of an existing draft.
+ */
 const negativeReportContentReset = {
   location_is_set: 'notLocated',
   r_county: '',
   r_document_id: '',
   r_document_title: '',
-  r_element_id: '',
   r_element_title: '',
-  r_location: '',
+  r_location: 'notLocated',
   r_location_geometry: '',
   r_location_point: '',
   r_location_priority_area_key: '',
@@ -951,7 +955,8 @@ export default {
         this.formData.r_document_id !== '' ||
         this.formData.r_text !== '' ||
         this.hasLocationReference ||
-        this.formData.uploadedFiles !== ''
+        this.formData.uploadedFiles !== '' ||
+        this.initialFiles.length > 0
     },
 
     // "Kein Ortsbezug" and the 'mapLocation' placeholder of drafts without location attributes are not content.
@@ -1292,8 +1297,11 @@ export default {
         return
       }
 
-      if (this.negativeReportIgnoresContent && window.dpconfirm(Translator.trans('statement.negative_report.confirm')) === false) {
+      const contentIgnored = this.negativeReportIgnoresContent
+
+      if (contentIgnored && window.dpconfirm(Translator.trans('statement.negative_report.confirm')) === false) {
         this.setStatementData({ r_isNegativeReport: '0' })
+
         return
       }
 
@@ -1370,9 +1378,19 @@ export default {
       }
 
       // Content stays in the store so it reappears when switching back to "Stellung nehmen"; only the payload is stripped
-      const payload = this.negativeReportIgnoresContent
-        ? { ...this.formData, ...negativeReportContentReset }
-        : this.formData
+      let payload = this.formData
+
+      if (contentIgnored) {
+        payload = {
+          ...this.formData,
+          ...negativeReportContentReset,
+          // A Fehlanzeige has no files, so attachments from earlier saves are removed as well
+          delete_file: [...new Set([...this.formData.delete_file, ...this.initialFiles.map(file => file.hash)])]
+        }
+
+        // Omit r_element_id so backend correctly derives 'Fehlanzeige' category
+        delete payload.r_element_id
+      }
 
       return makeFormPost(payload, route)
         .then(response => {
@@ -1393,7 +1411,11 @@ export default {
           if (response.status === 200) {
             dplan.notify.notify('confirm', Translator.trans('confirm.statement.saved'))
 
-            this.updateInitialFilesAfterSave()
+            if (contentIgnored) {
+              this.discardStatementContent()
+            } else {
+              this.updateInitialFilesAfterSave()
+            }
 
             /*
              * If the modal should stay open
@@ -1532,6 +1554,24 @@ export default {
       this.setStatementData({ uploadedFiles: '' })
       // Reset session storage - remove uploaded and saved files
       sessionStorage.removeItem(this.fileStorageName)
+    },
+
+    // After a Fehlanzeige save the server holds no content, so the form must not either
+    discardStatementContent () {
+      if (this.$refs.statementEditor) {
+        this.$refs.statementEditor.resetEditor()
+      }
+      if (this.$refs.uploadFiles) {
+        this.$refs.uploadFiles.clearFilesList()
+      }
+      this.unsavedFiles = []
+      sessionStorage.removeItem(this.fileStorageName)
+      this.setStatementData({
+        ...negativeReportContentReset,
+        r_element_id: '',
+        r_files_initial: '[]',
+        delete_file: []
+      })
     },
 
     validateStatementStep () {
