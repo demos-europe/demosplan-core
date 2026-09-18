@@ -7047,7 +7047,7 @@ __metadata:
     font-awesome: "npm:^4.7.0"
     fscreen: "npm:^1.2.0"
     glob: "npm:^13.0.6"
-    globals: "npm:15.13.0"
+    globals: "npm:17.11.0"
     intl-messageformat: "npm:^10.7.18"
     ismobilejs: "npm:^1.1.1"
     jquery: "npm:^3.7.1"
@@ -8442,10 +8442,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"globals@npm:15.13.0":
-  version: 15.13.0
-  resolution: "globals@npm:15.13.0"
-  checksum: 10c0/640365115ca5f81d91e6a7667f4935021705e61a1a5a76a6ec5c3a5cdf6e53f165af7f9db59b7deb65cf2e1f83d03ac8d6660d0b14c569c831a9b6483eeef585
+"globals@npm:17.11.0":
+  version: 17.11.0
+  resolution: "globals@npm:17.11.0"
+  checksum: 10c0/5e1be3d816e04d4d0d01b1cdd40e46b5fb6b5e9f15aece9a5919b060e0fb1b3f1b9e7327dce97ef19e05513a6d65872e0834999ddea251557556dddd0f5fde30
   languageName: node
   linkType: hard
 
