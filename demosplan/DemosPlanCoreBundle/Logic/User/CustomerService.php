@@ -20,14 +20,33 @@ use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
-class CustomerService implements CustomerServiceInterface
+class CustomerService implements CustomerServiceInterface, ResetInterface
 {
+    /**
+     * Subdomain lookups go through the entity persister and bypass Doctrine's identity map, so
+     * without this every call - notably getCurrentCustomer() - issues another query. Ids are
+     * cached instead of entities so that the returned customer is always a managed one, even
+     * after the entity manager has been cleared.
+     *
+     * @var array<string, string>
+     */
+    private array $customerIdsBySubdomain = [];
+
     public function __construct(
         private readonly CustomerRepository $customerRepository,
         private readonly GlobalConfigInterface $globalConfig,
         private readonly ValidatorInterface $validator,
     ) {
+    }
+
+    /**
+     * Drops the cached ids, e.g. between messages handled by a long running worker.
+     */
+    public function reset(): void
+    {
+        $this->customerIdsBySubdomain = [];
     }
 
     public function findCustomerById(string $id): CustomerInterface
@@ -53,7 +72,10 @@ class CustomerService implements CustomerServiceInterface
      */
     public function findCustomerBySubdomain(string $subdomain): CustomerInterface
     {
-        return $this->customerRepository->findCustomerBySubdomain($subdomain);
+        $customerId = $this->customerIdsBySubdomain[$subdomain]
+            ??= $this->customerRepository->findCustomerBySubdomain($subdomain)->getId();
+
+        return $this->customerRepository->findCustomerById($customerId);
     }
 
     /**
@@ -74,6 +96,8 @@ class CustomerService implements CustomerServiceInterface
      */
     public function updateCustomer(CustomerInterface $customer): CustomerInterface
     {
+        $this->reset();
+
         return $this->customerRepository->updateObject($customer);
     }
 

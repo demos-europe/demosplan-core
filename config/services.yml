@@ -1267,8 +1267,7 @@ services:
         tags:
             - { name: kernel.event_subscriber }
 
-    demosplan\DemosPlanCoreBundle\Logic\User\CustomerService:
-        lazy: true
+    demosplan\DemosPlanCoreBundle\Logic\User\CustomerService: ~
 
     demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler:
         lazy: true
