@@ -168,6 +168,30 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      * @throws CannotInsertRecord
      * @throws InvalidArgument
      */
+    public function exportSegmentsCsv(?SegmentExportInfo $segmentExportInfo = null, Segment ...$segments): string
+    {
+        $exportData = parent::collectExportData(...$segments);
+        $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('segmentsSelectedColumnSet');
+
+        if (null !== $segmentExportInfo) {
+            $columnsDefinition = array_values(array_filter(
+                $columnsDefinition,
+                static fn (array $column): bool => in_array($column['key'], $segmentExportInfo->getSelectedColumnKeys(), true)
+            ));
+        }
+
+        $attributesToExport = array_column($columnsDefinition, 'key');
+        $formattedData = $this->assessmentTableXlsExporter->prepareDataForExcelExport($exportData, false, $attributesToExport);
+
+        return $this->csvExporter->generate($formattedData, $columnsDefinition);
+    }
+
+    /**
+     * @throws ReflectionException
+     * @throws CsvException
+     * @throws CannotInsertRecord
+     * @throws InvalidArgument
+     */
     public function exportAllCsv(Statement ...$statements): string
     {
         $exportData = $this->collectExportData(...$statements);

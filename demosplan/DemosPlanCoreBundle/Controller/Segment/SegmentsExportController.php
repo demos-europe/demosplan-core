@@ -58,6 +58,10 @@ class SegmentsExportController extends BaseController
     private const UPLOADED_TEMPLATE_HASH = 'uploadedDocxTemplate';
     private const DOCX_MIME_TYPE = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
     private const DOCX_EXTENSION = '.docx';
+    private const XLSX_CONTENT_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8';
+    private const XLSX_EXTENSION = 'xlsx';
+    private const CSV_CONTENT_TYPE = 'text/csv; charset=utf-8';
+    private const CSV_EXTENSION = 'csv';
 
     public function __construct(
         private readonly NameGenerator $nameGenerator,
@@ -392,11 +396,57 @@ class SegmentsExportController extends BaseController
             }
         );
 
-        $this->setResponseHeadersForSegmentListXlsxExport(
+        $this->setResponseHeadersForSegmentListExport(
             $response,
             $fileNameGenerator,
             $segmentExportInfo->getIsFiltered(),
-            $procedureId
+            $procedureId,
+            self::XLSX_CONTENT_TYPE,
+            self::XLSX_EXTENSION,
+        );
+
+        return $response;
+    }
+
+    // todo: create new specific permission
+
+    /**
+     * @throws QueryException
+     * @throws UserNotFoundException
+     * @throws Exception
+     */
+    #[DplanPermissions(
+        'feature_admin_assessmenttable_export_statement_generic_xlsx'
+    )]
+    #[Route(
+        path: '/verfahren/{procedureId}/nur/abschnitte/export/csv',
+        name: 'dplan_segment_csv_export',
+        options: ['expose' => true],
+        methods: 'GET'
+    )]
+    public function exportBySegmentsFilterCsv(
+        FileNameGenerator $fileNameGenerator,
+        SegmentsByStatementsExporter $exporter,
+        SegmentExportFilter $segmentExportFilter,
+        SegmentExportInfoExtractor $segmentExportInfoExtractor,
+        string $procedureId,
+    ): StreamedResponse {
+        $segmentExportInfo = $segmentExportInfoExtractor->extract();
+        $segmentEntities = $segmentExportFilter->filter();
+
+        $response = new StreamedResponse(
+            static function () use ($segmentEntities, $exporter, $segmentExportInfo) {
+                echo $exporter->exportSegmentsCsv($segmentExportInfo, ...$segmentEntities);
+            }
+        );
+
+        $this->setResponseHeadersForSegmentListExport(
+            $response,
+            $fileNameGenerator,
+            $segmentExportInfo->getIsFiltered(),
+            $procedureId,
+            self::CSV_CONTENT_TYPE,
+            self::CSV_EXTENSION,
         );
 
         return $response;
@@ -507,20 +557,19 @@ class SegmentsExportController extends BaseController
     /**
      * @throws Exception
      */
-    private function setResponseHeadersForSegmentListXlsxExport(
+    private function setResponseHeadersForSegmentListExport(
         StreamedResponse $response,
         FileNameGenerator $fileNameGenerator,
         bool $isFiltered,
         string $procedureId,
+        string $contentType,
+        string $fileExtension,
     ): void {
         $response->headers->set('Cache-Control', 'no-store, private');
-        $response->headers->set(
-            'Content-Type',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8'
-        );
+        $response->headers->set('Content-Type', $contentType);
 
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
-        $fileName = $fileNameGenerator->getSynopseFileName($procedure, 'xlsx', $isFiltered);
+        $fileName = $fileNameGenerator->getSynopseFileName($procedure, $fileExtension, $isFiltered);
         $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($fileName));
     }
 
