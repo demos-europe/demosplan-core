@@ -19,7 +19,7 @@ use Tests\Base\FunctionalTestCase;
 
 class FileInUseCheckerTest extends FunctionalTestCase
 {
-    protected $sut = null;
+    protected $sut;
 
     protected function setUp(): void
     {
