@@ -191,6 +191,7 @@
             :class="prefixClass('c-statement__formblock u-ml u-mb-0_5 u-mt-0_5 inline-block')">
             <template v-if="formData.r_element_id !== ''">
               <button
+                :disabled="formData.r_isNegativeReport !== '0'"
                 @click="gotoTab('procedureDetailsDocumentlist')"
                 :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up u-1-of-1-palm')">
                 <i
@@ -200,6 +201,7 @@
               </button>
               <span :class="prefixClass('hide-lap-up')" />
               <button
+                :disabled="formData.r_isNegativeReport !== '0'"
                 @click="removeDocumentRelation"
                 :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up u-1-of-1-palm')"
                 :href="Routing.generate( 'DemosPlan_procedure_public_detail', { procedure: procedureId }) + '#procedureDetailsDocumentlist'">

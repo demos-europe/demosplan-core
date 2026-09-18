@@ -44,6 +44,7 @@
         id="r_county"
         name="r_county"
         :class="prefixClass('o-form__control-select')"
+        :disabled="disabled"
         ref="locationCountySelect"
         @change="val => setStatementData({r_county: val.target.value})"
         :value="statement.r_county">
