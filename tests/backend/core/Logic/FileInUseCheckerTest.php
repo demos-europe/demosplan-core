@@ -30,7 +30,7 @@ class FileInUseCheckerTest extends FunctionalTestCase
 
     public function testFileReferencedByHashInCustomerFieldIsInUse(): void
     {
-        $hash = 'c1839dbf0b5c8e3c92a902f33b32490e';
+        $hash = 'image_id';
         $file = FileFactory::createOne(['hash' => $hash]);
         CustomerFactory::createOne([
             'overviewDescriptionInSimpleLanguage' => '<img src="/file/'.$hash.'">',
