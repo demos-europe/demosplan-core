@@ -141,13 +141,15 @@ class SegmentBulkEditorService
      *
      * @param array<int, Segment> $segments
      *
+     * @return bool whether the recommendations were written; false when the edit was absent or a no-op
+     *
      * @throws ORMException
      * @throws UserNotFoundException
      */
-    public function updateRecommendations(array $segments, ?object $recommendationTextEdit, string $procedureId, string $entityType, DateTime $updateTime): void
+    public function updateRecommendations(array $segments, ?object $recommendationTextEdit, string $procedureId, string $entityType, DateTime $updateTime): bool
     {
         if (null === $recommendationTextEdit) {
-            return;
+            return false;
         }
 
         /** @var string $recommendationText */
@@ -156,7 +158,7 @@ class SegmentBulkEditorService
         $attach = $recommendationTextEdit->attach;
 
         if ($attach && '' === $recommendationText) {
-            return;
+            return false;
         }
 
         $this->segmentHandler->editSegmentRecommendations(
@@ -168,5 +170,7 @@ class SegmentBulkEditorService
             $entityType,
             $updateTime
         );
+
+        return true;
     }
 }
