@@ -1382,7 +1382,8 @@ export default {
       // Content stays in the store so it reappears when switching back to "Stellung nehmen"; only the payload is stripped
       let payload = this.formData
 
-      if (contentIgnored) {
+      // Applies to every Fehlanzeige, not only with content: a reopened one carries r_element_id '' which would drop its category
+      if (this.formData.r_isNegativeReport === '1') {
         payload = {
           ...this.formData,
           ...negativeReportContentReset,
