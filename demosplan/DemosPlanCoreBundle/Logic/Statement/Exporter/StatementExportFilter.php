@@ -69,9 +69,4 @@ class StatementExportFilter
 
         return 0 < count($tagsFilter) || 0 < count($otherFilters);
     }
-
-    public function getStatementExportTagFilter(): StatementExportTagFilter
-    {
-        return $this->statementExportTagFilter;
-    }
 }
