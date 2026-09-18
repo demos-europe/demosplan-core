@@ -29,6 +29,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementArrayConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
+use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\SegmentExportInfo;
 use League\Csv\CannotInsertRecord;
 use League\Csv\Exception as CsvException;
 use League\Csv\InvalidArgument;
@@ -133,6 +134,30 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         $writer = $this->assessmentTableXlsExporter->createExcel($exportData, $columnsDefinition);
 
         $this->assessmentTableXlsExporter->addFilterInfoSheet($writer, $tagFilter);
+
+        return $writer;
+    }
+
+    /**
+     * @throws ReflectionException
+     * @throws HandlerException
+     */
+    public function exportSegmentsXlsx(?SegmentExportInfo $segmentExportInfo = null, Segment ...$segments): IWriter
+    {
+        Settings::setOutputEscapingEnabled(true);
+
+        $exportData = parent::collectExportData(...$segments);
+        $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('segmentsSelectedColumnSet');
+
+        if (null !== $segmentExportInfo) {
+            $columnsDefinition = array_values(array_filter(
+                $columnsDefinition,
+                static fn (array $column): bool => in_array($column['key'], $segmentExportInfo->getSelectedColumnKeys(), true)
+            ));
+        }
+        $writer = $this->assessmentTableXlsExporter->createExcel($exportData, $columnsDefinition);
+
+        $this->assessmentTableXlsExporter->addFilterInfoSheetForSegmentListExport($writer, $segmentExportInfo, $columnsDefinition);
 
         return $writer;
     }
