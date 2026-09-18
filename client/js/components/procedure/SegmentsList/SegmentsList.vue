@@ -71,6 +71,7 @@
             :applied-filters="appliedFiltersSummary"
             :is-export-disabled="!hasSegments"
             :search-term="searchTerm"
+            @export="handleExportSegments"
             @open="closeFilterSlidebar"
           />
 
@@ -591,6 +592,11 @@ import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMi
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
+
+const SEGMENT_EXPORT_ROUTES = {
+  xlsx_normal: 'dplan_segment_xlsx_export',
+  csv_normal: 'dplan_segment_csv_export',
+}
 
 export default {
   name: 'SegmentsList',
@@ -1238,6 +1244,58 @@ export default {
             })
           }
         })
+    },
+
+    /*
+     * Mirrors the filter/search/sort construction in applyQuery() so the export always contains
+     * exactly the segments currently shown in the list - no more (StatementSegmentResourceType's
+     * access conditions alone would also allow segments from procedures coupled via
+     * getAllowedSegmentAccessProcedures(), which sameProcedure excludes here just like it does
+     * for the list itself). columns mirrors availableHeaderFields: externId is always included,
+     * the rest is exactly what the user currently has selected via the column selector.
+     */
+    handleExportSegments ({ type }) {
+      const selectedSegmentIds = this.resolveSelectedSegmentIds()
+
+      const filter = {
+        ...this.getLastAppliedFilterQuery,
+        sameProcedure: {
+          condition: {
+            path: 'parentStatement.procedure.id',
+            value: this.procedureId,
+          },
+        },
+        ...(selectedSegmentIds.length > 0 ? {
+          selectedSegments: {
+            condition: {
+              path: 'id',
+              operator: 'IN',
+              value: selectedSegmentIds,
+            },
+          },
+        } : {}),
+      }
+
+      const columns = [
+        'externId',
+        ...this.currentSelection.filter(field => field !== 'externId'),
+      ]
+
+      const params = {
+        procedureId: this.procedureId,
+        filter,
+        sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
+        columns: columns.join(','),
+      }
+
+      if (this.searchTerm !== '') {
+        params.search = {
+          value: this.searchTerm,
+          ...(this.searchFieldsSelected.length !== 0 ? { fieldsToSearch: this.searchFieldsSelected } : {}),
+        }
+      }
+
+      globalThis.location.href = Routing.generate(SEGMENT_EXPORT_ROUTES[type], params)
     },
 
     /*

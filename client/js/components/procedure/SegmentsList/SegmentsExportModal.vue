@@ -94,6 +94,7 @@ All rights reserved
           secondary
           :primary-text="Translator.trans('export.segments')"
           :secondary-text="Translator.trans('abort')"
+          @primary-action="handleExport"
           @secondary-action="closeModal"
         />
       </template>
@@ -126,7 +127,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['open'])
+const emit = defineEmits(['open', 'export'])
 
 const hasAppliedFilters = computed(() =>
   props.appliedFilters.length > 0 || props.searchTerm !== '',
@@ -154,5 +155,10 @@ const openModal = () => {
 
 const closeModal = () => {
   exportModal.value?.toggle()
+}
+
+const handleExport = () => {
+  emit('export', { type: active.value })
+  closeModal()
 }
 </script>
