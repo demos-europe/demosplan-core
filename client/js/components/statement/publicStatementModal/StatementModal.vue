@@ -96,7 +96,9 @@
             v-cleanhtml="createErrorMessage('statementForm')" />
         </div>
 
-        <template v-if="loggedIn && hasPermission('feature_elements_use_negative_report') && planningDocumentsHasNegativeStatement">
+        <div
+          v-if="loggedIn && hasPermission('feature_elements_use_negative_report') && planningDocumentsHasNegativeStatement"
+          class="mb-3">
           <div class="flex">
             <dp-radio
               name="r_isNegativeReport"
@@ -110,7 +112,6 @@
               }"
               value="0" />
             <dp-radio
-              :disabled="canNotBeNegativeReport"
               name="r_isNegativeReport"
               id="negative_report_true"
               data-cy="statementModal:indicationerror"
@@ -122,7 +123,13 @@
               }"
               value="1" />
           </div>
-        </template>
+          <dp-inline-notification
+            v-if="negativeReportIgnoresContent"
+            class="mt-2"
+            data-cy="statementModal:negativeReportHint"
+            :message="Translator.trans('statement.negative_report.hint')"
+            type="warning" />
+        </div>
 
         <div :class="prefixClass('c-statement__text')">
           <dp-label
@@ -656,6 +663,7 @@ import {
   CleanHtml,
   dpApi,
   DpCheckbox,
+  DpInlineNotification,
   DpInput,
   DpLabel,
   DpLoading,
@@ -673,6 +681,25 @@ import {
 import { mapMutations, mapState } from 'vuex'
 import dayjs from 'dayjs'
 import StatementModalRecheck from './StatementModalRecheck'
+
+// Fields a negative report (Fehlanzeige) must not carry; the backend only swaps the element category and would keep them otherwise
+const negativeReportContentReset = {
+  location_is_set: 'notLocated',
+  r_county: '',
+  r_document_id: '',
+  r_document_title: '',
+  r_element_id: '',
+  r_element_title: '',
+  r_location: '',
+  r_location_geometry: '',
+  r_location_point: '',
+  r_location_priority_area_key: '',
+  r_location_priority_area_type: '',
+  r_paragraph_id: '',
+  r_paragraph_title: '',
+  r_text: '',
+  uploadedFiles: ''
+}
 
 // This is the mapping between form field ids and translation keys, which are displayed in the error message if the field contains an error
 const fieldDescriptionsForErrors = {
@@ -701,6 +728,7 @@ export default {
 
   components: {
     DpCheckbox,
+    DpInlineNotification,
     DpInput,
     DpLabel,
     DpLoading,
@@ -918,12 +946,21 @@ export default {
       userId: 'userId'
     }),
 
-    canNotBeNegativeReport () {
+    hasStatementContent () {
       return this.formData.r_element_id !== '' ||
         this.formData.r_document_id !== '' ||
         this.formData.r_text !== '' ||
-        this.formData.r_location !== '' ||
+        this.hasLocationReference ||
         this.formData.uploadedFiles !== ''
+    },
+
+    // "Kein Ortsbezug" and the 'mapLocation' placeholder of drafts without location attributes are not content.
+    hasLocationReference () {
+      return ['point', 'priorityAreaType', 'county'].includes(this.formData.r_location)
+    },
+
+    negativeReportIgnoresContent () {
+      return this.formData.r_isNegativeReport === '1' && this.hasStatementContent
     },
 
     commentingIcon () {
@@ -1060,8 +1097,9 @@ export default {
             r_files_initial: statementFiles || [],
             r_ident: this.draftStatementId,
             r_isNegativeReport: data.draftStatement.negativ ? '1' : '0',
-            r_element_id: data.draftStatement.elementId || '',
-            r_element_title: !!data.draftStatement.element && !!data.draftStatement.element.title ? data.draftStatement.element.title : '',
+            // A Fehlanzeige's element is the Fehlanzeige category itself, assigned by the backend; not a user choice.
+            r_element_id: !data.draftStatement.negativ && data.draftStatement.elementId ? data.draftStatement.elementId : '',
+            r_element_title: !data.draftStatement.negativ && !!data.draftStatement.element && !!data.draftStatement.element.title ? data.draftStatement.element.title : '',
             r_paragraph_id: data.draftStatement.paragraphId || '',
             r_paragraph_title: !!data.draftStatement.paragraph && !!data.draftStatement.paragraph.title ? data.draftStatement.paragraph.title : '',
             r_document_id: !!data.draftStatement.document && !!data.draftStatement.document.id ? data.draftStatement.document.id : '',
@@ -1246,6 +1284,11 @@ export default {
         return
       }
 
+      if (this.negativeReportIgnoresContent && window.dpconfirm(Translator.trans('statement.negative_report.confirm')) === false) {
+        this.setStatementData({ r_isNegativeReport: '0' })
+        return
+      }
+
       this.isLoading = true
 
       this.setStatementData({ immediate_submit: immediateSubmit })
@@ -1318,7 +1361,12 @@ export default {
         this.setStatementData({ action: 'statementpublicnew' })
       }
 
-      return makeFormPost(this.formData, route)
+      // Content stays in the store so it reappears when switching back to "Stellung nehmen"; only the payload is stripped
+      const payload = this.negativeReportIgnoresContent
+        ? { ...this.formData, ...negativeReportContentReset }
+        : this.formData
+
+      return makeFormPost(payload, route)
         .then(response => {
           if (response.status === 429) {
             dplan.notify.notify('error', Translator.trans('error.statement.not.saved.throttle'))

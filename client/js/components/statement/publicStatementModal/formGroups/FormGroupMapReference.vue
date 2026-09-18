@@ -39,7 +39,6 @@
         :checked="isLocationSelected"
         :disabled="disabled"
         @change="() => { const location = (statement.r_location_priority_area_key !== '' ? 'priority_area' :'point'); setStatementData({r_location: 'point', location_is_set: location})}"
-        @click.native="toggleLocationSelection($event, { r_location_geometry: '', r_location_point: '', r_location_priority_area_key: '', r_location_priority_area_type: '' })"
         :label="{
           text: Translator.trans('statement.map.reference.add_on_map')
         }"
@@ -82,7 +81,6 @@
         :checked="statement.r_location === 'county'"
         :disabled="disabled"
         @change="() => { setStatementData({ r_location: 'county', location_is_set: 'county'}) }"
-        @click.native="toggleLocationSelection($event, { r_county: '' })"
         value="county" />
       <select
         v-if="statement.r_location === 'county'"
@@ -120,7 +118,6 @@
         :checked="statement.r_location === 'notLocated'"
         :disabled="disabled"
         @change="() => { setStatementData({r_location: 'notLocated', location_is_set: 'notLocated'}) }"
-        @click.native="toggleLocationSelection($event)"
         value="notLocated" />
     </div>
   </fieldset>
