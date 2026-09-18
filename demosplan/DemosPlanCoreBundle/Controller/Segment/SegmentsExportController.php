@@ -27,6 +27,8 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\FileNameGenerator;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\SegmentExportFilter;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\SegmentExportInfoExtractor;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Export\StatementZipPathResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportFilter;
@@ -354,6 +356,52 @@ class SegmentsExportController extends BaseController
         return $response;
     }
 
+    // todo: create new specific permission
+
+    /**
+     * @throws QueryException
+     * @throws UserNotFoundException
+     * @throws Exception
+     */
+    #[DplanPermissions(
+        'feature_admin_assessmenttable_export_statement_generic_xlsx'
+    )]
+    #[Route(
+        path: '/verfahren/{procedureId}/nur/abschnitte/export/xlsx',
+        name: 'dplan_segment_xlsx_export',
+        options: ['expose' => true],
+        methods: 'GET'
+    )]
+    public function exportBySegmentsFilterXlsx(
+        FileNameGenerator $fileNameGenerator,
+        SegmentsByStatementsExporter $exporter,
+        SegmentExportFilter $segmentExportFilter,
+        SegmentExportInfoExtractor $segmentExportInfoExtractor,
+        string $procedureId,
+    ): StreamedResponse {
+        $segmentExportInfo = $segmentExportInfoExtractor->extract();
+        $segmentEntities = $segmentExportFilter->filter();
+
+        $response = new StreamedResponse(
+            function () use ($segmentEntities, $exporter, $segmentExportInfo) {
+                $exportedDoc = $exporter->exportSegmentsXlsx(
+                    $segmentExportInfo,
+                    ...$segmentEntities
+                );
+                $exportedDoc->save('php://output');
+            }
+        );
+
+        $this->setResponseHeadersForSegmentListXlsxExport(
+            $response,
+            $fileNameGenerator,
+            $segmentExportInfo->getIsFiltered(),
+            $procedureId
+        );
+
+        return $response;
+    }
+
     /**
      * @throws QueryException
      * @throws UserNotFoundException
@@ -454,6 +502,26 @@ class SegmentsExportController extends BaseController
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document; charset=utf-8'
         );
         $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($filename));
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function setResponseHeadersForSegmentListXlsxExport(
+        StreamedResponse $response,
+        FileNameGenerator $fileNameGenerator,
+        bool $isFiltered,
+        string $procedureId
+    ): void {
+        $response->headers->set('Cache-Control', 'no-store, private');
+        $response->headers->set(
+            'Content-Type',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8'
+        );
+
+        $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
+        $fileName = $fileNameGenerator->getSynopseFileName($procedure, 'xlsx', $isFiltered);
+        $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($fileName));
     }
 
     private function getBooleanQueryParameter(string $parameterName, bool $defaultValue = false): bool
