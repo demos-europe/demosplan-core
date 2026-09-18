@@ -661,6 +661,7 @@ export default {
     ]),
 
     ...mapState('StatementSegment', {
+      initialSegments: 'initial',
       segmentItems: 'items',
     }),
 
@@ -728,7 +729,7 @@ export default {
         return false
       }
 
-      const initialSegment = this.$store.state.StatementSegment?.initial[this.segment.id]
+      const initialSegment = this.initialSegments?.[this.segment.id]
 
       if (!initialSegment) {
         return false
@@ -777,10 +778,14 @@ export default {
     },
 
     places () {
-      return this.$store.state.Place ?
-        Object.values(this.$store.state.Place.items)
-          .map(pl => ({ ...pl.attributes, id: pl.id })) :
-        []
+      return Object.values(this.placeItems)
+        .map(place => {
+          return {
+            ...place.attributes,
+            id: place.id,
+            type: place.type,
+          }
+        })
     },
 
     recommendationVersionNumber () {
@@ -816,9 +821,7 @@ export default {
     },
 
     shouldShowButtonRow () {
-      return this.isAssignedToMe &&
-        !this.isLocked &&
-        (this.isEditing || this.showWorkflowFields || this.showAdditionalFields)
+      return this.isAssignedToMe && !this.isLocked
     },
 
     tagsAsString () {
@@ -851,6 +854,19 @@ export default {
       },
       deep: false, // Set default for migrating purpose. To know this occurrence is checked
       immediate: true, // This ensures the handler is executed immediately after the component is created
+    },
+
+    showAdditionalFields (newVal) {
+      // Check if fields are hidden and if this is a "hide fields after save", in which case the deadline value should not be reverted
+      if (!newVal && !this.isSaving) {
+        this.revertAdditionalFields()
+      }
+    },
+
+    showWorkflowFields (newVal) {
+      if (!newVal) {
+        this.revertWorkflowFields()
+      }
     },
   },
 
@@ -1233,6 +1249,21 @@ export default {
       this.setSegment({ ...storedSegment, relationships, id: storedSegment.id })
     },
 
+    revertAdditionalFields () {
+      const initialSegment = this.initialSegments?.[this.segment.id]
+
+      if (initialSegment) {
+        this.updateSegment('deadline', initialSegment.attributes.deadline)
+      }
+
+      this.restoreInitialCustomFields()
+    },
+
+    revertWorkflowFields () {
+      this.setSelectedAssignee()
+      this.setSelectedPlace()
+    },
+
     rollbackFailedSave (readOnlyRelationships) {
       dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
       this.restoreSegmentAction(this.segment.id)
@@ -1339,9 +1370,12 @@ export default {
     },
 
     setSelectedPlace () {
-      if (this.segment.relationships.place) {
-        this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
+      // Places may still be loading; initPlaces re-runs this once they arrive
+      if (!this.segment.relationships.place || this.places.length === 0) {
+        return
       }
+
+      this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
     },
 
     showComments () {
