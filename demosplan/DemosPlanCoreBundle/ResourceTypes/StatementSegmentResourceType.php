@@ -50,6 +50,7 @@ use InvalidArgumentException;
  * @property-read End $orderInProcedure
  * @property-read StatementResourceType $parentStatement
  * @property-read StatementResourceType $parentStatementOfSegment Do not expose! Alias usage only.
+ * @property-read ProcedureResourceType $procedure Not part of the API; segments inherit this directly from Statement, avoiding a self-join through parentStatementOfSegment.
  * @property-read AssignableUserResourceType $assignee
  * @property-read End $deadline
  * @property-read TagResourceType $tags
@@ -123,7 +124,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
 
         return [] === $procedureIds
             ? [$this->conditionFactory->false()]
-            : [$this->conditionFactory->propertyHasAnyOfValues($procedureIds, $this->parentStatementOfSegment->procedure->id)];
+            : [$this->conditionFactory->propertyHasAnyOfValues($procedureIds, $this->procedure->id)];
     }
 
     public function getFacetDefinitions(): array
