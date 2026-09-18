@@ -492,7 +492,7 @@ abstract class SegmentsExporter
     {
         $exportData = [];
         $convertedSegments = $this->recommendationConverter->convertImagesToReferencesInRecommendations(
-                $this->sortSegmentsByOrderInProcedure($segments)
+            $this->sortSegmentsByOrderInProcedure($segments)
         );
 
         foreach ($segments as $segment) {

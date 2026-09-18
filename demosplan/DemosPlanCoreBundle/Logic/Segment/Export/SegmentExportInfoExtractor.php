@@ -41,8 +41,7 @@ class SegmentExportInfoExtractor
         protected readonly TagRepository $tagRepository,
         protected readonly TranslatorInterface $translator,
         protected readonly UserRepository $userRepository,
-    )
-    {
+    ) {
     }
 
     public function extract(): SegmentExportInfo
@@ -99,9 +98,9 @@ class SegmentExportInfoExtractor
     {
         $filterIds = [self::TAG_IDS_KEY => [], self::ASSIGNEE_IDS_KEY => [], self::PLACE_IDS_KEY => []];
         $pathToKey = [
-            self::TAG_FILTER_PARAM => self::TAG_IDS_KEY,
+            self::TAG_FILTER_PARAM      => self::TAG_IDS_KEY,
             self::ASSIGNEE_FILTER_PARAM => self::ASSIGNEE_IDS_KEY,
-            self::PLACE_FILTER_PARAM => self::PLACE_IDS_KEY
+            self::PLACE_FILTER_PARAM    => self::PLACE_IDS_KEY,
         ];
 
         foreach ($filter as $entry) {

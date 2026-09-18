@@ -184,6 +184,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      * the xlsx and csv exports, which only differ in how this data is serialized.
      *
      * @return array{0: array<int, array<string, mixed>>, 1: array<int, array<string, mixed>>}
+     *
      * @throws ReflectionException
      */
     protected function collectExportData(Statement ...$statements): array

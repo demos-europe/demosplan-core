@@ -13,13 +13,11 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Export;
 
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementSegmentResourceType;
 use Doctrine\ORM\Query\QueryException;
-use EDT\JsonApi\RequestHandling\UrlParameter;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 class SegmentExportFilter
@@ -29,8 +27,7 @@ class SegmentExportFilter
         protected readonly RequestStack $requestStack,
         protected readonly StatementExportTagFilter $statementExportTagFilter,
         protected readonly StatementSegmentResourceType $statementSegmentResourceType,
-    )
-    {
+    ) {
     }
 
     /**

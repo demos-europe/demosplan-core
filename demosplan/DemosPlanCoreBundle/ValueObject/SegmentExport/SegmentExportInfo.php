@@ -15,13 +15,13 @@ namespace demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport;
 use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
 
 /**
- * @method string getSearchPhrase()
- * @method null|array getTagNames()
- * @method null|array getAssigneeNames()
- * @method null|array getPlaceNames()
- * @method null|array getSelectedColumnKeys()
- * @method bool getIsManualSelection()
- * @method bool getIsFiltered()
+ * @method string     getSearchPhrase()
+ * @method array|null getTagNames()
+ * @method array|null getAssigneeNames()
+ * @method array|null getPlaceNames()
+ * @method array|null getSelectedColumnKeys()
+ * @method bool       getIsManualSelection()
+ * @method bool       getIsFiltered()
  */
 class SegmentExportInfo extends ValueObject
 {
@@ -33,7 +33,7 @@ class SegmentExportInfo extends ValueObject
         protected readonly ?array $assigneeNames,
         protected readonly ?array $placeNames,
         protected readonly ?array $selectedColumnKeys,
-        protected readonly bool $isManualSelection
+        protected readonly bool $isManualSelection,
     ) {
         $this->isFiltered = null !== $searchPhrase
             || null !== $tagNames

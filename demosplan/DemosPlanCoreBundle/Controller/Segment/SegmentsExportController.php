@@ -511,7 +511,7 @@ class SegmentsExportController extends BaseController
         StreamedResponse $response,
         FileNameGenerator $fileNameGenerator,
         bool $isFiltered,
-        string $procedureId
+        string $procedureId,
     ): void {
         $response->headers->set('Cache-Control', 'no-store, private');
         $response->headers->set(

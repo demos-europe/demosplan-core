@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter;
 
-
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
@@ -24,13 +23,13 @@ use Symfony\Component\HttpFoundation\RequestStack;
 class StatementExportFilter
 {
     private const TAG_FILTER_PARAM = 'tagsFilter';
+
     public function __construct(
         protected readonly JsonApiActionService $jsonApiActionService,
         protected readonly RequestStack $requestStack,
         protected readonly StatementExportTagFilter $statementExportTagFilter,
         protected readonly StatementResourceType $statementResourceType,
-    )
-    {
+    ) {
     }
 
     /**
