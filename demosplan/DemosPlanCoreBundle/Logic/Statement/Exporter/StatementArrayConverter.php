@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use Doctrine\Common\Collections\ArrayCollection;
 use ReflectionException;
 
@@ -30,6 +31,7 @@ class StatementArrayConverter
 {
     public function __construct(
         private readonly EntityHelper $entityHelper,
+        private readonly StatementService $statementService,
     ) {
     }
 
@@ -61,7 +63,7 @@ class StatementArrayConverter
         if ($segmentOrStatement instanceof Segment) {
             // Some data is stored on parentStatement instead on Segment and have to get from there
             $exportData = $this->extractParentStatementData($segmentOrStatement, $exportData);
-            $exportData['status'] = $segmentOrStatement->getPlace()->getName(); // Segments using place instead of status
+            $exportData['place'] = $segmentOrStatement->getPlace()->getName(); // Segments using place instead of status
         }
 
         $exportData = $this->extractTagsData($segmentOrStatement, $exportData);
@@ -109,6 +111,9 @@ class StatementArrayConverter
         $exportData['dName'] = $parentStatement->getDName();
         $exportData['fileNames'] = $this->getFileNamesWithOriginal($parentStatement);
         $exportData['submitDateString'] = $parentStatement->getSubmitDateString();
+        $exportData['submitter'] = $this->buildCombinedSubmitterData($parentStatement);
+        $exportData['statementStatus'] = $this->statementService->getProcessingStatus($parentStatement);
+        $exportData['address'] = $this->buildCombinedAddressData($parentStatement);
 
         return $exportData;
     }
@@ -130,6 +135,24 @@ class StatementArrayConverter
         $exportData['topicNames'] = $segmentOrStatement->getTopicNames();
 
         return $exportData;
+    }
+
+    private function buildCombinedSubmitterData(StatementInterface $statement): string
+    {
+        return implode(', ', array_filter([
+            $statement->getAuthorName() ?: $statement->getSubmitterName(),
+            $statement->getOName(),
+        ]));
+    }
+
+    private function buildCombinedAddressData(StatementInterface $statement): string
+    {
+        $meta = $statement->getMeta();
+
+        return implode(', ', array_filter([
+            '' !== $statement->getOrgaStreet() ? trim($statement->getOrgaStreet().' '.$meta->getHouseNumber()) : '',
+            '' !== $statement->getOrgaPostalCode() ? trim($statement->getOrgaPostalCode().' '.$statement->getOrgaCity()) : '',
+        ]));
     }
 
     /**
