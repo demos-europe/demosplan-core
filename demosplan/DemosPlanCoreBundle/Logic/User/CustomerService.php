@@ -30,6 +30,9 @@ class CustomerService implements CustomerServiceInterface
     ) {
     }
 
+    /**
+     * @throws CustomerNotFoundException
+     */
     public function findCustomerById(string $id): CustomerInterface
     {
         return $this->customerRepository->findCustomerById($id);
