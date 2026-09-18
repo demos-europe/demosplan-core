@@ -14837,16 +14837,16 @@
         },
         {
             "name": "symfony/form",
-            "version": "v6.4.45",
+            "version": "v6.4.46",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/form.git",
-                "reference": "03810456895dfc7e7fca450806e4eb21669927c8"
+                "reference": "b0f1e86b3800e3cb9b90c0b9ce83cd9a822ef63d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/form/zipball/03810456895dfc7e7fca450806e4eb21669927c8",
-                "reference": "03810456895dfc7e7fca450806e4eb21669927c8",
+                "url": "https://api.github.com/repos/symfony/form/zipball/b0f1e86b3800e3cb9b90c0b9ce83cd9a822ef63d",
+                "reference": "b0f1e86b3800e3cb9b90c0b9ce83cd9a822ef63d",
                 "shasum": ""
             },
             "require": {
@@ -14914,7 +14914,7 @@
             "description": "Allows to easily create, process and reuse HTML forms",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/form/tree/v6.4.45"
+                "source": "https://github.com/symfony/form/tree/v6.4.46"
             },
             "funding": [
                 {
@@ -14934,7 +14934,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-08-29T12:19:25+00:00"
+            "time": "2026-09-14T16:44:10+00:00"
         },
         {
             "name": "symfony/framework-bundle",
@@ -15640,16 +15640,16 @@
         },
         {
             "name": "symfony/mailer",
-            "version": "v6.4.44",
+            "version": "v6.4.46",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/mailer.git",
-                "reference": "cea6ee2fb64d486f709d80bd3158cf28346e1ba4"
+                "reference": "21cc391f6f6a20b8765125cabee0c6195b5b8f10"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/mailer/zipball/cea6ee2fb64d486f709d80bd3158cf28346e1ba4",
-                "reference": "cea6ee2fb64d486f709d80bd3158cf28346e1ba4",
+                "url": "https://api.github.com/repos/symfony/mailer/zipball/21cc391f6f6a20b8765125cabee0c6195b5b8f10",
+                "reference": "21cc391f6f6a20b8765125cabee0c6195b5b8f10",
                 "shasum": ""
             },
             "require": {
@@ -15700,7 +15700,7 @@
             "description": "Helps sending emails",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/mailer/tree/v6.4.44"
+                "source": "https://github.com/symfony/mailer/tree/v6.4.46"
             },
             "funding": [
                 {
@@ -15720,20 +15720,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-08-21T13:01:07+00:00"
+            "time": "2026-09-14T23:26:17+00:00"
         },
         {
             "name": "symfony/messenger",
-            "version": "v6.4.45",
+            "version": "v6.4.46",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/messenger.git",
-                "reference": "f0da814e78084005644e891e100773f2b07a69bb"
+                "reference": "6aa31b55986cbd00a0aa1f8d8507201fef9beaeb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/messenger/zipball/f0da814e78084005644e891e100773f2b07a69bb",
-                "reference": "f0da814e78084005644e891e100773f2b07a69bb",
+                "url": "https://api.github.com/repos/symfony/messenger/zipball/6aa31b55986cbd00a0aa1f8d8507201fef9beaeb",
+                "reference": "6aa31b55986cbd00a0aa1f8d8507201fef9beaeb",
                 "shasum": ""
             },
             "require": {
@@ -15791,7 +15791,7 @@
             "description": "Helps applications send and receive messages to/from other applications or via message queues",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/messenger/tree/v6.4.45"
+                "source": "https://github.com/symfony/messenger/tree/v6.4.46"
             },
             "funding": [
                 {
@@ -15811,7 +15811,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-08-30T00:27:22+00:00"
+            "time": "2026-09-13T07:04:28+00:00"
         },
         {
             "name": "symfony/mime",
