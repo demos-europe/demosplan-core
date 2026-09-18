@@ -33,6 +33,11 @@
 - Copies of a statement are no longer silently dropped when an assessment table export is imported. The export carries a reference to the statement each row originates from, so every copy arrives, and re-importing the same export adds only what is not there yet.
 - The reminder mail about ending segment deadlines lists every segment, also when several of them share an ID.
 
+## v4.57.2 (2026-09-17)
+
+### Fixed
+- Forwarding a segment to another user for review no longer fails with a validation error when the segment has comments
+
 ## v4.57.1 (2026-09-15)
 
 ### Fixed
