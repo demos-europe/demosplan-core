@@ -42,6 +42,8 @@ use Psr\Log\LoggerInterface;
 
 class FileInUseChecker
 {
+    private const ERROR_MESSAGE = 'Some error occurred';
+
     public function __construct(private readonly ManagerRegistry $managerRegistry, private readonly LoggerInterface $logger, private readonly TraceableEventDispatcher $eventDispatcher)
     {
     }
@@ -131,7 +133,7 @@ class FileInUseChecker
                     return true;
                 }
             } catch (Exception $e) {
-                $this->logger->error('Some error occurred', [$e]);
+                $this->logger->error(self::ERROR_MESSAGE, [$e]);
 
                 // better be safe
                 return true;
@@ -165,7 +167,7 @@ class FileInUseChecker
                         return true;
                     }
                 } catch (Exception $e) {
-                    $this->logger->error('Some error occurred', [$e]);
+                    $this->logger->error(self::ERROR_MESSAGE, [$e]);
 
                     // better be safe
                     return true;
@@ -254,7 +256,7 @@ class FileInUseChecker
                 }
             }
         } catch (Exception $e) {
-            $this->logger->error('Some error occurred', [$e]);
+            $this->logger->error(self::ERROR_MESSAGE, [$e]);
 
             // better be safe
             return true;
