@@ -24,19 +24,19 @@ use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UnknownPlaceholdersException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\FileNameGenerator;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\SegmentExportFilter;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\SegmentExportInfoExtractor;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Export\StatementZipPathResolver;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportFilter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementViaTemplateExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use Doctrine\ORM\Query\QueryException;
-use EDT\JsonApi\RequestHandling\UrlParameter;
 use Exception;
 use PhpOffice\PhpWord\IOFactory;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -58,6 +58,10 @@ class SegmentsExportController extends BaseController
     private const UPLOADED_TEMPLATE_HASH = 'uploadedDocxTemplate';
     private const DOCX_MIME_TYPE = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
     private const DOCX_EXTENSION = '.docx';
+    private const XLSX_CONTENT_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8';
+    private const XLSX_EXTENSION = 'xlsx';
+    private const CSV_CONTENT_TYPE = 'text/csv; charset=utf-8';
+    private const CSV_EXTENSION = 'csv';
 
     public function __construct(
         private readonly NameGenerator $nameGenerator,
@@ -217,34 +221,14 @@ class SegmentsExportController extends BaseController
     public function exportByStatementsFilter(
         FileNameGenerator $fileNameGenerator,
         SegmentsByStatementsExporter $exporter,
-        StatementResourceType $statementResourceType,
-        JsonApiActionService $requestHandler,
+        StatementExportFilter $statementExportFilter,
         string $procedureId,
     ): StreamedResponse {
         /** @var array<string, string> $tableHeaders */
         $tableHeaders = $this->requestStack->getCurrentRequest()->query->all(self::TABLE_HEADERS_PARAMETER);
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
 
-        // Push the tag filter into the query so only statements carrying a matching tag are
-        // loaded, instead of loading every statement of the procedure and discarding the rest
-        // in PHP.
-        $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
-        $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions($tagsFilter, $statementResourceType, $procedureId);
-
-        /** @var Statement[] $statementEntities */
-        $statementEntities = array_values(
-            $requestHandler->getObjectsByQueryParams(
-                $this->requestStack->getCurrentRequest()->query,
-                $statementResourceType,
-                $tagConditions
-            )->getList()
-        );
-
-        $noTagsFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
-
-        // Trim each loaded statement to only its matching segments and collect the matched tag
-        // titles for the export header. Runs on the already-narrowed statement set.
-        $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
+        $statementEntities = $statementExportFilter->filter($procedureId);
         $exportFilteredByTagsWithTopics = $this->statementExportTagFilter->getFilteredTagsWithTitles();
         $customHeaderText = $this->requestStack->getCurrentRequest()->query->get(self::CUSTOM_HEADER_TEXT_PARAMETER) ?? '';
 
@@ -278,9 +262,11 @@ class SegmentsExportController extends BaseController
                 $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
+
         // generating file name based on it being filtered by tags or not
-        0 === count($tagsFilter) && 0 === count($noTagsFilter) ?
-            $this->setResponseHeaders($response, $fileNameGenerator->getSynopseFileName($procedure, 'docx')) : $this->setResponseHeaders($response, $fileNameGenerator->getFilteredSynopseFileName($procedure, 'docx'));
+        $fileName =
+            $fileNameGenerator->getSynopseFileName($procedure, 'docx', $statementExportFilter->isFiltered());
+        $this->setResponseHeaders($response, $fileName);
 
         return $response;
     }
@@ -301,28 +287,11 @@ class SegmentsExportController extends BaseController
     )]
     public function exportByStatementsFilterXls(
         FileNameGenerator $fileNameGenerator,
-        JsonApiActionService $jsonApiActionService,
         SegmentsByStatementsExporter $exporter,
-        StatementResourceType $statementResourceType,
+        StatementExportFilter $statementExportFilter,
         string $procedureId,
     ): StreamedResponse {
-        // Push the tag filter into the query so only statements carrying a matching tag are
-        // loaded, instead of loading every statement of the procedure and discarding the rest
-        // in PHP.
-        $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
-        $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions($tagsFilter, $statementResourceType, $procedureId);
-
-        /** @var Statement[] $statementEntities */
-        $statementEntities = array_values(
-            $jsonApiActionService->getObjectsByQueryParams(
-                $this->requestStack->getCurrentRequest()->query,
-                $statementResourceType,
-                $tagConditions
-            )->getList()
-        );
-
-        // Trim each loaded statement to only its matching segments. Runs on the already-narrowed set.
-        $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
+        $statementEntities = $statementExportFilter->filter($procedureId);
 
         $response = new StreamedResponse(
             function () use ($statementEntities, $exporter) {
@@ -341,10 +310,10 @@ class SegmentsExportController extends BaseController
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8'
         );
 
-        $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         // generating file name based on it being a filtered export or not
-        $noTagsFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
-        $fileName = 0 === count($tagsFilter) && 0 === count($noTagsFilter) ? $fileNameGenerator->getSynopseFileName($procedure, 'xlsx') : $fileNameGenerator->getFilteredSynopseFileName($procedure, 'xlsx');
+        $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
+        $fileName =
+            $fileNameGenerator->getSynopseFileName($procedure, 'xlsx', $statementExportFilter->isFiltered());
         $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($fileName));
 
         return $response;
@@ -366,28 +335,11 @@ class SegmentsExportController extends BaseController
     )]
     public function exportByStatementsFilterCsv(
         FileNameGenerator $fileNameGenerator,
-        JsonApiActionService $jsonApiActionService,
         SegmentsByStatementsExporter $exporter,
-        StatementResourceType $statementResourceType,
+        StatementExportFilter $statementExportFilter,
         string $procedureId,
     ): StreamedResponse {
-        // Push the tag filter into the query so only statements carrying a matching tag are
-        // loaded, instead of loading every statement of the procedure and discarding the rest
-        // in PHP.
-        $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
-        $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions($tagsFilter, $statementResourceType, $procedureId);
-
-        /** @var Statement[] $statementEntities */
-        $statementEntities = array_values(
-            $jsonApiActionService->getObjectsByQueryParams(
-                $this->requestStack->getCurrentRequest()->query,
-                $statementResourceType,
-                $tagConditions
-            )->getList()
-        );
-
-        // Trim each loaded statement to only its matching segments. Runs on the already-narrowed set.
-        $statementEntities = $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
+        $statementEntities = $statementExportFilter->filter($procedureId);
 
         $response = new StreamedResponse(
             static function () use ($statementEntities, $exporter) {
@@ -399,11 +351,103 @@ class SegmentsExportController extends BaseController
         $response->headers->set('Cache-Control', 'no-cache');
         $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
 
-        $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         // generating file name based on it being a filtered export or not
-        $noTagsFilter = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
-        $fileName = 0 === count($tagsFilter) && 0 === count($noTagsFilter) ? $fileNameGenerator->getSynopseFileName($procedure, 'csv') : $fileNameGenerator->getFilteredSynopseFileName($procedure, 'csv');
+        $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
+        $fileName =
+            $fileNameGenerator->getSynopseFileName($procedure, 'csv', $statementExportFilter->isFiltered());
         $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($fileName));
+
+        return $response;
+    }
+
+    // todo: create new specific permission
+
+    /**
+     * @throws QueryException
+     * @throws UserNotFoundException
+     * @throws Exception
+     */
+    #[DplanPermissions(
+        'feature_admin_assessmenttable_export_statement_generic_xlsx'
+    )]
+    #[Route(
+        path: '/verfahren/{procedureId}/nur/abschnitte/export/xlsx',
+        name: 'dplan_segment_xlsx_export',
+        options: ['expose' => true],
+        methods: 'GET'
+    )]
+    public function exportBySegmentsFilterXlsx(
+        FileNameGenerator $fileNameGenerator,
+        SegmentsByStatementsExporter $exporter,
+        SegmentExportFilter $segmentExportFilter,
+        SegmentExportInfoExtractor $segmentExportInfoExtractor,
+        string $procedureId,
+    ): StreamedResponse {
+        $segmentExportInfo = $segmentExportInfoExtractor->extract();
+        $segmentEntities = $segmentExportFilter->filter();
+
+        $response = new StreamedResponse(
+            function () use ($segmentEntities, $exporter, $segmentExportInfo) {
+                $exportedDoc = $exporter->exportSegmentsXlsx(
+                    $segmentExportInfo,
+                    ...$segmentEntities
+                );
+                $exportedDoc->save('php://output');
+            }
+        );
+
+        $this->setResponseHeadersForSegmentListExport(
+            $response,
+            $fileNameGenerator,
+            $segmentExportInfo->getIsFiltered(),
+            $procedureId,
+            self::XLSX_CONTENT_TYPE,
+            self::XLSX_EXTENSION,
+        );
+
+        return $response;
+    }
+
+    // todo: create new specific permission
+
+    /**
+     * @throws QueryException
+     * @throws UserNotFoundException
+     * @throws Exception
+     */
+    #[DplanPermissions(
+        'feature_admin_assessmenttable_export_statement_generic_xlsx'
+    )]
+    #[Route(
+        path: '/verfahren/{procedureId}/nur/abschnitte/export/csv',
+        name: 'dplan_segment_csv_export',
+        options: ['expose' => true],
+        methods: 'GET'
+    )]
+    public function exportBySegmentsFilterCsv(
+        FileNameGenerator $fileNameGenerator,
+        SegmentsByStatementsExporter $exporter,
+        SegmentExportFilter $segmentExportFilter,
+        SegmentExportInfoExtractor $segmentExportInfoExtractor,
+        string $procedureId,
+    ): StreamedResponse {
+        $segmentExportInfo = $segmentExportInfoExtractor->extract();
+        $segmentEntities = $segmentExportFilter->filter();
+
+        $response = new StreamedResponse(
+            static function () use ($segmentEntities, $exporter, $segmentExportInfo) {
+                echo $exporter->exportSegmentsCsv($segmentExportInfo, ...$segmentEntities);
+            }
+        );
+
+        $this->setResponseHeadersForSegmentListExport(
+            $response,
+            $fileNameGenerator,
+            $segmentExportInfo->getIsFiltered(),
+            $procedureId,
+            self::CSV_CONTENT_TYPE,
+            self::CSV_EXTENSION,
+        );
 
         return $response;
     }
@@ -422,8 +466,7 @@ class SegmentsExportController extends BaseController
     public function exportPackagedStatements(
         FileNameGenerator $fileNameGenerator,
         SegmentsByStatementsExporter $exporter,
-        StatementResourceType $statementResourceType,
-        JsonApiActionService $requestHandler,
+        StatementExportFilter $statementExportFilter,
         StatementZipPathResolver $zipPathResolver,
         ZipExportService $zipExportService,
         string $procedureId,
@@ -438,26 +481,7 @@ class SegmentsExportController extends BaseController
         $customHeaderText = $this->requestStack->getCurrentRequest()->query->get(self::CUSTOM_HEADER_TEXT_PARAMETER) ?? '';
 
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
-        // This method applies mostly the same restrictions as the generic API access to retrieve statements.
-        // It validates filter and search parameters and limits the returned statement entities to those
-        // the user is allowed to see. The actual exporter hardcodes which segments of the statements are included
-        // in the export and which properties of the statements and segments are exposed.
-        // Push the tag filter into the query so only statements carrying a matching tag are
-        // loaded, instead of loading every statement of the procedure and discarding the rest
-        // in PHP.
-        $tagsFilter = $this->requestStack->getCurrentRequest()->query->all('tagsFilter');
-        $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions($tagsFilter, $statementResourceType, $procedureId);
-
-        $statementResult = $requestHandler->getObjectsByQueryParams(
-            $this->requestStack->getCurrentRequest()->query,
-            $statementResourceType,
-            $tagConditions
-        );
-        /** @var Statement[] $statements */
-        $statements = array_values($statementResult->getList());
-
-        // Trim each loaded statement to only its matching segments. Runs on the already-narrowed set.
-        $statements = $this->statementExportTagFilter->filterStatementsByTags($statements, $tagsFilter);
+        $statements = $statementExportFilter->filter($procedureId);
 
         $statementsWithCensoring = [];
         foreach ($statements as $statement) {
@@ -528,6 +552,25 @@ class SegmentsExportController extends BaseController
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document; charset=utf-8'
         );
         $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($filename));
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function setResponseHeadersForSegmentListExport(
+        StreamedResponse $response,
+        FileNameGenerator $fileNameGenerator,
+        bool $isFiltered,
+        string $procedureId,
+        string $contentType,
+        string $fileExtension,
+    ): void {
+        $response->headers->set('Cache-Control', 'no-store, private');
+        $response->headers->set('Content-Type', $contentType);
+
+        $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
+        $fileName = $fileNameGenerator->getSynopseFileName($procedure, $fileExtension, $isFiltered);
+        $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($fileName));
     }
 
     private function getBooleanQueryParameter(string $parameterName, bool $defaultValue = false): bool

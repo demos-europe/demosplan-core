@@ -51,7 +51,7 @@ class StatementFormatter
                     str_replace('\_', '_', $formattedStatement[$attributeKey]);
             }
 
-            if ('status' === $attributeKey) {
+            if ('status' === $attributeKey || 'statementStatus' === $attributeKey) {
                 $formattedStatement[$attributeKey] = $this->formOptionsResolver->resolve(
                     FormOptionsResolver::STATEMENT_STATUS,
                     $formattedStatement[$attributeKey]
