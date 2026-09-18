@@ -81,6 +81,10 @@ class SegmentsExportController extends BaseController
         $isObscure = $this->getBooleanQueryParameter(self::OBSCURE_PARAMETER);
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
         $statement = $statementHandler->getStatementWithCertainty($statementId);
+        if ($statement->getProcedure()->getId() !== $procedure->getId()) {
+            // a statement of another procedure must be treated as absent from this one
+            throw StatementNotFoundException::createFromId($statementId);
+        }
         $censorCitizenData = $this->getBooleanQueryParameter(self::CITIZEN_CENSOR_PARAMETER);
         $censorInstitutionData = $this->getBooleanQueryParameter(self::INSTITUTION_CENSOR_PARAMETER);
 

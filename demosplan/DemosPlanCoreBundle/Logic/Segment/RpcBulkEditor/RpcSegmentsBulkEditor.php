@@ -14,8 +14,10 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment\RpcBulkEditor;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\PlaceInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\SegmentAssignmentOrPlaceChangeEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\SegmentRecommendationsSavedEventInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
@@ -51,7 +53,6 @@ use JsonException;
 use JsonSchema\Exception\InvalidSchemaException;
 use Psr\Log\LoggerInterface;
 use stdClass;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * You find general RPC API usage information
@@ -74,15 +75,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
     final public const SEGMENTS_BULK_EDIT_METHOD = 'segment.bulk.edit';
 
-    /**
-     * Collected during {@see execute()} and dispatched only after its transaction has committed,
-     * so a later failure in the same request can never dispatch an event for a change that ends up rolled back.
-     *
-     * @var array<int, SegmentRecommendationsSavedEvent|SegmentAssignmentOrPlaceChangeEvent>
-     */
-    private array $pendingDecisionLogEvents = [];
-
-    public function __construct(protected CurrentProcedureService $currentProcedure, protected CurrentUserInterface $currentUser, private readonly EventDispatcherInterface $eventDispatcher, protected LoggerInterface $logger, protected JsonSchemaValidator $jsonValidator, protected PlaceService $placeService, protected ProcedureService $procedureService, protected RpcErrorGenerator $errorGenerator, protected SegmentHandler $segmentHandler, protected SegmentValidator $segmentValidator, protected TagService $tagService, protected TagValidator $tagValidator, private readonly TransactionService $transactionService, protected UserHandler $userHandler, protected SegmentBulkEditorService $segmentBulkEditorService)
+    public function __construct(protected CurrentProcedureService $currentProcedure, protected CurrentUserInterface $currentUser, protected LoggerInterface $logger, protected JsonSchemaValidator $jsonValidator, protected PlaceService $placeService, protected ProcedureService $procedureService, protected RpcErrorGenerator $errorGenerator, protected SegmentHandler $segmentHandler, protected SegmentValidator $segmentValidator, protected TagService $tagService, protected TagValidator $tagValidator, private readonly TransactionService $transactionService, protected UserHandler $userHandler, protected SegmentBulkEditorService $segmentBulkEditorService)
     {
     }
 
@@ -96,7 +89,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
      */
     public function execute(?ProcedureInterface $procedure, $rpcRequests): array
     {
-        $result = $this->transactionService->executeAndFlushInTransaction(function (EntityManager $entityManager) use (
+        return $this->transactionService->executeAndFlushInTransaction(function (EntityManager $entityManager) use (
             $procedure,
             $rpcRequests
         ): array {
@@ -119,27 +112,18 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                     $segmentIds = $rpcRequest->params->segmentIds;
                     $segments = $this->segmentBulkEditorService->getValidSegments($segmentIds, $procedureId);
 
-                    $previousAssignees = [];
-                    $previousPlaces = [];
-                    $previousRecommendationTexts = [];
-                    foreach ($segments as $segment) {
-                        $previousAssignees[$segment->getId()] = $segment->getAssignee();
-                        $previousPlaces[$segment->getId()] = $segment->getPlace();
-                        $previousRecommendationTexts[$segment->getId()] = $segment->getRecommendation();
-                    }
+                    $segmentStatesBeforeEdit = $this->snapshotSegmentStates($segments);
 
                     // update texts directly in database for performance reasons
                     $recommendationTextEdit = $rpcRequest->params->recommendationTextEdit;
-                    $this->segmentBulkEditorService->updateRecommendations($segments, $recommendationTextEdit, $procedureId, $entityType, $methodCallTime);
-                    $recommendationEditIsNoOp = null === $recommendationTextEdit
-                        || ($recommendationTextEdit->attach && '' === $recommendationTextEdit->text);
-                    if (!$recommendationEditIsNoOp) {
-                        $this->pendingDecisionLogEvents[] = new SegmentRecommendationsSavedEvent(
-                            $segments,
-                            $recommendationTextEdit->text,
-                            $recommendationTextEdit->attach,
-                            $previousRecommendationTexts,
-                            $this->currentUser->getUser()
+                    $recommendationsUpdated = $this->segmentBulkEditorService->updateRecommendations($segments, $recommendationTextEdit, $procedureId, $entityType, $methodCallTime);
+                    $recommendationsSavedEvent = $recommendationsUpdated
+                        ? $this->createRecommendationsSavedEvent($segments, $recommendationTextEdit, $segmentStatesBeforeEdit)
+                        : null;
+                    if ($recommendationsSavedEvent instanceof SegmentRecommendationsSavedEvent) {
+                        $this->transactionService->dispatchAfterCommit(
+                            $recommendationsSavedEvent,
+                            SegmentRecommendationsSavedEventInterface::class
                         );
                     }
 
@@ -172,24 +156,11 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                         $customFields
                     );
 
-                    $changedSegments = [];
-                    $changedPreviousAssignees = [];
-                    $changedPreviousPlaces = [];
-                    /** @var SegmentInterface $segment */
-                    foreach ($segments as $segment) {
-                        $previousAssignee = $previousAssignees[$segment->getId()] ?? null;
-                        $previousPlace = $previousPlaces[$segment->getId()] ?? null;
-                        if ($segment->getAssignee() !== $previousAssignee || $segment->getPlace() !== $previousPlace) {
-                            $changedSegments[] = $segment;
-                            $changedPreviousAssignees[$segment->getId()] = $previousAssignee;
-                            $changedPreviousPlaces[$segment->getId()] = $previousPlace;
-                        }
-                    }
-                    if ([] !== $changedSegments) {
-                        $this->pendingDecisionLogEvents[] = new SegmentAssignmentOrPlaceChangeEvent(
-                            $changedSegments,
-                            $changedPreviousAssignees,
-                            $changedPreviousPlaces
+                    $assignmentOrPlaceChangeEvent = $this->createAssignmentOrPlaceChangeEvent($segments, $segmentStatesBeforeEdit);
+                    if ($assignmentOrPlaceChangeEvent instanceof SegmentAssignmentOrPlaceChangeEvent) {
+                        $this->transactionService->dispatchAfterCommit(
+                            $assignmentOrPlaceChangeEvent,
+                            SegmentAssignmentOrPlaceChangeEventInterface::class
                         );
                     }
 
@@ -210,18 +181,104 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
             return $resultResponse;
         });
-        // we are past the transaction here
-        //that transaction would have thrown an exception on rollback preventing this event from being dispatched as intended
-        foreach ($this->pendingDecisionLogEvents as $decisionLogEvent) {
-            $eventInterface = $decisionLogEvent instanceof SegmentRecommendationsSavedEvent
-                ? SegmentRecommendationsSavedEventInterface::class
-                : SegmentAssignmentOrPlaceChangeEventInterface::class;
-            $this->eventDispatcher->dispatch($decisionLogEvent, $eventInterface);
+    }
+
+    /**
+     * Captures the values the decision log events compare against before the bulk edit writes anything.
+     *
+     * @param array<int, SegmentInterface> $segments
+     *
+     * @return array<string, array{assignee: UserInterface|null, place: PlaceInterface|null, recommendation: string}> keyed by segment id
+     */
+    private function snapshotSegmentStates(array $segments): array
+    {
+        $segmentStates = [];
+        foreach ($segments as $segment) {
+            $segmentStates[$segment->getId()] = [
+                'assignee'       => $segment->getAssignee(),
+                'place'          => $segment->getPlace(),
+                'recommendation' => $segment->getRecommendation(),
+            ];
         }
 
-        $this->pendingDecisionLogEvents = [];
+        return $segmentStates;
+    }
 
-        return $result;
+    /**
+     * Only segments whose recommendation text actually differs after the write are reported, so a
+     * write that leaves the text as it was (e.g. replacing an empty text with an empty text) stays
+     * out of the decision log. The resulting text is derived from the edit instead of being read back
+     * from the entities, as the recommendations are written with a DQL update.
+     *
+     * @param array<int, SegmentInterface>                                                                          $segments
+     * @param array<string, array{assignee: UserInterface|null, place: PlaceInterface|null, recommendation: string}> $segmentStatesBeforeEdit
+     *
+     * @return SegmentRecommendationsSavedEvent|null null when the recommendation of no segment changed
+     */
+    private function createRecommendationsSavedEvent(array $segments, object $recommendationTextEdit, array $segmentStatesBeforeEdit): ?SegmentRecommendationsSavedEvent
+    {
+        /** @var string $recommendationText */
+        $recommendationText = $recommendationTextEdit->text;
+        /** @var bool $attach */
+        $attach = $recommendationTextEdit->attach;
+
+        $changedSegments = [];
+        $previousRecommendationTexts = [];
+        foreach ($segments as $segment) {
+            $previousRecommendationText = $segmentStatesBeforeEdit[$segment->getId()]['recommendation'];
+            $resultingRecommendationText = $attach
+                ? $previousRecommendationText.$recommendationText
+                : $recommendationText;
+            if ($resultingRecommendationText === $previousRecommendationText) {
+                continue;
+            }
+
+            $changedSegments[] = $segment;
+            $previousRecommendationTexts[$segment->getId()] = $previousRecommendationText;
+        }
+
+        if ([] === $changedSegments) {
+            return null;
+        }
+
+        return new SegmentRecommendationsSavedEvent(
+            $changedSegments,
+            $recommendationText,
+            $attach,
+            $previousRecommendationTexts,
+            $this->currentUser->getUser()
+        );
+    }
+
+    /**
+     * @param array<int, SegmentInterface>                                                                          $segments
+     * @param array<string, array{assignee: UserInterface|null, place: PlaceInterface|null, recommendation: string}> $segmentStatesBeforeEdit
+     *
+     * @return SegmentAssignmentOrPlaceChangeEvent|null null when neither assignee nor place changed on any segment
+     */
+    private function createAssignmentOrPlaceChangeEvent(array $segments, array $segmentStatesBeforeEdit): ?SegmentAssignmentOrPlaceChangeEvent
+    {
+        $changedSegments = [];
+        $previousAssignees = [];
+        $previousPlaces = [];
+        foreach ($segments as $segment) {
+            $previousAssignee = $segmentStatesBeforeEdit[$segment->getId()]['assignee'];
+            $previousPlace = $segmentStatesBeforeEdit[$segment->getId()]['place'];
+            if ($segment->getAssignee() === $previousAssignee
+                && $segment->getPlace() === $previousPlace) {
+                continue;
+            }
+
+            $changedSegments[] = $segment;
+            $previousAssignees[$segment->getId()] = $previousAssignee;
+            $previousPlaces[$segment->getId()] = $previousPlace;
+        }
+
+        if ([] === $changedSegments) {
+            return null;
+        }
+
+        return new SegmentAssignmentOrPlaceChangeEvent($changedSegments, $previousAssignees, $previousPlaces);
     }
 
     /**

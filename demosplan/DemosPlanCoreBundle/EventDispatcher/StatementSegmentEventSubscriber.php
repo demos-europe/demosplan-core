@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\EventDispatcher;
 
+use DemosEurope\DemosplanAddon\Contracts\ApiRequest\ResourceValidationSubscriber;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\PlaceInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
@@ -24,17 +25,26 @@ use demosplan\DemosPlanCoreBundle\Event\Segment\SegmentAssignmentOrPlaceChangeEv
 use demosplan\DemosPlanCoreBundle\Event\Segment\SegmentRecommendationsSavedEvent;
 use demosplan\DemosPlanCoreBundle\EventSubscriber\BaseEventSubscriber;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
+use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementSegmentResourceType;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class StatementSegmentEventSubscriber extends BaseEventSubscriber
 {
+    /**
+     * Must run before any listener that flushes, in particular before {@see saveChangeHistory()}:
+     * a flush rewrites the unit of work's original entity data to the current values, after which
+     * the pre-edit values this listener compares against are gone. Running before the addon's
+     * {@see ResourceValidationSubscriber} is harmless, as the registered events are only dispatched
+     * once the surrounding transaction has committed and are discarded when validation makes it roll back.
+     */
+    private const DECISION_LOG_PRIORITY = 10;
+
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
         private readonly EntityContentChangeService $entityContentChangeService,
-        private readonly EventDispatcherInterface $eventDispatcher,
         private readonly SegmentRepository $segmentRepository,
+        private readonly TransactionService $transactionService,
     ) {
     }
 
@@ -42,9 +52,8 @@ class StatementSegmentEventSubscriber extends BaseEventSubscriber
     {
         return [
             BeforeResourceUpdateFlushEvent::class => [
+                ['registerDecisionLogEvents', self::DECISION_LOG_PRIORITY],
                 ['saveChangeHistory', 0],
-                ['dispatchRecommendationSavedEvent', 0],
-                ['dispatchAssignmentSavedEvent', 0],
             ],
         ];
     }
@@ -62,14 +71,18 @@ class StatementSegmentEventSubscriber extends BaseEventSubscriber
     }
 
     /**
-     * The single-segment JSON:API update path calls {@see Segment::setRecommendation()} directly
-     * (see the callback on the `recommendation` property in {@see StatementSegmentResourceType}),
-     * so unlike a reflection-written property, the segment already holds the new value by the
-     * time this event fires. The event itself does not say whether recommendation was one of the
-     * updated fields, so the pre-edit value is read via {@see SegmentRepository::getOriginalEntityData()}
-     * to detect an actual change.
+     * By the time this event fires, {@see DoctrineResourceType::updateEntity()} has already written
+     * the new values onto the segment, either via {@see Segment::setRecommendation()} (see the callback
+     * on the `recommendation` property in {@see StatementSegmentResourceType}) or via the default
+     * reflection-based `updatable()` for `assignee` and `place`. The segment therefore only holds the
+     * new values here. The event does not tell which fields were part of the update, so the pre-edit
+     * values are read from the unit of work via {@see SegmentRepository::getOriginalEntityData()}
+     * to detect actual changes.
+     *
+     * The events are registered with {@see TransactionService::dispatchAfterCommit()} and only reach
+     * their listeners once the surrounding transaction has committed.
      */
-    public function dispatchRecommendationSavedEvent(BeforeResourceUpdateFlushEvent $event): void
+    public function registerDecisionLogEvents(BeforeResourceUpdateFlushEvent $event): void
     {
         $targetResourceType = $event->getType();
         if (!$targetResourceType instanceof StatementSegmentResourceType) {
@@ -79,18 +92,31 @@ class StatementSegmentEventSubscriber extends BaseEventSubscriber
         /** @var Segment $segment */
         $segment = $event->getEntity();
         $originalData = $this->segmentRepository->getOriginalEntityData($segment);
-        $originalRecommendation = $originalData['recommendation'] ?? null;
+        if ([] === $originalData) {
+            // without a persisted baseline in the unit of work no change can be told apart from a no-op
+            return;
+        }
 
+        $this->registerRecommendationSavedEvent($segment, $originalData);
+        $this->registerAssignmentOrPlaceChangeEvent($segment, $originalData);
+    }
+
+    /**
+     * @param array<string, mixed> $originalData
+     */
+    private function registerRecommendationSavedEvent(Segment $segment, array $originalData): void
+    {
+        $originalRecommendation = (string) ($originalData['recommendation'] ?? '');
         if ($segment->getRecommendation() === $originalRecommendation) {
             return;
         }
 
-        $this->eventDispatcher->dispatch(
+        $this->transactionService->dispatchAfterCommit(
             new SegmentRecommendationsSavedEvent(
                 [$segment],
-                (string) $segment->getRecommendation(),
+                $segment->getRecommendation(),
                 false,
-                [$segment->getId() => (string) $originalRecommendation],
+                [$segment->getId() => $originalRecommendation],
                 $this->currentUser->getUser()
             ),
             SegmentRecommendationsSavedEventInterface::class
@@ -98,32 +124,21 @@ class StatementSegmentEventSubscriber extends BaseEventSubscriber
     }
 
     /**
-     * The single-segment JSON:API update path leaves `assignee`/`place` on the default,
-     * reflection-based `updatable()`, which bypasses any setter. By the time this event fires,
-     * {@see DoctrineResourceType::updateEntity()} has already written the new value directly onto
-     * the entity, so the segment only ever holds the new value here, never the old one. The
-     * pre-edit value is read via {@see SegmentRepository::getOriginalEntityData()} instead.
+     * @param array<string, mixed> $originalData
      */
-    public function dispatchAssignmentSavedEvent(BeforeResourceUpdateFlushEvent $event): void
+    private function registerAssignmentOrPlaceChangeEvent(Segment $segment, array $originalData): void
     {
-        $targetResourceType = $event->getType();
-        if (!$targetResourceType instanceof StatementSegmentResourceType) {
-            return;
-        }
-
-        /** @var Segment $segment */
-        $segment = $event->getEntity();
-        $originalData = $this->segmentRepository->getOriginalEntityData($segment);
         /** @var UserInterface|null $previousAssignee */
         $previousAssignee = $originalData['assignee'] ?? null;
         /** @var PlaceInterface|null $previousPlace */
         $previousPlace = $originalData['place'] ?? null;
 
-        if ($segment->getAssignee() === $previousAssignee && $segment->getPlace() === $previousPlace) {
+        if ($segment->getAssignee() === $previousAssignee
+            && $segment->getPlace() === $previousPlace) {
             return;
         }
 
-        $this->eventDispatcher->dispatch(
+        $this->transactionService->dispatchAfterCommit(
             new SegmentAssignmentOrPlaceChangeEvent(
                 [$segment],
                 [$segment->getId() => $previousAssignee],

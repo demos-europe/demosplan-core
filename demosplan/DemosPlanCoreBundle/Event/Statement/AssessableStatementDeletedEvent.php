@@ -10,21 +10,33 @@
 
 namespace demosplan\DemosPlanCoreBundle\Event\Statement;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\AssessableStatementDeletedEventInterface;
 use demosplan\DemosPlanCoreBundle\Event\DPlanEvent;
 
 class AssessableStatementDeletedEvent extends DPlanEvent implements AssessableStatementDeletedEventInterface
 {
     public function __construct(
-        protected StatementInterface $statement,
+        protected string $statementId,
+        protected string $externId,
+        protected ProcedureInterface $procedure,
         protected bool $wasSegmented,
     ) {
     }
 
-    public function getStatement(): StatementInterface
+    public function getStatementId(): string
     {
-        return $this->statement;
+        return $this->statementId;
+    }
+
+    public function getExternId(): string
+    {
+        return $this->externId;
+    }
+
+    public function getProcedure(): ProcedureInterface
+    {
+        return $this->procedure;
     }
 
     public function wasSegmented(): bool
