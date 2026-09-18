@@ -150,6 +150,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('segmentsSelectedColumnSet');
 
         if (null !== $segmentExportInfo) {
+            // todo: log when a selected column key has no match in $columnsDefinition, so a
+            // silently dropped column (e.g. a stale/renamed key) doesn't go unnoticed
             $columnsDefinition = array_values(array_filter(
                 $columnsDefinition,
                 static fn (array $column): bool => in_array($column['key'], $segmentExportInfo->getSelectedColumnKeys(), true)
