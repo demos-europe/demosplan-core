@@ -35,6 +35,14 @@ class SegmentExportInfoExtractor
     private const ASSIGNEE_IDS_KEY = 'assigneeIds';
     private const PLACE_IDS_KEY = 'placeIds';
 
+    /**
+     * Maps column-selector keys that don't match their export column key 1:1. Anything not listed
+     * here is passed through as-is.
+     */
+    private const UI_COLUMN_TO_EXPORT_KEY = [
+        'tags' => 'tagNames',
+    ];
+
     public function __construct(
         protected readonly PlaceRepository $placeRepository,
         protected readonly RequestStack $requestStack,
@@ -48,7 +56,10 @@ class SegmentExportInfoExtractor
     {
         $request = $this->requestStack->getCurrentRequest();
         $searchPhrase = $request->query->all(self::SEARCH_PARAM)['value'] ?? null;
-        $selectedColumnKeys = explode(',', $request->query->get(self::SELECTED_COLUMNS_PARAM));
+        $selectedColumnKeys = array_map(
+            static fn (string $key): string => self::UI_COLUMN_TO_EXPORT_KEY[$key] ?? $key,
+            explode(',', $request->query->get(self::SELECTED_COLUMNS_PARAM))
+        );
         $filter = $request->query->all(UrlParameter::FILTER);
         $isManualSelection = array_key_exists(self::SELECTED_SEGMENT_IDS_PARAM, $filter);
 
