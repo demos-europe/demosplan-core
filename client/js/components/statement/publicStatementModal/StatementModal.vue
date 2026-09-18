@@ -116,7 +116,7 @@
               id="negative_report_true"
               data-cy="statementModal:indicationerror"
               :checked="formData.r_isNegativeReport === '1'"
-              @change="() => { setStatementData({ r_isNegativeReport: '1'}); clearLocationValidationState() }"
+              @change="selectNegativeReport"
               :label="{
                 hint: Translator.trans('link.title.indicationerror'),
                 text: Translator.trans('indicationerror')
@@ -1252,17 +1252,25 @@ export default {
     },
 
     /*
-     * The vanilla dpValidate lib marks the whole location fieldset invalid on blur once it's
-     * empty, without rechecking whether it's still required - clear that leftover state once
-     * Fehlanzeige makes the location optional again.
+     * When a user clicks into the editor, then switches to 'Fehlanzeige', then back to 'Stellung nehmen', the editor
+     * would have a red error border because it's validated on blur and only reset on focus, so validation state is cleared
+     * when switching to 'Fehlanzeige'
      */
-    clearLocationValidationState () {
-      const fieldset = document.getElementById('locationFieldset')
-      if (!fieldset) {
+    clearStatementValidationState () {
+      const form = this.$el.querySelector('[data-dp-validate="statementForm"]')
+
+      if (!form) {
         return
       }
+
       const errorClass = this.prefixClass('is-invalid')
-      fieldset.querySelectorAll(`.${errorClass}`).forEach(el => el.classList.remove(errorClass))
+
+      form.querySelectorAll(`.${errorClass}`).forEach(el => el.classList.remove(errorClass))
+    },
+
+    selectNegativeReport () {
+      this.setStatementData({ r_isNegativeReport: '1' })
+      this.clearStatementValidationState()
     },
 
     removeNotificationsFromStore () {
