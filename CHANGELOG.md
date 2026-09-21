@@ -6,10 +6,22 @@
 
 ## UNRELEASED
 
-## v4.57.2 (2026-09-17)
+## v4.61.0 (2026-09-21)
+
+### Added
+- A system-wide notice banner can be configured to inform users of maintenance windows or other announcements
+- Tags can now be viewed and edited directly while writing a response, without switching views
+- The public procedure list can now display a pictogram's alt text and copyright information
+- Statement exports can now include the names of associated areas and their tags
 
 ### Fixed
-- Forwarding a segment to another user for review no longer fails with a validation error when the segment has comments
+- Forwarding a statement for review no longer fails with a validation error when it has comments
+- Large procedure exports (PDF, ODT, ZIP) no longer time out for procedures with many statements
+- Removing a tag from the response editor no longer leaves its selection checkbox stuck as checked
+- The PDF import option was missing from the procedure import screen and is now shown again
+- Finalizing statements no longer fails due to unconfirmed segment marks
+- Global GIS layers are now scoped to their own customer
+- Maximum email attachment size for the final decision email reduced to a sane limit
 
 ## v4.60.0 (2026-09-09)
 
@@ -37,6 +49,11 @@
 - Downloading the result of a background export works for large archives. The file is sent to the browser piece by piece instead of being held in memory as a whole, which could abort the download.
 - Copies of a statement are no longer silently dropped when an assessment table export is imported. The export carries a reference to the statement each row originates from, so every copy arrives, and re-importing the same export adds only what is not there yet.
 - The reminder mail about ending segment deadlines lists every segment, also when several of them share an ID.
+
+## v4.57.2 (2026-09-17)
+
+### Fixed
+- Forwarding a statement to another user for review no longer fails with a validation error when the statement has comments
 
 ## v4.57.1 (2026-09-15)
 
