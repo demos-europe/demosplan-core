@@ -210,7 +210,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
      * out of the decision log. The resulting text is derived from the edit instead of being read back
      * from the entities, as the recommendations are written with a DQL update.
      *
-     * @param array<int, SegmentInterface>                                                                          $segments
+     * @param array<int, SegmentInterface>                                                                           $segments
      * @param array<string, array{assignee: UserInterface|null, place: PlaceInterface|null, recommendation: string}> $segmentStatesBeforeEdit
      *
      * @return SegmentRecommendationsSavedEvent|null null when the recommendation of no segment changed
@@ -251,7 +251,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
     }
 
     /**
-     * @param array<int, SegmentInterface>                                                                          $segments
+     * @param array<int, SegmentInterface>                                                                           $segments
      * @param array<string, array{assignee: UserInterface|null, place: PlaceInterface|null, recommendation: string}> $segmentStatesBeforeEdit
      *
      * @return SegmentAssignmentOrPlaceChangeEvent|null null when neither assignee nor place changed on any segment
