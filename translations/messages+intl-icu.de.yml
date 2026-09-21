@@ -2874,16 +2874,16 @@ procedure.by.phase.public: |
         =0 {Verfahren nach Phase (Öffentlichkeit)}
         other {# Verfahren nach Phase (Öffentlichkeit)}
     }
-procedure.canCreate: 'Alle Nutzenden der Organisation mit der Rolle Fachplanung-Admin können Verfahren anlegen'
+procedure.canCreate: 'Alle Nutzenden der Organisation mit der Rolle Fachplanung-Admin bzw. Anhörungsbehörde-Admin können Verfahren anlegen'
 procedure.canCreate.confirmDisable.header: 'Berechtigung deaktivieren?'
-procedure.canCreate.confirmDisable.message: "Die Berechtigung, Verfahren anzulegen, ist in dieser Organisation bisher allen Nutzenden mit der Rolle Fachplanung-Admin zugewiesen.\nWenn Sie diese Berechtigung deaktivieren, können Sie sie einzelnen Nutzenden in der Nutzendenverwaltung erteilen. Möchten Sie fortfahren?"
+procedure.canCreate.confirmDisable.message: "Die Berechtigung, Verfahren anzulegen, ist in dieser Organisation bisher allen Nutzenden mit der Rolle Fachplanung-Admin bzw. Anhörungsbehörde-Admin zugewiesen.\nWenn Sie diese Berechtigung deaktivieren, können Sie sie einzelnen Nutzenden in der Nutzendenverwaltung erteilen. Möchten Sie fortfahren?"
 procedure.canCreate.confirmEnable.header: 'Berechtigung aktivieren?'
-procedure.canCreate.confirmEnable.message: "Die Berechtigung, Verfahren anzulegen, ist in dieser Organisation möglicherweise nur einzelnen Personen mit der Rolle Fachplanung-Admin zugewiesen.\nWenn Sie die Berechtigung für alle Nutzenden der Organisation mit der Rolle Fachplanung-Admin aktivieren, können Sie sie einzelnen Nutzenden nicht mehr entziehen. Möchten Sie fortfahren?"
+procedure.canCreate.confirmEnable.message: "Die Berechtigung, Verfahren anzulegen, ist in dieser Organisation möglicherweise nur einzelnen Personen mit der Rolle Fachplanung-Admin bzw. Anhörungsbehörde-Admin zugewiesen.\nWenn Sie die Berechtigung für alle Nutzenden der Organisation mit der Rolle Fachplanung-Admin aktivieren, können Sie sie einzelnen Nutzenden nicht mehr entziehen. Möchten Sie fortfahren?"
 procedure.canCreate.confirmToggle.continue: 'Fortfahren'
 procedure.canManage: 'Darf Verfahren anlegen'
-procedure.canManage.hint.disabledForOrga: 'Die Berechtigung, Verfahren anzulegen, ist in dieser Organisation nicht für alle Nutzenden mit der Rolle Fachplanung-Admin aktiviert. Aktivieren sie diese Option, um dieser Person das Recht individuell zu erteilen.'
-procedure.canManage.hint.enabledForOrga: 'Die Berechtigung, Verfahren anzulegen, ist für alle Nutzenden dieser Organisation mit der Rolle Fachplanung-Admin aktiviert. Um nur einzelnen Nutzenden die Berechtigung zu erteilen, kontaktieren Sie das Support-Team.'
-procedure.canManage.orga.none: 'Aktuell hat niemand in dieser Organisation die Berechtigung, Verfahren anzulegen. Sie können die Berechtigung für einzelne Nutzende mit der Rolle Fachplanung-Admin in der Nutzendenverwaltung erteilen.'
+procedure.canManage.hint.disabledForOrga: 'Die Berechtigung, Verfahren anzulegen, ist in dieser Organisation nicht für alle Nutzenden mit der Rolle Fachplanung-Admin bzw. Anhörungsbehörde-Admin aktiviert. Aktivieren Sie diese Option, um dieser Person das Recht individuell zu erteilen.'
+procedure.canManage.hint.enabledForOrga: 'Die Berechtigung, Verfahren anzulegen, ist für alle Nutzenden dieser Organisation mit der Rolle Fachplanung-Admin bzw. Anhörungsbehörde-Admin aktiviert. Um nur einzelnen Nutzenden die Berechtigung zu erteilen, kontaktieren Sie das Support-Team.'
+procedure.canManage.orga.none: 'Aktuell hat niemand in dieser Organisation die Berechtigung, Verfahren anzulegen. Sie können die Berechtigung für einzelne Nutzende mit der Rolle Fachplanung-Admin bzw. Anhörungsbehörde-Admin in der Nutzendenverwaltung erteilen.'
 procedure.canManage.orga.users: 'Nutzende mit der Berechtigung, Verfahren anzulegen:'
 procedure.canManage.orga.users.more: |
     {count, plural,
