@@ -407,7 +407,7 @@ import {
   hasOwnProp,
   sessionStorageMixin,
 } from '@demos-europe/demosplan-ui'
-import { mapGetters, mapMutations } from 'vuex'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
 import ScheduledExportFormFields from '@DpJs/components/statement/statementExportModal/ScheduledExportFormFields'
 import ScheduledExportList from '@DpJs/components/statement/statementExportModal/ScheduledExportList'
@@ -555,6 +555,10 @@ export default {
       'getIsExpandedByCategoryId',
     ]),
 
+    ...mapState('ScheduledExport', {
+      scheduledExportItems: 'items',
+    }),
+
     exportModalTitle () {
       if (this.scheduledExportMode) {
         switch (this.scheduledExportMode) {
@@ -627,6 +631,10 @@ export default {
       setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
       setIsLoadingFilterFlyout: 'setIsLoading',
       setUngroupedFilterOptions: 'setUngroupedOptions',
+    }),
+
+    ...mapActions('ScheduledExport', {
+      fetchScheduledExport: 'list',
     }),
 
     addScheduledExport () {
@@ -1116,5 +1124,16 @@ export default {
         .map(item => item.condition.value)
     },
   },
+
+  mounted () {
+    this.fetchScheduledExport({
+      fields: {
+        ScheduledExport: [
+          'frequency',
+        ].join()
+      }
+    })
+
+  }
 }
 </script>

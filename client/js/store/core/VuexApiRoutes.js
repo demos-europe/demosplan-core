@@ -112,6 +112,10 @@ const api3_0Modules = {
     'list',
     'get',
   ],
+  ScheduledExport: [
+    'list',
+    'get',
+  ]
 }
 
 const crudActions = [
