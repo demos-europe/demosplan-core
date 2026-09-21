@@ -99,7 +99,7 @@ rsync --exclude-from=rsyncExcludeProject.txt -az "../projects/$PROJECT_NAME" $CO
 cp -r "$FOLDER"/* $CONTEXT_DIR
 cp -r "$FOLDER"/.dockerignore $CONTEXT_DIR
 
-docker_build "$IMAGE_NAME" fpm --secret id=envlocal,src=../.env.local
+docker_build "$IMAGE_NAME" fpm --build-arg SBOM_MC_VERSION="$VERSION" --secret id=envlocal,src=../.env.local
 docker_build "$IMAGE_NAME/nginx" nginx
 docker_build "$IMAGE_NAME-nginx" nginx
 

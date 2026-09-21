@@ -11,6 +11,7 @@
  * This is the entrypoint for list_statement_fragments_archive.html.twig
  */
 
+import { DpModal, DpMultiselect } from '@demos-europe/demosplan-ui'
 import assessmentTableStore from '@DpJs/store/statement/AssessmentTable'
 import DpFragmentList from '@DpJs/components/statement/fragmentList/DpFragmentList'
 import DpFragmentListFilterModal from '@DpJs/components/statement/fragmentList/DpFragmentListFilterModal'
@@ -21,6 +22,8 @@ import ListStatementFragments from '@DpJs/lib/statement/ListStatementFragments'
 const components = {
   DpFragmentList,
   DpFragmentListFilterModal,
+  DpModal,
+  DpMultiselect,
 }
 
 const stores = {

@@ -43,8 +43,21 @@ const applySelectionChange = (view, editStateTrackerKey, rangeTrackerKey) => {
    */
   const nodes = flattenNode(state.doc)
   const marks = getMarks(nodes, 'rangeselection', 'rangeType')
-  const { from, to } = marks.selection
   let tr = state.tr
+
+  /**
+   * When there is no active range selection, the segment being edited has no adjustable boundary in
+   * the document (e.g. its segmentMark is missing from the textual reference, or only metadata such
+   * as tags or place was changed). There is nothing to apply to the document: stop the range edit
+   * cleanly and let the caller persist the segment metadata instead of throwing.
+   */
+  if (!marks.selection) {
+    dispatch(disableRangeEdit(view, editStateTrackerKey, tr))
+
+    return true
+  }
+
+  const { from, to } = marks.selection
 
   if (to - from < 10) {
     dplan.notify.notify('warning', Translator.trans('warning.segment.too_short'))

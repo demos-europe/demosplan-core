@@ -75,6 +75,14 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
     protected $tags;
 
     /**
+     * Segments whose recommendation this boilerplate was inserted into.
+     *
+     * @var Collection<int, BoilerplateUsage>
+     */
+    #[ORM\OneToMany(targetEntity: BoilerplateUsage::class, mappedBy: 'boilerplate')]
+    protected $usages;
+
+    /**
      * @var string
      */
     #[ORM\Column(name: '_pt_title', type: 'string', length: 255, nullable: true)]
@@ -100,10 +108,17 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
     #[Gedmo\Timestampable(on: 'update')]
     protected $modifyDate;
 
+    /**
+     * True when this boilerplate was copied from a blueprint procedure and has not been edited since.
+     */
+    #[ORM\Column(name: 'verified', type: 'boolean', nullable: false, options: ['default' => false])]
+    protected bool $verified = false;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
         $this->tags = new ArrayCollection();
+        $this->usages = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -232,8 +247,18 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
         $this->modifyDate = $modifyDate;
     }
 
+    public function isVerified(): bool
+    {
+        return $this->verified;
+    }
+
+    public function setVerified(bool $verified): void
+    {
+        $this->verified = $verified;
+    }
+
     /**
-     * @return ArrayCollection;
+     * @return ArrayCollection
      */
     public function getTags()
     {
@@ -423,5 +448,13 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
     public function hasGroup(): bool
     {
         return null !== $this->getGroup();
+    }
+
+    /**
+     * @return Collection<int, BoilerplateUsage>
+     */
+    public function getUsages(): Collection
+    {
+        return $this->usages;
     }
 }

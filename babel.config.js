@@ -13,19 +13,16 @@ const config = {
     ['@babel/preset-env', {
       modules: false,
       debug: false,
-      corejs: '3.9',
-      useBuiltIns: 'usage',
     }],
   ],
   plugins: [
     '@babel/transform-runtime',
-    '@babel/proposal-object-rest-spread',
-    '@babel/syntax-dynamic-import',
+    ['polyfill-corejs3', { method: 'usage-global', version: '3.9' }],
   ],
   overrides: [
     {
       test: /\.vue$/,
-      presets: [['@babel/preset-typescript', { allExtensions: true }]],
+      presets: [['@babel/preset-typescript', { ignoreExtensions: true }]],
     },
     {
       test: /\.[mc]?tsx?$/,
@@ -34,9 +31,6 @@ const config = {
     {
       plugins: [
         '@babel/transform-runtime',
-        '@babel/proposal-object-rest-spread',
-        '@babel/syntax-dynamic-import',
-        '@babel/transform-object-assign',
         '@babel/transform-modules-commonjs',
       ],
     },

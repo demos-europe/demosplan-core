@@ -173,6 +173,8 @@ trait AssessmentTableFormattingTrait
             'isClusterStatement'            => $statement['isClusterStatement'] ?? null,
             'name'                          => $statement['name'] ?? null,
             'isSubmittedByCitizen'          => $statement['isSubmittedByCitizen'] ?? null,
+            'priorityAreaKeys'              => $statement['priorityAreaKeys'] ?? [],
+            'tagNames'                      => $statement['tagNames'] ?? [],
         ];
     }
 

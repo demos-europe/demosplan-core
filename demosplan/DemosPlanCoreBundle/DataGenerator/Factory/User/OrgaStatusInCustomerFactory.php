@@ -75,6 +75,7 @@ final class OrgaStatusInCustomerFactory extends PersistentProxyObjectFactory
             'orga'     => OrgaFactory::new(),
             'orgaType' => OrgaTypeFactory::new(),
             'status'   => OrgaStatusInCustomerInterface::STATUS_ACCEPTED,
+            'showlist' => true,
         ];
     }
 

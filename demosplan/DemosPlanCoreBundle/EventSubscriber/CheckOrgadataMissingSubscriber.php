@@ -11,7 +11,9 @@
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Entity\User\Role;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -42,7 +44,7 @@ class CheckOrgadataMissingSubscriber extends BaseEventSubscriber
         $user = $this->currentUser->getUser();
 
         // citizens should never need to complete orga data
-        if ($user->hasRole(Role::CITIZEN)) {
+        if ($user->hasRole(RoleInterface::CITIZEN)) {
             return;
         }
 
@@ -51,10 +53,44 @@ class CheckOrgadataMissingSubscriber extends BaseEventSubscriber
         $route = $request->attributes->get('_route');
         $this->logger->debug('checkUser: Route to check OrgadataMissing', [$route]);
         $this->logger->debug('checkUser: User from Session to check OrgadataMissing', ['userName' => $user->getName()]);
-        if (!in_array($route, self::EXCLUDED_ROUTES, true) && false === $user->isProfileCompleted()) {
+        if (in_array($route, self::EXCLUDED_ROUTES, true)) {
+            return;
+        }
+
+        // Redirect to the welcome page when the profile is not completed yet, or when an
+        // institution coordinator's organisation still misses the mandatory second email address.
+        if (false === $user->isProfileCompleted()) {
             $this->logger->info('checkUser: Userdata not completed', ['userName' => $user->getName()]);
             $event->setResponse(new RedirectResponse($this->router->generate('DemosPlan_user_complete_data')));
+
+            return;
         }
+
+        if ($this->isInstitutionCoordinatorWithMissingEmail2($user)) {
+            $this->logger->info('checkUser: Institution coordinator with missing organisation email2', ['userName' => $user->getName()]);
+            $event->setResponse(new RedirectResponse($this->router->generate('DemosPlan_user_complete_data')));
+        }
+    }
+
+    /**
+     * Institution coordinators must provide a second organisation email address before proceeding.
+     * The profile-completed flag alone does not cover this, so the coordinator's organisation is
+     * checked explicitly for a missing email2.
+     */
+    private function isInstitutionCoordinatorWithMissingEmail2(UserInterface $user): bool
+    {
+        if (!$user->hasRole(RoleInterface::PUBLIC_AGENCY_COORDINATION)) {
+            return false;
+        }
+
+        $orga = $user->getOrga();
+        if (!$orga instanceof OrgaInterface) {
+            return false;
+        }
+
+        $email2 = $orga->getEmail2();
+
+        return null === $email2 || '' === trim($email2);
     }
 
     /**

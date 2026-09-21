@@ -1,5 +1,5 @@
 <template>
-  <div class="layout u-pl">
+  <div class="layout u-pl c-support-contacts">
     <dp-editable-list
       ref="editableList"
       :entries="contacts"
@@ -10,24 +10,51 @@
       @show-update-form="showUpdateForm"
     >
       <template v-slot:list="contact">
-        <h3
-          class="break-words"
-          v-text="contact.attributes.title"
-        />
-        <p
-          class="break-words"
-          v-text="contact.attributes.phoneNumber"
-        />
-        <p
-          class="break-words"
-          v-text="contact.attributes.eMailAddress"
-        />
-        <template v-html="contact.attributes.text" />
-        <dp-badge
-          class="color--white rounded-full whitespace--nowrap bg-color--grey u-mt-0_125"
-          size="smaller"
-          :text="Translator.trans(contact.attributes.visible ? 'visible' : 'visible.not')"
-        />
+        <div
+          class="c-support-contacts__entry"
+          :class="contact.index === lastContactId ? 'pt-3' : 'border-b border-neutral py-3'"
+        >
+          <div class="flex items-center gap-2 mb-1">
+            <h3
+              class="m-0 break-words"
+              v-text="contact.attributes.title"
+            />
+            <dp-badge
+              :color="contact.attributes.visible ? 'confirm' : 'default'"
+              size="small"
+              :text="Translator.trans(contact.attributes.visible ? 'visible' : 'visible.not')"
+            />
+          </div>
+          <p
+            v-if="contact.attributes.phoneNumber"
+            class="break-words"
+          >
+            <a :href="`tel:${contact.attributes.phoneNumber}`">
+              <dp-icon
+                class="inline-block"
+                icon="phone"
+              />
+              {{ contact.attributes.phoneNumber }}
+            </a>
+          </p>
+          <p
+            v-if="contact.attributes.eMailAddress"
+            class="break-words"
+          >
+            <a :href="`mailto:${contact.attributes.eMailAddress}`">
+              <dp-icon
+                class="inline-block"
+                icon="mail"
+              />
+              {{ contact.attributes.eMailAddress }}
+            </a>
+          </p>
+          <div
+            v-if="contact.attributes.text"
+            v-cleanhtml="contact.attributes.text"
+            class="c-styled-html"
+          />
+        </div>
       </template>
       <template v-slot:form>
         <div
@@ -102,7 +129,7 @@
 </template>
 
 <script>
-import { DpBadge, DpCheckbox, DpEditableList, DpEditor, DpInput, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { CleanHtml, DpBadge, DpCheckbox, DpEditableList, DpEditor, DpIcon, DpInput, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 
 const emptyCustomer = {
@@ -121,7 +148,12 @@ export default {
     DpCheckbox,
     DpEditableList,
     DpEditor,
+    DpIcon,
     DpInput,
+  },
+
+  directives: {
+    cleanhtml: CleanHtml,
   },
 
   mixins: [dpValidateMixin],
@@ -153,6 +185,17 @@ export default {
         .map(contact => contact.attributes.title)
 
       return `^(?!(?:${usedTitle.join('|')})$)`
+    },
+
+    /*
+     * `contacts` (store items) is an object keyed by id, so the editable list
+     * slot's `index` is the id key rather than a numeric index. Identify the
+     * last entry by its key to draw a divider below every entry but the last.
+     */
+    lastContactId () {
+      const keys = Object.keys(this.contacts)
+
+      return keys[keys.length - 1]
     },
   },
 

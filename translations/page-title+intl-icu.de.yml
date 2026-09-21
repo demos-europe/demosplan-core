@@ -151,6 +151,8 @@ procedures.search.statements: Verfahrensübergreifende Stellungnahmensuche
 
 project.name: "{projectName}"
 
+search.submitter: "Einreichende suchen"
+
 service.mode: Wartungsmodus
 
 segments: "Abschnitte"

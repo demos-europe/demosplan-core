@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, it, jest } from '@jest/globals'
 import DpNewStatement from '../../../client/js/components/assessmenttable/DpNewStatement'
 import { shallowMount } from '@vue/test-utils'
+import { vi } from 'vitest'
 import Vuex from 'vuex'
 
 describe('DpNewStatement', () => {
@@ -9,7 +9,7 @@ describe('DpNewStatement', () => {
   let mockApplyBaseData
 
   beforeEach(() => {
-    mockApplyBaseData = jest.fn(async () => {})
+    mockApplyBaseData = vi.fn(async () => {})
 
     const assessmentTable = {
       namespaced: true,
@@ -63,7 +63,7 @@ describe('DpNewStatement', () => {
   })
 
   it('adds counties from data and sorts them', () => {
-    const sortSelectedSpy = jest.spyOn(wrapper.vm, 'sortSelected')
+    const sortSelectedSpy = vi.spyOn(wrapper.vm, 'sortSelected')
 
     const data = { counties: ['2', '1'] }
 

@@ -158,6 +158,7 @@ class GenerateOrganisationCommand extends DataProviderCommand
         $orgaStatusInCustomer->setCustomer($this->customerHandler->getCurrentCustomer());
         $orgaStatusInCustomer->setOrgaType($this->orgaType);
         $orgaStatusInCustomer->setStatus(OrgaStatusInCustomer::STATUS_ACCEPTED);
+        $orgaStatusInCustomer->setShowlist(true);
 
         $orga->addStatusInCustomer($orgaStatusInCustomer);
 

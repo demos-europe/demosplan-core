@@ -173,7 +173,8 @@ export default {
       getIsLoading: 'isLoading',
       // Selected options for current filter
       selectedFilterOptionsFromStore: 'selectedFilterOptionsByFilter',
-      optionsForFilterHash: 'allSelectedFilterOptionsWithFilterName',
+      allSelectedFilterOptionsWithFilterName: 'allSelectedFilterOptionsWithFilterName',
+      activeCfFilterEntries: 'activeCfFilterEntries',
     }),
 
     ...mapState('Filter', [
@@ -184,6 +185,10 @@ export default {
 
     availableOptions () {
       return this.getFilterOptionsByFilter(this.filterItem.id)
+    },
+
+    optionsForFilterHash () {
+      return [...this.allSelectedFilterOptionsWithFilterName, ...this.activeCfFilterEntries]
     },
 
     filteredSelectedOptions () {

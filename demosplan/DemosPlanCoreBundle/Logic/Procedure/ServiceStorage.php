@@ -39,8 +39,8 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Repository\NotificationReceiverRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 use Exception;
 use League\Flysystem\FilesystemOperator;
@@ -500,6 +500,10 @@ class ServiceStorage implements ProcedureServiceStorageInterface
             } else {
                 $procedure['settings']['publicParticipationFeedbackEnabled'] = false;
             }
+        }
+
+        if ($this->permissions->hasPermission('field_procedure_allow_uninvited_institutions')) {
+            $procedure['settings']['allowUninvitedInstitutions'] = array_key_exists('r_allowUninvitedInstitutions', $data);
         }
 
         // liegt das Enddatum vor dem Startdatum?

@@ -46,10 +46,10 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\FluentProcedureQuery;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\TransactionRequiredException;
 use EDT\Querying\Contracts\PaginationException;
@@ -811,6 +811,9 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             }
             if (array_key_exists('publicParticipationFeedbackEnabled', $data['settings'])) {
                 $procedureSettings->setPublicParticipationFeedbackEnabled($data['settings']['publicParticipationFeedbackEnabled']);
+            }
+            if (array_key_exists('allowUninvitedInstitutions', $data['settings'])) {
+                $procedureSettings->setAllowUninvitedInstitutions($data['settings']['allowUninvitedInstitutions']);
             }
             if (array_key_exists('pictogramCopyright', $data['settings'])) {
                 $procedureSettings->setPictogramCopyright($data['settings']['pictogramCopyright']);
