@@ -14,6 +14,7 @@ use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureExportJob;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
@@ -29,7 +30,11 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ExportService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureListService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
+use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ProcedureReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
@@ -203,6 +208,54 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     }
 
     /**
+     * Flip the read-only state of a procedure.
+     *
+     * Toggled from the admin procedure list, so this has its own route instead of the generic
+     * JSON:API update: that one is gated by feature_json_api_update, which the roles holding
+     * feature_procedure_read_only_toggle do not have outside a procedure.
+     *
+     * @throws Exception
+     */
+    #[DplanPermissions('feature_procedure_read_only_toggle')]
+    #[Route(
+        path: '/verfahren/{procedureId}/schreibschutz',
+        name: 'dplan_procedure_read_only_toggle',
+        options: ['expose' => true],
+        methods: ['POST']
+    )]
+    public function toggleProcedureReadOnly(
+        CurrentUserService $currentUserService,
+        EntityManagerInterface $entityManager,
+        ProcedureAccessEvaluator $procedureAccessEvaluator,
+        ProcedureReportEntryFactory $procedureReportEntryFactory,
+        ProcedureService $procedureService,
+        ReportService $reportService,
+        Request $request,
+        string $procedureId,
+    ): JsonResponse {
+        $procedure = $procedureService->getProcedure($procedureId);
+        if (!$procedure instanceof Procedure) {
+            throw new NotFoundHttpException();
+        }
+
+        // procedures are also reachable for invited, planning office and data input
+        // organisations, archiving one is reserved for the owner
+        if (!$procedureAccessEvaluator->isOwningProcedure($currentUserService->getUser(), $procedure)) {
+            throw new AccessDeniedException();
+        }
+
+        $readOnly = (bool) (Json::decodeToArray($request->getContent())['readOnly'] ?? false);
+        $procedure->setReadOnly($readOnly);
+        $entityManager->flush();
+
+        $reportService->persistAndFlushReportEntry(
+            $procedureReportEntryFactory->createReadOnlyToggleEntry($procedure, $readOnly)
+        );
+
+        return new JsonResponse(['readOnly' => $readOnly]);
+    }
+
+    /**
      * @return StreamedResponse|RedirectResponse
      *
      * @throws Exception
@@ -214,16 +267,52 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
         options: ['expose' => true],
         methods: ['POST']
     )]
-    public function exportProcedures(ExportService $exportService, Request $request): Response
-    {
+    public function exportProcedures(
+        ExportService $exportService,
+        ProcedureService $procedureService,
+        Request $request,
+    ): Response {
         $selectedProcedures = $this->getSelectedItems($request);
         if ([] === $selectedProcedures) {
             $this->getMessageBag()->add('error', 'error.procedure.export.noselection');
-        } else {
-            return $exportService->generateProcedureExportZip($selectedProcedures, false);
+
+            return $this->redirectToRoute('DemosPlan_procedure_administration_get');
         }
 
-        return $this->redirectToRoute('DemosPlan_procedure_administration_get');
+        $readOnlyProcedureNames = $this->getReadOnlyProcedureNames($procedureService, $selectedProcedures);
+        if ([] !== $readOnlyProcedureNames) {
+            $this->getMessageBag()->add(
+                'error',
+                'error.procedure.export.read.only',
+                ['procedureNames' => implode(', ', $readOnlyProcedureNames)]
+            );
+
+            return $this->redirectToRoute('DemosPlan_procedure_administration_get');
+        }
+
+        return $exportService->generateProcedureExportZip($selectedProcedures, false);
+    }
+
+    /**
+     * A read-only procedure grants none of the feature_procedure_export_include_* permissions,
+     * so it would contribute nothing but its name to the archive. Report it instead of handing
+     * back a ZIP that looks complete but is empty.
+     *
+     * @param string[] $procedureIds
+     *
+     * @return list<string>
+     */
+    private function getReadOnlyProcedureNames(ProcedureService $procedureService, array $procedureIds): array
+    {
+        $names = [];
+        foreach ($procedureIds as $procedureId) {
+            $procedure = $procedureService->getProcedure($procedureId);
+            if ($procedure instanceof Procedure && $procedure->isReadOnly()) {
+                $names[] = $procedure->getName();
+            }
+        }
+
+        return $names;
     }
 
     /**
@@ -245,12 +334,21 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
         CustomerService $customerService,
         EntityManagerInterface $entityManager,
         MessageBusInterface $messageBus,
+        ProcedureService $procedureService,
         Request $request,
         RunningExportJobLookup $runningExportJobLookup,
     ): Response {
         $selectedProcedures = $this->getSelectedItems($request);
         if (0 === count($selectedProcedures)) {
             return new JsonResponse(['error' => 'noselection'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $readOnlyProcedureNames = $this->getReadOnlyProcedureNames($procedureService, $selectedProcedures);
+        if ([] !== $readOnlyProcedureNames) {
+            return new JsonResponse(
+                ['error' => 'readonly', 'procedureNames' => $readOnlyProcedureNames],
+                Response::HTTP_BAD_REQUEST
+            );
         }
 
         $userId = $currentUserService->getUser()->getId();

@@ -305,6 +305,21 @@ export default {
     },
 
     exportProcedures (event) {
+      /*
+       * A read-only procedure grants none of the export content permissions, so it would only
+       * add its name to the archive.
+       */
+      const readOnlyProcedureNames = this.items
+        .filter(item => this.selectedItems.includes(item.id) && item.readOnly)
+        .map(item => item.name)
+
+      if (readOnlyProcedureNames.length > 0) {
+        event.preventDefault()
+        dplan.notify.error(Translator.trans('error.procedure.export.read.only', { procedureNames: readOnlyProcedureNames.join(', ') }))
+
+        return
+      }
+
       if (dpconfirm(Translator.trans('check.entries.marked.export'))) {
         this.$refs.procedureForm.method = 'post'
         this.$refs.procedureForm.action = Routing.generate('DemosPlan_procedures_export')
@@ -388,18 +403,9 @@ export default {
         return
       }
 
-      const url = Routing.generate('api_resource_update', { resourceType: 'Procedure', resourceId: procedureId })
-      const payload = {
-        data: {
-          id: procedureId,
-          type: 'Procedure',
-          attributes: {
-            readOnly: !readOnly,
-          },
-        },
-      }
+      const url = Routing.generate('dplan_procedure_read_only_toggle', { procedureId: procedureId })
 
-      dpApi.patch(url, {}, payload)
+      dpApi.post(url, {}, { readOnly: !readOnly })
         .then(() => {
           const procedure = this.items.find(item => item.id === procedureId)
 
