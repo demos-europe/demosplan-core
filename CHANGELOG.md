@@ -6,6 +6,11 @@
 
 ## UNRELEASED
 
+## v4.61.1 (2026-09-21)
+
+### Fixed
+- Bulk-loading statement segments by ID failed with a server error when filtering by procedure
+
 ## v4.61.0 (2026-09-21)
 
 ### Added
