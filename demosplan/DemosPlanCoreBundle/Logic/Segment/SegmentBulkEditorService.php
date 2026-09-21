@@ -180,8 +180,8 @@ class SegmentBulkEditorService
     /**
      * Adds and removes tags on the segment, returning true when the tag set actually changed.
      *
-     * addTag() returns false when the tag is already present; removeElement reflects whether
-     * the tag was actually removed — so no extra queries are needed on top of the mutations.
+     * addTag() returns false when the tag is already present. removeTag() itself returns no
+     * usable signal (it returns $this), so removal relies on a contains() check beforehand.
      *
      * @param Tag[] $addTags
      * @param Tag[] $removeTags

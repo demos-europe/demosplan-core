@@ -80,7 +80,7 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
     final public const SEGMENTS_BULK_EDIT_METHOD = 'segment.bulk.edit';
 
-    final public const SEGMNETS_BULK_ERROR_MESSAGE = 'Problem while segments bulk editing';
+    final public const SEGMENTS_BULK_ERROR_MESSAGE = 'Problem while segments bulk editing';
 
     /** @var SegmentInterface[] */
     protected array $segmentsWithTagChanges = [];
@@ -177,13 +177,13 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                     $resultSegments = [...$resultSegments, ...$segments];
                     $resultResponse[] = $this->generateMethodResult($rpcRequest);
                 } catch (InvalidArgumentException|InvalidSchemaException|UserNotAssignableException $e) {
-                    $this->logger->error(self::SEGMNETS_BULK_ERROR_MESSAGE, ['Exception' => $e]);
+                    $this->logger->error(self::SEGMENTS_BULK_ERROR_MESSAGE, ['Exception' => $e]);
                     $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
                 } catch (AccessDeniedException|UserNotFoundException $e) {
-                    $this->logger->error(self::SEGMNETS_BULK_ERROR_MESSAGE, ['Exception' => $e]);
+                    $this->logger->error(self::SEGMENTS_BULK_ERROR_MESSAGE, ['Exception' => $e]);
                     $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
                 } catch (Exception $e) {
-                    $this->logger->error(self::SEGMNETS_BULK_ERROR_MESSAGE, ['Exception' => $e]);
+                    $this->logger->error(self::SEGMENTS_BULK_ERROR_MESSAGE, ['Exception' => $e]);
                     $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
                 }
             }
