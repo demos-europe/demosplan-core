@@ -36,6 +36,7 @@
         }"
         name="r_location"
         :checked="statement.location_is_set === 'county'"
+        :disabled="disabled"
         @change="() => { setStatementData({ r_location: 'county', location_is_set: 'county' }) }"
         value="county" />
       <select
@@ -43,6 +44,7 @@
         id="r_county"
         name="r_county"
         :class="prefixClass('o-form__control-select')"
+        :disabled="disabled"
         ref="locationCountySelect"
         @change="val => setStatementData({r_county: val.target.value})"
         :value="statement.r_county">
@@ -69,6 +71,7 @@
         }"
         name="r_location"
         :checked="statement.location_is_set === 'notLocated'"
+        :disabled="disabled"
         @change="() => { setStatementData({r_location: 'notLocated', location_is_set: 'notLocated'}) }"
         value="notLocated" />
     </div>

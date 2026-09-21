@@ -96,7 +96,9 @@
             v-cleanhtml="createErrorMessage('statementForm')" />
         </div>
 
-        <template v-if="loggedIn && hasPermission('feature_elements_use_negative_report') && planningDocumentsHasNegativeStatement">
+        <div
+          v-if="loggedIn && hasPermission('feature_elements_use_negative_report') && planningDocumentsHasNegativeStatement"
+          class="mb-3">
           <div class="flex">
             <dp-radio
               name="r_isNegativeReport"
@@ -110,33 +112,38 @@
               }"
               value="0" />
             <dp-radio
-              :disabled="canNotBeNegativeReport"
               name="r_isNegativeReport"
               id="negative_report_true"
               data-cy="statementModal:indicationerror"
               :checked="formData.r_isNegativeReport === '1'"
-              @change="() => { setStatementData({ r_isNegativeReport: '1'}) }"
+              @change="selectNegativeReport"
               :label="{
                 hint: Translator.trans('link.title.indicationerror'),
                 text: Translator.trans('indicationerror')
               }"
               value="1" />
           </div>
-        </template>
+          <dp-inline-notification
+            v-if="negativeReportIgnoresContent"
+            class="mt-2"
+            data-cy="statementModal:negativeReportHint"
+            :message="Translator.trans('statement.negative_report.hint')"
+            type="warning" />
+        </div>
 
         <div :class="prefixClass('c-statement__text')">
           <dp-label
             :text="Translator.trans('statement.detail.form.statement_text')"
             for="statementText"
-            :required="formData.r_isNegativeReport !== '1'" />
+            :required="!isNegativeReport" />
           <dp-editor
             :class="prefixClass('u-mb')"
             :data-dp-validate-error-fieldname="Translator.trans('statement.text.short')"
             hidden-input="r_text"
             id="statementText"
             ref="statementEditor"
-            :readonly="formData.r_isNegativeReport === '1'"
-            :required="formData.r_isNegativeReport !== '1'"
+            :readonly="isNegativeReport"
+            :required="!isNegativeReport"
             :toolbar-items="{
               mark: true,
               strikethrough: true
@@ -184,6 +191,7 @@
             :class="prefixClass('c-statement__formblock u-ml u-mb-0_5 u-mt-0_5 inline-block')">
             <template v-if="formData.r_element_id !== ''">
               <button
+                :disabled="isNegativeReport"
                 @click="gotoTab('procedureDetailsDocumentlist')"
                 :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up u-1-of-1-palm')">
                 <i
@@ -193,6 +201,7 @@
               </button>
               <span :class="prefixClass('hide-lap-up')" />
               <button
+                :disabled="isNegativeReport"
                 @click="removeDocumentRelation"
                 :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up u-1-of-1-palm')"
                 :href="Routing.generate( 'DemosPlan_procedure_public_detail', { procedure: procedureId }) + '#procedureDetailsDocumentlist'">
@@ -204,7 +213,7 @@
             </template>
             <button
               v-else
-              :disabled="formData.r_isNegativeReport !== '0'"
+              :disabled="isNegativeReport"
               data-cy="statementModal:elementAssign"
               @click="gotoTab('procedureDetailsDocumentlist')"
               :class="prefixClass('btn--blank o-link--default text-left')">
@@ -237,8 +246,8 @@
             :key="formDefinition.key"
             :draft-statement-id="draftStatementId"
             :is-map-enabled="isMapEnabled"
-            :disabled="formData.r_isNegativeReport !== '0'"
-            :required="formDefinition.required && formData.r_isNegativeReport !== '1'"
+            :disabled="isNegativeReport"
+            :required="formDefinition.required && !isNegativeReport"
             :logged-in="loggedIn"
             :counties="counties" />
         </template>
@@ -272,6 +281,8 @@
                   </a>
                   <label :class="prefixClass('lbl--text float-right')">
                     <input
+                      :checked="isNegativeReport || formData.delete_file.includes(file.hash)"
+                      :disabled="isNegativeReport"
                       :value="file.hash"
                       name="delete_file[]"
                       @change="() => updateDeleteFile(file.hash)"
@@ -287,7 +298,7 @@
 
                 <dp-upload-files
                   id="upload_files"
-                  :disabled="formData.r_isNegativeReport !== '0'"
+                  :disabled="isNegativeReport"
                   allowed-file-types="pdf-img-zip"
                   :basic-auth="dplan.settings.basicAuth"
                   :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
@@ -656,6 +667,7 @@ import {
   CleanHtml,
   dpApi,
   DpCheckbox,
+  DpInlineNotification,
   DpInput,
   DpLabel,
   DpLoading,
@@ -673,6 +685,27 @@ import {
 import { mapMutations, mapState } from 'vuex'
 import dayjs from 'dayjs'
 import StatementModalRecheck from './StatementModalRecheck'
+
+/*
+ * Fields a negative report (Fehlanzeige) must not carry; the backend only swaps the element category and would keep them otherwise.
+ * 'notLocated' is required: only that value makes the backend drop polygon, priority area and county of an existing draft.
+ */
+const negativeReportContentReset = {
+  location_is_set: 'notLocated',
+  r_county: '',
+  r_document_id: '',
+  r_document_title: '',
+  r_element_title: '',
+  r_location: 'notLocated',
+  r_location_geometry: '',
+  r_location_point: '',
+  r_location_priority_area_key: '',
+  r_location_priority_area_type: '',
+  r_paragraph_id: '',
+  r_paragraph_title: '',
+  r_text: '',
+  uploadedFiles: ''
+}
 
 // This is the mapping between form field ids and translation keys, which are displayed in the error message if the field contains an error
 const fieldDescriptionsForErrors = {
@@ -701,6 +734,7 @@ export default {
 
   components: {
     DpCheckbox,
+    DpInlineNotification,
     DpInput,
     DpLabel,
     DpLoading,
@@ -918,12 +952,26 @@ export default {
       userId: 'userId'
     }),
 
-    canNotBeNegativeReport () {
+    hasStatementContent () {
       return this.formData.r_element_id !== '' ||
         this.formData.r_document_id !== '' ||
         this.formData.r_text !== '' ||
-        this.formData.r_location !== '' ||
-        this.formData.uploadedFiles !== ''
+        this.hasLocationReference ||
+        this.formData.uploadedFiles !== '' ||
+        this.initialFiles.length > 0
+    },
+
+    // "Kein Ortsbezug" and the 'mapLocation' placeholder of drafts without location attributes are not content.
+    hasLocationReference () {
+      return ['point', 'priorityAreaType', 'county'].includes(this.formData.r_location)
+    },
+
+    isNegativeReport () {
+      return this.formData.r_isNegativeReport === '1'
+    },
+
+    negativeReportIgnoresContent () {
+      return this.isNegativeReport && this.hasStatementContent
     },
 
     commentingIcon () {
@@ -1060,8 +1108,9 @@ export default {
             r_files_initial: statementFiles || [],
             r_ident: this.draftStatementId,
             r_isNegativeReport: data.draftStatement.negativ ? '1' : '0',
-            r_element_id: data.draftStatement.elementId || '',
-            r_element_title: !!data.draftStatement.element && !!data.draftStatement.element.title ? data.draftStatement.element.title : '',
+            // A Fehlanzeige's element is the Fehlanzeige category itself, assigned by the backend; not a user choice.
+            r_element_id: !data.draftStatement.negativ && data.draftStatement.elementId ? data.draftStatement.elementId : '',
+            r_element_title: !data.draftStatement.negativ && !!data.draftStatement.element && !!data.draftStatement.element.title ? data.draftStatement.element.title : '',
             r_paragraph_id: data.draftStatement.paragraphId || '',
             r_paragraph_title: !!data.draftStatement.paragraph && !!data.draftStatement.paragraph.title ? data.draftStatement.paragraph.title : '',
             r_document_id: !!data.draftStatement.document && !!data.draftStatement.document.id ? data.draftStatement.document.id : '',
@@ -1213,6 +1262,28 @@ export default {
       this.setStatementData(elementFields)
     },
 
+    /*
+     * When a user clicks into the editor, then switches to 'Fehlanzeige', then back to 'Stellung nehmen', the editor
+     * would have a red error border because it's validated on blur and only reset on focus, so validation state is cleared
+     * when switching to 'Fehlanzeige'
+     */
+    clearStatementValidationState () {
+      const form = this.$el.querySelector('[data-dp-validate="statementForm"]')
+
+      if (!form) {
+        return
+      }
+
+      const errorClass = this.prefixClass('is-invalid')
+
+      form.querySelectorAll(`.${errorClass}`).forEach(el => el.classList.remove(errorClass))
+    },
+
+    selectNegativeReport () {
+      this.setStatementData({ r_isNegativeReport: '1' })
+      this.clearStatementValidationState()
+    },
+
     removeNotificationsFromStore () {
       this.messages.forEach(message => {
         this.remove(message)
@@ -1229,6 +1300,14 @@ export default {
       e.preventDefault()
 
       if (this.validateStatementStep() === false || this.validateRecheckStep() === false) {
+        return
+      }
+
+      const contentIgnored = this.negativeReportIgnoresContent
+
+      if (contentIgnored && window.dpconfirm(Translator.trans('statement.negative_report.confirm')) === false) {
+        this.setStatementData({ r_isNegativeReport: '0' })
+
         return
       }
 
@@ -1304,7 +1383,23 @@ export default {
         this.setStatementData({ action: 'statementpublicnew' })
       }
 
-      return makeFormPost(this.formData, route)
+      // Content stays in the store so it reappears when switching back to "Stellung nehmen"; only the payload is stripped
+      let payload = this.formData
+
+      // Applies to every Fehlanzeige, not only with content: a reopened one carries r_element_id '' which would drop its category
+      if (this.isNegativeReport) {
+        payload = {
+          ...this.formData,
+          ...negativeReportContentReset,
+          // A Fehlanzeige has no files, so attachments from earlier saves are removed as well
+          delete_file: [...new Set([...this.formData.delete_file, ...this.initialFiles.map(file => file.hash)])]
+        }
+
+        // Omit r_element_id so backend correctly derives 'Fehlanzeige' category
+        delete payload.r_element_id
+      }
+
+      return makeFormPost(payload, route)
         .then(response => {
           if (response.status === 429) {
             dplan.notify.notify('error', Translator.trans('error.statement.not.saved.throttle'))
@@ -1323,7 +1418,11 @@ export default {
           if (response.status === 200) {
             dplan.notify.notify('confirm', Translator.trans('confirm.statement.saved'))
 
-            this.updateInitialFilesAfterSave()
+            if (contentIgnored) {
+              this.discardStatementContent()
+            } else {
+              this.updateInitialFilesAfterSave()
+            }
 
             /*
              * If the modal should stay open
@@ -1462,6 +1561,24 @@ export default {
       this.setStatementData({ uploadedFiles: '' })
       // Reset session storage - remove uploaded and saved files
       sessionStorage.removeItem(this.fileStorageName)
+    },
+
+    // After a Fehlanzeige save the server holds no content, so the form must not either
+    discardStatementContent () {
+      if (this.$refs.statementEditor) {
+        this.$refs.statementEditor.resetEditor()
+      }
+      if (this.$refs.uploadFiles) {
+        this.$refs.uploadFiles.clearFilesList()
+      }
+      this.unsavedFiles = []
+      sessionStorage.removeItem(this.fileStorageName)
+      this.setStatementData({
+        ...negativeReportContentReset,
+        r_element_id: '',
+        r_files_initial: '[]',
+        delete_file: []
+      })
     },
 
     validateStatementStep () {

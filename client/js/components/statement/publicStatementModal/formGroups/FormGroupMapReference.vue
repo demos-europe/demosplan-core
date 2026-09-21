@@ -48,7 +48,7 @@
         href="#"
         class="o-link--default"
         data-cy="formGroupMap:procedureDetailsMap"
-        v-show="isLocationSelected"
+        v-show="isLocationSelected && !disabled"
         @click.prevent="gotoTab('procedureDetailsMap')">
         <template v-if="statement.r_location_point !== ''">
           {{ Translator.trans('location.marked.yours') }}
@@ -88,6 +88,7 @@
         name="r_county"
         :required="statement.r_location === 'county'"
         :class="prefixClass('o-form__control-select')"
+        :disabled="disabled"
         ref="locationCountySelect"
         @change="val => setStatementData({r_county: val.target.value})"
         :value="statement.r_county">
@@ -116,6 +117,7 @@
         class="u-mb-0_25"
         data-cy="formGroupMap:notLocated"
         :checked="statement.r_location === 'notLocated'"
+        :disabled="disabled"
         @change="() => { setStatementData({r_location: 'notLocated', location_is_set: 'notLocated'}) }"
         value="notLocated" />
     </div>
