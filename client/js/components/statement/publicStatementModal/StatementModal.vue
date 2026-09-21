@@ -135,15 +135,15 @@
           <dp-label
             :text="Translator.trans('statement.detail.form.statement_text')"
             for="statementText"
-            :required="formData.r_isNegativeReport !== '1'" />
+            :required="!isNegativeReport" />
           <dp-editor
             :class="prefixClass('u-mb')"
             :data-dp-validate-error-fieldname="Translator.trans('statement.text.short')"
             hidden-input="r_text"
             id="statementText"
             ref="statementEditor"
-            :readonly="formData.r_isNegativeReport === '1'"
-            :required="formData.r_isNegativeReport !== '1'"
+            :readonly="isNegativeReport"
+            :required="!isNegativeReport"
             :toolbar-items="{
               mark: true,
               strikethrough: true
@@ -191,7 +191,7 @@
             :class="prefixClass('c-statement__formblock u-ml u-mb-0_5 u-mt-0_5 inline-block')">
             <template v-if="formData.r_element_id !== ''">
               <button
-                :disabled="formData.r_isNegativeReport !== '0'"
+                :disabled="isNegativeReport"
                 @click="gotoTab('procedureDetailsDocumentlist')"
                 :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up u-1-of-1-palm')">
                 <i
@@ -201,7 +201,7 @@
               </button>
               <span :class="prefixClass('hide-lap-up')" />
               <button
-                :disabled="formData.r_isNegativeReport !== '0'"
+                :disabled="isNegativeReport"
                 @click="removeDocumentRelation"
                 :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up u-1-of-1-palm')"
                 :href="Routing.generate( 'DemosPlan_procedure_public_detail', { procedure: procedureId }) + '#procedureDetailsDocumentlist'">
@@ -213,7 +213,7 @@
             </template>
             <button
               v-else
-              :disabled="formData.r_isNegativeReport !== '0'"
+              :disabled="isNegativeReport"
               data-cy="statementModal:elementAssign"
               @click="gotoTab('procedureDetailsDocumentlist')"
               :class="prefixClass('btn--blank o-link--default text-left')">
@@ -246,8 +246,8 @@
             :key="formDefinition.key"
             :draft-statement-id="draftStatementId"
             :is-map-enabled="isMapEnabled"
-            :disabled="formData.r_isNegativeReport !== '0'"
-            :required="formDefinition.required && formData.r_isNegativeReport !== '1'"
+            :disabled="isNegativeReport"
+            :required="formDefinition.required && !isNegativeReport"
             :logged-in="loggedIn"
             :counties="counties" />
         </template>
@@ -281,8 +281,8 @@
                   </a>
                   <label :class="prefixClass('lbl--text float-right')">
                     <input
-                      :checked="formData.r_isNegativeReport === '1' || formData.delete_file.includes(file.hash)"
-                      :disabled="formData.r_isNegativeReport !== '0'"
+                      :checked="isNegativeReport || formData.delete_file.includes(file.hash)"
+                      :disabled="isNegativeReport"
                       :value="file.hash"
                       name="delete_file[]"
                       @change="() => updateDeleteFile(file.hash)"
@@ -298,7 +298,7 @@
 
                 <dp-upload-files
                   id="upload_files"
-                  :disabled="formData.r_isNegativeReport !== '0'"
+                  :disabled="isNegativeReport"
                   allowed-file-types="pdf-img-zip"
                   :basic-auth="dplan.settings.basicAuth"
                   :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
@@ -966,8 +966,12 @@ export default {
       return ['point', 'priorityAreaType', 'county'].includes(this.formData.r_location)
     },
 
+    isNegativeReport () {
+      return this.formData.r_isNegativeReport === '1'
+    },
+
     negativeReportIgnoresContent () {
-      return this.formData.r_isNegativeReport === '1' && this.hasStatementContent
+      return this.isNegativeReport && this.hasStatementContent
     },
 
     commentingIcon () {
@@ -1383,7 +1387,7 @@ export default {
       let payload = this.formData
 
       // Applies to every Fehlanzeige, not only with content: a reopened one carries r_element_id '' which would drop its category
-      if (this.formData.r_isNegativeReport === '1') {
+      if (this.isNegativeReport) {
         payload = {
           ...this.formData,
           ...negativeReportContentReset,
