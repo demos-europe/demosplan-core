@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Api\ScheduledExport;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -56,8 +55,8 @@ class ScheduledExportAccessChecker
         }
 
         return [
-            $this->conditionFactory->propertyHasValue($user->getId(), Paths::exportSchedule()->userId),
-            $this->conditionFactory->propertyHasValue($procedure->getId(), Paths::exportSchedule()->procedureId),
+            $this->conditionFactory->propertyHasValue($user->getId(), 'userId'),
+            $this->conditionFactory->propertyHasValue($procedure->getId(), 'procedureId'),
         ];
     }
 }
