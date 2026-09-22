@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\RecommendationConverter;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\SegmentExportColumnResolver;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
@@ -59,6 +60,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         protected ImageManager $imageManager,
         ImageLinkConverter $imageLinkConverter,
         RecommendationConverter $recommendationConverter,
+        private readonly SegmentExportColumnResolver $segmentExportColumnResolver,
         Slugify $slugify,
         StyleInitializer $styleInitializer,
         TranslatorInterface $translator,
@@ -150,12 +152,10 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('segmentsSelectedColumnSet');
 
         if (null !== $segmentExportInfo) {
-            // todo: log when a selected column key has no match in $columnsDefinition, so a
-            // silently dropped column (e.g. a stale/renamed key) doesn't go unnoticed
-            $columnsDefinition = array_values(array_filter(
+            $columnsDefinition = $this->segmentExportColumnResolver->resolve(
                 $columnsDefinition,
-                static fn (array $column): bool => in_array($column['key'], $segmentExportInfo->getSelectedColumnKeys(), true)
-            ));
+                $segmentExportInfo->getSelectedColumnKeys()
+            );
         }
         $writer = $this->assessmentTableXlsExporter->createExcel($exportData, $columnsDefinition);
 
@@ -176,10 +176,10 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('segmentsSelectedColumnSet');
 
         if (null !== $segmentExportInfo) {
-            $columnsDefinition = array_values(array_filter(
+            $columnsDefinition = $this->segmentExportColumnResolver->resolve(
                 $columnsDefinition,
-                static fn (array $column): bool => in_array($column['key'], $segmentExportInfo->getSelectedColumnKeys(), true)
-            ));
+                $segmentExportInfo->getSelectedColumnKeys()
+            );
         }
 
         $attributesToExport = array_column($columnsDefinition, 'key');
