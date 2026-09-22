@@ -25,7 +25,7 @@ return RectorConfig::configure()
     ->withSets([
         // Define what rule sets will be applied
         SetList::CODE_QUALITY,
-        SymfonySetList::SYMFONY_64,
+        //        SymfonySetList::SYMFONY_64,
         // SymfonyLevelSetList::UP_TO_SYMFONY_54,
         // LevelSetList::UP_TO_PHP_81,
         // TwigSetList::TWIG_UNDERSCORE_TO_NAMESPACE,
@@ -36,6 +36,7 @@ return RectorConfig::configure()
         // PHPUnitLevelSetList::UP_TO_PHPUNIT_90,
         // DoctrineSetList::DOCTRINE_DBAL_40,
     ])
+    ->withComposerBased(symfony: true)
     ->withAttributesSets(symfony: true)
     ->withSkip([
         // TypedPropertyFromAssignsRector::class,
@@ -45,7 +46,7 @@ return RectorConfig::configure()
     ->withPaths([__DIR__.'/../../demosplan'])
     ->withPhpVersion(PhpVersion::PHP_81)
     ->withSymfonyContainerXml(
-        '/srv/www/var/cache/dev/demosplan_DemosPlanCoreBundle_Application_DemosPlanKernelDevDebugContainer.xml'
+        '/srv/www/var/cache/dev/core/demosplan_DemosPlanCoreBundle_Application_DemosPlanKernelDevDebugContainer.xml'
     )
     ->withAutoloadPaths([__DIR__.'/../../vendor/autoload.php'])
     ->withImportNames()

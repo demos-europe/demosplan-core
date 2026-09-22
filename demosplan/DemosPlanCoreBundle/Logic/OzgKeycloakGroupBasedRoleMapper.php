@@ -64,17 +64,17 @@ class OzgKeycloakGroupBasedRoleMapper
         );
 
         if ([] !== $unIdentifiedRoles) {
-            $this->logger->error('at least one non recognizable role was requested!', $unIdentifiedRoles);
+            $this->logger->error('oauthAuthenticator: at least one non recognizable role was requested!', $unIdentifiedRoles);
         }
 
-        $this->logger->info('Recognized Roles: ', [$recognizedRoleCodes]);
+        $this->logger->info('oauthAuthenticator: Recognized Roles: ', [$recognizedRoleCodes]);
         $requestedRoles = $this->filterNonAvailableRolesInProject($recognizedRoleCodes);
 
         if ([] === $requestedRoles) {
             throw new AuthenticationCredentialsNotFoundException('no roles could be identified');
         }
 
-        $this->logger->info('Finally recognized Roles: ', [$requestedRoles]);
+        $this->logger->info('oauthAuthenticator: Finally recognized Roles: ', [$requestedRoles]);
 
         return $requestedRoles;
     }
@@ -100,13 +100,13 @@ class OzgKeycloakGroupBasedRoleMapper
                 continue;
             }
 
-            $this->logger->info("Role found for subdomain {$subdomain}: {$roleName}");
+            $this->logger->info("oauthAuthenticator: Role found for subdomain {$subdomain}: {$roleName}");
 
             if (array_key_exists($roleName, self::ROLETITLE_TO_ROLECODE)) {
-                $this->logger->info("Role recognized: {$roleName}");
+                $this->logger->info("oauthAuthenticator: Role recognized: {$roleName}");
                 $recognizedRoleCodes[] = self::ROLETITLE_TO_ROLECODE[$roleName];
             } else {
-                $this->logger->info("Role not recognized: {$roleName}");
+                $this->logger->info("oauthAuthenticator: Role not recognized: {$roleName}");
                 $unIdentifiedRoles[] = $roleName;
             }
         }
@@ -127,17 +127,17 @@ class OzgKeycloakGroupBasedRoleMapper
         $availableRequestedRoles = [];
         foreach ($requestedRoleCodes as $roleCode) {
             if (in_array($roleCode, $this->globalConfig->getRolesAllowed(), true)) {
-                $this->logger->info('try to fetch role entity for role code', [$roleCode]);
+                $this->logger->info('oauthAuthenticator: try to fetch role entity for role code', [$roleCode]);
                 $availableRequestedRoles[] = $this->roleRepository->findOneBy(['code' => $roleCode]);
-                $this->logger->info('current available requested roles', [$availableRequestedRoles]);
+                $this->logger->info('oauthAuthenticator: current available requested roles', [$availableRequestedRoles]);
             } else {
-                $this->logger->info('try to fetch role entity for not allowed role code', [$roleCode]);
+                $this->logger->info('oauthAuthenticator: try to fetch role entity for not allowed role code', [$roleCode]);
                 $unavailableRoles[] = $this->roleRepository->findOneBy(['code' => $roleCode]);
-                $this->logger->info('current unavailable requested roles', [$unavailableRoles]);
+                $this->logger->info('oauthAuthenticator: current unavailable requested roles', [$unavailableRoles]);
             }
         }
         if ([] !== $unavailableRoles) {
-            $this->logger->info('the following requested roles are not available in project', $unavailableRoles);
+            $this->logger->info('oauthAuthenticator: the following requested roles are not available in project', $unavailableRoles);
         }
 
         return $availableRequestedRoles;

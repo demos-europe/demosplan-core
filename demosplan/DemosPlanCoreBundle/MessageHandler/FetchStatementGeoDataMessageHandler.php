@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -37,7 +39,7 @@ final class FetchStatementGeoDataMessageHandler
         $this->initializeAnonymousUserPermissions();
 
         try {
-            if (true === $this->globalConfig->getUseFetchAdditionalGeodata()) {
+            if ($this->globalConfig->getUseFetchAdditionalGeodata()) {
                 $this->logger->info('Fetch Statement Geodata... ', [spl_object_id($message)]);
                 $geoDataFetched = $this->statementService->processScheduledFetchGeoData();
                 if ($geoDataFetched > 0) {

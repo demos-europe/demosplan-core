@@ -9,19 +9,23 @@
 
 function transformPiToJsonApi (piTags) {
   const transformedTags = []
+
   piTags.forEach(tag => {
     const transformedTag = { attributes: {} }
+
     transformedTag.id = tag.id
     transformedTag.attributes.title = tag.tagName
     transformedTag.type = 'piTag'
     transformedTag.attributes.score = tag.score
     transformedTags.push(transformedTag)
   })
+
   return transformedTags
 }
 
 function transformJsonApiToPi (jsonApiTag) {
   let transformedTag = jsonApiTag
+
   if (jsonApiTag.type === 'piTag') {
     transformedTag = {
       tagName: jsonApiTag.attributes.title,
@@ -29,6 +33,7 @@ function transformJsonApiToPi (jsonApiTag) {
       score: jsonApiTag.attributes.score,
     }
   }
+
   return transformedTag
 }
 

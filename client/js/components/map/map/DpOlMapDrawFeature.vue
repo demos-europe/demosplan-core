@@ -193,6 +193,7 @@ export default {
       if (this.map === null || this.renderControl === false) {
         return
       }
+
       if (((this.currentlyActive === false && name === this.name) || (this.defaultControl && name === ''))) {
         const style = this.drawStyle ? this.drawStyle : this.olMapState.drawStyles
 
@@ -283,6 +284,7 @@ export default {
       if (this.fitDrawing) {
         this.fitMapToDrawing()
       }
+
       if (this.currentlyActive) {
         this.activateTool(this.name)
       }
@@ -300,6 +302,7 @@ export default {
         this.features.features[0].type === 'Feature' &&
         this.features.features[0].geometry.coordinates.length === 2) {
         const center = this.vectorSourceOptions.features[0].getGeometry().getCoordinates()
+
         /*
          *  Centering the map view around the given coordinate.
          *  This only works with point feature atm.

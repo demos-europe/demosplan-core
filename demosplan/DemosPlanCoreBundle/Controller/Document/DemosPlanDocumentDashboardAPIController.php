@@ -74,7 +74,7 @@ class DemosPlanDocumentDashboardAPIController extends APIController
      * Manages the display of the dashboard on load.
      */
     #[DplanPermissions('area_admin')]
-    #[Route(path: '/api/1.0/documents/{procedureId}/dashboard', methods: ['GET'], name: 'dp_api_documents_dashboard_get', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/documents/{procedureId}/dashboard', name: 'dp_api_documents_dashboard_get', options: ['expose' => true], methods: ['GET'])]
     public function showDashboard(
         ElementHandler $elementHandler,
         ElementsService $elementsService,
@@ -134,7 +134,7 @@ class DemosPlanDocumentDashboardAPIController extends APIController
      * Manages some updates performed from the dashboard.
      */
     #[DplanPermissions('area_admin')]
-    #[Route(path: '/api/1.0/documents/{procedureId}/dashboard', methods: ['PATCH'], name: 'dp_api_documents_dashboard_update', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/documents/{procedureId}/dashboard', name: 'dp_api_documents_dashboard_update', options: ['expose' => true], methods: ['PATCH'])]
     public function updateDashboard(
         PermissionsInterface $permissions,
         ProcedureService $procedureService,

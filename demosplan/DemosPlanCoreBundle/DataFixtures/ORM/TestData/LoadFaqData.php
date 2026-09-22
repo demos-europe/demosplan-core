@@ -101,7 +101,7 @@ class LoadFaqData extends TestFixture implements DependentFixtureInterface
         $this->setReference(self::FAQ_PLANNER_BB, $faqPlannerBB);
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             LoadCustomerData::class,

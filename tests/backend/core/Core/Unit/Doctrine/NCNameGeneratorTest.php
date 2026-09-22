@@ -23,7 +23,7 @@ class NCNameGeneratorTest extends UnitTestCase
         $generator = new NCNameGenerator();
         // test 1000 generated Ids
         for ($i = 0; $i < 1000; ++$i) {
-            $uuid = $generator->generate($this->getMock(EntityManager::class), 'anything');
+            $uuid = $generator->generateId($this->getMock(EntityManager::class), 'anything');
             if (1 === preg_match('/[\d]/', $uuid[0])) {
                 self::fail('invalid NCName generated');
             }

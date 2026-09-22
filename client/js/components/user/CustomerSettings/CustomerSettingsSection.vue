@@ -12,7 +12,7 @@
 </documentation>
 
 <template>
-  <fieldset>
+  <fieldset class="pb-2">
     <legend
       class="sr-only"
       v-text="title"
@@ -22,7 +22,7 @@
       :is-open="isOpen"
       :title="title"
     >
-      <div class="o-box--dark u-p">
+      <div class="o-box u-p">
         <slot />
       </div>
     </dp-accordion>

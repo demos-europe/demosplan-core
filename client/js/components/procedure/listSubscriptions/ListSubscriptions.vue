@@ -128,10 +128,12 @@ export default {
     DpButton,
     DpDataTable: defineAsyncComponent(async () => {
       const { DpDataTable } = await import('@demos-europe/demosplan-ui')
+
       return DpDataTable
     }),
     DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
+
       return DpInlineNotification
     }),
     DpSelect,

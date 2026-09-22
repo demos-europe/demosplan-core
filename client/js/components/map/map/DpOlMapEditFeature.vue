@@ -257,6 +257,7 @@ export default {
       if (features !== null && features.getLength() > 0) {
         features.getArray().forEach(feature => {
           const featureInSelection = this.selectedFeatureId.indexOf(feature.getProperties().id)
+
           if (featureInSelection > -1) {
             this.map.getLayers().forEach(layer => {
               if (layer instanceof VectorLayer && this.targets.includes(layer.get('name')) && layer.getSource().hasFeature(feature)) {
@@ -274,6 +275,7 @@ export default {
       if (hasOwnProp(event, 'element')) {
         event.element.get('id')
         const elIdx = this.selectedFeatureId.indexOf(event.element.get('id'))
+
         this.selectedFeatureId.splice(elIdx, 1)
         if (this.selectedFeatureId.length <= 0) {
           this.disabled = true

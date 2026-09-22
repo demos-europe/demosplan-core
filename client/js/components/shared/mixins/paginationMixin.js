@@ -15,10 +15,12 @@ export default {
     initPagination () {
       let currentPage = this.defaultPagination.currentPage
       let perPage = this.defaultPagination.perPage
+
       if (window.localStorage.getItem(this.storageKeyPagination)) {
         currentPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).currentPage)
         perPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).perPage)
       }
+
       this.pagination = {
         currentPage,
         perPage,
@@ -32,6 +34,7 @@ export default {
     updatePagination (data) {
       const currentPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).currentPage)
       const perPage = Number(JSON.parse(window.localStorage.getItem([this.storageKeyPagination])).perPage)
+
       this.pagination = {
         count: data.count,
         currentPage,
@@ -48,6 +51,7 @@ export default {
      */
     setLocalStorage (data) {
       const paginationData = { currentPage: data.current_page, perPage: data.per_page }
+
       window.localStorage.setItem(this.storageKeyPagination, JSON.stringify(paginationData))
     },
   },

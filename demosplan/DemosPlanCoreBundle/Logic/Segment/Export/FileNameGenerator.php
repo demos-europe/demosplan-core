@@ -16,6 +16,7 @@ use Cocur\Slugify\Slugify;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class FileNameGenerator
@@ -28,13 +29,22 @@ class FileNameGenerator
 
     public const DEFAULT_TEMPLATE_NAME_CENSORED = self::PLACEHOLDER_ID;
 
-    public function __construct(protected Slugify $slugify, protected TranslatorInterface $translator)
-    {
+    public function __construct(
+        protected Slugify $slugify,
+        protected TranslatorInterface $translator,
+        private readonly NameGenerator $nameGenerator,
+    ) {
     }
 
+    /**
+     * The procedure name is shortened because Windows Explorer extracts an archive into a
+     * folder named after it, so its length is charged against MAX_PATH for every entry.
+     */
     public function getSynopseFileName(Procedure $procedure, string $suffix): string
     {
-        return 'Synopse-'.$this->slugify->slugify($procedure->getName()).'.'.$suffix;
+        $procedureName = $this->nameGenerator->shortenProcedureNameForExport($procedure->getName());
+
+        return 'Synopse-'.$this->slugify->slugify($procedureName).'.'.$suffix;
     }
 
     public function getFilteredSynopseFileName(Procedure $procedure, string $suffix): string

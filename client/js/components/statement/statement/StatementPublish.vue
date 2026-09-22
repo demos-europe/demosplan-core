@@ -103,10 +103,12 @@ export default {
   components: {
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
+
       return DpEditor
     }),
     DpInlineNotification: defineAsyncComponent(async () => {
       const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
+
       return DpInlineNotification
     }),
     VotingStatus,

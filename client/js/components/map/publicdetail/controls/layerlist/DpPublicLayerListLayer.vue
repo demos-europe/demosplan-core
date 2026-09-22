@@ -128,6 +128,7 @@ export default {
     contextualHelpText () {
       const contextualHelp = this.element({ id: this.layer.id, type: 'ContextualHelp' })
       const hasContextualHelp = contextualHelp && contextualHelp.attributes.text
+
       return hasContextualHelp ? contextualHelp.attributes.text : ''
     },
 
@@ -158,6 +159,7 @@ export default {
 
     statusAriaText () {
       let text = ''
+
       switch (this.statusIcon) {
         case 'fa-lock':
           text = 'maplayer.locked'
@@ -226,7 +228,10 @@ export default {
 
     setOpacity (e) {
       const val = e.target.value
-      if (isNaN(val * 1)) return false
+
+      if (Number.isNaN(val * 1)) {
+        return false
+      }
 
       this.setLayerState({ id: this.layer.id, key: 'opacity', value: val })
     },

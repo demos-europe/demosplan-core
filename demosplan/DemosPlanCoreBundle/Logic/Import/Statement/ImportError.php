@@ -49,16 +49,23 @@ class ImportError
     }
 
     /**
-     * @return array{id: int, currentWorksheet: string, lineNumber: int, message: string}
+     * @return array{id: int, currentWorksheet: string, lineNumber: int, message: string, field: string, invalidValue: bool|float|int|string}
      */
     public function toArray(int $key): array
     {
+        // getInvalidValue() may return an entity/array (e.g. when a whole statement
+        // fails validation); reduce non-scalars to their type so the result stays
+        // safely serializable for both the log context and the JSON error response.
+        $invalidValue = $this->violation->getInvalidValue();
+
         return
             [
                 'id'               => $key,
                 'currentWorksheet' => $this->getWorksheetTitle(),
                 'lineNumber'       => $this->getLineNumber(),
                 'message'          => $this->getMessage(),
+                'field'            => $this->violation->getPropertyPath(),
+                'invalidValue'     => is_scalar($invalidValue) ? $invalidValue : get_debug_type($invalidValue),
             ];
     }
 

@@ -39,6 +39,7 @@ class ToggleSideMenu {
 
       // Get saved value from sessionStorage, toggle the respective state and bind event to trigger button
       const stored = sessionStorage.getItem('sideMenuOpen')
+
       this.open = stored === null ? true : JSON.parse(stored)
       this.open ? this.toggleIn() : this.toggleOut()
       this.trigger.addEventListener('click', this.toggle.bind(this))

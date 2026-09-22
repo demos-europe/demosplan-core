@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, it, jest } from '@jest/globals'
 import { flushPromises, shallowMount } from '@vue/test-utils'
 import DpFaqItem from '../../../client/js/components/faq/DpFaqItem'
+import { vi } from 'vitest'
 import Vuex from 'vuex'
 
 describe('DpFaqItem', () => {
@@ -8,8 +8,8 @@ describe('DpFaqItem', () => {
   let wrapper
   let faqCategory, faq
 
-  const mockDeleteFaq = jest.fn(async (_context, payload) => payload)
-  const mockUpdateCategory = jest.fn()
+  const mockDeleteFaq = vi.fn(async (_context, payload) => payload)
+  const mockUpdateCategory = vi.fn()
 
   beforeEach(() => {
     faqCategory = {
@@ -57,12 +57,12 @@ describe('DpFaqItem', () => {
       },
     })
 
-    global.dpconfirm = jest.fn(() => true)
+    global.dpconfirm = vi.fn(() => true)
     global.dplan = {
-      notify: { notify: jest.fn(), error: jest.fn() },
+      notify: { notify: vi.fn(), error: vi.fn() },
     }
-    global.Translator = { trans: jest.fn(key => key) }
-    global.Routing = { generate: jest.fn((route, params) => `/faq/${params.faqID}`) }
+    global.Translator = { trans: vi.fn(key => key) }
+    global.Routing = { generate: vi.fn((route, params) => `/faq/${params.faqID}`) }
   })
 
   it('button triggers delete faq item', async () => {
@@ -91,6 +91,7 @@ describe('DpFaqItem', () => {
     })
 
     const deleteButton = wrapper.find('[data-cy="deleteFaqItem"]')
+
     await deleteButton.trigger('click')
     await flushPromises()
 

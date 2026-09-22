@@ -38,31 +38,33 @@ All rights reserved
   </dl>
   <div
     v-else
-    :class="prefixClass('mb-3')"
+    :class="showLabel ? prefixClass('mb-3') : null"
   >
     <dp-label
+      v-if="showLabel"
       :class="prefixClass('mb-2')"
       :for="`custom-field-${field.id}`"
       :required="field.attributes.isRequired"
       :text="field.attributes.name"
       :tooltip="field.attributes.description || ''"
     />
-    <dp-select
+    <!-- DpMultiselect without :multiple handles { label, id } option objects via track-by/label; DpSelect does not -->
+    <dp-multiselect
       :id="`custom-field-${field.id}`"
       :data-dp-validate-error-fieldname="field.attributes.name"
-      :model-value="currentValue"
-      :options="field.attributes.options || []"
+      :options="(field.attributes?.options || []).filter(opt => opt != null)"
       :placeholder="Translator.trans('choose')"
       :required="field.attributes.isRequired"
+      :value="currentValue"
       label="label"
       track-by="id"
-      @update:model-value="handleUpdate"
+      @input="handleUpdate"
     />
   </div>
 </template>
 
 <script>
-import { DpContextualHelp, DpLabel, DpSelect, prefixClassMixin } from '@demos-europe/demosplan-ui'
+import { DpContextualHelp, DpLabel, DpMultiselect, prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'SingleselectCustomField',
@@ -70,7 +72,7 @@ export default {
   components: {
     DpContextualHelp,
     DpLabel,
-    DpSelect,
+    DpMultiselect,
   },
 
   mixins: [prefixClassMixin],
@@ -87,17 +89,24 @@ export default {
       default: 'readonly',
       validator: (value) => ['readonly', 'editable'].includes(value),
     },
+
+    showLabel: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
   },
 
   emits: ['update:value'],
 
   computed: {
     /**
-     * Current selected option (full object for dp-select)
+     * Current selected option (full object for dp-multiselect)
      * Already matched in CustomField.transformValueForRenderer()
      */
     currentValue () {
       const selectedOptions = this.field.value?.selectedOptions || []
+
       return selectedOptions[0] || null
     },
   },
@@ -111,7 +120,7 @@ export default {
     handleUpdate (newValue) {
       this.$emit('update:value', {
         id: this.field.id,
-        value: newValue ? newValue.id : null,
+        value: newValue?.id ?? null,
       })
     },
   },

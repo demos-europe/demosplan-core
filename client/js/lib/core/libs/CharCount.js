@@ -24,6 +24,7 @@ export default function CharCount (target = null) {
   const handleKeyupEvent = (input, counter, maxlength) => {
     if (input.value.length > maxlength) {
       input.value = input.value.substring(0, maxlength)
+
       return false
     } else {
       counter.value = (maxlength - input.value.length)
@@ -32,6 +33,7 @@ export default function CharCount (target = null) {
 
   // Get a reference to all counters on the page
   let inputs = [target]
+
   if (target === null) {
     inputs = document.querySelectorAll('[data-counter]')
   }
@@ -47,6 +49,8 @@ export default function CharCount (target = null) {
     counter.value = maxlength - input.value.length
 
     // Update counter on keyup
-    input.addEventListener('keyup', function () { handleKeyupEvent(input, counter, maxlength) })
+    input.addEventListener('keyup', function () {
+      handleKeyupEvent(input, counter, maxlength)
+    })
   }
 }

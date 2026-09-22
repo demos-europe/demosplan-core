@@ -15,6 +15,7 @@ const statusMap = {
   processing: 'warning',
   completed: 'confirm',
 }
+
 export default {
   name: 'StatusBadge',
 

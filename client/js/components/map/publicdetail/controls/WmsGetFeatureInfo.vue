@@ -289,6 +289,7 @@ export default {
           const index = match.index
           const trailingPunctuation = '.,;!?'
           let endIndex = url.length
+
           while (endIndex > 0 && trailingPunctuation.includes(url[endIndex - 1])) {
             endIndex--
           }
@@ -303,6 +304,7 @@ export default {
           }
 
           const link = document.createElement('a')
+
           link.href = url
           link.textContent = 'Link'
           link.target = '_blank'

@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Repositories\MapRepositoryInterface;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
@@ -21,9 +22,10 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Query;
 use Exception;
 
 /**
@@ -103,10 +105,14 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
             }
 
             if ($this->isGlobal($newGisLayer)) {
-                $allProcedures = $this->getEntityManager()->getRepository(Procedure::class)->findAll();
+                // Only procedures of the layer's own customer receive a copy. Using findAll()
+                // here would push one customer's layer into every other customer's procedures,
+                // their blueprints and the platform master template.
+                $targetProcedures = $this->getEntityManager()->getRepository(Procedure::class)
+                    ->findBy(['customer' => $newGisLayer->getCustomer()]);
                 $gisLayerCategoryRepository = $this->getEntityManager()->getRepository(GisLayerCategory::class);
 
-                foreach ($allProcedures as $singleProcedure) {
+                foreach ($targetProcedures as $singleProcedure) {
                     $copyOfGisLayer = clone $newGisLayer;
                     $copyOfGisLayer->setIdent(null);
                     $copyOfGisLayer->setCreateDate(null);
@@ -114,6 +120,8 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
                     $copyOfGisLayer->setDeleteDate(null);
                     $copyOfGisLayer->setGId($newGisLayer->getIdent());
                     $copyOfGisLayer->setProcedureId($singleProcedure->getId());
+                    // The copy is scoped by its procedure; only the global original carries a customer.
+                    $copyOfGisLayer->setCustomer(null);
                     $rootCategory = $gisLayerCategoryRepository->getRootLayerCategory($singleProcedure->getId());
                     if ($rootCategory instanceof GisLayerCategory) {
                         $copyOfGisLayer->setCategory($rootCategory);
@@ -128,6 +136,35 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
             $this->logger->warning('GisLayer could not be added. ', [$e]);
             throw $e;
         }
+    }
+
+    /**
+     * Global layers (those without a procedure) that the given customer may administer:
+     * its own ones plus those without a customer, which predate customer scoping and
+     * therefore still apply platform-wide.
+     *
+     * @return GisLayer[]
+     */
+    public function findGlobalLayersForCustomer(?CustomerInterface $customer): array
+    {
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder()
+            ->select('g')
+            ->from(GisLayer::class, 'g');
+
+        return $queryBuilder
+            ->where('g.procedureId = :noProcedure')
+            ->andWhere('g.deleted = false')
+            ->andWhere('g.enabled = true')
+            ->andWhere($queryBuilder->expr()->orX(
+                'g.customer = :customer',
+                'g.customer IS NULL'
+            ))
+            ->setParameter('noProcedure', '')
+            ->setParameter('customer', $customer)
+            ->orderBy('g.type', 'DESC')
+            ->addOrderBy('g.name', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 
     /**
@@ -328,32 +365,74 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
     /**
      * Updates all gisLayers, which are use the given gisLayer as globalLayer.
      *
-     * @param GisLayer $item
-     * @param array    $data
-     *
      * @throws Exception
      */
-    private function updateRelatedGis($item, $data)
+    private function updateRelatedGis(GisLayer $item, array $data): GisLayer
     {
         try {
-            $dataWithoutPId = $data;
-            if (array_key_exists('procedureId', $data)) {
-                unset($dataWithoutPId['procedureId']);
+            // Translate legacy aliases to canonical property names, canonical key wins if both present
+            if (array_key_exists('default', $data)) {
+                $data['defaultVisibility'] ??= $data['default'];
+            }
+            if (array_key_exists('territory', $data)) {
+                $data['scope'] ??= $data['territory'];
+            }
+            if (array_key_exists('mapOrder', $data)) {
+                $data['order'] ??= $data['mapOrder'];
+            }
+            if (array_key_exists('visible', $data)) {
+                $data['enabled'] ??= $data['visible'];
+            }
+            if (array_key_exists('isMinimap', $data)) {
+                $data['isMiniMap'] ??= $data['isMinimap'];
             }
 
-            if (array_key_exists('globalGisId', $data)) {
-                unset($dataWithoutPId['globalGisId']);
+            // Derive propagatable fields from Doctrine metadata so new GisLayer columns
+            // automatically propagate to copies without requiring a manual whitelist update.
+            // Excluded fields must never be overwritten on copies: each copy owns its own
+            // identity (ident), procedure membership (procedureId), pointer to the global
+            // master (gId), and auto-managed timestamps (createDate/modifyDate/deleteDate).
+            $allMappedFields = $this->getEntityManager()
+                ->getClassMetadata(GisLayer::class)
+                ->getFieldNames();
+            $neverPropagate = ['ident', 'gId', 'procedureId', 'createDate', 'modifyDate', 'deleteDate'];
+            $updates = array_intersect_key(
+                $data,
+                array_flip(array_diff($allMappedFields, $neverPropagate))
+            );
+
+            // Must be set together — setting one without the other leaves copies with a
+            // mismatched label/value pair, mirroring the guard in updateGisFromHash().
+            if (!isset($updates['projectionLabel'], $updates['projectionValue'])) {
+                unset($updates['projectionLabel'], $updates['projectionValue']);
             }
 
-            if (array_key_exists('ident', $data)) {
-                unset($dataWithoutPId['ident']);
+            if ([] !== $updates) {
+                $qb = $this->getEntityManager()->createQueryBuilder()
+                    ->update(GisLayer::class, 'g')
+                    ->where('g.gId = :globalId')
+                    ->setParameter('globalId', $item->getId());
+
+                foreach ($updates as $property => $value) {
+                    $qb->set('g.'.$property, ':p_'.$property)
+                        ->setParameter('p_'.$property, $value);
+                }
+
+                $qb->getQuery()->execute();
+
+                // DQL UPDATE bypasses Doctrine's identity map. Re-select copies with
+                // HINT_REFRESH so any copies already loaded in this request reflect
+                // the new DB values instead of stale in-memory state.
+                $this->getEntityManager()
+                    ->createQuery('SELECT g FROM '.GisLayer::class.' g WHERE g.gId = :gid')
+                    ->setParameter('gid', $item->getId())
+                    ->setHint(Query::HINT_REFRESH, true)
+                    ->getResult();
+
+                $this->getEntityManager()->refresh($item);
             }
 
-            $listToUpdate = $this->findBy(['gId' => $item->getIdent()]);
-
-            foreach ($listToUpdate as $layer) {
-                $this->updateGisFromHash($layer, $dataWithoutPId);
-            }
+            return $item;
         } catch (Exception $e) {
             $this->logger->warning('Related gisLayer of global gisLayer could not be updated. ', [$e]);
             throw $e;
@@ -375,7 +454,7 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
             } else {
                 $toUpdate = $this->get($data['id']);
                 if ($this->isGlobal($toUpdate)) {
-                    $this->updateRelatedGis($toUpdate, $data);
+                    $toUpdate = $this->updateRelatedGis($toUpdate, $data);
                 }
             }
 
@@ -606,6 +685,9 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
         if (array_key_exists('gId', $data)) {
             $gisLayer->setGlobalLayerId($data['gId']);
         }
+        if (array_key_exists('customer', $data)) {
+            $gisLayer->setCustomer($data['customer']);
+        }
         if (array_key_exists('xplan', $data)) {
             $gisLayer->setXplan($data['xplan']);
         }
@@ -637,8 +719,8 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
      */
     public function addObject($entity): GisLayer
     {
-        $this->_em->persist($entity);
-        $this->_em->flush();
+        $this->getEntityManager()->persist($entity);
+        $this->getEntityManager()->flush();
 
         return $entity;
     }
@@ -653,8 +735,8 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
     public function updateObject($gisLayer)
     {
         try {
-            $this->_em->persist($gisLayer);
-            $this->_em->flush();
+            $this->getEntityManager()->persist($gisLayer);
+            $this->getEntityManager()->flush();
 
             return $gisLayer;
         } catch (Exception $e) {

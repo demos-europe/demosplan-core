@@ -76,7 +76,7 @@ class DocxImporterRabbitmq implements DocxImporterInterface
                 'Error in ImportConsumer:',
                 [$e]
             );
-            throw new TimeoutException($e->getMessage());
+            throw new TimeoutException($e->getMessage(), $e->getCode(), $e);
         } catch (Exception $e) {
             $this->logger->error(
                 'Error in ImportConsumer:',

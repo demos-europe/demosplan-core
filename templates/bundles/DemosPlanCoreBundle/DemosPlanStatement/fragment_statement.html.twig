@@ -52,8 +52,18 @@
                 :init-priority-areas="JSON.parse('{{ selectedPriorityAreas|default([])|json_encode|e('js', 'utf-8') }}')"
                 init-fragment-text="{{ fragment.text|default|wysiwyg }}"
                 procedure-id="{{ procedure }}"
-                statement-text="{{ templateVars.statement.text|default|escape|wysiwyg(hasPermission('feature_obscure_text') ? 'dp-obscure' : []) }}"
-                inline-template>
+                statement-text="{{ templateVars.statement.text|default|escape|wysiwyg(hasPermission('feature_obscure_text') ? 'dp-obscure' : []) }}">
+                <template #default="{
+                    counties,
+                    department,
+                    fragmentText,
+                    municipalities,
+                    priorityAreas,
+                    resetSelectMenu,
+                    setFragmentText,
+                    tags,
+                    updateField
+                }">
                 <div>
                     <p class="u-mt-0_5">{{ "text.statement.fragment"|trans|wysiwyg }}</p>
 
@@ -277,6 +287,7 @@
 
                 {% endif %}
             </div>
+            </template>
         </dp-create-statement-fragment>
     {%- endapply %}
 

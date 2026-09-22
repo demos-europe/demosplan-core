@@ -10,35 +10,36 @@
 /**
  * This mark is used to represent range shaped information.
  */
-const rangeMark = {
+const segmentMark = {
   attrs: {
-    rangeId: { default: null },
     isActive: { default: false },
     isMoving: { default: false },
     isConfirmed: { default: false },
     pmId: { default: null },
+    segmentId: { default: null },
   },
   inclusive: true,
   parseDOM: [{
-    tag: 'span[data-range]',
+    tag: 'segment-mark',
     getAttrs (dom) {
       return {
-        rangeId: dom.getAttribute('data-range'),
-        isActive: dom.getAttribute('data-range-active'),
-        isMoving: dom.getAttribute('data-range-moving'),
-        isConfirmed: dom.getAttribute('data-range-confirmed'),
-        pmId: dom.getAttribute('data-pm-id'),
+        isActive: dom.dataset.rangeActive === 'true',
+        isMoving: dom.dataset.rangeMoving === 'true',
+        isConfirmed: dom.dataset.rangeConfirmed === 'true',
+        pmId: dom.dataset.pmId,
+        segmentId: dom.dataset.segmentId,
       }
     },
   }],
   toDOM (node) {
-    const { rangeId, isActive, isConfirmed, isMoving, pmId } = node.attrs
+    const { isActive, isConfirmed, isMoving, pmId, segmentId } = node.attrs
+
     return ['span', {
-      'data-range': rangeId,
       'data-range-active': isActive,
       'data-range-moving': isMoving,
       'data-range-confirmed': isConfirmed,
       'data-pm-id': pmId,
+      'data-segment-id': segmentId,
     }, 0]
   },
 }
@@ -56,13 +57,14 @@ const rangeSelectionMark = {
   parseDOM: [{
     tag: 'span[data-range-selected]',
     getAttrs (dom) {
-      return { active: dom.getAttribute('data-range-selected'), pmId: dom.getAttribute('data-pm-id'), rangeType: dom.getAttribute('data-range-type') }
+      return { active: dom.dataset.rangeSelected, pmId: dom.dataset.pmId, rangeType: dom.dataset.rangeType }
     },
   }],
   toDOM (node) {
     const { active, pmId } = node.attrs
+
     return ['span', { 'data-range-selected': active, 'data-pm-id': pmId, 'data-range-type': 'selection' }, 0]
   },
 }
 
-export { rangeMark, rangeSelectionMark }
+export { segmentMark, rangeSelectionMark }

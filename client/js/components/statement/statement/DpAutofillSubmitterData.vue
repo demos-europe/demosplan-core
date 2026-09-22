@@ -445,6 +445,7 @@ export default {
           href: Routing.generate('DemosPlan_procedure_member_index', { procedure: this.procedureId }),
         })
       }
+
       return Translator.trans('institution.select')
     },
 
@@ -543,6 +544,7 @@ export default {
        * even if it's not visible in the public view
        */
       const definitions = this.formDefinitions
+
       if (idx === '0' && this.formDefinitions.phoneOrEmail.enabled === false && this.formDefinitions.emailAddress.enabled === false) {
         definitions.emailAddress.enabled = true
       }
@@ -574,6 +576,7 @@ export default {
             field: curr.field,
           })
         }
+
         return acc
       }, [])
     },
@@ -633,6 +636,7 @@ export default {
         this.submitterData = { ...this.request }
       } else if (hasInitSubmitter) {
         const init = structuredClone(this.initSubmitter)
+
         delete init.role
         this.submitterData = init
       }

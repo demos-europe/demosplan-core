@@ -191,7 +191,9 @@ export default {
       const emitData = {
         id: this.entityId,
       }
+
       emitData[this.fieldKey] = this.selected.map(item => item.id)
+
       return emitData
     },
 
@@ -202,6 +204,7 @@ export default {
 
     reset () {
       const editFieldComponent = this.$children.find(child => child.$options.name === 'DpEditField')
+
       editFieldComponent.$data.loading = false
       editFieldComponent.$data.editingEnabled = false
       this.$emit('toggleEditing', false)
@@ -210,11 +213,13 @@ export default {
 
     setInitialValues () {
       let optionsToSearch = this.options
+
       if (this.isGroupSelect) {
         optionsToSearch = this.options.reduce((acc, optionGroup) => {
           if (optionGroup[this.groupValues]) {
             acc = [...acc, ...optionGroup[this.groupValues]]
           }
+
           return acc
         }, [])
       }

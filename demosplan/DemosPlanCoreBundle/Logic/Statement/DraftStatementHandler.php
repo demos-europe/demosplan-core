@@ -446,7 +446,7 @@ class DraftStatementHandler extends CoreHandler
             $statement['represents'] = $data['r_represents'];
         }
 
-        if (array_key_exists('r_uploaddocument', $data) && ((is_string($data['r_uploaddocument']) && 0 < strlen($data['r_uploaddocument']))
+        if (array_key_exists('r_uploaddocument', $data) && ((is_string($data['r_uploaddocument']) && '' !== $data['r_uploaddocument'])
             || (is_array($data['r_uploaddocument']) && [] !== $data['r_uploaddocument']))) {
             $statement['files'] = $data['r_uploaddocument'];
         }
@@ -731,13 +731,11 @@ class DraftStatementHandler extends CoreHandler
     public function createEMailsForUnsubmittedDraftStatementsOfProcedureOfUser(int $exactlyDaysToGo, bool $internal): int
     {
         if ($internal) {
-            $internalWritePhaseKeys = $this->getDemosplanConfig()->getInternalPhaseKeys('write');
             $soonEndingProcedureIds = $this->getProcedureHandler()
-                ->getAllProceduresWithSoonEndingPhases($internalWritePhaseKeys, $exactlyDaysToGo, true);
+                ->getAllProceduresWithSoonEndingPhases($exactlyDaysToGo, true);
         } else {
-            $externalWritePhaseKeys = $this->getDemosplanConfig()->getExternalPhaseKeys('write');
             $soonEndingProcedureIds = $this->getProcedureHandler()
-                ->getAllProceduresWithSoonEndingPhases($externalWritePhaseKeys, $exactlyDaysToGo, true, false);
+                ->getAllProceduresWithSoonEndingPhases($exactlyDaysToGo, true, false);
         }
 
         $draftStatements = $this->draftStatementService

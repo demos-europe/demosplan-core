@@ -19,12 +19,13 @@ use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
-use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakLogoutManager;
+use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakSessionManager;
 use demosplan\DemosPlanCoreBundle\Permissions\Permission;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermission;
 use demosplan\DemosPlanCoreBundle\Services\BrandingLoader;
 use demosplan\DemosPlanCoreBundle\Services\OrgaLoader;
+use demosplan\DemosPlanCoreBundle\Services\ServerBannerLoader;
 use Illuminate\Support\Collection;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,8 +49,9 @@ class DefaultTwigVariablesService
         private readonly PermissionsInterface $permissions,
         private readonly TransformMessageBagService $transformMessageBagService,
         private readonly string $publicCSSClassPrefix,
-        private readonly string $defaultLocale)
-    {
+        private readonly string $defaultLocale,
+        private readonly ServerBannerLoader $serverBannerLoader,
+    ) {
     }
 
     protected function extractExposedPermissions(): Collection
@@ -129,43 +131,45 @@ class DefaultTwigVariablesService
         $brandingObject = $this->brandingLoader->getBrandingObject($request);
         $orgaObject = $this->orgaLoader->getOrgaObject($request);
         $customerObject = $this->customerService->getCurrentCustomer();
+        $serverBanner = $this->serverBannerLoader->getServerBanner();
 
         $this->variables = [
-            'branding'                                           => $brandingObject,
-            'customerInfo'                                       => $customerObject,
-            'currentUser'                                        => $user,
-            'exposedPermissions'                                 => $exposedPermissions,
-            'gatewayRegisterURL'                                 => $this->globalConfig->getGatewayRegisterURL(),
-            'gatewayRegisterURLCitizen'                          => $this->globalConfig->getGatewayRegisterURLCitizen(),
-            'gatewayURL'                                         => $this->globalConfig->getGatewayURL(),
-            'gatewayURLIntern'                                   => $this->globalConfig->getGatewayURLintern(),
-            'hasProcedureUserRestrictedAccess'                   => $this->globalConfig->hasProcedureUserRestrictedAccess(),
-            'isIntranet'                                         => filter_var($user->isIntranet(), FILTER_VALIDATE_BOOLEAN),
-            'locale'                                             => $languageKey,
-            'loggedin'                                           => $user->isLoggedIn(),
-            'map'                                                => $this->loadMapVariables(),
-            'maxUploadSize'                                      => $this->globalConfig->getMaxUploadSize(),
-            'orgaInfo'                                           => $orgaObject,
-            'permissions'                                        => $this->permissions->getPermissions(),
-            'piwik'                                              => $this->loadPiwikVariables(),
-            'procedure'                                          => $this->currentProcedureService->getProcedure()?->getId(), // legacy twig code in twigs
-            'procedureId'                                        => $this->currentProcedureService->getProcedure()?->getId(),
-            'procedureObject'                                    => $this->currentProcedureService->getProcedure(),
-            'proceduresettings'                                  => $this->currentProcedureService->getProcedureArray(),
-            'projectCoreVersion'                                 => $this->globalConfig->getProjectCoreVersion(),
-            'projectFolder'                                      => $this->globalConfig->getProjectFolder(),
-            'projectName'                                        => $this->globalConfig->getProjectName(),
-            'projects'                                           => $projects,
-            'projectType'                                        => $this->globalConfig->getProjectType(),
-            'projectVersion'                                     => $this->globalConfig->getProjectVersion(),
-            'publicCSSClassPrefix'                               => $this->publicCSSClassPrefix,
-            'roles'                                              => $user->getRoles(),
-            'route_name'                                         => $request->attributes->get('_route'),
-            'urlPathPrefix'                                      => $this->globalConfig->getUrlPathPrefix(),
-            'urlScheme'                                          => $this->globalConfig->getUrlScheme() ?? $request->getScheme(),
-            'useOpenGeoDb'                                       => $this->globalConfig->getUseOpenGeoDb(),
-            'externalLinks'                                      => $this->getFilteredExternalLinks(),
-            OzgKeycloakLogoutManager::EXPIRATION_TIMESTAMP       => $request->getSession()->get(OzgKeycloakLogoutManager::EXPIRATION_TIMESTAMP),
+            'branding'                                            => $brandingObject,
+            'customerInfo'                                        => $customerObject,
+            'currentUser'                                         => $user,
+            'exposedPermissions'                                  => $exposedPermissions,
+            'gatewayRegisterURL'                                  => $this->globalConfig->getGatewayRegisterURL(),
+            'gatewayRegisterURLCitizen'                           => $this->globalConfig->getGatewayRegisterURLCitizen(),
+            'gatewayURL'                                          => $this->globalConfig->getGatewayURL(),
+            'gatewayURLIntern'                                    => $this->globalConfig->getGatewayURLintern(),
+            'hasProcedureUserRestrictedAccess'                    => $this->globalConfig->hasProcedureUserRestrictedAccess(),
+            'isIntranet'                                          => filter_var($user->isIntranet(), FILTER_VALIDATE_BOOLEAN),
+            'locale'                                              => $languageKey,
+            'loggedin'                                            => $user->isLoggedIn(),
+            'map'                                                 => $this->loadMapVariables(),
+            'maxUploadSize'                                       => $this->globalConfig->getMaxUploadSize(),
+            'orgaInfo'                                            => $orgaObject,
+            'permissions'                                         => $this->permissions->getPermissions(),
+            'piwik'                                               => $this->loadPiwikVariables(),
+            'procedure'                                           => $this->currentProcedureService->getProcedure()?->getId(), // legacy twig code in twigs
+            'procedureId'                                         => $this->currentProcedureService->getProcedure()?->getId(),
+            'procedureObject'                                     => $this->currentProcedureService->getProcedure(),
+            'proceduresettings'                                   => $this->currentProcedureService->getProcedureArray(),
+            'projectCoreVersion'                                  => $this->globalConfig->getProjectCoreVersion(),
+            'projectFolder'                                       => $this->globalConfig->getProjectFolder(),
+            'projectName'                                         => $this->globalConfig->getProjectName(),
+            'projects'                                            => $projects,
+            'projectType'                                         => $this->globalConfig->getProjectType(),
+            'projectVersion'                                      => $this->globalConfig->getProjectVersion(),
+            'publicCSSClassPrefix'                                => $this->publicCSSClassPrefix,
+            'roles'                                               => $user->getRoles(),
+            'route_name'                                          => $request->attributes->get('_route'),
+            'serverBanner'                                        => $serverBanner,
+            'urlPathPrefix'                                       => $this->globalConfig->getUrlPathPrefix(),
+            'urlScheme'                                           => $this->globalConfig->getUrlScheme() ?? $request->getScheme(),
+            'useOpenGeoDb'                                        => $this->globalConfig->getUseOpenGeoDb(),
+            'externalLinks'                                       => $this->getFilteredExternalLinks(),
+            OzgKeycloakSessionManager::EXPIRATION_TIMESTAMP       => $request->getSession()->get(OzgKeycloakSessionManager::EXPIRATION_TIMESTAMP),
         ];
     }
 

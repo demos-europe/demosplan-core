@@ -146,6 +146,7 @@ export default {
     changeManualsort (event) {
       const listBackup = [...this.list]
       const removedItem = this.list.splice(event.oldIndex, 1)[0]
+
       this.list.splice(event.newIndex, 0, removedItem)
 
       this.updateList()
@@ -191,6 +192,7 @@ export default {
         if (item.id === id) {
           item.enabled = value
         }
+
         return item
       })
 

@@ -47,7 +47,7 @@ class HasSegmentsClause implements ClauseFunctionInterface, Stringable
         return [$this->procedureId];
     }
 
-    public function apply(array $propertyValues)
+    public function apply(array $propertyValues): never
     {
         throw new NotYetImplementedException();
     }

@@ -15,6 +15,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
 use Doctrine\ORM\Query\Expr\Join;
+use Doctrine\ORM\QueryBuilder;
+use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use Exception;
 use Webmozart\Assert\Assert;
 
@@ -148,6 +150,22 @@ class TagRepository extends CoreRepository implements ObjectInterface
         return $this->findBy(['id' => $ids]);
     }
 
+    /**
+     * Returns the sortIndex to assign to a new tag appended to the given topic.
+     */
+    public function getNextSortIndex(string $topicId): int
+    {
+        $max = $this->getEntityManager()->createQueryBuilder()
+            ->select('MAX(tag.sortIndex)')
+            ->from(Tag::class, 'tag')
+            ->where('tag.topic = :topic')
+            ->setParameter('topic', $topicId)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        return null === $max ? 0 : ((int) $max) + 1;
+    }
+
     public function isTagTitleFree(string $procedureId, string $title): bool
     {
         $query = $this->getEntityManager()->createQueryBuilder()
@@ -169,5 +187,17 @@ class TagRepository extends CoreRepository implements ObjectInterface
         Assert::integer($singleScalarResult);
 
         return 0 === $singleScalarResult;
+    }
+
+    /**
+     * Builds a QueryBuilder matching the given EDT conditions without executing it, so
+     * callers can embed it as a subquery (e.g. `id IN (...)`) instead of running it as
+     * its own round-trip. See {@see \demosplan\DemosPlanCoreBundle\Api\Tag\Extension\TagDoctrineAccessExtension::applyToCollection()}.
+     *
+     * @param list<ClauseFunctionInterface<bool>> $conditions
+     */
+    public function generateAccessConditionQueryBuilder(array $conditions): QueryBuilder
+    {
+        return $this->objectProvider->generateQueryBuilder($conditions, []);
     }
 }

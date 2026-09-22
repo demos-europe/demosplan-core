@@ -118,6 +118,10 @@
         visibility: hidden;
     }
 
+    &__drag-lock-icon {
+        visibility: hidden;
+    }
+
     table {
         margin-bottom: $inuit-base-spacing-unit;
     }
@@ -159,6 +163,10 @@
             &:active {
                 cursor: grabbing;
             }
+        }
+
+        tr:hover .c-data-table__drag-lock-icon {
+            visibility: visible;
         }
     }
 

@@ -56,7 +56,7 @@ class InstitutionMailRepository extends CoreRepository implements ImmutableArray
 
             $institutionMail->setProcedure($data['procedure'])
                 ->setOrganisation($data['orga'])
-                ->setProcedurePhase($data['phase']);
+                ->setPhaseDefinition($data['phaseDefinition']);
 
             $em->persist($institutionMail);
             $em->flush();

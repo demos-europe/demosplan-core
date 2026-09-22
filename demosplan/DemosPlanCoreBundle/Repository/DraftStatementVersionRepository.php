@@ -16,9 +16,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatementVersion;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Exception;
 use InvalidArgumentException;
 
@@ -136,7 +136,7 @@ class DraftStatementVersionRepository extends CoreRepository implements ArrayInt
                 $query->setParameter('element', $element);
             }
 
-            if (is_string($search) && 0 < strlen($search)) {
+            if (is_string($search) && '' !== $search) {
                 $query->andWhere('dsv.text LIKE :search');
                 $query->setParameter('search', '%'.$search.'%');
             }

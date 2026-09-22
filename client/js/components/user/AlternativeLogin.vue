@@ -57,6 +57,7 @@ export default {
         el.orgaDep = `${el.orga}, ${el.department}`
         el.nameMail = `${el.name} (${el.email})`
         el.index = idx
+
         return el
       })
     },

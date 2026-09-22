@@ -12,14 +12,19 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Scheduler;
 
+use demosplan\DemosPlanCoreBundle\Message\AccountDeletionRunMessage;
+use demosplan\DemosPlanCoreBundle\Message\AuditFileConsistencyMessage;
 use demosplan\DemosPlanCoreBundle\Message\AutoSwitchProcedurePhasesMessage;
 use demosplan\DemosPlanCoreBundle\Message\CleanupFilesMessage;
 use demosplan\DemosPlanCoreBundle\Message\CreateUnsubmittedDraftEmailsMessage;
 use demosplan\DemosPlanCoreBundle\Message\DailyMaintenanceEventMessage;
+use demosplan\DemosPlanCoreBundle\Message\DeleteOrphanCustomerOrgaRelationsMessage;
 use demosplan\DemosPlanCoreBundle\Message\DeleteOrphanEmailAddressesMessage;
+use demosplan\DemosPlanCoreBundle\Message\LoginAuditCleanupMessage;
 use demosplan\DemosPlanCoreBundle\Message\PurgeSentEmailsMessage;
 use demosplan\DemosPlanCoreBundle\Message\SendAssignedTaskNotificationEmailsMessage;
 use demosplan\DemosPlanCoreBundle\Message\SendDeadlineNotificationsMessage;
+use demosplan\DemosPlanCoreBundle\Message\SendSegmentDeadlineReminderEmailsMessage;
 use demosplan\DemosPlanCoreBundle\Message\SwitchNewsStatesMessage;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Scheduler\Attribute\AsSchedule;
@@ -39,8 +44,10 @@ use Symfony\Component\Scheduler\ScheduleProviderInterface;
  * @see SwitchNewsStatesMessageHandler
  * @see AutoSwitchProcedurePhasesMessageHandler
  * @see SendAssignedTaskNotificationEmailsMessageHandler
+ * @see SendSegmentDeadlineReminderEmailsMessageHandler
  * @see DeleteOrphanEmailAddressesMessageHandler
  * @see PurgeSentEmailsMessageHandler
+ * @see AuditFileConsistencyMessageHandler
  * @see CleanupFilesMessageHandler
  */
 #[AsSchedule('daily_maintenance')]
@@ -63,7 +70,14 @@ class DailyMaintenanceScheduler implements ScheduleProviderInterface
             ->add(RecurringMessage::cron('25 0 * * *', new SendAssignedTaskNotificationEmailsMessage()))
             ->add(RecurringMessage::cron('30 0 * * *', new DeleteOrphanEmailAddressesMessage()))
             ->add(RecurringMessage::cron('35 0 * * *', new PurgeSentEmailsMessage()))
+            // Runs before the cleanup so the audit reports the state the day left behind,
+            // instead of the state the cleanup just produced.
+            ->add(RecurringMessage::cron('38 0 * * *', new AuditFileConsistencyMessage()))
             ->add(RecurringMessage::cron('40 0 * * *', new CleanupFilesMessage()))
+            ->add(RecurringMessage::cron('45 0 * * *', new LoginAuditCleanupMessage()))
+            ->add(RecurringMessage::cron('50 0 * * *', new AccountDeletionRunMessage()))
+            ->add(RecurringMessage::cron('55 0 * * *', new SendSegmentDeadlineReminderEmailsMessage()))
+            ->add(RecurringMessage::cron('0 1 * * *', new DeleteOrphanCustomerOrgaRelationsMessage()))
             ->lock($this->lockFactory->createLock('demosplan_daily_maintenance_scheduler_lock'))
         ;
     }

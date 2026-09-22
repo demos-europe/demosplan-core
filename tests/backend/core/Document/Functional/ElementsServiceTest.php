@@ -859,8 +859,6 @@ class ElementsServiceTest extends FunctionalTestCase
         static::assertArrayHasKey('parentTitle', $messageArray);
         static::assertArrayHasKey('enabled', $messageArray);
         static::assertArrayHasKey('organisations', $messageArray);
-        static::assertArrayHasKey('keyOfInternalPhase', $messageArray);
-        static::assertArrayHasKey('keyOfEternalPhase', $messageArray);
         static::assertArrayHasKey('nameOfInternalPhase', $messageArray);
         static::assertArrayHasKey('nameOfExternalPhase', $messageArray);
         static::assertArrayHasKey('date', $messageArray);
@@ -884,9 +882,7 @@ class ElementsServiceTest extends FunctionalTestCase
         }
         static::assertEquals($element->getEnabled(), $messageArray['enabled']);
         static::assertEquals($element->getOrganisationNames(true), $messageArray['organisations']);
-        static::assertEquals($element->getProcedure()->getPhase(), $messageArray['keyOfInternalPhase']);
-        static::assertEquals($element->getProcedure()->getPublicParticipationPhase(), $messageArray['keyOfEternalPhase']);
-        static::assertEquals($element->getProcedure()->getPhaseName(), $messageArray['nameOfInternalPhase']);
-        static::assertEquals($element->getProcedure()->getPublicParticipationPhaseName(), $messageArray['nameOfExternalPhase']);
+        static::assertEquals($element->getProcedure()->getPhaseObject()->getPhaseDefinition()->getName(), $messageArray['nameOfInternalPhase']);
+        static::assertEquals($element->getProcedure()->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName(), $messageArray['nameOfExternalPhase']);
     }
 }

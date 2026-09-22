@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -47,8 +49,6 @@ class DemosPlanForumBaseController extends BaseController
      * Unterscheide die Dateien nach Bildern und anderen Dateien.
      *
      * @param array $files
-     *
-     * @return mixed
      */
     protected function generateImagesAndDocuments($files)
     {

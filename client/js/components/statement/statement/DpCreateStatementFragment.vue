@@ -7,22 +7,28 @@
   All rights reserved
 </license>
 
+<template>
+  <div>
+    <slot
+      :counties="counties"
+      :department="department"
+      :fragment-text="fragmentText"
+      :municipalities="municipalities"
+      :priority-areas="priorityAreas"
+      :reset-select-menu="resetSelectMenu"
+      :set-fragment-text="setFragmentText"
+      :tags="tags"
+      :update-field="updateField"
+    />
+  </div>
+</template>
+
 <script>
-import { DpButton, DpEditor, DpMultiselect, VPopover } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters } from 'vuex'
-import DpSelectDocument from './../fragment/SelectDocument'
 
 export default {
 
   name: 'DpCreateStatementFragment',
-
-  components: {
-    DpButton,
-    DpEditor,
-    DpMultiselect,
-    DpSelectDocument,
-    VPopover,
-  },
 
   props: {
     initTags: {
@@ -92,6 +98,10 @@ export default {
     setFragmentText () {
       this.fragmentText = this.statementText
     },
+
+    updateField (field, value) {
+      this[field] = value
+    },
   },
 
   mounted () {
@@ -99,9 +109,11 @@ export default {
       .then(() => {
         const tagsFromStore = this.$store.getters['AssessmentTable/tags']
         const selectedTags = []
+
         Object.values(tagsFromStore).forEach(group => {
           this.initTags.forEach(tag => {
             const foundTag = group.tags.find(tagInGroup => tagInGroup.id === tag)
+
             if (foundTag) {
               selectedTags.push({ id: foundTag.id, title: foundTag.name })
             }

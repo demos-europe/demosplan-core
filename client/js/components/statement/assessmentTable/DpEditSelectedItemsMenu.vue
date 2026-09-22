@@ -119,6 +119,7 @@ export default {
       } else {
         // We have to use the length of selectedFragments from sessionStorage to indicate that also fragments that are not loaded at this point (so from other STN) may be checked
         const selectedFragmentsInSessionStorage = JSON.parse(sessionStorage.getItem('selectedFragments'))
+
         return Translator.trans('fragments.selected', { count: Object.keys(selectedFragmentsInSessionStorage[this.procedureId]).length })
       }
     },

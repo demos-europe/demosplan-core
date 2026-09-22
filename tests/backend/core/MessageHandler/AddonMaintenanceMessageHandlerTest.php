@@ -55,7 +55,7 @@ class AddonMaintenanceMessageHandlerTest extends UnitTestCase
             );
 
         $this->logger->expects($this->once())
-            ->method('info')
+            ->method('debug')
             ->with('Finished Addon Maintenance.');
 
         // Act
@@ -76,7 +76,7 @@ class AddonMaintenanceMessageHandlerTest extends UnitTestCase
             ->with('Addon Maintenance failed', [$exception]);
 
         $this->logger->expects($this->once())
-            ->method('info')
+            ->method('debug')
             ->with('Finished Addon Maintenance.');
 
         // Act

@@ -15,6 +15,7 @@ namespace Tests\Core\CustomField;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
@@ -167,6 +168,42 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
         static::assertCount(2, $storedValue->getValue());
         static::assertContains($selectedOption1Id, $storedValue->getValue());
         static::assertContains($selectedOption2Id, $storedValue->getValue());
+    }
+
+    public function testAddNewTextValueSuccessfully(): void
+    {
+        // Arrange
+        $customer = CustomerFactory::createOne();
+        $customField = CustomFieldConfigurationFactory::new()
+            ->withRelatedTargetEntity(CustomFieldSupportedEntity::orga->value)
+            ->asTextField('Notes', 'Enter free text', false)
+            ->create([
+                'sourceEntityClass' => CustomFieldSupportedEntity::customer->value,
+                'sourceEntityId'    => $customer->getId(),
+            ]);
+
+        $newValue = 'Some note content';
+        $newCustomFieldValuesData = [
+            [
+                'id'    => $customField->getId(),
+                'value' => $newValue,
+            ],
+        ];
+
+        // Act
+        $result = $this->sut->updateOrAddCustomFieldValues(
+            new CustomFieldValuesList(), // Empty current list
+            $newCustomFieldValuesData,
+            $customer->getId(),
+            CustomFieldSupportedEntity::customer->value,
+            CustomFieldSupportedEntity::orga->value
+        );
+
+        // Assert
+        $storedValue = $result->findById($customField->getId());
+        static::assertIsString($storedValue->getValue());
+        static::assertEquals($newValue, $storedValue->getValue());
+        $this->commonCustomFieldValueAssertions($customField, $result);
     }
 
     /**

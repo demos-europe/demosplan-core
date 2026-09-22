@@ -150,6 +150,7 @@ export default {
       if (!confirm(Translator.trans('check.invitable_institutions.marked.delete'))) {
         return
       }
+
       // SelectedItems from DpDataTable are strings in an array, so we need to map them to ids
       const organisationIds = this.selectedItems.map(item =>
         typeof item === 'string' ? item : item.id,
@@ -195,8 +196,10 @@ export default {
 
         return
       }
+
       // Create hidden form for legacy route compatibility
       const form = document.createElement('form')
+
       form.method = 'POST'
       form.action = Routing.generate(routeName, routeParams)
       form.style.display = 'none'
@@ -204,6 +207,7 @@ export default {
       // Add selected organisation IDs as form data
       this.selectedItems.forEach(orgId => {
         const input = document.createElement('input')
+
         input.type = 'hidden'
         input.name = 'orga_selected[]' // Legacy format expected by backend
         input.value = orgId
@@ -212,6 +216,7 @@ export default {
 
       // Add action-specific flag if required (legacy email route needs this)
       const actionInput = document.createElement('input')
+
       actionInput.type = 'hidden'
       actionInput.name = actionFieldName
       actionInput.value = '1'
@@ -219,6 +224,7 @@ export default {
 
       // CSRF protection
       const csrfInput = document.createElement('input')
+
       csrfInput.type = 'hidden'
       csrfInput.name = '_token'
       csrfInput.value = dplan.csrfToken

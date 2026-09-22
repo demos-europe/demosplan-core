@@ -342,7 +342,7 @@ class DemosPlanOrganisationAPIController extends APIController
      * @throws MessageBagException
      */
     #[DplanPermissions('area_manage_orgas')]
-    #[Route(path: '/api/1.0/organisation', options: ['expose' => true], methods: ['POST'], name: 'organisation_create')]
+    #[Route(path: '/api/1.0/organisation', name: 'organisation_create', options: ['expose' => true], methods: ['POST'])]
     public function createOrga(UserHandler $userHandler,
         CustomerHandler $customerHandler,
         PermissionsInterface $permissions,
@@ -350,7 +350,7 @@ class DemosPlanOrganisationAPIController extends APIController
         EventDispatcherInterface $eventDispatcher): APIResponse
     {
         try {
-            if (!($this->requestData instanceof TopLevel)) {
+            if (!$this->requestData instanceof TopLevel) {
                 throw BadRequestException::normalizerFailed();
             }
             $resourceObject = $this->requestData->getObjectToCreate();

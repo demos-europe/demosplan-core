@@ -92,7 +92,7 @@ class TraceContextListener implements EventSubscriberInterface
 
     public function onKernelException(ExceptionEvent $event): void
     {
-        if (null === $this->rootSpan) {
+        if (!$this->rootSpan instanceof SpanInterface) {
             return;
         }
 
@@ -103,7 +103,7 @@ class TraceContextListener implements EventSubscriberInterface
 
     public function onKernelTerminate(TerminateEvent $event): void
     {
-        if (null === $this->rootSpan) {
+        if (!$this->rootSpan instanceof SpanInterface) {
             return;
         }
 

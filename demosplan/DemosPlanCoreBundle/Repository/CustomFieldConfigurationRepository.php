@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
 
@@ -42,13 +43,18 @@ class CustomFieldConfigurationRepository extends CoreRepository
     public function findCustomFieldConfigurationByCriteria(
         string $sourceEntity,
         string $sourceEntityId,
-        string $targetEntity,
+        ?string $targetEntity = null,
         ?string $customFieldId = null,
     ): ?array {
         try {
-            $criteria = ['sourceEntityId' => $sourceEntityId];
-            $criteria['sourceEntityClass'] = $sourceEntity;
-            $criteria['targetEntityClass'] = $targetEntity;
+            $criteria = [
+                'sourceEntityId'    => $sourceEntityId,
+                'sourceEntityClass' => $sourceEntity,
+            ];
+
+            if (null !== $targetEntity) {
+                $criteria['targetEntityClass'] = $targetEntity;
+            }
 
             if ($customFieldId) {
                 $criteria['id'] = $customFieldId;
@@ -97,14 +103,13 @@ class CustomFieldConfigurationRepository extends CoreRepository
     public function copy(string $sourceProcedureId, Procedure $newProcedure): void
     {
         $customFieldsConfigurations = $this->findCustomFieldConfigurationByCriteria(
-            'PROCEDURE_TEMPLATE',
+            CustomFieldSupportedEntity::procedureTemplate->value,
             $sourceProcedureId,
-            'SEGMENT'
         );
 
         foreach ($customFieldsConfigurations as $customFieldConfiguration) {
             $newCustomFieldConfiguration = new CustomFieldConfiguration();
-            $newCustomFieldConfiguration->setSourceEntityClass('PROCEDURE');
+            $newCustomFieldConfiguration->setSourceEntityClass(CustomFieldSupportedEntity::procedure->value);
             $newCustomFieldConfiguration->setSourceEntityId($newProcedure->getId());
             $newCustomFieldConfiguration->setTargetEntityClass($customFieldConfiguration->getTargetEntityClass());
             $newCustomFieldConfiguration->setConfiguration($customFieldConfiguration->getConfiguration());

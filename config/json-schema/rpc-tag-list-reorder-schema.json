@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "tagList.reorder",
+  "type": "object",
+  "required": [
+    "jsonrpc",
+    "method",
+    "id",
+    "params"
+  ],
+  "properties": {
+    "jsonrpc": {
+      "enum": [
+        "2.0"
+      ]
+    },
+    "method": {
+      "enum": [
+        "tagList.reorder"
+      ]
+    },
+    "id": {
+      "type": "string"
+    },
+    "params": {
+      "type": "object",
+      "properties": {
+        "tagId": {
+          "type": "string"
+        },
+        "topicId": {
+          "type": "string"
+        },
+        "newIndex": {
+          "type": ["integer", "null"]
+        }
+      },
+      "required": [
+        "tagId",
+        "topicId",
+        "newIndex"
+      ]
+    }
+  }
+}

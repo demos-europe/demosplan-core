@@ -24,7 +24,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\ContentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\NewsRepository;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Symfony\Contracts\Translation\TranslatorInterface;

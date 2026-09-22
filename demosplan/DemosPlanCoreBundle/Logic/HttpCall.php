@@ -77,7 +77,7 @@ class HttpCall
         }
 
         // Set request content type if specified
-        if (0 < strlen($this->contentType)) {
+        if ('' !== (string) $this->contentType) {
             $options['headers']['Content-Type'] = $this->contentType;
         }
 

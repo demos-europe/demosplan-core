@@ -10,25 +10,30 @@
 /**
  * This is the entrypoint for administration_segments_list.html.twig
  */
-import { DpSlidebar } from '@demos-europe/demosplan-ui'
+import DpSegmentRecommendationEmail from '@DpJs/components/statement/statement/DpSegmentRecommendationEmail'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
 import FilterFlyoutStore from '@DpJs/store/procedure/FilterFlyout'
 import { initialize } from '@DpJs/InitVue'
+import SegmentSlidebar from '@DpJs/components/procedure/SegmentsList/SegmentSlidebar'
+import SegmentSlidebarStore from '@DpJs/store/procedure/SegmentSlidebar'
 import SegmentsList from '@DpJs/components/procedure/SegmentsList/SegmentsList'
+import SegmentsListFilter from '@DpJs/components/procedure/SegmentsList/SegmentsListFilter'
 
 const components = {
   SegmentsList,
-  DpSlidebar,
+  SegmentSlidebar,
+  SegmentsListFilter,
+  DpSegmentRecommendationEmail,
   DpVersionHistory,
 }
 const stores = {
   FilterFlyout: FilterFlyoutStore,
+  SegmentSlidebar: SegmentSlidebarStore,
 }
 const apiStores = [
   'AssignableUser',
-  'AdminProcedure',
-  'CustomField',
   'Place',
+  'RecommendationVersion',
   'StatementSegment',
   'Tag',
   'TagTopic',

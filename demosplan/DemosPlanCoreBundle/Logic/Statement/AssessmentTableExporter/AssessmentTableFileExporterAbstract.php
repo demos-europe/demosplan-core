@@ -16,12 +16,14 @@ use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOu
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplate;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplateName;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\ExportTemplateData;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
@@ -44,9 +46,6 @@ abstract class AssessmentTableFileExporterAbstract
     /** @var LoggerInterface */
     protected $logger;
 
-    /** @var Session */
-    protected $session;
-
     /**
      * @var StatementHandler
      */
@@ -68,10 +67,18 @@ abstract class AssessmentTableFileExporterAbstract
         $this->assessmentTableOutput = $assessmentTableServiceOutput;
         $this->currentProcedureService = $currentProcedureService;
         $this->logger = $logger;
-        $this->session = $requestStack->getSession();
         $this->translator = $translator;
         $this->statementHandler = $statementHandler;
         $this->requestStack = $requestStack;
+    }
+
+    /**
+     * Resolve the session lazily instead of in the constructor, so the exporter can be
+     * instantiated in a context without an active request (e.g. the async export worker).
+     */
+    protected function getSession(): SessionInterface
+    {
+        return $this->requestStack->getSession();
     }
 
     /**
@@ -96,49 +103,49 @@ abstract class AssessmentTableFileExporterAbstract
         // define various variables based on cases
         if ($original) {
             switch ($template) {
-                case 'condensed':
+                case ExportTemplate::CONDENSED->value:
                     $filenamePrefix = 'Abwaegungstabelle';
-                    $templateName = 'export_condensed';
+                    $templateName = ExportTemplateName::EXPORT_CONDENSED->value;
                     $title = 'statements.original';
                     break;
-                case 'landscape':
-                case 'portrait':
+                case ExportTemplate::LANDSCAPE->value:
+                case ExportTemplate::PORTRAIT->value:
                 default:
                     $filenamePrefix = 'Originalstellungnahmen';
-                    $templateName = 'export_original';
+                    $templateName = ExportTemplateName::EXPORT_ORIGINAL->value;
                     $title = 'statements.original';
                     break;
             }
         } elseif ($anonymous) {
-            $templateName = 'export_anonymous';
+            $templateName = ExportTemplateName::EXPORT_ANONYMOUS->value;
             switch ($template) {
-                case 'condensed':
+                case ExportTemplate::CONDENSED->value:
                     $filenamePrefix = $translator->trans('considerationtable').'_ohneNamen';
-                    $templateName = 'export_condensed_anonymous';
+                    $templateName = ExportTemplateName::EXPORT_CONDENSED_ANONYMOUS->value;
                     $title = 'assessment.table';
                     break;
-                case 'portraitWithFrags':
-                case 'landscapeWithFrags':
-                    $templateName = 'export_fragments_anonymous';
+                case ExportTemplate::PORTRAIT_WITH_FRAGMENTS->value:
+                case ExportTemplate::LANDSCAPE_WITH_FRAGMENTS->value:
+                    $templateName = ExportTemplateName::EXPORT_FRAGMENTS_ANONYMOUS->value;
                     // no break
-                case 'landscape':
-                case 'portrait':
+                case ExportTemplate::LANDSCAPE->value:
+                case ExportTemplate::PORTRAIT->value:
                 default:
                     $filenamePrefix = $translator->trans('considerationtable').'_ohneNamen';
                     $title = 'assessment.table';
             }
         } else {
             switch ($template) {
-                case 'condensed':
+                case ExportTemplate::CONDENSED->value:
                     $filenamePrefix = $translator->trans('considerationtable');
-                    $templateName = 'export_condensed';
+                    $templateName = ExportTemplateName::EXPORT_CONDENSED->value;
                     $title = 'assessment.table';
                     break;
-                case 'landscape':
-                case 'portrait':
+                case ExportTemplate::LANDSCAPE->value:
+                case ExportTemplate::PORTRAIT->value:
                 default:
                     $filenamePrefix = $translator->trans('considerationtable');
-                    $templateName = 'export';
+                    $templateName = ExportTemplateName::EXPORT->value;
                     $title = 'assessment.table';
             }
         }
@@ -162,9 +169,9 @@ abstract class AssessmentTableFileExporterAbstract
         if (!array_key_exists('sort', $requestPost) || 0 === (is_countable($requestPost['sort']) ? count($requestPost['sort']) : 0)) {
             $requestPost['sort'] = ToBy::createArray('submitDate', 'desc');
         }
-        if ($this->session->has('hashList')) {
+        if ($this->getSession()->has('hashList')) {
             $type = $isOriginal ? 'original' : 'assessment';
-            $filterHash = $this->session->get(
+            $filterHash = $this->getSession()->get(
                 'hashList'
             )[$procedureId][$type]['hash'];
             $outputResult = $this->statementHandler->getResultsByFilterSetHash(

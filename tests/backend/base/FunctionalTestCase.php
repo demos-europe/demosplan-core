@@ -109,6 +109,24 @@ class FunctionalTestCase extends WebTestCase
         $this->tokenStorage = $container->get('security.token_storage');
 
         $this->fixtures = $this->databaseTool->loadAllFixtures(['TestData'])->getReferenceRepository();
+
+        // Replace each fixture User reference with the EM-managed instance loaded via
+        // find(). On warm-cache runs liip rebuilds references through the EM so they
+        // arrive managed (and lazy collections work); on cold-cache runs the references
+        // are the fixture-time in-memory instances and are *detached*, which leaves
+        // PersistentCollections unable to lazy-load — getDplanRoles() then returns an
+        // empty collection and breaks setUp in the UserPermission*Command tests.
+        // find() also fires the Doctrine entity listener (DoctrineUserListener::postLoad)
+        // which populates the transient rolesAllowed / currentCustomer fields needed
+        // by User::getDplanroles() under ORM v3.
+        foreach ($this->fixtures->getReferences() as $name => $object) {
+            if ($object instanceof User) {
+                $managed = $this->entityManager->find(User::class, $object->getId());
+                if (null !== $managed) {
+                    $this->fixtures->setReference($name, $managed);
+                }
+            }
+        }
     }
 
     protected function tearDown(): void

@@ -108,7 +108,7 @@ class RatelimitRequestSubscriberTest extends TestCase
     {
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())
-            ->method('warning')
+            ->method('debug')
             ->with('Rate limiting for api is disabled but would have been active now.');
 
         $subscriber = $this->createSubscriber(limit: 1, rateLimitEnabled: false, logger: $logger);
@@ -124,7 +124,7 @@ class RatelimitRequestSubscriberTest extends TestCase
     {
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())
-            ->method('warning')
+            ->method('debug')
             ->with('Rate limiting for api is disabled but would have been active now.');
 
         // Env vars are typically strings — 'false' must also disable rate limiting

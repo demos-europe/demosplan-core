@@ -356,9 +356,11 @@ export default {
         if (acc) {
           return acc
         }
+
         if (node.id === nodeId) {
           return node
         }
+
         if (hasOwnProp(node, 'children')) {
           return this.findNodeById(node.children, nodeId)
         }
@@ -422,6 +424,7 @@ export default {
       const reorderedFolders = [...sortedFolders]
       // Simulate the move: remove from old position and insert at new position
       const [movedFolder] = reorderedFolders.splice(currentPosition, 1)
+
       reorderedFolders.splice(newIndex, 0, movedFolder)
 
       // Find the folder that will come AFTER the moved folder
@@ -624,6 +627,7 @@ export default {
         .then(response => {
           // Update store with backend response
           const elementsMap = response.data[0].result
+
           this.updateElementsFromResponse(elementsMap)
 
           // Rebuild tree with backend data

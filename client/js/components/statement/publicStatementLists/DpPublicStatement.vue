@@ -271,6 +271,8 @@
       :show-empty="true"
       mode="readonly"
       resource-type="DraftStatement"
+      source-entity="PROCEDURE"
+      target-entity="STATEMENT"
       expandable
     />
   </dp-table-card>
@@ -471,6 +473,7 @@ export default {
   methods: {
     renderAttachments (attachments) {
       const transformedAttachments = attachments.map(a => `<a href="${Routing.generate('core_file_procedure', { hash: a.hash, procedureId: this.procedureId })}">${a.name}</a>`)
+
       return transformedAttachments.length > 0 ? transformedAttachments.join(', ') : Translator.trans('notspecified')
     },
 
@@ -480,9 +483,11 @@ export default {
 
     renderTooltipContent (lines) {
       let content = ''
+
       lines.forEach(ln => {
         content += `${ln}<br />`
       })
+
       return DomPurify.sanitize(content)
     },
   },

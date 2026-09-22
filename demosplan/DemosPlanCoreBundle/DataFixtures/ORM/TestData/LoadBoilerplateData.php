@@ -199,7 +199,7 @@ class LoadBoilerplateData extends TestFixture implements DependentFixtureInterfa
         $manager->flush();
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             LoadProcedureData::class,

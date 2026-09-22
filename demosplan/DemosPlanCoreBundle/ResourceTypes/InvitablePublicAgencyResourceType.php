@@ -66,7 +66,7 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
 
         $conditions = [
             $this->conditionFactory->propertyHasValue(false, Paths::orga()->deleted),
-            $this->conditionFactory->propertyHasValue(true, Paths::orga()->showlist),
+            $this->conditionFactory->propertyHasValue(true, Paths::orga()->statusInCustomers->showlist),
             $this->conditionFactory->propertyHasValue(
                 RoleInterface::GPSORG,
                 Paths::orga()->users->roleInCustomers->role->groupCode
@@ -138,6 +138,12 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
                 ->setRelationshipType($this->resourceTypeStore->getInstitutionTagResourceType())
                 ->setReadableByPath(DefaultField::YES, DefaultInclude::YES)
                 ->setFilterable();
+        }
+
+        if ($this->currentUser->hasPermission('field_organisations_custom_fields')) {
+            $configBuilder->customFields->setReadableByCallable(
+                static fn (Orga $orga): ?array => $orga->getCustomFields()?->toJson()
+            );
         }
 
         return $configBuilder;

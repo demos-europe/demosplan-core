@@ -17,7 +17,6 @@
     :header="Translator.trans('unsaved.changes')"
     :message="Translator.trans('warning.unsaved.changes')"
     :tertiary-button-text="Translator.trans('change.discard')"
-    secondary-btn-variant="outline"
     @confirmed="handleConfirm"
     @tertiary-action="handleTertiaryAction"
   />

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementSegmentResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
@@ -34,6 +35,7 @@ use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathException;
 use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
 use Elastica\Index;
+use InvalidArgumentException;
 
 /**
  * @template-implements ReadableEsResourceTypeInterface<SegmentInterface>
@@ -48,11 +50,14 @@ use Elastica\Index;
  * @property-read End $orderInProcedure
  * @property-read StatementResourceType $parentStatement
  * @property-read StatementResourceType $parentStatementOfSegment Do not expose! Alias usage only.
+ * @property-read ProcedureResourceType $procedure Filter-only, not readable; segments inherit this directly from Statement, avoiding a self-join through parentStatementOfSegment.
  * @property-read AssignableUserResourceType $assignee
+ * @property-read End $deadline
  * @property-read TagResourceType $tags
  * @property-read PlaceResourceType $place
  * @property-read SegmentCommentResourceType $comments
  * @property-read End $customFields
+ * @property-read RecommendationVersionResourceType $recommendationVersions
  */
 final class StatementSegmentResourceType extends DplanResourceType implements ReadableEsResourceTypeInterface, StatementSegmentResourceTypeInterface
 {
@@ -119,7 +124,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
 
         return [] === $procedureIds
             ? [$this->conditionFactory->false()]
-            : [$this->conditionFactory->propertyHasAnyOfValues($procedureIds, $this->parentStatementOfSegment->procedure->id)];
+            : [$this->conditionFactory->propertyHasAnyOfValues($procedureIds, $this->procedure->id)];
     }
 
     public function getFacetDefinitions(): array
@@ -139,7 +144,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
 
         // Create sort methods for tags (items) and tag topics (groups)
         $tagsSortMethod = $this->sortMethodFactory->propertyAscending(
-            $this->tagResourceType->title
+            $this->tagResourceType->sortIndex
         );
         $topicsSortMethod = $this->sortMethodFactory->propertyAscending(
             $this->tagTopicResourceType->title
@@ -202,7 +207,14 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
             $polygon->updatable();
         }
         if ($this->currentUser->hasPermission('feature_segment_recommendation_edit')) {
-            $recommendation->updatable();
+            // Uses a callback instead of the default path-based updater to ensure
+            // setRecommendation() is called. The default uses reflection which bypasses
+            // the setter and its recommendation version recording hook.
+            $recommendation->updatable([], static function (Segment $segment, string $value): array {
+                $segment->setRecommendation($value);
+
+                return [];
+            });
         }
 
         if ($this->currentUser->hasPermission('field_segments_custom_fields')) {
@@ -229,16 +241,67 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
                 );
         }
 
-        return array_map(
+        if ($this->currentUser->hasPermission('field_statement_deadline')) {
+            $properties[] = $this->createAttribute($this->deadline)
+                ->readable(true, static fn (Segment $segment): ?string => $segment->getDeadline()?->format('Y-m-d'))
+                ->updatable([], static function (Segment $segment, ?string $value): array {
+                    $segment->setDeadline(self::parseDeadline($value));
+
+                    return [];
+                });
+        }
+
+        if ($this->currentUser->hasPermission('feature_enable_recommendation_versions')) {
+            $properties[] = $this->createToManyRelationship($this->recommendationVersions)
+                ->setRelationshipType($this->resourceTypeStore->getRecommendationVersionResourceType())
+                ->readable(true, static fn (Segment $segment): array => $segment->getRecommendationVersions()->toArray(), true);
+        }
+
+        $properties = array_map(
             static fn (PropertyConfigBuilderInterface $property): PropertyConfigBuilderInterface => $property
                 ->filterable()
                 ->sortable(),
             $properties
         );
+
+        // Registered filter-only so the access conditions and the RPC bulk-edit
+        // condition builder can resolve the path; it stays out of the readable
+        // JSON:API surface.
+        $properties[] = $this->createToOneRelationship($this->procedure)
+            ->setRelationshipType($this->resourceTypeStore->getProcedureResourceType())
+            ->filterable();
+
+        return $properties;
     }
 
     public function getUpdateValidationGroups(): array
     {
         return [ResourceTypeService::VALIDATION_GROUP_DEFAULT, SegmentInterface::VALIDATION_GROUP_SEGMENT_MANDATORY];
+    }
+
+    /**
+     * Parses an incoming deadline value (ISO date "Y-m-d") into a DateTime, or null when empty.
+     *
+     * Strictly validates the format so a malformed value surfaces as a client error
+     * (400) instead of an uncaught exception (500) from the DateTime constructor.
+     *
+     * @throws InvalidArgumentException on a non-empty value that is not a valid "Y-m-d" date
+     */
+    private static function parseDeadline(?string $value): ?DateTime
+    {
+        $value = trim($value ?? '');
+        if ('' === $value) {
+            return null;
+        }
+
+        $date = DateTime::createFromFormat('!Y-m-d', $value);
+        $errors = DateTime::getLastErrors();
+        if (!$date instanceof DateTime
+            || (is_array($errors) && ($errors['warning_count'] > 0 || $errors['error_count'] > 0))
+        ) {
+            throw new InvalidArgumentException('Invalid deadline provided; expected format YYYY-MM-DD.');
+        }
+
+        return $date;
     }
 }

@@ -88,7 +88,7 @@ class ValueObject implements JsonSerializable, ValueObjectInterface
 
         // if we're called from inside a twig template, only allow getting values
         if (0 < strpos($backTrace[0]['file'], self::TWIG_LOCATION)) {
-            if (0 < strlen($match[1])) {
+            if ('' !== $match[1]) {
                 throw ValueObjectException::noAccessorAllowedFromTwig();
             }
 

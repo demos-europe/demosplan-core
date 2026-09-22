@@ -22,6 +22,9 @@ use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\Querying\Contracts\PathException;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 
+/**
+ * @property-read CustomerResourceType $customer
+ */
 class InstitutionTagCategoryResourceType extends DplanResourceType
 {
     public function __construct(private readonly InstitutionTagRepository $institutionTagRepository)

@@ -272,7 +272,7 @@ class MasterToebService
                 $data[$key] = (int) $value;
             } elseif (in_array($key, $stringToBooleanValues)) {
                 $data[$key] = false;
-                if (0 < strlen($value)) {
+                if ('' !== (string) $value) {
                     $data[$key] = true;
                 }
             } elseif (in_array($key, $stringToIntValues)) {

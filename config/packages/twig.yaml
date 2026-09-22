@@ -2,11 +2,13 @@ twig:
     debug:            '%kernel.debug%'
     exception_controller: null
     strict_variables: '%kernel.debug%'
+    file_name_pattern: '*.twig'
     globals:
         alternative_login_use_testuser: '%alternative_login_use_testuser%'
         alternative_login_testuser_defaultpass: '%alternative_login_testuser_defaultpass%'
         tracking_enabled: '%piwik_enable%'
         sentry_dsn: '%sentry_dsn%'
+        sentry_traces_sample_rate_frontend: '%sentry_traces_sample_rate_frontend%'
     form_themes:
         - '@DemosPlanCore/form/styled_fields.html.twig'
     default_path: '%kernel.project_dir%/templates'

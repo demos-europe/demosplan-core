@@ -62,7 +62,7 @@ class ProcedureProposalService
     {
         $repo = $this->procedureProposalRepository;
         $object = new ProcedureProposal();
-        $procedureProposalData['status'] = $object::STATUS['new'];
+        $procedureProposalData['status'] = ProcedureProposal::STATUS['new'];
 
         // load user via doctrine to ensure doctrine knowing this user is already existing
         $currentUser = $this->currentUser->getUser();

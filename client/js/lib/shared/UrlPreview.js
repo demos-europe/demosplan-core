@@ -36,9 +36,11 @@ export default function UrlPreview () {
         .then(response => {
           if (orgaPreview) {
             const shortUrl = orgaPreview.getAttribute('data-shorturl')
+
             orgaPreview.textContent = shortUrl + response.data.data.attributes.slugifiedValue
           } else if (shortUrlPreview) {
             const shortUrl = shortUrlPreview.getAttribute('data-shorturl')
+
             shortUrlPreview.textContent = shortUrl + response.data.data.attributes.slugifiedValue
           }
         })

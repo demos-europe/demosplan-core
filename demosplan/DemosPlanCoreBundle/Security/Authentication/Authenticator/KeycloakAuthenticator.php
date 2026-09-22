@@ -46,7 +46,7 @@ class KeycloakAuthenticator extends OAuth2Authenticator implements Authenticatio
     {
         $client = $this->clientRegistry->getClient('keycloak');
         $accessToken = $this->fetchAccessToken($client);
-        $this->logger->info('login attempt', ['accessToken' => $accessToken]);
+        $this->logger->info('oauthAuthenticator: login attempt', ['accessToken' => $accessToken]);
 
         $userIdentifier = $accessToken->getToken();
         $resourceOwner = $client->fetchUserFromToken($accessToken);
@@ -60,7 +60,7 @@ class KeycloakAuthenticator extends OAuth2Authenticator implements Authenticatio
     {
         /** @var User $user */
         $user = $token->getUser();
-        $this->logger->info('User was logged in via OAuth', ['id' => $user->getId(), 'roles' => $user->getDplanRolesString()]);
+        $this->logger->info('oauthAuthenticator: User was logged in via OAuth', ['id' => $user->getId(), 'roles' => $user->getDplanRolesString()]);
 
         // propagate user login to session
         $request->getSession()->set('userId', $user->getId());
@@ -73,7 +73,7 @@ class KeycloakAuthenticator extends OAuth2Authenticator implements Authenticatio
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception): ?Response
     {
-        $this->logger->warning('Login via Keycloak failed', ['exception' => $exception]);
+        $this->logger->warning('oauthAuthenticator: Login via Keycloak failed', ['exception' => $exception]);
         $targetUrl = $this->router->generate('core_login_idp_error');
 
         return new RedirectResponse($targetUrl);

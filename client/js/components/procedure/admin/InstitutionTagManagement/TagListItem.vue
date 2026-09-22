@@ -259,6 +259,7 @@ export default {
 
       if (name === this.name) {
         this.isEditing = false
+
         return
       }
 

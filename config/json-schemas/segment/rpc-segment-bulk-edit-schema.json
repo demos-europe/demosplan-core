@@ -66,6 +66,13 @@
           "minLength": 36,
           "maxLength": 36
         },
+        "deadline": {
+          "$id": "#/properties/deadline",
+          "oneOf": [
+            { "type":  "null"},
+            { "type":  "string", "format":  "date"}
+          ]
+        },
         "recommendationTextEdit": {
           "$id": "#recommendationTextEdit",
           "type": "object",

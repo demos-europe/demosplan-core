@@ -365,9 +365,11 @@ export default {
       const anonymizedSnippets = []
       const regex = /<span([^>]*?)title="([^"]*?)"([^>]*?)class="anonymize-me"([^>]*?)>([^<]*?)<\/span>/gm
       let result
+
       while ((result = regex.exec(text))) {
         anonymizedSnippets.push(result[2])
       }
+
       return anonymizedSnippets
     },
   },
@@ -387,6 +389,7 @@ export default {
           return false
         }
       }
+
       return true
     },
 
@@ -394,6 +397,7 @@ export default {
       if (this.isInvalid()) {
         return
       }
+
       this.currentStep = this.currentStep < this.totalSteps ? this.currentStep + 1 : this.totalSteps
     },
 
@@ -425,6 +429,7 @@ export default {
           },
         },
       }
+
       return dpApi({
         method: 'POST',
         url: Routing.generate('dplan_rpc_statement_anonymize'),

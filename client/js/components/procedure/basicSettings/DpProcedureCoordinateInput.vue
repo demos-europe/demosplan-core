@@ -80,6 +80,7 @@ export default {
     isCoordinatesValid () {
       const lat = this.convertToFloat(this.latitudeValue)
       const lon = this.convertToFloat(this.longitudeValue)
+
       return Number(lat) === lat && Number(lon) === lon
     },
   },

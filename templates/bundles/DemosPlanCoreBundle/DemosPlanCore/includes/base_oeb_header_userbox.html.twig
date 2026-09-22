@@ -40,7 +40,7 @@
             </a>
 
             {# flyout content #}
-            <div class="{{ 'c-flyout__content text-left'|prefixClass }}" data-extern-dataport="userMenu">
+            <div class="{{ 'c-flyout__content text-left'|prefixClass }}" data-extern-dataport="userMenu" role="menu">
 
                 {# display roles of current user #}
                 <div class="{{ 'c-flyout__item u-mt-0_5'|prefixClass }}">
@@ -270,7 +270,7 @@
 
                 {# flyout with information about gateway login #}
                 {% if loggedout_simple is not defined and hasPermission('area_login_dialog') %}
-                    <div class="{{ 'c-flyout__content text-left'|prefixClass }}" id="explanationLoginGateway">
+                    <div class="{{ 'c-flyout__content text-left'|prefixClass }}" id="explanationLoginGateway" role="menu">
                         <p class="{{ 'u-ph-0_5 u-pv-0_25 u-mb-0'|prefixClass }}">
                             {{ "explanation.login.gateway"|trans }}
                         </p>

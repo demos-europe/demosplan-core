@@ -34,12 +34,14 @@ function initBarChart (elementId, elementLegendId) {
 
 function initBarPieChart (barId, pieId, barLegendId, pieLegendId) {
   const barChartElement = document.querySelector(barId)
+
   if (barChartElement) {
     const fData = JSON.parse(barChartElement.getAttribute('data-status'))
     const categoryDefinition = JSON.parse(barChartElement.getAttribute('data-categories'))
     const targetClasses = { bar: barId, pie: pieId, pieLegend: pieLegendId, chartLegend: barLegendId }
     const cssColorClasses = JSON.parse(barChartElement.getAttribute('data-colors'))
     const colors = {}
+
     for (const colorArray in cssColorClasses) {
       colors[colorArray] = getColorsFromCSS(cssColorClasses[colorArray])
     }
@@ -53,6 +55,7 @@ function initDonutChart (donutId, donutLegendId) {
 
   if (donutElement) {
     const cssColorClass = JSON.parse(donutElement.getAttribute('data-color'))
+
     return new DonutChart({
       categoryDefinition: JSON.parse(donutElement.getAttribute('data-categories')),
       color: getColorFromCSS(cssColorClass),
@@ -69,6 +72,7 @@ function initLineChart (lineId, lineLegendId) {
 
   if (lineElement) {
     const cssColorClass = JSON.parse(lineElement.getAttribute('data-color'))
+
     return new LineChart({
       activeColor: [getColorFromCSS('c-chart__color-active')],
       color: getColorFromCSS(cssColorClass),

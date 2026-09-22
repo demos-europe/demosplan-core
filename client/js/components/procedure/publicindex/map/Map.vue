@@ -176,6 +176,7 @@ export default {
 
     initialLocation () {
       const settings = this.initialMapSettings
+
       return new L.LatLng(settings.initialLat, settings.initialLon)
     },
 
@@ -223,6 +224,7 @@ export default {
         if (newVal === 'DpDetailView') {
           this.zoomToMarker(this.currentProcedureId)
         }
+
         if (newVal === 'DpList') {
           this.setZoom()
         }
@@ -275,6 +277,7 @@ export default {
 
     coordinate (coordinate) {
       const latLng = coordinate.split(',')
+
       return this.proj(latLng)
     },
 
@@ -336,6 +339,7 @@ export default {
     proj (coords) {
       // Shouldn't be needed but otherwise proj4 cries about infinitive numbers
       coords = [Math.round(coords[0]), Math.round(coords[1])]
+
       return proj4(this.projectionName, 'WGS84', coords).reverse()
     },
 
@@ -361,6 +365,7 @@ export default {
             for (const b in clusterBounds) {
               bounds.push(clusterBounds[b])
             }
+
             map.fitBounds(bounds)
 
             if (map.getZoom() > 16) {
@@ -373,6 +378,7 @@ export default {
 
     tooltipContent (procedure) {
       const accessType = this.determineAccessType(procedure)
+
       return Translator.trans(accessType === 'write' ? 'phase.writable' : 'phase.readable')
     },
 

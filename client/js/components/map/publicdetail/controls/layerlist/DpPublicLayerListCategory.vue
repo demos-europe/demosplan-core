@@ -153,6 +153,7 @@ export default {
       // Get contextualHelp from all children
       this.layers.forEach(el => {
         const contextualHelp = this.element({ id: el.id, type: 'ContextualHelp' })
+
         if (hasOwnProp(contextualHelp, 'attributes') && contextualHelp.attributes.text !== '') {
           this.contextualHelp += contextualHelp.attributes.text + ' '
         }

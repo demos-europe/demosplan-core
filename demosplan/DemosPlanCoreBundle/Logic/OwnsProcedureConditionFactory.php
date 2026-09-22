@@ -70,7 +70,20 @@ class OwnsProcedureConditionFactory
             $user = $this->userOrProcedure;
             $organisationId = $user->getOrganisationId();
 
-            return $this->conditionFactory->propertyHasStringAsMember($organisationId, ['planningOffices']);
+            if (null === $organisationId) {
+                return $this->conditionFactory->false();
+            }
+
+            /*
+             * `propertyHasStringAsMember()` (DQL `MEMBER OF`) reads the `planningOffices`
+             * to-many property with DIRECT access, which works when the condition is executed
+             * as SQL but returns the raw, unresolved `PersistentCollection` when the condition
+             * is evaluated in PHP against an already-fetched entity (e.g. EDT relationship
+             * resolution), breaking the `in_array()` call in `OneOf::reduce()`.
+             * `propertyHasAnyOfValues()` uses UNPACK access instead, which is resolved correctly
+             * in both cases.
+             */
+            return $this->conditionFactory->propertyHasAnyOfValues([$organisationId], ['planningOffices', 'id']);
         }
 
         $procedure = $this->userOrProcedure;
@@ -87,7 +100,8 @@ class OwnsProcedureConditionFactory
      *
      * If {@link GlobalConfigInterface::hasProcedureUserRestrictedAccess} is set to `true`,
      * then the user must be authorized manually for the procedure AND must be in the
-     * procedure's owning organization.
+     * procedure's owning organization. The platform master blueprint is exempt from the
+     * manual authorization part, see {@link self::isMasterTemplate()}.
      *
      * The returned condition will not apply role checks by itself. Use in conjunction with
      * {@link self::hasProcedureAccessingRole}.
@@ -96,16 +110,59 @@ class OwnsProcedureConditionFactory
      */
     public function isAuthorizedViaOrgaOrManually(): FunctionInterface
     {
-        // When explicit authorization is enabled, require BOTH explicit authorization
-        // AND owning organization match to prevent access by users who changed organizations
-        if ($this->globalConfig->hasProcedureUserRestrictedAccess()) {
-            return $this->conditionFactory->allConditionsApply(
-                $this->userIsExplicitlyAuthorized(),
-                $this->userOwnsProcedureViaOrgaOfUserThatCreatedTheProcedure()
-            );
+        if (!$this->globalConfig->hasProcedureUserRestrictedAccess()) {
+            return $this->userOwnsProcedureViaOrgaOfUserThatCreatedTheProcedure();
         }
 
-        return $this->userOwnsProcedureViaOrgaOfUserThatCreatedTheProcedure();
+        // When explicit authorization is enabled, require BOTH explicit authorization
+        // AND owning organization match to prevent access by users who changed organizations.
+        // The owning organization match is never waived, so no exemption below can grant
+        // access across organizations.
+        return $this->conditionFactory->allConditionsApply(
+            $this->userOwnsProcedureViaOrgaOfUserThatCreatedTheProcedure(),
+            $this->conditionFactory->anyConditionApplies(
+                $this->isMasterTemplate(),
+                $this->userIsExplicitlyAuthorized()
+            )
+        );
+    }
+
+    /**
+     * Whether the procedure is the platform master blueprint ("Plattform-Blaupause"), the
+     * per-installation singleton that all new procedures are copied from.
+     *
+     * This exists to exempt that blueprint from {@link self::userIsExplicitlyAuthorized()}
+     * while explicit authorization is enabled. The master blueprint is seeded by migration
+     * rather than created through the UI, so it never receives the creator row that
+     * ProcedureService::setAuthorizedUsersToProcedure() writes for every other
+     * procedure. Its authorized user list is therefore permanently empty, and
+     * {@link self::userIsExplicitlyAuthorized()} resolves an empty list to a hard `false()` —
+     * which would make the blueprint owned by nobody and its settings page unopenable, even
+     * for the organisation that owns it. Note also that inheriting authorized users from a
+     * master blueprint is explicitly refused when copying it (T15644 / T23583), which is
+     * further evidence it was never meant to carry a per-user authorization list.
+     *
+     * Combined with the never-waived organisation match in
+     * {@link self::isAuthorizedViaOrgaOrManually()} and the role check in
+     * {@link self::hasProcedureAccessingRole()}, this grants the master blueprint to
+     * FP-role users of the owning organisation — matching the intent of ADO #44507, which
+     * made it visible to exactly that group but left it unopenable.
+     *
+     * @return ClauseFunctionInterface<bool>
+     *
+     * @throws PathException
+     */
+    public function isMasterTemplate(): ClauseFunctionInterface
+    {
+        if ($this->userOrProcedure instanceof User) {
+            return $this->conditionFactory->propertyHasValue(true, ['masterTemplate']);
+        }
+
+        $procedure = $this->userOrProcedure;
+
+        return $procedure->isMasterTemplate()
+            ? $this->conditionFactory->true()
+            : $this->conditionFactory->false();
     }
 
     /**
@@ -205,7 +262,17 @@ class OwnsProcedureConditionFactory
     public function isEitherTemplateOrProcedure(bool $template): ClauseFunctionInterface
     {
         if ($this->userOrProcedure instanceof User) {
-            return $this->conditionFactory->propertyHasValue($template, ['master']);
+            /*
+             * Procedure::$master is persisted as an integer column but semantically boolean
+             * (see ProcedureResourceType::getResourceTypeConditions()). SQL-executed conditions
+             * work with either representation because MySQL loosely casts bool to int, but
+             * conditions evaluated in PHP (e.g. EDT relationship resolution) use strict
+             * comparison and require the int representation to match.
+             */
+            return $this->conditionFactory->anyConditionApplies(
+                $this->conditionFactory->propertyHasValue($template, ['master']),
+                $this->conditionFactory->propertyHasValue((int) $template, ['master']),
+            );
         }
 
         $procedure = $this->userOrProcedure;
@@ -225,7 +292,9 @@ class OwnsProcedureConditionFactory
         if ($this->userOrProcedure instanceof User) {
             $user = $this->userOrProcedure;
 
-            return $this->conditionFactory->propertyHasStringAsMember($user->getId(), ['authorizedUsers']);
+            // see isAuthorizedViaPlanningAgency() for why UNPACK access via
+            // propertyHasAnyOfValues() is used instead of propertyHasStringAsMember()
+            return $this->conditionFactory->propertyHasAnyOfValues([$user->getId()], ['authorizedUsers', 'id']);
         }
 
         $procedure = $this->userOrProcedure;

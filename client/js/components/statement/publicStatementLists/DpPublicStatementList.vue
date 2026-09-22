@@ -238,6 +238,7 @@ export default {
   computed: {
     actionFields () {
       const fields = []
+
       if (hasPermission(editPermissions[this.target]) && this.showEdit) {
         fields.push('edit')
       }
@@ -324,7 +325,7 @@ export default {
         uName,
         dName,
         oName,
-        phase,
+        phaseDefinition,
         polygon,
         elementId,
         paragraphId,
@@ -340,17 +341,20 @@ export default {
       const attachments = files.map(f => getFileInfo(f))
 
       let county = {}
+
       if (hasPermission('field_statement_county')) {
         county = statementAttributes.county && this.counties.find(c => c.value === statementAttributes.county)
         county = { county: (county && county.label) || Translator.trans('notspecified') }
       }
 
       let priorityAreas = {}
+
       if (dplan.procedureStatementPriorityArea) {
         priorityAreas = { priorityAreas: statementAttributes.priorityAreaKey ? statementAttributes.priorityAreaKey : Translator.trans('notspecified') }
       }
 
       let statementDocument = element?.title || ''
+
       if (document?.title) {
         statementDocument += ` / ${document.title}`
       }
@@ -374,7 +378,7 @@ export default {
         externId,
         organisation: oName,
         paragraph: statementParagraph,
-        phase,
+        phase: phaseDefinition?.name ?? '',
         polygon: transformedPolygon,
         ...priorityAreas,
         ...transformedSubmitDate,

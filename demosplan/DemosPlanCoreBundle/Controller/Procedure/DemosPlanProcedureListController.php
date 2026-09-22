@@ -14,11 +14,15 @@ use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureExportJob;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
+use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobDownloadResponseFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobFingerprint;
+use demosplan\DemosPlanCoreBundle\Logic\Export\RunningExportJobLookup;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -27,10 +31,14 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureListService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
 use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Message\ExportProcedureMessage;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Exception;
@@ -44,6 +52,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -52,7 +62,6 @@ use function date;
 use function explode;
 use function is_array;
 use function is_string;
-use function strlen;
 use function substr;
 
 /**
@@ -72,7 +81,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      * @throws Exception
      */
     #[DplanPermissions('area_public_participation')]
-    #[Route(name: 'DemosPlan_procedure_public_orga_index', path: '/plaene/{orgaSlug}')]
+    #[Route(path: '/plaene/{orgaSlug}', name: 'DemosPlan_procedure_public_orga_index')]
     public function publicOrgaIndex(
         BrandingService $brandingService,
         ContentService $contentService,
@@ -137,7 +146,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      * @throws Exception
      */
     #[DplanPermissions(['area_admin_procedures', 'area_search_submitter_in_procedures'])]
-    #[Route(path: '/verfahren/suche/stellungnahmen', methods: ['GET'], name: 'DemosPlan_procedure_search_statements')]
+    #[Route(path: '/verfahren/suche/stellungnahmen', name: 'DemosPlan_procedure_search_statements', methods: ['GET'])]
     public function findProceduresByStatementAuthorView(ProcedureHandler $procedureHandler)
     {
         $procedures = $procedureHandler->getProceduresForAdmin();
@@ -153,10 +162,27 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     }
 
     /**
+     * @return Response
+     *
+     * @throws Exception
+     */
+    #[DplanPermissions(['area_admin_procedures', 'area_search_submitters_cross_procedures'])]
+    #[Route(path: '/verfahren/suche/einreichende', name: 'DemosPlan_procedure_search_submitters_cross_procedures', methods: ['GET'])]
+    public function searchSubmittersAcrossProceduresView()
+    {
+        return $this->render(
+            '@DemosPlanCore/DemosPlanProcedure/administration_search_submitters.html.twig',
+            [
+                'title' => 'search.submitter',
+            ]
+        );
+    }
+
+    /**
      * @throws Exception
      */
     #[DplanPermissions('area_admin_procedures')]
-    #[Route(name: 'DemosPlan_procedures_delete', path: '/verfahren/delete', methods: ['POST'], options: ['expose' => true])]
+    #[Route(path: '/verfahren/delete', name: 'DemosPlan_procedures_delete', options: ['expose' => true], methods: ['POST'])]
     public function deleteProcedures(Request $request): RedirectResponse
     {
         $this->deleteProceduresOrProcedureTemplates($request);
@@ -168,7 +194,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      * @throws Exception
      */
     #[DplanPermissions('area_admin_procedure_templates')]
-    #[Route(name: 'DemosPlan_procedure_templates_delete', path: '/verfahren/blaupausen/delete', methods: ['POST'], options: ['expose' => true])]
+    #[Route(path: '/verfahren/blaupausen/delete', name: 'DemosPlan_procedure_templates_delete', options: ['expose' => true], methods: ['POST'])]
     public function deleteMasterProcedures(Request $request): RedirectResponse
     {
         $this->deleteProceduresOrProcedureTemplates($request);
@@ -201,13 +227,130 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     }
 
     /**
+     * Start an asynchronous procedure export (Gesamtabzug). Instead of building the ZIP inside the
+     * web request (which risks a gateway timeout on large selections), this enqueues a background
+     * job and returns its id so the browser can poll for completion and then download the result.
+     *
+     * @throws Exception
+     */
+    #[DplanPermissions('area_admin_procedures')]
+    #[Route(
+        path: '/verfahren/export/async',
+        name: 'DemosPlan_procedures_export_async_start',
+        options: ['expose' => true],
+        methods: ['POST']
+    )]
+    public function startAsyncExport(
+        CurrentUserService $currentUserService,
+        CustomerService $customerService,
+        EntityManagerInterface $entityManager,
+        MessageBusInterface $messageBus,
+        Request $request,
+        RunningExportJobLookup $runningExportJobLookup,
+    ): Response {
+        $selectedProcedures = $this->getSelectedItems($request);
+        if (0 === count($selectedProcedures)) {
+            return new JsonResponse(['error' => 'noselection'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $userId = $currentUserService->getUser()->getId();
+        $procedureIds = array_values($selectedProcedures);
+        $useExternalProcedureName = false;
+        $parametersHash = ExportJobFingerprint::forProcedureSelection($procedureIds, $useExternalProcedureName);
+
+        // The export gives no progress feedback, so a slow one invites re-triggering. Hand back the
+        // job that is already running for this exact selection instead of queueing a duplicate on
+        // the serial worker; the client then polls the running job rather than orphaning it.
+        $running = $runningExportJobLookup->find(
+            ProcedureExportJob::class,
+            [
+                'userId'         => $userId,
+                'parametersHash' => $parametersHash,
+            ],
+            [ProcedureExportJob::STATUS_PENDING, ProcedureExportJob::STATUS_PROCESSING]
+        );
+        if ($running instanceof ProcedureExportJob) {
+            return new JsonResponse(['jobId' => $running->getId()]);
+        }
+
+        $job = new ProcedureExportJob();
+        $job->setUserId($userId);
+        $job->setParametersHash($parametersHash);
+        $entityManager->persist($job);
+        $entityManager->flush();
+
+        $messageBus->dispatch(new ExportProcedureMessage(
+            $job->getId(),
+            $procedureIds,
+            $userId,
+            $customerService->getCurrentCustomer()->getId(),
+            $useExternalProcedureName
+        ));
+
+        return new JsonResponse(['jobId' => $job->getId()]);
+    }
+
+    /**
+     * Poll the status of an asynchronous procedure export.
+     */
+    #[DplanPermissions('area_admin_procedures')]
+    #[Route(
+        path: '/verfahren/export/status/{jobId}',
+        name: 'DemosPlan_procedures_export_status',
+        options: ['expose' => true],
+        methods: ['GET']
+    )]
+    public function exportStatus(
+        CurrentUserService $currentUserService,
+        EntityManagerInterface $entityManager,
+        string $jobId,
+    ): Response {
+        $job = $entityManager->find(ProcedureExportJob::class, $jobId);
+        if (!$job instanceof ProcedureExportJob
+            || $job->getUserId() !== $currentUserService->getUser()->getId()) {
+            return new JsonResponse(['status' => 'not_found'], Response::HTTP_NOT_FOUND);
+        }
+
+        return new JsonResponse([
+            'status' => $job->getStatus(),
+            'error'  => $job->getErrorMessage(),
+        ]);
+    }
+
+    /**
+     * Download the result of a finished asynchronous procedure export.
+     */
+    #[DplanPermissions('area_admin_procedures')]
+    #[Route(
+        path: '/verfahren/export/download/{jobId}',
+        name: 'DemosPlan_procedures_export_download',
+        options: ['expose' => true],
+        methods: ['GET']
+    )]
+    public function exportDownload(
+        CurrentUserService $currentUserService,
+        EntityManagerInterface $entityManager,
+        ExportJobDownloadResponseFactory $downloadResponseFactory,
+        string $jobId,
+    ): Response {
+        $job = $entityManager->find(ProcedureExportJob::class, $jobId);
+        if (!$job instanceof ProcedureExportJob
+            || $job->getUserId() !== $currentUserService->getUser()->getId()
+            || ProcedureExportJob::STATUS_COMPLETED !== $job->getStatus()) {
+            throw new NotFoundHttpException();
+        }
+
+        return $downloadResponseFactory->createForJob($job) ?? throw new NotFoundHttpException();
+    }
+
+    /**
      * Liste der Verfahren, die der User administriert.
      *
      * @throws Exception
      */
     #[DplanPermissions('area_admin_procedures')]
-    #[Route(name: 'DemosPlan_procedure_administration_post', path: '/verfahren/verwalten', methods: ['POST'])]
-    #[Route(name: 'DemosPlan_procedure_administration_get', path: '/verfahren/verwalten', methods: ['GET'], options: ['expose' => true])]
+    #[Route(path: '/verfahren/verwalten', name: 'DemosPlan_procedure_administration_post', methods: ['POST'])]
+    #[Route(path: '/verfahren/verwalten', name: 'DemosPlan_procedure_administration_get', options: ['expose' => true], methods: ['GET'])]
     public function proceduresList(ProcedureListService $procedureListService): Response
     {
         $title = 'procedure.admin.list';
@@ -228,7 +371,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      * @throws Exception
      */
     #[DplanPermissions('area_admin_procedure_templates')]
-    #[Route(name: 'DemosPlan_procedure_templates_list', path: '/verfahren/blaupausen', methods: ['GET'], options: ['expose' => true])]
+    #[Route(path: '/verfahren/blaupausen', name: 'DemosPlan_procedure_templates_list', options: ['expose' => true], methods: ['GET'])]
     public function proceduresMasterList(
         PermissionsInterface $permissions,
         ProcedureListService $procedureListService,
@@ -266,7 +409,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      * @throws Exception
      */
     #[DplanPermissions('area_public_participation')]
-    #[Route(name: 'DemosPlan_procedure_public_list_json', path: '/list/json', options: ['expose' => true])]
+    #[Route(path: '/list/json', name: 'DemosPlan_procedure_public_list_json', options: ['expose' => true])]
     public function publicProcedureListJson(
         CurrentUserInterface $currentUser,
         ContentService $contentService,
@@ -297,7 +440,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
             // by full fledged Gemeindekennziffer (gkz like 01062090) by only having municipality
             // gkz like 01062. Therefore we need to model filter as query string to be able to use
             // wildcard. The filter itself needs to be unset
-            if (array_key_exists('municipalCode', $requestPost) && 0 < strlen((string) $requestPost['municipalCode'])) {
+            if (array_key_exists('municipalCode', $requestPost) && '' !== (string) $requestPost['municipalCode']) {
                 // if user searched for something add municipalCode as an AND-Search, not OR (default search)
                 $delimiter = '' !== $request->request->get('search') ? ' AND ' : ' ';
                 $requestPost['search'] .= $delimiter.$requestPost['municipalCode'].'*';
@@ -363,7 +506,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
                     'externalName'                 => $procedureExtension->getNameFunction($procedure),
                     'publicParticipationStartDate' => $dateConvert($procedureExtension->getStartDate($procedure)),
                     'publicParticipationEndDate'   => $dateConvert($procedureExtension->getEndDate($procedure)),
-                    'publicParticipationPhaseName' => $procedureExtension->getPhase($procedure),
+                    'publicParticipationPhaseName' => $procedureExtension->getPhaseDefinitionName($procedure),
                     'externalDesc'                 => $procedure['externalDesc'],
                     'publicParticipationContact'   => $procedure['publicParticipationContact'],
                     'procedureUrl'                 => $this->generateUrl(
@@ -395,7 +538,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      * @return Response
      */
     #[DplanPermissions('area_public_participation')]
-    #[Route(name: 'DemosPlan_procedure_public_suggest_procedure_location_json', path: '/suggest/procedureLocation/json', options: ['expose' => true])]
+    #[Route(path: '/suggest/procedureLocation/json', name: 'DemosPlan_procedure_public_suggest_procedure_location_json', options: ['expose' => true])]
     public function searchProcedureJson(
         Request $request,
         CurrentProcedureService $currentProcedureService,
@@ -482,7 +625,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
      * @throws Exception
      */
     #[DplanPermissions('area_public_participation')]
-    #[Route(name: 'DemosPlan_procedure_public_orga_id_index', path: '/oid/{orgaId}')]
+    #[Route(path: '/oid/{orgaId}', name: 'DemosPlan_procedure_public_orga_id_index')]
     public function publicOrgaIdIndex(OrgaHandler $orgaHandler, string $orgaId)
     {
         try {

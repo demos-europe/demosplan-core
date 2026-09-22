@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -12,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedurePhaseDefinitionFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\DepartmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
@@ -84,7 +87,7 @@ final class DraftStatementFactory extends PersistentProxyObjectFactory
             'number'               => self::faker()->randomNumber(),
             'oName'                => self::faker()->text(255),
             'organisation'         => OrgaFactory::new(),
-            'phase'                => self::faker()->text(50),
+            'phaseDefinition'      => ProcedurePhaseDefinitionFactory::new(),
             'polygon'              => self::faker()->text(65535),
             'procedure'            => ProcedureFactory::new(),
             'publicAllowed'        => self::faker()->boolean(),

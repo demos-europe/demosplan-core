@@ -14,17 +14,30 @@ namespace Tests\Core\Map\Unit;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Logic\Map\GeoJsonToFeaturesConverter;
+use demosplan\DemosPlanCoreBundle\Logic\Maps\MapProjectionConverter;
+use demosplan\DemosPlanCoreBundle\Logic\Maps\WktToGeoJsonConverter;
+use demosplan\DemosPlanCoreBundle\Logic\UrlFileReader;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayer;
 use demosplan\DemosPlanCoreBundle\ValueObject\Map\PrintLayerTile;
 use geoPHP\Geometry\Geometry;
 use Illuminate\Support\Collection;
+use Intervention\Image\ImageManager;
+use Psr\Log\NullLogger;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
+use Symfony\Component\HttpClient\MockHttpClient;
+use Symfony\Component\HttpClient\Response\MockResponse;
 use Tests\Base\UnitTestCase;
 
 class GeoJsonToFeaturesConverterTest extends UnitTestCase
 {
-    /** @var GeoJsonToFeaturesConverterTest */
+    /**
+     * 1x1 transparent PNG. Used as the fake response body for every tile URL
+     * so the test never hits the real WMS service.
+     */
+    private const TILE_PNG_BASE64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+
+    /** @var GeoJsonToFeaturesConverter */
     protected $sut;
 
     /**
@@ -36,17 +49,24 @@ class GeoJsonToFeaturesConverterTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->sut = self::getContainer()->get(GeoJsonToFeaturesConverter::class);
+        $pngBytes = base64_decode(self::TILE_PNG_BASE64, true);
+        $mockHttpClient = new MockHttpClient(static fn () => new MockResponse($pngBytes));
+        $urlFileReader = new UrlFileReader($mockHttpClient, new NullLogger());
+
+        $container = self::getContainer();
+        $this->sut = new GeoJsonToFeaturesConverter(
+            $container->get(ImageManager::class),
+            $container->get(MapProjectionConverter::class),
+            $urlFileReader,
+            $container->get(WktToGeoJsonConverter::class),
+        );
+
         $geoJsonFilesDir = DemosPlanPath::getTestPath('backend/core/Map/files/GeoJsonFiles');
         $this->geoJsonFilePath = $geoJsonFilesDir.'/geoJson1.json';
     }
 
     public function testConversion(): void
     {
-        // This test accesses external resources, consider rewriting it to run
-        // offline which would massively decrease the run time and increase the
-        // reliabilty
-
         $geoJson = $this->getFileContents($this->geoJsonFilePath);
         $geoJsonObject = Json::decodeToMatchingType($geoJson);
         $features = $this->sut->convert($geoJson);

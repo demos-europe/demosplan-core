@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\EntityInterface;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use Doctrine\ORM\EntityManagerInterface;
 use EDT\ConditionFactory\ConditionFactoryInterface;
@@ -37,7 +38,7 @@ class CustomFieldJsonRepository implements RepositoryInterface
     {
         $customFieldConfiguration = $this->customFieldConfigurationRepository->find($id);
 
-        if (!$customFieldConfiguration) {
+        if (!$customFieldConfiguration instanceof EntityInterface) {
             throw new InvalidArgumentException("CustomFieldConfiguration with ID '{$id}' not found");
         }
 

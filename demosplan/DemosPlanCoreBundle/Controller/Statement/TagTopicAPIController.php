@@ -28,14 +28,14 @@ use Symfony\Component\Routing\Attribute\Route;
 class TagTopicAPIController extends APIController
 {
     #[DplanPermissions('feature_json_api_tag_topic_create')]
-    #[Route(path: '/api/1.0/TagTopic', methods: ['POST'], name: 'dplan_api_tag_topic_create', options: ['expose' => true])]
+    #[Route(path: '/api/1.0/TagTopic', name: 'dplan_api_tag_topic_create', options: ['expose' => true], methods: ['POST'])]
     public function create(
         CurrentProcedureService $currentProcedureService,
         PermissionsInterface $permissions,
         StatementHandler $statementHandler,
         TagTopicResourceType $tagTopicResourceType,
     ): APIResponse {
-        if (!($this->requestData instanceof TopLevel)) {
+        if (!$this->requestData instanceof TopLevel) {
             throw BadRequestException::normalizerFailed();
         }
         /** @var ResourceObject $tagResourceObject */

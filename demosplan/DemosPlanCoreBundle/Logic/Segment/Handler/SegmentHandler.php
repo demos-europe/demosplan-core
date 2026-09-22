@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -18,8 +20,8 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Interfaces\SegmentHandlerInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService;
 use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Exception;
 use Psr\Log\LoggerInterface;
 
@@ -118,6 +120,20 @@ class SegmentHandler implements SegmentHandlerInterface
     public function findByIds(array $ids): array
     {
         return $this->segmentService->findByIds($ids);
+    }
+
+    /**
+     * Returns the subset of given IDs that belong to `$procedureId` AND
+     * whose current workflow place has `locked = true`. Delegates to
+     * {{ @see SegmentService::findLockedByIds }}.
+     *
+     * @param list<string> $ids
+     *
+     * @return list<Segment>
+     */
+    public function findLockedByIds(array $ids, string $procedureId): array
+    {
+        return $this->segmentService->findLockedByIds($ids, $procedureId);
     }
 
     /**

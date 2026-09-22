@@ -206,7 +206,7 @@ class JsonApiEsService implements JsonApiEsServiceInterface
 
     public function getElasticaTypeForTypeName(string $typeName): Index
     {
-        if (!isset($this->searchTypes) || !$this->searchTypes[$typeName] instanceof Index) {
+        if (!isset($this->searchTypes[$typeName]) || !$this->searchTypes[$typeName] instanceof Index) {
             throw new InvalidArgumentException("Invalid type name: {$typeName}");
         }
 

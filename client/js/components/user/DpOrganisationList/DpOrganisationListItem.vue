@@ -289,6 +289,7 @@ export default {
       if (hasPermission('feature_notification_ending_phase')) {
         additionalAttributes.push('emailNotificationEndingPhase')
       }
+
       if (hasPermission('feature_notification_statement_new')) {
         additionalAttributes.push('emailNotificationNewStatement')
       }

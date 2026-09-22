@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Symfony\Component\Finder\SplFileInfo;
@@ -192,7 +193,7 @@ abstract class AbstractStatementSpreadsheetImporter implements StatementSpreadsh
 
         // Scan column by column, stop after consecutive empty columns
         while ($consecutiveEmptyColumns < $maxEmptyColumnsBeforeStop && $columnIndex <= $maxColumnIndex) {
-            $columnLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($columnIndex);
+            $columnLetter = Coordinate::stringFromColumnIndex($columnIndex);
             $cell = $worksheet->getCell($columnLetter.'1');
             $value = $cell->getValue();
 

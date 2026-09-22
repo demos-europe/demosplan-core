@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 
 use Cocur\Slugify\Slugify;
 use DateTime;
+use DateTimeZone;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
@@ -26,7 +27,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\ValueObject\CellExportStyle;
 use demosplan\DemosPlanCoreBundle\ValueObject\ExportOrgaInfoHeader;
 use PhpOffice\PhpWord\Element\Footer;
-use PhpOffice\PhpWord\Element\Header;
 use PhpOffice\PhpWord\Element\Row;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
@@ -103,41 +103,37 @@ abstract class SegmentsExporter
         }
     }
 
-    protected function addHeader(Section $section, Procedure $procedure, ?string $headerType = null, array $exportFilteredByTags = []): void
+    protected function addHeader(Section $section, Procedure $procedure, ?string $headerType = null, string $customHeaderText = ''): void
     {
         $header = null === $headerType ? $section->addHeader() : $section->addHeader($headerType);
+
         $header->addText(
             $procedure->getName(),
             $this->styles['documentTitleFont'],
             $this->styles['documentTitleParagraph']
         );
 
-        $this->addPreambleIfFirstHeader($header, $headerType, $exportFilteredByTags);
-
-        $currentDate = new DateTime();
-        $translationKey = $exportFilteredByTags ? 'segments.export.statement.export.date.filtered' : 'segments.export.statement.export.date';
-        $translationParameter = ['date' => $currentDate->format('d.m.Y')];
-        if ($this->currentUser->hasPermission('feature_adjust_export_file_name')) {
-            $translationKey = $exportFilteredByTags ? 'segments.export.statement.export.filtered' : 'segments.export.statement.export';
-            $translationParameter = ['procedureName'  => $procedure->getName()];
+        $subHeaderText = '';
+        if ('' !== $customHeaderText) {
+            $subHeaderText = $this->translator->trans(
+                'segments.export.statement.export.custom',
+                ['customHeaderText' => $customHeaderText]
+            );
+        }
+        if ('' === $customHeaderText) {
+            $currentDate = new DateTime();
+            $translationKey = 'segments.export.statement.export.date';
+            $translationParameter = ['date' => $currentDate->format('d.m.Y')];
+            $subHeaderText = $this->translator->trans($translationKey, $translationParameter);
+            if ($this->currentUser->hasPermission('feature_adjust_preamble_export_file')) {
+                $subHeaderText = $this->translator->trans('synopsis');
+            }
         }
         $header->addText(
-            $this->translator->trans($translationKey, $translationParameter),
+            $subHeaderText,
             $this->styles['currentDateFont'],
             $this->styles['currentDateParagraph']
         );
-    }
-
-    protected function addPreambleIfFirstHeader(Header $header, ?string $headerType, array $exportFilteredByTags = []): void
-    {
-        if (Footer::FIRST === $headerType && [] !== $exportFilteredByTags && $this->currentUser->hasPermission('feature_adjust_export_file_name')) {
-            $filteredExportPreamble = $this->translator->trans('docx.export.filtered');
-            $filteredExportPreamble .= implode(separator: ', ', array: $exportFilteredByTags);
-            Html::addHtml($header, $this->htmlHelper->getHtmlValidText($filteredExportPreamble), false, false);
-        } else {
-            $preamble = $this->translator->trans('docx.export.preamble');
-            Html::addHtml($header, $this->htmlHelper->getHtmlValidText($preamble), false, false);
-        }
     }
 
     private function getSimilarStatementSubmitters(Statement $statement): string
@@ -253,7 +249,12 @@ abstract class SegmentsExporter
 
     protected function addFooter(Section $section, Statement $statement, bool $censored = false): void
     {
-        $footer = $section->addFooter();
+        $this->fillFooter($section->addFooter(), $statement, $censored);
+        $this->fillFooter($section->addFooter(Footer::FIRST), $statement, $censored);
+    }
+
+    private function fillFooter(Footer $footer, Statement $statement, bool $censored): void
+    {
         $table = $footer->addTable();
         $row = $table->addRow();
 
@@ -335,14 +336,35 @@ abstract class SegmentsExporter
             || ($statement->isSubmittedByCitizen() && $censorCitizenData);
     }
 
+    protected function addMetaDataSheet(PhpWord $phpWord, Procedure $procedure, array $exportTagTitles = [], string $customHeaderText = ''): void
+    {
+        $section = $phpWord->addSection($this->styles['globalSection']);
+        $this->addHeader($section, $procedure, Footer::FIRST, $customHeaderText);
+        $this->addHeader($section, $procedure, null, $customHeaderText);
+        $exportDate = (new DateTime('now', new DateTimeZone('Europe/Berlin')))->format('d.m.Y');
+        $userName = $this->currentUser->getUser()->getFullName();
+        $pageInfoText = $this->translator->trans('export.user').': '.$userName.' am '.$exportDate.'<br>';
+
+        if ([] !== $exportTagTitles) {
+            $pageInfoText .= $this->translator->trans('docx.export.filtered');
+            $pageInfoText .= '<ul>';
+            foreach ($exportTagTitles as $tagTopicContainer) {
+                $pageInfoText .= '<li>'.$tagTopicContainer[0].' [Thema: '.$tagTopicContainer[1].']</li>';
+            }
+            $pageInfoText .= '</ul>';
+        }
+        $pageInfoText .= '<br>'.$this->translator->trans('layout.info');
+        Html::addHtml($section, $this->htmlHelper->getHtmlValidText($pageInfoText), false, false);
+    }
+
     /**
      * @throws Exception
      */
-    protected function exportEmptyStatements(PhpWord $phpWord, Procedure $procedure, array $exportFilteredByTags = []): WriterInterface
+    protected function exportEmptyStatements(PhpWord $phpWord, Procedure $procedure, array $exportFilteredByTagsWithTopics = [], string $customHeaderText = ''): WriterInterface
     {
         $section = $phpWord->addSection($this->styles['globalSection']);
-        $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTags);
-        $this->addHeader($section, $procedure, null, $exportFilteredByTags);
+        $this->addHeader($section, $procedure, Footer::FIRST, $customHeaderText);
+        $this->addHeader($section, $procedure, null, $customHeaderText);
 
         return $this->addNoStatementsMessage($phpWord, $section);
     }
@@ -384,11 +406,14 @@ abstract class SegmentsExporter
         bool $censorCitizenData,
         bool $censorInstitutionData,
         bool $obscure,
-        array $exportFilteredByTags = [],
+        array $exportFilteredByTagsWithTopics = [],
+        string $customHeaderText = '',
     ): WriterInterface {
+        $this->addMetaDataSheet($phpWord, $procedure, $exportFilteredByTagsWithTopics, $customHeaderText);
+
         $section = $phpWord->addSection($this->styles['globalSection']);
-        $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTags);
-        $this->addHeader($section, $procedure, null, $exportFilteredByTags);
+        $this->addHeader($section, $procedure, Footer::FIRST, $customHeaderText);
+        $this->addHeader($section, $procedure, null, $customHeaderText);
 
         foreach ($statements as $index => $statement) {
             $censored = $this->needsToBeCensored(

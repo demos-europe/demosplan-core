@@ -51,7 +51,7 @@ class OzgKeycloakClientFactory
         $customer = $this->customerService->getCurrentCustomer();
         $config = $this->configRepository->findByCustomer($customer);
 
-        if (null === $config) {
+        if (!$config instanceof CustomerOAuthConfig) {
             return $this->clientRegistry->getClient($this->defaultClientName);
         }
 
@@ -86,7 +86,7 @@ class OzgKeycloakClientFactory
         $customer = $this->customerService->getCurrentCustomer();
         $config = $this->configRepository->findByCustomer($customer);
 
-        return null !== $config && $config->isAzureEntraId();
+        return $config instanceof CustomerOAuthConfig && $config->isAzureEntraId();
     }
 
     private function createAzureClient(CustomerOAuthConfig $config): OAuth2ClientInterface

@@ -13,6 +13,7 @@ function sleep (ms) {
 
 async function reject (event, statementId) {
   const message = prompt(Translator.trans('statement.rejected.define.reason'), '')
+
   if (message === null) {
     document.getElementById('reject_reason').value = ''
     document.getElementById('statement_reject').value = ''

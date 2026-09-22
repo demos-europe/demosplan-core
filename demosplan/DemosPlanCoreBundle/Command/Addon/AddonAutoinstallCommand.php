@@ -73,7 +73,7 @@ class AddonAutoinstallCommand extends CoreCommand
         }
 
         // Uninstall addons that are enabled but not in the config (without cache clear)
-        if (!empty($enabledAddons)) {
+        if ([] !== $enabledAddons) {
             $this->uninstallUnneededAddons($enabledAddons, $output);
             $changesWereMade = true;
         }
@@ -91,7 +91,7 @@ class AddonAutoinstallCommand extends CoreCommand
         }
 
         // Phase 4: Build frontends for addons that need it (after cache is cleared)
-        if (!empty($installedAddonNames)) {
+        if ([] !== $installedAddonNames) {
             $this->buildFrontends($installedAddonNames, $output);
         }
 

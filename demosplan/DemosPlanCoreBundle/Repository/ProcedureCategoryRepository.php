@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -11,8 +13,8 @@
 namespace demosplan\DemosPlanCoreBundle\Repository;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureCategory;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 
 /**

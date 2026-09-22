@@ -1,7 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it } from '@jest/globals'
 import { enableAutoUnmount } from '@vue/test-utils'
 import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
+import { vi } from 'vitest'
 
 describe('ExportModal', () => {
   const props = {
@@ -108,7 +108,7 @@ describe('ExportModal', () => {
             'dp-modal': {
               template: '<div><slot /></div>',
               methods: {
-                toggle: jest.fn(),
+                toggle: vi.fn(),
               },
             },
           },
@@ -131,6 +131,7 @@ describe('ExportModal', () => {
   it('switches to the correct tab content when a tab button is clicked', async () => {
     const tabButtons = wrapper.findAll('button')
     const index = 1
+
     await tabButtons.at(index).trigger('click')
     const dataCy = tabButtons.at(index).attributes('data-cy')
     const id = dataCy.split('.').pop()
@@ -140,7 +141,7 @@ describe('ExportModal', () => {
   })
 
   it('triggers a "submit" event when the submit button is clicked', async () => {
-    wrapper.vm.submit = jest.fn()
+    wrapper.vm.submit = vi.fn()
     wrapper.vm.handleSubmit()
 
     const event = wrapper.emitted('submit')
@@ -153,6 +154,7 @@ describe('ExportModal', () => {
     it('displays "anonymized" checkbox in the pdf tab if pdf.anonymize or pdf.obscure option is set to true', async () => {
       const tabButtons = wrapper.findAll('button')
       const index = 1
+
       await tabButtons.at(index).trigger('click')
       const checkboxStub = wrapper.find('[datacy="exportModal:pdfAnonymous"]')
 
@@ -172,6 +174,7 @@ describe('ExportModal', () => {
       })
 
       const checkboxStub = wrapper.find('[datacy="exportModal:pdfAnonymous"]')
+
       expect(checkboxStub.exists()).toBe(false)
     })
 
@@ -181,6 +184,7 @@ describe('ExportModal', () => {
       })
 
       const checkboxStub = wrapper.find('[datacy="exportModal:newPagePerStn"]')
+
       expect(checkboxStub.exists()).toBe(true)
     })
 
@@ -190,6 +194,7 @@ describe('ExportModal', () => {
       })
 
       const checkboxStub = wrapper.find('[datacy="exportModal:newPagePerStn"]')
+
       expect(checkboxStub.exists()).toBe(false)
     })
 
@@ -206,11 +211,13 @@ describe('ExportModal', () => {
       })
 
       const checkboxStub = wrapper.find('[datacy="exportModal:newPagePerStn"]')
+
       expect(checkboxStub.exists()).toBe(false)
     })
 
     it('displays radio buttons for selecting a format in the pdf tab if pdf.templates option is true', () => {
       const radioButtons = wrapper.findAll('[datacy^="exportModal:pdfTemplate"]')
+
       expect(radioButtons.length).toBeGreaterThan(0)
     })
 
@@ -226,6 +233,7 @@ describe('ExportModal', () => {
       })
 
       const radioButtons = wrapper.findAll('[datacy^="exportModal:pdfTemplate"]')
+
       expect(radioButtons.length).toBe(0)
     })
 
@@ -235,6 +243,7 @@ describe('ExportModal', () => {
       })
 
       const radioButtons = wrapper.findAll('[datacy^="exportModal:pdfExportType"]')
+
       expect(radioButtons.length).toBeGreaterThan(0)
     })
 
@@ -294,11 +303,13 @@ describe('ExportModal', () => {
       })
 
       const checkboxStub = wrapper.find('[datacy="exportModal:docxObscure"]')
+
       expect(checkboxStub.exists()).toBe(false)
     })
 
     it('displays radio buttons for selecting a format in the docx tab if docx.templates option is true', () => {
       const radioButtons = wrapper.findAll('[datacy^="exportModal:docxTemplate"]')
+
       expect(radioButtons.length).toBeGreaterThan(0)
     })
 
@@ -308,6 +319,7 @@ describe('ExportModal', () => {
       })
 
       const radioButtons = wrapper.findAll('[datacy^="exportModal:docxExportType"]')
+
       expect(radioButtons.length).toBeGreaterThan(0)
     })
 

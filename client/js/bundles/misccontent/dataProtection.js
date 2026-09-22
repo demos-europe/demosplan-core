@@ -19,6 +19,7 @@ const components = {
 
 initialize(components).then(() => {
   const consentHook = document.querySelector('[data-change-cookie-consent]')
+
   if (consentHook) {
     consentHook.addEventListener('click', () => {
       window.dplan.consent.adjustSettings()

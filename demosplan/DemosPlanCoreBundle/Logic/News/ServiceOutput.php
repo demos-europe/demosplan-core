@@ -126,7 +126,7 @@ class ServiceOutput
         $pictures = [];
         $i = 0;
         foreach ($outputResult as $singleNews) {
-            if (0 < strlen((string) $singleNews['picture'])) {
+            if ('' !== (string) $singleNews['picture']) {
                 $fileInfo = $this->fileService->getFileInfoFromFileString($singleNews['picture']);
                 if ($this->defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
                     $fileContent = $this->defaultStorage->read($fileInfo->getAbsolutePath());

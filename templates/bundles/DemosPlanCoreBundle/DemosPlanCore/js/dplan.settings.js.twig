@@ -11,8 +11,11 @@ window.dplan = {
     settings                : {
         debug               : Boolean({{ app.debug|default(0) }}),
         maxUploadSize       : {{ maxUploadSize|default(0) }},
+        publicCSSClassPrefix: "{{ omitPublicCSSClassPrefix|default ? '' : publicCSSClassPrefix|default }}",
+        spellcheck          : {
+            enabled: Boolean({{ hasPermission('feature_spellcheck')|default(0) }})
+        },
         useOpenGeoDb        : Boolean({{ useOpenGeoDb|default(0) }}),
-        publicCSSClassPrefix: "{{ omitPublicCSSClassPrefix|default ? '' : publicCSSClassPrefix|default }}"
     },
 
     paths                   : {
@@ -32,6 +35,7 @@ window.dplan = {
         roles: "{{ currentUser.roles|default([])|json_encode }}"
     },
     sentryDsn               : "{{ sentry_dsn|default }}",
+    sentryTracesSampleRate  : {{ sentry_traces_sample_rate_frontend|default(0) }},
     csrfToken               : "{{ csrf_token('csrf')|json_encode }}",
     expirationTimestamp     : {{ expirationTimestamp|default(0) }},
 

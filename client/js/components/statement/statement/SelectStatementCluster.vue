@@ -195,6 +195,7 @@ export default {
       // If the selected group is claimed, the error class of multiselect should be removed
       if (this.selected.assignee.id === this.currentUserId) {
         const claimedClusterAssigneeInput = document.querySelector('input[name="claimedClusterAssignee"]')
+
         if (claimedClusterAssigneeInput && claimedClusterAssigneeInput.classList.contains('is-required-error')) {
           claimedClusterAssigneeInput.classList.remove('is-required-error')
         }
@@ -225,16 +226,21 @@ export default {
           // Transform externIds to numbers
           const aId = parseFloat(a.externId.replace(/\D/g, ''))
           const bId = parseFloat(b.externId.replace(/\D/g, ''))
+
           return aId > bId ? 1 : (aId < bId ? -1 : 0)
         }
+
         return 0
       })
 
       const emptyOptionIndex = clusterList.findIndex(opt => opt.id === '')
+
       if (emptyOptionIndex > -1) {
         clusterList.splice(emptyOptionIndex, 1)
       }
+
       clusterList.unshift(this.emptyCluster)
+
       return clusterList
     },
 
@@ -253,6 +259,7 @@ export default {
           if (response.assignee.id === this.currentUserId) {
             // If the selected group is claimed, the error class of multiselect should be removed
             const claimedClusterAssigneeInput = document.querySelector('input[name="claimedClusterAssignee"]')
+
             if (claimedClusterAssigneeInput && claimedClusterAssigneeInput.classList.contains('is-required-error')) {
               claimedClusterAssigneeInput.classList.remove('is-required-error')
             }

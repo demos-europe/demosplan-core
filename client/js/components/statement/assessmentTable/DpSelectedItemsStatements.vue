@@ -259,6 +259,7 @@ export default {
       }
 
       this.loading = true
+
       return dpApi({
         method: 'POST',
         url: Routing.generate('dplan_assessment_table_assessment_table_statement_bulk_edit_api_action', {
@@ -287,7 +288,9 @@ export default {
           console.log(error)
           handleResponseMessages(error.response.data.meta)
         })
-        .then(() => { this.loading = false })
+        .then(() => {
+          this.loading = false
+        })
     },
 
     copyElements () {
@@ -308,6 +311,7 @@ export default {
           .then(({ data }) => {
             if (data[0].error) {
               dplan.notify.notify('error', Translator.trans('error.copy'))
+
               return
             }
 
@@ -338,15 +342,18 @@ export default {
 
     fetchFragmentByStatement (statement) {
       let fragments = this.fragmentsByStatement(statement.id).fragments
+
       if (fragments.length < statement.fragmentsCount) {
         return this.loadFragments({ procedureId: this.procedureId, statementId: statement.id }).then(() => {
           fragments = this.fragmentsByStatement(statement.id).fragments
+
           return fragments
         })
       } else {
         const prom = new Promise((resolve, reject) => {
           resolve(fragments)
         })
+
         return prom.then(frag => {
           return frag
         })

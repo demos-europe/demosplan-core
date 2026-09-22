@@ -16,32 +16,57 @@ use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Repository\AccountDeletionTrackingRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\Authentication\Token\JWTUserToken;
-use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Event\AuthenticationSuccessEvent;
+use Symfony\Component\Security\Http\Event\LoginSuccessEvent;
 
 class UserLoginSubscriber extends BaseEventSubscriber
 {
-    public function __construct(private readonly UserService $userService)
-    {
+    public function __construct(
+        private readonly UserService $userService,
+        private readonly AccountDeletionTrackingRepository $trackingRepository,
+        private readonly EntityManagerInterface $entityManager,
+    ) {
     }
 
-    public function onLogin(AuthenticationSuccessEvent $event): void
+    public function onLogin(LoginSuccessEvent $event): void
     {
-        $token = $event->getAuthenticationToken();
-        if ($token instanceof TokenInterface && !$token instanceof JWTUserToken) {
-            $user = $token->getUser();
-            if ($user instanceof User && !$user instanceof FunctionalUser) {
-                $user->setLastLogin(new DateTime());
-                $this->userService->updateUserObject($user);
-            }
+        $token = $event->getAuthenticatedToken();
+        if ($token instanceof JWTUserToken) {
+            return;
         }
+
+        $user = $token->getUser();
+        if (!$user instanceof User || $user instanceof FunctionalUser) {
+            return;
+        }
+
+        $user->setLastLogin(new DateTime());
+        $this->userService->updateUserObject($user);
+        $this->removeAccountDeletionTracking($user);
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            AuthenticationSuccessEvent::class => 'onLogin',
+            LoginSuccessEvent::class => 'onLogin',
         ];
+    }
+
+    /**
+     * Resets the inactivity-based account-deletion workflow when the user logs in.
+     * Removes any existing tracking row so the cron starts fresh on the next stale
+     * inactivity period.
+     */
+    private function removeAccountDeletionTracking(User $user): void
+    {
+        $tracking = $this->trackingRepository->findOneByUser($user);
+        if (null === $tracking) {
+            return;
+        }
+
+        $this->entityManager->remove($tracking);
+        $this->entityManager->flush();
     }
 }

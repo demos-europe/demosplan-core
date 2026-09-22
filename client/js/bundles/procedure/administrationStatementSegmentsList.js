@@ -16,7 +16,6 @@ import { hasPermission } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 import procedureMapSettings from '@DpJs/store/map/ProcedureMapSettings'
 import SegmentSlidebar from '@DpJs/store/procedure/SegmentSlidebar'
-import SplitStatementStore from '@DpJs/store/statement/SplitStatementStore'
 import StatementSegmentsList from '@DpJs/components/procedure/StatementSegmentsList/StatementSegmentsList'
 import Voter from '@DpJs/store/statement/Voter'
 
@@ -28,7 +27,6 @@ const stores = {
   AssessmentTable,
   ProcedureMapSettings: procedureMapSettings,
   SegmentSlidebar,
-  SplitStatement: SplitStatementStore,
   Voter,
 }
 
@@ -39,15 +37,17 @@ if (hasPermission('area_admin_boilerplates')) {
 const apiStores = [
   'AdminProcedure',
   'AggregationFilterItems',
-  'CustomField',
   'AssignableUser',
   'ElementsDetails',
   'Place',
+  'ProcedurePhaseDefinition',
+  'RecommendationVersion',
   'SegmentComment',
   'Statement',
   'StatementSegment',
   'StatementVote',
-  'Tags',
+  'Tag',
+  'TagTopic',
   'User',
 ]
 

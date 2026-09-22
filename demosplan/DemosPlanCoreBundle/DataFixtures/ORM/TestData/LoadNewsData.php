@@ -116,7 +116,7 @@ class LoadNewsData extends TestFixture implements DependentFixtureInterface
         $this->setReference(LoadNewsData::TEST_SINGLE_NEWS_4, $news4);
     }
 
-    public function getDependencies()
+    public function getDependencies(): array
     {
         return [
             LoadProcedureData::class,

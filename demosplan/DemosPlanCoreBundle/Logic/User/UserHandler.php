@@ -63,9 +63,9 @@ use demosplan\DemosPlanCoreBundle\Validator\PasswordValidator;
 use demosplan\DemosPlanCoreBundle\ValueObject\Procedure\EmailAddressVO;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\CustomerResourceInterface;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Exception;
 use Illuminate\Support\Collection;
 use LogicException;
@@ -244,9 +244,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             $fieldsExpected += 2;
         }
 
-        if (null === $firstname
-            || null === $lastname
-            || null === $emailAddress
+        if (in_array(null, [$firstname, $lastname, $emailAddress], true)
             || !is_string($firstname)
             || !is_string($lastname)
             // there are only seven values expected. Three "real" values + 1 checkbox + 1 csrf token + eventually 2 Honeypot values
@@ -738,7 +736,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                         $invitationFailedList->push($errorUser);
                     }
 
-                    throw new InvalidUserDataException("Failed to invite {$userId}");
+                    throw new InvalidUserDataException("Failed to invite {$userId}", $e->getCode(), $e);
                 }
             });
 
@@ -1299,7 +1297,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     }
 
     /**
-     * @return array
+     * @return array|null
      */
     protected function handleSaveAllDepartments(ParameterBag $requestData)
     {
@@ -1316,17 +1314,21 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             } catch (Exception) {
                 $this->logger->error("Failed updating Department {$ident}.");
 
-                return $this->getSession()->getFlashBag()->set(
+                $this->getSession()->getFlashBag()->set(
                     'error',
                     'Die Abteilung konnte nicht aktualisiert werden!'
                 );
+
+                return null;
             }
         }
 
-        return $this->getSession()->getFlashBag()->set(
+        $this->getSession()->getFlashBag()->set(
             'confirm',
             $this->translator->trans('confirm.all.changes.saved')
         );
+
+        return null;
     }
 
     /**
@@ -1756,9 +1758,12 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
     {
         $mandatoryErrors = 0;
 
-        // if support changes visibility of toeb in toeblist, a reason must be given
+        // if support changes visibility of toeb in toeblist, a reason must be given.
+        // Compare against the per-customer value so the gate agrees with the write path
+        // (UserService::updateOrga) and the report entry, both of which operate per-customer.
         $showList = array_key_exists('showlist', $data) ? filter_var($data['showlist'], FILTER_VALIDATE_BOOLEAN) : false;
-        if ($this->canUpdateShowList() && $showList !== $currentOrga->getShowlist() && (!array_key_exists('showlistChangeReason', $data)
+        $currentShowList = $currentOrga->getShowlistForCustomer($this->customerService->getCurrentCustomer());
+        if ($this->canUpdateShowList() && $showList !== $currentShowList && (!array_key_exists('showlistChangeReason', $data)
             || '' === trim((string) $data['showlistChangeReason']))) {
             $this->getMessageBag()->add('error', 'reason.change');
             ++$mandatoryErrors;
@@ -2183,7 +2188,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 OrgaStatusInCustomerInterface::STATUS_ACCEPTED
             );
 
-            if (null !== $customer) {
+            if ($customer instanceof Customer) {
                 $acceptedCustomers = array_filter(
                     $acceptedCustomers,
                     static fn (Customer $c) => $c->getId() === $customer->getId()
@@ -2376,7 +2381,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
 
     public function checkMandatoryErrorsPasswordEquals(array $data, array $mandatoryErrors): array
     {
-        if (0 != strcmp((string) $data['password_new'], (string) $data['password_new_2'])) {
+        if (0 !== strcmp((string) $data['password_new'], (string) $data['password_new_2'])) {
             $mandatoryErrors[] = [
                 'type'    => 'error',
                 'message' => $this->translator->trans('warning.password.repeat.not.equal'),

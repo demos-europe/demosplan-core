@@ -15,11 +15,17 @@ import { DpUploadFiles, prefixClass, TableWrapper } from '@demos-europe/demospla
 import DpPublicDetailNoMap from '@DpJs/components/statement/DpPublicDetailNoMap'
 import { initialize } from '@DpJs/InitVue'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
+import StatementModal from '@DpJs/components/statement/publicStatementModal/StatementModal'
 import TocStateMemorizer from '@DpJs/lib/statement/TocStateMemorizer'
 
+/*
+ * DpPublicDetailNoMap renders the Twig markup as scoped slot content, which is compiled in the
+ * scope of this app - so everything the template uses has to be registered here, not on the component
+ */
 const components = {
   DpPublicDetailNoMap,
   DpUploadFiles,
+  StatementModal,
 }
 
 const stores = {

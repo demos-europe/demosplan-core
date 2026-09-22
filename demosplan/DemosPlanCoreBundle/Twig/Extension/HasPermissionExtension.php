@@ -52,7 +52,7 @@ class HasPermissionExtension extends ExtensionBase
     {
         //  If no permission to test have been given nothing could be tested
         if ((is_array($permissionToTest) && [] === $permissionToTest)
-            || (is_string($permissionToTest) && 0 == mb_strlen($permissionToTest))) {
+            || (is_string($permissionToTest) && 0 === mb_strlen($permissionToTest))) {
             return false;
         }
 
@@ -76,7 +76,7 @@ class HasPermissionExtension extends ExtensionBase
     {
         //  If no permission to test have been given nothing could be tested
         if ((is_array($permissionsToTest) && [] === $permissionsToTest)
-            || (is_string($permissionsToTest) && 0 == mb_strlen($permissionsToTest))) {
+            || (is_string($permissionsToTest) && 0 === mb_strlen($permissionsToTest))) {
             return false;
         }
 

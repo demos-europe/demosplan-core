@@ -22,6 +22,7 @@ initialize(components).then(() => {
   // To Disable Save Button after Form Validate
   dpValidate()
   const saveButton = document.getElementById('saveButton')
+
   document.addEventListener('customValidationPassed', function (e) {
     saveButton.disabled = true
   })

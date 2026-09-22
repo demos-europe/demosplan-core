@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * This file is part of the package demosplan.
  *
@@ -31,12 +33,12 @@ class PreparationMailVO extends ValueObject
      * @param bool   $sendMail
      */
     public function __construct(#[Assert\NotBlank(message: 'mail.subject.notblank')]
-    #[Assert\Length(max: 78, maxMessage: 'mail.subject.max.length', min: 2, minMessage: 'mail.subject.min.length')]
-    protected $mailSubject = null, #[Assert\NotBlank(message: 'mail.body.notblank')]
-    #[Assert\Length(min: 2, max: 25000, maxMessage: 'mail.body.max.length')]
-    protected $mailBody = null, #[Assert\NotNull]
-    #[Assert\IsTrue(message: 'mail.send.true')]
-    protected $sendMail = null)
+        #[Assert\Length(min: 2, max: 78, minMessage: 'mail.subject.min.length', maxMessage: 'mail.subject.max.length')]
+        protected $mailSubject = null, #[Assert\NotBlank(message: 'mail.body.notblank')]
+        #[Assert\Length(min: 2, max: 25000, maxMessage: 'mail.body.max.length')]
+        protected $mailBody = null, #[Assert\NotNull]
+        #[Assert\IsTrue(message: 'mail.send.true')]
+        protected $sendMail = null)
     {
     }
 }

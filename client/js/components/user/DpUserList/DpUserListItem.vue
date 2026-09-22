@@ -16,13 +16,13 @@
 <template>
   <dp-table-card
     :id="user.id"
-    class="o-accordion u-ph-0_5"
+    class="o-accordion px-2"
     :open="isOpen"
   >
     <!-- Item header -->
     <template v-slot:header>
       <div class="flex items-start">
-        <div class="relative z-above-zero u-mt-0_75">
+        <div class="relative z-above-zero mt-3">
           <input
             :aria-label="Translator.trans('user.select', { name: `${user.attributes.firstname} ${user.attributes.lastname}` })"
             type="checkbox"
@@ -34,20 +34,20 @@
           >
         </div>
         <div
-          class="cursor-pointer u-pv-0_75 u-ph-0_25 grow"
+          class="cursor-pointer py-3 px-1 grow"
           data-cy="organisationListTitle"
           @click="isOpen = false === isOpen"
         >
           <div
             data-cy="editItemToggle"
-            class="layout"
+            class="flex flex-wrap"
           >
-            <div class="layout__item u-1-of-1 weight--bold u-mb-0_5 o-hellip--nowrap">
+            <div class="w-full font-semibold mb-2 truncate">
               {{ user.attributes.firstname }} {{ user.attributes.lastname }}
             </div>
             <div
               v-if="hasRoles"
-              class="u-1-of-2 layout__item"
+              class="w-1/2"
             >
               <div
                 v-for="(role, idx) in userRoles"
@@ -58,25 +58,25 @@
             </div><!--
          --><div
               v-else
-              class="u-4-of-12 layout__item"
+              class="w-1/3"
             >
               {{ Translator.trans('unknown') }}<br>
             </div><!--
          --><div
               v-if="userOrga"
-              class="layout__item u-1-of-2"
+              class="w-1/2"
             >
               {{ Translator.trans(userOrga.attributes.name) }}
               <br>
               <div
                 v-if="userDepartment !== null"
-                class="u-1-of-2 inline"
+                class="w-1/2 inline"
               >
                 {{ Translator.trans(userDepartment.attributes.name) }}
               </div>
             </div>
             <!--  Registration status -->
-            <div class="layout__item u-pt-0_5">
+            <div class="w-full pt-2">
               <div v-if="user.attributes.profileCompleted">
                 {{ Translator.trans('user.registration.completed') }}
               </div>
@@ -95,7 +95,7 @@
         <button
           type="button"
           data-cy="userListItemToggle"
-          class="btn--blank o-link--default u-pv-0_75"
+          class="btn--blank o-link--default py-3"
           @click="isOpen = false === isOpen"
         >
           <dp-icon
@@ -118,6 +118,22 @@
         @user:update="updateUser"
       />
 
+      <div
+        v-if="canResetTwoFactor"
+        class="mb-2"
+      >
+        <p class="lbl__hint mb-1">
+          {{ Translator.trans('2fa.reset.hint') }}
+        </p>
+        <dp-button
+          :busy="isResettingTwoFactor"
+          data-cy="resetTwoFactor"
+          :text="Translator.trans('2fa.reset')"
+          variant="outline"
+          @click="resetTwoFactor"
+        />
+      </div>
+
       <dp-button-row
         form-name="userForm"
         primary
@@ -130,7 +146,7 @@
 </template>
 
 <script>
-import { DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import DpUserFormFields from './DpUserFormFields'
@@ -139,6 +155,7 @@ export default {
   name: 'DpUserListItem',
 
   components: {
+    DpButton,
     DpButtonRow,
     DpIcon,
     DpTableCard,
@@ -176,6 +193,7 @@ export default {
       isOpen: false,
       editMode: false,
       isLoading: true,
+      isResettingTwoFactor: false,
     }
   },
 
@@ -186,6 +204,10 @@ export default {
 
     ariaLabel () {
       return Translator.trans(this.isOpen ? 'aria.collapse' : 'aria.expand')
+    },
+
+    canResetTwoFactor () {
+      return hasPermission('feature_2fa') && this.user.attributes.twoFactorEnabled
     },
 
     hasDepartment () {
@@ -232,10 +254,13 @@ export default {
 
     userRolesNames () {
       let names = []
+
       if (this.hasRoles) {
         const roles = Object.values(this.userRoles)
+
         names = roles.map(role => role.attributes.name)
       }
+
       return names
     },
   },
@@ -262,6 +287,44 @@ export default {
     save () {
       this.isOpen = !this.isOpen
       this.saveUserAction(this.user.id)
+    },
+
+    async resetTwoFactor () {
+      const userName = `${this.user.attributes.firstname} ${this.user.attributes.lastname}`
+
+      if (!await window.dpconfirm(Translator.trans('2fa.reset.confirm', { name: userName }))) {
+        return
+      }
+
+      this.isResettingTwoFactor = true
+
+      const payload = {
+        data: {
+          id: this.user.id,
+          type: 'AdministratableUser',
+          attributes: {
+            twoFactorEnabled: false,
+          },
+        },
+      }
+
+      try {
+        await dpApi.patch(
+          Routing.generate('api_resource_update', { resourceType: 'AdministratableUser', resourceId: this.user.id }),
+          {},
+          payload,
+        )
+        this.setItem({
+          ...this.user,
+          attributes: { ...this.user.attributes, twoFactorEnabled: false },
+        })
+        dplan.notify.notify('confirm', Translator.trans('2fa.reset.success'))
+      } catch (error) {
+        console.error(error)
+        dplan.notify.notify('error', Translator.trans('error.api.generic'))
+      } finally {
+        this.isResettingTwoFactor = false
+      }
     },
 
     updateUser (payload) {

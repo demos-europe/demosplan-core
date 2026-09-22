@@ -2,6 +2,7 @@ monolog:
     use_microseconds: false
     channels:
         - deprecation # Deprecations are logged in the dedicated "deprecation" channel when it exists
+        - pii # Redacted reference lines from PiiAwareLogger; full records live in the pii_log table
 
 when@dev:
     monolog:

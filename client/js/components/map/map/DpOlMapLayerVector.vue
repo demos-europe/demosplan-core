@@ -103,6 +103,7 @@ export default {
            *  For centering based on multiple geometries see https://gis.stackexchange.com/a/240405
            */
           const center = this.geoJsonFeatures[0].getGeometry().getCoordinates()
+
           this.map.getView().setCenter(center)
         }
       }

@@ -33,6 +33,10 @@
         <!-- MESSENGER_TRANSPORT_DSN=redis://localhost:6379/messages -->
         <env name="MESSENGER_TRANSPORT_DSN" value="doctrine://default?auto_setup=0"/>
         <!-- ###- symfony/messenger ### -->
+
+        <!-- ###+ nelmio/cors-bundle ### -->
+        <env name="CORS_ALLOW_ORIGIN" value="'^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$'"/>
+        <!-- ###- nelmio/cors-bundle ### -->
     </php>
 
     <source>

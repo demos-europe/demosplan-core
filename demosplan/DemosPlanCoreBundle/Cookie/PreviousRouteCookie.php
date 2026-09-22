@@ -38,6 +38,6 @@ class PreviousRouteCookie extends Cookie
             $path = str_replace('/app_dev.php', '', $path);
         }
 
-        parent::__construct(static::NAME, $path, Carbon::now()->addHour());
+        parent::__construct(self::NAME, $path, Carbon::now()->addHour());
     }
 }

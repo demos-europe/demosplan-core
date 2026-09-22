@@ -42,9 +42,9 @@ use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
 use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use FOS\ElasticaBundle\Index\IndexManager;
@@ -170,7 +170,7 @@ class StatementCopier
         $copiedStatement->setName($sourceStatement->getName());
         $copiedStatement->setNegativeStatement($sourceStatement->getNegativeStatement());
         $copiedStatement->setOrganisation($sourceStatement->getOrganisation());
-        $copiedStatement->setPhase($sourceStatement->getPhase());
+        $copiedStatement->setPhaseDefinition($sourceStatement->getPhaseDefinition());
 
         $copiedStatement->setPolygon($sourceStatement->getPolygon());
         $copiedStatement->setPublicUseName($sourceStatement->getPublicUseName());

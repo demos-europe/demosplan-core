@@ -20,9 +20,7 @@ use EDT\PathBuilding\End;
  * @template-extends DplanResourceType<ProcedurePhase>
  *
  * @property-read End $name
- * @property-read End $key
  * @property-read End $permissionsSet
- * @property-read End $step
  * @property-read End $startDate
  * @property-read End $endDate
  * @property-read End $designatedPhase

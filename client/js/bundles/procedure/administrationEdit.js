@@ -34,16 +34,19 @@ const AutoSwitchProcedurePhaseForm = defineAsyncComponent(() =>
 
 const DpCheckbox = defineAsyncComponent(async () => {
   const { DpCheckbox } = await import('@demos-europe/demosplan-ui')
+
   return DpCheckbox
 })
 
 const DpEditor = defineAsyncComponent(async () => {
   const { DpEditor } = await import('@demos-europe/demosplan-ui')
+
   return DpEditor
 })
 
 const DpMultiselect = defineAsyncComponent(async () => {
   const { DpMultiselect } = await import('@demos-europe/demosplan-ui')
+
   return DpMultiselect
 })
 
@@ -53,6 +56,7 @@ const ExportSettings = defineAsyncComponent(() =>
 
 const DpInlineNotification = defineAsyncComponent(async () => {
   const { DpInlineNotification } = await import('@demos-europe/demosplan-ui')
+
   return DpInlineNotification
 })
 
@@ -62,6 +66,7 @@ const DpProcedureCoordinate = defineAsyncComponent(() =>
 
 const DpUploadFiles = defineAsyncComponent(async () => {
   const { DpUploadFiles } = await import('@demos-europe/demosplan-ui')
+
   return DpUploadFiles
 })
 

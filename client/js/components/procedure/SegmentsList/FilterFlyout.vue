@@ -117,7 +117,7 @@
           :key="`list_${group.id}`"
           :class="['m-0 p-0 list-none leading-[1.6]', { 'border-b border-neutral mb-2': index < searchedGroupedOptions.length - 1 }]"
         >
-          <li class="font-semibold text-sm mb-1">
+          <li class="font-semibold text-sm mb-2">
             {{ group.label }}
           </li>
           <filter-flyout-checkbox
@@ -166,19 +166,17 @@
           @change="updateQuery"
         />
       </ul>
-      <div class="flow-root p-2 pt-0">
+      <div class="flex justify-end gap-2 p-2 pt-0">
         <dp-button
-          class="float-left"
-          :data-cy="`filter:applyFilter:${path}`"
-          :text="Translator.trans('apply')"
-          @click="apply"
-        />
-        <dp-button
-          class="float-right"
           color="secondary"
           :data-cy="`filter:abortFilter:${path}`"
           :text="Translator.trans('abort')"
           @click="close"
+        />
+        <dp-button
+          :data-cy="`filter:applyFilter:${path}`"
+          :text="Translator.trans('apply')"
+          @click="apply"
         />
       </div>
     </div>
@@ -415,6 +413,7 @@ export default {
         ...this.ungroupedOptions,
         ...this.groupedOptions.flatMap(group => group.options),
       ]
+
       return items.filter((item) => item.selected)
     },
 
@@ -583,6 +582,7 @@ export default {
     resetFilterQuery () {
       Object.values(this.filter).forEach(el => {
         const query = {}
+
         query[el.condition.value] = el
         this.updateFilters(query)
       })
@@ -596,11 +596,13 @@ export default {
     restoreAppliedFilterQuery () {
       const filterArray = Object.values(this.filter)
       const hasUnappliedFilters = filterArray.length > this.appliedQuery.length
+
       if (filterArray.length && hasUnappliedFilters) {
         filterArray.forEach(filter => {
           // Delete filters that are not in appliedQuery
           if (typeof this.appliedQuery.find(queryId => queryId === filter.condition.value) === 'undefined') {
             const query = {}
+
             query[filter.condition.value] = filter
             this.updateFilters(query)
           }
@@ -622,11 +624,13 @@ export default {
       if (isSelected) {
         this.currentQuery.push(option.id)
         const query = {}
+
         query[option.id] = this.filter[option.id]
 
         this.updateFilters(query)
       } else if (!isSelected) {
         const query = {}
+
         query[option.id] = this.filter[option.id]
 
         this.updateFilters(query)
@@ -660,6 +664,7 @@ export default {
 
       if (this.itemsSelected) {
         const selectedIds = this.itemsSelected.map(item => item.id)
+
         this.appliedQuery = selectedIds
         this.currentQuery = selectedIds
       }
