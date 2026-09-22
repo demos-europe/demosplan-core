@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\Application\DemosPlanKernel;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use EFrane\ConsoleAdditions\Batch\Batch;
 use Enqueue\ElasticaBundle\Persister\QueuePagerPersister;
+use FOS\ElasticaBundle\Persister\InPlacePagerPersister;
 use Illuminate\Support\Collection;
 use RuntimeException;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -49,21 +50,22 @@ class ElasticsearchPopulateCommand extends CoreCommand
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        // The multi-worker populate relies on the enqueue elastica bundle. If it is not installed,
-        // advise to use the plain fos:elastica:populate command instead.
-        if (!class_exists(QueuePagerPersister::class)) {
-            $io->error(
-                'This command does not work without the enqueue elastica bundle. Please use the fos:elastica:populate command instead.'
-            );
 
-            return Command::FAILURE;
+        $this->elasticsearchIndexingPoolSize = (int) $this->parameterBag->get('elasticsearch_populate_workers');
+        if (null !== $input->getOption('workers')) {
+            $this->elasticsearchIndexingPoolSize = (int) $input->getOption('workers');
         }
 
-        $projectPath = DemosPlanPath::getProjectPath();
+        // The multi-worker variant requires the enqueue elastica bundle and spawns N worker
+        // processes, each of which boots a kernel per page. In prod, where page payloads are
+        // large and memory is a hard limit, the in-place persister is the safer default.
+        $useQueuePersister = $this->elasticsearchIndexingPoolSize > 1
+            && class_exists(QueuePagerPersister::class);
 
-        $this->elasticsearchIndexingPoolSize = $this->parameterBag->get('elasticsearch_populate_workers');
-        if (null !== $input->getOption('workers')) {
-            $this->elasticsearchIndexingPoolSize = $input->getOption('workers');
+        if (!$useQueuePersister && !class_exists(InPlacePagerPersister::class)) {
+            $io->error('No pager persister available for fos:elastica:populate.');
+
+            return Command::FAILURE;
         }
 
         $output->writeln('Reset elasticsearch index');
@@ -72,11 +74,20 @@ class ElasticsearchPopulateCommand extends CoreCommand
             ->add('fos:elastica:reset')
             ->run();
 
-        // Start the consumers only after the reset, right before populating. Spawning them earlier
-        // would boot a second, leaked set of worker processes (see startWorkers()).
-        $this->startWorkers($input, $output);
+        if ($useQueuePersister) {
+            // Start the consumers only after the reset, right before populating. Spawning them
+            // earlier would boot a second, leaked set of worker processes (see startWorkers()).
+            $this->startWorkers($output);
+        }
 
-        $output->writeln('Start populating the Elasticsearch index');
+        $pagerPersister = $useQueuePersister
+            ? QueuePagerPersister::NAME
+            : InPlacePagerPersister::NAME;
+
+        $output->writeln(sprintf(
+            'Start populating the Elasticsearch index (%s persister)',
+            $pagerPersister
+        ));
 
         // display some progress bar to indicate process advancement
         $progressBar = new ProgressBar($output);
@@ -87,7 +98,7 @@ class ElasticsearchPopulateCommand extends CoreCommand
                 \PHP_BINARY,
                 $this->getCurrentProjectConsole(),
                 'fos:elastica:populate',
-                '--pager-persister=queue',
+                '--pager-persister='.$pagerPersister,
                 '--no-debug',
                 '--env=prod',
             ],
@@ -107,7 +118,10 @@ class ElasticsearchPopulateCommand extends CoreCommand
         // add another newline, $progressBar->finish() sometimes messes up the output
         $output->writeln('');
 
-        $this->stopWorkers($output);
+        if ($useQueuePersister) {
+            $this->stopWorkers($output);
+        }
+
         $output->writeln('Elasticsearch populate finished');
 
         return Command::SUCCESS;
@@ -148,16 +162,9 @@ class ElasticsearchPopulateCommand extends CoreCommand
         });
     }
 
-    protected function startWorkers(InputInterface $input, OutputInterface $output): void
+    protected function startWorkers(OutputInterface $output): void
     {
         $output->writeln('Starting index workers');
-
-        $this->elasticsearchIndexingPoolSize = $this->parameterBag->get(
-            'elasticsearch_populate_workers'
-        );
-        if (null !== $input->getOption('workers')) {
-            $this->elasticsearchIndexingPoolSize = $input->getOption('workers');
-        }
 
         $this->startIndexWorker();
     }
