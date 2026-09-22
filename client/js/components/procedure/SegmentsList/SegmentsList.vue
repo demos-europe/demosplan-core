@@ -1227,8 +1227,8 @@ export default {
      * exactly the segments currently shown in the list - no more (StatementSegmentResourceType's
      * access conditions alone would also allow segments from procedures coupled via
      * getAllowedSegmentAccessProcedures(), which sameProcedure excludes here just like it does
-     * for the list itself). columns mirrors availableHeaderFields: externId is always included,
-     * the rest is exactly what the user currently has selected via the column selector.
+     * for the list itself). columns mirrors orderedHeaderFields, same as buildClipboardText(): the
+     * user's current column selection in their current drag&drop order, externId always first.
      */
     handleExportSegments ({ type }) {
       const selectedSegmentIds = this.resolveSelectedSegmentIds()
@@ -1252,10 +1252,8 @@ export default {
         } : {}),
       }
 
-      const columns = [
-        'externId',
-        ...this.currentSelection.filter(field => field !== 'externId'),
-      ]
+      const orderedFields = this.$refs.dataTable?.orderedHeaderFields || this.availableHeaderFields
+      const columns = orderedFields.map(headerField => headerField.field)
 
       const params = {
         procedureId: this.procedureId,
