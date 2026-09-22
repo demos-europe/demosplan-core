@@ -319,47 +319,12 @@
                 </li>
               </ul>
             </template>
-            <template v-slot:address="rowData">
-              <ul class="o-list">
-                <li
-                  v-if="
-                    statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationStreet !== ''
-                  "
-                  class="o-list__item o-hellip--nowrap"
-                >
-                  {{
-                    statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationStreet
-                  }}
-                  {{
-                    statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationHouseNumber
-                  }}
-                </li>
-                <li
-                  v-if="
-                    statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationPostalCode !== ''
-                  "
-                  class="o-list__item o-hellip--nowrap"
-                >
-                  {{
-                    statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationPostalCode
-                  }}
-                  {{
-                    statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationCity
-                  }}
-                </li>
-              </ul>
+            <template v-slot:organisation="rowData">
+              {{
+                statementsObject[
+                  rowData.relationships.parentStatement.data.id
+                ].attributes.initialOrganisationName
+              }}
             </template>
             <template v-slot:place="rowData">
               {{
@@ -720,8 +685,8 @@ export default {
           initialMinWidth: 180,
         },
         {
-          field: 'address',
-          label: Translator.trans('address'),
+          field: 'organisation',
+          label: Translator.trans('group'),
           colWidth: '180px',
           initialMinWidth: 180,
         },
@@ -1493,40 +1458,20 @@ export default {
       })
     },
 
-    getClipboardAddress (segment, context) {
-      const statement = this.getClipboardParentStatement(segment, context)
-
-      if (!statement) {
-        return ''
-      }
-
-      const parts = []
-
-      if (statement.attributes.initialOrganisationStreet !== '') {
-        parts.push(`${statement.attributes.initialOrganisationStreet} ${statement.attributes.initialOrganisationHouseNumber}`.trim())
-      }
-
-      if (statement.attributes.initialOrganisationPostalCode !== '') {
-        parts.push(`${statement.attributes.initialOrganisationPostalCode} ${statement.attributes.initialOrganisationCity}`.trim())
-      }
-
-      return parts.join(', ')
-    },
-
     getClipboardCellValue (headerField, segment, context) {
       if (headerField.field.startsWith('customField_')) {
         return this.getCustomFieldOptionLabel(segment.attributes.customFields, headerField.field.replace('customField_', ''))
       }
 
       switch (headerField.field) {
-        case 'address':
-          return this.getClipboardAddress(segment, context)
         case 'deadline':
           return segment.attributes.deadline ? formatDate(segment.attributes.deadline) : ''
         case 'externId':
           return segment.attributes.externId || ''
         case 'internId':
           return this.getClipboardParentStatement(segment, context)?.attributes.internId || ''
+        case 'organisation':
+          return this.getClipboardParentStatement(segment, context)?.attributes.initialOrganisationName || ''
         case 'place':
           return context.placesById[segment.relationships?.place?.data?.id]?.attributes.name || ''
         case 'recommendation':
