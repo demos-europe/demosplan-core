@@ -153,7 +153,7 @@
           class="border space-inset-s"
         >
           <dp-inline-notification
-            v-if="hasDraftSegments"
+            v-if="hasDraftSegments && hasPermission('feature_segment_edit')"
             class="mt mb-2"
             :message="Translator.trans('warning.statement.in.segmentation.cannot.be.edited')"
             type="warning"
