@@ -40,7 +40,7 @@ class SegmentExportInfoExtractor
      * here is passed through as-is.
      */
     private const UI_COLUMN_TO_EXPORT_KEY = [
-        'tags' => 'tagNames',
+        'tags'         => 'tagNames',
         'organisation' => 'oName',
     ];
 
