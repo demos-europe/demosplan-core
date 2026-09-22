@@ -328,8 +328,8 @@
             :label="{
               text: Translator.trans('deadline.processing.until')
             }"
-            :value="formattedDeadline"
-            @input="value => handleDeadlineUpdate(value)"
+            :model-value="formattedDeadline"
+            @update:model-value="value => handleDeadlineUpdate(value)"
           />
 
           <custom-fields-list
