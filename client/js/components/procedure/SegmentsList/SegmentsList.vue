@@ -71,6 +71,7 @@
             :applied-filters="appliedFiltersSummary"
             :is-export-disabled="!hasSegments"
             :search-term="searchTerm"
+            :segment-count="exportSegmentCount"
             @export="handleExportSegments"
             @open="closeFilterSlidebar"
           />
@@ -892,6 +893,16 @@ export default {
       }
 
       return selected.reduce((acc, el) => ({ ...acc, [el.id]: true }), {})
+    },
+
+    /*
+     * Number of segments the export would cover: the manual selection if one is active, otherwise
+     * all filtered/searched segments. Uses `pagination.total` rather than `allItemsCount` - the
+     * latter gets silently overwritten by fetchSegmentIds()'s background RPC shortly after load,
+     * which can resolve to 0 independently of the actual filtered result count (separate bug).
+     */
+    exportSegmentCount () {
+      return this.selectedItemsCount > 0 ? this.selectedItemsCount : (this.pagination.total || 0)
     },
 
     filterButtonText () {

@@ -92,7 +92,7 @@ All rights reserved
           data-cy="exportModal"
           primary
           secondary
-          :primary-text="Translator.trans('export.segments')"
+          :primary-text="confirmButtonText"
           :secondary-text="Translator.trans('abort')"
           @primary-action="handleExport"
           @secondary-action="closeModal"
@@ -125,9 +125,19 @@ const props = defineProps({
     required: false,
     default: '',
   },
+
+  segmentCount: {
+    type: Number,
+    required: false,
+    default: 0,
+  },
 })
 
 const emit = defineEmits(['open', 'export'])
+
+const confirmButtonText = computed(() =>
+  Translator.trans('export.segments.count', { count: props.segmentCount }),
+)
 
 const hasAppliedFilters = computed(() =>
   props.appliedFilters.length > 0 || props.searchTerm !== '',
