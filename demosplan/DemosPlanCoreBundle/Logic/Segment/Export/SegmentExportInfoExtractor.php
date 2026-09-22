@@ -41,6 +41,7 @@ class SegmentExportInfoExtractor
      */
     private const UI_COLUMN_TO_EXPORT_KEY = [
         'tags' => 'tagNames',
+        'organisation' => 'oName',
     ];
 
     public function __construct(
