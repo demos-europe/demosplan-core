@@ -32,7 +32,6 @@ readonly class SegmentExportColumnResolver
         );
         $this->logMissingColumns(array_diff($selectedColumnKeys, $filteredColumnKeysInSelectionOrder));
 
-
         return array_map(
             static fn (string $key): array => $columnsByKey[$key],
             $filteredColumnKeysInSelectionOrder
@@ -51,7 +50,7 @@ readonly class SegmentExportColumnResolver
 
     private function filterToKnownColumnKeysInSelectionOrder(array $columnsByKey, array $selectedColumnKeys): array
     {
-       return array_values(array_intersect($selectedColumnKeys, array_keys($columnsByKey)));
+        return array_values(array_intersect($selectedColumnKeys, array_keys($columnsByKey)));
     }
 
     private function logMissingColumns(array $missingColumnKeys): void
