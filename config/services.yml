@@ -94,8 +94,7 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Services\SingleDocumentServiceInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentService'
 
-    DemosEurope\DemosplanAddon\Contracts\Services\TransactionServiceInterface:
-        class: 'demosplan\DemosPlanCoreBundle\Logic\TransactionService'
+    DemosEurope\DemosplanAddon\Contracts\Services\TransactionServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\TransactionService'
 
     DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface: '@demosplan\DemosPlanCoreBundle\Tools\ServiceImporter'
 

@@ -12,12 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\Events\AssessableStatementDeletedEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\Events\StatementPreDeleteEventInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\ConsultationToken;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\StatementAttachment;
+use demosplan\DemosPlanCoreBundle\Event\Statement\AssessableStatementDeletedEvent;
 use demosplan\DemosPlanCoreBundle\Event\Statement\StatementPreDeleteEvent;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -28,6 +30,7 @@ use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
+use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
@@ -39,6 +42,7 @@ use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Throwable;
 
 class StatementDeleter
 {
@@ -61,6 +65,7 @@ class StatementDeleter
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly LoggerInterface $logger,
         private readonly ManagerRegistry $doctrine,
+        private readonly TransactionService $transactionService,
     ) {
     }
 
@@ -130,6 +135,11 @@ class StatementDeleter
     ): bool {
         /** @var Connection $doctrineConnection */
         $doctrineConnection = $this->doctrine->getConnection();
+        // only set once the deletion is committed; dispatched outside the try blocks below, so a failing
+        // listener can neither roll back the finished transaction nor report the deletion as failed.
+        // Callers running inside a TransactionService task make this transaction a nested one, so the
+        // dispatch is left to TransactionService to defer until the outermost commit where needed.
+        $assessableStatementDeletedEvent = null;
         try {
             $success = false;
             $statementId = $statement->getId();
@@ -176,6 +186,11 @@ class StatementDeleter
                     $attachedFileIdents = \collect($statement->getAttachments())
                         ->map(static fn (StatementAttachment $attachment): string => $attachment->getFile()->getIdent());
 
+                    // captured before the removal, as the event announcing it is built once the statement is gone
+                    $wasOriginal = $statement->isOriginal();
+                    $wasSegmented = $statement->isAlreadySegmented();
+                    $externId = $statement->getExternId();
+                    $procedure = $statement->getProcedure();
                     $this->statementAttachmentService->deleteStatementAttachments($statement->getAttachments()->getValues());
                     $deleted = $this->statementRepository->delete($statementId);
                     // add report:
@@ -196,6 +211,16 @@ class StatementDeleter
                     }
 
                     $this->entityContentChangeService->deleteByEntityIds([$statementId]);
+
+                    if ($deleted && !$wasOriginal) {
+                        $assessableStatementDeletedEvent = new AssessableStatementDeletedEvent(
+                            $statementId,
+                            $externId,
+                            $procedure,
+                            $wasSegmented
+                        );
+                    }
+
                     $success = true;
                 } catch (DemosException $demosException) {
                     $this->logger->error(self::DELETE_ERROR_MESSAGE, [$demosException]);
@@ -257,13 +282,29 @@ class StatementDeleter
                     );
                 }
             }
-
-            return $success;
         } catch (Exception $e) {
             $this->logger->warning(self::DELETE_ERROR_MESSAGE, [$e]);
             $doctrineConnection->rollBack();
 
             return false;
         }
+
+        if ($assessableStatementDeletedEvent instanceof AssessableStatementDeletedEvent) {
+            try {
+                $this->transactionService->dispatchAfterCommit(
+                    $assessableStatementDeletedEvent,
+                    AssessableStatementDeletedEventInterface::class
+                );
+            } catch (Throwable $throwable) {
+                // the deletion is committed at this point; a failing notification must not make the callers,
+                // which ignore or aggregate the returned bool, treat the statement as still existing
+                $this->logger->error('Dispatching the deletion event failed for an already deleted statement.', [
+                    'statementId' => $statementId,
+                    'exception'   => $throwable,
+                ]);
+            }
+        }
+
+        return $success;
     }
 }
