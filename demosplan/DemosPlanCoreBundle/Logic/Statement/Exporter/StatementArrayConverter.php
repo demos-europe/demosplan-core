@@ -113,7 +113,6 @@ class StatementArrayConverter
         $exportData['submitDateString'] = $parentStatement->getSubmitDateString();
         $exportData['submitter'] = $this->buildCombinedSubmitterData($parentStatement);
         $exportData['statementStatus'] = $this->statementService->getProcessingStatus($parentStatement);
-        $exportData['address'] = $this->buildCombinedAddressData($parentStatement);
 
         return $exportData;
     }
@@ -142,16 +141,6 @@ class StatementArrayConverter
         return implode(', ', array_filter([
             $statement->getAuthorName() ?: $statement->getSubmitterName(),
             $statement->getOName(),
-        ]));
-    }
-
-    private function buildCombinedAddressData(StatementInterface $statement): string
-    {
-        $meta = $statement->getMeta();
-
-        return implode(', ', array_filter([
-            '' !== $statement->getOrgaStreet() ? trim($statement->getOrgaStreet().' '.$meta->getHouseNumber()) : '',
-            '' !== $statement->getOrgaPostalCode() ? trim($statement->getOrgaPostalCode().' '.$statement->getOrgaCity()) : '',
         ]));
     }
 
