@@ -601,7 +601,7 @@ confirm.invitable_institutions.deleted: "Die ausgewählten Institutionen wurden 
 confirm.procedure.created: "Das Verfahren {name} wurde erstellt."
 confirm.procedureCouple.created: "Das erstellte Verfahren wurde mit dem Verfahren {name} gekoppelt."
 confirm.procedure.read.only.reactivate: "Möchten Sie das Verfahren wieder freigeben? Alle Beteiligten können es anschließend wieder bearbeiten."
-confirm.procedure.read.only.set: "Möchten Sie das Verfahren schreibgeschützt schalten? Es ist anschließend nur noch lesbar, z. B. für Stellungnahmenliste, Abschnittsliste, Einreicherliste und Protokoll."
+confirm.procedure.read.only.set: "Möchten Sie das Verfahren schreibgeschützt schalten? Es ist anschließend nur noch lesbar, z. B. für Stellungnahmenliste, Abschnittsliste und Einreichendenliste."
 confirm.procedure_template.created: "Die Blaupause {name} wurde erstellt."
 confirm.release.created: "Das neue Release wurde angelegt."
 confirm.release.deleted: "Das Release wurde gelöscht."
