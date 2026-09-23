@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\FileNameGenerator;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\SegmentsExportResponseBuilder;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementViaTemplateExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
@@ -59,6 +60,7 @@ class SegmentsExportControllerExportViaTemplateTest extends AbstractStatementVia
     private (StatementViaTemplateExporter&MockObject)|null $exporter = null;
     private (ProcedureHandler&MockObject)|null $procedureHandler = null;
     private (MessageBagInterface&MockObject)|null $messageBag = null;
+    private (SegmentsExportResponseBuilder&MockObject)|null $responseBuilder = null;
 
     protected function setUp(): void
     {
@@ -73,8 +75,7 @@ class SegmentsExportControllerExportViaTemplateTest extends AbstractStatementVia
         $this->messageBag = $this->createMock(MessageBagInterface::class);
 
         $nameGenerator = $this->createMock(NameGenerator::class);
-        $nameGenerator->method('generateDownloadFilename')
-            ->willReturnCallback(static fn (string $filename): string => 'attachment; filename="'.$filename.'"');
+        $this->responseBuilder = $this->createMock(SegmentsExportResponseBuilder::class);
         $tagFilter = $this->createMock(StatementExportTagFilter::class);
         $translator = $this->createMock(TranslatorInterface::class);
         $translator->method('trans')->willReturnArgument(0);
@@ -83,6 +84,7 @@ class SegmentsExportControllerExportViaTemplateTest extends AbstractStatementVia
             $nameGenerator,
             $this->procedureHandler,
             $this->requestStack,
+            $this->responseBuilder,
             $tagFilter,
             $translator,
         );
@@ -108,18 +110,13 @@ class SegmentsExportControllerExportViaTemplateTest extends AbstractStatementVia
             ->willReturn($this->createMock(Statement::class));
         $this->fileNameGenerator->method('getFileName')->willReturn('m12-mustermann');
         $this->exporter->method('export')->willReturn(new TemplateProcessor($copiedTemplatePath));
+        $this->responseBuilder->expects(self::once())
+            ->method('setDocxResponseHeaders')
+            ->with(self::isInstanceOf(StreamedResponse::class), 'm12-mustermann.docx');
 
         $response = $this->callExportViaTemplate();
 
         self::assertInstanceOf(StreamedResponse::class, $response);
-        self::assertSame(
-            self::DOCX_MIME.'; charset=utf-8',
-            $response->headers->get('Content-Type')
-        );
-        self::assertStringContainsString(
-            'm12-mustermann.docx',
-            (string) $response->headers->get('Content-Disposition')
-        );
 
         // Exercise the streaming closure so the deleteLocalFile() expectation
         // in the `finally` actually fires.
