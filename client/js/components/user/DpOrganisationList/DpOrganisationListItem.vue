@@ -91,7 +91,7 @@
 </template>
 
 <script>
-import { DpButtonRow, DpConfirmDialog, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButtonRow, DpConfirmDialog, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { defineAsyncComponent } from 'vue'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
