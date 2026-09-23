@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ExportImageOptimizer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ImageReference;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Tests\Base\FunctionalTestCase;
 
@@ -232,7 +233,7 @@ class ImageLinkConverterTest extends FunctionalTestCase
         $fileService->method('ensureLocalFileFromHash')->willReturnCallback(
             static function (string $hash) {
                 if ('badhash.jpg' === $hash) {
-                    throw new \Exception('file not found');
+                    throw new Exception('file not found');
                 }
 
                 return '/tmp/dplan/'.$hash.'/'.$hash;
