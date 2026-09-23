@@ -36,14 +36,19 @@
           v-for="segment in segments"
           :id="'segmentTextEdit_' + segment.id"
           :key="segment.id"
-          class="px-1 hover:bg-interactive-secondary-subtle-hover"
+          class="flex px-1 py-0.5 hover:bg-interactive-secondary-subtle-hover"
         >
-          <div class="inline-block w-[5%]">
+          <div class="w-7 shrink-0 pr-1">
+            <div
+              class="text-sm text-muted truncate pt-1.5 mb-1"
+              :title="segment.attributes.externId"
+              v-text="segment.attributes.externId"
+            />
             <template v-if="isSegmentLocked(segment)">
               <dp-button
                 v-if="hasPermission('feature_administrate_segment_lock')"
                 :text="lockTooltip"
-                class="text-interactive inline-block ml-0.5 align-middle bg-transparent! border-transparent! hover:bg-interactive-subtle-hover!"
+                class="text-interactive bg-transparent! border-transparent! hover:bg-interactive-subtle-hover!"
                 icon="prohibit"
                 icon-weight="fill"
                 variant="subtle"
@@ -55,7 +60,7 @@
                 :text="lockTooltip"
               >
                 <dp-icon
-                  class="text-interactive inline-block ml-1"
+                  class="text-interactive"
                   icon="prohibit"
                   size="small"
                   weight="fill"
@@ -64,7 +69,6 @@
             </template>
             <dp-claim
               v-else-if="hasPermission('feature_segment_edit')"
-              class="c-at-item__row-icon inline-block"
               :assigned-id="assigneeBySegment(segment.id).id"
               :assigned-name="assigneeBySegment(segment.id).name"
               :assigned-organisation="assigneeBySegment(segment.id).orgaName"
@@ -74,8 +78,8 @@
               :is-loading="claimLoading === segment.id"
               @click="() => toggleClaimSegment(segment)"
             />
-          </div><!--
-       --><div class="inline-block break-words w-[95%]">
+          </div>
+          <div class="flex-1 min-w-0 break-words">
             <dp-edit-field
               :ref="`editField_${segment.id}`"
               class="c-styled-html"
@@ -84,6 +88,7 @@
               :label-grid-cols="0"
               no-margin
               persist-icons
+              :readonly="!hasPermission('feature_segment_edit')"
               @reset="() => reset(segment.id)"
               @toggle-editing="() => addToEditing(segment.id)"
               @save="() => saveSegment(segment.id)"
