@@ -1207,7 +1207,7 @@ export default {
       fetch(url, { method: 'POST', credentials: 'same-origin' })
         .then(response => response.json())
         .then(({ jobId }) => pollExportJob({
-          key: `segments.${this.procedureId}`,
+          key: `segments.${this.procedureId}.${jobId}`,
           statusUrl: Routing.generate('dplan_statement_segments_export_status', { procedureId: this.procedureId, jobId }),
           downloadUrl: Routing.generate('dplan_statement_segments_export_download', { procedureId: this.procedureId, jobId }),
         }))
