@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+### Fixed
+- Grouped DOCX/ODT and ZIP exports from the statement list no longer time out for procedures with many statements; the file downloads once it is ready
+
 ## v4.61.1 (2026-09-21)
 
 ### Fixed
