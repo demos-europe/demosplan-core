@@ -187,6 +187,7 @@
             :key="columnSelectorKey"
             :class="{ 'px-2': isFullscreen, 'scrollbar-none': !isFullscreen }"
             :header-fields="availableHeaderFields"
+            :is-selectable="hasPermission('feature_segments_bulk_edit') || hasPermission('feature_segments_copy_to_clipboard')"
             :items="items"
             :multi-page-all-selected="allSelectedVisually"
             :multi-page-selection-items-toggled="toggledItems.length"
@@ -203,7 +204,6 @@
             has-sticky-header
             is-columns-draggable
             is-resizable
-            is-selectable
             :lock-checkbox-by="canUnlock ? false : 'isPlaceLocked'"
             :lock-checkbox-hint="Translator.trans('segment.lock.hint')"
             @columns-reordered="selectionCopiedToClipboard = false"
