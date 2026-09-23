@@ -378,7 +378,7 @@ import CustomSearchStatements from './CustomSearchStatements'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
-import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
+import StatementExportModal from '@DpJs/components/statement/statementExportModal/StatementExportModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
 import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge'
 

@@ -1,0 +1,34 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% block component_part %}
+
+    {% if 'completed' == job.status %}
+        {# Non-JS, reliable auto-start: redirects to the file endpoint shortly after the page loads. #}
+        <meta http-equiv="refresh" content="1;url={{ downloadUrl }}">
+    {% endif %}
+
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
+        'content_heading': 'export.xlsx.scheduled.download.heading'|trans,
+        'full_width': false
+    } %}
+
+        {% block content %}
+
+            {% if 'completed' == job.status %}
+                <p>{{ 'export.xlsx.scheduled.download.starting'|trans }}</p>
+                <p>
+                    <a href="{{ downloadUrl }}" class="btn btn--primary">
+                        {{ 'export.xlsx.scheduled.download.manual_trigger'|trans }}
+                    </a>
+                </p>
+            {% elseif 'failed' == job.status %}
+                <p>{{ 'export.xlsx.scheduled.download.failed'|trans }}</p>
+            {% else %}
+                <p>{{ 'export.xlsx.scheduled.download.not_ready'|trans }}</p>
+            {% endif %}
+
+        {% endblock content %}
+
+    {% endembed %}
+
+{% endblock component_part %}
