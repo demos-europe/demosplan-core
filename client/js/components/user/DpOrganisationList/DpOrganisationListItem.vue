@@ -206,13 +206,13 @@ export default {
     isEnablingProcedureCreation () {
       const current = this.canCreateProceduresCurrent ?? this.organisation.attributes.canCreateProcedures
 
-      return current === true && this.canCreateProceduresOnOpen !== true
+      return current && !this.canCreateProceduresOnOpen
     },
 
     isDisablingProcedureCreation () {
       const current = this.canCreateProceduresCurrent ?? this.organisation.attributes.canCreateProcedures
 
-      return current !== true && this.canCreateProceduresOnOpen === true
+      return !current && this.canCreateProceduresOnOpen
     },
 
     procedureCreationToggleHeader () {

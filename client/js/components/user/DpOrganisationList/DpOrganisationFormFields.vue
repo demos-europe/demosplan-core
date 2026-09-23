@@ -397,7 +397,7 @@
 
         <template v-if="hasPermission('feature_manage_procedure_creation_permission') && isMunicipalityOrHearingAuthorityAccepted && !localOrganisation.attributes.canCreateProcedures">
           <p
-            v-if="usersWithIndividualProcedureCreationPermission.length === 0"
+            v-if="!usersWithIndividualProcedureCreationPermission.length"
             class="mt-1 lbl__hint"
             data-cy="orgaFormField:procedureCreatePermission:hintEmpty"
           >
@@ -423,7 +423,7 @@
               </li>
             </ul>
             <dp-details
-              v-if="collapsedProcedureCreationUsers.length > 0"
+              v-if="collapsedProcedureCreationUsers.length"
               data-cy="orgaFormField:procedureCreatePermission:usersMore"
               :summary="Translator.trans('procedure.canManage.orga.users.more', { count: collapsedProcedureCreationUsers.length })"
             >
