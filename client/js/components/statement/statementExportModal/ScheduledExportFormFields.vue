@@ -62,37 +62,23 @@ import { computed, ref, watch } from 'vue'
 import { DpSelect } from '@demos-europe/demosplan-ui'
 import { useScheduledExportDate } from '@DpJs/composables/useScheduledExportDate'
 import { useScheduledExportOptions } from '@DpJs/composables/useScheduledExportOptions'
-
-interface ScheduledExport {
-  id: string
-  interval: string
-  day: number
-}
+import type { ScheduledExport, ScheduledExportFormData, DaySelect } from '@DpJs/types/scheduledExport'
 
 interface Props {
   editingExport?: ScheduledExport | null
-}
-
-interface SelectOption {
-  label: string
-  value: string | number
-}
-
-type DaySelectName = 'weekday' | 'monthDay'
-
-interface DaySelect {
-  name: DaySelectName
-  label: string
-  options: SelectOption[]
-  selected: string | number
 }
 
 const props = withDefaults(defineProps<Props>(), {
   editingExport: null
 })
 
-const formData = defineModel<{ interval: string; day: number | null }>('formData', {
-  default: () => ({ interval: '', day: null })
+const formData = defineModel<ScheduledExportFormData>('formData', {
+  default: () => (
+    {
+      frequency: '',
+      day: null,
+    }
+  )
 })
 
 const getSelectedDay = () => {
@@ -150,13 +136,13 @@ const frequencyLabel = computed(() => {
 const nextExportLabel = computed(() => {
   switch (selectedFrequency.value) {
     case 'daily':
-      return formatExportDate(getNextExportDate({ interval: 'daily' }))
+      return formatExportDate(getNextExportDate({ frequency: 'daily' }))
 
     case 'weekly':
-      return formatExportDate(getNextExportDate({ interval: 'weekly', weekday: selectedWeekday.value }))
+      return formatExportDate(getNextExportDate({ frequency: 'weekly', weekday: selectedWeekday.value }))
 
     case 'monthly':
-      return formatExportDate(getNextExportDate({ interval: 'monthly', dayOfMonth: selectedMonthDay.value }))
+      return formatExportDate(getNextExportDate({ frequency: 'monthly', dayOfMonth: selectedMonthDay.value }))
 
     default:
       return ''
@@ -186,14 +172,14 @@ const resetForm = () => {
 }
 
 const populateForm = (editingExport: ScheduledExport) => {
-  selectedFrequency.value = editingExport.interval
-  selectedWeekday.value = editingExport.interval === 'weekly' ? editingExport.day : 1
-  selectedMonthDay.value = editingExport.interval === 'monthly' ? editingExport.day : 5
+  selectedFrequency.value = editingExport.attributes.frequency
+  selectedWeekday.value = editingExport.attributes.frequency === 'weekly' ? editingExport.attributes.weekday : 1
+  selectedMonthDay.value = editingExport.attributes.frequency === 'monthly' ? editingExport.attributes.dayOfMonth : 5
 }
 
 watch([selectedFrequency, selectedWeekday, selectedMonthDay], () => {
   Object.assign(formData.value, {
-    interval: selectedFrequency.value,
+    frequency: selectedFrequency.value,
     day: getSelectedDay(),
   })
 }, { immediate: true })

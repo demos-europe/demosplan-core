@@ -79,12 +79,7 @@
 <script setup lang="ts">
 import { DpButton, DpIcon } from '@demos-europe/demosplan-ui'
 import { useScheduledExportOptions } from '@DpJs/composables/useScheduledExportOptions'
-
-interface ScheduledExport {
-  id: string
-  interval: string
-  day: number
-}
+import type { ScheduledExport } from '@DpJs/types/scheduledExport'
 
 interface Props {
   scheduledExports: ScheduledExport[]
@@ -101,17 +96,17 @@ defineEmits<{
 const { getFrequencyLabel, getWeekdayLabel, getMonthDayLabel } = useScheduledExportOptions()
 
 const formatScheduledExportDescription = (scheduledExport: ScheduledExport): string => {
-  const frequencyLabel = getFrequencyLabel(scheduledExport.interval)
+  const frequencyLabel = getFrequencyLabel(scheduledExport.attributes.frequency)
 
-  switch (scheduledExport.interval) {
+  switch (scheduledExport.attributes.frequency) {
     case 'daily':
       return frequencyLabel
 
     case 'weekly':
-      return `${frequencyLabel}, ${getWeekdayLabel(scheduledExport.day)}`
+      return `${frequencyLabel}, ${getWeekdayLabel(scheduledExport.attributes.weekday)}`
 
     case 'monthly':
-      return Translator.trans('export.xlsx.scheduled.interval.monthly.day', { frequency: frequencyLabel, day: getMonthDayLabel(scheduledExport.day) })
+      return Translator.trans('export.xlsx.scheduled.interval.monthly.day', { frequency: frequencyLabel, day: getMonthDayLabel(scheduledExport.attributes.dayOfMonth) })
 
     default:
       return frequencyLabel

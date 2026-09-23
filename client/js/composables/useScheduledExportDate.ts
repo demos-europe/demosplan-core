@@ -8,15 +8,15 @@
  */
 
 /**
- * Calculate the next export date based on interval and selected day
+ * Calculate the next export date based on frequency and selected day
  */
 const getNextExportDate = ({
-  interval,
+  frequency,
   weekday,
   dayOfMonth,
   from = new Date(),
 }: {
-  interval: string
+  frequency: string
   weekday?: number
   dayOfMonth?: number
   from?: Date
@@ -24,7 +24,7 @@ const getNextExportDate = ({
   const date = new Date(from)
   date.setHours(0, 0, 0, 0)
 
-  switch (interval) {
+  switch (frequency) {
     case 'daily':
       date.setDate(date.getDate() + 1)
       return date
@@ -34,10 +34,12 @@ const getNextExportDate = ({
         return date
       }
 
+      // Convert backend format (1-7, Monday=1, Sunday=7) to JavaScript Date format (0-6, Sunday=0)
+      const jsWeekday = weekday === 7 ? 0 : weekday
       const currentDay = date.getDay()
 
       // Number of days until the selected weekday
-      let daysUntil = (weekday - currentDay + 7) % 7
+      let daysUntil = (jsWeekday - currentDay + 7) % 7
 
       // If today is the selected day, the next export is next week
       if (daysUntil === 0) {
@@ -45,6 +47,7 @@ const getNextExportDate = ({
       }
 
       date.setDate(date.getDate() + daysUntil)
+
       return date
     }
 
@@ -58,6 +61,7 @@ const getNextExportDate = ({
       // If the selected day hasn't happened yet this month, use the current month
       if (currentDay < dayOfMonth) {
         date.setDate(dayOfMonth)
+
         return date
       }
 
@@ -90,6 +94,7 @@ const isTomorrow = (date: Date): boolean => {
  * Get the weekday name for a date
  */
 const getWeekdayName = (date: Date): string => {
+  // JavaScript Date format (0-6, Sunday=0)
   const weekdayMap: Record<number, string> = {
     0: Translator.trans('weekday.sunday'),
     1: Translator.trans('weekday.monday'),

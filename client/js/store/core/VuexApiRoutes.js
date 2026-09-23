@@ -115,6 +115,9 @@ const api3_0Modules = {
   ScheduledExport: [
     'list',
     'get',
+    'create',
+    'delete',
+    'update',
   ]
 }
 

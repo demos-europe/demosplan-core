@@ -393,6 +393,7 @@
 
 <script>
 import {
+  dpApi,
   DpButton,
   DpButtonRow,
   DpCheckbox,
@@ -408,6 +409,7 @@ import {
   sessionStorageMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
 import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
 import ScheduledExportFormFields from '@DpJs/components/statement/statementExportModal/ScheduledExportFormFields'
 import ScheduledExportList from '@DpJs/components/statement/statementExportModal/ScheduledExportList'
@@ -462,26 +464,9 @@ export default {
       scheduledExportMode: null,
       editingScheduledExportId: null,
       currentScheduledExportFormData: {
-        interval: '',
+        frequency: '',
         day: null,
       },
-      scheduledExports: [ // Mock data for now
-        {
-          id: 'export-1',
-          interval: 'weekly',
-          day: 1 // Monday (Date.getDay() value)
-        },
-        {
-          id: 'export-2',
-          interval: 'monthly',
-          day: 15, // 15th day of month
-        },
-        {
-          id: 'export-3',
-          interval: 'daily',
-          day: null
-        },
-      ],
       docxColumns: {
         col1: {
           dataCy: 'exportModal:input:col1',
@@ -622,6 +607,10 @@ export default {
 
     editingScheduledExport () {
       return this.scheduledExports.find(exp => exp.id === this.editingScheduledExportId) ?? null
+    },
+
+    scheduledExports () {
+      return Object.values(this.scheduledExportItems)
     }
   },
 
@@ -633,15 +622,34 @@ export default {
       setUngroupedFilterOptions: 'setUngroupedOptions',
     }),
 
+    ...mapMutations('ScheduledExport', {
+      setScheduledExport: 'setItem',
+    }),
+
     ...mapActions('ScheduledExport', {
       fetchScheduledExport: 'list',
+      createScheduledExport: 'create',
+      deleteScheduledExport: 'delete',
     }),
 
     addScheduledExport () {
-      this.scheduledExports.push({
-        id: `export-${Date.now()}`,
-        ...this.currentScheduledExportFormData,
-      })
+      const exportParameters = {
+        tagsFilter: {
+          tagIds: this.selectedTagIds || [],
+          procedureId: this.procedureId,
+        },
+      }
+
+      const payload = {
+        type: 'ScheduledExport',
+        attributes: {
+          frequency: this.currentScheduledExportFormData.frequency,
+          weekday: this.currentScheduledExportFormData.frequency === 'weekly' ? this.currentScheduledExportFormData.day : null,
+          dayOfMonth: this.currentScheduledExportFormData.frequency === 'monthly' ? this.currentScheduledExportFormData.day : null,
+          parameters: JSON.stringify(exportParameters), // ToDo: what should be sent?
+        },
+      }
+      this.createScheduledExport(payload)
     },
 
     getBaseScheduledExportMode (view) {
@@ -697,6 +705,19 @@ export default {
       return {
         groupedOptions,
         ungroupedOptions,
+      }
+    },
+
+    buildScheduledExportPayload () {
+      return {
+        fields: {
+          ScheduledExport: [
+            'frequency',
+            'weekday',
+            'dayOfMonth',
+            'nextRunAt',
+          ].join()
+        }
       }
     },
 
@@ -864,7 +885,7 @@ export default {
     handleScheduledExport () {
       const scheduledExportMode = this.getBaseScheduledExportMode(this.scheduledExportMode)
 
-      if (scheduledExportMode === 'add' && this.currentScheduledExportFormData.interval) {
+      if (scheduledExportMode === 'add' && this.currentScheduledExportFormData.frequency) {
         this.addScheduledExport()
 
       } else if (scheduledExportMode === 'edit' && this.editingScheduledExportId) {
@@ -885,7 +906,10 @@ export default {
     },
 
     handleScheduledExportDelete (exportId) {
-      this.scheduledExports = this.scheduledExports.filter(exp => exp.id !== exportId) // ToDo: mock for now
+      this.deleteScheduledExport(exportId)
+        .then(() => {
+          this.fetchScheduledExport(this.buildScheduledExportPayload()) // ToDo: altervatives?
+        })
     },
 
     initInitialFlyoutFilterSelection ({ isInitialWithQuery, groupedOptions, ungroupedOptions }) {
@@ -1001,7 +1025,7 @@ export default {
       this.currentView = 'main'
       this.customHeaderText = ''
       this.currentScheduledExportFormData = {
-        interval: '',
+        frequency: '',
         day: null,
       }
       this.editingScheduledExportId = null
@@ -1079,16 +1103,24 @@ export default {
     },
 
     updateExistingScheduledExport () {
-      const index = this.scheduledExports.findIndex(
-        exp => exp.id === this.editingScheduledExportId
-      )
-
-      if (index !== -1) {
-        this.scheduledExports[index] = {
-          ...this.scheduledExports[index],
-          ...this.currentScheduledExportFormData,
-        }
+      const payload = {
+        data: {
+          id: this.editingScheduledExportId,
+          type: 'ScheduledExport',
+          attributes: {
+            frequency: this.currentScheduledExportFormData.frequency,
+            weekday: this.currentScheduledExportFormData.frequency === 'weekly' ? this.currentScheduledExportFormData.day : null,
+            dayOfMonth: this.currentScheduledExportFormData.frequency === 'monthly' ? this.currentScheduledExportFormData.day : null,
+          },
+        },
       }
+
+      dpApi.patch(apiUrl('ScheduledExport', 'update', this.editingScheduledExportId), {}, payload)
+        .then(response => {
+          if (response?.data) {
+            this.setScheduledExport({ ...response.data.data, id: this.editingScheduledExportId })
+          }
+        })
     },
 
     updateFilterOptionsInStore ({ category, groupedOptions, ungroupedOptions }) {
@@ -1126,14 +1158,7 @@ export default {
   },
 
   mounted () {
-    this.fetchScheduledExport({
-      fields: {
-        ScheduledExport: [
-          'frequency',
-        ].join()
-      }
-    })
-
+    this.fetchScheduledExport(this.buildScheduledExportPayload())
   }
 }
 </script>

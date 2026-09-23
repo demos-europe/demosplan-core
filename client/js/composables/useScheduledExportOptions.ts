@@ -7,10 +7,7 @@
  * All rights reserved
  */
 
-interface SelectOption {
-  label: string
-  value: number
-}
+import type { SelectOption } from '@DpJs/types/scheduledExport'
 
 export function useScheduledExportOptions () {
   const frequencyOptions = [
@@ -55,7 +52,7 @@ export function useScheduledExportOptions () {
     },
     {
       label: Translator.trans('weekday.sunday'),
-      value: 0,
+      value: 7,
     },
   ]
 
