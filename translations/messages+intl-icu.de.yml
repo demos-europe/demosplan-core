@@ -2874,7 +2874,7 @@ procedure.by.phase.public: |
         =0 {Verfahren nach Phase (Öffentlichkeit)}
         other {# Verfahren nach Phase (Öffentlichkeit)}
     }
-procedure.canCreate: 'Alle Nutzenden der Organisation mit der Rolle Fachplanung-Admin bzw. Anhörungsbehörde-Admin können Verfahren anlegen'
+procedure.canCreate: 'Kommune oder Planungsbüro darf Verfahren anlegen'
 procedure.canCreate.confirmDisable.header: 'Berechtigung deaktivieren?'
 procedure.canCreate.confirmDisable.message: "Die Berechtigung, Verfahren anzulegen, ist in dieser Organisation bisher allen Nutzenden mit der Rolle Fachplanung-Admin bzw. Anhörungsbehörde-Admin zugewiesen.\nWenn Sie diese Berechtigung deaktivieren, können Sie sie einzelnen Nutzenden in der Nutzendenverwaltung erteilen. Möchten Sie fortfahren?"
 procedure.canCreate.confirmEnable.header: 'Berechtigung aktivieren?'
