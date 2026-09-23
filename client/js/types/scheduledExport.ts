@@ -12,7 +12,7 @@ export interface ScheduledExport {
   type: 'ScheduledExport'
   attributes: {
     frequency: string
-    weekday: number | null
+    weekday: number | null  // ISO-8601 format: 1-7 (Monday=1, Sunday=7)
     dayOfMonth: number | null
     parameters: string
     nextRunAt?: string
