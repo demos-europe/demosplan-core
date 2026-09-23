@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagTopicFactory;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Event\Segment\SegmentTagsChangedEvent;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\RpcBulkEditor\RpcSegmentsBulkEditor;
@@ -93,16 +94,67 @@ class RpcSegmentsBulkEditorDispatchTest extends FunctionalTestCase
         self::assertFalse($dispatched, 'Event must not be dispatched when no tags are added or removed.');
     }
 
+    public function testNoSegmentTouchedAndNoEventWhenCustomFieldUpdateFails(): void
+    {
+        $procedure = ProcedureFactory::createOne();
+        $this->getContainer()->get(CurrentProcedureService::class)->setProcedure($procedure->_real());
+        $topic = TagTopicFactory::createOne(['procedure' => $procedure]);
+        $tag = TagFactory::createOne(['topic' => $topic]);
+
+        $statement = StatementFactory::createOne(['procedure' => $procedure]);
+        $segment1 = SegmentFactory::createOne([
+            'procedure'                  => $procedure,
+            'parentStatementOfSegment'   => $statement,
+        ]);
+        $segment2 = SegmentFactory::createOne([
+            'procedure'                  => $procedure,
+            'parentStatementOfSegment'   => $statement,
+        ]);
+
+        $dispatched = false;
+        $this->getContainer()->get(EventDispatcherInterface::class)->addListener(
+            SegmentTagsChangedEventInterface::class,
+            static function () use (&$dispatched): void {
+                $dispatched = true;
+            }
+        );
+
+        // A custom field ID without any configuration makes the custom field
+        // update throw. The request also carries a tag change, which must not
+        // be applied to any segment when the request fails as a whole.
+        $unknownCustomField = ['id' => '00000000-0000-4000-8000-000000000000', 'value' => 'irrelevant'];
+        $response = $this->sut->execute($procedure->_real(), [$this->buildRequest(
+            [$segment1->getId(), $segment2->getId()],
+            [$tag->getId()],
+            [$unknownCustomField],
+        )]);
+
+        self::assertCount(1, $response);
+        self::assertObjectHasProperty('error', $response[0], 'The failing request must be answered with an error.');
+        self::assertFalse($dispatched, 'Event must not be dispatched when the request fails before any segment is changed.');
+
+        $this->getEntityManager()->clear();
+        $segmentRepository = $this->getEntityManager()->getRepository(Segment::class);
+        foreach ([$segment1->getId(), $segment2->getId()] as $segmentId) {
+            $persistedSegment = $segmentRepository->find($segmentId);
+            self::assertCount(0, $persistedSegment->getTags(), 'No tag change may be persisted for a request that failed.');
+        }
+    }
+
     /**
-     * @param string[] $segmentIds
-     * @param string[] $addTagIds
+     * @param string[]             $segmentIds
+     * @param string[]             $addTagIds
+     * @param array<int, mixed>    $customFields
      */
-    private function buildRequest(array $segmentIds, array $addTagIds = []): stdClass
+    private function buildRequest(array $segmentIds, array $addTagIds = [], array $customFields = []): stdClass
     {
         $params = new stdClass();
         $params->segmentIds = $segmentIds;
         $params->addTagIds = $addTagIds;
         $params->removeTagIds = [];
+        if ([] !== $customFields) {
+            $params->customFields = $customFields;
+        }
         $params->recommendationTextEdit = new stdClass();
         $params->recommendationTextEdit->text = '';
         $params->recommendationTextEdit->attach = true;

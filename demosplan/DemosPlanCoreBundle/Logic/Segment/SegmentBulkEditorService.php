@@ -117,6 +117,15 @@ class SegmentBulkEditorService
     }
 
     /**
+     * Applies the bulk edit to all given segments in two passes: the first pass
+     * resolves and validates the new custom field lists (the only step that can
+     * throw), the second pass mutates the segments. A throw in the first pass
+     * therefore leaves every segment untouched — otherwise the caller's
+     * per-request catch would report an error while the surrounding
+     * transaction still flushed the half-applied edits of the preceding
+     * segments, and those segments would be missing from the returned
+     * tag-change list.
+     *
      * @param Segment[]                    $segments
      * @param Tag[]                        $addTagIds
      * @param Tag[]                        $removeTagIds
@@ -133,6 +142,8 @@ class SegmentBulkEditorService
         array $customFields,
         ?DateTime $deadline = null,
     ): array {
+        $customFieldListsBySegmentId = $this->buildCustomFieldLists($segments, $customFields);
+
         $segmentsWithTagChanges = [];
 
         foreach ($segments as $segment) {
@@ -157,16 +168,8 @@ class SegmentBulkEditorService
                 );
             }
 
-            if ([] !== $customFields) {
-                $customFieldList = $segment->getCustomFields() ?? new CustomFieldValuesList();
-                $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues(
-                    $customFieldList,
-                    $customFields,
-                    $segment->getProcedure()->getId(),
-                    'PROCEDURE',
-                    'SEGMENT'
-                );
-                $segment->setCustomFields($customFieldList);
+            if (array_key_exists($segment->getId(), $customFieldListsBySegmentId)) {
+                $segment->setCustomFields($customFieldListsBySegmentId[$segment->getId()]);
             }
 
             if (null !== $deadline) {
@@ -175,6 +178,35 @@ class SegmentBulkEditorService
         }
 
         return [$segments, $segmentsWithTagChanges];
+    }
+
+    /**
+     * Resolves the merged custom field list for every segment without touching
+     * the segments. Throws on an unknown custom field ID or an invalid value.
+     *
+     * @param Segment[] $segments
+     *
+     * @return array<string, CustomFieldValuesList> keyed by segment ID; empty when no custom fields are given
+     */
+    private function buildCustomFieldLists(array $segments, array $customFields): array
+    {
+        if ([] === $customFields) {
+            return [];
+        }
+
+        $customFieldListsBySegmentId = [];
+        foreach ($segments as $segment) {
+            $currentCustomFieldList = $segment->getCustomFields() ?? new CustomFieldValuesList();
+            $customFieldListsBySegmentId[$segment->getId()] = $this->customFieldValueCreator->updateOrAddCustomFieldValues(
+                $currentCustomFieldList,
+                $customFields,
+                $segment->getProcedure()->getId(),
+                'PROCEDURE',
+                'SEGMENT'
+            );
+        }
+
+        return $customFieldListsBySegmentId;
     }
 
     /**
