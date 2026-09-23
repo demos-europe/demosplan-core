@@ -384,7 +384,7 @@
         </template>
 
         <dp-checkbox
-          v-if="hasPermission('feature_manage_procedure_creation_permission') && isMunicipalityOrHearingAuthorityAccepted"
+          v-if="hasPermission('feature_manage_procedure_creation_permission') && isProcedureCreationOrgaTypeAccepted"
           :id="`${organisation.id}:procedureCreatePermission`"
           v-model="localOrganisation.attributes.canCreateProcedures"
           class="mt-2"
@@ -395,7 +395,7 @@
           @change="onCanCreateProceduresChange"
         />
 
-        <template v-if="hasPermission('feature_manage_procedure_creation_permission') && isMunicipalityOrHearingAuthorityAccepted && !localOrganisation.attributes.canCreateProcedures">
+        <template v-if="hasPermission('feature_manage_procedure_creation_permission') && isIndividualGrantOrgaTypeAccepted && !localOrganisation.attributes.canCreateProcedures">
           <p
             v-if="!usersWithIndividualProcedureCreationPermission.length"
             class="mt-1 lbl__hint"
@@ -1090,8 +1090,18 @@ export default {
       }
     },
 
-    isMunicipalityOrHearingAuthorityAccepted () {
+    /**
+     * Individual grants only exist for the admin roles of Kommune and Anhörungsbehörde
+     */
+    isIndividualGrantOrgaTypeAccepted () {
       return isOrgaAcceptedAsType(this.registrationStatuses, ['OLAUTH', 'OHAUTH'])
+    },
+
+    /**
+     * The orga-wide grant also covers Planungsbüro, whose users hold the RMOPPO role
+     */
+    isProcedureCreationOrgaTypeAccepted () {
+      return isOrgaAcceptedAsType(this.registrationStatuses, ['OLAUTH', 'OHAUTH', 'OPAUTH'])
     },
 
     /**
@@ -1191,7 +1201,7 @@ export default {
      * save) so the list shown below the org-wide checkbox is updated
      */
     fetchUsersWithIndividualProcedureCreationPermissionIfNeeded () {
-      if (hasPermission('feature_manage_procedure_creation_permission') && this.isMunicipalityOrHearingAuthorityAccepted) {
+      if (hasPermission('feature_manage_procedure_creation_permission') && this.isIndividualGrantOrgaTypeAccepted) {
         this.fetchUsersWithIndividualProcedureCreationPermission()
       }
     },
