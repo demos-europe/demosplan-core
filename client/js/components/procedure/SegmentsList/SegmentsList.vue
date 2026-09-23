@@ -465,6 +465,7 @@
                 </a>
                 <!-- Version history view -->
                 <button
+                  v-if="hasPermission('feature_segment_content_changes_view')"
                   type="button"
                   class="btn--blank o-link--default block leading-[2] whitespace-nowrap"
                   data-cy="segmentsList:segmentVersionHistory"
