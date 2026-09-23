@@ -20,7 +20,7 @@
       <dp-select
         class="mt-4"
         data-cy="scheduledExportForm:selectedFrequency"
-        :label="{ text: Translator.trans('export.xlsx.scheduled.interval') }"
+        :label="{ text: Translator.trans('export.xlsx.scheduled.frequency') }"
         name="frequency"
         :options="frequencyOptions"
         :selected="selectedFrequency"
@@ -41,7 +41,7 @@
     <div class="rounded bg-neutral-light-4 p-3 mt-4">
       <dl class="grid grid-cols-3 gap-2">
         <dt>
-          {{ `${Translator.trans('export.xlsx.scheduled.interval')}:` }}
+          {{ `${Translator.trans('export.xlsx.scheduled.frequency')}:` }}
         </dt>
         <dd class="font-semibold col-span-2">
           {{ frequencyLabel }}
@@ -105,7 +105,7 @@ const daySelect = computed<DaySelect | null>(() => {
     case 'weekly':
       return {
         name: 'weekday',
-        label: Translator.trans('export.xlsx.scheduled.interval.weekday'),
+        label: Translator.trans('export.xlsx.scheduled.frequency.weekday'),
         options: weekdayOptions,
         selected: selectedWeekday.value,
       }
@@ -113,7 +113,7 @@ const daySelect = computed<DaySelect | null>(() => {
     case 'monthly':
       return {
         name: 'dayOfMonth',
-        label: Translator.trans('export.xlsx.scheduled.interval.monthDay'),
+        label: Translator.trans('export.xlsx.scheduled.frequency.dayOfMonth'),
         options: dayOfMonthOptions,
         selected: selectedDayOfMonth.value,
       }
@@ -127,7 +127,7 @@ const { getNextExportDate, formatExportDate } = useScheduledExportDate()
 
 const frequencyLabel = computed(() => {
   if (selectedFrequency.value === 'monthly') {
-    return `Am ${selectedDayOfMonth.value}. Tag jedes Monats`
+    return Translator.trans('export.xlsx.scheduled.frequency.monthly.selectedDay', { selectedDay: selectedDayOfMonth.value })
   }
 
   return frequencyOptions.find(({ value }) => value === selectedFrequency.value)?.label ?? ''

@@ -12,15 +12,15 @@ import type { SelectOption } from '@DpJs/types/scheduledExport'
 export function useScheduledExportOptions () {
   const frequencyOptions = [
     {
-      label: Translator.trans('export.xlsx.scheduled.interval.daily'),
+      label: Translator.trans('export.xlsx.scheduled.frequency.daily'),
       value: 'daily',
     },
     {
-      label: Translator.trans('export.xlsx.scheduled.interval.weekly'),
+      label: Translator.trans('export.xlsx.scheduled.frequency.weekly'),
       value: 'weekly',
     },
     {
-      label: Translator.trans('export.xlsx.scheduled.interval.monthly'),
+      label: Translator.trans('export.xlsx.scheduled.frequency.monthly'),
       value: 'monthly',
     },
   ]

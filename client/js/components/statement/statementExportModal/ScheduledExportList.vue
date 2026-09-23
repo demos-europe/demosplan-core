@@ -106,7 +106,7 @@ const formatScheduledExportDescription = (scheduledExport: ScheduledExport): str
       return `${frequencyLabel}, ${getWeekdayLabel(scheduledExport.attributes.weekday)}`
 
     case 'monthly':
-      return Translator.trans('export.xlsx.scheduled.interval.monthly.day', { frequency: frequencyLabel, day: getDayOfMonthLabel(scheduledExport.attributes.dayOfMonth) })
+      return Translator.trans('export.xlsx.scheduled.frequency.monthly.everyMonth', { frequency: frequencyLabel, day: getDayOfMonthLabel(scheduledExport.attributes.dayOfMonth) })
 
     default:
       return frequencyLabel
