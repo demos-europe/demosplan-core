@@ -21,7 +21,7 @@ class ExportSegmentsMessage
 {
     /**
      * @param array<string, mixed> $queryParams JSON:API filter/search/sort plus the export options
-     *                                           (tableHeaders, censoring flags, tagsFilter, ...)
+     *                                          (tableHeaders, censoring flags, tagsFilter, ...)
      */
     public function __construct(
         private readonly string $jobId,

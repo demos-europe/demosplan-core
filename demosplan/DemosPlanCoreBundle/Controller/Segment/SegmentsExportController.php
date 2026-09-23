@@ -23,8 +23,8 @@ use demosplan\DemosPlanCoreBundle\Exception\StatementNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UnknownPlaceholdersException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobFingerprint;
-use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ProcedureExportJobService;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\FileNameGenerator;
@@ -412,5 +412,4 @@ class SegmentsExportController extends BaseController
             SegmentsExportResponseBuilder::TYPE_ZIP
         );
     }
-
 }
