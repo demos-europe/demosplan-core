@@ -69,9 +69,7 @@ export default class LineChart {
     const parseDate = locale.parse('%Y-%m')
     const formatDate = locale.format('%b %y')
 
-    let chartData = []
-
-    chartData = this.data.map(el => {
+    let chartData = this.data.map(el => {
       return {
         ...el,
         x: formatDate(parseDate(el.x)),
