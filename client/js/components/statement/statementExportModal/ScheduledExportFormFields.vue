@@ -76,23 +76,11 @@ const formData = defineModel<ScheduledExportFormData>('formData', {
   default: () => (
     {
       frequency: '',
-      day: null,
+      weekday: null,
+      dayOfMonth: null,
     }
   )
 })
-
-const getSelectedDay = () => {
-  switch (selectedFrequency.value) {
-    case 'weekly':
-      return selectedWeekday.value
-
-    case 'monthly':
-      return selectedDayOfMonth.value
-
-    default:
-      return null
-  }
-}
 
 const selectedFrequency = ref('daily')
 const selectedWeekday = ref<number>(1)
@@ -180,7 +168,8 @@ const populateForm = (editingExport: ScheduledExport) => {
 watch([selectedFrequency, selectedWeekday, selectedDayOfMonth], () => {
   Object.assign(formData.value, {
     frequency: selectedFrequency.value,
-    day: getSelectedDay(),
+    weekday: selectedFrequency.value === 'weekly' ? selectedWeekday.value : null,
+    dayOfMonth: selectedFrequency.value === 'monthly' ? selectedDayOfMonth.value : null,
   })
 }, { immediate: true })
 

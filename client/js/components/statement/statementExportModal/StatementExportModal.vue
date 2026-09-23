@@ -465,7 +465,8 @@ export default {
       editingScheduledExportId: null,
       currentScheduledExportFormData: {
         frequency: '',
-        day: null,
+        weekday: null,
+        dayOfMonth: null,
       },
       docxColumns: {
         col1: {
@@ -633,9 +634,15 @@ export default {
     }),
 
     addScheduledExport () {
-      const exportParameters = {
+      const {
+        frequency,
+        weekday,
+        dayOfMonth,
+      } = this.currentScheduledExportFormData
+
+      const parameters = {
         tagsFilter: {
-          tagIds: this.selectedTagIds || [],
+          tagIds: this.selectedTagIds ?? [],
           procedureId: this.procedureId,
         },
       }
@@ -643,12 +650,13 @@ export default {
       const payload = {
         type: 'ScheduledExport',
         attributes: {
-          frequency: this.currentScheduledExportFormData.frequency,
-          weekday: this.currentScheduledExportFormData.frequency === 'weekly' ? this.currentScheduledExportFormData.day : null,
-          dayOfMonth: this.currentScheduledExportFormData.frequency === 'monthly' ? this.currentScheduledExportFormData.day : null,
-          parameters: JSON.stringify(exportParameters), // ToDo: what should be sent?
+          frequency,
+          weekday,
+          dayOfMonth,
+          parameters: JSON.stringify(parameters), // ToDo: it should be adjusted
         },
       }
+
       this.createScheduledExport(payload)
     },
 
@@ -1026,7 +1034,8 @@ export default {
       this.customHeaderText = ''
       this.currentScheduledExportFormData = {
         frequency: '',
-        day: null,
+        weekday: null,
+        dayOfMonth: null,
       }
       this.editingScheduledExportId = null
       this.isCitizenDataCensored = false
@@ -1102,23 +1111,40 @@ export default {
       this.selectedTags = filterFlyout.itemsSelected
     },
 
+    getScheduledExportAttributes () {
+      const {
+        frequency,
+        weekday,
+        dayOfMonth,
+      } = this.currentScheduledExportFormData
+
+      return {
+        frequency,
+        weekday,
+        dayOfMonth,
+      }
+    },
+
     updateExistingScheduledExport () {
       const payload = {
         data: {
           id: this.editingScheduledExportId,
           type: 'ScheduledExport',
-          attributes: {
-            frequency: this.currentScheduledExportFormData.frequency,
-            weekday: this.currentScheduledExportFormData.frequency === 'weekly' ? this.currentScheduledExportFormData.day : null,
-            dayOfMonth: this.currentScheduledExportFormData.frequency === 'monthly' ? this.currentScheduledExportFormData.day : null,
-          },
+          attributes: this.getScheduledExportAttributes(),
         },
       }
 
-      dpApi.patch(apiUrl('ScheduledExport', 'update', this.editingScheduledExportId), {}, payload)
-        .then(response => {
-          if (response?.data) {
-            this.setScheduledExport({ ...response.data.data, id: this.editingScheduledExportId })
+      return dpApi.patch(
+        apiUrl('ScheduledExport', 'update', this.editingScheduledExportId),
+        {},
+        payload
+      )
+        .then(({ data }) => {
+          if (data?.data) {
+            this.setScheduledExport({
+              ...data.data,
+              id: this.editingScheduledExportId,
+            })
           }
         })
     },
