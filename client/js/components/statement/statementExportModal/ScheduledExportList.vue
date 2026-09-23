@@ -93,7 +93,7 @@ defineEmits<{
   delete: [exportId: string]
 }>()
 
-const { getFrequencyLabel, getWeekdayLabel, getMonthDayLabel } = useScheduledExportOptions()
+const { getFrequencyLabel, getWeekdayLabel, getDayOfMonthLabel } = useScheduledExportOptions()
 
 const formatScheduledExportDescription = (scheduledExport: ScheduledExport): string => {
   const frequencyLabel = getFrequencyLabel(scheduledExport.attributes.frequency)
@@ -106,7 +106,7 @@ const formatScheduledExportDescription = (scheduledExport: ScheduledExport): str
       return `${frequencyLabel}, ${getWeekdayLabel(scheduledExport.attributes.weekday)}`
 
     case 'monthly':
-      return Translator.trans('export.xlsx.scheduled.interval.monthly.day', { frequency: frequencyLabel, day: getMonthDayLabel(scheduledExport.attributes.dayOfMonth) })
+      return Translator.trans('export.xlsx.scheduled.interval.monthly.day', { frequency: frequencyLabel, day: getDayOfMonthLabel(scheduledExport.attributes.dayOfMonth) })
 
     default:
       return frequencyLabel

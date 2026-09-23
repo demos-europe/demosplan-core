@@ -30,7 +30,7 @@ export interface SelectOption {
   value: string | number
 }
 
-export type DaySelectName = 'weekday' | 'monthDay'
+export type DaySelectName = 'weekday' | 'dayOfMonth'
 
 export interface DaySelect {
   name: DaySelectName

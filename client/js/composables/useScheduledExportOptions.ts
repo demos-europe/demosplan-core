@@ -56,7 +56,7 @@ export function useScheduledExportOptions () {
     },
   ]
 
-  const monthDayOptions: SelectOption[] = [5, 10, 15, 20, 25, 30].map(value => ({
+  const dayOfMonthOptions: SelectOption[] = [5, 10, 15, 20, 25, 30].map(value => ({
     label: `${value}.`,
     value,
   }))
@@ -69,16 +69,16 @@ export function useScheduledExportOptions () {
     return weekdayOptions.find(option => option.value === dayNumber)?.label ?? String(dayNumber)
   }
 
-  const getMonthDayLabel = (day: number): string => {
+  const getDayOfMonthLabel = (day: number): string => {
     return `${day}.`
   }
 
   return {
     frequencyOptions,
     weekdayOptions,
-    monthDayOptions,
+    dayOfMonthOptions,
     getFrequencyLabel,
     getWeekdayLabel,
-    getMonthDayLabel,
+    getDayOfMonthLabel,
   }
 }

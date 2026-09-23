@@ -87,7 +87,7 @@ const getSelectedDay = () => {
       return selectedWeekday.value
 
     case 'monthly':
-      return selectedMonthDay.value
+      return selectedDayOfMonth.value
 
     default:
       return null
@@ -96,9 +96,9 @@ const getSelectedDay = () => {
 
 const selectedFrequency = ref('daily')
 const selectedWeekday = ref<number>(1)
-const selectedMonthDay = ref<number>(5)
+const selectedDayOfMonth = ref<number>(5)
 
-const { frequencyOptions, weekdayOptions, monthDayOptions } = useScheduledExportOptions()
+const { frequencyOptions, weekdayOptions, dayOfMonthOptions } = useScheduledExportOptions()
 
 const daySelect = computed<DaySelect | null>(() => {
   switch (selectedFrequency.value) {
@@ -112,10 +112,10 @@ const daySelect = computed<DaySelect | null>(() => {
 
     case 'monthly':
       return {
-        name: 'monthDay',
+        name: 'dayOfMonth',
         label: Translator.trans('export.xlsx.scheduled.interval.monthDay'),
-        options: monthDayOptions,
-        selected: selectedMonthDay.value,
+        options: dayOfMonthOptions,
+        selected: selectedDayOfMonth.value,
       }
 
     default:
@@ -127,7 +127,7 @@ const { getNextExportDate, formatExportDate } = useScheduledExportDate()
 
 const frequencyLabel = computed(() => {
   if (selectedFrequency.value === 'monthly') {
-    return `Am ${selectedMonthDay.value}. Tag jedes Monats`
+    return `Am ${selectedDayOfMonth.value}. Tag jedes Monats`
   }
 
   return frequencyOptions.find(({ value }) => value === selectedFrequency.value)?.label ?? ''
@@ -142,7 +142,7 @@ const nextExportLabel = computed(() => {
       return formatExportDate(getNextExportDate({ frequency: 'weekly', weekday: selectedWeekday.value }))
 
     case 'monthly':
-      return formatExportDate(getNextExportDate({ frequency: 'monthly', dayOfMonth: selectedMonthDay.value }))
+      return formatExportDate(getNextExportDate({ frequency: 'monthly', dayOfMonth: selectedDayOfMonth.value }))
 
     default:
       return ''
@@ -152,7 +152,7 @@ const nextExportLabel = computed(() => {
 const handleFrequencySelect = (value: string) => {
   selectedFrequency.value = value
   selectedWeekday.value = 1
-  selectedMonthDay.value = 5
+  selectedDayOfMonth.value = 5
 }
 
 const handleDaySelect = (name: DaySelectName, value: string | number) => {
@@ -161,23 +161,23 @@ const handleDaySelect = (name: DaySelectName, value: string | number) => {
   if (name === 'weekday') {
     selectedWeekday.value = numericValue
   } else {
-    selectedMonthDay.value = numericValue
+    selectedDayOfMonth.value = numericValue
   }
 }
 
 const resetForm = () => {
   selectedFrequency.value = 'daily'
   selectedWeekday.value = 1
-  selectedMonthDay.value = 5
+  selectedDayOfMonth.value = 5
 }
 
 const populateForm = (editingExport: ScheduledExport) => {
   selectedFrequency.value = editingExport.attributes.frequency
   selectedWeekday.value = editingExport.attributes.frequency === 'weekly' ? editingExport.attributes.weekday : 1
-  selectedMonthDay.value = editingExport.attributes.frequency === 'monthly' ? editingExport.attributes.dayOfMonth : 5
+  selectedDayOfMonth.value = editingExport.attributes.frequency === 'monthly' ? editingExport.attributes.dayOfMonth : 5
 }
 
-watch([selectedFrequency, selectedWeekday, selectedMonthDay], () => {
+watch([selectedFrequency, selectedWeekday, selectedDayOfMonth], () => {
   Object.assign(formData.value, {
     frequency: selectedFrequency.value,
     day: getSelectedDay(),
