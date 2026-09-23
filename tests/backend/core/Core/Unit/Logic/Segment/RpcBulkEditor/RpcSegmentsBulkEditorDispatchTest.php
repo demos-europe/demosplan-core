@@ -142,9 +142,9 @@ class RpcSegmentsBulkEditorDispatchTest extends FunctionalTestCase
     }
 
     /**
-     * @param string[]             $segmentIds
-     * @param string[]             $addTagIds
-     * @param array<int, mixed>    $customFields
+     * @param string[]          $segmentIds
+     * @param string[]          $addTagIds
+     * @param array<int, mixed> $customFields
      */
     private function buildRequest(array $segmentIds, array $addTagIds = [], array $customFields = []): stdClass
     {
