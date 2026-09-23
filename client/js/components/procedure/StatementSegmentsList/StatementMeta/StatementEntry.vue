@@ -40,8 +40,8 @@ All rights reserved
           text: Translator.trans('statement.date.authored')
         }"
         :max-date="localStatement.attributes.submitDate ? localStatement.attributes.submitDate : currentDate"
-        :value="localStatement.attributes.authoredDate"
-        @input="val => setDate(val, 'authoredDate')"
+        :model-value="localStatement.attributes.authoredDate"
+        @update:model-value="val => setDate(val, 'authoredDate')"
       />
     </div>
 
@@ -69,8 +69,8 @@ All rights reserved
       }"
       :max-date="currentDate"
       :min-date="localStatement.attributes.authoredDate ? localStatement.attributes.authoredDate : ''"
-      :value="getFormattedDate(localStatement.attributes.submitDate)"
-      @input="val => setDate(val, 'submitDate')"
+      :model-value="getFormattedDate(localStatement.attributes.submitDate)"
+      @update:model-value="val => setDate(val, 'submitDate')"
     />
 
     <dp-select
