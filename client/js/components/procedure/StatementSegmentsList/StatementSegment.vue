@@ -161,6 +161,7 @@
       <div v-else>
         <dp-loading
           v-if="recommendationEmbeddedLoading"
+          class="mb-2"
           data-cy="segmentEditor:loading"
         />
         <dp-editor
@@ -1534,9 +1535,13 @@ export default {
         promises.push(this.loadRecommendationEmbedded())
       }
 
-      Promise.all(promises).then(() => {
-        this.recommendationEmbeddedLoading = false
-      })
+      Promise.all(promises)
+        .then(() => {
+          this.recommendationEmbeddedLoading = false
+        })
+        .catch(() => {
+          this.recommendationEmbeddedLoading = true
+        })
     },
 
     /**
