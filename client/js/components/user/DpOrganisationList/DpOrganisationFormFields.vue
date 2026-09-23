@@ -395,7 +395,7 @@
           @change="onCanCreateProceduresChange"
         />
 
-        <template v-if="hasPermission('feature_manage_procedure_creation_permission') && isIndividualGrantOrgaTypeAccepted && !localOrganisation.attributes.canCreateProcedures">
+        <template v-if="showsIndividualGrants && !localOrganisation.attributes.canCreateProcedures">
           <p
             v-if="!usersWithIndividualProcedureCreationPermission.length"
             class="mt-1 lbl__hint"
@@ -1091,10 +1091,13 @@ export default {
     },
 
     /**
-     * Individual grants only exist for the admin roles of Kommune and Anhörungsbehörde
+     * Individual grants only exist for the admin roles of Kommune and Anhörungsbehörde, and only in
+     * projects that expose the per-user permission
      */
-    isIndividualGrantOrgaTypeAccepted () {
-      return isOrgaAcceptedAsType(this.registrationStatuses, ['OLAUTH', 'OHAUTH'])
+    showsIndividualGrants () {
+      return hasPermission('feature_manage_procedure_creation_permission') &&
+        hasPermission('feature_manage_user_procedure_creation_permission') &&
+        isOrgaAcceptedAsType(this.registrationStatuses, ['OLAUTH', 'OHAUTH'])
     },
 
     /**
@@ -1201,7 +1204,7 @@ export default {
      * save) so the list shown below the org-wide checkbox is updated
      */
     fetchUsersWithIndividualProcedureCreationPermissionIfNeeded () {
-      if (hasPermission('feature_manage_procedure_creation_permission') && this.isIndividualGrantOrgaTypeAccepted) {
+      if (this.showsIndividualGrants) {
         this.fetchUsersWithIndividualProcedureCreationPermission()
       }
     },

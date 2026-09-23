@@ -259,12 +259,14 @@ export default {
     /**
      * If the "Darf Verfahren anlegen" checkbox was toggled (either direction) since the form was
      * opened, the change must be confirmed before it's saved. Declining reverts it, so the rest of
-     * the form can still be saved unaffected.
+     * the form can still be saved unaffected. The dialog warns about individual grants, which only
+     * exist in projects exposing the per-user permission.
      *
      * @return {Promise<boolean>} whether the toggle (if any) was confirmed
      */
     async confirmProcedureCreationToggle () {
-      if (!this.isEnablingProcedureCreation && !this.isDisablingProcedureCreation) {
+      if (!hasPermission('feature_manage_user_procedure_creation_permission') ||
+        (!this.isEnablingProcedureCreation && !this.isDisablingProcedureCreation)) {
         return true
       }
 
