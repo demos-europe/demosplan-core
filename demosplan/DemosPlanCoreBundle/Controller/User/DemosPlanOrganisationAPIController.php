@@ -333,7 +333,7 @@ class DemosPlanOrganisationAPIController extends APIController
             return null;
         }
 
-        $availableOrgaRoles = $this->getAvailableOrgaRoles($orga);
+        $availableOrgaRoles = $this->getAvailableOrgaRoles($orga, $customer);
         if ([] === $availableOrgaRoles) {
             $this->messageBag->add('warning', $this->translator->trans('warning.organisation.no_available_roles'));
             $this->logger->warning('No available roles for procedure creation permission for orga with id: ', [
@@ -373,15 +373,17 @@ class DemosPlanOrganisationAPIController extends APIController
         return $enable;
     }
 
-    private function getAvailableOrgaRoles(Orga $preUpdateOrga): array
+    /**
+     * Roles the org-wide procedure-creation grant targets for the given customer. Access-control rows are
+     * scoped per customer, so a type accepted in another customer must not contribute a role here.
+     *
+     * @return list<RoleInterface>
+     */
+    private function getAvailableOrgaRoles(Orga $preUpdateOrga, CustomerInterface $customer): array
     {
-        // get all orga status in customers
-        $orgaStatusInCustomers = $preUpdateOrga->getStatusInCustomers();
-
-        // filter out only orga with accepted status in customer
         $availableOrgaRoles = [];
 
-        foreach ($orgaStatusInCustomers as $orgaStatusInCustomer) {
+        foreach ($preUpdateOrga->getStatusesInCustomer($customer) as $orgaStatusInCustomer) {
             if (OrgaStatusInCustomer::STATUS_ACCEPTED === $orgaStatusInCustomer->getStatus()) {
                 if (OrgaType::PLANNING_AGENCY === $orgaStatusInCustomer->getOrgaType()->getName()) {
                     $availableOrgaRoles[] = $this->roleHandler->getRoleByCode(RoleInterface::PRIVATE_PLANNING_AGENCY);
@@ -419,14 +421,15 @@ class DemosPlanOrganisationAPIController extends APIController
             throw OrgaNotFoundException::createFromId($id);
         }
 
+        $customer = $customerHandler->getCurrentCustomer();
         $roleCodes = array_map(
             static fn (RoleInterface $role): string => $role->getCode(),
-            $this->getAvailableOrgaRoles($orga)
+            $this->getAvailableOrgaRoles($orga, $customer)
         );
 
         $users = $userAccessControlService->getUsersWithPermissionInOrga(
             $orga,
-            $customerHandler->getCurrentCustomer(),
+            $customer,
             AccessControlService::CREATE_PROCEDURES_PERMISSION,
             $roleCodes
         );
@@ -477,7 +480,7 @@ class DemosPlanOrganisationAPIController extends APIController
                 throw new InvalidArgumentException('Can\'t create orga since mandatory fields are missing.');
             }
 
-            $availableOrgaRoles = $this->getAvailableOrgaRoles($newOrga);
+            $availableOrgaRoles = $this->getAvailableOrgaRoles($newOrga, $customerHandler->getCurrentCustomer());
 
             if (array_key_exists('canCreateProcedures', $orgaDataArray) && [] === $availableOrgaRoles) {
                 $this->messageBag->add('warning', $this->translator->trans('warning.organisation.no_available_roles'));

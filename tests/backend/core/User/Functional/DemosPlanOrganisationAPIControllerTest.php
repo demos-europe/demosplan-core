@@ -68,6 +68,14 @@ class DemosPlanOrganisationAPIControllerTest extends FunctionalTestCase
         self::assertContainsRoleCode(RoleInterface::HEARING_AUTHORITY_ADMIN, $this->invokeGetAvailableOrgaRoles($orga));
     }
 
+    public function testIgnoresTypesAcceptedInOtherCustomers(): void
+    {
+        $otherCustomer = CustomerFactory::createOne(['subdomain' => 'organisation-api-other-'.uniqid()]);
+        $orga = $this->acceptOrgaAsType(OrgaTypeInterface::HEARING_AUTHORITY_AGENCY, $otherCustomer->_real());
+
+        self::assertSame([], $this->invokeGetAvailableOrgaRoles($orga));
+    }
+
     private static function assertContainsRoleCode(string $roleCode, array $roles): void
     {
         $roleCodes = array_map(static fn (Role $role): string => $role->getCode(), $roles);
@@ -76,16 +84,16 @@ class DemosPlanOrganisationAPIControllerTest extends FunctionalTestCase
 
     private function invokeGetAvailableOrgaRoles(Orga $orga): array
     {
-        return $this->getAvailableOrgaRoles->invoke($this->sut, $orga);
+        return $this->getAvailableOrgaRoles->invoke($this->sut, $orga, $this->customer->_real());
     }
 
-    private function acceptOrgaAsType(string $orgaTypeName): Orga
+    private function acceptOrgaAsType(string $orgaTypeName, ?Customer $customer = null): Orga
     {
         $orgaType = OrgaTypeFactory::createOne(['name' => $orgaTypeName]);
         $orga = OrgaFactory::createOne();
         $status = OrgaStatusInCustomerFactory::createOne([
             'orga'     => $orga->_real(),
-            'customer' => $this->customer->_real(),
+            'customer' => $customer ?? $this->customer->_real(),
             'orgaType' => $orgaType->_real(),
             'status'   => OrgaStatusInCustomerInterface::STATUS_ACCEPTED,
         ]);
