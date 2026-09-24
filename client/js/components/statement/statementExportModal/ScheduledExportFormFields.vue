@@ -62,7 +62,7 @@ import { computed, ref, watch } from 'vue'
 import { DpSelect } from '@demos-europe/demosplan-ui'
 import { useScheduledExportDate } from '@DpJs/composables/useScheduledExportDate'
 import { useScheduledExportOptions } from '@DpJs/composables/useScheduledExportOptions'
-import type { ScheduledExport, ScheduledExportFormData, DaySelect } from '@DpJs/types/scheduledExport'
+import type { ScheduledExport, ScheduledExportFormData, DaySelect, DaySelectName } from '@DpJs/types/scheduledExport'
 
 interface Props {
   editingExport?: ScheduledExport | null
@@ -122,19 +122,38 @@ const frequencyLabel = computed(() => {
 })
 
 const nextExportLabel = computed(() => {
+  const nextRunAt = props.editingExport?.attributes?.nextRunAt // Use nextRunAt provided by the backend
+
+  if (nextRunAt) {
+    return formatExportDate(new Date(nextRunAt))
+  }
+
+  let params
+
   switch (selectedFrequency.value) {
     case 'daily':
-      return formatExportDate(getNextExportDate({ frequency: 'daily' }))
+      params = { frequency: 'daily' }
+      break
 
     case 'weekly':
-      return formatExportDate(getNextExportDate({ frequency: 'weekly', weekday: selectedWeekday.value }))
+      params = {
+        frequency: 'weekly',
+        weekday: selectedWeekday.value,
+      }
+      break
 
     case 'monthly':
-      return formatExportDate(getNextExportDate({ frequency: 'monthly', dayOfMonth: selectedDayOfMonth.value }))
+      params = {
+        frequency: 'monthly',
+        dayOfMonth: selectedDayOfMonth.value,
+      }
+      break
 
     default:
       return ''
   }
+
+  return formatExportDate(getNextExportDate(params))
 })
 
 const handleFrequencySelect = (value: string) => {
