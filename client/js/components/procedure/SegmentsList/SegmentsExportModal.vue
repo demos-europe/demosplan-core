@@ -13,7 +13,7 @@ All rights reserved
       data-cy="exportModal:open"
       :disabled="isExportDisabled"
       :text="Translator.trans('export.verb')"
-      icon="export"
+      icon="download"
       icon-size="medium"
       variant="subtle"
       @click="openModal"

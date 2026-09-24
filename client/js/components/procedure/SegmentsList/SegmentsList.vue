@@ -62,7 +62,7 @@
             "
             :text="Translator.trans('import.options.xls')"
             data-cy="segmentsList:importOptionsXLS"
-            icon="download"
+            icon="upload"
             icon-size="medium"
             variant="subtle"
           />
