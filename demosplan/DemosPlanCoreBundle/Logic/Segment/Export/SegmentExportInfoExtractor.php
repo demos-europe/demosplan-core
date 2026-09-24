@@ -61,6 +61,7 @@ class SegmentExportInfoExtractor
             static fn (string $key): string => self::UI_COLUMN_TO_EXPORT_KEY[$key] ?? $key,
             explode(',', $request->query->get(self::SELECTED_COLUMNS_PARAM))
         );
+        $selectedCustomFieldIds = CustomFieldColumnKey::extractIds($selectedColumnKeys);
         $filter = $request->query->all(UrlParameter::FILTER);
         $isManualSelection = array_key_exists(self::SELECTED_SEGMENT_IDS_PARAM, $filter);
 
@@ -82,6 +83,7 @@ class SegmentExportInfoExtractor
             $this->nullIfEmpty($assigneeNames),
             $this->nullIfEmpty($placeNames),
             $this->nullIfEmpty($selectedColumnKeys),
+            $this->nullIfEmpty($selectedCustomFieldIds),
             $isManualSelection
         );
     }

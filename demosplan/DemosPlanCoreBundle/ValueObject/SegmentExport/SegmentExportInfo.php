@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
  * @method array|null getAssigneeNames()
  * @method array|null getPlaceNames()
  * @method array|null getSelectedColumnKeys()
+ * @method array|null getSelectedCustomFieldIds()
  * @method bool       getIsManualSelection()
  * @method bool       getIsFiltered()
  */
@@ -33,6 +34,7 @@ class SegmentExportInfo extends ValueObject
         protected readonly ?array $assigneeNames,
         protected readonly ?array $placeNames,
         protected readonly ?array $selectedColumnKeys,
+        protected readonly ?array $selectedCustomFieldIds,
         protected readonly bool $isManualSelection,
     ) {
         $this->isFiltered = null !== $searchPhrase

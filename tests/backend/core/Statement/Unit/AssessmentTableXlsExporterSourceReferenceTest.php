@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Formatter\StatementFormatter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -54,6 +55,7 @@ class AssessmentTableXlsExporterSourceReferenceTest extends TestCase
             $this->createMock(AssessmentTableServiceOutput::class),
             $this->createMock(CurrentProcedureService::class),
             $this->createMock(CurrentUserInterface::class),
+            $this->createMock(CustomFieldConfigurationRepository::class),
             $this->createMock(DocumentWriterSelector::class),
             $this->createMock(EditorService::class),
             $this->createMock(Environment::class),

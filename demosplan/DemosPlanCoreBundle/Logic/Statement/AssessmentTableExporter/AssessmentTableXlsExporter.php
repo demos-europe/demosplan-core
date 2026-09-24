@@ -16,17 +16,20 @@ use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\CustomFieldColumnKey;
 use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Formatter\StatementFormatter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\SegmentExportInfo;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
@@ -55,6 +58,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         CurrentProcedureService $currentProcedureService,
         private readonly CurrentUserInterface $currentUser,
+        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
         DocumentWriterSelector $writerSelector,
         private readonly EditorService $editorService,
         Environment $twig,
@@ -539,6 +543,27 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         return $columnsDefinition;
     }
 
+    public function createColumnsDefinitionForCustomFields(SegmentExportInfo $segmentExportInfo): array
+    {
+        $customFieldIds = $segmentExportInfo->getSelectedCustomFieldIds();
+        if (null === $customFieldIds) {
+            return [];
+        }
+
+        $columnsDefinition = [];
+        /** @var CustomFieldConfiguration[] $customFieldConfigurations */
+        $customFieldConfigurations = $this->customFieldConfigurationRepository->findBy(['id' => $customFieldIds]);
+        foreach ($customFieldConfigurations as $customFieldConfiguration) {
+            $columnsDefinition[] = $this->createColumnDefinition(
+                CustomFieldColumnKey::forId($customFieldConfiguration->getId()),
+                $customFieldConfiguration->getConfiguration()->getName(),
+                useTranslation: false
+            );
+        }
+
+        return $columnsDefinition;
+    }
+
     /**
      * Creates an array with column definitions for statements
      * and adds a column for attachments.
@@ -557,11 +582,11 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     /**
      * Creates a definition for a column.
      */
-    protected function createColumnDefinition(string $key, string $title, int $width = 20): array
+    protected function createColumnDefinition(string $key, string $title, int $width = 20, bool $useTranslation = true): array
     {
         return [
             'key'    => $key,
-            'title'  => $this->translator->trans($title),
+            'title'  => $useTranslation ? $this->translator->trans($title) : $title,
             'width'  => $width,
         ];
     }
