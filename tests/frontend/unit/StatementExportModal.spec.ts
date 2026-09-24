@@ -475,7 +475,7 @@ describe('StatementExportModal', () => {
   })
 
   describe('isExportDisabled', () => {
-    const findOpenExportButton = () => wrapper.findComponent('[data-cy="exportModal:open"]')
+    const findOpenExportButton = () => wrapper.findComponent('[data-cy="exportModal:open"]') as VueWrapper<any>
 
     it('enables the export button by default', () => {
       expect(findOpenExportButton().props('disabled')).toBe(false)
