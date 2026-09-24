@@ -121,8 +121,13 @@ const frequencyLabel = computed(() => {
   return frequencyOptions.find(({ value }) => value === selectedFrequency.value)?.label ?? ''
 })
 
+/**
+ * Returns the formatted next execution date.
+ * For existing scheduled exports, use the backend-provided nextRunAt.
+ * For new exports, calculate the next run based on the selected frequency.
+ */
 const nextExportLabel = computed(() => {
-  const nextRunAt = props.editingExport?.attributes?.nextRunAt // Use nextRunAt provided by the backend
+  const nextRunAt = props.editingExport?.attributes?.nextRunAt
 
   if (nextRunAt) {
     return formatExportDate(new Date(nextRunAt))
