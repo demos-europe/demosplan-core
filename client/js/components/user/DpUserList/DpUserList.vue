@@ -182,6 +182,7 @@ export default {
     return {
       presetUserOrgaId: this.presetUserOrgaId,
       projectName: this.projectName,
+      subdomain: this.subdomain,
     }
   },
 
@@ -196,6 +197,12 @@ export default {
     },
 
     presetUserOrgaId: {
+      type: String,
+      required: false,
+      default: '',
+    },
+
+    subdomain: {
       type: String,
       required: false,
       default: '',
@@ -474,6 +481,17 @@ export default {
       } else {
         arr.push(this.departmentList())
         arr.push(this.roleList())
+        // The user form needs the own orga's registration statuses
+        arr.push(this.organisationList({
+          filter: {
+            ownOrga: {
+              condition: {
+                path: 'id',
+                value: this.presetUserOrgaId,
+              },
+            },
+          },
+        }))
       }
 
       Promise.all(arr)
