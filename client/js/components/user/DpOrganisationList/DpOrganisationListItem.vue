@@ -59,6 +59,7 @@
         :additional-field-options="additionalFieldOptions"
         :available-orga-types="availableOrgaTypes"
         :initial-organisation="initialOrganisation"
+        :is-open="isOpen"
         :organisation="organisation"
         :organisation-id="organisation.id"
         @addon:update="updateAddonPayload"

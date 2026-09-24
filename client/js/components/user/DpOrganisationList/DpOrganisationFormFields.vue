@@ -945,6 +945,16 @@ export default {
       },
     },
 
+    /**
+     * Whether the surrounding card is expanded. Collapsed cards stay mounted, so per-card requests
+     * must wait for this instead of firing on creation.
+     */
+    isOpen: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+
     organisation: {
       type: Object,
       required: false,
@@ -1031,6 +1041,7 @@ export default {
 
   data () {
     return {
+      hasFetchedIndividualGrants: false,
       localOrganisation: {},
       typeStatuses: [
         {
@@ -1148,6 +1159,14 @@ export default {
   },
 
   watch: {
+    // Loads the individual grants the first time the card is expanded
+    isOpen (isOpenNow) {
+      if (isOpenNow && !this.hasFetchedIndividualGrants) {
+        this.hasFetchedIndividualGrants = true
+        this.fetchUsersWithIndividualProcedureCreationPermissionIfNeeded()
+      }
+    },
+
     organisation: {
       handler () {
         this.setInitialOrganisation()
@@ -1271,7 +1290,6 @@ export default {
 
   created () {
     this.setInitialOrganisation()
-    this.fetchUsersWithIndividualProcedureCreationPermissionIfNeeded()
   },
 
   mounted () {
