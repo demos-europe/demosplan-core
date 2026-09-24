@@ -7,6 +7,7 @@
 ## UNRELEASED
 - bump contract layer demosplan-addon to v0.83
 - depends on contract layer >= v0.83
+- new SegmentTagsChangedEvent implements new interface added to contract layer in v0.83
 
 ## v4.61.2 (2026-09-23)
 
@@ -152,9 +153,6 @@
 ## v4.49.0 (2026-07-15)
 
 ## v4.48.0 (2026-07-07)
-
-- new SegmentTagsChangedEvent implements new interface added to contract layer in:
-- This core version will depend on the contract layer being > v...
 
 ### Added
 - Make procedure phase definitions deletable (condition: not currently in use and not configuration-phase)
