@@ -24,6 +24,7 @@ framework:
         routing:
             demosplan\DemosPlanCoreBundle\Message\ExportAssessmentTableMessage: async
             demosplan\DemosPlanCoreBundle\Message\ExportProcedureMessage: async
+            demosplan\DemosPlanCoreBundle\Message\ExportSegmentsMessage: async
 
 # when@test:
 #    framework:

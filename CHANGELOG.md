@@ -8,6 +8,12 @@
 - bump contract layer demosplan-addon to v0.83
 - depends on contract layer >= v0.83
 
+## v4.61.2 (2026-09-23)
+
+### Fixed
+- Grouped DOCX/ODT and ZIP exports from the statement list no longer time out for procedures with many statements; the file downloads once it is ready
+- Segments exports with many images are much smaller, and their temporary files no longer fill up the disk
+
 ## v4.61.1 (2026-09-21)
 
 ### Fixed
