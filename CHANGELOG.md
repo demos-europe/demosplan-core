@@ -5,6 +5,8 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- bump contract layer demosplan-addon to v0.83
+- depends on contract layer >= v0.83
 
 ## v4.61.1 (2026-09-21)
 
