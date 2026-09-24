@@ -56,6 +56,7 @@ class StatementArrayConverter
         $exportData = $this->entityHelper->toArray($segmentOrStatement);
         $exportData = $this->extractMetaData($segmentOrStatement, $exportData);
         $exportData['submitDateString'] = $segmentOrStatement->getSubmitDateString();
+        $exportData['deadline'] = $segmentOrStatement->getDeadline()?->format('d.m.Y') ?? '';
         $exportData['countyNames'] = $segmentOrStatement->getCountyNames();
         $exportData['phase'] = $segmentOrStatement->getPhaseDefinition()->getName();
         $exportData['fileNames'] = $this->getFileNamesWithOriginal($segmentOrStatement);
