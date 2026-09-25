@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Tests\Core\Export\Unit;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -23,7 +24,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
-use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use Doctrine\ORM\EntityManagerInterface;
 use Tests\Base\UnitTestCase;
 
@@ -36,7 +36,7 @@ class ExportJobContextRestorerTest extends UnitTestCase
     private ?CustomerService $customerServiceMock = null;
     private ?EntityManagerInterface $entityManagerMock = null;
     private ?GlobalConfigInterface $globalConfigMock = null;
-    private ?Permissions $permissionsMock = null;
+    private ?PermissionsInterface $permissionsMock = null;
     private ?ProcedureService $procedureServiceMock = null;
     private ?User $user = null;
 
@@ -49,11 +49,7 @@ class ExportJobContextRestorerTest extends UnitTestCase
         $this->customerServiceMock = $this->createMock(CustomerService::class);
         $this->entityManagerMock = $this->createMock(EntityManagerInterface::class);
         $this->globalConfigMock = $this->createMock(GlobalConfigInterface::class);
-        // Doubles the concrete class rather than PermissionsInterface: the SUT depends on the
-        // interface, but setProcedurePermissions() is not published on it yet, so it cannot be
-        // configured on an interface double. Permissions implements the interface, so this satisfies
-        // the constructor either way.
-        $this->permissionsMock = $this->createMock(Permissions::class);
+        $this->permissionsMock = $this->createMock(PermissionsInterface::class);
         $this->procedureServiceMock = $this->createMock(ProcedureService::class);
 
         $this->user = new User();
@@ -97,7 +93,7 @@ class ExportJobContextRestorerTest extends UnitTestCase
                 $callOrder[] = 'setProcedure';
             });
         $this->permissionsMock->method('initPermissions')
-            ->willReturnCallback(static function () use (&$callOrder, $permissions): Permissions {
+            ->willReturnCallback(static function () use (&$callOrder, $permissions): PermissionsInterface {
                 $callOrder[] = 'initPermissions';
 
                 return $permissions;
