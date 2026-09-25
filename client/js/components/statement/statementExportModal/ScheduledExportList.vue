@@ -31,7 +31,15 @@
         :key="scheduledExport.id"
         class="border border-neutral p-2">
         <div class="flex justify-between">
-          <div class="flex gap-2">
+          <dp-loading
+            v-if="hasPendingExportAction(scheduledExport.id)"
+            class="mx-2"
+            hide-label
+          />
+          <div
+            v-else
+            class="flex gap-2"
+          >
             <dp-icon
               icon="file-xls"
               size="xxlarge"
@@ -51,9 +59,10 @@
               icon="edit"
               icon-size="large"
               hide-text
+              :disabled="hasPendingExportAction(scheduledExport.id)"
               :text="Translator.trans('export.xlsx.scheduled.edit')"
               variant="transparent"
-              @click="$emit('edit', scheduledExport.id)"
+              @click="handleScheduledExportAction('edit', scheduledExport.id)"
             />
             <dp-button
               class="text-status-failed-icon"
@@ -61,9 +70,10 @@
               icon="delete"
               icon-size="large"
               hide-text
+              :disabled="hasPendingExportAction(scheduledExport.id)"
               :text="Translator.trans('export.xlsx.scheduled.delete')"
               variant="transparent"
-              @click="$emit('delete', scheduledExport.id)"
+              @click="handleScheduledExportAction('delete', scheduledExport.id)"
             />
           </div>
         </div>
@@ -77,23 +87,38 @@
 </template>
 
 <script setup lang="ts">
-import { DpButton, DpIcon } from '@demos-europe/demosplan-ui'
+import { DpButton, DpIcon, DpLoading } from '@demos-europe/demosplan-ui'
 import { useScheduledExportOptions } from '@DpJs/composables/useScheduledExportOptions'
 import type { ScheduledExport } from '@DpJs/types/scheduledExport'
+import { ref, watch } from 'vue'
 
 interface Props {
-  scheduledExports: ScheduledExport[]
+  scheduledExports: ScheduledExport[],
+  isLoading: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 
-defineEmits<{
+const emit = defineEmits<{
   add: []
   edit: [exportId: string]
   delete: [exportId: string]
 }>()
 
+const pendingActionExportId = ref(null)
+
 const { getFrequencyLabel, getWeekdayLabel, getDayOfMonthLabel } = useScheduledExportOptions()
+
+watch(() => props.isLoading, (newValue) => {
+  if (!newValue && pendingActionExportId.value) {
+    // Reset triggered ID when loading completes (success or error)
+    pendingActionExportId.value = null
+  }
+})
 
 const formatScheduledExportDescription = (scheduledExport: ScheduledExport): string => {
   const frequencyLabel = getFrequencyLabel(scheduledExport.attributes.frequency)
@@ -112,4 +137,12 @@ const formatScheduledExportDescription = (scheduledExport: ScheduledExport): str
       return frequencyLabel
   }
 }
+
+const handleScheduledExportAction = (actionType, scheduledExportId) => {
+  pendingActionExportId.value = scheduledExportId
+  emit(actionType, scheduledExportId)
+}
+
+const hasPendingExportAction = (exportId) =>
+  pendingActionExportId.value === exportId
 </script>

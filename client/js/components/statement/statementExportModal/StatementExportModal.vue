@@ -339,6 +339,7 @@
       <template v-if="isScheduledExportView">
         <scheduled-export-list
           v-if="scheduledExportMode === 'manage'"
+          :is-loading="hasPendingScheduledExportAction"
           :scheduled-exports="scheduledExports"
           @add="handleScheduledExportAdd"
           @edit="handleScheduledExportEdit"
@@ -528,6 +529,7 @@ export default {
       isFilterExpanded: false,
       isInstitutionDataCensored: false,
       isObscure: false,
+      hasPendingScheduledExportAction: false,
       searchTerm: '',
       selectedTags: [],
       selectedTagIds: [],
@@ -658,6 +660,9 @@ export default {
       }
 
       this.createScheduledExport(payload)
+        .finally(() => {
+        this.scheduledExportMode = 'manage'
+      })
     },
 
     getBaseScheduledExportMode (view) {
@@ -796,6 +801,20 @@ export default {
       }
     },
 
+    getScheduledExportAttributes () {
+      const {
+        frequency,
+        weekday,
+        dayOfMonth,
+      } = this.currentScheduledExportFormData
+
+      return {
+        frequency,
+        weekday,
+        dayOfMonth,
+      }
+    },
+
     getUngroupedOptions (resource, filter) {
       const isFilterItem = resource.type === 'AggregationFilterItem'
       const filterHasFilterOptions = filter.relationships.aggregationFilterItems?.data.length > 0
@@ -895,12 +914,9 @@ export default {
 
       if (scheduledExportMode === 'add' && this.currentScheduledExportFormData.frequency) {
         this.addScheduledExport()
-
       } else if (scheduledExportMode === 'edit' && this.editingScheduledExportId) {
         this.updateExistingScheduledExport()
       }
-
-      this.closeScheduledExportMode()
     },
 
     handleScheduledExportAdd () {
@@ -914,9 +930,14 @@ export default {
     },
 
     handleScheduledExportDelete (exportId) {
+      this.hasPendingScheduledExportAction = true
+
       this.deleteScheduledExport(exportId)
         .then(() => {
           this.fetchScheduledExport(this.buildScheduledExportPayload()) // ToDo: altervatives?
+        })
+        .finally(() => {
+          this.hasPendingScheduledExportAction = false
         })
     },
 
@@ -1012,6 +1033,7 @@ export default {
     },
 
     openModal () {
+      this.resetExportModalState()
       this.setInitialValues()
       this.resetExportModalInner()
     },
@@ -1030,20 +1052,26 @@ export default {
 
     resetExportModalState () {
       this.active = 'docx_normal'
-      this.currentView = 'main'
+      this.scheduledExportMode = null
       this.customHeaderText = ''
-      this.currentScheduledExportFormData = {
-        frequency: '',
-        weekday: null,
-        dayOfMonth: null,
-      }
-      this.editingScheduledExportId = null
       this.isCitizenDataCensored = false
       this.isInstitutionDataCensored = false
       this.isObscure = false
       this.selectedTagIds = []
       this.selectedTags = []
       this.uploadedHash = ''
+      this.resetScheduledExportState()
+    },
+
+    resetScheduledExportState () {
+      this.hasPendingScheduledExportAction = false
+      this.editingScheduledExportId = null
+      this.editingScheduledExport = null
+      this.currentScheduledExportFormData = {
+        frequency: '',
+        weekday: null,
+        dayOfMonth: null,
+      }
     },
 
     scrollModalToBottom () {
@@ -1111,21 +1139,8 @@ export default {
       this.selectedTags = filterFlyout.itemsSelected
     },
 
-    getScheduledExportAttributes () {
-      const {
-        frequency,
-        weekday,
-        dayOfMonth,
-      } = this.currentScheduledExportFormData
-
-      return {
-        frequency,
-        weekday,
-        dayOfMonth,
-      }
-    },
-
     updateExistingScheduledExport () {
+      this.hasPendingScheduledExportAction = true
       const payload = {
         data: {
           id: this.editingScheduledExportId,
@@ -1146,6 +1161,10 @@ export default {
               id: this.editingScheduledExportId,
             })
           }
+        })
+        .finally(() => {
+          this.resetScheduledExportState()
+          this.scheduledExportMode = 'manage'
         })
     },
 
