@@ -46,14 +46,6 @@ export function useScheduledExportOptions () {
       label: Translator.trans('weekday.friday'),
       value: 5,
     },
-    {
-      label: Translator.trans('weekday.saturday'),
-      value: 6,
-    },
-    {
-      label: Translator.trans('weekday.sunday'),
-      value: 7,
-    },
   ]
 
   const dayOfMonthOptions: SelectOption[] = [5, 10, 15, 20, 25, 30].map(value => ({

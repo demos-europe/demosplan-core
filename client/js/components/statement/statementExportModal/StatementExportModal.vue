@@ -674,6 +674,9 @@ export default {
       }
 
       this.createScheduledExport(payload)
+        .then(() => {
+          dplan.notify.confirm(Translator.trans('confirm.saved'))
+        })
         .finally(() => {
           this.hasPendingScheduledExportAction = false
           this.scheduledExportMode = 'manage'
@@ -1172,6 +1175,7 @@ export default {
         payload
       )
         .then(({ data }) => {
+          dplan.notify.confirm(Translator.trans('confirm.saved'))
           if (data?.data) {
             this.setScheduledExport({
               ...data.data,

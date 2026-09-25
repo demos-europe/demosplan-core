@@ -64,6 +64,9 @@ import { useScheduledExportDate } from '@DpJs/composables/useScheduledExportDate
 import { useScheduledExportOptions } from '@DpJs/composables/useScheduledExportOptions'
 import type { ScheduledExport, ScheduledExportFormData, DaySelect, DaySelectName } from '@DpJs/types/scheduledExport'
 
+const DEFAULT_WEEKDAY = 1
+const DEFAULT_DAY_OF_MONTH = 5
+
 interface Props {
   editingExport?: ScheduledExport | null
 }
@@ -82,9 +85,10 @@ const formData = defineModel<ScheduledExportFormData>('formData', {
   )
 })
 
-const selectedFrequency = ref('daily')
-const selectedWeekday = ref<number>(1)
-const selectedDayOfMonth = ref<number>(5)
+const nextExportRun = ref<string>('')
+const selectedFrequency = ref<string>('daily')
+const selectedWeekday = ref<number>(DEFAULT_WEEKDAY)
+const selectedDayOfMonth = ref<number>(DEFAULT_DAY_OF_MONTH)
 
 const { frequencyOptions, weekdayOptions, dayOfMonthOptions } = useScheduledExportOptions()
 
@@ -123,14 +127,12 @@ const frequencyLabel = computed(() => {
 
 /**
  * Returns the formatted next execution date.
- * For existing scheduled exports, use the backend-provided nextRunAt.
- * For new exports, calculate the next run based on the selected frequency.
+ * For existing scheduled exports, use the backend-provided nextRunAt until frequency changes.
+ * For new exports or after frequency change, calculate the next run based on the selected frequency.
  */
 const nextExportLabel = computed(() => {
-  const nextRunAt = props.editingExport?.attributes?.nextRunAt
-
-  if (nextRunAt) {
-    return formatExportDate(new Date(nextRunAt))
+  if (nextExportRun.value) {
+    return formatExportDate(new Date(nextExportRun.value))
   }
 
   let params
@@ -163,8 +165,9 @@ const nextExportLabel = computed(() => {
 
 const handleFrequencySelect = (value: string) => {
   selectedFrequency.value = value
-  selectedWeekday.value = 1
-  selectedDayOfMonth.value = 5
+  selectedWeekday.value = DEFAULT_WEEKDAY
+  selectedDayOfMonth.value = DEFAULT_DAY_OF_MONTH
+  resetNextRunValue()
 }
 
 const handleDaySelect = (name: DaySelectName, value: string | number) => {
@@ -175,18 +178,33 @@ const handleDaySelect = (name: DaySelectName, value: string | number) => {
   } else {
     selectedDayOfMonth.value = numericValue
   }
+
+  resetNextRunValue()
+}
+
+const populateForm = (editingExport: ScheduledExport) => {
+  const {
+    frequency,
+    weekday,
+    dayOfMonth,
+    nextRunAt,
+  } = props.editingExport.attributes
+
+  selectedFrequency.value = frequency
+  selectedWeekday.value = frequency === 'weekly' ? weekday : DEFAULT_WEEKDAY
+  selectedDayOfMonth.value = frequency === 'monthly' ? dayOfMonth : DEFAULT_DAY_OF_MONTH
+  nextExportRun.value = nextRunAt ?? ''
 }
 
 const resetForm = () => {
   selectedFrequency.value = 'daily'
-  selectedWeekday.value = 1
-  selectedDayOfMonth.value = 5
+  selectedWeekday.value = DEFAULT_WEEKDAY
+  selectedDayOfMonth.value = DEFAULT_DAY_OF_MONTH
+  resetNextRunValue()
 }
 
-const populateForm = (editingExport: ScheduledExport) => {
-  selectedFrequency.value = editingExport.attributes.frequency
-  selectedWeekday.value = editingExport.attributes.frequency === 'weekly' ? editingExport.attributes.weekday : 1
-  selectedDayOfMonth.value = editingExport.attributes.frequency === 'monthly' ? editingExport.attributes.dayOfMonth : 5
+const resetNextRunValue = () => {
+  nextExportRun.value = ''
 }
 
 watch([selectedFrequency, selectedWeekday, selectedDayOfMonth], () => {
