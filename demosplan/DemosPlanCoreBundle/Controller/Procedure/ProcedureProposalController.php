@@ -130,8 +130,6 @@ class ProcedureProposalController extends BaseController
     /**
      * Generate new Procedure from ProcedureProposal.
      *
-     * @return RedirectResponse|Response
-     *
      * @throws MessageBagException
      *
      * @deprecated a {@link DemosPlanProcedureAPIController::createAction} (does not exist yet) should be used instead with the data needed sent by the frontend in an JSON:API POST request

@@ -336,8 +336,6 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
 
     /**
      * Edit a single fragment.
-     *
-     * @return RedirectResponse|Response
      */
     #[DplanPermissions('feature_statements_fragment_edit')]
     #[Route(path: '/_ajax/procedure/{procedure}/fragment/{fragmentId}/edit', name: 'DemosPlan_statement_fragment_edit_ajax', options: ['expose' => true])]
@@ -400,8 +398,6 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      * Delete a single fragment.
      *
      * @param string $fragmentId
-     *
-     * @return RedirectResponse|Response
      */
     #[DplanPermissions(['area_admin_assessmenttable', 'feature_statements_fragment_edit'])]
     #[Route(path: '/_ajax/procedure/{procedureId}/statement/{statementId}/fragment/{fragmentId}/delete', name: 'DemosPlan_statement_fragment_delete_ajax', options: ['expose' => true], methods: ['POST'])]
@@ -584,8 +580,6 @@ class DemosPlanAssessmentStatementFragmentController extends DemosPlanAssessment
      * Set a vote or advice to a fragment statement.
      *
      * @param bool $isReviewer
-     *
-     * @return RedirectResponse|Response
      *
      * @throws Exception
      */

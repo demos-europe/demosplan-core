@@ -129,8 +129,6 @@ class DemosPlanOrgaController extends BaseController
     /**
      * Edit Organisation.
      *
-     * @return RedirectResponse|Response
-     *
      * @throws MessageBagException
      */
     #[DplanPermissions('area_manage_orgadata')]

@@ -174,7 +174,7 @@ abstract class EntityGrouper
      * Places a single entity inside the given {@link EntityGroupInterface}.
      *
      * @param EntityGroupInterface<T> $group               The group the given entity is placed in. The entity may be placed directly in the group or in one of its subgroups (at any depth).
-     * @param T                       $entity              the entity to be placed inside the given {@link EntityGroupInterface}
+     * @param T&EntityInterface       $entity              the entity to be placed inside the given {@link EntityGroupInterface}
      * @param string[]                $entityFieldsToUse   Controls the resulting group structure.
      *                                                     Each element in this array represents a layer of the resulting tree.
      *                                                     For example if the array is empty the given entity will be placed
