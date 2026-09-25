@@ -1,7 +1,10 @@
 import { enableAutoUnmount } from '@vue/test-utils'
 import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
+import { pollExportJob } from '@DpJs/lib/shared/persistentExportPoll'
 import { vi } from 'vitest'
+
+vi.mock('@DpJs/lib/shared/persistentExportPoll', () => ({ pollExportJob: vi.fn() }))
 
 describe('ExportModal', () => {
   const props = {
@@ -148,6 +151,26 @@ describe('ExportModal', () => {
 
     expect(wrapper.emitted()).toHaveProperty('submit')
     expect(event).toHaveLength(1)
+  })
+
+  it('starts the export as a background job and polls it', async () => {
+    // jsdom supports neither named forms on document nor named fields on forms, so both are assigned explicitly
+    const form = document.createElement('form')
+    Object.assign(form, { r_export_format: {}, r_export_choice: {}, searchFields: {} })
+    document.bpform = form
+    global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve({ jobId: 'job-1' }) }))
+
+    wrapper.vm.submit()
+    await vi.waitFor(() => expect(pollExportJob).toHaveBeenCalled())
+
+    expect(global.fetch).toHaveBeenCalledWith('DemosPlan_assessment_table_export_async_start', expect.objectContaining({ method: 'POST' }))
+    expect(pollExportJob).toHaveBeenCalledWith({
+      key: 'assessment.1.job-1',
+      statusUrl: 'DemosPlan_assessment_table_export_status',
+      downloadUrl: 'DemosPlan_assessment_table_export_download',
+    })
+
+    delete document.bpform
   })
 
   describe('ExportModal: pdf export', () => {
