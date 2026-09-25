@@ -28,6 +28,8 @@ use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\FileNameGenerator;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\SegmentExportFilter;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\SegmentExportInfoExtractor;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\SegmentsExportResponseBuilder;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
@@ -52,6 +54,10 @@ class SegmentsExportController extends BaseController
     private const UPLOADED_TEMPLATE_HASH = 'uploadedDocxTemplate';
     private const DOCX_MIME_TYPE = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
     private const DOCX_EXTENSION = '.docx';
+    private const XLSX_CONTENT_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8';
+    private const XLSX_EXTENSION = 'xlsx';
+    private const CSV_CONTENT_TYPE = 'text/csv; charset=utf-8';
+    private const CSV_EXTENSION = 'csv';
 
     public function __construct(
         private readonly NameGenerator $nameGenerator,
@@ -344,7 +350,7 @@ class SegmentsExportController extends BaseController
         );
 
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
-        $fileName = $this->responseBuilder->getSynopseFileName($procedure, $query, 'xlsx');
+        $fileName = $this->responseBuilder->getSynopseFileName($procedure, 'xlsx');
         $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($fileName));
 
         return $response;
@@ -382,8 +388,100 @@ class SegmentsExportController extends BaseController
         $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
 
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
-        $fileName = $this->responseBuilder->getSynopseFileName($procedure, $query, 'csv');
+        $fileName = $this->responseBuilder->getSynopseFileName($procedure, 'csv');
         $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($fileName));
+
+        return $response;
+    }
+
+    // todo: create new specific permission
+
+    /**
+     * @throws QueryException
+     * @throws UserNotFoundException
+     * @throws Exception
+     */
+    #[DplanPermissions(
+        'feature_admin_assessmenttable_export_statement_generic_xlsx'
+    )]
+    #[Route(
+        path: '/verfahren/{procedureId}/nur/abschnitte/export/xlsx',
+        name: 'dplan_segment_xlsx_export',
+        options: ['expose' => true],
+        methods: 'GET'
+    )]
+    public function exportBySegmentsFilterXlsx(
+        FileNameGenerator $fileNameGenerator,
+        SegmentsByStatementsExporter $exporter,
+        SegmentExportFilter $segmentExportFilter,
+        SegmentExportInfoExtractor $segmentExportInfoExtractor,
+        string $procedureId,
+    ): StreamedResponse {
+        $segmentExportInfo = $segmentExportInfoExtractor->extract();
+        $segmentEntities = $segmentExportFilter->filter();
+
+        $response = new StreamedResponse(
+            function () use ($segmentEntities, $exporter, $segmentExportInfo) {
+                $exportedDoc = $exporter->exportSegmentsXlsx(
+                    $segmentExportInfo,
+                    ...$segmentEntities
+                );
+                $exportedDoc->save('php://output');
+            }
+        );
+
+        $this->setResponseHeadersForSegmentListExport(
+            $response,
+            $fileNameGenerator,
+            $segmentExportInfo->getIsFiltered(),
+            $procedureId,
+            self::XLSX_CONTENT_TYPE,
+            self::XLSX_EXTENSION,
+        );
+
+        return $response;
+    }
+
+    // todo: create new specific permission
+
+    /**
+     * @throws QueryException
+     * @throws UserNotFoundException
+     * @throws Exception
+     */
+    #[DplanPermissions(
+        'feature_admin_assessmenttable_export_statement_generic_xlsx'
+    )]
+    #[Route(
+        path: '/verfahren/{procedureId}/nur/abschnitte/export/csv',
+        name: 'dplan_segment_csv_export',
+        options: ['expose' => true],
+        methods: 'GET'
+    )]
+    public function exportBySegmentsFilterCsv(
+        FileNameGenerator $fileNameGenerator,
+        SegmentsByStatementsExporter $exporter,
+        SegmentExportFilter $segmentExportFilter,
+        SegmentExportInfoExtractor $segmentExportInfoExtractor,
+        string $procedureId,
+    ): StreamedResponse {
+        $segmentExportInfo = $segmentExportInfoExtractor->extract();
+        $segmentEntities = $segmentExportFilter->filter();
+
+        $response = new StreamedResponse(
+            static function () use ($segmentEntities, $exporter, $segmentExportInfo) {
+                echo $exporter->exportSegmentsCsv($segmentExportInfo, ...$segmentEntities);
+            }
+        );
+
+        $this->setResponseHeadersForSegmentListExport(
+            $response,
+            $fileNameGenerator,
+            $segmentExportInfo->getIsFiltered(),
+            $procedureId,
+            self::CSV_CONTENT_TYPE,
+            self::CSV_EXTENSION,
+        );
 
         return $response;
     }
@@ -411,5 +509,24 @@ class SegmentsExportController extends BaseController
             $this->requestStack->getCurrentRequest()->query,
             SegmentsExportResponseBuilder::TYPE_ZIP
         );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function setResponseHeadersForSegmentListExport(
+        StreamedResponse $response,
+        FileNameGenerator $fileNameGenerator,
+        bool $isFiltered,
+        string $procedureId,
+        string $contentType,
+        string $fileExtension,
+    ): void {
+        $response->headers->set('Cache-Control', 'no-store, private');
+        $response->headers->set('Content-Type', $contentType);
+
+        $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
+        $fileName = $fileNameGenerator->getSynopseFileName($procedure, $fileExtension, $isFiltered);
+        $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($fileName));
     }
 }

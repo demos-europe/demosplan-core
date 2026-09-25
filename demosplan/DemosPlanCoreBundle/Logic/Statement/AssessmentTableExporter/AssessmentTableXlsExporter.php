@@ -16,18 +16,22 @@ use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\CustomFieldColumnKey;
 use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Formatter\StatementFormatter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
+use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\SegmentExportInfo;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -54,6 +58,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         CurrentProcedureService $currentProcedureService,
         private readonly CurrentUserInterface $currentUser,
+        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
         DocumentWriterSelector $writerSelector,
         private readonly EditorService $editorService,
         Environment $twig,
@@ -183,6 +188,68 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         return $this->simpleSpreadsheetService->getExcel2007Writer($filledExcelDocument);
     }
 
+    public function addFilterInfoSheetForSegmentListExport(
+        IWriter $writer,
+        SegmentExportInfo $segmentExportInfo,
+        array $columnsDefinition,
+    ): void {
+        /** @var Spreadsheet $spreadsheet */
+        $spreadsheet = $writer->getSpreadsheet();
+        $infoSheet = $spreadsheet->createSheet(0);
+        $infoSheet->setTitle($this->translator->trans('export.info'));
+
+        $currentDate = new DateTime();
+        $procedure = $this->currentProcedureService->getProcedure();
+        $userName = $this->currentUser->getUser()->getFullname();
+
+        $row = 1;
+
+        $dateLabelKey = $segmentExportInfo->getIsFiltered()
+            ? 'segments.export.statement.export.date.filtered'
+            : 'segments.export.statement.export.date';
+        $infoSheet->setCellValue("A{$row}", $this->translator->trans($dateLabelKey, ['date' => $currentDate->format('d.m.Y')]));
+        $infoSheet->getStyle("A{$row}")->getFont()->setBold(true)->setSize(14);
+        $row += 2;
+
+        $infoSheet->setCellValue("A{$row}", $this->translator->trans('procedure.name'));
+        $infoSheet->getStyle("A{$row}")->getFont()->setBold(true);
+        $infoSheet->setCellValue("B{$row}", $procedure->getName());
+        $row += 2;
+
+        $infoSheet->setCellValue("A{$row}", $this->translator->trans('export.user'));
+        $infoSheet->getStyle("A{$row}")->getFont()->setBold(true);
+        $infoSheet->setCellValue("B{$row}", $userName);
+        $row += 2;
+
+        $infoSheet->setCellValue("A{$row}", $this->translator->trans('export.filters.applied'));
+        $infoSheet->getStyle("A{$row}")->getFont()->setBold(true);
+        ++$row;
+
+        $filterRows = [
+            [$this->translator->trans('segment.tags'), $this->formatList($segmentExportInfo->getTagNames())],
+            [$this->translator->trans('assignee'), $this->formatList($segmentExportInfo->getAssigneeNames())],
+            [$this->translator->trans('workflow.place'), $this->formatList($segmentExportInfo->getPlaceNames())],
+            [$this->translator->trans('export.columns.selected'), implode(' / ', array_column($columnsDefinition, 'title'))],
+            [$this->translator->trans('export.selection.manual'), $segmentExportInfo->getIsManualSelection() ? 'ja' : 'nein'],
+            [$this->translator->trans('search.term'), $segmentExportInfo->getSearchPhrase() ?? ''],
+        ];
+
+        foreach ($filterRows as [$label, $value]) {
+            $infoSheet->setCellValue("A{$row}", $label);
+            $infoSheet->setCellValue("B{$row}", $value);
+            ++$row;
+        }
+
+        $infoSheet->getColumnDimension('A')->setAutoSize(true);
+        $infoSheet->getColumnDimension('B')->setAutoSize(true);
+        $spreadsheet->setActiveSheetIndex(0);
+    }
+
+    private function formatList(?array $values): string
+    {
+        return null === $values ? '' : implode(' / ', $values);
+    }
+
     /**
      * Adds an info sheet to the Excel document with export information.
      *
@@ -295,6 +362,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
             'statementsWithAttachments' => $this->createColumnsDefinitionForStatementAttachments(), // WithAttachments
             'statements'                => $this->createColumnsDefinitionForStatementsOrSegments(true),
             'segments'                  => $this->createColumnsDefinitionForStatementsOrSegments(false),
+            'segmentsSelectedColumnSet' => $this->createColumnsDefinitionForSelectedColumnSet(),
             default                     => $this->createColumnsDefinitionDefault(),
         };
     }
@@ -384,8 +452,12 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
             $columnsDefinition[] = $this->createColumnDefinition('paragraphTitle', 'paragraph.title');
         }
 
-        $this->addColumnDefinition($columnsDefinition, 'status', 'field_statement_status', 'status');
+        if (!$isStatement) {
+            $columnsDefinition[] = $this->createColumnDefinition('place', 'workflow.place');
+        }
+
         if ($isStatement) {
+            $this->addColumnDefinition($columnsDefinition, 'status', 'field_statement_status', 'status');
             $this->addColumnDefinition($columnsDefinition, 'priority', 'field_statement_priority', 'priority');
             $this->addColumnDefinition(
                 $columnsDefinition,
@@ -454,6 +526,44 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         return $columnsDefinition;
     }
 
+    protected function createColumnsDefinitionForSelectedColumnSet(): array
+    {
+        $columnsDefinition = [];
+
+        $columnsDefinition[] = $this->createColumnDefinition('externId', 'id');
+        $columnsDefinition[] = $this->createColumnDefinition('statementStatus', 'statement.status');
+        $columnsDefinition[] = $this->createColumnDefinition('internId', 'internId.shortened');
+        $columnsDefinition[] = $this->createColumnDefinition('submitter', 'submitter');
+        $columnsDefinition[] = $this->createColumnDefinition('text', 'text');
+        $columnsDefinition[] = $this->createColumnDefinition('recommendation', 'segment.recommendation');
+        $columnsDefinition[] = $this->createColumnDefinition('tagNames', 'segment.tags');
+        $columnsDefinition[] = $this->createColumnDefinition('place', 'workflow.place');
+        $columnsDefinition[] = $this->createColumnDefinition('oName', 'group');
+
+        return $columnsDefinition;
+    }
+
+    public function createColumnsDefinitionForCustomFields(SegmentExportInfo $segmentExportInfo): array
+    {
+        $customFieldIds = $segmentExportInfo->getSelectedCustomFieldIds();
+        if (null === $customFieldIds) {
+            return [];
+        }
+
+        $columnsDefinition = [];
+        /** @var CustomFieldConfiguration[] $customFieldConfigurations */
+        $customFieldConfigurations = $this->customFieldConfigurationRepository->findBy(['id' => $customFieldIds]);
+        foreach ($customFieldConfigurations as $customFieldConfiguration) {
+            $columnsDefinition[] = $this->createColumnDefinition(
+                CustomFieldColumnKey::forId($customFieldConfiguration->getId()),
+                $customFieldConfiguration->getConfiguration()->getName(),
+                useTranslation: false
+            );
+        }
+
+        return $columnsDefinition;
+    }
+
     /**
      * Creates an array with column definitions for statements
      * and adds a column for attachments.
@@ -472,11 +582,11 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     /**
      * Creates a definition for a column.
      */
-    protected function createColumnDefinition(string $key, string $title, int $width = 20): array
+    protected function createColumnDefinition(string $key, string $title, int $width = 20, bool $useTranslation = true): array
     {
         return [
             'key'    => $key,
-            'title'  => $this->translator->trans($title),
+            'title'  => $useTranslation ? $this->translator->trans($title) : $title,
             'width'  => $width,
         ];
     }

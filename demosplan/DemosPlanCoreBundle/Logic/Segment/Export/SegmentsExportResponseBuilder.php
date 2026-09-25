@@ -14,14 +14,14 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Export;
 
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
-use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
+use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsByStatementsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Export\StatementZipPathResolver;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportFilter;
 use demosplan\DemosPlanCoreBundle\Logic\ZipExportService;
-use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
-use EDT\JsonApi\RequestHandling\UrlParameter;
+use Doctrine\ORM\Query\QueryException;
+use EDT\Querying\Contracts\PathException;
 use PhpOffice\PhpWord\IOFactory;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -46,11 +46,9 @@ class SegmentsExportResponseBuilder
 
     public function __construct(
         private readonly FileNameGenerator $fileNameGenerator,
-        private readonly JsonApiActionService $jsonApiActionService,
         private readonly NameGenerator $nameGenerator,
         private readonly SegmentsByStatementsExporter $exporter,
-        private readonly StatementExportTagFilter $statementExportTagFilter,
-        private readonly StatementResourceType $statementResourceType,
+        private readonly StatementExportFilter $statementExportFilter,
         private readonly StatementZipPathResolver $zipPathResolver,
         private readonly ZipExportService $zipExportService,
     ) {
@@ -58,6 +56,10 @@ class SegmentsExportResponseBuilder
 
     /**
      * @param self::TYPE_* $exportType
+     *
+     * @throws UserNotFoundException
+     * @throws QueryException
+     * @throws PathException
      */
     public function build(Procedure $procedure, ParameterBag $query, string $exportType): StreamedResponse
     {
@@ -66,6 +68,11 @@ class SegmentsExportResponseBuilder
             : $this->buildGroupedDocxResponse($procedure, $query);
     }
 
+    /**
+     * @throws UserNotFoundException
+     * @throws QueryException
+     * @throws PathException
+     */
     private function buildGroupedDocxResponse(Procedure $procedure, ParameterBag $query): StreamedResponse
     {
         /** @var array<string, string> $tableHeaders */
@@ -77,7 +84,7 @@ class SegmentsExportResponseBuilder
         $customHeaderText = $query->get('customHeaderText') ?? '';
 
         $statementEntities = $this->resolveStatements($procedure->getId(), $query);
-        $exportFilteredByTagsWithTopics = $this->statementExportTagFilter->getFilteredTagsWithTitles();
+        $exportFilteredByTagsWithTopics = $this->statementExportFilter->getFilteredTagsWithTitles();
 
         $response = new StreamedResponse(
             function () use (
@@ -104,11 +111,16 @@ class SegmentsExportResponseBuilder
             }
         );
 
-        $this->setDocxResponseHeaders($response, $this->getSynopseFileName($procedure, $query, 'docx'));
+        $this->setDocxResponseHeaders($response, $this->getSynopseFileName($procedure, 'docx'));
 
         return $response;
     }
 
+    /**
+     * @throws UserNotFoundException
+     * @throws QueryException
+     * @throws PathException
+     */
     private function buildZipResponse(Procedure $procedure, ParameterBag $query): StreamedResponse
     {
         /** @var array<string, string> $tableHeaders */
@@ -181,38 +193,21 @@ class SegmentsExportResponseBuilder
      * with the same access restrictions as the generic statement API.
      *
      * @return Statement[]
+     *
+     * @throws QueryException
+     * @throws UserNotFoundException
+     * @throws PathException
      */
     public function resolveStatements(string $procedureId, ParameterBag $query): array
     {
-        $tagsFilter = $query->all('tagsFilter');
-        // Push the tag filter into the query so only statements carrying a matching tag are
-        // loaded, instead of loading every statement of the procedure and discarding the rest
-        // in PHP.
-        $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions(
-            $tagsFilter,
-            $this->statementResourceType,
-            $procedureId
-        );
-
-        /** @var Statement[] $statementEntities */
-        $statementEntities = array_values(
-            $this->jsonApiActionService->getObjectsByQueryParams(
-                $query,
-                $this->statementResourceType,
-                $tagConditions
-            )->getList()
-        );
-
-        // Trim each loaded statement to only its matching segments and collect the matched tag
-        // titles for the export header. Runs on the already-narrowed statement set.
-        return $this->statementExportTagFilter->filterStatementsByTags($statementEntities, $tagsFilter);
+        return $this->statementExportFilter->filter($procedureId, $query);
     }
 
-    public function getSynopseFileName(Procedure $procedure, ParameterBag $query, string $extension): string
+    public function getSynopseFileName(Procedure $procedure, string $extension): string
     {
-        return 0 === count($query->all('tagsFilter')) && 0 === count($query->all(UrlParameter::FILTER))
-            ? $this->fileNameGenerator->getSynopseFileName($procedure, $extension)
-            : $this->fileNameGenerator->getFilteredSynopseFileName($procedure, $extension);
+        $isFiltered = $this->statementExportFilter->isFiltered();
+
+        return $this->fileNameGenerator->getSynopseFileName($procedure, $extension, $isFiltered);
     }
 
     public function getBooleanParameter(ParameterBag $query, string $name): bool

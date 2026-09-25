@@ -17,13 +17,17 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\RecommendationConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentsExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementArrayConverter;
 use PhpOffice\PhpWord\Element\Section;
 use PhpOffice\PhpWord\Element\Table;
 use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\Writer\WriterInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class OriginalStatementExporter extends SegmentsExporter
@@ -32,21 +36,29 @@ class OriginalStatementExporter extends SegmentsExporter
     private const STATEMENT_TEXT_COLUMN_WIDTH = 13500;
 
     public function __construct(
+        AssessmentTableXlsExporter $assessmentTableXlsExporter,
         CurrentUserInterface $currentUser,
+        EventDispatcherInterface $eventDispatcher,
         HtmlHelper $htmlHelper,
         ImageLinkConverter $imageLinkConverter,
+        RecommendationConverter $recommendationConverter,
         Slugify $slugify,
         StyleInitializer $styleInitializer,
         TranslatorInterface $translator,
+        StatementArrayConverter $statementArrayConverter,
         DocumentWriterSelector $writerSelector,
     ) {
         parent::__construct(
+            $assessmentTableXlsExporter,
             $currentUser,
+            $eventDispatcher,
             $htmlHelper,
             $imageLinkConverter,
+            $recommendationConverter,
             $slugify,
             $styleInitializer,
             $translator,
+            $statementArrayConverter,
             $writerSelector,
             self::STATEMENT_ID_COLUMN_WIDTH,
             self::STATEMENT_TEXT_COLUMN_WIDTH);
