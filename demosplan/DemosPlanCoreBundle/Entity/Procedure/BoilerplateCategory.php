@@ -17,6 +17,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UuidEntityInterface;
 use demosplan\DemosPlanCoreBundle\Doctrine\Generator\UuidV4Generator;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateCategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -222,6 +223,23 @@ class BoilerplateCategory extends CoreEntity implements UuidEntityInterface, Boi
     public function getBoilerplates()
     {
         return $this->boilerplates;
+    }
+
+    /**
+     * Boilerplates awaiting async deletion (DPLAN-18271) are, conceptually, already gone —
+     * excluded here for display consumers (e.g. the email/news-notes boilerplate pickers
+     * fed by {@see ProcedureService::getBoilerplatesOfCategory})
+     * so they don't keep offering a boilerplate the user just deleted until the background
+     * purge job actually removes it.
+     *
+     * @return Boilerplate[]
+     */
+    public function getBoilerplatesExcludingPendingDeletion(): array
+    {
+        return array_values(array_filter(
+            $this->getBoilerplates()->toArray(),
+            static fn (Boilerplate $boilerplate): bool => !$boilerplate->isPendingDeletion()
+        ));
     }
 
     /**

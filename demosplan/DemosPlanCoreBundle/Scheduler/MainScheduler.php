@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Message\MaintainExportJobsMessage;
 use demosplan\DemosPlanCoreBundle\Message\ProcessImportJobsMessage;
 use demosplan\DemosPlanCoreBundle\Message\PurgeDeletedProceduresMessage;
 use demosplan\DemosPlanCoreBundle\Message\PurgeExpiredOAuthTokensMessage;
+use demosplan\DemosPlanCoreBundle\Message\PurgePendingBoilerplateDeletionsMessage;
 use demosplan\DemosPlanCoreBundle\Message\SendEmailsMessage;
 use demosplan\DemosPlanCoreBundle\Message\SwitchElementStatesMessage;
 use demosplan\DemosPlanCoreBundle\Message\SwitchProcedurePhasesMessage;
@@ -54,6 +55,7 @@ class MainScheduler implements ScheduleProviderInterface
             ->add(RecurringMessage::every(self::MAINTENANCE_OFFSET, new SwitchElementStatesMessage()))
             ->add(RecurringMessage::every(self::MAINTENANCE_OFFSET, new SwitchProcedurePhasesMessage()))
             ->add(RecurringMessage::every(self::MAINTENANCE_OFFSET, new ProcessImportJobsMessage()))
+            ->add(RecurringMessage::every(self::MAINTENANCE_OFFSET, new PurgePendingBoilerplateDeletionsMessage()))
             ->add(RecurringMessage::every(self::OAUTH_CLEANUP_OFFSET, new PurgeExpiredOAuthTokensMessage()))
             ->add(RecurringMessage::every(self::EXPORT_JOB_CLEANUP_OFFSET, new MaintainExportJobsMessage()))
             ->lock($this->lockFactory->createLock('demosplan_main_scheduler_lock'))
