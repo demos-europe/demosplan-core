@@ -37,6 +37,9 @@
 - Global GIS layers are now scoped to their own customer
 - Maximum email attachment size for the final decision email reduced to a sane limit
 
+### Added
+- The segments list can be exported as Excel or CSV, respecting the currently applied filters, search term and column selection. The submitting organisation is now shown as a "Gruppe" column, replacing the address column. (DPLAN-18217)
+
 ## v4.60.0 (2026-09-09)
 
 ## v4.59.0 (2026-09-09)
