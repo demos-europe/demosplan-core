@@ -8,77 +8,24 @@
 </license>
 
 <template>
-  <l-map
+  <div
     v-if="hasPermission('feature_public_index_map')"
-    ref="map"
+    ref="mapEl"
     class="c-publicindex__map isolate"
     :aria-label="Translator.trans('map')"
-    :zoom="initialZoom"
-    :center="initialLocation"
-    :min-zoom="7"
-    :max-zoom="18"
-    :options="mapOptions"
-    :crs="mapCRS"
-  >
-    <l-icon-default />
-
-    <l-wms-tile-layer
-      v-for="layer in wmsLayers"
-      :key="layer.name"
-      :base-url="layer.url"
-      :layers="layer.layers"
-      :visible="layer.visible"
-      :name="layer.name"
-      :format="layer.format"
-      :transparent="layer.transparent"
-      :crs="layer.crs"
-      :bound="layer.bounds"
-      :min-zoom="layer.minZoom"
-
-      layer-type="base"
-    />
-
-    <template v-if="procedures.length">
-      <l-marker-cluster
-        ref="clusters"
-        :options="clusterOptions"
-      >
-        <l-marker
-          v-for="procedure in procedures"
-          :key="procedure.id"
-          :icon="customMarker(procedure)"
-          :lat-lng="coordinate(procedure.coordinate)"
-          :options="{ id: procedure.id }"
-          @click="activateMarker(procedure.id)"
-        >
-          <l-tooltip :options="{direction: 'top', offset: tooltipOffset}">
-            {{ tooltipContent(procedure) }}
-          </l-tooltip>
-        </l-marker>
-      </l-marker-cluster>
-    </template>
-  </l-map>
+  />
 </template>
 
 <script>
-import { LIconDefault, LMap, LMarker, LTooltip, LWMSTileLayer } from 'vue2-leaflet'
+import './leafletGlobal'
+import 'leaflet.markercluster'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import { getCssVariable } from '@demos-europe/demosplan-ui'
 import L from 'leaflet'
-import LMarkerCluster from 'vue2-leaflet-markercluster'
 import proj4 from 'proj4'
 
 export default {
   name: 'DpMap',
-
-  components: {
-    LMap,
-    LIconDefault,
-    LMarker,
-    LMarkerCluster,
-    LTooltip,
-    'l-wms-tile-layer': LWMSTileLayer,
-  },
 
   props: {
     mapData: {
@@ -126,7 +73,8 @@ export default {
   data () {
     return {
       map: null,
-      markersLayer: null,
+      clusterGroup: null,
+      markers: new Map(),
       clusterOptions: {
         iconCreateFunction: function (cluster) {
           return L.divIcon({
@@ -189,11 +137,22 @@ export default {
         maxBounds: this.bbox,
         attributionControl: false,
         zoomControl: false,
+        minZoom: 7,
+        maxZoom: 18,
+        crs: this.mapCRS,
       }
     },
 
     procedures () {
       return this.proceduresFromStore.filter(procedure => procedure.coordinate !== '')
+    },
+
+    /*
+     * Watching `procedures` directly would watch an array, which the app-wide `WATCH_ARRAY` @vue/compat flag silently
+     * forces into a deep watch - firing the handler many times per change instead of once. Watch this primitive instead.
+     */
+    procedureIds () {
+      return this.procedures.map(procedure => procedure.id).join(',')
     },
 
     tooltipOffset () {
@@ -219,6 +178,13 @@ export default {
   },
 
   watch: {
+    procedureIds: {
+      handler () {
+        this.syncMarkers()
+      },
+      deep: false,
+    },
+
     currentView: {
       handler (newVal) {
         if (newVal === 'DpDetailView') {
@@ -268,11 +234,11 @@ export default {
 
       L.control.attribution({
         prefix: `<div class="c-publicindex__footer">${attributionHtml}</div>`,
-      }).addTo(this.$refs.map.mapObject)
+      }).addTo(this.map)
     },
 
     addZoomControl () {
-      this.$refs.map.mapObject.addControl(L.control.zoom({ position: 'topright' }))
+      this.map.addControl(L.control.zoom({ position: 'topright' }))
     },
 
     coordinate (coordinate) {
@@ -349,31 +315,37 @@ export default {
 
     setZoom () {
       if (this.procedures.length) {
-        /*
-         *  IE 11 does not executes mounted() on mounting of child components,
-         *  so the script runs in an error when this.$refs.clusters is undefined in IE 11.
-         *  For the workaround see https://github.com/vuejs/vue/issues/2918#issuecomment-408669914
-         */
         setTimeout(() => {
-          const map = this.$refs.map.mapObject
-          const clusters = this.$refs.clusters
+          if (this.clusterGroup && this.clusterGroup.getLayers().length) {
+            const bounds = this.clusterGroup.getBounds().pad(0.1)
 
-          const clusterBounds = clusters.mapObject.getBounds().pad(0.1)
-          const bounds = []
+            this.map.fitBounds(bounds)
 
-          if (clusters.$children.length) {
-            for (const b in clusterBounds) {
-              bounds.push(clusterBounds[b])
-            }
-
-            map.fitBounds(bounds)
-
-            if (map.getZoom() > 16) {
-              map.setZoom(12)
+            if (this.map.getZoom() > 16) {
+              this.map.setZoom(12)
             }
           }
         }, 0)
       }
+    },
+
+    syncMarkers () {
+      if (!this.clusterGroup) {
+        return
+      }
+
+      this.clusterGroup.clearLayers()
+      this.markers.clear()
+
+      this.procedures.forEach(procedure => {
+        const marker = L.marker(this.coordinate(procedure.coordinate), { icon: this.customMarker(procedure) })
+
+        marker.bindTooltip(this.tooltipContent(procedure), { direction: 'top', offset: this.tooltipOffset })
+        marker.on('click', () => this.activateMarker(procedure.id))
+
+        this.markers.set(procedure.id, marker)
+        this.clusterGroup.addLayer(marker)
+      })
     },
 
     tooltipContent (procedure) {
@@ -383,18 +355,40 @@ export default {
     },
 
     zoomToMarker (id) {
-      const markers = this.$refs.clusters.$children
-      const latLng = markers.find(el => el.options.id === id)?.latLng
+      const latLng = this.markers.get(id)?.getLatLng()
 
       if (latLng) {
-        this.$refs.map.mapObject.fitBounds([latLng, latLng])
+        this.map.fitBounds([latLng, latLng])
       }
     },
   },
 
   mounted () {
+    if (!this.$refs.mapEl) {
+      return
+    }
+
+    this.map = L.map(this.$refs.mapEl, this.mapOptions).setView(this.initialLocation, this.initialZoom)
+
+    this.wmsLayers.forEach(({ url, layers, format, transparent, crs, minZoom }) => {
+      L.tileLayer.wms(url, {
+        layers,
+        format,
+        transparent,
+        crs,
+        minZoom,
+      }).addTo(this.map)
+    })
+
+    this.clusterGroup = L.markerClusterGroup(this.clusterOptions).addTo(this.map)
+    this.syncMarkers()
+
     this.addZoomControl()
     this.addFooter()
+  },
+
+  beforeUnmount () {
+    this.map?.remove()
   },
 }
 </script>
