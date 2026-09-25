@@ -118,12 +118,12 @@
     "vuex": "^4.0.2"
   },
   "devDependencies": {
-    "@babel/core": "^8.0.1",
+    "@babel/core": "^8.0.6",
     "@babel/plugin-transform-modules-commonjs": "^8.0.1",
-    "@babel/plugin-transform-runtime": "^8.0.1",
-    "@babel/preset-env": "^8.0.2",
+    "@babel/plugin-transform-runtime": "^8.0.6",
+    "@babel/preset-env": "^8.0.6",
     "@babel/preset-typescript": "^8.0.1",
-    "@babel/runtime-corejs3": "^8.0.0",
+    "@babel/runtime-corejs3": "^8.0.6",
     "@eslint/js": "^10.0.1",
     "@fullhuman/postcss-purgecss": "^8.0.0",
     "@vitejs/plugin-vue": "^6.0.0",
