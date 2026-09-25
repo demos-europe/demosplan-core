@@ -3,7 +3,8 @@ framework:
         transports:
             # Long-running exports (e.g. the assessment table export) run here so they are
             # not bound by the web-request/gateway timeout. Uses the Doctrine connection as
-            # the queue store (auto-creates the messenger_messages table).
+            # the queue store. auto_setup is disabled because production DB users may lack CREATE
+            # privileges; the messenger_messages table is created via migration instead.
             #
             # failure_transport is set per transport, not globally: the scheduler transports
             # consumed by dplan:maintenance must keep their current behaviour (retry, then log
@@ -13,12 +14,12 @@ framework:
             # in .env is the untouched Symfony recipe default and points at a connection name
             # that does not exist here.
             async:
-                dsn: 'doctrine://dplan'
+                dsn: 'doctrine://dplan?auto_setup=0'
                 failure_transport: failed
                 retry_strategy:
                     max_retries: 1
                     delay: 5000
-            failed: 'doctrine://dplan?queue_name=failed'
+            failed: 'doctrine://dplan?queue_name=failed&auto_setup=0'
             sync: 'sync://'
 
         routing:
