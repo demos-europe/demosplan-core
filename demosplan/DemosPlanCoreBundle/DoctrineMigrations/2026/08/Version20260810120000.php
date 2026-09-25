@@ -38,14 +38,11 @@ class Version20260810120000 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        // Idempotent: skipped if the table was already created.
-        if ($schema->hasTable('messenger_messages')) {
-            return;
-        }
-
+        // IF NOT EXISTS instead of $schema->hasTable(): the schema_filter in doctrine.yaml hides
+        // messenger_messages from $schema, and the transport may already have auto-created it.
         $this->addSql(
             <<<'SQL'
-            CREATE TABLE messenger_messages (
+            CREATE TABLE IF NOT EXISTS messenger_messages (
                 id BIGINT AUTO_INCREMENT NOT NULL,
                 body LONGTEXT NOT NULL,
                 headers LONGTEXT NOT NULL,
@@ -69,11 +66,7 @@ class Version20260810120000 extends AbstractMigration
     {
         $this->abortIfNotMysql();
 
-        if (!$schema->hasTable('messenger_messages')) {
-            return;
-        }
-
-        $this->addSql('DROP TABLE messenger_messages');
+        $this->addSql('DROP TABLE IF EXISTS messenger_messages');
     }
 
     /**
