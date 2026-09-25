@@ -66,6 +66,15 @@ class CustomerDeleter
         // delete customer-orga-orgaType relations
         $this->deleteCustoemrOrgaOrgaTypeRelations($customerId, $isDryRun);
 
+        // delete customer-specific procedure phase definitions (global ones with customer_id NULL stay)
+        $this->deleteCustomerProcedurePhaseDefinitions($customerId, $isDryRun);
+
+        $this->deleteCustomerAccessControl($customerId, $isDryRun);
+
+        $this->deleteCustomerUserAccessControl($customerId, $isDryRun);
+
+        $this->deleteCustomerReportEntries($customerId, $isDryRun);
+
         // delete customer
         $this->deleteFromCustomerTable($customerId, $isDryRun);
 
@@ -202,6 +211,58 @@ class CustomerDeleter
     {
         $this->queriesService->deleteFromTableByIdentifierArray(
             'customer',
+            '_c_id',
+            [$customerId],
+            $isDryRun
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteCustomerProcedurePhaseDefinitions(string $customerId, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'procedure_phase_definition',
+            'customer_id',
+            [$customerId],
+            $isDryRun
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteCustomerAccessControl(string $customerId, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'access_control',
+            'customer_id',
+            [$customerId],
+            $isDryRun
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteCustomerUserAccessControl(string $customerId, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            'user_access_control',
+            'customer_id',
+            [$customerId],
+            $isDryRun
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function deleteCustomerReportEntries(string $customerId, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray(
+            '_report_entries',
             '_c_id',
             [$customerId],
             $isDryRun
