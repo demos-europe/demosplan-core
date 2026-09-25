@@ -947,7 +947,7 @@ export default {
     handleScheduledExportDelete (exportId) {
       this.hasPendingScheduledExportAction = true
 
-      this.deleteScheduledExport()
+      this.deleteScheduledExport(exportId)
         .then((response) => {
           if (response?.meta?.status === 200) {
             this.deleteScheduledExportItem(exportId)
