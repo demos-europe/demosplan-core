@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.16.9 (2026-09-25)
 ### Fixed
 - The statement PDF attached to the submission confirmation no longer states that the submitter declined feedback when no feedback preference was recorded at all.
 ## v4.16.5 (2026-06-26)
