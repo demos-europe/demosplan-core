@@ -364,17 +364,27 @@
           @primary-action="handleExport"
           @secondary-action="closeModal"
         />
-        <dp-button-row
+        <div
           v-else-if="['add', 'edit'].includes(getBaseScheduledExportMode(scheduledExportMode))"
-          class="text-right mt-auto"
-          data-cy="scheduledExport"
-          primary
-          secondary
-          :primary-text="getBaseScheduledExportMode(scheduledExportMode) === 'add' ? Translator.trans('export.xlsx.scheduled.add') : Translator.trans('save.changes')"
-          :secondary-text="Translator.trans('abort')"
-          @primary-action="handleScheduledExport"
-          @secondary-action="handleCancelScheduledExport"
-        />
+          class="flex justify-end"
+        >
+          <dp-loading
+            v-if="hasPendingScheduledExportAction"
+            class="mx-2"
+            hide-label
+          />
+          <dp-button-row
+            class="text-right mt-auto"
+            data-cy="scheduledExport"
+            :disabled="hasPendingScheduledExportAction"
+            primary
+            secondary
+            :primary-text="getBaseScheduledExportMode(scheduledExportMode) === 'add' ? Translator.trans('export.xlsx.scheduled.add') : Translator.trans('save.changes')"
+            :secondary-text="Translator.trans('abort')"
+            @primary-action="handleScheduledExport"
+            @secondary-action="handleCancelScheduledExport"
+          />
+        </div>
         <div
           v-else-if="scheduledExportMode === 'manage'"
           class="flex"
@@ -402,6 +412,7 @@ import {
   DpInlineNotification,
   DpInput,
   DpLabel,
+  DpLoading,
   DpModal,
   DpRadio,
   dpRpc,
@@ -426,6 +437,7 @@ export default {
     DpInlineNotification,
     DpInput,
     DpLabel,
+    DpLoading,
     DpModal,
     DpRadio,
     DpUploadFiles,
@@ -627,6 +639,7 @@ export default {
 
     ...mapMutations('ScheduledExport', {
       setScheduledExport: 'setItem',
+      deleteScheduledExportItem: 'deleteItem',
     }),
 
     ...mapActions('ScheduledExport', {
@@ -636,6 +649,7 @@ export default {
     }),
 
     addScheduledExport () {
+      this.hasPendingScheduledExportAction = true
       const {
         frequency,
         weekday,
@@ -661,7 +675,8 @@ export default {
 
       this.createScheduledExport(payload)
         .finally(() => {
-        this.scheduledExportMode = 'manage'
+          this.hasPendingScheduledExportAction = false
+          this.scheduledExportMode = 'manage'
       })
     },
 
@@ -932,9 +947,11 @@ export default {
     handleScheduledExportDelete (exportId) {
       this.hasPendingScheduledExportAction = true
 
-      this.deleteScheduledExport(exportId)
-        .then(() => {
-          this.fetchScheduledExport(this.buildScheduledExportPayload()) // ToDo: altervatives?
+      this.deleteScheduledExport()
+        .then((response) => {
+          if (response?.meta?.status === 200) {
+            this.deleteScheduledExportItem(exportId)
+          }
         })
         .finally(() => {
           this.hasPendingScheduledExportAction = false

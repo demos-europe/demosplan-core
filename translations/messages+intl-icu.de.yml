@@ -611,6 +611,7 @@ confirm.segment.deleted: "Der Abschnitt wurde erfolgreich gelöscht."
 confirm.segment.queued: "Der Versand per E-Mail war erfolgreich."
 confirm.segmented.statement: "Die Stellungnahme wurde erfolgreich aufgeteilt."
 confirm.segments.imported.from.xlsx: "{countStatements} Stellungnahmen mit {countSegments} Abschnitten wurden aus {fileName} importiert."
+confirm.scheduledExport.deleted: 'Der geplante Synopsenexport wurde erfolgreich gelöscht.'
 confirm.import.queued: "Import für Datei \"{fileName}\" wurde in die Warteschlange gestellt (Job-ID: {jobId}). Die Verarbeitung erfolgt automatisch im Hintergrund."
 confirm.selected.boilerplates.deleted: "Die ausgewählten Textbausteine wurden gelöscht."
 confirm.selected.boilerplateGroups.deleted: "Die ausgewählten Gruppen wurden gelöscht."

@@ -69,7 +69,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  editingExport: null
+  editingExport: null,
 })
 
 const formData = defineModel<ScheduledExportFormData>('formData', {
