@@ -51,7 +51,7 @@ class RpcSegmentIdLoaderTest extends RpcApiTest
         $this->enablePermissions(self::REQUIRED_PERMISSIONS);
 
         // Act
-        $segmentIds = $this->loadSegmentIds($user, $procedure, new stdClass());
+        $segmentIds = $this->loadSegmentIds($user, $procedure, ['filter' => new stdClass()]);
 
         // Assert
         self::assertEqualsCanonicalizing(
@@ -80,7 +80,7 @@ class RpcSegmentIdLoaderTest extends RpcApiTest
         ];
 
         // Act
-        $segmentIds = $this->loadSegmentIds($user, $procedure, $filter);
+        $segmentIds = $this->loadSegmentIds($user, $procedure, ['filter' => $filter]);
 
         // Assert
         self::assertSame([$wanted->getId()], $segmentIds);
@@ -96,11 +96,48 @@ class RpcSegmentIdLoaderTest extends RpcApiTest
         $this->enablePermissions(self::REQUIRED_PERMISSIONS);
 
         // Act
-        $segmentIds = $this->loadSegmentIds($user, $procedure, new stdClass());
+        $segmentIds = $this->loadSegmentIds($user, $procedure, ['filter' => new stdClass()]);
 
         // Assert
         self::assertSame([$ownSegment->getId()], $segmentIds);
         self::assertNotContains($foreignSegment->getId(), $segmentIds);
+    }
+
+    /**
+     * `filter: []`, `search: []` and an omitted `filter` all used to escape as an
+     * uncaught TypeError out of getConditions() rather than a JSON-RPC error.
+     *
+     * @dataProvider emptyParameterShapesProvider
+     *
+     * @param array<string, mixed> $params
+     */
+    public function testLoadSegmentIdsAcceptsEmptyParameterShapes(array $params): void
+    {
+        // Arrange
+        $user = $this->createPlanner();
+        $procedure = $this->createProcedureFor($user);
+        $segment = $this->createSegmentIn($procedure);
+        $this->enablePermissions(self::REQUIRED_PERMISSIONS);
+
+        // Act
+        $segmentIds = $this->loadSegmentIds($user, $procedure, $params);
+
+        // Assert
+        self::assertSame([$segment->getId()], $segmentIds);
+    }
+
+    /**
+     * @return array<string, array{array<string, mixed>}>
+     */
+    public static function emptyParameterShapesProvider(): array
+    {
+        return [
+            'empty filter array'  => [['filter' => []]],
+            'empty filter object' => [['filter' => new stdClass()]],
+            'omitted filter'      => [['sort' => 'externId']],
+            'empty search array'  => [['filter' => [], 'search' => []]],
+            'blank search value'  => [['filter' => [], 'search' => (object) ['value' => '']]],
+        ];
     }
 
     private function createPlanner(): User
@@ -131,15 +168,17 @@ class RpcSegmentIdLoaderTest extends RpcApiTest
     }
 
     /**
+     * @param array<string, mixed> $params
+     *
      * @return list<string>
      */
-    private function loadSegmentIds(User $user, Procedure $procedure, stdClass $filter): array
+    private function loadSegmentIds(User $user, Procedure $procedure, array $params): array
     {
         $responseBody = $this->executeRpcRequest(
             'segment.load.id',
             'segment-id-request',
             $user,
-            ['filter' => $filter],
+            $params,
             $procedure
         );
 
