@@ -17,19 +17,12 @@
 </template>
 
 <script>
+import './leafletGlobal'
+import 'leaflet.markercluster'
 import { mapActions, mapGetters, mapState } from 'vuex'
 import { getCssVariable } from '@demos-europe/demosplan-ui'
 import L from 'leaflet'
 import proj4 from 'proj4'
-
-/*
- * Leaflet.markercluster's UMD wrapper reads the bare global `L` with no require('leaflet') of
- * its own - it must find `window.L` already set before it's imported, or it throws
- */
-window.L = L
-
-// eslint-disable-next-line sort-imports
-import 'leaflet.markercluster'
 
 export default {
   name: 'DpMap',
