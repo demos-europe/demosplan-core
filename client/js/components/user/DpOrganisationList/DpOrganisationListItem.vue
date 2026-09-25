@@ -266,7 +266,7 @@ export default {
             typeof this.organisation.attributes.registrationStatuses.find(el => el.status === 'pending') === 'undefined') ||
             (typeof Object.keys(this.organisations).find(id => id === this.organisation.id) !== 'undefined' &&
             typeof this.organisation.attributes.registrationStatuses.find(el => el.status === 'pending') !== 'undefined')) {
-            this.$root.$emit('items:get')
+            this.$emit('items:get')
           }
         })
     },
