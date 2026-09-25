@@ -193,6 +193,7 @@ class SegmentsExportResponseBuilder
      * with the same access restrictions as the generic statement API.
      *
      * @return Statement[]
+     *
      * @throws QueryException
      * @throws UserNotFoundException
      * @throws PathException

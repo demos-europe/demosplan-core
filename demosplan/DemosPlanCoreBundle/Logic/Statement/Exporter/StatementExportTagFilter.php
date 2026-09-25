@@ -102,6 +102,7 @@ class StatementExportTagFilter
      * unchanged (full export).
      *
      * @return list<ClauseFunctionInterface<bool>>
+     *
      * @throws PathException
      */
     public function buildStatementTagConditions(array $tagsFilter, StatementResourceType $statementResourceType, string $procedureId): array
