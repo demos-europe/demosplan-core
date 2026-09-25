@@ -32,10 +32,6 @@ use EDT\PathBuilding\End;
  */
 final class SingleDocumentResourceType extends DplanResourceType
 {
-    public function __construct(private readonly SingleDocumentService $singleDocumentService)
-    {
-    }
-
     public static function getName(): string
     {
         return 'SingleDocument';
@@ -75,11 +71,11 @@ final class SingleDocumentResourceType extends DplanResourceType
 
     protected function getProperties(): array
     {
-        $properties = [];
+        $properties = [$this->createIdentifier()->readable()->filterable()];
 
         if ($this->currentUser->hasPermission('field_procedure_documents')) {
             $properties = array_merge($properties, [
-                $this->createIdentifier()->readable()->filterable(),
+
                 $this->createAttribute($this->parentId)
                     ->readable(true)->filterable()->sortable()->aliasedPath($this->element->id),
                 $this->createAttribute($this->title)

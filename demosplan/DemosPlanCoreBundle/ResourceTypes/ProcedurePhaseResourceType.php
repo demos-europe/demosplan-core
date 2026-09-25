@@ -63,6 +63,8 @@ final class ProcedurePhaseResourceType extends DplanResourceType
 
     protected function getProperties(): array
     {
-        return [];
+        return [
+            $this->createIdentifier()->readable(),
+        ];
     }
 }
