@@ -55,7 +55,7 @@
   },
   "dependencies": {
     "@carbon/icons-vue": "10.130.0",
-    "@carbon/vue": "^3.0.27",
+    "@carbon/vue": "^3.0.32",
     "@cesium/engine": "^20.0.1",
     "@demos-europe/demosplan-ui": "0.31.0",
     "@demos-europe/dp-consent": "^1.3",
