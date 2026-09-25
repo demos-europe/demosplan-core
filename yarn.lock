@@ -7166,8 +7166,6 @@ __metadata:
     vue-loader: "npm:^17.4.2"
     vue-scrollto: "npm:^2.20.0"
     vue-tsc: "npm:3.3.11"
-    vue2-leaflet: "npm:^2.7.1"
-    vue2-leaflet-markercluster: "npm:^3.1.0"
     vuedraggable: "npm:^2.24.3"
     vuex: "npm:^4.0.2"
     webpack: "npm:^5.107.2"
@@ -9005,7 +9003,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"leaflet.markercluster@npm:^1.4.1, leaflet.markercluster@npm:^1.5.3":
+"leaflet.markercluster@npm:^1.5.3":
   version: 1.5.3
   resolution: "leaflet.markercluster@npm:1.5.3"
   peerDependencies:
@@ -13538,28 +13536,6 @@ __metadata:
   bin:
     vue-tsc: bin/vue-tsc.js
   checksum: 10c0/b1995cf9519754e9974d051668d1b6d4e3bb3bd1adc507350689bf2e128cc57c0c21c58952c247a97f12cf008c1b5235f4bcf5882f6784d6a8286019f439d3cf
-  languageName: node
-  linkType: hard
-
-"vue2-leaflet-markercluster@npm:^3.1.0":
-  version: 3.1.0
-  resolution: "vue2-leaflet-markercluster@npm:3.1.0"
-  dependencies:
-    leaflet.markercluster: "npm:^1.4.1"
-  peerDependencies:
-    leaflet: ^1.3.4
-  checksum: 10c0/2fb57ddd9a58faca63260f78520fbe102e1fcb6efc703c6b794e16aa283b005193ce1b6bc81a850a1039bd2e3090d794d3cf5dd19f3ca8d9663e9b48bed244c3
-  languageName: node
-  linkType: hard
-
-"vue2-leaflet@npm:^2.7.1":
-  version: 2.7.1
-  resolution: "vue2-leaflet@npm:2.7.1"
-  peerDependencies:
-    "@types/leaflet": ^1.5.7
-    leaflet: ^1.3.4
-    vue: ^2.5.17
-  checksum: 10c0/34ae5cc4b78deaf3ee7f73a210b2e45f9d80b92860d5ac5d831d74fd8a94d06983845f01e6203b4e61bad7f6385715f0ea3cd23b2e39fb6c8ce912fe4d096af6
   languageName: node
   linkType: hard
 
