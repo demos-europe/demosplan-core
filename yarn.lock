@@ -7131,7 +7131,7 @@ __metadata:
     postcss: "npm:^8.5.26"
     postcss-flexbugs-fixes: "npm:^5.0.2"
     postcss-loader: "npm:^8.2.1"
-    postcss-prefix-selector: "npm:^2.1.1"
+    postcss-prefix-selector: "npm:^2.2.1"
     postcss-preset-env: "npm:^10.4.0"
     proj4: "npm:^2.20.2"
     prosemirror-schema-basic: "npm:^1.2.4"
@@ -10848,12 +10848,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-prefix-selector@npm:^2.1.1":
-  version: 2.1.1
-  resolution: "postcss-prefix-selector@npm:2.1.1"
+"postcss-prefix-selector@npm:^2.2.1":
+  version: 2.2.1
+  resolution: "postcss-prefix-selector@npm:2.2.1"
   peerDependencies:
     postcss: ^8.0.0
-  checksum: 10c0/2e01188c8c64ebe35153a5228bad15c0bf2d32613141954903d31f3ba1b1e066b7f44e5f8ad1c13c915c871c4a75f8084c98e3b74894a2fbf0bc0f941541878c
+  checksum: 10c0/db4308ecbe899deb7c61a74640859a4e09532b5e5fe74dff18b45999cac491ac676493e8227ef99119f17afbc63dc7608d753e5b63447075d735d1c4709ad7bd
   languageName: node
   linkType: hard
 
