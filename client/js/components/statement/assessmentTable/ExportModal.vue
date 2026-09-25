@@ -942,7 +942,13 @@ export default {
         body: new FormData(document.bpform),
         credentials: 'same-origin',
       })
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(response.statusText)
+          }
+
+          return response.json()
+        })
         .then(({ jobId }) => pollExportJob({
           key: `assessment.${this.procedureId}.${jobId}`,
           statusUrl: Routing.generate('DemosPlan_assessment_table_export_status', { procedureId: this.procedureId, jobId }),

@@ -160,7 +160,7 @@ describe('ExportModal', () => {
     Object.assign(form, { r_export_format: {}, r_export_choice: {}, searchFields: {} })
     document.bpform = form
 
-    global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve({ jobId: 'job-1' }) }))
+    global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ jobId: 'job-1' }) }))
 
     wrapper.vm.submit()
     await vi.waitFor(() => expect(pollExportJob).toHaveBeenCalled())
