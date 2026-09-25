@@ -5,22 +5,7 @@
         "website": "https://github.com/babel/babel"
     },
     {
-        "package": "@babel/plugin-proposal-object-rest-spread",
-        "license": "MIT",
-        "website": "https://github.com/babel/babel"
-    },
-    {
-        "package": "@babel/plugin-syntax-dynamic-import",
-        "license": "MIT",
-        "website": "https://github.com/babel/babel/tree/master/packages/babel-plugin-syntax-dynamic-import"
-    },
-    {
         "package": "@babel/plugin-transform-modules-commonjs",
-        "license": "MIT",
-        "website": "https://github.com/babel/babel"
-    },
-    {
-        "package": "@babel/plugin-transform-object-assign",
         "license": "MIT",
         "website": "https://github.com/babel/babel"
     },
@@ -40,7 +25,7 @@
         "website": "https://github.com/babel/babel"
     },
     {
-        "package": "@babel/runtime",
+        "package": "@babel/runtime-corejs3",
         "license": "MIT",
         "website": "https://github.com/babel/babel"
     },
@@ -168,6 +153,11 @@
         "package": "babel-loader",
         "license": "MIT",
         "website": "https://github.com/babel/babel-loader"
+    },
+    {
+        "package": "babel-plugin-polyfill-corejs3",
+        "license": "MIT",
+        "website": "https://github.com/babel/babel-polyfills"
     },
     {
         "package": "caniuse-lite",
@@ -438,6 +428,11 @@
         "package": "proj4",
         "license": "MIT",
         "website": "https://github.com/proj4js/proj4js"
+    },
+    {
+        "package": "prosemirror-schema-basic",
+        "license": "MIT",
+        "website": "https://github.com/prosemirror/prosemirror-schema-basic"
     },
     {
         "package": "qs",
