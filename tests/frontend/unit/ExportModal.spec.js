@@ -153,26 +153,45 @@ describe('ExportModal', () => {
     expect(event).toHaveLength(1)
   })
 
-  it('starts the export as a background job and polls it', async () => {
-    // Jsdom supports neither named forms on document nor named fields on forms, so both are assigned explicitly
-    const form = document.createElement('form')
+  describe('ExportModal: async export', () => {
+    beforeEach(() => {
+      // Jsdom supports neither named forms on document nor named fields on forms, so both are assigned explicitly
+      const form = document.createElement('form')
 
-    Object.assign(form, { r_export_format: {}, r_export_choice: {}, searchFields: {} })
-    document.bpform = form
-
-    global.fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ jobId: 'job-1' }) }))
-
-    wrapper.vm.submit()
-    await vi.waitFor(() => expect(pollExportJob).toHaveBeenCalled())
-
-    expect(global.fetch).toHaveBeenCalledWith('DemosPlan_assessment_table_export_async_start', expect.objectContaining({ method: 'POST' }))
-    expect(pollExportJob).toHaveBeenCalledWith({
-      key: 'assessment.1.job-1',
-      statusUrl: 'DemosPlan_assessment_table_export_status',
-      downloadUrl: 'DemosPlan_assessment_table_export_download',
+      Object.assign(form, { r_export_format: {}, r_export_choice: {}, searchFields: {} })
+      document.bpform = form
     })
 
-    delete document.bpform
+    afterEach(() => {
+      delete document.bpform
+      vi.unstubAllGlobals()
+      pollExportJob.mockClear()
+    })
+
+    it('starts the export as a background job and polls it', async () => {
+      const fetch = vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({ jobId: 'job-1' }) }))
+
+      vi.stubGlobal('fetch', fetch)
+
+      wrapper.vm.submit()
+      await vi.waitFor(() => expect(pollExportJob).toHaveBeenCalled())
+
+      expect(fetch).toHaveBeenCalledWith('DemosPlan_assessment_table_export_async_start', expect.objectContaining({ method: 'POST' }))
+      expect(pollExportJob).toHaveBeenCalledWith({
+        key: 'assessment.1.job-1',
+        statusUrl: 'DemosPlan_assessment_table_export_status',
+        downloadUrl: 'DemosPlan_assessment_table_export_download',
+      })
+    })
+
+    it('reports an error and does not poll when the export start fails', async () => {
+      vi.stubGlobal('fetch', vi.fn(() => Promise.resolve({ ok: false, statusText: 'Bad Request', json: () => Promise.resolve({ error: 'noselection' }) })))
+
+      wrapper.vm.submit()
+      await vi.waitFor(() => expect(dplan.notify.error).toHaveBeenCalled())
+
+      expect(pollExportJob).not.toHaveBeenCalled()
+    })
   })
 
   describe('ExportModal: pdf export', () => {
