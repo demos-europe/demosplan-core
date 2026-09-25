@@ -18,15 +18,17 @@ use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use Doctrine\ORM\Query\QueryException;
 use EDT\JsonApi\RequestHandling\UrlParameter;
-use Symfony\Component\HttpFoundation\RequestStack;
+use EDT\Querying\Contracts\PathException;
+use Symfony\Component\HttpFoundation\ParameterBag;
 
 class StatementExportFilter
 {
     private const TAG_FILTER_PARAM = 'tagsFilter';
 
+    private bool $isFiltered = false;
+
     public function __construct(
         protected readonly JsonApiActionService $jsonApiActionService,
-        protected readonly RequestStack $requestStack,
         protected readonly StatementExportTagFilter $statementExportTagFilter,
         protected readonly StatementResourceType $statementResourceType,
     ) {
@@ -35,13 +37,18 @@ class StatementExportFilter
     /**
      * @throws QueryException
      * @throws UserNotFoundException
+     * @throws PathException
      */
-    public function filter(string $procedureId): array
+    public function filter(string $procedureId, ParameterBag $query): array
     {
+        // that has to happen before the query is passed to the JsonApiActionService, because JsonApiActionService
+        // will remove the filter parameters from the query, and we need to know if there were any filters applied.
+        $this->determineIfFiltered($query);
+
         // Push the tag filter into the query so only statements carrying a matching tag are
         // loaded, instead of loading every statement of the procedure and discarding the rest
         // in PHP.
-        $tagsFilter = $this->requestStack->getCurrentRequest()->query->all(self::TAG_FILTER_PARAM);
+        $tagsFilter = $query->all(self::TAG_FILTER_PARAM);
         $tagConditions = $this->statementExportTagFilter->buildStatementTagConditions(
             $tagsFilter,
             $this->statementResourceType,
@@ -51,7 +58,7 @@ class StatementExportFilter
         /** @var Statement[] $statementEntities */
         $statementEntities = array_values(
             $this->jsonApiActionService->getObjectsByQueryParams(
-                $this->requestStack->getCurrentRequest()->query,
+                $query,
                 $this->statementResourceType,
                 $tagConditions
             )->getList()
@@ -63,9 +70,19 @@ class StatementExportFilter
 
     public function isFiltered(): bool
     {
-        $tagsFilter = $this->requestStack->getCurrentRequest()->query->all(self::TAG_FILTER_PARAM);
-        $otherFilters = $this->requestStack->getCurrentRequest()->query->all(UrlParameter::FILTER);
+        return $this->isFiltered;
+    }
 
-        return 0 < count($tagsFilter) || 0 < count($otherFilters);
+    public function getFilteredTagsWithTitles(): array
+    {
+        return $this->statementExportTagFilter->getFilteredTagsWithTitles();
+    }
+
+    private function determineIfFiltered(ParameterBag $query): void
+    {
+        $tagsFilter = $query->all(self::TAG_FILTER_PARAM);
+        $otherFilters = $query->all(UrlParameter::FILTER);
+
+        $this->isFiltered = 0 !== count($tagsFilter) || 0 !== count($otherFilters);
     }
 }

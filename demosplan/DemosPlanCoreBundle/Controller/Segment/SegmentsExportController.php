@@ -350,7 +350,7 @@ class SegmentsExportController extends BaseController
         );
 
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
-        $fileName = $this->responseBuilder->getSynopseFileName($procedure, $query, 'xlsx');
+        $fileName = $this->responseBuilder->getSynopseFileName($procedure, 'xlsx');
         $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($fileName));
 
         return $response;
@@ -388,7 +388,7 @@ class SegmentsExportController extends BaseController
         $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
 
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
-        $fileName = $this->responseBuilder->getSynopseFileName($procedure, $query, 'csv');
+        $fileName = $this->responseBuilder->getSynopseFileName($procedure, 'csv');
         $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($fileName));
 
         return $response;
