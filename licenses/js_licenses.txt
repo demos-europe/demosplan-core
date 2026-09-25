@@ -1,12 +1,9 @@
 @babel/core: MIT
-@babel/plugin-proposal-object-rest-spread: MIT
-@babel/plugin-syntax-dynamic-import: MIT
 @babel/plugin-transform-modules-commonjs: MIT
-@babel/plugin-transform-object-assign: MIT
 @babel/plugin-transform-runtime: MIT
 @babel/preset-env: MIT
 @babel/preset-typescript: MIT
-@babel/runtime: MIT
+@babel/runtime-corejs3: MIT
 @carbon/icons-vue: Apache-2.0
 @carbon/vue: Apache-2.0
 @cesium/engine: Apache-2.0
@@ -32,6 +29,7 @@
 a11y-datepicker: MIT
 assets-webpack-plugin: MIT
 babel-loader: MIT
+babel-plugin-polyfill-corejs3: MIT
 caniuse-lite: CC-BY-4.0
 carbon-components: Apache-2.0
 cesium: Apache-2.0
@@ -86,6 +84,7 @@ postcss-loader: MIT
 postcss-prefix-selector: MIT
 postcss-preset-env: MIT-0
 proj4: MIT
+prosemirror-schema-basic: MIT
 qs: BSD-3-Clause
 sass-embedded: MIT
 sass-loader: MIT
@@ -119,4 +118,4 @@ webpack-bundle-analyzer: MIT
 webpack-manifest-plugin: MIT
 webpack-merge: MIT
 
-As of 31.08.2026 07:11
+As of 25.09.2026 07:08
