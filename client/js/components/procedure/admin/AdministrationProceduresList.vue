@@ -304,7 +304,13 @@ export default {
         body: new FormData(this.$refs.procedureForm),
         credentials: 'same-origin',
       })
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(response.statusText)
+          }
+
+          return response.json()
+        })
         .then(({ jobId }) => pollExportJob({
           key: `procedures.${jobId}`,
           statusUrl: Routing.generate('DemosPlan_procedures_export_status', { jobId }),
