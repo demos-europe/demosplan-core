@@ -18,8 +18,8 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
+use DemosEurope\DemosplanAddon\Contracts\Entities\PlaceInterface;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
-use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place as PlaceEntity;
 
 #[ApiResource(
     shortName: 'Place',
@@ -55,7 +55,7 @@ class PlaceResource
     #[ApiProperty(readable: true, writable: false)]
     public string $procedureId = '';
 
-    public static function fromEntity(PlaceEntity $place): self
+    public static function fromEntity(PlaceInterface $place): self
     {
         $resource = new self();
         $resource->id = $place->getId();
