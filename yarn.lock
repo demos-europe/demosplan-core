@@ -1533,9 +1533,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@carbon/vue@npm:^3.0.27":
-  version: 3.0.27
-  resolution: "@carbon/vue@npm:3.0.27"
+"@carbon/vue@npm:^3.0.32":
+  version: 3.0.32
+  resolution: "@carbon/vue@npm:3.0.32"
   dependencies:
     "@carbon/icons-vue": "npm:^10.102.0"
     "@ibm/telemetry-js": "npm:^1.5.1"
@@ -1544,7 +1544,7 @@ __metadata:
     eslint-plugin-prettier-vue: "npm:^4.2.0"
     flatpickr: "npm:^4.6.13"
     mitt: "npm:^3.0.0"
-  checksum: 10c0/e98eb118d1e25c5c0b80b6bcd66d32a6ccb86376f64c605ed18257a46dd9ee94a1b94357fc4cd45d142c2529ea8569c43629708500dde600f0b20c1a890e8609
+  checksum: 10c0/73500616a29acd3d5d76edc81918820586a0afd08f279e6e01584f550a8ab7344adb71282851070997c42ef9e8865fd9c50cf14161b328214e3a5e27cf86802d
   languageName: node
   linkType: hard
 
@@ -6868,7 +6868,7 @@ __metadata:
     "@babel/preset-typescript": "npm:^8.0.1"
     "@babel/runtime-corejs3": "npm:^8.0.6"
     "@carbon/icons-vue": "npm:10.130.0"
-    "@carbon/vue": "npm:^3.0.27"
+    "@carbon/vue": "npm:^3.0.32"
     "@cesium/engine": "npm:^20.0.1"
     "@demos-europe/demosplan-ui": "npm:0.31.0"
     "@demos-europe/dp-consent": "npm:^1.3"
