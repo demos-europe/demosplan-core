@@ -29,6 +29,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Assess
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Formatter\StatementFormatter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use Exception;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -98,11 +99,14 @@ class StatementExportTest extends FunctionalTestCase
         $currentUserService = $this->getContainer()->get(CurrentUserInterface::class);
         /** @var DocumentWriterSelector $documentWriterSelector */
         $documentWriterSelector = $this->getContainer()->get(DocumentWriterSelector::class);
+        /** @var CustomFieldConfigurationRepository $customFieldConfigurationRepository */
+        $customFieldConfigurationRepository = $this->getContainer()->get(CustomFieldConfigurationRepository::class);
         $this->assessmentTableXlsExporter = new AssessmentTableXlsExporter(
             $assessmentHandler,
             $assessmentTableServiceOutput,
             $currentProcedureService,
             $currentUserService,
+            $customFieldConfigurationRepository,
             $documentWriterSelector,
             $this->editorService,
             $twig,

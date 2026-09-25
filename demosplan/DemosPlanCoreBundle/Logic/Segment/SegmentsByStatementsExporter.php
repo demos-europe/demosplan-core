@@ -148,15 +148,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     {
         Settings::setOutputEscapingEnabled(true);
 
-        $exportData = parent::collectExportData(...$segments);
-        $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('segmentsSelectedColumnSet');
+        [$exportData, $columnsDefinition] = $this->prepareSegmentExport($segmentExportInfo, ...$segments);
 
-        if (null !== $segmentExportInfo) {
-            $columnsDefinition = $this->segmentExportColumnResolver->resolve(
-                $columnsDefinition,
-                $segmentExportInfo->getSelectedColumnKeys()
-            );
-        }
         $writer = $this->assessmentTableXlsExporter->createExcel($exportData, $columnsDefinition);
 
         $this->assessmentTableXlsExporter->addFilterInfoSheetForSegmentListExport($writer, $segmentExportInfo, $columnsDefinition);
@@ -172,20 +165,33 @@ class SegmentsByStatementsExporter extends SegmentsExporter
      */
     public function exportSegmentsCsv(?SegmentExportInfo $segmentExportInfo = null, Segment ...$segments): string
     {
-        $exportData = parent::collectExportData(...$segments);
-        $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('segmentsSelectedColumnSet');
-
-        if (null !== $segmentExportInfo) {
-            $columnsDefinition = $this->segmentExportColumnResolver->resolve(
-                $columnsDefinition,
-                $segmentExportInfo->getSelectedColumnKeys()
-            );
-        }
+        [$exportData, $columnsDefinition] = $this->prepareSegmentExport($segmentExportInfo, ...$segments);
 
         $attributesToExport = array_column($columnsDefinition, 'key');
         $formattedData = $this->assessmentTableXlsExporter->prepareDataForExcelExport($exportData, false, $attributesToExport);
 
         return $this->csvExporter->generate($formattedData, $columnsDefinition);
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    private function prepareSegmentExport(?SegmentExportInfo $segmentExportInfo, Segment ...$segments): array
+    {
+        $exportData = parent::collectExportData(...$segments);
+        $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('segmentsSelectedColumnSet');
+
+        if (null !== $segmentExportInfo) {
+            $customFieldColumnsDefinition = $this->assessmentTableXlsExporter->createColumnsDefinitionForCustomFields($segmentExportInfo);
+            $columnsDefinition = array_merge($columnsDefinition, $customFieldColumnsDefinition);
+            $columnsDefinition = $this->segmentExportColumnResolver->resolve(
+                $columnsDefinition,
+                $segmentExportInfo->getSelectedColumnKeys()
+            );
+        }
+        $columnsDefinition = $this->dispatchSegmentExportColumnsEvent($columnsDefinition);
+
+        return [$exportData, $columnsDefinition];
     }
 
     /**

@@ -50,7 +50,7 @@ use InvalidArgumentException;
  * @property-read End $orderInProcedure
  * @property-read StatementResourceType $parentStatement
  * @property-read StatementResourceType $parentStatementOfSegment Do not expose! Alias usage only.
- * @property-read ProcedureResourceType $procedure Not part of the API; segments inherit this directly from Statement, avoiding a self-join through parentStatementOfSegment.
+ * @property-read ProcedureResourceType $procedure Filter-only, not readable; segments inherit this directly from Statement, avoiding a self-join through parentStatementOfSegment.
  * @property-read AssignableUserResourceType $assignee
  * @property-read End $deadline
  * @property-read TagResourceType $tags
@@ -257,12 +257,21 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
                 ->readable(true, static fn (Segment $segment): array => $segment->getRecommendationVersions()->toArray(), true);
         }
 
-        return array_map(
+        $properties = array_map(
             static fn (PropertyConfigBuilderInterface $property): PropertyConfigBuilderInterface => $property
                 ->filterable()
                 ->sortable(),
             $properties
         );
+
+        // Registered filter-only so the access conditions and the RPC bulk-edit
+        // condition builder can resolve the path; it stays out of the readable
+        // JSON:API surface.
+        $properties[] = $this->createToOneRelationship($this->procedure)
+            ->setRelationshipType($this->resourceTypeStore->getProcedureResourceType())
+            ->filterable();
+
+        return $properties;
     }
 
     public function getUpdateValidationGroups(): array

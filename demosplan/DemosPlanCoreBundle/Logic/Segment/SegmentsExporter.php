@@ -497,9 +497,7 @@ abstract class SegmentsExporter
 
         foreach ($segments as $segment) {
             $convertedData = $this->statementArrayConverter->convertIntoExportableArray($segment);
-            $dataEvent = new SegmentXlsxExportDataEvent($segment, $convertedData);
-            $this->eventDispatcher->dispatch($dataEvent, SegmentXlsxExportDataEventInterface::class);
-            $exportData[] = $dataEvent->getExportData();
+            $exportData[] = $this->dispatchSegmentExportDataEvent($segment, $convertedData);
         }
 
         return $this->recommendationConverter->updateRecommendationsWithTextReferences(
@@ -511,6 +509,20 @@ abstract class SegmentsExporter
     protected function getSegmentColumnDefinitions(): array
     {
         $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('segments');
+
+        return $this->dispatchSegmentExportColumnsEvent($columnsDefinition);
+    }
+
+    protected function dispatchSegmentExportDataEvent(Segment $segment, array $exportData): array
+    {
+        $dataEvent = new SegmentXlsxExportDataEvent($segment, $exportData);
+        $this->eventDispatcher->dispatch($dataEvent, SegmentXlsxExportDataEventInterface::class);
+
+        return $dataEvent->getExportData();
+    }
+
+    protected function dispatchSegmentExportColumnsEvent(array $columnsDefinition): array
+    {
         $columnsEvent = new SegmentXlsxExportColumnsEvent($columnsDefinition);
         $this->eventDispatcher->dispatch($columnsEvent, SegmentXlsxExportColumnsEventInterface::class);
 

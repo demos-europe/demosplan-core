@@ -296,7 +296,7 @@ services:
     demosplan\DemosPlanCoreBundle\Addon\AddonRoutingLoader:
         arguments:
             $locator: '@file_locator'
-            $loader: '@routing.loader.annotation'
+            $loader: '@routing.loader.attribute'
 
     demosplan\DemosPlanCoreBundle\DataCollector\ConfigParametersDataCollector:
         tags:
@@ -975,6 +975,8 @@ services:
         lazy: true
         calls:
             - [ 'setEsStatementFragmentType', [ '@fos_elastica.index.statementFragments' ]]
+        arguments:
+            $esStatementPersister: '@fos_elastica.object_persister.statements'
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\CsvStatementImport:
         arguments:

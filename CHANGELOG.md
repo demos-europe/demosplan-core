@@ -5,6 +5,37 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- bump contract layer demosplan-addon to v0.83
+- depends on contract layer >= v0.83
+- new SegmentTagsChangedEvent implements new interface added to contract layer in v0.83
+
+## v4.61.2 (2026-09-23)
+
+### Fixed
+- Grouped DOCX/ODT and ZIP exports from the statement list no longer time out for procedures with many statements; the file downloads once it is ready
+- Segments exports with many images are much smaller, and their temporary files no longer fill up the disk
+
+## v4.61.1 (2026-09-21)
+
+### Fixed
+- Bulk-loading statement segments by ID failed with a server error when filtering by procedure
+
+## v4.61.0 (2026-09-21)
+
+### Added
+- A system-wide notice banner can be configured to inform users of maintenance windows or other announcements
+- Tags can now be viewed and edited directly while writing a response, without switching views
+- The public procedure list can now display a pictogram's alt text and copyright information
+- Statement exports can now include the names of associated areas and their tags
+
+### Fixed
+- Forwarding a statement for review no longer fails with a validation error when it has comments
+- Large procedure exports (PDF, ODT, ZIP) no longer time out for procedures with many statements
+- Removing a tag from the response editor no longer leaves its selection checkbox stuck as checked
+- The PDF import option was missing from the procedure import screen and is now shown again
+- Finalizing statements no longer fails due to unconfirmed segment marks
+- Global GIS layers are now scoped to their own customer
+- Maximum email attachment size for the final decision email reduced to a sane limit
 
 ### Added
 - The segments list can be exported as Excel or CSV, respecting the currently applied filters, search term and column selection. The submitting organisation is now shown as a "Gruppe" column, replacing the address column. (DPLAN-18217)
@@ -39,7 +70,7 @@
 ## v4.57.2 (2026-09-17)
 
 ### Fixed
-- Forwarding a segment to another user for review no longer fails with a validation error when the segment has comments
+- Forwarding a statement to another user for review no longer fails with a validation error when the statement has comments
 
 ## v4.57.1 (2026-09-15)
 
