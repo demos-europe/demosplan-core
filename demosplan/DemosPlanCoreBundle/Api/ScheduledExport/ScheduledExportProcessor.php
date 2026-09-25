@@ -190,10 +190,14 @@ class ScheduledExportProcessor implements ProcessorInterface
      * message bag into JsonResponses only - the confirmation would be withheld here and then shown on
      * whatever request comes next. Handing it a JsonResponse also makes it lift the 204 to a 200, which
      * is the same answer the rest of the JSON:API deletions give.
+     *
+     * The explicit `data: null` is required because the frontend's vuex-json-api parses every 200 and
+     * rejects a document carrying neither `data` nor `errors` - a meta-only body would turn the
+     * successful deletion into a client-side ApiError.
      */
     private function createDeletionResponse(): JsonResponse
     {
-        return new JsonResponse([], Response::HTTP_NO_CONTENT);
+        return new JsonResponse(['data' => null], Response::HTTP_NO_CONTENT);
     }
 
     /**
