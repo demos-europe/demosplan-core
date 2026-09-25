@@ -316,7 +316,7 @@ export default {
     setZoom () {
       if (this.procedures.length) {
         setTimeout(() => {
-          if (this.clusterGroup.getLayers().length) {
+          if (this.clusterGroup && this.clusterGroup.getLayers().length) {
             const bounds = this.clusterGroup.getBounds().pad(0.1)
 
             this.map.fitBounds(bounds)
@@ -330,6 +330,10 @@ export default {
     },
 
     syncMarkers () {
+      if (!this.clusterGroup) {
+        return
+      }
+
       this.clusterGroup.clearLayers()
       this.markers.clear()
 
