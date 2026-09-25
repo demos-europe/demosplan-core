@@ -1,7 +1,7 @@
 import { enableAutoUnmount } from '@vue/test-utils'
 import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal'
-import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 import { pollExportJob } from '@DpJs/lib/shared/persistentExportPoll'
+import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 import { vi } from 'vitest'
 
 vi.mock('@DpJs/lib/shared/persistentExportPoll', () => ({ pollExportJob: vi.fn() }))
@@ -154,10 +154,12 @@ describe('ExportModal', () => {
   })
 
   it('starts the export as a background job and polls it', async () => {
-    // jsdom supports neither named forms on document nor named fields on forms, so both are assigned explicitly
+    // Jsdom supports neither named forms on document nor named fields on forms, so both are assigned explicitly
     const form = document.createElement('form')
+
     Object.assign(form, { r_export_format: {}, r_export_choice: {}, searchFields: {} })
     document.bpform = form
+
     global.fetch = vi.fn(() => Promise.resolve({ json: () => Promise.resolve({ jobId: 'job-1' }) }))
 
     wrapper.vm.submit()
