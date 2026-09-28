@@ -154,8 +154,8 @@ class StatementSegmentResourceApiTest extends AbstractApiTest
 
     /**
      * SegmentFactory only applies an explicit `procedure` to the segment row itself; its default
-     * parentStatementOfSegment keeps the factory's own procedure. Access is scoped on
-     * parentStatementOfSegment.procedure.id, so the parent statement has to be created explicitly.
+     * parentStatementOfSegment keeps the factory's own procedure. The parent statement is created
+     * explicitly so segment and parent statement consistently belong to the same procedure.
      */
     private function createSegmentInProcedure(Procedure $procedure): Segment
     {
