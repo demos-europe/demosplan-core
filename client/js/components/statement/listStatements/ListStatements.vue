@@ -67,6 +67,13 @@
         data-cy="listStatements:export"
         @export="showHintAndDoExport"
       />
+      <assign-entity-modal
+        v-if="hasPermission('feature_statement_assignment') && assignEntityModal.show"
+        :authorised-users="assignableUsers"
+        :current-user-id="currentUserId"
+        :procedure-id="procedureId"
+        @assigned="handleEntityAssigned"
+      />
       <div
         v-if="items.length > 0"
         class="flex mt-2"
@@ -220,6 +227,19 @@
             >
               {{ Translator.trans('statement.details_and_recommendation') }}
             </a>
+            <button
+              v-if="hasPermission('feature_statement_assignment')"
+              :class="{
+                'is-disabled': synchronized,
+                'hover:underline active:underline': !synchronized }"
+              :disabled="synchronized"
+              class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
+              data-cy="listStatements:statementAssign"
+              type="button"
+              @click="toggleAssignEntityModal(id, assignee.id)"
+            >
+              {{ Translator.trans('assignment.generic.assign.to.other') }}
+            </button>
             <a
               v-if="hasPermission('feature_read_source_statement_via_api') && hasPermission('area_admin_import')"
               :class="{'is-disabled': !originalPdf}"
@@ -373,7 +393,8 @@ import {
   tableSelectAllItems,
 } from '@demos-europe/demosplan-ui'
 import { inlineImageAnchors, stripInlineImageAnchors } from '@DpJs/lib/shared/inlineImageAnchors'
-import { mapActions, mapMutations, mapState } from 'vuex'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import AssignEntityModal from '@DpJs/components/statement/assessmentTable/AssignEntityModal'
 import CustomSearchStatements from './CustomSearchStatements'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import lscache from 'lscache'
@@ -387,6 +408,7 @@ export default {
   name: 'ListStatements',
 
   components: {
+    AssignEntityModal,
     CustomSearchStatements,
     DpBulkEditHeader,
     DpButton,
@@ -498,6 +520,10 @@ export default {
   },
 
   computed: {
+    ...mapGetters('AssessmentTable', [
+      'assignEntityModal',
+    ]),
+
     ...mapState('AssignableUser', {
       assignableUsersObject: 'items',
     }),
@@ -603,6 +629,10 @@ export default {
       fetchStatements: 'list',
       restoreStatementAction: 'restoreFromInitial',
     }),
+
+    ...mapMutations('AssessmentTable', [
+      'setModalProperty',
+    ]),
 
     ...mapMutations('Statement', {
       setStatement: 'setItem',
@@ -838,6 +868,31 @@ export default {
       } else {
         this.unclaimStatement(statementId)
       }
+    },
+
+    // The modal already dispatched the assignment; update the row here so it reflects it without a reload.
+    handleEntityAssigned ({ entityId, assignee }) {
+      const statement = this.statementsObject[entityId]
+
+      if (!statement) {
+        return
+      }
+
+      const dataToUpdate = { ...statement, relationships: { ...statement.relationships, assignee: { data: assignee.id ? { type: 'AssignableUser', id: assignee.id } : null } } }
+
+      this.setStatement({ ...dataToUpdate, id: entityId })
+    },
+
+    toggleAssignEntityModal (statementId, assigneeId) {
+      this.setModalProperty({
+        prop: 'assignEntityModal',
+        val: {
+          entityId: statementId,
+          entityType: 'statement',
+          initialAssigneeId: assigneeId,
+          show: true,
+        },
+      })
     },
 
     storeToggledStatements () {

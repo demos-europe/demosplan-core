@@ -11,6 +11,7 @@
  * This is the entrypoint for list_statements.html.twig
  */
 
+import AssessmentTableStore from '@DpJs/store/statement/AssessmentTable'
 import FilterFlyoutStore from '@DpJs/store/procedure/FilterFlyout'
 import { initialize } from '@DpJs/InitVue'
 import ListOriginalStatements from '@DpJs/components/statement/listOriginalStatements/ListOriginalStatements'
@@ -22,6 +23,7 @@ const components = {
 }
 const apiStores = ['AssignableUser', 'Statement', 'OriginalStatement']
 const stores = {
+  AssessmentTableStore,
   FilterFlyout: FilterFlyoutStore,
 }
 
