@@ -347,7 +347,7 @@
         />
         <scheduled-export-form-fields
           v-else
-          v-model:formData="currentScheduledExportFormData"
+          v-model:form-data="currentScheduledExportFormData"
           :editing-export="editingScheduledExport"
         />
       </template>
@@ -645,7 +645,7 @@ export default {
 
     scheduledExports () {
       return Object.values(this.scheduledExportItems)
-    }
+    },
   },
 
   methods: {
@@ -711,7 +711,7 @@ export default {
         .finally(() => {
           this.hasPendingScheduledExportAction = false
           this.scheduledExportMode = 'manage'
-      })
+        })
     },
 
     getBaseScheduledExportMode (view) {
@@ -778,8 +778,8 @@ export default {
             'weekday',
             'dayOfMonth',
             'nextRunAt',
-          ].join()
-        }
+          ].join(),
+        },
       }
     },
 
@@ -1203,7 +1203,7 @@ export default {
       return dpApi.patch(
         apiUrl('ScheduledExport', 'update', this.editingScheduledExportId),
         {},
-        payload
+        payload,
       )
         .then(({ data }) => {
           dplan.notify.confirm(Translator.trans('confirm.saved'))
@@ -1258,6 +1258,6 @@ export default {
     if (!this.isSingleStatementExport) {
       this.fetchScheduledExport(this.buildScheduledExportPayload())
     }
-  }
+  },
 }
 </script>

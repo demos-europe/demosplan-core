@@ -62,7 +62,7 @@ import { computed, ref, watch } from 'vue'
 import { DpSelect } from '@demos-europe/demosplan-ui'
 import { useScheduledExportDate } from '@DpJs/composables/useScheduledExportDate'
 import { useScheduledExportOptions } from '@DpJs/composables/useScheduledExportOptions'
-import type { ScheduledExport, ScheduledExportFormData, DaySelect, DaySelectName } from '@DpJs/types/scheduledExport'
+import type { DaySelect, DaySelectName, ScheduledExport, ScheduledExportFormData } from '@DpJs/types/scheduledExport'
 
 const DEFAULT_WEEKDAY = 1
 const DEFAULT_DAY_OF_MONTH = 5
@@ -82,7 +82,7 @@ const formData = defineModel<ScheduledExportFormData>('formData', {
       weekday: null,
       dayOfMonth: null,
     }
-  )
+  ),
 })
 
 const nextExportRun = ref<string>('')

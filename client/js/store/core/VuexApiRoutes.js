@@ -118,7 +118,7 @@ const api3_0Modules = {
     'create',
     'delete',
     'update',
-  ]
+  ],
 }
 
 const crudActions = [
