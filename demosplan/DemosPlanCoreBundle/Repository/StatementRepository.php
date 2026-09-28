@@ -332,10 +332,9 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
                 $gdprConsent->setConsentReceivedDate($statement->getSubmitObject());
                 $gdprConsent->setConsentReceived(true);
             }
-            try {
+            $submitConsentee = null;
+            if (null !== $consenteeIds['submitter'] && '' !== $consenteeIds['submitter']) {
                 $submitConsentee = $em->getRepository(User::class)->find($consenteeIds['submitter']);
-            } catch (ORMException) {
-                $submitConsentee = null;
             }
 
             $gdprConsent->setConsentee($submitConsentee);
@@ -542,6 +541,26 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         $internIds = array_column($query->getScalarResult(), 'internId');
 
         return array_combine($internIds, $internIds);
+    }
+
+    /**
+     * @param non-empty-string $procedureId
+     *
+     * @return array<non-empty-string, non-empty-string>
+     */
+    public function getSourceStatementIdsInUse(string $procedureId): array
+    {
+        $query = $this->getEntityManager()
+            ->createQueryBuilder()
+            ->select('statement.sourceStatementId')
+            ->from(Statement::class, 'statement')
+            ->where('statement.procedure = :procedureId')
+            ->andWhere('statement.sourceStatementId IS NOT NULL')
+            ->setParameter('procedureId', $procedureId)
+            ->getQuery();
+        $sourceStatementIds = array_column($query->getScalarResult(), 'sourceStatementId');
+
+        return array_combine($sourceStatementIds, $sourceStatementIds);
     }
 
     /**
@@ -2185,5 +2204,19 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
             'processing' => $statementsWithSegments - $completed,
             'completed'  => $completed,
         ];
+    }
+
+    public function findStatementsWithCustomField(string $customFieldId): array
+    {
+        $searchPattern = '%"id":"'.$customFieldId.'"%';
+
+        return $this->getEntityManager()->createQueryBuilder()
+            ->select('statement')
+            ->from(Statement::class, 'statement')
+            ->where('statement.customFields IS NOT NULL')
+            ->andWhere('statement.customFields LIKE :customFieldSearch')
+            ->setParameter('customFieldSearch', $searchPattern)
+            ->getQuery()
+            ->getResult();
     }
 }

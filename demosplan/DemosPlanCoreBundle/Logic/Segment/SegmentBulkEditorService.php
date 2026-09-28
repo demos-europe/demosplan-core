@@ -15,19 +15,23 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\EntityValidator\TagValidator;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Exception\SegmentLockedException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
+use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Handler\SegmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
-use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Exception\ORMException;
 
 class SegmentBulkEditorService
 {
@@ -39,38 +43,199 @@ class SegmentBulkEditorService
         protected TagService $tagService,
         protected TagValidator $tagValidator,
         protected CustomFieldValueCreator $customFieldValueCreator,
+        protected SegmentLockEnforcementService $segmentLockEnforcementService,
+        protected MessageBagInterface $messageBag,
+        protected EntityContentChangeService $entityContentChangeService,
     ) {
     }
 
-    public function updateSegments($segments, $addTagIds, $removeTagIds, $assignee, $workflowPlace, $customFields)
+    /**
+     * Return the subset of given IDs that belong to `$procedureId` AND
+     * point to segments locked for the current user.
+     *
+     * Takes raw IDs (not loaded entities) so the caller can fail-fast on the
+     * RPC input before paying the cost of {{ @see
+     * SegmentBulkEditorService::getValidSegments }} entity hydration.
+     * The procedure scope prevents an out-of-procedure ID from triggering
+     * a misleading "locked" response that would also leak the lock state
+     * of another procedure's segments.
+     * Internally the lookup runs as a single JOINed DQL via
+     * {{ @see SegmentRepository::findLockedByIds }}, so there is no N+1 on
+     * the place association.
+     *
+     * @param list<string> $segmentIds
+     *
+     * @return list<Segment>
+     */
+    public function findLockedSegments(array $segmentIds, string $procedureId): array
     {
+        // Short-circuit on the batch-invariant checks (feature flag +
+        // administrate permission) so we don't hit the DB at all when
+        // enforcement doesn't apply to this request.
+        if (!$this->segmentLockEnforcementService->isEnforcementApplicable()) {
+            return [];
+        }
+
+        return $this->segmentHandler->findLockedByIds($segmentIds, $procedureId);
+    }
+
+    /**
+     * Pre-validate a batch of segment IDs against the workflow-place lock.
+     *
+     * Runs *before* {{ @see SegmentBulkEditorService::getValidSegments }}
+     * loads the entities — if any ID in the batch points to a segment in
+     * `$procedureId` that's locked for the current user, throws
+     * {{ @see SegmentLockedException }}. The throw is caught by the RPC's
+     * access-denied branch which rolls back the whole batch (no partial
+     * success). The user-facing count reaches the FE via the MessageBag
+     * toast channel.
+     *
+     * Admins (holders of feature_administrate_segment_lock) are short-
+     * circuited inside the enforcement service and pass through unaffected
+     * — enabling the FPA unlock flow (one segment, bulk.edit with target
+     * place + assignee).
+     *
+     * @param list<string> $segmentIds
+     *
+     * @throws SegmentLockedException when the batch contains one or more
+     *                                segments the current user may not write
+     */
+    public function assertBatchEditable(array $segmentIds, string $procedureId): void
+    {
+        $lockedSegments = $this->findLockedSegments($segmentIds, $procedureId);
+        if ([] === $lockedSegments) {
+            return;
+        }
+
+        $this->messageBag->add(
+            'error',
+            'error.segment.bulk.contains.locked',
+            ['count' => count($lockedSegments)],
+        );
+
+        throw new SegmentLockedException('Bulk edit batch contains segments locked for the current user.');
+    }
+
+    /**
+     * Applies the bulk edit to all given segments in two passes: the first pass
+     * resolves and validates the new custom field lists (the only step that can
+     * throw), the second pass mutates the segments. A throw in the first pass
+     * therefore leaves every segment untouched — otherwise the caller's
+     * per-request catch would report an error while the surrounding
+     * transaction still flushed the half-applied edits of the preceding
+     * segments, and those segments would be missing from the returned
+     * tag-change list.
+     *
+     * @param Segment[]                    $segments
+     * @param Tag[]                        $addTagIds
+     * @param Tag[]                        $removeTagIds
+     * @param UserInterface|'UNKNOWN'|null $assignee
+     *
+     * @return array{0: Segment[], 1: Segment[]} updated segments and segments whose tags changed
+     */
+    public function updateSegments(
+        array $segments,
+        array $addTagIds,
+        array $removeTagIds,
+        UserInterface|string|null $assignee,
+        ?Place $workflowPlace,
+        array $customFields,
+        ?DateTime $deadline = null,
+    ): array {
+        $customFieldListsBySegmentId = $this->buildCustomFieldLists($segments, $customFields);
+
+        $segmentsWithTagChanges = [];
+
         foreach ($segments as $segment) {
-            /* @var Segment $segment */
-            $segment->addTags($addTagIds);
-            $segment->removeTags($removeTagIds);
+            if ($this->applyTagChanges($segment, $addTagIds, $removeTagIds)) {
+                $segmentsWithTagChanges[] = $segment;
+            }
 
             if ('UNKNOWN' !== $assignee) {
                 $segment->setAssignee($assignee);
             }
 
             if (null !== $workflowPlace) {
+                $oldPlace = $segment->getPlace();
                 $segment->setPlace($workflowPlace);
+                // Emit Versionsverlauf "Gesperrt" / "Entsperrt" entry when the
+                // place change crosses the lock/unlock boundary. Service
+                // self-gates on the feature flag and on old/new being equal.
+                $this->entityContentChangeService->createSegmentLockedChangeEntryOnPlaceChange(
+                    $segment,
+                    $oldPlace,
+                    $workflowPlace,
+                );
             }
 
-            if ([] !== $customFields) {
-                $customFieldList = $segment->getCustomFields() ?? new CustomFieldValuesList();
-                $customFieldList = $this->customFieldValueCreator->updateOrAddCustomFieldValues(
-                    $customFieldList,
-                    $customFields,
-                    $segment->getProcedure()->getId(),
-                    'PROCEDURE',
-                    'SEGMENT'
-                );
-                $segment->setCustomFields($customFieldList);
+            if (array_key_exists($segment->getId(), $customFieldListsBySegmentId)) {
+                $segment->setCustomFields($customFieldListsBySegmentId[$segment->getId()]);
+            }
+
+            if (null !== $deadline) {
+                $segment->setDeadline($deadline);
             }
         }
 
-        return $segments;
+        return [$segments, $segmentsWithTagChanges];
+    }
+
+    /**
+     * Resolves the merged custom field list for every segment without touching
+     * the segments. Throws on an unknown custom field ID or an invalid value.
+     *
+     * @param Segment[] $segments
+     *
+     * @return array<string, CustomFieldValuesList> keyed by segment ID; empty when no custom fields are given
+     */
+    private function buildCustomFieldLists(array $segments, array $customFields): array
+    {
+        if ([] === $customFields) {
+            return [];
+        }
+
+        $customFieldListsBySegmentId = [];
+        foreach ($segments as $segment) {
+            $currentCustomFieldList = $segment->getCustomFields() ?? new CustomFieldValuesList();
+            $customFieldListsBySegmentId[$segment->getId()] = $this->customFieldValueCreator->updateOrAddCustomFieldValues(
+                $currentCustomFieldList,
+                $customFields,
+                $segment->getProcedure()->getId(),
+                'PROCEDURE',
+                'SEGMENT'
+            );
+        }
+
+        return $customFieldListsBySegmentId;
+    }
+
+    /**
+     * Adds and removes tags on the segment, returning true when the tag set actually changed.
+     *
+     * addTag() returns false when the tag is already present. removeTag() itself returns no
+     * usable signal (it returns $this), so removal relies on a contains() check beforehand.
+     *
+     * @param Tag[] $addTags
+     * @param Tag[] $removeTags
+     */
+    private function applyTagChanges(Segment $segment, array $addTags, array $removeTags): bool
+    {
+        $tagsChanged = false;
+
+        foreach ($addTags as $tag) {
+            if ($segment->addTag($tag)) {
+                $tagsChanged = true;
+            }
+        }
+
+        foreach ($removeTags as $tag) {
+            if ($segment->getTags()->contains($tag)) {
+                $segment->removeTag($tag);
+                $tagsChanged = true;
+            }
+        }
+
+        return $tagsChanged;
     }
 
     /**

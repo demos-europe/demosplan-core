@@ -17,6 +17,8 @@ use demosplan\DemosPlanCoreBundle\Command\Data\DeleteProcedureCommand;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeletionLogService;
+use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -120,6 +122,8 @@ class DeleteProcedureCommandTest extends FunctionalTestCase
             new DeleteProcedureCommand(
                 $this->createMock(ParameterBagInterface::class),
                 $procedureDeleter,
+                $this->createMock(ProcedureDeletionLogService::class),
+                self::getContainer()->get(ProcedureRepository::class),
                 $this->queriesService,
                 null
             )

@@ -8,7 +8,10 @@
 </license>
 
 <template>
-  <div class="flex space-inline-s">
+  <div
+    class="flex space-inline-s"
+    @focusin="$emit('searchFocus') /* Discard unapplied changes in the filter slidebar on searchbar focus */"
+  >
     <div class="relative">
       <dp-search-field
         data-cy="customSearch:currentSearchTerm"
@@ -152,6 +155,7 @@ export default {
     'changeFields',
     'reset',
     'search',
+    'searchFocus',
   ],
 
   data () {

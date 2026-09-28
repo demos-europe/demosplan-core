@@ -39,15 +39,11 @@ class AccountDeletionTracking implements UuidEntityInterface
     #[ORM\ManyToOne(targetEntity: MailSend::class)]
     private ?MailSend $secondWarningMail = null;
 
-    /**
-     * @Gedmo\Timestampable(on="create")
-     */
+    #[Gedmo\Timestampable(on: 'create')]
     #[ORM\Column(type: 'datetime')]
     private DateTime $createdAt;
 
-    /**
-     * @Gedmo\Timestampable(on="update")
-     */
+    #[Gedmo\Timestampable(on: 'update')]
     #[ORM\Column(type: 'datetime')]
     private DateTime $updatedAt;
 

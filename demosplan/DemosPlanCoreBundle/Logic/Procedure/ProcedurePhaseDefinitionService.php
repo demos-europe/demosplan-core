@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\ProcedurePhaseDefinitionServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhaseDefinition;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
@@ -63,6 +64,30 @@ readonly class ProcedurePhaseDefinitionService implements ProcedurePhaseDefiniti
     public function findEvaluatingDefinition(string $audience, ?CustomerInterface $customer): ?ProcedurePhaseDefinition
     {
         return $this->procedurePhaseDefinitionRepository->findEvaluatingDefinition($audience, $customer);
+    }
+
+    /**
+     * Returns available phases for a statement's audience, inserting the statement's current
+     * phase at its natural position if it has been deleted and is not already in the list.
+     *
+     * @return ProcedurePhaseDefinition[]
+     */
+    public function getAvailablePhasesForStatement(Statement $statement): array
+    {
+        $phases = $statement->isSubmittedByCitizen()
+            ? $this->getExternalPhaseDefinitionsForCurrentCustomer()
+            : $this->getInternalPhaseDefinitionsForCurrentCustomer();
+
+        $currentPhase = $statement->getPhaseDefinition();
+        if ($currentPhase->isDeleted() && !in_array($currentPhase, $phases, true)) {
+            $phases[] = $currentPhase;
+            usort(
+                $phases,
+                static fn (ProcedurePhaseDefinition $a, ProcedurePhaseDefinition $b): int => $a->getOrderInAudience() <=> $b->getOrderInAudience()
+            );
+        }
+
+        return $phases;
     }
 
     /** @return ProcedurePhaseDefinition[] */

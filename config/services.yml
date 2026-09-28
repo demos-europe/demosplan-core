@@ -296,7 +296,7 @@ services:
     demosplan\DemosPlanCoreBundle\Addon\AddonRoutingLoader:
         arguments:
             $locator: '@file_locator'
-            $loader: '@routing.loader.annotation'
+            $loader: '@routing.loader.attribute'
 
     demosplan\DemosPlanCoreBundle\DataCollector\ConfigParametersDataCollector:
         tags:
@@ -856,7 +856,7 @@ services:
         lazy: true
         parent: demosplan\DemosPlanCoreBundle\Logic\CoreHandler
 
-    demosplan\DemosPlanCoreBundle\Logic\Procedure\UserFilterSetService:
+    demosplan\DemosPlanCoreBundle\Logic\Procedure\BookmarkService:
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Procedure\PrepareReportFromProcedureService:
@@ -878,6 +878,9 @@ services:
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureCategoryService:
+        lazy: true
+
+    demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeletionLogService:
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureProposalService:
@@ -914,6 +917,8 @@ services:
         lazy: true
 
     demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory: ~
+
+    demosplan\DemosPlanCoreBundle\Logic\Report\UserReportEntryFactory: ~
 
     demosplan\DemosPlanCoreBundle\Logic\Report\ExportReportService:
         lazy: true
@@ -977,6 +982,12 @@ services:
         lazy: true
         calls:
             - [ 'setEsStatementFragmentType', [ '@fos_elastica.index.statementFragments' ]]
+        arguments:
+            $esStatementPersister: '@fos_elastica.object_persister.statements'
+
+    demosplan\DemosPlanCoreBundle\Logic\Statement\CsvStatementImport:
+        arguments:
+            $statementPersister: '@fos_elastica.object_persister.statements'
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxSegmentImport:
         arguments:
@@ -996,6 +1007,9 @@ services:
         tags:
             - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\Statement\Statement, lazy: true }
 
+    demosplan\DemosPlanCoreBundle\EventListener\DoctrineSegmentListener:
+        tags:
+            - { name: doctrine.event_listener, event: onFlush }
 
     demosplan\DemosPlanCoreBundle\EventListener\IndexFilesListener:
         tags:
@@ -1262,8 +1276,7 @@ services:
         tags:
             - { name: kernel.event_subscriber }
 
-    demosplan\DemosPlanCoreBundle\Logic\User\CustomerService:
-        lazy: true
+    demosplan\DemosPlanCoreBundle\Logic\User\CustomerService: ~
 
     demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler:
         lazy: true

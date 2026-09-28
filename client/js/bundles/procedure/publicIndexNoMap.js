@@ -35,6 +35,25 @@ const countMatchingProcedures = function (phaseIds) {
 }
 
 /**
+ * Filters the select options to show only those that have matching procedures in the list.
+ */
+const hideEmptyPhaseOptions = function () {
+  const filterPhasesSelectEl = document.getElementById('filterPhases')
+
+  if (!filterPhasesSelectEl) {
+    return
+  }
+
+  for (const option of filterPhasesSelectEl.options) {
+    if (option.value !== 'all') {
+      const phaseIds = splitOptionValue(option.value)
+
+      option.style.display = countMatchingProcedures(phaseIds) > 0 ? '' : 'none'
+    }
+  }
+}
+
+/**
  * Splits a space-separated option value into individual phase ids.
  */
 const splitOptionValue = function (value) {
@@ -147,24 +166,13 @@ const filterProceduresByPhase = function () {
     } else {
       noResults.style.display = 'none'
     }
-
-    //  Hide options without results
-    const options = filterPhasesSelectEl.getElementsByTagName('option')
-
-    for (const option of options) {
-      //  For all options except 'all'
-      if (option.value !== 'all') {
-        const phaseIds = splitOptionValue(option.value)
-
-        if (countMatchingProcedures(phaseIds) === 0) {
-          option.style.display = 'none'
-        }
-      }
-    }
   }
 }
 
 initialize().then(() => {
+  hideEmptyPhaseOptions()
   setSelectedOption()
-  document.getElementById('filterPhases').addEventListener('change', filterProceduresByPhase)
+  const filterPhasesSelectEl = document.getElementById('filterPhases')
+
+  filterPhasesSelectEl.addEventListener('change', filterProceduresByPhase)
 })

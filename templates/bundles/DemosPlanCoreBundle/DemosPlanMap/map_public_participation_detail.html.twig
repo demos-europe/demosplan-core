@@ -343,14 +343,14 @@
 
                     {# Layers #}
                     <dp-public-layer-list-wrapper
-                        ref="layerList"
+                        :ref="setRef('layerList')"
                         :layer-groups-alternate-visibility="Boolean({{ procedureSettings.layerGroupsAlternateVisibility }})"
                         @layer-list:unfolded="foldOpenToolbarItems(['layerLegend', 'mapTools', 'customLayer'])">
                     </dp-public-layer-list-wrapper>
 
                     {# Legends #}
                     <dp-layer-legend
-                        ref="layerLegend"
+                        :ref="setRef('layerLegend')"
                         v-show="Boolean({{ display_legend_box }})"
                         :layers-with-legend-files="JSON.parse('{{ layers_with_legend_files|json_encode|e('js', 'utf-8') }}')"
                         :plan-pdf="JSON.parse('{{ planPdf|json_encode|e('js', 'utf-8') }}')"
@@ -360,13 +360,13 @@
 
                     {# Zoom to extend, measure length + area #}
                     <dp-map-tools
-                        ref="mapTools"
+                        :ref="setRef('mapTools')"
                         @map-tools:unfolded="foldOpenToolbarItems(['layerList', 'layerLegend', 'customLayer'])">
                     </dp-map-tools>
 
                     {# Add custom layer on the fly #}
                     <dp-custom-layer
-                        ref="customLayer"
+                        :ref="setRef('customLayer')"
                         :init-available-projections="JSON.parse('{{ templateVars.availableProjections|json_encode|e('js', 'utf-8') }}')"
                         @custom-layer:unfolded="foldOpenToolbarItems(['layerList', 'layerLegend', 'mapTools'])">
                     </dp-custom-layer>

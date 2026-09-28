@@ -7,6 +7,7 @@
  * All rights reserved
  */
 
+import { vi } from 'vitest'
 import Vuex from 'vuex'
 
 export default function () {
@@ -21,10 +22,10 @@ export default function () {
             statements: {},
           },
           actions: {
-            get: jest.fn(),
+            get: vi.fn(),
           },
           getters: {
-            selectedElementsLength: jest.fn(),
+            selectedElementsLength: vi.fn(),
           },
         },
       },

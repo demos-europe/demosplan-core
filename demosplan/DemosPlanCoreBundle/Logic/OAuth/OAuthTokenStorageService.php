@@ -148,7 +148,7 @@ class OAuthTokenStorageService
 
             $this->entityManager->flush();
 
-            $this->logger->info('OAuth tokens stored', [
+            $this->logger->info('oauthAuthenticator: OAuth tokens stored', [
                 'user_id'           => $userId,
                 'has_refresh_token' => null !== $refreshTokenString,
                 'has_id_token'      => isset($values['id_token']),
@@ -164,7 +164,7 @@ class OAuthTokenStorageService
                 }
             }
         } catch (Exception $e) {
-            $this->logger->error('Failed to store OAuth tokens', [
+            $this->logger->error('oauthAuthenticator: Failed to store OAuth tokens', [
                 'user_id'         => $userId,
                 'error'           => $e->getMessage(),
                 'exception_class' => get_class($e),
@@ -209,7 +209,7 @@ class OAuthTokenStorageService
     {
         $this->oauthTokenRepository->deleteByUserId($userId);
 
-        $this->logger->info('OAuth tokens deleted', [
+        $this->logger->info('oauthAuthenticator: OAuth tokens deleted', [
             'user_id' => $userId,
         ]);
     }
@@ -232,7 +232,7 @@ class OAuthTokenStorageService
         }
 
         if ($oauthToken->hasPendingData()) {
-            $this->logger->info('OAuth token deletion skipped - pending data preserved for re-authentication', [
+            $this->logger->info('oauthAuthenticator: OAuth token deletion skipped - pending data preserved for re-authentication', [
                 'user_id'                   => $userId,
                 'pending_request_url'       => $oauthToken->getPendingRequestUrl(),
                 'pending_page_url'          => $oauthToken->getPendingPageUrl(),
@@ -244,7 +244,7 @@ class OAuthTokenStorageService
 
         $this->oauthTokenRepository->deleteByUserId($userId);
 
-        $this->logger->info('OAuth tokens deleted', ['user_id' => $userId]);
+        $this->logger->info('oauthAuthenticator: OAuth tokens deleted', ['user_id' => $userId]);
     }
 
     /**
@@ -289,7 +289,7 @@ class OAuthTokenStorageService
 
         $this->entityManager->flush();
 
-        $this->logger->info('Pending request stored', [
+        $this->logger->info('oauthAuthenticator: Pending request stored', [
             'user_id'     => $oauthToken->getUser()->getId(),
             'request_url' => $requestData->getRequestUrl(),
             'method'      => $requestData->getMethod(),
@@ -325,7 +325,7 @@ class OAuthTokenStorageService
             foreach ($violations as $violation) {
                 $errors[] = $violation->getPropertyPath().': '.$violation->getMessage();
             }
-            $this->logger->error('Pending page URL validation failed', [
+            $this->logger->error('oauthAuthenticator: Pending page URL validation failed', [
                 'user_id'  => $oauthToken->getUser()->getId(),
                 'page_url' => $pageUrl,
                 'errors'   => $errors,
@@ -335,7 +335,7 @@ class OAuthTokenStorageService
 
         $this->entityManager->flush();
 
-        $this->logger->info('Pending page URL stored for redirect-back after re-authentication', [
+        $this->logger->info('oauthAuthenticator: Pending page URL stored for redirect-back after re-authentication', [
             'user_id'  => $oauthToken->getUser()->getId(),
             'page_url' => $pageUrl,
         ]);
@@ -367,12 +367,12 @@ class OAuthTokenStorageService
 
             $this->storePendingRequest($oauthToken, $requestData);
 
-            $this->logger->info('Request buffered for replay after re-authentication', [
+            $this->logger->info('oauthAuthenticator: Request buffered for replay after re-authentication', [
                 'method' => $request->getMethod(),
                 'url'    => $request->getRequestUri(),
             ]);
         } catch (Exception $e) {
-            $this->logger->error('Failed to buffer request', ['error' => $e->getMessage()]);
+            $this->logger->error('oauthAuthenticator: Failed to buffer request', ['error' => $e->getMessage()]);
         }
     }
 

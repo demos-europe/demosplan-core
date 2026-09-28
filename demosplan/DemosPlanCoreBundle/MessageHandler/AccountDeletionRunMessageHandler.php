@@ -108,6 +108,15 @@ final class AccountDeletionRunMessageHandler
 
     private function processCandidate(UserInterface $user): void
     {
+        // Accounts provisioned by an external identity provider are never soft-deleted
+        // by the inactivity cascade — their lifecycle is owned by the IdP. They are
+        // already excluded from the candidate query; this guard is the defensive belt
+        // in case such a user reaches the handler by another path. Removal of these
+        // accounts, if ever needed, is handled manually via the deletion command.
+        if ($user->isProvidedByIdentityProvider()) {
+            return;
+        }
+
         $tracking = $this->trackingRepository->findOneByUser($user);
         $step = $this->activityChecker->evaluateInactivityStep($user, $tracking);
 
@@ -252,17 +261,20 @@ final class AccountDeletionRunMessageHandler
         array $vars = [],
     ): ?MailSend {
         try {
+            $supportEmail = (string) $this->parameterBag->get('account_deletion.support_email');
+            $replyTo = '' !== $supportEmail ? $supportEmail : $this->globalConfig->getEmailSystem();
+
             $body = $this->twig->load($bodyTemplate)->renderBlock(
                 'body_plain',
                 [
                     'templateVars' => array_merge(
                         [
-                            'firstname' => $user->getFirstname(),
-                            'lastname'  => $user->getLastname(),
+                            'firstname'     => $user->getFirstname(),
+                            'lastname'      => $user->getLastname(),
+                            'support_email' => $supportEmail,
                         ],
                         $vars,
                     ),
-                    'projectName'  => $this->globalConfig->getProjectName(),
                 ],
             );
             $subject = $this->translator->trans($subjectKey, $vars);
@@ -271,7 +283,7 @@ final class AccountDeletionRunMessageHandler
                 'dm_stellungnahme',
                 'de_DE',
                 $user->getEmail(),
-                '',
+                $replyTo,
                 '',
                 '',
                 MailSend::MAIL_SCOPE_EXTERN,

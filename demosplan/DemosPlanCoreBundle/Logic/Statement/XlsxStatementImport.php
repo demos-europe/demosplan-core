@@ -74,6 +74,14 @@ class XlsxStatementImport
             $generatedStatements = $this->xlsxStatementImporter->getGeneratedStatements();
             if ($this->hasErrors()) {
                 $doctrineConnection->rollBack();
+                $this->logger->warning(
+                    'Statement xlsx import aborted: validation errors, no statements were created.',
+                    [
+                        'errorCount' => count($this->xlsxStatementImporter->getErrors()),
+                        'errors'     => $this->xlsxStatementImporter->getErrorsAsArray(),
+                        'skipped'    => $this->xlsxStatementImporter->getSkippedStatements(),
+                    ]
+                );
 
                 return;
             }

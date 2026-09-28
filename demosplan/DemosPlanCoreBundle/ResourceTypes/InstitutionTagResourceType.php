@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTagCategory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\InstitutionTagRepository;
@@ -25,6 +26,7 @@ use Doctrine\Common\Collections\Collection;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
+use EDT\Querying\Contracts\PathException;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipSetBehavior;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -34,8 +36,9 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @template-extends DplanResourceType<InstitutionTag>
  *
- * @property-read End                     $label
- * @property-read OrgaResourceType        $taggedInstitutions
+ * @property-read End                              $label
+ * @property-read OrgaResourceType                 $taggedInstitutions
+ * @property-read InstitutionTagCategoryResourceType $category
  */
 class InstitutionTagResourceType extends DplanResourceType
 {
@@ -142,12 +145,21 @@ class InstitutionTagResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('feature_institution_tag_update');
     }
 
+    /**
+     * @throws CustomerNotFoundException
+     * @throws PathException
+     */
     protected function getAccessConditions(): array
     {
         if ($this->currentUser->hasPermission(
             'feature_institution_tag_read',
         )) {
-            return [$this->conditionFactory->true()];
+            $currentCustomerId = $this->currentCustomerService->getCurrentCustomer()->getId();
+
+            return [$this->conditionFactory->propertyHasValue(
+                $currentCustomerId,
+                $this->category->customer->id
+            )];
         }
 
         return [$this->conditionFactory->false()];

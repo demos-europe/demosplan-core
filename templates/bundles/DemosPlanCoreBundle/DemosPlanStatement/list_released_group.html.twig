@@ -20,7 +20,8 @@
         %}
     {% endblock %}
 
-    <dp-public-detail-no-map inline-template procedure-id="{{ procedure }}" user-id="{{ currentUser.id|default }}">
+    <dp-public-detail-no-map procedure-id="{{ procedure }}" user-id="{{ currentUser.id|default }}">
+    <template #default="{ dpValidateAction, isSubmitting, openStatementModalFromList, setRef, submitForm, toggleConfirmModal }">
 
     <div class="o-page__padded--spaced u-pv">
 
@@ -54,12 +55,12 @@
 
                     <dp-modal
                         content-classes="u-2-of-3"
-                        ref="confirmModal"
+                        :ref="setRef('confirmModal')"
                         aria-label="{{ "statements.marked.submit"|trans }}"
                         aria-modal='true'
                     >
                         <template v-slot:header>
-                            {{ 'statements.marked.submit'|trans }}
+                            <h2>{{ 'statements.marked.submit'|trans }}</h2>
                         </template>
 
                         {#  Hint and select for notifying country about statement being submitted #}
@@ -105,7 +106,7 @@
         </form>
 
         <dp-map-modal
-            ref="mapModal"
+            :ref="setRef('mapModal')"
             procedure-id="{{ procedure }}"
         ></dp-map-modal>
 
@@ -132,7 +133,7 @@
         {%  endfor %}
 
         <statement-modal
-            ref="statementModal"
+            :ref="setRef('statementModal')"
             current-page="draftList"
             ext-id="{{ templateVars.number|default }}"
             :logged-in="Boolean({{ currentUser.loggedIn }})"
@@ -154,7 +155,8 @@
             :form-options="JSON.parse('{{ templateVars.formOptions|default({})|json_encode|e('js', 'utf-8') }}')"
             :draft-statement="JSON.parse('{{ templateVars.draftStatement|default([])|json_encode|e('js', 'utf-8') }}')">
         </statement-modal>
-    </div></dp-public-detail-no-map>
+    </div></template>
+    </dp-public-detail-no-map>
 
 {% endblock %}
 

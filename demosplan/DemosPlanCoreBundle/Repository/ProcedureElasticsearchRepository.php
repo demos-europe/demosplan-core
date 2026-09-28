@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Services\Elasticsearch\QueryProcedure;
 use demosplan\DemosPlanCoreBundle\Traits\DI\ElasticsearchQueryTrait;
 use Elastica\Index;
 use Elastica\Query\BoolQuery;
+use Elastica\Query\Term;
 use Elastica\Query\Terms;
 use Psr\Log\LoggerInterface;
 
@@ -71,7 +72,10 @@ class ProcedureElasticsearchRepository
             $boolInternalQuery->addMustNot(new Terms('phasePermissionset', ['hidden']));
 
             if (!$this->permissions->hasPermission('feature_procedure_all_orgas_invited')) {
-                $boolInternalQuery->addMust(new Terms('organisationIds', [$esQuery->getOrgaId()]));
+                $invitedOrAllowedQuery = new BoolQuery();
+                $invitedOrAllowedQuery->addShould(new Terms('organisationIds', [$esQuery->getOrgaId()]));
+                $invitedOrAllowedQuery->addShould(new Term(['allowUninvitedInstitutions' => true]));
+                $boolInternalQuery->addMust($this->setMinimumShouldMatch($invitedOrAllowedQuery, 1));
             }
             $boolQuery->addShould($boolInternalQuery);
             $boolQuery = $this->setMinimumShouldMatch($boolQuery, 1);

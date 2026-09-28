@@ -12,6 +12,7 @@ import { createStore } from 'vuex'
 import LayersStore from '@DpJs/store/map/Layers'
 
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
+import { vi } from 'vitest'
 
 describe('AdminLayerList', () => {
   let store
@@ -20,15 +21,15 @@ describe('AdminLayerList', () => {
 
   beforeEach(() => {
     mutations = {
-      setMinimapBaseLayer: jest.fn(),
-      updateState: jest.fn(),
+      setMinimapBaseLayer: vi.fn(),
+      updateState: vi.fn(),
     }
 
     actions = {
-      get: jest.fn(),
-      setListOrder: jest.fn(),
-      resetOrder: jest.fn(),
-      save: jest.fn(),
+      get: vi.fn(),
+      setListOrder: vi.fn(),
+      resetOrder: vi.fn(),
+      save: vi.fn(),
     }
 
     store = createStore({

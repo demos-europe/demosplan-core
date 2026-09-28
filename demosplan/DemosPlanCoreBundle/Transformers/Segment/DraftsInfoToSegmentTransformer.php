@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Transformers\Segment;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\SegmentTransformerInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
@@ -34,8 +35,10 @@ use Doctrine\ORM\Id\AssignedGenerator;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Exception;
+use InvalidArgumentException;
 use JsonSchema\Exception\InvalidSchemaException;
 use Psr\Log\LoggerInterface;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -118,10 +121,32 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         $counter = 1;
         $internId = $this->segmentHandler->getNextSegmentOrderNumber($procedure->getId());
         foreach ($parsedMarks as $segmentMark) {
-            $metadata = $metadataById[$segmentMark['segmentId']] ?? [];
+            $segmentId = $segmentMark['segmentId'];
+
+            // Materialize only marks that have an entry in the segments metadata.
+            // This is a presence check, not a confirmation check: the frontend
+            // auto-confirms every remaining proposal (confirmAllUnconfirmedSegments)
+            // before the final save, so the payload carries no status to read. A mark
+            // without a metadata entry is a leftover the pipeline could not classify
+            // (e.g. images or un-OCR-able tables); the UI shows no card, tags or place
+            // for it, so it must not become a Segment.
+            //
+            // The id is persisted verbatim as the entity primary key, so it is also
+            // validated as a UUID. The schema pins segments[].id to 36 chars, so this
+            // can only ever reject a 36-char non-UUID: a safeguard, not the check that
+            // catches the malformed pipeline ids.
+            if (!isset($metadataById[$segmentId]) || !Uuid::isValid($segmentId)) {
+                $this->logger->warning(
+                    'Skipping segment mark without metadata entry or with an invalid id during finalization',
+                    ['statementId' => $statement->getId(), 'segmentId' => $segmentId]
+                );
+                continue;
+            }
+
+            $metadata = $metadataById[$segmentId];
 
             $segment = new Segment();
-            $segment->setId($segmentMark['segmentId']);
+            $segment->setId($segmentId);
             $segment->setParentStatementOfSegment($statement);
             $segment->setText($segmentMark['text']);
             $segment->setExternId($statement->getExternId().'-'.$counter);
@@ -137,6 +162,7 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
             );
             $segment = $this->setAssigneeIfGiven($segment, $metadata);
             $segment = $this->setPlace($segment, $metadata);
+            $segment = $this->setDeadlineIfGiven($segment, $metadata);
 
             $this->entityManager->persist($segment);
 
@@ -148,10 +174,10 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
         // Restore the original ID generator (done with manually-assigned segment IDs)
         $segmentMetadata->setIdGenerator($originalIdGenerator);
 
-        // Set tags after persist (junction table entries will be flushed by controller)
-        foreach ($segments as $index => $segment) {
-            $segmentMark = $parsedMarks[$index];
-            $metadata = $metadataById[$segmentMark['segmentId']] ?? [];
+        // Set tags after persist (junction table entries will be flushed by controller).
+        // Keyed by the segment's own id so it stays correct when marks were skipped above.
+        foreach ($segments as $segment) {
+            $metadata = $metadataById[$segment->getId()] ?? [];
             $tags = $this->getTags($metadata['tags'] ?? [], $procedure);
             $segment->setTags($tags);
         }
@@ -186,6 +212,35 @@ class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
             : $this->placeService->findFirstOrderedBySortIndex($segment->getProcedure()->getId());
 
         $segment->setPlace($place);
+
+        return $segment;
+    }
+
+    /**
+     * Sets the deadline (Bearbeitungsfrist) from the split metadata, if provided.
+     * The frontend sends it as an ISO date string ("Y-m-d"); a malformed value is
+     * rejected as a client error rather than silently producing a wrong date.
+     *
+     * @param array<string, mixed> $metadata
+     *
+     * @throws InvalidArgumentException on a non-empty value that is not a valid "Y-m-d" date
+     */
+    private function setDeadlineIfGiven(Segment $segment, array $metadata): Segment
+    {
+        $deadline = data_get($metadata, 'deadline');
+        if (!is_string($deadline) || '' === trim($deadline)) {
+            return $segment;
+        }
+
+        $date = DateTime::createFromFormat('!Y-m-d', trim($deadline));
+        $errors = DateTime::getLastErrors();
+        if (!$date instanceof DateTime
+            || (is_array($errors) && ($errors['warning_count'] > 0 || $errors['error_count'] > 0))
+        ) {
+            throw new InvalidArgumentException('Invalid deadline provided; expected format YYYY-MM-DD.');
+        }
+
+        $segment->setDeadline($date);
 
         return $segment;
     }

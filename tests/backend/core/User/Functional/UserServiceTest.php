@@ -10,11 +10,13 @@
 
 namespace Tests\Core\User\Functional;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\User\Address;
 use demosplan\DemosPlanCoreBundle\Entity\User\AddressBookEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -22,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Exception\UserAlreadyExistsException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
 use Exception;
@@ -274,7 +277,7 @@ class UserServiceTest extends FunctionalTestCase
 
     public function testFindDistinctUserByEmailOrLoginReturnsFalseForNonExistentUser(): void
     {
-        $result = $this->sut->findDistinctUserByEmailOrLogin('nonexistent-user-' . uniqid() . '@example.de');
+        $result = $this->sut->findDistinctUserByEmailOrLogin('nonexistent-user-'.uniqid().'@example.de');
         static::assertFalse($result);
     }
 
@@ -946,7 +949,9 @@ class UserServiceTest extends FunctionalTestCase
         $orgaService = self::getContainer()->get(OrgaService::class);
         $publicAgencyTestId = $this->getOrgaReference('testOrgaInvitableInstitution')->getId();
 
-        $countOrgas = $this->countEntries(Orga::class, ['showname' => true, 'showlist' => true, 'deleted' => false]);
+        // Baseline from the per-customer source of truth (statusInCustomers.showlist), not the
+        // legacy orga-level column, matching what getParticipants() now filters on.
+        $countOrgas = $this->countVisibleParticipants();
         $listOfOrgas = $orgaService->getParticipants();
         static::assertCount($countOrgas, $listOfOrgas);
 
@@ -980,6 +985,150 @@ class UserServiceTest extends FunctionalTestCase
 
         $listOfOrgas4 = $orgaService->getParticipants();
         static::assertCount($countOrgas, $listOfOrgas4);
+    }
+
+    /**
+     * The showlist flag is per customer: an orga registered in two customers may be hidden in one
+     * and visible in the other. Exercises the query path (getParticipants runs an EDT condition over
+     * statusInCustomers->showlist) and the write path (updateShowlistForCustomer), not just the
+     * getter, so the join-alias dedup the design relies on is actually covered.
+     */
+    public function testShowlistIsPerCustomer()
+    {
+        /** @var OrgaService $orgaService */
+        $orgaService = self::getContainer()->get(OrgaService::class);
+        /** @var Orga $orga */
+        $orga = $this->getOrgaReference('testOrgaInvitableInstitution');
+        $orgaId = $orga->getId();
+        $customerHindsight = $this->getCustomerReference('testCustomer');
+        $customerBrandenburg = $this->getCustomerReference('testCustomerBrandenburg');
+        // testOrgaInvitableInstitution is OPSORG in the default customer; add an OPSORG row in the
+        // second customer so the per-customer split is observable.
+        $opsorgType = $this->getEntityManager()->getRepository(OrgaType::class)->findOneBy(['name' => OrgaTypeInterface::PUBLIC_AGENCY]);
+        $orga->addCustomerAndOrgaType($customerBrandenburg, $opsorgType);
+        $this->getEntityManager()->persist($orga);
+        $this->getEntityManager()->flush();
+
+        // Baseline: visible in both customers.
+        static::assertTrue($orga->getShowlistForCustomer($customerHindsight));
+        static::assertTrue($orga->getShowlistForCustomer($customerBrandenburg));
+
+        // Hide in the current (testCustomer) customer via the real write path.
+        $orgaRepository = self::getContainer()->get(OrgaRepository::class);
+        $orgaRepository->updateShowlistForCustomer($orga, $customerHindsight, false);
+        $this->getEntityManager()->refresh($orga);
+
+        static::assertFalse($orga->getShowlistForCustomer($customerHindsight));
+        // Second customer is unaffected — the per-customer split holds.
+        static::assertTrue($orga->getShowlistForCustomer($customerBrandenburg));
+
+        // Query-level proof: the orga is absent from getParticipants() (current customer) while
+        // hidden there, even though its orga-level _o_showlist is still true (dual-write only
+        // mirrors on the update path, and the default fixture value is true).
+        $participantsHidden = $orgaService->getParticipants();
+        static::assertNotContains($orgaId, array_map(static fn (Orga $o): string => $o->getId(), $participantsHidden));
+
+        // Re-enable and confirm it reappears — the change is reversible and not stuck on the
+        // orga-level column.
+        $orgaRepository->updateShowlistForCustomer($orga, $customerHindsight, true);
+        $this->getEntityManager()->refresh($orga);
+        $participantsVisible = $orgaService->getParticipants();
+        static::assertContains($orgaId, array_map(static fn (Orga $o): string => $o->getId(), $participantsVisible));
+    }
+
+    /**
+     * showlist is one decision per customer, spanning every orgaType row the orga holds there.
+     *
+     * getParticipants() matches *any* orgaType row of the current customer, so hiding an orga that
+     * holds several orgaTypes must write all of them — otherwise it stays listed via the untouched
+     * row.
+     */
+    public function testShowlistWriteCoversEveryOrgaTypeOfTheCustomer()
+    {
+        /** @var OrgaService $orgaService */
+        $orgaService = self::getContainer()->get(OrgaService::class);
+        /** @var Orga $orga */
+        $orga = $this->getOrgaReference('testOrgaInvitableInstitution');
+        $orgaId = $orga->getId();
+        $customer = $this->getCustomerReference('testCustomer');
+
+        // Give the orga a second orgaType in the same customer, next to its PUBLIC_AGENCY row.
+        $municipalityType = $this->getEntityManager()->getRepository(OrgaType::class)
+            ->findOneBy(['name' => OrgaTypeInterface::MUNICIPALITY]);
+        $orga->addCustomerAndOrgaType($customer, $municipalityType);
+        $this->getEntityManager()->persist($orga);
+        $this->getEntityManager()->flush();
+        static::assertCount(2, $orga->getStatusesInCustomer($customer));
+
+        $orgaRepository = self::getContainer()->get(OrgaRepository::class);
+        $orgaRepository->updateShowlistForCustomer($orga, $customer, false);
+        $this->getEntityManager()->refresh($orga);
+
+        // Every row of the customer is hidden, not just the PUBLIC_AGENCY one.
+        foreach ($orga->getStatusesInCustomer($customer) as $statusInCustomer) {
+            static::assertFalse($statusInCustomer->getShowlist());
+        }
+        $participants = $orgaService->getParticipants();
+        static::assertNotContains($orgaId, array_map(static fn (Orga $o): string => $o->getId(), $participants));
+    }
+
+    /**
+     * An orga holding no PUBLIC_AGENCY row in the customer still has a readable and writable
+     * showlist — roughly half the orgas in a real customer are not public agencies, and their
+     * flag must not be stuck at false.
+     */
+    public function testShowlistIsReadableAndWritableWithoutPublicAgencyRow()
+    {
+        /** @var Orga $orga */
+        $orga = $this->getOrgaReference('testOrgaInvitableInstitution');
+        $customerBrandenburg = $this->getCustomerReference('testCustomerBrandenburg');
+
+        // Only a MUNICIPALITY row in this customer — no PUBLIC_AGENCY row at all.
+        $municipalityType = $this->getEntityManager()->getRepository(OrgaType::class)
+            ->findOneBy(['name' => OrgaTypeInterface::MUNICIPALITY]);
+        $orga->addCustomerAndOrgaType($customerBrandenburg, $municipalityType);
+        $this->getEntityManager()->persist($orga);
+        $this->getEntityManager()->flush();
+
+        $orgaTypeNames = array_map(
+            static fn (OrgaStatusInCustomer $s): string => $s->getOrgaType()->getName(),
+            $orga->getStatusesInCustomer($customerBrandenburg)
+        );
+        static::assertNotContains(OrgaTypeInterface::PUBLIC_AGENCY, $orgaTypeNames);
+
+        static::assertTrue($orga->getShowlistForCustomer($customerBrandenburg));
+
+        $orgaRepository = self::getContainer()->get(OrgaRepository::class);
+        $orgaRepository->updateShowlistForCustomer($orga, $customerBrandenburg, false);
+        $this->getEntityManager()->refresh($orga);
+
+        static::assertFalse($orga->getShowlistForCustomer($customerBrandenburg));
+    }
+
+    /**
+     * A new orgaType row adopts the customer's current showlist value, so gaining an orgaType
+     * never silently makes a hidden orga visible again.
+     */
+    public function testNewOrgaTypeRowInheritsShowlistOfTheCustomer()
+    {
+        /** @var Orga $orga */
+        $orga = $this->getOrgaReference('testOrgaInvitableInstitution');
+        $customer = $this->getCustomerReference('testCustomer');
+
+        $orgaRepository = self::getContainer()->get(OrgaRepository::class);
+        $orgaRepository->updateShowlistForCustomer($orga, $customer, false);
+        $this->getEntityManager()->refresh($orga);
+
+        $municipalityType = $this->getEntityManager()->getRepository(OrgaType::class)
+            ->findOneBy(['name' => OrgaTypeInterface::MUNICIPALITY]);
+        $orga->addCustomerAndOrgaType($customer, $municipalityType);
+        $this->getEntityManager()->persist($orga);
+        $this->getEntityManager()->flush();
+
+        static::assertFalse($orga->getShowlistForCustomer($customer));
+        foreach ($orga->getStatusesInCustomer($customer) as $statusInCustomer) {
+            static::assertFalse($statusInCustomer->getShowlist());
+        }
     }
 
     public function testWipeUser()
@@ -1053,5 +1202,28 @@ class UserServiceTest extends FunctionalTestCase
         /** @var AddressBookEntry $addressBookEntry */
         $addressBookEntry = $this->testUser = $this->fixtures->getReference('testAddressBookEntry1');
         static::assertEquals($organisation->getId(), $addressBookEntry->getOrganisation()->getId());
+    }
+
+    /**
+     * Counts orgas visible in the current customer's participant list, mirroring the
+     * getParticipants() filter (non-deleted, showname, per-customer showlist, not the anonymous
+     * orga) directly on OrgaStatusInCustomer rather than the legacy orga-level column.
+     */
+    private function countVisibleParticipants(): int
+    {
+        $customerId = $this->getCustomerReference('testCustomer')->getId();
+        $qb = $this->getEntityManager()->createQueryBuilder();
+        $qb->select('count(distinct o.id)')
+            ->from(Orga::class, 'o')
+            ->join('o.statusInCustomers', 's')
+            ->where('o.deleted = false')
+            ->andWhere('o.showname = true')
+            ->andWhere('o.id != :anonymousId')
+            ->andWhere('s.customer = :customerId')
+            ->andWhere('s.showlist = true')
+            ->setParameter('anonymousId', User::ANONYMOUS_USER_ORGA_ID)
+            ->setParameter('customerId', $customerId);
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
     }
 }

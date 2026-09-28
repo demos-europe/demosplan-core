@@ -26,8 +26,8 @@ use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 
 class SegmentService extends CoreService implements SegmentServiceInterface
 {
@@ -204,6 +204,20 @@ class SegmentService extends CoreService implements SegmentServiceInterface
     public function findByIds(array $ids): array
     {
         return $this->segmentRepository->findByIds($ids);
+    }
+
+    /**
+     * Returns the subset of given IDs that belong to `$procedureId` AND
+     * whose current workflow place has `locked = true`. Delegates to
+     * {{ @see SegmentRepository::findLockedByIds }}.
+     *
+     * @param list<string> $ids
+     *
+     * @return list<Segment>
+     */
+    public function findLockedByIds(array $ids, string $procedureId): array
+    {
+        return $this->segmentRepository->findLockedByIds($ids, $procedureId);
     }
 
     /**

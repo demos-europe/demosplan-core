@@ -38,15 +38,15 @@ final class PurgeDeletedProceduresMessageHandler
     {
         $this->initializeAnonymousUserPermissions();
 
-        $this->logger->info('Purge deleted procedures... ');
+        $this->logger->debug('Purge deleted procedures... ');
         $purgedProcedures = 0;
         try {
             if ($this->globalConfig->getUsePurgeDeletedProcedures()) {
                 $retentionDays = (int) $this->parameterBag->get('purge_deleted_retention_period_days');
-                $this->logger->info('PurgeDeletedProcedures', [spl_object_id($message)]);
+                $this->logger->debug('PurgeDeletedProcedures', [spl_object_id($message)]);
                 $purgedProcedures = $this->procedureHandler->purgeDeletedProcedures(5, $retentionDays);
             } else {
-                $this->logger->info('Purge deleted procedures is disabled.');
+                $this->logger->debug('Purge deleted procedures is disabled.');
             }
         } catch (Exception $e) {
             $this->logger->error('Purge Procedures failed', [$e]);

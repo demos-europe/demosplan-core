@@ -1,0 +1,31 @@
+{% extends '@DemosPlanCore/DemosPlanCore/email.html.twig' %}
+{% block body_plain %}
+
+Guten Tag,
+
+zur Erinnerung: die Bearbeitungsfrist der folgenden Ihnen zugewiesenen Abschnitte endet am <strong>{{ templateVars.deadline|date('d.m.Y') }}</strong>.
+Bitte schließen Sie die Bearbeitung bis dahin ab.
+
+{% for procedureName, places in templateVars.entries %}
+
+    Abschnitte im Verfahren <strong>{{ procedureName }}</strong>
+        {% for place, segments in places %}
+
+            Schritt "{{ place }}"
+                {% for segment in segments %}
+                  - Abschnitt <a href="{{ segment.link }}">{{ segment.externId }}</a>
+                {% endfor %}
+        {% endfor %}
+{% endfor %}
+
+Viele Grüße
+
+Ihr Team von {{ projectName }}
+
+-------------------------------------------------------------------
+
+Diese Nachricht wurde automatisch erstellt. Bitte antworten Sie nicht auf diese E-Mail.
+
+Möchten Sie diese Benachrichtigungen nicht mehr erhalten? Die Einstellung dazu können Sie auf <a href="{{ url('DemosPlan_user_portal') }}">dieser Seite</a> vornehmen.
+
+{% endblock body_plain %}

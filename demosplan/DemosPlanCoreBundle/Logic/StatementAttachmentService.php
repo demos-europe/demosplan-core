@@ -17,8 +17,8 @@ use demosplan\DemosPlanCoreBundle\Repository\StatementAttachmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 
 class StatementAttachmentService
 {

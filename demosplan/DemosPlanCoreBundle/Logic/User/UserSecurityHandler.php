@@ -14,6 +14,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
+use demosplan\DemosPlanCoreBundle\Logic\Report\UserReportEntryFactory;
 use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Totp\TotpAuthenticator;
 
 class UserSecurityHandler
@@ -22,6 +24,8 @@ class UserSecurityHandler
         private readonly TotpAuthenticator $totpAuthenticator,
         private readonly MessageBagInterface $messageBag,
         private readonly UserService $userService,
+        private readonly UserReportEntryFactory $userReportEntryFactory,
+        private readonly ReportService $reportService,
     ) {
     }
 
@@ -30,6 +34,25 @@ class UserSecurityHandler
         $user = $this->handeTotp($updateUserData, $user);
 
         return $this->handeEmailAuth($updateUserData, $user);
+    }
+
+    /**
+     * Removes every second factor from the given user so they can log in with their
+     * credentials alone. Used by administrators when a user lost access to their
+     * second factor.
+     */
+    public function resetTwoFactorAuthentication(UserInterface $user): void
+    {
+        $user->setTotpEnabled(false);
+        $user->setTotpSecret(null);
+        $user->setAuthCodeEmailEnabled(false);
+        $user->setEmailAuthCode('');
+
+        $this->userService->updateUserObject($user);
+
+        $this->reportService->persistAndFlushReportEntry(
+            $this->userReportEntryFactory->createTwoFactorResetEntry($user)
+        );
     }
 
     private function handeTotp(array $updateUserData, UserInterface $user): UserInterface

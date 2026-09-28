@@ -143,7 +143,7 @@ class OzgKeycloakUserDataMapper
         if (!$existingUser instanceof User) {
             $user = $this->createNewUser($primaryOrga, $requestedRoles);
             $this->organisationAffiliationMapper->syncUserOrganisations($user, [], $organisations);
-            $this->logger->info('Multi-organisation user mapped', [
+            $this->logger->info('oauthAuthenticator: Multi-organisation user mapped', [
                 'userId'            => $user->getId(),
                 'organisationCount' => count($organisations),
                 'organisations'     => array_map(fn (Orga $o) => $o->getId(), $organisations),
@@ -160,7 +160,7 @@ class OzgKeycloakUserDataMapper
 
         $this->organisationAffiliationMapper->syncUserOrganisations($user, $oldOrgas, $organisations);
 
-        $this->logger->info('Multi-organisation user mapped', [
+        $this->logger->info('oauthAuthenticator: Multi-organisation user mapped', [
             'userId'            => $user->getId(),
             'organisationCount' => count($organisations),
             'organisations'     => array_map(fn (Orga $o) => $o->getId(), $organisations),
@@ -257,7 +257,7 @@ class OzgKeycloakUserDataMapper
         $isPrivatePersonByOrga = $existingOrga instanceof Orga && UserInterface::ANONYMOUS_USER_ORGA_ID === $existingOrga->getId();
 
         if ($isPrivatePersonByAttribute) {
-            $this->logger->info('User identified as private person via isPrivatePerson token attribute');
+            $this->logger->info('oauthAuthenticator: User identified as private person via isPrivatePerson token attribute');
         }
 
         if ($isPrivatePersonByAttribute || $isPrivatePersonByRole || $isPrivatePersonByOrga) {
@@ -360,7 +360,7 @@ class OzgKeycloakUserDataMapper
         $this->ensureOrgaTypesForRoles($existingOrga, $customer, $requestedRoles);
         $this->entityManager->persist($existingOrga);
 
-        $this->logger->info('Organisation updated', [
+        $this->logger->info('oauthAuthenticator: Organisation updated', [
             'orgaId' => $existingOrga->getId(),
             'gwId'   => $gwId,
             'name'   => $orgaName,
@@ -439,7 +439,7 @@ class OzgKeycloakUserDataMapper
         $orga->setDepartments([$department]);
         $this->entityManager->persist($orga);
 
-        $this->logger->info('Organisation created', [
+        $this->logger->info('oauthAuthenticator: Organisation created', [
             'orgaId' => $orga->getId(),
             'gwId'   => $gwId,
             'name'   => $orgaName,
@@ -494,20 +494,21 @@ class OzgKeycloakUserDataMapper
         }
 
         $userData = [
-            'firstname'     => $this->ozgKeycloakUserData->getFirstName(),
-            'lastname'      => $this->ozgKeycloakUserData->getLastName(),
-            'email'         => $this->ozgKeycloakUserData->getEmailAddress(),
-            'login'         => $this->ozgKeycloakUserData->getUserName(),
-            'gwId'          => $this->ozgKeycloakUserData->getUserId(),
-            'customer'      => $this->customerService->getCurrentCustomer(),
-            'organisation'  => $userOrga,
-            'department'    => $this->departmentMapper->findOrCreateDepartment($userOrga, $this->ozgKeycloakUserData->getCompanyDepartment()),
-            'roles'         => $requestedRoles,
+            'firstname'                 => $this->ozgKeycloakUserData->getFirstName(),
+            'lastname'                  => $this->ozgKeycloakUserData->getLastName(),
+            'email'                     => $this->ozgKeycloakUserData->getEmailAddress(),
+            'login'                     => $this->ozgKeycloakUserData->getUserName(),
+            'gwId'                      => $this->ozgKeycloakUserData->getUserId(),
+            'providedByIdentityProvider' => true,
+            'customer'                  => $this->customerService->getCurrentCustomer(),
+            'organisation'              => $userOrga,
+            'department'                => $this->departmentMapper->findOrCreateDepartment($userOrga, $this->ozgKeycloakUserData->getCompanyDepartment()),
+            'roles'                     => $requestedRoles,
         ];
 
         $newUser = $this->userService->addUser($userData);
         $this->logger->info(
-            'New user was created.',
+            'oauthAuthenticator: New user was created.',
             [
                 'id'           => $newUser->getId(),
                 'userData'     => $newUser->getLastname(),
@@ -577,7 +578,7 @@ class OzgKeycloakUserDataMapper
      */
     private function getCitizenRoleForPrivatePerson(): array
     {
-        $this->logger->info('Private person detected - automatically assigning CITIZEN role');
+        $this->logger->info('oauthAuthenticator: Private person detected - automatically assigning CITIZEN role');
         $citizenRole = $this->roleRepository->findOneBy(['code' => RoleInterface::CITIZEN]);
         if (null === $citizenRole) {
             throw new AuthenticationCredentialsNotFoundException('CITIZEN role not found in system');
@@ -674,7 +675,7 @@ class OzgKeycloakUserDataMapper
         // Removed flush() call - let the main transaction handle persistence
 
         $this->logger->info(
-            'Existing user was updated.',
+            'oauthAuthenticator: Existing user was updated.',
             [
                 'id'           => $dplanUser->getId(),
                 'lastname'     => $dplanUser->getLastname(),

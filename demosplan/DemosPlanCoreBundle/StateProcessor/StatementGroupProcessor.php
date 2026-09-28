@@ -1,0 +1,191 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace demosplan\DemosPlanCoreBundle\StateProcessor;
+
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\State\ProcessorInterface;
+use demosplan\DemosPlanCoreBundle\ApiResources\StatementGroupResource;
+use demosplan\DemosPlanCoreBundle\ApiResources\StatementResource;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Exception\NotAllStatementsGroupableException;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
+use demosplan\DemosPlanCoreBundle\ResourceAccess\StatementClusterAccessChecker;
+use InvalidArgumentException;
+use LogicException;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Webmozart\Assert\Assert;
+
+class StatementGroupProcessor implements ProcessorInterface
+{
+    public function __construct(
+        private readonly CurrentProcedureService $currentProcedureService,
+        private readonly StatementClusterAccessChecker $clusterAccessChecker,
+        private readonly StatementRepository $statementRepository,
+        private readonly StatementHandler $statementHandler,
+    ) {
+    }
+
+    public function process(mixed $data, Operation $operation, array $uriVariables = [], array $context = []): StatementGroupResource|Response|null
+    {
+        $this->clusterAccessChecker->checkClusterAccess();
+
+        $procedure = $this->currentProcedureService->getProcedure();
+        if (!$procedure instanceof Procedure) {
+            throw new BadRequestHttpException('A procedure context is required for statement group operations.');
+        }
+
+        // DELETE has no body, so $data is null: handle it before the assert.
+        if ($operation instanceof Delete) {
+            return $this->delete((string) ($uriVariables['id'] ?? ''));
+        }
+
+        Assert::isInstanceOf($data, StatementGroupResource::class);
+
+        if ($operation instanceof Patch) {
+            return $this->update((string) $uriVariables['id'], $data);
+        }
+
+        if ($operation instanceof Post) {
+            return $this->create($data, $procedure->getId());
+        }
+
+        throw new LogicException(sprintf('%s is wired as the processor for unsupported operation "%s"; only Post, Patch, and Delete are handled.', self::class, $operation::class));
+    }
+
+    /**
+     * Dissolves the group by detaching every member from the cluster.
+     *
+     * Detaching the last member deletes the (cloned) head statement automatically
+     * (see StatementHandler::detachStatementFromCluster), so the group ceases to exist.
+     * Returns null: the operation is declared output: false, so API Platform responds 204.
+     */
+    private function delete(string $groupId): ?Response
+    {
+        try {
+            $group = $this->statementRepository->getEntityByIdentifier(
+                $groupId,
+                $this->clusterAccessChecker->getAccessConditions(),
+                ['id']
+            );
+        } catch (InvalidArgumentException) {
+            throw new NotFoundHttpException(sprintf('Statement group "%s" not found.', $groupId));
+        }
+        Assert::isInstanceOf($group, Statement::class);
+
+        // Snapshot: detaching mutates the collection.
+        foreach ($group->getCluster()->toArray() as $member) {
+            $this->statementHandler->detachStatementFromCluster($member);
+        }
+
+        return null;
+    }
+
+    private function create(StatementGroupResource $data, string $procedureId): StatementGroupResource|Response
+    {
+        // Presence is enforced by StatementGroupResource's NotBlank constraint
+        // (statementgroup:create validation group); narrow the type for static analysis.
+        Assert::stringNotEmpty($data->headStatementId);
+
+        $headStatement = $this->statementHandler->getStatement($data->headStatementId);
+        if (!$headStatement instanceof Statement) {
+            throw new BadRequestHttpException(sprintf('Statement "%s" not found.', $data->headStatementId));
+        }
+
+        $statementIds = array_map(static fn (StatementResource $s): string => $s->id, $data->statements);
+
+        try {
+            $cluster = $this->statementHandler->createStatementCluster(
+                $procedureId,
+                $statementIds,
+                $data->headStatementId,
+                $data->groupName
+            );
+        } catch (NotAllStatementsGroupableException $e) {
+            return $this->notGroupableResponse($e);
+        } catch (InvalidArgumentException $e) {
+            throw new BadRequestHttpException($e->getMessage(), $e);
+        }
+        Assert::isInstanceOf($cluster, Statement::class);
+
+        $createdGroup = $this->statementHandler->getStatement($cluster->getId());
+        Assert::isInstanceOf($createdGroup, Statement::class);
+
+        return StatementGroupResource::fromStatement($createdGroup);
+    }
+
+    /**
+     * Updates the group's scalar fields only — currently the group name.
+     *
+     * Membership is NOT changed here: statements are added/removed exclusively via the
+     * JSON:API relationship endpoints (POST/DELETE /StatementGroup/{id}/relationships/statements),
+     * which apply an idempotent delta. Any "statements" sent in a PATCH body is ignored.
+     */
+    private function update(string $groupId, StatementGroupResource $data): StatementGroupResource
+    {
+        try {
+            $group = $this->statementRepository->getEntityByIdentifier(
+                $groupId,
+                $this->clusterAccessChecker->getAccessConditions(),
+                ['id']
+            );
+        } catch (InvalidArgumentException) {
+            throw new NotFoundHttpException(sprintf('Statement group "%s" not found.', $groupId));
+        }
+        Assert::isInstanceOf($group, Statement::class);
+
+        if (null !== $data->groupName) {
+            $group->setName($data->groupName);
+            $this->statementHandler->updateStatementObject($group, true, true);
+        }
+
+        return StatementGroupResource::fromStatement($group);
+    }
+
+    /**
+     * Turns a "not groupable" failure into a JSON:API 422 error document instead of an
+     * uncaught 500. Returning a Response bypasses API Platform serialization, so the
+     * client gets JSON regardless of the environment's error rendering (in dev, a thrown
+     * exception would render as an HTML debug page).
+     */
+    private function notGroupableResponse(NotAllStatementsGroupableException $e): JsonResponse
+    {
+        $statementId = $e->getStatementId();
+        $detail = null !== $statementId
+            ? sprintf('Statement "%s" cannot be grouped: it or its fragments must be claimed by (assigned to) you first.', $statementId)
+            : $e->getMessage();
+
+        $error = [
+            'status' => (string) Response::HTTP_UNPROCESSABLE_ENTITY,
+            'title'  => 'Statement cannot be grouped',
+            'detail' => $detail,
+            'source' => ['pointer' => '/data'],
+        ];
+        if (null !== $statementId) {
+            $error['meta'] = ['statementId' => $statementId];
+        }
+
+        $response = new JsonResponse(['errors' => [$error]], Response::HTTP_UNPROCESSABLE_ENTITY);
+        $response->headers->set('Content-Type', 'application/vnd.api+json');
+
+        return $response;
+    }
+}

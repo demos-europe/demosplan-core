@@ -44,7 +44,7 @@ use RuntimeException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 /**
  * @template-extends CoreRepository<User>
@@ -56,10 +56,12 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
      */
     final public const LOGIN_LIST_CACHE_DURATION = 43200;
 
+    public const LOGIN_LIST_CACHE_TAG = 'login_list';
+
     private const WHERE_NOT_DELETED = 'u.deleted = false';
 
     public function __construct(
-        private readonly CacheInterface $cache,
+        private readonly TagAwareCacheInterface $cache,
         DqlConditionFactory $dqlConditionFactory,
         ManagerRegistry $registry,
         SortMethodFactory $sortMethodFactory,
@@ -742,7 +744,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
      */
     private function invalidateCachedLoginList(): void
     {
-        $this->cache->delete(self::LOGIN_LIST_CACHE_DURATION);
+        $this->cache->invalidateTags([self::LOGIN_LIST_CACHE_TAG]);
     }
 
     private function applyCriteriaFilters(array $criteria, QueryBuilder $qb): QueryBuilder
@@ -765,7 +767,9 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
     /**
      * Returns active users whose effective inactivity reference (`lastLogin` if set,
      * else `createdDate`) is at or before the cutoff. Excludes deleted users, the
-     * AI API user (by login — its row ID is random per project), and any further
+     * AI API user (by login — its row ID is random per project), users provisioned
+     * by an external identity provider (their lifecycle is owned by the IdP, so they
+     * must never be soft-deleted by the inactivity cascade), and any further
      * protected IDs supplied by the caller (typically the anonymous-user constant
      * plus project-specific protected accounts).
      *
@@ -783,6 +787,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
             ->where(self::WHERE_NOT_DELETED)
             ->andWhere('COALESCE(u.lastLogin, u.createdDate) <= :cutoff')
             ->andWhere('u.login != :aiApiUserLogin')
+            ->andWhere('u.providedByIdentityProvider = false')
             ->setParameter('cutoff', $cutoff)
             ->setParameter('aiApiUserLogin', AiApiUser::AI_API_USER_LOGIN);
 

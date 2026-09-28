@@ -48,6 +48,13 @@ class BoilerplateVO extends ValueObject
     /** @var Procedure */
     protected $procedure;
 
+    /**
+     * Explicit verified state to apply. Null means no instruction was given
+     * (e.g. the editing user may not change the verified state), leaving the
+     * automatic reset on content change in charge.
+     */
+    protected ?bool $verified = null;
+
     public function __construct(?Boilerplate $boilerplate = null)
     {
         $this->categories = new ArrayCollection();
@@ -178,5 +185,15 @@ class BoilerplateVO extends ValueObject
     public function setGroupId($groupId)
     {
         $this->group = $groupId;
+    }
+
+    public function getVerified(): ?bool
+    {
+        return $this->verified;
+    }
+
+    public function setVerified(?bool $verified): void
+    {
+        $this->verified = $verified;
     }
 }

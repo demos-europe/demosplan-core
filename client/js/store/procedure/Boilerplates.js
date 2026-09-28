@@ -80,6 +80,7 @@ const BoilerplatesStore = {
               text: bp.attributes.text,
               title: bp.attributes.title,
               category: bp.attributes.categoriesTitle,
+              verified: bp.attributes.verified,
             }
           }),
         }
@@ -93,6 +94,7 @@ const BoilerplatesStore = {
             text: bp.attributes.text,
             title: bp.attributes.title,
             category: bp.attributes.categoriesTitle,
+            verified: bp.attributes.verified,
           }
         }),
       }

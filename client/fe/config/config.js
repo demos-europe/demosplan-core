@@ -59,6 +59,7 @@ class Config {
           /data-cy/,
           /data-enhance-url-field/,
           /data-v-.+/,
+          /^dp-consent-/,
           /editor__content/,
           /knp-*/,
           /menu_level_/,

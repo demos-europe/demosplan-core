@@ -13,6 +13,7 @@
  */
 import { DpUploadFiles, DpVideoPlayer, TableWrapper } from '@demos-europe/demosplan-ui'
 import CustomLayer from '@DpJs/components/map/publicdetail/controls/CustomLayer'
+import { defineAsyncComponent } from 'vue'
 import DpLayerLegend from '@DpJs/components/map/publicdetail/controls/legendList/DpLayerLegend'
 import DpPublicDetail from '@DpJs/components/map/publicdetail/DpPublicDetail'
 import DpPublicLayerListWrapper from '@DpJs/components/map/publicdetail/controls/layerlist/DpPublicLayerListWrapper'
@@ -24,6 +25,7 @@ import MapTools from '@DpJs/components/map/publicdetail/controls/MapTools'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
 import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
 import StatementForm from '@DpJs/lib/statement/StatementForm'
+import StatementModal from '@DpJs/components/statement/publicStatementModal/StatementModal'
 
 //  Vuex store modules (to be registered on core bundle vuex store)
 const stores = {
@@ -31,7 +33,10 @@ const stores = {
   publicStatement,
 }
 
-//  (Unmounted) vue parent components
+/*
+ * DpPublicDetail renders the Twig markup as scoped slot content, which is compiled in the scope
+ * of this app - so everything the template uses has to be registered here, not on the component
+ */
 const components = {
   'dp-custom-layer': CustomLayer,
   DpLayerLegend,
@@ -42,7 +47,10 @@ const components = {
   DpUnfoldToolbarControl,
   DpUploadFiles,
   DpVideoPlayer,
+  // Only rendered by the projects that override public_elements_list.html.twig
+  ElementsList: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList')),
   RegisterFlyout,
+  StatementModal,
 }
 
 initialize(components, stores).then(() => {

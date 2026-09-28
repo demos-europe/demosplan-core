@@ -265,6 +265,12 @@ class ServiceStorageTest extends FunctionalTestCase
                 'method'       => 'getExpandProcedureDescription',
                 'defaultValue' => false,
             ],
+            'allowUninvitedInstitutionsWithPermission' => [
+                'permission'   => 'field_procedure_allow_uninvited_institutions',
+                'attribute'    => 'r_allowUninvitedInstitutions',
+                'method'       => 'isAllowUninvitedInstitutions',
+                'defaultValue' => false,
+            ],
         ];
     }
 
@@ -285,6 +291,25 @@ class ServiceStorageTest extends FunctionalTestCase
         $updatedProcedure = $this->find(Procedure::class, $result['id']);
         // Should maintain original value since permission is not present
         static::assertEquals($originalValue, $updatedProcedure->getSettings()->getAllowAnonymousStatements());
+    }
+
+    public function testAllowUninvitedInstitutionsWithoutPermission(): void
+    {
+        $this->disablePermissions(['field_procedure_allow_uninvited_institutions']);
+
+        // Store original value (which is set to false by default)
+        $originalValue = $this->testProcedure->getSettings()->isAllowUninvitedInstitutions();
+        static::assertFalse($originalValue);
+
+        // Test that setting is ignored when permission is not present
+        $dataWithUninvitedInstitutionsTrue = $this->getBaseEditData(['r_allowUninvitedInstitutions' => '1']);
+        $result = $this->sut->administrationEditHandler($dataWithUninvitedInstitutionsTrue);
+        static::assertIsArray($result);
+
+        /** @var Procedure $updatedProcedure */
+        $updatedProcedure = $this->find(Procedure::class, $result['id']);
+        // Should maintain original value since permission is not present
+        static::assertEquals($originalValue, $updatedProcedure->getSettings()->isAllowUninvitedInstitutions());
     }
 
     private function getBaseEditData(array $additionalData = []): array

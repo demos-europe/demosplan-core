@@ -26,7 +26,6 @@ class PurgeDeletedProceduresMessageHandlerTest extends UnitTestCase
 {
     use LoggerTestTrait;
 
-    private const PURGE_DELETED_PROCEDURES = 'Purge deleted procedures... ';
     private const RETENTION_DAYS = 60;
     private ?ProcedureHandler $procedureHandler = null;
     private ?GlobalConfigInterface $globalConfig = null;
@@ -56,30 +55,30 @@ class PurgeDeletedProceduresMessageHandlerTest extends UnitTestCase
         $this->procedureHandler->expects($this->never())
             ->method('purgeDeletedProcedures');
 
-        $logger = $this->createLoggerMockWithCapture(2);
+        $logger = $this->createLoggerMockWithCapture(0);
         $this->sut = new PurgeDeletedProceduresMessageHandler($this->procedureHandler, $this->globalConfig, $this->parameterBag, $this->permissions, $logger);
 
         // Act
         ($this->sut)(new PurgeDeletedProceduresMessage());
 
         // Assert
-        $this->assertSame([self::PURGE_DELETED_PROCEDURES, 'Purge deleted procedures is disabled.'], $this->getCapturedLoggerCalls());
+        $this->assertSame([], $this->getCapturedLoggerCalls());
     }
 
     public function testInvokePurgesProceduresWhenEnabled(): void
     {
-        $logger = $this->createLoggerMockWithCapture(3);
+        $logger = $this->createLoggerMockWithCapture(1);
         $this->setupEnabledPurgeAndInvoke(3, $logger);
 
-        $this->assertSame([self::PURGE_DELETED_PROCEDURES, 'PurgeDeletedProcedures', 'Purged procedures: 3'], $this->getCapturedLoggerCalls());
+        $this->assertSame(['Purged procedures: 3'], $this->getCapturedLoggerCalls());
     }
 
     public function testInvokeDoesNotLogWhenNoProceduresPurged(): void
     {
-        $logger = $this->createLoggerMockWithCapture(2);
+        $logger = $this->createLoggerMockWithCapture(0);
         $this->setupEnabledPurgeAndInvoke(0, $logger);
 
-        $this->assertSame([self::PURGE_DELETED_PROCEDURES, 'PurgeDeletedProcedures'], $this->getCapturedLoggerCalls());
+        $this->assertSame([], $this->getCapturedLoggerCalls());
     }
 
     public function testInvokeLogsErrorOnException(): void

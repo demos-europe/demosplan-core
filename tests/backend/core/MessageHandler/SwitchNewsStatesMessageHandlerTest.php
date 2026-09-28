@@ -73,7 +73,7 @@ class SwitchNewsStatesMessageHandlerTest extends UnitTestCase
                 $this->assertContains($news, [$news1, $news2]);
             });
 
-        $this->logger->expects($this->exactly(2))
+        $this->logger->expects($this->once())
             ->method('info')
             ->willReturnCallback($this->createLoggerInfoCallback('Set states of 2 news.'));
 
@@ -95,7 +95,7 @@ class SwitchNewsStatesMessageHandlerTest extends UnitTestCase
             ->method('setState')
             ->willThrowException($exception);
 
-        $this->logger->expects($this->exactly(2))
+        $this->logger->expects($this->once())
             ->method('info')
             ->willReturnCallback($this->createLoggerInfoCallback('Set states of 0 news.'));
 

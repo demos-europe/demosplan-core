@@ -7,7 +7,11 @@ wir hatten Sie bereits darauf hingewiesen, dass Ihr Konto wegen Inaktivität gel
 
 Ihr Konto wird am {{ templateVars.deletion_date }} gelöscht, sofern Sie sich bis dahin nicht anmelden.{{ templateVars.link_section|raw }}
 
+{% if templateVars.support_email %}
+Bei Fragen stehen wir Ihnen gerne unter <a href="mailto:{{ templateVars.support_email }}">{{ templateVars.support_email }}</a> zur Verfügung.
+
+{% endif %}
 Mit freundlichen Grüßen
-Ihr Support-Team {{ projectName }}
+Ihr DEMOS Support Team
 
 {% endblock body_plain %}

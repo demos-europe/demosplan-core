@@ -24,10 +24,11 @@ use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceLinkageFactory;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
+use demosplan\DemosPlanCoreBundle\Logic\CustomField\CustomFieldFilterResponseBuilder;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\BookmarkService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\UserFilterSetService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFilterHandler;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\HashedQueryResourceType;
@@ -135,6 +136,89 @@ class DemosPlanProcedureAPIController extends APIController
     }
 
     /**
+     * Records the usage of a boilerplate in the recommendation of a segment.
+     * Idempotent: inserting the same boilerplate into the same segment again
+     * keeps the single existing usage entry. Failures are logged but not
+     * surfaced to the user: recording is non-critical, the text was inserted
+     * regardless.
+     */
+    #[DplanPermissions(['feature_boilerplate_usage_list', 'feature_segment_recommendation_edit'])]
+    #[Route(path: '/api/1.0/procedures/{procedureId}/boilerplates/{boilerplateId}/usage', name: 'dplan_boilerplate_usage_create', options: ['expose' => true], methods: ['POST'])]
+    public function createBoilerplateUsage(
+        ProcedureService $procedureService,
+        string $procedureId,
+        string $boilerplateId,
+    ): Response {
+        try {
+            $boilerplate = $procedureService->getBoilerplateOfProcedure($boilerplateId, $procedureId);
+            if (null === $boilerplate) {
+                $this->logger->warning(
+                    'Boilerplate usage not recorded: boilerplate not found in procedure',
+                    ['boilerplateId' => $boilerplateId, 'procedureId' => $procedureId]
+                );
+
+                return $this->renderEmpty(Response::HTTP_NOT_FOUND);
+            }
+
+            $segmentId = $this->getRequestJson('segmentId');
+            $recorded = is_string($segmentId)
+                && $procedureService->addBoilerplateUsage($boilerplate, $segmentId, $procedureId);
+
+            return $recorded
+                ? $this->renderSuccess(Response::HTTP_NO_CONTENT)
+                : $this->renderEmpty(Response::HTTP_BAD_REQUEST);
+        } catch (Exception $e) {
+            $this->logger->error(
+                'Failed to record boilerplate usage',
+                ['boilerplateId' => $boilerplateId, 'procedureId' => $procedureId, 'exception' => $e]
+            );
+
+            return $this->renderEmpty(Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Records the usage of a boilerplate in the recommendations of multiple
+     * segments at once (bulk edit). Idempotent per boilerplate/segment pair.
+     * Failures are logged but not surfaced to the user: recording is
+     * non-critical, the text was inserted regardless.
+     */
+    #[DplanPermissions(['feature_boilerplate_usage_list', 'feature_segment_recommendation_edit'])]
+    #[Route(path: '/api/1.0/procedures/{procedureId}/boilerplates/{boilerplateId}/usages', name: 'dplan_boilerplate_usage_create_bulk', options: ['expose' => true], methods: ['POST'])]
+    public function createBoilerplateUsages(
+        ProcedureService $procedureService,
+        string $procedureId,
+        string $boilerplateId,
+    ): Response {
+        try {
+            $boilerplate = $procedureService->getBoilerplateOfProcedure($boilerplateId, $procedureId);
+            if (null === $boilerplate) {
+                $this->logger->warning(
+                    'Boilerplate usages not recorded: boilerplate not found in procedure',
+                    ['boilerplateId' => $boilerplateId, 'procedureId' => $procedureId]
+                );
+
+                return $this->renderEmpty(Response::HTTP_NOT_FOUND);
+            }
+
+            $segmentIds = $this->getRequestJson('segmentIds');
+            $recorded = is_array($segmentIds)
+                && 0 < $procedureService->addBoilerplateUsages($boilerplate, $segmentIds, $procedureId);
+
+            return $recorded
+                ? $this->renderSuccess(Response::HTTP_NO_CONTENT)
+                : $this->renderEmpty(Response::HTTP_BAD_REQUEST);
+        } catch (Exception $e) {
+            $this->logger->error(
+                'Failed to record boilerplate usages',
+                ['boilerplateId' => $boilerplateId, 'procedureId' => $procedureId, 'exception' => $e]
+            );
+
+            return $this->renderEmpty(Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    /**
      * Returns a JSON with the available filters for the assessment table.
      *
      * @return APIResponse
@@ -174,6 +258,7 @@ class DemosPlanProcedureAPIController extends APIController
         PermissionsInterface $permissions,
         Request $request,
         StatementFilterHandler $statementFilterHandler,
+        CustomFieldFilterResponseBuilder $cfFilterResponseBuilder,
         $procedureId,
         $filterHash = '',
     ) {
@@ -184,6 +269,7 @@ class DemosPlanProcedureAPIController extends APIController
             $permissions,
             $request,
             $statementFilterHandler,
+            $cfFilterResponseBuilder,
             $procedureId,
             $filterHash,
             true
@@ -205,6 +291,7 @@ class DemosPlanProcedureAPIController extends APIController
         PermissionsInterface $permissions,
         Request $request,
         StatementFilterHandler $statementFilterHandler,
+        CustomFieldFilterResponseBuilder $cfFilterResponseBuilder,
         $procedureId,
         $filterHash = '',
     ) {
@@ -215,6 +302,7 @@ class DemosPlanProcedureAPIController extends APIController
             $permissions,
             $request,
             $statementFilterHandler,
+            $cfFilterResponseBuilder,
             $procedureId,
             $filterHash,
             false
@@ -297,6 +385,7 @@ class DemosPlanProcedureAPIController extends APIController
         PermissionsInterface $permissions,
         Request $request,
         StatementFilterHandler $statementFilterHandler,
+        CustomFieldFilterResponseBuilder $cfFilterResponseBuilder,
         $procedureId,
         $filterHash,
         $original,
@@ -383,6 +472,16 @@ class DemosPlanProcedureAPIController extends APIController
             $responseData[] = $assessmentTableFilter;
         }
 
+        if ($permissions->hasPermission('feature_statements_custom_fields')) {
+            $cfFilterItems = $cfFilterResponseBuilder->buildFilterItems(
+                $procedureId,
+                $original,
+                $rParams['filters'],
+                $rParams['search'] ?? null,
+            );
+            array_push($responseData, ...$cfFilterItems);
+        }
+
         return $this->renderCollection($responseData, AssessmentTableFilterTransformer::class);
     }
 
@@ -395,11 +494,11 @@ class DemosPlanProcedureAPIController extends APIController
      */
     #[DplanPermissions('area_admin_assessmenttable')]
     #[Route(path: '/api/1.0/procedures/{procedureId}/statementfilters/delete/{filterSetId}', name: 'dplan_api_procedure_delete_statement_filter', options: ['expose' => true], methods: ['DELETE'])]
-    public function deleteStatementFilter(UserFilterSetService $userFilterSetService, $filterSetId)
+    public function deleteStatementFilter(BookmarkService $bookmarkService, $filterSetId)
     {
         try {
             // @improve T14122
-            $successful = $userFilterSetService->deleteUserFilterSet($filterSetId);
+            $successful = $bookmarkService->deleteBookmark($filterSetId);
 
             if ($successful) {
                 $this->messageBag->add('confirm', 'confirm.savedFilterSet.deleted');

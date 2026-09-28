@@ -14,11 +14,15 @@ use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureExportJob;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
+use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobDownloadResponseFactory;
+use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobFingerprint;
+use demosplan\DemosPlanCoreBundle\Logic\Export\RunningExportJobLookup;
 use demosplan\DemosPlanCoreBundle\Logic\LocationService;
 use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -27,10 +31,14 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureListService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
 use demosplan\DemosPlanCoreBundle\Logic\User\BrandingService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Message\ExportProcedureMessage;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\ProcedureExtension;
 use demosplan\DemosPlanCoreBundle\ValueObject\SettingsFilter;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Exception;
@@ -44,6 +52,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -152,6 +162,23 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
     }
 
     /**
+     * @return Response
+     *
+     * @throws Exception
+     */
+    #[DplanPermissions(['area_admin_procedures', 'area_search_submitters_cross_procedures'])]
+    #[Route(path: '/verfahren/suche/einreichende', name: 'DemosPlan_procedure_search_submitters_cross_procedures', methods: ['GET'])]
+    public function searchSubmittersAcrossProceduresView()
+    {
+        return $this->render(
+            '@DemosPlanCore/DemosPlanProcedure/administration_search_submitters.html.twig',
+            [
+                'title' => 'search.submitter',
+            ]
+        );
+    }
+
+    /**
      * @throws Exception
      */
     #[DplanPermissions('area_admin_procedures')]
@@ -197,6 +224,123 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
         }
 
         return $this->redirectToRoute('DemosPlan_procedure_administration_get');
+    }
+
+    /**
+     * Start an asynchronous procedure export (Gesamtabzug). Instead of building the ZIP inside the
+     * web request (which risks a gateway timeout on large selections), this enqueues a background
+     * job and returns its id so the browser can poll for completion and then download the result.
+     *
+     * @throws Exception
+     */
+    #[DplanPermissions('area_admin_procedures')]
+    #[Route(
+        path: '/verfahren/export/async',
+        name: 'DemosPlan_procedures_export_async_start',
+        options: ['expose' => true],
+        methods: ['POST']
+    )]
+    public function startAsyncExport(
+        CurrentUserService $currentUserService,
+        CustomerService $customerService,
+        EntityManagerInterface $entityManager,
+        MessageBusInterface $messageBus,
+        Request $request,
+        RunningExportJobLookup $runningExportJobLookup,
+    ): Response {
+        $selectedProcedures = $this->getSelectedItems($request);
+        if (0 === count($selectedProcedures)) {
+            return new JsonResponse(['error' => 'noselection'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $userId = $currentUserService->getUser()->getId();
+        $procedureIds = array_values($selectedProcedures);
+        $useExternalProcedureName = false;
+        $parametersHash = ExportJobFingerprint::forProcedureSelection($procedureIds, $useExternalProcedureName);
+
+        // The export gives no progress feedback, so a slow one invites re-triggering. Hand back the
+        // job that is already running for this exact selection instead of queueing a duplicate on
+        // the serial worker; the client then polls the running job rather than orphaning it.
+        $running = $runningExportJobLookup->find(
+            ProcedureExportJob::class,
+            [
+                'userId'         => $userId,
+                'parametersHash' => $parametersHash,
+            ],
+            [ProcedureExportJob::STATUS_PENDING, ProcedureExportJob::STATUS_PROCESSING]
+        );
+        if ($running instanceof ProcedureExportJob) {
+            return new JsonResponse(['jobId' => $running->getId()]);
+        }
+
+        $job = new ProcedureExportJob();
+        $job->setUserId($userId);
+        $job->setParametersHash($parametersHash);
+        $entityManager->persist($job);
+        $entityManager->flush();
+
+        $messageBus->dispatch(new ExportProcedureMessage(
+            $job->getId(),
+            $procedureIds,
+            $userId,
+            $customerService->getCurrentCustomer()->getId(),
+            $useExternalProcedureName
+        ));
+
+        return new JsonResponse(['jobId' => $job->getId()]);
+    }
+
+    /**
+     * Poll the status of an asynchronous procedure export.
+     */
+    #[DplanPermissions('area_admin_procedures')]
+    #[Route(
+        path: '/verfahren/export/status/{jobId}',
+        name: 'DemosPlan_procedures_export_status',
+        options: ['expose' => true],
+        methods: ['GET']
+    )]
+    public function exportStatus(
+        CurrentUserService $currentUserService,
+        EntityManagerInterface $entityManager,
+        string $jobId,
+    ): Response {
+        $job = $entityManager->find(ProcedureExportJob::class, $jobId);
+        if (!$job instanceof ProcedureExportJob
+            || $job->getUserId() !== $currentUserService->getUser()->getId()) {
+            return new JsonResponse(['status' => 'not_found'], Response::HTTP_NOT_FOUND);
+        }
+
+        return new JsonResponse([
+            'status' => $job->getStatus(),
+            'error'  => $job->getErrorMessage(),
+        ]);
+    }
+
+    /**
+     * Download the result of a finished asynchronous procedure export.
+     */
+    #[DplanPermissions('area_admin_procedures')]
+    #[Route(
+        path: '/verfahren/export/download/{jobId}',
+        name: 'DemosPlan_procedures_export_download',
+        options: ['expose' => true],
+        methods: ['GET']
+    )]
+    public function exportDownload(
+        CurrentUserService $currentUserService,
+        EntityManagerInterface $entityManager,
+        ExportJobDownloadResponseFactory $downloadResponseFactory,
+        string $jobId,
+    ): Response {
+        $job = $entityManager->find(ProcedureExportJob::class, $jobId);
+        if (!$job instanceof ProcedureExportJob
+            || $job->getUserId() !== $currentUserService->getUser()->getId()
+            || ProcedureExportJob::STATUS_COMPLETED !== $job->getStatus()) {
+            throw new NotFoundHttpException();
+        }
+
+        return $downloadResponseFactory->createForJob($job) ?? throw new NotFoundHttpException();
     }
 
     /**

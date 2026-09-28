@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\SlugFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureSettings;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use Zenstruck\Foundry\Persistence\PersistentProxyObjectFactory;
 use Zenstruck\Foundry\Persistence\Proxy;
@@ -106,5 +107,23 @@ class ProcedureFactory extends PersistentProxyObjectFactory
     public function withoutPublicParticipation(): self
     {
         return $this->with(['publicParticipation' => false]);
+    }
+
+    /**
+     * Attaches a default {@see ProcedureSettings} to the created procedure.
+     *
+     * ProcedureFactory does not do this by default because several tests attach their own
+     * ProcedureSettings via ProcedureSettingsFactory::createOne(['procedure' => $procedure])
+     * afterwards; auto-attaching here too would leave the procedure with two settings rows.
+     * Use this only when the procedure is going through code that requires
+     * Procedure::getSettings() to return a real, non-null value (e.g. permission checks).
+     */
+    public function withDefaultSettings(): self
+    {
+        return $this->afterInstantiate(function (Procedure $procedure): void {
+            $settings = new ProcedureSettings();
+            $settings->setProcedure($procedure);
+            $procedure->setSettings($settings);
+        });
     }
 }

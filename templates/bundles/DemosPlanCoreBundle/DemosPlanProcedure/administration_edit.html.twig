@@ -685,7 +685,7 @@
                                                 locationName: templateVars.procedure.locationName,
                                                 municipalCode: templateVars.procedure.municipalCode,
                                                 ars: templateVars.procedure.ars
-                                            }|e('js')|json_encode }}')"
+                                            }|json_encode|e('js', 'utf-8') }}')"
                                             :use-opengeodb="Boolean({{ useOpenGeoDb == true }})"
                                         >
                                             {# Noscript fallback #}
@@ -846,6 +846,17 @@
                                         min-switch-date="{{ 'now'|date('d.m.Y') }}"
                                         :selected-current-phase="state.selectedInternalPhase">
                                     </auto-switch-procedure-phase-form>
+                                {% endif %}
+
+                                {% if hasPermission('field_procedure_allow_uninvited_institutions') %}
+                                    <dp-checkbox
+                                        id="allowUninvitedInstitutions"
+                                        :checked="{{ proceduresettings.allowUninvitedInstitutions ? 'true' : 'false' }}"
+                                        :label="{ text: Translator.trans('procedure.institutions.allow_uninvited') }"
+                                        class="mb-4"
+                                        data-cy="procedure:allowUninvitedInstitutions"
+                                        name="r_allowUninvitedInstitutions">
+                                    </dp-checkbox>
                                 {% endif %}
                             </div>
 

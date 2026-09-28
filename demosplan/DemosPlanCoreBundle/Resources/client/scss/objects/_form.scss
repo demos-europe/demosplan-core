@@ -489,42 +489,44 @@ input.disabled {
     // Used to horizontally lay out checkboxes or radios and their corresponding labels.
     &__element {
         &--checkbox {
-            position: relative;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
 
             > input[type='checkbox'] {
-                position: absolute;
-                top: .3em;
-                left: 0;
-                margin: 0;
-
                 height: .9em;
                 width: .9em;
+                margin: .25em 0 0;
+                flex-shrink: 0;
             }
 
             > label,
             > .o-form__label {
-                padding-left: $inuit-base-spacing-unit;
+                display: inline-block;
+                width: auto;
+                flex: 1;
                 overflow-wrap: anywhere;
                 word-break: normal;
             }
         }
 
         &--radio {
-            position: relative;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
 
             > input[type='radio'] {
-                position: absolute;
-                top: .3em;
-                left: 0;
-                margin: 0;
-
                 height: .9em;
                 width: .9em;
+                margin: .25em 0 0;
+                flex-shrink: 0;
             }
 
             > label,
             > .o-form__label {
-                padding-left: $inuit-base-spacing-unit;
+                display: inline-block;
+                width: auto;
+                flex: 1;
                 overflow-wrap: anywhere;
                 word-break: normal;
             }

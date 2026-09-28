@@ -42,7 +42,7 @@ class ExportReportService
     /**
      * Returns an array with the necessary info to generate the procedure report.
      */
-    public function getReportInfo(string $procedureId, PermissionsInterface $permissions): array
+    public function getReportInfo(string $procedureId, PermissionsInterface $permissions, string $customerId): array
     {
         $report = [];
 
@@ -51,7 +51,7 @@ class ExportReportService
         }
 
         if ($permissions->hasPermission('feature_procedure_report_public_phase')) {
-            $report['public'] = $this->getPublicReportInfo($procedureId);
+            $report['public'] = $this->getPublicReportInfo($procedureId, $customerId);
         }
 
         if ($permissions->hasPermission('feature_procedure_report_invitations')) {
@@ -233,15 +233,22 @@ class ExportReportService
         ];
     }
 
-    protected function getPublicReportInfo(string $procedureId): array
+    protected function getPublicReportInfo(string $procedureId, string $customerId): array
     {
-        $publicActions = $this->reportRepository->getProcedureReportEntries(
+        $phaseChangeEntries = $this->reportRepository->getProcedureReportEntries(
             $procedureId, [ReportEntry::GROUP_PROCEDURE], [ReportEntry::CATEGORY_CHANGE_PHASES]
         );
 
+        $phaseDefinitionEntries = $this->reportRepository->getCustomerReportEntries(
+            $customerId, [ReportEntry::GROUP_PROCEDURE_PHASE_DEFINITION], [ReportEntry::CATEGORY_UPDATE]
+        );
+
+        $merged = array_merge($phaseChangeEntries, $phaseDefinitionEntries);
+        usort($merged, static fn (ReportEntry $a, ReportEntry $b) => $b->getCreateDate() <=> $a->getCreateDate());
+
         return [
             'titleMessage'  => 'procedure.public.phase',
-            'reportEntries' => $publicActions,
+            'reportEntries' => $merged,
         ];
     }
 

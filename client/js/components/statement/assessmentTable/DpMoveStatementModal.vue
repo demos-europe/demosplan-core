@@ -15,7 +15,7 @@
   >
     <!-- modal header -->
     <template v-slot:header>
-      {{ Translator.trans('statement.moveto.procedure') }}
+      <h2>{{ Translator.trans('statement.moveto.procedure') }}</h2>
     </template>
 
     <!-- modal content -->

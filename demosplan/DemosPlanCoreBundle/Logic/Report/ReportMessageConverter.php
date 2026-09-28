@@ -11,9 +11,11 @@
 namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use demosplan\DemosPlanCoreBundle\Twig\Extension\DateExtension;
 use demosplan\DemosPlanCoreBundle\ValueObject\Report\ProcedureFinalMailReportEntryData;
 use demosplan\DemosPlanCoreBundle\ValueObject\Report\RegisteredInvitationReportEntryData;
@@ -43,6 +45,7 @@ class ReportMessageConverter
         GlobalConfigInterface $globalConfig,
         private readonly LoggerInterface $logger,
         private readonly PermissionsInterface $permissions,
+        private readonly ProcedurePhaseDefinitionService $procedurePhaseDefinitionService,
         private readonly RouterInterface $router,
         private readonly TranslatorInterface $translator,
         private readonly FileService $fileService,
@@ -137,6 +140,13 @@ class ReportMessageConverter
             } elseif (ReportEntry::GROUP_PLAN_DRAW === $group) { // Planzeichnung
                 if (ReportEntry::CATEGORY_CHANGE === $category) {
                     $message = $this->createChangePlanDrawMessage($reportEntryMessage);
+                }
+            } elseif (ReportEntry::GROUP_PROCEDURE_PHASE_DEFINITION === $group) {
+                if (ReportEntry::CATEGORY_UPDATE === $category) {
+                    $message = $this->getProcedurePhaseDefinitionUpdateMessage(
+                        $reportEntry->getIdentifier(),
+                        $reportEntryMessage
+                    );
                 }
             }
         } catch (Exception $e) {
@@ -505,6 +515,53 @@ class ReportMessageConverter
         $returnMessage[] = $this->translator->trans('message').': '.nl2br((string) $entry->getMailBody());
 
         return $this->toHtmlLines($returnMessage);
+    }
+
+    private function getProcedurePhaseDefinitionUpdateMessage(string $phaseDefinitionId, array $message): string
+    {
+        $field = $message[ProcedurePhaseDefinitionReportEntryField::FIELD->value] ?? '';
+        $oldValue = $message[ProcedurePhaseDefinitionReportEntryField::OLD_VALUE->value] ?? null;
+        $newValue = $message[ProcedurePhaseDefinitionReportEntryField::NEW_VALUE->value] ?? null;
+        $phaseDefinitionName = $message[ProcedurePhaseDefinitionReportEntryField::PHASE_DEFINITION_NAME->value] ?? null;
+
+        $transKey = match ($field) {
+            ProcedurePhaseDefinitionUpdatableField::NAME->value              => 'text.protocol.phase.definition.name.changed',
+            ProcedurePhaseDefinitionUpdatableField::PERMISSION_SET->value    => 'text.protocol.phase.definition.permissionSet.changed',
+            ProcedurePhaseDefinitionUpdatableField::PARTICIPANT_STATE->value => 'text.protocol.phase.definition.participantState.changed',
+            ProcedurePhaseDefinitionUpdatableField::IS_DELETED->value        => $newValue
+                ? 'text.protocol.phase.definition.deleted'
+                : 'text.protocol.phase.definition.restored',
+            default                                                          => '',
+        };
+
+        if ('' === $transKey) {
+            return '';
+        }
+
+        if (ProcedurePhaseDefinitionUpdatableField::PERMISSION_SET->value === $field) {
+            $oldValue = $this->translator->trans('permissionset.'.$oldValue);
+            $newValue = $this->translator->trans('permissionset.'.$newValue);
+        } elseif (ProcedurePhaseDefinitionUpdatableField::PARTICIPANT_STATE->value === $field) {
+            $oldValue = $this->translator->trans('finished' === $oldValue ? 'yes' : 'no');
+            $newValue = $this->translator->trans('finished' === $newValue ? 'yes' : 'no');
+        }
+
+        $phaseDefinition = $this->procedurePhaseDefinitionService->findById($phaseDefinitionId);
+        if (null === $phaseDefinition) {
+            return '';
+        }
+
+        $transKeyAudience = 'public.participation';
+        if (StatementInterface::INTERNAL === $phaseDefinition->getAudience()) {
+            $transKeyAudience = 'invitable_institution.participation';
+        }
+
+        return $this->translator->trans($transKey, [
+            'phaseName' => $phaseDefinitionName,
+            'audience'  => $this->translator->trans($transKeyAudience),
+            'oldValue'  => $oldValue ?? '',
+            'newValue'  => $newValue ?? '',
+        ]);
     }
 
     protected function getProcedureChangePhasesMessage(array $message): string

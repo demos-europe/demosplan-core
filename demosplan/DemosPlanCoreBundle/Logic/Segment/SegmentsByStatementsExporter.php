@@ -22,18 +22,20 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\Segment\SegmentXlsxExportColumnsEvent;
 use demosplan\DemosPlanCoreBundle\Event\Segment\SegmentXlsxExportDataEvent;
 use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Logic\Export\CsvExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Export\DocumentWriterSelector;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\FileNameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageManager;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\RecommendationConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\StyleInitializer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableXlsExporter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementArrayConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
-use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ConvertedSegment;
+use League\Csv\CannotInsertRecord;
+use League\Csv\Exception as CsvException;
+use League\Csv\InvalidArgument;
 use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpWord\Element\Footer;
 use PhpOffice\PhpWord\Element\Section;
@@ -53,12 +55,13 @@ class SegmentsByStatementsExporter extends SegmentsExporter
 
     public function __construct(
         private readonly AssessmentTableXlsExporter $assessmentTableXlsExporter,
+        private readonly CsvExporter $csvExporter,
         CurrentUserInterface $currentUser,
         private readonly EventDispatcherInterface $eventDispatcher,
         HtmlHelper $htmlHelper,
         protected ImageManager $imageManager,
         ImageLinkConverter $imageLinkConverter,
-        private readonly FileNameGenerator $fileNameGenerator,
+        private readonly RecommendationConverter $recommendationConverter,
         Slugify $slugify,
         StyleInitializer $styleInitializer,
         TranslatorInterface $translator,
@@ -123,6 +126,40 @@ class SegmentsByStatementsExporter extends SegmentsExporter
     public function exportAllXlsx(StatementExportTagFilter $tagFilter, Statement ...$statements): IWriter
     {
         Settings::setOutputEscapingEnabled(true);
+
+        [$exportData, $columnsDefinition] = $this->collectExportData(...$statements);
+
+        $writer = $this->assessmentTableXlsExporter->createExcel($exportData, $columnsDefinition);
+
+        $this->assessmentTableXlsExporter->addFilterInfoSheet($writer, $tagFilter);
+
+        return $writer;
+    }
+
+    /**
+     * @throws ReflectionException
+     * @throws CsvException
+     * @throws CannotInsertRecord
+     * @throws InvalidArgument
+     */
+    public function exportAllCsv(Statement ...$statements): string
+    {
+        [$exportData, $columnsDefinition] = $this->collectExportData(...$statements);
+        $attributesToExport = array_column($columnsDefinition, 'key');
+        $formattedData = $this->assessmentTableXlsExporter->prepareDataForExcelExport($exportData, false, $attributesToExport);
+
+        return $this->csvExporter->generate($formattedData, $columnsDefinition);
+    }
+
+    /**
+     * Converts the Segments (or the Statement itself, in case of an unsegmented Statement) of the
+     * given Statements into flat arrays, together with the matching column definitions. Shared by
+     * the xlsx and csv exports, which only differ in how this data is serialized.
+     *
+     * @return array{0: array<int, array<string, mixed>>, 1: array<int, array<string, mixed>>}
+     */
+    private function collectExportData(Statement ...$statements): array
+    {
         $exportData = [];
         $convertedSegments = [];
         // unfortunately for xlsx export data needs to be an array
@@ -131,7 +168,9 @@ class SegmentsByStatementsExporter extends SegmentsExporter
             if (!$statement->getSegmentsOfStatement()->isEmpty()) {
                 $segmentsOrStatements = $statement->getSegmentsOfStatement();
                 $convertedSegments[] =
-                    $this->convertImagesToReferencesInRecommendations($segmentsOrStatements->toArray());
+                    $this->recommendationConverter->convertImagesToReferencesInRecommendations(
+                        $this->sortSegmentsByOrderInProcedure($segmentsOrStatements->toArray())
+                    );
             }
             foreach ($segmentsOrStatements as $segmentOrStatement) {
                 $convertedData = $this->statementArrayConverter->convertIntoExportableArray($segmentOrStatement);
@@ -145,7 +184,10 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         }
 
         foreach ($convertedSegments as $convertedSegment) {
-            $exportData = $this->updateRecommendationsWithTextReferences($exportData, $convertedSegment);
+            $exportData = $this->recommendationConverter->updateRecommendationsWithTextReferences(
+                $exportData,
+                $convertedSegment
+            );
         }
 
         $columnsDefinition = $this->assessmentTableXlsExporter->selectFormat('segments');
@@ -153,53 +195,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         $this->eventDispatcher->dispatch($columnsEvent, SegmentXlsxExportColumnsEventInterface::class);
         $columnsDefinition = $columnsEvent->getColumnsDefinition();
 
-        $writer = $this->assessmentTableXlsExporter->createExcel($exportData, $columnsDefinition);
-
-        $this->assessmentTableXlsExporter->addFilterInfoSheet($writer, $tagFilter);
-
-        return $writer;
-    }
-
-    private function convertImagesToReferencesInRecommendations(array $segments): array
-    {
-        $sortedSegments = $this->sortSegmentsByOrderInProcedure($segments);
-
-        $convertedSegments = [];
-        /** @var Segment $segment */
-        foreach ($sortedSegments as $segment) {
-            $externId = $segment->getExternId();
-            $convertedSegment = $this->imageLinkConverter->convert($segment, $externId, false);
-            $convertedSegments[$externId] = $convertedSegment;
-        }
-        $this->imageLinkConverter->resetImages();
-
-        return $convertedSegments;
-    }
-
-    /**
-     * @param array<string, mixed>            $segmentsOrStatements
-     * @param array<string, ConvertedSegment> $convertedSegments
-     *
-     * @return array<string, mixed>
-     */
-    private function updateRecommendationsWithTextReferences(
-        array $segmentsOrStatements,
-        array $convertedSegments,
-    ): array {
-        foreach ($segmentsOrStatements as $key => $segmentOrStatement) {
-            $isNotSegment = !array_key_exists('recommendation', $segmentOrStatement);
-            $externIdIsNotOfSegment = !array_key_exists($segmentOrStatement['externId'], $convertedSegments);
-            if ($isNotSegment || $externIdIsNotOfSegment) {
-                continue;
-            }
-
-            $segmentOrStatement['text'] = $convertedSegments[$segmentOrStatement['externId']]->getText();
-            $segmentOrStatement['recommendation'] =
-                $convertedSegments[$segmentOrStatement['externId']]->getRecommendationText();
-            $segmentsOrStatements[$key] = $segmentOrStatement;
-        }
-
-        return $segmentsOrStatements;
+        return [$exportData, $columnsDefinition];
     }
 
     public function exportStatementSegmentsInSeparateDocx(
@@ -209,7 +205,7 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         bool $censorCitizenData,
         bool $censorInstitutionData,
         bool $obscureParameter,
-        array $exportFilteredByTagsWithTopics = [],
+        string $customHeaderText,
     ): PhpWord {
         $censored = $this->needsToBeCensored(
             $statement,
@@ -219,8 +215,8 @@ class SegmentsByStatementsExporter extends SegmentsExporter
 
         $phpWord = PhpWordConfigurator::getPreConfiguredPhpWord();
         $section = $phpWord->addSection($this->styles['globalSection']);
-        $this->addHeader($section, $procedure, Footer::FIRST, $exportFilteredByTagsWithTopics);
-        $this->addHeader($section, $procedure, null, $exportFilteredByTagsWithTopics);
+        $this->addHeader($section, $procedure, Footer::FIRST, $customHeaderText);
+        $this->addHeader($section, $procedure, null, $customHeaderText);
         $this->exportStatement($section, $statement, $tableHeaders, $censored, $obscureParameter);
 
         return $phpWord;
@@ -286,89 +282,5 @@ class SegmentsByStatementsExporter extends SegmentsExporter
         ];
 
         return $this->createTableWithHeader($section, $headerConfigs);
-    }
-
-    /**
-     * Creates a file name from each given {@link Statement} to be used in the ZIP the
-     * {@link Statement} is exported in.
-     *
-     * Initially the file name is created from the
-     * submitters name and the extern ID of the statement. In case of one or multiple
-     * duplicate file names based on this information the database ID is used additionally
-     * for all conflicting {@link Statement}s. Non-conflicting {@link Statement}s will
-     * still only use the submitter name and intern ID.
-     *
-     * @param array<int, Statement> $statements
-     *
-     * @return array<string, Statement>
-     */
-    public function mapStatementsToPathInZip(
-        array $statements,
-        bool $censorCitizenData,
-        bool $censorInstitutionData,
-        string $fileNameTemplate = '',
-    ): array {
-        $pathedStatements = [];
-        $previousKeysOfReaddedDuplicates = [];
-        foreach ($statements as $statement) {
-            $censored = $this->needsToBeCensored(
-                $statement,
-                $censorCitizenData,
-                $censorInstitutionData,
-            );
-
-            $pathInZip = $this->getPathInZip($statement, false, $fileNameTemplate, $censored);
-            // in case of a duplicate, add the database ID to the name
-            if (array_key_exists($pathInZip, $pathedStatements)) {
-                $duplicate = $pathedStatements[$pathInZip];
-                $previousKeysOfReaddedDuplicates[$pathInZip] = $pathInZip;
-                $duplicateExtendedPathInZip = $this->getPathInZip($duplicate, true, $fileNameTemplate);
-                $pathedStatements[$duplicateExtendedPathInZip] = $duplicate;
-                $pathInZip = $this->getPathInZip($statement, true, $fileNameTemplate);
-            }
-
-            if (array_key_exists($pathInZip, $pathedStatements)) {
-                throw new InvalidArgumentException('duplicated statement given');
-            }
-
-            $pathedStatements[$pathInZip] = $statement;
-        }
-
-        // Remove old keys of duplicates only after the previous loop has completed,
-        // as otherwise a third duplicate would be added to the result array without
-        // the extended path.
-        foreach ($previousKeysOfReaddedDuplicates as $key) {
-            unset($pathedStatements[$key]);
-        }
-
-        return $pathedStatements;
-    }
-
-    /**
-     * Creates a file name from the given {@link Statement}.
-     *
-     * The file name is created from the submitters name and the extern ID of the statement.
-     * If the trimmed extern ID is an empty string it will not be included in the result.
-     * Optionally the database ID of the statement can be included too to ensure uniqueness.
-     *
-     * While the extern ID is set in normal parenthesis (`(1234)`), the database ID is set
-     * in square brackets (`[abcd-ef12-…]`). This avoids confusion on the users part for
-     * the case that the extern ID is an empty string and the database ID is included in
-     * the result.
-     */
-    private function getPathInZip(
-        Statement $statement,
-        bool $withDbId,
-        string $fileNameTemplate = '',
-        bool $censored = false,
-    ): string {
-        // prepare needed variables
-        $dbId = $statement->getId();
-
-        $fileName = $this->fileNameGenerator->getFileName($statement, $fileNameTemplate, $censored);
-
-        return $withDbId
-            ? "$fileName-$dbId.docx"
-            : "$fileName.docx";
     }
 }

@@ -157,7 +157,8 @@ class Router implements RouterInterface, WarmableInterface
         $this->procedureIdCache[$procedureId] = $procedureId;
         $slug = $procedureId;
         $shortUrl = $this->procedureRepository->findShortUrlById($procedureId);
-        if ('' !== $shortUrl && '0' !== $shortUrl) {
+        // shortUrl must be a slug (no slashes); reject bad data so it cannot break route generation
+        if ('' !== $shortUrl && '0' !== $shortUrl && !str_contains($shortUrl, '/')) {
             $this->procedureIdCache[$procedureId] = $shortUrl;
             $slug = $shortUrl;
         }
@@ -194,8 +195,8 @@ class Router implements RouterInterface, WarmableInterface
         return $procedureId;
     }
 
-    public function warmUp(string $cacheDir): array
+    public function warmUp(string $cacheDir, ?string $buildDir = null): array
     {
-        return $this->router->warmUp($cacheDir);
+        return $this->router->warmUp($cacheDir, $buildDir);
     }
 }

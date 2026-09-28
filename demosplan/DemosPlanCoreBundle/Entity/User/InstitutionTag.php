@@ -134,6 +134,11 @@ class InstitutionTag extends CoreEntity implements UuidEntityInterface, Institut
         $this->label = $label;
     }
 
+    public function getCategory(): InstitutionTagCategory
+    {
+        return $this->category;
+    }
+
     public function setCategory(InstitutionTagCategoryInterface $category): void
     {
         $this->category = $category;

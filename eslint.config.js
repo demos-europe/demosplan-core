@@ -1,9 +1,9 @@
 const pluginVue = require('eslint-plugin-vue')
 const pluginVueA11y = require('eslint-plugin-vuejs-accessibility')
-const pluginJest = require('eslint-plugin-jest')
+const pluginVitest = require('@vitest/eslint-plugin')
 const pluginJquery = require('eslint-plugin-jquery')
 const js = require('@eslint/js')
-const pluginImportExtensions = require('eslint-plugin-import')
+const pluginImportExtensions = require('eslint-plugin-import-x')
 const tseslint = require('typescript-eslint')
 
 module.exports = [
@@ -45,10 +45,10 @@ module.exports = [
   {
     name: 'app/import-resolver',
     plugins: {
-      import: pluginImportExtensions,
+      'import-x': pluginImportExtensions,
     },
     settings: {
-      'import/resolver': {
+      'import-x/resolver': {
         alias: {
           map: [
             ['@DpJs', './client/js'],
@@ -69,7 +69,6 @@ module.exports = [
       globals: {
         ...require('globals').node,
         ...require('globals').browser,
-        ...require('globals').jest,
         // Webpack DefinePlugin globals
         URL_PATH_PREFIX: 'readonly',
         PROJECT: 'readonly',
@@ -96,18 +95,18 @@ module.exports = [
     },
   },
   {
-    name: 'app/jest-rules',
+    name: 'app/vitest-rules',
     files: ['**/*.test.{js,ts}', '**/*.spec.{js,ts}', '**/tests/**/*.{js,ts}'],
     plugins: {
-      jest: pluginJest,
+      vitest: pluginVitest,
     },
     languageOptions: {
       globals: {
-        ...require('globals').jest,
+        ...pluginVitest.configs.env.languageOptions.globals,
       },
     },
     rules: {
-      ...pluginJest.configs.recommended.rules,
+      ...pluginVitest.configs.recommended.rules,
     },
   },
   {
@@ -136,17 +135,17 @@ module.exports = [
   {
     name: 'app/import-rules',
     plugins: {
-      import: pluginImportExtensions,
+      'import-x': pluginImportExtensions,
     },
     rules: {
       // Prevent imports of files that don't exist or can't be resolved
-      'import/no-unresolved': 'error',
+      'import-x/no-unresolved': 'error',
       // Ensure named imports actually exist in the target module
-      'import/named': 'error',
+      'import-x/named': 'error',
       // Validate default imports from modules that have default exports
-      'import/default': 'error',
+      'import-x/default': 'error',
       // Validate namespace imports (import * as name) have valid exports
-      'import/namespace': 'error',
+      'import-x/namespace': 'error',
     },
   },
   {
@@ -183,7 +182,7 @@ module.exports = [
     name: 'app/custom/rules',
     rules: {
       // Do not allow file extensions when importing .js and .vue files, enforce extension on json files.
-      'import/extensions': ['error', 'never', {
+      'import-x/extensions': ['error', 'never', {
         json: 'always', js: 'never', vue: 'never', ts: 'never',
       }],
 
@@ -281,6 +280,19 @@ module.exports = [
       'vuejs-accessibility/no-redundant-roles': 'warn',
       'vuejs-accessibility/role-has-required-aria-props': 'warn',
       'vuejs-accessibility/tabindex-no-positive': 'warn',
+    },
+  },
+  {
+    /*
+     * TypeScript cannot resolve an extensionless import to a .vue file — there is no compiler option for it.
+     * So in .ts files the extension is required, inverting the project-wide `vue: 'never'` rule.
+     */
+    name: 'app/ts-import-extensions',
+    files: ['**/*.ts'],
+    rules: {
+      'import-x/extensions': ['error', 'never', {
+        json: 'always', js: 'never', vue: 'always', ts: 'never',
+      }],
     },
   },
 ]

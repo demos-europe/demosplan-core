@@ -60,9 +60,9 @@ use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PdfFile;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
@@ -702,7 +702,7 @@ class DraftStatementService
             );
 
             if (false === $submitResult) {
-                $this->logger->warning('DraftStatement could not be submitted: '.DemosPlanTools::varExport($submitResult, true));
+                $this->logger->warning('DraftStatement could not be submitted', ['submitResult' => $submitResult]);
                 continue;
             }
 
@@ -1205,7 +1205,7 @@ class DraftStatementService
                 $draftStatement['paragraph'] = $this->entityHelper->toArray($parentParagraph);
             } catch (Exception) {
                 // Einige alte Einträge verweisen möcglicherweise noch nicht auf eine ParagraphVersion
-                $this->logger->error('No ParagraphVersion found for Id '.DemosPlanTools::varExport($draftStatement['paragraph']->getId(), true));
+                $this->logger->error('No ParagraphVersion found for Id {paragraphId}', ['paragraphId' => $draftStatement['paragraph']->getId()]);
                 unset($draftStatement['paragraph']);
                 $draftStatement['paragraphId'] = null;
             }

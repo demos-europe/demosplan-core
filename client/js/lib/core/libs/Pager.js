@@ -7,6 +7,8 @@
  * All rights reserved
  */
 
+import $ from 'jquery'
+
 /**
  *  DPPager
  *  Helper script to submit pager select form on change
@@ -17,6 +19,7 @@
  *
  * @deprecated use DpPager.vue instead
  */
+
 export default function Pager () {
   // Auto submit closest form on select
   const pagerSelectEl = $('[data-pager-select]')

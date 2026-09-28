@@ -44,7 +44,8 @@
     {% endblock page_header %}
 
     {# content #}
-    <dp-public-detail-no-map inline-template procedure-id="{{ procedure }}" user-id="{{ currentUser.id|default }}">
+    <dp-public-detail-no-map procedure-id="{{ procedure }}" user-id="{{ currentUser.id|default }}">
+        <template #default="{ activeStatement, prefixClass, setRef, toggleStatementModal, updateStatementAndOpenModal }">
         <div id="scParagraph" class="{{ 'o-page__padded'|prefixClass }}">
 
             {% if templateVars.list.documentlistToc|default([])|length > 0 %}
@@ -238,7 +239,7 @@
                     extra-personal-hint="{% block extra_personal_hint %}{% endblock %}"
                     ext-id="{{ templateVars.number|default }}"
                     :form-fields="JSON.parse('{{ statementFields|json_encode|e('js', 'utf-8') }}')"
-                    ref="statementModal"
+                    :ref="setRef('statementModal')"
                     :logged-in="Boolean({{ currentUser.loggedIn }})"
                     :is-map-enabled="Boolean({{ proceduresettings.isMapEnabled }})"
                     :statement-form-fields="JSON.parse('{{ statementFields|json_encode|e('js', 'utf-8') }}')"
@@ -260,6 +261,7 @@
             {% endif %}
 
         </div>
+        </template>
     </dp-public-detail-no-map>
 
 

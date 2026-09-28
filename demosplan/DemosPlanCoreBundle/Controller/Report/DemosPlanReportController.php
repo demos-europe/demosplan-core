@@ -81,8 +81,12 @@ class DemosPlanReportController extends BaseController
         Settings::setPdfRendererName($parameterBag->get('pdf_renderer_name'));
 
         $response = new StreamedResponse(
-            static function () use ($procedureId, $reportMeta, $reportService, $permissions) {
-                $reportInfo = $reportService->getReportInfo($procedureId, $permissions);
+            static function () use ($procedureId, $reportMeta, $reportService, $permissions, $procedure) {
+                $reportInfo = $reportService->getReportInfo(
+                    $procedureId,
+                    $permissions,
+                    $procedure->getCustomer()->getId()
+                );
                 $pdfReport = $reportService->generateProcedureReport($procedureId, $reportInfo, $reportMeta);
                 $pdfReport->save('php://output');
             }

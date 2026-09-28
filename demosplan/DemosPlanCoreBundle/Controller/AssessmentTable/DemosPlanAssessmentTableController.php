@@ -46,7 +46,6 @@ use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Services\HTMLFragmentSlicer;
 use demosplan\DemosPlanCoreBundle\StoredQuery\AssessmentTableQuery;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementBulkEditVO;
 use Doctrine\Common\Collections\Collection;
 use Exception;
@@ -169,7 +168,7 @@ class DemosPlanAssessmentTableController extends BaseController
 
         if ($this->permissions->hasPermission('feature_procedure_user_filter_sets')
             && $request->request->has('r_save_filter_set_name')) {
-            $assessmentHandler->saveUserFilterSet(
+            $assessmentHandler->saveBookmark(
                 $currentUser->getUser(),
                 $procedureId,
                 $request,
@@ -384,7 +383,7 @@ class DemosPlanAssessmentTableController extends BaseController
 
         if ($this->permissions->hasPermission('feature_procedure_user_filter_sets')
             && $request->request->has('r_save_filter_set_name')) {
-            $assessmentHandler->saveUserFilterSet(
+            $assessmentHandler->saveBookmark(
                 $currentUser->getUser(),
                 $procedureId,
                 $request,
@@ -920,7 +919,7 @@ class DemosPlanAssessmentTableController extends BaseController
 
             $departmentId = $currentUser->getUser()->getDepartment()->getId();
 
-            $this->getLogger()->debug('Get Fragment Consideration Versions as Reviewer: '.DemosPlanTools::varExport($isReviewer, true));
+            $this->getLogger()->debug('Get Fragment Consideration Versions as Reviewer: {isReviewer}', ['isReviewer' => $isReviewer]);
 
             $fragmentVersions = $this->statementHandler->getStatementFragmentVersions($fragmentId, $departmentId, $isReviewer);
 
@@ -1061,10 +1060,13 @@ class DemosPlanAssessmentTableController extends BaseController
         $templateVars['filterHash'] = $filterHash;
 
         // Verfahrensschritte
-        $templateVars['internalPhaseDefinitions'] =
-            $this->procedurePhaseDefinitionService->getInternalPhaseDefinitionsForCurrentCustomer();
-        $templateVars['externalPhaseDefinitions'] =
-            $this->procedurePhaseDefinitionService->getExternalPhaseDefinitionsForCurrentCustomer();
+        $currentPhaseAudience = $statement->getPhaseDefinition()->getAudience();
+        $templateVars['internalPhaseDefinitions'] = 'internal' === $currentPhaseAudience
+            ? $this->procedurePhaseDefinitionService->getAvailablePhasesForStatement($statement)
+            : $this->procedurePhaseDefinitionService->getInternalPhaseDefinitionsForCurrentCustomer();
+        $templateVars['externalPhaseDefinitions'] = 'external' === $currentPhaseAudience
+            ? $this->procedurePhaseDefinitionService->getAvailablePhasesForStatement($statement)
+            : $this->procedurePhaseDefinitionService->getExternalPhaseDefinitionsForCurrentCustomer();
 
         $resElements = $this->statementHandler->getElementBlock($procedureId);
         if (isset($resElements['paragraph'])) {

@@ -17,22 +17,25 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Import\ImportJob;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\ImportJobNotFoundException;
-use demosplan\DemosPlanCoreBundle\Exception\ImportJobUserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Import\Statement\SegmentExcelImportResult;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\CsvStatementImport;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\XlsxSegmentImport;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Repository\ImportJobRepository;
+use demosplan\DemosPlanCoreBundle\Types\ImportJobType;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class ImportJobProcessor
 {
     public function __construct(
+        private readonly CsvStatementImport $csvStatementImport,
         private readonly CurrentProcedureService $currentProcedureService,
         private readonly CurrentUserService $currentUserService,
         private readonly EntityManagerInterface $entityManager,
@@ -41,6 +44,7 @@ class ImportJobProcessor
         private readonly ImportJobRepository $importJobRepository,
         private readonly LoggerInterface $logger,
         private readonly PermissionsInterface $permissions,
+        private readonly TranslatorInterface $translator,
         private readonly XlsxSegmentImport $xlsxSegmentImport,
     ) {
     }
@@ -78,8 +82,12 @@ class ImportJobProcessor
                 }
             }
 
-            // Commit transaction after processing jobs
-            $this->entityManager->commit();
+            // Commit transaction after processing jobs. A job that found validation errors has already
+            // rolled this transaction back and committed its own one to store the error, so there may
+            // be nothing left to commit here.
+            if ($this->entityManager->getConnection()->isTransactionActive()) {
+                $this->entityManager->commit();
+            }
         } catch (Exception $e) {
             // Rollback transaction on error
             if ($this->entityManager->getConnection()->isTransactionActive()) {
@@ -107,7 +115,9 @@ class ImportJobProcessor
         }
 
         $jobId = $job->getId();
-        $errorMessage = mb_substr($exception->getMessage(), 0, 65000);
+        // The exception can be a raw DBAL/SQL failure (e.g. a unique-constraint violation) - the full
+        // detail goes to the log via logJobFailure() below, never into the user-facing job record.
+        $errorMessage = $this->translator->trans('error.import.job.unexpected');
 
         // Try ORM flush first (works for non-DBAL exceptions where EM is still open)
         if ($this->entityManager->isOpen()) {
@@ -151,6 +161,64 @@ class ImportJobProcessor
         $this->logJobFailure($jobId, $exception);
     }
 
+    /**
+     * Runs the importer the job asks for. Both importers return the same result object, so the
+     * surrounding bookkeeping does not need to know which one ran.
+     *
+     * @throws Exception
+     */
+    private function runImport(ImportJob $job, FileInfo $file): SegmentExcelImportResult
+    {
+        return match ($job->getImportType()) {
+            ImportJobType::STATEMENTS => $this->csvStatementImport->importFromFile($file),
+            default                   => $this->xlsxSegmentImport->importFromFile($file),
+        };
+    }
+
+    /**
+     * A csv holds a single table, so naming a worksheet would only be confusing there. This depends on
+     * the file's actual format, not on {@see ImportJob::getImportType()} - the two happen to line up
+     * for every importer that exists today, but must not be conflated once a format gets a second
+     * importer (e.g. a csv-based segment import).
+     *
+     * @param array<string, mixed> $error
+     */
+    private function describeError(ImportJob $job, array $error): string
+    {
+        $lineNumber = $error['lineNumber'] ?? '?';
+        $message = $error['message'] ?? 'Unknown error';
+
+        if ($this->isCsv($job)) {
+            return sprintf("• Zeile %s: %s\n", $lineNumber, $message);
+        }
+
+        return sprintf(
+            "• Arbeitsblatt \"%s\", Zeile %s: %s\n",
+            $error['currentWorksheet'] ?? 'Unknown',
+            $lineNumber,
+            $message
+        );
+    }
+
+    private function isCsv(ImportJob $job): bool
+    {
+        return 'csv' === mb_strtolower(pathinfo($job->getFileName(), PATHINFO_EXTENSION));
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    private function buildJobResult(ImportJob $job, SegmentExcelImportResult $result): array
+    {
+        $jobResult = ['statements' => $result->getStatementCount()];
+
+        if (ImportJobType::SEGMENTS === $job->getImportType()) {
+            $jobResult['segments'] = $result->getSegmentCount();
+        }
+
+        return $jobResult;
+    }
+
     private function logJobFailure(string $jobId, Exception $exception): void
     {
         $this->logger->error('Import job failed with exception', [
@@ -174,9 +242,6 @@ class ImportJobProcessor
 
         // Use the actual user who created the import job
         $user = $job->getUser();
-        if (!$user instanceof User) {
-            throw ImportJobUserNotFoundException::create($job->getId());
-        }
 
         $customer = $job->getProcedure()->getCustomer();
         $this->globalConfig->setSubdomain($customer->getSubdomain());
@@ -202,7 +267,7 @@ class ImportJobProcessor
         try {
             $fileInfo = $this->fileService->getFileInfo($fileIdent);
         } catch (Exception $e) {
-            $job->markAsFailed('Failed to retrieve file from storage: '.$e->getMessage());
+            $job->markAsFailed($this->translator->trans('error.import.job.file.retrieval.failed'));
             $this->entityManager->flush();
             $this->logger->error('Import job file retrieval failed', [
                 'jobId'       => $job->getId(),
@@ -219,7 +284,7 @@ class ImportJobProcessor
         try {
             $localPath = $this->fileService->ensureLocalFile($fileInfo->getAbsolutePath(), $fileIdent);
         } catch (Exception $e) {
-            $job->markAsFailed('Failed to download file locally: '.$e->getMessage());
+            $job->markAsFailed($this->translator->trans('error.import.job.file.download.failed'));
             $this->entityManager->flush();
             $this->logger->error('Import job file download failed', [
                 'jobId'     => $job->getId(),
@@ -243,7 +308,7 @@ class ImportJobProcessor
             );
 
             // Execute import (reuse existing optimized code)
-            $result = $this->xlsxSegmentImport->importFromFile($localFileInfo);
+            $result = $this->runImport($job, $localFileInfo);
 
             if ($result->hasErrors()) {
                 // Rollback transaction before saving error (prevents nested transaction issues)
@@ -275,24 +340,27 @@ class ImportJobProcessor
 
                 // Create concise error summary for display (TEXT column has 65KB limit)
                 $showErrors = 40;
+                $shownCount = min($showErrors, $errorCount);
+                $firstErrorsLabel = 1 === $shownCount
+                    ? 'Erster Fehler:'
+                    : sprintf('Erste %d Fehler:', $shownCount);
                 $errorSummary = sprintf(
-                    "Validierungsfehler in der Import-Datei: %d Fehler gefunden.\n\nErste %d Fehler:\n\n",
+                    "Validierungsfehler in der Import-Datei: %d Fehler gefunden.\n\n%s\n\n",
                     $errorCount,
-                    min($showErrors, $errorCount)
+                    $firstErrorsLabel
                 );
 
                 // Add first errors to summary
                 $firstErrors = array_slice($errors, 0, $showErrors);
                 foreach ($firstErrors as $error) {
-                    $worksheet = $error['currentWorksheet'] ?? 'Unknown';
-                    $lineNumber = $error['lineNumber'] ?? '?';
-                    $message = $error['message'] ?? 'Unknown error';
-                    $errorSummary .= sprintf("• Arbeitsblatt \"%s\", Zeile %s: %s\n", $worksheet, $lineNumber, $message);
+                    $errorSummary .= $this->describeError($job, $error);
                 }
 
                 if ($errorCount > $showErrors) {
-                    $errorSummary .= sprintf("\n... und %d weitere Fehler", $errorCount - $showErrors
-                    );
+                    $remainingCount = $errorCount - $showErrors;
+                    $errorSummary .= 1 === $remainingCount
+                        ? "\n... und ein weiterer Fehler"
+                        : sprintf("\n... und %d weitere Fehler", $remainingCount);
                 }
 
                 // Store full error details in result field (JSON can handle large data)
@@ -311,14 +379,12 @@ class ImportJobProcessor
             }
 
             // Mark as completed with results
-            $job->markAsCompleted([
-                'statements' => $result->getStatementCount(),
-                'segments'   => $result->getSegmentCount(),
-            ]);
+            $job->markAsCompleted($this->buildJobResult($job, $result));
             $this->entityManager->flush();
 
             $this->logger->info('Import job completed', [
                 'jobId'      => $job->getId(),
+                'importType' => $job->getImportType()->value,
                 'statements' => $result->getStatementCount(),
                 'segments'   => $result->getSegmentCount(),
             ]);

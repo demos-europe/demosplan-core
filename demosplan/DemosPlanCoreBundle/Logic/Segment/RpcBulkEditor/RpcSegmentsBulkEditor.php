@@ -15,6 +15,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Segment\RpcBulkEditor;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
+use DemosEurope\DemosplanAddon\Contracts\Events\SegmentTagsChangedEventInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use DemosEurope\DemosplanAddon\Validator\JsonSchemaValidator;
@@ -25,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\EntityValidator\TagValidator;
+use demosplan\DemosPlanCoreBundle\Event\Segment\SegmentTagsChangedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotAssignableException;
@@ -40,14 +43,15 @@ use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 use Exception;
 use JsonException;
 use JsonSchema\Exception\InvalidSchemaException;
 use Psr\Log\LoggerInterface;
 use stdClass;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * You find general RPC API usage information
@@ -57,12 +61,18 @@ use stdClass;
  * "params": {
  *   "addTagIds": <JSON array of tag IDs>,
  *   "removeTagIds": <JSON array of tag IDs>,
- *   "assigneeId": <JSON string of a user ID>,
- *   "segmentIds": <JSON array: array of segment IDs>,
- *   "recommendationTextEdit": <JSON object containing "text" as string and "attach" as boolean>
+ *   "segmentIds": <JSON array of segment IDs>,
+ *   "recommendationTextEdit": <JSON object: "text" (string) and "attach" (boolean)>,
+ *   "assigneeId": <JSON string user ID, or null to unassign — omit the key to leave the assignee unchanged>,
+ *   "placeId": <JSON string: 36-char workflow place UUID>,
+ *   "customFields": <JSON array of {id, value} objects, e.g. [{"id": "f3a8…", "value": "high"}]>,
+ *   "deadline": <JSON string: date in YYYY-MM-DD format, omit to leave unchanged>
  * }
  * ```
- * All fields are required, however each array/object may be empty.
+ * `addTagIds`, `removeTagIds`, `segmentIds` and `recommendationTextEdit` are
+ * required by the JSON schema (each array/object may be empty).
+ * `assigneeId`, `placeId` and `customFields` are optional — omit them to leave
+ * the corresponding segment property unchanged.
  */
 class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 {
@@ -70,7 +80,12 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
     final public const SEGMENTS_BULK_EDIT_METHOD = 'segment.bulk.edit';
 
-    public function __construct(protected CurrentProcedureService $currentProcedure, protected CurrentUserInterface $currentUser, protected LoggerInterface $logger, protected JsonSchemaValidator $jsonValidator, protected PlaceService $placeService, protected ProcedureService $procedureService, protected RpcErrorGenerator $errorGenerator, protected SegmentHandler $segmentHandler, protected SegmentValidator $segmentValidator, protected TagService $tagService, protected TagValidator $tagValidator, private readonly TransactionService $transactionService, protected UserHandler $userHandler, protected SegmentBulkEditorService $segmentBulkEditorService)
+    final public const SEGMENTS_BULK_ERROR_MESSAGE = 'Problem while segments bulk editing';
+
+    /** @var SegmentInterface[] */
+    protected array $segmentsWithTagChanges = [];
+
+    public function __construct(protected CurrentProcedureService $currentProcedure, protected CurrentUserInterface $currentUser, protected LoggerInterface $logger, protected JsonSchemaValidator $jsonValidator, protected PlaceService $placeService, protected ProcedureService $procedureService, protected RpcErrorGenerator $errorGenerator, protected SegmentHandler $segmentHandler, protected SegmentValidator $segmentValidator, protected TagService $tagService, protected TagValidator $tagValidator, protected readonly TransactionService $transactionService, protected UserHandler $userHandler, protected SegmentBulkEditorService $segmentBulkEditorService, protected readonly EventDispatcherInterface $eventDispatcher)
     {
     }
 
@@ -84,9 +99,11 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
      */
     public function execute(?ProcedureInterface $procedure, $rpcRequests): array
     {
-        return $this->transactionService->executeAndFlushInTransaction(function (EntityManager $entityManager) use (
+        $this->setSegmentsWithTagChanges([]);
+
+        $resultResponse = $this->transactionService->executeAndFlushInTransaction(function (EntityManager $entityManager) use (
             $procedure,
-            $rpcRequests
+            $rpcRequests,
         ): array {
             $procedureId = $procedure->getId();
 
@@ -105,6 +122,19 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
                 try {
                     $this->validateRpcRequest($rpcRequest);
                     $segmentIds = $rpcRequest->params->segmentIds;
+
+                    /*
+                     * Reject the whole batch if the segment lock feature is
+                     * enabled for the current project and any segment is locked
+                     * by its workflow place for the current user — see
+                     * {{ @see SegmentBulkEditorService::assertBatchEditable }}.
+                     * Runs before {{ @see SegmentBulkEditorService::getValidSegments }}
+                     * so we don't pay entity hydration cost on batches we're
+                     * about to reject. Admins with `feature_administrate_segment_lock`
+                     * pass through.
+                     */
+                    $this->segmentBulkEditorService->assertBatchEditable($segmentIds, $procedureId);
+
                     $segments = $this->segmentBulkEditorService->getValidSegments($segmentIds, $procedureId);
 
                     // update texts directly in database for performance reasons
@@ -131,25 +161,29 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
                     $customFields = $this->extractCustomFields($rpcRequest);
 
-                    $segments = $this->segmentBulkEditorService->updateSegments(
+                    $deadline = $this->extractDeadline($rpcRequest);
+
+                    [$segments, $segmentsWithChangedTags] = $this->segmentBulkEditorService->updateSegments(
                         $segments,
                         $addTagIds,
                         $removeTagIds,
                         $assignee,
                         $workflowPlace,
-                        $customFields
+                        $customFields,
+                        $deadline,
                     );
+                    $this->segmentsWithTagChanges = [...$this->segmentsWithTagChanges, ...$segmentsWithChangedTags];
 
                     $resultSegments = [...$resultSegments, ...$segments];
                     $resultResponse[] = $this->generateMethodResult($rpcRequest);
                 } catch (InvalidArgumentException|InvalidSchemaException|UserNotAssignableException $e) {
-                    $this->logger->error('Problem while segments bulk editing', ['Exception' => $e]);
+                    $this->logger->error(self::SEGMENTS_BULK_ERROR_MESSAGE, ['Exception' => $e]);
                     $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
                 } catch (AccessDeniedException|UserNotFoundException $e) {
-                    $this->logger->error('Problem while segments bulk editing', ['Exception' => $e]);
+                    $this->logger->error(self::SEGMENTS_BULK_ERROR_MESSAGE, ['Exception' => $e]);
                     $resultResponse[] = $this->errorGenerator->accessDenied($rpcRequest);
                 } catch (Exception $e) {
-                    $this->logger->error('Problem while segments bulk editing', ['Exception' => $e]);
+                    $this->logger->error(self::SEGMENTS_BULK_ERROR_MESSAGE, ['Exception' => $e]);
                     $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
                 }
             }
@@ -157,6 +191,49 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
 
             return $resultResponse;
         });
+
+        if ([] !== $this->getSegmentsWithTagChanges()) {
+            try {
+                $this->dispatchSegmentTagsChangedEvent($this->getSegmentsWithTagChanges());
+            } catch (Exception $e) {
+                $this->logger->error('Failed to dispatch SegmentTagsChangedEvent', ['Exception' => $e]);
+            }
+        }
+
+        return $resultResponse;
+    }
+
+    /**
+     * @return SegmentInterface[]
+     */
+    private function getSegmentsWithTagChanges(): array
+    {
+        return $this->segmentsWithTagChanges;
+    }
+
+    /**
+     * @param SegmentInterface[] $segments
+     */
+    private function setSegmentsWithTagChanges(array $segments): void
+    {
+        $this->segmentsWithTagChanges = $segments;
+    }
+
+    /**
+     * @param SegmentInterface[] $segments
+     */
+    private function dispatchSegmentTagsChangedEvent(array $segments): void
+    {
+        $statements = [];
+        foreach ($segments as $segment) {
+            $statement = $segment->getParentStatementOfSegment();
+            $statements[$statement->getId()] = $statement;
+        }
+
+        $this->eventDispatcher->dispatch(
+            new SegmentTagsChangedEvent(array_values($statements)),
+            SegmentTagsChangedEventInterface::class
+        );
     }
 
     /**
@@ -266,6 +343,32 @@ class RpcSegmentsBulkEditor implements RpcMethodSolverInterface
         }
 
         return json_decode(json_encode($rawCustomFields), true);
+    }
+
+    // for deadline field
+    private function extractDeadline(object $rpcRequest): ?DateTime
+    {
+        if (!$this->currentUser->hasPermission('field_statement_deadline')) {
+            return null;
+        }
+        $deadline = data_get($rpcRequest, 'params.deadline', null);
+        if (!is_string($deadline)) {
+            return null;
+        }
+        $deadline = trim($deadline);
+        if ('' === $deadline) {
+            return null;
+        }
+        // validate the format so a invalid value surfaces as an invalidParams error instead of an uncaught exception from the DateTime constructor.
+        $date = DateTime::createFromFormat('!Y-m-d', $deadline);
+        $errors = DateTime::getLastErrors();
+        if (!$date instanceof DateTime
+            || (is_array($errors) && ($errors['warning_count'] > 0 || $errors['error_count'] > 0))
+        ) {
+            throw new InvalidArgumentException('Invalid deadline provided; expected format YYYY-MM-DD.');
+        }
+
+        return $date;
     }
 
     /**

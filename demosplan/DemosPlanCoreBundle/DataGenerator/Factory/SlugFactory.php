@@ -47,7 +47,7 @@ final class SlugFactory extends PersistentProxyObjectFactory
     protected function defaults(): array
     {
         return [
-            'name' => self::faker()->streetName(),
+            'name' => self::faker()->unique()->streetName(),
         ];
     }
 

@@ -68,6 +68,11 @@
       type="hidden"
       name="currentTableSort"
     >
+    <input
+      type="hidden"
+      name="_token"
+      :value="csrfToken"
+    >
 
     <!-- Top pager -->
     <dp-pager
@@ -576,6 +581,8 @@ export default {
       const tmpPager = {
         ...this.pagination,
         count: newSize,
+        per_page: newSize,
+        current_page: 1,
       }
 
       this.updatePagination(tmpPager)

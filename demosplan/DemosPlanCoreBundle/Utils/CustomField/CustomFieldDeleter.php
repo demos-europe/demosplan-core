@@ -16,10 +16,12 @@ use DemosEurope\DemosplanAddon\Contracts\Services\TransactionServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Constraint\ProcedureWithStatementsCustomFieldConstraint;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\EntityCustomFieldUsageStrategyFactory;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 class CustomFieldDeleter
 {
@@ -27,6 +29,7 @@ class CustomFieldDeleter
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
         private readonly EntityCustomFieldUsageStrategyFactory $entityCustomFieldUsageStrategyFactory,
         private readonly TransactionServiceInterface $transactionService,
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -39,7 +42,6 @@ class CustomFieldDeleter
     {
         $this->transactionService->executeAndFlushInTransaction(
             function () use ($entityId): void {
-                // Get the CustomFieldConfiguration from database
                 /** @var CustomFieldConfiguration $customFieldConfiguration */
                 $customFieldConfiguration = $this->customFieldConfigurationRepository->find($entityId);
 
@@ -47,11 +49,18 @@ class CustomFieldDeleter
                     throw new InvalidArgumentException("CustomFieldConfiguration with ID '{$entityId}' not found");
                 }
 
-                // 1. Entity-specific cleanup (replaces hardcoded removeSegmentUsages)
+                $violations = $this->validator->validate(
+                    $customFieldConfiguration,
+                    [new ProcedureWithStatementsCustomFieldConstraint(['message' => 'CustomField cannot be deleted: Procedure with statements'])]
+                );
+
+                if ($violations->count() > 0) {
+                    throw new InvalidArgumentException((string) $violations);
+                }
+
                 $entityStrategy = $this->entityCustomFieldUsageStrategyFactory->createUsageRemovalStrategy($customFieldConfiguration->getTargetEntityClass());
                 $entityStrategy->removeUsages($entityId);
 
-                // 2. Delete the custom field configuration
                 $this->customFieldConfigurationRepository->deleteObject($customFieldConfiguration);
             }
         );

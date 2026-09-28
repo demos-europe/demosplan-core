@@ -62,6 +62,29 @@ class StatementListController extends BaseController
     }
 
     /**
+     * Renders the statement group creation page.
+     *
+     * @throws Exception
+     */
+    #[DplanPermissions('feature_statement_cluster')]
+    #[Route(
+        path: '/verfahren/{procedureId}/einwendungen/gruppe-erstellen',
+        name: 'dplan_procedure_statement_group_create',
+        options: ['expose' => true],
+        methods: ['GET']
+    )]
+    public function showStatementGroupCreateForm(string $procedureId): Response
+    {
+        return $this->render(
+            '@DemosPlanCore/DemosPlanStatement/create_statement_group.html.twig',
+            [
+                'procedure' => $procedureId,
+                'title'     => 'statement.cluster.create',
+            ]
+        );
+    }
+
+    /**
      * List all original statements per procedure.
      *
      * @throws ProcedureNotFoundException

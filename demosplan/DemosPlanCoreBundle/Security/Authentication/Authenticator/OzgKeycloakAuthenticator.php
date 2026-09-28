@@ -80,19 +80,19 @@ class OzgKeycloakAuthenticator extends AbstractOzgKeycloakAuthenticator implemen
     {
         $client = $this->ozgKeycloakClientFactory->createForCurrentCustomer();
         $accessToken = $this->fetchAccessToken($client);
-        $this->logger->info('login attempt', ['accessToken' => $accessToken]);
+        $this->logger->info('oauthAuthenticator: login attempt', ['accessToken' => $accessToken]);
 
         // Execute user creation immediately instead of deferring it
         try {
             $this->entityManager->getConnection()->beginTransaction();
-            $this->logger->info('Start of doctrine transaction.');
+            $this->logger->info('oauthAuthenticator: Start of doctrine transaction.');
 
             // Decode the JWT access token to get ALL claims including resource_access
             // Parse without verification since Keycloak signed it with its own keys
             $parser = new Parser(new JoseEncoder());
             $token = $parser->parse($accessToken->getToken());
             $decodedJwtPayload = $token->claims()->all();
-            $this->logger->info('raw token', [$decodedJwtPayload]);
+            $this->logger->info('oauthAuthenticator: raw token', [$decodedJwtPayload]);
 
             $customerSubdomain = $this->customerService->getCurrentCustomer()->getSubdomain();
             $keycloakClientId = $this->ozgKeycloakClientFactory->getClientIdForCurrentCustomer(
@@ -102,18 +102,18 @@ class OzgKeycloakAuthenticator extends AbstractOzgKeycloakAuthenticator implemen
             // Create ResourceOwner with complete JWT payload (includes resource_access)
             $resourceOwner = new KeycloakResourceOwner($decodedJwtPayload);
             $this->ozgKeycloakUserData->fill($resourceOwner, $customerSubdomain, $keycloakClientId);
-            $this->logger->info('Found user data: '.$this->ozgKeycloakUserData);
+            $this->logger->info('oauthAuthenticator: Found user data: '.$this->ozgKeycloakUserData);
             $user = $this->ozgKeycloakUserDataMapper->mapUserData($this->ozgKeycloakUserData);
 
             $this->entityManager->getConnection()->commit();
-            $this->logger->info('doctrine transaction commit.');
+            $this->logger->info('oauthAuthenticator: doctrine transaction commit.');
             $request->getSession()->set('userId', $user->getId());
             $this->pendingAccessToken = $accessToken;
         } catch (Exception $e) {
             $this->entityManager->getConnection()->rollBack();
-            $this->logger->info('doctrine transaction rollback.');
+            $this->logger->info('oauthAuthenticator: doctrine transaction rollback.');
             $this->logger->error(
-                'login failed',
+                'oauthAuthenticator: login failed',
                 [
                     'requestValues' => $this->ozgKeycloakUserData,
                     'exception'     => $e,

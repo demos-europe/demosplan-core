@@ -75,14 +75,27 @@
         class="u-mb-0_25"
         :label="{
           bold: true,
+          hint: Translator.trans('email.daily.assigned.tasks.explanation'),
           text: Translator.trans('email.daily.subscribe')
         }"
         name="assignedTaskNotification"
         value-to-send="on"
       />
-      <p>
-        {{ Translator.trans('email.daily.assigned.tasks.explanation') }}
-      </p>
+    </template>
+
+    <template v-if="hasPermission('feature_statement_deadline_mail_setting')">
+      <dp-checkbox
+        id="segmentDeadlineReminderEnabled"
+        v-model="isSegmentDeadlineReminderChecked"
+        class="mb-1"
+        :label="{
+          bold: true,
+          hint: Translator.trans('email.segment.deadline.reminder.explanation'),
+          text: Translator.trans('email.segment.deadline.reminder.subscribe')
+        }"
+        name="segmentDeadlineReminderEnabled"
+        value-to-send="on"
+      />
     </template>
 
     <template v-if="hasPermission('feature_statement_gdpr_consent')">
@@ -133,6 +146,11 @@ export default {
       default: true,
     },
 
+    isSegmentDeadlineReminderEnabled: {
+      type: Boolean,
+      default: true,
+    },
+
     user: {
       type: Object,
       required: true,
@@ -145,6 +163,7 @@ export default {
   data () {
     return {
       isDailyDigestChecked: this.isDailyDigestEnabled,
+      isSegmentDeadlineReminderChecked: this.isSegmentDeadlineReminderEnabled,
       userData: this.setUserData(),
     }
   },

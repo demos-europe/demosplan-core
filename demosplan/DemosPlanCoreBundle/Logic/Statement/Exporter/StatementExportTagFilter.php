@@ -16,9 +16,13 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagTopicInterface;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function in_array;
@@ -28,6 +32,7 @@ class StatementExportTagFilter
     public function __construct(
         private readonly TranslatorInterface $translator,
         private readonly EntityManagerInterface $entityManager,
+        private readonly DqlConditionFactory $conditionFactory,
     ) {
     }
     private const TAG_IDS_FILTER_KEY = 'tagIds';
@@ -77,12 +82,115 @@ class StatementExportTagFilter
             return $statements;
         }
 
-        // Pre-fetch all relationships to avoid N+1 queries
-        $this->initializeRelationships($statements);
-
         // the goal is to exclude all Segments from the payload that do not match the filter criteria
         // if all Segments from a parentStatement get excluded - the whole statement gets excluded as well.
         return $this->applyTagFilter($statements, $tagIds, $tagTitles, $tagTopicIds, $tagTopicTitles);
+    }
+
+    /**
+     * Translates the {@see filterStatementsByTags()} criteria into query conditions on the
+     * Statement resource, so the tag filter can be pushed into the DB/Elasticsearch query
+     * instead of loading every statement of the procedure and discarding non-matching ones
+     * in PHP.
+     *
+     * The conditions target the already-filterable path `segments.tags.*`. Multiple criteria
+     * are OR-combined, mirroring the OR logic of {@see applyTagFilter()}: a statement matches
+     * if any of its segments carries a tag (or tag topic) matching any criterion.
+     *
+     * Returns an empty array when no supported criteria are present, leaving the query
+     * unchanged (full export).
+     *
+     * @return list<ClauseFunctionInterface<bool>>
+     */
+    public function buildStatementTagConditions(array $tagsFilter, StatementResourceType $statementResourceType, string $procedureId): array
+    {
+        $tagIds = $tagsFilter[self::TAG_IDS_FILTER_KEY] ?? [];
+        $tagTitles = $tagsFilter[self::TAG_TITLES_FILTER_KEY] ?? [];
+        $tagTopicIds = $tagsFilter[self::TAG_TOPIC_IDS_FILTER_KEY] ?? [];
+        $tagTopicTitles = $tagsFilter[self::TAG_TOPIC_TITLES_FILTER_KEY] ?? [];
+
+        $noSupportedFilter = [] === $tagIds && [] === $tagTitles && [] === $tagTopicIds && [] === $tagTopicTitles;
+        if ($noSupportedFilter) {
+            return [];
+        }
+
+        // Resolve the IDs of the matching statements with a lean scalar query that selects ONLY the
+        // parent statement ID, then narrow the statement load with a plain `id IN (...)` condition.
+        //
+        // Expressing the criteria directly as a to-many condition on the Statement resource
+        // (segments.tags.*) makes the main statement query fetch-join through segments AND tags, so
+        // the buffered result explodes to statements x segments x tags rows, each repeating the wide
+        // Statement columns. On large procedures that exhausts memory during loading (the export dies
+        // before it even starts). A scalar id query cannot explode that way - one short UUID per row -
+        // and the `id IN (...)` condition loads the statements as leanly as the unfiltered export does.
+        //
+        // The scalar query is scoped to the current procedure so its result (and the resulting
+        // `id IN (...)` list) stays bounded to this procedure's statements. Tag/topic titles are not
+        // unique across procedures, so an unscoped title filter could otherwise resolve statement IDs
+        // from every procedure sharing that title before the downstream procedure filter trims them.
+        $matchingStatementIds = $this->findStatementIdsMatchingTags($tagIds, $tagTitles, $tagTopicIds, $tagTopicTitles, $procedureId);
+
+        if ([] === $matchingStatementIds) {
+            // Criteria were given but nothing matched: force an empty result instead of
+            // silently falling back to an unfiltered full export.
+            return [$this->conditionFactory->false()];
+        }
+
+        return [$this->conditionFactory->propertyHasAnyOfValues($matchingStatementIds, $statementResourceType->id)];
+    }
+
+    /**
+     * Runs a lean scalar query returning the IDs of all statements of the given procedure owning at
+     * least one segment that carries a tag (or tag topic) matching any of the given criteria.
+     * Selecting only the parent statement ID keeps memory bounded even when the segment/tag join
+     * multiplies rows. Scoping on the parent statement's procedure mirrors the downstream procedure
+     * filter, so the resolved ID list stays bounded to this procedure.
+     *
+     * @param list<string> $tagIds
+     * @param list<string> $tagTitles
+     * @param list<string> $tagTopicIds
+     * @param list<string> $tagTopicTitles
+     *
+     * @return list<string>
+     */
+    private function findStatementIdsMatchingTags(
+        array $tagIds,
+        array $tagTitles,
+        array $tagTopicIds,
+        array $tagTopicTitles,
+        string $procedureId,
+    ): array {
+        $queryBuilder = $this->entityManager->createQueryBuilder()
+            ->select('DISTINCT IDENTITY(seg.parentStatementOfSegment) AS statementId')
+            ->from(Segment::class, 'seg')
+            ->join('seg.parentStatementOfSegment', 'parentStatement')
+            ->join('seg.tags', 't')
+            ->leftJoin('t.topic', 'topic')
+            ->where('parentStatement.procedure = :procedureId')
+            ->setParameter('procedureId', $procedureId);
+
+        $orConditions = $queryBuilder->expr()->orX();
+        if ([] !== $tagIds) {
+            $orConditions->add('t.id IN (:tagIds)');
+            $queryBuilder->setParameter('tagIds', $tagIds);
+        }
+        if ([] !== $tagTitles) {
+            $orConditions->add('t.title IN (:tagTitles)');
+            $queryBuilder->setParameter('tagTitles', $tagTitles);
+        }
+        if ([] !== $tagTopicIds) {
+            $orConditions->add('topic.id IN (:tagTopicIds)');
+            $queryBuilder->setParameter('tagTopicIds', $tagTopicIds);
+        }
+        if ([] !== $tagTopicTitles) {
+            $orConditions->add('topic.title IN (:tagTopicTitles)');
+            $queryBuilder->setParameter('tagTopicTitles', $tagTopicTitles);
+        }
+        $queryBuilder->andWhere($orConditions);
+
+        $rows = $queryBuilder->getQuery()->getScalarResult();
+
+        return array_map(static fn (array $row): string => (string) $row['statementId'], $rows);
     }
 
     public function isTagIdFilterActive(): bool
@@ -138,37 +246,6 @@ class StatementExportTagFilter
     public function getFilteredTagsWithTitles(): array
     {
         return $this->filteredTagsWithTitle;
-    }
-
-    /**
-     * Pre-fetches segments, tags, and tag topics for given statements to avoid N+1 queries.
-     *
-     * @param Statement[] $statements
-     */
-    private function initializeRelationships(array $statements): void
-    {
-        if ([] === $statements) {
-            return;
-        }
-
-        $statementIds = array_map(
-            static fn (StatementInterface $s): string => $s->getId(),
-            $statements
-        );
-
-        // Fetch all segments with their tags and tag topics in a single query.
-        // Doctrine's identity map will cache all hydrated entities, so subsequent
-        // access to $segment->getTags() and $tag->getTopic() won't trigger additional queries.
-        $this->entityManager->createQueryBuilder()
-            ->select('s', 'seg', 't', 'topic')
-            ->from(Statement::class, 's')
-            ->leftJoin('s.segmentsOfStatement', 'seg')
-            ->leftJoin('seg.tags', 't')
-            ->leftJoin('t.topic', 'topic')
-            ->where('s.id IN (:statementIds)')
-            ->setParameter('statementIds', $statementIds)
-            ->getQuery()
-            ->getResult();
     }
 
     private function applyTagFilter(array $statements, array $tagIds, array $tagTitles, array $tagTopicIds, array $tagTopicTitles): array

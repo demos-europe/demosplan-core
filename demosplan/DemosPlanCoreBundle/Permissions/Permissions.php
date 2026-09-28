@@ -733,6 +733,13 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             }
         }
 
+        // Uninvited institutions are allowed to participate in this procedure too.
+        if ($this->procedure->getSettings()->isAllowUninvitedInstitutions()) {
+            $this->logger->debug('Uninvited institutions are allowed to participate in this procedure');
+
+            return true;
+        }
+
         $invitedOrgaIds = $this->procedureRepository->getInvitedOrgaIds($this->procedure->getId());
         $dataInputOrganisations = $this->procedure->getDataInputOrganisations();
         /** @var Orga $orga */
@@ -870,7 +877,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
         $this->logger->debug('Permissionset scope: '.$scope);
         $hasPermissionSet = $this->getPermissionset($scope) === $permissionset;
-        $this->logger->debug('Has Permissionset: '.DemosPlanTools::varExport($hasPermissionSet, true));
+        $this->logger->debug('Has Permissionset: {hasPermissionSet}', ['hasPermissionSet' => $hasPermissionSet]);
 
         return $hasPermissionSet;
     }
