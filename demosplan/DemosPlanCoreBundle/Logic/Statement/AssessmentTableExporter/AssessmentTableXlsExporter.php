@@ -129,28 +129,33 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     /**
      * Creates a excel/xlsx document.
      *
-     * @param array $columnDefinitions - (format, something like) =
-     *                                 [
-     *                                 [
-     *                                 'key' => 'externId',
-     *                                 'title' => $this->translator->trans('statement.id'),
-     *                                 'width' => 20
-     *                                 ],
-     *                                 [
-     *                                 'key' => 'recommendation',
-     *                                 'title' => $this->translator->trans('recommendation.of.Statement'),
-     *                                 'width' => 200
-     *                                 ]
-     *                                 ];
-     * @param bool  $anonymous         - determines if text parts will be obscured
+     * @param array   $columnDefinitions - (format, something like) =
+     *                                   [
+     *                                   [
+     *                                   'key' => 'externId',
+     *                                   'title' => $this->translator->trans('statement.id'),
+     *                                   'width' => 20
+     *                                   ],
+     *                                   [
+     *                                   'key' => 'recommendation',
+     *                                   'title' => $this->translator->trans('recommendation.of.Statement'),
+     *                                   'width' => 200
+     *                                   ]
+     *                                   ];
+     * @param bool    $anonymous         - determines if text parts will be obscured
+     * @param ?string $sheetTitle        - worksheet/document title; defaults to the generic considerationtable title
      *
      * @throws HandlerException
      * @throws Exception
      * @throws \PhpOffice\PhpSpreadsheet\Reader\Exception
      * @throws \PhpOffice\PhpSpreadsheet\Writer\Exception
      */
-    public function createExcel(array $statements, array $columnDefinitions = [[]], bool $anonymous = true): IWriter
-    {
+    public function createExcel(
+        array $statements,
+        array $columnDefinitions = [[]],
+        bool $anonymous = true,
+        ?string $sheetTitle = null,
+    ): IWriter {
         // up until Excel 2016, this is the maximum number of columns in a sheet
         // see https://support.office.com/en-us/article/Excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3#ID0EBABAAA=Excel_2007
         $maxExcelColumns = 16384;
@@ -160,7 +165,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
 
         $attributesToExport = [];
         $columnTitles = [];
-        $title = $this->translator->trans('considerationtable');
+        $title = $sheetTitle ?? $this->translator->trans('considerationtable');
         $excelDocument = $this->simpleSpreadsheetService->createExcelDocument($title);
 
         // extract titles and keys
@@ -205,8 +210,8 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         $row = 1;
 
         $dateLabelKey = $segmentExportInfo->getIsFiltered()
-            ? 'segments.export.statement.export.date.filtered'
-            : 'segments.export.statement.export.date';
+            ? 'segments.export.date.filtered'
+            : 'segments.export.date';
         $infoSheet->setCellValue("A{$row}", $this->translator->trans($dateLabelKey, ['date' => $currentDate->format('d.m.Y')]));
         $infoSheet->getStyle("A{$row}")->getFont()->setBold(true)->setSize(14);
         $row += 2;
@@ -540,6 +545,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         $columnsDefinition[] = $this->createColumnDefinition('tagNames', 'segment.tags');
         $columnsDefinition[] = $this->createColumnDefinition('place', 'workflow.place');
         $columnsDefinition[] = $this->createColumnDefinition('oName', 'group');
+        $this->addColumnDefinition($columnsDefinition, 'deadline', 'field_statement_deadline', 'deadline');
 
         return $columnsDefinition;
     }

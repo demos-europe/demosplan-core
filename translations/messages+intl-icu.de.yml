@@ -3463,9 +3463,12 @@ segments.copy.clipboard.success: |
         =1 {Der Abschnitt wurde erfolgreich kopiert.}
         other {Die Abschnitte wurden erfolgreich kopiert.}
     }
+segments.export.date: "Export Abschnitte vom {date}"
+segments.export.date.filtered: "Teilexport Abschnitte vom {date}"
 segments.export.filter.tags.only: "Nur Abschnitte mit folgenden Schlagworten"
 segments.export.pagination: "Seite {PAGE} von {NUMPAGES}"
 segments.export.segment.id: "Abschnitts-ID"
+segments.export.sheet.title: "Abschnittsliste"
 segments.export.statement.export.date: "Synopse vom {date}"
 segments.export.statement.export.custom: "Synopse {customHeaderText}"
 segments.export.statement.export.date.filtered: "Teilexport Synopse vom {date}"

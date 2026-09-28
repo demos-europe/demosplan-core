@@ -150,7 +150,12 @@ class SegmentsByStatementsExporter extends SegmentsExporter
 
         [$exportData, $columnsDefinition] = $this->prepareSegmentExport($segmentExportInfo, ...$segments);
 
-        $writer = $this->assessmentTableXlsExporter->createExcel($exportData, $columnsDefinition);
+        $writer = $this->assessmentTableXlsExporter->createExcel(
+            $exportData,
+            $columnsDefinition,
+            true,
+            $this->translator->trans('segments.export.sheet.title')
+        );
 
         $this->assessmentTableXlsExporter->addFilterInfoSheetForSegmentListExport($writer, $segmentExportInfo, $columnsDefinition);
 
