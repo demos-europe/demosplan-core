@@ -110,7 +110,7 @@ class StatementResourceTypePlanningDocumentSortTest extends FunctionalTestCase
 
         $pvAble1 = $mkParagraphVersion($elementAble, 'A1');
         $pvAble2 = $mkParagraphVersion($elementAble, 'A2');
-        $pvBeta   = $mkParagraphVersion($elementBeta, 'B1');
+        $pvBeta = $mkParagraphVersion($elementBeta, 'B1');
 
         $em->flush();
 
