@@ -394,15 +394,13 @@ class SegmentsExportController extends BaseController
         return $response;
     }
 
-    // todo: create new specific permission
-
     /**
      * @throws QueryException
      * @throws UserNotFoundException
      * @throws Exception
      */
     #[DplanPermissions(
-        'feature_admin_assessmenttable_export_statement_generic_xlsx'
+        'feature_segments_list_export_xlsx'
     )]
     #[Route(
         path: '/verfahren/{procedureId}/nur/abschnitte/export/xlsx',
@@ -442,15 +440,13 @@ class SegmentsExportController extends BaseController
         return $response;
     }
 
-    // todo: create new specific permission
-
     /**
      * @throws QueryException
      * @throws UserNotFoundException
      * @throws Exception
      */
     #[DplanPermissions(
-        'feature_admin_assessmenttable_export_statement_generic_xlsx'
+        'feature_segments_list_export_csv'
     )]
     #[Route(
         path: '/verfahren/{procedureId}/nur/abschnitte/export/csv',
