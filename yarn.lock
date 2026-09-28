@@ -6932,7 +6932,7 @@ __metadata:
     intl-messageformat: "npm:^11.2.14"
     ismobilejs: "npm:^1.1.1"
     jquery: "npm:^3.7.1"
-    js-base64: "npm:^3.7.8"
+    js-base64: "npm:^3.9.4"
     jsdom: "npm:^29.1.0"
     json-api-normalizer: "npm:^1.0.4"
     leaflet: "npm:^1.9.4"
@@ -8515,10 +8515,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-base64@npm:^3.7.8":
-  version: 3.7.8
-  resolution: "js-base64@npm:3.7.8"
-  checksum: 10c0/a4452a7e7f32b0ef568a344157efec00c14593bbb1cf0c113f008dddff7ec515b35147af0cd70a7735adb69a2a2bdee921adffea2ea465e2c856ba50d649b11e
+"js-base64@npm:^3.9.4":
+  version: 3.9.4
+  resolution: "js-base64@npm:3.9.4"
+  checksum: 10c0/c1a76236bb2531fa321863b87eceabb90f070ef196f3a97028d6f710c941bdfc453eb8c75bc2412453db163fe4ac5c748a40a63547a264420ce0e67b871b228d
   languageName: node
   linkType: hard
 
