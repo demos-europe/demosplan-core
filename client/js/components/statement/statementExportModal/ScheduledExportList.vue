@@ -25,11 +25,13 @@
 
     <ul
       v-if="scheduledExports.length"
-      class="flex flex-col gap-2 max-h-12 overflow-y-auto">
+      class="flex flex-col gap-2 max-h-12 overflow-y-auto"
+    >
       <li
         v-for="scheduledExport in scheduledExports"
         :key="scheduledExport.id"
-        class="border border-neutral p-2">
+        class="border border-neutral p-2"
+      >
         <div class="flex justify-between">
           <dp-loading
             v-if="hasPendingExportAction(scheduledExport.id)"
@@ -98,7 +100,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  isLoading: false
+  isLoading: false,
 })
 
 const emit = defineEmits<{

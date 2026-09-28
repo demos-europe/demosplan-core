@@ -11,7 +11,7 @@ import { initialize } from '@DpJs/InitVue'
 import ScheduledExportDownload from '@DpJs/components/statement/statementExportModal/ScheduledExportDownload'
 
 const components = {
-  ScheduledExportDownload
+  ScheduledExportDownload,
 }
 
 initialize(components)

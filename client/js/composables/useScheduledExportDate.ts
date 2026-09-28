@@ -22,11 +22,13 @@ const getNextExportDate = ({
   from?: Date
 }): Date => {
   const date = new Date(from)
+
   date.setHours(0, 0, 0, 0)
 
   switch (frequency) {
     case 'daily':
       date.setDate(date.getDate() + 1)
+
       return date
 
     case 'weekly': {
@@ -34,8 +36,10 @@ const getNextExportDate = ({
         return date
       }
 
-      // Note: weekday parameter uses ISO-8601 format (1-7, Monday=1, Sunday=7)
-      // Convert to JavaScript Date format (0-6, Sunday=0) for Date.getDay() comparison
+      /*
+       * Note: weekday parameter uses ISO-8601 format (1-7, Monday=1, Sunday=7)
+       * Convert to JavaScript Date format (0-6, Sunday=0) for Date.getDay() comparison
+       */
       const jsWeekday = weekday === 7 ? 0 : weekday
       const currentDay = date.getDay()
 
@@ -69,6 +73,7 @@ const getNextExportDate = ({
       // Otherwise, use the selected day in the next month
       date.setMonth(date.getMonth() + 1)
       date.setDate(dayOfMonth)
+
       return date
     }
 
@@ -82,10 +87,12 @@ const getNextExportDate = ({
  */
 const isTomorrow = (date: Date): boolean => {
   const tomorrow = new Date()
+
   tomorrow.setDate(tomorrow.getDate() + 1)
   tomorrow.setHours(0, 0, 0, 0)
 
   const checkDate = new Date(date)
+
   checkDate.setHours(0, 0, 0, 0)
 
   return checkDate.getTime() === tomorrow.getTime()
@@ -109,6 +116,7 @@ const getWeekdayName = (date: Date): string => {
     6: Translator.trans('weekday.saturday'),
     7: Translator.trans('weekday.sunday'),
   }
+
   return weekdayMap[isoWeekday] || ''
 }
 
@@ -136,7 +144,7 @@ const formatExportDate = (date: Date): string => {
  *
  * @returns {Object} Functions for working with scheduled export dates
  */
-export function useScheduledExportDate() {
+export function useScheduledExportDate () {
   return {
     getNextExportDate,
     formatExportDate,

@@ -28,7 +28,8 @@ All rights reserved
     </div>
     <div
       v-if="downloadUrl && !isFailed"
-      class="flex">
+      class="flex"
+    >
       <span class="inline-block mr-1">
         {{ `${Translator.trans('export.xlsx.scheduled.download.from')}:` }}
       </span>
@@ -47,7 +48,8 @@ All rights reserved
     />
     <p
       v-if="isCompleted"
-      class="font-semibold text-sm text-neutral-dark mb-4">
+      class="font-semibold text-sm text-neutral-dark mb-4"
+    >
       {{ Translator.trans('export.xlsx.scheduled.download.manual_start_text') }}
     </p>
     <div class="text-right">
@@ -82,7 +84,7 @@ const formattedDeleteAfter = computed((): string => {
   }
 
   return new Intl.DateTimeFormat('de-DE').format(
-    new Date(props.job.deleteAfter)
+    new Date(props.job.deleteAfter),
   )
 })
 
@@ -106,33 +108,33 @@ const statusTranslationKeys: StatusTranslationMap = {
 }
 
 const currentTranslationKeys = computed((): TranslationKeys =>
-  statusTranslationKeys[props.job.status] ?? statusTranslationKeys.default
+  statusTranslationKeys[props.job.status] ?? statusTranslationKeys.default,
 )
 
 const heading = computed((): string =>
-  Translator.trans(currentTranslationKeys.value.heading)
+  Translator.trans(currentTranslationKeys.value.heading),
 )
 
 const statusMessage = computed((): string => {
-  const params: Record<string, string> | undefined = isCompleted.value
-    ? { date: formattedDeleteAfter.value }
-    : undefined
+  const params: Record<string, string> | undefined = isCompleted.value ?
+    { date: formattedDeleteAfter.value } :
+    undefined
 
   return Translator.trans(currentTranslationKeys.value.message, params)
 })
 
 const actionLabel = computed((): string =>
   Translator.trans(
-    isCompleted.value
-      ? 'export.xlsx.scheduled.download.manual_trigger'
-      : 'home.navigate'
-  )
+    isCompleted.value ?
+      'export.xlsx.scheduled.download.manual_trigger' :
+      'home.navigate',
+  ),
 )
 
 const actionUrl = computed((): string =>
-  isCompleted.value
-    ? props.downloadUrl
-    : Routing.generate('core_home')
+  isCompleted.value ?
+    props.downloadUrl :
+    Routing.generate('core_home'),
 )
 
 onMounted((): void => {
