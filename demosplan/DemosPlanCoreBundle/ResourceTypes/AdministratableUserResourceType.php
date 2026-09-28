@@ -228,33 +228,34 @@ final class AdministratableUserResourceType extends DplanResourceType implements
             ->setReadableByCallable(static fn (User $user): bool => $user->getNoPiwik(), DefaultField::YES)
             ->setSortable();
 
-        // Whether this specific user has been individually granted the right to create/manage procedures
-        // (as RMOPSA or RMOPHA), independent of the organisation-wide grant. Only meaningful while the
-        // organisation-wide grant (see $procedureCreationEnabledForOrga) is disabled for that role.
-        $configBuilder->canManageProcedures
-            ->setReadableByCallable(
-                function (User $user): bool {
-                    $customer = $user->getCurrentCustomer();
-                    if (!$customer instanceof CustomerInterface) {
-                        return false;
-                    }
-
-                    foreach ($this->getUserProcedureManagementRoleCodes($user, $customer) as $roleCode) {
-                        $role = $this->roleHandler->getRoleByCode($roleCode);
-                        if ($role instanceof RoleInterface
-                            && $this->userAccessControlService->userPermissionExists($user, AccessControlService::CREATE_PROCEDURES_PERMISSION, $role)) {
-                            return true;
-                        }
-                    }
-
-                    return false;
-                },
-                DefaultField::YES
-            );
-
-        // Only holders of the permission may send the attribute; everyone else gets an API error instead of a silent no-op
+        // Both attributes below are only meaningful to, and only ever rendered for, holders of
+        // feature_manage_user_procedure_creation_permission (see DpUserFormFields.vue); keep the read
+        // side gated the same as the write side below, so the grant state isn't exposed to anyone who
+        // merely has feature_user_list.
         if ($this->currentUser->hasPermission('feature_manage_user_procedure_creation_permission')) {
+            // Whether this specific user has been individually granted the right to create/manage procedures
+            // (as RMOPSA or RMOPHA), independent of the organisation-wide grant. Only meaningful while the
+            // organisation-wide grant (see $procedureCreationEnabledForOrga) is disabled for that role.
             $configBuilder->canManageProcedures
+                ->setReadableByCallable(
+                    function (User $user): bool {
+                        $customer = $user->getCurrentCustomer();
+                        if (!$customer instanceof CustomerInterface) {
+                            return false;
+                        }
+
+                        foreach ($this->getUserProcedureManagementRoleCodes($user, $customer) as $roleCode) {
+                            $role = $this->roleHandler->getRoleByCode($roleCode);
+                            if ($role instanceof RoleInterface
+                                && $this->userAccessControlService->userPermissionExists($user, AccessControlService::CREATE_PROCEDURES_PERMISSION, $role)) {
+                                return true;
+                            }
+                        }
+
+                        return false;
+                    },
+                    DefaultField::YES
+                )
                 ->addUpdateBehavior(
                     CallbackAttributeSetBehavior::createFactory(
                         [],
@@ -276,35 +277,35 @@ final class AdministratableUserResourceType extends DplanResourceType implements
                         OptionalField::YES
                     )
                 );
+
+            // Whether the organization this user belongs to already grants procedure-creation rights to
+            // every user of this user's RMOPSA/RMOPHA role in it (org-wide `access_control` grant). While
+            // true (for a role this user has), per-user configuration via $canManageProcedures has no
+            // effect for that role and should not be offered as editable in the UI
+            $configBuilder->procedureCreationEnabledForOrga
+                ->setReadableByCallable(
+                    function (User $user): bool {
+                        $orga = $user->getOrga();
+                        $customer = $user->getCurrentCustomer();
+                        if (!$orga instanceof OrgaInterface || !$customer instanceof CustomerInterface) {
+                            return false;
+                        }
+
+                        $roleCodes = $this->getUserProcedureManagementRoleCodes($user, $customer);
+                        if ([] === $roleCodes) {
+                            return false;
+                        }
+
+                        return $this->accessControlService->permissionExist(
+                            AccessControlService::CREATE_PROCEDURES_PERMISSION,
+                            $orga,
+                            $customer,
+                            $roleCodes
+                        );
+                    },
+                    DefaultField::YES
+                );
         }
-
-        // Whether the organisation this user belongs to already grants procedure-creation rights to
-        // every user of this user's RMOPSA/RMOPHA role in it (org-wide `access_control` grant). While
-        // true (for a role this user has), per-user configuration via $canManageProcedures has no
-        // effect for that role and should not be offered as editable in the UI.
-        $configBuilder->procedureCreationEnabledForOrga
-            ->setReadableByCallable(
-                function (User $user): bool {
-                    $orga = $user->getOrga();
-                    $customer = $user->getCurrentCustomer();
-                    if (!$orga instanceof OrgaInterface || !$customer instanceof CustomerInterface) {
-                        return false;
-                    }
-
-                    $roleCodes = $this->getUserProcedureManagementRoleCodes($user, $customer);
-                    if ([] === $roleCodes) {
-                        return false;
-                    }
-
-                    return $this->accessControlService->permissionExist(
-                        AccessControlService::CREATE_PROCEDURES_PERMISSION,
-                        $orga,
-                        $customer,
-                        $roleCodes
-                    );
-                },
-                DefaultField::YES
-            );
 
         if ($this->currentUser->hasPermission('feature_2fa')) {
             $configBuilder->twoFactorEnabled
