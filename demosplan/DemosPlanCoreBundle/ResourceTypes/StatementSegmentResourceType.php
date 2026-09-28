@@ -93,7 +93,6 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
     public function isAvailable(): bool
     {
         return $this->accessChecker->isAvailable();
-
     }
 
     public function isUpdateAllowed(): bool
