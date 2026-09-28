@@ -107,11 +107,11 @@ const emit = defineEmits<{
   delete: [exportId: string]
 }>()
 
-const pendingActionExportId = ref(null)
+const pendingActionExportId = ref<string | null>(null)
 
 const { getFrequencyLabel, getWeekdayLabel, getDayOfMonthLabel } = useScheduledExportOptions()
 
-watch(() => props.isLoading, (newValue) => {
+watch(() => props.isLoading, (newValue: boolean) => {
   if (!newValue && pendingActionExportId.value) {
     // Reset triggered ID when loading completes (success or error)
     pendingActionExportId.value = null
@@ -119,7 +119,7 @@ watch(() => props.isLoading, (newValue) => {
 })
 
 const formatScheduledExportDescription = (scheduledExport: ScheduledExport): string => {
-  const frequencyLabel = getFrequencyLabel(scheduledExport.attributes.frequency)
+  const frequencyLabel: string = getFrequencyLabel(scheduledExport.attributes.frequency)
 
   switch (scheduledExport.attributes.frequency) {
     case 'daily':
@@ -136,10 +136,10 @@ const formatScheduledExportDescription = (scheduledExport: ScheduledExport): str
   }
 }
 
-const hasPendingExportAction = (exportId) =>
+const hasPendingExportAction = (exportId: string): boolean =>
   pendingActionExportId.value === exportId
 
-const handleScheduledExportAction = (actionType, scheduledExportId) => {
+const handleScheduledExportAction = (actionType: 'edit' | 'delete', scheduledExportId: string): void => {
   pendingActionExportId.value = scheduledExportId
   emit(actionType, scheduledExportId)
 }

@@ -242,7 +242,7 @@
         </div>
 
         <fieldset
-          v-if="active === 'xlsx_normal'"
+          v-if="active === 'xlsx_normal' && hasPermission('feature_admin_scheduled_xlsx_export')"
           class="border-b border-neutral"
         >
           <dp-label

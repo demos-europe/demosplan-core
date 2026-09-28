@@ -182,7 +182,7 @@ const handleDaySelect = (name: DaySelectName, value: string | number) => {
   resetNextRunValue()
 }
 
-const populateForm = (editingExport: ScheduledExport) => {
+const populateForm = () => {
   const {
     frequency,
     weekday,
@@ -217,7 +217,7 @@ watch([selectedFrequency, selectedWeekday, selectedDayOfMonth], () => {
 
 watch(() => props.editingExport, (editingExport) => {
   if (editingExport) {
-    populateForm(editingExport)
+    populateForm()
   } else {
     resetForm()
   }

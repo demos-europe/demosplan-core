@@ -1,7 +1,7 @@
 import { enableAutoUnmount, VueWrapper } from '@vue/test-utils'
 import { DpModal } from '@demos-europe/demosplan-ui'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
-import StatementExportModal from '@DpJs/components/statement/StatementExportModal.vue'
+import StatementExportModal from '@DpJs/components/statement/statementExportModal/StatementExportModal.vue'
 import { vi } from 'vitest'
 
 /** Payload of the component's `export` event, mirrored from handleExport() */
