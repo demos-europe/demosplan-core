@@ -338,7 +338,7 @@ class SegmentsExportController extends BaseController
                     $this->statementExportTagFilter,
                     ...$statementEntities
                 );
-                $exportedDoc->save('php://output');
+                $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
 
@@ -424,7 +424,7 @@ class SegmentsExportController extends BaseController
                     $segmentExportInfo,
                     ...$segmentEntities
                 );
-                $exportedDoc->save('php://output');
+                $exportedDoc->save(self::OUTPUT_DESTINATION);
             }
         );
 
