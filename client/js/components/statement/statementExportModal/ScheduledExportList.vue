@@ -55,7 +55,7 @@
           </div>
           <div class="flex">
             <dp-button
-              data-cy="scheduledExport:edit"
+              data-cy="scheduledExportList:edit"
               icon="edit"
               icon-size="large"
               hide-text
@@ -66,7 +66,7 @@
             />
             <dp-button
               class="text-status-failed-icon"
-              data-cy="scheduledExport:delete"
+              data-cy="scheduledExportList:delete"
               icon="delete"
               icon-size="large"
               hide-text
@@ -88,20 +88,18 @@
 
 <script setup lang="ts">
 import { DpButton, DpIcon, DpLoading } from '@demos-europe/demosplan-ui'
+import { ref, watch, withDefaults } from 'vue'
 import { useScheduledExportOptions } from '@DpJs/composables/useScheduledExportOptions'
 import type { ScheduledExport } from '@DpJs/types/scheduledExport'
-import { ref, watch } from 'vue'
 
 interface Props {
-  scheduledExports: ScheduledExport[],
-  isLoading: {
-    type: Boolean,
-    required: false,
-    default: false,
-  },
+  scheduledExports: ScheduledExport[]
+  isLoading?: boolean
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  isLoading: false
+})
 
 const emit = defineEmits<{
   add: []
@@ -138,11 +136,11 @@ const formatScheduledExportDescription = (scheduledExport: ScheduledExport): str
   }
 }
 
+const hasPendingExportAction = (exportId) =>
+  pendingActionExportId.value === exportId
+
 const handleScheduledExportAction = (actionType, scheduledExportId) => {
   pendingActionExportId.value = scheduledExportId
   emit(actionType, scheduledExportId)
 }
-
-const hasPendingExportAction = (exportId) =>
-  pendingActionExportId.value === exportId
 </script>

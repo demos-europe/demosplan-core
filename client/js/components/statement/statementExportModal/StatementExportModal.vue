@@ -425,6 +425,7 @@ import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
 import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
 import ScheduledExportFormFields from '@DpJs/components/statement/statementExportModal/ScheduledExportFormFields'
 import ScheduledExportList from '@DpJs/components/statement/statementExportModal/ScheduledExportList'
+import qs from 'qs'
 
 export default {
   name: 'StatementExportModal',
@@ -464,6 +465,24 @@ export default {
     procedureId: {
       required: true,
       type: String,
+    },
+
+    searchValue: {
+      type: String,
+      required: false,
+      default: '',
+    },
+
+    searchFieldsSelected: {
+      type: Array,
+      required: false,
+      default: null,
+    },
+
+    selectedSort: {
+      type: String,
+      required: false,
+      default: '',
     },
   },
 
@@ -559,24 +578,6 @@ export default {
       scheduledExportItems: 'items',
     }),
 
-    exportModalTitle () {
-      if (this.scheduledExportMode) {
-        switch (this.scheduledExportMode) {
-          case 'add':
-          case 'manage:add':
-            return Translator.trans('export.xlsx.scheduled.add')
-          case 'edit':
-            return Translator.trans('export.xlsx.scheduled.edit')
-          case 'manage':
-            return Translator.trans('export.xlsx.scheduled.manage')
-          default:
-            return ''
-        }
-      }
-
-      return this.isSingleStatementExport ? Translator.trans('statement.export.do') : Translator.trans('export.statements')
-    },
-
     exampleFileName () {
       let exampleFileName = 'm101-jacob-meier-e5089.docx'
       const exampleId = 'm101'
@@ -599,6 +600,24 @@ export default {
       }
 
       return exampleFileName
+    },
+
+    exportModalTitle () {
+      if (this.scheduledExportMode) {
+        switch (this.scheduledExportMode) {
+          case 'add':
+          case 'manage:add':
+            return Translator.trans('export.xlsx.scheduled.add')
+          case 'edit':
+            return Translator.trans('export.xlsx.scheduled.edit')
+          case 'manage':
+            return Translator.trans('export.xlsx.scheduled.manage')
+          default:
+            return ''
+        }
+      }
+
+      return this.isSingleStatementExport ? Translator.trans('statement.export.do') : Translator.trans('export.statements')
     },
 
     hasLayoutFileAndModifiedColumnHeaders () {
@@ -656,10 +675,22 @@ export default {
         dayOfMonth,
       } = this.currentScheduledExportFormData
 
-      const parameters = {
+      const exportParameters = {
+        filter: {
+          procedureId: {
+            condition: {
+              path: 'procedure.id',
+              value: this.procedureId,
+            },
+          },
+        },
+        search: {
+          value: this.searchValue,
+          ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {},
+        },
+        sort: this.selectedSort,
         tagsFilter: {
-          tagIds: this.selectedTagIds ?? [],
-          procedureId: this.procedureId,
+          tagIds: this.selectedTagIds || [],
         },
       }
 
@@ -669,13 +700,13 @@ export default {
           frequency,
           weekday,
           dayOfMonth,
-          parameters: JSON.stringify(parameters), // ToDo: it should be adjusted
+          parameters: qs.stringify(exportParameters),
         },
       }
 
       this.createScheduledExport(payload)
         .then(() => {
-          dplan.notify.confirm(Translator.trans('confirm.saved'))
+          dplan.notify.confirm(Translator.trans('confirm.scheduledExport.created'))
         })
         .finally(() => {
           this.hasPendingScheduledExportAction = false

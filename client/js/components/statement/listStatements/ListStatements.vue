@@ -64,6 +64,9 @@
         :has-permission-adjust-preamble="hasPermission('feature_adjust_preamble_export_file')"
         :procedure-id="procedureId"
         :procedure-name="procedureName"
+        :search-value="searchValue"
+        :search-fields-selected="searchFieldsSelected"
+        :selected-sort="selectedSort"
         data-cy="listStatements:export"
         @export="showHintAndDoExport"
       />

@@ -171,7 +171,7 @@ const handleFrequencySelect = (value: string) => {
 }
 
 const handleDaySelect = (name: DaySelectName, value: string | number) => {
-  const numericValue = typeof value === 'string' ? parseInt(value, 10) : value
+  const numericValue = typeof value === 'string' ? Number.parseInt(value, 10) : value
 
   if (name === 'weekday') {
     selectedWeekday.value = numericValue
