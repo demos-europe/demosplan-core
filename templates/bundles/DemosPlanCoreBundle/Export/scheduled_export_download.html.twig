@@ -7,28 +7,23 @@
         <meta http-equiv="refresh" content="1;url={{ downloadUrl }}">
     {% endif %}
 
-    {% embed '@DemosPlanCore/DemosPlanCore/includes/participation_area_skeleton.html.twig' with {
-        'content_heading': 'export.xlsx.scheduled.download.heading'|trans,
-        'full_width': false
+    {% set scheduledExportJob = {
+        status: job.status,
+        fileName: job.fileName,
+        deleteAfter: job.deleteAfter ? job.deleteAfter|date('Y-m-d H:i:s') : null,
+        errorMessage: job.errorMessage
     } %}
 
-        {% block content %}
-
-            {% if 'completed' == job.status %}
-                <p>{{ 'export.xlsx.scheduled.download.starting'|trans }}</p>
-                <p>
-                    <a href="{{ downloadUrl }}" class="btn btn--primary">
-                        {{ 'export.xlsx.scheduled.download.manual_trigger'|trans }}
-                    </a>
-                </p>
-            {% elseif 'failed' == job.status %}
-                <p>{{ 'export.xlsx.scheduled.download.failed'|trans }}</p>
-            {% else %}
-                <p>{{ 'export.xlsx.scheduled.download.not_ready'|trans }}</p>
-            {% endif %}
-
-        {% endblock content %}
-
-    {% endembed %}
-
+    {% block content %}
+        <scheduled-export-download
+            class="mt-8"
+            :job="{{ scheduledExportJob|json_encode|e('html_attr') }}"
+            download-url="{{ downloadUrl|e('html_attr') }}"
+        ></scheduled-export-download>
+    {% endblock content %}
 {% endblock component_part %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['statement-scheduledExportDownload.js']) }}
+{% endblock javascripts %}
