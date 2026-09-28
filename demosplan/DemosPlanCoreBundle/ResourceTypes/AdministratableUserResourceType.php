@@ -461,6 +461,8 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         // been applied, so the user's final role set is what gets evaluated below.
         $modifiedEntity = parent::updateEntity($entityId, $entityData);
 
+        // Must not return early here: canManageProcedures below also needs $modifiedEntity and may be
+        // set in the same request as email.
         if (array_key_exists($this->email->getAsNamesInDotNotation(), $userAttributes)) {
             $this->userHandler->inviteUser($modifiedEntity->getEntity());
         }
