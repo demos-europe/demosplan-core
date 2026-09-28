@@ -107,6 +107,9 @@
 
         &:hover {
             text-decoration: underline;
+
+            // Cancel DpButton's own (blue) hover background so the type color stays consistent.
+            background-color: $dp-color-white !important;
         }
 
         .c-notify__message--info & {
