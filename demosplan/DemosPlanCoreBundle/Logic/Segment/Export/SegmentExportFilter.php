@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Export;
 
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\JsonApiActionService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
@@ -36,14 +35,11 @@ class SegmentExportFilter
      */
     public function filter(): array
     {
-        /** @var Segment[] $segmentEntities */
-        $segmentEntities = array_values(
+        return array_values(
             $this->jsonApiActionService->getObjectsByQueryParams(
                 $this->requestStack->getCurrentRequest()->query,
                 $this->statementSegmentResourceType,
             )->getList()
         );
-
-        return $segmentEntities;
     }
 }
