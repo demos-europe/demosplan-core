@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -76,6 +77,7 @@ use Elastica\Query\MatchAll;
 use Elastica\Query\Terms;
 use Elastica\ResultSet;
 use Exception;
+use FOS\ElasticaBundle\Persister\ObjectPersisterInterface;
 use Pagerfanta\Elastica\ElasticaAdapter;
 use Pagerfanta\Exception\NotValidCurrentPageException;
 use Psr\Log\LoggerInterface;
@@ -150,6 +152,7 @@ class StatementFragmentService
         private readonly int $elasticsearchMaxResultWindow,
         #[Autowire(param: 'elasticsearch_search_after_batch_size')]
         private readonly int $searchAfterBatchSize,
+        private readonly ObjectPersisterInterface $esStatementPersister,
     ) {
         $this->assignService = $assignService;
         $this->elementService = $elementService;
@@ -159,6 +162,18 @@ class StatementFragmentService
         $this->procedureService = $procedureService;
         $this->translator = $translator;
         $this->userService = $userService;
+    }
+
+    /**
+     * Statement documents in Elasticsearch embed their fragments as a nested field. Creating,
+     * updating or deleting a StatementFragment does not, by itself, trigger a reindex of the
+     * parent Statement (they are separate entities/indexes), so the Statement's ES document has
+     * to be refreshed explicitly here to keep fragment-dependent features (e.g. the assessment
+     * table / procedure export) in sync without requiring a manual reindex.
+     */
+    private function refreshStatementInElasticsearch(StatementInterface $statement): void
+    {
+        $this->esStatementPersister->replaceOne($statement);
     }
 
     public function setEsStatementFragmentType(Index $esStatementFragmentType)
@@ -262,10 +277,13 @@ class StatementFragmentService
             throw new LockedByAssignmentException(sprintf('Fragment is locked by assignment: %s', $statementFragmentId));
         }
 
+        $statement = $fragmentToDelete->getStatement();
+
         try {
-            $fragmentToDelete->getStatement()->removeFragment($fragmentToDelete);
+            $statement->removeFragment($fragmentToDelete);
             // T12692: version/entityContentChange on createFragment? -> take a look in the history of this method
             $this->statementFragmentRepository->delete($fragmentToDelete);
+            $this->refreshStatementInElasticsearch($statement);
 
             $success = true;
         } catch (Exception $e) {
@@ -854,6 +872,8 @@ class StatementFragmentService
         $version = new StatementFragmentVersion($statementFragment);
         $this->statementFragmentVersionRepository->addObject($version);
 
+        $this->refreshStatementInElasticsearch($statementFragment->getStatement());
+
         return $statementFragment;
     }
 
@@ -899,6 +919,7 @@ class StatementFragmentService
                 }
 
                 $this->createStatementFragmentVersion($version);
+                $this->refreshStatementInElasticsearch($result->getStatement());
             }
         } catch (Exception $e) {
             $this->logger->error('Could not update StatementFragment', [$e]);
@@ -990,6 +1011,7 @@ class StatementFragmentService
                 }
 
                 $this->createStatementFragmentVersion($version);
+                $this->refreshStatementInElasticsearch($result->getStatement());
             }
         } catch (Exception $e) {
             $this->logger->error('Could not update StatementFragment', [$e]);

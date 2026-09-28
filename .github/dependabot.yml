@@ -55,6 +55,13 @@ updates:
       uppy:
         patterns:
           - "@uppy/*"
+      vitest:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+        # @vitest/eslint-plugin is versioned independently of the vitest monorepo
+        exclude-patterns:
+          - "@vitest/eslint-plugin"
       vue:
         patterns:
           - "vue"
