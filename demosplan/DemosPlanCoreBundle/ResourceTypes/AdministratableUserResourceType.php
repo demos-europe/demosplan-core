@@ -81,6 +81,23 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         RoleInterface::HEARING_AUTHORITY_ADMIN,
     ];
 
+    /**
+     * Request-scoped cache keyed by role code, since {@link RoleHandler::getRoleByCode()} hits the
+     * database and is otherwise called once per role code for every row of the user list.
+     *
+     * @var array<string, RoleInterface|null>
+     */
+    private array $roleByCodeCache = [];
+
+    /**
+     * Request-scoped cache keyed by "{orgaId}:{customerId}:{roleCodesKey}", since
+     * {@link AccessControlService::permissionExist()} hits the database and is otherwise called once per
+     * row of the user list even though rows typically share the same orga/customer.
+     *
+     * @var array<string, bool>
+     */
+    private array $orgaGrantExistsCache = [];
+
     public function __construct(private readonly QueryUser $esQuery,
         private readonly JsonApiEsService $jsonApiEsService,
         private readonly UserRepository $userRepository,
@@ -245,7 +262,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
                         }
 
                         foreach ($this->getUserProcedureManagementRoleCodes($user, $customer) as $roleCode) {
-                            $role = $this->roleHandler->getRoleByCode($roleCode);
+                            $role = $this->getCachedRoleByCode($roleCode);
                             if ($role instanceof RoleInterface
                                 && $this->userAccessControlService->userPermissionExists($user, AccessControlService::CREATE_PROCEDURES_PERMISSION, $role)) {
                                 return true;
@@ -296,12 +313,7 @@ final class AdministratableUserResourceType extends DplanResourceType implements
                             return false;
                         }
 
-                        return $this->accessControlService->permissionExist(
-                            AccessControlService::CREATE_PROCEDURES_PERMISSION,
-                            $orga,
-                            $customer,
-                            $roleCodes
-                        );
+                        return $this->orgaGrantsProcedureCreation($orga, $customer, $roleCodes);
                     },
                     DefaultField::YES
                 );
@@ -523,12 +535,12 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         }
 
         foreach ($this->getUserProcedureManagementRoleCodes($user, $customer) as $roleCode) {
-            $role = $this->roleHandler->getRoleByCode($roleCode);
+            $role = $this->getCachedRoleByCode($roleCode);
             if (!$role instanceof RoleInterface) {
                 continue;
             }
 
-            if ($this->accessControlService->permissionExist(AccessControlService::CREATE_PROCEDURES_PERMISSION, $orga, $customer, [$roleCode])) {
+            if ($this->orgaGrantsProcedureCreation($orga, $customer, [$roleCode])) {
                 continue;
             }
 
@@ -559,6 +571,34 @@ final class AdministratableUserResourceType extends DplanResourceType implements
         }
 
         return false;
+    }
+
+    private function getCachedRoleByCode(string $roleCode): ?RoleInterface
+    {
+        if (!array_key_exists($roleCode, $this->roleByCodeCache)) {
+            $this->roleByCodeCache[$roleCode] = $this->roleHandler->getRoleByCode($roleCode);
+        }
+
+        return $this->roleByCodeCache[$roleCode];
+    }
+
+    /**
+     * @param list<non-empty-string> $roleCodes
+     */
+    private function orgaGrantsProcedureCreation(OrgaInterface $orga, CustomerInterface $customer, array $roleCodes): bool
+    {
+        $cacheKey = $orga->getId().':'.$customer->getId().':'.implode(',', $roleCodes);
+
+        if (!array_key_exists($cacheKey, $this->orgaGrantExistsCache)) {
+            $this->orgaGrantExistsCache[$cacheKey] = $this->accessControlService->permissionExist(
+                AccessControlService::CREATE_PROCEDURES_PERMISSION,
+                $orga,
+                $customer,
+                $roleCodes
+            );
+        }
+
+        return $this->orgaGrantExistsCache[$cacheKey];
     }
 
     /**
