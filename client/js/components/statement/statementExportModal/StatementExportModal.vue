@@ -1255,7 +1255,9 @@ export default {
   },
 
   mounted () {
-    this.fetchScheduledExport(this.buildScheduledExportPayload())
+    if (!this.isSingleStatementExport) {
+      this.fetchScheduledExport(this.buildScheduledExportPayload())
+    }
   }
 }
 </script>
