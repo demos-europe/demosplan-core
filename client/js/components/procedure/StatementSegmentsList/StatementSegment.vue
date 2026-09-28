@@ -1540,7 +1540,7 @@ export default {
           this.recommendationEmbeddedLoading = false
         })
         .catch(() => {
-          this.recommendationEmbeddedLoading = true
+          this.recommendationEmbeddedLoading = false
         })
     },
 
