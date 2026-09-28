@@ -129,21 +129,21 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     /**
      * Creates a excel/xlsx document.
      *
-     * @param array $columnDefinitions - (format, something like) =
-     *                                 [
-     *                                 [
-     *                                 'key' => 'externId',
-     *                                 'title' => $this->translator->trans('statement.id'),
-     *                                 'width' => 20
-     *                                 ],
-     *                                 [
-     *                                 'key' => 'recommendation',
-     *                                 'title' => $this->translator->trans('recommendation.of.Statement'),
-     *                                 'width' => 200
-     *                                 ]
-     *                                 ];
-     * @param bool  $anonymous         - determines if text parts will be obscured
-     * @param ?string $sheetTitle      - worksheet/document title; defaults to the generic considerationtable title
+     * @param array   $columnDefinitions - (format, something like) =
+     *                                   [
+     *                                   [
+     *                                   'key' => 'externId',
+     *                                   'title' => $this->translator->trans('statement.id'),
+     *                                   'width' => 20
+     *                                   ],
+     *                                   [
+     *                                   'key' => 'recommendation',
+     *                                   'title' => $this->translator->trans('recommendation.of.Statement'),
+     *                                   'width' => 200
+     *                                   ]
+     *                                   ];
+     * @param bool    $anonymous         - determines if text parts will be obscured
+     * @param ?string $sheetTitle        - worksheet/document title; defaults to the generic considerationtable title
      *
      * @throws HandlerException
      * @throws Exception
@@ -154,7 +154,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         array $statements,
         array $columnDefinitions = [[]],
         bool $anonymous = true,
-        ?string $sheetTitle = null
+        ?string $sheetTitle = null,
     ): IWriter {
         // up until Excel 2016, this is the maximum number of columns in a sheet
         // see https://support.office.com/en-us/article/Excel-specifications-and-limits-1672b34d-7043-467e-8e27-269d656771c3#ID0EBABAAA=Excel_2007
