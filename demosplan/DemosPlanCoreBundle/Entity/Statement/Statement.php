@@ -1231,10 +1231,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function addPriorityArea($priorityArea): bool
     {
         if (!$this->priorityAreas->contains($priorityArea)) {
-            $addedStatementSuccessful = $this->priorityAreas->add($priorityArea);
-            $addedPriorityAreaSuccessful = $priorityArea->addStatement($this);
+            $this->priorityAreas->add($priorityArea);
 
-            return $addedStatementSuccessful && $addedPriorityAreaSuccessful;
+            return $priorityArea->addStatement($this);
         }
 
         return false;
@@ -1808,10 +1807,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function addCounty($county): bool
     {
         if (!$this->counties->contains($county)) {
-            $addedStatementSuccessful = $this->counties->add($county);
-            $addedCountySuccessful = $county->addStatement($this);
+            $this->counties->add($county);
 
-            return $addedStatementSuccessful && $addedCountySuccessful;
+            return $county->addStatement($this);
         }
 
         return false;
@@ -1869,10 +1867,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function addMunicipality($municipality): bool
     {
         if (!$this->municipalities->contains($municipality)) {
-            $addedStatementSuccessful = $this->municipalities->add($municipality);
-            $addedMunicipalitySuccessful = $municipality->addStatement($this);
+            $this->municipalities->add($municipality);
 
-            return $addedStatementSuccessful && $addedMunicipalitySuccessful;
+            return $municipality->addStatement($this);
         }
 
         return false;
@@ -3022,10 +3019,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function addTag(TagInterface $tag): bool
     {
         if (!$this->tags->contains($tag)) {
-            $addedStatementSuccessful = $this->tags->add($tag);
-            $addedTagSuccessful = $tag->addStatement($this);
+            $this->tags->add($tag);
 
-            return $addedStatementSuccessful && $addedTagSuccessful;
+            return $tag->addStatement($this);
         }
 
         return false;
@@ -3074,7 +3070,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * Returns the names of all Tags assigned to this Statement.
      *
-     * @return array()
+     * @return string[]
      */
     public function getTagNames(): array
     {
@@ -3089,7 +3085,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * Returns the Ids of all Tags assigned to this Statement.
      *
-     * @return array()
+     * @return string[]
      */
     public function getTagIds(): array
     {
@@ -3104,7 +3100,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * Returns the names of all Topics that are related with this Statement.
      *
-     * @return array()
+     * @return string[]
      */
     public function getTopicNames()
     {

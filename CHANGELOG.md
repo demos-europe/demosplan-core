@@ -5,6 +5,41 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- bump contract layer demosplan-addon to v0.83
+- depends on contract layer >= v0.83
+- new SegmentTagsChangedEvent implements new interface added to contract layer in v0.83
+
+## v4.61.2 (2026-09-23)
+
+### Fixed
+- Grouped DOCX/ODT and ZIP exports from the statement list no longer time out for procedures with many statements; the file downloads once it is ready
+- Segments exports with many images are much smaller, and their temporary files no longer fill up the disk
+
+## v4.61.1 (2026-09-21)
+
+### Fixed
+- Bulk-loading statement segments by ID failed with a server error when filtering by procedure
+
+## v4.61.0 (2026-09-21)
+
+### Added
+- A system-wide notice banner can be configured to inform users of maintenance windows or other announcements
+- Tags can now be viewed and edited directly while writing a response, without switching views
+- The public procedure list can now display a pictogram's alt text and copyright information
+- Statement exports can now include the names of associated areas and their tags
+
+### Fixed
+- Forwarding a statement for review no longer fails with a validation error when it has comments
+- Large procedure exports (PDF, ODT, ZIP) no longer time out for procedures with many statements
+- Removing a tag from the response editor no longer leaves its selection checkbox stuck as checked
+- The PDF import option was missing from the procedure import screen and is now shown again
+- Finalizing statements no longer fails due to unconfirmed segment marks
+- Global GIS layers are now scoped to their own customer
+- Maximum email attachment size for the final decision email reduced to a sane limit
+
+## v4.60.0 (2026-09-09)
+
+## v4.59.0 (2026-09-09)
 - uses TagListCsvExportEventInterface
 - dpends on demosplan-addon version >= v0.82
 
@@ -22,11 +57,22 @@
 ### Added
 - Organisation administrators and support can reset the two-factor authentication of a user in the user administration, for cases where access to the second factor was lost. The reset only removes the second factor and can never activate it for someone else. Every reset is recorded in the report so it stays traceable who reset it for whom.
 - Statements can now be imported from a CSV file, in addition to the existing Excel import. The import runs as a background job; files with more than 3,000 rows, a duplicate Eingangsnummer, or an oversized statement text are rejected with a clear error instead of importing only part of the file. (DPLAN-18247)
+- The nightly maintenance now checks the stored files against the file entries in the database and writes the result to the log: entries whose file is missing from the storage, stored files no entry refers to, files kept at an unexpected path, and files that survived their deletion. The check only reads; `dplan:file:audit-consistency` runs it on demand.
 
 ### Fixed
 - Downloading the result of a background export works for large archives. The file is sent to the browser piece by piece instead of being held in memory as a whole, which could abort the download.
 - Copies of a statement are no longer silently dropped when an assessment table export is imported. The export carries a reference to the statement each row originates from, so every copy arrives, and re-importing the same export adds only what is not there yet.
 - The reminder mail about ending segment deadlines lists every segment, also when several of them share an ID.
+
+## v4.57.2 (2026-09-17)
+
+### Fixed
+- Forwarding a statement to another user for review no longer fails with a validation error when the statement has comments
+
+## v4.57.1 (2026-09-15)
+
+### Fixed
+- Finalizing segmented statements no longer fails when unclassified or invalid segment markers are left over
 
 ## v4.57.0 (2026-08-19)
 
@@ -67,6 +113,13 @@
 
 ## v4.53.0 (2026-07-30)
 
+## v4.52.2 (2026-09-15)
+
+### Added
+- Pictogram alt text and copyright are now shown on the public procedure list
+
+## v4.52.1 (2026-09-05)
+
 ## v4.52.0 (2026-07-29)
 
 ### Added
@@ -98,6 +151,7 @@
 - Institution coordinators without a second organisation email address are now redirected to the welcome page until they provide it.
 
 ## v4.49.0 (2026-07-15)
+
 ## v4.48.0 (2026-07-07)
 
 ### Added

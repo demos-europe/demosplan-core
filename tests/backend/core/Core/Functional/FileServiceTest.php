@@ -68,6 +68,60 @@ class FileServiceTest extends FunctionalTestCase
         static::assertFileExists($imagestring);
     }
 
+    public function testRemoveStaleTemporaryExportFiles(): void
+    {
+        $fs = new Filesystem();
+        $systemTempDir = sys_get_temp_dir();
+        $oldTimestamp = time() - (7 * 3600);
+        $recentTimestamp = time() - (3 * 3600);
+
+        // stale staged export image, kept in its own uniqid directory
+        $staleStagedDir = $systemTempDir.'/dplan/stale_'.uniqid('', true);
+        $fs->dumpFile($staleStagedDir.'/imagehash', 'stale image content');
+        touch($staleStagedDir.'/imagehash', $oldTimestamp);
+        touch($staleStagedDir, $oldTimestamp);
+
+        // recent staged export image, must survive
+        $recentStagedDir = $systemTempDir.'/dplan/recent_'.uniqid('', true);
+        $fs->dumpFile($recentStagedDir.'/imagehash', 'recent image content');
+        touch($recentStagedDir.'/imagehash', $recentTimestamp);
+        touch($recentStagedDir, $recentTimestamp);
+
+        // stale leftover PhpWord zip temp file
+        $staleWordFile = $systemTempDir.'/PhpWord'.uniqid('', true);
+        $fs->dumpFile($staleWordFile, 'stale phpword temp');
+        touch($staleWordFile, $oldTimestamp);
+
+        // stale leftover PHPWordWriter_ extraction directory
+        $staleWriterDir = $systemTempDir.'/PHPWordWriter_'.uniqid('', true);
+        $fs->dumpFile($staleWriterDir.'/word/document.xml', 'stale extracted content');
+        touch($staleWriterDir, $oldTimestamp);
+
+        // stale leftover ExportResponseFileStore tempnam() file
+        $staleExportFile = $systemTempDir.'/dplan_export_'.uniqid('', true);
+        $fs->dumpFile($staleExportFile, 'stale export content');
+        touch($staleExportFile, $oldTimestamp);
+
+        // something outside the guarded names/root must never be touched
+        $unrelatedFile = $systemTempDir.'/dplan_test_unrelated_'.uniqid('', true);
+        $fs->dumpFile($unrelatedFile, 'unrelated content');
+        touch($unrelatedFile, $oldTimestamp);
+
+        try {
+            $this->sut->removeStaleTemporaryExportFiles(6);
+
+            static::assertFileDoesNotExist($staleStagedDir.'/imagehash');
+            static::assertDirectoryDoesNotExist($staleStagedDir);
+            static::assertFileExists($recentStagedDir.'/imagehash');
+            static::assertFileDoesNotExist($staleWordFile);
+            static::assertDirectoryDoesNotExist($staleWriterDir);
+            static::assertFileDoesNotExist($staleExportFile);
+            static::assertFileExists($unrelatedFile);
+        } finally {
+            $fs->remove([$staleStagedDir, $recentStagedDir, $staleWordFile, $staleWriterDir, $staleExportFile, $unrelatedFile]);
+        }
+    }
+
     public function testSaveFileFromTemporaryFile()
     {
         $cacheDir = $this->getContainer()->getParameter('kernel.cache_dir');

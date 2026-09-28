@@ -225,6 +225,12 @@
           {{ `${Translator.trans('version')}: ${recommendationVersionNumber}` }}
         </span>
       </div>
+      <segment-tags
+        v-if="isAssignedToMe && !isLocked"
+        :segment-id="segment.id"
+        :tags="segmentTags"
+        @update="updateSegmentTags"
+      />
       <div v-if="isAssignedToMe && !isLocked">
         <dp-checkbox
           :id="'showWorkflowFields_' + segment.id"
@@ -515,6 +521,7 @@ import {
   formatDate,
   prefixClassMixin,
   reformatDateString,
+  sortAlphabetically,
   Tooltip,
   VPopover,
 } from '@demos-europe/demosplan-ui'
@@ -526,6 +533,7 @@ import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import ImageModal from '@DpJs/components/shared/ImageModal'
 import RecommendationModal from '../Shared/RecommendationModal'
+import SegmentTags from './SegmentTags'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useUnsavedChangesGuard } from '@DpJs/composables/useUnsavedChangesGuard'
@@ -557,6 +565,7 @@ export default {
     DpTooltip,
     ImageModal,
     RecommendationModal,
+    SegmentTags,
     TextContentRenderer,
     VPopover,
   },
@@ -651,6 +660,15 @@ export default {
       'slidebar',
     ]),
 
+    ...mapState('StatementSegment', {
+      initialSegments: 'initial',
+      segmentItems: 'items',
+    }),
+
+    ...mapState('Tag', {
+      tagsItems: 'items',
+    }),
+
     assignableUsers () {
       const assigneeOptions = Object.values({ ...this.assignableUserItems })
         .map(assignableUser => {
@@ -711,7 +729,7 @@ export default {
         return false
       }
 
-      const initialSegment = this.$store.state.StatementSegment?.initial[this.segment.id]
+      const initialSegment = this.initialSegments?.[this.segment.id]
 
       if (!initialSegment) {
         return false
@@ -725,11 +743,16 @@ export default {
       const currentAssigneeId = (this.selectedAssignee?.id && this.selectedAssignee.id !== 'noAssigneeId') ? this.selectedAssignee.id : null
       const hasAssigneeChanges = initialAssigneeId !== currentAssigneeId
 
+      const initialTagIds = (initialSegment.relationships?.tags?.data || []).map(tag => tag.id).sort()
+      const currentTagIds = (this.segment.relationships?.tags?.data || []).map(tag => tag.id).sort()
+      const hasTagChanges = JSON.stringify(initialTagIds) !== JSON.stringify(currentTagIds)
+
       return (
         hasRecommendationChanges ||
         hasDeadlineChanges ||
         hasPlaceChanges ||
         hasAssigneeChanges ||
+        hasTagChanges ||
         this.hasCustomFieldChanges
       )
     },
@@ -755,10 +778,14 @@ export default {
     },
 
     places () {
-      return this.$store.state.Place ?
-        Object.values(this.$store.state.Place.items)
-          .map(pl => ({ ...pl.attributes, id: pl.id })) :
-        []
+      return Object.values(this.placeItems)
+        .map(place => {
+          return {
+            ...place.attributes,
+            id: place.id,
+            type: place.type,
+          }
+        })
     },
 
     recommendationVersionNumber () {
@@ -781,18 +808,24 @@ export default {
         {}
     },
 
+    segmentTags () {
+      const ids = this.segment.relationships?.tags?.data?.map(ref => ref.id) || []
+      const included = this.segment.hasRelationship('tags') ? Object.values(this.segment.rel('tags')).filter(Boolean) : []
+
+      return sortAlphabetically(
+        ids
+          .map(id => included.find(tag => tag.id === id) || this.tagsItems[id])
+          .filter(Boolean),
+        'attributes.title',
+      )
+    },
+
     shouldShowButtonRow () {
-      return this.isAssignedToMe &&
-        !this.isLocked &&
-        (this.isEditing || this.showWorkflowFields || this.showAdditionalFields)
+      return this.isAssignedToMe && !this.isLocked
     },
 
     tagsAsString () {
-      if (this.segment.hasRelationship('tags')) {
-        return Object.values(this.segment.rel('tags')).map(el => el.attributes.title).join(', ')
-      }
-
-      return '-'
+      return this.segmentTags.length ? this.segmentTags.map(tag => tag.attributes.title).join(', ') : '-'
     },
 
     visibleRecommendation () {
@@ -822,15 +855,24 @@ export default {
       deep: false, // Set default for migrating purpose. To know this occurrence is checked
       immediate: true, // This ensures the handler is executed immediately after the component is created
     },
+
+    showAdditionalFields (newVal) {
+      // Check if fields are hidden and if this is a "hide fields after save", in which case the deadline value should not be reverted
+      if (!newVal && !this.isSaving) {
+        this.revertAdditionalFields()
+      }
+    },
+
+    showWorkflowFields (newVal) {
+      if (!newVal) {
+        this.revertWorkflowFields()
+      }
+    },
   },
 
   methods: {
     ...mapActions('SegmentSlidebar', [
       'toggleSlidebarContent',
-    ]),
-
-    ...mapMutations('SegmentSlidebar', [
-      'setProperty',
     ]),
 
     ...mapActions('StatementSegment', {
@@ -1014,7 +1056,7 @@ export default {
       })
     },
 
-    completeSave (comments) {
+    completeSave (readOnlyRelationships) {
       return Promise.all([
         this.fetchUpdatedSegment().catch(() => null),
         this.saveCustomFields(),
@@ -1026,33 +1068,12 @@ export default {
           this.addRecommendationImageListeners()
         })
         .catch(() => {
-          this.rollbackFailedSave(comments)
+          this.rollbackFailedSave(readOnlyRelationships)
         })
         .finally(() => {
-          this.restoreRelationships()
+          this.restoreReadOnlyRelationships(readOnlyRelationships)
           this.cancelEditingState()
         })
-    },
-
-    /**
-     * Remove non-updatable comments from segments relationships for update request
-     * @param relations {Object}
-     */
-    excludeComments (relations) {
-      if (relations.comments) {
-        this.setProperty({ prop: 'isLoading', val: true })
-        delete relations.comments
-      }
-    },
-
-    /**
-     * Remove non-updatable recommendationVersions from segments relationships for update request
-     * @param relations {Object}
-     */
-    excludeRecommendationVersion (relations) {
-      if (relations.recommendationVersions) {
-        delete relations.recommendationVersions
-      }
     },
 
     exitEditMode () {
@@ -1185,20 +1206,6 @@ export default {
       }
     },
 
-    restoreComments (comments) {
-      if (comments) {
-        const segmentWithComments = {
-          ...this.segment,
-          relationships: {
-            ...this.segment.relationships,
-            comments,
-          },
-        }
-
-        this.setSegment({ ...segmentWithComments, id: this.segment.id })
-      }
-    },
-
     restoreInitialCustomFields () {
       this.customFieldValues = structuredClone(this.initialCustomFieldValues)
     },
@@ -1208,15 +1215,59 @@ export default {
       this.setSelectedAssignee()
     },
 
-    restoreRelationships (comments) {
-      this.restoreComments(comments)
-      this.setProperty({ prop: 'isLoading', val: false })
+    /**
+     * Re-add read-only relationships stripped by updateRelationships() to the store
+     * Comments and recommendationVersions are only added as relationship if they don't exist already
+     *
+     * @param comments {Object|null}
+     * @param recommendationVersions {Object|null}
+     */
+    restoreReadOnlyRelationships ({ comments, recommendationVersions }) {
+      const storedSegment = this.segmentItems[this.segment.id]
+
+      if (!storedSegment) {
+        return
+      }
+
+      const restoreComments = comments && !storedSegment.relationships.comments
+      const restoreRecommendationVersions = recommendationVersions && !storedSegment.relationships.recommendationVersions
+
+      if (!restoreComments && !restoreRecommendationVersions) {
+        return
+      }
+
+      const relationships = { ...storedSegment.relationships }
+
+      if (restoreComments) {
+        relationships.comments = comments
+      }
+
+      if (restoreRecommendationVersions) {
+        relationships.recommendationVersions = recommendationVersions
+      }
+
+      this.setSegment({ ...storedSegment, relationships, id: storedSegment.id })
     },
 
-    rollbackFailedSave (comments) {
+    revertAdditionalFields () {
+      const initialSegment = this.initialSegments?.[this.segment.id]
+
+      if (initialSegment) {
+        this.updateSegment('deadline', initialSegment.attributes.deadline)
+      }
+
+      this.restoreInitialCustomFields()
+    },
+
+    revertWorkflowFields () {
+      this.setSelectedAssignee()
+      this.setSelectedPlace()
+    },
+
+    rollbackFailedSave (readOnlyRelationships) {
       dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
       this.restoreSegmentAction(this.segment.id)
-      this.restoreRelationships(comments)
+      this.restoreReadOnlyRelationships(readOnlyRelationships)
       this.isSaving = false
     },
 
@@ -1250,35 +1301,47 @@ export default {
     },
 
     save () {
-      const comments = this.segment.relationships.comments ?
-        { ...this.segment.relationships.comments } :
-        null
+      const readOnlyRelationships = {
+        comments: this.segment.relationships.comments ?
+          { ...this.segment.relationships.comments } :
+          null,
+        recommendationVersions: this.segment.relationships.recommendationVersions ?
+          { ...this.segment.relationships.recommendationVersions } :
+          null,
+      }
 
-      // Update relationships (assignee/place)
-      const relations = this.updateRelationships()
-
-      /**
-       *  Comments and recommendationVersions need to be removed from the PATCH payload
-       *  as updating them is technically not supported
+      /*
+       * Update relationships (assignee/place). Read-only relationships (comments,
+       * recommendationVersions) are stripped inside updateRelationships so they never
+       * reach the PATCH payload.
        */
-      this.excludeComments(relations)
-      this.excludeRecommendationVersion(relations)
+      this.updateRelationships()
 
       this.lockedBeforeSave = this.isLocked
       this.isSaving = true
 
-      return this.saveSegmentAction({ id: this.segment.id })
+      const savePromise = this.saveSegmentAction({ id: this.segment.id })
+
+      this.restoreReadOnlyRelationships(readOnlyRelationships)
+
+      return savePromise
         .then((response) => {
+          /*
+           * The saveAction overwrites segment data in the store without the read-only relationships,
+           * so they have to be restored again to keep comments visible while saving
+           */
+          this.restoreReadOnlyRelationships(readOnlyRelationships)
+
           if (response && (response.status >= 400 || response.ok === false)) {
-            this.rollbackFailedSave(comments)
+            this.rollbackFailedSave(readOnlyRelationships)
 
             return
           }
 
-          return this.completeSave(comments)
+          return this.completeSave(readOnlyRelationships)
         })
         .catch(() => {
-          this.rollbackFailedSave(comments)
+          this.rollbackFailedSave(readOnlyRelationships)
         })
     },
 
@@ -1307,9 +1370,12 @@ export default {
     },
 
     setSelectedPlace () {
-      if (this.segment.relationships.place) {
-        this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
+      // Places may still be loading; initPlaces re-runs this once they arrive
+      if (!this.segment.relationships.place || this.places.length === 0) {
+        return
       }
+
+      this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
     },
 
     showComments () {
@@ -1426,6 +1492,14 @@ export default {
     updateRelationships () {
       let relations = { ...this.segment.relationships }
 
+      /*
+       * `comments` and `recommendationVersions` are read-only on the StatementSegment resource (they are managed through
+       * their own resources/endpoints), so we need to remove them from the payload to prevent them from being written
+       * to the store and sent to the BE on save
+       */
+      delete relations.comments
+      delete relations.recommendationVersions
+
       if (this.showWorkflowFields) {
         let assignee = { assignee: { data: null } }
 
@@ -1468,6 +1542,20 @@ export default {
 
     updateSegment (key, val) {
       const updated = { ...this.segment, ...{ attributes: { ...this.segment.attributes, ...{ [key]: val } } } }
+
+      this.setSegment({ ...updated, id: this.segment.id })
+    },
+
+    updateSegmentTags (newTags) {
+      const updated = {
+        ...this.segment,
+        relationships: {
+          ...this.segment.relationships,
+          tags: {
+            data: newTags.map(tag => ({ id: tag.id, type: 'Tag' })),
+          },
+        },
+      }
 
       this.setSegment({ ...updated, id: this.segment.id })
     },

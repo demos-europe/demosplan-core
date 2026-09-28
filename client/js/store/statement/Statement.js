@@ -786,7 +786,7 @@ export default {
         },
       })
         .then(response => {
-          let assignee = {}
+          let assignee
 
           if (assigneeId === '' || assigneeId == null) {
             assignee = { id: '', name: '', orgaName: '', uId: '' }
