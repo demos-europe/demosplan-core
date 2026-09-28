@@ -329,7 +329,7 @@ export default {
         },
       })
         .then(({ data }) => {
-          let updateObject = {}
+          let updateObject
 
           if (assigneeId === '' || assigneeId == null) {
             updateObject = { fragmentId, statementId, assignee: { id: '', name: '', orgaName: '', uId: '' } }

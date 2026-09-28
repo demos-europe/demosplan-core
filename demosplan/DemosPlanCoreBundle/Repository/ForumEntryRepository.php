@@ -17,9 +17,9 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\MissingDataException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ArrayInterface;
 use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\ORM\TransactionRequiredException;
 use Exception;
 use Symfony\Component\Form\Exception\InvalidArgumentException;
@@ -167,14 +167,12 @@ class ForumEntryRepository extends CoreRepository implements ArrayInterface
                 }
 
                 return $this->convertToEntryResponse($toAdd, $data['request']['files']);
-            } else {
-                $this->logger->error('Add Entry failed: User with ID: '.$data['userId'].' not found.');
-                throw new EntityNotFoundException('Add Entry failed: User with ID: '.$data['userId'].' not found.');
             }
-        } else {
             $this->logger->error('Add Entry failed: User with ID: '.$data['userId'].' not found.');
-            throw new InvalidArgumentException('Thread with ID: '.$data['threadId'].' is already closed.');
+            throw new EntityNotFoundException('Add Entry failed: User with ID: '.$data['userId'].' not found.');
         }
+        $this->logger->error('Add Entry failed: User with ID: '.$data['userId'].' not found.');
+        throw new InvalidArgumentException('Thread with ID: '.$data['threadId'].' is already closed.');
     }
 
     private function isThreadClosed($threadId)

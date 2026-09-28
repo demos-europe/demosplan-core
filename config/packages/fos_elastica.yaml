@@ -182,6 +182,8 @@ fos_elastica:
                 publicParticipationContact: {type: text, index: true}
                 publicParticipationPublicationEnabled: { type: boolean }
                 pictogram: {type: keyword, index: false}
+                pictogramAltText: {type: keyword, index: false}
+                pictogramCopyright: {type: keyword, index: false}
                 municipalCode: {type: keyword, index: true}
                 ars: {type: keyword, index: true}
                 planningArea: {type: text, index: true}

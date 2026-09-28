@@ -44,7 +44,7 @@ use RuntimeException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 /**
  * @template-extends CoreRepository<User>
@@ -56,10 +56,12 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
      */
     final public const LOGIN_LIST_CACHE_DURATION = 43200;
 
+    public const LOGIN_LIST_CACHE_TAG = 'login_list';
+
     private const WHERE_NOT_DELETED = 'u.deleted = false';
 
     public function __construct(
-        private readonly CacheInterface $cache,
+        private readonly TagAwareCacheInterface $cache,
         DqlConditionFactory $dqlConditionFactory,
         ManagerRegistry $registry,
         SortMethodFactory $sortMethodFactory,
@@ -742,7 +744,7 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
      */
     private function invalidateCachedLoginList(): void
     {
-        $this->cache->delete(self::LOGIN_LIST_CACHE_DURATION);
+        $this->cache->invalidateTags([self::LOGIN_LIST_CACHE_TAG]);
     }
 
     private function applyCriteriaFilters(array $criteria, QueryBuilder $qb): QueryBuilder

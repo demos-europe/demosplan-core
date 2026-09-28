@@ -9,9 +9,18 @@ declare global {
     generate(route: string, params?: Record<string, string | number>): string
   }
 
+  interface DplanNotify {
+    notify(type: string, text: string | { message: string, linkUrl?: string, linkText?: string, persist?: boolean }, linkUrl?: string, linkText?: string): void
+    remove(notification: unknown): void
+    info(...args: unknown[]): void
+    confirm(...args: unknown[]): void
+    warning(...args: unknown[]): void
+    error(...args: unknown[]): void
+  }
+
   interface DplanGlobal {
     procedureId: string
-    notify: (message: string, type?: string) => void
+    notify: DplanNotify
     settings: Record<string, unknown>
     [key: string]: unknown
   }

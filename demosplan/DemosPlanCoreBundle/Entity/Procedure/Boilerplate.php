@@ -296,7 +296,7 @@ class Boilerplate extends CoreEntity implements UuidEntityInterface, Boilerplate
     }
 
     /**
-     * @return ArrayCollection;
+     * @return ArrayCollection
      */
     public function getTags()
     {

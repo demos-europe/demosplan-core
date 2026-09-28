@@ -288,6 +288,9 @@ parameters:
     # percentage of requests to trace performance. 0 = none, 1.0 = 100%
     sentry_traces_sample_rate: 0
     sentry_profiles_sample_rate: 0
+    # separate rate for the browser SDK, so the backend can run at 1.0 while
+    # the frontend stays low
+    sentry_traces_sample_rate_frontend: 0
 
     # OpenTelemetry OTLP endpoint for logs and traces
     # Set to empty string to disable, or e.g. "http://otel-collector:4318" to enable
