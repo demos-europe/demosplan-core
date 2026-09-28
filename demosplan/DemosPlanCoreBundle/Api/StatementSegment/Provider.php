@@ -102,6 +102,8 @@ class Provider implements ProviderInterface
         $operation = $operation->withStateOptions(new DoctrineOptions(
             entityClass: Segment::class,
             handleLinks: static function (): void {
+                // Intentionally empty: API Platform requires handleLinks to be set,
+                // but no link handling is needed here.
             }
         ));
 
