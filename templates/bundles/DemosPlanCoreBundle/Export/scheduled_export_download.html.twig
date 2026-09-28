@@ -1,11 +1,6 @@
 {% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
 
 {% block component_part %}
-    {% if 'completed' == job.status %}
-        {# Non-JS, reliable auto-start: redirects to the file endpoint shortly after the page loads. #}
-        <meta http-equiv="refresh" content="1;url={{ downloadUrl }}">
-    {% endif %}
-
     {% set scheduledExportJob = {
         status: job.status,
         fileName: job.fileName,

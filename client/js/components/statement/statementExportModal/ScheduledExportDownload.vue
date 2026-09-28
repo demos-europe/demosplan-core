@@ -57,7 +57,7 @@ All rights reserved
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { DpInlineNotification } from '@demos-europe/demosplan-ui'
 
 type JobStatus = 'completed' | 'failed' | string
@@ -126,5 +126,14 @@ const statusMessage = computed(() => {
     : undefined
 
   return Translator.trans(currentTranslationKeys.value.message, params)
+})
+
+onMounted(() => {
+  // Auto-download when status is completed
+  if (isCompleted.value && props.downloadUrl) {
+    setTimeout(() => {
+      window.location.href = props.downloadUrl
+    }, 1000)
+  }
 })
 </script>
