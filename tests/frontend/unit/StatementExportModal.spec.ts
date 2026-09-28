@@ -3,6 +3,7 @@ import { DpModal } from '@demos-europe/demosplan-ui'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 import StatementExportModal from '@DpJs/components/statement/statementExportModal/StatementExportModal.vue'
 import { vi } from 'vitest'
+import { createStore } from 'vuex'
 
 /** Payload of the component's `export` event, mirrored from handleExport() */
 interface ExportPayload {
@@ -51,12 +52,36 @@ describe('StatementExportModal', () => {
   }
 
   beforeEach(() => {
+    const mockStore = createStore({
+      modules: {
+        ScheduledExport: {
+          namespaced: true,
+          state: {
+            items: [],
+          },
+          getters: {
+            items: (state) => state.items,
+          },
+          mutations: {
+            setItem: vi.fn(),
+            deleteItem: vi.fn(),
+          },
+          actions: {
+            list: vi.fn(() => Promise.resolve({ data: [] })),
+            create: vi.fn(() => Promise.resolve()),
+            delete: vi.fn(() => Promise.resolve()),
+          },
+        },
+      },
+    })
+
     wrapper = shallowMountWithGlobalMocks(StatementExportModal, {
       props: {
         isSingleStatementExport: false,
         procedureId: MOCK_PROCEDURE_ID,
       },
       global: {
+        plugins: [mockStore],
         renderStubDefaultSlot: true,
         stubs: {
           'dp-modal': {
