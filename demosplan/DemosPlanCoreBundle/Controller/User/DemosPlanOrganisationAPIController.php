@@ -26,7 +26,6 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
-use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Event\User\NewOrgaCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Event\User\OrgaAdminEditedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
@@ -384,16 +383,16 @@ class DemosPlanOrganisationAPIController extends APIController
         $availableOrgaRoles = [];
 
         foreach ($preUpdateOrga->getStatusesInCustomer($customer) as $orgaStatusInCustomer) {
-            if (OrgaStatusInCustomer::STATUS_ACCEPTED === $orgaStatusInCustomer->getStatus()) {
-                if (OrgaType::PLANNING_AGENCY === $orgaStatusInCustomer->getOrgaType()->getName()) {
+            if (OrgaStatusInCustomerInterface::STATUS_ACCEPTED === $orgaStatusInCustomer->getStatus()) {
+                if (OrgaTypeInterface::PLANNING_AGENCY === $orgaStatusInCustomer->getOrgaType()->getName()) {
                     $availableOrgaRoles[] = $this->roleHandler->getRoleByCode(RoleInterface::PRIVATE_PLANNING_AGENCY);
                 }
 
-                if (OrgaType::MUNICIPALITY === $orgaStatusInCustomer->getOrgaType()->getName()) {
+                if (OrgaTypeInterface::MUNICIPALITY === $orgaStatusInCustomer->getOrgaType()->getName()) {
                     $availableOrgaRoles[] = $this->roleHandler->getRoleByCode(RoleInterface::PLANNING_AGENCY_ADMIN);
                 }
 
-                if (OrgaType::HEARING_AUTHORITY_AGENCY === $orgaStatusInCustomer->getOrgaType()->getName()) {
+                if (OrgaTypeInterface::HEARING_AUTHORITY_AGENCY === $orgaStatusInCustomer->getOrgaType()->getName()) {
                     $availableOrgaRoles[] = $this->roleHandler->getRoleByCode(RoleInterface::HEARING_AUTHORITY_ADMIN);
                 }
             }
