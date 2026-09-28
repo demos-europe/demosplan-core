@@ -31,6 +31,8 @@ class FileNameGenerator
 
     private const PREFIX_SYNOPSE = 'Synopse-';
     private const PREFIX_FILTERED_SYNOPSE = 'Teilexport-Synopse-';
+    private const PREFIX_SEGMENTS_EXPORT = 'Export-Abschnitte-';
+    private const PREFIX_FILTERED_SEGMENTS_EXPORT = 'Teilexport-Abschnitte-';
 
     public function __construct(
         protected Slugify $slugify,
@@ -45,8 +47,21 @@ class FileNameGenerator
      */
     public function getSynopseFileName(Procedure $procedure, string $suffix, bool $isFiltered = false): string
     {
-        $procedureName = $this->nameGenerator->shortenProcedureNameForExport($procedure->getName());
         $prefix = $isFiltered ? self::PREFIX_FILTERED_SYNOPSE : self::PREFIX_SYNOPSE;
+
+        return $this->buildFileName($procedure, $suffix, $prefix);
+    }
+
+    public function getSegmentsExportFileName(Procedure $procedure, string $suffix, bool $isFiltered = false): string
+    {
+        $prefix = $isFiltered ? self::PREFIX_FILTERED_SEGMENTS_EXPORT : self::PREFIX_SEGMENTS_EXPORT;
+
+        return $this->buildFileName($procedure, $suffix, $prefix);
+    }
+
+    private function buildFileName(Procedure $procedure, string $suffix, string $prefix): string
+    {
+        $procedureName = $this->nameGenerator->shortenProcedureNameForExport($procedure->getName());
 
         return $prefix.$this->slugify->slugify($procedureName).'.'.$suffix;
     }

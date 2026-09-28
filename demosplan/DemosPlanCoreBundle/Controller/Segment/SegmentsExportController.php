@@ -522,7 +522,7 @@ class SegmentsExportController extends BaseController
         $response->headers->set('Content-Type', $contentType);
 
         $procedure = $this->procedureHandler->getProcedureWithCertainty($procedureId);
-        $fileName = $fileNameGenerator->getSynopseFileName($procedure, $fileExtension, $isFiltered);
+        $fileName = $fileNameGenerator->getSegmentsExportFileName($procedure, $fileExtension, $isFiltered);
         $response->headers->set('Content-Disposition', $this->nameGenerator->generateDownloadFilename($fileName));
     }
 }
