@@ -25,6 +25,11 @@ describe('SegmentsExportModal', () => {
   beforeEach(() => {
     toggleMock = vi.fn()
 
+    global.dplan.permissions = {
+      feature_segments_list_export_xlsx: true,
+      feature_segments_list_export_csv: true,
+    }
+
     wrapper = shallowMountWithGlobalMocks(SegmentsExportModal, {
       props: {
         appliedFilters: [],
