@@ -104,7 +104,7 @@ All rights reserved
 
 <script setup>
 import { computed, ref } from 'vue'
-import { DpButton, DpButtonRow, DpInlineNotification, DpModal, DpRadio } from '@demos-europe/demosplan-ui'
+import { DpButton, DpButtonRow, DpInlineNotification, DpModal, DpRadio, hasPermission } from '@demos-europe/demosplan-ui'
 
 const props = defineProps({
   // Shaped [{ label, values: [String] }] — built by SegmentsList
@@ -143,22 +143,27 @@ const hasAppliedFilters = computed(() =>
   props.appliedFilters.length > 0 || props.searchTerm !== '',
 )
 
-const active = ref('xlsx_normal')
-const exportModal = ref(null)
+const exportTypes = {}
 
-const exportTypes = {
-  xlsx_normal: {
+if (hasPermission('feature_segments_list_export_xlsx')) {
+  exportTypes.xlsx_normal = {
     label: 'export.xlsx',
     hint: Translator.trans('export.xlsx.hint'),
-  },
-  csv_normal: {
-    label: 'export.csv',
-    hint: Translator.trans('export.csv.hint'),
-  },
+  }
 }
 
+if (hasPermission('feature_segments_list_export_csv')) {
+  exportTypes.csv_normal = {
+    label: 'export.csv',
+    hint: Translator.trans('export.csv.hint'),
+  }
+}
+
+const active = ref(Object.keys(exportTypes)[0])
+const exportModal = ref(null)
+
 const openModal = () => {
-  active.value = 'xlsx_normal'
+  active.value = Object.keys(exportTypes)[0]
   emit('open')
   exportModal.value?.toggle()
 }

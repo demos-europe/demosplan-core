@@ -68,6 +68,7 @@
           />
 
           <segments-export-modal
+            v-if="canExportSegments"
             :applied-filters="appliedFiltersSummary"
             :is-export-disabled="!hasSegments"
             :search-term="searchTerm"
@@ -796,6 +797,10 @@ export default {
 
     hasDeadlineColumn () {
       return hasPermission('field_statement_deadline')
+    },
+
+    canExportSegments () {
+      return hasPermission('feature_segments_list_export_xlsx') || hasPermission('feature_segments_list_export_csv')
     },
 
     // Passed as headerFields to DpDataTable
