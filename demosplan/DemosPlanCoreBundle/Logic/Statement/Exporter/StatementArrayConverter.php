@@ -71,6 +71,7 @@ class StatementArrayConverter
             // Some data is stored on parentStatement instead on Segment and have to get from there
             $exportData = $this->extractParentStatementData($segmentOrStatement, $exportData);
             $exportData['place'] = $segmentOrStatement->getPlace()->getName(); // Segments using place instead of status
+            $exportData['deadline'] = $segmentOrStatement->getDeadline()?->format('d.m.Y') ?? '';
             $exportData = $this->extractCustomFieldsData($segmentOrStatement, $exportData);
         }
 
