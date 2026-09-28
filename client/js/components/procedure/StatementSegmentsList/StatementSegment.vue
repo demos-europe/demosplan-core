@@ -1201,13 +1201,9 @@ export default {
     /**
      * Called when the user clicks the pencil on a linked boilerplate in the editor. Confirms,
      * dissolves the node so its text stays as plain paragraphs, then offers an undo toast for
-     * 15 seconds — `editor.commands.undo()` reverses the dissolution in one step since it was
-     * a single transaction.
-     *
-     * `editor.commands.undo()` only undoes the editor's last transaction, not specifically
-     * this dissolution — so if the user keeps editing before clicking "undo", the toast would
-     * silently undo that unrelated edit instead. updateRecommendation dismisses this toast as
-     * soon as that happens, so the button never gets the chance to do the wrong thing.
+     * 15 seconds. `editor.commands.undo()` only undoes whatever transaction happened last, so
+     * updateRecommendation dismisses the toast on any further edit before it can undo the
+     * wrong thing.
      *
      * @param {Object} payload
      * @param {String} payload.boilerplateId
