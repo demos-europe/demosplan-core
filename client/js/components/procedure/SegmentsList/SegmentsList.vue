@@ -153,6 +153,7 @@
             @click="resetColumnSelection"
           />
           <dp-column-selector
+            v-if="customFieldsReady"
             :key="columnSelectorKey"
             appearance="subtle"
             data-cy="segmentsList:selectableColumns"
@@ -647,6 +648,7 @@ export default {
       defaultColumnSelection: [],
       currentSelection: [],
       customFieldDefinitions: [],
+      customFieldsReady: !hasPermission('field_segments_custom_fields'),
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
@@ -1666,6 +1668,9 @@ export default {
         })
         .catch(() => {
           /* Notification already shown by useCustomFieldDefinitions */
+        })
+        .finally(() => {
+          this.customFieldsReady = true
         })
     },
 
