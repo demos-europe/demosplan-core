@@ -212,10 +212,13 @@ export default {
 
   emits: [
     'fragment:delete',
-    'show-slidebar',
     'statement:copy',
     'statement:move',
     'version:history',
+  ],
+
+  inject: [
+    'openSlidebar',
   ],
 
   data () {
@@ -237,7 +240,7 @@ export default {
 
     showVersionHistory () {
       this.$root.$emit('version:history', this.entityId, this.entity, this.externId)
-      this.$root.$emit('show-slidebar')
+      this.openSlidebar()
     },
 
     toggleAssignEntityModal (entity, assigneeId) {

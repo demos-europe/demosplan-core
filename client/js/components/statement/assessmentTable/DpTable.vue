@@ -146,7 +146,7 @@
     />
 
     <!-- Version History Slidebar -->
-    <dp-slidebar>
+    <dp-slidebar v-model:open="isSlidebarOpen">
       <dp-version-history :procedure-id="procedureId" />
     </dp-slidebar>
 
@@ -441,8 +441,17 @@ export default {
     return {
       filterHash: this.initFilterHash,
       hasChangedStatements: false,
+      isSlidebarOpen: false,
       processingData: false,
       processingDataNotConfirmed: false,
+    }
+  },
+
+  provide () {
+    return {
+      openSlidebar: () => {
+        this.isSlidebarOpen = true
+      },
     }
   },
 
