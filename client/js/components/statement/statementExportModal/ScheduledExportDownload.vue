@@ -15,7 +15,10 @@ All rights reserved
     <h4 class="font-semibold text-center mb-4">
       {{ job.fileName }}
     </h4>
-    <div class="flex">
+    <div
+      v-if="!isFailed"
+      class="flex"
+    >
       <span class="inline-block mr-1">
         {{ `${Translator.trans('export.xlsx.scheduled.download.from_type')}:` }}
       </span>
@@ -23,7 +26,9 @@ All rights reserved
         {{ Translator.trans('export.xlsx.scheduled.download.type.xlsx') }}
       </span>
     </div>
-    <div class="flex">
+    <div
+      v-if="downloadUrl && !isFailed"
+      class="flex">
       <span class="inline-block mr-1">
         {{ `${Translator.trans('export.xlsx.scheduled.download.from')}:` }}
       </span>
@@ -59,35 +64,19 @@ All rights reserved
 <script setup lang="ts">
 import { computed, onMounted } from 'vue'
 import { DpInlineNotification } from '@demos-europe/demosplan-ui'
+import type { ExportJob, StatusTranslationMap, TranslationKeys } from '@DpJs/types/scheduledExport'
 
-type JobStatus = 'completed' | 'failed' | string
-
-interface ExportJob {
-  status: JobStatus
-  fileName?: string
-  deleteAfter?: string | null
+interface Props {
+  job: ExportJob
+  downloadUrl: string
 }
 
-const props = defineProps<{
-  job: ExportJob
-  downloadUrl?: string
-}>()
+const props = defineProps<Props>()
 
-const actionLabel = computed(() =>
-  Translator.trans(
-    isCompleted.value
-      ? 'export.xlsx.scheduled.download.manual_trigger'
-      : 'home.navigate'
-  )
-)
+const isCompleted = computed((): boolean => props.job.status === 'completed')
+const isFailed = computed((): boolean => props.job.status === 'failed')
 
-const actionUrl = computed(() =>
-  isCompleted.value
-    ? props.downloadUrl
-    : Routing.generate('core_home')
-)
-
-const formattedDeleteAfter = computed(() => {
+const formattedDeleteAfter = computed((): string => {
   if (!props.job.deleteAfter) {
     return ''
   }
@@ -97,9 +86,7 @@ const formattedDeleteAfter = computed(() => {
   )
 })
 
-const isCompleted = computed(() => props.job.status === 'completed')
-
-const statusTranslationKeys = {
+const statusTranslationKeys: StatusTranslationMap = {
   completed: {
     heading: 'export.xlsx.scheduled.download.heading',
     message: 'export.xlsx.scheduled.download.available_until',
@@ -108,30 +95,50 @@ const statusTranslationKeys = {
     heading: 'export.xlsx.scheduled.download.failed.heading',
     message: 'export.xlsx.scheduled.download.failed',
   },
+  pending: {
+    heading: 'export.xlsx.scheduled.download.not_ready.heading',
+    message: 'export.xlsx.scheduled.download.not_ready',
+  },
   default: {
     heading: 'export.xlsx.scheduled.download.not_ready.heading',
     message: 'export.xlsx.scheduled.download.not_ready',
   },
 }
 
-const currentTranslationKeys = computed(() =>
+const currentTranslationKeys = computed((): TranslationKeys =>
   statusTranslationKeys[props.job.status] ?? statusTranslationKeys.default
 )
 
-const heading = computed(() => Translator.trans(currentTranslationKeys.value.heading))
+const heading = computed((): string =>
+  Translator.trans(currentTranslationKeys.value.heading)
+)
 
-const statusMessage = computed(() => {
-  const params = isCompleted.value
+const statusMessage = computed((): string => {
+  const params: Record<string, string> | undefined = isCompleted.value
     ? { date: formattedDeleteAfter.value }
     : undefined
 
   return Translator.trans(currentTranslationKeys.value.message, params)
 })
 
-onMounted(() => {
+const actionLabel = computed((): string =>
+  Translator.trans(
+    isCompleted.value
+      ? 'export.xlsx.scheduled.download.manual_trigger'
+      : 'home.navigate'
+  )
+)
+
+const actionUrl = computed((): string =>
+  isCompleted.value
+    ? props.downloadUrl
+    : Routing.generate('core_home')
+)
+
+onMounted((): void => {
   // Auto-download when status is completed
   if (isCompleted.value && props.downloadUrl) {
-    setTimeout(() => {
+    setTimeout((): void => {
       window.location.href = props.downloadUrl
     }, 1000)
   }

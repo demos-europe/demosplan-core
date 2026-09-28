@@ -39,3 +39,20 @@ export interface DaySelect {
   options: SelectOption[]
   selected: string | number
 }
+
+export type JobStatus = 'completed' | 'failed' | 'pending'
+
+export interface ExportJob {
+  status: JobStatus
+  fileName: string
+  deleteAfter?: string | null
+}
+
+export interface TranslationKeys {
+  heading: string
+  message: string
+}
+
+export type StatusTranslationMap = Record<JobStatus, TranslationKeys> & {
+  default: TranslationKeys
+}
