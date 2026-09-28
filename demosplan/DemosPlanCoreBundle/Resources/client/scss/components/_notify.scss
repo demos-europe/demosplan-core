@@ -114,7 +114,8 @@
         }
 
         .c-notify__message--confirm & {
-            color: $dp-color-message-success-interactive;
+            color: $dp-color-message-success-interactive !important;
+            border-color: $dp-color-message-success-interactive !important;
         }
 
         .c-notify__message--warning & {
