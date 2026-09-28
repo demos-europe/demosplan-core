@@ -17,6 +17,21 @@ export default {
     uid: 1,
   },
 
+  actions: {
+    /**
+     * Commits the message and hands the caller the stored message back (including its
+     * assigned uid and actionId), so it can be removed again later (e.g. dismissing an
+     * undo toast once it's no longer valid) the same way NotifyContainer does it.
+     */
+    add ({ commit, state }, message) {
+      const uid = state.uid
+
+      commit('add', message)
+
+      return state.messages.find(storedMessage => storedMessage.uid === uid)
+    },
+  },
+
   mutations: {
     /**
      * Add a message to the store

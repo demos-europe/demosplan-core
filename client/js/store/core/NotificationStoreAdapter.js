@@ -40,7 +40,7 @@ export default class NotificationStoreAdapter {
       message = { type, text, linkUrl, linkText, persist: false }
     }
 
-    this.store.commit('Notify/add', message)
+    return this.store.dispatch('Notify/add', message)
   }
 
   /**
@@ -66,7 +66,7 @@ export default class NotificationStoreAdapter {
   }
 
   confirm (...args) {
-    this.notify.apply(this, ['confirm'].concat(args))
+    return this.notify.apply(this, ['confirm'].concat(args))
   }
 
   warning (...args) {

@@ -652,6 +652,11 @@ export default {
       lockedBeforeSave: false,
       pendingUnlink: null,
       /*
+       * The active unlink-undo toast's stored message, so a subsequent editor change can
+       * dismiss it before its timer runs out — see updateRecommendation.
+       */
+      pendingUnlinkToast: null,
+      /*
        * Tag-form recommendation text (see boilerplateTagContent.js), fetched lazily once
        * editing starts — null until then, so recommendationForEditor knows not to render yet.
        */
@@ -1178,6 +1183,11 @@ export default {
      * 15 seconds — `editor.commands.undo()` reverses the dissolution in one step since it was
      * a single transaction.
      *
+     * `editor.commands.undo()` only undoes the editor's last transaction, not specifically
+     * this dissolution — so if the user keeps editing before clicking "undo", the toast would
+     * silently undo that unrelated edit instead. updateRecommendation dismisses this toast as
+     * soon as that happens, so the button never gets the chance to do the wrong thing.
+     *
      * @param {Object} payload
      * @param {String} payload.boilerplateId
      * @param {Number} payload.pos Document position of the node, needed to dissolve it
@@ -1195,11 +1205,14 @@ export default {
 
       const title = this.pendingUnlink.title || Translator.trans('boilerplate')
 
-      dplan.notify.confirm({
+      this.pendingUnlinkToast = await dplan.notify.confirm({
         message: Translator.trans('boilerplate.link.dissolved', { title }),
         actionText: Translator.trans('undo'),
         hideTimer: 15000,
-        onAction: () => this.$refs.editor?.undo(),
+        onAction: () => {
+          this.pendingUnlinkToast = null
+          this.$refs.editor?.undo()
+        },
       })
     },
 
@@ -1688,6 +1701,11 @@ export default {
      * that stale snapshot and silently discard anything inserted/removed since.
      */
     updateRecommendation (value) {
+      if (this.pendingUnlinkToast) {
+        dplan.notify.remove(this.pendingUnlinkToast)
+        this.pendingUnlinkToast = null
+      }
+
       const valueToStore = this.canLinkBoilerplate ? stripBoilerplateContent(value) : value
 
       if (this.canLinkBoilerplate) {
