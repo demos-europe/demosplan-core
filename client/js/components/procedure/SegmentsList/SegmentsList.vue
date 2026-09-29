@@ -690,7 +690,7 @@ export default {
         },
         {
           field: 'organisation',
-          label: Translator.trans('group'),
+          label: Translator.trans('segment.organisation'),
           colWidth: '180px',
           initialMinWidth: 180,
         },
