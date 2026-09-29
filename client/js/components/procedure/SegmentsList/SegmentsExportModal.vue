@@ -57,7 +57,7 @@ All rights reserved
         />
 
         <div
-          v-if="hasAppliedFilters"
+          v-if="hasAppliedFiltersOrSearch"
           class="pt-4"
           data-cy="exportModal:appliedFilters"
         >
@@ -139,7 +139,7 @@ const confirmButtonText = computed(() =>
   Translator.trans('export.segments.count', { count: props.segmentCount }),
 )
 
-const hasAppliedFilters = computed(() =>
+const hasAppliedFiltersOrSearch = computed(() =>
   props.appliedFilters.length > 0 || props.searchTerm !== '',
 )
 
