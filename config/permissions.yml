@@ -1272,6 +1272,14 @@ feature_manage_procedure_creation_permission:
     label: 'Permission to enable orga to create procedures.'
     loginRequired: true
     parent: [area_manage_orgas, area_manage_orgas_all]
+feature_manage_user_procedure_creation_permission:
+    description: |-
+        Allows the user to grant or revoke the right to create procedures for individual users
+        with an admin role, while the organization-wide grant is disabled
+    expose: true
+    label: 'Permission to grant procedure creation to individual users'
+    loginRequired: true
+    parent: area_manage_users
 feature_map_attribution:
     description: |-
         Restrict the access to edit the public map copyright/attribution (in the admin area)
