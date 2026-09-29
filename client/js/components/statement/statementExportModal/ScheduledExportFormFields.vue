@@ -191,8 +191,8 @@ const populateForm = () => {
   } = props.editingExport.attributes
 
   selectedFrequency.value = frequency
-  selectedWeekday.value = frequency === 'weekly' ? weekday : DEFAULT_WEEKDAY
-  selectedDayOfMonth.value = frequency === 'monthly' ? dayOfMonth : DEFAULT_DAY_OF_MONTH
+  selectedWeekday.value = frequency === 'weekly' && weekday !== null ? weekday : DEFAULT_WEEKDAY
+  selectedDayOfMonth.value = frequency === 'monthly' && dayOfMonth !== null ? dayOfMonth : DEFAULT_DAY_OF_MONTH
   nextExportRun.value = nextRunAt ?? ''
 }
 
