@@ -16,7 +16,6 @@ use Carbon\Carbon;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
@@ -29,8 +28,8 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFilter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Formatter\StatementFormatter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
-use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldProvider;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\SegmentExportInfo;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Exception;
@@ -58,7 +57,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         AssessmentTableServiceOutput $assessmentTableServiceOutput,
         CurrentProcedureService $currentProcedureService,
         private readonly CurrentUserInterface $currentUser,
-        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
+        private readonly CustomFieldProvider $customFieldProvider,
         DocumentWriterSelector $writerSelector,
         private readonly EditorService $editorService,
         Environment $twig,
@@ -557,8 +556,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         }
 
         $columnsDefinition = [];
-        /** @var CustomFieldConfiguration[] $customFieldConfigurations */
-        $customFieldConfigurations = $this->customFieldConfigurationRepository->findBy(['id' => $customFieldIds]);
+        $customFieldConfigurations = $this->customFieldProvider->getCustomFieldConfigurationsByIds($customFieldIds);
         foreach ($customFieldConfigurations as $customFieldConfiguration) {
             $columnsDefinition[] = $this->createColumnDefinition(
                 CustomFieldColumnKey::forId($customFieldConfiguration->getId()),

@@ -14,15 +14,13 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\FileInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\CustomFieldColumnKey;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldProvider;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldDisplayResolver;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use Doctrine\Common\Collections\ArrayCollection;
 use ReflectionException;
@@ -36,7 +34,7 @@ use ReflectionException;
 class StatementArrayConverter
 {
     public function __construct(
-        private readonly CustomFieldProvider $customFieldProvider,
+        private readonly CustomFieldDisplayResolver $customFieldDisplayResolver,
         private readonly EntityHelper $entityHelper,
         private readonly StatementService $statementService,
     ) {
@@ -138,23 +136,15 @@ class StatementArrayConverter
         }
 
         $procedureId = $segment->getParentStatementOfSegment()->getProcedure()->getId();
-        $customFieldDefinitions = $this->customFieldProvider->getCustomFieldsByCriteria(
-            CustomFieldSupportedEntity::procedure->value,
+        $resolvedCustomFields = $this->customFieldDisplayResolver->resolveForDisplay(
+            $customFieldValues,
+            CustomFieldSupportedEntity::procedure,
             $procedureId,
-            CustomFieldSupportedEntity::segment->value
+            CustomFieldSupportedEntity::segment
         );
 
-        /** @var CustomFieldValue $customFieldValue */
-        foreach ($customFieldValues->getCustomFieldsValues() as $customFieldValue) {
-            $customFieldDefinition = $customFieldDefinitions->filter(
-                static fn (CustomFieldInterface $field): bool => $field->getId() === $customFieldValue->getId()
-            )->first();
-
-            if (!$customFieldDefinition instanceof CustomFieldInterface) {
-                continue;
-            }
-
-            $exportData[CustomFieldColumnKey::forId($customFieldValue->getId())] = $customFieldDefinition->formatValueForDisplay($customFieldValue->getValue());
+        foreach ($resolvedCustomFields as $resolvedCustomField) {
+            $exportData[CustomFieldColumnKey::forId($resolvedCustomField['id'])] = $resolvedCustomField['value'];
         }
 
         return $exportData;
