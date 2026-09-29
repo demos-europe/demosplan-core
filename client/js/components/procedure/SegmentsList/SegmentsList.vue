@@ -1053,10 +1053,7 @@ export default {
     },
 
     applyQuery (page) {
-      // ToDo: was removed
       // Drop unapplied filter selections before reading getFilterQuery, then close the panel
-      this.discardUnappliedChanges()
-      this.closeFilterSlidebar()
       lscache.remove(this.lsKey.allSegments)
       lscache.remove(this.lsKey.toggledSegments)
 
@@ -1067,19 +1064,8 @@ export default {
         'parentStatementOfSegment.procedure.id': this.procedureId,
       }
       const filter = {
-        ...this.transformFiltersToApiPlatform(this.getFilterQuery),
+        ...this.transformFiltersToApiPlatform(this.getLastAppliedFilterQuery),
         ...defaultFilter,
-      }
-
-      //ToDO: was chnaged to
-      const filter = {
-        ...this.getLastAppliedFilterQuery,
-        sameProcedure: {
-          condition: {
-            path: 'parentStatement.procedure.id',
-            value: this.procedureId,
-          },
-        },
       }
 
       const defaultOrder = {
@@ -1123,7 +1109,6 @@ export default {
           this.fetchBulkEditSegmentIds(payload.search)
         })
         .catch(() => {
-          if (Object.keys(this.getFilterQuery).length > 0 || this.searchTerm !== '') {
           if (
             Object.keys(this.getLastAppliedFilterQuery).length > 0 ||
             this.searchTerm !== ''
