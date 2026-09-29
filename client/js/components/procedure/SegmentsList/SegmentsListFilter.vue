@@ -241,6 +241,10 @@ export default {
         return null
       }
 
+      if (filterType === 'assignee') {
+        return 'assigneeOrUnassigned'
+      }
+
       return `${filterType.replaceAll('.', '-')}_group`
     }
 

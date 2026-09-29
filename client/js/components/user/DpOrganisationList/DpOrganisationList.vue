@@ -43,6 +43,7 @@
             :organisation="item"
             :selectable="false"
             @addon-options:loaded="setAdditionalFieldOptions"
+            @items:get="fetchPendingAndAllOrganisations()"
           />
         </ul>
         <dp-sliding-pagination
@@ -167,6 +168,7 @@
             :organisation="item"
             @addon-options:loaded="setAdditionalFieldOptions"
             @item:selected="dpToggleOne"
+            @items:get="fetchPendingAndAllOrganisations()"
           />
         </ul>
 
@@ -613,10 +615,6 @@ export default {
 
   mounted () {
     this.fetchPendingAndAllOrganisations(1)
-
-    this.$root.$on('items:get', () => {
-      this.fetchPendingAndAllOrganisations()
-    })
   },
 }
 </script>
