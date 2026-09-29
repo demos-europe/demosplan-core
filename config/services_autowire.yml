@@ -9,6 +9,9 @@ services:
         demosplan\DemosPlanCoreBundle\Utils\CustomField\Strategy\EntityCustomFieldUsageRemovalStrategyInterface:
             tags:
                 - name: entity_custom_field_usage_removal_strategy
+        demosplan\DemosPlanCoreBundle\Api\StatementSegment\Facet\StaticFacetInterface:
+            tags:
+                - name: statement_segment_static_facet
 
     # makes classes in demosplan/* available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
