@@ -756,12 +756,6 @@ export default {
       searchFieldsSelected: [],
       selectedSort: '',
       selectionCopiedToClipboard: false,
-      sortOptions: [
-        { value: 'deadline-desc', label: Translator.trans('sort.deadline.descending') },
-        { value: 'deadline-asc', label: Translator.trans('sort.deadline.ascending') },
-        { value: 'internId-desc', label: Translator.trans('sort.internId.descending') },
-        { value: 'internId-asc', label: Translator.trans('sort.internId.ascending') },
-      ],
     }
   },
 
@@ -1002,6 +996,21 @@ export default {
           field: `customField_${definition.id}`,
           fieldId: definition.id,
         }))
+    },
+
+    sortOptions () {
+      const allSortOptions = [
+        { value: 'deadline-desc', label: Translator.trans('sort.deadline.descending') },
+        { value: 'deadline-asc', label: Translator.trans('sort.deadline.ascending') },
+        { value: 'internId-desc', label: Translator.trans('sort.internId.descending') },
+        { value: 'internId-asc', label: Translator.trans('sort.internId.ascending') },
+      ]
+
+      if (!this.hasDeadlineColumn) {
+        return allSortOptions.filter(option => !option.value.startsWith('deadline'))
+      }
+
+      return allSortOptions
     },
 
     storageKeyPagination () {
