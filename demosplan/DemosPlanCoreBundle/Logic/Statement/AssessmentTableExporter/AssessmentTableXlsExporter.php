@@ -543,7 +543,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         $columnsDefinition[] = $this->createColumnDefinition('recommendation', 'segment.recommendation');
         $columnsDefinition[] = $this->createColumnDefinition('tagNames', 'segment.tags');
         $columnsDefinition[] = $this->createColumnDefinition('place', 'workflow.place');
-        $columnsDefinition[] = $this->createColumnDefinition('oName', 'group');
+        $columnsDefinition[] = $this->createColumnDefinition('oName', 'organisation');
         $this->addColumnDefinition($columnsDefinition, 'deadline', 'field_statement_deadline', 'deadline');
 
         return $columnsDefinition;
