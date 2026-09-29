@@ -1,0 +1,60 @@
+# Configuration of fields to track for GDPR-compliant personal data audit logging.
+# Only fields listed here will be tracked. Add "sensitive: true" to mask values in the log.
+# Fields without "sensitive: true" default to non-sensitive (values stored in plain text).
+#
+# This is separate from entity_content_change_fields_mapping.yml which handles
+# Statement/Fragment/Segment content versioning.
+
+parameters:
+    personal_data_audit_fields_mapping:
+        demosplan\DemosPlanCoreBundle\Entity\User\User:
+            email: ~
+            firstname: ~
+            lastname: ~
+            login: ~
+            password:
+                sensitive: true
+            alternativeLoginPassword:
+                sensitive: true
+            gender: ~
+            title: ~
+            deleted: ~
+        demosplan\DemosPlanCoreBundle\Entity\User\Orga:
+            name: ~
+            email2: ~
+            ccEmail2: ~
+            emailReviewerAdmin: ~
+            contactPerson: ~
+        demosplan\DemosPlanCoreBundle\Entity\User\Address:
+            street: ~
+            houseNumber: ~
+            postalcode: ~
+            city: ~
+            phone: ~
+            fax: ~
+            email: ~
+        demosplan\DemosPlanCoreBundle\Entity\Statement\StatementMeta:
+            authorName: ~
+            submitName: ~
+            orgaName: ~
+            orgaDepartmentName: ~
+            caseWorkerName: ~
+            orgaStreet: ~
+            houseNumber: ~
+            orgaPostalCode: ~
+            orgaCity: ~
+            orgaEmail: ~
+        demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement:
+            uName: ~
+            uStreet: ~
+            houseNumber: ~
+            uPostalCode: ~
+            uCity: ~
+            uEmail: ~
+        demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePerson:
+            fullName: ~
+            streetName: ~
+            streetNumber: ~
+            city: ~
+            postalCode: ~
+            emailAddress: ~
