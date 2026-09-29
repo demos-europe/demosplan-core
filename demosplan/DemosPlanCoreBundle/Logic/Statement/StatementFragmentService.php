@@ -173,7 +173,13 @@ class StatementFragmentService
      */
     private function refreshStatementInElasticsearch(StatementInterface $statement): void
     {
-        $this->esStatementPersister->replaceOne($statement);
+        // A fragment's database row must not depend on Elasticsearch being reachable; the
+        // nested ES document is a best-effort sync that the next full reindex reconciles.
+        try {
+            $this->esStatementPersister->replaceOne($statement);
+        } catch (Exception $e) {
+            $this->logger->warning('Could not refresh statement in Elasticsearch; index stays stale until next reindex.', ['exception' => $e]);
+        }
     }
 
     public function setEsStatementFragmentType(Index $esStatementFragmentType)
