@@ -217,10 +217,6 @@ export default {
     'version:history',
   ],
 
-  inject: [
-    'openSlidebar',
-  ],
-
   data () {
     return {
       procedureId: this.$store.state.Statement.procedureId,
@@ -238,9 +234,13 @@ export default {
       'setModalProperty',
     ]),
 
+    ...mapMutations('VersionHistorySlidebar', {
+      setIsSlidebarOpen: 'setIsOpen',
+    }),
+
     showVersionHistory () {
       this.$root.$emit('version:history', this.entityId, this.entity, this.externId)
-      this.openSlidebar()
+      this.setIsSlidebarOpen(true)
     },
 
     toggleAssignEntityModal (entity, assigneeId) {

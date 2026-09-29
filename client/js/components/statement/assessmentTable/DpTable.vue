@@ -146,7 +146,10 @@
     />
 
     <!-- Version History Slidebar -->
-    <dp-slidebar v-model:open="isSlidebarOpen">
+    <dp-slidebar
+      :open="isSlidebarOpen"
+      @close="setIsSlidebarOpen(false)"
+    >
       <dp-version-history :procedure-id="procedureId" />
     </dp-slidebar>
 
@@ -441,17 +444,8 @@ export default {
     return {
       filterHash: this.initFilterHash,
       hasChangedStatements: false,
-      isSlidebarOpen: false,
       processingData: false,
       processingDataNotConfirmed: false,
-    }
-  },
-
-  provide () {
-    return {
-      openSlidebar: () => {
-        this.isSlidebarOpen = true
-      },
     }
   },
 
@@ -483,6 +477,10 @@ export default {
       'statements',
       'statementsInOrder',
     ]),
+
+    ...mapState('VersionHistorySlidebar', {
+      isSlidebarOpen: 'isOpen',
+    }),
 
     ...mapGetters('Fragment', [
       'selectedFragments',
@@ -553,6 +551,10 @@ export default {
       'setModalProperty',
       'setProperty',
     ]),
+
+    ...mapMutations('VersionHistorySlidebar', {
+      setIsSlidebarOpen: 'setIsOpen',
+    }),
 
     ...mapMutations('Statement', [
       'updatePagination',
