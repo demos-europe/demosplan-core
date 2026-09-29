@@ -15,7 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\ApiResources;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement as StatementEntity;
+use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\StateProvider\StatementStateProvider;
 
 #[ApiResource(
@@ -78,7 +78,7 @@ class StatementResource
     #[ApiProperty(readable: true, writable: false)]
     public ?string $status = null;
 
-    public static function fromEntity(StatementEntity $statement, ?string $status = null): self
+    public static function fromEntity(StatementInterface $statement, ?string $status = null): self
     {
         $resource = new self();
         $resource->id = $statement->getId();

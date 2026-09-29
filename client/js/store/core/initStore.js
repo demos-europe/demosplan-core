@@ -37,7 +37,7 @@ function registerPresetModules (store, presetStoreModules) {
 const handleResponse = async (response, messages = {}) => {
   // If the response body is empty, contentType will be null
   const contentType = response.headers.get('Content-Type')
-  let payload = null
+  let payload
 
   if (contentType && contentType.includes('json')) {
     payload = await response.json()

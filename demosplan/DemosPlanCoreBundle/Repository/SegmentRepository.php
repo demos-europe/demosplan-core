@@ -269,6 +269,46 @@ class SegmentRepository extends CoreRepository
     }
 
     /**
+     * Batched replacement for calling StatementService::getProcessingStatus() once per
+     * statement -- that method lazy-loads the full sibling-segment collection and each
+     * sibling's place per call, causing an N+1 query explosion when resolving status for
+     * many statements at once (e.g. once per row of a StatementSegment collection response).
+     *
+     * @param list<string> $statementIds
+     *
+     * @return array<string, array{total: int, solved: int}> statementId => segment counts
+     */
+    public function getSegmentSolvedCountsForStatementIds(array $statementIds): array
+    {
+        if ([] === $statementIds) {
+            return [];
+        }
+
+        $results = $this->getEntityManager()
+            ->createQueryBuilder()
+            ->select('IDENTITY(segment.parentStatementOfSegment) AS statementId')
+            ->addSelect('COUNT(segment.id) AS total')
+            ->addSelect('SUM(CASE WHEN place.solved = true THEN 1 ELSE 0 END) AS solved')
+            ->from(Segment::class, 'segment')
+            ->join('segment.place', 'place')
+            ->where('segment.parentStatementOfSegment IN (:statementIds)')
+            ->setParameter('statementIds', $statementIds)
+            ->groupBy('segment.parentStatementOfSegment')
+            ->getQuery()
+            ->getArrayResult();
+
+        $counts = [];
+        foreach ($results as $row) {
+            $counts[$row['statementId']] = [
+                'total'  => (int) $row['total'],
+                'solved' => (int) $row['solved'],
+            ];
+        }
+
+        return $counts;
+    }
+
+    /**
      * Get the position of a segment within its parent statement.
      *
      * @return array{segmentId: string, position: int, total: int}|null Returns null if segment not found

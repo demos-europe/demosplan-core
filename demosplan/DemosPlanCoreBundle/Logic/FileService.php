@@ -41,8 +41,10 @@ use League\Flysystem\UnableToCopyFile;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -344,6 +346,42 @@ class FileService implements FileServiceInterface
         }
 
         return $filesDeleted;
+    }
+
+    /**
+     * Removes stale local temp files left behind when an export died before its own cleanup ran:
+     * entries in the {@see DemosPlanPath::getTemporaryPath()} staging directory, and the
+     * `PhpWord*`, `PHPWordWriter_*` and `dplan_export_*` ({@see Export\ExportResponseFileStore})
+     * leftovers in the system temp root. These are always safe to delete once stale, so callers
+     * don't need to gate this behind `doDeleteRemovedFiles`.
+     *
+     * @return int Amount of deleted entries (files or directories)
+     */
+    public function removeStaleTemporaryExportFiles(int $maxAgeInHours = 6): int
+    {
+        $stagingDir = DemosPlanPath::getTemporaryPath();
+        $staleBefore = time() - $maxAgeInHours * 3600;
+
+        // The staging directory itself is long-lived, so only its entries are checked.
+        $stagedEntries = (new Finder())->depth(0)->in($stagingDir);
+        $writerLeftovers = (new Finder())->depth(0)->in(dirname($stagingDir))
+            ->name(['PhpWord*', 'PHPWordWriter_*', 'dplan_export_*']);
+
+        $fs = new Filesystem();
+        $entriesDeleted = 0;
+        foreach ([$stagedEntries, $writerLeftovers] as $finder) {
+            foreach ($finder->filter(static fn (SplFileInfo $entry): bool => $entry->getMTime() < $staleBefore) as $entry) {
+                try {
+                    $this->logger->info('Remove stale temporary export file', [$entry->getPathname()]);
+                    $fs->remove($entry->getPathname());
+                    ++$entriesDeleted;
+                } catch (IOException) {
+                    $this->logger->warning('Could not remove stale temporary export file', [$entry->getPathname()]);
+                }
+            }
+        }
+
+        return $entriesDeleted;
     }
 
     /**

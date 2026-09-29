@@ -53,7 +53,14 @@ const Translator = { trans: vi.fn((key: string) => key) }
 const Routing = { generate: vi.fn((key: string) => key) }
 const dplan: DplanGlobal = {
   procedureId: '',
-  notify: vi.fn(),
+  notify: {
+    notify: vi.fn(),
+    remove: vi.fn(),
+    info: vi.fn(),
+    confirm: vi.fn(),
+    warning: vi.fn(),
+    error: vi.fn(),
+  },
   settings: {
     debug: false,
     publicCSSClassPrefix: 'dp-',

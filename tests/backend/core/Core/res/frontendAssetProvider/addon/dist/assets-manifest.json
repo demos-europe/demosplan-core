@@ -1,0 +1,18 @@
+{
+  "entrypoints": {
+    "TestEntry": {
+      "assets": {
+        "js": [
+          "TestEntry.umd.js"
+        ]
+      }
+    },
+    "StylesOnlyEntry": {
+      "assets": {
+        "css": [
+          "StylesOnlyEntry.css"
+        ]
+      }
+    }
+  }
+}

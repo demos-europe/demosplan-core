@@ -204,7 +204,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $worksheets = $this->sortWorkSheets($worksheets);
 
         foreach ($worksheets as $worksheet) {
-            /** @var string{'Legende'|'weitere Einreichende'|'Öffentlichkeit'|'Institution'} $currentWorksheetTitle */
+            /** @var 'Legende'|'weitere Einreichende'|'Öffentlichkeit'|'Institution' $currentWorksheetTitle */
             $currentWorksheetTitle = $worksheet->getTitle() ?? '';
             if (self::PUBLIC === $currentWorksheetTitle
                 || self::INSTITUTION === $currentWorksheetTitle
@@ -970,6 +970,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $procedurePerson = new ProcedurePerson($fullName, $currentProcedure);
 
         // Set optional contact information (only fields available in 'weitere Einreichende' template)
+        $procedurePerson->setEmailAddress($emailAddress);
         $procedurePerson->setStreetName($personData['Straße'] ?? null);
         $procedurePerson->setStreetNumber($personData['Hausnummer'] ?? null);
         $procedurePerson->setPostalCode($personData['PLZ'] ?? null);

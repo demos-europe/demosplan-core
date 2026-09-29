@@ -777,6 +777,7 @@ export default {
     ...mapGetters('FilterFlyout', [
       'getFilterQuery',
       'getIsExpandedByCategoryId',
+      'getLastAppliedFilterQuery',
     ]),
 
     ...mapState('Orga', {
@@ -1024,7 +1025,7 @@ export default {
       fetchAssignableUsers: 'list',
     }),
 
-    ...mapActions('FilterFlyout', ['commitFilterQuery', 'discardUnappliedChanges', 'updateFilterQuery']),
+    ...mapActions('FilterFlyout', ['commitFilterQuery', 'updateFilterQuery']),
 
     ...mapActions('Place', {
       fetchPlaces: 'list',
@@ -1052,6 +1053,7 @@ export default {
     },
 
     applyQuery (page) {
+      // ToDo: was removed
       // Drop unapplied filter selections before reading getFilterQuery, then close the panel
       this.discardUnappliedChanges()
       this.closeFilterSlidebar()
@@ -1067,6 +1069,17 @@ export default {
       const filter = {
         ...this.transformFiltersToApiPlatform(this.getFilterQuery),
         ...defaultFilter,
+      }
+
+      //ToDO: was chnaged to
+      const filter = {
+        ...this.getLastAppliedFilterQuery,
+        sameProcedure: {
+          condition: {
+            path: 'parentStatement.procedure.id',
+            value: this.procedureId,
+          },
+        },
       }
 
       const defaultOrder = {
@@ -1111,6 +1124,10 @@ export default {
         })
         .catch(() => {
           if (Object.keys(this.getFilterQuery).length > 0 || this.searchTerm !== '') {
+          if (
+            Object.keys(this.getLastAppliedFilterQuery).length > 0 ||
+            this.searchTerm !== ''
+          ) {
             this.resetQuery()
             dplan.notify.notify(
               'warning',
@@ -2034,7 +2051,7 @@ export default {
       })
     }
 
-    // Snapshot the initial filters as applied so the first applyQuery does not discard them
+    // Snapshot the initial filters as applied so the first applyQuery fetches with them
     this.commitFilterQuery()
 
     this.initPagination()

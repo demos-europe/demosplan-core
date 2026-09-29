@@ -23,8 +23,8 @@ use demosplan\DemosPlanCoreBundle\Types\ImportJobType;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @SuppressWarnings(PHPMD.TooManyMethods)
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * @SuppressWarnings("PHPMD.TooManyMethods")
+ * @SuppressWarnings("PHPMD.TooManyPublicMethods")
  * Entities naturally have many methods due to standard getters/setters for each property.
  * This is acceptable as it follows the active record pattern and Doctrine conventions.
  */

@@ -32,6 +32,8 @@ import loadSentry from './loadSentry'
 import NotificationStoreAdapter from '@DpJs/store/core/NotificationStoreAdapter'
 import NotifyContainer from '@DpJs/components/shared/NotifyContainer'
 import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
+import { resumePendingExports } from '@DpJs/lib/shared/persistentExportPoll'
+import ServerBanner from '@DpJs/components/shared/ServerBanner'
 import SessionTimer from '@DpJs/components/shared/SessionTimer'
 import UnsavedChangesDialog from '@DpJs/components/shared/UnsavedChangesDialog'
 
@@ -60,6 +62,8 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
     const app = createApp({
       mounted () {
         window.dplan.notify = new NotificationStoreAdapter(this.$store)
+        resumePendingExports()
+
         loadLibs()
         initGlobalEventListener()
         ToggleSideMenu()
@@ -111,6 +115,7 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
     app.component('DpObscure', DpObscure)
     app.component('UnsavedChangesDialog', UnsavedChangesDialog)
     app.component('NotifyContainer', NotifyContainer)
+    app.component('ServerBanner', ServerBanner)
     app.component('DpAccordion', DpAccordion)
     app.component('DpFlyout', DpFlyout)
     app.component('HamburgerMenuButton', HamburgerMenuButton)
