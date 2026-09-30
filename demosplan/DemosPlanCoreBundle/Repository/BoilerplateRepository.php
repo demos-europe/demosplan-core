@@ -345,7 +345,8 @@ class BoilerplateRepository extends FluentRepository implements ArrayInterface, 
             'UPDATE '.Boilerplate::class.' b SET b.deletionFailureCount = b.deletionFailureCount + 1 WHERE b.ident = :id'
         )->setParameter('id', $id)->execute();
 
-        $this->logger->info("Materialize and delete boilerplate '{$id}' failed (attempt {$currentFailureCount}/{$maxAttempts}).");
+        $attempt = $currentFailureCount + 1;
+        $this->logger->info("Materialize and delete boilerplate '{$id}' failed (attempt {$attempt}/{$maxAttempts}).");
     }
 
     /**

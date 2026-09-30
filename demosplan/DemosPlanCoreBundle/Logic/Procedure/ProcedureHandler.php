@@ -733,6 +733,10 @@ class ProcedureHandler extends CoreHandler implements ProcedureHandlerInterface
                 // leftover, never-flushed side effects from this attempt could otherwise
                 // silently corrupt a later, unrelated boilerplate's attempt in the same
                 // batch. Stop the whole batch here rather than continuing to the next one.
+                $this->logger->warning('Purging boilerplate failed', [
+                    'boilerplateId' => $boilerplate->getId(),
+                    'exception'     => $e,
+                ]);
                 $this->boilerplateRepository->handleDeletionFailure($boilerplate->getId(), self::MAX_BOILERPLATE_DELETION_ATTEMPTS);
 
                 break;
