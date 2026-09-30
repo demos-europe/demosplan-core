@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFacto
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateUsage;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\BoilerplateDeletionService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\BoilerplateTagSubstitutionService;
@@ -211,6 +212,40 @@ class BoilerplateDeletionServiceTest extends FunctionalTestCase
 
         static::assertTrue($result);
         static::assertSame('Inhalt fuer Statement', $statement->getRecommendationEmbedded());
+        static::assertNull($this->boilerplateRepository->get($boilerplateId));
+    }
+
+    /**
+     * Usages recorded before boilerplates were linked by tag have no reference tag in the
+     * recommendation: the text was inserted directly. Deleting the boilerplate changes
+     * nothing there, so no "frozen into the recommendation" notice may be recorded.
+     */
+    public function testLegacyUsageWithoutATagLeavesTheTextAndHistoryUntouched(): void
+    {
+        $boilerplate = BoilerplateFactory::createOne(['text' => 'Aktueller Textbausteininhalt'])->_real();
+        $boilerplateId = $boilerplate->getId();
+        $segment = SegmentFactory::createOne([
+            'procedure'                => $boilerplate->getProcedure(),
+            'parentStatementOfSegment' => StatementFactory::new(['procedure' => $boilerplate->getProcedure()]),
+        ])->_real();
+        $this->entityManager->refresh($segment);
+        $segment->setRecommendation('Direkt eingefuegter Text ohne Referenz');
+        $this->entityManager->persist(new BoilerplateUsage($boilerplate, $segment));
+        $this->entityManager->flush();
+        $this->entityManager->refresh($boilerplate);
+
+        $result = $this->sut->materializeAndDelete($boilerplate);
+
+        static::assertTrue($result);
+        static::assertSame('Direkt eingefuegter Text ohne Referenz', $segment->getRecommendationEmbedded());
+        $materializationEntries = array_filter(
+            $this->getEntries(
+                EntityContentChange::class,
+                ['entityId' => $segment->getId(), 'entityField' => SegmentInterface::RECOMMENDATION_FIELD_NAME]
+            ),
+            fn (EntityContentChange $entry): bool => str_contains($entry->getContentChange(), 'boilerplateMaterialized')
+        );
+        static::assertCount(0, $materializationEntries);
         static::assertNull($this->boilerplateRepository->get($boilerplateId));
     }
 

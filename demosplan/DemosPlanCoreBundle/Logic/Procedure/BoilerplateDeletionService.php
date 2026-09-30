@@ -72,11 +72,17 @@ class BoilerplateDeletionService
                     // against Statement alone is sufficient: Segment extends Statement, so
                     // both a plain Statement and a Segment satisfy this check.
                     Assert::isInstanceOf($statementOrSegment, Statement::class);
+                    $embeddedText = $statementOrSegment->getRecommendationEmbedded();
                     $materializedText = $this->substitutionService->materializeBoilerplate(
-                        $statementOrSegment->getRecommendationEmbedded(),
+                        $embeddedText,
                         $boilerplateId,
                         $replacementText
                     );
+                    if ($materializedText === $embeddedText) {
+                        // Legacy usage (recorded before boilerplates were linked by tag): the text
+                        // was inserted directly, there is no tag to freeze and nothing to record.
+                        continue;
+                    }
                     $statementOrSegment->setRecommendation($materializedText);
                     $this->entityContentChangeService->createBoilerplateMaterializationChangeEntry(
                         $statementOrSegment,
