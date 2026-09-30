@@ -53,15 +53,28 @@ class CleanupFilesMessageHandlerTest extends UnitTestCase
             ->method('doDeleteRemovedFiles')
             ->willReturn(false);
 
-        $this->logger->expects($this->once())
-            ->method('info')
-            ->with('Skipping file cleanup: doDeleteRemovedFiles is disabled');
+        $this->fileService->expects($this->once())
+            ->method('removeStaleTemporaryExportFiles')
+            ->willReturn(0);
+
+        $logMessages = [];
+        $this->logger->method('info')
+            ->willReturnCallback(function ($message) use (&$logMessages) {
+                $logMessages[] = $message;
+            });
 
         $this->fileService->expects($this->never())
             ->method('deleteSoftDeletedFiles');
 
         // Act
         ($this->sut)(new CleanupFilesMessage());
+
+        // Assert
+        $this->assertSame([
+            'Maintenance: remove stale temporary export files',
+            'Maintenance: Stale temporary export files deleted: ',
+            'Skipping file cleanup: doDeleteRemovedFiles is disabled',
+        ], $logMessages);
     }
 
     public function testInvokeCleansFilesAndLogsSuccess(): void
@@ -70,6 +83,10 @@ class CleanupFilesMessageHandlerTest extends UnitTestCase
         $this->globalConfig->expects($this->once())
             ->method('doDeleteRemovedFiles')
             ->willReturn(true);
+
+        $this->fileService->expects($this->once())
+            ->method('removeStaleTemporaryExportFiles')
+            ->willReturn(2);
 
         $this->fileService->expects($this->once())
             ->method('deleteSoftDeletedFiles')
@@ -87,7 +104,7 @@ class CleanupFilesMessageHandlerTest extends UnitTestCase
             ->method('checkDeletedFiles');
 
         $logMessages = [];
-        $this->logger->expects($this->exactly(7))
+        $this->logger->expects($this->exactly(9))
             ->method('info')
             ->willReturnCallback(function ($message, $context = []) use (&$logMessages) {
                 $logMessages[] = ['message' => $message, 'context' => $context];
@@ -97,17 +114,20 @@ class CleanupFilesMessageHandlerTest extends UnitTestCase
         ($this->sut)(new CleanupFilesMessage());
 
         // Assert
-        $this->assertCount(7, $logMessages);
-        $this->assertSame('Maintenance: remove soft deleted Files', $logMessages[0]['message']);
-        $this->assertSame('Maintenance: Soft deleted files deleted: ', $logMessages[1]['message']);
-        $this->assertSame([5], $logMessages[1]['context']);
-        $this->assertSame('Maintenance: remove orphaned Files', $logMessages[2]['message']);
-        $this->assertSame('Maintenance: Orphaned Files deleted: ', $logMessages[3]['message']);
-        $this->assertSame([3], $logMessages[3]['context']);
-        $this->assertSame('Maintenance: remove temporary upload Files', $logMessages[4]['message']);
-        $this->assertSame('Maintenance: Temporary Uploaded Files deleted: ', $logMessages[5]['message']);
-        $this->assertSame([7], $logMessages[5]['context']);
-        $this->assertSame('Maintenance: check for deleted Files', $logMessages[6]['message']);
+        $this->assertCount(9, $logMessages);
+        $this->assertSame('Maintenance: remove stale temporary export files', $logMessages[0]['message']);
+        $this->assertSame('Maintenance: Stale temporary export files deleted: ', $logMessages[1]['message']);
+        $this->assertSame([2], $logMessages[1]['context']);
+        $this->assertSame('Maintenance: remove soft deleted Files', $logMessages[2]['message']);
+        $this->assertSame('Maintenance: Soft deleted files deleted: ', $logMessages[3]['message']);
+        $this->assertSame([5], $logMessages[3]['context']);
+        $this->assertSame('Maintenance: remove orphaned Files', $logMessages[4]['message']);
+        $this->assertSame('Maintenance: Orphaned Files deleted: ', $logMessages[5]['message']);
+        $this->assertSame([3], $logMessages[5]['context']);
+        $this->assertSame('Maintenance: remove temporary upload Files', $logMessages[6]['message']);
+        $this->assertSame('Maintenance: Temporary Uploaded Files deleted: ', $logMessages[7]['message']);
+        $this->assertSame([7], $logMessages[7]['context']);
+        $this->assertSame('Maintenance: check for deleted Files', $logMessages[8]['message']);
     }
 
     public function testInvokeLogsErrorOnException(): void
@@ -118,6 +138,8 @@ class CleanupFilesMessageHandlerTest extends UnitTestCase
         $this->globalConfig->expects($this->once())
             ->method('doDeleteRemovedFiles')
             ->willReturn(true);
+
+        $this->fileService->method('removeStaleTemporaryExportFiles')->willReturn(0);
 
         $this->fileService->expects($this->once())
             ->method('deleteSoftDeletedFiles')

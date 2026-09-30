@@ -91,8 +91,9 @@
           <input
             :id="`segmentTags_${segmentId}_option_${props.option.id}`"
             type="checkbox"
-            class="shrink-0 m-0"
+            class="shrink-0 m-0 pointer-events-none"
             :checked="props.option.assigned"
+            tabindex="-1"
           >
           {{ props.option.title }}
         </label>
@@ -111,7 +112,7 @@
 <script setup lang="ts">
 import { CleanHtml, dpApi, DpButton, DpMultiselect, sortAlphabetically } from '@demos-europe/demosplan-ui'
 import { computed, inject, onMounted, type PropType, ref } from 'vue'
-// eslint-disable-next-line import/extensions -- vue-tsc can't resolve an extensionless .vue import (see eslint.config.js:286-288)
+// eslint-disable-next-line import-x/extensions -- vue-tsc can't resolve an extensionless .vue import (see eslint.config.js:286-288)
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper.vue'
 import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'

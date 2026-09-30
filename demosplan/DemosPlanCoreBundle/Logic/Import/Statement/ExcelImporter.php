@@ -970,6 +970,7 @@ class ExcelImporter extends AbstractStatementSpreadsheetImporter
         $procedurePerson = new ProcedurePerson($fullName, $currentProcedure);
 
         // Set optional contact information (only fields available in 'weitere Einreichende' template)
+        $procedurePerson->setEmailAddress($emailAddress);
         $procedurePerson->setStreetName($personData['Straße'] ?? null);
         $procedurePerson->setStreetNumber($personData['Hausnummer'] ?? null);
         $procedurePerson->setPostalCode($personData['PLZ'] ?? null);
