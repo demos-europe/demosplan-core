@@ -18,9 +18,9 @@ use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Logic\EntityHelper;
-use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\CustomFieldColumnKey;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldDisplayResolver;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldExportColumnKeyCodec;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use Doctrine\Common\Collections\ArrayCollection;
 use ReflectionException;
@@ -145,7 +145,7 @@ class StatementArrayConverter
         );
 
         foreach ($resolvedCustomFields as $resolvedCustomField) {
-            $exportData[CustomFieldColumnKey::forId($resolvedCustomField['id'])] = $resolvedCustomField['value'];
+            $exportData[CustomFieldExportColumnKeyCodec::forId($resolvedCustomField['id'])] = $resolvedCustomField['value'];
         }
 
         return $exportData;

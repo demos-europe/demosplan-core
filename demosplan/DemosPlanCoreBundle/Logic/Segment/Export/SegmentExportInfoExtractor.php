@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldExportColumnKeyCodec;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\SegmentExportInfo;
 use EDT\JsonApi\RequestHandling\UrlParameter;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -61,7 +62,7 @@ class SegmentExportInfoExtractor
             static fn (string $key): string => self::UI_COLUMN_TO_EXPORT_KEY[$key] ?? $key,
             explode(',', $request->query->get(self::SELECTED_COLUMNS_PARAM))
         );
-        $selectedCustomFieldIds = CustomFieldColumnKey::extractIds($selectedColumnKeys);
+        $selectedCustomFieldIds = CustomFieldExportColumnKeyCodec::extractIds($selectedColumnKeys);
         $filter = $request->query->all(UrlParameter::FILTER);
         $isManualSelection = array_key_exists(self::SELECTED_SEGMENT_IDS_PARAM, $filter);
 
