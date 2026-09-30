@@ -32,11 +32,13 @@
             procedures-direct-link-prefix="{{ templateVars.proceduresDirectlinkPrefix }}"
             project-name="{{ projectName }}"
             :show-new-statement-notification="Boolean({{ will_receive_new_statement_notification }})"
-            :writable-fields="JSON.parse('{{ templateVars.writableOrgaFields|default([])|json_encode|e('js', 'utf-8') }}')">
+            :writable-fields="JSON.parse('{{ templateVars.writableOrgaFields|default([])|json_encode|e('js', 'utf-8') }}')"
+            @items:get="$refs.organisationList.fetchPendingAndAllOrganisations()">
         </dp-create-item>
     {% endif %}
 
     <dp-organisation-list
+        ref="organisationList"
         :available-orga-types="JSON.parse('{{ orgaTypes|json_encode|e('js', 'utf-8') }}')"
         subdomain="{{ branding.customerSubdomain|default }}"
         :writable-fields="JSON.parse('{{ templateVars.writableOrgaFields|default([])|json_encode|e('js', 'utf-8') }}')"
