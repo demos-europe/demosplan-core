@@ -20,7 +20,7 @@ const components = {
   ListStatements,
   ListOriginalStatements,
 }
-const apiStores = ['AssignableUser', 'Statement', 'OriginalStatement']
+const apiStores = ['AssignableUser', 'Statement', 'OriginalStatement', 'ScheduledExport']
 const stores = {
   FilterFlyout: FilterFlyoutStore,
 }

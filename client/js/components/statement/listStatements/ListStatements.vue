@@ -64,6 +64,9 @@
         :has-permission-adjust-preamble="hasPermission('feature_adjust_preamble_export_file')"
         :procedure-id="procedureId"
         :procedure-name="procedureName"
+        :search-value="searchValue"
+        :search-fields-selected="searchFieldsSelected"
+        :selected-sort="selectedSort"
         data-cy="listStatements:export"
         @export="showHintAndDoExport"
       />
@@ -379,7 +382,7 @@ import DpClaim from '@DpJs/components/statement/DpClaim'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import { pollExportJob } from '@DpJs/lib/shared/persistentExportPoll'
-import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
+import StatementExportModal from '@DpJs/components/statement/statementExportModal/StatementExportModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
 import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge'
 

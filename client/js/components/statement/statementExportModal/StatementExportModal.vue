@@ -1,0 +1,1263 @@
+<license>
+  (c) 2010-present DEMOS plan GmbH.
+
+  This file is part of the package demosplan,
+  for more information see the license file.
+
+  All rights reserved
+</license>
+
+<template>
+  <div>
+    <dp-button
+      data-cy="exportModal:open"
+      :text="Translator.trans('export.verb')"
+      variant="subtle"
+      @click.prevent="openModal"
+    />
+
+    <dp-modal
+      ref="exportModalInner"
+      content-classes="w-11/12 sm:w-9/12 md:w-7/12 lg:w-6/12 xl:w-5/12 h-fit"
+      content-body-classes="flex flex-col"
+      enable-smooth-height-transition
+      @modal:toggled="onModalToggle"
+    >
+      <template v-slot:header>
+        <div class="flex items-center gap-4">
+          <dp-button
+            v-if="isScheduledExportView"
+            class="mb-2"
+            data-cy="exportModal:back"
+            icon="caret-left"
+            :text="Translator.trans('back')"
+            type="button"
+            variant="subtle"
+            @click="handleBack"
+          />
+          <h2>{{ exportModalTitle }}</h2>
+        </div>
+      </template>
+
+      <!-- Statement Export view -->
+      <template v-if="isStatementExportView">
+        <fieldset
+          v-if="!isSingleStatementExport"
+          class="border-b border-neutral"
+        >
+          <legend
+            class="text-base pb-4"
+            v-text="Translator.trans('export.type')"
+          />
+          <div class="flex flex-row gap-2">
+            <dp-radio
+              v-for="(exportType, key) in exportTypes"
+              :id="key"
+              :key="key"
+              class="bg-neutral-light-4 border-l-4 border-interactive rounded-sm p-2"
+              :class="{ 'border-transparent bg-transparent' : active !== key }"
+              :data-cy="`exportModal:exportType:${key}`"
+              :label="{
+                text: Translator.trans(exportType.label),
+              }"
+              :value="key"
+              :checked="active === key"
+              @change="active = key"
+            />
+          </div>
+          <dp-inline-notification
+            v-if="exportTypes[active].hint"
+            class="mt-4"
+            :message="exportTypes[active].hint"
+            type="warning"
+          />
+          <fieldset
+            v-if="!['xlsx_normal', 'csv_normal'].includes(active)"
+            class="pb-0"
+          >
+            <legend
+              class="text-base py-4"
+              v-text="Translator.trans('export.options')"
+            />
+            <dp-checkbox
+              id="censoredCitizen"
+              v-model="isCitizenDataCensored"
+              class="mb-1"
+              data-cy="exportModal:censoredCitizen"
+              :label="{
+                regular: true,
+                text: Translator.trans('export.censored.citizen'),
+              }"
+            />
+            <dp-checkbox
+              id="censoredInstitution"
+              v-model="isInstitutionDataCensored"
+              class="mb-1"
+              data-cy="exportModal:censoredInstitution"
+              :label="{
+                regular: true,
+                text: Translator.trans('export.censored.institution')
+              }"
+            />
+            <dp-checkbox
+              id="obscured"
+              v-model="isObscure"
+              data-cy="exportModal:obscured"
+              :label="{
+                regular: true,
+                text: Translator.trans('export.docx.obscured')
+              }"
+            />
+          </fieldset>
+        </fieldset>
+
+        <fieldset
+          v-if="isSingleStatementExport"
+          class="border-b border-neutral"
+        >
+          <legend
+            class="text-base pb-4"
+            v-text="Translator.trans('export.options')"
+          />
+          <dp-checkbox
+            id="singleStatementCitizen"
+            v-model="isCitizenDataCensored"
+            class="mb-1"
+            data-cy="exportModal:singleStatementCitizen"
+            :label="{
+              regular: true,
+              text: Translator.trans('export.censored.citizen')
+            }"
+          />
+          <dp-checkbox
+            id="singleStatementInstitution"
+            v-model="isInstitutionDataCensored"
+            class="mb-1"
+            data-cy="exportModal:singleStatementInstitution"
+            :label="{
+              regular: true,
+              text: Translator.trans('export.censored.institution')
+            }"
+          />
+          <dp-checkbox
+            id="singleStatementObscure"
+            v-model="isObscure"
+            data-cy="exportModal:singleStatementObscure"
+            :label="{
+              regular: true,
+              text: Translator.trans('export.docx.obscured')
+            }"
+          />
+        </fieldset>
+
+        <fieldset
+          v-if="['docx_normal', 'zip_normal'].includes(active)"
+          class="border-b border-neutral"
+        >
+          <legend
+            id="docxColumnTitles"
+            class="font-semibold text-base float-left mr-1 py-4"
+            v-text="Translator.trans('docx.export.column.title')"
+          />
+          <dp-contextual-help
+            class="my-4"
+            aria-labelledby="docxColumnTitles"
+            :text="Translator.trans('docx.export.column.title.hint')"
+          />
+          <div class="grid grid-cols-3 gap-3 mt-1">
+            <dp-input
+              v-for="(column, key) in docxColumns"
+              :id="key"
+              :key="key"
+              v-model="column.title"
+              :data-cy="column.dataCy"
+              :placeholder="Translator.trans(column.placeholder)"
+              type="text"
+            />
+          </div>
+          <fieldset
+            v-if="active === 'zip' || isSingleStatementExport"
+            class="pb-0"
+          >
+            <legend
+              id="docxFileName"
+              class="font-semibold text-base float-left mr-1 py-4"
+              v-text="Translator.trans('docx.export.file_name')"
+            />
+            <dp-contextual-help
+              class="my-4"
+              aria-labelledby="docxFileName"
+              :text="Translator.trans('docx.export.file_name.hint')"
+            />
+            <dp-input
+              id="fileName"
+              v-model="fileName"
+              data-cy="exportModal:fileName"
+              class="mt-1"
+              :placeholder="Translator.trans('docx.export.file_name.placeholder')"
+              type="text"
+            />
+            <div class="text-sm mt-4">
+              <span
+                class="font-bold"
+                v-text="Translator.trans('docx.export.example_file_name')"
+              />
+              <span v-text="exampleFileName" />
+            </div>
+          </fieldset>
+        </fieldset>
+
+        <div
+          v-if="isSingleStatementExport && hasPermission('feature_statement_via_template_export')"
+          class="pt-4"
+        >
+          <dp-label
+            :hint="Translator.trans('docx.export.via_template.upload.hint')"
+            :text="Translator.trans('docx.export.via_template.upload.label')"
+            :tooltip="Translator.trans('docx.export.via_template.upload.tooltip')"
+            class="mb-1"
+            for="uploadTemplate"
+          />
+          <dp-button
+            :text="Translator.trans('docx.export.via_template.example.label')"
+            class="mb-2"
+            data-cy="exportModal:downloadExampleTemplate"
+            href="/files/statement_template_example_export.docx"
+            icon="download"
+            icon-size="medium"
+            variant="subtle"
+          />
+          <dp-upload-files
+            id="uploadTemplate"
+            allowed-file-types="import"
+            data-cy="exportModal:uploadTemplate"
+            :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash, procedureId })"
+            :max-file-size="5 * 1024 * 1024 /* 5 MB */"
+            :storage-name="templateStorageName"
+            :translations="{ dropHereOr: Translator.trans('form.button.upload.docx', { browse: '{browse}', maxUploadSize: '5 MB' }) }"
+            :tus-endpoint="dplan.paths.tusEndpoint"
+            @file-remove="uploadedHash = ''"
+            @upload-success="file => { uploadedHash = file.hash }"
+          />
+        </div>
+
+        <fieldset
+          v-if="active === 'xlsx_normal' && hasPermission('feature_admin_scheduled_xlsx_export')"
+          class="border-b border-neutral"
+        >
+          <dp-label
+            class="mt-4"
+            :hint="Translator.trans('export.xlsx.scheduled.hint')"
+            :text="Translator.trans('export.xlsx.scheduled')"
+          />
+          <div class="flex justify-end gap-2">
+            <dp-button
+              v-if="scheduledExports.length"
+              data-cy="exportModal:scheduledExport:manage"
+              :text="`${Translator.trans('export.xlsx.scheduled.manage')} (${scheduledExports.length})`"
+              variant="transparent"
+              @click="scheduledExportMode = 'manage'"
+            />
+            <dp-button
+              data-cy="exportModal:scheduledExport:add"
+              icon="calendar-blank"
+              icon-size="medium"
+              :text="Translator.trans('export.xlsx.scheduled.add')"
+              variant="outline"
+              @click="scheduledExportMode = 'add'"
+            />
+          </div>
+        </fieldset>
+        <fieldset
+          v-if="!isSingleStatementExport"
+          class="border-b border-neutral"
+          :class="{ 'border-none': !['docx_normal', 'zip_normal'].includes(active) }"
+        >
+          <legend
+            id="tagsFilter"
+            class="font-semibold text-base mb-1 py-4"
+            v-text="Translator.trans('segments.export.filter.tags.only')"
+          />
+          <filter-flyout
+            ref="filterFlyout"
+            :key="`filter_${filter.labelTranslationKey}`"
+            :additional-query-params="{ searchPhrase: searchTerm }"
+            appearance="basic"
+            :category="{
+              id: `${filter.labelTranslationKey}`,
+              label: Translator.trans('search.list')
+            }"
+            :data-cy="`exportModal:filter:${filter.labelTranslationKey}`"
+            flyout-align="top"
+            flyout-position="relative"
+            :operator="filter.comparisonOperator"
+            :path="filter.rootPath"
+            :show-count="{
+              groupedOptions: true,
+              ungroupedOptions: true
+            }"
+            @filter-apply="getFilterValues"
+            @filter-options:request="loadFilterFlyoutOptions"
+            @update:expanded="(value) => isFilterExpanded = value"
+          />
+          <ul
+            v-if="!isFilterExpanded && selectedTags.length"
+            class="mt-2"
+          >
+            <li
+              v-for="(tag) in selectedTags"
+              :key="tag.id"
+              class="mt-1"
+            >
+              <span>{{ tag.label }}</span>
+            </li>
+          </ul>
+        </fieldset>
+        <dp-input
+          v-if="['docx_normal', 'zip_normal'].includes(active) && !isSingleStatementExport && hasPermissionAdjustPreamble"
+          id="customHeaderText"
+          v-model="customHeaderText"
+          :label="{
+            text: Translator.trans('docx.export.header.custom'),
+            tooltip: Translator.trans('docx.export.header.custom.hint')
+          }"
+          :maxlength="customHeaderMaxLength"
+          :placeholder="Translator.trans('docx.export.header.custom.placeholder')"
+          class="py-4"
+          data-cy="exportModal:customHeaderText"
+          type="text"
+        />
+        <dp-inline-notification
+          v-if="hasLayoutFileAndModifiedColumnHeaders"
+          class="mb-4"
+          :message="Translator.trans('docx.export.via_template.column.headers.warning')"
+          type="warning"
+        />
+      </template>
+
+      <!-- Scheduled export view -->
+      <template v-if="isScheduledExportView">
+        <scheduled-export-list
+          v-if="scheduledExportMode === 'manage'"
+          :is-loading="hasPendingScheduledExportAction"
+          :scheduled-exports="scheduledExports"
+          @add="handleScheduledExportAdd"
+          @edit="handleScheduledExportEdit"
+          @delete="handleScheduledExportDelete"
+        />
+        <scheduled-export-form-fields
+          v-else
+          v-model:form-data="currentScheduledExportFormData"
+          :editing-export="editingScheduledExport"
+        />
+      </template>
+
+      <template v-slot:footer>
+        <dp-button-row
+          v-if="isStatementExportView"
+          class="text-right mt-auto"
+          data-cy="exportModal"
+          primary
+          secondary
+          :primary-text="Translator.trans('export.statements')"
+          :secondary-text="Translator.trans('abort')"
+          @primary-action="handleExport"
+          @secondary-action="closeModal"
+        />
+        <div
+          v-else-if="['add', 'edit'].includes(getBaseScheduledExportMode(scheduledExportMode))"
+          class="flex justify-end"
+        >
+          <dp-loading
+            v-if="hasPendingScheduledExportAction"
+            class="mx-2"
+            hide-label
+          />
+          <dp-button-row
+            class="text-right mt-auto"
+            data-cy="scheduledExport"
+            :disabled="hasPendingScheduledExportAction"
+            primary
+            secondary
+            :primary-text="getBaseScheduledExportMode(scheduledExportMode) === 'add' ? Translator.trans('export.xlsx.scheduled.add') : Translator.trans('save.changes')"
+            :secondary-text="Translator.trans('abort')"
+            @primary-action="handleScheduledExport"
+            @secondary-action="handleCancelScheduledExport"
+          />
+        </div>
+        <div
+          v-else-if="scheduledExportMode === 'manage'"
+          class="flex"
+        >
+          <dp-button
+            class="ml-auto"
+            data-cy="scheduledExport:close"
+            :text="Translator.trans('close')"
+            variant="outline"
+            @click="scheduledExportMode = null"
+          />
+        </div>
+      </template>
+    </dp-modal>
+  </div>
+</template>
+
+<script>
+import {
+  dpApi,
+  DpButton,
+  DpButtonRow,
+  DpCheckbox,
+  DpContextualHelp,
+  DpInlineNotification,
+  DpInput,
+  DpLabel,
+  DpLoading,
+  DpModal,
+  DpRadio,
+  dpRpc,
+  DpUploadFiles,
+  hasOwnProp,
+  sessionStorageMixin,
+} from '@demos-europe/demosplan-ui'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
+import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
+import ScheduledExportFormFields from '@DpJs/components/statement/statementExportModal/ScheduledExportFormFields'
+import ScheduledExportList from '@DpJs/components/statement/statementExportModal/ScheduledExportList'
+import qs from 'qs'
+
+export default {
+  name: 'StatementExportModal',
+
+  components: {
+    DpButton,
+    DpButtonRow,
+    DpCheckbox,
+    DpContextualHelp,
+    DpInlineNotification,
+    DpInput,
+    DpLabel,
+    DpLoading,
+    DpModal,
+    DpRadio,
+    DpUploadFiles,
+    FilterFlyout,
+    ScheduledExportFormFields,
+    ScheduledExportList,
+  },
+
+  mixins: [sessionStorageMixin],
+
+  props: {
+    hasPermissionAdjustPreamble: {
+      required: false,
+      type: Boolean,
+      default: false,
+    },
+
+    isSingleStatementExport: {
+      required: false,
+      type: Boolean,
+      default: false,
+    },
+
+    procedureId: {
+      required: true,
+      type: String,
+    },
+
+    searchValue: {
+      type: String,
+      required: false,
+      default: '',
+    },
+
+    searchFieldsSelected: {
+      type: Array,
+      required: false,
+      default: null,
+    },
+
+    selectedSort: {
+      type: String,
+      required: false,
+      default: '',
+    },
+  },
+
+  emits: [
+    'export',
+  ],
+
+  data () {
+    return {
+      active: 'docx_normal',
+      scheduledExportMode: null,
+      editingScheduledExportId: null,
+      currentScheduledExportFormData: {
+        frequency: '',
+        weekday: null,
+        dayOfMonth: null,
+      },
+      docxColumns: {
+        col1: {
+          dataCy: 'exportModal:input:col1',
+          placeholder: Translator.trans('segments.export.segment.id'),
+          title: null,
+        },
+        col2: {
+          dataCy: 'exportModal:input:col2',
+          placeholder: Translator.trans('segments.export.statement.label'),
+          title: null,
+        },
+        col3: {
+          dataCy: 'exportModal:input:col3',
+          placeholder: Translator.trans('segment.recommendation'),
+          title: null,
+        },
+      },
+      exportTypes: {
+        docx_normal: {
+          label: 'export.docx',
+          hint: '',
+          exportPath: 'dplan_statement_segments_export',
+          dataCy: 'exportModal:export:docx',
+        },
+        zip_normal: {
+          label: 'export.zip',
+          hint: '',
+          exportPath: 'dplan_statement_segments_export_packaged',
+          dataCy: 'exportModal:export:zip',
+        },
+        xlsx_normal: {
+          label: 'export.xlsx',
+          hint: Translator.trans('export.xlsx.hint'),
+          exportPath: 'dplan_statement_xls_export',
+          dataCy: 'exportModal:export:xlsx',
+        },
+        csv_normal: {
+          label: 'export.csv',
+          hint: Translator.trans('export.csv.hint'),
+          exportPath: 'dplan_statement_csv_export',
+          dataCy: 'exportModal:export:csv',
+        },
+      },
+      fileName: '',
+      customHeaderText: '',
+      customHeaderMaxLength: 200,
+      filter: {
+        comparisonOperator: 'ARRAY_CONTAINS_VALUE',
+        grouping: {
+          labelTranslationKey: 'topic',
+          targetPath: 'tags.topic.label',
+        },
+        labelTranslationKey: 'tags',
+        rootPath: 'tags',
+        selected: false,
+      },
+      isCitizenDataCensored: false,
+      isFilterExpanded: false,
+      isInstitutionDataCensored: false,
+      isObscure: false,
+      hasPendingScheduledExportAction: false,
+      searchTerm: '',
+      selectedTags: [],
+      selectedTagIds: [],
+      singleStatementExportPath: 'dplan_segments_export', /** Used in the statements detail page */
+      uploadedHash: '',
+    }
+  },
+
+  computed: {
+    ...mapGetters('FilterFlyout', [
+      'getIsExpandedByCategoryId',
+    ]),
+
+    ...mapState('ScheduledExport', {
+      scheduledExportItems: 'items',
+    }),
+
+    exampleFileName () {
+      let exampleFileName = 'm101-jacob-meier-e5089.docx'
+      const exampleId = 'm101'
+      const exampleName = 'jacob-meier'
+      const exampleInternId = 'e5089'
+
+      if (this.fileName) {
+        exampleFileName = this.fileName
+          .replace(/{ID}/g, exampleId)
+          .replace(/{NAME}/g, exampleName)
+          .replace(/{EINGANGSNR}/g, exampleInternId)
+          .replace(/[_\s]/g, '-')
+
+        // Add example unique id if no placeholder was found
+        if (exampleFileName === this.fileName) {
+          exampleFileName += '-837474df23'
+        }
+
+        exampleFileName += '.docx'
+      }
+
+      return exampleFileName
+    },
+
+    exportModalTitle () {
+      if (this.scheduledExportMode) {
+        switch (this.scheduledExportMode) {
+          case 'add':
+          case 'manage:add':
+            return Translator.trans('export.xlsx.scheduled.add')
+          case 'edit':
+            return Translator.trans('export.xlsx.scheduled.edit')
+          case 'manage':
+            return Translator.trans('export.xlsx.scheduled.manage')
+          default:
+            return ''
+        }
+      }
+
+      return this.isSingleStatementExport ? Translator.trans('statement.export.do') : Translator.trans('export.statements')
+    },
+
+    hasLayoutFileAndModifiedColumnHeaders () {
+      return this.isSingleStatementExport &&
+        hasPermission('feature_statement_via_template_export') &&
+        this.uploadedHash !== '' &&
+        Object.values(this.docxColumns).some(col => col.title)
+    },
+
+    templateStorageName () {
+      return `templateHash_${this.procedureId}`
+    },
+
+    isScheduledExportView () {
+      return this.scheduledExportMode !== null
+    },
+
+    isStatementExportView () {
+      return this.scheduledExportMode === null
+    },
+
+    editingScheduledExport () {
+      return this.scheduledExports.find(exp => exp.id === this.editingScheduledExportId) ?? null
+    },
+
+    scheduledExports () {
+      return Object.values(this.scheduledExportItems)
+    },
+  },
+
+  methods: {
+    ...mapMutations('FilterFlyout', {
+      setGroupedFilterOptions: 'setGroupedOptions',
+      setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
+      setIsLoadingFilterFlyout: 'setIsLoading',
+      setUngroupedFilterOptions: 'setUngroupedOptions',
+    }),
+
+    ...mapMutations('ScheduledExport', {
+      setScheduledExport: 'setItem',
+      deleteScheduledExportItem: 'deleteItem',
+    }),
+
+    ...mapActions('ScheduledExport', {
+      fetchScheduledExport: 'list',
+      createScheduledExport: 'create',
+      deleteScheduledExport: 'delete',
+    }),
+
+    addScheduledExport () {
+      this.hasPendingScheduledExportAction = true
+      const {
+        frequency,
+        weekday,
+        dayOfMonth,
+      } = this.currentScheduledExportFormData
+
+      const exportParameters = {
+        filter: {
+          procedureId: {
+            condition: {
+              path: 'procedure.id',
+              value: this.procedureId,
+            },
+          },
+        },
+        search: {
+          value: this.searchValue,
+          ...this.searchFieldsSelected !== null ? { fieldsToSearch: this.searchFieldsSelected } : {},
+        },
+        sort: this.selectedSort,
+        tagsFilter: {
+          tagIds: this.selectedTagIds || [],
+        },
+      }
+
+      const payload = {
+        type: 'ScheduledExport',
+        attributes: {
+          frequency,
+          weekday,
+          dayOfMonth,
+          parameters: qs.stringify(exportParameters),
+        },
+      }
+
+      this.createScheduledExport(payload)
+        .then(() => {
+          dplan.notify.confirm(Translator.trans('confirm.scheduledExport.created'))
+        })
+        .finally(() => {
+          this.hasPendingScheduledExportAction = false
+          this.scheduledExportMode = 'manage'
+        })
+    },
+
+    getBaseScheduledExportMode (view) {
+      if (view.includes(':')) {
+        return view.split(':')[1]
+      }
+
+      return view
+    },
+
+    buildFilterOption (option) {
+      if (!option) {
+        return null
+      }
+
+      const { attributes, id } = option
+      const { count, description, label, selected } = attributes
+
+      return { id, count, description, label, selected }
+    },
+
+    buildOptionsFromResult (result, filter) {
+      const groupedOptions = []
+      const ungroupedOptions = []
+
+      result.included?.forEach(resource => {
+        const group = this.getGroupedOptions(resource, filter, result)
+
+        if (group) {
+          groupedOptions.push(group)
+        }
+
+        const item = this.getUngroupedOptions(resource, filter)
+
+        if (item) {
+          ungroupedOptions.push(item)
+        }
+      })
+
+      // Add "unassigned" pseudo-option to ungroupedOptions when the filter is "assignee"
+      if (result.data[0].attributes.path === 'assignee') {
+        const { missingResourcesSum } = result.data[0].attributes
+
+        ungroupedOptions.push({
+          id: 'unassigned',
+          count: missingResourcesSum,
+          label: Translator.trans('not.assigned'),
+          ungrouped: true,
+          selected: result.meta.unassigned_selected,
+        })
+      }
+
+      return {
+        groupedOptions,
+        ungroupedOptions,
+      }
+    },
+
+    buildScheduledExportPayload () {
+      return {
+        fields: {
+          ScheduledExport: [
+            'frequency',
+            'weekday',
+            'dayOfMonth',
+            'nextRunAt',
+          ].join(),
+        },
+      }
+    },
+
+    closeModal () {
+      this.closeScheduledExportMode()
+      this.resetExportModalState()
+      this.resetFilterFlyout()
+      this.resetExportModalInner()
+    },
+
+    closeScheduledExportMode () {
+      this.scheduledExportMode = null
+    },
+
+    async fetchFilterOptions (requestParams) {
+      try {
+        const { data } = await dpRpc('segments.facets.list', requestParams, 'filterList')
+
+        const result = (hasOwnProp(data, 0) && data[0].id === 'filterList') ?
+          data[0].result :
+          null
+
+        return result || null
+      } catch (error) {
+        console.error('Failed to fetch filter options', error)
+
+        return null
+      }
+    },
+
+    findFilterDefinition (result, path) {
+      return result.data.find(type => type.attributes.path === path) || null
+    },
+
+    focusSearchField (path) {
+      document.getElementById(`searchField_${path}`)?.focus()
+    },
+
+    getFilterValues (filter = {}) {
+      this.updateSelectedTagIds(filter)
+      this.updateSelectedTags()
+    },
+
+    getGroupedOptions (resource, filter, result) {
+      const isGroup = resource.type === 'AggregationFilterGroup'
+      const filterHasGroups = filter.relationships.aggregationFilterGroups?.data.length > 0
+      const groupBelongsToFilterType = isGroup && filterHasGroups && filter.relationships.aggregationFilterGroups.data.some(group => group.id === resource.id)
+
+      if (isGroup && groupBelongsToFilterType) {
+        const filterOptionsIds = resource.relationships.aggregationFilterItems?.data?.map(item => item.id) ?? []
+
+        const filterOptions = filterOptionsIds
+          .map(id => this.buildFilterOption(result.included.find(item => item.id === id)))
+          .filter(Boolean)
+
+        if (filterOptions.length === 0) {
+          return null
+        }
+
+        const { id, attributes } = resource
+        const { label } = attributes
+
+        return {
+          id,
+          label,
+          options: filterOptions,
+        }
+      }
+    },
+
+    getScheduledExportAttributes () {
+      const {
+        frequency,
+        weekday,
+        dayOfMonth,
+      } = this.currentScheduledExportFormData
+
+      return {
+        frequency,
+        weekday,
+        dayOfMonth,
+      }
+    },
+
+    getUngroupedOptions (resource, filter) {
+      const isFilterItem = resource.type === 'AggregationFilterItem'
+      const filterHasFilterOptions = filter.relationships.aggregationFilterItems?.data.length > 0
+      const filterOptionBelongsToFilterType = isFilterItem && filterHasFilterOptions && filter.relationships.aggregationFilterItems.data.some(option => option.id === resource.id)
+
+      if (isFilterItem && filterOptionBelongsToFilterType) {
+        const option = this.buildFilterOption(resource)
+
+        if (!option) {
+          return null
+        }
+
+        return {
+          ...option,
+          ungrouped: true,
+        }
+      }
+    },
+
+    handleAfterOptionsLoaded (path) {
+      const filterId = this.filter.labelTranslationKey
+      const isExpanded = this.getIsExpandedByCategoryId(filterId)
+
+      if (isExpanded) {
+        this.focusSearchField(path)
+      }
+
+      this.scrollModalToBottom()
+    },
+
+    handleBack () {
+      this.active = 'xlsx_normal'
+
+      switch (this.scheduledExportMode) {
+        case 'add':
+        case 'manage':
+          this.closeScheduledExportMode()
+          break
+        case 'manage:add':
+        case 'edit':
+          this.openManageScheduledExportMode()
+          break
+        default:
+          this.closeScheduledExportMode()
+      }
+    },
+
+    handleExport () {
+      const columnTitles = {}
+      const shouldConfirm = /^(docx|zip)_/.test(this.active)
+      const exportViaTemplate = this.isSingleStatementExport &&
+        this.uploadedHash !== '' &&
+        hasPermission('feature_statement_via_template_export')
+      const defaultRoute = this.isSingleStatementExport ? this.singleStatementExportPath : this.exportTypes[this.active].exportPath
+      const route = exportViaTemplate ? 'dplan_statement_via_template_export' : defaultRoute
+
+      Object.keys(this.docxColumns).forEach(key => {
+        const columnTitle = this.docxColumns[key].title
+        const storageKey = `exportModal:docxCol:${key}`
+
+        if (columnTitle) {
+          this.updateSessionStorage(storageKey, columnTitle)
+          columnTitles[key] = columnTitle
+        } else {
+          this.removeFromSessionStorage(storageKey)
+          columnTitles[key] = null /** Setting the value to null will trigger the display of the default column titles */
+        }
+      })
+
+      this.$emit('export', {
+        customHeaderText: this.customHeaderText || null,
+        docxHeaders: ['docx_normal', 'zip_normal'].includes(this.active) ? columnTitles : null,
+        fileNameTemplate: this.fileName || null,
+        isCitizenDataCensored: this.isCitizenDataCensored,
+        isInstitutionDataCensored: this.isInstitutionDataCensored,
+        isObscured: this.isObscure,
+        route,
+        shouldConfirm,
+        tagFilterIds: this.selectedTagIds,
+        uploadedDocxTemplate: exportViaTemplate ? this.uploadedHash : null,
+      })
+      this.closeModal()
+    },
+
+    handleCancelScheduledExport () {
+      if (this.scheduledExportMode === 'edit' || this.scheduledExportMode === 'manage:add') {
+        this.openManageScheduledExportMode()
+      } else {
+        this.closeScheduledExportMode()
+      }
+
+      this.editingScheduledExportId = null
+    },
+
+    handleScheduledExport () {
+      const scheduledExportMode = this.getBaseScheduledExportMode(this.scheduledExportMode)
+
+      if (scheduledExportMode === 'add' && this.currentScheduledExportFormData.frequency) {
+        this.addScheduledExport()
+      } else if (scheduledExportMode === 'edit' && this.editingScheduledExportId) {
+        this.updateExistingScheduledExport()
+      }
+    },
+
+    handleScheduledExportAdd () {
+      this.editingScheduledExportId = null
+      this.scheduledExportMode = 'manage:add'
+    },
+
+    handleScheduledExportEdit (exportId) {
+      this.editingScheduledExportId = exportId
+      this.scheduledExportMode = 'edit'
+    },
+
+    handleScheduledExportDelete (exportId) {
+      this.hasPendingScheduledExportAction = true
+
+      this.deleteScheduledExport(exportId)
+        .then((response) => {
+          if (response?.meta?.status === 200) {
+            this.deleteScheduledExportItem(exportId)
+          }
+        })
+        .finally(() => {
+          this.hasPendingScheduledExportAction = false
+        })
+    },
+
+    initInitialFlyoutFilterSelection ({ isInitialWithQuery, groupedOptions, ungroupedOptions }) {
+      if (!isInitialWithQuery || this.queryIds.length === 0) {
+        return
+      }
+
+      const allOptions = [
+        ...groupedOptions.flatMap(group => group.options),
+        ...ungroupedOptions,
+      ]
+
+      const currentFlyoutFilterIds = this.queryIds.filter(queryId =>
+        allOptions.some(item => item.id === queryId),
+      )
+
+      this.setInitialFlyoutFilterIds({
+        categoryId: this.filter.labelTranslationKey,
+        filterIds: currentFlyoutFilterIds,
+      })
+    },
+
+    /**
+     *
+     * @param params {Object}
+     * @param params.additionalQueryParams {Object}
+     * @param params.category {Object} id, label
+     * @param params.filter {Object}
+     * @param params.isInitialWithQuery {Boolean}
+     * @param params.path {String}
+     * @param params.searchPhrase {String}
+     */
+    async loadFilterFlyoutOptions (params) {
+      const {
+        additionalQueryParams,
+        filter,
+        isInitialWithQuery,
+        path,
+        currentQuery,
+      } = params
+
+      // Load filter options only when no filters are active. If filters are active, skip loading and scroll to the flyout.
+      if (currentQuery && currentQuery.length > 0) {
+        this.scrollModalToBottom()
+
+        return
+      }
+
+      const requestParams = this.setRequestParams({
+        additionalQueryParams,
+        filter,
+        path,
+        currentQuery,
+      })
+
+      const result = await this.fetchFilterOptions(requestParams)
+
+      if (!result) {
+        return
+      }
+
+      const filterDefinition = this.findFilterDefinition(result, path)
+
+      if (!filterDefinition) {
+        return
+      }
+
+      const {
+        groupedOptions,
+        ungroupedOptions,
+      } = this.buildOptionsFromResult(result, filterDefinition)
+
+      this.initInitialFlyoutFilterSelection({
+        isInitialWithQuery,
+        groupedOptions,
+        ungroupedOptions,
+      })
+
+      this.updateFilterOptionsInStore({
+        groupedOptions,
+        ungroupedOptions,
+      })
+
+      this.handleAfterOptionsLoaded(path)
+    },
+
+    onModalToggle (isOpen) {
+      if (!isOpen) {
+        this.resetExportModalState()
+        this.resetFilterFlyout()
+      }
+    },
+
+    openModal () {
+      this.resetExportModalState()
+      this.setInitialValues()
+      this.resetExportModalInner()
+    },
+
+    openManageScheduledExportMode () {
+      this.scheduledExportMode = 'manage'
+    },
+
+    resetFilterFlyout () {
+      this.$refs.filterFlyout?.reset?.()
+    },
+
+    resetExportModalInner () {
+      this.$refs.exportModalInner?.toggle?.()
+    },
+
+    resetExportModalState () {
+      this.active = 'docx_normal'
+      this.scheduledExportMode = null
+      this.customHeaderText = ''
+      this.isCitizenDataCensored = false
+      this.isInstitutionDataCensored = false
+      this.isObscure = false
+      this.selectedTagIds = []
+      this.selectedTags = []
+      this.uploadedHash = ''
+      this.resetScheduledExportState()
+    },
+
+    resetScheduledExportState () {
+      this.hasPendingScheduledExportAction = false
+      this.editingScheduledExportId = null
+      this.editingScheduledExport = null
+      this.currentScheduledExportFormData = {
+        frequency: '',
+        weekday: null,
+        dayOfMonth: null,
+      }
+    },
+
+    scrollModalToBottom () {
+      this.$nextTick(() => {
+        const modalBody = this.$refs.exportModalInner.$el.querySelector('.o-modal__body')
+
+        if (!modalBody) {
+          return
+        }
+
+        modalBody.scrollTo({
+          top: modalBody.scrollHeight,
+          behavior: 'smooth',
+        })
+      })
+    },
+
+    setInitialValues () {
+      this.active = 'docx_normal'
+
+      Object.keys(this.docxColumns).forEach(key => {
+        const storageKey = `exportModal:docxCol:${key}`
+        const storedColumnTitle = this.getItemFromSessionStorage(storageKey)
+
+        this.docxColumns[key].title = storedColumnTitle || null /** Setting the value to null will display the placeholder titles of the column */
+      })
+
+      /** DpUploadFiles restores its file list from sessionStorage on reload; mirror that hash so the export still routes via template. */
+      const storedTemplate = this.getItemFromSessionStorage(this.templateStorageName)
+
+      this.uploadedHash = Array.isArray(storedTemplate) ? storedTemplate[storedTemplate.length - 1]?.hash ?? '' : ''
+    },
+
+    setRequestParams ({ additionalQueryParams, filter, path, currentQuery }) {
+      const requestParams = {
+        ...additionalQueryParams,
+        filter: {
+          ...filter,
+          sameProcedure: {
+            condition: {
+              path: 'parentStatement.procedure.id',
+              value: this.procedureId,
+            },
+          },
+        },
+        path,
+      }
+
+      if (requestParams.searchPhrase === '') {
+        requestParams.searchPhrase = null // The backend expects `searchPhrase` to be null when it is empty
+      }
+
+      return requestParams
+    },
+
+    syncSelectedItemsFromFlyout () {
+      const filterFlyout = this.$refs.filterFlyout
+
+      if (!filterFlyout || !Array.isArray(filterFlyout.itemsSelected)) {
+        this.selectedTags = []
+
+        return
+      }
+
+      this.selectedTags = filterFlyout.itemsSelected
+    },
+
+    updateExistingScheduledExport () {
+      this.hasPendingScheduledExportAction = true
+      const payload = {
+        data: {
+          id: this.editingScheduledExportId,
+          type: 'ScheduledExport',
+          attributes: this.getScheduledExportAttributes(),
+        },
+      }
+
+      return dpApi.patch(
+        apiUrl('ScheduledExport', 'update', this.editingScheduledExportId),
+        {},
+        payload,
+      )
+        .then(({ data }) => {
+          dplan.notify.confirm(Translator.trans('confirm.saved'))
+          if (data?.data) {
+            this.setScheduledExport({
+              ...data.data,
+              id: this.editingScheduledExportId,
+            })
+          }
+        })
+        .finally(() => {
+          this.resetScheduledExportState()
+          this.scheduledExportMode = 'manage'
+        })
+    },
+
+    updateFilterOptionsInStore ({ category, groupedOptions, ungroupedOptions }) {
+      this.setGroupedFilterOptions({
+        categoryId: this.filter.labelTranslationKey,
+        groupedOptions,
+      })
+
+      this.setUngroupedFilterOptions({
+        categoryId: this.filter.labelTranslationKey,
+        options: ungroupedOptions,
+      })
+
+      this.setIsLoadingFilterFlyout({
+        categoryId: this.filter.labelTranslationKey,
+        isLoading: false,
+      })
+    },
+
+    updateSelectedTags () {
+      if (this.selectedTagIds.length === 0) {
+        this.selectedTags = []
+
+        return
+      }
+
+      this.syncSelectedItemsFromFlyout()
+    },
+
+    updateSelectedTagIds (filter) {
+      this.selectedTagIds = Object.values(filter)
+        .filter(item => item?.condition?.path === 'tags')
+        .map(item => item.condition.value)
+    },
+  },
+
+  mounted () {
+    if (!this.isSingleStatementExport) {
+      this.fetchScheduledExport(this.buildScheduledExportPayload())
+    }
+  },
+}
+</script>
