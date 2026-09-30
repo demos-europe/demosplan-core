@@ -10,7 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Export;
+namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
 /**
  * Builds and parses the `customField_<id>` column key format shared by the segment export's

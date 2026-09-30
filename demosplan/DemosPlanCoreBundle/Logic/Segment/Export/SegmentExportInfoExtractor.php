@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldColumnKey;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\SegmentExportInfo;
 use EDT\JsonApi\RequestHandling\UrlParameter;
 use Symfony\Component\HttpFoundation\RequestStack;
