@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Repositories\UserRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CoreEntity;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\User\Address;
 use demosplan\DemosPlanCoreBundle\Entity\User\AiApiUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
@@ -554,6 +555,15 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
              * user Roles needs to be wiped manually via {@link UserRoleInCustomerRepository::clearUserRoles()}
              */
             $this->invalidateCachedLoginList();
+
+            // the row is kept, so the ON DELETE SET NULL of Tag::$defaultAssignee never applies
+            $em->createQueryBuilder()
+                ->update(Tag::class, 'tag')
+                ->set('tag.defaultAssignee', 'NULL')
+                ->where('tag.defaultAssignee = :user')
+                ->setParameter('user', $user)
+                ->getQuery()
+                ->execute();
 
             $em->persist($user);
             $em->flush();
