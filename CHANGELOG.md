@@ -6,6 +6,15 @@
 
 ## UNRELEASED
 
+## v4.61.3 (2026-09-30)
+
+### Added
+- The right to create procedures can now be granted to individual users of an organization, instead of to all Fachplanung-Admins and Anhörungsbehörde-Admins at once
+
+### Fixed
+- Splitting a statement no longer fails with an error message when an assignable user has no name set
+- Deleting a user's personal data now also removes them as the default assignee of tags
+
 ## v4.61.2 (2026-09-23)
 
 ### Fixed
