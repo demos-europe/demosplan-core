@@ -573,6 +573,11 @@ class EntityContentChangeService
             ClassUtils::getClass($statementOrSegment),
             new DateTime('now', new DateTimeZone('Europe/Berlin')),
         );
+        // Runs in the background purge job, where the current user is the anonymous
+        // user ("Privatperson"). Attribute the entry to the system instead, as the
+        // automatic phase switch does.
+        $entry->setUserId(null);
+        $entry->setUserName($this->translator->trans('user.system.name'));
         $this->entityContentChangeRepository->persistEntities([$entry]);
     }
 
