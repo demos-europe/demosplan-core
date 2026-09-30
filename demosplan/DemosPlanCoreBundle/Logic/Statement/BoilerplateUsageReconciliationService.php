@@ -48,6 +48,37 @@ class BoilerplateUsageReconciliationService
     ) {
     }
 
+    /**
+     * Freezes tags referencing a boilerplate of a different procedure than $statement's
+     * into that boilerplate's current text, dropping the link. Such a tag can get into the
+     * text by copying a linked boilerplate from another procedure's editor. Left in place it
+     * would render the foreign boilerplate's text on every read path without a usage
+     * relation to it; freezing it keeps what the user saw, as unlinking a boilerplate does.
+     */
+    public function removeForeignProcedureTags(Statement $statement, string $embeddedText): string
+    {
+        foreach ($this->boilerplateTagSubstitutionService->extractBoilerplateIds($embeddedText) as $boilerplateId) {
+            $boilerplate = $this->boilerplateRepository->find($boilerplateId);
+            if (null === $boilerplate || $boilerplate->getProcedureId() === $statement->getProcedureId()) {
+                continue;
+            }
+
+            $this->logger->warning('Ignored a boilerplate tag referencing a boilerplate from a different procedure', [
+                'boilerplateId'          => $boilerplateId,
+                'boilerplateProcedureId' => $boilerplate->getProcedureId(),
+                'statementId'            => $statement->getId(),
+                'statementProcedureId'   => $statement->getProcedureId(),
+            ]);
+            $embeddedText = $this->boilerplateTagSubstitutionService->materializeBoilerplate(
+                $embeddedText,
+                $boilerplateId,
+                $boilerplate->getText()
+            );
+        }
+
+        return $embeddedText;
+    }
+
     public function reconcile(Statement $statement, string $newEmbeddedText): void
     {
         $currentBoilerplateIds = $this->boilerplateTagSubstitutionService->extractBoilerplateIds($newEmbeddedText);
@@ -81,13 +112,7 @@ class BoilerplateUsageReconciliationService
         }
 
         if ($boilerplate->getProcedureId() !== $statement->getProcedureId()) {
-            $this->logger->warning('Ignored a boilerplate tag referencing a boilerplate from a different procedure', [
-                'boilerplateId'          => $boilerplateId,
-                'boilerplateProcedureId' => $boilerplate->getProcedureId(),
-                'statementId'            => $statement->getId(),
-                'statementProcedureId'   => $statement->getProcedureId(),
-            ]);
-
+            // Already unwrapped and logged by removeForeignProcedureTags() on the setter path.
             return;
         }
 

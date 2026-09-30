@@ -151,4 +151,58 @@ class BoilerplateUsageReconciliationServiceTest extends FunctionalTestCase
 
         static::assertCount(0, $this->boilerplateUsageRepository->findUsagesForStatementOrSegment($segment));
     }
+
+    public function testForeignProcedureTagIsFrozenIntoTheBoilerplateTextWhenSaved(): void
+    {
+        $foreignBoilerplate = BoilerplateFactory::createOne(['text' => '<p>Text of the foreign boilerplate</p>'])->_real();
+        $segment = SegmentFactory::createOne()->_real();
+        $this->entityManager->refresh($segment);
+
+        $segment->setRecommendation(
+            "Hallo <dp-boilerplate boilerplate-id=\"{$foreignBoilerplate->getId()}\"></dp-boilerplate> Ende"
+        );
+        $this->entityManager->flush();
+
+        $stored = $segment->getRecommendationEmbedded();
+        static::assertStringNotContainsString('dp-boilerplate', $stored);
+        static::assertStringNotContainsString($foreignBoilerplate->getId(), $stored);
+        static::assertStringContainsString('Text of the foreign boilerplate', $stored);
+        static::assertStringContainsString('Hallo', $stored);
+        static::assertStringContainsString('Ende', $stored);
+        static::assertCount(0, $this->boilerplateUsageRepository->findUsagesForStatementOrSegment($segment));
+    }
+
+    public function testOnlyTheForeignTagIsFrozenWhenSavedNextToATagOfTheSameProcedure(): void
+    {
+        $foreignBoilerplate = BoilerplateFactory::createOne(['text' => '<p>Text of the foreign boilerplate</p>'])->_real();
+        $ownBoilerplate = BoilerplateFactory::createOne()->_real();
+        $segment = SegmentFactory::createOne(['procedure' => $ownBoilerplate->getProcedure()])->_real();
+        $this->entityManager->refresh($segment);
+
+        $segment->setRecommendation(
+            "<dp-boilerplate boilerplate-id=\"{$foreignBoilerplate->getId()}\"></dp-boilerplate>"
+            ."<dp-boilerplate boilerplate-id=\"{$ownBoilerplate->getId()}\"></dp-boilerplate>"
+        );
+        $this->entityManager->flush();
+
+        $stored = $segment->getRecommendationEmbedded();
+        static::assertStringNotContainsString($foreignBoilerplate->getId(), $stored);
+        static::assertStringContainsString('Text of the foreign boilerplate', $stored);
+        static::assertStringContainsString($ownBoilerplate->getId(), $stored);
+        $usages = $this->boilerplateUsageRepository->findUsagesForStatementOrSegment($segment);
+        static::assertCount(1, $usages);
+        static::assertArrayHasKey($ownBoilerplate->getId(), $usages);
+    }
+
+    public function testTagOfTheSameProcedureIsKeptWhenSaved(): void
+    {
+        $boilerplate = BoilerplateFactory::createOne()->_real();
+        $segment = SegmentFactory::createOne(['procedure' => $boilerplate->getProcedure()])->_real();
+        $this->entityManager->refresh($segment);
+
+        $segment->setRecommendation("Hallo <dp-boilerplate boilerplate-id=\"{$boilerplate->getId()}\"></dp-boilerplate>");
+        $this->entityManager->flush();
+
+        static::assertStringContainsString($boilerplate->getId(), $segment->getRecommendationEmbedded());
+    }
 }

@@ -2340,6 +2340,8 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      */
     public function setRecommendation($recommendation): Statement
     {
+        $recommendation = $this->boilerplateUsageReconciliationService?->removeForeignProcedureTags($this, $recommendation)
+            ?? $recommendation;
         $this->recommendationVersionService?->recordVersionIfTagFormChanged(
             $this,
             $this->recommendation,
