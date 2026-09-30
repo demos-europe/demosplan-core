@@ -216,4 +216,102 @@ class UserAccessControlRepositoryTest extends FunctionalTestCase
             $this->testRole
         ));
     }
+
+    public function testFindByOrgaCustomerPermissionAndRolesReturnsMatchingGrants(): void
+    {
+        // Arrange
+        $permission = 'feature_statement_bulk_edit';
+
+        $userAccessControl = new UserAccessControl();
+        $userAccessControl->setUser($this->testUser->_real());
+        $userAccessControl->setOrganisation($this->testOrga->_real());
+        $userAccessControl->setCustomer($this->testCustomer->_real());
+        $userAccessControl->setRole($this->testRole);
+        $userAccessControl->setPermission($permission);
+
+        $this->getEntityManager()->persist($userAccessControl);
+        $this->getEntityManager()->flush();
+
+        // Act
+        $grants = $this->sut->findByOrgaCustomerPermissionAndRoles(
+            $this->testOrga->_real(),
+            $this->testCustomer->_real(),
+            $permission,
+            [$this->testRole->getCode()]
+        );
+
+        // Assert
+        self::assertCount(1, $grants);
+        self::assertSame($this->testUser->_real(), $grants[0]->getUser());
+    }
+
+    public function testFindByOrgaCustomerPermissionAndRolesFiltersByRoleCode(): void
+    {
+        // Arrange
+        $permission = 'feature_statement_bulk_edit';
+        $differentRole = $this->roleHandler->getUserRolesByCodes([RoleInterface::PUBLIC_AGENCY_WORKER])[0];
+
+        $userAccessControl = new UserAccessControl();
+        $userAccessControl->setUser($this->testUser->_real());
+        $userAccessControl->setOrganisation($this->testOrga->_real());
+        $userAccessControl->setCustomer($this->testCustomer->_real());
+        $userAccessControl->setRole($differentRole);
+        $userAccessControl->setPermission($permission);
+
+        $this->getEntityManager()->persist($userAccessControl);
+        $this->getEntityManager()->flush();
+
+        // Act - query only for testRole, not the role the grant was actually created with
+        $grants = $this->sut->findByOrgaCustomerPermissionAndRoles(
+            $this->testOrga->_real(),
+            $this->testCustomer->_real(),
+            $permission,
+            [$this->testRole->getCode()]
+        );
+
+        // Assert
+        self::assertEmpty($grants);
+    }
+
+    public function testFindByOrgaCustomerPermissionAndRolesRespectsOrgaBoundary(): void
+    {
+        // Arrange
+        $permission = 'feature_statement_bulk_edit';
+        $differentOrga = OrgaFactory::createOne();
+
+        $userAccessControl = new UserAccessControl();
+        $userAccessControl->setUser($this->testUser->_real());
+        $userAccessControl->setOrganisation($differentOrga->_real());
+        $userAccessControl->setCustomer($this->testCustomer->_real());
+        $userAccessControl->setRole($this->testRole);
+        $userAccessControl->setPermission($permission);
+
+        $this->getEntityManager()->persist($userAccessControl);
+        $this->getEntityManager()->flush();
+
+        // Act - query for testOrga, not the orga the grant was actually created for
+        $grants = $this->sut->findByOrgaCustomerPermissionAndRoles(
+            $this->testOrga->_real(),
+            $this->testCustomer->_real(),
+            $permission,
+            [$this->testRole->getCode()]
+        );
+
+        // Assert
+        self::assertEmpty($grants);
+    }
+
+    public function testFindByOrgaCustomerPermissionAndRolesReturnsEmptyArrayForEmptyRoleCodes(): void
+    {
+        // Act
+        $grants = $this->sut->findByOrgaCustomerPermissionAndRoles(
+            $this->testOrga->_real(),
+            $this->testCustomer->_real(),
+            'feature_statement_bulk_edit',
+            []
+        );
+
+        // Assert
+        self::assertSame([], $grants);
+    }
 }
