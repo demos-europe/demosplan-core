@@ -122,8 +122,20 @@
         v-show="!isLoading"
         class="flex items-center gap-2 mt-2 mb-3"
       >
+        <div
+          v-if="items.length > 0 && hasPermission('feature_segments_manualsort')"
+          class="flex items-center"
+        >
+          <dp-select
+            id="applySortSelection"
+            :label="{ text: Translator.trans('sorting') }"
+            :options="sortOptions"
+            :selected="selectedSort"
+            @select="applySort"
+          />
+        </div>
         <dp-pager
-          v-if="items.length > 0 && pagination.currentPage"
+          v-if="items.length > 0 && pagination.currentPage && !hasPermission('feature_segments_manualsort')"
           :key="`pager1_${pagination.currentPage}_${pagination.count}`"
           :current-page="pagination.currentPage"
           :limits="pagination.limits"
@@ -133,22 +145,6 @@
           @page-change="applyQuery"
           @size-change="handleSizeChange"
         />
-        <div
-          v-if="items.length > 0"
-          class="ml-auto flex items-center space-inline-xs"
-        >
-          <dp-label
-            class="mb-0"
-            for="applySortSelection"
-            :text="Translator.trans('sorting')"
-          />
-          <dp-select
-            id="applySortSelection"
-            :options="sortOptions"
-            :selected="selectedSort"
-            @select="applySort"
-          />
-        </div>
         <div class="flex gap-2 ml-auto">
           <dp-button
             :text="Translator.trans('column.selection.reset')"
