@@ -249,6 +249,8 @@ export default {
        *  See https://learn.adamwathan.com/advanced-vue/building-compound-components-with-provide-inject
        */
       olMapState: {
+        // Name of the draw/edit tool currently active in this map, see DpOlMapDrawFeature
+        activeTool: '',
         map: null,
         drawStyles: {},
       },
