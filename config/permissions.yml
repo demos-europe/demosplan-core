@@ -2077,15 +2077,6 @@ feature_segments_list_export_xlsx:
     expose: true
     label: 'Enable Excel export of segment list'
     loginRequired: true
-feature_segments_manualsort:
-    description: |-
-        Shows the sorting dropdown on the procedure-wide segment list, allowing the
-        list to be sorted by deadline. The feature is not yet fully implemented and
-        must not be enabled on production instances.
-    expose: true
-    label: 'Allows sorting the segment list by deadline.'
-    loginRequired: true
-    parent: area_statement_segmentation
 feature_segments_of_statement_list:
     description: |-
         The list will contain segments of a specific statement only. Additional

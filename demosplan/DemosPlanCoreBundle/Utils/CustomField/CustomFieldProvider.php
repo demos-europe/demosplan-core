@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
+use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -34,5 +35,15 @@ class CustomFieldProvider
         }
 
         return $this->cache[$cacheKey];
+    }
+
+    /**
+     * @param string[] $customFieldIds
+     *
+     * @return CustomFieldConfiguration[]
+     */
+    public function getCustomFieldConfigurationsByIds(array $customFieldIds): array
+    {
+        return $this->customFieldConfigurationRepository->findBy(['id' => $customFieldIds]);
     }
 }
