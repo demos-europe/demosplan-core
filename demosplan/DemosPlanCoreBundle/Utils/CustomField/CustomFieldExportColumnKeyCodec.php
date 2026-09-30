@@ -13,10 +13,10 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
 /**
- * Builds and parses the `customField_<id>` column key format shared by the segment export's
+ * Encodes and decodes the `customField_<id>` column key format shared by the segment export's
  * column definitions, column selection, and export data rows.
  */
-final class CustomFieldColumnKey
+final class CustomFieldExportColumnKeyCodec
 {
     private const PREFIX = 'customField_';
 

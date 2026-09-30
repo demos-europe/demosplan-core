@@ -28,7 +28,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\Exporter\StatementExportTagFil
 use demosplan\DemosPlanCoreBundle\Logic\Statement\Formatter\StatementFormatter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldColumnKey;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldExportColumnKeyCodec;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldProvider;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\SegmentExportInfo;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
@@ -559,7 +559,7 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         $customFieldLabels = $this->customFieldProvider->getCustomFieldLabelsByIds($customFieldIds);
         foreach ($customFieldLabels as $customFieldId => $customFieldLabel) {
             $columnsDefinition[] = $this->createColumnDefinition(
-                CustomFieldColumnKey::forId($customFieldId),
+                CustomFieldExportColumnKeyCodec::forId($customFieldId),
                 $customFieldLabel,
                 useTranslation: false
             );
