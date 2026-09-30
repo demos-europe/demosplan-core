@@ -319,7 +319,7 @@ export default {
 
       this.createOrganisation(payload)
         .then(() => {
-          this.$root.$emit('items:get')
+          this.$emit('items:get')
         })
         .catch(err => {
           console.error(err)
