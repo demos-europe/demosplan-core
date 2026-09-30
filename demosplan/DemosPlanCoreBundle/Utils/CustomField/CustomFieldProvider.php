@@ -40,9 +40,24 @@ class CustomFieldProvider
     /**
      * @param string[] $customFieldIds
      *
+     * @return array<string, string> Display label keyed by custom field id
+     */
+    public function getCustomFieldLabelsByIds(array $customFieldIds): array
+    {
+        $labels = [];
+        foreach ($this->getCustomFieldConfigurationsByIds($customFieldIds) as $customFieldConfiguration) {
+            $labels[$customFieldConfiguration->getId()] = $customFieldConfiguration->getConfiguration()->getName();
+        }
+
+        return $labels;
+    }
+
+    /**
+     * @param string[] $customFieldIds
+     *
      * @return CustomFieldConfiguration[]
      */
-    public function getCustomFieldConfigurationsByIds(array $customFieldIds): array
+    private function getCustomFieldConfigurationsByIds(array $customFieldIds): array
     {
         return $this->customFieldConfigurationRepository->findBy(['id' => $customFieldIds]);
     }

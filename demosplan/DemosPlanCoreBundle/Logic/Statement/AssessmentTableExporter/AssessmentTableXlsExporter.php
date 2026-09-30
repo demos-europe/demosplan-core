@@ -556,11 +556,11 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
         }
 
         $columnsDefinition = [];
-        $customFieldConfigurations = $this->customFieldProvider->getCustomFieldConfigurationsByIds($customFieldIds);
-        foreach ($customFieldConfigurations as $customFieldConfiguration) {
+        $customFieldLabels = $this->customFieldProvider->getCustomFieldLabelsByIds($customFieldIds);
+        foreach ($customFieldLabels as $customFieldId => $customFieldLabel) {
             $columnsDefinition[] = $this->createColumnDefinition(
-                CustomFieldColumnKey::forId($customFieldConfiguration->getId()),
-                $customFieldConfiguration->getConfiguration()->getName(),
+                CustomFieldColumnKey::forId($customFieldId),
+                $customFieldLabel,
                 useTranslation: false
             );
         }
