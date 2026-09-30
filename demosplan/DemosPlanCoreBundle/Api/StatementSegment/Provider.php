@@ -26,7 +26,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\RecommendationVersionService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use InvalidArgumentException;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Webmozart\Assert\Assert;
 
@@ -85,14 +84,9 @@ class Provider implements ProviderInterface
     }
 
     /**
-     * Delegates to API Platform's own Doctrine ORM collection provider so that its
-     * filter/extension mechanism (access control via
-     * {@see Extension\SegmentDoctrineAccessExtension},
-     * sorting via the declared OrderFilter on {@see StatementSegmentResource}) applies.
-     *
-     * Pagination is on by default and client-controlled via `page`/`itemsPerPage` (capped at
-     * paginationMaximumItemsPerPage); pass `pagination=false` to get all matching segments in
-     * one unbounded response instead.
+     * Lets API Platform's Doctrine provider load the segments, so access control
+     * ({@see Extension\SegmentDoctrineAccessExtension}) and sorting are applied automatically.
+     * Results are paginated via `page`/`itemsPerPage` (max 100 per page); `pagination=false` returns everything.
      *
      * @return PaginatorInterface<StatementSegmentResource>|list<StatementSegmentResource>
      */
@@ -107,7 +101,6 @@ class Provider implements ProviderInterface
             }
         ));
 
-        $context = $this->addPaginationFilters($context);
         $result = $this->doctrineCollectionProvider->provide($operation, $uriVariables, $context);
 
         /*
@@ -146,30 +139,5 @@ class Provider implements ProviderInterface
         }
 
         return array_map($map, $segments);
-    }
-
-    /**
-     * Tops up `$context['filters']` with the plain `page`/`itemsPerPage`/`pagination` query
-     * params, which is where API Platform's pagination reads them from.
-     *
-     * API Platform's own JsonApiProvider is meant to hoist these off the query string, but for
-     * this operation they were observed not to arrive, so they are read from the request as a
-     * fallback. Values already present are never overwritten, so this is a no-op whenever the
-     * built-in hoisting does work.
-     */
-    private function addPaginationFilters(array $context): array
-    {
-        $request = $context['request'] ?? null;
-        // Guard rather than skip: silently dropping the params would return every segment
-        // unbounded instead of the requested page, which is hard to spot from the response.
-        Assert::isInstanceOf($request, Request::class, 'Cannot read pagination parameters: no request in the provider context.');
-
-        foreach (['page', 'itemsPerPage', 'pagination'] as $parameterName) {
-            if ($request->query->has($parameterName) && !isset($context['filters'][$parameterName])) {
-                $context['filters'][$parameterName] = $request->query->get($parameterName);
-            }
-        }
-
-        return $context;
     }
 }
