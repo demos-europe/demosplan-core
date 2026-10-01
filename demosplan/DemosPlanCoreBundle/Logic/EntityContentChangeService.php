@@ -1561,6 +1561,26 @@ class EntityContentChangeService
     }
 
     /**
+     * Resolves the raw incoming form value of a standard field into the form
+     * {@see EntityContentChangeService::createContentChangeData} expects to compare against
+     * the pre-update getter result.
+     */
+    private function resolvePostUpdateValueForStandardField(string $propertyName, mixed $postUpdateValue): mixed
+    {
+        if (SegmentInterface::RECOMMENDATION_FIELD_NAME === $propertyName && is_string($postUpdateValue)) {
+            // DPLAN-18271: The pre-update value already went through the real getter, so it is
+            // substituted. $postUpdateValue is the raw incoming form value — today this admin
+            // form never writes a <dp-boilerplate> tag, so this is a no-op in practice, but it
+            // keeps the comparison correct by construction if that path ever changes. See the
+            // sibling reasoning in
+            // {{ @link EntityContentChangeService::calculateChangesOfStandardFieldsOfPreUpdateArrayAndPostUpdateObject }}.
+            return $this->boilerplateTagSubstitutionService->substitute($postUpdateValue);
+        }
+
+        return $postUpdateValue;
+    }
+
+    /**
      * @return array<string, string|array<string, string>>
      *
      * @throws InvalidDataException
@@ -1591,17 +1611,11 @@ class EntityContentChangeService
                 );
             } elseif (array_key_exists($propertyName, $incomingDataArray)) {
                 $methodName = $this->getGetterMethodName($preUpdateObject, $propertyName);
-                $postUpdateValue = $incomingDataArray[$propertyName];
+                $postUpdateValue = $this->resolvePostUpdateValueForStandardField(
+                    $propertyName,
+                    $incomingDataArray[$propertyName]
+                );
                 $preUpdateValue = $preUpdateObject->$methodName();
-                if (SegmentInterface::RECOMMENDATION_FIELD_NAME === $propertyName && is_string($postUpdateValue)) {
-                    // DPLAN-18271: $preUpdateValue already went through the real getter above,
-                    // so it is substituted. $postUpdateValue is the raw incoming form value —
-                    // today this admin form never writes a <dp-boilerplate> tag, so this is a
-                    // no-op in practice, but it keeps the comparison correct by construction
-                    // if that path ever changes. See the sibling reasoning in
-                    // {{ @link EntityContentChangeService::calculateChangesOfStandardFieldsOfPreUpdateArrayAndPostUpdateObject }}.
-                    $postUpdateValue = $this->boilerplateTagSubstitutionService->substitute($postUpdateValue);
-                }
                 $contentChangeString = $this->createContentChangeData(
                     $preUpdateValue,
                     $postUpdateValue,

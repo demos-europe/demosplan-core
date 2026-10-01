@@ -13,9 +13,9 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\MessageHandler;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Message\PurgePendingBoilerplateDeletionsMessage;
-use demosplan\DemosPlanCoreBundle\Traits\InitializesAnonymousUserPermissionsTrait;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -23,8 +23,6 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler]
 final class PurgePendingBoilerplateDeletionsMessageHandler
 {
-    use InitializesAnonymousUserPermissionsTrait;
-
     private const BATCH_LIMIT = 5;
 
     public function __construct(
@@ -36,7 +34,8 @@ final class PurgePendingBoilerplateDeletionsMessageHandler
 
     public function __invoke(PurgePendingBoilerplateDeletionsMessage $message): void
     {
-        $this->initializeAnonymousUserPermissions();
+        // No authenticated user in the worker context
+        $this->permissions->initPermissions(new AnonymousUser());
 
         try {
             $purgedCount = $this->procedureHandler->purgePendingBoilerplateDeletions(self::BATCH_LIMIT);
