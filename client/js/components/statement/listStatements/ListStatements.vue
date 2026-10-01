@@ -62,6 +62,7 @@
       </dp-bulk-edit-header>
       <statement-export-modal
         :has-permission-adjust-preamble="hasPermission('feature_adjust_preamble_export_file')"
+        :is-export-disabled="!hasStatements"
         :procedure-id="procedureId"
         :procedure-name="procedureName"
         data-cy="listStatements:export"
@@ -566,6 +567,10 @@ export default {
 
         return Routing.generate(exportRoute, parameters)
       }
+    },
+
+    hasStatements () {
+      return !this.isLoading && this.items.length > 0
     },
 
     items () {

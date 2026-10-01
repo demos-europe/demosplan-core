@@ -10,50 +10,25 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace Tests\Core\JsonApi;
+namespace Tests\Core\JsonApi\StatementSegment;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
-use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Base\AbstractApiTest;
 
+/**
+ * Access rules (permissions, procedure scoping) and the single-item route of /api/3.0/StatementSegment.
+ */
 class StatementSegmentResourceApiTest extends AbstractApiTest
 {
-    private const SEGMENT_COLLECTION_ROUTE = '/api/3.0/StatementSegment';
+    use StatementSegmentApiTestTrait;
 
-    /**
-     * /api/3.0/* routes sit behind the `api_platform` firewall (context: main, form-login
-     * authenticator), not the stateless JWT `api` firewall AbstractApiTest::sendRequest() targets —
-     * so authentication needs the session-based test login, not an X-JWT-Authorization header.
-     */
-    private function loginUserForApiPlatform(User $user): void
-    {
-        $this->client->loginUser($user, 'main');
-    }
-
-    /**
-     * The `main` firewall authenticates via the session set up in
-     * {@see loginUserForApiPlatform()}. The inherited {@see AbstractApiTest::getAdditionalHeaders()}
-     * always attaches an X-JWT-Authorization header meant for the stateless `api` firewall;
-     * sending it alongside here confuses the `main` firewall's lazy authentication and can
-     * cause it to treat the request as unauthenticated, so it is omitted for these requests.
-     */
-    protected function getAdditionalHeaders(string $jwtToken, ?Procedure $procedure): array
-    {
-        $headers = [];
-        if (null !== $procedure) {
-            $headers['HTTP_X_DEMOSPLAN_PROCEDURE_ID'] = $procedure->getId();
-        }
-
-        return $headers;
-    }
+    private const UNKNOWN_SEGMENT_ID = '00000000-0000-0000-0000-000000000000';
 
     public function testGetCollectionExcludesSegmentsOfOtherProcedures(): void
     {
@@ -152,17 +127,80 @@ class StatementSegmentResourceApiTest extends AbstractApiTest
         self::assertStringNotContainsString($segment->getId(), (string) $response->getContent());
     }
 
-    /**
-     * SegmentFactory only applies an explicit `procedure` to the segment row itself; its default
-     * parentStatementOfSegment keeps the factory's own procedure. The parent statement is created
-     * explicitly so segment and parent statement consistently belong to the same procedure.
-     */
-    private function createSegmentInProcedure(Procedure $procedure): Segment
+    public function testGetCollectionIsAllowedWithAreaAdminStatementListPermission(): void
     {
-        return SegmentFactory::createOne([
-            'procedure'                => $procedure,
-            'parentStatementOfSegment' => StatementFactory::createOne(['procedure' => $procedure])->_real(),
-        ])->_real();
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $segment = $this->createSegmentInProcedure($procedure);
+
+        $response = $this->sendSegmentRequest(self::SEGMENT_COLLECTION_ROUTE, $procedure, ['area_admin_statement_list']);
+
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        self::assertSame([$segment->getId()], $this->getResponseIds($response));
+    }
+
+    public function testGetCollectionIsAllowedWithStatementsImportExcelPermission(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $segment = $this->createSegmentInProcedure($procedure);
+
+        $response = $this->sendSegmentRequest(self::SEGMENT_COLLECTION_ROUTE, $procedure, ['feature_statements_import_excel']);
+
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        self::assertSame([$segment->getId()], $this->getResponseIds($response));
+    }
+
+    public function testGetItemReturnsSegmentAttributes(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $segment = $this->createSegmentInProcedure($procedure, [
+            'text'             => 'Laermschutzwand an der Hauptstrasse',
+            'externId'         => 'S-4711',
+            'orderInProcedure' => 7,
+            'deadline'         => new DateTime('2030-05-17'),
+        ]);
+
+        $response = $this->sendSegmentRequest(self::SEGMENT_COLLECTION_ROUTE.'/'.$segment->getId(), $procedure);
+
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $content = $response->getContent();
+        self::assertIsString($content);
+        $data = Json::decodeToArray($content)['data'];
+        self::assertSame($segment->getId(), $data['id']);
+        self::assertSame('Laermschutzwand an der Hauptstrasse', $data['attributes']['text']);
+        self::assertSame('S-4711', $data['attributes']['externId']);
+        self::assertSame(7, $data['attributes']['orderInProcedure']);
+        self::assertSame('2030-05-17', $data['attributes']['deadline']);
+    }
+
+    public function testGetItemReturnsNotFoundForUnknownId(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+
+        $response = $this->sendSegmentRequest(self::SEGMENT_COLLECTION_ROUTE.'/'.self::UNKNOWN_SEGMENT_ID, $procedure);
+
+        self::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
+    public function testGetItemReturnsNotFoundForSegmentOfOtherProcedure(): void
+    {
+        $currentProcedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $otherProcedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $foreignSegment = $this->createSegmentInProcedure($otherProcedure);
+
+        $response = $this->sendSegmentRequest(self::SEGMENT_COLLECTION_ROUTE.'/'.$foreignSegment->getId(), $currentProcedure);
+
+        self::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
+    public function testGetItemIsDeniedWithoutPermission(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $segment = $this->createSegmentInProcedure($procedure);
+
+        $response = $this->sendSegmentRequest(self::SEGMENT_COLLECTION_ROUTE.'/'.$segment->getId(), $procedure, []);
+
+        self::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
+        self::assertStringNotContainsString($segment->getId(), (string) $response->getContent());
     }
 
     private function createProcedureAllowingSegmentAccessTo(Procedure $allowedProcedure): Procedure
@@ -174,23 +212,5 @@ class StatementSegmentResourceApiTest extends AbstractApiTest
         $procedure->_save();
 
         return $procedure->_real();
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function getResponseIds(Response $response): array
-    {
-        $content = $response->getContent();
-        self::assertIsString($content);
-
-        return array_column(Json::decodeToArray($content)['data'], 'id');
-    }
-
-    protected function getServerParameters(): array
-    {
-        return [
-            'HTTP_ACCEPT' => 'application/vnd.api+json',
-        ];
     }
 }
