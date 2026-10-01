@@ -2442,8 +2442,20 @@ class ProcedureService implements ProcedureServiceInterface
      * `statementId` is the top-level Statement the recommendation belongs to: for a
      * Segment usage that's its parent statement; for a plain top-level Statement usage
      * (DPLAN-18271 widened this relation to allow both) that's the statement itself.
+     * Plain statements have no workflow place, so `placeId`/`placeName` are null and
+     * `locked` is false for them.
      *
-     * @return array<int, array{externId: string, segmentId: string, statementId: string}>
+     * @return array<int, array{
+     *     id: string,
+     *     type: 'segment'|'statement',
+     *     externId: string,
+     *     statementId: string,
+     *     assigneeName: string|null,
+     *     placeId: string|null,
+     *     placeName: string|null,
+     *     locked: bool,
+     *     recommendation: string,
+     * }>
      *
      * @throws Exception
      */
@@ -2453,17 +2465,25 @@ class ProcedureService implements ProcedureServiceInterface
             return [];
         }
 
+        // Without the project-wide lock feature a locked place has no effect, so don't display it as locked.
+        $lockFeatureEnabled = $this->permissions->hasPermission('feature_segment_lock_by_workflow_place');
+
         return array_map(
-            static function (BoilerplateUsage $usage): array {
+            static function (BoilerplateUsage $usage) use ($lockFeatureEnabled): array {
                 $statementOrSegment = $usage->getStatementOrSegment();
-                $statementId = $statementOrSegment instanceof Segment
-                    ? $statementOrSegment->getParentStatementOfSegment()->getId()
-                    : $statementOrSegment->getId();
+                $segment = $statementOrSegment instanceof Segment ? $statementOrSegment : null;
+                $place = $segment?->getPlace();
 
                 return [
-                    'externId'    => $statementOrSegment->getExternId(),
-                    'segmentId'   => $statementOrSegment->getId(),
-                    'statementId' => $statementId,
+                    'id'             => $statementOrSegment->getId(),
+                    'type'           => null === $segment ? 'statement' : 'segment',
+                    'externId'       => $statementOrSegment->getExternId(),
+                    'statementId'    => $segment?->getParentStatementOfSegment()->getId() ?? $statementOrSegment->getId(),
+                    'assigneeName'   => $statementOrSegment->getAssignee()?->getFullname(),
+                    'placeId'        => $place?->getId(),
+                    'placeName'      => $place?->getName(),
+                    'locked'         => $lockFeatureEnabled && true === $place?->isLocked(),
+                    'recommendation' => $statementOrSegment->getRecommendation(),
                 ];
             },
             $this->boilerplateUsageRepository->getUsagesForBoilerplate($boilerplateId)

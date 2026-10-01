@@ -166,7 +166,7 @@
                 {% for usage in boilerplateUsages %}
                     <li>
                         <a
-                            href="{{ path('dplan_statement_segments_list', { procedureId: procedure, statementId: usage.statementId, segment: usage.segmentId }) }}#recommendation"
+                            href="{{ path('dplan_statement_segments_list', { procedureId: procedure, statementId: usage.statementId, segment: usage.id }) }}#recommendation"
                             data-cy="editBoilerplate:usageLink"
                             rel="noopener"
                             target="_blank">
