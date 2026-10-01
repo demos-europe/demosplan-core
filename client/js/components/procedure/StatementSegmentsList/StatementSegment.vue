@@ -1320,13 +1320,12 @@ export default {
     },
 
     /**
-     * Inserts the boilerplate text into the recommendation editor and records the usage of
-     * the boilerplate in this segment in the backend.
+     * Inserts the boilerplate text into the recommendation editor.
      *
      * With a known id and the permission in place, the text goes in as a boilerplate node
-     * carrying that id, so it stays recognizable and linked across saving and reloading.
-     * Without either, it falls back to plain text — the behaviour every other editor in the
-     * application has.
+     * carrying that id, so it stays recognizable and linked across saving and reloading;
+     * the backend derives the usage relation from that node on save. Without either, it
+     * falls back to plain text — the behavior every other editor in the application has.
      *
      * Both insertion functions come from DpEditor's `modal` slot; which one applies has to
      * match `canLinkBoilerplate`, see the comment there.
@@ -1339,30 +1338,17 @@ export default {
      * @param {String} boilerplateId Empty when the source didn't provide one
      * @param {Function} insertBoilerplate Inserts as a linked node
      * @param {Function} handleInsertText Inserts as plain text
-     * @return {Promise}
      */
     insertBoilerplateText (text, boilerplateId, insertBoilerplate, handleInsertText) {
       if (!boilerplateId || !this.canLinkBoilerplate) {
         handleInsertText(text)
 
-        return Promise.resolve()
+        return
       }
 
-      const wasInserted = insertBoilerplate(boilerplateId, text)
-
-      if (!wasInserted) {
+      if (!insertBoilerplate(boilerplateId, text)) {
         dplan.notify.error(Translator.trans('boilerplate.link.exists'))
-
-        return Promise.resolve()
       }
-
-      return dpApi.post(
-        Routing.generate('dplan_boilerplate_usage_create', { procedureId: this.procedureId, boilerplateId }),
-        {},
-        { segmentId: this.segment.id },
-      ).catch(() => {
-        // Recording the usage is non-critical: the text was inserted regardless.
-      })
     },
 
     openBoilerPlate () {
