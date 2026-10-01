@@ -752,12 +752,7 @@ export default {
           //  Unset loading state of saved field
           if (this.$refs[field]) {
             //  Handle components that use <dp-edit-field>
-            const editFieldComponent = this.$refs[field].$children.find(child => child.$options.name === 'DpEditField')
-
-            if (editFieldComponent) {
-              editFieldComponent.$data.loading = false
-              editFieldComponent.$data.editingEnabled = false
-            }
+            this.$refs[field].finishEditing?.()
 
             //  Handle components that have a loading state by themselves
             if (hasOwnProp(this.$refs[field].$data, 'loading')) {
@@ -784,12 +779,7 @@ export default {
         .catch(e => {
           // Set the correct loading states even if error occurred
           Object.values(this.$refs).forEach(ref => {
-            const editFieldComponent = ref.$children.find(child => child.$options.name === 'DpEditField')
-
-            if (editFieldComponent) {
-              editFieldComponent.$data.loading = false
-              editFieldComponent.$data.editingEnabled = false
-            }
+            ref.finishEditing?.()
 
             //  Handle components that have a loading state by themselves
             if (hasOwnProp(ref.$data, 'loading')) {
