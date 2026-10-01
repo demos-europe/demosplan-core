@@ -126,7 +126,7 @@
     "@babel/runtime-corejs3": "^8.0.6",
     "@eslint/js": "^10.0.1",
     "@fullhuman/postcss-purgecss": "^8.0.0",
-    "@vitejs/plugin-vue": "^6.0.0",
+    "@vitejs/plugin-vue": "^6.0.9",
     "@vitest/coverage-v8": "^4.1.11",
     "@vitest/eslint-plugin": "^1.6.24",
     "@vitest/ui": "^4.1.11",
