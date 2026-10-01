@@ -100,6 +100,7 @@
         plis-id="{{ proceduresettings.plisId|default }}"
         procedure-external-desc="{{ proceduresettings.externalDesc|default( "notspecified"|trans ) }}"
         init-procedure-name="{{ proceduresettings.name|default( 'notspecified'|trans ) }}"
+        init-procedure-external-name="{{ proceduresettings.externalName|default( 'notspecified'|trans ) }}"
         :agencies-options="JSON.parse('{{ agencies|default([])|json_encode|e('js', 'utf-8') }}')"
         :authorized-users-options="JSON.parse('{{ authUsers|default([])|json_encode|e('js', 'utf-8') }}')"
         :init-agencies="JSON.parse('{{ selectedAgencies|default([])|json_encode|e('js', 'utf-8') }}')"
@@ -122,7 +123,9 @@
             activateInterface,
             authUsersOptions,
             handleAutoSwitchPhaseUpdate,
+            interfaceCharLimits,
             selectAllAuthUsers,
+            setInterfaceAddonLoaded,
             setInterfaceWarningModalRef,
             setSelectedInternalPhase,
             setSelectedPublicPhase,
@@ -439,7 +442,7 @@
                                                 hidden-input="r_externalDesc"
                                                 data-cy="procedureInfo:procedureDescriptionPublic"
                                                 :toolbar-items="{ linkButton: true, listButtons: false }"
-                                                :maxlength="10000"
+                                                :maxlength="interfaceCharLimits.externalDesc"
                                                 value="{{ proceduresettings.externalDesc|default( "notspecified"|trans ) }}">
                                             </dp-editor>
                                         </div>
@@ -1054,6 +1057,7 @@
                                         pictogramCopyright: '{{ proceduresettings.pictogramCopyright|default|e('js') }}'
                                     }"
                                     class="mb-4"
+                                    @addons:loaded="setInterfaceAddonLoaded"
                                     @blur="updateAddonPayload"
                                     @change="updateAddonPayload"
                                     @selected="updateAddonPayload">
@@ -1132,28 +1136,18 @@
                             {% endif %}
 
                             {% if hasPermission('area_public_participation') %}
-                                <div class="u-mb">
-                                    <label class="inline-block u-mb-0" for="counter_oeb_input">
-                                        {{ "procedure.name.public"|trans }}
-                                    </label>
-                                    {% include '@DemosPlanCore/Extension/contextual_help.html.twig' with {
-                                        helpText: 'text.procedure.name.public'|trans,
-                                        cssClasses:'mb-1',
-                                        showPlainHint: true
-                                    } %}
-                                    <p class="lbl__hint">
-                                        {{ "input.text.maxlength"|trans({ maxlength: 200, id: 'counter_oeb' })|wysiwyg('input') }}
-                                    </p>
-                                    <input
-                                        id="counter_oeb_input"
-                                        data-counter="counter_oeb"
-                                        maxlength="200"
-                                        data-cy="procedureExternalName"
-                                        class="o-form__control-input w-full"
-                                        type="text"
-                                        value="{{ proceduresettings.externalName|default( "notspecified"|trans ) }}"
-                                        name="r_externalName">
-                                </div>
+                                <dp-input
+                                    id="counter_oeb_input"
+                                    v-model="state.procedureExternalName"
+                                    :label="{
+                                        text: Translator.trans('procedure.name.public'),
+                                        tooltip: Translator.trans('text.procedure.name.public')
+                                    }"
+                                    :maxlength="interfaceCharLimits.externalName"
+                                    class="mb-4"
+                                    data-cy="procedureExternalName"
+                                    name="r_externalName">
+                                </dp-input>
                             {% endif %}
 
                             {% if hasPermission('feature_short_url') %}
