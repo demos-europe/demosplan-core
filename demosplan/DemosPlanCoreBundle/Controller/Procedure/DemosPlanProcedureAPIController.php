@@ -136,6 +136,51 @@ class DemosPlanProcedureAPIController extends APIController
     }
 
     /**
+     * Records the usage of a boilerplate in the recommendations of multiple
+     * segments at once (bulk edit). Idempotent per boilerplate/segment pair.
+     * Failures are logged but not surfaced to the user: recording is
+     * non-critical, the text was inserted regardless.
+     *
+     * Bulk edit inserts plain text, so it cannot rely on the tag-based usage
+     * reconciliation that replaced insert-time recording for single edits
+     * (DPLAN-18271). Stays until bulk edit inserts linked tags (DPLAN-18261).
+     */
+    #[DplanPermissions(['feature_boilerplate_usage_list', 'feature_segment_recommendation_edit'])]
+    #[Route(path: '/api/1.0/procedures/{procedureId}/boilerplates/{boilerplateId}/usages', name: 'dplan_boilerplate_usage_create_bulk', options: ['expose' => true], methods: ['POST'])]
+    public function createBoilerplateUsages(
+        ProcedureService $procedureService,
+        string $procedureId,
+        string $boilerplateId,
+    ): Response {
+        try {
+            $boilerplate = $procedureService->getBoilerplateOfProcedure($boilerplateId, $procedureId);
+            if (null === $boilerplate) {
+                $this->logger->warning(
+                    'Boilerplate usages not recorded: boilerplate not found in procedure',
+                    ['boilerplateId' => $boilerplateId, 'procedureId' => $procedureId]
+                );
+
+                return $this->renderEmpty(Response::HTTP_NOT_FOUND);
+            }
+
+            $segmentIds = $this->getRequestJson('segmentIds');
+            $recorded = is_array($segmentIds)
+                && 0 < $procedureService->addBoilerplateUsages($boilerplate, $segmentIds, $procedureId);
+
+            return $recorded
+                ? $this->renderSuccess(Response::HTTP_NO_CONTENT)
+                : $this->renderEmpty(Response::HTTP_BAD_REQUEST);
+        } catch (Exception $e) {
+            $this->logger->error(
+                'Failed to record boilerplate usages',
+                ['boilerplateId' => $boilerplateId, 'procedureId' => $procedureId, 'exception' => $e]
+            );
+
+            return $this->renderEmpty(Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    /**
      * Returns a JSON with the available filters for the assessment table.
      *
      * @return APIResponse
