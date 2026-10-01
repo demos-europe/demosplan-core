@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementSegmentResourceTypeInterface;
+use demosplan\DemosPlanCoreBundle\Api\StatementSegment\AccessChecker;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
@@ -75,6 +76,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
         private readonly TagTopicResourceType $tagTopicResourceType,
         private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
         private readonly CustomFieldValueCreator $customFieldValueCreator,
+        private readonly AccessChecker $accessChecker,
     ) {
         $this->esType = $jsonApiEsService->getElasticaTypeForTypeName(self::getName());
     }
@@ -91,11 +93,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
 
     public function isAvailable(): bool
     {
-        return $this->currentUser->hasAnyPermissions(
-            'feature_json_api_statement_segment',
-            // can be included via statements in a view reachable with the following permissions
-            'area_admin_statement_list', 'feature_statements_import_excel'
-        );
+        return $this->accessChecker->isAvailable();
     }
 
     public function isUpdateAllowed(): bool
@@ -108,24 +106,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
      */
     protected function getAccessConditions(): array
     {
-        $procedure = $this->currentProcedureService->getProcedure();
-        if (!$procedure instanceof Procedure) {
-            return [$this->conditionFactory->false()];
-        }
-
-        $procedureId = $procedure->getId();
-        $currentUser = $this->currentUser->getUser();
-        $allowedProcedures = $procedure
-            ->getSettings()
-            ->getAllowedSegmentAccessProcedures()
-            ->getValues();
-        $procedureIds = $this->procedureAccessEvaluator
-            ->filterNonOwnedProcedureIds($currentUser, ...$allowedProcedures);
-        $procedureIds[] = $procedureId;
-
-        return [] === $procedureIds
-            ? [$this->conditionFactory->false()]
-            : [$this->conditionFactory->propertyHasAnyOfValues($procedureIds, $this->procedure->id)];
+        return $this->accessChecker->getAccessConditions();
     }
 
     public function getFacetDefinitions(): array

@@ -1739,6 +1739,7 @@ export.anonymous: "Anonymisiert"
 export.anonymous.hint: "Der Export erfolgt ohne Namen."
 export.censored.citizen: "Ohne Einreichendendaten der Öffentlichkeit"
 export.censored.institution: "Ohne Einreichendendaten der Institutionen"
+export.columns.selected: "Ausgewählte Spalten"
 export.compact: "Querformat (kompakt)"
 export.csv: "CSV-Datei"
 export.csv.hint: "Bitte beachten Sie: Darstellungen aus Stellungnahmen oder Erwiderungen werden nicht im CSV-Export angezeigt."
@@ -1778,6 +1779,11 @@ export.portrait: "Hochformat"
 export.portrait.fragments: "Hochformat (mit Datensätzen)"
 export.portrait.prioritization_structure: "Hochformat (mit Priorisierung und Gliederung)"
 export.potentialAreas: "Potenzialflächen"
+export.segments: "Abschnitte exportieren"
+export.segments.count: "{count, plural, one {# Abschnitt exportieren} other {# Abschnitte exportieren}}"
+export.segments.filter.applied: "Angewendete Filter"
+export.segments.column.hint: "Der Export enthält die Spalten und Zeilen, die aktuell in der Abschnittsliste ausgewählt sind."
+export.selection.manual: "Manuelle Auswahl"
 export.settings.hint: "Wählen Sie aus, welche Daten im Export der Stellungnahmen in der Abwägungstabelle enthalten sein sollen. Die Einstellungen betreffen nur den DOCX-Export."
 export.statements: "Stellungnahmen exportieren"
 export.statements.zip: "Stellungnahmen als einzelne DOCX-Dateien"
@@ -1800,6 +1806,7 @@ export.zip.censored: "Einzelne DOCX-Dateien (anonymisiert)"
 export.info: "Export-Informationen"
 export.user: "Export ausgelöst von "
 export.filter.applied: "Angewendete Schlagwort-Filter"
+export.filters.applied: "Angewendete Filter"
 export.filter.tags.none: "Dieser Export ist nicht nach Schlagworten gefiltert."
 export.filter.tags.names: "Die Namen der gefilterten Schlagworte lauten: {names}"
 export.filter.topics.none: "Dieser Export ist nicht nach Themen von Schlagworten gefiltert."
@@ -2883,6 +2890,21 @@ procedure.by.phase.public: |
         other {# Verfahren nach Phase (Öffentlichkeit)}
     }
 procedure.canCreate: 'Kommune oder Planungsbüro darf Verfahren anlegen'
+procedure.canCreate.confirmDisable.header: 'Berechtigung deaktivieren?'
+procedure.canCreate.confirmDisable.message: "Die Berechtigung, Verfahren anzulegen, ist in dieser Organisation bisher allen Nutzenden mit der Rolle Fachplanung-Admin bzw. Anhörungsbehörde-Admin zugewiesen.\nWenn Sie diese Berechtigung deaktivieren, können Sie sie einzelnen Nutzenden in der Nutzendenverwaltung erteilen. Möchten Sie fortfahren?"
+procedure.canCreate.confirmEnable.header: 'Berechtigung aktivieren?'
+procedure.canCreate.confirmEnable.message: "Die Berechtigung, Verfahren anzulegen, ist in dieser Organisation möglicherweise nur einzelnen Personen mit der Rolle Fachplanung-Admin bzw. Anhörungsbehörde-Admin zugewiesen.\nWenn Sie die Berechtigung für alle Nutzenden der Organisation mit der Rolle Fachplanung-Admin bzw. Anhörungsbehörde-Admin aktivieren, können Sie sie einzelnen Nutzenden nicht mehr entziehen. Möchten Sie fortfahren?"
+procedure.canCreate.confirmToggle.continue: 'Fortfahren'
+procedure.canManage: 'Darf Verfahren anlegen'
+procedure.canManage.hint.disabledForOrga: 'Die Berechtigung, Verfahren anzulegen, ist in dieser Organisation nicht für alle Nutzenden mit der Rolle Fachplanung-Admin bzw. Anhörungsbehörde-Admin aktiviert. Aktivieren Sie diese Option, um dieser Person das Recht individuell zu erteilen.'
+procedure.canManage.hint.enabledForOrga: 'Die Berechtigung, Verfahren anzulegen, ist für alle Nutzenden dieser Organisation mit der Rolle Fachplanung-Admin bzw. Anhörungsbehörde-Admin aktiviert. Um nur einzelnen Nutzenden die Berechtigung zu erteilen, kontaktieren Sie das Support-Team.'
+procedure.canManage.orga.none: 'Aktuell hat niemand in dieser Organisation die Berechtigung, Verfahren anzulegen. Sie können die Berechtigung für einzelne Nutzende mit der Rolle Fachplanung-Admin bzw. Anhörungsbehörde-Admin in der Nutzendenverwaltung erteilen.'
+procedure.canManage.orga.users: 'Nutzende mit der Berechtigung, Verfahren anzulegen:'
+procedure.canManage.orga.users.more: |
+    {count, plural,
+        one {# weitere Person anzeigen}
+        other {# weitere Personen anzeigen}
+    }
 procedure.description.expand: "\"Planungsanlass\" beim Seitenaufruf ausgeklappt darstellen"
 procedure.create: "Neues Verfahren anlegen"
 procedure.created: "Verfahren angelegt"
@@ -3328,6 +3350,7 @@ search.special.characters.description: |
 search.submitter: "Einreichende suchen"
 search.submitter.cross.procedures.hint: "Sie können über mehrere Verfahren nach Einreichenden von Stellungnahmen suchen. Es werden nur Verfahren durchsucht, auf die Sie Zugriff haben. Die Suchergebnisse werden direkt unterhalb des jeweiligen Verfahrensnamens aufgelistet und zeigen alle zugehörigen Stellungnahmen der einreichenden Person. Über das Papierkorb-Symbol einer Stellungnahme können Sie diese bei Bedarf direkt löschen."
 search.submitter.hint: "Sie können über mehrere Verfahren nach Einreichenden von Stellungnahmen suchen. Es werden nur Verfahren durchsucht, auf die Sie Zugriff haben. In der Ergebnisliste werden die Verfahren aufgelistet, in denen Ihre Suche Ergebnisse produziert hat. Durch einen Klick gelangen Sie zu dem jeweiligen Verfahren. Dort können Sie erneut nach den Einreichenden suchen, um die jeweiligen Stellungnahmen zu finden."
+search.term: "Suchbegriff"
 search.text: "Text durchsuchen"
 search.three.signs: "Suchen (mindestens 3 Zeichen eingeben)..."
 search.users: "Nutzende durchsuchen"
@@ -3459,9 +3482,12 @@ segments.copy.clipboard.success: |
         =1 {Der Abschnitt wurde erfolgreich kopiert.}
         other {Die Abschnitte wurden erfolgreich kopiert.}
     }
+segments.export.date: "Export Abschnitte vom {date}"
+segments.export.date.filtered: "Teilexport Abschnitte vom {date}"
 segments.export.filter.tags.only: "Nur Abschnitte mit folgenden Schlagworten"
 segments.export.pagination: "Seite {PAGE} von {NUMPAGES}"
 segments.export.segment.id: "Abschnitts-ID"
+segments.export.sheet.title: "Abschnittsliste"
 segments.export.statement.export.date: "Synopse vom {date}"
 segments.export.statement.export.custom: "Synopse {customHeaderText}"
 segments.export.statement.export.date.filtered: "Teilexport Synopse vom {date}"
@@ -4491,7 +4517,7 @@ warning.new.entry.not.possible: "Ein neuer Beitrag ist in dieser Phase nicht mö
 warning.no.selected.procedures: "Es wurden keine Verfahren ausgewählt."
 warning.orgadata.missing: "Die Daten Ihrer Organisation wurden noch nicht vollständig hinterlegt. Zunächst muss sich die Institutions-Koordination oder die/der Fachplaner-Admin Ihrer Organisation anmelden und diese vervollständigen. Danach können Sie demosplan nutzen."
 warning.organisation.email2.missing: "Die Beteiligungsemail ist nicht gesetzt. Bitte benachrichtigen Sie eine Person mit der Rolle Institutions-Koordination"
-warning.organisation.no_available_roles: "Es sind keine Rollen verfügbar, um die Berechtigung zum Erstellen von Prozeduren zu aktivieren."
+warning.organisation.no_available_roles: "Es sind keine Rollen verfügbar, um die Berechtigung zum Erstellen von Verfahren zu aktivieren."
 warning.other.active.releases: "Es gibt noch andere Releases in der Phase \"Bepunktung\" oder \"Sitzung vor Ort\"."
 warning.paragraph.ordering.level.mismatch: "Die Reihenfolge der Kapitel kann nur innerhalb einer Ebene verändert werden. Um ein Kapitel einer anderen Überschrift zuzuordnen gehen Sie bitte in die Detailansicht eines Kapitels."
 warning.password.repeat.not.equal: "Die neuen Passwörter stimmen nicht überein."
