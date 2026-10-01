@@ -322,6 +322,10 @@
                   <dd v-else>
                     -
                   </dd>
+                  <template v-if="hasPermission('field_procedure_elements')">
+                    <dt>{{ Translator.trans('plandocument') }}:</dt>
+                    <dd>{{ planningDocumentLabel(statementsObject[id]) }}</dd>
+                  </template>
                 </dl>
               </div>
             </template>
@@ -478,6 +482,7 @@ export default {
         'orgaCity',
         'organisationName',
         'orgaPostalCode',
+        'planDocument',
         'statementId',
         'statementText',
         'typeOfSubmission',
@@ -485,16 +490,6 @@ export default {
       searchFieldsSelected: null,
       searchValue: '',
       selectedSort: '-submitDate',
-      sortOptions: [
-        { value: '-submitDate', label: Translator.trans('sort.date.descending') },
-        { value: 'submitDate', label: Translator.trans('sort.date.ascending') },
-        { value: '-submitName', label: Translator.trans('sort.author.descending') },
-        { value: 'submitName', label: Translator.trans('sort.author.ascending') },
-        { value: '-internId', label: Translator.trans('sort.internId.descending') },
-        { value: 'internId', label: Translator.trans('sort.internId.ascending') },
-        { value: '-initialOrganisationName', label: Translator.trans('sort.organisation.descending') },
-        { value: 'initialOrganisationName', label: Translator.trans('sort.organisation.ascending') },
-      ],
     }
   },
 
@@ -522,6 +517,23 @@ export default {
             id: user.id,
           })) :
         []
+    },
+
+    sortOptions () {
+      return [
+        { value: '-submitDate', label: Translator.trans('sort.date.descending') },
+        { value: 'submitDate', label: Translator.trans('sort.date.ascending') },
+        { value: '-submitName', label: Translator.trans('sort.author.descending') },
+        { value: 'submitName', label: Translator.trans('sort.author.ascending') },
+        { value: '-internId', label: Translator.trans('sort.internId.descending') },
+        { value: 'internId', label: Translator.trans('sort.internId.ascending') },
+        { value: '-initialOrganisationName', label: Translator.trans('sort.organisation.descending') },
+        { value: 'initialOrganisationName', label: Translator.trans('sort.organisation.ascending') },
+        ...(hasPermission('field_procedure_elements') ? [
+          { value: '-elementTitle,-paragraphTitle', label: Translator.trans('sort.plandocument.descending') },
+          { value: 'elementTitle,paragraphTitle', label: Translator.trans('sort.plandocument.ascending') },
+        ] : []),
+      ]
     },
 
     exportRoute: function () {
@@ -629,6 +641,17 @@ export default {
       }
 
       return inlineImageAnchors(attributes.isFulltextDisplayed ? attributes.fullText : attributes.text)
+    },
+
+    planningDocumentLabel (statement) {
+      const { documentTitle, elementTitle, paragraphTitle } = statement.attributes || {}
+      const title = documentTitle || elementTitle
+
+      if (!title) {
+        return '–'
+      }
+
+      return paragraphTitle ? `${title} – ${paragraphTitle}` : title
     },
 
     getAssignee (statement) {
@@ -907,6 +930,8 @@ export default {
         // Attributes:
         'authoredDate',
         'authorName',
+        'documentTitle',
+        'elementTitle',
         'externId',
         'isSubmittedByCitizen',
         'initialOrganisationCity',
@@ -921,6 +946,7 @@ export default {
         'memo',
         'name',
         'originalId',
+        'paragraphTitle',
         'status',
         'segmentsCount',
         'submitDate',
