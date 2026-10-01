@@ -86,7 +86,7 @@
     "d3-transition": "^3.0.1",
     "dayjs": "^1.11.23",
     "deep-object-diff": "^1.1.9",
-    "dompurify": "^3.4.15",
+    "dompurify": "^3.4.16",
     "font-awesome": "^4.7.0",
     "fscreen": "^1.2.0",
     "intl-messageformat": "^11.2.14",
