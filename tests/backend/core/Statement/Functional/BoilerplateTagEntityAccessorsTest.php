@@ -74,7 +74,9 @@ class BoilerplateTagEntityAccessorsTest extends FunctionalTestCase
     public function testAddRecommendationParagraphPreservesTag(): void
     {
         $boilerplate = BoilerplateFactory::createOne(['text' => 'Textbausteininhalt'])->_real();
+        // Same procedure as the boilerplate, otherwise the setter freezes the tag as a foreign one.
         $segment = SegmentFactory::createOne([
+            'procedure'      => $boilerplate->getProcedure(),
             'recommendation' => "<dp-boilerplate boilerplate-id=\"{$boilerplate->getId()}\"></dp-boilerplate>",
         ])->_real();
         $this->entityManager->refresh($segment);
