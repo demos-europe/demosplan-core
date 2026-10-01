@@ -27,6 +27,7 @@
         ref="segmentsList"
         procedure-id="{{ procedure }}"
         current-user-id="{{ currentUser.ident }}"
+        :filter-names="JSON.parse('{{ filterNames|json_encode|e('js', 'utf-8') }}')"
         :initial-filter="JSON.parse('{{ segmentListQuery.filter|json_encode|e('js', 'utf-8') }}')"
         initial-search-term="{{ segmentListQuery.searchPhrase|default }}"
         {# Empty when the hash carries no view settings, in which case it arrives as [] rather than {} #}
