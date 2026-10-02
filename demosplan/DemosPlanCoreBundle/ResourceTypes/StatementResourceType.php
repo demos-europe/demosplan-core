@@ -53,6 +53,7 @@ use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathException;
 use Elastica\Index;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Webmozart\Assert\Assert;
 
 /**
@@ -95,6 +96,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository,
         private readonly FileContainerRepository $fileContainerRepository,
         private readonly CustomFieldValueCreator $customFieldValueCreator,
+        private readonly RequestStack $requestStack,
     ) {
         parent::__construct($htmlSanitizer, $statementService);
     }
@@ -156,14 +158,17 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             // Statement resources can never be deleted
             $this->conditionFactory->propertyHasValue(false, $pathStartResourceType->deleted),
             $this->conditionFactory->propertyIsNull($pathStartResourceType->headStatement->id),
-            // statement placeholders are not considered actual statement resources
-            $this->conditionFactory->propertyIsNull($pathStartResourceType->movedStatement),
             [] === $allowedProcedureIds
                 ? $this->conditionFactory->false()
                 : $this->conditionFactory->propertyHasAnyOfValues($allowedProcedureIds, $pathStartResourceType->procedure->id),
             // filter out segments
             $this->conditionFactory->propertyIsNull($pathStartResourceType->parentStatementOfSegment),
         ];
+        if (!$this->isPlaceholderInclusionRequested()) {
+            // statement placeholders are not considered actual statement resources, unless the
+            // read-only Stellungnahmeliste explicitly asked to include them
+            $conditions[] = $this->conditionFactory->propertyIsNull($pathStartResourceType->movedStatement);
+        }
         if (!$allowOriginals) {
             // Normally the path to the relationship would suffice for a NULL check, but the ES
             // provides the 'original.id' path only hence we need the path to the ID to support
@@ -172,6 +177,16 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         }
 
         return $conditions;
+    }
+
+    /**
+     * The read-only Stellungnahmeliste (`dplan_procedure_statement_list`) is the only consumer
+     * allowed to see placeholder rows left behind by a moved statement; it opts in via a query
+     * parameter on its otherwise-generic `Statement` listing request.
+     */
+    private function isPlaceholderInclusionRequested(): bool
+    {
+        return $this->requestStack->getCurrentRequest()?->query->getBoolean('includePlaceholders') ?? false;
     }
 
     /**

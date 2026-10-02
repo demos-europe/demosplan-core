@@ -3651,6 +3651,7 @@ statement.continue: "Weiter zur Stellungnahme..."
 statement.copy: "In Datensatz kopieren"
 statement.copy.fragments.not.claimed.by.current.user: "Die Stellungnahme {id} konnte nicht kopiert werden, da deren Datensätze Ihnen nicht alle zugewiesen sind."
 statement.copy.not.claimed.by.current.user: "Die Stellungnahme {id} konnte nicht kopiert werden, da sie Ihnen nicht zugewiesen ist."
+statement.copy.disabled.segmented: "Diese Stellungnahme kann nicht kopiert werden, da sie bereits aufgeteilt wurde."
 statement.copy.to.assessment.table.no.selection: "Sie haben keine Stellungnahme(n) ausgewählt"
 statement.copy.to.assessment.table.confirm: |
     {count, plural,
@@ -3803,6 +3804,7 @@ statement.moveto.procedure.description: "Beim Verschieben der Stellungnahme in e
 statement.moveto.procedure.description.foreignProcedures: "Wenn Sie die Stellungnahme in ein Verfahren verschieben, für das Sie nicht berechtigt sind, haben Sie <strong>keinen Zugriff</strong> mehr auf diese Stellungnahme."
 statement.moveto.procedure.target: "Zielverfahren"
 statement.moveto.procedure.fragments.not.claimed.warning: "Sie können diese Stellungnahme nicht verschieben, weil Datensätze der Stellungnahme anderen Nutzenden oder Fachbehörden zugewiesen sind."
+statement.move.disabled.segmented: "Diese Stellungnahme kann nicht verschoben werden, da sie bereits aufgeteilt wurde."
 statement.moved: "Die Stellungnahme wurde in das Verfahren „{name}“ verschoben."
 statement.moved.link: "Zur Stellungnahme im neuen Verfahren"
 statement.moved.inaccessible.foreign.procedure: "Stellungnahme in Verfahren ohne Zugriff"
