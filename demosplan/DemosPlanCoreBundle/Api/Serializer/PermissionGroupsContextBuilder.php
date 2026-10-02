@@ -43,11 +43,7 @@ final class PermissionGroupsContextBuilder implements SerializerContextBuilderIn
     {
         $context = $this->decorated->createFromRequest($request, $normalization, $extractedAttributes);
 
-        $resourceClass = $context['resource_class'];
-
-        $class = $normalization
-            ? ($context['output']['class'] ?? $resourceClass)
-            : ($context['input']['class'] ?? $resourceClass);
+        $class = $this->getSerializedClass($context, $normalization);
 
         $granted = $this->permissionGroups->getGrantedGroups($class);
         if ([] === $granted) {
@@ -59,5 +55,22 @@ final class PermissionGroupsContextBuilder implements SerializerContextBuilderIn
         $context['groups'] = array_merge((array) ($context['groups'] ?? []), $granted);
 
         return $context;
+    }
+
+    /**
+     * The class that is really written out (normalization) or read in (denormalization). That is
+     * the special output or input class of the operation if it has one, otherwise the resource class.
+     *
+     * @param array<string, mixed> $context
+     *
+     * @return class-string
+     */
+    private function getSerializedClass(array $context, bool $normalization): string
+    {
+        $resourceClass = $context['resource_class'];
+
+        return $normalization
+            ? ($context['output']['class'] ?? $resourceClass)
+            : ($context['input']['class'] ?? $resourceClass);
     }
 }
