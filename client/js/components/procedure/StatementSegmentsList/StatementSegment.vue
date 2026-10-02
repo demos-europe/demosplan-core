@@ -346,8 +346,8 @@
             :label="{
               text: Translator.trans('deadline.processing.until')
             }"
-            :value="formattedDeadline"
-            @input="value => handleDeadlineUpdate(value)"
+            :model-value="formattedDeadline"
+            @update:model-value="value => handleDeadlineUpdate(value)"
           />
 
           <custom-fields-list
@@ -1320,6 +1320,26 @@ export default {
     },
 
     /**
+     * Inserts the boilerplate text into the recommendation editor and records the usage of
+     * the boilerplate in this segment in the backend.
+     *
+     * With a known id and the permission in place, the text goes in as a boilerplate node
+     * carrying that id, so it stays recognizable and linked across saving and reloading.
+     * Without either, it falls back to plain text — the behavior every other editor in the
+     * application has.
+     *
+     * Both insertion functions come from DpEditor's `modal` slot; which one applies has to
+     * match `canLinkBoilerplate`, see the comment there.
+     *
+     * `insertBoilerplate` refuses (returns false) if this boilerplate is already linked
+     * elsewhere in the recommendation, or if the cursor is inside an existing one — shown to
+     * the user as a notice, since the modal closes either way and nothing else would tell them.
+     *
+     * @param {String} text Boilerplate text as HTML
+     * @param {String} boilerplateId Empty when the source didn't provide one
+     * @param {Function} insertBoilerplate Inserts as a linked node
+     * @param {Function} handleInsertText Inserts as plain text
+     * @return {Promise}
      * Inserts the boilerplate text into the recommendation editor.
      *
      * With a known id and the permission in place, the text goes in as a boilerplate node
