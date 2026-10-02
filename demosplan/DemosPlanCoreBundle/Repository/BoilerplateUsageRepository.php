@@ -128,7 +128,10 @@ class BoilerplateUsageRepository extends CoreRepository
 
     /**
      * All usages of the given boilerplate whose Statement/Segment still exists,
-     * ordered by its externId (the "M-ID").
+     * ordered by its externId (the "M-ID"). The Statement/Segment and its assignee
+     * are fetch-joined because the display builds a row from each one; the place is
+     * not, because the association lives on the Segment subclass and cannot be
+     * joined through the Statement-typed relation.
      *
      * @return BoilerplateUsage[]
      *
@@ -138,6 +141,8 @@ class BoilerplateUsageRepository extends CoreRepository
     {
         return $this->createQueryBuilder('boilerplateUsage')
             ->join('boilerplateUsage.statementOrSegment', 'statementOrSegment')
+            ->leftJoin('statementOrSegment.assignee', 'assignee')
+            ->addSelect('statementOrSegment', 'assignee')
             ->where('boilerplateUsage.boilerplate = :boilerplateId')
             ->andWhere('statementOrSegment.deleted = false')
             ->setParameter('boilerplateId', $boilerplateId)
