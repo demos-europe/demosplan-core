@@ -2774,10 +2774,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mapbox/jsonlint-lines-primitives@npm:~2.0.2":
-  version: 2.0.2
-  resolution: "@mapbox/jsonlint-lines-primitives@npm:2.0.2"
-  checksum: 10c0/5814e42fc453700132f93ea742aabcef9a3c98d9bf17d4c1106f82d1dcd91bbc93052e66e29014323b9b2a41b020c743d897e4a96cc4ed2f734482d587d8c2b2
+"@mapbox/jsonlint-lines-primitives@npm:^2.0.3":
+  version: 2.0.3
+  resolution: "@mapbox/jsonlint-lines-primitives@npm:2.0.3"
+  checksum: 10c0/e114b27757a21ccbf20e3c99761e8b48d2527cb321f47e5a4d9aa4b5781b16f15b1f6f4ab678a4329f93668956281a05b56387331dc0260981a2ef695414fc1d
   languageName: node
   linkType: hard
 
@@ -2788,11 +2788,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@maplibre/maplibre-gl-style-spec@npm:^24.4.1":
-  version: 24.10.0
-  resolution: "@maplibre/maplibre-gl-style-spec@npm:24.10.0"
+"@maplibre/maplibre-gl-style-spec@npm:^26.4.1":
+  version: 26.4.4
+  resolution: "@maplibre/maplibre-gl-style-spec@npm:26.4.4"
   dependencies:
-    "@mapbox/jsonlint-lines-primitives": "npm:~2.0.2"
+    "@mapbox/jsonlint-lines-primitives": "npm:^2.0.3"
     "@mapbox/unitbezier": "npm:^1.0.0"
     json-stringify-pretty-compact: "npm:^4.0.0"
     minimist: "npm:^1.2.8"
@@ -2802,23 +2802,23 @@ __metadata:
     gl-style-format: dist/gl-style-format.mjs
     gl-style-migrate: dist/gl-style-migrate.mjs
     gl-style-validate: dist/gl-style-validate.mjs
-  checksum: 10c0/43ababa29ca151b274c5faea8a3cfe6c84c4b5ae47430fb92ea3711c733ea05db159eb56b3430febd2a11a0416ae01617ffa63f1951a4d8a44d0671299fd7bce
+  checksum: 10c0/a5af3e5c7e7b3ab5c427d9e51a9b5ba54981faeee9c46085fa765a043947cf327514e39e28ff488b5812620961ad315f0080acb1cdb940e626c7ba0d72f24651
   languageName: node
   linkType: hard
 
-"@masterportal/masterportalapi@npm:2.63.0":
-  version: 2.63.0
-  resolution: "@masterportal/masterportalapi@npm:2.63.0"
+"@masterportal/masterportalapi@npm:2.64.0":
+  version: 2.64.0
+  resolution: "@masterportal/masterportalapi@npm:2.64.0"
   dependencies:
     core-js: "npm:^3.49.0"
     dayjs: "npm:^1.11.21"
-    ol: "npm:10.9.0"
-    ol-mapbox-style: "npm:13.3.0"
-    olcs: "npm:^2.23.0"
+    ol: "npm:^10.10.0"
+    ol-mapbox-style: "npm:^13.5.0"
+    olcs: "npm:^2.23.1"
     proj4: "npm:^2.20.9"
   peerDependencies:
-    "@cesium/engine": ^26.0.0
-  checksum: 10c0/05c4fefb770a3a1f0375c435ef16fe6a819ef995225bb683e50ffa59a284ae4cc06ddfda15df26c11cf89b6aed7f311e163206c83d99a3c4cefcb72715b3e4a4
+    "@cesium/engine": ^26.3.0
+  checksum: 10c0/3a5ac8e86ea2a23d16fb563f92c88fc171ce24aa8989a1dd2e3d872231cf4c95c7d87a4d41c41922cb7cb77f7018fcee6410c0f3858fec19f737d53517eabb51
   languageName: node
   linkType: hard
 
@@ -6789,7 +6789,7 @@ __metadata:
     "@efrane/vuex-json-api": "npm:^0.1.3"
     "@eslint/js": "npm:^10.0.1"
     "@fullhuman/postcss-purgecss": "npm:^8.0.0"
-    "@masterportal/masterportalapi": "npm:2.63.0"
+    "@masterportal/masterportalapi": "npm:2.64.0"
     "@sentry/browser": "npm:^10.75.0"
     "@tailwindcss/postcss": "npm:^4.3.3"
     "@types/leaflet": "npm:^1.9.22"
@@ -7756,7 +7756,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"geotiff@npm:^3.0.5 || ^3.1.0-beta.0":
+"geotiff@npm:^3.1.0-beta.0":
   version: 3.1.0-beta.0
   resolution: "geotiff@npm:3.1.0-beta.0"
   dependencies:
@@ -9599,29 +9599,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ol-mapbox-style@npm:13.3.0":
-  version: 13.3.0
-  resolution: "ol-mapbox-style@npm:13.3.0"
+"ol-mapbox-style@npm:^13.5.0":
+  version: 13.5.1
+  resolution: "ol-mapbox-style@npm:13.5.1"
   dependencies:
-    "@maplibre/maplibre-gl-style-spec": "npm:^24.4.1"
+    "@maplibre/maplibre-gl-style-spec": "npm:^26.4.1"
     mapbox-to-css-font: "npm:^3.2.0"
   peerDependencies:
     ol: "*"
-  checksum: 10c0/dc2168dca3b7ea5dcd1ec4e2788b833fd8e9b5275fe56870d7efffd8d958425e624047aee6c7bfea4e1d854ed7d7665c75a525a17ac4fb00a5e7f09b2610532c
+  checksum: 10c0/426b8872cbc6f83917057157ad749ed5848976ea35a527dd9fe2d5353bc94de854218fb35fd9b53615ee4886ca9fa2dba122e283107ed90ea03eba0b6c2dc37a
   languageName: node
   linkType: hard
 
-"ol@npm:10.9.0":
-  version: 10.9.0
-  resolution: "ol@npm:10.9.0"
+"ol@npm:^10.10.0":
+  version: 10.10.0
+  resolution: "ol@npm:10.10.0"
   dependencies:
     "@types/rbush": "npm:4.0.0"
     earcut: "npm:^3.0.0"
-    geotiff: "npm:^3.0.5 || ^3.1.0-beta.0"
-    pbf: "npm:4.0.1"
+    geotiff: "npm:^3.1.0-beta.0"
+    pbf: "npm:5.1.2"
     rbush: "npm:^4.0.0"
     zarrita: "npm:^0.7.1"
-  checksum: 10c0/f8e955819db2d9c2f46430c81485d8f0a22fb1b0ec654a128e79716b419905e8fd3aadc23185570f45c60e5d1fe926f3593341441dfc35c5f3ed3a5e4a54ec48
+  checksum: 10c0/831e7764e5b887b03fdbb090f8f2ec054cae6b836b442422846ace5a2a06c1351b38652519a3cb3aabf04c1d6ce661bf270b6e646136adb81b3a3b6b4ce18d2a
   languageName: node
   linkType: hard
 
@@ -9648,7 +9648,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"olcs@npm:^2.23.0":
+"olcs@npm:^2.23.1":
   version: 2.23.1
   resolution: "olcs@npm:2.23.1"
   peerDependencies:
@@ -9838,6 +9838,17 @@ __metadata:
   bin:
     pbf: bin/pbf
   checksum: 10c0/1a95cc3bdc61ee01d4728f4a57a9f1233732d183a8568818b714a747fd8b957d99b63e1c67f0f72dc5623657c42f88a1a7e44e1fbcd06e2fe2ef9a85a964832e
+  languageName: node
+  linkType: hard
+
+"pbf@npm:5.1.2":
+  version: 5.1.2
+  resolution: "pbf@npm:5.1.2"
+  dependencies:
+    resolve-protobuf-schema: "npm:^2.1.0"
+  bin:
+    pbf: bin/pbf
+  checksum: 10c0/e28e901d61a66c7afdeac881b3e2b0ad2c09df98bcd3bc3447c1a55d7bc866d71415bd7d8fcc8273f23828c0169cc60cb5f7c5beb4a5829e23506c8196460e83
   languageName: node
   linkType: hard
 
