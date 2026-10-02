@@ -60,7 +60,7 @@ class StatementStateProvider implements ProviderInterface
 
         // The status lazy-loads the statement's segments, so it is only computed for users who may
         // see it. The serializer hides it for everyone else regardless.
-        $status = $this->permissionGroups->canRead(StatementResource::class, 'status')
+        $status = $this->permissionGroups->isPropertyAllowed(StatementResource::class, 'status')
             ? $this->statementService->getProcessingStatus($statement)
             : null;
 

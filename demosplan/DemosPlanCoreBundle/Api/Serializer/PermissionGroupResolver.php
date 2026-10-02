@@ -16,22 +16,26 @@ use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface;
 
 /**
- * Turns the permission labels declared on API resource properties into the serialization groups
- * the current user is entitled to.
+ * Turns the permission names used as serialization groups on API resource properties into the
+ * groups the current user is entitled to.
  *
- * A label has the form `perm:<read|write>:<permission>`, e.g. `perm:read:field_statement_memo`:
+ * A group that is the name of a defined permission is a permission group, e.g.
+ * `#[Groups(['field_statement_memo'])]`. Every other group (like `statement:read`) is an
+ * ordinary group and left alone:
  *
- * - Several labels on one property mean "any of them": `['perm:read:a', 'perm:read:b']` needs a OR b.
- * - A `+` inside one label means "all of them": `perm:read:a+b` needs a AND b.
- * - A property without any `perm:` label is open to everyone who may use the resource.
+ * - Several groups on one property mean "any of them": `['a', 'b']` needs a OR b.
+ * - A `+` inside one group means "all of them": `'a+b'` needs a AND b.
+ * - A property without any permission group is open to everyone who may use the resource.
  *
- * The labels are ordinary serializer groups, so the serializer itself decides which properties
+ * Whether a property is about reading or writing is decided by the class it is declared on: the
+ * class that is sent out holds the permissions to see its properties, the class that is received
+ * holds the permissions to send them.
+ *
+ * The groups are ordinary serializer groups, so the serializer itself decides which properties
  * leave the server; see {@see PermissionGroupsContextBuilder}.
  */
 final class PermissionGroupResolver
 {
-    private const LABEL_PREFIX = 'perm:';
-
     public function __construct(
         private readonly ClassMetadataFactoryInterface $classMetadataFactory,
         private readonly CurrentUserInterface $currentUser,
@@ -41,17 +45,15 @@ final class PermissionGroupResolver
     /**
      * @param class-string $class
      *
-     * @return list<string> the permission labels of the class the current user is entitled to
+     * @return list<string> the permission groups of the class the current user is entitled to
      */
-    public function getGrantedGroups(string $class, bool $forReading): array
+    public function getGrantedGroups(string $class): array
     {
-        $direction = $forReading ? 'read' : 'write';
-
         $granted = [];
         foreach ($this->classMetadataFactory->getMetadataFor($class)->getAttributesMetadata() as $attribute) {
-            foreach ($this->getPermissionLabels($attribute->getGroups(), $direction) as $label) {
-                if ($this->isGranted($label)) {
-                    $granted[$label] = $label;
+            foreach ($this->getPermissionGroups($attribute->getGroups()) as $group) {
+                if ($this->holdsAll($group)) {
+                    $granted[$group] = $group;
                 }
             }
         }
@@ -65,37 +67,43 @@ final class PermissionGroupResolver
      *
      * @param class-string $class
      */
-    public function canRead(string $class, string $property): bool
+    public function isPropertyAllowed(string $class, string $property): bool
     {
         $attribute = $this->classMetadataFactory->getMetadataFor($class)->getAttributesMetadata()[$property] ?? null;
-        $labels = $this->getPermissionLabels($attribute?->getGroups() ?? [], 'read');
+        $permissionGroups = $this->getPermissionGroups($attribute?->getGroups() ?? []);
 
-        return [] === $labels || [] !== array_filter($labels, $this->isGranted(...));
+        return [] === $permissionGroups || [] !== array_filter($permissionGroups, $this->holdsAll(...));
     }
 
     /**
      * @param list<string> $groups
      *
-     * @return list<string>
+     * @return list<string> the groups that consist only of defined permission names
      */
-    private function getPermissionLabels(array $groups, string $direction): array
+    private function getPermissionGroups(array $groups): array
     {
-        $prefix = self::LABEL_PREFIX.$direction.':';
+        $definedPermissions = $this->currentUser->getPermissions()->getPermissions();
 
         return array_values(array_filter(
             $groups,
-            static fn (string $group): bool => str_starts_with($group, $prefix)
+            static function (string $group) use ($definedPermissions): bool {
+                foreach (explode('+', $group) as $permission) {
+                    if (!isset($definedPermissions[$permission])) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
         ));
     }
 
     /**
-     * "perm:read:a+b" is granted if the user holds a AND b.
+     * "a+b" is granted if the user holds a AND b.
      */
-    private function isGranted(string $label): bool
+    private function holdsAll(string $group): bool
     {
-        $permissions = explode('+', explode(':', $label, 3)[2]);
-
-        foreach ($permissions as $permission) {
+        foreach (explode('+', $group) as $permission) {
             if (!$this->currentUser->hasPermission($permission)) {
                 return false;
             }

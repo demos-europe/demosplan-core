@@ -23,8 +23,8 @@ use Symfony\Component\Serializer\Attribute\Groups;
  * Which user sees which attribute is declared with serialization groups:
  *
  * - `statement:read` marks attributes open to everyone allowed to use the resource.
- * - `perm:read:<permission>` marks attributes that need that permission (several labels mean
- *   "any of", `a+b` inside one label means "all of").
+ * - A permission name (e.g. `field_statement_memo`) marks attributes that need that permission.
+ *   Several permission names mean "any of", `a+b` inside one group means "all of".
  *
  * The permissions mirror what the EDT StatementResourceType required. See
  * {@see \demosplan\DemosPlanCoreBundle\Api\Serializer\PermissionGroupResolver}.
@@ -53,18 +53,18 @@ class StatementResource
 
     #[ApiProperty(readable: true, writable: false)]
     #[Groups([
-        'perm:read:area_admin_statement_list',
-        'perm:read:area_admin_submitters',
-        'perm:read:area_statement_segmentation',
-        'perm:read:feature_segments_of_statement_list',
+        'area_admin_statement_list',
+        'area_admin_submitters',
+        'area_statement_segmentation',
+        'feature_segments_of_statement_list',
     ])]
     public bool $isSubmittedByCitizen = false;
 
     #[ApiProperty(readable: true, writable: false)]
     #[Groups([
-        'perm:read:area_admin_assessmenttable',
-        'perm:read:area_admin_consultations',
-        'perm:read:feature_json_api_statement',
+        'area_admin_assessmenttable',
+        'area_admin_consultations',
+        'feature_json_api_statement',
     ])]
     public string $authorName = '';
 
@@ -102,9 +102,9 @@ class StatementResource
 
     #[ApiProperty(readable: true, writable: false)]
     #[Groups([
-        'perm:read:area_admin_assessmenttable',
-        'perm:read:area_admin_consultations',
-        'perm:read:feature_json_api_statement',
+        'area_admin_assessmenttable',
+        'area_admin_consultations',
+        'feature_json_api_statement',
     ])]
     public ?string $submitName = null;
 
@@ -113,14 +113,14 @@ class StatementResource
     public ?string $submitType = null;
 
     #[ApiProperty(readable: true, writable: false)]
-    #[Groups(['perm:read:field_statement_memo'])]
+    #[Groups(['field_statement_memo'])]
     public string $memo = '';
 
     /**
      * The processing status. Expensive to compute, see StatementStateProvider.
      */
     #[ApiProperty(readable: true, writable: false)]
-    #[Groups(['perm:read:area_statement_segmentation'])]
+    #[Groups(['area_statement_segmentation'])]
     public ?string $status = null;
 
     public static function fromEntity(StatementInterface $statement, ?string $status = null): self

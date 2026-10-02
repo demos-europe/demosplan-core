@@ -37,89 +37,99 @@ class PermissionGroupResolverTest extends FunctionalTestCase
         $this->user = $this->loginTestUser();
     }
 
-    public function testOpenFieldIsReadableWithoutAnyPermission(): void
+    public function testPropertyWithoutPermissionGroupIsAllowedWithoutAnyPermission(): void
     {
         $this->givenOnlyThesePermissions([]);
 
-        self::assertTrue($this->sut->canRead(PermissionedFixture::class, 'open'));
+        self::assertTrue($this->sut->isPropertyAllowed(PermissionedFixture::class, 'open'));
     }
 
     public function testUnknownPropertyIsTreatedAsOpen(): void
     {
         $this->givenOnlyThesePermissions([]);
 
-        self::assertTrue($this->sut->canRead(PermissionedFixture::class, 'doesNotExist'));
+        self::assertTrue($this->sut->isPropertyAllowed(PermissionedFixture::class, 'doesNotExist'));
     }
 
-    public function testSinglePermissionFieldIsHiddenWithoutThePermission(): void
+    public function testSinglePermissionPropertyIsHiddenWithoutThePermission(): void
     {
         $this->givenOnlyThesePermissions(['field_statement_memo']);
 
-        self::assertFalse($this->sut->canRead(PermissionedFixture::class, 'single'));
+        self::assertFalse($this->sut->isPropertyAllowed(PermissionedFixture::class, 'single'));
     }
 
-    public function testSinglePermissionFieldIsReadableWithThePermission(): void
+    public function testSinglePermissionPropertyIsAllowedWithThePermission(): void
     {
         $this->givenOnlyThesePermissions(['area_admin_statement_list']);
 
-        self::assertTrue($this->sut->canRead(PermissionedFixture::class, 'single'));
+        self::assertTrue($this->sut->isPropertyAllowed(PermissionedFixture::class, 'single'));
     }
 
-    public function testSeveralLabelsMeanAnyOf(): void
+    public function testSeveralGroupsMeanAnyOf(): void
     {
         $this->givenOnlyThesePermissions(['feature_json_api_statement']);
 
-        self::assertTrue($this->sut->canRead(PermissionedFixture::class, 'anyOf'));
+        self::assertTrue($this->sut->isPropertyAllowed(PermissionedFixture::class, 'anyOf'));
     }
 
-    public function testSeveralLabelsAreHiddenWithoutAnyOfThem(): void
+    public function testSeveralGroupsAreHiddenWithoutAnyOfThem(): void
     {
         $this->givenOnlyThesePermissions(['area_admin_statement_list']);
 
-        self::assertFalse($this->sut->canRead(PermissionedFixture::class, 'anyOf'));
+        self::assertFalse($this->sut->isPropertyAllowed(PermissionedFixture::class, 'anyOf'));
     }
 
-    public function testPlusInsideOneLabelMeansAllOf(): void
+    public function testPlusInsideOneGroupMeansAllOf(): void
     {
         $this->givenOnlyThesePermissions(['area_admin_assessmenttable', 'field_statement_memo']);
 
-        self::assertTrue($this->sut->canRead(PermissionedFixture::class, 'allOf'));
+        self::assertTrue($this->sut->isPropertyAllowed(PermissionedFixture::class, 'allOf'));
     }
 
-    public function testPlusInsideOneLabelIsHiddenWhenOnePermissionIsMissing(): void
+    public function testPlusInsideOneGroupIsHiddenWhenOnePermissionIsMissing(): void
     {
         $this->givenOnlyThesePermissions(['area_admin_assessmenttable']);
 
-        self::assertFalse($this->sut->canRead(PermissionedFixture::class, 'allOf'));
+        self::assertFalse($this->sut->isPropertyAllowed(PermissionedFixture::class, 'allOf'));
     }
 
-    public function testGrantedGroupsContainOnlyTheLabelsTheUserEarned(): void
+    public function testGrantedGroupsContainOnlyThePermissionsTheUserHolds(): void
     {
         $this->givenOnlyThesePermissions(['feature_json_api_statement']);
 
-        $groups = $this->sut->getGrantedGroups(PermissionedFixture::class, true);
+        $groups = $this->sut->getGrantedGroups(PermissionedFixture::class);
 
-        // the open label (fixture:read) is not a permission label and never added here
-        self::assertSame(['perm:read:feature_json_api_statement'], $groups);
+        self::assertSame(['feature_json_api_statement'], $groups);
     }
 
-    public function testReadAndWriteLabelsAreResolvedSeparately(): void
+    public function testGrantedGroupsContainACombinedGroupOnlyWhenAllPartsAreHeld(): void
     {
-        $this->givenOnlyThesePermissions(['field_statement_memo']);
+        $this->givenOnlyThesePermissions(['area_admin_assessmenttable', 'field_statement_memo']);
 
-        $readGroups = $this->sut->getGrantedGroups(PermissionedFixture::class, true);
-        $writeGroups = $this->sut->getGrantedGroups(PermissionedFixture::class, false);
+        $groups = $this->sut->getGrantedGroups(PermissionedFixture::class);
 
-        self::assertSame(['perm:read:field_statement_memo'], $readGroups);
-        self::assertSame(['perm:write:field_statement_memo'], $writeGroups);
+        self::assertEqualsCanonicalizing(
+            ['area_admin_assessmenttable', 'area_admin_assessmenttable+field_statement_memo', 'field_statement_memo'],
+            $groups
+        );
+    }
+
+    public function testGroupsThatAreNoPermissionNamesAreNeverGranted(): void
+    {
+        $this->givenOnlyThesePermissions(self::FIXTURE_PERMISSIONS);
+
+        $groups = $this->sut->getGrantedGroups(PermissionedFixture::class);
+
+        // "fixture:read" is an ordinary group and "field_statement_memoo" is a typo
+        self::assertNotContains('fixture:read', $groups);
+        self::assertNotContains('field_statement_memoo', $groups);
     }
 
     public function testNoGroupsAreGrantedWithoutPermissions(): void
     {
         $this->givenOnlyThesePermissions([]);
 
-        self::assertSame([], $this->sut->getGrantedGroups(PermissionedFixture::class, true));
-        self::assertSame([], $this->sut->getGrantedGroups(PermissionedFixture::class, false));
+        self::assertSame([], $this->sut->getGrantedGroups(PermissionedFixture::class));
     }
 
     /**

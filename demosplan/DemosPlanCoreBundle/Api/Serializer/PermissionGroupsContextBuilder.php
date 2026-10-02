@@ -18,11 +18,14 @@ use Symfony\Component\DependencyInjection\Attribute\AutowireDecorated;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Adds the `perm:` serialization groups the current user is entitled to, so the serializer only
- * reads (output) or writes (input) properties the user holds the permission for.
+ * Adds the permission groups the current user is entitled to, so the serializer only reads
+ * (output) or writes (input) properties the user holds the permission for.
  *
- * Every resource that uses `perm:` labels must declare base groups in its normalization and
- * denormalization context: an empty group list means "no filtering" to the serializer.
+ * The groups are taken from the class that is sent out when reading and from the class that is
+ * received when writing, see {@see PermissionGroupResolver}.
+ *
+ * Every resource that uses permission groups must declare base groups in its normalization and
+ * denormalization context: API Platform reads an empty group list as "no property allowed".
  *
  * @see https://api-platform.com/docs/core/serialization/#changing-the-serialization-context-dynamically
  */
@@ -45,7 +48,11 @@ final class PermissionGroupsContextBuilder implements SerializerContextBuilderIn
             return $context;
         }
 
-        $granted = $this->permissionGroups->getGrantedGroups($resourceClass, $normalization);
+        $class = $normalization
+            ? ($context['output']['class'] ?? $resourceClass)
+            : ($context['input']['class'] ?? $resourceClass);
+
+        $granted = $this->permissionGroups->getGrantedGroups($class);
         if ([] === $granted) {
             // Never write an empty list: API Platform reads `groups => []` as "no property allowed",
             // which would strip every attribute from resources that do not use groups at all.

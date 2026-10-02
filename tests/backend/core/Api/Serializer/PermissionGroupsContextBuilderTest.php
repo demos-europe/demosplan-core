@@ -20,6 +20,8 @@ use Tests\Base\FunctionalTestCase;
 
 class PermissionGroupsContextBuilderTest extends FunctionalTestCase
 {
+    private const FIXTURE_PERMISSIONS = ['area_admin_statement_list', 'field_statement_memo'];
+
     protected ?PermissionGroupsContextBuilder $sut = null;
     private ?User $user = null;
     /** The context the decorated (original) builder returns */
@@ -61,24 +63,43 @@ class PermissionGroupsContextBuilderTest extends FunctionalTestCase
         self::assertSame(['fixture:read'], $context['groups']);
     }
 
-    public function testEarnedLabelsAreAppendedToBaseGroups(): void
+    public function testEarnedPermissionGroupsAreAppendedToBaseGroups(): void
     {
         $this->givenOnlyThesePermissions(['field_statement_memo']);
         $this->original->context = ['resource_class' => PermissionedFixture::class, 'groups' => ['fixture:read']];
 
         $context = $this->sut->createFromRequest(new Request(), true);
 
-        self::assertSame(['fixture:read', 'perm:read:field_statement_memo'], $context['groups']);
+        self::assertSame(['fixture:read', 'field_statement_memo'], $context['groups']);
     }
 
-    public function testInputContextGetsTheWriteLabels(): void
+    public function testInputContextUsesTheGroupsOfTheInputClass(): void
     {
-        $this->givenOnlyThesePermissions(['field_statement_memo']);
-        $this->original->context = ['resource_class' => PermissionedFixture::class, 'groups' => ['fixture:write']];
+        $this->givenOnlyThesePermissions(['area_admin_statement_list', 'field_statement_memo']);
+        $this->original->context = [
+            'resource_class' => PermissionedFixture::class,
+            'input'          => ['class' => PermissionedOtherFixture::class],
+            'groups'         => ['fixture:write'],
+        ];
 
         $context = $this->sut->createFromRequest(new Request(), false);
 
-        self::assertSame(['fixture:write', 'perm:write:field_statement_memo'], $context['groups']);
+        // the resource class would also grant field_statement_memo, the input class does not
+        self::assertSame(['fixture:write', 'area_admin_statement_list'], $context['groups']);
+    }
+
+    public function testOutputContextUsesTheGroupsOfTheOutputClass(): void
+    {
+        $this->givenOnlyThesePermissions(['area_admin_statement_list', 'field_statement_memo']);
+        $this->original->context = [
+            'resource_class' => PermissionedFixture::class,
+            'output'         => ['class' => PermissionedOtherFixture::class],
+            'groups'         => ['fixture:read'],
+        ];
+
+        $context = $this->sut->createFromRequest(new Request(), true);
+
+        self::assertSame(['fixture:read', 'area_admin_statement_list'], $context['groups']);
     }
 
     public function testContextWithoutResourceClassIsReturnedUntouched(): void
@@ -98,7 +119,7 @@ class PermissionGroupsContextBuilderTest extends FunctionalTestCase
     {
         $permissions = $this->currentUserService->getPermissions();
         $permissions->initPermissions($this->user);
-        $permissions->disablePermissions(['field_statement_memo']);
+        $permissions->disablePermissions(self::FIXTURE_PERMISSIONS);
         $permissions->enablePermissions($enabled);
     }
 }
