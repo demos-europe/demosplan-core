@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\StateProvider;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use demosplan\DemosPlanCoreBundle\Api\Serializer\PermissionGroupResolver;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementResource;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -25,6 +26,7 @@ class StatementStateProvider implements ProviderInterface
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
         private readonly StatementService $statementService,
+        private readonly PermissionGroupResolver $permissionGroups,
     ) {
     }
 
@@ -56,7 +58,13 @@ class StatementStateProvider implements ProviderInterface
             return null;
         }
 
-        return StatementResource::fromEntity($statement, $this->statementService->getProcessingStatus($statement));
+        // The status lazy-loads the statement's segments, so it is only computed for users who may
+        // see it. The serializer hides it for everyone else regardless.
+        $status = $this->permissionGroups->canRead(StatementResource::class, 'status')
+            ? $this->statementService->getProcessingStatus($statement)
+            : null;
+
+        return StatementResource::fromEntity($statement, $status);
     }
 
     private function hasAssessmentPermission(): bool
