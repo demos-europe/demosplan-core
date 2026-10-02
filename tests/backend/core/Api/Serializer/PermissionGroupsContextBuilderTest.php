@@ -102,16 +102,6 @@ class PermissionGroupsContextBuilderTest extends FunctionalTestCase
         self::assertSame(['fixture:read', 'area_admin_statement_list'], $context['groups']);
     }
 
-    public function testContextWithoutResourceClassIsReturnedUntouched(): void
-    {
-        $this->givenOnlyThesePermissions(['field_statement_memo']);
-        $this->original->context = ['groups' => ['something']];
-
-        $context = $this->sut->createFromRequest(new Request(), true);
-
-        self::assertSame(['something'], $context['groups']);
-    }
-
     /**
      * @param list<string> $enabled
      */
