@@ -43,10 +43,7 @@ final class PermissionGroupsContextBuilder implements SerializerContextBuilderIn
     {
         $context = $this->decorated->createFromRequest($request, $normalization, $extractedAttributes);
 
-        $resourceClass = $context['resource_class'] ?? null;
-        if (null === $resourceClass) {
-            return $context;
-        }
+        $resourceClass = $context['resource_class'];
 
         $class = $normalization
             ? ($context['output']['class'] ?? $resourceClass)
