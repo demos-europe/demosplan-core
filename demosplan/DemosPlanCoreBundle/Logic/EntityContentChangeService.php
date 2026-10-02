@@ -1616,15 +1616,6 @@ class EntityContentChangeService
                     $incomingDataArray[$propertyName]
                 );
                 $preUpdateValue = $preUpdateObject->$methodName();
-                if (SegmentInterface::RECOMMENDATION_FIELD_NAME === $propertyName && is_string($postUpdateValue)) {
-                    // DPLAN-18271: $preUpdateValue already went through the real getter above,
-                    // so it is substituted. $postUpdateValue is the raw incoming form value —
-                    // today this admin form never writes a <dp-boilerplate> tag, so this is a
-                    // no-op in practice, but it keeps the comparison correct by construction
-                    // if that path ever changes. See the sibling reasoning in
-                    // {{ @link EntityContentChangeService::calculateChangesOfStandardFieldsOfPreUpdateArrayAndPostUpdateObject }}.
-                    $postUpdateValue = $this->boilerplateTagSubstitutionService->substitute($postUpdateValue);
-                }
                 $contentChangeString = $this->createContentChangeData(
                     $preUpdateValue,
                     $postUpdateValue,
