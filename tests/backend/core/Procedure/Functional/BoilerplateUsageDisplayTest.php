@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Tests\Core\Procedure\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\BoilerplateFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
@@ -60,7 +61,7 @@ class BoilerplateUsageDisplayTest extends FunctionalTestCase
         $this->getEntityManager()->flush();
 
         // act
-        $rows = $this->sut->getBoilerplateUsagesForDisplay($boilerplate->getId());
+        $rows = $this->sut->getBoilerplateUsagesForDisplay($boilerplate->getId(), $boilerplate->getProcedureId());
 
         // assert
         static::assertCount(1, $rows);
@@ -87,7 +88,7 @@ class BoilerplateUsageDisplayTest extends FunctionalTestCase
         $this->getEntityManager()->flush();
 
         // act
-        $rows = $this->sut->getBoilerplateUsagesForDisplay($boilerplate->getId());
+        $rows = $this->sut->getBoilerplateUsagesForDisplay($boilerplate->getId(), $boilerplate->getProcedureId());
 
         // assert
         static::assertCount(1, $rows);
@@ -108,7 +109,7 @@ class BoilerplateUsageDisplayTest extends FunctionalTestCase
         $this->getEntityManager()->clear();
 
         // act
-        $rows = $this->sut->getBoilerplateUsagesForDisplay($boilerplate->getId());
+        $rows = $this->sut->getBoilerplateUsagesForDisplay($boilerplate->getId(), $boilerplate->getProcedureId());
 
         // assert
         static::assertCount(1, $rows);
@@ -124,7 +125,7 @@ class BoilerplateUsageDisplayTest extends FunctionalTestCase
         $this->getEntityManager()->flush();
 
         // act
-        $rows = $this->sut->getBoilerplateUsagesForDisplay($boilerplate->getId());
+        $rows = $this->sut->getBoilerplateUsagesForDisplay($boilerplate->getId(), $boilerplate->getProcedureId());
 
         // assert
         static::assertCount(1, $rows);
@@ -147,7 +148,23 @@ class BoilerplateUsageDisplayTest extends FunctionalTestCase
         $this->getEntityManager()->flush();
 
         // act
-        $rows = $this->sut->getBoilerplateUsagesForDisplay($boilerplate->getId());
+        $rows = $this->sut->getBoilerplateUsagesForDisplay($boilerplate->getId(), $boilerplate->getProcedureId());
+
+        // assert
+        static::assertSame([], $rows);
+    }
+
+    public function testReturnsEmptyArrayForBoilerplateOfAnotherProcedure(): void
+    {
+        // arrange
+        $segment = SegmentFactory::createOne()->_real();
+        $boilerplate = $this->createBoilerplateFor($segment->getProcedure());
+        $this->boilerplateUsageRepository->addUsage($boilerplate, $segment);
+        $otherProcedure = ProcedureFactory::createOne()->_real();
+        $this->getEntityManager()->flush();
+
+        // act
+        $rows = $this->sut->getBoilerplateUsagesForDisplay($boilerplate->getId(), $otherProcedure->getId());
 
         // assert
         static::assertSame([], $rows);

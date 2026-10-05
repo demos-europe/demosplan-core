@@ -2449,9 +2449,14 @@ class ProcedureService implements ProcedureServiceInterface
      *
      * @throws Exception
      */
-    public function getBoilerplateUsagesForDisplay(string $boilerplateId): array
+    public function getBoilerplateUsagesForDisplay(string $boilerplateId, string $procedureId): array
     {
         if ('new' === $boilerplateId || !$this->permissions->hasPermission('feature_boilerplate_usage_list')) {
+            return [];
+        }
+
+        // The edit route only authorizes the procedure in the URL; a boilerplate id from elsewhere must not leak its rows.
+        if (null === $this->getBoilerplateOfProcedure($boilerplateId, $procedureId)) {
             return [];
         }
 
