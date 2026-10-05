@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
  * (output) or writes (input) properties the user holds the permission for.
  *
  * The groups are taken from the class that is sent out when reading and from the class that is
- * received when writing, see {@see PermissionGroupResolver}.
+ * received when writing, see {@see FieldPermissionResolver}.
  *
  * Every resource that uses permission groups must declare base groups in its normalization and
  * denormalization context: API Platform reads an empty group list as "no property allowed".
@@ -30,12 +30,12 @@ use Symfony\Component\HttpFoundation\Request;
  * @see https://api-platform.com/docs/core/serialization/#changing-the-serialization-context-dynamically
  */
 #[AsDecorator('api_platform.serializer.context_builder')]
-final class PermissionGroupsContextBuilder implements SerializerContextBuilderInterface
+final class PermissionContextBuilder implements SerializerContextBuilderInterface
 {
     public function __construct(
         #[AutowireDecorated]
         private readonly SerializerContextBuilderInterface $decorated,
-        private readonly PermissionGroupResolver $permissionGroups,
+        private readonly FieldPermissionResolver $fieldPermissions,
     ) {
     }
 
@@ -45,17 +45,18 @@ final class PermissionGroupsContextBuilder implements SerializerContextBuilderIn
 
         $class = $this->getSerializedClass($context, $normalization);
 
-        $granted = $this->permissionGroups->getGrantedGroups($class);
-        if ([] === $granted) {
+        $grantedPermissions = $this->fieldPermissions->getGrantedPermissions($class);
+        if ([] === $grantedPermissions) {
             // Never write an empty list: API Platform reads `groups => []` as "no property allowed",
             // which would strip every attribute from resources that do not use groups at all.
             return $context;
         }
 
-        // The groups API Platform already set, e.g. ['read']. It may be a single string, so make it a list.
+        // Symfony calls the list of allowed names "groups". We use permission names as group names.
+        // The groups API Platform already set, e.g. ['read'], may be a single string, so make it a list.
         $existingGroups = (array) ($context['groups'] ?? []);
 
-        $context['groups'] = array_merge($existingGroups, $granted);
+        $context['groups'] = array_merge($existingGroups, $grantedPermissions);
 
         return $context;
     }

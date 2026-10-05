@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace Tests\Core\Statement\Functional;
 
 use ApiPlatform\Metadata\Get;
-use demosplan\DemosPlanCoreBundle\Api\Serializer\PermissionGroupResolver;
+use demosplan\DemosPlanCoreBundle\Api\Serializer\FieldPermissionResolver;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementResource;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -51,7 +51,7 @@ class StatementStateProviderTest extends FunctionalTestCase
         $this->sut = new StatementStateProvider(
             $this->currentUserService,
             $this->statementService,
-            $this->getContainer()->get(PermissionGroupResolver::class)
+            $this->getContainer()->get(FieldPermissionResolver::class)
         );
     }
 

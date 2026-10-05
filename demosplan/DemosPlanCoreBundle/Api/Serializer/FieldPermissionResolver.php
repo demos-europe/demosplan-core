@@ -32,9 +32,9 @@ use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface;
  * holds the permissions to send them.
  *
  * The groups are ordinary serializer groups, so the serializer itself decides which properties
- * leave the server; see {@see PermissionGroupsContextBuilder}.
+ * leave the server; see {@see PermissionContextBuilder}.
  */
-final class PermissionGroupResolver
+final class FieldPermissionResolver
 {
     public function __construct(
         private readonly ClassMetadataFactoryInterface $classMetadataFactory,
@@ -45,13 +45,14 @@ final class PermissionGroupResolver
     /**
      * @param class-string $class
      *
-     * @return list<string> the permission groups of the class the current user is entitled to
+     * @return list<string> the permissions used on the class that the current user holds; an entry
+     *                      like "a+b" is a rule that needs both permissions
      */
-    public function getGrantedGroups(string $class): array
+    public function getGrantedPermissions(string $class): array
     {
         $granted = [];
         foreach ($this->classMetadataFactory->getMetadataFor($class)->getAttributesMetadata() as $attribute) {
-            foreach ($this->getPermissionGroups($attribute->getGroups()) as $group) {
+            foreach ($this->filterPermissions($attribute->getGroups()) as $group) {
                 if ($this->holdsAll($group)) {
                     $granted[$group] = $group;
                 }
@@ -70,9 +71,9 @@ final class PermissionGroupResolver
     public function isPropertyAllowed(string $class, string $property): bool
     {
         $attribute = $this->classMetadataFactory->getMetadataFor($class)->getAttributesMetadata()[$property] ?? null;
-        $permissionGroups = $this->getPermissionGroups($attribute?->getGroups() ?? []);
+        $permissions = $this->filterPermissions($attribute?->getGroups() ?? []);
 
-        return [] === $permissionGroups || [] !== array_filter($permissionGroups, $this->holdsAll(...));
+        return [] === $permissions || [] !== array_filter($permissions, $this->holdsAll(...));
     }
 
     /**
@@ -80,7 +81,7 @@ final class PermissionGroupResolver
      *
      * @return list<string> the groups that consist only of defined permission names
      */
-    private function getPermissionGroups(array $groups): array
+    private function filterPermissions(array $groups): array
     {
         $definedPermissions = $this->currentUser->getPermissions()->getPermissions();
 

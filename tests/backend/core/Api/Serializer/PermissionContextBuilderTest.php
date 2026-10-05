@@ -12,17 +12,17 @@ declare(strict_types=1);
 
 namespace Tests\Core\Api\Serializer;
 
-use demosplan\DemosPlanCoreBundle\Api\Serializer\PermissionGroupResolver;
-use demosplan\DemosPlanCoreBundle\Api\Serializer\PermissionGroupsContextBuilder;
+use demosplan\DemosPlanCoreBundle\Api\Serializer\FieldPermissionResolver;
+use demosplan\DemosPlanCoreBundle\Api\Serializer\PermissionContextBuilder;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Symfony\Component\HttpFoundation\Request;
 use Tests\Base\FunctionalTestCase;
 
-class PermissionGroupsContextBuilderTest extends FunctionalTestCase
+class PermissionContextBuilderTest extends FunctionalTestCase
 {
     private const FIXTURE_PERMISSIONS = ['area_admin_statement_list', 'field_statement_memo'];
 
-    protected ?PermissionGroupsContextBuilder $sut = null;
+    protected ?PermissionContextBuilder $sut = null;
     private ?User $user = null;
     /** The context the decorated (original) builder returns */
     private ?FixedContextBuilder $original = null;
@@ -33,9 +33,9 @@ class PermissionGroupsContextBuilderTest extends FunctionalTestCase
 
         $this->user = $this->loginTestUser();
         $this->original = new FixedContextBuilder();
-        $this->sut = new PermissionGroupsContextBuilder(
+        $this->sut = new PermissionContextBuilder(
             $this->original,
-            $this->getContainer()->get(PermissionGroupResolver::class)
+            $this->getContainer()->get(FieldPermissionResolver::class)
         );
     }
 

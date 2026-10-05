@@ -24,7 +24,7 @@ use Tests\Base\FunctionalTestCase;
  * denormalization context) or a permission name. Permissions::hasPermission() answers false for an
  * unknown permission, so a typo silently hides a property forever.
  */
-class PermissionGroupGuardTest extends FunctionalTestCase
+class FieldPermissionGuardTest extends FunctionalTestCase
 {
     protected ?ClassMetadataFactoryInterface $sut = null;
     private ?User $user = null;

@@ -27,7 +27,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
  *   Several permission names mean "any of", `a+b` inside one group means "all of".
  *
  * The permissions mirror what the EDT StatementResourceType required. See
- * {@see \demosplan\DemosPlanCoreBundle\Api\Serializer\PermissionGroupResolver}.
+ * {@see \demosplan\DemosPlanCoreBundle\Api\Serializer\FieldPermissionResolver}.
  */
 #[ApiResource(
     shortName: 'Statement',

@@ -15,7 +15,7 @@ namespace Tests\Core\Api\Serializer;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 /**
- * Carries every kind of group the {@see \demosplan\DemosPlanCoreBundle\Api\Serializer\PermissionGroupResolver}
+ * Carries every kind of group the {@see \demosplan\DemosPlanCoreBundle\Api\Serializer\FieldPermissionResolver}
  * has to understand: a group that is a permission name is a permission group, anything else is not.
  */
 final class PermissionedFixture

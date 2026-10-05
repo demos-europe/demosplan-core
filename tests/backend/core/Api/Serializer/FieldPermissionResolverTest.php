@@ -12,11 +12,11 @@ declare(strict_types=1);
 
 namespace Tests\Core\Api\Serializer;
 
-use demosplan\DemosPlanCoreBundle\Api\Serializer\PermissionGroupResolver;
+use demosplan\DemosPlanCoreBundle\Api\Serializer\FieldPermissionResolver;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Tests\Base\FunctionalTestCase;
 
-class PermissionGroupResolverTest extends FunctionalTestCase
+class FieldPermissionResolverTest extends FunctionalTestCase
 {
     /** Every permission the fixture refers to, so each test starts from a known state. */
     private const FIXTURE_PERMISSIONS = [
@@ -26,14 +26,14 @@ class PermissionGroupResolverTest extends FunctionalTestCase
         'field_statement_memo',
     ];
 
-    protected ?PermissionGroupResolver $sut = null;
+    protected ?FieldPermissionResolver $sut = null;
     private ?User $user = null;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->sut = $this->getContainer()->get(PermissionGroupResolver::class);
+        $this->sut = $this->getContainer()->get(FieldPermissionResolver::class);
         $this->user = $this->loginTestUser();
     }
 
@@ -93,20 +93,20 @@ class PermissionGroupResolverTest extends FunctionalTestCase
         self::assertFalse($this->sut->isPropertyAllowed(PermissionedFixture::class, 'allOf'));
     }
 
-    public function testGrantedGroupsContainOnlyThePermissionsTheUserHolds(): void
+    public function testGrantedPermissionsContainOnlyThePermissionsTheUserHolds(): void
     {
         $this->givenOnlyThesePermissions(['feature_json_api_statement']);
 
-        $groups = $this->sut->getGrantedGroups(PermissionedFixture::class);
+        $groups = $this->sut->getGrantedPermissions(PermissionedFixture::class);
 
         self::assertSame(['feature_json_api_statement'], $groups);
     }
 
-    public function testGrantedGroupsContainACombinedGroupOnlyWhenAllPartsAreHeld(): void
+    public function testGrantedPermissionsContainACombinedRuleOnlyWhenAllPartsAreHeld(): void
     {
         $this->givenOnlyThesePermissions(['area_admin_assessmenttable', 'field_statement_memo']);
 
-        $groups = $this->sut->getGrantedGroups(PermissionedFixture::class);
+        $groups = $this->sut->getGrantedPermissions(PermissionedFixture::class);
 
         self::assertEqualsCanonicalizing(
             ['area_admin_assessmenttable', 'area_admin_assessmenttable+field_statement_memo', 'field_statement_memo'],
@@ -118,18 +118,18 @@ class PermissionGroupResolverTest extends FunctionalTestCase
     {
         $this->givenOnlyThesePermissions(self::FIXTURE_PERMISSIONS);
 
-        $groups = $this->sut->getGrantedGroups(PermissionedFixture::class);
+        $groups = $this->sut->getGrantedPermissions(PermissionedFixture::class);
 
         // "fixture:read" is an ordinary group and "field_statement_memoo" is a typo
         self::assertNotContains('fixture:read', $groups);
         self::assertNotContains('field_statement_memoo', $groups);
     }
 
-    public function testNoGroupsAreGrantedWithoutPermissions(): void
+    public function testNothingIsGrantedWithoutPermissions(): void
     {
         $this->givenOnlyThesePermissions([]);
 
-        self::assertSame([], $this->sut->getGrantedGroups(PermissionedFixture::class));
+        self::assertSame([], $this->sut->getGrantedPermissions(PermissionedFixture::class));
     }
 
     /**
