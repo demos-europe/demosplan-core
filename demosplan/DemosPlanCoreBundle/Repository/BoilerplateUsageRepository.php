@@ -16,6 +16,8 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateUsage;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use Exception;
 
 class BoilerplateUsageRepository extends CoreRepository
@@ -139,7 +141,7 @@ class BoilerplateUsageRepository extends CoreRepository
      */
     public function getUsagesForBoilerplate(string $boilerplateId): array
     {
-        return $this->createQueryBuilder('boilerplateUsage')
+        $usages = $this->createQueryBuilder('boilerplateUsage')
             ->join('boilerplateUsage.statementOrSegment', 'statementOrSegment')
             ->leftJoin('statementOrSegment.assignee', 'assignee')
             ->addSelect('statementOrSegment', 'assignee')
@@ -149,5 +151,33 @@ class BoilerplateUsageRepository extends CoreRepository
             ->orderBy('statementOrSegment.externId', 'ASC')
             ->getQuery()
             ->getResult();
+
+        $this->loadPlaces($usages);
+
+        return $usages;
+    }
+
+    /**
+     * Loads the places of all segments in one query. The query above cannot join them:
+     * `place` exists only on Segment, while the join column is typed as Statement.
+     * Without this, Doctrine would run one query per place as soon as it is read.
+     *
+     * @param BoilerplateUsage[] $usages
+     */
+    private function loadPlaces(array $usages): void
+    {
+        $placeIds = [];
+        foreach ($usages as $usage) {
+            $statementOrSegment = $usage->getStatementOrSegment();
+            if ($statementOrSegment instanceof Segment) {
+                $placeIds[] = $statementOrSegment->getPlace()->getId();
+            }
+        }
+
+        if ([] === $placeIds) {
+            return;
+        }
+
+        $this->getEntityManager()->getRepository(Place::class)->findBy(['id' => array_unique($placeIds)]);
     }
 }
