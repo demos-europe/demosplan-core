@@ -186,28 +186,20 @@ class StatementSegmentSortingPaginationApiTest extends AbstractApiTest
     }
 
     /**
-     * `order[submitter]` sorts by the first line the "Einreicher*in" column shows: the parent
-     * statement's author name, else its submit name, else its organisation name.
+     * "Schritt" sorts by the workflow position of the place, not alphabetically by its name.
      */
-    public function testGetCollectionSortsBySubmitterWithDisplayFallbackChain(): void
+    public function testGetCollectionSortsByPlaceSortIndex(): void
     {
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
-        $shownAsBerta = $this->createSegmentWithSubmitter($procedure, 'Berta', 'Zoe', 'Amt Z');
-        $shownAsAnton = $this->createSegmentWithSubmitter($procedure, '', 'Anton', 'Amt Y');
-        $shownAsDeichverband = $this->createSegmentWithSubmitter($procedure, '', '', 'Deichverband');
-        $shownAsClara = $this->createSegmentWithSubmitter($procedure, 'Clara', 'Anna', 'Amt X');
+        $third = $this->createSegmentInPlace($procedure, 'Alpha', 3);
+        $first = $this->createSegmentInPlace($procedure, 'Zeta', 1);
+        $second = $this->createSegmentInPlace($procedure, 'Beta', 2);
 
-        $ascending = $this->requestCollectionIds('order[submitter]=asc', $procedure);
-        $descending = $this->requestCollectionIds('order[submitter]=desc', $procedure);
+        $ascending = $this->requestCollectionIds('order[place.sortIndex]=asc', $procedure);
+        $descending = $this->requestCollectionIds('order[place.sortIndex]=desc', $procedure);
 
-        self::assertSame(
-            [$shownAsAnton->getId(), $shownAsBerta->getId(), $shownAsClara->getId(), $shownAsDeichverband->getId()],
-            $ascending
-        );
-        self::assertSame(
-            [$shownAsDeichverband->getId(), $shownAsClara->getId(), $shownAsBerta->getId(), $shownAsAnton->getId()],
-            $descending
-        );
+        self::assertSame([$first->getId(), $second->getId(), $third->getId()], $ascending);
+        self::assertSame([$third->getId(), $second->getId(), $first->getId()], $descending);
     }
 
     /**
@@ -233,31 +225,26 @@ class StatementSegmentSortingPaginationApiTest extends AbstractApiTest
     }
 
     /**
-     * "Schritt" sorts by the workflow position of the place, not alphabetically by its name.
+     * "Einreicher*in" sorts by the submit name of the parent statement.
      */
-    public function testGetCollectionSortsByPlaceSortIndex(): void
+    public function testGetCollectionSortsBySubmitName(): void
     {
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
-        $third = $this->createSegmentInPlace($procedure, 'Alpha', 3);
-        $first = $this->createSegmentInPlace($procedure, 'Zeta', 1);
-        $second = $this->createSegmentInPlace($procedure, 'Beta', 2);
+        $berta = $this->createSegmentWithSubmitName($procedure, 'Berta');
+        $anton = $this->createSegmentWithSubmitName($procedure, 'Anton');
+        $clara = $this->createSegmentWithSubmitName($procedure, 'Clara');
 
-        $ascending = $this->requestCollectionIds('order[place.sortIndex]=asc', $procedure);
-        $descending = $this->requestCollectionIds('order[place.sortIndex]=desc', $procedure);
+        $ascending = $this->requestCollectionIds('order[parentStatementOfSegment.meta.submitName]=asc', $procedure);
+        $descending = $this->requestCollectionIds('order[parentStatementOfSegment.meta.submitName]=desc', $procedure);
 
-        self::assertSame([$first->getId(), $second->getId(), $third->getId()], $ascending);
-        self::assertSame([$third->getId(), $second->getId(), $first->getId()], $descending);
+        self::assertSame([$anton->getId(), $berta->getId(), $clara->getId()], $ascending);
+        self::assertSame([$clara->getId(), $berta->getId(), $anton->getId()], $descending);
     }
 
-    private function createSegmentWithSubmitter(Procedure $procedure, string $authorName, string $submitName, string $orgaName): Segment
+    private function createSegmentWithSubmitName(Procedure $procedure, string $submitName): Segment
     {
         $parentStatement = StatementFactory::createOne(['procedure' => $procedure])->_real();
-        StatementMetaFactory::createOne([
-            'statement'  => $parentStatement,
-            'authorName' => $authorName,
-            'submitName' => $submitName,
-            'orgaName'   => $orgaName,
-        ]);
+        StatementMetaFactory::createOne(['statement' => $parentStatement, 'submitName' => $submitName]);
 
         return $this->createSegmentInProcedure($procedure, ['parentStatementOfSegment' => $parentStatement]);
     }

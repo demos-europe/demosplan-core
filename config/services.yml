@@ -28,7 +28,7 @@ services:
         tags:
         - { name: api_platform.filter }
 
-    demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\VirtualPropertyOrderFilter:
+    demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\ExternIdNaturalOrderFilter:
         tags:
         - { name: api_platform.filter }
 

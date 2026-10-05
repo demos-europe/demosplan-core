@@ -25,7 +25,7 @@ use ApiPlatform\Serializer\Filter\PropertyFilter;
 use demosplan\DemosPlanCoreBundle\Api\AssignableUser\AssignableUserResource;
 use demosplan\DemosPlanCoreBundle\Api\Place\PlaceResource;
 use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\AssigneeOrUnassignedFilter;
-use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\VirtualPropertyOrderFilter;
+use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\ExternIdNaturalOrderFilter;
 use demosplan\DemosPlanCoreBundle\Api\Tag\Resource as TagResource;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementResource;
@@ -57,8 +57,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag as TagEntity;
     provider: Provider::class,
 )]
 #[ApiFilter(PropertyFilter::class)]
-// Sort keys `order[submitter]` and `order[externId]` resolve against computed values, see the filter class.
-#[ApiFilter(VirtualPropertyOrderFilter::class)]
+// `order[externId]` sorts naturally (M2-1 before M10-1), which the plain OrderFilter cannot do.
+#[ApiFilter(ExternIdNaturalOrderFilter::class)]
 class Resource
 {
     #[ApiFilter(SearchFilter::class, properties: ['id' => 'exact'])]
@@ -105,6 +105,7 @@ class Resource
         'parentStatementOfSegment.original.internId',
         'parentStatementOfSegment.submit',
         'parentStatementOfSegment.externId',
+        'parentStatementOfSegment.meta.submitName',
     ])]
     #[ApiProperty(readable: true, writable: false)]
     public ?StatementResource $parentStatement = null;
