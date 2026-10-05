@@ -14,6 +14,7 @@ namespace Tests\Core\Api\Serializer;
 
 use ApiPlatform\Metadata\Resource\Factory\ResourceMetadataCollectionFactoryInterface;
 use ApiPlatform\Metadata\Resource\Factory\ResourceNameCollectionFactoryInterface;
+use demosplan\DemosPlanCoreBundle\Api\Statement\Processor\Patch\UpdateStatement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface;
 use Tests\Base\FunctionalTestCase;
@@ -106,6 +107,81 @@ class FieldPermissionGuardTest extends FunctionalTestCase
         }
 
         self::assertSame([], $missing);
+    }
+
+    /**
+     * Guards the guard: if the input classes are not found any more, the two input tests below would
+     * pass without checking anything.
+     */
+    public function testTheStatementUpdateClassIsFoundAsAnInputClass(): void
+    {
+        self::assertArrayHasKey(UpdateStatement::class, $this->getInputClasses());
+    }
+
+    public function testEveryGroupOfAnInputClassIsABaseGroupOrAPermission(): void
+    {
+        $unknown = [];
+        foreach ($this->getInputClasses() as $class => $baseGroups) {
+            foreach ($this->sut->getMetadataFor($class)->getAttributesMetadata() as $property => $attribute) {
+                foreach ($attribute->getGroups() as $group) {
+                    if (!in_array($group, $baseGroups, true) && !$this->isPermissionGroup($group)) {
+                        $unknown[] = "$class::\$$property uses group '$group', which is neither a base group nor a defined permission (typo?)";
+                    }
+                }
+            }
+        }
+
+        self::assertSame([], $unknown);
+    }
+
+    /**
+     * An input class is read, not printed. The serializer would drop a property without the input
+     * base group silently, before the processor can reject it for a missing permission.
+     */
+    public function testEveryPropertyOfAnInputClassCarriesTheInputBaseGroup(): void
+    {
+        $missing = [];
+        foreach ($this->getInputClasses() as $class => $baseGroups) {
+            foreach ($this->sut->getMetadataFor($class)->getAttributesMetadata() as $property => $attribute) {
+                if ([] === array_intersect($attribute->getGroups(), $baseGroups)) {
+                    $missing[] = "$class::\$$property carries none of the input base groups (".implode(', ', $baseGroups).')';
+                }
+            }
+        }
+
+        self::assertSame([], $missing);
+    }
+
+    /**
+     * @return array<class-string, list<string>> input class => the groups its operations declare for incoming data
+     */
+    private function getInputClasses(): array
+    {
+        $metadataFactory = $this->getContainer()->get(ResourceMetadataCollectionFactoryInterface::class);
+
+        $found = [];
+        foreach ($this->getContainer()->get(ResourceNameCollectionFactoryInterface::class)->create() as $resourceClass) {
+            if (!str_starts_with($resourceClass, 'demosplan\\')) {
+                continue;
+            }
+
+            foreach ($metadataFactory->create($resourceClass) as $resource) {
+                foreach ($resource->getOperations() ?? [] as $operation) {
+                    $input = $operation->getInput();
+                    $inputClass = is_array($input) ? ($input['class'] ?? null) : null;
+                    if (null === $inputClass) {
+                        continue;
+                    }
+
+                    $found[$inputClass] = array_values(array_unique([
+                        ...($found[$inputClass] ?? []),
+                        ...(array) ($operation->getDenormalizationContext()['groups'] ?? []),
+                    ]));
+                }
+            }
+        }
+
+        return $found;
     }
 
     /** "a+b" is a permission group if every part is a defined permission. */

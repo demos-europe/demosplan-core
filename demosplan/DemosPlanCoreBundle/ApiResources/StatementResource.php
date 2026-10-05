@@ -15,7 +15,10 @@ namespace demosplan\DemosPlanCoreBundle\ApiResources;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\Patch;
 use DemosEurope\DemosplanAddon\Contracts\Entities\StatementInterface;
+use demosplan\DemosPlanCoreBundle\Api\Statement\Processor\Patch\StatementPatchProcessor;
+use demosplan\DemosPlanCoreBundle\Api\Statement\Processor\Patch\UpdateStatement;
 use demosplan\DemosPlanCoreBundle\StateProvider\StatementStateProvider;
 use Symfony\Component\Serializer\Attribute\Groups;
 
@@ -31,7 +34,15 @@ use Symfony\Component\Serializer\Attribute\Groups;
  */
 #[ApiResource(
     shortName: 'Statement',
-    operations: [new Get(uriTemplate: '/Statement/{id}')],
+    operations: [
+        new Get(uriTemplate: '/Statement/{id}'),
+        new Patch(
+            uriTemplate: '/Statement/{id}',
+            denormalizationContext: ['groups' => ['write']],
+            input: UpdateStatement::class,
+            processor: StatementPatchProcessor::class,
+        ),
+    ],
     formats: ['jsonapi'],
     routePrefix: '/3.0',
     normalizationContext: ['groups' => ['read']],
