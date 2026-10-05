@@ -45,8 +45,8 @@
         class="u-mt-0_125"
         data-cy="enabledFaqItem"
         :aria-label="faqItem.attributes.title"
-        :value="isFaqEnabled"
-        @input="handleToggle"
+        :model-value="isFaqEnabled"
+        @update:model-value="handleToggle"
     />
     </div><!--
  --><div class="layout__item u-2-of-12 text-center py-1">
