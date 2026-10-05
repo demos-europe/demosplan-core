@@ -21,12 +21,14 @@ import FragmentStore from '@DpJs/store/statement/Fragment'
 import { hasPermission } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 import StatementStore from '@DpJs/store/statement/Statement'
+import VersionHistorySlidebarStore from '@DpJs/store/statement/VersionHistorySlidebar'
 
 const stores = {
   AssessmentTableStore,
   FilterStore,
   FragmentStore,
   StatementStore,
+  VersionHistorySlidebarStore,
 }
 
 const components = {

@@ -25,7 +25,8 @@
                 entity="user"
                 item-title="user.add.new"
                 preset-user-orga-id="{{ currentUser.orga.id }}"
-                project-name="{{ projectName }}">
+                project-name="{{ projectName }}"
+                subdomain="{{ branding.customerSubdomain|default }}">
             </dp-create-item>
         {% endif %}
     </div>
@@ -39,7 +40,8 @@
         {% elseif hasPermission('feature_user_edit')  %}
             <dp-user-list
                 preset-user-orga-id="{{ currentUser.orga.id }}"
-                project-name="{{ projectName }}">
+                project-name="{{ projectName }}"
+                subdomain="{{ branding.customerSubdomain|default }}">
             </dp-user-list>
         {% endif %}
     </form>
