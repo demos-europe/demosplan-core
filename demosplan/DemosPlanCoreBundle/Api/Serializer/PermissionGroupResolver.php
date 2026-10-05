@@ -20,7 +20,7 @@ use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface;
  * groups the current user is entitled to.
  *
  * A group that is the name of a defined permission is a permission group, e.g.
- * `#[Groups(['field_statement_memo'])]`. Every other group (like `statement:read`) is an
+ * `#[Groups(['field_statement_memo'])]`. Every other group (like `read`) is an
  * ordinary group and left alone:
  *
  * - Several groups on one property mean "any of them": `['a', 'b']` needs a OR b.

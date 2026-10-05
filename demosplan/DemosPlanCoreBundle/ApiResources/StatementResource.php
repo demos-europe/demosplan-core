@@ -22,7 +22,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 /**
  * Which user sees which attribute is declared with serialization groups:
  *
- * - `statement:read` marks attributes open to everyone allowed to use the resource.
+ * - `read` marks attributes open to everyone allowed to use the resource.
  * - A permission name (e.g. `field_statement_memo`) marks attributes that need that permission.
  *   Several permission names mean "any of", `a+b` inside one group means "all of".
  *
@@ -34,9 +34,8 @@ use Symfony\Component\Serializer\Attribute\Groups;
     operations: [new Get(uriTemplate: '/Statement/{id}')],
     formats: ['jsonapi'],
     routePrefix: '/3.0',
+    normalizationContext: ['groups' => ['read']],
     provider: StatementStateProvider::class,
-    // base group: an empty group list would mean "no filtering" to the serializer
-    normalizationContext: ['groups' => ['statement:read']],
 )]
 class StatementResource
 {
@@ -44,11 +43,11 @@ class StatementResource
     public string $id = '';
 
     #[ApiProperty(readable: true, writable: false)]
-    #[Groups(['statement:read'])]
+    #[Groups(['read'])]
     public ?string $externId = null;
 
     #[ApiProperty(readable: true, writable: false)]
-    #[Groups(['statement:read'])]
+    #[Groups(['read'])]
     public ?string $internId = null;
 
     #[ApiProperty(readable: true, writable: false)]
@@ -69,35 +68,35 @@ class StatementResource
     public string $authorName = '';
 
     #[ApiProperty(readable: true, writable: false)]
-    #[Groups(['statement:read'])]
+    #[Groups(['read'])]
     public string $initialOrganisationName = '';
 
     #[ApiProperty(readable: true, writable: false)]
-    #[Groups(['statement:read'])]
+    #[Groups(['read'])]
     public ?string $initialOrganisationDepartmentName = null;
 
     #[ApiProperty(readable: true, writable: false)]
-    #[Groups(['statement:read'])]
+    #[Groups(['read'])]
     public ?string $initialOrganisationStreet = null;
 
     #[ApiProperty(readable: true, writable: false)]
-    #[Groups(['statement:read'])]
+    #[Groups(['read'])]
     public ?string $initialOrganisationHouseNumber = null;
 
     #[ApiProperty(readable: true, writable: false)]
-    #[Groups(['statement:read'])]
+    #[Groups(['read'])]
     public ?string $initialOrganisationPostalCode = null;
 
     #[ApiProperty(readable: true, writable: false)]
-    #[Groups(['statement:read'])]
+    #[Groups(['read'])]
     public ?string $initialOrganisationCity = null;
 
     #[ApiProperty(readable: true, writable: false)]
-    #[Groups(['statement:read'])]
+    #[Groups(['read'])]
     public ?string $authoredDate = null;
 
     #[ApiProperty(readable: true, writable: false)]
-    #[Groups(['statement:read'])]
+    #[Groups(['read'])]
     public ?string $submitDate = null;
 
     #[ApiProperty(readable: true, writable: false)]
@@ -109,7 +108,7 @@ class StatementResource
     public ?string $submitName = null;
 
     #[ApiProperty(readable: true, writable: false)]
-    #[Groups(['statement:read'])]
+    #[Groups(['read'])]
     public ?string $submitType = null;
 
     #[ApiProperty(readable: true, writable: false)]

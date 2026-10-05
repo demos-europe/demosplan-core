@@ -52,7 +52,10 @@ final class PermissionGroupsContextBuilder implements SerializerContextBuilderIn
             return $context;
         }
 
-        $context['groups'] = array_merge((array) ($context['groups'] ?? []), $granted);
+        // The groups API Platform already set, e.g. ['read']. It may be a single string, so make it a list.
+        $existingGroups = (array) ($context['groups'] ?? []);
+
+        $context['groups'] = array_merge($existingGroups, $granted);
 
         return $context;
     }
