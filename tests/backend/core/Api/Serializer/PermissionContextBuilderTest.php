@@ -73,7 +73,11 @@ class PermissionContextBuilderTest extends FunctionalTestCase
         self::assertSame(['fixture:read', 'field_statement_memo'], $context['groups']);
     }
 
-    public function testInputContextUsesTheGroupsOfTheInputClass(): void
+    /**
+     * A property the user may not send must be rejected with a 403 by the processor. If the context
+     * got groups for incoming data, the serializer would drop such a property silently instead.
+     */
+    public function testIncomingDataIsLeftUntouched(): void
     {
         $this->givenOnlyThesePermissions(['area_admin_statement_list', 'field_statement_memo']);
         $this->original->context = [
@@ -84,8 +88,7 @@ class PermissionContextBuilderTest extends FunctionalTestCase
 
         $context = $this->sut->createFromRequest(new Request(), false);
 
-        // the resource class would also grant field_statement_memo, the input class does not
-        self::assertSame(['fixture:write', 'area_admin_statement_list'], $context['groups']);
+        self::assertSame(['fixture:write'], $context['groups']);
     }
 
     public function testOutputContextUsesTheGroupsOfTheOutputClass(): void

@@ -31,8 +31,10 @@ use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactoryInterface;
  * class that is sent out holds the permissions to see its properties, the class that is received
  * holds the permissions to send them.
  *
- * The groups are ordinary serializer groups, so the serializer itself decides which properties
- * leave the server; see {@see PermissionContextBuilder}.
+ * For the class that is sent out, the groups are ordinary serializer groups, so the serializer
+ * itself decides which properties leave the server; see {@see PermissionContextBuilder}. For the
+ * class that is received, the groups are only a note of the permission: the processor asks
+ * {@see self::isPropertyAllowed()} for every sent property and rejects the request.
  */
 final class FieldPermissionResolver
 {

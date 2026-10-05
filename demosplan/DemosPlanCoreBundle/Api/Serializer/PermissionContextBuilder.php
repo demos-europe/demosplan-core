@@ -18,14 +18,15 @@ use Symfony\Component\DependencyInjection\Attribute\AutowireDecorated;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * Adds the permission groups the current user is entitled to, so the serializer only reads
- * (output) or writes (input) properties the user holds the permission for.
+ * Adds the permission groups the current user is entitled to, so the serializer only prints the
+ * properties the user holds the permission for. The groups are taken from the class that is sent
+ * out, see {@see FieldPermissionResolver}.
  *
- * The groups are taken from the class that is sent out when reading and from the class that is
- * received when writing, see {@see FieldPermissionResolver}.
+ * Only the output is filtered. Incoming data is left alone: a property the user may not send must be
+ * rejected with a 403 by the processor, not dropped silently by the serializer.
  *
- * Every resource that uses permission groups must declare base groups in its normalization and
- * denormalization context: API Platform reads an empty group list as "no property allowed".
+ * Every resource that uses permission groups must declare base groups in its normalization context:
+ * API Platform reads an empty group list as "no property allowed".
  *
  * @see https://api-platform.com/docs/core/serialization/#changing-the-serialization-context-dynamically
  */
@@ -43,9 +44,11 @@ final class PermissionContextBuilder implements SerializerContextBuilderInterfac
     {
         $context = $this->decorated->createFromRequest($request, $normalization, $extractedAttributes);
 
-        $class = $this->getSerializedClass($context, $normalization);
+        if (!$normalization) {
+            return $context;
+        }
 
-        $grantedPermissions = $this->fieldPermissions->getGrantedPermissions($class);
+        $grantedPermissions = $this->fieldPermissions->getGrantedPermissions($this->getOutputClass($context));
         if ([] === $grantedPermissions) {
             // Never write an empty list: API Platform reads `groups => []` as "no property allowed",
             // which would strip every attribute from resources that do not use groups at all.
@@ -62,19 +65,15 @@ final class PermissionContextBuilder implements SerializerContextBuilderInterfac
     }
 
     /**
-     * The class that is really written out (normalization) or read in (denormalization). That is
-     * the special output or input class of the operation if it has one, otherwise the resource class.
+     * The class that is really written out: the special output class of the operation if it has
+     * one, otherwise the resource class.
      *
      * @param array<string, mixed> $context
      *
      * @return class-string
      */
-    private function getSerializedClass(array $context, bool $normalization): string
+    private function getOutputClass(array $context): string
     {
-        $resourceClass = $context['resource_class'];
-
-        return $normalization
-            ? ($context['output']['class'] ?? $resourceClass)
-            : ($context['input']['class'] ?? $resourceClass);
+        return $context['output']['class'] ?? $context['resource_class'];
     }
 }

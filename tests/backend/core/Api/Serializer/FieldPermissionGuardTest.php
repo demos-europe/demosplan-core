@@ -118,14 +118,18 @@ class FieldPermissionGuardTest extends FunctionalTestCase
         self::assertArrayHasKey(UpdateStatement::class, $this->getInputClasses());
     }
 
-    public function testEveryGroupOfAnInputClassIsABaseGroupOrAPermission(): void
+    /**
+     * On an input class a group is the permission needed to send the property, so every group has to
+     * be a defined permission. The processor checks it; a typo would hide nothing and check nothing.
+     */
+    public function testEveryGroupOfAnInputClassIsAPermission(): void
     {
         $unknown = [];
-        foreach ($this->getInputClasses() as $class => $baseGroups) {
+        foreach (array_keys($this->getInputClasses()) as $class) {
             foreach ($this->sut->getMetadataFor($class)->getAttributesMetadata() as $property => $attribute) {
                 foreach ($attribute->getGroups() as $group) {
-                    if (!in_array($group, $baseGroups, true) && !$this->isPermissionGroup($group)) {
-                        $unknown[] = "$class::\$$property uses group '$group', which is neither a base group nor a defined permission (typo?)";
+                    if (!$this->isPermissionGroup($group)) {
+                        $unknown[] = "$class::\$$property uses group '$group', which is not a defined permission (typo?)";
                     }
                 }
             }
@@ -135,21 +139,19 @@ class FieldPermissionGuardTest extends FunctionalTestCase
     }
 
     /**
-     * An input class is read, not printed. The serializer would drop a property without the input
-     * base group silently, before the processor can reject it for a missing permission.
+     * Incoming data must not be filtered by groups: the serializer would drop a property the user may
+     * not send silently, before the processor can reject the request with a 403.
      */
-    public function testEveryPropertyOfAnInputClassCarriesTheInputBaseGroup(): void
+    public function testOperationsWithAnInputClassDeclareNoGroupsForIncomingData(): void
     {
-        $missing = [];
-        foreach ($this->getInputClasses() as $class => $baseGroups) {
-            foreach ($this->sut->getMetadataFor($class)->getAttributesMetadata() as $property => $attribute) {
-                if ([] === array_intersect($attribute->getGroups(), $baseGroups)) {
-                    $missing[] = "$class::\$$property carries none of the input base groups (".implode(', ', $baseGroups).')';
-                }
+        $filtering = [];
+        foreach ($this->getInputClasses() as $class => $incomingGroups) {
+            if ([] !== $incomingGroups) {
+                $filtering[] = "$class is read with the groups ".implode(', ', $incomingGroups).', which filter the sent properties silently';
             }
         }
 
-        self::assertSame([], $missing);
+        self::assertSame([], $filtering);
     }
 
     /**

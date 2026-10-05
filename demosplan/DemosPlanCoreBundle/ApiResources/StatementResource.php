@@ -38,7 +38,6 @@ use Symfony\Component\Serializer\Attribute\Groups;
         new Get(uriTemplate: '/Statement/{id}'),
         new Patch(
             uriTemplate: '/Statement/{id}',
-            denormalizationContext: ['groups' => ['write']],
             input: UpdateStatement::class,
             processor: StatementPatchProcessor::class,
         ),

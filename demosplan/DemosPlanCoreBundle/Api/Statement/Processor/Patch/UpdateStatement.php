@@ -18,10 +18,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * What a user may send to change a statement (PATCH of the Statement resource).
  *
- * Every property carries the base group `write`, so every sent property reaches the processor. A
- * permission name next to it is the permission the user needs to send that property. The
- * StatementPatchProcessor checks it and rejects the request with a 403 instead of dropping the
- * property silently. See {@see \demosplan\DemosPlanCoreBundle\Api\Serializer\FieldPermissionResolver}.
+ * A permission name on a property is the permission the user needs to send it. The serializer does
+ * not filter incoming data (the Patch declares no groups for it and PermissionContextBuilder leaves
+ * it alone), so every sent property reaches the StatementPatchProcessor. The processor checks the
+ * permission and rejects the request with a 403 instead of dropping the property silently. A
+ * property without a permission name can be sent by everyone who may update statements.
+ * See {@see \demosplan\DemosPlanCoreBundle\Api\Serializer\FieldPermissionResolver}.
  *
  * A property that is not sent is `null`. The order matters: the submit date is applied before the
  * authored date, which may not be later than it.
@@ -30,44 +32,44 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 final class UpdateStatement
 {
-    #[Groups(['write', 'field_statement_memo'])]
+    #[Groups(['field_statement_memo'])]
     public ?string $memo = null;
 
-    #[Groups(['write', 'area_admin_statement_list'])]
+    #[Groups(['area_admin_statement_list'])]
     public ?string $internId = null;
 
-    #[Groups(['write', 'area_admin_statement_list'])]
+    #[Groups(['area_admin_statement_list'])]
     public ?string $authorName = null;
 
-    #[Groups(['write', 'area_admin_statement_list'])]
+    #[Groups(['area_admin_statement_list'])]
     public ?string $submitName = null;
 
-    #[Groups(['write', 'area_admin_statement_list'])]
+    #[Groups(['area_admin_statement_list'])]
     public ?string $initialOrganisationName = null;
 
-    #[Groups(['write', 'area_admin_statement_list'])]
+    #[Groups(['area_admin_statement_list'])]
     public ?string $initialOrganisationDepartmentName = null;
 
-    #[Groups(['write', 'area_admin_statement_list'])]
+    #[Groups(['area_admin_statement_list'])]
     public ?string $initialOrganisationStreet = null;
 
-    #[Groups(['write', 'area_admin_statement_list'])]
+    #[Groups(['area_admin_statement_list'])]
     public ?string $initialOrganisationHouseNumber = null;
 
-    #[Groups(['write', 'area_admin_statement_list'])]
+    #[Groups(['area_admin_statement_list'])]
     public ?string $initialOrganisationPostalCode = null;
 
-    #[Groups(['write', 'area_admin_statement_list'])]
+    #[Groups(['area_admin_statement_list'])]
     public ?string $initialOrganisationCity = null;
 
-    #[Groups(['write', 'area_admin_statement_list'])]
+    #[Groups(['area_admin_statement_list'])]
     public ?string $submitType = null;
 
-    #[Groups(['write', 'area_admin_statement_list'])]
+    #[Groups(['area_admin_statement_list'])]
     #[Assert\DateTime(format: DATE_ATOM)]
     public ?string $submitDate = null;
 
-    #[Groups(['write', 'area_admin_statement_list'])]
+    #[Groups(['area_admin_statement_list'])]
     #[Assert\DateTime(format: DATE_ATOM)]
     public ?string $authoredDate = null;
 }
