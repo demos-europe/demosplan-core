@@ -17,9 +17,11 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Logic\EditorService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ExportImageOptimizer;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\ImageLinkConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\Export\Utils\HtmlHelper;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ImageReference;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Tests\Base\FunctionalTestCase;
 
@@ -40,13 +42,18 @@ class ImageLinkConverterTest extends FunctionalTestCase
             fn ($hash) => '/absolute/path/to/'.$hash
         );
 
+        // No real file exists at the fake paths above, so the optimizer falls back to the
+        // original path unchanged - matching the pre-optimization test expectations.
+        $imageOptimizer = $this->createMock(ExportImageOptimizer::class);
+        $imageOptimizer->method('optimize')->willReturnArgument(0);
+
         /** @var HtmlHelper $htmlHelper */
         $htmlHelper = $this->getContainer()->get(HtmlHelper::class);
         $logger = $this->getContainer()->get(LoggerInterface::class);
 
         /** @var EditorService $editorService */
         $editorService = $this->getContainer()->get(EditorService::class);
-        $this->sut = new ImageLinkConverter($htmlHelper, $fileService, $editorService, $logger);
+        $this->sut = new ImageLinkConverter($htmlHelper, $fileService, $editorService, $imageOptimizer, $logger);
     }
 
     public function testObscureSegmentText()
@@ -196,6 +203,100 @@ class ImageLinkConverterTest extends FunctionalTestCase
             $ref2->getImageReference()
         );
         static::assertSame('/absolute/path/to/image3.jpg', $ref2->getImagePath());
+    }
+
+    public function testDuplicateHashIsStagedOnlyOnce(): void
+    {
+        $fileService = $this->createMock(FileService::class);
+        $fileService->expects(self::once())
+            ->method('ensureLocalFileFromHash')
+            ->with('image1.jpg')
+            ->willReturn('/absolute/path/to/image1.jpg');
+
+        $imageOptimizer = $this->createMock(ExportImageOptimizer::class);
+        $imageOptimizer->expects(self::once())->method('optimize')->willReturnArgument(0);
+
+        $sut = $this->createSutWithMockedFileService($fileService, $imageOptimizer);
+
+        $segment = SegmentFactory::createOne()->_real();
+        $link = '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
+            '" href="path/to/image1.jpg">Darstellung_Stell_001</a>';
+        $segment->setText('<p>'.$link.self::AND_SEPARATOR.$link.'</p>');
+        $segment->setRecommendation('<p>no images here</p>');
+
+        $sut->convert($segment, 'statement123');
+    }
+
+    public function testResetRemovesStagedFilesButNeverTheFallbackPath(): void
+    {
+        $fileService = $this->createMock(FileService::class);
+        $fileService->method('ensureLocalFileFromHash')->willReturnCallback(
+            static function (string $hash) {
+                if ('badhash.jpg' === $hash) {
+                    throw new Exception('file not found');
+                }
+
+                return '/tmp/dplan/'.$hash.'/'.$hash;
+            }
+        );
+        $fileService->expects(self::once())
+            ->method('deleteLocalFile')
+            ->with('/tmp/dplan/goodhash.jpg');
+
+        $imageOptimizer = $this->createMock(ExportImageOptimizer::class);
+        $imageOptimizer->method('optimize')->willReturnArgument(0);
+
+        $sut = $this->createSutWithMockedFileService($fileService, $imageOptimizer);
+
+        $segment = SegmentFactory::createOne()->_real();
+        $goodLink = '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
+            '" href="path/to/goodhash.jpg">Darstellung_Stell_001</a>';
+        $badLink = '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
+            '" href="path/to/badhash.jpg">Darstellung_Stell_002</a>';
+        $segment->setText('<p>'.$goodLink.self::AND_SEPARATOR.$badLink.'</p>');
+        $segment->setRecommendation('<p>no images here</p>');
+
+        $sut->convert($segment, 'statement123');
+        $sut->reset();
+    }
+
+    public function testResetEmptiesCacheSoNextConvertStagesAgain(): void
+    {
+        $fileService = $this->createMock(FileService::class);
+        $fileService->expects(self::exactly(2))
+            ->method('ensureLocalFileFromHash')
+            ->with('image1.jpg')
+            ->willReturn('/absolute/path/to/image1.jpg');
+
+        $imageOptimizer = $this->createMock(ExportImageOptimizer::class);
+        $imageOptimizer->expects(self::exactly(2))->method('optimize')->willReturnArgument(0);
+
+        $sut = $this->createSutWithMockedFileService($fileService, $imageOptimizer);
+
+        $link = '<a class="'.HtmlHelper::LINK_CLASS_FOR_DARSTELLUNG_STELL.
+            '" href="path/to/image1.jpg">Darstellung_Stell_001</a>';
+
+        $segment = SegmentFactory::createOne()->_real();
+        $segment->setText('<p>'.$link.'</p>');
+        $segment->setRecommendation('<p>no images here</p>');
+        $sut->convert($segment, 'statement123');
+        $sut->reset();
+
+        $segment2 = SegmentFactory::createOne()->_real();
+        $segment2->setText('<p>'.$link.'</p>');
+        $segment2->setRecommendation('<p>no images here</p>');
+        $sut->convert($segment2, 'statement456');
+    }
+
+    private function createSutWithMockedFileService(FileService $fileService, ExportImageOptimizer $imageOptimizer): ImageLinkConverter
+    {
+        /** @var HtmlHelper $htmlHelper */
+        $htmlHelper = $this->getContainer()->get(HtmlHelper::class);
+        $logger = $this->getContainer()->get(LoggerInterface::class);
+        /** @var EditorService $editorService */
+        $editorService = $this->getContainer()->get(EditorService::class);
+
+        return new ImageLinkConverter($htmlHelper, $fileService, $editorService, $imageOptimizer, $logger);
     }
 
     private function createTestSegment(): Segment

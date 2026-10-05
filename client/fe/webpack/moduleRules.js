@@ -191,6 +191,18 @@ const moduleRules =
       },
     },
     {
+      /*
+       * Masterportalapi ships raw ESM source but declares "type": "commonjs" since 2.63.0,
+       * which makes webpack parse it as strict CJS. Force ESM parsing instead of running it
+       * through babel-loader: babel would rewrite its internal `import`s to `require`, which
+       * makes dependencies with dual ESM/CJS "exports" conditions (e.g. ol-mapbox-style)
+       * resolve to their legacy CJS build instead of the ESM one, breaking at runtime
+       */
+      test: /\.js$/,
+      include: resolveDir('node_modules/@masterportal/masterportalapi/src'),
+      type: 'javascript/esm',
+    },
+    {
       test: /\.js$/,
       use: ['source-map-loader'],
       enforce: 'pre',

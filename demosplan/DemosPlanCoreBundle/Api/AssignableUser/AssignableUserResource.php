@@ -51,8 +51,8 @@ class AssignableUserResource
     {
         $resource = new self();
         $resource->id = $user->getId();
-        $resource->firstname = $user->getFirstname();
-        $resource->lastname = $user->getLastname();
+        $resource->firstname = $user->getFirstname() ?? '';
+        $resource->lastname = $user->getLastname() ?? '';
         $resource->orga = null !== $user->getOrga() ? OrgaResource::fromEntity($user->getOrga()) : null;
 
         return $resource;

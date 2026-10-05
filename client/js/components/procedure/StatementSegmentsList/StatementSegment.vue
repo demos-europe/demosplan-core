@@ -159,20 +159,30 @@
         />
       </div>
       <div v-else>
+        <dp-loading
+          v-if="recommendationEmbeddedLoading"
+          class="mb-2"
+          data-cy="segmentEditor:loading"
+        />
         <dp-editor
+          v-else
+          ref="editor"
           class="mb-2"
           editor-id="recommendationText"
+          :get-boilerplate-title="getBoilerplateTitle"
+          :on-unlink-request="handleUnlinkRequest"
           :routes="{
             getFileByHash: (hash) => Routing.generate('core_file_procedure', { procedureId: procedureId, hash: hash })
           }"
           :toolbar-items="{
+            boilerplate: canLinkBoilerplate,
             fullscreenButton: false,
             imageButton: true,
             linkButton: true
           }"
           :tus-endpoint="dplan.paths.tusEndpoint"
-          :value="segment.attributes.recommendation"
-          @input="value => updateSegment('recommendation', value)"
+          :value="recommendationForEditor"
+          @input="updateRecommendation"
         >
           <template v-slot:modal="modalProps">
             <dp-boiler-plate-modal
@@ -182,7 +192,8 @@
               editor-id="recommendationText"
               :procedure-id="procedureId"
               :preview-segment-id="segment.id"
-              @insert="(text, boilerplateId) => insertBoilerplateText(text, boilerplateId, modalProps.handleInsertText)"
+              @closed="modalProps.focusEditor"
+              @insert="(text, boilerplateId) => insertBoilerplateText(text, boilerplateId, modalProps.insertBoilerplate, modalProps.handleInsertText)"
             />
             <recommendation-modal
               ref="recommendationModal"
@@ -216,6 +227,13 @@
             </button>
           </template>
         </dp-editor>
+        <dp-confirm-dialog
+          ref="unlinkBoilerplateDialog"
+          data-cy="unlinkBoilerplate"
+          :confirm-button-text="Translator.trans('boilerplate.link.dissolve')"
+          :header="Translator.trans('boilerplate.link.dissolve')"
+          :message="unlinkBoilerplateConfirmMessage"
+        />
       </div>
       <div
         v-if="hasPermission('feature_enable_recommendation_versions') && recommendationVersionNumber"
@@ -225,6 +243,12 @@
           {{ `${Translator.trans('version')}: ${recommendationVersionNumber}` }}
         </span>
       </div>
+      <segment-tags
+        v-if="isAssignedToMe && !isLocked"
+        :segment-id="segment.id"
+        :tags="segmentTags"
+        @update="updateSegmentTags"
+      />
       <div v-if="isAssignedToMe && !isLocked">
         <dp-checkbox
           :id="'showWorkflowFields_' + segment.id"
@@ -322,8 +346,8 @@
             :label="{
               text: Translator.trans('deadline.processing.until')
             }"
-            :value="formattedDeadline"
-            @input="value => handleDeadlineUpdate(value)"
+            :model-value="formattedDeadline"
+            @update:model-value="value => handleDeadlineUpdate(value)"
           />
 
           <custom-fields-list
@@ -506,18 +530,22 @@ import {
   DpButton,
   DpButtonRow,
   DpCheckbox,
+  DpConfirmDialog,
   DpContextualHelp,
   DpDatepicker,
   DpIcon,
   DpLabel,
+  DpLoading,
   DpMultiselect,
   DpTooltip,
   formatDate,
   prefixClassMixin,
   reformatDateString,
+  sortAlphabetically,
   Tooltip,
   VPopover,
 } from '@demos-europe/demosplan-ui'
+import { embedBoilerplateContent, stripBoilerplateContent } from './utils/boilerplateTagContent'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
 import CustomField from '@DpJs/components/customFields/CustomField'
@@ -526,6 +554,7 @@ import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import ImageModal from '@DpJs/components/shared/ImageModal'
 import RecommendationModal from '../Shared/RecommendationModal'
+import SegmentTags from './SegmentTags'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useUnsavedChangesGuard } from '@DpJs/composables/useUnsavedChangesGuard'
@@ -543,6 +572,7 @@ export default {
     DpButton,
     DpButtonRow,
     DpCheckbox,
+    DpConfirmDialog,
     DpContextualHelp,
     DpClaim,
     DpDatepicker,
@@ -553,10 +583,12 @@ export default {
     }),
     DpIcon,
     DpLabel,
+    DpLoading,
     DpMultiselect,
     DpTooltip,
     ImageModal,
     RecommendationModal,
+    SegmentTags,
     TextContentRenderer,
     VPopover,
   },
@@ -627,6 +659,18 @@ export default {
       isHover: false,
       isSaving: false,
       lockedBeforeSave: false,
+      pendingUnlink: null,
+      /*
+       * The active unlink-undo toast's stored message, so a subsequent editor change can
+       * dismiss it before its timer runs out — see updateRecommendation.
+       */
+      pendingUnlinkToast: null,
+      /*
+       * Tag-form recommendation text (see boilerplateTagContent.js), fetched lazily once
+       * editing starts — null until then, so recommendationForEditor knows not to render yet.
+       */
+      recommendationEmbedded: null,
+      recommendationEmbeddedLoading: false,
       selectedAssignee: {},
       selectedPlace: { id: '', type: 'Place' },
       showAdditionalFields: false,
@@ -639,6 +683,8 @@ export default {
       assignableUserItems: 'items',
     }),
 
+    ...mapState('Boilerplates', ['boilerplates', 'getBoilerplatesRequestFired']),
+
     ...mapState('Place', {
       placeItems: 'items',
     }),
@@ -650,6 +696,15 @@ export default {
     ...mapState('SegmentSlidebar', [
       'slidebar',
     ]),
+
+    ...mapState('StatementSegment', {
+      initialSegments: 'initial',
+      segmentItems: 'items',
+    }),
+
+    ...mapState('Tag', {
+      tagsItems: 'items',
+    }),
 
     assignableUsers () {
       const assigneeOptions = Object.values({ ...this.assignableUserItems })
@@ -675,6 +730,16 @@ export default {
       } else {
         return { id: '', name: '', orgaName: '' }
       }
+    },
+
+    /**
+     * Gates the whole boilerplate-linking feature. Used both to register the editor extension
+     * and to decide whether inserted text gets wrapped in a linked node — those two must
+     * always agree: writing the wrapper while the extension is absent means ProseMirror drops
+     * the unknown markup on load and the next save discards the link for good.
+     */
+    canLinkBoilerplate () {
+      return hasPermission('feature_boilerplate_usage_list')
     },
 
     commentCount () {
@@ -711,7 +776,7 @@ export default {
         return false
       }
 
-      const initialSegment = this.$store.state.StatementSegment?.initial[this.segment.id]
+      const initialSegment = this.initialSegments?.[this.segment.id]
 
       if (!initialSegment) {
         return false
@@ -725,11 +790,16 @@ export default {
       const currentAssigneeId = (this.selectedAssignee?.id && this.selectedAssignee.id !== 'noAssigneeId') ? this.selectedAssignee.id : null
       const hasAssigneeChanges = initialAssigneeId !== currentAssigneeId
 
+      const initialTagIds = (initialSegment.relationships?.tags?.data || []).map(tag => tag.id).sort()
+      const currentTagIds = (this.segment.relationships?.tags?.data || []).map(tag => tag.id).sort()
+      const hasTagChanges = JSON.stringify(initialTagIds) !== JSON.stringify(currentTagIds)
+
       return (
         hasRecommendationChanges ||
         hasDeadlineChanges ||
         hasPlaceChanges ||
         hasAssigneeChanges ||
+        hasTagChanges ||
         this.hasCustomFieldChanges
       )
     },
@@ -755,10 +825,14 @@ export default {
     },
 
     places () {
-      return this.$store.state.Place ?
-        Object.values(this.$store.state.Place.items)
-          .map(pl => ({ ...pl.attributes, id: pl.id })) :
-        []
+      return Object.values(this.placeItems)
+        .map(place => {
+          return {
+            ...place.attributes,
+            id: place.id,
+            type: place.type,
+          }
+        })
     },
 
     recommendationVersionNumber () {
@@ -781,18 +855,56 @@ export default {
         {}
     },
 
+    segmentTags () {
+      const ids = this.segment.relationships?.tags?.data?.map(ref => ref.id) || []
+      const included = this.segment.hasRelationship('tags') ? Object.values(this.segment.rel('tags')).filter(Boolean) : []
+
+      return sortAlphabetically(
+        ids
+          .map(id => included.find(tag => tag.id === id) || this.tagsItems[id])
+          .filter(Boolean),
+        'attributes.title',
+      )
+    },
+
     shouldShowButtonRow () {
-      return this.isAssignedToMe &&
-        !this.isLocked &&
-        (this.isEditing || this.showWorkflowFields || this.showAdditionalFields)
+      return this.isAssignedToMe && !this.isLocked
     },
 
     tagsAsString () {
-      if (this.segment.hasRelationship('tags')) {
-        return Object.values(this.segment.rel('tags')).map(el => el.attributes.title).join(', ')
+      return this.segmentTags.length ? this.segmentTags.map(tag => tag.attributes.title).join(', ') : '-'
+    },
+
+    /**
+     * Falls back to the generic word for "boilerplate" when the title can't be resolved
+     * (getBoilerplateTitle returns '' — the boilerplate may have been deleted since linking).
+     */
+    unlinkBoilerplateConfirmMessage () {
+      const title = this.pendingUnlink?.title || Translator.trans('boilerplate')
+
+      return Translator.trans('boilerplate.link.dissolve.confirm', { title })
+    },
+
+    /**
+     * The recommendation text for the editor's `:value`. Without the permission, this is
+     * unchanged from before — the plain substituted text. With it, boilerplate tags in the
+     * fetched recommendationEmbedded get their current content filled in (see
+     * boilerplateTagContent.js), so linked boilerplates render as their own node in the
+     * editor instead of as plain, unrecognized text.
+     *
+     * `visibleRecommendation` below stays on `segment.attributes.recommendation` — the
+     * read-only view must keep showing the plain substituted text regardless of this.
+     */
+    recommendationForEditor () {
+      if (!this.canLinkBoilerplate) {
+        return this.segment.attributes.recommendation
       }
 
-      return '-'
+      if (this.recommendationEmbedded === null) {
+        return ''
+      }
+
+      return embedBoilerplateContent(this.recommendationEmbedded, this.boilerplates)
     },
 
     visibleRecommendation () {
@@ -822,15 +934,28 @@ export default {
       deep: false, // Set default for migrating purpose. To know this occurrence is checked
       immediate: true, // This ensures the handler is executed immediately after the component is created
     },
+
+    showAdditionalFields (newVal) {
+      // Check if fields are hidden and if this is a "hide fields after save", in which case the deadline value should not be reverted
+      if (!newVal && !this.isSaving) {
+        this.revertAdditionalFields()
+      }
+    },
+
+    showWorkflowFields (newVal) {
+      if (!newVal) {
+        this.revertWorkflowFields()
+      }
+    },
   },
 
   methods: {
-    ...mapActions('SegmentSlidebar', [
-      'toggleSlidebarContent',
+    ...mapActions('Boilerplates', [
+      'getBoilerPlates',
     ]),
 
-    ...mapMutations('SegmentSlidebar', [
-      'setProperty',
+    ...mapActions('SegmentSlidebar', [
+      'toggleSlidebarContent',
     ]),
 
     ...mapActions('StatementSegment', {
@@ -1014,7 +1139,7 @@ export default {
       })
     },
 
-    completeSave (comments) {
+    completeSave (readOnlyRelationships) {
       return Promise.all([
         this.fetchUpdatedSegment().catch(() => null),
         this.saveCustomFields(),
@@ -1026,38 +1151,32 @@ export default {
           this.addRecommendationImageListeners()
         })
         .catch(() => {
-          this.rollbackFailedSave(comments)
+          this.rollbackFailedSave(readOnlyRelationships)
         })
         .finally(() => {
-          this.restoreRelationships()
+          this.restoreReadOnlyRelationships(readOnlyRelationships)
           this.cancelEditingState()
         })
-    },
-
-    /**
-     * Remove non-updatable comments from segments relationships for update request
-     * @param relations {Object}
-     */
-    excludeComments (relations) {
-      if (relations.comments) {
-        this.setProperty({ prop: 'isLoading', val: true })
-        delete relations.comments
-      }
-    },
-
-    /**
-     * Remove non-updatable recommendationVersions from segments relationships for update request
-     * @param relations {Object}
-     */
-    excludeRecommendationVersion (relations) {
-      if (relations.recommendationVersions) {
-        delete relations.recommendationVersions
-      }
     },
 
     exitEditMode () {
       this.isFullscreen = false
       this.isEditing = false
+    },
+
+    /**
+     * Resolves a boilerplate id to its current title for display in the editor node. Passed
+     * into the editor extension, which has no access to the store.
+     *
+     * Returns an empty string when the lookup fails — the boilerplate may have been deleted,
+     * or the store may not be loaded yet (it is currently only fetched when the boilerplate
+     * modal is created). The node renders a generic label in that case.
+     *
+     * @param {String} boilerplateId
+     * @return {String}
+     */
+    getBoilerplateTitle (boilerplateId) {
+      return this.boilerplates[boilerplateId]?.attributes?.title ?? ''
     },
 
     getUnassignedAssignee () {
@@ -1077,6 +1196,41 @@ export default {
       const isoDate = reformatDateString(value)
 
       this.updateSegment('deadline', isoDate)
+    },
+
+    /**
+     * Called when the user clicks the pencil on a linked boilerplate in the editor. Confirms,
+     * dissolves the node so its text stays as plain paragraphs, then offers an undo toast for
+     * 15 seconds. `editor.commands.undo()` only undoes whatever transaction happened last, so
+     * updateRecommendation dismisses the toast on any further edit before it can undo the
+     * wrong thing.
+     *
+     * @param {Object} payload
+     * @param {String} payload.boilerplateId
+     * @param {Number} payload.pos Document position of the node, needed to dissolve it
+     */
+    async handleUnlinkRequest ({ boilerplateId, pos }) {
+      this.pendingUnlink = { boilerplateId, pos, title: this.getBoilerplateTitle(boilerplateId) }
+
+      const isConfirmed = await this.$refs.unlinkBoilerplateDialog.open()
+
+      if (!isConfirmed) {
+        return
+      }
+
+      this.$refs.editor.unlinkBoilerplate(pos)
+
+      const title = this.pendingUnlink.title || Translator.trans('boilerplate')
+
+      this.pendingUnlinkToast = await dplan.notify.confirm({
+        message: Translator.trans('boilerplate.link.dissolved', { title }),
+        actionText: Translator.trans('undo'),
+        hideTimer: 15000,
+        onAction: () => {
+          this.pendingUnlinkToast = null
+          this.$refs.editor?.undo()
+        },
+      })
     },
 
     hasPolygonFeatures () {
@@ -1105,6 +1259,12 @@ export default {
         .then(() => {
           this.setSelectedAssignee()
         })
+    },
+
+    initBoilerplates () {
+      if (this.getBoilerplatesRequestFired === false) {
+        return this.getBoilerPlates(this.procedureId)
+      }
     },
 
     initPlaces () {
@@ -1160,42 +1320,54 @@ export default {
     },
 
     /**
-     * Inserts the boilerplate text into the recommendation editor and records
-     * the usage of the boilerplate in this segment in the backend.
+     * Inserts the boilerplate text into the recommendation editor and records the usage of
+     * the boilerplate in this segment in the backend.
+     *
+     * With a known id and the permission in place, the text goes in as a boilerplate node
+     * carrying that id, so it stays recognizable and linked across saving and reloading.
+     * Without either, it falls back to plain text — the behaviour every other editor in the
+     * application has.
+     *
+     * Both insertion functions come from DpEditor's `modal` slot; which one applies has to
+     * match `canLinkBoilerplate`, see the comment there.
+     *
+     * `insertBoilerplate` refuses (returns false) if this boilerplate is already linked
+     * elsewhere in the recommendation, or if the cursor is inside an existing one — shown to
+     * the user as a notice, since the modal closes either way and nothing else would tell them.
+     *
+     * @param {String} text Boilerplate text as HTML
+     * @param {String} boilerplateId Empty when the source didn't provide one
+     * @param {Function} insertBoilerplate Inserts as a linked node
+     * @param {Function} handleInsertText Inserts as plain text
+     * @return {Promise}
      */
-    insertBoilerplateText (text, boilerplateId, handleInsertText) {
-      handleInsertText(text)
+    insertBoilerplateText (text, boilerplateId, insertBoilerplate, handleInsertText) {
+      if (!boilerplateId || !this.canLinkBoilerplate) {
+        handleInsertText(text)
 
-      if (boilerplateId && hasPermission('feature_boilerplate_usage_list')) {
-        return dpApi.post(
-          Routing.generate('dplan_boilerplate_usage_create', { procedureId: this.procedureId, boilerplateId }),
-          {},
-          { segmentId: this.segment.id },
-        ).catch(() => {
-          // Recording the usage is non-critical: the text was inserted regardless.
-        })
+        return Promise.resolve()
       }
 
-      return Promise.resolve()
+      const wasInserted = insertBoilerplate(boilerplateId, text)
+
+      if (!wasInserted) {
+        dplan.notify.error(Translator.trans('boilerplate.link.exists'))
+
+        return Promise.resolve()
+      }
+
+      return dpApi.post(
+        Routing.generate('dplan_boilerplate_usage_create', { procedureId: this.procedureId, boilerplateId }),
+        {},
+        { segmentId: this.segment.id },
+      ).catch(() => {
+        // Recording the usage is non-critical: the text was inserted regardless.
+      })
     },
 
     openBoilerPlate () {
       if (hasPermission('area_admin_boilerplates')) {
         this.$refs.boilerPlateModal.toggleModal()
-      }
-    },
-
-    restoreComments (comments) {
-      if (comments) {
-        const segmentWithComments = {
-          ...this.segment,
-          relationships: {
-            ...this.segment.relationships,
-            comments,
-          },
-        }
-
-        this.setSegment({ ...segmentWithComments, id: this.segment.id })
       }
     },
 
@@ -1208,15 +1380,59 @@ export default {
       this.setSelectedAssignee()
     },
 
-    restoreRelationships (comments) {
-      this.restoreComments(comments)
-      this.setProperty({ prop: 'isLoading', val: false })
+    /**
+     * Re-add read-only relationships stripped by updateRelationships() to the store
+     * Comments and recommendationVersions are only added as relationship if they don't exist already
+     *
+     * @param comments {Object|null}
+     * @param recommendationVersions {Object|null}
+     */
+    restoreReadOnlyRelationships ({ comments, recommendationVersions }) {
+      const storedSegment = this.segmentItems[this.segment.id]
+
+      if (!storedSegment) {
+        return
+      }
+
+      const restoreComments = comments && !storedSegment.relationships.comments
+      const restoreRecommendationVersions = recommendationVersions && !storedSegment.relationships.recommendationVersions
+
+      if (!restoreComments && !restoreRecommendationVersions) {
+        return
+      }
+
+      const relationships = { ...storedSegment.relationships }
+
+      if (restoreComments) {
+        relationships.comments = comments
+      }
+
+      if (restoreRecommendationVersions) {
+        relationships.recommendationVersions = recommendationVersions
+      }
+
+      this.setSegment({ ...storedSegment, relationships, id: storedSegment.id })
     },
 
-    rollbackFailedSave (comments) {
+    revertAdditionalFields () {
+      const initialSegment = this.initialSegments?.[this.segment.id]
+
+      if (initialSegment) {
+        this.updateSegment('deadline', initialSegment.attributes.deadline)
+      }
+
+      this.restoreInitialCustomFields()
+    },
+
+    revertWorkflowFields () {
+      this.setSelectedAssignee()
+      this.setSelectedPlace()
+    },
+
+    rollbackFailedSave (readOnlyRelationships) {
       dplan.notify.notify('error', Translator.trans('error.changes.not.saved'))
       this.restoreSegmentAction(this.segment.id)
-      this.restoreRelationships(comments)
+      this.restoreReadOnlyRelationships(readOnlyRelationships)
       this.isSaving = false
     },
 
@@ -1250,35 +1466,47 @@ export default {
     },
 
     save () {
-      const comments = this.segment.relationships.comments ?
-        { ...this.segment.relationships.comments } :
-        null
+      const readOnlyRelationships = {
+        comments: this.segment.relationships.comments ?
+          { ...this.segment.relationships.comments } :
+          null,
+        recommendationVersions: this.segment.relationships.recommendationVersions ?
+          { ...this.segment.relationships.recommendationVersions } :
+          null,
+      }
 
-      // Update relationships (assignee/place)
-      const relations = this.updateRelationships()
-
-      /**
-       *  Comments and recommendationVersions need to be removed from the PATCH payload
-       *  as updating them is technically not supported
+      /*
+       * Update relationships (assignee/place). Read-only relationships (comments,
+       * recommendationVersions) are stripped inside updateRelationships so they never
+       * reach the PATCH payload.
        */
-      this.excludeComments(relations)
-      this.excludeRecommendationVersion(relations)
+      this.updateRelationships()
 
       this.lockedBeforeSave = this.isLocked
       this.isSaving = true
 
-      return this.saveSegmentAction({ id: this.segment.id })
+      const savePromise = this.saveSegmentAction({ id: this.segment.id })
+
+      this.restoreReadOnlyRelationships(readOnlyRelationships)
+
+      return savePromise
         .then((response) => {
+          /*
+           * The saveAction overwrites segment data in the store without the read-only relationships,
+           * so they have to be restored again to keep comments visible while saving
+           */
+          this.restoreReadOnlyRelationships(readOnlyRelationships)
+
           if (response && (response.status >= 400 || response.ok === false)) {
-            this.rollbackFailedSave(comments)
+            this.rollbackFailedSave(readOnlyRelationships)
 
             return
           }
 
-          return this.completeSave(comments)
+          return this.completeSave(readOnlyRelationships)
         })
         .catch(() => {
-          this.rollbackFailedSave(comments)
+          this.rollbackFailedSave(readOnlyRelationships)
         })
     },
 
@@ -1307,9 +1535,12 @@ export default {
     },
 
     setSelectedPlace () {
-      if (this.segment.relationships.place) {
-        this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
+      // Places may still be loading; initPlaces re-runs this once they arrive
+      if (!this.segment.relationships.place || this.places.length === 0) {
+        return
       }
+
+      this.selectedPlace = this.places.find(place => place.id === this.segment.relationships.place.data.id) || this.places[0]
     },
 
     showComments () {
@@ -1358,9 +1589,61 @@ export default {
       this.toggleSlidebarContent({ prop: 'slidebar', val: { externId: this.segment.attributes.externId, isOpen: true, segmentId: this.segment.id, showTab: 'sendViaMail' } })
     },
 
+    /**
+     * Both fetches are only needed once editing starts, not for every segment in a list.
+     * Gated on one flag via Promise.all (see SegmentsBulkEdit.vue's mounted()) rather than
+     * each fetch flipping it alone, since recommendationForEditor needs both to be done.
+     */
     startEditing () {
       this.isEditing = true
       this.isCollapsed = false
+
+      if (!this.canLinkBoilerplate) {
+        return
+      }
+
+      this.recommendationEmbeddedLoading = true
+
+      const promises = [this.initBoilerplates()]
+
+      if (this.recommendationEmbedded === null) {
+        promises.push(this.loadRecommendationEmbedded())
+      }
+
+      Promise.all(promises)
+        .then(() => {
+          this.recommendationEmbeddedLoading = false
+        })
+        .catch(() => {
+          this.recommendationEmbeddedLoading = false
+        })
+    },
+
+    /**
+     * Fetches the tag-form recommendation for the editor. A separate, targeted request
+     * rather than part of the segment's normal load: `recommendationEmbedded` is not a
+     * default field (readable(false) on the backend), so the segment's own generic load
+     * never includes it.
+     */
+    loadRecommendationEmbedded () {
+      const url = Routing.generate('api_resource_get', {
+        resourceType: 'StatementSegment',
+        resourceId: this.segment.id,
+      })
+
+      return dpApi.get(url, { fields: { StatementSegment: 'recommendationEmbedded' } })
+        .then(response => {
+          this.recommendationEmbedded = response?.data?.data?.attributes?.recommendationEmbedded ?? ''
+        })
+        .catch(() => {
+          /*
+           * Falls back to the substituted, already-known text rather than leaving the editor
+           * empty. It has no boilerplate tags in it, so embedBoilerplateContent below passes
+           * it through unchanged — editable, just without any still-linked boilerplates
+           * recognized as such for this session.
+           */
+          this.recommendationEmbedded = this.segment.attributes.recommendation
+        })
     },
 
     hideAdditionalFields () {
@@ -1426,6 +1709,14 @@ export default {
     updateRelationships () {
       let relations = { ...this.segment.relationships }
 
+      /*
+       * `comments` and `recommendationVersions` are read-only on the StatementSegment resource (they are managed through
+       * their own resources/endpoints), so we need to remove them from the payload to prevent them from being written
+       * to the store and sent to the BE on save
+       */
+      delete relations.comments
+      delete relations.recommendationVersions
+
       if (this.showWorkflowFields) {
         let assignee = { assignee: { data: null } }
 
@@ -1466,8 +1757,50 @@ export default {
       return relations
     },
 
+    /**
+     * Handles the editor's `@input`. With the permission, the editor's HTML has boilerplate
+     * tags filled with their current content (see recommendationForEditor) — stripping that
+     * content back out before storing is what keeps the database holding only the empty,
+     * reference-only tag. Without the permission, stored exactly as the editor emits it,
+     * same as before this feature existed.
+     *
+     * Also mirrors the stripped value into `recommendationEmbedded`, which otherwise stays
+     * frozen at whatever `loadRecommendationEmbedded` fetched once at the start of the first
+     * editing session (see its guard in `startEditing`). Without this, leaving and re-entering
+     * edit mode later in the same page session would rebuild `recommendationForEditor` from
+     * that stale snapshot and silently discard anything inserted/removed since.
+     */
+    updateRecommendation (value) {
+      if (this.pendingUnlinkToast) {
+        dplan.notify.remove(this.pendingUnlinkToast)
+        this.pendingUnlinkToast = null
+      }
+
+      const valueToStore = this.canLinkBoilerplate ? stripBoilerplateContent(value) : value
+
+      if (this.canLinkBoilerplate) {
+        this.recommendationEmbedded = valueToStore
+      }
+
+      this.updateSegment('recommendation', valueToStore)
+    },
+
     updateSegment (key, val) {
       const updated = { ...this.segment, ...{ attributes: { ...this.segment.attributes, ...{ [key]: val } } } }
+
+      this.setSegment({ ...updated, id: this.segment.id })
+    },
+
+    updateSegmentTags (newTags) {
+      const updated = {
+        ...this.segment,
+        relationships: {
+          ...this.segment.relationships,
+          tags: {
+            data: newTags.map(tag => ({ id: tag.id, type: 'Tag' })),
+          },
+        },
+      }
 
       this.setSegment({ ...updated, id: this.segment.id })
     },
@@ -1476,7 +1809,6 @@ export default {
   mounted () {
     this.initPlaces()
     this.initAssignableUsers()
-
 
     // Initialize unsaved changes guard
     this.initUnsavedChangesGuard({

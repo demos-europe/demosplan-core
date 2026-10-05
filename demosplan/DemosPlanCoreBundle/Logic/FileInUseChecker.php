@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
 use demosplan\DemosPlanCoreBundle\Entity\Document\ParagraphVersion;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocument;
 use demosplan\DemosPlanCoreBundle\Entity\Document\SingleDocumentVersion;
+use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\FileContainer;
 use demosplan\DemosPlanCoreBundle\Entity\Forum\ForumEntryFile;
 use demosplan\DemosPlanCoreBundle\Entity\GlobalContent;
@@ -41,6 +42,8 @@ use Psr\Log\LoggerInterface;
 
 class FileInUseChecker
 {
+    private const ERROR_MESSAGE = 'Some error occurred';
+
     public function __construct(private readonly ManagerRegistry $managerRegistry, private readonly LoggerInterface $logger, private readonly TraceableEventDispatcher $eventDispatcher)
     {
     }
@@ -51,16 +54,18 @@ class FileInUseChecker
     public function isFileInUse(string $fileId): bool
     {
         if (
-            $this->isUsedInProcedure($fileId) ||
-            $this->isUsedInProcedureSettings($fileId) ||
-            $this->isUsedOutsideProcedure($fileId) ||
-            $this->isUsedOutsideProcedureManyToOne($fileId) ||
-            $this->isUsedInReferences($fileId)
+            $this->isUsedInProcedure($fileId)
+            || $this->isUsedInProcedureSettings($fileId)
+            || $this->isUsedOutsideProcedure($fileId)
+            || $this->isUsedOutsideProcedureManyToOne($fileId)
+            || $this->isUsedInReferences($fileId)
+            || $this->isUsedInCustomer($fileId)
         ) {
             return true;
         }
 
         $this->logger->info('File not used any more', [$fileId]);
+
         // if we did not find any occurrence file is unused
         return false;
     }
@@ -96,9 +101,9 @@ class FileInUseChecker
             }
         }
 
-        return $this->isGisLayerFileUsedInProcedure($fileId) ||
-            $this->isNewsFileUsedInProcedure($fileId) ||
-            $this->isLogoFileUsedInProcedure($fileId);
+        return $this->isGisLayerFileUsedInProcedure($fileId)
+            || $this->isNewsFileUsedInProcedure($fileId)
+            || $this->isLogoFileUsedInProcedure($fileId);
     }
 
     private function isUsedInProcedureSettings(string $fileId): bool
@@ -128,7 +133,8 @@ class FileInUseChecker
                     return true;
                 }
             } catch (Exception $e) {
-                $this->logger->error('Some error occurred', [$e]);
+                $this->logger->error(self::ERROR_MESSAGE, [$e]);
+
                 // better be safe
                 return true;
             }
@@ -161,7 +167,8 @@ class FileInUseChecker
                         return true;
                     }
                 } catch (Exception $e) {
-                    $this->logger->error('Some error occurred', [$e]);
+                    $this->logger->error(self::ERROR_MESSAGE, [$e]);
+
                     // better be safe
                     return true;
                 }
@@ -204,10 +211,55 @@ class FileInUseChecker
                     }
                 } catch (Exception $e) {
                     $this->logger->error('Something happened', [$e]);
+
                     // better be safe
                     return true;
                 }
             }
+        }
+
+        return false;
+    }
+
+    private function isUsedInCustomer(string $fileId): bool
+    {
+        // rich text fields; Customer does not have a deleted field
+        $customerFieldsToCheck = [
+            'overviewDescriptionInSimpleLanguage',
+            'signLanguageOverviewDescription',
+            'imprint',
+            'dataProtection',
+            'termsOfUse',
+            'xplanning',
+        ];
+
+        try {
+            // these fields embed the image via its physical hash (e.g. "/file/{hash}"),
+            // not via the filestring/ident tag used in Paragraph/Elements text fields
+            /** @var File|null $file */
+            $file = $this->managerRegistry->getRepository(File::class)->find($fileId);
+            $needles = array_unique(array_filter([$fileId, $file?->getHash()]));
+
+            /** @var EntityRepository $repos */
+            $repos = $this->managerRegistry->getRepository(Customer::class);
+            foreach ($customerFieldsToCheck as $field) {
+                foreach ($needles as $needle) {
+                    $entities = $repos->createQueryBuilder('e')
+                        ->where('e.'.$field.' LIKE :id')
+                        ->setParameter(':id', '%'.$needle.'%')
+                        ->getQuery()
+                        ->getResult();
+                    if (0 < (is_countable($entities) ? count($entities) : 0)) {
+                        // file is in use
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception $e) {
+            $this->logger->error(self::ERROR_MESSAGE, [$e]);
+
+            // better be safe
+            return true;
         }
 
         return false;

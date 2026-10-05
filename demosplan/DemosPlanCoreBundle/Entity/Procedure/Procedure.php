@@ -1563,6 +1563,16 @@ class Procedure extends SluggedEntity implements ProcedureInterface
         return $this->settings->getPictogram();
     }
 
+    public function getPictogramAltText(): string
+    {
+        return $this->settings->getPictogramAltText();
+    }
+
+    public function getPictogramCopyright(): string
+    {
+        return $this->settings->getPictogramCopyright();
+    }
+
     /**
      * @return Collection<int, NotificationReceiver>
      */

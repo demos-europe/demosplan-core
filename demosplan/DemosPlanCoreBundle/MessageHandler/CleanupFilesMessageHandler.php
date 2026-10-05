@@ -38,6 +38,14 @@ final class CleanupFilesMessageHandler
     {
         $this->initializeAnonymousUserPermissions();
 
+        try {
+            $this->logger->info('Maintenance: remove stale temporary export files');
+            $filesDeleted = $this->fileService->removeStaleTemporaryExportFiles();
+            $this->logger->info('Maintenance: Stale temporary export files deleted: ', [$filesDeleted]);
+        } catch (Exception $exception) {
+            $this->logger->error('Daily maintenance task failed for: remove stale temporary export files.', [$exception]);
+        }
+
         if (!$this->globalConfig->doDeleteRemovedFiles()) {
             $this->logger->info('Skipping file cleanup: doDeleteRemovedFiles is disabled');
 

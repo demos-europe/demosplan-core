@@ -5,6 +5,49 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- bump contract layer demosplan-addon to v0.83
+- depends on contract layer >= v0.83
+- new SegmentTagsChangedEvent implements new interface added to contract layer in v0.83
+
+## v4.61.3 (2026-09-30)
+
+### Added
+- The right to create procedures can now be granted to individual users of an organization, instead of to all Fachplanung-Admins and Anhörungsbehörde-Admins at once
+
+### Fixed
+- Splitting a statement no longer fails with an error message when an assignable user has no name set
+- Deleting a user's personal data now also removes them as the default assignee of tags
+
+## v4.61.2 (2026-09-23)
+
+### Fixed
+- Grouped DOCX/ODT and ZIP exports from the statement list no longer time out for procedures with many statements; the file downloads once it is ready
+- Segments exports with many images are much smaller, and their temporary files no longer fill up the disk
+
+## v4.61.1 (2026-09-21)
+
+### Fixed
+- Bulk-loading statement segments by ID failed with a server error when filtering by procedure
+
+## v4.61.0 (2026-09-21)
+
+### Added
+- A system-wide notice banner can be configured to inform users of maintenance windows or other announcements
+- Tags can now be viewed and edited directly while writing a response, without switching views
+- The public procedure list can now display a pictogram's alt text and copyright information
+- Statement exports can now include the names of associated areas and their tags
+
+### Fixed
+- Forwarding a statement for review no longer fails with a validation error when it has comments
+- Large procedure exports (PDF, ODT, ZIP) no longer time out for procedures with many statements
+- Removing a tag from the response editor no longer leaves its selection checkbox stuck as checked
+- The PDF import option was missing from the procedure import screen and is now shown again
+- Finalizing statements no longer fails due to unconfirmed segment marks
+- Global GIS layers are now scoped to their own customer
+- Maximum email attachment size for the final decision email reduced to a sane limit
+
+### Added
+- The segments list can be exported as Excel or CSV, respecting the currently applied filters, search term and column selection. The submitting organisation is now shown as an "Organisation" column, replacing the address column. (DPLAN-18217)
 
 ## v4.60.0 (2026-09-09)
 
@@ -15,6 +58,11 @@
 ### Changed
 - Moves segments' list inline filter to a slide bar
 - api-platform upgraded from 3.4 to 4.3; 3.4.x is blocked by security advisories. Two options in `config/packages/api_platform.yaml` changed: `keep_legacy_inflector` no longer exists in v4 and was removed, and `validator.legacy_query_parameter_validation` is now `validator.query_parameter_validation` (same behaviour; deprecated in 4.2, removal in 5.0). Projects overriding either option must adjust them, otherwise the container fails to compile with an "Unrecognized option" error.
+
+### Added
+- The right to create procedures can now be granted to individual users with the Fachplanung-Admin or Anhörungsbehörde-Admin
+  role via a checkbox in the user administration form. Alternatively, the right can be activated for all users with those roles in
+  organization settings
 
 ### New dependencies
 - `symfony/type-info ^7.4` — required by api-platform 4.3 and pulled in transitively. It installs alongside Symfony 6.4 without a framework upgrade: the component has no 6.x release, so Symfony Flex exempts it from the `extra.symfony.require: "6.*.*"` constraint rather than filtering it out. No explicit root require is needed.
@@ -32,6 +80,16 @@
 - Downloading the result of a background export works for large archives. The file is sent to the browser piece by piece instead of being held in memory as a whole, which could abort the download.
 - Copies of a statement are no longer silently dropped when an assessment table export is imported. The export carries a reference to the statement each row originates from, so every copy arrives, and re-importing the same export adds only what is not there yet.
 - The reminder mail about ending segment deadlines lists every segment, also when several of them share an ID.
+
+## v4.57.2 (2026-09-17)
+
+### Fixed
+- Forwarding a statement to another user for review no longer fails with a validation error when the statement has comments
+
+## v4.57.1 (2026-09-15)
+
+### Fixed
+- Finalizing segmented statements no longer fails when unclassified or invalid segment markers are left over
 
 ## v4.57.0 (2026-08-19)
 
@@ -71,6 +129,11 @@
 - The statement PDF attached to the submission confirmation no longer states that the submitter declined feedback when no feedback preference was recorded at all.
 
 ## v4.53.0 (2026-07-30)
+
+## v4.52.2 (2026-09-15)
+
+### Added
+- Pictogram alt text and copyright are now shown on the public procedure list
 
 ## v4.52.1 (2026-09-05)
 

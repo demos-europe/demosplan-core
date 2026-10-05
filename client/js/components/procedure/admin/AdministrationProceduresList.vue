@@ -201,6 +201,7 @@ import {
   DpSelect,
   formatDate,
 } from '@demos-europe/demosplan-ui'
+import { pollExportJob } from '@DpJs/lib/shared/persistentExportPoll'
 
 export default {
   name: 'AdministrationProceduresList',
@@ -305,6 +306,12 @@ export default {
     },
 
     exportProcedures (event) {
+      event.preventDefault()
+
+      if (!dpconfirm(Translator.trans('check.entries.marked.export'))) {
+        return
+      }
+
       /*
        * A read-only procedure grants none of the export content permissions, so it would only
        * add its name to the archive.
@@ -320,12 +327,26 @@ export default {
         return
       }
 
-      if (dpconfirm(Translator.trans('check.entries.marked.export'))) {
-        this.$refs.procedureForm.method = 'post'
-        this.$refs.procedureForm.action = Routing.generate('DemosPlan_procedures_export')
-      } else {
-        event.preventDefault()
-      }
+      // The export runs as a background job; poll it and download the file once it is ready
+      dplan.notify.notify('info', Translator.trans('export.processing'))
+      fetch(Routing.generate('DemosPlan_procedures_export_async_start'), {
+        method: 'POST',
+        body: new FormData(this.$refs.procedureForm),
+        credentials: 'same-origin',
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(response.statusText)
+          }
+
+          return response.json()
+        })
+        .then(({ jobId }) => pollExportJob({
+          key: `procedures.${jobId}`,
+          statusUrl: Routing.generate('DemosPlan_procedures_export_status', { jobId }),
+          downloadUrl: Routing.generate('DemosPlan_procedures_export_download', { jobId }),
+        }))
+        .catch(() => dplan.notify.error(Translator.trans('error.export')))
     },
 
     fetchAdministrationProceduresList (sort = '-creationDate') {

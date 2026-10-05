@@ -16,12 +16,15 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\BoilerplateFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagFactory;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
@@ -31,6 +34,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentBulkEditorService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Tests\Base\FunctionalTestCase;
 
@@ -230,7 +234,7 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
         $segments[1] = $segments[1]->_real();
         $resultSegments = [];
         /** @var Segment[] $segments */
-        $segments = $this->segmentBulkEditService->updateSegments(
+        [$segments] = $this->segmentBulkEditService->updateSegments(
             $segments,
             [],
             [],
@@ -498,6 +502,35 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
         static::assertStringContainsString('Updated memo via array', $newMemo);
     }
 
+    /**
+     * DPLAN-18271: calculateChanges() compares Doctrine's raw, pre-flush snapshot
+     * (getOriginalEntityData()) against the real getter's result for every tracked field.
+     * For `recommendation` specifically, the raw snapshot may still hold a
+     * <dp-boilerplate> reference tag while the getter always returns the substituted
+     * text — comparing those directly would fabricate a "recommendation changed" entry
+     * on every save of a linked segment, even when only an unrelated field (here: text)
+     * was actually edited.
+     */
+    public function testCalculateChangesDoesNotFlagRecommendationWhenOnlyAnUnrelatedFieldChangesOnALinkedSegment(): void
+    {
+        $entityManager = $this->getContainer()->get(EntityManagerInterface::class);
+        $boilerplate = BoilerplateFactory::createOne(['text' => 'Aktueller Textbausteininhalt'])->_real();
+        $segment = SegmentFactory::createOne([
+            'procedure'                => $boilerplate->getProcedure(),
+            'parentStatementOfSegment' => StatementFactory::new(['procedure' => $boilerplate->getProcedure()]),
+        ])->_real();
+        $entityManager->refresh($segment);
+        $segment->setRecommendation("<dp-boilerplate boilerplate-id=\"{$boilerplate->getId()}\"></dp-boilerplate>");
+        $entityManager->flush();
+
+        $segment->setText('Ein voellig unabhaengiger Text');
+
+        $changes = $this->sut->calculateChanges($segment, Segment::class);
+
+        static::assertArrayHasKey('text', $changes);
+        static::assertArrayNotHasKey('recommendation', $changes);
+    }
+
     public function testCalculateChangesWithNoChanges(): void
     {
         /** @var Statement $testStatement */
@@ -513,6 +546,64 @@ class EntityContentChangeServiceTest extends FunctionalTestCase
 
         static::assertIsArray($changes);
         static::assertEmpty($changes);
+    }
+
+    public function testCalculateChangesForSegmentTagsWithNoChanges(): void
+    {
+        $tag = TagFactory::createOne()->_real();
+
+        /** @var Segment $segment */
+        $segment = SegmentFactory::createOne()->_real();
+        $segment->addTag($tag);
+        $segmentId = $segment->getId();
+        $this->getEntityManager()->flush();
+
+        // Drop the identity map/UnitOfWork state and re-fetch, to mimic a fresh HTTP
+        // request loading the entity anew rather than reusing the same in-memory instance.
+        $this->getEntityManager()->clear();
+        /** @var Segment $segment */
+        $segment = $this->getEntityManager()->find(Segment::class, $segmentId);
+
+        $changes = $this->sut->calculateChanges($segment, Segment::class);
+
+        static::assertIsArray($changes);
+        static::assertArrayNotHasKey('tags', $changes, 'Unrelated save falsely reports a tags change: '.($changes['tags'] ?? ''));
+    }
+
+    public function testCalculateChangesForSegmentTagsAfterRemovingOneOfSeveral(): void
+    {
+        $tagA = TagFactory::createOne(['title' => 'Tag A'])->_real();
+        $tagB = TagFactory::createOne(['title' => 'Tag B'])->_real();
+        $tagC = TagFactory::createOne(['title' => 'Tag C'])->_real();
+        $tagD = TagFactory::createOne(['title' => 'Tag D'])->_real();
+
+        /** @var Segment $segment */
+        $segment = SegmentFactory::createOne()->_real();
+        $segment->addTag($tagA);
+        $segment->addTag($tagB);
+        $segment->addTag($tagC);
+        $segment->addTag($tagD);
+        $segmentId = $segment->getId();
+        $this->getEntityManager()->flush();
+
+        // Drop the identity map/UnitOfWork state and re-fetch, to mimic a fresh HTTP
+        // request loading the entity anew rather than reusing the same in-memory instance.
+        $this->getEntityManager()->clear();
+        /** @var Segment $segment */
+        $segment = $this->getEntityManager()->find(Segment::class, $segmentId);
+        $tagB = $this->getEntityManager()->find(Tag::class, $tagB->getId());
+
+        $segment->removeTag($tagB);
+
+        $changes = $this->sut->calculateChanges($segment, Segment::class);
+
+        static::assertArrayHasKey('tags', $changes);
+
+        $hunks = Json::decodeToArray($changes['tags'])[0];
+        static::assertCount(1, $hunks, 'Removing one tag should produce exactly one diff hunk, not a wholesale replace.');
+        static::assertSame('del', $hunks[0]['tag']);
+        static::assertSame(['Tag B'], $hunks[0]['old']['lines']);
+        static::assertSame([''], $hunks[0]['new']['lines']);
     }
 
     /**

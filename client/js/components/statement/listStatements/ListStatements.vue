@@ -63,6 +63,7 @@
       <statement-export-modal
         v-if="hasPermission('feature_segments_of_statement_list_export') || hasPermission('feature_admin_assessmenttable_export_statement_generic_xlsx') || hasPermission('feature_statement_segments_export_csv')"
         :has-permission-adjust-preamble="hasPermission('feature_adjust_preamble_export_file')"
+        :is-export-disabled="!hasStatements"
         :procedure-id="procedureId"
         :procedure-name="procedureName"
         data-cy="listStatements:export"
@@ -380,6 +381,7 @@ import CustomSearchStatements from './CustomSearchStatements'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
+import { pollExportJob } from '@DpJs/lib/shared/persistentExportPoll'
 import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
 import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge'
@@ -567,6 +569,10 @@ export default {
 
         return Routing.generate(exportRoute, parameters)
       }
+    },
+
+    hasStatements () {
+      return !this.isLoading && this.items.length > 0
     },
 
     items () {
@@ -1187,11 +1193,32 @@ export default {
     },
 
     showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, shouldConfirm, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds, customHeaderText }) {
-      const url = this.exportRoute(route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds, customHeaderText)
+      // The grouped DOCX/ODT and the ZIP export can time out, so they run as a background job
+      const asyncStartRoute = {
+        dplan_statement_segments_export: 'dplan_statement_segments_export_async_start',
+        dplan_statement_segments_export_packaged: 'dplan_statement_segments_export_packaged_async_start',
+      }[route]
+      const url = this.exportRoute(asyncStartRoute ?? route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds, customHeaderText)
 
-      if (!shouldConfirm || window.dpconfirm(Translator.trans('export.statements.hint'))) {
-        window.location.href = url
+      if (shouldConfirm && !window.dpconfirm(Translator.trans('export.statements.hint'))) {
+        return
       }
+
+      if (!asyncStartRoute) {
+        window.location.href = url
+
+        return
+      }
+
+      dplan.notify.notify('info', Translator.trans('export.processing'))
+      fetch(url, { method: 'POST', credentials: 'same-origin' })
+        .then(response => response.json())
+        .then(({ jobId }) => pollExportJob({
+          key: `segments.${this.procedureId}.${jobId}`,
+          statusUrl: Routing.generate('dplan_statement_segments_export_status', { procedureId: this.procedureId, jobId }),
+          downloadUrl: Routing.generate('dplan_statement_segments_export_download', { procedureId: this.procedureId, jobId }),
+        }))
+        .catch(() => dplan.notify.error(Translator.trans('error.export')))
     },
 
     storeNavigationContextInLocalStorage () {
