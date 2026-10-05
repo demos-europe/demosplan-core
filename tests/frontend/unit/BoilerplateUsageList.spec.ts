@@ -94,8 +94,8 @@ const DpDataTableStub = {
 }
 
 const DpButtonStub = {
-  props: ['text'],
-  template: '<button @click="$emit(\'click\')">{{ text }}</button>',
+  props: ['disabled', 'text'],
+  template: '<button :disabled="disabled" @click="$emit(\'click\')">{{ text }}</button>',
 }
 
 const DpCheckboxStub = {
@@ -188,6 +188,20 @@ describe('BoilerplateUsageList', () => {
 
     expect(wrapper.findAll('[data-cy="boilerplateUsageList:unlock"]')).toHaveLength(1)
     expect(wrapper.findAll('[data-cy="boilerplateUsageList:lockIcon"]')).toHaveLength(0)
+  })
+
+  it('keeps the unlock button disabled until the modal options have loaded', async () => {
+    wrapper = mountList([createRow({ locked: true })])
+
+    const button = wrapper.find('[data-cy="boilerplateUsageList:unlock"]')
+
+    expect(button.attributes('disabled')).toBeDefined()
+    expect(wrapper.findComponent(SegmentUnlockModalStub).exists()).toBe(false)
+
+    await flushPromises()
+
+    expect(button.attributes('disabled')).toBeUndefined()
+    expect(wrapper.findComponent(SegmentUnlockModalStub).exists()).toBe(true)
   })
 
   it('marks locked rows with a plain icon for users who may not unlock', () => {

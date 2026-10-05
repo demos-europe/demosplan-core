@@ -45,6 +45,7 @@
           >
             <dp-button
               v-if="canUnlock"
+              :disabled="!unlockOptionsLoaded"
               :text="Translator.trans('segment.unlock.click.hint')"
               class="text-interactive bg-transparent! border-transparent! hover:bg-interactive-subtle-hover!"
               data-cy="boilerplateUsageList:unlock"
