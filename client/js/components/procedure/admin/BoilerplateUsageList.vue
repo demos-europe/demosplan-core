@@ -37,11 +37,10 @@
         <span class="pl-[26px]">{{ Translator.trans('id') }}</span>
       </template>
       <template v-slot:externId="rowData">
-        <!-- The lock icon sits in a fixed gutter so the IDs of locked and unlocked rows stay aligned -->
         <span class="relative inline-flex items-center pl-[26px]">
           <span
             v-if="rowData.locked"
-            class="absolute left-0 top-1/2 -translate-y-1/2 flex items-center"
+            class="absolute left-0 top-1/2 -translate-y-1/2 -mt-px flex items-center"
           >
             <dp-button
               v-if="canUnlock"
