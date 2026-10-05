@@ -240,6 +240,38 @@ describe('BoilerplateUsageList', () => {
     expect(wrapper.findAll('[data-cy="boilerplateUsageList:unlock"]')).toHaveLength(0)
   })
 
+  it('applies a late unlock response to the row it was started for', async () => {
+    wrapper = mountList([
+      createRow({ id: 'segment-1', externId: 'M31-1', locked: true, placeName: 'Abgeschlossen' }),
+      createRow({ id: 'segment-2', externId: 'M31-2', locked: true, placeName: 'Abgeschlossen' }),
+    ])
+    await flushPromises()
+
+    // Hold back the first PATCH callback until a second unlock has been started
+    let finishFirst: () => void = () => {}
+
+    unlockSegment.mockImplementationOnce((_payload: unknown, onSuccess: () => void) => {
+      finishFirst = onSuccess
+
+      return Promise.resolve()
+    })
+
+    const payload = {
+      assignee: { id: 'noAssigneeId', name: 'not.assigned' },
+      place: { id: 'place-open', name: 'Erwiderung verfassen', locked: false },
+    }
+    const modal = wrapper.findComponent(SegmentUnlockModalStub)
+
+    await wrapper.findAll('[data-cy="boilerplateUsageList:unlock"]')[0].trigger('click')
+    modal.vm.$emit('unlock', payload)
+    await wrapper.findAll('[data-cy="boilerplateUsageList:unlock"]')[1].trigger('click')
+    finishFirst()
+    await flushPromises()
+
+    expect(rows()[0].text()).toContain('Erwiderung verfassen')
+    expect(rows()[1].text()).toContain('Abgeschlossen')
+  })
+
   it('loads places and assignable users for the unlock modal', async () => {
     wrapper = mountList([createRow({ locked: true })])
     await flushPromises()

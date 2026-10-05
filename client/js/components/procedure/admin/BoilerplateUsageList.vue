@@ -106,7 +106,7 @@
       ref="unlockModal"
       :assignable-users="unlockAssignableUsers"
       :places="places"
-      @unlock="(payload: UnlockPayload) => unlockSegment(payload, () => applyUnlock(payload))"
+      @unlock="onUnlock"
     />
   </div>
 </template>
@@ -213,14 +213,20 @@ const openUnlock = (row: UsageRow) => {
   openUnlockModal(row)
 }
 
+// The modal closes before the PATCH request resolves, so row id is stored here
+const onUnlock = (payload: UnlockPayload) => {
+  const rowId = rowIdToUnlock.value
+
+  rowIdToUnlock.value = null
+  unlockSegment(payload, () => applyUnlock(rowId, payload))
+}
+
 /*
  * Runs after the PATCH succeeded; mirrors the place/assignee chosen in the modal onto the row.
  * Looked up by id because the table hands slot scopes a copy of the row, not the reactive object.
  */
-const applyUnlock = ({ assignee, place }: UnlockPayload) => {
-  const row = rows.value.find(candidate => candidate.id === rowIdToUnlock.value)
-
-  rowIdToUnlock.value = null
+const applyUnlock = (rowId: string | null, { assignee, place }: UnlockPayload) => {
+  const row = rows.value.find(candidate => candidate.id === rowId)
 
   if (!row) {
     return
