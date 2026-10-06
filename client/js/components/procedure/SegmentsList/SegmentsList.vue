@@ -14,6 +14,14 @@
         isFullscreen,
     }"
   >
+    <dp-inline-notification
+      v-if="isReadOnly && !isFullscreen"
+      :message="Translator.trans('procedure.archived.hint.segments')"
+      :title="Translator.trans('procedure.archived.hint.title')"
+      class="mt-4 mb-1"
+      data-cy="segmentsList:readOnlyHint"
+      type="info"
+    />
     <dp-sticky-element
       border
       class="pt-2 pb-3"
@@ -631,6 +639,12 @@ export default {
       type: String,
       required: false,
       default: '',
+    },
+
+    isReadOnly: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
 
     procedureId: {

@@ -9,6 +9,14 @@
 
 <template>
   <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-surface': isFullscreen }">
+    <dp-inline-notification
+      v-if="isReadOnly && !isFullscreen"
+      :message="Translator.trans('procedure.archived.hint.statements')"
+      :title="Translator.trans('procedure.archived.hint.title')"
+      class="mt-4 mb-2"
+      data-cy="listStatements:readOnlyHint"
+      type="info"
+    />
     <dp-sticky-element
       :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }"
       class="pt-2 pb-3"
@@ -424,6 +432,12 @@ export default {
      * respective target procedure, while HEARING_AUTHORITY_WORKER users may see which statements are synchronized.
      */
     isSourceAndCoupledProcedure: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+
+    isReadOnly: {
       type: Boolean,
       required: false,
       default: false,
