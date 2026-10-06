@@ -24,18 +24,12 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Webmozart\Assert\Assert;
 
 /**
- * Answers "how many segments have each option?" for one filter dropdown at a time (tags,
- * assignee, place, or a custom field).
- * It fetches segments that match the current filters, counts how many have each option, then
- * fills in any missing option with a count of 0 so nothing just disappears.
- * This replaces the old `segments.facets.list` RPC, which did the same job using Elasticsearch.
- *
- * Static facets (tags/assignee/place) are described in {@see StaticFacets} - this class stays
- * generic and never mentions tags/assignee/place by name, so adding a new static facet means
- * adding one entry there, not editing this one. Custom fields are a dynamic, per-procedure
- * family (unlike the fixed tags/assignee/place trio), so they're handled by the
- * separately-injected {@see CustomFieldFacet} instead.
+ * Answers "how many segments have each option?" for one filter dropdown at a time.
+ * It counts the segments that match all the other active filters, and options with no match still show up with a count of 0.
+ * Today the filters are tags, assignee, place and custom fields; tags, assignee and place are listed in {@see StaticFacets}.
+ * To add a new filter of the same kind, add one entry there; anything that works differently, like custom fields, gets its own class.
  */
+
 class Provider implements ProviderInterface
 {
     public function __construct(
@@ -82,19 +76,9 @@ class Provider implements ProviderInterface
     }
 
     /**
-     * Fetches every segment matching every active filter except $excludedKey, via API
-     * Platform's own Doctrine collection machinery - it already applies whichever `#[ApiFilter]`
-     * {@see Resource} declares (`SearchFilter` on
-     * `tags.id`/`assignee.id`/`place.id`/`parentStatementOfSegment.procedure.id`), and it
-     * automatically picks up the globally-registered
-     * {@see \demosplan\DemosPlanCoreBundle\Api\StatementSegment\Extension\SegmentDoctrineAccessExtension}
-     * (registered against the `Segment` Doctrine entity, not any one API resource, so it applies
-     * here too) - meaning access-condition scoping needs no separate handling in this class.
-     *
-     * `searchPhrase` is applied afterward in PHP (a plain substring match on `segment.text`)
-     * since it isn't a declared `#[ApiFilter]` - simpler than the retired RPC's multi-field
-     * Elasticsearch full-text search (no relevance ranking/stemming), but gives the same
-     * "typing in the search box narrows facet counts" behaviour.
+     * Loads the segments that match all the active filters, except the one named in $excludedKey.
+     * The filters and the user's access rules are applied automatically by API Platform, so we don't write any query here.
+     * The search phrase is the only part done by hand: we keep the segments whose text contains it.
      *
      * @return list<Segment>
      */
