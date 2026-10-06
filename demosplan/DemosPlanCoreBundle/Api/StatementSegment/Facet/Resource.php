@@ -26,8 +26,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
  * a segment list filter.
  * The currently selected filter's own value is ignored when counting, so picking an option
  * never makes its own count drop to zero.
- * `facet` and `searchPhrase` are simple parameters, so they are declared directly in
- * `parameters:`.
+ * `facet` is a simple parameter, so it is declared directly in `parameters:`.
+ * Text search (`search[value]`, `search[fieldsToSearch]`) is not declared here: it is applied by
+ * SegmentTextSearchExtension, the same as in the segment list.
  * The other filters (`tags.id`, `assignee.id`, `place.id`,
  * `parentStatementOfSegment.procedure.id`) need real database joins, so they are declared via
  * `#[ApiFilter(SearchFilter::class)]` instead.
@@ -41,7 +42,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
             parameters: [
                 'facet'                                 => new QueryParameter(required: true, constraints: [new NotBlank()]),
                 'parentStatementOfSegment.procedure.id' => new QueryParameter(required: true, constraints: [new NotBlank()]),
-                'searchPhrase'                          => new QueryParameter(),
             ],
         ),
     ],

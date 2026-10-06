@@ -76,8 +76,8 @@ class Provider implements ProviderInterface
 
     /**
      * Loads the segments that match all the active filters, except the one named in $excludedKey.
-     * The filters and the user's access rules are applied automatically by API Platform, so we don't write any query here.
-     * The search phrase is the only part done by hand: we keep the segments whose text contains it.
+     * The filters, the text search and the user's access rules are all applied automatically by API Platform
+     * and its extensions, so we don't write any query here.
      *
      * @return list<Segment>
      */
@@ -95,16 +95,8 @@ class Provider implements ProviderInterface
         ));
 
         $result = $this->doctrineCollectionProvider->provide($operation, [], ['filters' => $filters]);
-        $segments = is_array($result) ? $result : iterator_to_array($result);
+        $segments = iterator_to_array($result, false);
         Assert::allIsInstanceOf($segments, Segment::class);
-
-        $searchPhrase = $filters['searchPhrase'] ?? null;
-        if (is_string($searchPhrase) && '' !== $searchPhrase) {
-            $segments = array_values(array_filter(
-                $segments,
-                static fn (Segment $segment): bool => false !== mb_stripos($segment->getText(), $searchPhrase)
-            ));
-        }
 
         return $segments;
     }

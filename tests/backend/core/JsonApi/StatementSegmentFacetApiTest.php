@@ -212,36 +212,6 @@ class StatementSegmentFacetApiTest extends AbstractApiTest
         self::assertSame(2, $counts['unassigned']);
     }
 
-    public function testSearchPhraseNarrowsCounts(): void
-    {
-        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
-        $topic = TagTopicFactory::createOne(['procedure' => $procedure]);
-        $tag = TagFactory::createOne(['title' => 'Schallschutz', 'topic' => $topic]);
-
-        $parentStatement = StatementFactory::new(['procedure' => $procedure]);
-        SegmentFactory::createOne(['procedure' => $procedure, 'parentStatementOfSegment' => $parentStatement, 'tags' => [$tag], 'text' => 'Lärmschutzwand am Bahndamm']);
-        SegmentFactory::createOne(['procedure' => $procedure, 'parentStatementOfSegment' => $parentStatement, 'tags' => [$tag], 'text' => 'Unrelated content about parking spaces']);
-
-        $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
-        $this->enablePermissions(['area_admin_statement_list']);
-        $this->loginUserForApiPlatform($user);
-
-        $response = $this->sendRequest(
-            self::FACET_ROUTE.'?facet=tags&parentStatementOfSegment.procedure.id='.$procedure->getId().'&searchPhrase=Bahndamm',
-            'GET',
-            $user,
-            $procedure
-        );
-
-        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        $content = $response->getContent();
-        self::assertIsString($content);
-        $data = Json::decodeToArray($content)['data'];
-        $counts = array_combine(array_column($data, 'id'), array_column(array_column($data, 'attributes'), 'count'));
-
-        self::assertSame(1, $counts[$tag->getId()]);
-    }
-
     public function testFacetIsDeniedWithoutPermission(): void
     {
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
