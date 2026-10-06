@@ -93,6 +93,8 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\Services\CustomerServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\User\CustomerService'
 
+    DemosEurope\DemosplanAddon\Contracts\Services\MailServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\MailService'
+
     DemosEurope\DemosplanAddon\Contracts\Factory\GisLayerFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\GisLayerFactory'
 
     DemosEurope\DemosplanAddon\Contracts\Factory\BoilerplateFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\BoilerplateFactory'

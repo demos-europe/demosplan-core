@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- `MailService` implements the new `MailServiceInterface` of the contract layer, so addons can queue mails
 - bump contract layer demosplan-addon to v0.83
 - depends on contract layer >= v0.83
 - new SegmentTagsChangedEvent implements new interface added to contract layer in v0.83
