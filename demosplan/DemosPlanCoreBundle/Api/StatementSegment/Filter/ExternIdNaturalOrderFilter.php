@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter;
 
 use ApiPlatform\Doctrine\Orm\Filter\FilterInterface;
-use ApiPlatform\Doctrine\Orm\Util\QueryBuilderHelper;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use Doctrine\ORM\Query\Expr\Join;
@@ -32,6 +31,7 @@ final class ExternIdNaturalOrderFilter implements FilterInterface
     public const PROPERTY = 'externId';
 
     private const DIRECTIONS = ['asc', 'desc'];
+    private const PARENT_ASSOCIATION = 'parentStatementOfSegment';
 
     public function apply(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, ?Operation $operation = null, array $context = []): void
     {
@@ -42,7 +42,7 @@ final class ExternIdNaturalOrderFilter implements FilterInterface
         }
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
-        $parentAlias = QueryBuilderHelper::addJoinOnce($queryBuilder, $queryNameGenerator, $rootAlias, 'parentStatementOfSegment', Join::LEFT_JOIN);
+        $parentAlias = $this->joinParentStatementOnce($queryBuilder, $queryNameGenerator, $rootAlias);
         $parentLengthField = $queryNameGenerator->generateParameterName('parentExternIdLength');
         $segmentLengthField = $queryNameGenerator->generateParameterName('externIdLength');
 
@@ -53,6 +53,27 @@ final class ExternIdNaturalOrderFilter implements FilterInterface
             ->addOrderBy(sprintf('%s.externId', $parentAlias), $direction)
             ->addOrderBy($segmentLengthField, $direction)
             ->addOrderBy(sprintf('%s.externId', $rootAlias), $direction);
+    }
+
+    /**
+     * Reuses an existing join on the parent statement (e.g. added by a search or order filter on
+     * `parentStatementOfSegment.*`) and only adds a new left join when none exists yet.
+     */
+    private function joinParentStatementOnce(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $rootAlias): string
+    {
+        $joinPath = sprintf('%s.%s', $rootAlias, self::PARENT_ASSOCIATION);
+
+        /** @var Join $join */
+        foreach ($queryBuilder->getDQLPart('join')[$rootAlias] ?? [] as $join) {
+            if ($joinPath === $join->getJoin()) {
+                return $join->getAlias();
+            }
+        }
+
+        $parentAlias = $queryNameGenerator->generateJoinAlias(self::PARENT_ASSOCIATION);
+        $queryBuilder->leftJoin($joinPath, $parentAlias);
+
+        return $parentAlias;
     }
 
     public function getDescription(string $resourceClass): array

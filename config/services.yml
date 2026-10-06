@@ -28,10 +28,6 @@ services:
         tags:
         - { name: api_platform.filter }
 
-    demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\ExternIdNaturalOrderFilter:
-        tags:
-        - { name: api_platform.filter }
-
     demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService: ~
 
     demosplan\DemosPlanCoreBundle\Logic\AzureUserDataMapper: ~
