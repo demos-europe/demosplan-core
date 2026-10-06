@@ -120,22 +120,10 @@
       </dp-bulk-edit-header>
       <div
         v-show="!isLoading"
-        class="flex items-center gap-2 mt-2 mb-3"
+        class="flex items-center gap-2 my-3"
       >
-        <div
-          v-if="items.length > 0 && hasPermission('feature_segments_manualsort')"
-          class="flex items-center"
-        >
-          <dp-select
-            id="applySortSelection"
-            :label="{ text: Translator.trans('sorting') }"
-            :options="sortOptions"
-            :selected="selectedSort"
-            @select="applySort"
-          />
-        </div>
         <dp-pager
-          v-if="items.length > 0 && pagination.currentPage && !hasPermission('feature_segments_manualsort')"
+          v-if="items.length && pagination.currentPage"
           :key="`pager1_${pagination.currentPage}_${pagination.count}`"
           :current-page="pagination.currentPage"
           :limits="pagination.limits"
@@ -145,23 +133,33 @@
           @page-change="applyQuery"
           @size-change="handleSizeChange"
         />
-        <div class="flex gap-2 ml-auto">
-          <dp-button
-            :text="Translator.trans('column.selection.reset')"
-            color="secondary"
-            variant="subtle"
-            @click="resetColumnSelection"
-          />
+        <div class="ml-auto flex gap-4">
+          <div class="flex items-center space-inline-xs">
+            <dp-label
+              class="mb-0"
+              for="applySortSelection"
+              :text="Translator.trans('sorting')"
+            />
+            <dp-select
+              id="applySortSelection"
+              data-cy="segmentsList:sort"
+              :options="sortOptions"
+              :selected="selectedSort"
+              @select="applySort"
+            />
+          </div>
           <dp-column-selector
             v-if="customFieldsReady"
             :key="columnSelectorKey"
             appearance="subtle"
             data-cy="segmentsList:selectableColumns"
+            has-reset-option
             has-select-all-option
             :initial-selection="currentSelection"
             local-storage-key="segmentList"
             :selectable-columns="selectableColumns"
             use-local-storage
+            @reset="resetColumnSelection"
             @selection-changed="setCurrentSelection"
           />
         </div>
@@ -650,7 +648,11 @@ export default {
       appliedFilterQuery: this.initialFilter,
       currentQueryHash: '',
       columnSelectorKey: 0,
-      defaultColumnSelection: [],
+      defaultColumnSelection: [
+        'deadline',
+        'place',
+        'text',
+      ],
       currentSelection: [],
       customFieldDefinitions: [],
       customFieldsReady: !hasPermission('field_segments_custom_fields'),
