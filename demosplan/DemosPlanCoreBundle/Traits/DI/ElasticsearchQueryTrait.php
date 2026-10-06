@@ -142,7 +142,7 @@ trait ElasticsearchQueryTrait
             $paginator->setLimits($this->paginatorLimits);
 
             if (-1 === $limit) {
-                $limit = array_pop($this->paginatorLimits);
+                $limit = $this->paginatorLimits[array_key_last($this->paginatorLimits)];
             } elseif (0 === $limit) {
                 // Pagerfanta doesn't allow a limit of 0. Until the pagination is properly
                 // refactored we use a limit of 1 as workaround.

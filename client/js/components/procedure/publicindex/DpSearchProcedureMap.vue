@@ -261,6 +261,19 @@ export default {
       default: '',
     },
 
+    /**
+     * The server already rendered the list with the default filters, so no initial reload is needed.
+     */
+    isInitialListFiltered: {
+      type: Boolean,
+      default: false,
+    },
+
+    initialProcedureCount: {
+      type: Number,
+      default: 0,
+    },
+
     municipalities: {
       type: Array,
       default: () => [],
@@ -602,6 +615,12 @@ export default {
     if (this.displayArsFilterHeader) {
       this.form.ars = this.countyCode
       this.form.municipalCode = this.municipalCode
+    }
+
+    if (this.isInitialListFiltered && this.displayArsFilterHeader === false) {
+      this.resultCount = this.initialProcedureCount > 0 ? Translator.trans('following') : Translator.trans('none.neutral')
+
+      return
     }
 
     this.submitForm()
