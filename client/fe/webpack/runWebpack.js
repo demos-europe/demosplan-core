@@ -294,7 +294,7 @@ function showWebpackStatisticsMessage (options, stats) {
 }
 
 function webpackConfiguration (options) {
-  let webpackConfig = null
+  let webpackConfig
 
   try {
     webpackConfig = require(resolveDir('config.webpack'))

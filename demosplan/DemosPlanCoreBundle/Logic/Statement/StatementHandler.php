@@ -110,8 +110,8 @@ use demosplan\DemosPlanCoreBundle\ValueObject\Statement\PdfFile;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query\QueryException;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
@@ -4049,7 +4049,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
      * @param string $statementId
      * @param string $fragmentId
      *
-     * @return array|null;
+     * @return array|null
      */
     public function getFragmentOfStatementES($statementId, $fragmentId)
     {

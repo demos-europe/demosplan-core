@@ -65,7 +65,7 @@ const chunkSplitting = {
       name: 'leaflet',
       chunks: 'all',
       enforce: true,
-      test: /[\\/]node_modules[\\/](leaflet|vue2-leaflet|leaflet.markercluster)[\\/]/,
+      test: /[\\/]node_modules[\\/](leaflet|leaflet\.markercluster)[\\/]/,
       priority: -5,
     },
   },
@@ -81,6 +81,12 @@ function optimization () {
   if (config.isProduction === true) {
     optimization = Object.assign(optimization, {
       minimize: true,
+      /*
+       * With realContentHash on, webpack recomputes file name hashes after minification and rewrites the old
+       * hash value wherever it appears in any bundle. A hash made only of digits can also appear inside a plain
+       * number in another chunk, which then gets the new hex hash spliced in and breaks the bundle with a syntax error
+       */
+      realContentHash: false,
       minimizer: [
         new TerserPlugin({
           test: /\.js($|\?)/i,

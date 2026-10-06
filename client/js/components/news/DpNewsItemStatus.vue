@@ -10,8 +10,8 @@
 <template>
   <div>
     <dp-toggle
-      :value="newsStatus"
-      @input="e => $emit('statusChanged', e)"
+      :model-value="newsStatus"
+      @update:model-value="e => $emit('statusChanged', e)"
     />
     <dp-contextual-help
       v-if="determinedToSwitch"

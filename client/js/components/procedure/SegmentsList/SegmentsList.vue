@@ -19,82 +19,78 @@
       class="pt-2 pb-3"
       :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }"
     >
-      <div class="flex justify-end gap-2 py-2">
-        <dp-button
-          v-if="hasPermission('feature_segments_import_excel')"
-          :href="
-            Routing.generate('DemosPlan_procedure_import', {
-              procedureId: procedureId,
-            }) + '#ExcelImport'
-          "
-          :text="Translator.trans('import.options.xls')"
-          class="mr-0 h-fit"
-          data-cy="segmentsList:importOptionsXLS"
-          icon="download"
-          icon-size="medium"
-          variant="subtle"
-        />
-      </div>
-      <div class="flex items-start mb-2">
-        <custom-search
-          id="customSearch"
-          ref="customSearch"
-          :elasticsearch-field-definition="{
-            entity: 'statementSegment',
-            function: 'search',
-            accessGroup: 'planner',
-          }"
-          :search-term="searchTerm"
-          @change-fields="updateSearchFields"
-          @search="(term) => updateSearchQuery(term)"
-          @reset="handleResetSearch"
-        />
-        <div class="ml-2 space-x-2">
-          <filter-flyout
-            v-for="(filter, idx) in Object.values(filters)"
-            ref="filterFlyout"
-            :key="`filter_${filter.labelTranslationKey}`"
-            :additional-query-params="{ searchPhrase: searchTerm }"
-            :category="{
-              id: `${filter.labelTranslationKey}:${idx}`,
-              label: Translator.trans(filter.labelTranslationKey),
+      <div class="flex justify-between items-start py-2">
+        <div class="flex items-start gap-2">
+          <custom-search
+            id="customSearch"
+            ref="customSearch"
+            :elasticsearch-field-definition="{
+              entity: 'statementSegment',
+              function: 'search',
+              accessGroup: 'planner',
             }"
-            class="inline-block"
-            :data-cy="`segmentsListFilter:${filter.labelTranslationKey}`"
-            align="left"
-            :groups-object="filter.groupsObject"
-            :hint="filter.labelTranslationKey !== 'tags'"
-            :initial-query-ids="queryIds"
-            :items-object="filter.itemsObject"
-            :operator="filter.comparisonOperator"
-            :member-of="groupName(filter.labelTranslationKey)"
-            :path="filter.rootPath"
-            :show-count="{
-              groupedOptions: true,
-              ungroupedOptions: true,
-            }"
-            @filter-apply="sendFilterQuery"
-            @filter-options:request="
-              (params) =>
-                sendFilterOptionsRequest({
-                  ...params,
-                  category: {
-                    id: `${filter.labelTranslationKey}:${idx}`,
-                    label: Translator.trans(filter.labelTranslationKey),
-                  },
-                })
-            "
+            :search-term="searchTerm"
+            @change-fields="updateSearchFields"
+            @search-focus="closeFilterSlidebar"
+            @search="(term) => updateSearchQuery(term)"
+            @reset="handleResetSearch"
+          />
+          <dp-button
+            data-cy="segmentsList:openFilter"
+            icon="sliders-horizontal"
+            icon-size="small"
+            :text="filterButtonText"
+            variant="outline"
+            @click="toggleFilterSlidebar"
+          />
+          <dp-button
+            v-tooltip="Translator.trans('search.filter.reset')"
+            data-cy="segmentsList:resetFilter"
+            :disabled="noQuery"
+            :text="Translator.trans('reset')"
+            variant="outline"
+            @click="resetQuery"
           />
         </div>
-        <dp-button
-          v-tooltip="Translator.trans('search.filter.reset')"
-          class="ml-2 h-fit"
-          data-cy="segmentsList:resetFilter"
-          :disabled="noQuery"
-          :text="Translator.trans('reset')"
-          variant="outline"
-          @click="resetQuery"
-        />
+        <div class="flex items-center gap-1">
+          <dp-button
+            v-if="hasPermission('feature_segments_import_excel')"
+            :href="
+              Routing.generate('DemosPlan_procedure_import', {
+                procedureId: procedureId,
+              }) + '#ExcelImport'
+            "
+            :text="Translator.trans('import.options.xls')"
+            data-cy="segmentsList:importOptionsXLS"
+            icon="upload"
+            icon-size="medium"
+            variant="subtle"
+          />
+
+          <segments-export-modal
+            v-if="canExportSegments"
+            :applied-filters="appliedFiltersSummary"
+            :is-export-disabled="!hasSegments"
+            :search-term="searchTerm"
+            :segment-count="exportSegmentCount"
+            @export="handleExportSegments"
+            @open="closeFilterSlidebar"
+          />
+
+          <dp-button
+            :icon="isFullscreen ? 'compress' : 'expand'"
+            :text="
+              isFullscreen
+                ? Translator.trans('editor.fullscreen.close')
+                : Translator.trans('editor.fullscreen')
+            "
+            data-cy="editorFullscreen"
+            icon-size="medium"
+            variant="outline"
+            hide-text
+            @click="handleFullscreenMode"
+          />
+        </div>
       </div>
       <dp-bulk-edit-header
         v-if="selectedItemsCount > 0"
@@ -123,22 +119,13 @@
         />
       </dp-bulk-edit-header>
       <div
-        v-if="items.length > 0"
-        class="flex justify-between items-center mt-4"
+        v-show="!isLoading"
+        class="flex items-center gap-2 mt-2 mb-3"
       >
-        <dp-pager
-          v-if="pagination.currentPage"
-          :key="`pager1_${pagination.currentPage}_${pagination.count}`"
-          :class="{ invisible: isLoading }"
-          :current-page="pagination.currentPage"
-          :limits="pagination.limits"
-          :per-page="pagination.perPage"
-          :total-pages="pagination.totalPages"
-          :total-items="pagination.total"
-          @page-change="applyQuery"
-          @size-change="handleSizeChange"
-        />
-        <div class="flex items-center space-inline-xs">
+        <div
+          v-if="items.length > 0 && hasPermission('feature_segments_manualsort')"
+          class="flex items-center"
+        >
           <dp-select
             id="applySortSelection"
             :label="{ text: Translator.trans('sorting') }"
@@ -147,12 +134,18 @@
             @select="applySort"
           />
         </div>
-      </div>
-      <div
-        v-show="!isLoading"
-        class="flex justify-end gap-2 py-2"
-      >
-        <div class="flex gap-2">
+        <dp-pager
+          v-if="items.length > 0 && pagination.currentPage && !hasPermission('feature_segments_manualsort')"
+          :key="`pager1_${pagination.currentPage}_${pagination.count}`"
+          :current-page="pagination.currentPage"
+          :limits="pagination.limits"
+          :per-page="pagination.perPage"
+          :total-pages="pagination.totalPages"
+          :total-items="pagination.total"
+          @page-change="applyQuery"
+          @size-change="handleSizeChange"
+        />
+        <div class="flex gap-2 ml-auto">
           <dp-button
             :text="Translator.trans('column.selection.reset')"
             color="secondary"
@@ -160,6 +153,7 @@
             @click="resetColumnSelection"
           />
           <dp-column-selector
+            v-if="customFieldsReady"
             :key="columnSelectorKey"
             appearance="subtle"
             data-cy="segmentsList:selectableColumns"
@@ -171,21 +165,6 @@
             @selection-changed="setCurrentSelection"
           />
         </div>
-
-        <dp-button
-          :icon="isFullscreen ? 'compress' : 'expand'"
-          :text="
-            isFullscreen
-              ? Translator.trans('editor.fullscreen.close')
-              : Translator.trans('editor.fullscreen')
-          "
-          color="secondary"
-          data-cy="editorFullscreen"
-          icon-size="medium"
-          variant="subtle"
-          hide-text
-          @click="handleFullscreenMode"
-        />
       </div>
     </dp-sticky-element>
 
@@ -251,7 +230,11 @@
                 <template v-slot:popover>
                   <statement-meta-tooltip
                     :assignable-users="assignableUsers"
-                    :statement="parentStatementFor(rowData)"
+                    :statement="
+                      statementsObject[
+                        rowData.relationships.parentStatement.data.id
+                      ]
+                    "
                     :segment="rowData"
                     :places="places"
                   />
@@ -271,62 +254,86 @@
             <template v-slot:statementStatus="rowData">
               <status-badge
                 class="mt-0.5 max-w-fit !block o-hellip--nowrap"
-                :status="parentStatementFor(rowData).attributes.status"
+                :status="
+                  statementsObject[
+                    rowData.relationships.parentStatement.data.id
+                  ].attributes.status
+                "
               />
             </template>
             <template v-slot:internId="rowData">
               <div class="o-hellip__wrapper">
                 <div
-                  v-tooltip="parentStatementFor(rowData).attributes.internId"
+                  v-tooltip="
+                    statementsObject[
+                      rowData.relationships.parentStatement.data.id
+                    ].attributes.internId
+                  "
                   class="o-hellip--nowrap text-right"
                   dir="rtl"
                 >
-                  {{ parentStatementFor(rowData).attributes.internId }}
+                  {{
+                    statementsObject[
+                      rowData.relationships.parentStatement.data.id
+                    ].attributes.internId
+                  }}
                 </div>
               </div>
             </template>
             <template v-slot:submitter="rowData">
               <ul class="o-list max-w-12">
                 <li
-                  v-if="parentStatementFor(rowData).attributes.authorName !== ''"
+                  v-if="
+                    statementsObject[
+                      rowData.relationships.parentStatement.data.id
+                    ].attributes.authorName !== ''
+                  "
                   class="o-list__item o-hellip--nowrap"
                 >
-                  {{ parentStatementFor(rowData).attributes.authorName }}
+                  {{
+                    statementsObject[
+                      rowData.relationships.parentStatement.data.id
+                    ].attributes.authorName
+                  }}
                 </li>
                 <li
                   v-else
                   class="o-list__item o-hellip--nowrap"
                 >
-                  {{ parentStatementFor(rowData).attributes.submitName }}
+                  {{
+                    statementsObject[
+                      rowData.relationships.parentStatement.data.id
+                    ].attributes.submitName
+                  }}
                 </li>
                 <li
-                  v-if="parentStatementFor(rowData).attributes.initialOrganisationName !== ''"
+                  v-if="
+                    statementsObject[
+                      rowData.relationships.parentStatement.data.id
+                    ].attributes.initialOrganisationName !== ''
+                  "
                   class="o-list__item o-hellip--nowrap"
                 >
-                  {{ parentStatementFor(rowData).attributes.initialOrganisationName }}
+                  {{
+                    statementsObject[
+                      rowData.relationships.parentStatement.data.id
+                    ].attributes.initialOrganisationName
+                  }}
                 </li>
               </ul>
             </template>
-            <template v-slot:address="rowData">
-              <ul class="o-list">
-                <li
-                  v-if="parentStatementFor(rowData).attributes.initialOrganisationStreet !== ''"
-                  class="o-list__item o-hellip--nowrap"
-                >
-                  {{ parentStatementFor(rowData).attributes.initialOrganisationStreet }}
-                  {{ parentStatementFor(rowData).attributes.initialOrganisationHouseNumber }}
-                </li>
-                <li
-                  v-if="parentStatementFor(rowData).attributes.initialOrganisationPostalCode !== ''"
-                  class="o-list__item o-hellip--nowrap"
-                >
-                  {{ parentStatementFor(rowData).attributes.initialOrganisationPostalCode }}
-                  {{ parentStatementFor(rowData).attributes.initialOrganisationCity }}
-                </li>
-              </ul>
+            <template v-slot:organisation="rowData">
+              {{
+                statementsObject[
+                  rowData.relationships.parentStatement.data.id
+                ].attributes.initialOrganisationName
+              }}
             </template>
             <template v-slot:place="rowData">
-              {{ placeFor(rowData).attributes.name }}
+              {{
+                placesObject[rowData.relationships.place.data.id].attributes
+                  .name
+              }}
             </template>
             <template v-slot:text="rowData">
               <text-content-renderer
@@ -340,7 +347,7 @@
                 <span
                   v-if="
                     hasPermission('feature_enable_recommendation_versions') &&
-                      getRecommendationVersionNumber(rowData)
+                      rowData.attributes.currentRecommendationVersionNumber
                   "
                   class="text-neutral-base"
                   :class="{
@@ -350,7 +357,7 @@
                   }"
                 >
                   {{ Translator.trans("version") }}:
-                  {{ getRecommendationVersionNumber(rowData) }}
+                  {{ formatRecommendationVersionNumber(rowData.attributes.currentRecommendationVersionNumber) }}
                 </span>
               </div>
             </template>
@@ -360,11 +367,11 @@
                 hook-name="tag.style.segments.list"
                 :addon-props="{
                   demosplanUi,
-                  tags: getTagsBySegment(rowData),
+                  tags: getTagsBySegment(rowData.id),
                 }"
               />
               <span
-                v-for="tag in getTagsBySegment(rowData)"
+                v-for="tag in getTagsBySegment(rowData.id)"
                 v-else
                 :key="tag.id"
                 class="rounded-md color--grey-dark bg-color--grey-light-2 px-1 py-0.5 mx-0.5 my-1 inline-block"
@@ -527,6 +534,7 @@ import {
   DpDataTable,
   DpFlyout,
   DpInlineNotification,
+  DpLabel,
   DpLoading,
   DpPager,
   dpRpc,
@@ -539,20 +547,27 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
 import CustomSearch from './CustomSearch'
-import FilterFlyout from './FilterFlyout'
 import fullscreenModeMixin from '@DpJs/components/shared/mixins/fullscreenModeMixin'
 import ImageModal from '@DpJs/components/shared/ImageModal'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
+import SegmentsExportModal from './SegmentsExportModal'
 import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 import StatusBadge from '../Shared/StatusBadge'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import { useApiPlatformFilters } from '@DpJs/composables/useApiPlatformFilters'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
+
+const SEGMENT_EXPORT_ROUTES = {
+  xlsx_normal: 'dplan_segment_xlsx_export',
+  csv_normal: 'dplan_segment_csv_export',
+}
 
 export default {
   name: 'SegmentsList',
@@ -566,12 +581,13 @@ export default {
     DpDataTable,
     DpFlyout,
     DpInlineNotification,
+    DpLabel,
     DpLoading,
     DpPager,
     DpSelect,
     DpStickyElement,
-    FilterFlyout,
     ImageModal,
+    SegmentsExportModal,
     SegmentUnlockModal,
     StatementMetaTooltip,
     StatusBadge,
@@ -596,24 +612,8 @@ export default {
       required: true,
     },
 
-    /**
-     * {Object of objects}
-     * {
-     *   assignee: {
-     *     comparisonOperator: string,
-     *     grouping?: {
-     *       labelTranslationKey: string,
-     *       targetPath: string
-     *     },
-     *     labelTranslationKey: string,
-     *     rootPath: string,
-     *     selected: boolean
-     *   },
-     *   place: s. assignee,
-     *   tags: s. assignee
-     * }
-     */
-    filters: {
+    // Filter definitions from segmentsFilterNames.yaml, used in export modal
+    filterNames: {
       type: Object,
       required: false,
       default: () => ({}),
@@ -636,10 +636,13 @@ export default {
     },
   },
 
+  emits: ['resetFilters'],
+
   setup () {
     const { unlockModal, openUnlockModal, unlockSegment } = useSegmentUnlock()
+    const { transformFiltersToApiPlatform } = useApiPlatformFilters()
 
-    return { unlockModal, openUnlockModal, unlockSegment }
+    return { unlockModal, openUnlockModal, unlockSegment, transformFiltersToApiPlatform }
   },
 
   data () {
@@ -650,6 +653,7 @@ export default {
       defaultColumnSelection: [],
       currentSelection: [],
       customFieldDefinitions: [],
+      customFieldsReady: !hasPermission('field_segments_custom_fields'),
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
@@ -690,8 +694,8 @@ export default {
           initialMinWidth: 180,
         },
         {
-          field: 'address',
-          label: Translator.trans('address'),
+          field: 'organisation',
+          label: Translator.trans('organisation'),
           colWidth: '180px',
           initialMinWidth: 180,
         },
@@ -734,12 +738,6 @@ export default {
       searchFieldsSelected: [],
       selectedSort: '',
       selectionCopiedToClipboard: false,
-      sortOptions: [
-        { value: 'internId-desc', label: Translator.trans('sort.internId.descending') },
-        { value: 'internId-asc', label: Translator.trans('sort.internId.ascending') },
-      ],
-      v3Segments: [],
-      v3Included: {},
     }
   },
 
@@ -752,9 +750,15 @@ export default {
       customFields: 'items',
     }),
 
+    ...mapState('FilterFlyout', {
+      groupedFilterOptions: 'groupedOptions',
+      ungroupedFilterOptions: 'ungroupedOptions',
+    }),
+
     ...mapGetters('FilterFlyout', [
       'getFilterQuery',
       'getIsExpandedByCategoryId',
+      'getLastAppliedFilterQuery',
     ]),
 
     ...mapState('Orga', {
@@ -763,6 +767,22 @@ export default {
 
     ...mapState('Place', {
       placesObject: 'items',
+    }),
+
+    ...mapState('SegmentSlidebar', [
+      'slidebar',
+    ]),
+
+    ...mapState('Statement', {
+      statementsObject: 'items',
+    }),
+
+    ...mapState('StatementSegment', {
+      segmentsObject: 'items',
+    }),
+
+    ...mapState('Tag', {
+      tagsObject: 'items',
     }),
 
     assignableUsers () {
@@ -774,6 +794,14 @@ export default {
         []
     },
 
+    hasDeadlineColumn () {
+      return hasPermission('field_statement_deadline')
+    },
+
+    canExportSegments () {
+      return hasPermission('feature_segments_list_export_xlsx') || hasPermission('feature_segments_list_export_csv')
+    },
+
     // Passed as headerFields to DpDataTable
     availableHeaderFields () {
       const externIdField = this.headerFieldsAvailable.find(
@@ -782,7 +810,7 @@ export default {
       const userHeaderFields = this.headerFields.filter(
         (el) =>
           el.field !== 'externId' &&
-          (el.field !== 'deadline' || hasPermission('field_statement_deadline')),
+          (el.field !== 'deadline' || this.hasDeadlineColumn),
       )
 
       if (!hasPermission('field_segments_custom_fields')) {
@@ -822,6 +850,34 @@ export default {
       ]
     },
 
+    // Filter categories for the export modal, shaped [{ label, values: [String] }]
+    appliedFiltersSummary () {
+      const LABEL_PENDING = '…'
+      const valuesByPath = {}
+
+      Object.values(this.getLastAppliedFilterQuery).forEach((filter) => {
+        if (!filter.condition) {
+          return
+        }
+
+        const { path, value } = filter.condition
+
+        valuesByPath[path] = [...(valuesByPath[path] ?? []), value ?? 'unassigned']
+      })
+
+      return Object.entries(valuesByPath).map(([path, values]) => {
+        const labelKey = Object.values(this.filterNames).find(
+          (filterName) => filterName.rootPath === path,
+        )?.labelTranslationKey
+
+        return {
+          label: Translator.trans(labelKey ?? path),
+          // Never surface a raw UUID; show a placeholder until the label resolves
+          values: values.map((id) => this.filterSummaryLabels[id] ?? LABEL_PENDING),
+        }
+      })
+    },
+
     // Overrides tableSelectAllItems mixin to exclude locked segments from selection for users without unlock permission
     currentlySelectedItems () {
       const toggledIds = new Set(this.toggledItems.map((item) => item.id))
@@ -843,8 +899,47 @@ export default {
       return selected.reduce((acc, el) => ({ ...acc, [el.id]: true }), {})
     },
 
+    /*
+     * Number of segments the export would cover: the manual selection if one is active, otherwise
+     * all filtered/searched segments. Uses `pagination.total` rather than `allItemsCount` - the
+     * latter gets silently overwritten by fetchSegmentIds()'s background RPC shortly after load,
+     * which can resolve to 0 independently of the actual filtered result count (separate bug).
+     */
+    exportSegmentCount () {
+      return this.selectedItemsCount > 0 ? this.selectedItemsCount : (this.pagination.total || 0)
+    },
+
+    filterButtonText () {
+      return this.queryIds.length > 0 ?
+        `${Translator.trans('filter')} (${this.queryIds.length})` :
+        Translator.trans('filter')
+    },
+
+    // Option label by filter value id, sourced from the filter flyout's fetched options
+    filterSummaryLabels () {
+      // Seed the unassigned label so it resolves regardless of which category was fetched
+      const labels = { unassigned: Translator.trans('not.assigned') }
+
+      Object.values(this.groupedFilterOptions).forEach((groups) =>
+        groups.forEach((group) =>
+          group.options.forEach((option) => {
+            labels[option.id] = option.label
+          })))
+
+      Object.values(this.ungroupedFilterOptions).forEach((options) =>
+        options.forEach((option) => {
+          labels[option.id] = option.label
+        }))
+
+      return labels
+    },
+
     hasLockedInSelection () {
       return this.lockedInSelectionCount > 0
+    },
+
+    hasSegments () {
+      return !this.isLoading && this.items.length > 0
     },
 
     headerFields () {
@@ -854,12 +949,11 @@ export default {
     },
 
     items () {
-      return this.v3Segments.map((segment) => ({
-        ...segment,
-        isPlaceLocked:
-          !!this.v3Included.Place?.[segment.relationships?.place?.data?.id]
-            ?.attributes?.locked,
-      }))
+      return Object.values(this.segmentsObject)
+        .map((segment) => ({
+          ...segment,
+          isPlaceLocked: !!this.placesObject[segment.relationships?.place?.data?.id]?.attributes?.locked,
+        }))
     },
 
     /*
@@ -925,7 +1019,7 @@ export default {
       const staticColumns = this.headerFieldsAvailable
         // ExternId should always be displayed, so it shouldn't be selectable
         .filter(
-          (el) => el.field !== 'externId' && (el.field !== 'deadline' || hasPermission('field_statement_deadline')),
+          (el) => el.field !== 'externId' && (el.field !== 'deadline' || this.hasDeadlineColumn),
         )
         .map((headerField) => [headerField.field, headerField.label])
 
@@ -956,6 +1050,21 @@ export default {
         }))
     },
 
+    sortOptions () {
+      const allSortOptions = [
+        { value: 'deadline-desc', label: Translator.trans('sort.deadline.descending') },
+        { value: 'deadline-asc', label: Translator.trans('sort.deadline.ascending') },
+        { value: 'internId-desc', label: Translator.trans('sort.internId.descending') },
+        { value: 'internId-asc', label: Translator.trans('sort.internId.ascending') },
+      ]
+
+      if (!this.hasDeadlineColumn) {
+        return allSortOptions.filter(option => !option.value.startsWith('deadline'))
+      }
+
+      return allSortOptions
+    },
+
     storageKeyPagination () {
       return `${this.currentUserId}:${this.procedureId}:paginationSegmentsList`
     },
@@ -977,10 +1086,14 @@ export default {
       fetchAssignableUsers: 'list',
     }),
 
-    ...mapActions('FilterFlyout', ['updateFilterQuery']),
+    ...mapActions('FilterFlyout', ['commitFilterQuery', 'updateFilterQuery']),
 
     ...mapActions('Place', {
       fetchPlaces: 'list',
+    }),
+
+    ...mapActions('StatementSegment', {
+      fetchSegments: 'list',
     }),
 
     ...mapMutations('FilterFlyout', {
@@ -1001,123 +1114,64 @@ export default {
     },
 
     applyQuery (page) {
+      // Drop unapplied filter selections before reading getFilterQuery, then close the panel
       lscache.remove(this.lsKey.allSegments)
       lscache.remove(this.lsKey.toggledSegments)
-      this.allItemsCount = null
 
-      // Still needed for fetchSegmentIds() below, which uses the legacy RPC's Drupal-style filter shape.
+      this.allItemsCount = null
+      const { include, fields } = this.buildSegmentFetchOptions()
+
+      const defaultFilter = {
+        'parentStatementOfSegment.procedure.id': this.procedureId,
+      }
       const filter = {
-        ...this.getFilterQuery,
-        sameProcedure: {
-          condition: {
-            path: 'parentStatement.procedure.id',
-            value: this.procedureId,
-          },
-        },
+        ...this.transformFiltersToApiPlatform(this.getLastAppliedFilterQuery),
+        ...defaultFilter,
       }
 
-      const search = this.searchTerm !== '' ?
-        {
+      const defaultOrder = {
+        'parentStatementOfSegment.submit': 'asc',
+        'parentStatementOfSegment.externId': 'asc',
+        orderInProcedure: 'asc',
+      }
+      const order = this.getSelectedSortParams() ?? defaultOrder
+
+      const payload = {
+        include,
+        fields,
+        pagination: true,
+        order,
+        page,
+        itemsPerPage: this.pagination.perPage,
+        ...filter,
+      }
+
+      if (this.searchTerm !== '') {
+        payload.search = {
           value: this.searchTerm,
           ...(this.searchFieldsSelected.length !== 0 ?
             { fieldsToSearch: this.searchFieldsSelected } :
             {}),
-        } :
-        undefined
-
-      const params = new URLSearchParams({
-        'parentStatementOfSegment.procedure.id': this.procedureId,
-        include: 'parentStatement,assignee,place,tags',
-        pagination: 'true',
-        page,
-        itemsPerPage: this.pagination.perPage,
-      })
-
-      if (this.searchTerm !== '') {
-        params.set('text', this.searchTerm)
-      }
-
-      if ('internId-desc' === this.selectedSort) {
-        params.append('order[parentStatementOfSegment.original.internId]', 'desc')
-      } else if ('internId-asc' === this.selectedSort) {
-        params.append('order[parentStatementOfSegment.original.internId]', 'asc')
-      } else {
-        // Baseline order so the list stays stable when no sort is selected.
-        params.append('order[parentStatementOfSegment.submit]', 'asc')
-        params.append('order[parentStatementOfSegment.externId]', 'asc')
-        params.append('order[orderInProcedure]', 'asc')
-      }
-
-      /*
-       * Translate the filter-flyout selections (place/assignee/tags) into v3 SearchFilter/ExistsFilter params.
-       * Multiple values on the same path[] naturally OR together; different paths naturally AND together.
-       */
-      Object.values(this.getFilterQuery).forEach((entry) => {
-        if (!entry.condition) {
-          return
         }
-
-        const { path, value, operator } = entry.condition
-
-        if (operator === 'IS NULL') {
-          params.append(`exists[${path}]`, 'false')
-        } else {
-          params.append(`${path}.id[]`, value)
-        }
-      })
+      }
 
       this.isLoading = true
-      dpApi.get(`${Routing.getBaseUrl()}/api/3.0/StatementSegment?${params}`)
-        .then(({ data }) => {
-          this.v3Segments = data.data
-          this.v3Included = this.groupIncludedByType(data.included || [])
-
-          /*
-           * API Platform's jsonapi pagination meta is camelCase and has no `total_pages`, unlike
-           * the snake_case `{ current_page, per_page, total, total_pages }` shape paginationMixin
-           * expects (modelled on the legacy Fractal-based endpoints) - so it is translated here.
+      this.fetchSegments(payload)
+        .then((data) => {
+          /**
+           * We need to set the localStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
            */
-          const paginationMeta = {
-            count: this.v3Segments.length,
-            current_page: data.meta.currentPage,
-            per_page: data.meta.itemsPerPage,
-            total: data.meta.totalItems,
-            total_pages: Math.ceil(data.meta.totalItems / data.meta.itemsPerPage),
-          }
-
-          this.setLocalStorage(paginationMeta)
+          this.setLocalStorage(data.meta)
 
           // Fake the count from meta info of paged request, until `fetchSegmentIds()` resolves
-          this.allItemsCount = paginationMeta.total
-          this.updatePagination(paginationMeta)
+          this.allItemsCount = data.meta.totalItems
+          this.updatePagination(data.meta)
 
-          /*
-           * Get all segments (without pagination) to save them in localStorage for bulk editing.
-           * If 'feature_segment_lock_by_workflow_place' is active, users without `feature_administrate_segment_lock`
-           * must not be able to bulk-edit segments whose workflow place is locked, so exclude them from the ID set.
-           */
-          const idsFilter = { ...filter }
-
-          if (
-            hasPermission('feature_segment_lock_by_workflow_place') &&
-            !this.canUnlock
-          ) {
-            idsFilter.placeNotLocked = {
-              condition: {
-                path: 'place.locked',
-                value: false,
-              },
-            }
-          }
-
-          this.fetchSegmentIds({
-            filter: idsFilter,
-            search,
-          })
+          this.fetchBulkEditSegmentIds(payload.search)
         })
         .catch(() => {
           if (
-            Object.keys(this.getFilterQuery).length > 0 ||
+            Object.keys(this.getLastAppliedFilterQuery).length > 0 ||
             this.searchTerm !== ''
           ) {
             this.resetQuery()
@@ -1141,60 +1195,133 @@ export default {
         })
     },
 
-    groupIncludedByType (included) {
-      return included.reduce((byType, resource) => {
-        byType[resource.type] = byType[resource.type] || {}
-        byType[resource.type][resource.id] = resource
+    /*
+     * Mirrors the filter/search/sort construction in applyQuery() so the export always contains
+     * exactly the segments currently shown in the list - no more (StatementSegmentResourceType's
+     * access conditions alone would also allow segments from procedures coupled via
+     * getAllowedSegmentAccessProcedures(), which sameProcedure excludes here just like it does
+     * for the list itself). columns mirrors orderedHeaderFields, same as buildClipboardText(): the
+     * user's current column selection in their current drag&drop order, externId always first.
+     */
+    handleExportSegments ({ type }) {
+      const selectedSegmentIds = this.resolveSelectedSegmentIds()
 
-        return byType
-      }, {})
-    },
+      const filter = {
+        ...this.getLastAppliedFilterQuery,
+        sameProcedure: {
+          condition: {
+            path: 'parentStatement.procedure.id',
+            value: this.procedureId,
+          },
+        },
+        ...(selectedSegmentIds.length > 0 ? {
+          selectedSegments: {
+            condition: {
+              path: 'id',
+              operator: 'IN',
+              value: selectedSegmentIds,
+            },
+          },
+        } : {}),
+      }
 
-    parentStatementFor (rowData) {
-      return this.v3Included.Statement?.[rowData.relationships.parentStatement.data.id]
-    },
+      const orderedFields = this.$refs.dataTable?.orderedHeaderFields || this.availableHeaderFields
+      const columns = orderedFields.map(headerField => headerField.field)
 
-    placeFor (rowData) {
-      return this.v3Included.Place?.[rowData.relationships.place.data.id]
+      const params = {
+        procedureId: this.procedureId,
+        filter,
+        sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
+        columns: columns.join(','),
+      }
+
+      if (this.searchTerm !== '') {
+        params.search = {
+          value: this.searchTerm,
+          ...(this.searchFieldsSelected.length !== 0 ? { fieldsToSearch: this.searchFieldsSelected } : {}),
+        }
+      }
+
+      globalThis.location.href = Routing.generate(SEGMENT_EXPORT_ROUTES[type], params)
     },
 
     /*
-     * Loads full data for selected segment ids that aren't on the currently loaded page -
-     * needed since pagination only keeps one page of segments in v3Segments at a time.
-     * Chunked to keep the request URL length reasonable for large selections. Included
-     * relationships (parentStatement/place/tags) are merged into v3Included so the
-     * existing parentStatementFor()/placeFor()/getTagsBySegment() lookups keep working.
+     * Builds the `include`/`fields` portion of a StatementSegment JSON:API request. Shared by
+     * applyQuery() (the main list fetch) and fetchMissingSegments() (the supplemental fetch for
+     * selected segments outside the currently loaded batch), so both requests always resolve the
+     * same relationships/attributes and copying-to-clipboard never sees a different data shape
+     * depending on where a segment's data came from.
      */
-    fetchMissingSegments (missingIds) {
-      const chunkSize = 200
-      const idChunks = []
+    buildSegmentFetchOptions () {
+      const statementSegmentFields = [
+        'assignee',
+        'externId',
+        'orderInProcedure',
+        'parentStatement',
+        'place',
+        'recommendation',
+        'tags',
+        'text',
+      ]
 
-      for (let start = 0; start < missingIds.length; start += chunkSize) {
-        idChunks.push(missingIds.slice(start, start + chunkSize))
+      if (this.hasDeadlineColumn) {
+        statementSegmentFields.push('deadline')
       }
 
-      const fetchChunk = idChunk => {
-        const params = new URLSearchParams({ include: 'parentStatement,assignee,place,tags' })
+      const statementSegmentInclude = [
+        'assignee',
+        'parentStatement',
+        'place',
+        'tags',
+      ]
 
-        idChunk.forEach(id => params.append('id[]', id))
-
-        return dpApi.get(`${Routing.getBaseUrl()}/api/3.0/StatementSegment?${params}`)
+      if (hasPermission('field_segments_custom_fields')) {
+        statementSegmentFields.push('customFields')
       }
 
-      return idChunks
-        .reduce((chain, idChunk) => chain.then(responses => fetchChunk(idChunk).then(response => [...responses, response])), Promise.resolve([]))
-        .then(responses => {
-          const segments = responses.flatMap(response => response.data.data)
-          const included = responses.flatMap(response => response.data.included || [])
-          const newlyIncluded = this.groupIncludedByType(included)
+      if (hasPermission('feature_enable_recommendation_versions')) {
+        statementSegmentFields.push('currentRecommendationVersionNumber')
+      }
 
-          this.v3Included = Object.keys(newlyIncluded).reduce((merged, type) => ({
-            ...merged,
-            [type]: { ...merged[type], ...newlyIncluded[type] },
-          }), this.v3Included)
+      /**
+       * API Platform (3.0)
+       *
+       * Key naming convention:
+       * - Main resource type: PascalCase - matches ResourceType::getName()
+       * - Related resources: camelCase - matches relationship property names
+       */
+      const fields = {
+        place: [
+          'name',
+          ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+        ].join(),
+        parentStatement: [
+          'authoredDate',
+          'authorName',
+          'isSubmittedByCitizen',
+          'initialOrganisationDepartmentName',
+          'initialOrganisationName',
+          'initialOrganisationStreet',
+          'initialOrganisationHouseNumber',
+          'initialOrganisationPostalCode',
+          'initialOrganisationCity',
+          'internId',
+          'memo',
+          'status',
+          'submitDate',
+          'submitName',
+          'submitType',
+        ].join(),
+        StatementSegment: statementSegmentFields.join(),
+        tags: [
+          'title',
+        ].join(),
+      }
 
-          return segments
-        })
+      return {
+        include: statementSegmentInclude.join(),
+        fields,
+      }
     },
 
     copySelectionToClipboard () {
@@ -1206,14 +1333,15 @@ export default {
         return
       }
 
-      const loadedIds = new Set(this.v3Segments.map(segment => segment.id))
-      const missingIds = selectedIds.filter(id => !loadedIds.has(id))
-      const fetchMissing = missingIds.length > 0 ? this.fetchMissingSegments(missingIds) : Promise.resolve([])
+      const missingIds = selectedIds.filter(id => !this.segmentsObject[id])
+      const fetchMissing = missingIds.length > 0 ?
+        this.fetchMissingSegments(missingIds) :
+        Promise.resolve({ segmentsById: {}, statementsById: {}, placesById: {}, tagsById: {}, recommendationVersionsById: {} })
 
       this.isCopyingToClipboard = true
 
       fetchMissing
-        .then(missingSegments => this.copyTextToClipboard(this.buildClipboardText(selectedIds, missingSegments)))
+        .then(supplemental => this.copyTextToClipboard(this.buildClipboardText(selectedIds, supplemental)))
         .then(() => {
           dplan.notify.notify('confirm', Translator.trans('segments.copy.clipboard.success', { count: selectedIds.length }))
           this.selectionCopiedToClipboard = true
@@ -1231,17 +1359,36 @@ export default {
     /*
      * Builds the tab/newline-separated plain-text representation (Excel-paste target) of the
      * selected segments, matching the currently visible columns and their drag&drop order.
-     * `missingSegments` covers ids selected outside the currently loaded page (see
-     * fetchMissingSegments) and is merged in here since it is never added to v3Segments.
+     * `supplemental` provides data for segment ids not yet in the Vuex store (see
+     * fetchMissingSegments) and must be merged in locally rather than read from `this.*` directly,
+     * since it is never committed to the store.
      */
-    buildClipboardText (selectedIds, missingSegments = []) {
-      const segmentsById = Object.fromEntries([...this.v3Segments, ...missingSegments].map(segment => [segment.id, segment]))
+    buildClipboardText (selectedIds, supplemental) {
+      const segmentsById = {
+        ...this.segmentsObject,
+        ...supplemental.segmentsById,
+      }
+      const context = {
+        statementsById: {
+          ...this.statementsObject,
+          ...supplemental.statementsById,
+        },
+        placesById: {
+          ...this.placesObject,
+          ...supplemental.placesById,
+        },
+        tagsById: {
+          ...this.tagsObject,
+          ...supplemental.tagsById,
+        },
+        hasRecommendationVersions: hasPermission('feature_enable_recommendation_versions'),
+      }
       const headerFields = this.$refs.dataTable?.orderedHeaderFields || this.availableHeaderFields
 
       return selectedIds
         .map(id => segmentsById[id])
         .map(segment => headerFields
-          .map(headerField => this.sanitizeClipboardCell(segment ? this.getClipboardCellValue(headerField, segment) : ''))
+          .map(headerField => this.sanitizeClipboardCell(segment ? this.getClipboardCellValue(headerField, segment, context) : ''))
           .join('\t'))
         .join('\n')
     },
@@ -1277,54 +1424,72 @@ export default {
       })
     },
 
-    getClipboardAddress (segment) {
-      const statement = this.parentStatementFor(segment)
-
-      if (!statement) {
-        return ''
+    /**
+     * Get all segment ids (without pagination) to save them in localStorage for bulk editing.
+     * If 'feature_segment_lock_by_workflow_place' is active, users without `feature_administrate_segment_lock`
+     * must not be able to bulk-edit segments whose workflow place is locked, so exclude them from the ID set.
+     */
+    fetchBulkEditSegmentIds (search) {
+      const idsFilter = {
+        ...this.getFilterQuery,
+        sameProcedure: {
+          condition: {
+            path: 'parentStatement.procedure.id',
+            value: this.procedureId,
+          },
+        },
       }
 
-      const parts = []
-
-      if (statement.attributes.initialOrganisationStreet !== '') {
-        parts.push(`${statement.attributes.initialOrganisationStreet} ${statement.attributes.initialOrganisationHouseNumber}`.trim())
+      if (hasPermission('feature_segment_lock_by_workflow_place') && !this.canUnlock) {
+        idsFilter.placeNotLocked = {
+          condition: {
+            path: 'place.locked',
+            value: false,
+          },
+        }
       }
 
-      if (statement.attributes.initialOrganisationPostalCode !== '') {
-        parts.push(`${statement.attributes.initialOrganisationPostalCode} ${statement.attributes.initialOrganisationCity}`.trim())
-      }
-
-      return parts.join(', ')
+      this.fetchSegmentIds({
+        filter: idsFilter,
+        search,
+      })
     },
 
-    getClipboardCellValue (headerField, segment) {
+    formatRecommendationVersionNumber (versionNumber) {
+      return versionNumber ? String(versionNumber).padStart(3, '0') : ''
+    },
+
+    getClipboardCellValue (headerField, segment, context) {
       if (headerField.field.startsWith('customField_')) {
         return this.getCustomFieldOptionLabel(segment.attributes.customFields, headerField.field.replace('customField_', ''))
       }
 
       switch (headerField.field) {
-        case 'address':
-          return this.getClipboardAddress(segment)
         case 'deadline':
           return segment.attributes.deadline ? formatDate(segment.attributes.deadline) : ''
         case 'externId':
           return segment.attributes.externId || ''
         case 'internId':
-          return this.parentStatementFor(segment)?.attributes.internId || ''
+          return this.getClipboardParentStatement(segment, context)?.attributes.internId || ''
+        case 'organisation':
+          return this.getClipboardParentStatement(segment, context)?.attributes.initialOrganisationName || ''
         case 'place':
-          return this.v3Included.Place?.[segment.relationships?.place?.data?.id]?.attributes.name || ''
+          return context.placesById[segment.relationships?.place?.data?.id]?.attributes.name || ''
         case 'recommendation':
-          return this.getClipboardRecommendation(segment)
+          return this.getClipboardRecommendation(segment, context)
         case 'statementStatus': {
-          const status = this.parentStatementFor(segment)?.attributes.status
+          const status = this.getClipboardParentStatement(segment, context)?.attributes.status
 
           return status ? Translator.trans(status) : ''
         }
 
         case 'submitter':
-          return this.getClipboardSubmitter(segment)
+          return this.getClipboardSubmitter(segment, context)
         case 'tags':
-          return this.getTagsBySegment(segment).map(tag => tag.attributes.title).filter(Boolean).join(', ')
+          return (segment.relationships?.tags?.data || [])
+            .map(tag => context.tagsById[tag.id]?.attributes?.title)
+            .filter(Boolean)
+            .join(', ')
         case 'text':
           return this.stripHtmlForClipboard(segment.attributes.text)
         default:
@@ -1332,15 +1497,19 @@ export default {
       }
     },
 
-    getClipboardRecommendation (segment) {
+    getClipboardParentStatement (segment, context) {
+      return context.statementsById[segment.relationships?.parentStatement?.data?.id]
+    },
+
+    getClipboardRecommendation (segment, context) {
       const text = this.stripHtmlForClipboard(segment.attributes.recommendation) || '-'
-      const versionNumber = hasPermission('feature_enable_recommendation_versions') ? this.getRecommendationVersionNumber(segment) : ''
+      const versionNumber = context.hasRecommendationVersions ? this.formatRecommendationVersionNumber(segment.attributes.currentRecommendationVersionNumber) : ''
 
       return versionNumber ? `${text} ${Translator.trans('version')}: ${versionNumber}` : text
     },
 
-    getClipboardSubmitter (segment) {
-      const statement = this.parentStatementFor(segment)
+    getClipboardSubmitter (segment, context) {
+      const statement = this.getClipboardParentStatement(segment, context)
 
       if (!statement) {
         return ''
@@ -1354,6 +1523,20 @@ export default {
 
       // Drop empty parts so anonymous submissions do not end up with a leading separator
       return parts.filter(Boolean).join(', ')
+    },
+
+    getSelectedSortParams () {
+      const sortPaths = {
+        internId: 'parentStatementOfSegment.original.internId',
+        deadline: 'deadline',
+      }
+
+      const [sortBy, direction] = this.selectedSort?.split('-') ?? []
+      const sortPath = sortPaths[sortBy]
+
+      return sortPath && direction ?
+        { [sortPath]: direction } :
+        null
     },
 
     /**
@@ -1378,6 +1561,55 @@ export default {
       }
 
       return new DOMParser().parseFromString(html, 'text/html').body.textContent || ''
+    },
+
+    buildResourceMapById (resources) {
+      return resources.reduce((resourceMap, resource) => {
+        resourceMap[resource.id] = resource
+
+        return resourceMap
+      }, {})
+    },
+
+    buildResourceMapByType (resources, type) {
+      return this.buildResourceMapById(resources.filter(resource => resource.type === type))
+    },
+
+    /*
+     * Loads full attribute data for selected segment ids that aren't in the Vuex store yet — only
+     * possible when "select all" spans more segments than the 1000-row main-fetch cap. Uses the
+     * apiUrl helper to ensure we hit the same API version (3.0) as the main fetch. Deliberately
+     * bypasses the mapped `fetchSegments` ('list') action, which would reset the currently displayed
+     * table; the raw JSON:API response is turned into standalone lookup maps instead.
+     */
+    fetchMissingSegments (missingIds) {
+      const { include, fields } = this.buildSegmentFetchOptions()
+      const chunkSize = 200
+      const idChunks = []
+
+      for (let start = 0; start < missingIds.length; start += chunkSize) {
+        idChunks.push(missingIds.slice(start, start + chunkSize))
+      }
+
+      const fetchChunk = idChunk => dpApi.get(apiUrl('StatementSegment', 'list'), {
+        include,
+        fields,
+        id: idChunk,
+      })
+
+      return idChunks
+        .reduce((chain, idChunk) => chain.then(responses => fetchChunk(idChunk).then(response => [...responses, response])), Promise.resolve([]))
+        .then(responses => {
+          const segments = responses.flatMap(response => response.data.data)
+          const included = responses.flatMap(response => response.data.included || [])
+
+          return {
+            segmentsById: this.buildResourceMapById(segments),
+            statementsById: this.buildResourceMapByType(included, 'Statement'),
+            placesById: this.buildResourceMapByType(included, 'Place'),
+            tagsById: this.buildResourceMapByType(included, 'Tag'),
+          }
+        })
     },
 
     fetchSegmentIds (payload) {
@@ -1421,36 +1653,40 @@ export default {
         .catch(() => {
           /* Notification already shown by useCustomFieldDefinitions */
         })
+        .finally(() => {
+          this.customFieldsReady = true
+        })
     },
 
-    getRecommendationVersionNumber (segment) {
-      const versionNumber = segment.attributes.currentRecommendationVersionNumber
+    getTagsBySegment (id) {
+      const segment = this.segmentsObject[id]
+      const relatedTagIds =
+        segment.relationships.tags &&
+        segment.relationships.tags.data.map((tag) => tag.id)
 
-      return versionNumber ? String(versionNumber).padStart(3, '0') : ''
-    },
-
-    getTagsBySegment (segment) {
-      const relatedTagIds = segment.relationships.tags?.data.map((tag) => tag.id) || []
-
-      return relatedTagIds.map((id) => this.v3Included.Tag?.[id]).filter(Boolean)
+      return relatedTagIds.map((id) => this.tagsObject[id])
     },
 
     /**
-     * Returns the hash of the original statement attachment.
-     * Always null for now -- the `attachments` relationship isn't requested via
-     * /api/3.0/StatementSegment yet (it was already unavailable in the legacy query too).
+     * Returns the hash of the original statement attachment
      */
-    getOriginalPdfAttachmentHashBySegment () {
-      return null
-    },
+    getOriginalPdfAttachmentHashBySegment (segment) {
+      const parentStatement = segment.rel('parentStatement')
 
-    groupName (filterType) {
-      if (filterType === 'tags') {
-        return null
+      if (parentStatement.hasRelationship('attachments')) {
+        const originalAttachment = Object.values(
+          parentStatement.relationships.attachments.list(),
+        ).find(
+          (attachment) =>
+            attachment.attributes.attachmentType === 'source_statement',
+        )
+
+        if (originalAttachment) {
+          return originalAttachment.rel('file').attributes.hash
+        }
       }
 
-      // Replace '.' in workflow.places because it is forbidden in group names
-      return `${filterType.replaceAll('.', '-')}_group`
+      return null
     },
 
     handleBulkEdit () {
@@ -1506,15 +1742,10 @@ export default {
       this.columnSelectorKey++
     },
 
+    // Filters live in SegmentsListFilter (in the slidebar); delegate the reset there via the twig template.
     resetQuery () {
       this.resetSearchQuery()
-      this.appliedFilterQuery = []
-      this.$refs.filterFlyout?.forEach((flyout) => {
-        flyout.reset()
-      })
-      this.updateQueryHash()
-      this.resetSelection()
-      this.applyQuery(1)
+      this.$emit('resetFilters')
     },
 
     resetSearchQuery () {
@@ -1526,8 +1757,8 @@ export default {
      * Returns the true set of selected segment ids, independent of `currentlySelectedItems`
      * (which silently truncates to the loaded page/batch once `trackDeselected` is active — see
      * the override above). When "select all" is active, the full filtered-set id list (written to
-     * `lscache` by fetchSegmentIds()/storeAllSegments()) minus the individually deselected ids is
-     * the true selection.
+     * `lscache` by fetchSegmentIds()/storeAllSegments(), covering the >1000-segment case too) minus
+     * the individually deselected ids is the true selection.
      */
     resolveSelectedSegmentIds () {
       if (this.trackDeselected) {
@@ -1543,17 +1774,14 @@ export default {
     /**
      *
      * @param params {Object}
-     * @param params.additionalQueryParams {Object}
      * @param params.category {Object} id, label
      * @param params.currentQuery {Array}
      * @param params.filter {Object}
      * @param params.isInitialWithQuery {Boolean}
      * @param params.path {String}
-     * @param params.searchPhrase {String}
      */
     sendFilterOptionsRequest (params) {
       const {
-        additionalQueryParams,
         category,
         currentQuery,
         filter,
@@ -1613,7 +1841,7 @@ export default {
         }
       }
       const requestParams = {
-        ...additionalQueryParams,
+        searchPhrase: this.searchTerm,
         filter: {
           ...filter,
           sameProcedure: {
@@ -1776,22 +2004,16 @@ export default {
       })
     },
 
-    // Called by apply as well as by reset in filterFlyout
+    // Called by apply as well as by reset in SegmentsListFilter
     sendFilterQuery (filter) {
       const isReset = Object.keys(filter).length === 0
 
-      if (isReset === false && Object.keys(this.appliedFilterQuery).length) {
-        Object.values(filter).forEach((el) => {
-          this.appliedFilterQuery[el.condition.value] = el
-        })
+      if (isReset) {
+        this.appliedFilterQuery = Object.keys(this.getFilterQuery).length ?
+          this.getFilterQuery :
+          []
       } else {
-        if (isReset) {
-          this.appliedFilterQuery = Object.keys(this.getFilterQuery).length ?
-            this.getFilterQuery :
-            []
-        } else {
-          this.appliedFilterQuery = filter
-        }
+        this.appliedFilterQuery = filter
       }
 
       this.updateQueryHash()
@@ -1808,6 +2030,19 @@ export default {
       this.setSlidebarContent({ externId, isOpen: true, segmentId, showTab: 'sendViaMail' })
     },
 
+    closeFilterSlidebar () {
+      if (this.slidebar.isOpen && this.slidebar.showTab === 'filter') {
+        this.setSlidebarContent({ externId: '', isOpen: false, segmentId: '', showTab: '' })
+      }
+    },
+
+    // Filters are not segment-scoped, hence empty string for externId/segmentId
+    toggleFilterSlidebar () {
+      const closing = this.slidebar.isOpen && this.slidebar.showTab === 'filter'
+
+      this.setSlidebarContent({ externId: '', isOpen: !closing, segmentId: '', showTab: 'filter' })
+    },
+
     updateQueryHash () {
       const hrefParts = globalThis.location.href.split('/')
       const oldQueryHash = hrefParts[hrefParts.length - 1]
@@ -1817,7 +2052,7 @@ export default {
 
       const data = { filter: this.getFilterQuery }
 
-      if (this.searchterm !== '') {
+      if (this.searchTerm !== '') {
         data.searchPhrase = this.searchTerm
       }
 
@@ -1894,6 +2129,9 @@ export default {
         this.updateFilterQuery(query)
       })
     }
+
+    // Snapshot the initial filters as applied so the first applyQuery fetches with them
+    this.commitFilterQuery()
 
     this.initPagination()
     if (hasPermission('field_segments_custom_fields')) {

@@ -68,6 +68,8 @@ $at-slidebar-animation:     cubic-bezier(0, 0, .3, 1);
 
     &__scroll-container {
         overflow: auto;
+        flex: 1;
+        min-height: 0;
     }
 
     &__content {

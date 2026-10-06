@@ -29,6 +29,11 @@ class FileNameGenerator
 
     public const DEFAULT_TEMPLATE_NAME_CENSORED = self::PLACEHOLDER_ID;
 
+    private const PREFIX_SYNOPSE = 'Synopse-';
+    private const PREFIX_FILTERED_SYNOPSE = 'Teilexport-Synopse-';
+    private const PREFIX_SEGMENTS_EXPORT = 'Export-Abschnitte-';
+    private const PREFIX_FILTERED_SEGMENTS_EXPORT = 'Teilexport-Abschnitte-';
+
     public function __construct(
         protected Slugify $slugify,
         protected TranslatorInterface $translator,
@@ -40,16 +45,25 @@ class FileNameGenerator
      * The procedure name is shortened because Windows Explorer extracts an archive into a
      * folder named after it, so its length is charged against MAX_PATH for every entry.
      */
-    public function getSynopseFileName(Procedure $procedure, string $suffix): string
+    public function getSynopseFileName(Procedure $procedure, string $suffix, bool $isFiltered = false): string
+    {
+        $prefix = $isFiltered ? self::PREFIX_FILTERED_SYNOPSE : self::PREFIX_SYNOPSE;
+
+        return $this->buildFileName($procedure, $suffix, $prefix);
+    }
+
+    public function getSegmentsExportFileName(Procedure $procedure, string $suffix, bool $isFiltered = false): string
+    {
+        $prefix = $isFiltered ? self::PREFIX_FILTERED_SEGMENTS_EXPORT : self::PREFIX_SEGMENTS_EXPORT;
+
+        return $this->buildFileName($procedure, $suffix, $prefix);
+    }
+
+    private function buildFileName(Procedure $procedure, string $suffix, string $prefix): string
     {
         $procedureName = $this->nameGenerator->shortenProcedureNameForExport($procedure->getName());
 
-        return 'Synopse-'.$this->slugify->slugify($procedureName).'.'.$suffix;
-    }
-
-    public function getFilteredSynopseFileName(Procedure $procedure, string $suffix): string
-    {
-        return 'Teilexport-Synopse-'.$this->slugify->slugify($procedure->getName()).'.'.$suffix;
+        return $prefix.$this->slugify->slugify($procedureName).'.'.$suffix;
     }
 
     public function getFileName(Statement $statement, string $templateName = '', bool $censored = false): string

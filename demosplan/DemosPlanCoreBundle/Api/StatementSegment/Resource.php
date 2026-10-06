@@ -20,9 +20,11 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
 use demosplan\DemosPlanCoreBundle\Api\AssignableUser\AssignableUserResource;
 use demosplan\DemosPlanCoreBundle\Api\Place\PlaceResource;
+use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\AssigneeOrUnassignedFilter;
 use demosplan\DemosPlanCoreBundle\Api\Tag\Resource as TagResource;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementResource;
@@ -34,11 +36,18 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag as TagEntity;
     operations: [
         new GetCollection(
             uriTemplate: '/StatementSegment',
-            paginationEnabled: false,
+            paginationEnabled: true,
             paginationClientEnabled: true,
             paginationClientItemsPerPage: true,
             // Matches the largest page size offered by the frontend's page-size selector.
             paginationMaximumItemsPerPage: 100,
+            parameters: [
+                // Use only when a specific assignee and "unassigned" are both selected together.
+                'assigneeOrUnassigned' => new QueryParameter(
+                    filter: AssigneeOrUnassignedFilter::class,
+                    castToArray: true,
+                ),
+            ],
         ),
         new Get(uriTemplate: '/StatementSegment/{id}'),
     ],
@@ -57,25 +66,42 @@ class Resource
     #[ApiProperty(readable: true, writable: false)]
     public string $text = '';
 
+    #[ApiFilter(SearchFilter::class, strategy: 'ipartial')]
     #[ApiProperty(readable: true, writable: false)]
     public string $externId = '';
 
+    #[ApiFilter(SearchFilter::class, strategy: 'ipartial')]
     #[ApiProperty(readable: true, writable: false)]
     public ?string $internId = null;
 
+    #[ApiFilter(OrderFilter::class)]
     #[ApiProperty(readable: true, writable: false)]
     public int $orderInProcedure = 0;
 
+    #[ApiFilter(SearchFilter::class, strategy: 'ipartial')]
     #[ApiProperty(readable: true, writable: false)]
     public string $recommendation = '';
 
+    // Exposed as `parentStatement` because that is the public name the legacy EDT resource
+    // already aliases onto this association; filter/sort keys have to use the real Doctrine
+    // association name `parentStatementOfSegment`, as they resolve against the Segment entity.
     #[ApiFilter(SearchFilter::class, properties: [
-        'parentStatementOfSegment.id'            => 'exact',
-        'parentStatementOfSegment.procedure.id'  => 'exact',
+        'parentStatementOfSegment.id'                      => 'exact',
+        'parentStatementOfSegment.procedure.id'            => 'exact',
+        'parentStatementOfSegment.externId'                => 'ipartial',
+        'parentStatementOfSegment.internId'                => 'ipartial',
+        'parentStatementOfSegment.memo'                    => 'ipartial',
+        'parentStatementOfSegment.meta.orgaName'           => 'ipartial',
+        'parentStatementOfSegment.meta.orgaDepartmentName' => 'ipartial',
+        'parentStatementOfSegment.meta.submitName'         => 'ipartial',
+        'parentStatementOfSegment.meta.orgaCity'           => 'ipartial',
+        'parentStatementOfSegment.meta.orgaPostalCode'     => 'ipartial',
+        'parentStatementOfSegment.meta.orgaStreet'         => 'ipartial',
     ])]
     #[ApiFilter(OrderFilter::class, properties: [
         'parentStatementOfSegment.original.internId',
         'parentStatementOfSegment.submit',
+        'parentStatementOfSegment.externId',
     ])]
     #[ApiProperty(readable: true, writable: false)]
     public ?StatementResource $parentStatement = null;
@@ -94,6 +120,7 @@ class Resource
     #[ApiProperty(readable: true, writable: false)]
     public array $tags = [];
 
+    #[ApiFilter(OrderFilter::class)]
     #[ApiProperty(readable: true, writable: false)]
     public ?string $deadline = null;
 

@@ -14,9 +14,19 @@ services:
         tags:
             - name: dplan.json_api_transformer
 
-    demosplan\DemosPlanCoreBundle\Api\StatementSegment\Extension\SegmentDoctrineAccessExtension:
+    # SegmentDoctrineAccessExtension/SegmentTextSearchExtension already get autoconfigured
+    # (default priority) via the bundle-wide resource glob -- no entry needed, would double-tag.
+
+    demosplan\DemosPlanCoreBundle\Api\StatementSegment\Extension\SegmentDeterministicOrderExtension:
+        # autoconfigure: false avoids double-tagging while keeping this non-default priority.
+        autoconfigure: false
         tags:
-        - { name: api_platform.doctrine.orm.query_extension.collection, priority: 0 }
+        # Must run after the filter extension (-16) so addOrderBy() appends, not replaces.
+        - { name: api_platform.doctrine.orm.query_extension.collection, priority: -20 }
+
+    demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\AssigneeOrUnassignedFilter:
+        tags:
+        - { name: api_platform.filter }
 
     demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService: ~
 
@@ -304,7 +314,7 @@ services:
     demosplan\DemosPlanCoreBundle\Addon\AddonRoutingLoader:
         arguments:
             $locator: '@file_locator'
-            $loader: '@routing.loader.annotation'
+            $loader: '@routing.loader.attribute'
 
     demosplan\DemosPlanCoreBundle\DataCollector\ConfigParametersDataCollector:
         tags:
@@ -385,6 +395,16 @@ services:
             - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\User\Role, lazy: true }
 
     demosplan\DemosPlanCoreBundle\EventListener\RecommendationVersionEntityListener:
+        lazy: true
+        tags:
+            - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\Statement\Statement, lazy: true }
+
+    demosplan\DemosPlanCoreBundle\EventListener\BoilerplateTagSubstitutionEntityListener:
+        lazy: true
+        tags:
+            - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\Statement\Statement, lazy: true }
+
+    demosplan\DemosPlanCoreBundle\EventListener\BoilerplateUsageReconciliationEntityListener:
         lazy: true
         tags:
             - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\Statement\Statement, lazy: true }
@@ -919,6 +939,8 @@ services:
 
     demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory: ~
 
+    demosplan\DemosPlanCoreBundle\Logic\Report\UserReportEntryFactory: ~
+
     demosplan\DemosPlanCoreBundle\Logic\Report\ExportReportService:
         lazy: true
 
@@ -981,6 +1003,8 @@ services:
         lazy: true
         calls:
             - [ 'setEsStatementFragmentType', [ '@fos_elastica.index.statementFragments' ]]
+        arguments:
+            $esStatementPersister: '@fos_elastica.object_persister.statements'
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\CsvStatementImport:
         arguments:
@@ -1273,8 +1297,7 @@ services:
         tags:
             - { name: kernel.event_subscriber }
 
-    demosplan\DemosPlanCoreBundle\Logic\User\CustomerService:
-        lazy: true
+    demosplan\DemosPlanCoreBundle\Logic\User\CustomerService: ~
 
     demosplan\DemosPlanCoreBundle\Logic\User\CustomerHandler:
         lazy: true

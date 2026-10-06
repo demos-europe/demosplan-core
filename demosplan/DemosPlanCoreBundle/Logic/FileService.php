@@ -40,9 +40,12 @@ use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToCopyFile;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
@@ -344,6 +347,42 @@ class FileService implements FileServiceInterface
         }
 
         return $filesDeleted;
+    }
+
+    /**
+     * Removes stale local temp files left behind when an export died before its own cleanup ran:
+     * entries in the {@see DemosPlanPath::getTemporaryPath()} staging directory, and the
+     * `PhpWord*`, `PHPWordWriter_*` and `dplan_export_*` ({@see Export\ExportResponseFileStore})
+     * leftovers in the system temp root. These are always safe to delete once stale, so callers
+     * don't need to gate this behind `doDeleteRemovedFiles`.
+     *
+     * @return int Amount of deleted entries (files or directories)
+     */
+    public function removeStaleTemporaryExportFiles(int $maxAgeInHours = 6): int
+    {
+        $stagingDir = DemosPlanPath::getTemporaryPath();
+        $staleBefore = time() - $maxAgeInHours * 3600;
+
+        // The staging directory itself is long-lived, so only its entries are checked.
+        $stagedEntries = (new Finder())->depth(0)->in($stagingDir);
+        $writerLeftovers = (new Finder())->depth(0)->in(dirname($stagingDir))
+            ->name(['PhpWord*', 'PHPWordWriter_*', 'dplan_export_*']);
+
+        $fs = new Filesystem();
+        $entriesDeleted = 0;
+        foreach ([$stagedEntries, $writerLeftovers] as $finder) {
+            foreach ($finder->filter(static fn (SplFileInfo $entry): bool => $entry->getMTime() < $staleBefore) as $entry) {
+                try {
+                    $this->logger->info('Remove stale temporary export file', [$entry->getPathname()]);
+                    $fs->remove($entry->getPathname());
+                    ++$entriesDeleted;
+                } catch (IOException) {
+                    $this->logger->warning('Could not remove stale temporary export file', [$entry->getPathname()]);
+                }
+            }
+        }
+
+        return $entriesDeleted;
     }
 
     /**
@@ -1314,10 +1353,25 @@ class FileService implements FileServiceInterface
                 sprintf('%s/%s', uniqid((string) $hash, true), $hash ?? uniqid('', true))
             );
         }
-        // Move the file to local directory from flysystem
+        // Move the file to local directory from flysystem.
+        // Use readStream + stream_copy_to_stream so multi-GB files don't blow up
+        // PHP memory (read() loads the whole blob as a string).
         $fs = new Filesystem();
         if ($this->defaultStorage->fileExists($remotePath)) {
-            $fs->dumpFile($path, $this->defaultStorage->read($remotePath));
+            $fs->mkdir(dirname($path));
+            $remoteStream = $this->defaultStorage->readStream($remotePath);
+            $localHandle = fopen($path, 'wb');
+            if (false === $localHandle) {
+                throw new RuntimeException('Failed to open local file for writing: '.$path);
+            }
+            try {
+                stream_copy_to_stream($remoteStream, $localHandle);
+            } finally {
+                fclose($localHandle);
+                if (is_resource($remoteStream)) {
+                    fclose($remoteStream);
+                }
+            }
         }
 
         if (!$fs->exists($path)) {
@@ -1325,6 +1379,22 @@ class FileService implements FileServiceInterface
         }
 
         return $path;
+    }
+
+    /**
+     * Lightweight check that the flysystem blob behind a given file hash exists.
+     * Used by the import flow to gate the user-visible Submit button on the
+     * upload pipeline (virus scan + flysystem move) being done.
+     */
+    public function isHashReady(string $hash): bool
+    {
+        try {
+            $fileInfo = $this->getFileInfo($hash);
+
+            return $this->defaultStorage->fileExists($fileInfo->getAbsolutePath());
+        } catch (Throwable) {
+            return false;
+        }
     }
 
     public function deleteLocalFile($localFilePath): void

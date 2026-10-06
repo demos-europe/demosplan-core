@@ -32,13 +32,27 @@ import loadSentry from './loadSentry'
 import NotificationStoreAdapter from '@DpJs/store/core/NotificationStoreAdapter'
 import NotifyContainer from '@DpJs/components/shared/NotifyContainer'
 import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
+import { resumePendingExports } from '@DpJs/lib/shared/persistentExportPoll'
+import ServerBanner from '@DpJs/components/shared/ServerBanner'
 import SessionTimer from '@DpJs/components/shared/SessionTimer'
 import UnsavedChangesDialog from '@DpJs/components/shared/UnsavedChangesDialog'
 
-function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}, modifyApp = () => {}) {
+/**
+ * Initialize Vue application
+ *
+ * @param {Object} components - Vue components to register
+ * @param {Object} storeModules - Vuex store modules
+ * @param {Array} apiStoreModules - API store modules
+ * @param {Object} presetStoreModules - Preset store modules
+ * @param {Function} modifyApp - Callback to modify the Vue app instance
+ * @param {Object} pageSpecificApi3Modules - Page-specific modules to use API 3.0 instead of 2.0 (Allows gradual migration
+ * to API Platform 3.0; pages can use different API versions per resource type)
+ * @param {Array} plugins - Additional Vue plugins to install via app.use() (e.g. Pinia)
+ */
+function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}, modifyApp = () => {}, pageSpecificApi3Modules = {}, plugins = []) {
   bootstrap()
 
-  return initStore(storeModules, apiStoreModules, presetStoreModules).then(store => {
+  return initStore(storeModules, apiStoreModules, presetStoreModules, pageSpecificApi3Modules).then(store => {
     configureCompat({
       RENDER_FUNCTION: false,
     })
@@ -46,6 +60,8 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
     const app = createApp({
       mounted () {
         window.dplan.notify = new NotificationStoreAdapter(this.$store)
+        resumePendingExports()
+
         loadLibs()
         initGlobalEventListener()
         ToggleSideMenu()
@@ -89,6 +105,9 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
 
     app.use(store)
 
+    // Apply any additional Vue plugins passed by callers
+    plugins.forEach(plugin => app.use(plugin))
+
     // Add plugins to Vue instance
     app.use(DPVueCorePlugin)
 
@@ -97,6 +116,7 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
     app.component('DpObscure', DpObscure)
     app.component('UnsavedChangesDialog', UnsavedChangesDialog)
     app.component('NotifyContainer', NotifyContainer)
+    app.component('ServerBanner', ServerBanner)
     app.component('DpAccordion', DpAccordion)
     app.component('DpFlyout', DpFlyout)
     app.component('HamburgerMenuButton', HamburgerMenuButton)

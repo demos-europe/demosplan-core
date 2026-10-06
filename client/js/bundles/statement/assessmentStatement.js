@@ -18,7 +18,6 @@ import {
   DpDatepicker,
   DpEditor,
   DpMultiselect,
-  DpSlidebar,
   DpUploadFiles,
   dpValidate,
   hasPermission,
@@ -37,7 +36,6 @@ import StatementStore from '@DpJs/store/statement/Statement'
 import VoterStore from '@DpJs/store/statement/Voter'
 
 const DpSelectStatementCluster = defineAsyncComponent(() => import('@DpJs/components/statement/statement/SelectStatementCluster'))
-const DpVersionHistory = defineAsyncComponent(() => import('@DpJs/components/statement/statement/DpVersionHistory'))
 const StatementVoter = defineAsyncComponent(() => import('@DpJs/components/statement/voter/StatementVoter'))
 
 const stores = {
@@ -56,9 +54,7 @@ const components = {
   DpEditor,
   DpMultiselect,
   DpSelectStatementCluster,
-  DpSlidebar,
   DpUploadFiles,
-  DpVersionHistory,
   StatementPublish,
   StatementVoter,
 }

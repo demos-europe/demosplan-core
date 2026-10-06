@@ -20,8 +20,10 @@
       <dp-notification
         v-for="message in messages"
         :key="message.uid"
+        :hide-timer="message.hideTimer"
         :message="message"
         :role="messageRole"
+        @dp-notify-action="dplan.notify.runAction($event.actionId)"
         @dp-notify-remove="removeMessage"
       />
     </transition-group>
@@ -68,7 +70,7 @@ export default {
   },
 
   methods: {
-    ...mapMutations('Notify', ['add', 'remove']),
+    ...mapMutations('Notify', ['add']),
 
     init () {
       for (const type in this.notifications) {
@@ -101,7 +103,11 @@ export default {
     },
 
     removeMessage (message) {
-      this.remove(message)
+      /*
+       * Through the adapter rather than the store mutation directly, so it can clean up
+       * its per-message action handler (see NotificationStoreAdapter).
+       */
+      dplan.notify.remove(message)
     },
   },
 

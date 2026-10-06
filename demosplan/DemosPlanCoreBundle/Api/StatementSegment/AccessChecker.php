@@ -63,8 +63,10 @@ class AccessChecker
             ->filterNonOwnedProcedureIds($currentUser, ...$allowedProcedures);
         $procedureIds[] = $procedureId;
 
+        // Segments carry the procedure directly (inherited from Statement), so scoping on it
+        // avoids a self-join through parentStatementOfSegment.
         return [] === $procedureIds
             ? [$this->conditionFactory->false()]
-            : [$this->conditionFactory->propertyHasAnyOfValues($procedureIds, ['parentStatementOfSegment', 'procedure', 'id'])];
+            : [$this->conditionFactory->propertyHasAnyOfValues($procedureIds, ['procedure', 'id'])];
     }
 }

@@ -17,6 +17,10 @@ doctrine:
                 charset:  UTF8
                 use_savepoints: true
                 profiling_collect_backtrace: '%kernel.debug%'
+                # The messenger_messages table is managed by the Messenger Doctrine transport
+                # and created via migration. Exclude it from schema diffs so the index
+                # definitions contributed by the transport do not produce flip-flop migrations.
+                schema_filter: ~^(?!messenger_messages$)~
             dplan_install:
                 driver:   "%database_driver%"
                 host:     "%database_host%"
@@ -65,6 +69,11 @@ when@test:
                     charset: UTF8
                     memory: false
                     user: test
+                    # The messenger_messages exclusion (see base config above) makes
+                    # SchemaTool::dropDatabase() skip the table while createSchema() still
+                    # recreates it via MessengerTransportDoctrineSchemaListener, causing
+                    # "table already exists" on every SQLite schema rebuild in tests.
+                    schema_filter: ~
 
 when@prod:
     doctrine:

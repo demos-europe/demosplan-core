@@ -124,6 +124,7 @@ class LoadStatementData extends TestFixture implements DependentFixtureInterface
         $statement1->addMunicipality($testMunicipality);
         $statement1->addPriorityArea($testPriorityArea);
         $statement1->setAssignee(null);
+        $statement1->setCreated(new DateTime('2099-01-01'));
         $statement1->setElement($testElement);
         $statement1->setExternId('1111');
         $statement1->setInternId('11111111');

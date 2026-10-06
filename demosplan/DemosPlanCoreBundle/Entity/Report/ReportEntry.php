@@ -44,6 +44,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
     final public const GROUP_STATEMENT = 'statement';
     final public const GROUP_MASTER_PUBLIC_AGENCY = 'mastertoeb';
     final public const GROUP_ORGA = 'orga';
+    final public const GROUP_USER = 'user';
 
     final public const CATEGORY_ADD = 'add';
     final public const CATEGORY_ANONYMIZE_META = 'anonymizeMeta';
@@ -60,6 +61,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
     final public const CATEGORY_MOVE = 'move';
     final public const CATEGORY_ORGA_SHOWLIST_CHANGE = 'orgaShowlistChange';
     final public const CATEGORY_REGISTER_INVITATION = 'register_invitation';
+    final public const CATEGORY_RESET_TWO_FACTOR = 'resetTwoFactor';
     final public const CATEGORY_STATEMENT_SYNC_INSOURCE = 'syncStatementSourceCategory';
     final public const CATEGORY_STATEMENT_SYNC_INTARGET = 'syncStatementTargetCategory';
     final public const CATEGORY_UPDATE = 'update';
@@ -73,6 +75,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
     final public const IDENTIFIER_TYPE_FINAL_MAIL = 'finalMail';
     final public const IDENTIFIER_TYPE_MASTER_PUBLIC_AGENCY = 'masterToeb';
     final public const IDENTIFIER_TYPE_ORGANISATION = 'orga';
+    final public const IDENTIFIER_TYPE_USER = 'user';
 
     /**
      * @var string|null

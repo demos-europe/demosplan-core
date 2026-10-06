@@ -18,18 +18,21 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Logic\CoreService;
 use demosplan\DemosPlanCoreBundle\Logic\Permission\AccessControlService;
+use demosplan\DemosPlanCoreBundle\Logic\Permission\UserAccessControlService;
 
 /**
  * Service to clean up permissions when an organization type is removed.
  *
- * When an organization type changes from 'accepted' to non-accepted status,
- * the permissions for the roles of that type need to be removed from the access_control table.
+ * When an organization type changes from 'accepted' to non-accepted status, the permissions for the
+ * roles of that type need to be removed, both the orga-wide grants (access_control) and the
+ * individual per-user grants (user_access_control).
  */
 class OrgaTypePermissionsCleanupService extends CoreService
 {
     public function __construct(
         private readonly AccessControlService $accessControlService,
         private readonly RoleHandler $roleHandler,
+        private readonly UserAccessControlService $userAccessControlService,
     ) {
     }
 
@@ -86,6 +89,14 @@ class OrgaTypePermissionsCleanupService extends CoreService
             $orga,
             $customer,
             $rolesToRemove
+        );
+
+        // Individual grants are loaded without an orga-type check, so they must go with the type as well
+        $this->userAccessControlService->removePermissionForUsersInOrga(
+            $orga,
+            $customer,
+            AccessControlService::CREATE_PROCEDURES_PERMISSION,
+            array_map(static fn (RoleInterface $role): string => $role->getCode(), $rolesToRemove)
         );
     }
 }

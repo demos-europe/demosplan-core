@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\UserServiceInterface;
@@ -19,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Branding;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Entity\User\OrgaStatusInCustomer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\User\UserPasswordHistory;
@@ -50,9 +50,9 @@ use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use demosplan\DemosPlanCoreBundle\ValueObject\TestUserValueObject;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\CustomerResourceInterface;
 use demosplan\DemosPlanCoreBundle\ValueObject\User\OrgaUsersPair;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use DOMDocument;
 use Exception;
@@ -1581,7 +1581,7 @@ class UserService implements UserServiceInterface
     {
         $mailAddresses = [];
         /** @var Orga $orga */
-        foreach ($customer->getOrgas([OrgaStatusInCustomer::STATUS_ACCEPTED]) as $orga) {
+        foreach ($customer->getOrgas([OrgaStatusInCustomerInterface::STATUS_ACCEPTED]) as $orga) {
             /** @var User $user */
             foreach ($orga->getUsers() as $user) {
                 // ensure that user is registered in current customer

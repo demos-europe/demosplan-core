@@ -73,6 +73,7 @@ const PublicStatementStore = {
     userId: '',
     procedureId: '',
     statement: statementStructure,
+    storeInitialised: false,
     draftStatements: {},
     unsavedDrafts: [],
   },
@@ -122,6 +123,8 @@ const PublicStatementStore = {
       state.unsavedDrafts.forEach(draftId => {
         state.initDraftStatements[draftId] = localStorage.getItem(`init:publicStatement:${state.userId}:${state.procedureId}:${draftId}`)
       })
+
+      state.storeInitialised = true
     },
 
     clearDraftState (state, draftStatementId) {
