@@ -214,7 +214,7 @@ FROM php-base AS runtime-base
 
 ENV TZ=Europe/Berlin
 
-# The php image keeps its compiler toolchain ($PHPIZE_DEPS), PHP headers and source tarball installed.
+# The php image keeps its compiler toolchain ($PHPIZE_DEPS, listed below), PHP headers and source tarball installed.
 # install-php-extensions marks gcc-12 & co. manual, so autoremove alone keeps them: list them explicitly
 # and fail if a compiler survives (e.g. a base image on a newer gcc).
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -222,7 +222,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get update -y \
     && apt-get --no-install-recommends install acl bind9-host ca-certificates curl \
        default-mysql-client gettext-base libfcgi-bin lnav unzip vim-tiny -y \
-    && apt-get purge -y --auto-remove $PHPIZE_DEPS \
+    && apt-get purge -y --auto-remove autoconf dpkg-dev file g++ gcc libc-dev make pkg-config re2c \
        binutils cpp-12 g++-12 gcc-12 libc6-dev libgcc-12-dev libstdc++-12-dev \
     && test ! -e /usr/lib/gcc \
     && apt-get clean \
