@@ -29,7 +29,6 @@ use Webmozart\Assert\Assert;
  * Today the filters are tags, assignee, place and custom fields; tags, assignee and place are listed in {@see StaticFacets}.
  * To add a new filter of the same kind, add one entry there; anything that works differently, like custom fields, gets its own class.
  */
-
 class Provider implements ProviderInterface
 {
     public function __construct(
