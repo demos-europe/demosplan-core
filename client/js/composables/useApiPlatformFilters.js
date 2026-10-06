@@ -49,9 +49,9 @@ export function useApiPlatformFilters () {
       const { path, value, operator, memberOf } = condition
       const isNull = operator === IS_NULL
       const isOrGroup = memberOf && groupedFilters[memberOf]?.conjunction === OR
-      const isOrUnassigned = isOrGroup && memberOf.endsWith('OrUnassigned')
+      const isAssigneeFilterGroup = isOrGroup && memberOf === 'assigneeOrUnassigned'
 
-      if (isOrUnassigned) {
+      if (isAssigneeFilterGroup) {
         apiFilters[memberOf] ??= []
         apiFilters[memberOf].push(isNull ? '' : value)
 
