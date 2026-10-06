@@ -173,7 +173,7 @@
     "vitest": "^4.1.11",
     "vue-eslint-parser": "^10.4.1",
     "vue-loader": "^17.4.2",
-    "vue-tsc": "3.3.11",
+    "vue-tsc": "3.3.12",
     "webpack": "^5.111.1",
     "webpack-bundle-analyzer": "^5.4.0",
     "webpack-manifest-plugin": "^6.0.1",
