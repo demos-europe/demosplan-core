@@ -20,12 +20,11 @@ use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 
 /**
- * Counts options for a SEGMENT custom field. Unlike {@see StaticFacetInterface} (tags/assignee/
- * place - a fixed, compile-time-known family of exactly three), custom fields are a dynamic,
- * per-procedure family identified by database-generated ids unknown until runtime - there's
- * nothing to "tag" one class per custom field, so this is a plain injected service rather than
- * an auto-discovered strategy. {@see Provider} dispatches to it explicitly instead of through
- * {@see StaticFacetFactory}.
+ * Counts options for a SEGMENT custom field. Unlike {@see StaticFacets} (tags/assignee/place - a
+ * fixed, compile-time-known family of exactly three), custom fields are a dynamic, per-procedure
+ * family identified by database-generated ids unknown until runtime - there's nothing to list
+ * one table entry per custom field, so this is a separate injected service. {@see Provider}
+ * dispatches to it explicitly after {@see StaticFacets}.
  *
  * Zero-count options are dropped rather than defaulted to 0 (unlike the static facets) -
  * matches the retired `CustomFieldFilterResponseBuilder::buildOptions()`'s identical behaviour.

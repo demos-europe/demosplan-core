@@ -30,19 +30,18 @@ use Webmozart\Assert\Assert;
  * fills in any missing option with a count of 0 so nothing just disappears.
  * This replaces the old `segments.facets.list` RPC, which did the same job using Elasticsearch.
  *
- * Static facets (tags/assignee/place) each have their own {@see StaticFacetInterface}
- * implementation (dispatched by {@see StaticFacetFactory}) - this class stays generic and never
- * mentions tags/assignee/place by name, so adding a new static facet means adding a new class,
- * not editing this one. Custom fields are a dynamic, per-procedure family (unlike the fixed
- * tags/assignee/place trio), so they're handled by the separately-injected
- * {@see CustomFieldFacet} instead of going through {@see StaticFacetFactory}.
+ * Static facets (tags/assignee/place) are described in {@see StaticFacets} - this class stays
+ * generic and never mentions tags/assignee/place by name, so adding a new static facet means
+ * adding one entry there, not editing this one. Custom fields are a dynamic, per-procedure
+ * family (unlike the fixed tags/assignee/place trio), so they're handled by the
+ * separately-injected {@see CustomFieldFacet} instead.
  */
 class Provider implements ProviderInterface
 {
     public function __construct(
         private readonly AccessChecker $accessChecker,
         private readonly DoctrineCollectionProvider $doctrineCollectionProvider,
-        private readonly StaticFacetFactory $staticFacetFactory,
+        private readonly StaticFacets $staticFacets,
         private readonly CustomFieldFacet $customFieldFacet,
     ) {
     }
@@ -62,10 +61,8 @@ class Provider implements ProviderInterface
         $requestedFacet = $filters['facet'];
         $procedureId = $filters['parentStatementOfSegment.procedure.id'];
 
-        if ($this->staticFacetFactory->supports($requestedFacet)) {
-            $facet = $this->staticFacetFactory->create($requestedFacet);
-
-            return $this->countStaticFacet($operation, $facet, $requestedFacet, $filters);
+        if ($this->staticFacets->supports($requestedFacet)) {
+            return $this->countStaticFacet($operation, $requestedFacet, $filters);
         }
 
         if ($this->customFieldFacet->supports($requestedFacet, $procedureId)) {
@@ -136,18 +133,18 @@ class Provider implements ProviderInterface
      *
      * @return list<FacetResource>
      */
-    private function countStaticFacet(Operation $operation, StaticFacetInterface $facet, string $requestedFacet, array $requestedFilters): array
+    private function countStaticFacet(Operation $operation, string $requestedFacet, array $requestedFilters): array
     {
         $excludedFilterKey = "{$requestedFacet}.id";
         $segments = $this->fetchFilteredSegments($operation, $requestedFilters, $excludedFilterKey);
         $selectedIds = (array) ($requestedFilters[$excludedFilterKey] ?? []);
 
-        $counts = $this->countOccurrences($segments, $facet);
-        $fullOptionSet = $facet->getFullOptionSet();
+        $counts = $this->countOccurrences($segments, $requestedFacet);
+        $fullOptionSet = $this->staticFacets->getFullOptionSet($requestedFacet);
 
         $resources = $this->buildFacetResources($fullOptionSet, $counts, $selectedIds);
 
-        return [...$resources, ...$facet->getExtraResources($segments, $selectedIds)];
+        return [...$resources, ...$this->staticFacets->getExtraResources($requestedFacet, $segments, $selectedIds)];
     }
 
     /**
@@ -188,11 +185,11 @@ class Provider implements ProviderInterface
      *
      * @return array<string, int> optionId => count
      */
-    private function countOccurrences(array $segments, StaticFacetInterface $facet): array
+    private function countOccurrences(array $segments, string $requestedFacet): array
     {
         $counts = [];
         foreach ($segments as $segment) {
-            foreach ($facet->getValues($segment) as $value) {
+            foreach ($this->staticFacets->getValues($requestedFacet, $segment) as $value) {
                 $counts[$value->getId()] = ($counts[$value->getId()] ?? 0) + 1;
             }
         }
