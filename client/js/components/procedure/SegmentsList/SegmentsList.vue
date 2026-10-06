@@ -14,6 +14,14 @@
         isFullscreen,
     }"
   >
+    <dp-inline-notification
+      v-if="isReadOnly && !isFullscreen"
+      :message="Translator.trans('procedure.archived.hint.segments')"
+      :title="Translator.trans('procedure.archived.hint.title')"
+      class="mt-4 mb-1"
+      data-cy="segmentsList:readOnlyHint"
+      type="info"
+    />
     <dp-sticky-element
       border
       class="pt-2 pb-3"
@@ -113,6 +121,7 @@
           />
         </template>
         <dp-button
+          v-if="hasPermission('feature_segments_bulk_edit')"
           :text="Translator.trans('segments.bulk.edit')"
           variant="solid"
           @click.prevent="handleBulkEdit"
@@ -187,6 +196,7 @@
             :key="columnSelectorKey"
             :class="{ 'px-2': isFullscreen, 'scrollbar-none': !isFullscreen }"
             :header-fields="availableHeaderFields"
+            :is-selectable="hasPermission('feature_segments_bulk_edit') || hasPermission('feature_segments_copy_to_clipboard')"
             :items="items"
             :multi-page-all-selected="allSelectedVisually"
             :multi-page-selection-items-toggled="toggledItems.length"
@@ -203,7 +213,6 @@
             has-sticky-header
             is-columns-draggable
             is-resizable
-            is-selectable
             :lock-checkbox-by="canUnlock ? false : 'isPlaceLocked'"
             :lock-checkbox-hint="Translator.trans('segment.lock.hint')"
             @columns-reordered="selectionCopiedToClipboard = false"
@@ -227,10 +236,11 @@
                 </div>
                 <template v-slot:popover>
                   <statement-meta-tooltip
+                    v-if="statementsObject[rowData.relationships?.parentStatement?.data?.id]"
                     :assignable-users="assignableUsers"
                     :statement="
                       statementsObject[
-                        rowData.relationships.parentStatement.data.id
+                        rowData.relationships?.parentStatement?.data?.id
                       ]
                     "
                     :segment="rowData"
@@ -254,8 +264,8 @@
                 class="mt-0.5 max-w-fit !block o-hellip--nowrap"
                 :status="
                   statementsObject[
-                    rowData.relationships.parentStatement.data.id
-                  ].attributes.status
+                    rowData.relationships?.parentStatement?.data?.id
+                  ]?.attributes?.status
                 "
               />
             </template>
@@ -264,16 +274,16 @@
                 <div
                   v-tooltip="
                     statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.internId
+                      rowData.relationships?.parentStatement?.data?.id
+                    ]?.attributes?.internId
                   "
                   class="o-hellip--nowrap text-right"
                   dir="rtl"
                 >
                   {{
                     statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.internId
+                      rowData.relationships?.parentStatement?.data?.id
+                    ]?.attributes?.internId
                   }}
                 </div>
               </div>
@@ -283,15 +293,15 @@
                 <li
                   v-if="
                     statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.authorName !== ''
+                      rowData.relationships?.parentStatement?.data?.id
+                    ]?.attributes?.authorName !== ''
                   "
                   class="o-list__item o-hellip--nowrap"
                 >
                   {{
                     statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.authorName
+                      rowData.relationships?.parentStatement?.data?.id
+                    ]?.attributes?.authorName
                   }}
                 </li>
                 <li
@@ -300,22 +310,22 @@
                 >
                   {{
                     statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.submitName
+                      rowData.relationships?.parentStatement?.data?.id
+                    ]?.attributes?.submitName
                   }}
                 </li>
                 <li
                   v-if="
                     statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationName !== ''
+                      rowData.relationships?.parentStatement?.data?.id
+                    ]?.attributes?.initialOrganisationName !== ''
                   "
                   class="o-list__item o-hellip--nowrap"
                 >
                   {{
                     statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationName
+                      rowData.relationships?.parentStatement?.data?.id
+                    ]?.attributes?.initialOrganisationName
                   }}
                 </li>
               </ul>
@@ -323,8 +333,8 @@
             <template v-slot:organisation="rowData">
               {{
                 statementsObject[
-                  rowData.relationships.parentStatement.data.id
-                ].attributes.initialOrganisationName
+                  rowData.relationships?.parentStatement?.data?.id
+                ]?.attributes?.initialOrganisationName
               }}
             </template>
             <template v-slot:place="rowData">
@@ -401,7 +411,7 @@
                       procedureId: procedureId,
                       segment: rowData.id,
                       statementId:
-                        rowData.relationships.parentStatement.data.id,
+                        rowData.relationships?.parentStatement?.data?.id,
                     })
                   "
                   data-cy="segmentsList:segmentsRecommendationsCreate"
@@ -418,7 +428,7 @@
                       procedureId: procedureId,
                       segment: rowData.id,
                       statementId:
-                        rowData.relationships.parentStatement.data.id,
+                        rowData.relationships?.parentStatement?.data?.id,
                     })
                   "
                   data-cy="segmentsList:edit"
@@ -429,6 +439,7 @@
                 </a>
                 <!-- Version history view -->
                 <button
+                  v-if="hasPermission('feature_segment_content_changes_view')"
                   type="button"
                   class="btn--blank o-link--default block leading-[2] whitespace-nowrap"
                   data-cy="segmentsList:segmentVersionHistory"
@@ -626,6 +637,12 @@ export default {
       type: String,
       required: false,
       default: '',
+    },
+
+    isReadOnly: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
 
     procedureId: {
@@ -1673,6 +1690,10 @@ export default {
      * Returns the hash of the original statement attachment
      */
     getOriginalPdfAttachmentHashBySegment (segment) {
+      if (!segment.relationships?.parentStatement?.data) {
+        return null
+      }
+
       const parentStatement = segment.rel('parentStatement')
 
       if (parentStatement.hasRelationship('attachments')) {

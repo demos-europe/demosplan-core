@@ -30,6 +30,7 @@ use EDT\PathBuilding\End;
  * @property-read End                           $createdDate
  * @property-read End                           $creationDate
  * @property-read End                           $deleted
+ * @property-read End                           $readOnly
  * @property-read OrgaResourceType              $planningOffices
  * @property-read OrgaResourceType              $orga
  * @property-read End                           $master
@@ -121,6 +122,7 @@ final class AdminProcedureResourceType extends DplanResourceType
                 $this->createAttribute($this->externalPhaseDefinitionName)
                     ->readable(false, static fn (Procedure $procedure): string => $procedure->getPublicParticipationPhaseObject()->getPhaseDefinition()->getName()
                     ),
+                $this->createAttribute($this->readOnly)->readable(),
             ];
 
             if ($this->currentUser->hasAllPermissions('area_admin_custom_fields', 'field_segments_custom_fields')) {

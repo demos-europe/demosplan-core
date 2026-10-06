@@ -73,7 +73,7 @@ class SegmentsExportController extends BaseController
      * @throws StatementNotFoundException
      * @throws Exception
      */
-    #[DplanPermissions('feature_segments_of_statement_list')]
+    #[DplanPermissions('feature_segments_of_statement_list_export')]
     #[Route(
         path: '/verfahren/{procedureId}/{statementId}/abschnitte/export',
         name: 'dplan_segments_export',
@@ -209,7 +209,7 @@ class SegmentsExportController extends BaseController
      * @throws UserNotFoundException
      * @throws Exception
      */
-    #[DplanPermissions('feature_segments_of_statement_list')]
+    #[DplanPermissions('feature_segments_of_statement_list_export')]
     #[Route(
         path: '/verfahren/{procedureId}/abschnitte/export/gruppiert',
         name: 'dplan_statement_segments_export',
@@ -487,7 +487,7 @@ class SegmentsExportController extends BaseController
      * @throws UserNotFoundException
      * @throws Exception
      */
-    #[DplanPermissions('feature_segments_of_statement_list')]
+    #[DplanPermissions('feature_segments_of_statement_list_export')]
     #[Route(path: '/verfahren/{procedureId}/abschnitte/export/gepackt',
         name: 'dplan_statement_segments_export_packaged',
         options: ['expose' => true],

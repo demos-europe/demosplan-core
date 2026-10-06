@@ -305,7 +305,7 @@ class SegmentController extends BaseController
         );
     }
 
-    #[DplanPermissions('area_statement_segmentation')]
+    #[DplanPermissions('feature_segment_delete')]
     #[Route(path: '/verfahren/{procedureId}/abschnitt/{segmentId}/delete', name: 'dplan_segment_delete', options: ['expose' => true])]
     public function deleteSegmentAction(
         string $procedureId,

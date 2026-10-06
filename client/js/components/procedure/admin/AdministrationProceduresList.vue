@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div class="space-stack-s">
+  <div class="space-stack-m">
     <div class="flex justify-between">
       <p
         v-text="Translator.trans('text.procedures.list')"
@@ -32,13 +32,71 @@
       </div>
     </div>
 
-    <div class="flex w-full">
+    <div class="flex items-center w-full">
       <dp-search-field
         class="w-full"
         input-width="u-1-of-2"
         @search="searchTerm => searchAdministrationProceduresList(searchTerm)"
         @reset="resetAdministrationProceduresList"
       />
+
+      <form
+        v-if="hasRowActions"
+        ref="procedureForm"
+        class="flex gap-2 ml-auto"
+        name="procedureForm"
+      >
+        <dp-button
+          v-if="hasPermission('feature_admin_delete_procedure')"
+          data-cy="deleteProcedure"
+          :disabled="!isProcedureSelected"
+          icon="delete"
+          name="deleteProcedure"
+          :text="Translator.trans('delete')"
+          type="submit"
+          variant="subtle"
+          @click="deleteProcedures"
+        />
+
+        <dp-button
+          v-if="hasPermission('feature_admin_export_procedure')"
+          data-cy="ExportProcedure"
+          :disabled="!isProcedureSelected"
+          icon="export"
+          name="exportProcedure"
+          :text="Translator.trans('print.and.export')"
+          type="submit"
+          variant="subtle"
+          @click="exportProcedures"
+        />
+
+        <!-- Hidden inputs needed for export and delete functionalities -->
+        <input
+          v-for="procedureId in formProcedureIds"
+          :key="procedureId"
+          name="procedure_selected[]"
+          type="hidden"
+          :value="procedureId"
+        >
+      </form>
+    </div>
+
+    <div class="flex items-center justify-between">
+      <div
+        v-if="hasPermission('feature_procedure_read_only_toggle')"
+        class="flex items-center gap-1"
+      >
+        <dp-toggle
+          :aria-label="Translator.trans('procedure.archive.filter.active')"
+          data-cy="showOnlyActiveProcedures"
+          :model-value="showOnlyActiveProcedures"
+          @update:model-value="showOnlyActiveProcedures = $event"
+        />
+        <span
+          aria-hidden="true"
+          v-text="Translator.trans('procedure.archive.filter.active')"
+        />
+      </div>
 
       <dp-select
         class="w-11 ml-auto"
@@ -50,45 +108,6 @@
       />
     </div>
 
-    <form
-      v-if="hasPermission('feature_admin_delete_procedure') || hasPermission('feature_admin_export_procedure')"
-      ref="procedureForm"
-      name="procedureForm"
-    >
-      <dp-button
-        v-if="hasPermission('feature_admin_delete_procedure')"
-        data-cy="deleteProcedure"
-        :disabled="!isProcedureSelected"
-        icon="delete"
-        name="deleteProcedure"
-        :text="Translator.trans('delete')"
-        type="submit"
-        variant="subtle"
-        @click="deleteProcedures"
-      />
-
-      <dp-button
-        v-if="hasPermission('feature_admin_export_procedure')"
-        data-cy="ExportProcedure"
-        :disabled="!isProcedureSelected"
-        icon="download"
-        name="exportProcedure"
-        :text="Translator.trans('print.and.export')"
-        type="submit"
-        variant="subtle"
-        @click="exportProcedures"
-      />
-
-      <!-- Hidden inputs needed for export and delete functionalities -->
-      <input
-        v-for="selectedItem in selectedItems"
-        :key="selectedItem"
-        name="procedure_selected[]"
-        type="hidden"
-        :value="selectedItem"
-      >
-    </form>
-
     <dp-loading
       v-if="isLoading"
       class="u-mt-2"
@@ -97,9 +116,10 @@
     <dp-data-table
       v-else
       data-cy="administrationProceduresListTable"
+      :has-flyout="hasRowActions"
       :header-fields="headerFields"
       is-selectable
-      :items="items"
+      :items="visibleItems"
       :search-string="searchString"
       track-by="id"
       @items-selected="setSelectedItems"
@@ -131,20 +151,67 @@
         <div v-text="Translator.trans('public')" />
       </template>
 
-      <template v-slot:name="{ creationDate, externalName, id, name }">
-        <a
-          data-cy="procedurePath"
-          :data-cy-procedure-id="id"
-          :href="Routing.generate('DemosPlan_procedure_dashboard', { procedure: id })"
-        >
-          <strong v-text="name" />
-        </a>
+      <template v-slot:name="{ creationDate, externalName, id, name, readOnly }">
+        <div class="flex items-center justify-between gap-2">
+          <a
+            data-cy="procedurePath"
+            :data-cy-procedure-id="id"
+            :href="getProcedureLink(id, readOnly)"
+          >
+            <strong v-text="name" />
+          </a>
+          <dp-badge
+            v-if="readOnly"
+            class="shrink-0"
+            color="default"
+            data-cy="procedureArchivedBadge"
+            icon="archive"
+            size="small"
+            :text="Translator.trans('procedure.archived')"
+          />
+        </div>
         <div v-if="externalName !== name">
           <strong v-text="`(${Translator.trans('public.participation.name')}: ${externalName})`" />
         </div>
         <div>
           <strong v-text="`${Translator.trans('from.date')} ${creationDate}`" />
         </div>
+      </template>
+
+      <template v-slot:flyout="{ id, name, readOnly }">
+        <dp-flyout data-cy="procedureActionsMenu">
+          <button
+            v-if="hasPermission('feature_procedure_read_only_toggle')"
+            class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
+            data-cy="procedureArchiveToggle"
+            type="button"
+            @click="openArchiveModal(id, name, readOnly)"
+          >
+            {{ readOnly ? Translator.trans('procedure.archive.undo') : Translator.trans('procedure.archive') }}
+          </button>
+          <button
+            v-if="hasPermission('feature_admin_export_procedure')"
+            :class="{ 'is-disabled': readOnly }"
+            :disabled="readOnly"
+            class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
+            data-cy="procedureExport"
+            type="button"
+            @click="exportProcedure(id)"
+          >
+            {{ Translator.trans('export.verb') }}
+          </button>
+          <button
+            v-if="hasPermission('feature_admin_delete_procedure')"
+            :class="{ 'is-disabled': readOnly }"
+            :disabled="readOnly"
+            class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
+            data-cy="procedureDelete"
+            type="button"
+            @click="deleteProcedure(id)"
+          >
+            {{ Translator.trans('delete') }}
+          </button>
+        </dp-flyout>
       </template>
 
       <template
@@ -172,18 +239,48 @@
         <div v-text="externalStartDate + ' - ' + externalEndDate" />
       </template>
     </dp-data-table>
+
+    <dp-modal
+      ref="archiveModal"
+      content-classes="w-1/3"
+      data-cy="procedureArchiveModal"
+    >
+      <template v-slot:header>
+        <h3 class="mb-0">
+          {{ Translator.trans(archiveModal.readOnly ? 'procedure.archive.undo.confirm.title' : 'procedure.archive.confirm.title') }}
+        </h3>
+      </template>
+      <p class="mb-0">
+        {{ Translator.trans(archiveModal.readOnly ? 'procedure.archive.undo.confirm.text' : 'procedure.archive.confirm.text', { procedureName: archiveModal.procedureName }) }}
+      </p>
+      <template v-slot:footer>
+        <dp-button-row
+          :primary-text="Translator.trans(archiveModal.readOnly ? 'procedure.archive.undo' : 'procedure.archive')"
+          data-cy="procedureArchiveModal"
+          primary
+          secondary
+          @primary-action="toggleReadOnly"
+          @secondary-action="$refs.archiveModal.toggle()"
+        />
+      </template>
+    </dp-modal>
   </div>
 </template>
 
 <script>
 import {
   dpApi,
+  DpBadge,
   DpButton,
+  DpButtonRow,
   DpDataTable,
+  DpFlyout,
   DpIcon,
   DpLoading,
+  DpModal,
   DpSearchField,
   DpSelect,
+  DpToggle,
   formatDate,
 } from '@demos-europe/demosplan-ui'
 import { pollExportJob } from '@DpJs/lib/shared/persistentExportPoll'
@@ -192,12 +289,17 @@ export default {
   name: 'AdministrationProceduresList',
 
   components: {
+    DpBadge,
     DpButton,
+    DpButtonRow,
     DpDataTable,
+    DpFlyout,
     DpIcon,
     DpLoading,
+    DpModal,
     DpSearchField,
     DpSelect,
+    DpToggle,
   },
 
   props: {
@@ -219,6 +321,11 @@ export default {
 
   data () {
     return {
+      archiveModal: {
+        procedureId: null,
+        procedureName: '',
+        readOnly: false,
+      },
       items: [],
       isLoading: true,
       options: [
@@ -227,14 +334,27 @@ export default {
         { value: '-name', label: Translator.trans('sort.procedurename.desc') },
         { value: 'name', label: Translator.trans('sort.procedurename') },
       ],
+      // Set while a single row action submits the form, see submitProcedureForm()
+      rowActionProcedureId: null,
       searchInput: '',
       searchString: '',
       selectedItems: [],
       selectedSort: '',
+      showOnlyActiveProcedures: true,
     }
   },
 
   computed: {
+    formProcedureIds () {
+      return this.rowActionProcedureId ? [this.rowActionProcedureId] : this.selectedItems
+    },
+
+    hasRowActions () {
+      return this.hasPermission('feature_procedure_read_only_toggle') ||
+        this.hasPermission('feature_admin_export_procedure') ||
+        this.hasPermission('feature_admin_delete_procedure')
+    },
+
     headerFields () {
       const fields = [
         {
@@ -268,6 +388,12 @@ export default {
     isProcedureSelected () {
       return this.selectedItems.length > 0
     },
+
+    visibleItems () {
+      return this.showOnlyActiveProcedures ?
+        this.items.filter(item => !item.readOnly) :
+        this.items
+    },
   },
 
   methods: {
@@ -281,12 +407,28 @@ export default {
       this.fetchAdministrationProceduresList(sortValue)
     },
 
+    deleteProcedure (procedureId) {
+      if (dpconfirm(Translator.trans('check.entries.marked.delete'))) {
+        this.runRowAction(procedureId, () => {
+          this.$refs.procedureForm.method = 'post'
+          this.$refs.procedureForm.action = Routing.generate('DemosPlan_procedures_delete')
+          this.$refs.procedureForm.submit()
+        })
+      }
+    },
+
     deleteProcedures (event) {
       if (dpconfirm(Translator.trans('check.entries.marked.delete'))) {
         this.$refs.procedureForm.method = 'post'
         this.$refs.procedureForm.action = Routing.generate('DemosPlan_procedures_delete')
       } else {
         event.preventDefault()
+      }
+    },
+
+    exportProcedure (procedureId) {
+      if (dpconfirm(Translator.trans('check.entries.marked.export'))) {
+        this.runRowAction(procedureId, this.startProceduresExport)
       }
     },
 
@@ -297,6 +439,35 @@ export default {
         return
       }
 
+      /*
+       * A read-only procedure grants none of the export content permissions, so it would only
+       * add its name to the archive.
+       */
+      const readOnlyProcedureNames = this.items
+        .filter(item => this.selectedItems.includes(item.id) && item.readOnly)
+        .map(item => item.name)
+
+      if (readOnlyProcedureNames.length > 0) {
+        dplan.notify.error(Translator.trans('error.procedure.export.read.only', { procedureNames: readOnlyProcedureNames.join(', ') }))
+
+        return
+      }
+
+      this.startProceduresExport()
+    },
+
+    /**
+     * Runs a form-based action for a single procedure. The hidden inputs render from
+     * formProcedureIds, so the DOM has to catch up before the form is read.
+     */
+    async runRowAction (procedureId, action) {
+      this.rowActionProcedureId = procedureId
+      await this.$nextTick()
+      action()
+      this.rowActionProcedureId = null
+    },
+
+    startProceduresExport () {
       // The export runs as a background job; poll it and download the file once it is ready
       dplan.notify.notify('info', Translator.trans('export.processing'))
       fetch(Routing.generate('DemosPlan_procedures_export_async_start'), {
@@ -335,6 +506,7 @@ export default {
             'internalEndDate',
             'internalPhaseDefinitionName',
             'originalStatementsCount',
+            'readOnly',
             'statementsCount',
           ].join(),
         },
@@ -366,6 +538,7 @@ export default {
             internalPhase: el.attributes.internalPhaseDefinitionName,
             internalStartDate: formatDate(el.attributes.internalStartDate),
             originalStatementsCount: el.attributes.originalStatementsCount,
+            readOnly: el.attributes.readOnly,
             statementsCount: el.attributes.statementsCount,
           }))
         })
@@ -374,6 +547,39 @@ export default {
         })
         .finally(() => {
           this.isLoading = false
+        })
+    },
+
+    getProcedureLink (procedureId, readOnly) {
+      if (readOnly) {
+        return Routing.generate('dplan_procedure_statement_list', { procedureId: procedureId })
+      }
+
+      return Routing.generate('DemosPlan_procedure_dashboard', { procedure: procedureId })
+    },
+
+    openArchiveModal (procedureId, procedureName, readOnly) {
+      this.archiveModal = { procedureId, procedureName, readOnly }
+      this.$refs.archiveModal.toggle()
+    },
+
+    toggleReadOnly () {
+      const { procedureId, readOnly } = this.archiveModal
+      const url = Routing.generate('dplan_procedure_read_only_toggle', { procedureId: procedureId })
+
+      dpApi.post(url, {}, { readOnly: !readOnly })
+        .then(() => {
+          const procedure = this.items.find(item => item.id === procedureId)
+
+          if (procedure) {
+            procedure.readOnly = !readOnly
+          }
+        })
+        .catch(e => {
+          console.error(e)
+        })
+        .finally(() => {
+          this.$refs.archiveModal.toggle()
         })
     },
 

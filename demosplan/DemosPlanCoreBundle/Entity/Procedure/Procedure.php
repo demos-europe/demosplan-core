@@ -173,6 +173,13 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     #[ORM\Column(name: '_p_deleted', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $deleted = false;
 
+    /**
+     * A read-only procedure stays reachable for reference but cannot be modified any more.
+     * Enforced via Permissions::setProcedurePermissions().
+     */
+    #[ORM\Column(name: 'read_only', type: 'boolean', nullable: false, options: ['default' => false])]
+    protected bool $readOnly = false;
+
     // improve: use blueprint/template instead of master
     /**
      * `true`/`1` if this instance is not an actual procedure but a procedure template instead.
@@ -794,6 +801,18 @@ class Procedure extends SluggedEntity implements ProcedureInterface
     public function isDeleted()
     {
         return \filter_var($this->deleted, FILTER_VALIDATE_BOOLEAN);
+    }
+
+    public function isReadOnly(): bool
+    {
+        return $this->readOnly;
+    }
+
+    public function setReadOnly(bool $readOnly): Procedure
+    {
+        $this->readOnly = $readOnly;
+
+        return $this;
     }
 
     /**
