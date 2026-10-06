@@ -142,6 +142,7 @@
             />
             <dp-select
               id="applySortSelection"
+              data-cy="segmentsList:sort"
               :options="sortOptions"
               :selected="selectedSort"
               @select="applySort"
