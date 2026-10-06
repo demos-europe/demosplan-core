@@ -306,20 +306,6 @@
                     ].attributes.submitName
                   }}
                 </li>
-                <li
-                  v-if="
-                    statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationName !== ''
-                  "
-                  class="o-list__item o-hellip--nowrap"
-                >
-                  {{
-                    statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationName
-                  }}
-                </li>
               </ul>
             </template>
             <template v-slot:organisation="rowData">
