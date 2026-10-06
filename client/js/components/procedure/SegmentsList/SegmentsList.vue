@@ -541,7 +541,6 @@ import {
   DpSelect,
   DpStickyElement,
   formatDate,
-  hasOwnProp,
   tableSelectAllItems,
   VPopover,
 } from '@demos-europe/demosplan-ui'
@@ -549,6 +548,7 @@ import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
 import CustomSearch from './CustomSearch'
+import { fetchSegmentFacetOptions } from './segmentFacetOptions'
 import fullscreenModeMixin from '@DpJs/components/shared/mixins/fullscreenModeMixin'
 import ImageModal from '@DpJs/components/shared/ImageModal'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
@@ -1780,7 +1780,7 @@ export default {
      * @param params.isInitialWithQuery {Boolean}
      * @param params.path {String}
      */
-    sendFilterOptionsRequest (params) {
+    async sendFilterOptionsRequest (params) {
       const {
         category,
         currentQuery,
@@ -1788,187 +1788,50 @@ export default {
         isInitialWithQuery,
         path,
       } = params
-      const isUnusedTag = (filterPath, count, selected) =>
-        filterPath === 'tags' && count === 0 && !selected
 
-      const buildGroupOptions = (
-        resource,
-        resultIncluded,
+      const { groupedOptions, ungroupedOptions } = await fetchSegmentFacetOptions({
         currentQuery,
-        filterPath,
-      ) => {
-        const filterOptionsIds =
-          resource.relationships.aggregationFilterItems?.data.length > 0 ?
-            resource.relationships.aggregationFilterItems.data.map(
-              (item) => item.id,
-            ) :
-            []
-        const options = filterOptionsIds
-          .map((id) => {
-            const option = resultIncluded.find((item) => item.id === id)
+        facet: path,
+        filterQuery: filter,
+        procedureId: this.procedureId,
+        searchFields: this.searchFieldsSelected,
+        searchTerm: this.searchTerm,
+      })
 
-            if (option) {
-              const { attributes, id } = option
-              const { count, description, label } = attributes
+      if (isInitialWithQuery && this.queryIds.length > 0) {
+        const allOptions = [
+          ...groupedOptions.flatMap((group) => group.options),
+          ...ungroupedOptions,
+        ]
 
-              return {
-                count,
-                description,
-                id,
-                label,
-                selected: currentQuery?.length ?
-                  currentQuery.includes(id) :
-                  attributes.selected,
-              }
-            }
+        const currentFlyoutFilterIds = this.queryIds.filter((queryId) =>
+          allOptions.some((item) => item.id === queryId),
+        )
 
-            return null
-          })
-          .filter(
-            (option) =>
-              option !== null &&
-              !isUnusedTag(filterPath, option.count, option.selected),
-          )
-
-        if (options.length === 0) {
-          return null
-        }
-
-        return {
-          id: resource.id,
-          label: resource.attributes.label,
-          options,
-        }
-      }
-      const requestParams = {
-        searchPhrase: this.searchTerm,
-        filter: {
-          ...filter,
-          sameProcedure: {
-            condition: {
-              path: 'parentStatement.procedure.id',
-              value: this.procedureId,
-            },
-          },
-        },
-        path,
+        this.setInitialFlyoutFilterIds({
+          categoryId: category.id,
+          filterIds: currentFlyoutFilterIds,
+        })
       }
 
-      // We have to set the searchPhrase to null if its empty to satisfy the backend
-      if (requestParams.searchPhrase === '') {
-        requestParams.searchPhrase = null
+      this.setGroupedFilterOptions({
+        categoryId: category.id,
+        groupedOptions,
+      })
+
+      this.setUngroupedFilterOptions({
+        categoryId: category.id,
+        options: ungroupedOptions,
+      })
+
+      this.setIsLoadingFilterFlyout({
+        categoryId: category.id,
+        isLoading: false,
+      })
+
+      if (this.getIsExpandedByCategoryId(category.id)) {
+        document.getElementById(`searchField_${path}`).focus()
       }
-
-      dpRpc('segments.facets.list', requestParams, 'filterList').then(
-        ({ data }) => {
-          const result =
-            hasOwnProp(data, 0) && data[0].id === 'filterList' ?
-              data[0].result :
-              null
-
-          if (result) {
-            const filter = result.data.find(
-              (type) => type.attributes.path === path,
-            )
-            const groupIds = new Set(
-              filter.relationships.aggregationFilterGroups?.data.map(
-                (group) => group.id,
-              ) ?? [],
-            )
-            const itemIds = new Set(
-              filter.relationships.aggregationFilterItems?.data.map(
-                (item) => item.id,
-              ) ?? [],
-            )
-
-            const groupedOptions = (result.included ?? [])
-              .filter(
-                (resource) =>
-                  resource.type === 'AggregationFilterGroup' &&
-                  groupIds.has(resource.id),
-              )
-              .map((group) =>
-                buildGroupOptions(group, result.included, currentQuery, path),
-              )
-              .filter(Boolean)
-
-            const ungroupedOptions = (result.included ?? [])
-              .filter(
-                (resource) =>
-                  resource.type === 'AggregationFilterItem' &&
-                  itemIds.has(resource.id),
-              )
-              .map((resource) => {
-                const { id, attributes } = resource
-                const { count, description, label } = attributes
-                const selected = currentQuery?.length ?
-                  currentQuery.includes(id) :
-                  attributes.selected
-
-                return {
-                  id,
-                  count,
-                  description,
-                  label,
-                  selected,
-                  ungrouped: true,
-                }
-              })
-              .filter(
-                (option) => !isUnusedTag(path, option.count, option.selected),
-              )
-
-            // Needs to be added to ungroupedOptions
-            if (result.data[0].attributes.path === 'assignee') {
-              ungroupedOptions.push({
-                id: 'unassigned',
-                count: result.data[0].attributes.missingResourcesSum,
-                label: Translator.trans('not.assigned'),
-                ungrouped: true,
-                selected: currentQuery?.length ?
-                  currentQuery.includes('unassigned') :
-                  result.meta.unassigned_selected,
-              })
-            }
-
-            if (isInitialWithQuery && this.queryIds.length > 0) {
-              const allOptions = [
-                ...groupedOptions.flatMap((group) => group.options),
-                ...ungroupedOptions,
-              ]
-
-              const currentFlyoutFilterIds = this.queryIds.filter((queryId) => {
-                const item = allOptions.find((item) => item.id === queryId)
-
-                return item ? item.id : null
-              })
-
-              this.setInitialFlyoutFilterIds({
-                categoryId: category.id,
-                filterIds: currentFlyoutFilterIds,
-              })
-            }
-
-            this.setGroupedFilterOptions({
-              categoryId: category.id,
-              groupedOptions,
-            })
-
-            this.setUngroupedFilterOptions({
-              categoryId: category.id,
-              options: ungroupedOptions,
-            })
-
-            this.setIsLoadingFilterFlyout({
-              categoryId: category.id,
-              isLoading: false,
-            })
-            if (this.getIsExpandedByCategoryId(category.id)) {
-              document.getElementById(`searchField_${path}`).focus()
-            }
-          }
-        },
-      )
     },
 
     setCurrentSelection (selection) {

@@ -320,12 +320,11 @@ import {
   DpLabel,
   DpModal,
   DpRadio,
-  dpRpc,
   DpUploadFiles,
-  hasOwnProp,
   sessionStorageMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations } from 'vuex'
+import { fetchSegmentFacetOptions } from '@DpJs/components/procedure/SegmentsList/segmentFacetOptions'
 import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
 
 export default {
@@ -500,78 +499,25 @@ export default {
       setUngroupedFilterOptions: 'setUngroupedOptions',
     }),
 
-    buildFilterOption (option) {
-      if (!option) {
-        return null
-      }
-
-      const { attributes, id } = option
-      const { count, description, label, selected } = attributes
-
-      return { id, count, description, label, selected }
-    },
-
-    buildOptionsFromResult (result, filter) {
-      const groupedOptions = []
-      const ungroupedOptions = []
-
-      result.included?.forEach(resource => {
-        const group = this.getGroupedOptions(resource, filter, result)
-
-        if (group) {
-          groupedOptions.push(group)
-        }
-
-        const item = this.getUngroupedOptions(resource, filter)
-
-        if (item) {
-          ungroupedOptions.push(item)
-        }
-      })
-
-      // Add "unassigned" pseudo-option to ungroupedOptions when the filter is "assignee"
-      if (result.data[0].attributes.path === 'assignee') {
-        const { missingResourcesSum } = result.data[0].attributes
-
-        ungroupedOptions.push({
-          id: 'unassigned',
-          count: missingResourcesSum,
-          label: Translator.trans('not.assigned'),
-          ungrouped: true,
-          selected: result.meta.unassigned_selected,
-        })
-      }
-
-      return {
-        groupedOptions,
-        ungroupedOptions,
-      }
-    },
-
     closeModal () {
       this.resetExportModalState()
       this.resetFilterFlyout()
       this.resetExportModalInner()
     },
 
-    async fetchFilterOptions (requestParams) {
+    async fetchFilterOptions ({ filter, path, searchTerm }) {
       try {
-        const { data } = await dpRpc('segments.facets.list', requestParams, 'filterList')
-
-        const result = (hasOwnProp(data, 0) && data[0].id === 'filterList') ?
-          data[0].result :
-          null
-
-        return result || null
+        return await fetchSegmentFacetOptions({
+          facet: path,
+          filterQuery: filter,
+          procedureId: this.procedureId,
+          searchTerm,
+        })
       } catch (error) {
         console.error('Failed to fetch filter options', error)
 
         return null
       }
-    },
-
-    findFilterDefinition (result, path) {
-      return result.data.find(type => type.attributes.path === path) || null
     },
 
     focusSearchField (path) {
@@ -581,52 +527,6 @@ export default {
     getFilterValues (filter = {}) {
       this.updateSelectedTagIds(filter)
       this.updateSelectedTags()
-    },
-
-    getGroupedOptions (resource, filter, result) {
-      const isGroup = resource.type === 'AggregationFilterGroup'
-      const filterHasGroups = filter.relationships.aggregationFilterGroups?.data.length > 0
-      const groupBelongsToFilterType = isGroup && filterHasGroups && filter.relationships.aggregationFilterGroups.data.some(group => group.id === resource.id)
-
-      if (isGroup && groupBelongsToFilterType) {
-        const filterOptionsIds = resource.relationships.aggregationFilterItems?.data?.map(item => item.id) ?? []
-
-        const filterOptions = filterOptionsIds
-          .map(id => this.buildFilterOption(result.included.find(item => item.id === id)))
-          .filter(Boolean)
-
-        if (filterOptions.length === 0) {
-          return null
-        }
-
-        const { id, attributes } = resource
-        const { label } = attributes
-
-        return {
-          id,
-          label,
-          options: filterOptions,
-        }
-      }
-    },
-
-    getUngroupedOptions (resource, filter) {
-      const isFilterItem = resource.type === 'AggregationFilterItem'
-      const filterHasFilterOptions = filter.relationships.aggregationFilterItems?.data.length > 0
-      const filterOptionBelongsToFilterType = isFilterItem && filterHasFilterOptions && filter.relationships.aggregationFilterItems.data.some(option => option.id === resource.id)
-
-      if (isFilterItem && filterOptionBelongsToFilterType) {
-        const option = this.buildFilterOption(resource)
-
-        if (!option) {
-          return null
-        }
-
-        return {
-          ...option,
-          ungrouped: true,
-        }
-      }
     },
 
     handleAfterOptionsLoaded (path) {
@@ -723,29 +623,17 @@ export default {
         return
       }
 
-      const requestParams = this.setRequestParams({
-        additionalQueryParams,
+      const options = await this.fetchFilterOptions({
         filter,
         path,
-        currentQuery,
+        searchTerm: additionalQueryParams?.searchPhrase,
       })
 
-      const result = await this.fetchFilterOptions(requestParams)
-
-      if (!result) {
+      if (!options) {
         return
       }
 
-      const filterDefinition = this.findFilterDefinition(result, path)
-
-      if (!filterDefinition) {
-        return
-      }
-
-      const {
-        groupedOptions,
-        ungroupedOptions,
-      } = this.buildOptionsFromResult(result, filterDefinition)
+      const { groupedOptions, ungroupedOptions } = options
 
       this.initInitialFlyoutFilterSelection({
         isInitialWithQuery,
@@ -821,28 +709,6 @@ export default {
       const storedTemplate = this.getItemFromSessionStorage(this.templateStorageName)
 
       this.uploadedHash = Array.isArray(storedTemplate) ? storedTemplate[storedTemplate.length - 1]?.hash ?? '' : ''
-    },
-
-    setRequestParams ({ additionalQueryParams, filter, path, currentQuery }) {
-      const requestParams = {
-        ...additionalQueryParams,
-        filter: {
-          ...filter,
-          sameProcedure: {
-            condition: {
-              path: 'parentStatement.procedure.id',
-              value: this.procedureId,
-            },
-          },
-        },
-        path,
-      }
-
-      if (requestParams.searchPhrase === '') {
-        requestParams.searchPhrase = null // The backend expects `searchPhrase` to be null when it is empty
-      }
-
-      return requestParams
     },
 
     syncSelectedItemsFromFlyout () {
