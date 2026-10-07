@@ -18,6 +18,7 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\QueryParameter;
+use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\CustomFieldFilter;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -42,6 +43,8 @@ use Symfony\Component\Validator\Constraints\NotBlank;
             parameters: [
                 'facet'                                 => new QueryParameter(required: true, constraints: [new NotBlank()]),
                 'parentStatementOfSegment.procedure.id' => new QueryParameter(required: true, constraints: [new NotBlank()]),
+                // customField[<fieldId>][]=<optionId>, applied by CustomFieldFilter like in the segment list.
+                'customField'                           => new QueryParameter(filter: CustomFieldFilter::class),
             ],
         ),
     ],

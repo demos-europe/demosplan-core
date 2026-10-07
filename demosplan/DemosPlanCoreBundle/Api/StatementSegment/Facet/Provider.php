@@ -15,10 +15,13 @@ namespace demosplan\DemosPlanCoreBundle\Api\StatementSegment\Facet;
 use ApiPlatform\Doctrine\Orm\State\CollectionProvider as DoctrineCollectionProvider;
 use ApiPlatform\Doctrine\Orm\State\Options as DoctrineOptions;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\Metadata\Parameter;
+use ApiPlatform\Metadata\Parameters;
 use ApiPlatform\State\ProviderInterface;
 use demosplan\DemosPlanCoreBundle\Api\StatementSegment\AccessChecker;
 use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Facet\Resource as FacetResource;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\SegmentCustomFieldFilter;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Webmozart\Assert\Assert;
@@ -59,14 +62,11 @@ class Provider implements ProviderInterface
         }
 
         if ($this->customFieldFacet->supports($requestedFacet, $procedureId)) {
-            // Custom fields aren't declared #[ApiFilter] properties (they're per-procedure/
-            // dynamic) - nothing to exclude here, only the static facets' own filters need that.
-            // Selected ids use the same "{$facet}.id" key as the static facets (not a
-            // "customField_" prefix) so the frontend's rootPath can serve both the `facet`
-            // query param and the selected-filter key with one string, exactly like tags/
-            // assignee/place already do.
-            $segments = $this->fetchFilteredSegments($operation, $filters, null);
-            $selectedIds = (array) ($filters["{$requestedFacet}.id"] ?? []);
+            // The facet is the custom field's id, its selected options are sent as
+            // `customField[<fieldId>][]`. Like for the static facets, the facet's own selection is
+            // left out of the counting.
+            $segments = $this->fetchFilteredSegments($operation, $filters, null, $requestedFacet);
+            $selectedIds = (array) ($filters[SegmentCustomFieldFilter::FILTER_KEY][$requestedFacet] ?? []);
 
             return $this->customFieldFacet->getResources($requestedFacet, $procedureId, $segments, $selectedIds);
         }
@@ -75,16 +75,21 @@ class Provider implements ProviderInterface
     }
 
     /**
-     * Loads the segments that match all the active filters, except the one named in $excludedKey.
+     * Loads the segments that match all the active filters, except the one named in $excludedKey
+     * and the selection of the custom field $excludedCustomFieldId.
      * The filters, the text search and the user's access rules are all applied automatically by API Platform
      * and its extensions, so we don't write any query here.
      *
      * @return list<Segment>
      */
-    private function fetchFilteredSegments(Operation $operation, array $filters, ?string $excludedKey): array
+    private function fetchFilteredSegments(Operation $operation, array $filters, ?string $excludedKey, ?string $excludedCustomFieldId = null): array
     {
         if (null !== $excludedKey) {
             unset($filters[$excludedKey]);
+        }
+
+        if (null !== $excludedCustomFieldId) {
+            $operation = $this->withoutCustomFieldSelection($operation, $excludedCustomFieldId);
         }
 
         $operation = $operation->withStateOptions(new DoctrineOptions(
@@ -99,6 +104,31 @@ class Provider implements ProviderInterface
         Assert::allIsInstanceOf($segments, Segment::class);
 
         return $segments;
+    }
+
+    /**
+     * The `customField` parameter keeps its value on the parameter object, not in the filters array,
+     * so the selection of one custom field is dropped by handing the operation a reduced copy of it.
+     */
+    private function withoutCustomFieldSelection(Operation $operation, string $customFieldId): Operation
+    {
+        $parameters = $operation->getParameters();
+        $parameter = $parameters?->get(SegmentCustomFieldFilter::FILTER_KEY);
+        $selections = $parameter?->getValue();
+
+        if (!$parameter instanceof Parameter || !is_array($selections) || !array_key_exists($customFieldId, $selections)) {
+            return $operation;
+        }
+
+        unset($selections[$customFieldId]);
+        $reducedParameter = (clone $parameter)->setValue($selections);
+
+        $reducedParameters = [];
+        foreach ($parameters as $name => $existingParameter) {
+            $reducedParameters[] = SegmentCustomFieldFilter::FILTER_KEY === $name ? $reducedParameter : $existingParameter;
+        }
+
+        return $operation->withParameters(new Parameters($reducedParameters));
     }
 
     /**

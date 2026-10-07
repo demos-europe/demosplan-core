@@ -155,6 +155,8 @@ import {
   DpResettableInput,
 } from '@demos-europe/demosplan-ui'
 import FilterFlyoutCheckbox from './FilterFlyoutCheckbox'
+import { toCustomFieldFilterPath } from '@DpJs/lib/segment/customFieldFilterPath'
+import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useStore } from 'vuex'
 
 export default {
@@ -191,6 +193,16 @@ export default {
       type: [Object, Array],
       required: false,
       default: () => ({}),
+    },
+
+    /*
+     * Needed to load the SEGMENT custom fields of the procedure, which get a filter of their own
+     * next to the ones configured in `filters`.
+     */
+    procedureId: {
+      type: String,
+      required: false,
+      default: '',
     },
   },
 
@@ -472,30 +484,75 @@ export default {
       }
     })
 
+    const initCategory = (category) => {
+      setIsLoadingMutation({ categoryId: category.id, isLoading: true })
+      setIsExpanded({ categoryId: category.id, isExpanded: false })
+
+      /*
+       * When the page loads with filters in the URL, their ids arrive asynchronously in the FilterFlyout
+       * store; copy them into the category so the matching checkboxes start out selected.
+       */
+      watch(
+        () => store.getters['FilterFlyout/getInitialFlyoutFilterIdsByCategoryId'](category.id),
+        (newIds, oldIds) => {
+          if (newIds && JSON.stringify(newIds) !== JSON.stringify(oldIds)) {
+            category.currentQuery = structuredClone(newIds)
+            category.appliedQuery = structuredClone(newIds)
+          }
+        },
+        { deep: true },
+      )
+
+      if (queryIds.value.length) {
+        requestFilterOptions(category, true)
+      }
+    }
+
+    /*
+     * Custom fields differ per procedure, so their categories can't come from segmentsFilterNames.yaml.
+     * The path (see customFieldFilterPath.js) is what the segment endpoints translate into `customField[<fieldId>][]`.
+     * No OR group (memberOf) is needed: the options of one field are sent together and match on any of them.
+     */
+    const toCustomFieldCategory = (definition) => ({
+      appliedQuery: [],
+      currentQuery: [],
+      hint: true,
+      id: toCustomFieldFilterPath(definition.id),
+      label: definition.name,
+      memberOf: null,
+      operator: '=',
+      path: toCustomFieldFilterPath(definition.id),
+      searchTerm: '',
+    })
+
+    const loadCustomFieldCategories = async () => {
+      if (!hasPermission('field_segments_custom_fields') || props.procedureId === '') {
+        return
+      }
+
+      const { fetchCustomFields } = useCustomFields()
+
+      try {
+        const definitions = await fetchCustomFields(props.procedureId, {
+          sourceEntity: 'PROCEDURE',
+          targetEntity: 'SEGMENT',
+        })
+
+        definitions
+          .filter((definition) => definition.options?.length > 0)
+          .map(toCustomFieldCategory)
+          .forEach((category) => {
+            categories.push(category)
+            initCategory(category)
+          })
+      } catch {
+        /* Notification already shown by useCustomFieldDefinitions */
+      }
+    }
+
     onMounted(() => {
-      categories.forEach((category) => {
-        setIsLoadingMutation({ categoryId: category.id, isLoading: true })
-        setIsExpanded({ categoryId: category.id, isExpanded: false })
-
-        /*
-         * When the page loads with filters in the URL, their ids arrive asynchronously in the FilterFlyout
-         * store; copy them into the category so the matching checkboxes start out selected.
-         */
-        watch(
-          () => store.getters['FilterFlyout/getInitialFlyoutFilterIdsByCategoryId'](category.id),
-          (newIds, oldIds) => {
-            if (newIds && JSON.stringify(newIds) !== JSON.stringify(oldIds)) {
-              category.currentQuery = structuredClone(newIds)
-              category.appliedQuery = structuredClone(newIds)
-            }
-          },
-          { deep: true },
-        )
-
-        if (queryIds.value.length) {
-          requestFilterOptions(category, true)
-        }
-      })
+      categories.forEach(initCategory)
+      loadCustomFieldCategories()
     })
 
     return {

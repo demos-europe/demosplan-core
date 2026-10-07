@@ -13,33 +13,34 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Api\StatementSegment\Facet;
 
 use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Facet\Resource as FacetResource;
-use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-use demosplan\DemosPlanCoreBundle\Logic\CustomField\SegmentCustomFieldUsageCounter;
-use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldProvider;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\SegmentCustomFieldUsageCounter;
 
 /**
- * Counts options for a SEGMENT custom field. Unlike {@see StaticFacets} (tags/assignee/place - a
- * fixed, compile-time-known family of exactly three), custom fields are a dynamic, per-procedure
- * family identified by database-generated ids unknown until runtime - there's nothing to list
- * one table entry per custom field, so this is a separate injected service. {@see Provider}
- * dispatches to it explicitly after {@see StaticFacets}.
+ * Turns the options of a SEGMENT custom field and their counts into facet resources. Unlike
+ * {@see StaticFacets} (tags/assignee/place - a fixed, compile-time-known family of exactly three),
+ * custom fields are a dynamic, per-procedure family identified by database-generated ids unknown
+ * until runtime, so this is a separate service. {@see Provider} dispatches to it explicitly after
+ * {@see StaticFacets}.
  *
- * Zero-count options are dropped rather than defaulted to 0 (unlike the static facets) -
- * matches the retired `CustomFieldFilterResponseBuilder::buildOptions()`'s identical behaviour.
+ * Finding the field and counting its options is custom field logic and lives in
+ * `Utils/CustomField`; this class only adapts the result to the facet endpoint.
+ * Options no segment holds are left out rather than defaulted to 0 (unlike the static facets).
  */
 final class CustomFieldFacet
 {
     public function __construct(
-        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
-        private readonly SegmentCustomFieldUsageCounter $customFieldUsageCounter,
+        private readonly CustomFieldProvider $customFieldProvider,
+        private readonly SegmentCustomFieldUsageCounter $usageCounter,
     ) {
     }
 
     public function supports(string $facet, string $procedureId): bool
     {
-        return null !== $this->findConfig($facet, $procedureId);
+        return null !== $this->findField($facet, $procedureId);
     }
 
     /**
@@ -50,35 +51,29 @@ final class CustomFieldFacet
      */
     public function getResources(string $facet, string $procedureId, array $segments, array $selectedIds): array
     {
-        $config = $this->findConfig($facet, $procedureId);
-        if (null === $config) {
+        $field = $this->findField($facet, $procedureId);
+        if (null === $field) {
             return [];
         }
 
-        $options = $config->getConfiguration()->getOptions();
-        if ([] === $options) {
-            return [];
-        }
-
-        $counts = $this->customFieldUsageCounter->countOptionUsage($segments, $facet);
-
-        return array_values(array_filter(array_map(
-            static fn ($option) => 0 < ($counts[$option->getId()] ?? 0)
-                ? FacetResource::create($option->getId(), $option->getLabel(), $counts[$option->getId()], in_array($option->getId(), $selectedIds, true))
-                : null,
-            $options
-        )));
+        return array_map(
+            static fn (array $option): FacetResource => FacetResource::create(
+                $option['id'],
+                $option['label'],
+                $option['count'],
+                in_array($option['id'], $selectedIds, true)
+            ),
+            $this->usageCounter->countOptions($field, $segments)
+        );
     }
 
-    private function findConfig(string $facet, string $procedureId): ?CustomFieldConfiguration
+    private function findField(string $facet, string $procedureId): ?CustomFieldInterface
     {
-        $configs = $this->customFieldConfigurationRepository->findCustomFieldConfigurationByCriteria(
+        return $this->customFieldProvider->findCustomFieldByCriteria(
             CustomFieldSupportedEntity::procedure->value,
             $procedureId,
             CustomFieldSupportedEntity::segment->value,
             $facet,
         );
-
-        return $configs[0] ?? null;
     }
 }
