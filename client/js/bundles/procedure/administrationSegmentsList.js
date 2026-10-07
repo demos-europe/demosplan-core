@@ -10,6 +10,7 @@
 /**
  * This is the entrypoint for administration_segments_list.html.twig
  */
+import { DpButton } from '@demos-europe/demosplan-ui'
 import DpSegmentRecommendationEmail from '@DpJs/components/statement/statement/DpSegmentRecommendationEmail'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
 import FilterFlyoutStore from '@DpJs/store/procedure/FilterFlyout'
@@ -18,13 +19,16 @@ import SegmentSlidebar from '@DpJs/components/procedure/SegmentsList/SegmentSlid
 import SegmentSlidebarStore from '@DpJs/store/procedure/SegmentSlidebar'
 import SegmentsList from '@DpJs/components/procedure/SegmentsList/SegmentsList'
 import SegmentsListFilter from '@DpJs/components/procedure/SegmentsList/SegmentsListFilter'
+import SegmentsFavoriteView from '@DpJs/components/procedure/SegmentsList/SegmentsFavoriteView'
 
 const components = {
-  SegmentsList,
-  SegmentSlidebar,
-  SegmentsListFilter,
+  DpButton,
   DpSegmentRecommendationEmail,
   DpVersionHistory,
+  SegmentsFavoriteView,
+  SegmentsList,
+  SegmentsListFilter,
+  SegmentSlidebar,
 }
 const stores = {
   FilterFlyout: FilterFlyoutStore,

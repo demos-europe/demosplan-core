@@ -2,10 +2,22 @@
 {% set procedure = procedureId %}
 
 {% block component_part %}
-    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
         heading: 'segments'|trans,
         flush: true
     } %}
+        {% block pageheader_actions %}
+            <dp-button
+                class="float-right"
+                color="primary"
+                variant="outline"
+                icon="bookmark"
+                text="{{ 'views'|trans }}"
+                data-cy="segmentsList:openFavoriteView"
+                @click="$refs.segmentsList.openFavoriteView()">
+            </dp-button>
+        {% endblock %}
+    {% endembed %}
 
     {# Version history, send-via-mail and filter panels, driven by the SegmentSlidebar store. Each panel toggles its own visibility. #}
     <segment-slidebar>
@@ -19,8 +31,10 @@
             :filters="JSON.parse('{{ filterNames|json_encode|e('js', 'utf-8') }}')"
             :initial-filter="JSON.parse('{{ segmentListQuery.filter|json_encode|e('js', 'utf-8') }}')"
             @filter-apply="$refs.segmentsList.sendFilterQuery($event)"
-            @filter-options:request="$refs.segmentsList.sendFilterOptionsRequest($event)">
-        </segments-list-filter>
+            @filter-options:request="$refs.segmentsList.sendFilterOptionsRequest($event)"
+        ></segments-list-filter>
+        {# Custom side panel content #}
+        <segments-favorite-view></segments-favorite-view>
     </segment-slidebar>
 
     <segments-list

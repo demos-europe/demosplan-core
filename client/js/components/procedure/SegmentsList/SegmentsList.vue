@@ -2031,6 +2031,12 @@ export default {
       this.setSlidebarContent({ externId: '', isOpen: !closing, segmentId: '', showTab: 'filter' })
     },
 
+    openFavoriteView () {
+      const closing = this.slidebar.isOpen && this.slidebar.showTab === 'favoriteView'
+
+      this.setSlidebarContent({ externId: '', isOpen: !closing, segmentId: '', showTab: 'favoriteView' })
+    },
+
     updateQueryHash () {
       const hrefParts = globalThis.location.href.split('/')
       const oldQueryHash = hrefParts[hrefParts.length - 1]
