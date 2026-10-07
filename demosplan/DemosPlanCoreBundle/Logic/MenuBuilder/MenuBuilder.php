@@ -49,7 +49,7 @@ class MenuBuilder
         private readonly PermissionEvaluatorInterface $permissionEvaluator,
         ParameterBagInterface $parameterBag,
         RequestStack $requestStack,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         $this->availableMenus = $parameterBag->get('menu_definitions');
         $this->currentProcedure = $currentProcedureService->getProcedure();

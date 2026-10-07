@@ -42,11 +42,11 @@ class MenusTreeBuilderTest extends TestCase
                 'administer' => [
                     'children' => [
                         'addon_page' => [
-                            'label'      => 'addon.page',
-                            'path'       => 'DemosPlan_addon_page',
+                            'label'       => 'addon.page',
+                            'path'        => 'DemosPlan_addon_page',
                             'path_params' => ['hookName' => 'addon.hook'],
-                            'permission' => 'feature_of_the_addon',
-                            'addon'      => 'vendor/addon',
+                            'permission'  => 'feature_of_the_addon',
+                            'addon'       => 'vendor/addon',
                         ],
                     ],
                 ],
