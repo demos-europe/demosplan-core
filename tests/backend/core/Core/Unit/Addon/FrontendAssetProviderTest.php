@@ -177,6 +177,39 @@ class FrontendAssetProviderTest extends TestCase
     /**
      * @param array<string, mixed> $hookOptions
      */
+    public function testHookIsAvailableWithoutPermissionsWithoutReadingAnyAsset(): void
+    {
+        // The install path does not exist, so no asset could be read
+        $this->createSut($this->createAddonInfo([], installPath: 'tests/backend/core/Core/res/does/not/exist'));
+
+        self::assertTrue($this->sut->isHookAvailable(self::HOOK_NAME));
+    }
+
+    public function testUnknownHookIsNotAvailable(): void
+    {
+        $this->createSut($this->createAddonInfo([]));
+
+        self::assertFalse($this->sut->isHookAvailable('hook.nobody.provides'));
+    }
+
+    public function testHookOfDisabledAddonIsNotAvailable(): void
+    {
+        $this->createSut($this->createAddonInfo([], enabled: false));
+
+        self::assertFalse($this->sut->isHookAvailable(self::HOOK_NAME));
+    }
+
+    public function testHookIsAvailableOnlyIfTheUserHasOneOfThePermissions(): void
+    {
+        $this->createSut($this->createAddonInfo(['permissions' => [self::ADDON_PERMISSION]]));
+
+        $this->permissionEvaluator->method('isPermissionKnown')->willReturn(true);
+        $this->permissionEvaluator->method('isPermissionEnabled')->willReturnOnConsecutiveCalls(true, false);
+
+        self::assertTrue($this->sut->isHookAvailable(self::HOOK_NAME));
+        self::assertFalse($this->sut->isHookAvailable(self::HOOK_NAME));
+    }
+
     private function createAddonInfo(
         array $hookOptions,
         bool $enabled = true,

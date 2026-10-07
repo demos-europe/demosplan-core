@@ -8,6 +8,7 @@
 - addons can add entries to the menus with a `menus.yml` in their `config` directory
 - menu entries can name the `addon` they belong to, so their permissions are looked up in the permissions of that addon
 - `path_params` of a menu entry can contain fixed values, e.g. `hookName: 'some.hook'`
+- new generic page `/addon/page/{hookName}` (`DemosPlan_addon_page`) that shows the components an addon provides for a hook, for users who may see that hook
 - bump contract layer demosplan-addon to v0.83
 - depends on contract layer >= v0.83
 - new SegmentTagsChangedEvent implements new interface added to contract layer in v0.83

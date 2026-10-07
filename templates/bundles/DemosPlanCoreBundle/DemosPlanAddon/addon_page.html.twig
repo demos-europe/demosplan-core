@@ -1,0 +1,17 @@
+{#
+    A page for an addon. It consists of the components the addons provide for the given hook,
+    including the heading. See AddonPageController for the access to the page.
+
+    Variables:
+        hookName name of the hook the addon components are loaded for
+#}
+{% extends '@DemosPlanCore/DemosPlanCore/base.html.twig' %}
+
+{% block component_part %}
+    <addon-wrapper hook-name="{{ hookName }}"></addon-wrapper>
+{% endblock component_part %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['addon-page.js']) }}
+{% endblock javascripts %}
