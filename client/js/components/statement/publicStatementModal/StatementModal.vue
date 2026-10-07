@@ -1334,7 +1334,7 @@ export default {
 
       try {
         // Not a Symfony-named route: API Platform resources aren't exposed to Routing.generate().
-        const url = '/api/3.0/CustomField'
+        const url = `${Routing.getBaseUrl()}/api/3.0/CustomField`
 
         const params = {
           fields: {
