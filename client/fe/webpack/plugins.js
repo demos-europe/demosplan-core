@@ -114,6 +114,17 @@ const webpackDefaultPlugins = [
   new webpack.ProvidePlugin({
     Vue: 'vue',
   }),
+
+  /*
+   * @init/diplan-karten ships moment.js inlined in its dist bundle, including
+   * moment's dynamic locale loader (`require('./locale/' + name)`). The dist
+   * folder has no `locale/` directory, so webpack fails to resolve it. Drop
+   * the dynamic require — diplanfest doesn't switch moment locales at runtime.
+   */
+  new webpack.IgnorePlugin({
+    resourceRegExp: /^\.\/locale$/,
+    contextRegExp: /diplan-karten[\\/]dist$/,
+  }),
 ]
 
 module.exports = {
