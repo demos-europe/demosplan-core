@@ -18,6 +18,7 @@
             ref="segmentsListFilter"
             :filters="JSON.parse('{{ filterNames|json_encode|e('js', 'utf-8') }}')"
             :initial-filter="JSON.parse('{{ segmentListQuery.filter|json_encode|e('js', 'utf-8') }}')"
+            procedure-id="{{ procedure }}"
             @filter-apply="$refs.segmentsList.sendFilterQuery($event)"
             @filter-options:request="$refs.segmentsList.sendFilterOptionsRequest($event)">
         </segments-list-filter>

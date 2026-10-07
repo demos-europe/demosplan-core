@@ -7,6 +7,8 @@
  * All rights reserved
  */
 
+import { getCustomFieldIdFromPath, isCustomFieldFilterPath } from '@DpJs/lib/segment/customFieldFilterPath'
+
 /**
  * Composable for transforming EDT-style filters to API Platform 3.0 format.
  */
@@ -23,6 +25,9 @@ export function useApiPlatformFilters () {
    * API Platform 3:
    * path.id[]=uuid
    * exists[path]=false
+   *
+   * Custom fields (path `customField_<fieldId>`):
+   * customField[fieldId][]=optionId
    *
    * Special handling for OR groups:
    * - IS NULL operators in OR groups use the `memberOf` value as the API filter key (with empty string)
@@ -53,6 +58,18 @@ export function useApiPlatformFilters () {
       if (isOrGroup) {
         apiFilters[memberOf] ??= []
         apiFilters[memberOf].push(isNull ? '' : value)
+
+        return
+      }
+
+      if (isCustomFieldFilterPath(path)) {
+        const fieldId = getCustomFieldIdFromPath(path)
+
+        apiFilters.customField ??= {}
+        apiFilters.customField[fieldId] = [
+          ...(apiFilters.customField[fieldId] ?? []),
+          value,
+        ]
 
         return
       }

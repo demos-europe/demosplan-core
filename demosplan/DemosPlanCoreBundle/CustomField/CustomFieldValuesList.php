@@ -53,6 +53,21 @@ class CustomFieldValuesList
         return null;
     }
 
+    /**
+     * The values of select fields are option ids: a single one for single select, a list for multi select.
+     *
+     * @return list<string> the option ids the field holds, empty if it has no value
+     */
+    public function getOptionIds(string $fieldId): array
+    {
+        $value = $this->findById($fieldId)?->getValue();
+
+        return array_values(array_filter(
+            is_array($value) ? $value : [$value],
+            static fn (mixed $optionId): bool => is_string($optionId) && '' !== $optionId
+        ));
+    }
+
     public function removeCustomFieldValue(CustomFieldValue $customFieldValue): void
     {
         $this->customFieldValues = array_filter(

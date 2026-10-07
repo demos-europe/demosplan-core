@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\SearchParams;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementSegmentResourceType;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\SegmentCustomFieldFilter;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\JsonApi\RequestHandling\JsonApiSortingParser;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
@@ -33,6 +34,7 @@ class RpcSegmentIdLoader implements RpcMethodSolverInterface
 
     public function __construct(
         protected readonly DqlConditionFactory $conditionFactory,
+        protected readonly SegmentCustomFieldFilter $customFieldFilter,
         protected readonly DrupalFilterParser $drupalFilterParser,
         protected readonly JsonSchemaValidator $jsonValidator,
         protected readonly StatementSegmentResourceType $segmentResourceType,
@@ -123,9 +125,20 @@ class RpcSegmentIdLoader implements RpcMethodSolverInterface
     private function getConditions(stdClass $params, string $procedureId)
     {
         $drupalFilter = $this->toArray($params->filter);
-        $conditions = null === $drupalFilter || [] === $drupalFilter
+        // The segment resource type does not know the custom field conditions, so they are
+        // translated into the ids of the matching segments.
+        [$drupalFilter, $customFieldSelections] = $this->customFieldFilter->extractFromDrupalFilter($drupalFilter);
+        $conditions = [] === $drupalFilter
             ? []
             : $this->drupalFilterParser->parseFilter($this->drupalFilterParser->validateFilter($drupalFilter));
+
+        if ([] !== $customFieldSelections) {
+            $matchingSegmentIds = $this->customFieldFilter->findMatchingSegmentIds($procedureId, $customFieldSelections);
+            $conditions[] = [] === $matchingSegmentIds
+                ? $this->conditionFactory->false()
+                : $this->conditionFactory->propertyHasAnyOfValues($matchingSegmentIds, $this->segmentResourceType->id);
+        }
+
         $conditions[] = $this->conditionFactory->propertyHasValue(
             $procedureId,
             $this->segmentResourceType->procedure->id

@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use stdClass;
 use Tests\Base\RpcApiTest;
+use Tests\Core\JsonApi\StatementSegment\SegmentCustomFieldTestTrait;
 
 /**
  * Integration test for the segment.load.id RPC method used by the SegmentsList
@@ -36,6 +37,8 @@ use Tests\Base\RpcApiTest;
  */
 class RpcSegmentIdLoaderTest extends RpcApiTest
 {
+    use SegmentCustomFieldTestTrait;
+
     private const REQUIRED_PERMISSIONS = [
         'feature_json_api_statement_segment',
         'area_admin_statement_list',
@@ -103,6 +106,55 @@ class RpcSegmentIdLoaderTest extends RpcApiTest
         self::assertNotContains($foreignSegment->getId(), $segmentIds);
     }
 
+    public function testLoadSegmentIdsTranslatesCustomFieldConditionsIntoMatchingSegmentIds(): void
+    {
+        // Arrange
+        $user = $this->createPlanner();
+        $procedure = $this->createProcedureFor($user);
+        $field = $this->createSegmentCustomField($procedure, 'Priority', ['High', 'Low']);
+        [$high, $low] = $this->getOptionIds($field);
+        $highSegment = $this->createSegmentIn($procedure, ['customFields' => $this->buildCustomFieldValues([$field->getId() => $high])]);
+        $this->createSegmentIn($procedure, ['customFields' => $this->buildCustomFieldValues([$field->getId() => $low])]);
+        $this->createSegmentIn($procedure);
+        $this->enablePermissions([...self::REQUIRED_PERMISSIONS, 'field_segments_custom_fields']);
+
+        // Act
+        $segmentIds = $this->loadSegmentIds($user, $procedure, $this->customFieldFilter($field->getId(), $high));
+
+        // Assert
+        self::assertSame([$highSegment->getId()], $segmentIds);
+    }
+
+    public function testLoadSegmentIdsReturnsNothingWhenNoSegmentMatchesTheCustomFieldCondition(): void
+    {
+        // Arrange
+        $user = $this->createPlanner();
+        $procedure = $this->createProcedureFor($user);
+        $field = $this->createSegmentCustomField($procedure, 'Priority', ['High', 'Low']);
+        [$high, $low] = $this->getOptionIds($field);
+        $this->createSegmentIn($procedure, ['customFields' => $this->buildCustomFieldValues([$field->getId() => $high])]);
+        $this->enablePermissions([...self::REQUIRED_PERMISSIONS, 'field_segments_custom_fields']);
+
+        // Act
+        $segmentIds = $this->loadSegmentIds($user, $procedure, $this->customFieldFilter($field->getId(), $low));
+
+        // Assert
+        self::assertSame([], $segmentIds);
+    }
+
+    private function customFieldFilter(string $fieldId, string $optionId): stdClass
+    {
+        return (object) [
+            'customFieldCondition' => (object) [
+                'condition' => (object) [
+                    'path'     => $this->customFieldFilterPath($fieldId),
+                    'value'    => $optionId,
+                    'operator' => '=',
+                ],
+            ],
+        ];
+    }
+
     private function createPlanner(): User
     {
         $orga = OrgaFactory::createOne();
@@ -125,9 +177,12 @@ class RpcSegmentIdLoaderTest extends RpcApiTest
         return $procedure->_real();
     }
 
-    private function createSegmentIn(Procedure $procedure): Segment
+    /**
+     * @param array<string, mixed> $attributes additional segment attributes
+     */
+    private function createSegmentIn(Procedure $procedure, array $attributes = []): Segment
     {
-        return SegmentFactory::createOne(['procedure' => $procedure])->_real();
+        return SegmentFactory::createOne(['procedure' => $procedure, ...$attributes])->_real();
     }
 
     /**

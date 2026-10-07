@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -35,6 +36,17 @@ class CustomFieldProvider
         }
 
         return $this->cache[$cacheKey];
+    }
+
+    public function findCustomFieldByCriteria(string $sourceEntity, string $sourceEntityId, string $targetEntity, string $customFieldId): ?CustomFieldInterface
+    {
+        foreach ($this->getCustomFieldsByCriteria($sourceEntity, $sourceEntityId, $targetEntity) as $customField) {
+            if ($customField->getId() === $customFieldId) {
+                return $customField;
+            }
+        }
+
+        return null;
     }
 
     /**

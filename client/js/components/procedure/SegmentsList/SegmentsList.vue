@@ -560,6 +560,7 @@ import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaToolti
 import StatusBadge from '../Shared/StatusBadge'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import { toCustomFieldFilterPath } from '@DpJs/lib/segment/customFieldFilterPath'
 import { useApiPlatformFilters } from '@DpJs/composables/useApiPlatformFilters'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
@@ -869,9 +870,12 @@ export default {
         const labelKey = Object.values(this.filterNames).find(
           (filterName) => filterName.rootPath === path,
         )?.labelTranslationKey
+        const customFieldName = this.customFieldDefinitions.find(
+          (definition) => toCustomFieldFilterPath(definition.id) === path,
+        )?.name
 
         return {
-          label: Translator.trans(labelKey ?? path),
+          label: customFieldName ?? Translator.trans(labelKey ?? path),
           // Never surface a raw UUID; show a placeholder until the label resolves
           values: values.map((id) => this.filterSummaryLabels[id] ?? LABEL_PENDING),
         }
