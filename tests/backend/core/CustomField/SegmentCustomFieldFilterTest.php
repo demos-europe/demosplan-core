@@ -40,14 +40,13 @@ class SegmentCustomFieldFilterTest extends FunctionalTestCase
         self::assertSame([], $this->sut->parseQuery([]));
     }
 
-    public function testParseQueryKeepsValidSelectionsAndDropsEmptyOptionIds(): void
+    public function testParseQueryReturnsValidSelectionsUnchanged(): void
     {
         $fieldId = Uuid::uuid4()->toString();
         $otherFieldId = Uuid::uuid4()->toString();
+        $selections = [$fieldId => ['a', 'b'], $otherFieldId => ['c']];
 
-        $result = $this->sut->parseQuery([$fieldId => ['a', '', 'b'], $otherFieldId => ['']]);
-
-        self::assertSame([$fieldId => ['a', 'b']], $result);
+        self::assertSame($selections, $this->sut->parseQuery($selections));
     }
 
     public function testParseQueryRejectsAFieldIdThatIsNoUuid(): void
@@ -55,6 +54,14 @@ class SegmentCustomFieldFilterTest extends FunctionalTestCase
         $this->expectException(BadRequestHttpException::class);
 
         $this->sut->parseQuery(['not-a-uuid' => ['a']]);
+    }
+
+    public function testParseQueryRejectsAFieldKeyThatIsNoString(): void
+    {
+        $this->expectException(BadRequestHttpException::class);
+
+        // e.g. `customField[][]=a`, PHP turns the missing key into the number 0
+        $this->sut->parseQuery([0 => ['a']]);
     }
 
     public function testFindMatchingSegmentIdsMatchesAnyOptionOfAFieldAndEveryField(): void

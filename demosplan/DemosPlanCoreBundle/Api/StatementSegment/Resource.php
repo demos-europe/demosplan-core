@@ -52,7 +52,13 @@ use Symfony\Component\Validator\Constraints as Assert;
                 // customField[<fieldId>][]=<optionId>: any selected option of a field, every selected field.
                 'customField' => new QueryParameter(
                     filter: CustomFieldFilter::class,
-                    constraints: [new Assert\Type('array')],
+                    constraints: [
+                        new Assert\Type('array'),
+                        new Assert\All([
+                            new Assert\Type('array'),
+                            new Assert\All([new Assert\Type('string'), new Assert\NotBlank()]),
+                        ]),
+                    ],
                 ),
                 // Filtering itself is done by the SearchFilter below; this only makes the value
                 // readable for CustomFieldFilter, which needs the procedure to look values up in.

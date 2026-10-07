@@ -52,8 +52,9 @@ class SegmentCustomFieldFilter
     }
 
     /**
-     * Turns the raw query parameter value into a clean map. That the value is an array at all is
-     * already checked by the `constraints` of the `customField` parameter in the resource.
+     * Checks the keys of the raw query parameter value. The rest of its shape, a list of non-empty
+     * option ids per field, is already checked by the `constraints` of the `customField` parameter
+     * in the resource, which cannot check array keys.
      *
      * @param array<mixed> $raw
      *
@@ -63,23 +64,13 @@ class SegmentCustomFieldFilter
      */
     public function parseQuery(array $raw): array
     {
-        $selections = [];
-        foreach ($raw as $fieldId => $optionIds) {
+        foreach (array_keys($raw) as $fieldId) {
             if (!is_string($fieldId) || !Uuid::isValid($fieldId)) {
                 throw new BadRequestHttpException('Invalid customField filter key.');
             }
-
-            $optionIds = array_values(array_filter(
-                (array) $optionIds,
-                static fn (mixed $optionId): bool => is_string($optionId) && '' !== $optionId
-            ));
-
-            if ([] !== $optionIds) {
-                $selections[$fieldId] = $optionIds;
-            }
         }
 
-        return $selections;
+        return $raw;
     }
 
     /**

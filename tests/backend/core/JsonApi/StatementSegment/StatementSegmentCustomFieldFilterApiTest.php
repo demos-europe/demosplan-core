@@ -136,6 +136,48 @@ class StatementSegmentCustomFieldFilterApiTest extends AbstractApiTest
         self::assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $response->getStatusCode());
     }
 
+    public function testRejectsAnOptionThatIsNoList(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $field = $this->createSegmentCustomField($procedure->_real(), 'Priority', ['High']);
+        [$high] = $this->getOptionIds($field);
+
+        $response = $this->sendSegmentRequest(
+            self::SEGMENT_COLLECTION_ROUTE.'?parentStatementOfSegment.procedure.id='.$procedure->getId()."&customField[{$field->getId()}]=$high",
+            $procedure,
+            self::PERMISSIONS
+        );
+
+        self::assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $response->getStatusCode());
+    }
+
+    public function testRejectsAnEmptyOptionId(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $field = $this->createSegmentCustomField($procedure->_real(), 'Priority', ['High']);
+
+        $response = $this->sendSegmentRequest(
+            self::SEGMENT_COLLECTION_ROUTE.'?parentStatementOfSegment.procedure.id='.$procedure->getId()."&customField[{$field->getId()}][]=",
+            $procedure,
+            self::PERMISSIONS
+        );
+
+        self::assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $response->getStatusCode());
+    }
+
+    public function testRejectsAFieldKeyThatIsNoId(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+
+        $response = $this->sendSegmentRequest(
+            self::SEGMENT_COLLECTION_ROUTE.'?parentStatementOfSegment.procedure.id='.$procedure->getId().'&customField[][]=x',
+            $procedure,
+            self::PERMISSIONS
+        );
+
+        self::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+    }
+
     public function testRequiresTheProcedureId(): void
     {
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
