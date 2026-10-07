@@ -1053,18 +1053,26 @@ export default {
     },
 
     sortOptions () {
-      const allSortOptions = [
-        { value: 'deadline-desc', label: Translator.trans('sort.deadline.descending') },
-        { value: 'deadline-asc', label: Translator.trans('sort.deadline.ascending') },
+      const sortOptions = [
+        { value: 'externId-desc', label: Translator.trans('sort.externId.descending') },
+        { value: 'externId-asc', label: Translator.trans('sort.externId.ascending') },
         { value: 'internId-desc', label: Translator.trans('sort.internId.descending') },
         { value: 'internId-asc', label: Translator.trans('sort.internId.ascending') },
+        { value: 'submitName-desc', label: Translator.trans('sort.submitName.descending') },
+        { value: 'submitName-asc', label: Translator.trans('sort.submitName.ascending') },
+        { value: 'place-desc', label: Translator.trans('sort.place.descending') },
+        { value: 'place-asc', label: Translator.trans('sort.place.ascending') },
+
       ]
 
-      if (!this.hasDeadlineColumn) {
-        return allSortOptions.filter(option => !option.value.startsWith('deadline'))
+      if (this.hasDeadlineColumn) {
+        sortOptions.push(
+          { value: 'deadline-desc', label: Translator.trans('sort.deadline.descending') },
+          { value: 'deadline-asc', label: Translator.trans('sort.deadline.ascending') },
+        )
       }
 
-      return allSortOptions
+      return sortOptions
     },
 
     storageKeyPagination () {
@@ -1529,8 +1537,11 @@ export default {
 
     getSelectedSortParams () {
       const sortPaths = {
-        internId: 'parentStatementOfSegment.original.internId',
         deadline: 'deadline',
+        externId: 'externId',
+        internId: 'parentStatementOfSegment.original.internId',
+        place: 'place.sortIndex',
+        submitName: 'parentStatementOfSegment.meta.submitName',
       }
 
       const [sortBy, direction] = this.selectedSort?.split('-') ?? []
