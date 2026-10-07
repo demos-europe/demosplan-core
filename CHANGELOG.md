@@ -475,12 +475,12 @@
 ### Added
 - Enable GetFeatureInfo requests for visible WMS layers in the map
 - Add `FileService::saveBinaryFileContent()` method to save binary file content directly without manual temporary file handling
-  - Accepts filename, binary content, and optional filename prefix
-  - Automatically handles temporary file creation and cleanup using Symfony Filesystem (`dumpFile()` and `deleteLocalFile()`)
-  - Supports virus checking and procedure/user association
-  - Useful for saving already-decoded base64 content from external sources
-  - Validates filename is not empty
-  - Sanitizes filename using existing `sanitizeFileName()` method
+    - Accepts filename, binary content, and optional filename prefix
+    - Automatically handles temporary file creation and cleanup using Symfony Filesystem (`dumpFile()` and `deleteLocalFile()`)
+    - Supports virus checking and procedure/user association
+    - Useful for saving already-decoded base64 content from external sources
+    - Validates filename is not empty
+    - Sanitizes filename using existing `sanitizeFileName()` method
 - Add `FileWriteException` for dedicated file write error handling
 
 ### Changed
@@ -518,6 +518,8 @@
 - Fix missing form fields in procedure basic settings
 - Add anonymous voters column to statement XLSX export
 
+## v4.26.1 (2026-04-30)
+## v4.26.0 (2025-11-07)
 ## v4.25.0 (2025-11-06)
 
 ## v4.24.1 (2025-12-24)
@@ -535,9 +537,14 @@
 ## v4.24.0 (2025-11-06)
 - Detect Company Department from OzgKeycloak token and assign it to user
 
-## v4.23.0 (2025-10-22)
-## v4.21.0 (2025-10-22)
+## v4.22.1 (2025-10-30)
+- Fix Textbaustein checkbox disappearing bug by removing cascade delete from BoilerplateCategory relations
+- Detect Company Department from OzgKeycloak token and assign it to user
 
+## v4.23.0 (2025-10-22)
+## v4.22.0 (2025-10-22)
+## v4.21.0 (2025-10-22)
+## v4.20.0 (2025-10-09)
 ## v4.18.1 (2025-10-16)
 ## v4.18.0 (2025-10-13)
 
@@ -674,6 +681,7 @@
 - Update Elasticsearch to version 8
 - Export Original Statements as csv in the Statement List
 
+## v4.2.0 (2025-05-22)
 ## v4.1.0 (2025-05-21)
 ## v4.0.0 (2025-05-21)
 - Update to symfony 6.4
