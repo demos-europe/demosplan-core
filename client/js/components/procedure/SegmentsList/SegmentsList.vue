@@ -120,7 +120,7 @@
       </dp-bulk-edit-header>
       <div
         v-show="!isLoading"
-        class="flex items-center gap-2 my-3"
+        class="flex items-end xl:items-center gap-2 my-3"
       >
         <dp-pager
           v-if="items.length && pagination.currentPage"
@@ -133,7 +133,7 @@
           @page-change="applyQuery"
           @size-change="handleSizeChange"
         />
-        <div class="ml-auto flex gap-4">
+        <div class="ml-auto flex flex-col xl:flex-row gap-2 items-end xl:items-center">
           <div class="flex items-center space-inline-xs">
             <dp-label
               class="mb-0"
@@ -302,20 +302,6 @@
                     statementsObject[
                       rowData.relationships.parentStatement.data.id
                     ].attributes.submitName
-                  }}
-                </li>
-                <li
-                  v-if="
-                    statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationName !== ''
-                  "
-                  class="o-list__item o-hellip--nowrap"
-                >
-                  {{
-                    statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationName
                   }}
                 </li>
               </ul>
