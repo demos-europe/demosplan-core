@@ -25,6 +25,7 @@ use ApiPlatform\Serializer\Filter\PropertyFilter;
 use demosplan\DemosPlanCoreBundle\Api\AssignableUser\AssignableUserResource;
 use demosplan\DemosPlanCoreBundle\Api\Place\PlaceResource;
 use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\AssigneeOrUnassignedFilter;
+use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\CustomFieldFilter;
 use demosplan\DemosPlanCoreBundle\Api\Tag\Resource as TagResource;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementResource;
@@ -47,6 +48,11 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag as TagEntity;
                     filter: AssigneeOrUnassignedFilter::class,
                     castToArray: true,
                 ),
+                // customField[<fieldId>][]=<optionId>: any selected option of a field, every selected field.
+                'customField' => new QueryParameter(filter: CustomFieldFilter::class),
+                // Filtering itself is done by the SearchFilter below; this only makes the value
+                // readable for CustomFieldFilter, which needs the procedure to look values up in.
+                'parentStatementOfSegment.procedure.id' => new QueryParameter(),
             ],
         ),
         new Get(uriTemplate: '/StatementSegment/{id}'),
