@@ -38,25 +38,27 @@ final class CustomFieldFilter implements FilterInterface
 
     public function apply(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, ?Operation $operation = null, array $context = []): void
     {
-        $value = $context['parameter']?->getValue();
+        if (!$this->customFieldFilter->isFilteringAllowed()) {
+            return;
+        }
+
+        $selectedCustomFields = $context['parameter']?->getValue();
 
         // The parameter may not be present, so there is nothing to filter by.
-        if (null === $value || $value instanceof ParameterNotFound) {
+        if ([] === $selectedCustomFields
+            || null === $selectedCustomFields
+            || $selectedCustomFields instanceof ParameterNotFound) {
             return;
         }
 
-        $selections = $this->customFieldFilter->parseQuery($value);
-
-        if ([] === $selections || !$this->customFieldFilter->isFilteringAllowed()) {
-            return;
-        }
+        $this->customFieldFilter->assertValidSelections($selectedCustomFields);
 
         $procedureId = $operation?->getParameters()?->get(self::PROCEDURE_PARAMETER)?->getValue();
         if (!is_string($procedureId) || '' === $procedureId) {
             throw new BadRequestHttpException(sprintf('The customField filter requires "%s".', self::PROCEDURE_PARAMETER));
         }
 
-        $segmentIds = $this->customFieldFilter->findMatchingSegmentIds($procedureId, $selections);
+        $segmentIds = $this->customFieldFilter->findMatchingSegmentIds($procedureId, $selectedCustomFields);
         if ([] === $segmentIds) {
             $queryBuilder->andWhere('1 = 0');
 

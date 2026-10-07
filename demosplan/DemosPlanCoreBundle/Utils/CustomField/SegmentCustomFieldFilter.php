@@ -52,29 +52,26 @@ class SegmentCustomFieldFilter
     }
 
     /**
-     * Checks the keys of the raw query parameter value. The rest of its shape, a list of non-empty
-     * option ids per field, is already checked by the `constraints` of the `customField` parameter
-     * in the resource, which cannot check array keys.
+     * Checks that every key is a field id (a UUID). The rest of the shape is checked by the
+     * `constraints` of the `customField` parameter in the resource, which cannot check array keys.
      *
-     * @param array<mixed> $raw
+     * @param array<mixed> $selections
      *
-     * @return array<string, list<string>> fieldId => selected option ids; empty when nothing is selected
+     * @phpstan-assert array<string, list<string>> $selections
      *
      * @throws BadRequestHttpException if a key is not a UUID
      */
-    public function parseQuery(array $raw): array
+    public function assertValidSelections(array $selections): void
     {
-        foreach (array_keys($raw) as $fieldId) {
+        foreach (array_keys($selections) as $fieldId) {
             if (!is_string($fieldId) || !Uuid::isValid($fieldId)) {
                 throw new BadRequestHttpException('Invalid customField filter key.');
             }
         }
-
-        return $raw;
     }
 
     /**
-     * @param array<string, list<string>> $selections {@see self::parseQuery()}
+     * @param array<string, list<string>> $selections {@see self::assertValidSelections()}
      *
      * @return list<string> ids of the segments of the procedure that match the selections
      */

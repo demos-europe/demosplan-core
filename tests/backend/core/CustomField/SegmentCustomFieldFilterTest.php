@@ -35,33 +35,36 @@ class SegmentCustomFieldFilterTest extends FunctionalTestCase
         $this->sut = $this->getContainer()->get(SegmentCustomFieldFilter::class);
     }
 
-    public function testParseQueryReturnsNothingForEmptyInput(): void
+    public function testAssertValidSelectionsAcceptsAnEmptyList(): void
     {
-        self::assertSame([], $this->sut->parseQuery([]));
+        $this->sut->assertValidSelections([]);
+
+        $this->addToAssertionCount(1);
     }
 
-    public function testParseQueryReturnsValidSelectionsUnchanged(): void
+    public function testAssertValidSelectionsAcceptsFieldIdsAsKeys(): void
     {
-        $fieldId = Uuid::uuid4()->toString();
-        $otherFieldId = Uuid::uuid4()->toString();
-        $selections = [$fieldId => ['a', 'b'], $otherFieldId => ['c']];
+        $this->sut->assertValidSelections([
+            Uuid::uuid4()->toString() => ['a', 'b'],
+            Uuid::uuid4()->toString() => ['c'],
+        ]);
 
-        self::assertSame($selections, $this->sut->parseQuery($selections));
+        $this->addToAssertionCount(1);
     }
 
-    public function testParseQueryRejectsAFieldIdThatIsNoUuid(): void
+    public function testAssertValidSelectionsRejectsAFieldIdThatIsNoUuid(): void
     {
         $this->expectException(BadRequestHttpException::class);
 
-        $this->sut->parseQuery(['not-a-uuid' => ['a']]);
+        $this->sut->assertValidSelections(['not-a-uuid' => ['a']]);
     }
 
-    public function testParseQueryRejectsAFieldKeyThatIsNoString(): void
+    public function testAssertValidSelectionsRejectsAFieldKeyThatIsNoString(): void
     {
         $this->expectException(BadRequestHttpException::class);
 
         // e.g. `customField[][]=a`, PHP turns the missing key into the number 0
-        $this->sut->parseQuery([0 => ['a']]);
+        $this->sut->assertValidSelections([0 => ['a']]);
     }
 
     public function testFindMatchingSegmentIdsMatchesAnyOptionOfAFieldAndEveryField(): void
