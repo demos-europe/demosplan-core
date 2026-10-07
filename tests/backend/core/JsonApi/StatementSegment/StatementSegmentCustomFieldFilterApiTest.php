@@ -123,6 +123,19 @@ class StatementSegmentCustomFieldFilterApiTest extends AbstractApiTest
         self::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
     }
 
+    public function testRejectsAValueThatIsNoList(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+
+        $response = $this->sendSegmentRequest(
+            self::SEGMENT_COLLECTION_ROUTE.'?parentStatementOfSegment.procedure.id='.$procedure->getId().'&customField=not-a-list',
+            $procedure,
+            self::PERMISSIONS
+        );
+
+        self::assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $response->getStatusCode());
+    }
+
     public function testRequiresTheProcedureId(): void
     {
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();

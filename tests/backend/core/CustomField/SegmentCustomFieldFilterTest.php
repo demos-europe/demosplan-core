@@ -37,7 +37,6 @@ class SegmentCustomFieldFilterTest extends FunctionalTestCase
 
     public function testParseQueryReturnsNothingForEmptyInput(): void
     {
-        self::assertSame([], $this->sut->parseQuery(null));
         self::assertSame([], $this->sut->parseQuery([]));
     }
 
@@ -49,13 +48,6 @@ class SegmentCustomFieldFilterTest extends FunctionalTestCase
         $result = $this->sut->parseQuery([$fieldId => ['a', '', 'b'], $otherFieldId => ['']]);
 
         self::assertSame([$fieldId => ['a', 'b']], $result);
-    }
-
-    public function testParseQueryRejectsNonArrayInput(): void
-    {
-        $this->expectException(BadRequestHttpException::class);
-
-        $this->sut->parseQuery('not-an-array');
     }
 
     public function testParseQueryRejectsAFieldIdThatIsNoUuid(): void

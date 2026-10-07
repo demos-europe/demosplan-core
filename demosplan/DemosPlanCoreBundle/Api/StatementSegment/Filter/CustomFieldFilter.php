@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter;
 use ApiPlatform\Doctrine\Orm\Filter\FilterInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\ParameterNotFound;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\SegmentCustomFieldFilter;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -37,7 +38,14 @@ final class CustomFieldFilter implements FilterInterface
 
     public function apply(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, ?Operation $operation = null, array $context = []): void
     {
-        $selections = $this->customFieldFilter->parseQuery($context['parameter']?->getValue());
+        $value = $context['parameter']?->getValue();
+
+        // The parameter may not be present, so there is nothing to filter by.
+        if (null === $value || $value instanceof ParameterNotFound) {
+            return;
+        }
+
+        $selections = $this->customFieldFilter->parseQuery($value);
 
         if ([] === $selections || !$this->customFieldFilter->isFilteringAllowed()) {
             return;

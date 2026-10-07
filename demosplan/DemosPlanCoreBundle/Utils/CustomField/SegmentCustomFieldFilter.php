@@ -52,22 +52,17 @@ class SegmentCustomFieldFilter
     }
 
     /**
-     * Validates the raw query parameter value.
+     * Turns the raw query parameter value into a clean map. That the value is an array at all is
+     * already checked by the `constraints` of the `customField` parameter in the resource.
+     *
+     * @param array<mixed> $raw
      *
      * @return array<string, list<string>> fieldId => selected option ids; empty when nothing is selected
      *
-     * @throws BadRequestHttpException if the value does not have the shape `[<fieldId> => [<optionId>, ...]]`
+     * @throws BadRequestHttpException if a key is not a UUID
      */
-    public function parseQuery(mixed $raw): array
+    public function parseQuery(array $raw): array
     {
-        if (null === $raw || [] === $raw) {
-            return [];
-        }
-
-        if (!is_array($raw)) {
-            throw new BadRequestHttpException('Invalid customField filter.');
-        }
-
         $selections = [];
         foreach ($raw as $fieldId => $optionIds) {
             if (!is_string($fieldId) || !Uuid::isValid($fieldId)) {
