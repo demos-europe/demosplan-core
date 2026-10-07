@@ -174,9 +174,6 @@ class FrontendAssetProviderTest extends TestCase
         $this->sut = new FrontendAssetProvider($this->permissionEvaluator, $registry);
     }
 
-    /**
-     * @param array<string, mixed> $hookOptions
-     */
     public function testHookIsAvailableWithoutPermissionsWithoutReadingAnyAsset(): void
     {
         // The install path does not exist, so no asset could be read
