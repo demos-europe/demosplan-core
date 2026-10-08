@@ -32,7 +32,9 @@ class CustomFieldOptionSelectionValidator
      */
     public function validate(array $selectedOptionIdsByFieldId): void
     {
-        $customFields = $this->customFieldProvider->getCustomFieldsByIds(array_map('strval', array_keys($selectedOptionIdsByFieldId)));
+        // PHP turns numeric array keys into integers, but the lookup expects string ids.
+        $fieldIds = array_map('strval', array_keys($selectedOptionIdsByFieldId));
+        $customFields = $this->customFieldProvider->getCustomFieldsByIds($fieldIds);
 
         foreach ($selectedOptionIdsByFieldId as $fieldId => $optionIds) {
             $customField = $customFields[$fieldId]
