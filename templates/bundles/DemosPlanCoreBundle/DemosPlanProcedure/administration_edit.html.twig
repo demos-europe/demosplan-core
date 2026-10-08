@@ -441,6 +441,7 @@
                                                 id="counter_oeb_desc_input"
                                                 hidden-input="r_externalDesc"
                                                 data-cy="procedureInfo:procedureDescriptionPublic"
+                                                data-dp-validate-error-fieldname="{{ 'procedure.description.public'|trans }}"
                                                 :toolbar-items="{ linkButton: true, listButtons: false }"
                                                 :maxlength="interfaceCharLimits.externalDesc"
                                                 value="{{ proceduresettings.externalDesc|default( "notspecified"|trans ) }}">
