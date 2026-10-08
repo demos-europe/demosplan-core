@@ -2587,7 +2587,7 @@ class DemosPlanProcedureController extends BaseController
                 'form'                         => $form,
                 'boilerplateCategories'        => $boilerplateCategories,
                 'boilerplateGroupsOfProcedure' => $boilerplateGroups,
-                'boilerplateUsages'            => $this->procedureService->getBoilerplateUsagesForDisplay($boilerplateId),
+                'boilerplateUsages'            => $this->procedureService->getBoilerplateUsagesForDisplay($boilerplateId, $procedure),
                 'selectedGroup'                => '',
                 'title'                        => 'procedure.boilerplate.edit',
                 'procedure'                    => $procedure,

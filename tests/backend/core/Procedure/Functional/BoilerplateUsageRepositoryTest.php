@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Tests\Core\Procedure\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateUsage;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
@@ -154,6 +155,39 @@ class BoilerplateUsageRepositoryTest extends FunctionalTestCase
         // assert
         static::assertCount(1, $usages);
         static::assertSame($segment->getId(), $usages[0]->getStatementOrSegment()->getId());
+    }
+
+    public function testGetUsagesForBoilerplateInitializesPlaces(): void
+    {
+        // arrange
+        $firstSegment = SegmentFactory::createOne()->_real();
+        $procedure = $firstSegment->getProcedure();
+        $segments = [$firstSegment];
+        foreach (['Prüfung', 'Abgeschlossen'] as $placeName) {
+            $segments[] = SegmentFactory::createOne([
+                'parentStatementOfSegment' => $firstSegment->getParentStatementOfSegment(),
+                'procedure'                => $procedure,
+                'place'                    => PlaceFactory::createOne(['name' => $placeName, 'procedure' => $procedure])->_real(),
+            ])->_real();
+        }
+        $boilerplate = $this->createBoilerplate($firstSegment);
+        foreach ($segments as $segment) {
+            $this->sut->addUsage($boilerplate, $segment);
+        }
+        $this->getEntityManager()->flush();
+        // Drop the identity map so the places have to be loaded again
+        $this->getEntityManager()->clear();
+
+        // act
+        $usages = $this->sut->getUsagesForBoilerplate($boilerplate->getId());
+
+        // assert
+        static::assertCount(3, $usages);
+        foreach ($usages as $usage) {
+            $segment = $usage->getStatementOrSegment();
+            static::assertInstanceOf(Segment::class, $segment);
+            static::assertFalse($this->getEntityManager()->isUninitializedObject($segment->getPlace()));
+        }
     }
 
     public function testGetUsagesForBoilerplateReturnsEmptyArrayWithoutUsages(): void
