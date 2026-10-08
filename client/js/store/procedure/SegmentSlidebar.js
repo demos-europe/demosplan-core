@@ -12,6 +12,7 @@ const SegmentSlidebarStore = {
   name: 'SegmentSlidebar',
 
   state: {
+    currentQueryHash: '',
     slidebar: {
       externId: '',
       isOpen: false,
@@ -35,6 +36,10 @@ const SegmentSlidebarStore = {
       state[data.prop] = data.val
     },
 
+    setCurrentQueryHash (state, hash) {
+      state.currentQueryHash = hash
+    },
+
     setProperty (state, data) {
       state[data.prop] = data.val
     },
@@ -50,6 +55,8 @@ const SegmentSlidebarStore = {
     commentsList: (state) => state.commentsList,
 
     currentCommentText: (state) => state.commentsList.currentCommentText,
+
+    currentQueryHash: (state) => state.currentQueryHash,
 
     procedureId: (state) => state.commentsList.procedureId,
 

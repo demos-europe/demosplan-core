@@ -17,15 +17,15 @@ import FilterFlyoutStore from '@DpJs/store/procedure/FilterFlyout'
 import { initialize } from '@DpJs/InitVue'
 import SegmentSlidebar from '@DpJs/components/procedure/SegmentsList/SegmentSlidebar'
 import SegmentSlidebarStore from '@DpJs/store/procedure/SegmentSlidebar'
+import SegmentsBookmarks from '@DpJs/components/procedure/SegmentsList/SegmentsBookmarks'
 import SegmentsList from '@DpJs/components/procedure/SegmentsList/SegmentsList'
 import SegmentsListFilter from '@DpJs/components/procedure/SegmentsList/SegmentsListFilter'
-import SegmentsFavoriteView from '@DpJs/components/procedure/SegmentsList/SegmentsFavoriteView'
 
 const components = {
   DpButton,
   DpSegmentRecommendationEmail,
   DpVersionHistory,
-  SegmentsFavoriteView,
+  SegmentsBookmarks,
   SegmentsList,
   SegmentsListFilter,
   SegmentSlidebar,
@@ -36,6 +36,7 @@ const stores = {
 }
 const apiStores = [
   'AssignableUser',
+  'Bookmark',
   'Place',
   'Statement',
   'StatementSegment',

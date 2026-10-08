@@ -1093,11 +1093,13 @@ export default {
 
     ...mapMutations('SegmentSlidebar', {
       setSlidebarState: 'setContent',
+      setCurrentQueryHash: 'setCurrentQueryHash',
     }),
 
     applySort (sortValue) {
       this.selectedSort = sortValue
       lscache.set(this.lsKey.selectedSort, sortValue)
+      this.updateQueryHash()
       this.applyQuery(1)
     },
 
@@ -1961,6 +1963,7 @@ export default {
 
     setCurrentSelection (selection) {
       this.currentSelection = selection
+      this.updateQueryHash()
     },
 
     // Saves the Ids of all segments represented by the current filterQuery for later use in bulk edit view.
@@ -2031,10 +2034,10 @@ export default {
       this.setSlidebarContent({ externId: '', isOpen: !closing, segmentId: '', showTab: 'filter' })
     },
 
-    openFavoriteView () {
-      const closing = this.slidebar.isOpen && this.slidebar.showTab === 'favoriteView'
+    openBookmarks () {
+      const closing = this.slidebar.isOpen && this.slidebar.showTab === 'bookmarks'
 
-      this.setSlidebarContent({ externId: '', isOpen: !closing, segmentId: '', showTab: 'favoriteView' })
+      this.setSlidebarContent({ externId: '', isOpen: !closing, segmentId: '', showTab: 'bookmarks' })
     },
 
     updateQueryHash () {
@@ -2044,7 +2047,17 @@ export default {
         queryHash: oldQueryHash,
       })
 
-      const data = { filter: this.getFilterQuery }
+      const orderedFields = this.$refs.dataTable?.orderedHeaderFields || this.availableHeaderFields
+      const columns = orderedFields.map(headerField => headerField.field)
+
+      const data = {
+        filter: this.getFilterQuery,
+        viewSettings: {
+          selectedColumns: this.currentSelection,
+          columnOrder: columns.join(','),
+          sorting: this.selectedSort,
+        }
+      }
 
       if (this.searchTerm !== '') {
         data.searchPhrase = this.searchTerm
@@ -2056,6 +2069,7 @@ export default {
           if (data) {
             this.updateQueryHashInURL(oldQueryHash, data)
             this.currentQueryHash = data
+            this.setCurrentQueryHash(data)
           }
         })
         .catch((err) => console.log(err))
@@ -2081,6 +2095,7 @@ export default {
     updateSearchQuery (term) {
       this.searchTerm = term
       this.resetSelection()
+      this.updateQueryHash()
       this.applyQuery(1)
     },
   },
@@ -2094,6 +2109,7 @@ export default {
     const hrefParts = globalThis.location.href.split('/')
 
     this.currentQueryHash = hrefParts[hrefParts.length - 1]
+    this.setCurrentQueryHash(this.currentQueryHash)
 
     // When returning from bulk edit flow, the currentQueryHash which was used there to build a return link must be deleted.
     lscache.remove(this.lsKey.currentQueryHash)

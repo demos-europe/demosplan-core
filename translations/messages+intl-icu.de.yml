@@ -3513,6 +3513,14 @@ segments.recommendations.oracle: "Vorschläge zu inhaltlicher Ähnlichkeit"
 segments.recommendations.oracle.none: "Zu diesem Abschnitt konnten keine ähnlichen Abschnitte mit Erwiderung gefunden werden."
 segments.recommendations.tags: "Vorschläge zu Schlagworten"
 segments.recommendations.tags.none: "Da für diesen Abschnitt keine Schlagworte hinterlegt sind, können keine Erwiderungs-Vorschläge angezeigt werden."
+segments.view.bookmark.info: "Ansichtsinformationen"
+segments.view.default: "Standardansicht"
+segments.view.default.description: "Spalten: ID, Text, Bearbeitungsfrist, Schritt · ohne Filter"
+segments.view.name: "Name der Ansicht"
+segments.view.name.tooltip: "In der Ansicht gespeichert werden: Spaltenauswahl, Spaltenreihenfolge und angewendete Filter"
+segments.view.new.save: "Neue Ansicht speichern"
+segments.view.none.saved: "Bisher noch keine eigene Ansicht gespeichert. Passen Sie Filter oder Spalten an, um Ihre Konfiguration als neue Ansicht zu speichern."
+segments.view.saved: "Gespeicherte Ansichten"
 items.selected.multi.page: |
     {count, plural,
         =1 { Ein Element ausgewählt (u.U. nicht auf Seite 1). }

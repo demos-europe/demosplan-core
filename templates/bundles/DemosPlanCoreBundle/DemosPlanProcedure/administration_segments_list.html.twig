@@ -13,8 +13,8 @@
                 variant="outline"
                 icon="bookmark"
                 text="{{ 'views'|trans }}"
-                data-cy="segmentsList:openFavoriteView"
-                @click="$refs.segmentsList.openFavoriteView()">
+                data-cy="segmentsList:openBookmarks"
+                @click="$refs.segmentsList.openBookmarks()">
             </dp-button>
         {% endblock %}
     {% endembed %}
@@ -34,7 +34,7 @@
             @filter-options:request="$refs.segmentsList.sendFilterOptionsRequest($event)"
         ></segments-list-filter>
         {# Custom side panel content #}
-        <segments-favorite-view></segments-favorite-view>
+        <segments-bookmarks></segments-bookmarks>
     </segment-slidebar>
 
     <segments-list
