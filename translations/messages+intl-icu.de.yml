@@ -624,6 +624,7 @@ confirm.single.statement.copied: "Die Stellungnahme wurde kopiert. Sie befinden 
 confirm.sort.saved: "Die manuelle Reihenfolge wurde gespeichert."
 confirm.statement.anonymized: "Ihre personenbezogenen Daten wurden von der Stellungnahme {externId} entfernt."
 confirm.statement.assignment.assigned: "Die Stellungnahme wurde Ihnen erfolgreich zugewiesen."
+confirm.statement.assignment.assigned.to: "Die Stellungnahme wurde {name} zugewiesen."
 confirm.statement.assignment.changed: "Die Zuweisung der Stellungnahme wurde erfolgreich geändert."
 confirm.statements.assignment.changed: "Die Zuweisung der Stellungnahmen wurde erfolgreich geändert."
 confirm.statement.assignment.unassigned: "Die Stellungnahme wurde erfolgreich freigegeben."
