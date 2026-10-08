@@ -124,6 +124,37 @@ class StatementSegmentCustomFieldFilterApiTest extends AbstractApiTest
         self::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
     }
 
+    public function testRejectsAnOptionOfAnotherField(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $priority = $this->createSegmentCustomField($procedure->_real(), 'Priority', ['High']);
+        $topic = $this->createSegmentCustomField($procedure->_real(), 'Topic', ['Noise']);
+        [$high] = $this->getOptionIds($priority);
+        [$noise] = $this->getOptionIds($topic);
+        $this->createSegmentInProcedure($procedure, ['customFields' => $this->buildCustomFieldValues([$priority->getId() => $high, $topic->getId() => $noise])]);
+
+        $response = $this->sendSegmentRequest(
+            self::SEGMENT_COLLECTION_ROUTE.'?parentStatementOfSegment.procedure.id='.$procedure->getId()."&customField[{$priority->getId()}][]=$noise",
+            $procedure,
+            self::PERMISSIONS
+        );
+
+        self::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+    }
+
+    public function testRejectsAnUnknownField(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+
+        $response = $this->sendSegmentRequest(
+            self::SEGMENT_COLLECTION_ROUTE.'?parentStatementOfSegment.procedure.id='.$procedure->getId().'&customField['.Uuid::uuid4()->toString().'][]='.Uuid::uuid4()->toString(),
+            $procedure,
+            self::PERMISSIONS
+        );
+
+        self::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+    }
+
     public function testRejectsAValueThatIsNoList(): void
     {
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();

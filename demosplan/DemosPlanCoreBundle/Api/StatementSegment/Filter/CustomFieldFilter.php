@@ -47,6 +47,7 @@ final class CustomFieldFilter implements FilterInterface
         $this->customFieldFilter->assertValidSelections($selectedCustomFields);
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
+        // Add one condition to the query per custom field, which matches if the segment has any of its selected options.
         foreach ($selectedCustomFields as $optionIds) {
             $anyOption = $queryBuilder->expr()->orX();
             foreach ($optionIds as $optionId) {

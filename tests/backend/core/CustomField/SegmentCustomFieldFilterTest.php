@@ -12,13 +12,17 @@ declare(strict_types=1);
 
 namespace Tests\Core\CustomField;
 
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\SegmentCustomFieldFilter;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Tests\Base\FunctionalTestCase;
+use Tests\Core\JsonApi\StatementSegment\SegmentCustomFieldTestTrait;
 
 class SegmentCustomFieldFilterTest extends FunctionalTestCase
 {
+    use SegmentCustomFieldTestTrait;
+
     private ?SegmentCustomFieldFilter $sut = null;
 
     protected function setUp(): void
@@ -35,21 +39,36 @@ class SegmentCustomFieldFilterTest extends FunctionalTestCase
         $this->addToAssertionCount(1);
     }
 
-    public function testAssertValidSelectionsAcceptsFieldIdsAsKeys(): void
+    public function testAssertValidSelectionsAcceptsOptionsOfTheirOwnField(): void
     {
-        $this->sut->assertValidSelections([
-            Uuid::uuid4()->toString() => ['a', 'b'],
-            Uuid::uuid4()->toString() => ['c'],
-        ]);
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create()->_real();
+        $priority = $this->createSegmentCustomField($procedure, 'Priority', ['High', 'Low']);
+        $topics = $this->createSegmentCustomField($procedure, 'Topics', ['Noise', 'Traffic'], multiSelect: true);
+        [$high, $low] = $this->getOptionIds($priority);
+        [$noise] = $this->getOptionIds($topics);
+
+        $this->sut->assertValidSelections([$priority->getId() => [$high, $low], $topics->getId() => [$noise]]);
 
         $this->addToAssertionCount(1);
     }
 
-    public function testAssertValidSelectionsRejectsAFieldIdThatIsNoUuid(): void
+    public function testAssertValidSelectionsRejectsAnOptionOfAnotherField(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create()->_real();
+        $priority = $this->createSegmentCustomField($procedure, 'Priority', ['High']);
+        $topics = $this->createSegmentCustomField($procedure, 'Topics', ['Noise']);
+        [$noise] = $this->getOptionIds($topics);
+
+        $this->expectException(BadRequestHttpException::class);
+
+        $this->sut->assertValidSelections([$priority->getId() => [$noise]]);
+    }
+
+    public function testAssertValidSelectionsRejectsAnUnknownField(): void
     {
         $this->expectException(BadRequestHttpException::class);
 
-        $this->sut->assertValidSelections(['not-a-uuid' => ['a']]);
+        $this->sut->assertValidSelections([Uuid::uuid4()->toString() => [Uuid::uuid4()->toString()]]);
     }
 
     public function testAssertValidSelectionsRejectsAFieldKeyThatIsNoString(): void

@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -50,6 +51,21 @@ class CustomFieldProvider
         }
 
         return $labels;
+    }
+
+    /**
+     * @param list<string> $customFieldIds
+     *
+     * @return array<string, CustomFieldInterface> Existing custom fields keyed by custom field id
+     */
+    public function getCustomFieldsByIds(array $customFieldIds): array
+    {
+        $customFields = [];
+        foreach ($this->getCustomFieldConfigurationsByIds($customFieldIds) as $customFieldConfiguration) {
+            $customFields[$customFieldConfiguration->getId()] = $customFieldConfiguration->getConfiguration();
+        }
+
+        return $customFields;
     }
 
     /**
