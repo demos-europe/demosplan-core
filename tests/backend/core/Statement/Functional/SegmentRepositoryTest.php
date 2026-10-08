@@ -21,9 +21,12 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use Tests\Base\FunctionalTestCase;
+use Tests\Core\JsonApi\StatementSegment\SegmentCustomFieldTestTrait;
 
 class SegmentRepositoryTest extends FunctionalTestCase
 {
+    use SegmentCustomFieldTestTrait;
+
     protected ?SegmentRepository $sut = null;
 
     protected function setUp(): void
@@ -31,6 +34,64 @@ class SegmentRepositoryTest extends FunctionalTestCase
         parent::setUp();
 
         $this->sut = self::getContainer()->get(SegmentRepository::class);
+    }
+
+    public function testFindSegmentsWithCustomFieldValuesReturnsIdAndValuesOfTheProcedureOnly(): void
+    {
+        // arrange
+        $procedure = ProcedureFactory::createOne()->_real();
+        $field = $this->createSegmentCustomField($procedure, 'Priority', ['High']);
+        [$high] = $this->getOptionIds($field);
+        $values = $this->buildCustomFieldValues([$field->getId() => $high]);
+        $segmentInProcedure = SegmentFactory::createOne(['procedure' => $procedure, 'customFields' => $values])->_real();
+        SegmentFactory::createOne(['customFields' => $values]); // another procedure
+        SegmentFactory::createOne(['procedure' => $procedure]); // no custom field values at all
+
+        // act
+        $rows = iterator_to_array($this->sut->findSegmentsWithCustomFieldValues($procedure->getId(), [$field->getId()]), false);
+
+        // assert
+        static::assertCount(1, $rows);
+        static::assertSame($segmentInProcedure->getId(), $rows[0]['id']);
+        static::assertSame([$high], $rows[0]['customFields']->getOptionIds($field->getId()));
+    }
+
+    public function testFindSegmentsWithCustomFieldValuesOnlyReturnsSegmentsThatHoldEveryRequiredField(): void
+    {
+        // arrange
+        $procedure = ProcedureFactory::createOne()->_real();
+        $priority = $this->createSegmentCustomField($procedure, 'Priority', ['High']);
+        $topics = $this->createSegmentCustomField($procedure, 'Topics', ['Noise']);
+        [$high] = $this->getOptionIds($priority);
+        [$noise] = $this->getOptionIds($topics);
+        SegmentFactory::createOne(['procedure' => $procedure, 'customFields' => $this->buildCustomFieldValues([$priority->getId() => $high])]);
+        $holdsBoth = SegmentFactory::createOne([
+            'procedure'    => $procedure,
+            'customFields' => $this->buildCustomFieldValues([$priority->getId() => $high, $topics->getId() => $noise]),
+        ])->_real();
+
+        // act
+        $rows = iterator_to_array(
+            $this->sut->findSegmentsWithCustomFieldValues($procedure->getId(), [$priority->getId(), $topics->getId()]),
+            false
+        );
+
+        // assert
+        static::assertSame([$holdsBoth->getId()], array_column($rows, 'id'));
+    }
+
+    public function testFindSegmentsWithCustomFieldValuesReturnsNothingWhenNoSegmentHoldsTheField(): void
+    {
+        // arrange
+        $procedure = ProcedureFactory::createOne()->_real();
+        $field = $this->createSegmentCustomField($procedure, 'Priority', ['High']);
+        SegmentFactory::createOne(['procedure' => $procedure]);
+
+        // act
+        $rows = iterator_to_array($this->sut->findSegmentsWithCustomFieldValues($procedure->getId(), [$field->getId()]), false);
+
+        // assert
+        static::assertSame([], $rows);
     }
 
     public function testFindByIdsForProcedureReturnsOnlySegmentsOfGivenProcedure(): void

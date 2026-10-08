@@ -14,8 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-use Doctrine\ORM\EntityManagerInterface;
+use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
@@ -37,7 +36,7 @@ class SegmentCustomFieldFilter
     private const PERMISSION = 'field_segments_custom_fields';
 
     public function __construct(
-        private readonly EntityManagerInterface $entityManager,
+        private readonly SegmentRepository $segmentRepository,
         private readonly PermissionsInterface $permissions,
     ) {
     }
@@ -77,13 +76,8 @@ class SegmentCustomFieldFilter
      */
     public function findMatchingSegmentIds(string $procedureId, array $selections): array
     {
-        $rows = $this->entityManager->createQuery(
-            'SELECT s.id AS id, s.customFields AS customFields FROM '.Segment::class.' s
-             WHERE s.procedure = :procedureId AND s.customFields IS NOT NULL'
-        )->setParameter('procedureId', $procedureId)->toIterable();
-
         $ids = [];
-        foreach ($rows as $row) {
+        foreach ($this->segmentRepository->findSegmentsWithCustomFieldValues($procedureId, array_keys($selections)) as $row) {
             if ($this->holdsAllSelections($row['customFields'], $selections)) {
                 $ids[] = $row['id'];
             }

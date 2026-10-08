@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use DateInterval;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService;
@@ -211,18 +212,50 @@ class SegmentRepository extends CoreRepository
     {
         $qb = $this->getEntityManager()->createQueryBuilder();
 
-        // Escape JSON-breaking characters to prevent injection
-        $escapedCustomFieldId = str_replace(['\\', '"'], ['\\\\', '\\"'], $customFieldId);
-        $searchPattern = '%"id":"'.$escapedCustomFieldId.'"%';
-
         return $qb
             ->select('segment')
             ->from(Segment::class, 'segment')
             ->where('segment.customFields IS NOT NULL')
             ->andWhere('segment.customFields LIKE :customFieldSearch')
-            ->setParameter('customFieldSearch', $searchPattern)
+            ->setParameter('customFieldSearch', $this->customFieldIdLikePattern($customFieldId))
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * Id and custom field values of the segments of a procedure that hold a value for every one of
+     * the given custom fields. Unlike the other find methods it does not return entities but plain
+     * rows with only these two columns, which is much cheaper for procedures with many segments.
+     * The LIKE only narrows the rows, the caller still has to check the values themselves.
+     *
+     * @param non-empty-list<string> $requiredCustomFieldIds
+     *
+     * @return iterable<array{id: string, customFields: CustomFieldValuesList}>
+     */
+    public function findSegmentsWithCustomFieldValues(string $procedureId, array $requiredCustomFieldIds): iterable
+    {
+        $qb = $this->getEntityManager()->createQueryBuilder()
+            ->select('segment.id AS id', 'segment.customFields AS customFields')
+            ->from(Segment::class, 'segment')
+            ->where('segment.procedure = :procedureId')
+            ->setParameter('procedureId', $procedureId);
+
+        foreach ($requiredCustomFieldIds as $index => $customFieldId) {
+            $qb->andWhere("segment.customFields LIKE :customFieldSearch$index")
+                ->setParameter("customFieldSearch$index", $this->customFieldIdLikePattern($customFieldId));
+        }
+
+        return $qb->getQuery()->toIterable();
+    }
+
+    /**
+     * The custom field values are stored as JSON text like `[{"id":"<fieldId>","value":...}]`,
+     * so a segment has a value for a field if its text contains `"id":"<fieldId>"`.
+     */
+    private function customFieldIdLikePattern(string $customFieldId): string
+    {
+        // Escape JSON-breaking characters to prevent injection
+        return '%"id":"'.str_replace(['\\', '"'], ['\\\\', '\\"'], $customFieldId).'"%';
     }
 
     /**
