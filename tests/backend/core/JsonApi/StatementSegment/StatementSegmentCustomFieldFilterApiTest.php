@@ -121,7 +121,7 @@ class StatementSegmentCustomFieldFilterApiTest extends AbstractApiTest
             self::PERMISSIONS
         );
 
-        self::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        self::assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $response->getStatusCode());
     }
 
     public function testRejectsAnOptionOfAnotherField(): void
@@ -139,7 +139,7 @@ class StatementSegmentCustomFieldFilterApiTest extends AbstractApiTest
             self::PERMISSIONS
         );
 
-        self::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        self::assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $response->getStatusCode());
     }
 
     public function testRejectsAnUnknownField(): void
@@ -152,7 +152,7 @@ class StatementSegmentCustomFieldFilterApiTest extends AbstractApiTest
             self::PERMISSIONS
         );
 
-        self::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        self::assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $response->getStatusCode());
     }
 
     public function testRejectsAValueThatIsNoList(): void
@@ -220,7 +220,7 @@ class StatementSegmentCustomFieldFilterApiTest extends AbstractApiTest
             self::PERMISSIONS
         );
 
-        self::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        self::assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $response->getStatusCode());
     }
 
     /**

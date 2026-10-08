@@ -17,10 +17,7 @@ use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ParameterNotFound;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\Validator\CustomFieldOptionSelectionValidator;
 use Doctrine\ORM\QueryBuilder;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Narrows segments by their custom field values: `customField[<fieldId>][]=<optionId>`.
@@ -31,10 +28,8 @@ final class CustomFieldFilter implements FilterInterface
     private const PARAMETER_NAME = 'customField';
     private const PERMISSION = 'field_segments_custom_fields';
 
-    public function __construct(
-        private readonly CustomFieldOptionSelectionValidator $optionSelectionValidator,
-        private readonly PermissionsInterface $permissions,
-    ) {
+    public function __construct(private readonly PermissionsInterface $permissions)
+    {
     }
 
     public function apply(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, ?Operation $operation = null, array $context = []): void
@@ -51,12 +46,6 @@ final class CustomFieldFilter implements FilterInterface
             || null === $selectedCustomFields
             || $selectedCustomFields instanceof ParameterNotFound) {
             return;
-        }
-
-        try {
-            $this->optionSelectionValidator->validate($selectedCustomFields);
-        } catch (InvalidArgumentException $exception) {
-            throw new BadRequestHttpException('Invalid customField filter selection.', $exception);
         }
 
         $rootAlias = $queryBuilder->getRootAliases()[0];

@@ -31,6 +31,7 @@ use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementResource;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment as SegmentEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag as TagEntity;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Constraint\CustomFieldOptionSelection;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
@@ -53,10 +54,14 @@ use Symfony\Component\Validator\Constraints as Assert;
                 'customField' => new QueryParameter(
                     filter: CustomFieldFilter::class,
                     constraints: [
-                        new Assert\Type('array'),
-                        new Assert\All([
+                        // Sequentially: the options are only looked up once the shape is known to be valid.
+                        new Assert\Sequentially([
                             new Assert\Type('array'),
-                            new Assert\All([new Assert\Type('string'), new Assert\NotBlank(), new Assert\Uuid(strict: false)]),
+                            new Assert\All([
+                                new Assert\Type('array'),
+                                new Assert\All([new Assert\Type('string'), new Assert\NotBlank(), new Assert\Uuid(strict: false)]),
+                            ]),
+                            new CustomFieldOptionSelection(),
                         ]),
                     ],
                 ),
