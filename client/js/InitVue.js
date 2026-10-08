@@ -45,13 +45,11 @@ import UnsavedChangesDialog from '@DpJs/components/shared/UnsavedChangesDialog'
  * @param {Array} apiStoreModules - API store modules
  * @param {Object} presetStoreModules - Preset store modules
  * @param {Function} modifyApp - Callback to modify the Vue app instance
- * @param {Object} pageSpecificApi3Modules - Page-specific modules to use API 3.0 instead of 2.0
- *                                         Enables gradual migration to API Platform 3.0 without
- *                                         refactoring all components at once. Different pages can
- *                                         use different API versions for the same resource types.
+ * @param {Object} pageSpecificApi3Modules - Page-specific modules to use API 3.0 instead of 2.0 (Allows gradual migration
+ * to API Platform 3.0; pages can use different API versions per resource type)
+ * @param {Array} plugins - Additional Vue plugins to install via app.use() (e.g. Pinia)
  */
-
-function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}, modifyApp = () => {}, pageSpecificApi3Modules = {}) {
+function initialize (components = {}, storeModules = {}, apiStoreModules = [], presetStoreModules = {}, modifyApp = () => {}, pageSpecificApi3Modules = {}, plugins = []) {
   bootstrap()
 
   return initStore(storeModules, apiStoreModules, presetStoreModules, pageSpecificApi3Modules).then(store => {
@@ -106,6 +104,9 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
     app.directive('tooltip', Tooltip)
 
     app.use(store)
+
+    // Apply any additional Vue plugins passed by callers
+    plugins.forEach(plugin => app.use(plugin))
 
     // Add plugins to Vue instance
     app.use(DPVueCorePlugin)
