@@ -18,6 +18,11 @@
       :procedure-id="procedureId"
     />
 
+    <!-- Version History Slidebar -->
+    <dp-slidebar v-model:open="isSlidebarOpen">
+      <dp-version-history :procedure-id="procedureId" />
+    </dp-slidebar>
+
     <slot
       :add-tag-boilerplate="addTagBoilerplate"
       :busy-copy-from-fragments="busyCopyFromFragments"
@@ -49,15 +54,20 @@
 </template>
 
 <script>
+import { dpApi, DpSlidebar } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters } from 'vuex'
-import { dpApi } from '@demos-europe/demosplan-ui'
+import { defineAsyncComponent } from 'vue'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
+
+const DpVersionHistory = defineAsyncComponent(() => import('@DpJs/components/statement/statement/DpVersionHistory'))
 
 export default {
   name: 'DpDetailView',
 
   components: {
     DpMapModal,
+    DpSlidebar,
+    DpVersionHistory,
   },
 
   props: {
@@ -127,7 +137,6 @@ export default {
   },
 
   emits: [
-    'show-slidebar',
     'version:history',
   ],
 
@@ -135,6 +144,7 @@ export default {
     return {
       busyCopyFromFragments: false,
       currentRecommendation: '',
+      isSlidebarOpen: false,
       selectedCounties: [],
       selectedMunicipalities: [],
       selectedPriorityAreas: [],
@@ -274,7 +284,7 @@ export default {
         const externalId = this.isCopy ? Translator.trans('copyof') + ' ' + this.externId : this.externId
 
         this.$root.$emit('version:history', this.statementId, 'statement', externalId)
-        this.$root.$emit('show-slidebar')
+        this.isSlidebarOpen = true
       })
     }
 
@@ -282,7 +292,7 @@ export default {
       clusterHistoryButton.addEventListener('click', (event) => {
         event.preventDefault()
         this.$root.$emit('version:history', this.statementId, 'statement', this.externId)
-        this.$root.$emit('show-slidebar')
+        this.isSlidebarOpen = true
       })
     }
 

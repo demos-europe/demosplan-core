@@ -40,6 +40,7 @@ use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToCopyFile;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
@@ -1352,10 +1353,25 @@ class FileService implements FileServiceInterface
                 sprintf('%s/%s', uniqid((string) $hash, true), $hash ?? uniqid('', true))
             );
         }
-        // Move the file to local directory from flysystem
+        // Move the file to local directory from flysystem.
+        // Use readStream + stream_copy_to_stream so multi-GB files don't blow up
+        // PHP memory (read() loads the whole blob as a string).
         $fs = new Filesystem();
         if ($this->defaultStorage->fileExists($remotePath)) {
-            $fs->dumpFile($path, $this->defaultStorage->read($remotePath));
+            $fs->mkdir(dirname($path));
+            $remoteStream = $this->defaultStorage->readStream($remotePath);
+            $localHandle = fopen($path, 'wb');
+            if (false === $localHandle) {
+                throw new RuntimeException('Failed to open local file for writing: '.$path);
+            }
+            try {
+                stream_copy_to_stream($remoteStream, $localHandle);
+            } finally {
+                fclose($localHandle);
+                if (is_resource($remoteStream)) {
+                    fclose($remoteStream);
+                }
+            }
         }
 
         if (!$fs->exists($path)) {
@@ -1363,6 +1379,22 @@ class FileService implements FileServiceInterface
         }
 
         return $path;
+    }
+
+    /**
+     * Lightweight check that the flysystem blob behind a given file hash exists.
+     * Used by the import flow to gate the user-visible Submit button on the
+     * upload pipeline (virus scan + flysystem move) being done.
+     */
+    public function isHashReady(string $hash): bool
+    {
+        try {
+            $fileInfo = $this->getFileInfo($hash);
+
+            return $this->defaultStorage->fileExists($fileInfo->getAbsolutePath());
+        } catch (Throwable) {
+            return false;
+        }
     }
 
     public function deleteLocalFile($localFilePath): void
