@@ -24,11 +24,11 @@ const statementWithoutTitle = {
 
 describe('ListStatements planning-document rendering', () => {
   it.each([
-    ['shows document + chapter', extendedStatement, 'Gesamtstellungnahme – 1.1 Kapitel Wind'],
+    ['shows element, document and chapter', extendedStatement, 'Able / Gesamtstellungnahme / 1.1 Kapitel Wind'],
     ['falls back to element title when no document', {
       attributes: { elementTitle: 'Able', paragraphTitle: '1.1 Foo' },
-    }, 'Able – 1.1 Foo'],
-    ['renders title without paragraph when no chapter', statementWithoutParagraph, 'Teilfortschreibung'],
+    }, 'Able / 1.1 Foo'],
+    ['renders element and document without chapter', statementWithoutParagraph, 'Beta / Teilfortschreibung'],
     ['renders dash when no assignment at all', statementWithoutTitle, '–'],
   ])('%s', (name, statement, expected) => {
     expect(ListStatements.methods.planningDocumentLabel(statement)).toBe(expected)
@@ -99,8 +99,8 @@ describe('ListStatements search whitelist & sortOptions permission gating', () =
   it('hides planning-document sort options when field_procedure_elements is off', () => {
     const wrapper = mountComponent(false)
     const values = wrapper.vm.sortOptions.map(option => option.value)
-    expect(values).not.toContain('elementTitle,paragraphTitle')
-    expect(values).not.toContain('-elementTitle,-paragraphTitle')
+    expect(values).not.toContain('elementTitle,documentTitle,paragraphTitle')
+    expect(values).not.toContain('-elementTitle,-documentTitle,-paragraphTitle')
     wrapper.unmount()
   })
 
@@ -109,8 +109,8 @@ describe('ListStatements search whitelist & sortOptions permission gating', () =
     const wrapper = mountComponent(true)
 
     const values = wrapper.vm.sortOptions.map(option => option.value)
-    expect(values).toContain('elementTitle,paragraphTitle')
-    expect(values).toContain('-elementTitle,-paragraphTitle')
+    expect(values).toContain('elementTitle,documentTitle,paragraphTitle')
+    expect(values).toContain('-elementTitle,-documentTitle,-paragraphTitle')
     wrapper.unmount()
   })
 

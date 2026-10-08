@@ -28,7 +28,7 @@ use Tests\Base\FunctionalTestCase;
 
 /**
  * Verifies that statements can be sorted by planning-document attributes
- * (elementTitle then paragraphTitle) via the JSON:API StatementResourceType.
+ * (elementTitle, documentTitle, then paragraphTitle) via the JSON:API StatementResourceType.
  *
  * @covers \demosplan\DemosPlanCoreBundle\ResourceTypes\StatementResourceType
  */
@@ -133,6 +133,7 @@ class StatementResourceTypePlanningDocumentSortTest extends FunctionalTestCase
 
         $sortMethods = $this->createSortMethods([
             ['elements', 'title'],
+            ['document', 'title'],
             ['paragraph', 'title'],
         ], 'asc');
 
@@ -203,6 +204,7 @@ class StatementResourceTypePlanningDocumentSortTest extends FunctionalTestCase
 
         $sortMethods = $this->createSortMethods([
             ['elements', 'title'],
+            ['document', 'title'],
             ['paragraph', 'title'],
         ], 'desc');
 

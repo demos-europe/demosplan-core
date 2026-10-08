@@ -284,7 +284,8 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->documentParentId
                 ->readable(true, static fn (Statement $statement): ?string => $statement->getDocumentParentId());
             $configBuilder->documentTitle
-                ->readable(true, static fn (Statement $statement): ?string => $statement->getDocumentTitle());
+                ->readable(true, static fn (Statement $statement): ?string => $statement->getDocumentTitle())
+                ->sortable()->aliasedPath(Paths::statement()->document->title);
             $configBuilder->elementId
                 ->readable(true)->aliasedPath(Paths::statement()->element->id);
             $configBuilder->elementTitle

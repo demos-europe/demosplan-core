@@ -530,8 +530,8 @@ export default {
         { value: '-initialOrganisationName', label: Translator.trans('sort.organisation.descending') },
         { value: 'initialOrganisationName', label: Translator.trans('sort.organisation.ascending') },
         ...(hasPermission('field_procedure_elements') ? [
-          { value: '-elementTitle,-paragraphTitle', label: Translator.trans('sort.plandocument.descending') },
-          { value: 'elementTitle,paragraphTitle', label: Translator.trans('sort.plandocument.ascending') },
+          { value: '-elementTitle,-documentTitle,-paragraphTitle', label: Translator.trans('sort.plandocument.descending') },
+          { value: 'elementTitle,documentTitle,paragraphTitle', label: Translator.trans('sort.plandocument.ascending') },
         ] : []),
       ]
     },
@@ -645,13 +645,9 @@ export default {
 
     planningDocumentLabel (statement) {
       const { documentTitle, elementTitle, paragraphTitle } = statement.attributes || {}
-      const title = documentTitle || elementTitle
+      const parts = [elementTitle, documentTitle, paragraphTitle].filter(Boolean)
 
-      if (!title) {
-        return '–'
-      }
-
-      return paragraphTitle ? `${title} – ${paragraphTitle}` : title
+      return parts.length > 0 ? parts.join(' / ') : '–'
     },
 
     getAssignee (statement) {
@@ -912,6 +908,10 @@ export default {
      * endpoint. The 2.0 statement list does not carry the count, so it is loaded per head.
      */
     fetchGroupMemberCounts () {
+      if (!hasPermission('feature_statement_cluster')) {
+        return
+      }
+
       Object.values(this.statementsObject)
         .filter(statement => statement.attributes.isCluster && this.groupMemberCounts[statement.id] == null)
         .forEach(head => {
@@ -1293,7 +1293,9 @@ export default {
     },
 
     updateSearchFields (selectedFields) {
-      this.searchFieldsSelected = selectedFields
+      const planDocumentFields = ['documentTitle', 'elementTitle', 'paragraphTitle']
+
+      this.searchFieldsSelected = selectedFields?.flatMap(field => field === 'planDocument' ? planDocumentFields : [field]) ?? null
     },
   },
 
