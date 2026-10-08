@@ -56,13 +56,10 @@ use Symfony\Component\Validator\Constraints as Assert;
                         new Assert\Type('array'),
                         new Assert\All([
                             new Assert\Type('array'),
-                            new Assert\All([new Assert\Type('string'), new Assert\NotBlank()]),
+                            new Assert\All([new Assert\Type('string'), new Assert\NotBlank(), new Assert\Uuid(strict: false)]),
                         ]),
                     ],
                 ),
-                // Filtering itself is done by the SearchFilter below; this only makes the value
-                // readable for CustomFieldFilter, which needs the procedure to look values up in.
-                'parentStatementOfSegment.procedure.id' => new QueryParameter(),
             ],
         ),
         new Get(uriTemplate: '/StatementSegment/{id}'),

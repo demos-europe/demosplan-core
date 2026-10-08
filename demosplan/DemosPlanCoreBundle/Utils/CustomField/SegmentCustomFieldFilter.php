@@ -13,18 +13,15 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
-use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
- * Finds the segments whose SEGMENT custom field values match a selection of options.
+ * Helpers to filter segments by their SEGMENT custom field values (select fields, by option id).
  * Within one custom field any selected option matches, across custom fields every field must match.
  *
- * Matching happens in PHP on purpose: the values are stored in a JSON column (a scalar for
- * single select, a list for multi select) and the test database (SQLite) has no JSON_CONTAINS.
- * Callers restrict their query to the returned ids.
+ * The values are stored as JSON text like `[{"id":"<fieldId>","value":"<optionId>"|["<optionId>"]}]`.
+ * Option ids are UUIDs, so a segment holds an option if its text contains `"<optionId>"`.
  */
 class SegmentCustomFieldFilter
 {
@@ -35,10 +32,8 @@ class SegmentCustomFieldFilter
 
     private const PERMISSION = 'field_segments_custom_fields';
 
-    public function __construct(
-        private readonly SegmentRepository $segmentRepository,
-        private readonly PermissionsInterface $permissions,
-    ) {
+    public function __construct(private readonly PermissionsInterface $permissions)
+    {
     }
 
     /**
@@ -70,35 +65,11 @@ class SegmentCustomFieldFilter
     }
 
     /**
-     * @param array<string, list<string>> $selections {@see self::assertValidSelections()}
-     *
-     * @return list<string> ids of the segments of the procedure that match the selections
+     * LIKE pattern that matches the stored JSON of segments holding the option.
+     * The option id must be a UUID (checked by the resource constraints), so it holds no wildcards.
      */
-    public function findMatchingSegmentIds(string $procedureId, array $selections): array
+    public function getOptionLikePattern(string $optionId): string
     {
-        $ids = [];
-        foreach ($this->segmentRepository->findSegmentsWithCustomFieldValues($procedureId, array_keys($selections)) as $row) {
-            if ($this->holdsAllSelections($row['customFields'], $selections)) {
-                $ids[] = $row['id'];
-            }
-        }
-
-        return $ids;
-    }
-
-    /**
-     * @param array<string, list<string>> $selections
-     */
-    private function holdsAllSelections(?CustomFieldValuesList $values, array $selections): bool
-    {
-        foreach ($selections as $fieldId => $selectedOptionIds) {
-            $heldOptionIds = $values?->getOptionIds($fieldId) ?? [];
-
-            if ([] === array_intersect($selectedOptionIds, $heldOptionIds)) {
-                return false;
-            }
-        }
-
-        return true;
+        return '%"'.$optionId.'"%';
     }
 }

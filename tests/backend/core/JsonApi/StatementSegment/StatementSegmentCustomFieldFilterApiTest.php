@@ -14,6 +14,7 @@ namespace Tests\Core\JsonApi\StatementSegment;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Base\AbstractApiTest;
 
@@ -115,7 +116,7 @@ class StatementSegmentCustomFieldFilterApiTest extends AbstractApiTest
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
 
         $response = $this->sendSegmentRequest(
-            self::SEGMENT_COLLECTION_ROUTE.'?parentStatementOfSegment.procedure.id='.$procedure->getId().'&customField[not-a-uuid][]=x',
+            self::SEGMENT_COLLECTION_ROUTE.'?parentStatementOfSegment.procedure.id='.$procedure->getId().'&customField[not-a-uuid][]='.Uuid::uuid4()->toString(),
             $procedure,
             self::PERMISSIONS
         );
@@ -151,6 +152,19 @@ class StatementSegmentCustomFieldFilterApiTest extends AbstractApiTest
         self::assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $response->getStatusCode());
     }
 
+    public function testRejectsAnOptionIdThatIsNoUuid(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+
+        $response = $this->sendSegmentRequest(
+            self::SEGMENT_COLLECTION_ROUTE.'?parentStatementOfSegment.procedure.id='.$procedure->getId().'&customField['.Uuid::uuid4()->toString().'][]=%25',
+            $procedure,
+            self::PERMISSIONS
+        );
+
+        self::assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $response->getStatusCode());
+    }
+
     public function testRejectsAnEmptyOptionId(): void
     {
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
@@ -170,22 +184,7 @@ class StatementSegmentCustomFieldFilterApiTest extends AbstractApiTest
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
 
         $response = $this->sendSegmentRequest(
-            self::SEGMENT_COLLECTION_ROUTE.'?parentStatementOfSegment.procedure.id='.$procedure->getId().'&customField[][]=x',
-            $procedure,
-            self::PERMISSIONS
-        );
-
-        self::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
-    }
-
-    public function testRequiresTheProcedureId(): void
-    {
-        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
-        $field = $this->createSegmentCustomField($procedure->_real(), 'Priority', ['High']);
-        [$high] = $this->getOptionIds($field);
-
-        $response = $this->sendSegmentRequest(
-            self::SEGMENT_COLLECTION_ROUTE."?customField[{$field->getId()}][]=$high",
+            self::SEGMENT_COLLECTION_ROUTE.'?parentStatementOfSegment.procedure.id='.$procedure->getId().'&customField[][]='.Uuid::uuid4()->toString(),
             $procedure,
             self::PERMISSIONS
         );

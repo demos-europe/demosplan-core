@@ -18,20 +18,13 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ParameterNotFound;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\SegmentCustomFieldFilter;
 use Doctrine\ORM\QueryBuilder;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Narrows segments by their custom field values: `customField[<fieldId>][]=<optionId>`.
  * Any of a field's selected options matches, every field that has a selection must match.
- *
- * Needs the procedure to look the values up in, so the operation has to declare
- * `parentStatementOfSegment.procedure.id` as a parameter too, because API Platform only passes
- * this filter its own parameter value.
  */
 final class CustomFieldFilter implements FilterInterface
 {
-    private const PROCEDURE_PARAMETER = 'parentStatementOfSegment.procedure.id';
-
     public function __construct(private readonly SegmentCustomFieldFilter $customFieldFilter)
     {
     }
@@ -53,23 +46,16 @@ final class CustomFieldFilter implements FilterInterface
 
         $this->customFieldFilter->assertValidSelections($selectedCustomFields);
 
-        $procedureId = $operation?->getParameters()?->get(self::PROCEDURE_PARAMETER)?->getValue();
-        if (!is_string($procedureId) || '' === $procedureId) {
-            throw new BadRequestHttpException(sprintf('The customField filter requires "%s".', self::PROCEDURE_PARAMETER));
-        }
-
-        $segmentIds = $this->customFieldFilter->findMatchingSegmentIds($procedureId, $selectedCustomFields);
-        if ([] === $segmentIds) {
-            $queryBuilder->andWhere('1 = 0');
-
-            return;
-        }
-
-        $parameterName = $queryNameGenerator->generateParameterName('customFieldMatchedIds');
         $rootAlias = $queryBuilder->getRootAliases()[0];
-        $queryBuilder
-            ->andWhere($queryBuilder->expr()->in("$rootAlias.id", ":$parameterName"))
-            ->setParameter($parameterName, $segmentIds);
+        foreach ($selectedCustomFields as $optionIds) {
+            $anyOption = $queryBuilder->expr()->orX();
+            foreach ($optionIds as $optionId) {
+                $parameterName = $queryNameGenerator->generateParameterName('customFieldOption');
+                $anyOption->add("$rootAlias.customFields LIKE :$parameterName");
+                $queryBuilder->setParameter($parameterName, $this->customFieldFilter->getOptionLikePattern($optionId));
+            }
+            $queryBuilder->andWhere($anyOption);
+        }
     }
 
     public function getDescription(string $resourceClass): array
