@@ -473,4 +473,18 @@ describe('StatementExportModal', () => {
 
     expect(wrapper.findComponent({ name: 'DpInlineNotification' }).exists()).toBe(true)
   })
+
+  describe('isExportDisabled', () => {
+    const findOpenExportButton = () => wrapper.findComponent('[data-cy="exportModal:open"]') as VueWrapper<any>
+
+    it('enables the export button by default', () => {
+      expect(findOpenExportButton().props('disabled')).toBe(false)
+    })
+
+    it('disables the export button when isExportDisabled is true', async () => {
+      await wrapper.setProps({ isExportDisabled: true })
+
+      expect(findOpenExportButton().props('disabled')).toBe(true)
+    })
+  })
 })

@@ -5,9 +5,22 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+## v4.63.0 (2026-10-08)
+
+## v4.62.0 (2026-10-08)
 - bump contract layer demosplan-addon to v0.83
 - depends on contract layer >= v0.83
 - new SegmentTagsChangedEvent implements new interface added to contract layer in v0.83
+
+## v4.61.3 (2026-09-30)
+
+### Added
+- The right to create procedures can now be granted to individual users of an organization, instead of to all Fachplanung-Admins and Anhörungsbehörde-Admins at once
+
+### Fixed
+- Splitting a statement no longer fails with an error message when an assignable user has no name set
+- Deleting a user's personal data now also removes them as the default assignee of tags
 
 ## v4.61.2 (2026-09-23)
 
@@ -37,6 +50,9 @@
 - Global GIS layers are now scoped to their own customer
 - Maximum email attachment size for the final decision email reduced to a sane limit
 
+### Added
+- The segments list can be exported as Excel or CSV, respecting the currently applied filters, search term and column selection. The submitting organisation is now shown as an "Organisation" column, replacing the address column. (DPLAN-18217)
+
 ## v4.60.0 (2026-09-09)
 
 ## v4.59.0 (2026-09-09)
@@ -46,6 +62,11 @@
 ### Changed
 - Moves segments' list inline filter to a slide bar
 - api-platform upgraded from 3.4 to 4.3; 3.4.x is blocked by security advisories. Two options in `config/packages/api_platform.yaml` changed: `keep_legacy_inflector` no longer exists in v4 and was removed, and `validator.legacy_query_parameter_validation` is now `validator.query_parameter_validation` (same behaviour; deprecated in 4.2, removal in 5.0). Projects overriding either option must adjust them, otherwise the container fails to compile with an "Unrecognized option" error.
+
+### Added
+- The right to create procedures can now be granted to individual users with the Fachplanung-Admin or Anhörungsbehörde-Admin
+  role via a checkbox in the user administration form. Alternatively, the right can be activated for all users with those roles in
+  organization settings
 
 ### New dependencies
 - `symfony/type-info ^7.4` — required by api-platform 4.3 and pulled in transitively. It installs alongside Symfony 6.4 without a framework upgrade: the component has no 6.x release, so Symfony Flex exempts it from the `extra.symfony.require: "6.*.*"` constraint rather than filtering it out. No explicit root require is needed.
@@ -454,12 +475,12 @@
 ### Added
 - Enable GetFeatureInfo requests for visible WMS layers in the map
 - Add `FileService::saveBinaryFileContent()` method to save binary file content directly without manual temporary file handling
-  - Accepts filename, binary content, and optional filename prefix
-  - Automatically handles temporary file creation and cleanup using Symfony Filesystem (`dumpFile()` and `deleteLocalFile()`)
-  - Supports virus checking and procedure/user association
-  - Useful for saving already-decoded base64 content from external sources
-  - Validates filename is not empty
-  - Sanitizes filename using existing `sanitizeFileName()` method
+    - Accepts filename, binary content, and optional filename prefix
+    - Automatically handles temporary file creation and cleanup using Symfony Filesystem (`dumpFile()` and `deleteLocalFile()`)
+    - Supports virus checking and procedure/user association
+    - Useful for saving already-decoded base64 content from external sources
+    - Validates filename is not empty
+    - Sanitizes filename using existing `sanitizeFileName()` method
 - Add `FileWriteException` for dedicated file write error handling
 
 ### Changed
@@ -497,6 +518,8 @@
 - Fix missing form fields in procedure basic settings
 - Add anonymous voters column to statement XLSX export
 
+## v4.26.1 (2026-04-30)
+## v4.26.0 (2025-11-07)
 ## v4.25.0 (2025-11-06)
 
 ## v4.24.1 (2025-12-24)
@@ -514,9 +537,14 @@
 ## v4.24.0 (2025-11-06)
 - Detect Company Department from OzgKeycloak token and assign it to user
 
-## v4.23.0 (2025-10-22)
-## v4.21.0 (2025-10-22)
+## v4.22.1 (2025-10-30)
+- Fix Textbaustein checkbox disappearing bug by removing cascade delete from BoilerplateCategory relations
+- Detect Company Department from OzgKeycloak token and assign it to user
 
+## v4.23.0 (2025-10-22)
+## v4.22.0 (2025-10-22)
+## v4.21.0 (2025-10-22)
+## v4.20.0 (2025-10-09)
 ## v4.18.1 (2025-10-16)
 ## v4.18.0 (2025-10-13)
 
@@ -653,6 +681,7 @@
 - Update Elasticsearch to version 8
 - Export Original Statements as csv in the Statement List
 
+## v4.2.0 (2025-05-22)
 ## v4.1.0 (2025-05-21)
 ## v4.0.0 (2025-05-21)
 - Update to symfony 6.4

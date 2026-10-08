@@ -19,55 +19,78 @@
       class="pt-2 pb-3"
       :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }"
     >
-      <div class="flex justify-end gap-2 py-2">
-        <dp-button
-          v-if="hasPermission('feature_segments_import_excel')"
-          :href="
-            Routing.generate('DemosPlan_procedure_import', {
-              procedureId: procedureId,
-            }) + '#ExcelImport'
-          "
-          :text="Translator.trans('import.options.xls')"
-          class="mr-0 h-fit"
-          data-cy="segmentsList:importOptionsXLS"
-          icon="download"
-          icon-size="medium"
-          variant="subtle"
-        />
-      </div>
-      <div class="flex items-start mb-2">
-        <custom-search
-          id="customSearch"
-          ref="customSearch"
-          :elasticsearch-field-definition="{
-            entity: 'statementSegment',
-            function: 'search',
-            accessGroup: 'planner',
-          }"
-          :search-term="searchTerm"
-          @change-fields="updateSearchFields"
-          @search-focus="closeFilterSlidebar"
-          @search="(term) => updateSearchQuery(term)"
-          @reset="handleResetSearch"
-        />
-        <dp-button
-          class="ml-2 h-fit"
-          data-cy="segmentsList:openFilter"
-          icon="sliders-horizontal"
-          icon-size="small"
-          :text="filterButtonText"
-          variant="outline"
-          @click="toggleFilterSlidebar"
-        />
-        <dp-button
-          v-tooltip="Translator.trans('search.filter.reset')"
-          class="ml-2 h-fit"
-          data-cy="segmentsList:resetFilter"
-          :disabled="noQuery"
-          :text="Translator.trans('reset')"
-          variant="outline"
-          @click="resetQuery"
-        />
+      <div class="flex justify-between items-start py-2">
+        <div class="flex items-start gap-2">
+          <custom-search
+            id="customSearch"
+            ref="customSearch"
+            :elasticsearch-field-definition="{
+              entity: 'statementSegment',
+              function: 'search',
+              accessGroup: 'planner',
+            }"
+            :search-term="searchTerm"
+            @change-fields="updateSearchFields"
+            @search-focus="closeFilterSlidebar"
+            @search="(term) => updateSearchQuery(term)"
+            @reset="handleResetSearch"
+          />
+          <dp-button
+            data-cy="segmentsList:openFilter"
+            icon="sliders-horizontal"
+            icon-size="small"
+            :text="filterButtonText"
+            variant="outline"
+            @click="toggleFilterSlidebar"
+          />
+          <dp-button
+            v-tooltip="Translator.trans('search.filter.reset')"
+            data-cy="segmentsList:resetFilter"
+            :disabled="noQuery"
+            :text="Translator.trans('reset')"
+            variant="outline"
+            @click="resetQuery"
+          />
+        </div>
+        <div class="flex items-center gap-1">
+          <dp-button
+            v-if="hasPermission('feature_segments_import_excel')"
+            :href="
+              Routing.generate('DemosPlan_procedure_import', {
+                procedureId: procedureId,
+              }) + '#ExcelImport'
+            "
+            :text="Translator.trans('import.options.xls')"
+            data-cy="segmentsList:importOptionsXLS"
+            icon="upload"
+            icon-size="medium"
+            variant="subtle"
+          />
+
+          <segments-export-modal
+            v-if="canExportSegments"
+            :applied-filters="appliedFiltersSummary"
+            :is-export-disabled="!hasSegments"
+            :search-term="searchTerm"
+            :segment-count="exportSegmentCount"
+            @export="handleExportSegments"
+            @open="closeFilterSlidebar"
+          />
+
+          <dp-button
+            :icon="isFullscreen ? 'compress' : 'expand'"
+            :text="
+              isFullscreen
+                ? Translator.trans('editor.fullscreen.close')
+                : Translator.trans('editor.fullscreen')
+            "
+            data-cy="editorFullscreen"
+            icon-size="medium"
+            variant="outline"
+            hide-text
+            @click="handleFullscreenMode"
+          />
+        </div>
       </div>
       <dp-bulk-edit-header
         v-if="selectedItemsCount > 0"
@@ -96,13 +119,12 @@
         />
       </dp-bulk-edit-header>
       <div
-        v-if="items.length > 0"
-        class="flex justify-between items-center mt-4"
+        v-show="!isLoading"
+        class="flex items-end xl:items-center gap-2 my-3"
       >
         <dp-pager
-          v-if="pagination.currentPage"
+          v-if="items.length && pagination.currentPage"
           :key="`pager1_${pagination.currentPage}_${pagination.count}`"
-          :class="{ invisible: isLoading }"
           :current-page="pagination.currentPage"
           :limits="pagination.limits"
           :per-page="pagination.perPage"
@@ -111,58 +133,36 @@
           @page-change="applyQuery"
           @size-change="handleSizeChange"
         />
-        <div class="ml-auto flex items-center space-inline-xs">
-          <dp-label
-            class="mb-0"
-            for="applySortSelection"
-            :text="Translator.trans('sorting')"
-          />
-          <dp-select
-            id="applySortSelection"
-            :options="sortOptions"
-            :selected="selectedSort"
-            @select="applySort"
-          />
-        </div>
-      </div>
-      <div
-        v-show="!isLoading"
-        class="flex justify-end gap-2 py-2"
-      >
-        <div class="flex gap-2">
-          <dp-button
-            :text="Translator.trans('column.selection.reset')"
-            color="secondary"
-            variant="subtle"
-            @click="resetColumnSelection"
-          />
+        <div class="ml-auto flex flex-col xl:flex-row gap-2 items-end xl:items-center">
+          <div class="flex items-center space-inline-xs">
+            <dp-label
+              class="mb-0"
+              for="applySortSelection"
+              :text="Translator.trans('sorting')"
+            />
+            <dp-select
+              id="applySortSelection"
+              data-cy="segmentsList:sort"
+              :options="sortOptions"
+              :selected="selectedSort"
+              @select="applySort"
+            />
+          </div>
           <dp-column-selector
+            v-if="customFieldsReady"
             :key="columnSelectorKey"
             appearance="subtle"
             data-cy="segmentsList:selectableColumns"
+            has-reset-option
             has-select-all-option
             :initial-selection="currentSelection"
             local-storage-key="segmentList"
             :selectable-columns="selectableColumns"
             use-local-storage
+            @reset="resetColumnSelection"
             @selection-changed="setCurrentSelection"
           />
         </div>
-
-        <dp-button
-          :icon="isFullscreen ? 'compress' : 'expand'"
-          :text="
-            isFullscreen
-              ? Translator.trans('editor.fullscreen.close')
-              : Translator.trans('editor.fullscreen')
-          "
-          color="secondary"
-          data-cy="editorFullscreen"
-          icon-size="medium"
-          variant="subtle"
-          hide-text
-          @click="handleFullscreenMode"
-        />
       </div>
     </dp-sticky-element>
 
@@ -304,63 +304,14 @@
                     ].attributes.submitName
                   }}
                 </li>
-                <li
-                  v-if="
-                    statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationName !== ''
-                  "
-                  class="o-list__item o-hellip--nowrap"
-                >
-                  {{
-                    statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationName
-                  }}
-                </li>
               </ul>
             </template>
-            <template v-slot:address="rowData">
-              <ul class="o-list">
-                <li
-                  v-if="
-                    statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationStreet !== ''
-                  "
-                  class="o-list__item o-hellip--nowrap"
-                >
-                  {{
-                    statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationStreet
-                  }}
-                  {{
-                    statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationHouseNumber
-                  }}
-                </li>
-                <li
-                  v-if="
-                    statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationPostalCode !== ''
-                  "
-                  class="o-list__item o-hellip--nowrap"
-                >
-                  {{
-                    statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationPostalCode
-                  }}
-                  {{
-                    statementsObject[
-                      rowData.relationships.parentStatement.data.id
-                    ].attributes.initialOrganisationCity
-                  }}
-                </li>
-              </ul>
+            <template v-slot:organisation="rowData">
+              {{
+                statementsObject[
+                  rowData.relationships.parentStatement.data.id
+                ].attributes.initialOrganisationName
+              }}
             </template>
             <template v-slot:place="rowData">
               {{
@@ -587,6 +538,7 @@ import ImageModal from '@DpJs/components/shared/ImageModal'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
+import SegmentsExportModal from './SegmentsExportModal'
 import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 import StatusBadge from '../Shared/StatusBadge'
@@ -595,6 +547,11 @@ import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { useApiPlatformFilters } from '@DpJs/composables/useApiPlatformFilters'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
+
+const SEGMENT_EXPORT_ROUTES = {
+  xlsx_normal: 'dplan_segment_xlsx_export',
+  csv_normal: 'dplan_segment_csv_export',
+}
 
 export default {
   name: 'SegmentsList',
@@ -614,6 +571,7 @@ export default {
     DpSelect,
     DpStickyElement,
     ImageModal,
+    SegmentsExportModal,
     SegmentUnlockModal,
     StatementMetaTooltip,
     StatusBadge,
@@ -636,6 +594,13 @@ export default {
     currentUserId: {
       type: String,
       required: true,
+    },
+
+    // Filter definitions from segmentsFilterNames.yaml, used in export modal
+    filterNames: {
+      type: Object,
+      required: false,
+      default: () => ({}),
     },
 
     initialFilter: {
@@ -669,9 +634,14 @@ export default {
       appliedFilterQuery: this.initialFilter,
       currentQueryHash: '',
       columnSelectorKey: 0,
-      defaultColumnSelection: [],
+      defaultColumnSelection: [
+        'deadline',
+        'place',
+        'text',
+      ],
       currentSelection: [],
       customFieldDefinitions: [],
+      customFieldsReady: !hasPermission('field_segments_custom_fields'),
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
@@ -712,8 +682,8 @@ export default {
           initialMinWidth: 180,
         },
         {
-          field: 'address',
-          label: Translator.trans('address'),
+          field: 'organisation',
+          label: Translator.trans('organisation'),
           colWidth: '180px',
           initialMinWidth: 180,
         },
@@ -768,6 +738,11 @@ export default {
       customFields: 'items',
     }),
 
+    ...mapState('FilterFlyout', {
+      groupedFilterOptions: 'groupedOptions',
+      ungroupedFilterOptions: 'ungroupedOptions',
+    }),
+
     ...mapGetters('FilterFlyout', [
       'getFilterQuery',
       'getIsExpandedByCategoryId',
@@ -809,6 +784,10 @@ export default {
 
     hasDeadlineColumn () {
       return hasPermission('field_statement_deadline')
+    },
+
+    canExportSegments () {
+      return hasPermission('feature_segments_list_export_xlsx') || hasPermission('feature_segments_list_export_csv')
     },
 
     // Passed as headerFields to DpDataTable
@@ -859,6 +838,34 @@ export default {
       ]
     },
 
+    // Filter categories for the export modal, shaped [{ label, values: [String] }]
+    appliedFiltersSummary () {
+      const LABEL_PENDING = '…'
+      const valuesByPath = {}
+
+      Object.values(this.getLastAppliedFilterQuery).forEach((filter) => {
+        if (!filter.condition) {
+          return
+        }
+
+        const { path, value } = filter.condition
+
+        valuesByPath[path] = [...(valuesByPath[path] ?? []), value ?? 'unassigned']
+      })
+
+      return Object.entries(valuesByPath).map(([path, values]) => {
+        const labelKey = Object.values(this.filterNames).find(
+          (filterName) => filterName.rootPath === path,
+        )?.labelTranslationKey
+
+        return {
+          label: Translator.trans(labelKey ?? path),
+          // Never surface a raw UUID; show a placeholder until the label resolves
+          values: values.map((id) => this.filterSummaryLabels[id] ?? LABEL_PENDING),
+        }
+      })
+    },
+
     // Overrides tableSelectAllItems mixin to exclude locked segments from selection for users without unlock permission
     currentlySelectedItems () {
       const toggledIds = new Set(this.toggledItems.map((item) => item.id))
@@ -880,14 +887,47 @@ export default {
       return selected.reduce((acc, el) => ({ ...acc, [el.id]: true }), {})
     },
 
+    /*
+     * Number of segments the export would cover: the manual selection if one is active, otherwise
+     * all filtered/searched segments. Uses `pagination.total` rather than `allItemsCount` - the
+     * latter gets silently overwritten by fetchSegmentIds()'s background RPC shortly after load,
+     * which can resolve to 0 independently of the actual filtered result count (separate bug).
+     */
+    exportSegmentCount () {
+      return this.selectedItemsCount > 0 ? this.selectedItemsCount : (this.pagination.total || 0)
+    },
+
     filterButtonText () {
       return this.queryIds.length > 0 ?
         `${Translator.trans('filter')} (${this.queryIds.length})` :
         Translator.trans('filter')
     },
 
+    // Option label by filter value id, sourced from the filter flyout's fetched options
+    filterSummaryLabels () {
+      // Seed the unassigned label so it resolves regardless of which category was fetched
+      const labels = { unassigned: Translator.trans('not.assigned') }
+
+      Object.values(this.groupedFilterOptions).forEach((groups) =>
+        groups.forEach((group) =>
+          group.options.forEach((option) => {
+            labels[option.id] = option.label
+          })))
+
+      Object.values(this.ungroupedFilterOptions).forEach((options) =>
+        options.forEach((option) => {
+          labels[option.id] = option.label
+        }))
+
+      return labels
+    },
+
     hasLockedInSelection () {
       return this.lockedInSelectionCount > 0
+    },
+
+    hasSegments () {
+      return !this.isLoading && this.items.length > 0
     },
 
     headerFields () {
@@ -1144,6 +1184,56 @@ export default {
     },
 
     /*
+     * Mirrors the filter/search/sort construction in applyQuery() so the export always contains
+     * exactly the segments currently shown in the list - no more (StatementSegmentResourceType's
+     * access conditions alone would also allow segments from procedures coupled via
+     * getAllowedSegmentAccessProcedures(), which sameProcedure excludes here just like it does
+     * for the list itself). columns mirrors orderedHeaderFields, same as buildClipboardText(): the
+     * user's current column selection in their current drag&drop order, externId always first.
+     */
+    handleExportSegments ({ type }) {
+      const selectedSegmentIds = this.resolveSelectedSegmentIds()
+
+      const filter = {
+        ...this.getLastAppliedFilterQuery,
+        sameProcedure: {
+          condition: {
+            path: 'parentStatement.procedure.id',
+            value: this.procedureId,
+          },
+        },
+        ...(selectedSegmentIds.length > 0 ? {
+          selectedSegments: {
+            condition: {
+              path: 'id',
+              operator: 'IN',
+              value: selectedSegmentIds,
+            },
+          },
+        } : {}),
+      }
+
+      const orderedFields = this.$refs.dataTable?.orderedHeaderFields || this.availableHeaderFields
+      const columns = orderedFields.map(headerField => headerField.field)
+
+      const params = {
+        procedureId: this.procedureId,
+        filter,
+        sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
+        columns: columns.join(','),
+      }
+
+      if (this.searchTerm !== '') {
+        params.search = {
+          value: this.searchTerm,
+          ...(this.searchFieldsSelected.length !== 0 ? { fieldsToSearch: this.searchFieldsSelected } : {}),
+        }
+      }
+
+      globalThis.location.href = Routing.generate(SEGMENT_EXPORT_ROUTES[type], params)
+    },
+
+    /*
      * Builds the `include`/`fields` portion of a StatementSegment JSON:API request. Shared by
      * applyQuery() (the main list fetch) and fetchMissingSegments() (the supplemental fetch for
      * selected segments outside the currently loaded batch), so both requests always resolve the
@@ -1357,40 +1447,20 @@ export default {
       return versionNumber ? String(versionNumber).padStart(3, '0') : ''
     },
 
-    getClipboardAddress (segment, context) {
-      const statement = this.getClipboardParentStatement(segment, context)
-
-      if (!statement) {
-        return ''
-      }
-
-      const parts = []
-
-      if (statement.attributes.initialOrganisationStreet !== '') {
-        parts.push(`${statement.attributes.initialOrganisationStreet} ${statement.attributes.initialOrganisationHouseNumber}`.trim())
-      }
-
-      if (statement.attributes.initialOrganisationPostalCode !== '') {
-        parts.push(`${statement.attributes.initialOrganisationPostalCode} ${statement.attributes.initialOrganisationCity}`.trim())
-      }
-
-      return parts.join(', ')
-    },
-
     getClipboardCellValue (headerField, segment, context) {
       if (headerField.field.startsWith('customField_')) {
         return this.getCustomFieldOptionLabel(segment.attributes.customFields, headerField.field.replace('customField_', ''))
       }
 
       switch (headerField.field) {
-        case 'address':
-          return this.getClipboardAddress(segment, context)
         case 'deadline':
           return segment.attributes.deadline ? formatDate(segment.attributes.deadline) : ''
         case 'externId':
           return segment.attributes.externId || ''
         case 'internId':
           return this.getClipboardParentStatement(segment, context)?.attributes.internId || ''
+        case 'organisation':
+          return this.getClipboardParentStatement(segment, context)?.attributes.initialOrganisationName || ''
         case 'place':
           return context.placesById[segment.relationships?.place?.data?.id]?.attributes.name || ''
         case 'recommendation':
@@ -1570,6 +1640,9 @@ export default {
         })
         .catch(() => {
           /* Notification already shown by useCustomFieldDefinitions */
+        })
+        .finally(() => {
+          this.customFieldsReady = true
         })
     },
 

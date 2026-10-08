@@ -1309,12 +1309,7 @@ export default {
             if (this.$refs[field]) {
               updatedField = field
               //  Handle components that use <dp-edit-field>
-              const editFieldComponent = this.$refs[field].$children.find(child => child.$options.name === 'DpEditField')
-
-              if (editFieldComponent) {
-                editFieldComponent.$data.loading = false
-                editFieldComponent.$data.editingEnabled = false
-              }
+              this.$refs[field].finishEditing?.()
 
               //  Handle components that have a loading state by themselves
               if (hasOwnProp(this.$refs[field].$data, 'loading')) {

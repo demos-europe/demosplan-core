@@ -294,7 +294,7 @@ export default {
 
       if (this.selectedElementId) {
         changes.relationships.elements = {
-          data: [{ type: 'ElementsDetails', id: this.selectedElementId }],
+          data: { type: 'ElementsDetails', id: this.selectedElementId },
         }
       }
 
