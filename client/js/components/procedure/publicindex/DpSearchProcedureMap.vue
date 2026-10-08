@@ -617,7 +617,7 @@ export default {
       this.form.municipalCode = this.municipalCode
     }
 
-    if (this.isInitialListFiltered && this.displayArsFilterHeader === false) {
+    if (this.isInitialListFiltered && !this.displayArsFilterHeader) {
       this.resultCount = this.initialProcedureCount > 0 ? Translator.trans('following') : Translator.trans('none.neutral')
 
       return
