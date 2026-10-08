@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Validator;
 
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldProvider;
 
@@ -36,13 +35,10 @@ class CustomFieldOptionSelectionValidator
         $customFields = $this->customFieldProvider->getCustomFieldsByIds(array_map('strval', array_keys($selectedOptionIdsByFieldId)));
 
         foreach ($selectedOptionIdsByFieldId as $fieldId => $optionIds) {
-            $customField = $customFields[$fieldId] ?? null;
+            $customField = $customFields[$fieldId]
+                ?? throw new InvalidArgumentException(sprintf('Unknown custom field "%s".', $fieldId));
 
-            foreach ($optionIds as $optionId) {
-                if (!$customField?->getCustomOptionValueById($optionId) instanceof CustomFieldOption) {
-                    throw new InvalidArgumentException(sprintf('Option "%s" does not belong to custom field "%s".', $optionId, $fieldId));
-                }
-            }
+            $customField->assertHasOptions($optionIds);
         }
     }
 }
