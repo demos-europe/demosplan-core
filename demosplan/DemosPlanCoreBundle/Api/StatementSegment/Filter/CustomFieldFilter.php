@@ -16,8 +16,11 @@ use ApiPlatform\Doctrine\Orm\Filter\FilterInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ParameterNotFound;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\SegmentCustomFieldFilter;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Validator\CustomFieldOptionSelectionValidator;
 use Doctrine\ORM\QueryBuilder;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * Narrows segments by their custom field values: `customField[<fieldId>][]=<optionId>`.
@@ -25,13 +28,19 @@ use Doctrine\ORM\QueryBuilder;
  */
 final class CustomFieldFilter implements FilterInterface
 {
-    public function __construct(private readonly SegmentCustomFieldFilter $customFieldFilter)
-    {
+    private const PARAMETER_NAME = 'customField';
+    private const PERMISSION = 'field_segments_custom_fields';
+
+    public function __construct(
+        private readonly CustomFieldOptionSelectionValidator $optionSelectionValidator,
+        private readonly PermissionsInterface $permissions,
+    ) {
     }
 
     public function apply(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, string $resourceClass, ?Operation $operation = null, array $context = []): void
     {
-        if (!$this->customFieldFilter->isFilteringAllowed()) {
+        // Users who may not see the custom fields get no filtering instead of an error.
+        if (!$this->permissions->hasPermission(self::PERMISSION)) {
             return;
         }
 
@@ -44,7 +53,11 @@ final class CustomFieldFilter implements FilterInterface
             return;
         }
 
-        $this->customFieldFilter->assertValidSelections($selectedCustomFields);
+        try {
+            $this->optionSelectionValidator->validate($selectedCustomFields);
+        } catch (InvalidArgumentException $exception) {
+            throw new BadRequestHttpException('Invalid customField filter selection.', $exception);
+        }
 
         $rootAlias = $queryBuilder->getRootAliases()[0];
         // Add one condition to the query per custom field, which matches if the segment has any of its selected options.
@@ -53,7 +66,8 @@ final class CustomFieldFilter implements FilterInterface
             foreach ($optionIds as $optionId) {
                 $parameterName = $queryNameGenerator->generateParameterName('customFieldOption');
                 $anyOption->add("$rootAlias.customFields LIKE :$parameterName");
-                $queryBuilder->setParameter($parameterName, $this->customFieldFilter->getOptionLikePattern($optionId));
+                // The values are stored as JSON text, so a segment holds the option if its text contains the quoted id.
+                $queryBuilder->setParameter($parameterName, '%"'.$optionId.'"%');
             }
             $queryBuilder->andWhere($anyOption);
         }
@@ -62,7 +76,7 @@ final class CustomFieldFilter implements FilterInterface
     public function getDescription(string $resourceClass): array
     {
         return [
-            SegmentCustomFieldFilter::FILTER_KEY.'[<customFieldId>][]' => [
+            self::PARAMETER_NAME.'[<customFieldId>][]' => [
                 'property'      => 'customFields',
                 'type'          => 'string',
                 'required'      => false,
