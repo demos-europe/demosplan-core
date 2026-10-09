@@ -18,7 +18,10 @@ use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\QueryParameter;
+use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\CustomFieldFilter;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Constraint\CustomFieldOptionSelection;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
@@ -42,6 +45,21 @@ use Symfony\Component\Validator\Constraints\NotBlank;
             parameters: [
                 'facet'                                 => new QueryParameter(required: true, constraints: [new NotBlank()]),
                 'parentStatementOfSegment.procedure.id' => new QueryParameter(required: true, constraints: [new NotBlank()]),
+                // customField[<fieldId>][]=<optionId>: same filter as the segment list, so the counts
+                // only include segments that match the selected custom field options.
+                'customField' => new QueryParameter(
+                    filter: CustomFieldFilter::class,
+                    constraints: [
+                        new Assert\Sequentially([
+                            new Assert\Type('array'),
+                            new Assert\All([
+                                new Assert\Type('array'),
+                                new Assert\All([new Assert\Type('string'), new Assert\NotBlank(), new Assert\Uuid(strict: false)]),
+                            ]),
+                            new CustomFieldOptionSelection(),
+                        ]),
+                    ],
+                ),
             ],
         ),
     ],

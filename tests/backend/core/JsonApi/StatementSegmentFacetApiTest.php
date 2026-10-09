@@ -13,16 +13,23 @@ declare(strict_types=1);
 namespace Tests\Core\JsonApi;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagTopicFactory;
+use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Base\AbstractApiTest;
+use Zenstruck\Foundry\Persistence\Proxy;
 
 class StatementSegmentFacetApiTest extends AbstractApiTest
 {
@@ -212,6 +219,135 @@ class StatementSegmentFacetApiTest extends AbstractApiTest
         self::assertSame(2, $counts['unassigned']);
     }
 
+    public function testTagCountsOnlyIncludeSegmentsMatchingSelectedCustomFieldOption(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $topic = TagTopicFactory::createOne(['procedure' => $procedure]);
+        $tagA = TagFactory::createOne(['title' => 'Schallschutz', 'topic' => $topic]);
+        $tagB = TagFactory::createOne(['title' => 'Baulärm', 'topic' => $topic]);
+
+        $customField = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($procedure->_real())
+            ->withRelatedTargetEntity(CustomFieldSupportedEntity::segment->value)
+            ->asRadioButton('Priority', options: ['High', 'Low'])
+            ->create();
+        [$highOption, $lowOption] = $customField->getConfiguration()->getOptions();
+
+        $parentStatement = StatementFactory::new(['procedure' => $procedure]);
+        $segmentDefaults = ['procedure' => $procedure, 'parentStatementOfSegment' => $parentStatement];
+        SegmentFactory::createOne($segmentDefaults + ['tags' => [$tagA], 'customFields' => $this->buildCustomFieldValues([$customField->getId() => $highOption->getId()])]);
+        SegmentFactory::createOne($segmentDefaults + ['tags' => [$tagA], 'customFields' => $this->buildCustomFieldValues([$customField->getId() => $lowOption->getId()])]);
+        SegmentFactory::createOne($segmentDefaults + ['tags' => [$tagB], 'customFields' => $this->buildCustomFieldValues([$customField->getId() => $lowOption->getId()])]);
+
+        $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
+        $this->enablePermissions(['area_admin_statement_list', 'field_segments_custom_fields']);
+        $this->loginUserForApiPlatform($user);
+
+        $response = $this->sendRequest(
+            self::FACET_ROUTE.'?facet=tags&parentStatementOfSegment.procedure.id='.$procedure->getId()
+                .'&customField['.$customField->getId().'][]='.$highOption->getId(),
+            'GET',
+            $user,
+            $procedure
+        );
+
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $content = $response->getContent();
+        self::assertIsString($content);
+        $data = Json::decodeToArray($content)['data'];
+        $counts = array_combine(array_column($data, 'id'), array_column(array_column($data, 'attributes'), 'count'));
+
+        // Only the segment with the "High" option is counted.
+        self::assertSame(1, $counts[$tagA->getId()]);
+        self::assertSame(0, $counts[$tagB->getId()]);
+    }
+
+    public function testCustomFieldFacetIgnoresItsOwnSelection(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        [$priority, $color] = $this->createPriorityAndColorFields($procedure);
+        [$high, $low] = $priority->getConfiguration()->getOptions();
+        [$red, $blue] = $color->getConfiguration()->getOptions();
+        $this->createSegmentsWithPriorityAndColor($procedure, $priority, $color, [
+            [$high, $red],
+            [$low, $red],
+            [$low, $blue],
+        ]);
+
+        $rows = $this->requestFacetRows(
+            'facet='.$priority->getId().'&parentStatementOfSegment.procedure.id='.$procedure->getId()
+                .'&customField['.$priority->getId().'][]='.$high->getId(),
+            $procedure
+        );
+
+        // Selecting "High" must not hide "Low": the Priority facet is counted without its own selection.
+        self::assertSame(1, $rows[$high->getId()]['count']);
+        self::assertTrue($rows[$high->getId()]['selected']);
+        self::assertSame(2, $rows[$low->getId()]['count']);
+        self::assertFalse($rows[$low->getId()]['selected']);
+    }
+
+    public function testCustomFieldFacetRespectsOtherCustomFieldSelections(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        [$priority, $color] = $this->createPriorityAndColorFields($procedure);
+        [$high, $low] = $priority->getConfiguration()->getOptions();
+        [$red, $blue] = $color->getConfiguration()->getOptions();
+        $this->createSegmentsWithPriorityAndColor($procedure, $priority, $color, [
+            [$high, $red],
+            [$low, $red],
+            [$low, $blue],
+        ]);
+
+        $rows = $this->requestFacetRows(
+            'facet='.$priority->getId().'&parentStatementOfSegment.procedure.id='.$procedure->getId()
+                .'&customField['.$priority->getId().'][]='.$high->getId()
+                .'&customField['.$color->getId().'][]='.$blue->getId(),
+            $procedure
+        );
+
+        // Only the "Blue" segment is left once Priority's own selection is ignored: it has "Low".
+        self::assertSame(1, $rows[$low->getId()]['count']);
+        self::assertArrayNotHasKey($high->getId(), $rows);
+    }
+
+    /**
+     * @return array{0: CustomFieldConfiguration|Proxy, 1: CustomFieldConfiguration|Proxy}
+     */
+    private function createPriorityAndColorFields(Procedure $procedure): array
+    {
+        $priority = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($procedure->_real())
+            ->withRelatedTargetEntity(CustomFieldSupportedEntity::segment->value)
+            ->asRadioButton('Priority', options: ['High', 'Low'])
+            ->create();
+        $color = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($procedure->_real())
+            ->withRelatedTargetEntity(CustomFieldSupportedEntity::segment->value)
+            ->asRadioButton('Color', options: ['Red', 'Blue'])
+            ->create();
+
+        return [$priority, $color];
+    }
+
+    /**
+     * @param list<array{0: CustomFieldOption, 1: CustomFieldOption}> $priorityAndColorOptionPerSegment
+     */
+    private function createSegmentsWithPriorityAndColor(Procedure $procedure, CustomFieldConfiguration|Proxy $priority, CustomFieldConfiguration|Proxy $color, array $priorityAndColorOptionPerSegment): void
+    {
+        $parentStatement = StatementFactory::new(['procedure' => $procedure]);
+        foreach ($priorityAndColorOptionPerSegment as [$priorityOption, $colorOption]) {
+            SegmentFactory::createOne([
+                'procedure'                => $procedure,
+                'parentStatementOfSegment' => $parentStatement,
+                'customFields'             => $this->buildCustomFieldValues([
+                    $priority->getId() => $priorityOption->getId(),
+                    $color->getId()    => $colorOption->getId(),
+                ]),
+            ]);
+        }
+    }
+
     public function testFacetIsDeniedWithoutPermission(): void
     {
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
@@ -226,6 +362,41 @@ class StatementSegmentFacetApiTest extends AbstractApiTest
         );
 
         self::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
+    }
+
+    /**
+     * @param array<string, string> $optionIdByFieldId
+     */
+    private function buildCustomFieldValues(array $optionIdByFieldId): CustomFieldValuesList
+    {
+        $values = new CustomFieldValuesList();
+        foreach ($optionIdByFieldId as $customFieldId => $optionId) {
+            $customFieldValue = new CustomFieldValue();
+            $customFieldValue->setId($customFieldId);
+            $customFieldValue->setValue($optionId);
+            $values->addCustomFieldValue($customFieldValue);
+        }
+
+        return $values;
+    }
+
+    /**
+     * @return array<string, array<string, mixed>> facet row attributes, keyed by option id
+     */
+    private function requestFacetRows(string $query, Procedure $procedure): array
+    {
+        $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
+        $this->enablePermissions(['area_admin_statement_list', 'field_segments_custom_fields']);
+        $this->loginUserForApiPlatform($user);
+
+        $response = $this->sendRequest(self::FACET_ROUTE.'?'.$query, 'GET', $user, $procedure);
+
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $content = $response->getContent();
+        self::assertIsString($content);
+        $data = Json::decodeToArray($content)['data'];
+
+        return array_combine(array_column($data, 'id'), array_column($data, 'attributes'));
     }
 
     protected function getServerParameters(): array
