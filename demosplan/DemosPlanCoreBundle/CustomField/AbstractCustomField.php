@@ -56,6 +56,20 @@ abstract class AbstractCustomField implements CustomFieldInterface
         }
     }
 
+    /**
+     * @param list<string> $optionIds
+     *
+     * @throws InvalidArgumentException if one of the ids is not an option of this field
+     */
+    public function assertHasOptions(array $optionIds): void
+    {
+        foreach ($optionIds as $optionId) {
+            if (!$this->getCustomOptionValueById($optionId) instanceof CustomFieldOption) {
+                throw new InvalidArgumentException("Invalid option ID: {$optionId}");
+            }
+        }
+    }
+
     private function validateOptionIds(array $newOptions): void
     {
         collect($newOptions)
