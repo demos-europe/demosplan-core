@@ -9,10 +9,10 @@ All rights reserved
 
 <documentation>
   <!--
-  SegmentsListFilter renders one accordion per filter category (tags, assignee, place) in the
-  segments list slidebar. Reuses FilterFlyout's checkbox/search content and filter-building logic,
-  but keeps currentQuery/appliedQuery per category so one shared pair of buttons resets/applies all
-  categories at once. Emits `filterApply` and `filterOptions:request`, same payloads as FilterFlyout.
+  SegmentsListFilter renders one accordion per filter category (tags, assignee, place) and one per
+  custom field in the segments list slidebar. Reuses FilterFlyout's checkbox/search content and filter-building logic,
+  but keeps currentQuery/appliedQuery per category so one shared pair of buttons resets/applies all categories at once.
+  Emits `filterApply` and `filterOptions:request`, same payloads as FilterFlyout.
   -->
 </documentation>
 
@@ -125,6 +125,46 @@ All rights reserved
           </div>
         </div>
       </dp-accordion>
+
+      <dp-accordion
+        v-for="field in customFieldsWithOptions"
+        :key="getCustomFieldCategoryId(field)"
+        class="p-4 border-b border-neutral"
+        :data-cy="`segmentsListFilter:${getCustomFieldCategoryId(field)}`"
+        :is-open="getIsExpandedByCategoryId(getCustomFieldCategoryId(field))"
+        :show-border="false"
+        :title="field.attributes.name"
+        compressed
+        @item:toggle="(isExpanded) => setCustomFieldExpanded(field, isExpanded)"
+      >
+        <div class="pt-3">
+          <dp-resettable-input
+            :id="`searchField_${getCustomFieldCategoryId(field)}`"
+            v-model="customFieldSearchTerms[field.id]"
+            :data-cy="`searchField:${getCustomFieldCategoryId(field)}`"
+            :input-attributes="{ placeholder: Translator.trans('search.list'), type: 'search' }"
+            @reset="customFieldSearchTerms[field.id] = ''"
+          />
+
+          <div class="mt-3 pt-3 border-t border-neutral">
+            <ul
+              v-if="getSearchedCustomFieldOptions(field).length > 0"
+              class="m-0 p-0 pb-2 list-none"
+            >
+              <filter-flyout-checkbox
+                v-for="option in getSearchedCustomFieldOptions(field)"
+                :key="option.id"
+                :checked="false"
+                :instance="getCustomFieldCategoryId(field)"
+                :option="option"
+              />
+            </ul>
+            <span v-else>
+              {{ Translator.trans('search.results.none') }}
+            </span>
+          </div>
+        </div>
+      </dp-accordion>
     </div>
 
     <div class="shrink-0 flex justify-end gap-2 p-4 bg-surface shadow-lg">
@@ -155,6 +195,7 @@ import {
   DpResettableInput,
 } from '@demos-europe/demosplan-ui'
 import FilterFlyoutCheckbox from './FilterFlyoutCheckbox'
+import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useStore } from 'vuex'
 
 export default {
@@ -191,6 +232,11 @@ export default {
       type: [Object, Array],
       required: false,
       default: () => ({}),
+    },
+
+    procedureId: {
+      type: String,
+      required: true,
     },
   },
 
@@ -271,6 +317,35 @@ export default {
     const hasPendingChanges = computed(() => categories.some((category) => categoryHasPendingChanges(category)))
 
     const hasSelectedFilters = computed(() => categories.some((category) => category.currentQuery.length > 0))
+
+    // *** CUSTOM FIELDS ***
+    const customFields = ref([])
+
+    // Fields without options (e.g. text type) have nothing to show in the panel
+    const customFieldsWithOptions = computed(() =>
+      customFields.value.filter((field) => (field.attributes.options?.length ?? 0) > 0),
+    )
+
+    const getCustomFieldCategoryId = (field) => `customField_${field.id}`
+
+    const customFieldSearchTerms = reactive({})
+
+    const getSearchedCustomFieldOptions = (field) =>
+      dataTableSearch(customFieldSearchTerms[field.id] ?? '', field.attributes.options ?? [], ['label'])
+
+    if (hasPermission('field_segments_custom_fields')) {
+      const { fetchCustomFields } = useCustomFields()
+
+      // Served from the module cache when SegmentsList already fetched the same definitions
+      fetchCustomFields(props.procedureId, { sourceEntity: 'PROCEDURE', targetEntity: 'SEGMENT' })
+        .then((definitions) => {
+          customFields.value = definitions
+        })
+        .catch(() => {
+          /* Notification already shown by useCustomFieldDefinitions */
+        })
+    }
+
 
     // Same extraction as SegmentsList's own `queryIds` computed, applied to the same initialFilter data.
     const queryIds = computed(() => {
@@ -429,6 +504,10 @@ export default {
       }
     }
 
+    const setCustomFieldExpanded = (field, isExpanded) => {
+      setIsExpanded({ categoryId: getCustomFieldCategoryId(field), isExpanded })
+    }
+
     /**
      *
      * @param category
@@ -459,6 +538,11 @@ export default {
       requestFilterOptions(category)
     }
 
+    const resetCustomFieldView = (field) => {
+      customFieldSearchTerms[field.id] = ''
+      setIsExpanded({ categoryId: getCustomFieldCategoryId(field), isExpanded: false })
+    }
+
     /*
      * Discard unapplied changes and collapse accordions when the filter panel stops showing
      * (slidebar closed or switched to another tab)
@@ -469,6 +553,7 @@ export default {
       if (wasActive && isActive === false) {
         discardUnappliedChanges()
         categories.forEach((category) => resetCategoryView(category))
+        customFieldsWithOptions.value.forEach((field) => resetCustomFieldView(field))
       }
     })
 
@@ -502,8 +587,12 @@ export default {
       applyAllFilters,
       categories,
       categoryHasPendingChanges,
+      customFieldSearchTerms,
+      customFieldsWithOptions,
+      getCustomFieldCategoryId,
       getIsExpandedByCategoryId,
       getItemsSelected,
+      getSearchedCustomFieldOptions,
       getSearchedGroupedOptions,
       getSearchedUngroupedOptions,
       hasPendingChanges,
@@ -513,6 +602,7 @@ export default {
       isVisible,
       resetAllFilters,
       resetSearch,
+      setCustomFieldExpanded,
       setExpanded,
       updateQuery,
     }
