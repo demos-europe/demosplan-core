@@ -284,11 +284,12 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->documentParentId
                 ->readable(true, static fn (Statement $statement): ?string => $statement->getDocumentParentId());
             $configBuilder->documentTitle
-                ->readable(true, static fn (Statement $statement): ?string => $statement->getDocumentTitle());
+                ->readable(true, static fn (Statement $statement): ?string => $statement->getDocumentTitle())
+                ->sortable()->aliasedPath(Paths::statement()->document->title);
             $configBuilder->elementId
                 ->readable(true)->aliasedPath(Paths::statement()->element->id);
             $configBuilder->elementTitle
-                ->readable(true)->aliasedPath(Paths::statement()->element->title);
+                ->readable(true)->sortable()->aliasedPath(Paths::statement()->element->title);
             $configBuilder->originalId
                 ->readable(true)->aliasedPath(Paths::statement()->original->id);
             $configBuilder->paragraphParentId
@@ -319,7 +320,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 });
 
             $configBuilder->paragraphTitle
-                ->readable(true)->aliasedPath(Paths::statement()->paragraph->title);
+                ->readable(true)->sortable()->aliasedPath(Paths::statement()->paragraph->title);
             $configBuilder->assignee->readable()->filterable();
             $configBuilder->authorName->readable(true)->filterable();
             $configBuilder->submitName->readable(true)->filterable()->sortable();
