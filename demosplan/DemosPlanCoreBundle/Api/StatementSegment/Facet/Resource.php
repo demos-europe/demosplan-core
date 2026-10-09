@@ -54,7 +54,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
                             new Assert\Type('array'),
                             new Assert\All([
                                 new Assert\Type('array'),
-                                new Assert\All([new Assert\Type('string'), new Assert\NotBlank(), new Assert\Uuid(strict: false)]),
+                                new Assert\All([new Assert\Type('string'), new NotBlank(), new Assert\Uuid(strict: false)]),
                             ]),
                             new CustomFieldOptionSelection(),
                         ]),
