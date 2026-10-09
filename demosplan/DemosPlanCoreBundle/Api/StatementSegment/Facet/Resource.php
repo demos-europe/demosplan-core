@@ -27,8 +27,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * Represents one option (a tag, assignee, place, or custom field value) with its count for
  * a segment list filter.
- * The currently selected filter's own value is ignored when counting, so picking an option
- * never makes its own count drop to zero.
+ * The counts include every active filter, also the selection made in the same dropdown.
  * `facet` is a simple parameter, so it is declared directly in `parameters:`.
  * Text search (`search[value]`, `search[fieldsToSearch]`) is not declared here: it is applied by
  * SegmentTextSearchExtension, the same as in the segment list.

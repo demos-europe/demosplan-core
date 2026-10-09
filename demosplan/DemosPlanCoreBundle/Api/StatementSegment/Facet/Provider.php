@@ -25,7 +25,7 @@ use Webmozart\Assert\Assert;
 
 /**
  * Answers "how many segments have each option?" for one filter dropdown at a time.
- * It counts the segments that match all the other active filters, and options with no match still show up with a count of 0.
+ * It counts the segments that match all the active filters, including the selection made in the dropdown itself, and options with no match still show up with a count of 0.
  * Today the filters are tags, assignee, place and custom fields; tags, assignee and place are listed in {@see StaticFacets}.
  * To add a new filter of the same kind, add one entry there; anything that works differently, like custom fields, gets its own class.
  */
@@ -59,14 +59,9 @@ class Provider implements ProviderInterface
         }
 
         if ($this->customFieldFacet->supports($requestedFacet, $procedureId)) {
-            // Custom fields are filtered by the `customField[<fieldId>][]` parameter, the same as in
-            // the segment list. Like the static facets, this facet is counted without its own
-            // selection, so picking an option never hides the field's other options.
-            $segments = $this->fetchFilteredSegments(
-                $this->withoutOwnCustomFieldSelection($operation, $requestedFacet),
-                $filters,
-                null
-            );
+            // Custom fields are filtered by the `customField[<fieldId>][]` parameter, which API Platform
+            // applies on its own, the same as in the segment list.
+            $segments = $this->fetchFilteredSegments($operation, $filters);
             $selectedIds = $this->getSelectedCustomFields($operation)[$requestedFacet] ?? [];
 
             return $this->customFieldFacet->getResources($requestedFacet, $procedureId, $segments, $selectedIds);
@@ -86,42 +81,14 @@ class Provider implements ProviderInterface
     }
 
     /**
-     * Returns the operation with one custom field's own selection removed from the `customField`
-     * parameter. The selections of all other custom fields stay.
-     * The filter reads the parameter's value, not the `filters` context, so the value has to be replaced here.
-     */
-    private function withoutOwnCustomFieldSelection(Operation $operation, string $facet): Operation
-    {
-        $parameters = $operation->getParameters();
-        $parameter = $parameters?->get('customField');
-        $selected = $this->getSelectedCustomFields($operation);
-
-        if (null === $parameters || null === $parameter || !array_key_exists($facet, $selected)) {
-            return $operation;
-        }
-
-        unset($selected[$facet]);
-
-        // Work on copies, so the shared operation metadata keeps the request's original value.
-        $parametersCopy = clone $parameters;
-        $parametersCopy->add('customField', (clone $parameter)->setValue([] === $selected ? null : $selected));
-
-        return $operation->withParameters($parametersCopy);
-    }
-
-    /**
-     * Loads the segments that match all the active filters, except the one named in $excludedKey.
+     * Loads the segments that match all the active filters.
      * The filters, the text search and the user's access rules are all applied automatically by API Platform
      * and its extensions, so we don't write any query here.
      *
      * @return list<Segment>
      */
-    private function fetchFilteredSegments(Operation $operation, array $filters, ?string $excludedKey): array
+    private function fetchFilteredSegments(Operation $operation, array $filters): array
     {
-        if (null !== $excludedKey) {
-            unset($filters[$excludedKey]);
-        }
-
         $operation = $operation->withStateOptions(new DoctrineOptions(
             entityClass: Segment::class,
             handleLinks: static function (): void {
@@ -145,9 +112,8 @@ class Provider implements ProviderInterface
      */
     private function countStaticFacet(Operation $operation, string $requestedFacet, array $requestedFilters): array
     {
-        $excludedFilterKey = "{$requestedFacet}.id";
-        $segments = $this->fetchFilteredSegments($operation, $requestedFilters, $excludedFilterKey);
-        $selectedIds = (array) ($requestedFilters[$excludedFilterKey] ?? []);
+        $segments = $this->fetchFilteredSegments($operation, $requestedFilters);
+        $selectedIds = (array) ($requestedFilters["{$requestedFacet}.id"] ?? []);
 
         $counts = $this->countOccurrences($segments, $requestedFacet);
         $fullOptionSet = $this->staticFacets->getFullOptionSet($requestedFacet);

@@ -20,7 +20,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
  * field. Handles single-select/radio (scalar value) and multiSelect (array value)
  * uniformly. Takes already-fetched segments rather than querying itself, so callers can
  * scope the segment set however they need (e.g. {@see \demosplan\DemosPlanCoreBundle\Api\StatementSegment\Facet\Provider}
- * scopes it to "every currently active filter except this field's own").
+ * scopes it to "every currently active filter").
  */
 class SegmentCustomFieldUsageCounter
 {

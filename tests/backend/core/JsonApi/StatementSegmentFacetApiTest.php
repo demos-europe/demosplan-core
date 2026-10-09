@@ -55,7 +55,7 @@ class StatementSegmentFacetApiTest extends AbstractApiTest
         return $headers;
     }
 
-    public function testTagFacetCountsExcludeItsOwnFilter(): void
+    public function testTagFacetCountsIncludeItsOwnSelection(): void
     {
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
         // Tag's topic has its own `procedure` default (a fresh one per Foundry's
@@ -93,9 +93,8 @@ class StatementSegmentFacetApiTest extends AbstractApiTest
         self::assertSame(2, $counts[$tagA->getId()]);
         self::assertSame(1, $counts[$tagB->getId()]);
 
-        // Now filter down to tagB's segment via an unrelated facet (place is not filtered here,
-        // but selecting tagB itself as an *active* filter must not zero out its own count —
-        // it should still be reported, just with `selected: true`.
+        // Selecting tagB narrows the counts to tagB's segments, also for the tags facet itself:
+        // tagB is reported as `selected: true`, and tagA is still listed but has no match left.
         $response = $this->sendRequest(
             self::FACET_ROUTE.'?facet=tags&parentStatementOfSegment.procedure.id='.$procedure->getId().'&tags.id='.$tagB->getId(),
             'GET',
@@ -107,11 +106,12 @@ class StatementSegmentFacetApiTest extends AbstractApiTest
         $content = $response->getContent();
         self::assertIsString($content);
         $data = Json::decodeToArray($content)['data'];
-        $tagBEntry = current(array_filter($data, static fn (array $row): bool => $row['id'] === $tagB->getId()));
+        $byId = array_combine(array_column($data, 'id'), array_column($data, 'attributes'));
 
-        self::assertNotFalse($tagBEntry);
-        self::assertSame(1, $tagBEntry['attributes']['count']);
-        self::assertTrue($tagBEntry['attributes']['selected']);
+        self::assertSame(1, $byId[$tagB->getId()]['count']);
+        self::assertTrue($byId[$tagB->getId()]['selected']);
+        self::assertSame(0, $byId[$tagA->getId()]['count']);
+        self::assertFalse($byId[$tagA->getId()]['selected']);
     }
 
     public function testTagWithNoMatchingSegmentsStillAppearsWithZeroCount(): void
@@ -262,7 +262,7 @@ class StatementSegmentFacetApiTest extends AbstractApiTest
         self::assertSame(0, $counts[$tagB->getId()]);
     }
 
-    public function testCustomFieldFacetIgnoresItsOwnSelection(): void
+    public function testCustomFieldFacetCountsIncludeItsOwnSelection(): void
     {
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
         [$priority, $color] = $this->createPriorityAndColorFields($procedure);
@@ -280,11 +280,11 @@ class StatementSegmentFacetApiTest extends AbstractApiTest
             $procedure
         );
 
-        // Selecting "High" must not hide "Low": the Priority facet is counted without its own selection.
+        // Same as for the other facets: the selection narrows the counts, so only "High" is left.
+        // Options without any match are not listed for custom fields.
         self::assertSame(1, $rows[$high->getId()]['count']);
         self::assertTrue($rows[$high->getId()]['selected']);
-        self::assertSame(2, $rows[$low->getId()]['count']);
-        self::assertFalse($rows[$low->getId()]['selected']);
+        self::assertArrayNotHasKey($low->getId(), $rows);
     }
 
     public function testCustomFieldFacetRespectsOtherCustomFieldSelections(): void
@@ -301,14 +301,13 @@ class StatementSegmentFacetApiTest extends AbstractApiTest
 
         $rows = $this->requestFacetRows(
             'facet='.$priority->getId().'&parentStatementOfSegment.procedure.id='.$procedure->getId()
-                .'&customField['.$priority->getId().'][]='.$high->getId()
-                .'&customField['.$color->getId().'][]='.$blue->getId(),
+                .'&customField['.$color->getId().'][]='.$red->getId(),
             $procedure
         );
 
-        // Only the "Blue" segment is left once Priority's own selection is ignored: it has "Low".
+        // Only the two "Red" segments are counted: one "High", one "Low".
+        self::assertSame(1, $rows[$high->getId()]['count']);
         self::assertSame(1, $rows[$low->getId()]['count']);
-        self::assertArrayNotHasKey($high->getId(), $rows);
     }
 
     /**
