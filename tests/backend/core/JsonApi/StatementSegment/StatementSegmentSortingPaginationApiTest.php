@@ -15,6 +15,10 @@ namespace Tests\Core\JsonApi\StatementSegment;
 use DateTime;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementMetaFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use Tests\Base\AbstractApiTest;
 
 /**
@@ -179,5 +183,80 @@ class StatementSegmentSortingPaginationApiTest extends AbstractApiTest
 
         self::assertSame(101, $document['meta']['totalItems']);
         self::assertCount(100, $document['data']);
+    }
+
+    /**
+     * "Schritt" sorts by the workflow position of the place, not alphabetically by its name.
+     */
+    public function testGetCollectionSortsByPlaceSortIndex(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $third = $this->createSegmentInPlace($procedure, 'Alpha', 3);
+        $first = $this->createSegmentInPlace($procedure, 'Zeta', 1);
+        $second = $this->createSegmentInPlace($procedure, 'Beta', 2);
+
+        $ascending = $this->requestCollectionIds('order[place.sortIndex]=asc', $procedure);
+        $descending = $this->requestCollectionIds('order[place.sortIndex]=desc', $procedure);
+
+        self::assertSame([$first->getId(), $second->getId(), $third->getId()], $ascending);
+        self::assertSame([$third->getId(), $second->getId(), $first->getId()], $descending);
+    }
+
+    /**
+     * `order[externId]` uses natural order on the parent statement ID and then on the segment ID,
+     * so "M2-1" comes before "M10-1" and "M1-2" before "M1-10" despite plain string order.
+     */
+    public function testGetCollectionSortsByExternIdInNaturalOrder(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $m10 = StatementFactory::createOne(['procedure' => $procedure, 'externId' => 'M10'])->_real();
+        $m2 = StatementFactory::createOne(['procedure' => $procedure, 'externId' => 'M2'])->_real();
+        $m1 = StatementFactory::createOne(['procedure' => $procedure, 'externId' => 'M1'])->_real();
+        $m10s1 = $this->createSegmentInProcedure($procedure, ['parentStatementOfSegment' => $m10, 'externId' => 'M10-1']);
+        $m2s1 = $this->createSegmentInProcedure($procedure, ['parentStatementOfSegment' => $m2, 'externId' => 'M2-1']);
+        $m1s10 = $this->createSegmentInProcedure($procedure, ['parentStatementOfSegment' => $m1, 'externId' => 'M1-10']);
+        $m1s2 = $this->createSegmentInProcedure($procedure, ['parentStatementOfSegment' => $m1, 'externId' => 'M1-2']);
+
+        $ascending = $this->requestCollectionIds('order[externId]=asc', $procedure);
+        $descending = $this->requestCollectionIds('order[externId]=desc', $procedure);
+
+        self::assertSame([$m1s2->getId(), $m1s10->getId(), $m2s1->getId(), $m10s1->getId()], $ascending);
+        self::assertSame([$m10s1->getId(), $m2s1->getId(), $m1s10->getId(), $m1s2->getId()], $descending);
+    }
+
+    /**
+     * "Einreicher*in" sorts by the submit name of the parent statement.
+     */
+    public function testGetCollectionSortsBySubmitName(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $berta = $this->createSegmentWithSubmitName($procedure, 'Berta');
+        $anton = $this->createSegmentWithSubmitName($procedure, 'Anton');
+        $clara = $this->createSegmentWithSubmitName($procedure, 'Clara');
+
+        $ascending = $this->requestCollectionIds('order[parentStatementOfSegment.meta.submitName]=asc', $procedure);
+        $descending = $this->requestCollectionIds('order[parentStatementOfSegment.meta.submitName]=desc', $procedure);
+
+        self::assertSame([$anton->getId(), $berta->getId(), $clara->getId()], $ascending);
+        self::assertSame([$clara->getId(), $berta->getId(), $anton->getId()], $descending);
+    }
+
+    private function createSegmentWithSubmitName(Procedure $procedure, string $submitName): Segment
+    {
+        $parentStatement = StatementFactory::createOne(['procedure' => $procedure])->_real();
+        StatementMetaFactory::createOne(['statement' => $parentStatement, 'submitName' => $submitName]);
+
+        return $this->createSegmentInProcedure($procedure, ['parentStatementOfSegment' => $parentStatement]);
+    }
+
+    private function createSegmentInPlace(Procedure $procedure, string $placeName, int $sortIndex): Segment
+    {
+        $place = PlaceFactory::createOne([
+            'procedure' => $procedure,
+            'name'      => $placeName,
+            'sortIndex' => $sortIndex,
+        ])->_real();
+
+        return $this->createSegmentInProcedure($procedure, ['place' => $place]);
     }
 }
