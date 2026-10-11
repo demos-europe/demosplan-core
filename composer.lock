@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "17482e71d6fdbdd17341738f1f9ddf5e",
+    "content-hash": "2fca59f97f9df9df26949bcd355f4c0d",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -16655,16 +16655,16 @@
         },
         {
             "name": "symfony/polyfill-intl-messageformatter",
-            "version": "v1.38.0",
+            "version": "v1.43.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-intl-messageformatter.git",
-                "reference": "62cbeebabc201dbdf515243ccaf0f087ca988e1d"
+                "reference": "2713bda761b2a77799c10fa2509bd73ffadc6ea2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-intl-messageformatter/zipball/62cbeebabc201dbdf515243ccaf0f087ca988e1d",
-                "reference": "62cbeebabc201dbdf515243ccaf0f087ca988e1d",
+                "url": "https://api.github.com/repos/symfony/polyfill-intl-messageformatter/zipball/2713bda761b2a77799c10fa2509bd73ffadc6ea2",
+                "reference": "2713bda761b2a77799c10fa2509bd73ffadc6ea2",
                 "shasum": ""
             },
             "require": {
@@ -16716,7 +16716,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-intl-messageformatter/tree/v1.38.0"
+                "source": "https://github.com/symfony/polyfill-intl-messageformatter/tree/v1.43.0"
             },
             "funding": [
                 {
@@ -16736,7 +16736,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-25T15:05:24+00:00"
+            "time": "2026-09-25T15:46:47+00:00"
         },
         {
             "name": "symfony/polyfill-intl-normalizer",
