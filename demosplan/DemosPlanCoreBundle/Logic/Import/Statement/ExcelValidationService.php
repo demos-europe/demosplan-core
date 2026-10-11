@@ -12,6 +12,9 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Import\Statement;
 
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
+use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\Import\ImportValidationResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\Import\SegmentImportDTO;
 use demosplan\DemosPlanCoreBundle\ValueObject\Import\StatementImportDTO;
@@ -33,6 +36,8 @@ class ExcelValidationService
     public function __construct(
         private readonly LoggerInterface $logger,
         private readonly ValidatorInterface $validator,
+        private readonly CurrentProcedureService $currentProcedureService,
+        private readonly StatementRepository $statementRepository,
     ) {
     }
 
@@ -64,8 +69,11 @@ class ExcelValidationService
             // Parse and validate segments (build internId tracker)
             $segmentsByStatementId = $this->validateSegmentsWorksheet($segmentsWorksheet, $result);
 
+            // internIds (Eingangsnummer) already used by statements in the target procedure
+            $existingInternIds = $this->getExistingProcedureInternIds();
+
             // Parse and validate statements
-            $this->validateStatementsWorksheet($metaDataWorksheet, $segmentsByStatementId, $result);
+            $this->validateStatementsWorksheet($metaDataWorksheet, $segmentsByStatementId, $result, $existingInternIds);
 
             $this->logger->info('[ExcelValidation] Pass 1: Validation complete', [
                 'duration_sec' => round(microtime(true) - $startTime, 2),
@@ -234,20 +242,93 @@ class ExcelValidationService
     }
 
     /**
+     * Fetch the internIds (Eingangsnummern) already used by statements in the target procedure.
+     *
+     * Returns an empty list when no procedure context is available (e.g. isolated tests),
+     * so the cross-procedure uniqueness check is simply skipped in that case.
+     *
+     * @return array<string, string>
+     */
+    private function getExistingProcedureInternIds(): array
+    {
+        $procedure = $this->currentProcedureService->getProcedure();
+        if (!$procedure instanceof Procedure) {
+            return [];
+        }
+
+        $procedureId = $procedure->getId();
+        if ('' === $procedureId) {
+            return [];
+        }
+
+        return $this->statementRepository->getInternIdsInUse($procedureId);
+    }
+
+    /**
+     * Check the statement Eingangsnummer (= statement internId) for uniqueness.
+     *
+     * The Eingangsnummer is stored as the statement internId, which carries a unique
+     * constraint per procedure. Re-importing a file whose Eingangsnummer already exists
+     * in the procedure would otherwise fail deep in the persistence pass with a database
+     * error, so it is rejected here with a clear message instead.
+     *
+     * @param array<string, string> $existingInternIds internIds already used in the procedure
+     * @param array<string, int>    $internIdsSeen     Eingangsnummern already seen in this file
+     */
+    private function checkStatementInternId(
+        string $internId,
+        int $lineNumber,
+        string $worksheetTitle,
+        ImportValidationResult $result,
+        array $existingInternIds,
+        array &$internIdsSeen,
+    ): void {
+        $internId = trim($internId);
+        if ('' === $internId || '0' === $internId) {
+            return;
+        }
+
+        if (isset($existingInternIds[$internId])) {
+            $result->addError(
+                "Die Eingangsnummer '{$internId}' ist in diesem Verfahren bereits vergeben.",
+                $lineNumber,
+                $worksheetTitle
+            );
+
+            return;
+        }
+
+        if (isset($internIdsSeen[$internId])) {
+            $result->addError(
+                "Doppelte Eingangsnummer '{$internId}' (bereits verwendet in Zeile {$internIdsSeen[$internId]}).",
+                $lineNumber,
+                $worksheetTitle
+            );
+
+            return;
+        }
+
+        $internIdsSeen[$internId] = $lineNumber;
+    }
+
+    /**
      * Validate statements worksheet and cross-validate with segments.
      *
      * @param array<string, array<SegmentImportDTO>> $segmentsByStatementId
+     * @param array<string, string>                  $existingInternIds     internIds already used in the procedure
      */
     private function validateStatementsWorksheet(
         Worksheet $worksheet,
         array $segmentsByStatementId,
         ImportValidationResult $result,
+        array $existingInternIds = [],
     ): void {
         $worksheetTitle = $worksheet->getTitle() ?? 'Metadaten';
 
         // Get header row and determine actual column range (memory optimization)
         [$columnNames, $highestDataColumn] = $this->getFirstRowValuesWithHighestColumn($worksheet);
         $statementIdsSeen = [];
+        $internIdsSeen = [];
 
         foreach ($worksheet->getRowIterator(2) as $lineNumber => $row) {
             $values = $this->extractRowValues($row, $highestDataColumn);
@@ -263,7 +344,9 @@ class ExcelValidationService
                 $lineNumber,
                 $worksheetTitle,
                 $result,
-                $statementIdsSeen
+                $statementIdsSeen,
+                $existingInternIds,
+                $internIdsSeen
             );
         }
 
@@ -281,6 +364,8 @@ class ExcelValidationService
      *
      * @param array<string, array<SegmentImportDTO>> $segmentsByStatementId
      * @param array<string, bool>                    $statementIdsSeen
+     * @param array<string, string>                  $existingInternIds     internIds already used in the procedure
+     * @param array<string, int>                     $internIdsSeen         Eingangsnummern already seen in this file
      */
     private function validateSingleStatement(
         array $values,
@@ -290,9 +375,23 @@ class ExcelValidationService
         string $worksheetTitle,
         ImportValidationResult $result,
         array &$statementIdsSeen,
+        array $existingInternIds = [],
+        array &$internIdsSeen = [],
     ): void {
         $data = array_combine($columnNames, $values);
         $statementId = (string) ($data['Stellungnahme ID'] ?? '');
+
+        // The Eingangsnummer becomes the statement's internId, which must be unique per
+        // procedure. Reject values that are already taken or repeated within the file.
+        $eingangsnummer = array_key_exists('Eingangsnummer', $data) ? (string) $data['Eingangsnummer'] : '';
+        $this->checkStatementInternId(
+            $eingangsnummer,
+            $lineNumber,
+            $worksheetTitle,
+            $result,
+            $existingInternIds,
+            $internIdsSeen
+        );
 
         // Check if statement has segments
         $segmentCount = isset($segmentsByStatementId[$statementId])
