@@ -12,6 +12,7 @@ imports:
     - { resource: "allowedMimeTypes.yml" }
     - { resource: "elasticsearch.yml" }
     - { resource: "entity_content_change_fields_mapping.yml" }
+    - { resource: "personal_data_audit_fields_mapping.yml" }
     - { resource: "secrets.yml", ignore_errors: true }
 
     # do not change the ordering here, it matters! <3
