@@ -7,7 +7,17 @@
  * All rights reserved
  */
 
+import { dpApi } from '@demos-europe/demosplan-ui'
 import SplitStatementStore from '@DpJs/store/statement/SplitStatementStore'
+
+vi.mock('@demos-europe/demosplan-ui', async importOriginal => ({
+  ...await importOriginal(),
+  dpApi: { get: vi.fn() },
+}))
+
+vi.mock('@DpJs/store/core/VuexApiRoutes', () => ({
+  apiUrl: vi.fn(() => '/api/3.0/Tag'),
+}))
 
 describe('SplitStatement store', () => {
   describe('applyTagDefaultAssignees', () => {
@@ -103,6 +113,46 @@ describe('SplitStatement store', () => {
       const committedSegments = commit.mock.calls[0][1].val
 
       expect(committedSegments[0].assigneeId).toBeUndefined()
+    })
+  })
+
+  describe('fetchTags', () => {
+    beforeEach(() => {
+      globalThis.hasPermission = vi.fn(() => false)
+    })
+
+    it('resolves with empty tag lists when the procedure has no tags and the response has no included resources', async () => {
+      dpApi.get.mockResolvedValue({ data: { data: [] } })
+      const commit = vi.fn()
+
+      const titles = await SplitStatementStore.actions.fetchTags({ commit })
+
+      expect(titles).toEqual([])
+      expect(commit).toHaveBeenCalledWith('setProperty', { prop: 'tagTopics', val: [] })
+    })
+
+    it('commits the included tag topics sorted by title', async () => {
+      dpApi.get.mockResolvedValue({
+        data: {
+          data: [],
+          included: [
+            { type: 'TagTopic', attributes: { title: 'B' } },
+            { type: 'User', attributes: {} },
+            { type: 'TagTopic', attributes: { title: 'A' } },
+          ],
+        },
+      })
+      const commit = vi.fn()
+
+      await SplitStatementStore.actions.fetchTags({ commit })
+
+      expect(commit).toHaveBeenCalledWith('setProperty', {
+        prop: 'tagTopics',
+        val: [
+          { type: 'TagTopic', attributes: { title: 'A' } },
+          { type: 'TagTopic', attributes: { title: 'B' } },
+        ],
+      })
     })
   })
 })
