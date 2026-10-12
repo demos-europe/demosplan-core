@@ -31,6 +31,12 @@ use Webmozart\Assert\Assert;
 
 class Provider implements ProviderInterface
 {
+    /**
+     * Context key for callers inside the application (the export) that need the Segment entities
+     * and not the API resources: the resource mapping and its extra lookups are skipped.
+     */
+    public const RETURN_ENTITIES = 'return_segment_entities';
+
     public function __construct(
         private readonly AccessChecker $accessChecker,
         private readonly SegmentRepository $segmentRepository,
@@ -88,7 +94,7 @@ class Provider implements ProviderInterface
      * ({@see Extension\SegmentDoctrineAccessExtension}) and sorting are applied automatically.
      * Results are paginated via `page`/`itemsPerPage` (max 100 per page); `pagination=false` returns everything.
      *
-     * @return PaginatorInterface<StatementSegmentResource>|list<StatementSegmentResource>
+     * @return PaginatorInterface<StatementSegmentResource>|list<StatementSegmentResource>|list<Segment> the entities if {@see self::RETURN_ENTITIES} is set
      */
     private function provideCollection(Operation $operation, array $uriVariables, array $context): PaginatorInterface|array
     {
@@ -113,6 +119,10 @@ class Provider implements ProviderInterface
         $segments = $result instanceof PaginatorInterface || !is_array($result)
             ? iterator_to_array($result)
             : $result;
+
+        if (true === ($context[self::RETURN_ENTITIES] ?? false)) {
+            return $segments;
+        }
 
         $currentVersionNumbers = $this->currentUser->hasPermission('feature_enable_recommendation_versions')
             ? $this->recommendationVersionService->getCurrentVersionNumbersForSegments($segments)
