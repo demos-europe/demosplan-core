@@ -2087,8 +2087,27 @@ export default {
       // Wait a tick to ensure all reactive updates are processed
       await this.$nextTick()
 
-      // Update query hash and apply query
-      this.sendFilterQuery(bookmark.attributes.filter)
+      this.appliedFilterQuery = bookmark.attributes.filter
+
+      // ToDo: test cases
+      // Use the bookmark's queryHash instead of generating a new one
+      if (bookmark.attributes.queryHash) {
+        // Get the current hash from the URL (last segment)
+        const hrefParts = globalThis.location.href.split('/')
+        const currentHashInUrl = hrefParts[hrefParts.length - 1]
+
+        this.currentQueryHash = bookmark.attributes.queryHash
+        this.setCurrentQueryHash(bookmark.attributes.queryHash)
+
+        // Update URL to reflect the bookmark's queryHash only if different
+        if (currentHashInUrl !== bookmark.attributes.queryHash) {
+          this.updateQueryHashInURL(currentHashInUrl, bookmark.attributes.queryHash)
+        }
+      }
+
+      // Apply query without updating hash (hash already set above)
+      this.resetSelection()
+      this.applyQuery(1)
     },
 
     updateQueryHash () {
@@ -2175,31 +2194,42 @@ export default {
       lscache.remove(`${this.procedureId}:navigation:source`)
     }
 
-    if (
-      Array.isArray(this.initialFilter) === false &&
-      Object.keys(this.initialFilter).length
-    ) {
-      Object.values(this.initialFilter).forEach((filter) => {
-        if (!filter.condition) {
-          return
-        }
+    // ToDo: add permission
+    // Check if there's a saved bookmark - if so, skip initial setup and let bookmark component handle it
+    const savedBookmarkId = lscache.get(`${this.procedureId}:segments:currentBookmarkId`)
+    const hasSavedBookmark = !!savedBookmarkId
 
-        const query = {}
+    if (!hasSavedBookmark) {
+      if (
+        Array.isArray(this.initialFilter) === false &&
+        Object.keys(this.initialFilter).length
+      ) {
+        Object.values(this.initialFilter).forEach((filter) => {
+          if (!filter.condition) {
+            return
+          }
 
-        query[filter.condition.value] = filter
-        this.updateFilterQuery(query)
-      })
+          const query = {}
+
+          query[filter.condition.value] = filter
+          this.updateFilterQuery(query)
+        })
+      }
+
+      // Snapshot the initial filters as applied so the first applyQuery fetches with them
+      this.commitFilterQuery()
     }
-
-    // Snapshot the initial filters as applied so the first applyQuery fetches with them
-    this.commitFilterQuery()
 
     this.initPagination()
     if (hasPermission('field_segments_custom_fields')) {
       this.loadSegmentCustomFields()
     }
 
-    this.applyQuery(this.pagination.currentPage)
+    // Only run initial query if no saved bookmark exists
+    // If bookmark exists, SegmentsBookmarks component will trigger applyQuery via applyBookmarkSettings
+    if (!hasSavedBookmark) {
+      this.applyQuery(this.pagination.currentPage)
+    }
 
     this.fetchPlaces({
       fields: {

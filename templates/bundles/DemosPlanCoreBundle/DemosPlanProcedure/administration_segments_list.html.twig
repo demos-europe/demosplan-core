@@ -35,6 +35,7 @@
         ></segments-list-filter>
         {# Custom side panel content #}
         <segments-bookmarks
+            procedure-id="{{ procedure }}"
             @apply-bookmark="$refs.segmentsList.applyBookmarkSettings($event)"
             @reset-view="$refs.segmentsList.applyBookmarkSettings(null)">
         </segments-bookmarks>

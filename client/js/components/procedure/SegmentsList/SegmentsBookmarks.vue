@@ -28,21 +28,33 @@
         }"
         @change="handleViewChange(null)"
       />
-      <dp-radio
+      <div
         v-for="bookmark in bookmarks"
-        :id="bookmark.id"
-        :key="bookmark.id"
-        class="border my-2 p-1"
+        class="flex justify-between border my-2 p-1"
         :class="bookmark.id === currentBookmarkId ? 'border-blue-base' : 'border-neutral-light-3'"
-        :checked="bookmark.id === currentBookmarkId"
-        :disabled="isApplyingBookmark"
-        :value="bookmark.id"
-        :label="{
-          text: bookmark.attributes.name,
-          hint: Translator.trans('segments.view.bookmark.info')
-        }"
-        @change="handleViewChange(bookmark.id)"
-      />
+      >
+        <dp-radio
+          :id="bookmark.id"
+          :key="bookmark.id"
+          :checked="bookmark.id === currentBookmarkId"
+          :disabled="isApplyingBookmark"
+          :value="bookmark.id"
+          :label="{
+            text: bookmark.attributes.name,
+            hint: getBookmarkInfo(bookmark.id),
+          }"
+          @change="handleViewChange(bookmark.id)"
+        />
+        <dp-button
+          color="primary"
+          data-cy="segmentsBookmarks:delete"
+          hide-text
+          icon="delete"
+          :text="Translator.trans('delete')"
+          variant="subtle"
+          @click="deleteBookmark(bookmark.id)"
+        />
+      </div>
       <span class="text-sm">
         {{ Translator.trans('segments.view.none.saved') }}
       </span>
@@ -79,11 +91,17 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
-import { DpRadio, DpButton, dpApi, DpInput, DpButtonRow } from '@demos-europe/demosplan-ui'
+import { DpRadio, DpButton, DpInput, DpButtonRow } from '@demos-europe/demosplan-ui'
+import lscache from 'lscache'
+
+const props = defineProps<{
+  procedureId: string
+}>()
 
 const store = useStore()
 
 const newBookmarkName = ref('')
+const lsKey = `${props.procedureId}:segments:currentBookmarkId`
 
 /* Computed */
 const currentBookmark = computed(() => store.state.SegmentsBookmarks.currentBookmark)
@@ -133,10 +151,18 @@ const createNewBookmark = async () => {
   }
 }
 
+const getBookmarkInfo = (bookmarkId) => {
+  const bookmark = bookmarks.value.find(bookmark => bookmark.id === bookmarkId)
+
+  return `${Object.values(bookmark.attributes.filter).length} ${Translator.trans('filter')} * ${bookmark.attributes.viewSettings.selectedColumns.length} Splaten`
+}
+
 const handleViewChange = async (bookmarkId) => {
   if (bookmarkId === null) {
     const success = await store.dispatch('SegmentsBookmarks/resetToDefaultView')
     if (success) {
+      // Clear localStorage when returning to default view
+      lscache.remove(lsKey)
       emit('reset-view')
     }
     return
@@ -153,6 +179,7 @@ const handleViewChange = async (bookmarkId) => {
   })
 
   if (success) {
+    lscache.set(lsKey, bookmarkId)
     emit('apply-bookmark', selectedBookmark)
   }
 }
@@ -161,8 +188,27 @@ const save = () => {
   createNewBookmark()
 }
 
-onMounted(() => {
-  fetchBookmarks()
+onMounted (async () => {
+  await fetchBookmarks()
+
+  const savedBookmarkId = lscache.get(lsKey)
+
+  if (savedBookmarkId) {
+    const savedBookmark = bookmarks.value.find(bookmark => bookmark.id === savedBookmarkId)
+
+    if (savedBookmark) {
+      const success = await store.dispatch('SegmentsBookmarks/applyBookmark', {
+        bookmarkId: savedBookmarkId,
+        bookmark: savedBookmark
+      })
+
+      if (success) {
+        emit('apply-bookmark', savedBookmark)
+      }
+    } else {
+      lscache.remove(lsKey)
+    }
+  }
 })
 
 </script>
