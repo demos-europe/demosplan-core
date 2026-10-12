@@ -27,6 +27,7 @@ use demosplan\DemosPlanCoreBundle\Api\AssignableUser\AssignableUserResource;
 use demosplan\DemosPlanCoreBundle\Api\Place\PlaceResource;
 use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\AssigneeOrUnassignedFilter;
 use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\CustomFieldFilter;
+use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\ExternIdNaturalOrderFilter;
 use demosplan\DemosPlanCoreBundle\Api\Tag\Resource as TagResource;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementResource;
@@ -115,6 +116,8 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: Provider::class,
 )]
 #[ApiFilter(PropertyFilter::class)]
+// `order[externId]` sorts naturally (M2-1 before M10-1), which the plain OrderFilter cannot do.
+#[ApiFilter(ExternIdNaturalOrderFilter::class)]
 class Resource
 {
     /**
@@ -166,6 +169,7 @@ class Resource
         'parentStatementOfSegment.original.internId',
         'parentStatementOfSegment.submit',
         'parentStatementOfSegment.externId',
+        'parentStatementOfSegment.meta.submitName',
     ])]
     #[ApiProperty(readable: true, writable: false)]
     public ?StatementResource $parentStatement = null;
@@ -176,6 +180,8 @@ class Resource
     public ?AssignableUserResource $assignee = null;
 
     #[ApiFilter(SearchFilter::class, properties: ['place.id' => 'exact'])]
+    // "Schritt" sorts by workflow position, not alphabetically by name.
+    #[ApiFilter(OrderFilter::class, properties: ['place.sortIndex'])]
     #[ApiProperty(readable: true, writable: false)]
     public ?PlaceResource $place = null;
 
