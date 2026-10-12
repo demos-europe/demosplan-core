@@ -148,6 +148,24 @@ class SegmentExportApiPipelineTest extends AbstractApiTest
         self::assertSame(101, substr_count($csv, 'BULK-'));
     }
 
+    /**
+     * PHP replaces dots in parameter names when it parses a request (`tags.id` becomes `tags_id`),
+     * the export must still understand these filters.
+     */
+    public function testFiltersWithADotInTheirNameWork(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $statementA = StatementFactory::createOne(['procedure' => $procedure->_real(), 'externId' => 'STMT-AAA'])->_real();
+        $statementB = StatementFactory::createOne(['procedure' => $procedure->_real(), 'externId' => 'STMT-BBB'])->_real();
+        SegmentFactory::createOne(['externId' => 'SEG-OF-A', 'procedure' => $procedure, 'parentStatementOfSegment' => $statementA]);
+        SegmentFactory::createOne(['externId' => 'SEG-OF-B', 'procedure' => $procedure, 'parentStatementOfSegment' => $statementB]);
+
+        $csv = $this->exportCsv($procedure, ['parentStatementOfSegment.externId' => 'STMT-AAA']);
+
+        self::assertStringContainsString('SEG-OF-A', $csv);
+        self::assertStringNotContainsString('SEG-OF-B', $csv);
+    }
+
     public function testFilterIsIgnoredWithoutThePermission(): void
     {
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();

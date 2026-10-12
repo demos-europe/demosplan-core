@@ -36,10 +36,13 @@ class SegmentExportFilter
 {
     private const API_PATH = '/api/3.0/StatementSegment';
 
+    private const PROCEDURE_PARAMETER = 'parentStatementOfSegment.procedure.id';
+
     /**
-     * Parameters of the export URL that are not part of the list query.
+     * Parameters of the export URL that must not reach the query: `columns` is only for the
+     * exporter, the paging parameters and the procedure are set by the export itself.
      */
-    private const EXPORT_ONLY_PARAMETERS = ['columns'];
+    private const IGNORED_PARAMETERS = ['columns', 'pagination', 'page', 'itemsPerPage', self::PROCEDURE_PARAMETER];
 
     public function __construct(
         private readonly ResourceMetadataCollectionFactoryInterface $resourceMetadataFactory,
@@ -54,16 +57,8 @@ class SegmentExportFilter
      */
     public function filter(string $procedureId): array
     {
-        $parameters = array_diff_key(
-            $this->requestStack->getCurrentRequest()->query->all(),
-            array_flip(self::EXPORT_ONLY_PARAMETERS)
-        );
-        // The procedure comes from the route, not from the query, so it cannot be changed by the client.
-        $parameters['parentStatementOfSegment.procedure.id'] = $procedureId;
-        $parameters['pagination'] = 'false';
-
         $operation = $this->getCollectionOperation();
-        $request = Request::create(self::API_PATH, 'GET', $parameters);
+        $request = Request::create(self::API_PATH.'?'.$this->getQueryString($procedureId), 'GET');
         $request->attributes->set('_format', 'jsonapi');
         $request->attributes->set('_api_resource_class', StatementSegmentResource::class);
         $request->attributes->set('_api_operation_name', $operation->getName());
@@ -76,6 +71,42 @@ class SegmentExportFilter
         ]);
 
         return array_values($segments);
+    }
+
+    /**
+     * The query of the export URL, restricted to the procedure of the route and without paging. The
+     * procedure does not come from the query, so the client cannot export another one.
+     *
+     * It is the raw query string, not `$request->query`: PHP replaces the dots in the names of
+     * parameters like `tags.id` or `parentStatementOfSegment.externId` when it parses a request,
+     * which would silently drop these filters. The API provider parses the raw string itself.
+     */
+    private function getQueryString(string $procedureId): string
+    {
+        $rawQueryString = (string) $this->requestStack->getCurrentRequest()->server->get('QUERY_STRING', '');
+        $fixedParameters = http_build_query([self::PROCEDURE_PARAMETER => $procedureId, 'pagination' => 'false']);
+
+        return implode('&', array_filter([
+            $this->removeParameters($rawQueryString, self::IGNORED_PARAMETERS),
+            $fixedParameters,
+        ]));
+    }
+
+    /**
+     * @param list<string> $names names without brackets, `order` removes `order[x]=y` too
+     */
+    private function removeParameters(string $queryString, array $names): string
+    {
+        $remaining = array_filter(
+            explode('&', $queryString),
+            static fn (string $parameter): bool => !in_array(
+                explode('[', urldecode(strstr($parameter, '=', true) ?: $parameter))[0],
+                $names,
+                true
+            )
+        );
+
+        return implode('&', $remaining);
     }
 
     /**
