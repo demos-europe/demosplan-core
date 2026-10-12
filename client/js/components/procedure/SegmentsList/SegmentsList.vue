@@ -2040,6 +2040,57 @@ export default {
       this.setSlidebarContent({ externId: '', isOpen: !closing, segmentId: '', showTab: 'bookmarks' })
     },
 
+    async applyBookmarkSettings (bookmark) {
+      // If bookmark is null, reset everything (default view)
+      if (!bookmark) {
+        // Reset filters and search
+        this.resetQuery()
+
+        // Reset view settings
+        this.currentSelection = [...this.defaultColumnSelection]
+        localStorage.setItem('segmentList', JSON.stringify(this.defaultColumnSelection))
+
+        this.selectedSort = ''
+        lscache.remove(this.lsKey.selectedSort)
+
+        // Update query hash and apply
+        await this.updateQueryHash()
+        this.applyQuery(1)
+        return
+      }
+
+      // Apply search phrase from bookmark
+      if (bookmark.attributes.searchPhrase) {
+        this.searchTerm = bookmark.attributes.searchPhrase
+      } else {
+        this.searchTerm = ''
+      }
+
+      // Apply view settings from bookmark
+      if (bookmark.attributes.viewSettings) {
+        const viewSettings = bookmark.attributes.viewSettings
+
+        // Apply column selection
+        if (viewSettings.selectedColumns) {
+          this.currentSelection = viewSettings.selectedColumns
+          // Save to localStorage (same key as DpColumnSelector uses)
+          localStorage.setItem('segmentList', JSON.stringify(viewSettings.selectedColumns))
+        }
+
+        // Apply sorting
+        if (viewSettings.sorting) {
+          this.selectedSort = viewSettings.sorting
+          lscache.set(this.lsKey.selectedSort, viewSettings.sorting)
+        }
+      }
+
+      // Wait a tick to ensure all reactive updates are processed
+      await this.$nextTick()
+
+      // Update query hash and apply query
+      this.sendFilterQuery(bookmark.attributes.filter)
+    },
+
     updateQueryHash () {
       const hrefParts = globalThis.location.href.split('/')
       const oldQueryHash = hrefParts[hrefParts.length - 1]

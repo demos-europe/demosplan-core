@@ -20,25 +20,28 @@
         class="border my-2 p-1"
         :class="isDefaultViewActive ? 'border-blue-base' : 'border-neutral-light-3'"
         :checked="isDefaultViewActive"
+        :disabled="isApplyingBookmark"
         value="default"
         :label="{
           text: Translator.trans('segments.view.default'),
           hint: Translator.trans('segments.view.default.description')
         }"
-        @change="currentView = 'defaultView'"
+        @change="handleViewChange(null)"
       />
       <dp-radio
         v-for="bookmark in bookmarks"
         :id="bookmark.id"
+        :key="bookmark.id"
         class="border my-2 p-1"
-        :class="bookmark.id === currentView ? 'border-blue-base' : 'border-neutral-light-3'"
-        :checked="bookmark.id === currentView"
+        :class="bookmark.id === currentBookmarkId ? 'border-blue-base' : 'border-neutral-light-3'"
+        :checked="bookmark.id === currentBookmarkId"
+        :disabled="isApplyingBookmark"
         :value="bookmark.id"
         :label="{
           text: bookmark.attributes.name,
           hint: Translator.trans('segments.view.bookmark.info')
         }"
-        @change="currentView = bookmark.id"
+        @change="handleViewChange(bookmark.id)"
       />
       <span class="text-sm">
         {{ Translator.trans('segments.view.none.saved') }}
@@ -80,47 +83,34 @@ import { DpRadio, DpButton, dpApi, DpInput, DpButtonRow } from '@demos-europe/de
 
 const store = useStore()
 
-const currentView = ref('defaultView')
 const newBookmarkName = ref('')
 
 /* Computed */
-const isDefaultViewActive = computed(() => currentView.value === 'defaultView')
+const currentBookmark = computed(() => store.state.SegmentsBookmarks.currentBookmark)
+const currentBookmarkId = computed(() => store.state.SegmentsBookmarks.currentBookmarkId)
+const isDefaultViewActive = computed(() => currentBookmarkId.value === null)
 const slidebar = computed(() => store.state.SegmentSlidebar.slidebar)
 const isVisible = computed(() => slidebar.value.showTab === 'bookmarks')
 const currentQueryHash = computed(() => store.state.SegmentSlidebar.currentQueryHash)
-const bookmarks = computed(() => {
-  const items = store.state.Bookmark?.items || {}
-  return Object.values(items)
-})
+const isApplyingBookmark = computed(() => store.state.SegmentsBookmarks.isApplyingBookmark)
+const bookmarks = computed(() => store.state.SegmentsBookmarks.allBookmarks)
 
 /* Store actions */
-const listBookmarks = () => store.dispatch('Bookmark/list', {
-  params: {
-    fields: {
-      Bookmark: 'name,queryHash,filter,searchPhrase,viewSettings'
-    }
-  }
-})
-const getBookmark = (id: string) => store.dispatch('Bookmark/get', {
-  id,
-  params: {
-    fields: {
-      Bookmark: 'name,queryHash,filter,searchPhrase,viewSettings'
-    }
-  }
-})
-const createBookmark = (payload: object) =>
-  store.dispatch('Bookmark/create', payload)
+const fetchBookmarks = () => store.dispatch('SegmentsBookmarks/fetchBookmarks')
+const createBookmark = (payload: object) => store.dispatch('SegmentsBookmarks/createBookmark', payload)
 const updateBookmark = (payload: { id: string, name?: string, queryHash?: string }) =>
-  store.dispatch('Bookmark/update', payload)
-const deleteBookmark = (id: string) => store.dispatch('Bookmark/delete', id)
+  store.dispatch('SegmentsBookmarks/updateBookmark', payload)
+const deleteBookmark = (id: string) => store.dispatch('SegmentsBookmarks/deleteBookmark', id)
+
+/* Emit */
+const emit = defineEmits(['apply-bookmark', 'reset-view'])
 
 /* Methods */
 const abort = () => {
   console.log('Abort')
 }
 
-const createNewBookmark = () => {
+const createNewBookmark = async () => {
   if (!currentQueryHash.value) {
     return
   }
@@ -137,14 +127,34 @@ const createNewBookmark = () => {
     }
   }
 
-  createBookmark(payload)
-    .then(() => {
-      newBookmarkName.value = ''
-      listBookmarks()
-    })
-    .catch((error) => {
-      console.error('Failed to create bookmark:', error)
-    })
+  const success = await createBookmark(payload)
+  if (success) {
+    newBookmarkName.value = ''
+  }
+}
+
+const handleViewChange = async (bookmarkId) => {
+  if (bookmarkId === null) {
+    const success = await store.dispatch('SegmentsBookmarks/resetToDefaultView')
+    if (success) {
+      emit('reset-view')
+    }
+    return
+  }
+
+  const selectedBookmark = bookmarks.value.find(bookmark => bookmark.id === bookmarkId)
+  if (!selectedBookmark) {
+    return
+  }
+
+  const success = await store.dispatch('SegmentsBookmarks/applyBookmark', {
+    bookmarkId,
+    bookmark: selectedBookmark
+  })
+
+  if (success) {
+    emit('apply-bookmark', selectedBookmark)
+  }
 }
 
 const save = () => {
@@ -152,7 +162,7 @@ const save = () => {
 }
 
 onMounted(() => {
-  listBookmarks()
+  fetchBookmarks()
 })
 
 </script>

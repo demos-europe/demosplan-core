@@ -34,7 +34,10 @@
             @filter-options:request="$refs.segmentsList.sendFilterOptionsRequest($event)"
         ></segments-list-filter>
         {# Custom side panel content #}
-        <segments-bookmarks></segments-bookmarks>
+        <segments-bookmarks
+            @apply-bookmark="$refs.segmentsList.applyBookmarkSettings($event)"
+            @reset-view="$refs.segmentsList.applyBookmarkSettings(null)">
+        </segments-bookmarks>
     </segment-slidebar>
 
     <segments-list
