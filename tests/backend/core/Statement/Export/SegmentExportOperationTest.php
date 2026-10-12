@@ -101,6 +101,42 @@ class SegmentExportOperationTest extends AbstractApiTest
         self::assertSame(101, substr_count($this->getFileContent(), 'BULK-'));
     }
 
+    public function testExportsInTheRequestedOrder(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $this->createSegmentInProcedure($procedure, ['externId' => 'SEG-FIRST', 'orderInProcedure' => 1]);
+        $this->createSegmentInProcedure($procedure, ['externId' => 'SEG-SECOND', 'orderInProcedure' => 2]);
+
+        $this->sendExport('csv', $procedure, ['order' => ['orderInProcedure' => 'asc']]);
+        $ascending = $this->getFileContent();
+        $this->sendExport('csv', $procedure, ['order' => ['orderInProcedure' => 'desc']]);
+        $descending = $this->getFileContent();
+
+        self::assertLessThan(strpos($ascending, 'SEG-SECOND'), strpos($ascending, 'SEG-FIRST'));
+        self::assertGreaterThan(strpos($descending, 'SEG-SECOND'), strpos($descending, 'SEG-FIRST'));
+    }
+
+    /**
+     * The order the FE sends: keys with a dot in their name, as the list request uses them.
+     */
+    public function testAcceptsTheDefaultOrderOfTheList(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $this->createLabeledSegment($procedure, 'SEG-ONE', null);
+        $this->createLabeledSegment($procedure, 'SEG-TWO', null);
+
+        $response = $this->sendExport('csv', $procedure, ['order' => [
+            'parentStatementOfSegment.submit'   => 'asc',
+            'parentStatementOfSegment.externId' => 'asc',
+            'orderInProcedure'                  => 'asc',
+        ]]);
+        $csv = $this->getFileContent();
+
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        self::assertStringContainsString('SEG-ONE', $csv);
+        self::assertStringContainsString('SEG-TWO', $csv);
+    }
+
     public function testTheFileNameShowsThatTheExportIsFiltered(): void
     {
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();

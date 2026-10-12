@@ -509,6 +509,7 @@
 
 <script>
 import * as demosplanUi from '@demos-europe/demosplan-ui'
+import { buildSegmentExportUrl, buildSegmentListQuery, DEFAULT_SEGMENT_ORDER } from './segmentListQuery'
 import {
   CleanHtml,
   dpApi,
@@ -548,9 +549,9 @@ import { useApiPlatformFilters } from '@DpJs/composables/useApiPlatformFilters'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
 
-const SEGMENT_EXPORT_ROUTES = {
-  xlsx_normal: 'dplan_segment_xlsx_export',
-  csv_normal: 'dplan_segment_csv_export',
+const SEGMENT_EXPORT_FORMATS = {
+  xlsx_normal: 'xlsx',
+  csv_normal: 'csv',
 }
 
 export default {
@@ -1101,6 +1102,21 @@ export default {
       this.applyQuery(1)
     },
 
+    /**
+     * The filter and the search of the list as query parameters. The list request and the export
+     * both use them, so the export contains exactly the segments shown.
+     *
+     * @returns {Object}
+     */
+    buildListQuery () {
+      return buildSegmentListQuery({
+        filter: this.transformFiltersToApiPlatform(this.getLastAppliedFilterQuery),
+        procedureId: this.procedureId,
+        searchTerm: this.searchTerm,
+        searchFields: this.searchFieldsSelected,
+      })
+    },
+
     applyQuery (page) {
       // Drop unapplied filter selections before reading getFilterQuery, then close the panel
       lscache.remove(this.lsKey.allSegments)
@@ -1109,38 +1125,14 @@ export default {
       this.allItemsCount = null
       const { include, fields } = this.buildSegmentFetchOptions()
 
-      const defaultFilter = {
-        'parentStatementOfSegment.procedure.id': this.procedureId,
-      }
-      const filter = {
-        ...this.transformFiltersToApiPlatform(this.getLastAppliedFilterQuery),
-        ...defaultFilter,
-      }
-
-      const defaultOrder = {
-        'parentStatementOfSegment.submit': 'asc',
-        'parentStatementOfSegment.externId': 'asc',
-        orderInProcedure: 'asc',
-      }
-      const order = this.getSelectedSortParams() ?? defaultOrder
-
       const payload = {
         include,
         fields,
         pagination: true,
-        order,
+        order: this.getSelectedSortParams() ?? DEFAULT_SEGMENT_ORDER,
         page,
         itemsPerPage: this.pagination.perPage,
-        ...filter,
-      }
-
-      if (this.searchTerm !== '') {
-        payload.search = {
-          value: this.searchTerm,
-          ...(this.searchFieldsSelected.length !== 0 ?
-            { fieldsToSearch: this.searchFieldsSelected } :
-            {}),
-        }
+        ...this.buildListQuery(),
       }
 
       this.isLoading = true
@@ -1184,53 +1176,28 @@ export default {
     },
 
     /*
-     * Mirrors the filter/search/sort construction in applyQuery() so the export always contains
-     * exactly the segments currently shown in the list - no more (StatementSegmentResourceType's
-     * access conditions alone would also allow segments from procedures coupled via
-     * getAllowedSegmentAccessProcedures(), which sameProcedure excludes here just like it does
-     * for the list itself). columns mirrors orderedHeaderFields, same as buildClipboardText(): the
-     * user's current column selection in their current drag&drop order, externId always first.
+     * The export asks for the same filter and search as the list request (buildListQuery()), so it contains
+     * exactly the segments currently shown: the backend runs the same query for it. `procedureId` scopes the
+     * export to this procedure, which also excludes the segments of coupled procedures that the access
+     * conditions alone would allow. The order stays the default one. columns mirrors orderedHeaderFields,
+     * same as buildClipboardText(): the user's current column selection in their current drag&drop order,
+     * externId always first.
      */
     handleExportSegments ({ type }) {
       const selectedSegmentIds = this.resolveSelectedSegmentIds()
-
-      const filter = {
-        ...this.getLastAppliedFilterQuery,
-        sameProcedure: {
-          condition: {
-            path: 'parentStatement.procedure.id',
-            value: this.procedureId,
-          },
-        },
-        ...(selectedSegmentIds.length > 0 ? {
-          selectedSegments: {
-            condition: {
-              path: 'id',
-              operator: 'IN',
-              value: selectedSegmentIds,
-            },
-          },
-        } : {}),
-      }
-
       const orderedFields = this.$refs.dataTable?.orderedHeaderFields || this.availableHeaderFields
-      const columns = orderedFields.map(headerField => headerField.field)
 
-      const params = {
-        procedureId: this.procedureId,
-        filter,
-        sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
-        columns: columns.join(','),
-      }
-
-      if (this.searchTerm !== '') {
-        params.search = {
-          value: this.searchTerm,
-          ...(this.searchFieldsSelected.length !== 0 ? { fieldsToSearch: this.searchFieldsSelected } : {}),
-        }
-      }
-
-      globalThis.location.href = Routing.generate(SEGMENT_EXPORT_ROUTES[type], params)
+      globalThis.location.href = buildSegmentExportUrl({
+        url: apiUrl('StatementSegment', 'list'),
+        format: SEGMENT_EXPORT_FORMATS[type],
+        params: {
+          ...this.buildListQuery(),
+          procedureId: this.procedureId,
+          ...(selectedSegmentIds.length > 0 ? { id: selectedSegmentIds } : {}),
+          order: DEFAULT_SEGMENT_ORDER,
+          columns: orderedFields.map(headerField => headerField.field).join(','),
+        },
+      })
     },
 
     /*
