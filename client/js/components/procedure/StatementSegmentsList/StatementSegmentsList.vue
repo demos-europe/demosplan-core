@@ -9,7 +9,10 @@
 
 <template>
   <div v-if="statement">
-    <dp-slidebar @close="resetSlidebar">
+    <dp-slidebar
+      :open="slidebar.isOpen"
+      @close="resetSlidebar"
+    >
       <dp-version-history
         v-show="slidebar.showTab === 'history'"
         class="u-pr"
@@ -29,6 +32,10 @@
         :procedure-id="procedure.id"
         :segment-id="slidebar.segmentId"
         :statement-id="statementId"
+      />
+      <dp-segment-recommendation-email
+        :current-user-email="currentUser.email"
+        :procedure-name="procedure.name"
       />
     </dp-slidebar>
 
@@ -237,6 +244,7 @@ import {
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { buildDetailedStatementQuery } from '../Shared/utils/statementQueryBuilder'
 import DpClaim from '@DpJs/components/statement/DpClaim'
+import DpSegmentRecommendationEmail from '@DpJs/components/statement/statement/DpSegmentRecommendationEmail'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
 import lscache from 'lscache'
 import { redirectToStatementListWithGroupResolvedToast } from '../Shared/utils/redirectToStatementListWithGroupResolvedToast'
@@ -259,6 +267,7 @@ export default {
     DpClaim,
     DpConfirmDialog,
     DpFlyout,
+    DpSegmentRecommendationEmail,
     DpSlidebar,
     DpStickyElement,
     DpVersionHistory,
@@ -399,6 +408,14 @@ export default {
     ...mapGetters('SegmentSlidebar', [
       'commentsList',
     ]),
+
+    ...mapState('Tag', {
+      tagsItems: 'items',
+    }),
+
+    ...mapState('TagTopic', {
+      tagTopicsItems: 'items',
+    }),
 
     additionalAttachments () {
       if (this.statement?.hasRelationship('genericAttachments')) {
@@ -593,6 +610,14 @@ export default {
       'toggleSlidebarContent',
     ]),
 
+    ...mapActions('Tag', {
+      listTags: 'list',
+    }),
+
+    ...mapActions('TagTopic', {
+      listTagTopics: 'list',
+    }),
+
     checkStatementClaim () {
       if (this.statementClaimChecked === false) {
         this.statementClaimChecked = true
@@ -742,7 +767,7 @@ export default {
         this.$refs.locationMap.resetCurrentMap()
       }
 
-      this.setContent({ prop: 'slidebar', val: { isOpen: false, showTab: '', segmentId: '' } })
+      this.setContent({ prop: 'slidebar', val: { externId: '', isOpen: false, showTab: '', segmentId: '' } })
     },
 
     saveStatement (changes) {
@@ -921,6 +946,17 @@ export default {
       },
     })
     this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedure.id, statementId: this.statementId } })
+
+    const hasTags = Object.keys(this.tagsItems).length > 0
+    const hasTopics = Object.keys(this.tagTopicsItems).length > 0
+
+    if (!hasTopics) {
+      this.listTagTopics({ page: { size: 1000 } })
+    }
+
+    if (!hasTags) {
+      this.listTags({ include: 'topic' })
+    }
 
     globalThis.addEventListener('hashchange', this.handleHashChange)
 

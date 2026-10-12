@@ -73,10 +73,12 @@ class PlaceResourceApiTest extends AbstractApiTest
     }
 
     /**
-     * AccessDeniedHttpException thrown from an ApiPlatform provider is not turned into a
-     * JSON:API error body — {@see \demosplan\DemosPlanCoreBundle\EventListener\ExceptionEventSubscriber::handleException()}
-     * only special-cases the legacy APIController stack, so this falls through to the generic
-     * HTML error redirect. Asserting the current (imperfect) behavior rather than the ideal one.
+     * An AccessDeniedHttpException from an ApiPlatform provider used to fall through to the generic
+     * HTML error redirect, because
+     * {@see \demosplan\DemosPlanCoreBundle\EventListener\ExceptionEventSubscriber::handleException()}
+     * only recognised the legacy APIController stack. It now answers API Platform requests in the same
+     * error envelope as the other API versions, so the status is asserted rather than merely the
+     * absence of the payload.
      */
     public function testGetIsDeniedWithoutPermission(): void
     {
@@ -92,6 +94,7 @@ class PlaceResourceApiTest extends AbstractApiTest
             $procedure
         );
 
+        self::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
         self::assertStringNotContainsString(self::PLACE_NAME, $response->getContent());
     }
 
@@ -111,6 +114,7 @@ class PlaceResourceApiTest extends AbstractApiTest
             $otherProcedure
         );
 
+        self::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
         self::assertStringNotContainsString(self::PLACE_NAME, $response->getContent());
     }
 

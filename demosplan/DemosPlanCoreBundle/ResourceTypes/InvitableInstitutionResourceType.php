@@ -126,10 +126,13 @@ final class InvitableInstitutionResourceType extends DplanResourceType
                     function (Orga $institution, array $newAssignedTags): array {
                         $newAssignedTags = new ArrayCollection($newAssignedTags);
                         $currentlyAssignedTags = $institution->getAssignedTags();
+                        $currentCustomerId = $this->currentCustomerService->getCurrentCustomer()->getId();
 
-                        // removed tags
+                        // The payload covers the current customer only, so a tag of another
+                        // customer is absent from it without having been removed.
                         $removedTags = $currentlyAssignedTags->filter(
                             static fn (InstitutionTag $currentTag): bool => !$newAssignedTags->contains($currentTag)
+                                && $currentCustomerId === $currentTag->getCategory()->getCustomer()->getId()
                         );
 
                         // new tags

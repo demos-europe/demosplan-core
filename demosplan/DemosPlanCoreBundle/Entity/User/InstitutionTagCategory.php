@@ -86,6 +86,11 @@ class InstitutionTagCategory extends CoreEntity implements UuidEntityInterface, 
         $this->name = $name;
     }
 
+    public function getCustomer(): Customer
+    {
+        return $this->customer;
+    }
+
     public function setCustomer(CustomerInterface $customer): void
     {
         $this->customer = $customer;

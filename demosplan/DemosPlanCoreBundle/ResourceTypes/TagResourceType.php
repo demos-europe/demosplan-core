@@ -15,7 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use DemosEurope\DemosplanAddon\Contracts\Entities\TagInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\TagResourceTypeInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Api\Tag\AccessChecker;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
@@ -51,6 +51,7 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
         private readonly TagRepository $tagRepository,
         private readonly TagTopicRepository $tagTopicRepository,
         private readonly StatementHandler $statementHandler,
+        private readonly AccessChecker $accessChecker,
     ) {
     }
 
@@ -76,28 +77,12 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
 
     public function isAvailable(): bool
     {
-        return $this->currentUser->hasAnyPermissions(
-            'feature_json_api_tag',
-            'area_statement_segmentation',
-            'feature_statements_tag',
-            'area_admin_statements_tag'
-        );
+        return $this->accessChecker->isAvailable();
     }
 
     protected function getAccessConditions(): array
     {
-        $procedure = $this->currentProcedureService->getProcedure();
-        if (!$procedure instanceof Procedure) {
-            // there is currently no use case in which all tags for all procedures need to be requested
-            return [$this->conditionFactory->false()];
-        }
-
-        return [
-            $this->conditionFactory->propertyHasValue(
-                $procedure->getId(),
-                Paths::tag()->topic->procedure->id
-            ),
-        ];
+        return $this->accessChecker->getAccessConditions();
     }
 
     public function isCreateAllowed(): bool

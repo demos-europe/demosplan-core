@@ -30,11 +30,6 @@
         "website": "https://github.com/composer/composer"
     },
     {
-        "license": "Apache-2.0",
-        "package": "cyclonedx/cyclonedx-php-composer",
-        "website": "https://github.com/CycloneDX/cyclonedx-php-composer"
-    },
-    {
         "license": "MIT",
         "package": "demos-europe/demosplan-addon",
         "website": "https://github.com/demos-europe/demosplan-addon"
@@ -193,6 +188,11 @@
         "license": "MIT",
         "package": "jms/serializer-bundle",
         "website": "https://github.com/schmittjoh/JMSSerializerBundle"
+    },
+    {
+        "license": "MIT",
+        "package": "khanamiryan/qrcode-detector-decoder",
+        "website": "https://github.com/khanamiryan/php-qrcode-detector-decoder"
     },
     {
         "license": "MIT",
@@ -423,6 +423,11 @@
         "license": "MIT",
         "package": "symfony/dependency-injection",
         "website": "https://github.com/symfony/dependency-injection"
+    },
+    {
+        "license": "MIT",
+        "package": "symfony/doctrine-messenger",
+        "website": "https://github.com/symfony/doctrine-messenger"
     },
     {
         "license": "MIT",

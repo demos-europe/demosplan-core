@@ -68,10 +68,14 @@
                 {% endfor %}
 
                 <dp-fragment-list-filter-modal
-                    inline-template
                     :filters="JSON.parse('{{ filters|default([])|json_encode|e('js', 'utf-8') }}')"
                     :applied-filters="JSON.parse('{{ templateVars.definition.filters.must|map(el => { value: el.value, field: el.field })|default([])|json_encode|e('js', 'utf-8') }}')"
                     :permission-fields="JSON.parse('{{ filtersPermissionFields|default([])|json_encode|e('js', 'utf-8') }}')">
+                    <template #default="{
+                        filterGroups,
+                        stripRaw,
+                        userSelection
+                    }">
                     <div
                         v-cloak
                         class="inline-block">
@@ -91,7 +95,7 @@
 
                             <!-- modal header -->
                             <template v-slot:header>
-                                {{ 'filter.fragments'|trans }}
+                                <h2>{{ 'filter.fragments'|trans }}</h2>
                             </template>
 
                             <div class="layout__item u-1-of-2 u-pr" v-for="group in filterGroups">
@@ -144,6 +148,7 @@
                             </div>
                         </dp-modal>
                     </div>
+                    </template>
                 </dp-fragment-list-filter-modal>
 
             </div>

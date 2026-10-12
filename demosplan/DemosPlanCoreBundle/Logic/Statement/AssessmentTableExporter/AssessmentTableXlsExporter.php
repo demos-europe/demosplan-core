@@ -446,6 +446,11 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
             30
         );
 
+        // Carries the statement id so an instance importing this export can pair its statements
+        // with the ones they originate from. The extern id cannot serve that purpose: statement
+        // copies share it within a procedure.
+        $columnsDefinition[] = $this->createColumnDefinition('id', 'statement.source.reference', 40);
+
         return $columnsDefinition;
     }
 

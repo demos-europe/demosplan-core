@@ -877,7 +877,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
         $this->logger->debug('Permissionset scope: '.$scope);
         $hasPermissionSet = $this->getPermissionset($scope) === $permissionset;
-        $this->logger->debug('Has Permissionset: '.DemosPlanTools::varExport($hasPermissionSet, true));
+        $this->logger->debug('Has Permissionset: {hasPermissionSet}', ['hasPermissionSet' => $hasPermissionSet]);
 
         return $hasPermissionSet;
     }

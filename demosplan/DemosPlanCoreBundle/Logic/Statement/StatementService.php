@@ -115,10 +115,10 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityNotFoundException;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
@@ -730,6 +730,16 @@ class StatementService implements StatementServiceInterface
     public function getInternIdsInUse(string $procedureId): array
     {
         return $this->statementRepository->getInternIdsInUse($procedureId);
+    }
+
+    /**
+     * @param non-empty-string $procedureId
+     *
+     * @return array<non-empty-string, non-empty-string>
+     */
+    public function getSourceStatementIdsInUse(string $procedureId): array
+    {
+        return $this->statementRepository->getSourceStatementIdsInUse($procedureId);
     }
 
     /**
@@ -2599,7 +2609,7 @@ class StatementService implements StatementServiceInterface
                 }
             }
         } catch (Exception $e) {
-            $this->logger->error('Get HeadStatement IDs of statements : '.DemosPlanTools::varExport($statementIds, true).' failed: ', [$e]);
+            $this->logger->error('Get HeadStatement IDs of statements failed', ['statementIds' => $statementIds, 'exception' => $e]);
         }
 
         return $result;

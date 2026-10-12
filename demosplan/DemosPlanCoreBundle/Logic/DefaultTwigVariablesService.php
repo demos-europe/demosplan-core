@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermission;
 use demosplan\DemosPlanCoreBundle\Services\BrandingLoader;
 use demosplan\DemosPlanCoreBundle\Services\OrgaLoader;
+use demosplan\DemosPlanCoreBundle\Services\ServerBannerLoader;
 use Illuminate\Support\Collection;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,8 +49,9 @@ class DefaultTwigVariablesService
         private readonly PermissionsInterface $permissions,
         private readonly TransformMessageBagService $transformMessageBagService,
         private readonly string $publicCSSClassPrefix,
-        private readonly string $defaultLocale)
-    {
+        private readonly string $defaultLocale,
+        private readonly ServerBannerLoader $serverBannerLoader,
+    ) {
     }
 
     protected function extractExposedPermissions(): Collection
@@ -129,6 +131,7 @@ class DefaultTwigVariablesService
         $brandingObject = $this->brandingLoader->getBrandingObject($request);
         $orgaObject = $this->orgaLoader->getOrgaObject($request);
         $customerObject = $this->customerService->getCurrentCustomer();
+        $serverBanner = $this->serverBannerLoader->getServerBanner();
 
         $this->variables = [
             'branding'                                            => $brandingObject,
@@ -161,6 +164,7 @@ class DefaultTwigVariablesService
             'publicCSSClassPrefix'                                => $this->publicCSSClassPrefix,
             'roles'                                               => $user->getRoles(),
             'route_name'                                          => $request->attributes->get('_route'),
+            'serverBanner'                                        => $serverBanner,
             'urlPathPrefix'                                       => $this->globalConfig->getUrlPathPrefix(),
             'urlScheme'                                           => $this->globalConfig->getUrlScheme() ?? $request->getScheme(),
             'useOpenGeoDb'                                        => $this->globalConfig->getUseOpenGeoDb(),

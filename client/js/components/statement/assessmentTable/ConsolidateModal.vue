@@ -15,7 +15,7 @@
   >
     <!-- header -->
     <template v-slot:header>
-      {{ Translator.trans('statement.consolidate') }}
+      <h2>{{ Translator.trans('statement.consolidate') }}</h2>
     </template>
 
     <!-- content -->

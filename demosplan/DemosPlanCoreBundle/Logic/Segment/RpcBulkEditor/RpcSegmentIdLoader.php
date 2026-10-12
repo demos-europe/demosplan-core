@@ -128,7 +128,7 @@ class RpcSegmentIdLoader implements RpcMethodSolverInterface
             : $this->drupalFilterParser->parseFilter($this->drupalFilterParser->validateFilter($drupalFilter));
         $conditions[] = $this->conditionFactory->propertyHasValue(
             $procedureId,
-            $this->segmentResourceType->parentStatement->procedure->id
+            $this->segmentResourceType->procedure->id
         );
 
         return $conditions;

@@ -137,9 +137,12 @@ class SegmentDeadlineReminderService
      * Builds the nested procedure -> workflow place -> segment structure the
      * template renders, carrying the direct link for each segment.
      *
+     * Segments of statements imported from another instance can share their extern id, so the
+     * entries are collected as a list instead of being keyed by it.
+     *
      * @param list<Segment> $segments
      *
-     * @return array<string, array<string, array<string, string>>>
+     * @return array<string, array<string, list<array{externId: string, link: string}>>>
      */
     private function buildSegmentEntries(array $segments): array
     {
@@ -147,7 +150,10 @@ class SegmentDeadlineReminderService
         foreach ($segments as $segment) {
             $procedureName = $segment->getProcedure()->getName();
             $workflowPlace = $segment->getPlace()->getName();
-            $entries[$procedureName][$workflowPlace][$segment->getExternId()] = $this->generateSegmentLink($segment);
+            $entries[$procedureName][$workflowPlace][] = [
+                'externId' => $segment->getExternId(),
+                'link'     => $this->generateSegmentLink($segment),
+            ];
         }
 
         return $entries;

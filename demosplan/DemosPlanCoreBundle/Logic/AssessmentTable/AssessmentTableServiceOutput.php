@@ -583,6 +583,7 @@ class AssessmentTableServiceOutput
         array $requestPost,
         string $sortType,
         string $viewMode = AssessmentTableViewMode::DEFAULT_VIEW,
+        bool $includeStatementMetadataRow = false,
     ): WriterInterface {
         return $this->docxExporter->generateDocx(
             $outputResult,
@@ -593,7 +594,8 @@ class AssessmentTableServiceOutput
             $viewOrientation,
             $requestPost,
             $sortType,
-            $viewMode
+            $viewMode,
+            $includeStatementMetadataRow
         );
     }
 

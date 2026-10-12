@@ -106,8 +106,8 @@ class ProcedureDeleter
         // delete import_emails -> attachments
         $this->processImportEmails($procedureIds, $isDryRun);
 
-        // delete user filter sets
-        $this->deleteUserFilterSets($procedureIds, $isDryRun);
+        // delete bookmarks
+        $this->deleteBookmarks($procedureIds, $isDryRun);
 
         // delete hashed queries
         $this->deleteHashedQueries($procedureIds, $isDryRun);
@@ -141,6 +141,9 @@ class ProcedureDeleter
 
         // export fields configuration
         $this->deleteExportFieldsConfiguration($procedureIds, $isDryRun);
+
+        // assessment table export jobs
+        $this->deleteAssessmentTableExportJobs($procedureIds, $isDryRun);
 
         // maillane connection fixme does this table exist in all projects?
         $this->deleteMaillaneConnection($procedureIds, $isDryRun);
@@ -447,6 +450,14 @@ class ProcedureDeleter
     /**
      * @throws Exception
      */
+    private function deleteAssessmentTableExportJobs(array $procedureIds, bool $isDryRun): void
+    {
+        $this->queriesService->deleteFromTableByIdentifierArray('assessment_table_export_job', 'procedure_id', $procedureIds, $isDryRun);
+    }
+
+    /**
+     * @throws Exception
+     */
     private function deleteMaillaneConnection(array $procedureIds, bool $isDryRun): void
     {
         $this->queriesService->deleteFromTableByIdentifierArray('maillane_connection', 'procedure_id', $procedureIds, $isDryRun);
@@ -740,10 +751,10 @@ class ProcedureDeleter
     /**
      * @throws Exception
      */
-    private function deleteUserFilterSets(array $procedureIds, bool $isDryRun): void
+    private function deleteBookmarks(array $procedureIds, bool $isDryRun): void
     {
         $this->queriesService->deleteFromTableByIdentifierArray(
-            'user_filter_set',
+            'bookmark',
             'procedure_id',
             $procedureIds,
             $isDryRun

@@ -31,11 +31,10 @@ use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use demosplan\DemosPlanCoreBundle\Repository\EntitySyncLinkRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -168,7 +167,7 @@ class StatementDeleter
                 try {
                     // Prohibit deletion if a consultation token exists for this statement
                     if ($this->consultationTokenService->getTokenForStatement($statement) instanceof ConsultationToken) {
-                        throw new DemosException('error.delete.statement.consultation.token', 'Statement '.DemosPlanTools::varExport($statementId, true).' has an associated consultation token.');
+                        throw new DemosException('error.delete.statement.consultation.token', sprintf('Statement %s has an associated consultation token.', $statementId));
                     }
                     if ($canTransaction) {
                         $doctrineConnection->beginTransaction();

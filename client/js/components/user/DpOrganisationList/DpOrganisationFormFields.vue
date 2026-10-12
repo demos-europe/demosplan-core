@@ -325,7 +325,7 @@
 
           <div
             v-if="showAddStatusForm"
-            class="layout"
+            class="layout flex items-end"
           >
             <!-- Select row  -->
             <div class="layout__item u-1-of-4">
@@ -362,7 +362,7 @@
             </div>
 
             <!-- Button row  -->
-            <div class="layout__item u-1-of-2 u-mt-0_5 space-inline-m">
+            <div class="layout__item u-1-of-2 space-inline-m">
               <button
                 class="btn btn--primary"
                 data-cy="orgaFormField:saveNewRegistrationStatus"
@@ -384,17 +384,61 @@
         </template>
 
         <dp-checkbox
-          v-if="hasPermission('feature_manage_procedure_creation_permission') && isPlanningOfficeOrMunicipalityAcceptedOrPending"
+          v-if="hasPermission('feature_manage_procedure_creation_permission') && isProcedureCreationOrgaTypeAccepted"
           :id="`${organisation.id}:procedureCreatePermission`"
           v-model="localOrganisation.attributes.canCreateProcedures"
           class="mt-2"
           data-cy="orgaFormField:procedureCreatePermission"
           :label="{
-            text: Translator.trans('procedure.canCreate'),
-            bold: true
+            text: Translator.trans('procedure.canCreate')
           }"
-          @change="emitOrganisationUpdate"
+          @change="onCanCreateProceduresChange"
         />
+
+        <template v-if="showsIndividualGrants && !localOrganisation.attributes.canCreateProcedures">
+          <p
+            v-if="!usersWithIndividualProcedureCreationPermission.length"
+            class="mt-1 lbl__hint"
+            data-cy="orgaFormField:procedureCreatePermission:hintEmpty"
+          >
+            {{ Translator.trans('procedure.canManage.orga.none') }}
+          </p>
+          <template v-else>
+            <p
+              class="mt-1 u-mb-0_25"
+              data-cy="orgaFormField:procedureCreatePermission:usersLabel"
+            >
+              {{ Translator.trans('procedure.canManage.orga.users') }}
+            </p>
+            <ul
+              class="list-disc u-ml-0_75 u-mb-0"
+              data-cy="orgaFormField:procedureCreatePermission:usersList"
+            >
+              <li
+                v-for="user in visibleProcedureCreationUsers"
+                :key="user.id"
+                class="u-mb-0_25"
+              >
+                {{ user.firstname }} {{ user.lastname }}
+              </li>
+            </ul>
+            <dp-details
+              v-if="collapsedProcedureCreationUsers.length"
+              data-cy="orgaFormField:procedureCreatePermission:usersMore"
+              :summary="Translator.trans('procedure.canManage.orga.users.more', { count: collapsedProcedureCreationUsers.length })"
+            >
+              <ul class="list-disc u-ml-0_75 u-mb-0">
+                <li
+                  v-for="user in collapsedProcedureCreationUsers"
+                  :key="user.id"
+                  class="u-mb-0_25"
+                >
+                  {{ user.firstname }} {{ user.lastname }}
+                </li>
+              </ul>
+            </dp-details>
+          </template>
+        </template>
       </div>
 
       <div
@@ -851,8 +895,9 @@
 </template>
 
 <script>
-import { CleanHtml, DpCheckbox, DpDetails, DpEditor, DpSelect, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { CleanHtml, dpApi, DpCheckbox, DpDetails, DpEditor, DpSelect, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import { isOrgaAcceptedAsType } from '@DpJs/lib/shared/isOrgaAcceptedAsType'
 
 export default {
   name: 'DpOrganisationFormFields',
@@ -900,6 +945,16 @@ export default {
       },
     },
 
+    /**
+     * Whether the surrounding card is expanded. Collapsed cards stay mounted, so per-card requests
+     * must wait for this instead of firing on creation.
+     */
+    isOpen: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+
     organisation: {
       type: Object,
       required: false,
@@ -907,7 +962,8 @@ export default {
         return {
           attributes: {
             addressExtension: '',
-            canCreateProcedures: false,
+            // New organizations get the orga-wide procedure-creation grant unless the admin opts out
+            canCreateProcedures: true,
             ccEmail2: '',
             city: '',
             dataProtection: '',
@@ -979,11 +1035,13 @@ export default {
     'addon:update',
     'addonOptions:loaded',
     'organisation:update',
+    'procedureCreationToggled',
     'reset:complete',
   ],
 
   data () {
     return {
+      hasFetchedIndividualGrants: false,
       localOrganisation: {},
       typeStatuses: [
         {
@@ -999,11 +1057,13 @@ export default {
           label: Translator.trans('rejected'),
         },
       ],
+      procedureCreationUsersVisibleLimit: 5,
       showAddStatusForm: false,
       statusForm: {
         status: 'pending',
         type: 'TöB',
       },
+      usersWithIndividualProcedureCreationPermission: [],
     }
   },
 
@@ -1018,6 +1078,10 @@ export default {
      * A.k.a. Mandanten / Bundesländer
      * @return {String}
      */
+    collapsedProcedureCreationUsers () {
+      return this.usersWithIndividualProcedureCreationPermission.slice(this.procedureCreationUsersVisibleLimit)
+    },
+
     customers () {
       if (hasOwnProp(this.organisation.relationships, 'customers') === false) {
         return ''
@@ -1037,8 +1101,21 @@ export default {
       }
     },
 
-    isPlanningOfficeOrMunicipalityAcceptedOrPending () {
-      return this.registrationStatuses.some(registration => (registration.status === 'accepted' || registration.status === 'pending') && (registration.type === 'OPAUTH' || registration.type === 'OLAUTH'))
+    /**
+     * Individual grants only exist for the admin roles of Kommune and Anhörungsbehörde, and only in
+     * projects that expose the per-user permission
+     */
+    showsIndividualGrants () {
+      return hasPermission('feature_manage_procedure_creation_permission') &&
+        hasPermission('feature_manage_user_procedure_creation_permission') &&
+        isOrgaAcceptedAsType(this.registrationStatuses, ['OLAUTH', 'OHAUTH'])
+    },
+
+    /**
+     * The orga-wide grant also covers Planungsbüro, whose users hold the RMOPPO role
+     */
+    isProcedureCreationOrgaTypeAccepted () {
+      return isOrgaAcceptedAsType(this.registrationStatuses, ['OLAUTH', 'OHAUTH', 'OPAUTH'])
     },
 
     /**
@@ -1075,9 +1152,21 @@ export default {
         registrationStatuses :
         []
     },
+
+    visibleProcedureCreationUsers () {
+      return this.usersWithIndividualProcedureCreationPermission.slice(0, this.procedureCreationUsersVisibleLimit)
+    },
   },
 
   watch: {
+    // Loads the individual grants the first time the card is expanded
+    isOpen (isOpenNow) {
+      if (isOpenNow && !this.hasFetchedIndividualGrants) {
+        this.hasFetchedIndividualGrants = true
+        this.fetchUsersWithIndividualProcedureCreationPermissionIfNeeded()
+      }
+    },
+
     organisation: {
       handler () {
         this.setInitialOrganisation()
@@ -1107,6 +1196,36 @@ export default {
       Vue.nextTick(() => {
         this.$emit('organisation:update', this.localOrganisation)
       })
+    },
+
+    /**
+     * Emitted in addition to the regular organization:update, so the parent can track the toggle
+     * independently of the store - a background refresh of the organizations list (triggered by
+     * an unrelated save elsewhere) can overwrite the `organization` prop with server state while
+     * this one is still being edited, which would otherwise make an in-progress enable/disable
+     * detection based on that prop flicker back to "unchanged".
+     */
+    onCanCreateProceduresChange (checked) {
+      this.emitOrganisationUpdate()
+      // Under @vue/compat this listener runs before the legacy v-model write, so localOrganisation is still stale here
+      this.$emit('procedureCreationToggled', checked)
+    },
+
+    async fetchUsersWithIndividualProcedureCreationPermission () {
+      const url = Routing.generate('dplan_api_organisation_procedure_creation_individual_grants', { id: this.organisation.id })
+      const response = await dpApi.get(url)
+
+      this.usersWithIndividualProcedureCreationPermission = response.data.data || []
+    },
+
+    /**
+     * Refetches the individual-grants list whenever the organization's data changes (e.g. after a
+     * save) so the list shown below the org-wide checkbox is updated
+     */
+    fetchUsersWithIndividualProcedureCreationPermissionIfNeeded () {
+      if (this.showsIndividualGrants) {
+        this.fetchUsersWithIndividualProcedureCreationPermission()
+      }
     },
 
     hasChanged (field) {

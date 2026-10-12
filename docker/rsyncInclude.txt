@@ -14,7 +14,6 @@ composer.lock
 config.webpack.js
 eslint.config.js
 fe
-jest.config.js
 package.json
 stylelint.config.js
 symfony.lock

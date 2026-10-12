@@ -517,7 +517,7 @@ class Elements extends CoreEntity implements UuidEntityInterface, ElementsInterf
     }
 
     /**
-     * @return array<>|string
+     * @return string[]|string
      */
     public function getOrganisationNames($asString): array|string
     {

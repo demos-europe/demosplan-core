@@ -95,7 +95,7 @@
             <div
               v-else
               :key="`tags:${idx}`"
-              v-text="separateByCommas(institution.tags.filter(tag => tag.category.id === category.id))"
+              v-text="separateByCommas(institution.tags.filter(tag => tag.category?.id === category.id))"
             />
           </template>
           <template
@@ -323,16 +323,20 @@ export default {
           edit: this.editingInstitutionId === id,
           id,
           name: attributes.name,
-          tags: relationships.assignedTags.data.map(tag => {
-            const tagDetails = this.getTagById(tag.id)
+          tags: relationships.assignedTags.data
+            .map(tag => {
+              const tagDetails = this.getTagById(tag.id)
 
-            return {
-              id: tag.id,
-              type: tag.type,
-              name: tagDetails.name,
-              category: tagDetails.category,
-            }
-          }),
+              return tagDetails ?
+                {
+                  id: tag.id,
+                  type: tag.type,
+                  name: tagDetails.name,
+                  category: tagDetails.category,
+                } :
+                null
+            })
+            .filter(Boolean),
         }
       })
     },
@@ -422,8 +426,14 @@ export default {
       })
       this.editingInstitution.relationships.assignedTags.data.forEach(el => {
         const tag = this.getTagById(el.id)
+        const categoryId = tag?.category?.id
 
-        this.editingInstitutionTags[tag.category.id].push(tag)
+        // Tags of a category the current customer cannot see have no column to be edited in
+        if (!categoryId || !this.editingInstitutionTags[categoryId]) {
+          return
+        }
+
+        this.editingInstitutionTags[categoryId].push(tag)
       })
 
       // Initialize editingInstitutionCustomFields from the component-local value cache

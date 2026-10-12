@@ -25,10 +25,10 @@
         <slot>
           <keep-alive>
             <component
-              :is="option.name"
-              class="u-mt"
-              :demosplan-ui="demosplanUi"
+              :is="option.component || option.name"
               :csrf-token="csrfToken"
+              :demosplan-ui="demosplanUi"
+              class="u-mt"
             />
           </keep-alive>
         </slot>
@@ -44,9 +44,15 @@
 
 <script>
 import * as demosplanUi from '@demos-europe/demosplan-ui'
-import { DpLoading, dpRpc, DpTab, DpTabs, hasAnyPermissions } from '@demos-europe/demosplan-ui'
+import {
+  DpLoading,
+  DpTab,
+  DpTabs,
+  hasAnyPermissions,
+} from '@demos-europe/demosplan-ui'
 import AdministrationImportNone from './AdministrationImportNone'
 import ExcelImport from './ExcelImport/ExcelImport'
+import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import ParticipationImport from './ParticipationImport/ParticipationImport'
 import { shallowRef } from 'vue'
 import StatementFormImport from './StatementFormImport/StatementFormImport'
@@ -144,8 +150,10 @@ export default {
       return [
         {
           name: ExcelImport.name,
-          permissions: ['feature_statements_import_excel', 'feature_segments_import_excel'],
-          title: 'import.options.xls',
+          permissions: ['feature_statements_import_excel', 'feature_statements_import_csv', 'feature_segments_import_excel'],
+          title: hasPermission('feature_statements_import_csv') ?
+            'import.options.xls_csv' :
+            'import.options.xls',
         },
         {
           name: StatementFormImport.name,
@@ -157,9 +165,14 @@ export default {
           permissions: ['feature_statements_participation_import_excel'],
           title: 'import.options.participation',
         },
-      ].filter((component) => {
-        return hasAnyPermissions(component.permissions)
-      }).concat(this.asyncComponents)
+      ]
+        .filter((component) => {
+          return hasAnyPermissions(component.permissions)
+        })
+        .concat(this.asyncComponents)
+        .sort((a, b) => {
+          return Translator.trans(a.title).localeCompare(Translator.trans(b.title))
+        })
     },
   },
 
@@ -170,53 +183,28 @@ export default {
       }
 
       if (window.localStorage.getItem('importCenterActiveTabId')) {
-        this.activeTabId = window.localStorage.getItem('importCenterActiveTabId')
+        this.activeTabId = window.localStorage.getItem(
+          'importCenterActiveTabId',
+        )
       }
-    },
-
-    loadComponents (hookName) {
-      const params = {
-        hookName,
-      }
-
-      return dpRpc('addons.assets.load', params)
-        .then(({ data }) => {
-          const result = data[0].result
-
-          for (const key of Object.keys(result)) {
-            const addon = result[key]
-            const contentKey = addon.entry + '.umd.js'
-            const content = addon.content[contentKey]
-
-            /**
-             * The evaluation of the response content automatically binds the vue component
-             * to the window object. This way we can implement it in vue's internals to render
-             * the component.
-             */
-            eval(content)
-            this.$options.components[addon.entry] = window[addon.entry].default
-
-            this.asyncComponents.push({
-              name: addon.entry,
-              title: addon.options.title,
-            })
-          }
-        })
     },
   },
 
   mounted () {
-    const promises = [this.loadComponents('email.import')]
+    const promises = [
+      loadAddonComponents('import.tabs').then((addons) => {
+        this.asyncComponents = addons.map((addon) => ({
+          component: shallowRef(window[addon.name].default),
+          name: addon.name,
+          title: addon.options.title,
+        }))
+      }),
+    ]
 
-    if (hasPermission('feature_import_statement_pdf')) {
-      promises.push(this.loadComponents('import.tabs'))
-    }
-
-    Promise.allSettled(promises)
-      .then(() => {
-        this.allComponentsLoaded = true
-        this.setActiveTabId()
-      })
+    Promise.allSettled(promises).then(() => {
+      this.allComponentsLoaded = true
+      this.setActiveTabId()
+    })
   },
 }
 </script>

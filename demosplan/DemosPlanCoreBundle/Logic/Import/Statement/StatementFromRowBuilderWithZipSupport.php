@@ -258,6 +258,21 @@ class StatementFromRowBuilderWithZipSupport extends AbstractStatementFromRowBuil
         return $this->baseStatementFromRowBuilder->getExternId();
     }
 
+    public function setSourceStatementId(Cell $cell): ?ConstraintViolationListInterface
+    {
+        return $this->baseStatementFromRowBuilder->setSourceStatementId($cell);
+    }
+
+    public function getSourceStatementId(): ?string
+    {
+        return $this->baseStatementFromRowBuilder->getSourceStatementId();
+    }
+
+    public function resetInternId(): void
+    {
+        $this->baseStatementFromRowBuilder->resetInternId();
+    }
+
     public function setMemo(Cell $cell): ?ConstraintViolationListInterface
     {
         return $this->baseStatementFromRowBuilder->setMemo($cell);

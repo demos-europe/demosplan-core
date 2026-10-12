@@ -25,10 +25,10 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceLinkageFactory;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService;
 use demosplan\DemosPlanCoreBundle\Logic\CustomField\CustomFieldFilterResponseBuilder;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\BookmarkService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\PublicIndexProcedureLister;
-use demosplan\DemosPlanCoreBundle\Logic\Procedure\UserFilterSetService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFilterHandler;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\HashedQueryResourceType;
@@ -494,11 +494,11 @@ class DemosPlanProcedureAPIController extends APIController
      */
     #[DplanPermissions('area_admin_assessmenttable')]
     #[Route(path: '/api/1.0/procedures/{procedureId}/statementfilters/delete/{filterSetId}', name: 'dplan_api_procedure_delete_statement_filter', options: ['expose' => true], methods: ['DELETE'])]
-    public function deleteStatementFilter(UserFilterSetService $userFilterSetService, $filterSetId)
+    public function deleteStatementFilter(BookmarkService $bookmarkService, $filterSetId)
     {
         try {
             // @improve T14122
-            $successful = $userFilterSetService->deleteUserFilterSet($filterSetId);
+            $successful = $bookmarkService->deleteBookmark($filterSetId);
 
             if ($successful) {
                 $this->messageBag->add('confirm', 'confirm.savedFilterSet.deleted');

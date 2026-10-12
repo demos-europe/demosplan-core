@@ -30,8 +30,8 @@ use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldValueCreator;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Illuminate\Support\Collection as SupportCollection;
@@ -569,6 +569,29 @@ class EntityContentChangeService
             new DateTime(),
         );
         $this->entityContentChangeRepository->persistEntities([$entry]);
+    }
+
+    public function createSegmentSentByMailChangeEntry(Segment $segment, string $recipientMail, string $message, DateTime $whenSent): void
+    {
+        $contentChange = $this->generateActualDiff(
+            '',
+            $this->translator->trans('segment.sent.via.mail.value', ['recipient' => $recipientMail, 'message' => $message]),
+            'sentViaMail',
+            Segment::class,
+            $this->lockedDiffOptions(),
+        );
+        if (null === $contentChange) {
+            return;
+        }
+        $entry = $this->createEntityContentChangeEntity(
+            $segment,
+            'sentViaMail',
+            $contentChange,
+            $this->determineChanger(false),
+            Segment::class,
+            $whenSent,
+        );
+        $this->entityContentChangeRepository->persistAndDelete([$entry], []);
     }
 
     /**
@@ -1409,6 +1432,9 @@ class EntityContentChangeService
             if ('locked' === $propertyName) {
                 continue;
             }
+            if ('sentViaMail' === $propertyName) {
+                continue;
+            }
             if ('customFields' === $propertyName) {
                 $changes['customFields'] = $this->diffCustomFields(
                     $preUpdateArray['customFields'] ?? null,
@@ -1461,6 +1487,9 @@ class EntityContentChangeService
             * {{ @link EntityContentChangeService::calculateChangesOfStandardFieldsOfPreUpdateArrayAndPostUpdateObject }}.
             */
             if ('locked' === $propertyName) {
+                continue;
+            }
+            if ('sentViaMail' === $propertyName) {
                 continue;
             }
             if ('customFields' === $propertyName && array_key_exists($propertyName, $incomingDataArray)) {

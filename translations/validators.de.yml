@@ -37,6 +37,7 @@ statement.import.invalidSubmitDateBlank: "Das Feld 'Einreichungsdatum' darf nich
 statement.import.invalidSubmitDateType: "Das Einreichungsdatum muss ein gültiges Datum sein."
 statement.import.invalidSubmitTypeBlank: "Das Feld 'Art der Einreichung' darf nicht leer sein."
 statement.import.invalidTextBlank: "Das Feld 'Stellungnahmetext' darf nicht leer sein."
+statement.import.invalidTextTooLong: "Der Stellungnahmetext ist zu lang ({{ value_length }} Bytes). Er darf maximal {{ limit }} Bytes umfassen."
 statement.invalidDateOrder: "Das Einreichungsdatum für die Stellungnahme {{ externId }} darf nicht vor dem Verfassungsdatum liegen."
 statement.invalidSubmitType: "Art der Einreichung '{{ invalidSubmitType }}' ist nicht vorhanden."
 statement.orgaName.notblank: "Bei einer Institution darf der Name der Institution nicht leer sein."

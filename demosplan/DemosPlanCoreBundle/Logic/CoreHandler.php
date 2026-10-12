@@ -39,7 +39,7 @@ class CoreHandler
     protected $requestValues = [];
 
     /**
-     * @var FileBag|array()
+     * @var FileBag|array
      */
     protected $symfonyFileBag = [];
 
@@ -166,7 +166,7 @@ class CoreHandler
     }
 
     /**
-     * @return FileBag|array()
+     * @return FileBag|array
      */
     public function getSymfonyFileBag()
     {

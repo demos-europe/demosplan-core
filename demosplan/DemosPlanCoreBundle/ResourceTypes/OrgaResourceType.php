@@ -177,7 +177,7 @@ final class OrgaResourceType extends DplanResourceType implements OrgaResourceTy
             $this->createAttribute($this->emailNotificationNewStatement)->readable(true, $this->getEmailNotificationNewStatement(...)),
             $this->createAttribute($this->postalcode)->readable(true, static fn (Orga $orga): string => $orga->getPostalcode()),
             $this->createAttribute($this->reviewerEmail)->aliasedPath($this->emailReviewerAdmin)->readable(true),
-            $this->createAttribute($this->showlist)->readable(true),
+            $this->createAttribute($this->showlist)->readable(true, fn (Orga $orga): bool => $orga->getShowlistForCustomer($this->currentCustomerService->getCurrentCustomer())),
             $this->createAttribute($this->showname)->readable(true),
             $this->createAttribute($this->state)->readable(true, static fn (Orga $orga): string => $orga->getState()),
             $this->createAttribute($this->street)->readable(true, static fn (Orga $orga): string => $orga->getStreet()),
@@ -234,11 +234,16 @@ final class OrgaResourceType extends DplanResourceType implements OrgaResourceTy
                     ->filter(static fn (OrgaStatusInCustomer $orgaStatus): bool => $orgaStatus->getCustomer() === $currentCustomer)
                     ->map(static fn (OrgaStatusInCustomer $orgaStatus): OrgaType => $orgaStatus->getOrgaType());
 
-                // Get role codes for these organization types
+                // Get role codes for the accepted types that can create procedures
+                $procedureCreationTypes = [
+                    OrgaTypeInterface::MUNICIPALITY,
+                    OrgaTypeInterface::PLANNING_AGENCY,
+                    OrgaTypeInterface::HEARING_AUTHORITY_AGENCY,
+                ];
                 $relevantRoleCodes = [];
                 foreach ($acceptedOrgaTypes as $orgaType) {
                     $orgaTypeName = $orgaType->getName();
-                    if (isset(OrgaTypeInterface::ORGATYPE_ROLE[$orgaTypeName])) {
+                    if (in_array($orgaTypeName, $procedureCreationTypes, true)) {
                         $relevantRoleCodes = array_merge(
                             $relevantRoleCodes,
                             OrgaTypeInterface::ORGATYPE_ROLE[$orgaTypeName]
@@ -246,9 +251,10 @@ final class OrgaResourceType extends DplanResourceType implements OrgaResourceTy
                     }
                 }
 
-                // If no relevant roles found, permission cannot exist
+                // Nothing accepted yet: report the default that applies once a type gets accepted. The form
+                // diffs against this value, so only a true here lets an opt-out during approval reach the server.
                 if ([] === $relevantRoleCodes) {
-                    return false;
+                    return true;
                 }
 
                 // Check if permission exists for any of the relevant roles
@@ -280,14 +286,17 @@ final class OrgaResourceType extends DplanResourceType implements OrgaResourceTy
 
     public function getRegistrationStatuses(Orga $orga): array
     {
-        return $this->getRegistration($orga)
+        // array_values() reindexes sequentially: getRegistration() may return a collection
+        // filtered down from a larger one, whose keys would otherwise stay non-sequential and
+        // make json_encode() emit a JSON object instead of an array.
+        return array_values($this->getRegistration($orga)
             ->map(
                 static fn (OrgaStatusInCustomer $orgaStatusInCustomer) => [
                     OrgaResourceType::REGISTRATION_STATUSES_STATUS    => $orgaStatusInCustomer->getStatus(),
                     OrgaResourceType::REGISTRATION_STATUSES_TYPE      => $orgaStatusInCustomer->getOrgaType()->getName(),
                     OrgaResourceType::REGISTRATION_STATUSES_SUBDOMAIN => $orgaStatusInCustomer->getCustomer()->getSubdomain(),
                 ]
-            )->toArray();
+            )->toArray());
     }
 
     public function getEmailNotificationNewStatement(Orga $orga): bool

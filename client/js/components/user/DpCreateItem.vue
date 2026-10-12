@@ -19,12 +19,8 @@
 
 <template>
   <div>
-    <div
-      :class="`${showHeaderBottomBorder ? 'border-y' : 'border-t'} border-neutral flex justify-between items-baseline py-4 mt-4`"
-    >
-      <h3
-        class="mb-0 font-semibold"
-      >
+    <div :class="`${showHeaderBottomBorder ? 'border-y' : 'border-t'} border-neutral flex justify-between items-baseline py-4`">
+      <h3 class="mb-0 font-semibold">
         {{ Translator.trans(itemTitle) }}
       </h3>
       <dp-button
@@ -40,7 +36,6 @@
         v-show="isFormOpen"
         :data-cy="customComponent[entity].formName"
         :data-dp-validate="customComponent[entity].formName"
-        @transitionend.self="onFormTransitionEnd"
       >
         <div class="border-b border-neutral pb-4">
           <!-- Form fields   -->
@@ -198,15 +193,21 @@ export default {
           updateEvent: 'user:update',
         },
       },
-      hideButtonText: false,
       isFormOpen: false,
       item: {},
       shouldResetForm: false,
-      showHeaderBottomBorder: true,
     }
   },
 
   computed: {
+    hideButtonText () {
+      return this.isFormOpen
+    },
+
+    showHeaderBottomBorder () {
+      return !this.isFormOpen
+    },
+
     dynamicComponent () {
       return this.customComponent[this.entity].componentName
     },
@@ -352,18 +353,6 @@ export default {
 
     toggleForm () {
       this.isFormOpen = !this.isFormOpen
-
-      if (this.isFormOpen) {
-        this.hideButtonText = true
-        this.showHeaderBottomBorder = false
-      }
-    },
-
-    onFormTransitionEnd (e) {
-      if (e.propertyName === 'height' && this.isFormOpen === false) {
-        this.hideButtonText = false
-        this.showHeaderBottomBorder = true
-      }
     },
 
     update (item) {

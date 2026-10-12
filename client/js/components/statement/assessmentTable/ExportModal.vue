@@ -22,7 +22,7 @@
       :style="{ minHeight: minHeight + 'px' }"
     >
       <div
-        class="tab-header mt-3 mx-3"
+        class="tab-header mt-4 mx-4"
         role="tablist"
       >
         <button

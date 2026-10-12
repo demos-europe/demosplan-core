@@ -10,14 +10,22 @@
 
 namespace demosplan\DemosPlanCoreBundle\EventListener;
 
+use DemosEurope\DemosplanAddon\Contracts\Exceptions\ViolationsExceptionInterface;
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
+use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
+use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
+use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ExceptionService;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Throwable;
@@ -37,6 +45,7 @@ class ExceptionEventSubscriber implements EventSubscriberInterface
     public function __construct(
         LoggerInterface $logger,
         private readonly ExceptionService $exceptionService,
+        private readonly MessageBagInterface $messageBag,
         private readonly bool $debug = false,
     ) {
         $this->logger = $logger;
@@ -69,6 +78,18 @@ class ExceptionEventSubscriber implements EventSubscriberInterface
             return;
         }
 
+        /*
+         * API Platform operations are dispatched to its own MainController rather than to an
+         * APIController, so the branch above never matches them and they would fall through to the
+         * HTML error page - a redirect no API client can use. Answer them in the same error envelope
+         * the other API versions use instead.
+         */
+        if ($this->isApiPlatformRequest($event->getRequest())) {
+            $event->setResponse($this->createApiPlatformErrorResponse($exception));
+
+            return;
+        }
+
         if ($exception instanceof NotFoundHttpException) {
             // log 404
             $this->logger->info($exception->getMessage());
@@ -84,6 +105,134 @@ class ExceptionEventSubscriber implements EventSubscriberInterface
         }
 
         $event->setResponse($this->exceptionService->handleError($exception));
+    }
+
+    /**
+     * Recognised by the request attribute API Platform sets on its own routes, rather than by the
+     * controller instance: the attribute holds in both dispatch modes, whereas the controller is
+     * `MainController` only while `use_symfony_listeners` is false.
+     */
+    private function isApiPlatformRequest(Request $request): bool
+    {
+        return null !== $request->attributes->get('_api_resource_class');
+    }
+
+    /**
+     * Mirrors the envelope of {@see APIController::handleApiError()} so clients see one error format
+     * across API versions, but derives the status from the exception itself. That mapping cannot be
+     * reused: its switch predates these operations and knows none of Symfony's HTTP exceptions, so a
+     * 404 would arrive as a 400.
+     *
+     * Messages are passed on only for the exceptions that are mapped below: those are raised by our
+     * own providers and processors and worded for the client. An unmapped throwable is unexpected and
+     * may carry internals, so it gets the plain status text.
+     */
+    private function createApiPlatformErrorResponse(Throwable $exception): APIResponse
+    {
+        $mappedStatus = $this->mapExceptionToStatus($exception);
+        $status = $mappedStatus ?? Response::HTTP_INTERNAL_SERVER_ERROR;
+
+        $this->logger->error('API Platform exception occurred', [
+            'exception' => $exception,
+            'status'    => $status,
+        ]);
+
+        $this->addErrorToMessageBag($exception, $mappedStatus);
+
+        $error = [
+            'status' => $status,
+            'title'  => null === $mappedStatus
+                ? (Response::$statusTexts[$status] ?? 'Internal Server Error')
+                : $exception->getMessage(),
+        ];
+
+        if ($this->debug) {
+            $error['detail'] = $exception::class;
+            $error['meta'] = [
+                'file'  => $exception->getFile(),
+                'line'  => $exception->getLine(),
+                'trace' => explode("\n", $exception->getTraceAsString()),
+            ];
+        }
+
+        $data = [
+            'errors'   => [$error],
+            'jsonapi'  => ['version' => '1.0'],
+            'included' => [],
+            'links'    => ['self' => ''],
+        ];
+
+        return new APIResponse($data, $status);
+    }
+
+    /**
+     * The frontend renders message bag entries as notifications.
+     * {@see DemosPlanResponseEventSubscriber} merges the bag into every JsonResponse under
+     * `meta.messages`, and an APIResponse is one, so an entry rides along with the error document.
+     *
+     * Deliberately only for the cases {@see APIController::handleApiError()} also announces: validation
+     * violations, a lost session, and a failure nobody anticipated. Everything else - a 400, 403, 404
+     * or 422 - is a situation the client asked for and can phrase itself from the error document, so
+     * announcing it here would put a notification on screen where the legacy stack shows none.
+     *
+     * Violations are forwarded field by field instead of as one generic line, which is the whole point
+     * of raising them.
+     *
+     * A translated key rather than the exception message: the latter is written for developers, and
+     * for unmapped throwables it is withheld from the client entirely.
+     *
+     * Failing to add must not replace the error being reported with a different one, hence the catch -
+     * the same precaution handleApiError() takes.
+     */
+    private function addErrorToMessageBag(Throwable $exception, ?int $mappedStatus): void
+    {
+        try {
+            if ($exception instanceof ViolationsExceptionInterface) {
+                $this->messageBag->addViolations($exception->getViolations());
+
+                return;
+            }
+
+            if (Response::HTTP_UNAUTHORIZED !== $mappedStatus && null !== $mappedStatus) {
+                return;
+            }
+
+            $this->messageBag->add(
+                'error',
+                Response::HTTP_UNAUTHORIZED === $mappedStatus ? 'error.api.session' : 'error.api.generic'
+            );
+        } catch (Exception $messageBagException) {
+            $this->logger->error(
+                'Failed to add error message to message bag',
+                ['exception' => $messageBagException, 'originalException' => $exception]
+            );
+        }
+    }
+
+    /**
+     * Keeps the statuses of {@see APIController::handleApiError()} for the exceptions raised in this
+     * codebase, so the same failure is reported alike whichever API version answers it. None of those
+     * classes implements `HttpExceptionInterface`, so without this they would all surface as 500.
+     *
+     * One deviation, deliberate: the legacy mapping falls back to 400, reporting a server fault as the
+     * client's mistake. Null marks an exception this class does not recognise, which the caller
+     * answers as 500 and without passing its message on.
+     */
+    private function mapExceptionToStatus(Throwable $exception): ?int
+    {
+        return match (true) {
+            $exception instanceof HttpExceptionInterface    => $exception->getStatusCode(),
+            /*
+             * Listed before the assertion-style exceptions below: ViolationsException extends
+             * InvalidArgumentException, so it would otherwise be taken for a programming error and
+             * answered as 500, discarding the violations it carries.
+             */
+            $exception instanceof ViolationsExceptionInterface => Response::HTTP_BAD_REQUEST,
+            $exception instanceof ResourceNotFoundException    => Response::HTTP_NOT_FOUND,
+            $exception instanceof AccessDeniedException        => Response::HTTP_UNAUTHORIZED,
+            $exception instanceof BadRequestException          => Response::HTTP_BAD_REQUEST,
+            default                                            => null,
+        };
     }
 
     /**

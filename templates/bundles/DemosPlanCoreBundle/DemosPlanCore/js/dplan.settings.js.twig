@@ -35,6 +35,7 @@ window.dplan = {
         roles: "{{ currentUser.roles|default([])|json_encode }}"
     },
     sentryDsn               : "{{ sentry_dsn|default }}",
+    sentryTracesSampleRate  : {{ sentry_traces_sample_rate_frontend|default(0) }},
     csrfToken               : "{{ csrf_token('csrf')|json_encode }}",
     expirationTimestamp     : {{ expirationTimestamp|default(0) }},
 

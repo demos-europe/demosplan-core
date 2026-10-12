@@ -51,7 +51,6 @@ use demosplan\DemosPlanCoreBundle\Services\Breadcrumb\Breadcrumb;
 use demosplan\DemosPlanCoreBundle\Tools\ServiceImporter;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPaginator;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use DirectoryIterator;
 use Exception;
 use League\Flysystem\FilesystemOperator;
@@ -816,20 +815,26 @@ class DemosPlanDocumentController extends BaseController
                 $destination = $extractDir.'/'.$dirname;
                 // if path contains any relative path immediately skip file
                 if (0 !== mb_substr_count($destination, '../')) {
-                    $this->getLogger()->error('Possible Zip-slip-Attack. File not extracted. Destination:'.DemosPlanTools::varExport($destination, true));
+                    $this->getLogger()->error('Possible Zip-slip-Attack. File not extracted. Destination: {destination}', ['destination' => $destination]);
                     continue;
                 }
 
                 // Falls gar kein valider Filename ermittelt werden konnte, lieber einen Hash als nix
                 if ('' === $filename) {
                     $filename = md5(random_int(0, 9999));
-                    $this->getLogger()->warning('Es konnte via kein gültiger Name gefunden werden. RandomHash: '.DemosPlanTools::varExport($filename, true));
+                    $this->getLogger()->warning('Es konnte via kein gültiger Name gefunden werden. RandomHash: {filename}', ['filename' => $filename]);
                 } else {
                     ++$successFiles;
                 }
 
-                $this->getLogger()->info('DocumentImport set Filename '.DemosPlanTools::varExport($filename, true).' Dirname: '.DemosPlanTools::varExport($dirname, true).
-                    ' Orig base64encoded: '.DemosPlanTools::varExport(base64_encode($filenameOrig), true));
+                $this->getLogger()->info(
+                    'DocumentImport set Filename {filename} Dirname: {dirname} Orig base64encoded: {filenameOrigBase64}',
+                    [
+                        'filename'           => $filename,
+                        'dirname'            => $dirname,
+                        'filenameOrigBase64' => base64_encode($filenameOrig),
+                    ]
+                );
                 $zip->renameIndex($indexInZipFile, $dirname.'/'.$filename);
                 $zip->extractTo($extractDir, $zip->getNameIndex($indexInZipFile));
             }

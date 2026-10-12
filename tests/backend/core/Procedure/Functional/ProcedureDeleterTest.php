@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedurePhase;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\AssessmentTableExportJob;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use League\Flysystem\FilesystemOperator;
@@ -152,6 +153,58 @@ class ProcedureDeleterTest extends FunctionalTestCase
             $this->countEntries(ProcedurePhase::class),
             'Dry run must not delete procedure_phase rows'
         );
+    }
+
+    public function testDeleteProcedureRemovesAssessmentTableExportJobs(): void
+    {
+        // Arrange
+        $procedure = $this->testProcedures[0]->_real();
+        $otherProcedure = $this->testProcedures[1]->_real();
+        $this->persistExportJob($procedure->getId());
+        $otherJob = $this->persistExportJob($otherProcedure->getId());
+
+        // Act
+        $this->sut->deleteProcedures([$procedure->getId()], false);
+
+        // Assert
+        static::assertSame(
+            0,
+            $this->countEntries(AssessmentTableExportJob::class, ['procedureId' => $procedure->getId()]),
+            'Export jobs of the deleted procedure should be removed'
+        );
+        static::assertNotNull(
+            $this->getEntityManager()->find(AssessmentTableExportJob::class, $otherJob->getId()),
+            'Export jobs of other procedures must survive'
+        );
+    }
+
+    public function testDeleteProcedureDryRunKeepsAssessmentTableExportJobs(): void
+    {
+        // Arrange
+        $procedure = $this->testProcedure->_real();
+        $job = $this->persistExportJob($procedure->getId());
+
+        // Act
+        $this->sut->deleteProcedures([$procedure->getId()], true);
+
+        // Assert
+        static::assertNotNull(
+            $this->getEntityManager()->find(AssessmentTableExportJob::class, $job->getId()),
+            'Dry run must not delete assessment_table_export_job rows'
+        );
+    }
+
+    private function persistExportJob(string $procedureId): AssessmentTableExportJob
+    {
+        $job = new AssessmentTableExportJob();
+        $job->setProcedureId($procedureId);
+        $job->setUserId('user-1');
+        $job->setParametersHash(str_pad('h', 64, 'h'));
+
+        $this->getEntityManager()->persist($job);
+        $this->getEntityManager()->flush();
+
+        return $job;
     }
 
     public function testDeleteProcedureRemovesFilesFromStorage(): void

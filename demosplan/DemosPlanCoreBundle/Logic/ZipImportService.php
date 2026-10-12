@@ -18,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Psr\Log\LoggerInterface;
 use SplFileInfo;
 use Symfony\Component\Finder\Finder;
@@ -143,8 +142,8 @@ class ZipImportService
                 // if path contains any relative path immediately skip file
                 if (0 !== mb_substr_count($destination, '../')) {
                     $this->logger->error(
-                        'Possible Zip-slip-Attack. File not extracted. Destination:'
-                        .DemosPlanTools::varExport($destination, true)
+                        'Possible Zip-slip-Attack. File not extracted. Destination: {destination}',
+                        ['destination' => $destination]
                     );
                     continue;
                 }
@@ -153,18 +152,18 @@ class ZipImportService
                 if ('' === $filename) {
                     $filename = md5((string) random_int(0, 9999));
                     $this->logger->warning(
-                        'No valid name could be found. RandomHash: '
-                        .DemosPlanTools::varExport($filename, true)
+                        'No valid name could be found. RandomHash: {filename}',
+                        ['filename' => $filename]
                     );
                 }
 
                 $this->logger->info(
-                    'DocumentImport set Filename '
-                    .DemosPlanTools::varExport($filename, true)
-                    .' Dirname: '
-                    .DemosPlanTools::varExport($dirname, true)
-                    .' FileNameOrig: '
-                    .DemosPlanTools::varExport($filenameOrig, true)
+                    'DocumentImport set Filename {filename} Dirname: {dirname} FileNameOrig: {filenameOrig}',
+                    [
+                        'filename'     => $filename,
+                        'dirname'      => $dirname,
+                        'filenameOrig' => $filenameOrig,
+                    ]
                 );
                 $zip->renameIndex($indexInZipFile, $dirname.'/'.$filename);
                 $zip->extractTo($extractDir, $zip->getNameIndex($indexInZipFile));

@@ -36,12 +36,11 @@ use demosplan\DemosPlanCoreBundle\Repository\ElementsRepository;
 use demosplan\DemosPlanCoreBundle\Repository\ParagraphRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\PlanningDocumentCategoryResourceType;
-use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\PathException;
@@ -631,7 +630,7 @@ class ElementsService implements ElementsServiceInterface
             $em->persist($elementEntity);
             $em->flush();
 
-            $this->logger->info('Organisationen '.DemosPlanTools::varExport($orgaIds, true).' wurden für die Kategorie '.$elementId.' berechtigt');
+            $this->logger->info('Organisationen {orgaIds} wurden für die Kategorie {elementId} berechtigt', ['orgaIds' => $orgaIds, 'elementId' => $elementId]);
 
             return true;
         } catch (Exception $e) {
@@ -667,7 +666,7 @@ class ElementsService implements ElementsServiceInterface
             $em->persist($elementEntity);
             $em->flush();
 
-            $this->logger->info('Berechtigungen der Organisationen '.DemosPlanTools::varExport($orgaIds, true).' wurden von der Kategorie '.$elementId.' entfernt');
+            $this->logger->info('Berechtigungen der Organisationen {orgaIds} wurden von der Kategorie {elementId} entfernt', ['orgaIds' => $orgaIds, 'elementId' => $elementId]);
 
             return true;
         } catch (Exception $e) {

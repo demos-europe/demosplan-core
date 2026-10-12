@@ -102,6 +102,14 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     private const ON_DELETE_SET_NULL = 'SET NULL';
 
     /**
+     * Doctrine picks the concrete MySQL column type for `_st_text` from this value: anything up to
+     * 16,777,215 becomes MEDIUMTEXT. That column-type choice itself is not enforced by MySQL - once
+     * created, MEDIUMTEXT accepts up to its own full capacity regardless of this hint - so the same
+     * value is reused below to actually validate the byte length before it ever reaches the database.
+     */
+    private const TEXT_MAX_LENGTH = 15_000_000;
+
+    /**
      * @var string|null
      *                  Generates a UUID in code that confirms to https://www.w3.org/TR/1999/REC-xml-names-19990114/#NT-NCName
      *                  to be able to be used as xs:ID type in XML messages
@@ -207,6 +215,17 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     #[Assert\Length(max: 255)]
     #[ORM\Column(name: '_st_intern_id', type: 'string', length: 255, nullable: true, options: ['fixed' => true, 'comment' => 'manuelle Eingangsnummer'])]
     protected $internId;
+
+    /**
+     * Identifies the statement this one was imported from, when it originates from an assessment
+     * table export of a procedure on another instance.
+     *
+     * Unlike {@link StatementInterface::$externId} this is unambiguous: statement copies share
+     * their externId within a procedure, so only this reference can pair an imported statement
+     * with the statement it came from.
+     */
+    #[ORM\Column(name: 'source_statement_id', type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
+    protected ?string $sourceStatementId = null;
 
     /**
      * @var User
@@ -441,7 +460,13 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      *
      * @var string
      */
-    #[ORM\Column(name: '_st_text', type: 'text', length: 15000000, nullable: false)]
+    #[ORM\Column(name: '_st_text', type: 'text', length: self::TEXT_MAX_LENGTH, nullable: false)]
+    #[Assert\Length(
+        max: self::TEXT_MAX_LENGTH,
+        maxMessage: 'statement.import.invalidTextTooLong',
+        countUnit: Assert\Length::COUNT_BYTES,
+        groups: [Statement::IMPORT_VALIDATION],
+    )]
     protected $text = '';
 
     /**
@@ -1206,10 +1231,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function addPriorityArea($priorityArea): bool
     {
         if (!$this->priorityAreas->contains($priorityArea)) {
-            $addedStatementSuccessful = $this->priorityAreas->add($priorityArea);
-            $addedPriorityAreaSuccessful = $priorityArea->addStatement($this);
+            $this->priorityAreas->add($priorityArea);
 
-            return $addedStatementSuccessful && $addedPriorityAreaSuccessful;
+            return $priorityArea->addStatement($this);
         }
 
         return false;
@@ -1304,6 +1328,18 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
         return $this->externId;
     }
 
+    public function setSourceStatementId(?string $sourceStatementId): Statement
+    {
+        $this->sourceStatementId = $sourceStatementId;
+
+        return $this;
+    }
+
+    public function getSourceStatementId(): ?string
+    {
+        return $this->sourceStatementId;
+    }
+
     /**
      * The usual statement pair (original + non original), makes it tricky to ensure
      * a unique internId per procedure, because these pair is a kind of a copy.
@@ -1324,7 +1360,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     }
 
     /**
-     * @param string $internId
+     * @param string|null $internId
      */
     public function setInternId($internId): Statement
     {
@@ -1771,10 +1807,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function addCounty($county): bool
     {
         if (!$this->counties->contains($county)) {
-            $addedStatementSuccessful = $this->counties->add($county);
-            $addedCountySuccessful = $county->addStatement($this);
+            $this->counties->add($county);
 
-            return $addedStatementSuccessful && $addedCountySuccessful;
+            return $county->addStatement($this);
         }
 
         return false;
@@ -1832,10 +1867,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function addMunicipality($municipality): bool
     {
         if (!$this->municipalities->contains($municipality)) {
-            $addedStatementSuccessful = $this->municipalities->add($municipality);
-            $addedMunicipalitySuccessful = $municipality->addStatement($this);
+            $this->municipalities->add($municipality);
 
-            return $addedStatementSuccessful && $addedMunicipalitySuccessful;
+            return $municipality->addStatement($this);
         }
 
         return false;
@@ -2985,10 +3019,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function addTag(TagInterface $tag): bool
     {
         if (!$this->tags->contains($tag)) {
-            $addedStatementSuccessful = $this->tags->add($tag);
-            $addedTagSuccessful = $tag->addStatement($this);
+            $this->tags->add($tag);
 
-            return $addedStatementSuccessful && $addedTagSuccessful;
+            return $tag->addStatement($this);
         }
 
         return false;
@@ -3037,7 +3070,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * Returns the names of all Tags assigned to this Statement.
      *
-     * @return array()
+     * @return string[]
      */
     public function getTagNames(): array
     {
@@ -3052,7 +3085,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * Returns the Ids of all Tags assigned to this Statement.
      *
-     * @return array()
+     * @return string[]
      */
     public function getTagIds(): array
     {
@@ -3067,7 +3100,7 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     /**
      * Returns the names of all Topics that are related with this Statement.
      *
-     * @return array()
+     * @return string[]
      */
     public function getTopicNames()
     {
