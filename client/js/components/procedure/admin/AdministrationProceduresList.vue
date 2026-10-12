@@ -90,7 +90,7 @@
           :aria-label="Translator.trans('procedure.archive.filter.active')"
           data-cy="showOnlyActiveProcedures"
           :model-value="showOnlyActiveProcedures"
-          @update:model-value="showOnlyActiveProcedures = $event"
+          @update:model-value="setShowOnlyActiveProcedures"
         />
         <span
           aria-hidden="true"
@@ -115,6 +115,7 @@
 
     <dp-data-table
       v-else
+      ref="dataTable"
       data-cy="administrationProceduresListTable"
       :has-flyout="hasRowActions"
       :header-fields="headerFields"
@@ -418,6 +419,15 @@ export default {
     },
 
     deleteProcedures (event) {
+      const readOnlyProcedureNames = this.getSelectedReadOnlyProcedureNames()
+
+      if (readOnlyProcedureNames.length > 0) {
+        event.preventDefault()
+        dplan.notify.error(Translator.trans('error.procedure.deleted.read.only', { procedureNames: readOnlyProcedureNames.join(', ') }))
+
+        return
+      }
+
       if (dpconfirm(Translator.trans('check.entries.marked.delete'))) {
         this.$refs.procedureForm.method = 'post'
         this.$refs.procedureForm.action = Routing.generate('DemosPlan_procedures_delete')
@@ -443,9 +453,7 @@ export default {
        * A read-only procedure grants none of the export content permissions, so it would only
        * add its name to the archive.
        */
-      const readOnlyProcedureNames = this.items
-        .filter(item => this.selectedItems.includes(item.id) && item.readOnly)
-        .map(item => item.name)
+      const readOnlyProcedureNames = this.getSelectedReadOnlyProcedureNames()
 
       if (readOnlyProcedureNames.length > 0) {
         dplan.notify.error(Translator.trans('error.procedure.export.read.only', { procedureNames: readOnlyProcedureNames.join(', ') }))
@@ -558,6 +566,12 @@ export default {
       return Routing.generate('DemosPlan_procedure_dashboard', { procedure: procedureId })
     },
 
+    getSelectedReadOnlyProcedureNames () {
+      return this.items
+        .filter(item => this.selectedItems.includes(item.id) && item.readOnly)
+        .map(item => item.name)
+    },
+
     openArchiveModal (procedureId, procedureName, readOnly) {
       this.archiveModal = { procedureId, procedureName, readOnly }
       this.$refs.archiveModal.toggle()
@@ -577,6 +591,7 @@ export default {
         })
         .catch(e => {
           console.error(e)
+          dplan.notify.error(Translator.trans('error.changes.not.saved'))
         })
         .finally(() => {
           this.$refs.archiveModal.toggle()
@@ -598,6 +613,12 @@ export default {
 
     setSelectedItems (items) {
       this.selectedItems = items
+    },
+
+    setShowOnlyActiveProcedures (value) {
+      // Reset while all rows are still listed, otherwise the table keeps the selection of hidden rows
+      this.$refs.dataTable?.resetSelection()
+      this.showOnlyActiveProcedures = value
     },
 
     statementsTooltipCount (statementsCount, originalStatementsCount) {
