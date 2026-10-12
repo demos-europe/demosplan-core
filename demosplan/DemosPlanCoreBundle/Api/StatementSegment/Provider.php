@@ -120,7 +120,7 @@ class Provider implements ProviderInterface
             ? iterator_to_array($result)
             : $result;
 
-        if (true === ($context[self::RETURN_ENTITIES] ?? false)) {
+        if (true === ($context[self::RETURN_ENTITIES] ?? false) || true === ($operation->getExtraProperties()['return_entities'] ?? false)) {
             return $segments;
         }
 

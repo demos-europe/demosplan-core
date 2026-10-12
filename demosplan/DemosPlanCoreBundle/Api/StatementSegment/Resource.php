@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Api\StatementSegment;
 
+use ApiPlatform\Doctrine\Orm\Filter\ExactFilter;
 use ApiPlatform\Doctrine\Orm\Filter\ExistsFilter;
 use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
@@ -67,6 +68,46 @@ use Symfony\Component\Validator\Constraints as Assert;
                 ),
             ],
         ),
+        // The list as a file: same provider and filters, but no paging and a processor that writes the
+        // file instead of JSON. Declared before the item operation, so `export` is not taken as an id.
+        new GetCollection(
+            uriTemplate: '/StatementSegment/export{._format}',
+            name: 'statement_segment_export',
+            formats: [
+                'csv'  => ['text/csv'],
+                'xlsx' => ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+            ],
+            paginationEnabled: false,
+            write: true,
+            processor: ExportProcessor::class,
+            extraProperties: ['return_entities' => true],
+            parameters: [
+                'assigneeOrUnassigned' => new QueryParameter(
+                    filter: AssigneeOrUnassignedFilter::class,
+                    castToArray: true,
+                ),
+                'customField' => new QueryParameter(
+                    filter: CustomFieldFilter::class,
+                    constraints: [
+                        new Assert\Sequentially([
+                            new Assert\Type('array'),
+                            new Assert\All([
+                                new Assert\Type('array'),
+                                new Assert\All([new Assert\Type('string'), new Assert\NotBlank(), new Assert\Uuid(strict: false)]),
+                            ]),
+                            new CustomFieldOptionSelection(),
+                        ]),
+                    ],
+                ),
+                // The procedure of the export. It restricts the segments, and `procedureId` in the URL is also what
+                // DetermineProcedureSubscriber makes the current procedure (a download cannot send the header).
+                self::PROCEDURE_PARAMETER => new QueryParameter(
+                    filter: new ExactFilter(),
+                    property: 'procedure',
+                    required: true,
+                ),
+            ],
+        ),
         new Get(uriTemplate: '/StatementSegment/{id}'),
     ],
     formats: ['jsonapi'],
@@ -76,6 +117,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiFilter(PropertyFilter::class)]
 class Resource
 {
+    /**
+     * The URL parameter of the export that names the procedure.
+     */
+    public const PROCEDURE_PARAMETER = 'procedureId';
+
     #[ApiFilter(SearchFilter::class, properties: ['id' => 'exact'])]
     #[ApiProperty(readable: false, identifier: true)]
     public string $id = '';
