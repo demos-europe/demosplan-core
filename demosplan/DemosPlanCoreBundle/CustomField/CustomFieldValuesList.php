@@ -16,6 +16,15 @@ class CustomFieldValuesList
 {
     protected array $customFieldValues = [];
 
+    /**
+     * The values are stored as JSON text, so a list holds an option if its text contains the quoted
+     * option id. Option ids are UUIDs, which makes the quoted id specific enough to search for.
+     */
+    public static function getOptionSearchText(string $optionId): string
+    {
+        return '"'.$optionId.'"';
+    }
+
     public function fromJson(array $json): void
     {
         $this->customFieldValues = array_map(static function ($fieldData) {

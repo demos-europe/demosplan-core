@@ -48,6 +48,7 @@ class SegmentExportInfoExtractor
     public function __construct(
         protected readonly PlaceRepository $placeRepository,
         protected readonly RequestStack $requestStack,
+        protected readonly SegmentExportCustomFieldFilter $customFieldFilter,
         protected readonly TagRepository $tagRepository,
         protected readonly TranslatorInterface $translator,
         protected readonly UserRepository $userRepository,
@@ -85,7 +86,8 @@ class SegmentExportInfoExtractor
             $this->nullIfEmpty($placeNames),
             $this->nullIfEmpty($selectedColumnKeys),
             $this->nullIfEmpty($selectedCustomFieldIds),
-            $isManualSelection
+            $isManualSelection,
+            $this->customFieldFilter->hasCustomFieldConditions($filter)
         );
     }
 

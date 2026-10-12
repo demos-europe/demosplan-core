@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\ValueObject\ValueObject;
  * @method array|null getSelectedColumnKeys()
  * @method array|null getSelectedCustomFieldIds()
  * @method bool       getIsManualSelection()
+ * @method bool       getHasCustomFieldFilter()
  * @method bool       getIsFiltered()
  */
 class SegmentExportInfo extends ValueObject
@@ -36,11 +37,13 @@ class SegmentExportInfo extends ValueObject
         protected readonly ?array $selectedColumnKeys,
         protected readonly ?array $selectedCustomFieldIds,
         protected readonly bool $isManualSelection,
+        protected readonly bool $hasCustomFieldFilter = false,
     ) {
         $this->isFiltered = null !== $searchPhrase
             || null !== $tagNames
             || null !== $assigneeNames
             || null !== $placeNames
+            || $hasCustomFieldFilter
             || $isManualSelection;
 
         $this->lock();
