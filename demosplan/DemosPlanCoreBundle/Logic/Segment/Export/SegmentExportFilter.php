@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Resource as StatementSegm
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use LogicException;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -71,36 +72,19 @@ class SegmentExportFilter
      * The query of the export URL, restricted to the procedure of the route and without paging. The
      * procedure does not come from the query, so the client cannot export another one.
      *
-     * It is the raw query string, not `$request->query`: PHP replaces the dots in the names of
-     * parameters like `tags.id` or `parentStatementOfSegment.externId` when it parses a request,
-     * which would silently drop these filters. The API provider parses the raw string itself.
+     * HeaderUtils reads the raw query string, not `$request->query`: PHP replaces the dots in the names
+     * of parameters like `tags.id` or `parentStatementOfSegment.externId` when it parses a request,
+     * which would silently drop these filters.
      */
     private function getListQueryString(string $procedureId): string
     {
-        $exportQuery = (string) $this->requestStack->getCurrentRequest()->server->get('QUERY_STRING', '');
-        $fixedParameters = http_build_query([self::PROCEDURE_PARAMETER => $procedureId, 'pagination' => 'false']);
+        $exportQuery = HeaderUtils::parseQuery((string) $this->requestStack->getCurrentRequest()->server->get('QUERY_STRING', ''));
 
-        return implode('&', array_filter([
-            $this->withoutParameters($exportQuery, self::EXPORT_ONLY_PARAMETERS),
-            $fixedParameters,
-        ]));
-    }
+        $listQuery = array_diff_key($exportQuery, array_flip(self::EXPORT_ONLY_PARAMETERS));
+        $listQuery[self::PROCEDURE_PARAMETER] = $procedureId;
+        $listQuery['pagination'] = 'false';
 
-    /**
-     * @param list<string> $names names without brackets, `order` removes `order[x]=y` too
-     */
-    private function withoutParameters(string $queryString, array $names): string
-    {
-        $remaining = array_filter(
-            explode('&', $queryString),
-            static fn (string $parameter): bool => !in_array(
-                explode('[', urldecode(strstr($parameter, '=', true) ?: $parameter))[0],
-                $names,
-                true
-            )
-        );
-
-        return implode('&', $remaining);
+        return http_build_query($listQuery);
     }
 
     // --- The recipe: how to call an API Platform provider from your own code ---
@@ -115,20 +99,29 @@ class SegmentExportFilter
      */
     private function callListProvider(string $queryString): array
     {
-        $operation = $this->getListOperation();                                    // 1
-        $request = Request::create(self::LIST_PATH.'?'.$queryString);               // 2
-        $request->attributes->add([                                                // 3
+        $operation = $this->getListOperation();
+
+        return $this->stateProvider->provide($operation, [], [
+            'request'                                 => $this->createListRequest($operation, $queryString),
+            'uri_variables'                           => [],
+            'resource_class'                          => StatementSegmentResource::class,
+            StatementSegmentProvider::RETURN_ENTITIES => true,
+        ]);
+    }
+
+    /**
+     * A request for the list URL as API Platform expects it: the query and the resource and operation it is for.
+     */
+    private function createListRequest(HttpOperation $operation, string $queryString): Request
+    {
+        $request = Request::create(self::LIST_PATH.'?'.$queryString);
+        $request->attributes->add([
             '_format'             => 'jsonapi',
             '_api_resource_class' => StatementSegmentResource::class,
             '_api_operation_name' => $operation->getName(),
         ]);
 
-        return $this->stateProvider->provide($operation, [], [                     // 4
-            'request'                                 => $request,
-            'uri_variables'                           => [],
-            'resource_class'                          => StatementSegmentResource::class,
-            StatementSegmentProvider::RETURN_ENTITIES => true,
-        ]);
+        return $request;
     }
 
     /**
