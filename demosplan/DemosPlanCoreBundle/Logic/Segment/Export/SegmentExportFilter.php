@@ -45,8 +45,7 @@ class SegmentExportFilter
     private const PROCEDURE_PARAMETER = 'parentStatementOfSegment.procedure.id';
 
     /**
-     * Parameters of the export URL that the list query must not get: `columns` is only for the
-     * exporter, the paging parameters and the procedure are set by the export itself.
+     * Parameters of the export URL that the list does not need or that the export sets itself.
      */
     private const EXPORT_ONLY_PARAMETERS = ['columns', 'pagination', 'page', 'itemsPerPage', self::PROCEDURE_PARAMETER];
 
@@ -61,7 +60,9 @@ class SegmentExportFilter
     // --- The export: which query does it ask the list for? ---
 
     /**
-     * @return list<Segment> all segments of the procedure that match the filters of the export URL
+     * Returns the segments of the procedure that match the filters of the export URL.
+     *
+     * @return list<Segment>
      */
     public function filter(string $procedureId): array
     {
@@ -69,15 +70,11 @@ class SegmentExportFilter
     }
 
     /**
-     * The query of the export URL, restricted to the procedure of the route and without paging. The
-     * procedure does not come from the query, so the client cannot export another one.
-     *
-     * HeaderUtils reads the raw query string, not `$request->query`: PHP replaces the dots in the names
-     * of parameters like `tags.id` or `parentStatementOfSegment.externId` when it parses a request,
-     * which would silently drop these filters.
+     * Takes the export parameters, removes the ones only the export needs, and adds the procedure and "no paging".
      */
     private function getListQueryString(string $procedureId): string
     {
+        // Not `$request->query`: PHP would turn the dots of names like `tags.id` into underscores and drop these filters.
         $exportQuery = HeaderUtils::parseQuery((string) $this->requestStack->getCurrentRequest()->server->get('QUERY_STRING', ''));
 
         $listQuery = array_diff_key($exportQuery, array_flip(self::EXPORT_ONLY_PARAMETERS));
@@ -87,13 +84,10 @@ class SegmentExportFilter
         return http_build_query($listQuery);
     }
 
-    // --- The recipe: how to call an API Platform provider from your own code ---
+    // --- Calling the API Platform provider ---
 
     /**
-     * 1. Take the operation of the resource, here its list operation.
-     * 2. Build a request for the API URL. The filters are read from its raw QUERY_STRING.
-     * 3. Name the resource and the operation in the request attributes.
-     * 4. Call the main state provider: parameter validation, filters, access conditions and paging run.
+     * Asks the API Platform provider for the segments, like the segment list does.
      *
      * @return list<Segment>
      */
@@ -110,7 +104,7 @@ class SegmentExportFilter
     }
 
     /**
-     * A request for the list URL as API Platform expects it: the query and the resource and operation it is for.
+     * Builds a request for the list URL, so the API Platform provider knows what to load.
      */
     private function createListRequest(HttpOperation $operation, string $queryString): Request
     {
@@ -125,14 +119,14 @@ class SegmentExportFilter
     }
 
     /**
-     * The flags are set like API Platform's main controller does for a GET request, because that
-     * controller is not involved here.
+     * Finds the list operation of the segment resource, because the export has no API route of its own.
      */
     private function getListOperation(): HttpOperation
     {
         foreach ($this->resourceMetadataFactory->create(StatementSegmentResource::class) as $resource) {
             foreach ($resource->getOperations() as $operation) {
                 if ($operation instanceof CollectionOperationInterface && $operation instanceof HttpOperation) {
+                    // The flags API Platform's main controller sets for a GET request, which is not involved here.
                     return $operation->withRead(true)->withValidate(false)->withDeserialize(false);
                 }
             }
