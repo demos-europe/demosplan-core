@@ -27,21 +27,27 @@ All rights reserved
     v-show="isVisible"
     class="flex flex-col flex-1 min-h-0 -ml-5"
   >
-    <h2 class="shrink-0 p-4 pt-0 border-b border-neutral bg-surface shadow-[0_3px_4px_-3px_rgba(0,0,0,0.26)]">
+    <h2
+      :class="{ 'shadow-[0_3px_4px_-3px_rgba(0,0,0,0.26)]': isScrolled }"
+      class="shrink-0 p-4 pt-0 mb-0 border-b border-neutral bg-surface"
+    >
       {{ Translator.trans('filter') }}
     </h2>
 
-    <div class="flex-1 min-h-0 overflow-y-auto">
+    <div
+      class="flex-1 min-h-0 overflow-y-auto"
+      @scroll.passive="onScroll"
+    >
       <dp-accordion
         v-for="category in categories"
         :key="category.id"
-        class="p-4 border-b border-neutral"
         :data-cy="`segmentsListFilter:${category.id}`"
         :is-open="getIsExpandedByCategoryId(category.id)"
         :show-border="false"
         :show-status-dot="categoryHasPendingChanges(category)"
         :status-dot-label="Translator.trans('unsaved.changes')"
         :title="category.label"
+        class="p-4 border-b border-neutral"
         compressed
         @item:toggle="(isExpanded) => setExpanded(category, isExpanded)"
       >
@@ -129,7 +135,10 @@ All rights reserved
       </dp-accordion>
     </div>
 
-    <div class="shrink-0 flex justify-end gap-2 p-4 bg-surface shadow-lg">
+    <div
+      :class="{ 'shadow-lg': isScrolled }"
+      class="shrink-0 flex justify-end gap-2 p-4 bg-surface border-t border-neutral"
+    >
       <dp-button
         data-cy="segmentsListFilter:reset"
         variant="outline"
@@ -239,6 +248,14 @@ export default {
     watch(() => slidebar.value.showTab, (showTab) => {
       isVisible.value = showTab === 'filter'
     })
+
+    // *** SCROLL STATE ***
+    const isScrolled = ref(false)
+
+    // Shadows below the h2 and above the buttons appear on scroll
+    const onScroll = (event) => {
+      isScrolled.value = event.target.scrollTop > 0
+    }
 
     // *** CATEGORIES ***
     /*
@@ -606,7 +623,9 @@ export default {
       hasSelectedFilters,
       isChecked,
       isLoading,
+      isScrolled,
       isVisible,
+      onScroll,
       resetAllFilters,
       resetSearch,
       setExpanded,
