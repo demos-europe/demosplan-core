@@ -1984,7 +1984,7 @@ export default {
               isLoading: false,
             })
             if (this.getIsExpandedByCategoryId(category.id)) {
-              document.getElementById(`searchField_${path}`).focus()
+              document.getElementById(`searchField_${path}`)?.focus()
             }
           }
         },

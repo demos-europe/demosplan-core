@@ -54,6 +54,7 @@ All rights reserved
           </p>
 
           <dp-resettable-input
+            v-if="showSearch(category)"
             :id="`searchField_${category.searchFieldId}`"
             v-model="category.searchTerm"
             :data-cy="`searchField:${category.searchFieldId}`"
@@ -242,25 +243,27 @@ export default {
     // *** CATEGORIES ***
     /*
      * Filters within one category are OR-combined by giving them a shared group key (memberOf).
-     * 'tags' is the exception and uses none. Group keys can't contain '.', so 'workflow.place'
-     * from segmentsFilterNames.yaml becomes 'workflow-place_group'.
+     * 'tags' is the exception and uses none. Group keys are built from labelTranslationKey (not
+     * filterType) because saved hashes and bookmarks store them. They can't contain '.', so
+     * 'workflow.place' becomes 'workflow-place_group'.
      */
-    const groupName = (filterType) => {
-      if (filterType === 'tags') {
+    const groupName = (labelTranslationKey) => {
+      if (labelTranslationKey === 'tags') {
         return null
       }
 
-      if (filterType === 'assignee') {
+      if (labelTranslationKey === 'assignee') {
         return 'assigneeOrUnassigned'
       }
 
-      return `${filterType.replaceAll('.', '-')}_group`
+      return `${labelTranslationKey.replaceAll('.', '-')}_group`
     }
 
-    const categories = reactive(Object.values(props.filters).map((filterDefinition, idx) => ({
+    const categories = reactive(Object.entries(props.filters).map(([filterType, filterDefinition], idx) => ({
       appliedQuery: [],
       currentQuery: [],
-      hint: filterDefinition.labelTranslationKey !== 'tags',
+      filterType,
+      hint: filterType !== 'tags',
       id: `${filterDefinition.labelTranslationKey}:${idx}`,
       label: Translator.trans(filterDefinition.labelTranslationKey),
       memberOf: groupName(filterDefinition.labelTranslationKey),
@@ -386,6 +389,18 @@ export default {
     const getSearchedUngroupedOptions = (category) => dataTableSearch(category.searchTerm, getUngroupedOptions(category), ['label'])
 
     const isChecked = (category, optionId) => category.currentQuery.includes(optionId)
+
+    // Tags are always searchable, others only with at least 10 options
+    const showSearch = (category) => {
+      if (category.filterType === 'tags') {
+        return true
+      }
+
+      const optionCount = getUngroupedOptions(category).length +
+        getGroupedOptions(category).flatMap((group) => group.options).length
+
+      return optionCount >= 10
+    }
 
     const isLoading = (category) => store.getters['FilterFlyout/getIsLoadingByCategoryId'](category.id) ?? false
 
@@ -595,6 +610,7 @@ export default {
       resetAllFilters,
       resetSearch,
       setExpanded,
+      showSearch,
       updateQuery,
     }
   },
