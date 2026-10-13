@@ -108,6 +108,12 @@ fos_elastica:
                         text: {type: text, analyzer: customHTMLGerman }
                         raw: { type: keyword, index: true }
                 placeId: {type: keyword, index: true}
+                # Same nested mapping as in the statements index: one {id, value} entry per custom field of the segment.
+                customFieldsForIndex:
+                    type: nested
+                    properties:
+                        id: {type: keyword, index: true}
+                        value: {type: keyword, index: true}
             # define callback to check whether entity should be indexed
             indexable_callback: 'shouldBeIndexed'
             persistence:
