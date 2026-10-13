@@ -285,10 +285,21 @@ export default {
     // *** CUSTOM FIELDS ***
     const getCustomFieldCategoryId = (field) => `${CUSTOM_FIELD_GROUP_PREFIX}${field.id}`
 
+    // Option ids of a custom field from the filters in the URL, so the matching checkboxes start out selected
+    const getInitialCustomFieldOptionIds = (field) => {
+      if (Array.isArray(props.initialFilter)) {
+        return []
+      }
+
+      return Object.values(props.initialFilter)
+        .filter((el) => el.condition?.memberOf === getCustomFieldCategoryId(field))
+        .map((el) => el.condition.value)
+    }
+
     // Same shape as the static categories, so apply/reset/discard work for custom fields too
     const buildCustomFieldCategory = (field) => ({
-      appliedQuery: [],
-      currentQuery: [],
+      appliedQuery: getInitialCustomFieldOptionIds(field),
+      currentQuery: getInitialCustomFieldOptionIds(field),
       hint: true,
       id: getCustomFieldCategoryId(field),
       isCustomField: true,
