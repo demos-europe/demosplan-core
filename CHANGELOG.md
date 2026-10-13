@@ -8,6 +8,7 @@
 
 ### Added
 - The boilerplate edit page lists the segments that use the boilerplate in the recommendation text, with assignee, workflow step and the current recommendation text
+- Specific branches of an addon can be installed
 
 ## v4.63.0 (2026-10-08)
 
