@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Statement\Export;
 
+use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\CustomFieldFilter;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagTopicFactory;
@@ -107,10 +108,24 @@ class SegmentExportInfoExtractorTest extends FunctionalTestCase
 
     public function testACustomFieldFilterMakesTheExportFiltered(): void
     {
+        $this->loginTestUser();
+        $this->enablePermissions([CustomFieldFilter::PERMISSION]);
+
         $info = $this->extract(http_build_query(['customField' => [Uuid::uuid4()->toString() => [Uuid::uuid4()->toString()]]]));
 
         self::assertTrue($info->getHasCustomFieldFilter());
         self::assertTrue($info->getIsFiltered());
+    }
+
+    public function testACustomFieldFilterWithoutThePermissionDoesNotMakeTheExportFiltered(): void
+    {
+        $this->loginTestUser();
+        $this->disablePermissions([CustomFieldFilter::PERMISSION]);
+
+        $info = $this->extract(http_build_query(['customField' => [Uuid::uuid4()->toString() => [Uuid::uuid4()->toString()]]]));
+
+        self::assertFalse($info->getHasCustomFieldFilter());
+        self::assertFalse($info->getIsFiltered());
     }
 
     private function extract(string $queryString): SegmentExportInfo

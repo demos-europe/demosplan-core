@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Export;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\CustomFieldFilter;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
@@ -50,6 +52,7 @@ class SegmentExportInfoExtractor
     ];
 
     public function __construct(
+        protected readonly PermissionsInterface $permissions,
         protected readonly PlaceRepository $placeRepository,
         protected readonly RequestStack $requestStack,
         protected readonly TagRepository $tagRepository,
@@ -87,7 +90,8 @@ class SegmentExportInfoExtractor
             $this->nullIfEmpty($selectedColumnKeys),
             $this->nullIfEmpty($selectedCustomFieldIds),
             [] !== $this->getIds($query, self::SELECTED_SEGMENT_IDS_PARAM),
-            [] !== ($query[self::CUSTOM_FIELD_PARAM] ?? [])
+            // Without the permission the list ignores the custom field filter, so the export is not filtered by it.
+            [] !== ($query[self::CUSTOM_FIELD_PARAM] ?? []) && $this->permissions->hasPermission(CustomFieldFilter::PERMISSION)
         );
     }
 
