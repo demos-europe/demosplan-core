@@ -20,21 +20,25 @@ use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldExportColumnKeyCodec;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\SegmentExportInfo;
-use EDT\JsonApi\RequestHandling\UrlParameter;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+/**
+ * Describes what the segment export was asked for (search, filters, columns), for the file name and
+ * the info sheet. It reads the same query parameters as the segment list: `tags.id[]`, `place.id`,
+ * `assignee.id[]`, `assigneeOrUnassigned[]`, `customField[..]`, `search[value]` and, for a manual
+ * selection, `id[]`.
+ */
 class SegmentExportInfoExtractor
 {
-    private const TAG_FILTER_PARAM = 'tags';
-    private const ASSIGNEE_FILTER_PARAM = 'assignee';
-    private const PLACE_FILTER_PARAM = 'place';
+    private const TAG_IDS_PARAM = 'tags.id';
+    private const ASSIGNEE_IDS_PARAMS = ['assignee.id', 'assigneeOrUnassigned'];
+    private const PLACE_IDS_PARAM = 'place.id';
+    private const CUSTOM_FIELD_PARAM = 'customField';
     private const SEARCH_PARAM = 'search';
-    private const SELECTED_SEGMENT_IDS_PARAM = 'selectedSegments';
+    private const SELECTED_SEGMENT_IDS_PARAM = 'id';
     private const SELECTED_COLUMNS_PARAM = 'columns';
-    private const TAG_IDS_KEY = 'tagIds';
-    private const ASSIGNEE_IDS_KEY = 'assigneeIds';
-    private const PLACE_IDS_KEY = 'placeIds';
 
     /**
      * Maps column-selector keys that don't match their export column key 1:1. Anything not listed
@@ -56,23 +60,20 @@ class SegmentExportInfoExtractor
 
     public function extract(): SegmentExportInfo
     {
-        $request = $this->requestStack->getCurrentRequest();
-        $searchPhrase = $request->query->all(self::SEARCH_PARAM)['value'] ?? null;
+        $query = $this->getQuery($this->requestStack->getCurrentRequest());
+        $searchPhrase = $query[self::SEARCH_PARAM]['value'] ?? null;
         $selectedColumnKeys = array_map(
             static fn (string $key): string => self::UI_COLUMN_TO_EXPORT_KEY[$key] ?? $key,
-            explode(',', $request->query->get(self::SELECTED_COLUMNS_PARAM))
+            explode(',', (string) ($query[self::SELECTED_COLUMNS_PARAM] ?? ''))
         );
         $selectedCustomFieldIds = CustomFieldExportColumnKeyCodec::extractIds($selectedColumnKeys);
-        $filter = $request->query->all(UrlParameter::FILTER);
-        $isManualSelection = array_key_exists(self::SELECTED_SEGMENT_IDS_PARAM, $filter);
 
-        $filterIds = $this->extractFilterIdsByPath($filter);
         /** @var Tag[] $tagEntities */
-        $tagEntities = $this->getTags($filterIds[self::TAG_IDS_KEY]);
+        $tagEntities = $this->tagRepository->findByIds($this->getIds($query, self::TAG_IDS_PARAM));
         /** @var User[] $userEntities */
-        $userEntities = $this->getAssignees($filterIds[self::ASSIGNEE_IDS_KEY]);
+        $userEntities = $this->userRepository->findBy(['id' => $this->getIds($query, ...self::ASSIGNEE_IDS_PARAMS)]);
         /** @var Place[] $placeEntities */
-        $placeEntities = $this->getPlaces($filterIds[self::PLACE_IDS_KEY]);
+        $placeEntities = $this->placeRepository->findBy(['id' => $this->getIds($query, self::PLACE_IDS_PARAM)]);
 
         $tagNames = array_map(static fn ($tag) => $tag->getTitle(), $tagEntities);
         $assigneeNames = array_map(static fn ($user) => $user->getFullname(), $userEntities);
@@ -85,7 +86,8 @@ class SegmentExportInfoExtractor
             $this->nullIfEmpty($placeNames),
             $this->nullIfEmpty($selectedColumnKeys),
             $this->nullIfEmpty($selectedCustomFieldIds),
-            $isManualSelection
+            [] !== $this->getIds($query, self::SELECTED_SEGMENT_IDS_PARAM),
+            [] !== ($query[self::CUSTOM_FIELD_PARAM] ?? [])
         );
     }
 
@@ -94,39 +96,41 @@ class SegmentExportInfoExtractor
         return [] === $values ? null : $values;
     }
 
-    private function getTags(array $tagIds): array
+    /**
+     * The values of the parameters of the given names: `place.id=a` and `tags.id[]=a&tags.id[]=b`
+     * both work. Empty values are left out, `assigneeOrUnassigned[]=` stands for "unassigned".
+     *
+     * @param array<string, mixed> $query
+     *
+     * @return list<string>
+     */
+    private function getIds(array $query, string ...$names): array
     {
-        return $this->tagRepository->findByIds($tagIds);
-    }
-
-    private function getAssignees(array $assigneeIds): array
-    {
-        return $this->userRepository->findBy(['id' => $assigneeIds]);
-    }
-
-    private function getPlaces(array $placeIds): array
-    {
-        return $this->placeRepository->findBy(['id' => $placeIds]);
-    }
-
-    private function extractFilterIdsByPath(array $filter): array
-    {
-        $filterIds = [self::TAG_IDS_KEY => [], self::ASSIGNEE_IDS_KEY => [], self::PLACE_IDS_KEY => []];
-        $pathToKey = [
-            self::TAG_FILTER_PARAM      => self::TAG_IDS_KEY,
-            self::ASSIGNEE_FILTER_PARAM => self::ASSIGNEE_IDS_KEY,
-            self::PLACE_FILTER_PARAM    => self::PLACE_IDS_KEY,
-        ];
-
-        foreach ($filter as $entry) {
-            $path = $entry['condition']['path'] ?? null;
-            $key = $pathToKey[$path] ?? null;
-
-            if (null !== $key && isset($entry['condition']['value'])) {
-                $filterIds[$key][] = $entry['condition']['value'];
-            }
+        $ids = [];
+        foreach ($names as $name) {
+            array_push($ids, ...(array) ($query[$name] ?? []));
         }
 
-        return $filterIds;
+        return array_values(array_filter($ids, static fn (mixed $id): bool => is_string($id) && '' !== $id));
+    }
+
+    /**
+     * The query parameters by name, parsed from the raw query string. PHP replaces the dots in the
+     * names of parameters like `tags.id` when it parses a request, so `$request->query` would only
+     * know them as `tags_id`. Like API Platform does, the brackets are decoded first (browsers send
+     * `tags.id%5B%5D=a`), then the names are hex-encoded while PHP parses the string.
+     *
+     * @return array<string, mixed>
+     */
+    private function getQuery(Request $request): array
+    {
+        $encoded = preg_replace_callback(
+            '/(^|(?<=&))[^=[&]+/',
+            static fn (array $name): string => bin2hex(urldecode($name[0])),
+            str_ireplace('%5B', '[', (string) $request->server->get('QUERY_STRING', ''))
+        );
+        parse_str($encoded, $parameters);
+
+        return array_combine(array_map(static fn (int|string $name): string => hex2bin((string) $name), array_keys($parameters)), $parameters);
     }
 }
