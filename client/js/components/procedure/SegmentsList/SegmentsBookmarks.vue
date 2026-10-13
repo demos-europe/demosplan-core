@@ -16,12 +16,11 @@
         {{ Translator.trans('segments.view.saved') }}
       </p>
       <dp-radio
-        id="defaultView"
+        id="defaultBookmark"
         class="border my-2 p-1"
-        :class="isDefaultViewActive ? 'border-blue-base' : 'border-neutral-light-3'"
-        :checked="isDefaultViewActive"
+        :class="currentBookmarkId === null ? 'border-blue-base' : 'border-neutral-light-3'"
+        :checked="currentBookmarkId === null"
         :disabled="isApplyingBookmark"
-        value="default"
         :label="{
           text: Translator.trans('segments.view.default'),
           hint: Translator.trans('segments.view.default.description')
@@ -38,10 +37,9 @@
           :key="bookmark.id"
           :checked="bookmark.id === currentBookmarkId"
           :disabled="isApplyingBookmark"
-          :value="bookmark.id"
           :label="{
             text: bookmark.attributes.name,
-            hint: getBookmarkInfo(bookmark.id),
+            hint: getBookmarkSummary(bookmark.id),
           }"
           @change="handleViewChange(bookmark.id)"
         />
@@ -55,12 +53,16 @@
           @click="deleteBookmark(bookmark.id)"
         />
       </div>
-      <span class="text-sm">
+
+      <span
+        v-if="!bookmarks.length"
+        class="text-sm"
+      >
         {{ Translator.trans('segments.view.none.saved') }}
       </span>
 
       <div class="border-t border-neutral-light-3 my-4">
-        <span class="pt-4 block font-semibold">
+        <span class="pt-4 block font-semibold mb-3">
           {{ Translator.trans('segments.view.new.save') }}
         </span>
         <dp-input
@@ -81,7 +83,7 @@
         primary
         secondary
         data-cy="segmentsBookmarks:save"
-        @primary-action="save"
+        @primary-action="createNewBookmark"
         @secondary-action="abort"
       />
     </div>
@@ -89,86 +91,69 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { useStore } from 'vuex'
-import { DpRadio, DpButton, DpInput, DpButtonRow } from '@demos-europe/demosplan-ui'
-import lscache from 'lscache'
+import {
+  DpRadio,
+  DpButton,
+  DpInput,
+  DpButtonRow,
+} from '@demos-europe/demosplan-ui'
+import type {
+  Bookmark,
+  CreateBookmarkPayload,
+  UpdateBookmarkPayload,
+  Slidebar,
+} from '@DpJs/types/bookmarks'
 
+import { computed, onMounted, ref, type Ref, type ComputedRef } from 'vue'
+import lscache from 'lscache'
+import { useStore } from 'vuex'
+
+/* Props */
 const props = defineProps<{
   procedureId: string
 }>()
 
 const store = useStore()
 
-const newBookmarkName = ref('')
+const newBookmarkName: Ref<string> = ref('')
 const lsKey = `${props.procedureId}:segments:currentBookmarkId`
 
 /* Computed */
-const currentBookmark = computed(() => store.state.SegmentsBookmarks.currentBookmark)
-const currentBookmarkId = computed(() => store.state.SegmentsBookmarks.currentBookmarkId)
-const isDefaultViewActive = computed(() => currentBookmarkId.value === null)
-const slidebar = computed(() => store.state.SegmentSlidebar.slidebar)
-const isVisible = computed(() => slidebar.value.showTab === 'bookmarks')
-const currentQueryHash = computed(() => store.state.SegmentSlidebar.currentQueryHash)
-const isApplyingBookmark = computed(() => store.state.SegmentsBookmarks.isApplyingBookmark)
-const bookmarks = computed(() => store.state.SegmentsBookmarks.allBookmarks)
+const bookmarks: ComputedRef<Bookmark[]> = computed(() => store.state.SegmentsBookmarks.allBookmarks)
+const currentBookmark: ComputedRef<Bookmark | null> = computed(() => store.state.SegmentsBookmarks.currentBookmark)
+const currentBookmarkId: ComputedRef<string | null> = computed(() => store.state.SegmentsBookmarks.currentBookmarkId)
+const currentQueryHash: ComputedRef<string> = computed(() => store.state.SegmentSlidebar.currentQueryHash)
+
+const slidebar: ComputedRef<Slidebar> = computed(() => store.state.SegmentSlidebar.slidebar)
+const isVisible: ComputedRef<boolean> = computed(() => slidebar.value.showTab === 'bookmarks')
+const isApplyingBookmark: ComputedRef<boolean> = computed(() => store.state.SegmentsBookmarks.isApplyingBookmark)
 
 /* Store actions */
-const fetchBookmarks = () => store.dispatch('SegmentsBookmarks/fetchBookmarks')
-const createBookmark = (payload: object) => store.dispatch('SegmentsBookmarks/createBookmark', payload)
-const updateBookmark = (payload: { id: string, name?: string, queryHash?: string }) =>
+const createBookmark = (payload: CreateBookmarkPayload): Promise<boolean> =>
+  store.dispatch('SegmentsBookmarks/createBookmark', payload)
+const deleteBookmark = (id: string): Promise<boolean> =>
+  store.dispatch('SegmentsBookmarks/deleteBookmark', id)
+const fetchBookmarks = (): Promise<Bookmark[]> => store.dispatch('SegmentsBookmarks/fetchBookmarks')
+const updateBookmark = (payload: UpdateBookmarkPayload): Promise<boolean> =>
   store.dispatch('SegmentsBookmarks/updateBookmark', payload)
-const deleteBookmark = (id: string) => store.dispatch('SegmentsBookmarks/deleteBookmark', id)
 
-/* Emit */
-const emit = defineEmits(['apply-bookmark', 'reset-view'])
+/* Emits */
+interface SegmentsBookmarksEmits {
+  (e: 'apply-bookmark', bookmark: Bookmark): void
+  (e: 'reset-view'): void
+  (e: 'update-button-text', text: string): void
+}
+
+const emit = defineEmits<SegmentsBookmarksEmits>()
 
 /* Methods */
-const abort = () => {
-  console.log('Abort')
+const abort = (): void => {
+  console.log('Abort') // Todo: adjust method
 }
 
-const createNewBookmark = async () => {
-  if (!currentQueryHash.value) {
-    return
-  }
+const applySelectedBookmark = async (bookmarkId): Promise<void> => {
+  const selectedBookmark = bookmarks.value.find(({ id }) => id === bookmarkId)
 
-  if (!newBookmarkName.value.trim()) {
-    return
-  }
-
-  const payload = {
-    type: 'Bookmark',
-    attributes: {
-      name: newBookmarkName.value.trim(),
-      queryHash: currentQueryHash.value
-    }
-  }
-
-  const success = await createBookmark(payload)
-  if (success) {
-    newBookmarkName.value = ''
-  }
-}
-
-const getBookmarkInfo = (bookmarkId) => {
-  const bookmark = bookmarks.value.find(bookmark => bookmark.id === bookmarkId)
-
-  return `${Object.values(bookmark.attributes.filter).length} ${Translator.trans('filter')} * ${bookmark.attributes.viewSettings.selectedColumns.length} Splaten`
-}
-
-const handleViewChange = async (bookmarkId) => {
-  if (bookmarkId === null) {
-    const success = await store.dispatch('SegmentsBookmarks/resetToDefaultView')
-    if (success) {
-      // Clear localStorage when returning to default view
-      lscache.remove(lsKey)
-      emit('reset-view')
-    }
-    return
-  }
-
-  const selectedBookmark = bookmarks.value.find(bookmark => bookmark.id === bookmarkId)
   if (!selectedBookmark) {
     return
   }
@@ -178,39 +163,109 @@ const handleViewChange = async (bookmarkId) => {
     bookmark: selectedBookmark
   })
 
-  if (success) {
-    lscache.set(lsKey, bookmarkId)
-    emit('apply-bookmark', selectedBookmark)
+  if (!success) {
+    return
   }
+
+  lscache.set(lsKey, bookmarkId)
+  updateBookmarkButtonText(selectedBookmark)
+  emit('apply-bookmark', selectedBookmark)
 }
 
-const save = () => {
-  createNewBookmark()
-}
+const createNewBookmark = async (): Promise<void> => {
+  const name = newBookmarkName.value.trim()
+  const queryHash = currentQueryHash.value
 
-onMounted (async () => {
-  await fetchBookmarks()
+  if (!name || !queryHash) {
+    return
+  }
 
-  const savedBookmarkId = lscache.get(lsKey)
-
-  if (savedBookmarkId) {
-    const savedBookmark = bookmarks.value.find(bookmark => bookmark.id === savedBookmarkId)
-
-    if (savedBookmark) {
-      const success = await store.dispatch('SegmentsBookmarks/applyBookmark', {
-        bookmarkId: savedBookmarkId,
-        bookmark: savedBookmark
-      })
-
-      if (success) {
-        emit('apply-bookmark', savedBookmark)
-      }
-    } else {
-      lscache.remove(lsKey)
+  const payload: CreateBookmarkPayload = {
+    type: 'Bookmark',
+    attributes: {
+      name,
+      queryHash
     }
   }
-})
 
+  const success = await createBookmark(payload)
+
+  if (success) {
+    newBookmarkName.value = ''
+    dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+  }
+}
+
+const getBookmarkSummary = (bookmarkId: string): string => {
+  const bookmark = bookmarks.value.find(bookmark => bookmark.id === bookmarkId)
+
+  if (!bookmark) {
+    return ''
+  }
+
+  const { filter, viewSettings } = bookmark.attributes
+  const filterCount = Object.values(filter).length
+  const columnCount = viewSettings.selectedColumns.length
+
+  return `${filterCount} ${Translator.trans('filter')} · ${columnCount} ${Translator.trans('columns')}` // ToDo: add information about the total column count
+}
+
+const handleViewChange = async (bookmarkId: string | null): Promise<void> => {
+  if (bookmarkId === null) {
+    await setDefaultBookmark()
+
+    return
+  }
+
+  await applySelectedBookmark(bookmarkId)
+}
+
+const setDefaultBookmark = async (): Promise<void> => {
+  const success = await store.dispatch('SegmentsBookmarks/resetToDefaultView')
+
+  if (!success) return
+
+  lscache.remove(lsKey)
+  updateBookmarkButtonText(null)
+  emit('reset-view')
+}
+
+const updateBookmarkButtonText = (bookmark: Bookmark | null): void => {
+  const buttonText = bookmark?.attributes?.name || Translator.trans('views')
+
+  emit('update-button-text', buttonText)
+}
+
+const restoreSavedBookmark = async (): Promise<void> => {
+  const savedBookmarkId: string | null = lscache.get(lsKey)
+
+  if (!savedBookmarkId) {
+    return
+  }
+
+  const savedBookmark: Bookmark | undefined = bookmarks.value.find(bookmark => bookmark.id === savedBookmarkId)
+
+  if (!savedBookmark) {
+    lscache.remove(lsKey)
+
+    return
+  }
+
+  const success: boolean = await store.dispatch('SegmentsBookmarks/applyBookmark', {
+    bookmarkId: savedBookmarkId,
+    bookmark: savedBookmark
+  })
+
+  if (success) {
+    updateBookmarkButtonText(savedBookmark)
+    emit('apply-bookmark', savedBookmark)
+  }
+}
+
+onMounted(async (): Promise<void> => {
+  await fetchBookmarks()
+  await restoreSavedBookmark()
+})
 </script>
 
 

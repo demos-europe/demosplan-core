@@ -7,15 +7,10 @@
         flush: true
     } %}
         {% block pageheader_actions %}
-            <dp-button
-                class="float-right"
-                color="primary"
-                variant="outline"
-                icon="bookmark"
-                text="{{ 'views'|trans }}"
-                data-cy="segmentsList:openBookmarks"
+            <segments-bookmarks-button
+                ref="bookmarksButton"
                 @click="$refs.segmentsList.openBookmarks()">
-            </dp-button>
+            </segments-bookmarks-button>
         {% endblock %}
     {% endembed %}
 
@@ -37,7 +32,8 @@
         <segments-bookmarks
             procedure-id="{{ procedure }}"
             @apply-bookmark="$refs.segmentsList.applyBookmarkSettings($event)"
-            @reset-view="$refs.segmentsList.applyBookmarkSettings(null)">
+            @reset-view="$refs.segmentsList.applyBookmarkSettings(null)"
+            @update-button-text="$refs.bookmarksButton.updateButtonText($event)">
         </segments-bookmarks>
     </segment-slidebar>
 
@@ -50,7 +46,7 @@
         initial-search-term="{{ segmentListQuery.searchPhrase|default }}"
         {# Empty when the hash carries no view settings, in which case it arrives as [] rather than {} #}
         :initial-view-settings="JSON.parse('{{ segmentListQuery.viewSettings|json_encode|e('js', 'utf-8') }}')"
-        @reset-filters="$refs.segmentsListFilter.resetAllFilters()">
+        @reset-filters="$refs.segmentsListFilter.resetAllFilters(); $refs.bookmarksButton.updateButtonText('{{ 'views'|trans }}')"
     </segments-list>
 {% endblock %}
 

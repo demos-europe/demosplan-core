@@ -18,6 +18,7 @@ import { initialize } from '@DpJs/InitVue'
 import SegmentSlidebar from '@DpJs/components/procedure/SegmentsList/SegmentSlidebar'
 import SegmentSlidebarStore from '@DpJs/store/procedure/SegmentSlidebar'
 import SegmentsBookmarks from '@DpJs/components/procedure/SegmentsList/SegmentsBookmarks'
+import SegmentsBookmarksButton from '@DpJs/components/procedure/SegmentsList/SegmentsBookmarksButton'
 import SegmentsBookmarksStore from '@DpJs/store/procedure/SegmentsBookmarks'
 import SegmentsList from '@DpJs/components/procedure/SegmentsList/SegmentsList'
 import SegmentsListFilter from '@DpJs/components/procedure/SegmentsList/SegmentsListFilter'
@@ -27,6 +28,7 @@ const components = {
   DpSegmentRecommendationEmail,
   DpVersionHistory,
   SegmentsBookmarks,
+  SegmentsBookmarksButton,
   SegmentsList,
   SegmentsListFilter,
   SegmentSlidebar,
