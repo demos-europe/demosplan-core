@@ -12,14 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Export;
 
-use ApiPlatform\Metadata\CollectionOperationInterface;
-use ApiPlatform\Metadata\HttpOperation;
+use ApiPlatform\Metadata\Operation;
 use ApiPlatform\Metadata\Resource\Factory\ResourceMetadataCollectionFactoryInterface;
 use ApiPlatform\State\ProviderInterface;
 use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Provider as StatementSegmentProvider;
 use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Resource as StatementSegmentResource;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
-use LogicException;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,6 +39,8 @@ use Symfony\Component\HttpFoundation\RequestStack;
 class SegmentExportFilter
 {
     private const LIST_PATH = '/api/3.0/StatementSegment';
+
+    private const LIST_URI_TEMPLATE = '/StatementSegment';
 
     private const PROCEDURE_PARAMETER = 'parentStatementOfSegment.procedure.id';
 
@@ -106,7 +106,7 @@ class SegmentExportFilter
     /**
      * Builds a request for the list URL, so the API Platform provider knows what to load.
      */
-    private function createListRequest(HttpOperation $operation, string $queryString): Request
+    private function createListRequest(Operation $operation, string $queryString): Request
     {
         $request = Request::create(self::LIST_PATH.'?'.$queryString);
         $request->attributes->add([
@@ -121,17 +121,12 @@ class SegmentExportFilter
     /**
      * Finds the list operation of the segment resource, because the export has no API route of its own.
      */
-    private function getListOperation(): HttpOperation
+    private function getListOperation(): Operation
     {
-        foreach ($this->resourceMetadataFactory->create(StatementSegmentResource::class) as $resource) {
-            foreach ($resource->getOperations() as $operation) {
-                if ($operation instanceof CollectionOperationInterface && $operation instanceof HttpOperation) {
-                    // The flags API Platform's main controller sets for a GET request, which is not involved here.
-                    return $operation->withRead(true)->withValidate(false)->withDeserialize(false);
-                }
-            }
-        }
-
-        throw new LogicException('The StatementSegment resource has no collection operation.');
+        // Read to load the segments, no validate because the result is segments and not the resource.
+        return $this->resourceMetadataFactory->create(StatementSegmentResource::class)
+            ->getOperation(self::LIST_URI_TEMPLATE)
+            ->withRead(true)
+            ->withValidate(false);
     }
 }
