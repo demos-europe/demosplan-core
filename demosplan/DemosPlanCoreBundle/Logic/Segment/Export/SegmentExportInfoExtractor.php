@@ -117,21 +117,25 @@ class SegmentExportInfoExtractor
 
     private function extractFilterIdsByPath(array $filter): array
     {
-        $filterIds = [self::TAG_IDS_KEY => [], self::ASSIGNEE_IDS_KEY => [], self::PLACE_IDS_KEY => []];
-        $pathToKey = [
-            self::TAG_FILTER_PARAM                    => self::TAG_IDS_KEY,
-            self::ASSIGNEE_FILTER_PARAM               => self::ASSIGNEE_IDS_KEY,
-            self::ASSIGNEE_OR_UNASSIGNED_FILTER_PARAM => self::ASSIGNEE_IDS_KEY,
-            self::PLACE_FILTER_PARAM                  => self::PLACE_IDS_KEY,
+        return [
+            self::TAG_IDS_KEY      => $this->getIds($filter, self::TAG_FILTER_PARAM),
+            self::ASSIGNEE_IDS_KEY => $this->getIds($filter, self::ASSIGNEE_FILTER_PARAM, self::ASSIGNEE_OR_UNASSIGNED_FILTER_PARAM),
+            self::PLACE_IDS_KEY    => $this->getIds($filter, self::PLACE_FILTER_PARAM),
         ];
+    }
 
-        foreach ($pathToKey as $parameter => $key) {
-            // Empty values are left out, `assigneeOrUnassigned[]=` stands for "unassigned".
-            $ids = array_filter((array) ($filter[$parameter] ?? []), static fn (mixed $id): bool => is_string($id) && '' !== $id);
-            $filterIds[$key] = [...$filterIds[$key], ...$ids];
-        }
-
-        return $filterIds;
+    /**
+     * Empty values are left out, `assigneeOrUnassigned[]=` stands for "unassigned".
+     *
+     * @return list<string>
+     */
+    private function getIds(array $filter, string ...$parameters): array
+    {
+        return collect($parameters)
+            ->flatMap(static fn (string $parameter): array => (array) ($filter[$parameter] ?? []))
+            ->filter(static fn (mixed $id): bool => is_string($id) && '' !== $id)
+            ->values()
+            ->all();
     }
 
     /**
