@@ -97,8 +97,7 @@ class SegmentExportFilter
 
         return $this->stateProvider->provide($operation, [], [
             'request'                                 => $this->createListRequest($operation, $queryString),
-            'uri_variables'                           => [],
-            'resource_class'                          => StatementSegmentResource::class,
+            'resource_class'                          => $operation->getClass(),
             StatementSegmentProvider::RETURN_ENTITIES => true,
         ]);
     }
@@ -111,7 +110,7 @@ class SegmentExportFilter
         $request = Request::create(self::LIST_PATH.'?'.$queryString);
         $request->attributes->add([
             '_format'             => 'jsonapi',
-            '_api_resource_class' => StatementSegmentResource::class,
+            '_api_resource_class' => $operation->getClass(),
             '_api_operation_name' => $operation->getName(),
         ]);
 
