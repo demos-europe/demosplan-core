@@ -9,9 +9,10 @@ All rights reserved
 
 <documentation>
   <!--
-  SegmentsListFilter renders one accordion per filter category (tags, assignee, place) and one per
-  custom field in the segments list slidebar. Reuses FilterFlyout's checkbox/search content and filter-building logic,
-  but keeps currentQuery/appliedQuery per category so one shared pair of buttons resets/applies all categories at once.
+  SegmentsListFilter renders one accordion per filter category (tags, assignee, place, procedure
+  custom fields) in the segments list slidebar. Reuses FilterFlyout's checkbox/search content and
+  filter-building logic, but keeps currentQuery/appliedQuery per category so one shared pair of
+  buttons resets/applies all categories at once.
   Emits `filterApply` and `filterOptions:request`, same payloads as FilterFlyout.
   -->
 </documentation>
@@ -53,9 +54,9 @@ All rights reserved
           </p>
 
           <dp-resettable-input
-            :id="`searchField_${category.path}`"
+            :id="`searchField_${category.searchFieldId}`"
             v-model="category.searchTerm"
-            :data-cy="`searchField:${category.path}`"
+            :data-cy="`searchField:${category.searchFieldId}`"
             :input-attributes="{ placeholder: Translator.trans('search.list'), type: 'search' }"
             @reset="resetSearch(category)"
           />
@@ -78,8 +79,8 @@ All rights reserved
                 :key="option.id"
                 :checked="isChecked(category, option.id)"
                 :option="option"
+                :show-count="!category.isCustomField"
                 instance="ungrouped"
-                show-count
                 @change="(isSelected, option) => updateQuery(category, isSelected, option)"
               />
             </ul>
@@ -125,46 +126,6 @@ All rights reserved
           </div>
         </div>
       </dp-accordion>
-
-      <dp-accordion
-        v-for="field in customFieldsWithOptions"
-        :key="getCustomFieldCategoryId(field)"
-        class="p-4 border-b border-neutral"
-        :data-cy="`segmentsListFilter:${getCustomFieldCategoryId(field)}`"
-        :is-open="getIsExpandedByCategoryId(getCustomFieldCategoryId(field))"
-        :show-border="false"
-        :title="field.attributes.name"
-        compressed
-        @item:toggle="(isExpanded) => setCustomFieldExpanded(field, isExpanded)"
-      >
-        <div class="pt-3">
-          <dp-resettable-input
-            :id="`searchField_${getCustomFieldCategoryId(field)}`"
-            v-model="customFieldSearchTerms[field.id]"
-            :data-cy="`searchField:${getCustomFieldCategoryId(field)}`"
-            :input-attributes="{ placeholder: Translator.trans('search.list'), type: 'search' }"
-            @reset="customFieldSearchTerms[field.id] = ''"
-          />
-
-          <div class="mt-3 pt-3 border-t border-neutral">
-            <ul
-              v-if="getSearchedCustomFieldOptions(field).length > 0"
-              class="m-0 p-0 pb-2 list-none"
-            >
-              <filter-flyout-checkbox
-                v-for="option in getSearchedCustomFieldOptions(field)"
-                :key="option.id"
-                :checked="false"
-                :instance="getCustomFieldCategoryId(field)"
-                :option="option"
-              />
-            </ul>
-            <span v-else>
-              {{ Translator.trans('search.results.none') }}
-            </span>
-          </div>
-        </div>
-      </dp-accordion>
     </div>
 
     <div class="shrink-0 flex justify-end gap-2 p-4 bg-surface shadow-lg">
@@ -194,6 +155,7 @@ import {
   DpLoading,
   DpResettableInput,
 } from '@demos-europe/demosplan-ui'
+import { CUSTOM_FIELD_GROUP_PREFIX } from '@DpJs/composables/useApiPlatformFilters'
 import FilterFlyoutCheckbox from './FilterFlyoutCheckbox'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useStore } from 'vuex'
@@ -260,6 +222,7 @@ export default {
     const setGroupedSelected = (payload) => store.commit('FilterFlyout/setGroupedOptionSelected', payload)
     const setIsExpanded = (payload) => store.commit('FilterFlyout/setIsExpanded', payload)
     const setIsLoadingMutation = (payload) => store.commit('FilterFlyout/setIsLoading', payload)
+    const setUngroupedOptions = (payload) => store.commit('FilterFlyout/setUngroupedOptions', payload)
     const setUngroupedSelected = (payload) => store.commit('FilterFlyout/setUngroupedOptionSelected', payload)
 
     const closeSlidebar = () => {
@@ -303,6 +266,7 @@ export default {
       memberOf: groupName(filterDefinition.labelTranslationKey),
       operator: filterDefinition.comparisonOperator,
       path: filterDefinition.rootPath,
+      searchFieldId: filterDefinition.rootPath,
       searchTerm: '',
     })))
 
@@ -319,19 +283,22 @@ export default {
     const hasSelectedFilters = computed(() => categories.some((category) => category.currentQuery.length > 0))
 
     // *** CUSTOM FIELDS ***
-    const customFields = ref([])
+    const getCustomFieldCategoryId = (field) => `${CUSTOM_FIELD_GROUP_PREFIX}${field.id}`
 
-    // Fields without options (e.g. text type) have nothing to show in the panel
-    const customFieldsWithOptions = computed(() =>
-      customFields.value.filter((field) => (field.attributes.options?.length ?? 0) > 0),
-    )
-
-    const getCustomFieldCategoryId = (field) => `customField_${field.id}`
-
-    const customFieldSearchTerms = reactive({})
-
-    const getSearchedCustomFieldOptions = (field) =>
-      dataTableSearch(customFieldSearchTerms[field.id] ?? '', field.attributes.options ?? [], ['label'])
+    // Same shape as the static categories, so apply/reset/discard work for custom fields too
+    const buildCustomFieldCategory = (field) => ({
+      appliedQuery: [],
+      currentQuery: [],
+      hint: true,
+      id: getCustomFieldCategoryId(field),
+      isCustomField: true,
+      label: field.attributes.name,
+      memberOf: getCustomFieldCategoryId(field),
+      operator: '=',
+      path: 'customFields',
+      searchFieldId: getCustomFieldCategoryId(field),
+      searchTerm: '',
+    })
 
     if (hasPermission('field_segments_custom_fields')) {
       const { fetchCustomFields } = useCustomFields()
@@ -339,13 +306,22 @@ export default {
       // Served from the module cache when SegmentsList already fetched the same definitions
       fetchCustomFields(props.procedureId, { sourceEntity: 'PROCEDURE', targetEntity: 'SEGMENT' })
         .then((definitions) => {
-          customFields.value = definitions
+          // Fields without options (e.g. text type) have nothing to filter by
+          const optionFields = definitions.filter((field) => (field.attributes.options?.length ?? 0) > 0)
+
+          optionFields.forEach((field) => {
+            categories.push(buildCustomFieldCategory(field))
+            // Static options: no facet fetch, selected flags exist for the checkbox machinery
+            setUngroupedOptions({
+              categoryId: getCustomFieldCategoryId(field),
+              options: field.attributes.options.map((option) => ({ ...option, selected: false })),
+            })
+          })
         })
         .catch(() => {
           /* Notification already shown by useCustomFieldDefinitions */
         })
     }
-
 
     // Same extraction as SegmentsList's own `queryIds` computed, applied to the same initialFilter data.
     const queryIds = computed(() => {
@@ -378,6 +354,11 @@ export default {
      * {Array of Objects} selected filterItems, same structure as items
      */
     const getItemsSelected = (category) => {
+      // Custom field options are static and never refetched, so their selected flags would go stale
+      if (category.isCustomField) {
+        return getUngroupedOptions(category).filter((item) => category.currentQuery.includes(item.id))
+      }
+
       const items = [
         ...getUngroupedOptions(category),
         ...getGroupedOptions(category).flatMap((group) => group.options),
@@ -424,9 +405,18 @@ export default {
 
     // Emits a 'filterOptions:request' event with the provided query parameters.
     const requestFilterOptions = (category, isInitialWithQuery = false) => {
-      // For OR groups (memberOf is set), exclude this group's own filters so counts always show full availability
-      let filter = getFilterQuery.value
+      if (category.isCustomField) {
+        return
+      }
 
+      // Custom field conditions are not supported by facets yet
+      let filter = Object.fromEntries(
+        Object.entries(getFilterQuery.value).filter(([, val]) =>
+          val.condition?.memberOf?.startsWith(CUSTOM_FIELD_GROUP_PREFIX) !== true,
+        ),
+      )
+
+      // For OR groups (memberOf is set), exclude this group's own filters so counts always show full availability
       if (category.memberOf && !isInitialWithQuery) {
         filter = Object.fromEntries(
           Object.entries(filter).filter(([key, val]) => {
@@ -504,10 +494,6 @@ export default {
       }
     }
 
-    const setCustomFieldExpanded = (field, isExpanded) => {
-      setIsExpanded({ categoryId: getCustomFieldCategoryId(field), isExpanded })
-    }
-
     /**
      *
      * @param category
@@ -538,11 +524,6 @@ export default {
       requestFilterOptions(category)
     }
 
-    const resetCustomFieldView = (field) => {
-      customFieldSearchTerms[field.id] = ''
-      setIsExpanded({ categoryId: getCustomFieldCategoryId(field), isExpanded: false })
-    }
-
     /*
      * Discard unapplied changes and collapse accordions when the filter panel stops showing
      * (slidebar closed or switched to another tab)
@@ -553,12 +534,16 @@ export default {
       if (wasActive && isActive === false) {
         discardUnappliedChanges()
         categories.forEach((category) => resetCategoryView(category))
-        customFieldsWithOptions.value.forEach((field) => resetCustomFieldView(field))
       }
     })
 
     onMounted(() => {
       categories.forEach((category) => {
+        // Custom field options are static, they need no loading flag nor an initial facet request
+        if (category.isCustomField) {
+          return
+        }
+
         setIsLoadingMutation({ categoryId: category.id, isLoading: true })
         setIsExpanded({ categoryId: category.id, isExpanded: false })
 
@@ -587,12 +572,8 @@ export default {
       applyAllFilters,
       categories,
       categoryHasPendingChanges,
-      customFieldSearchTerms,
-      customFieldsWithOptions,
-      getCustomFieldCategoryId,
       getIsExpandedByCategoryId,
       getItemsSelected,
-      getSearchedCustomFieldOptions,
       getSearchedGroupedOptions,
       getSearchedUngroupedOptions,
       hasPendingChanges,
@@ -602,7 +583,6 @@ export default {
       isVisible,
       resetAllFilters,
       resetSearch,
-      setCustomFieldExpanded,
       setExpanded,
       updateQuery,
     }
