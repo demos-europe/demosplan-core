@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldExportColumnKeyCodec;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\SegmentExportInfo;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -150,18 +151,10 @@ class SegmentExportInfoExtractor
     /**
      * The filter parameters of the segment list by name. PHP replaces the dots in the names of
      * parameters like `tags.id` when it parses a request, so `$request->query` would only know them
-     * as `tags_id`. Like API Platform does, the brackets are decoded first (browsers send
-     * `tags.id%5B%5D=a`), then the names are hex-encoded while PHP parses the raw query string.
+     * as `tags_id`. HeaderUtils parses the raw query string and keeps the dots.
      */
     private function getFilterParameters(Request $request): array
     {
-        $encoded = preg_replace_callback(
-            '/(^|(?<=&))[^=[&]+/',
-            static fn (array $name): string => bin2hex(urldecode($name[0])),
-            str_ireplace('%5B', '[', (string) $request->server->get('QUERY_STRING', ''))
-        );
-        parse_str($encoded, $parameters);
-
-        return array_combine(array_map(static fn (int|string $name): string => hex2bin((string) $name), array_keys($parameters)), $parameters);
+        return HeaderUtils::parseQuery((string) $request->server->get('QUERY_STRING', ''));
     }
 }
