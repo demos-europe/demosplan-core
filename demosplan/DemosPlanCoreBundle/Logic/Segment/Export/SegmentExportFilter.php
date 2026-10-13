@@ -39,15 +39,15 @@ use Symfony\Component\HttpFoundation\RequestStack;
  */
 class SegmentExportFilter
 {
-    private const API_PATH = '/api/3.0/StatementSegment';
+    private const LIST_PATH = '/api/3.0/StatementSegment';
 
     private const PROCEDURE_PARAMETER = 'parentStatementOfSegment.procedure.id';
 
     /**
-     * Parameters of the export URL that must not reach the query: `columns` is only for the
+     * Parameters of the export URL that the list query must not get: `columns` is only for the
      * exporter, the paging parameters and the procedure are set by the export itself.
      */
-    private const IGNORED_PARAMETERS = ['columns', 'pagination', 'page', 'itemsPerPage', self::PROCEDURE_PARAMETER];
+    private const EXPORT_ONLY_PARAMETERS = ['columns', 'pagination', 'page', 'itemsPerPage', self::PROCEDURE_PARAMETER];
 
     public function __construct(
         private readonly ResourceMetadataCollectionFactoryInterface $resourceMetadataFactory,
@@ -57,25 +57,14 @@ class SegmentExportFilter
     ) {
     }
 
+    // --- The export: which query does it ask the list for? ---
+
     /**
-     * @return list<Segment> all segments of the procedure that match the query of the current request
+     * @return list<Segment> all segments of the procedure that match the filters of the export URL
      */
     public function filter(string $procedureId): array
     {
-        $operation = $this->getCollectionOperation();
-        $request = Request::create(self::API_PATH.'?'.$this->getQueryString($procedureId), 'GET');
-        $request->attributes->set('_format', 'jsonapi');
-        $request->attributes->set('_api_resource_class', StatementSegmentResource::class);
-        $request->attributes->set('_api_operation_name', $operation->getName());
-
-        $segments = $this->stateProvider->provide($operation, [], [
-            'request'                                  => $request,
-            'uri_variables'                            => [],
-            'resource_class'                           => StatementSegmentResource::class,
-            StatementSegmentProvider::RETURN_ENTITIES  => true,
-        ]);
-
-        return array_values($segments);
+        return array_values($this->callListProvider($this->getListQueryString($procedureId)));
     }
 
     /**
@@ -86,13 +75,13 @@ class SegmentExportFilter
      * parameters like `tags.id` or `parentStatementOfSegment.externId` when it parses a request,
      * which would silently drop these filters. The API provider parses the raw string itself.
      */
-    private function getQueryString(string $procedureId): string
+    private function getListQueryString(string $procedureId): string
     {
-        $rawQueryString = (string) $this->requestStack->getCurrentRequest()->server->get('QUERY_STRING', '');
+        $exportQuery = (string) $this->requestStack->getCurrentRequest()->server->get('QUERY_STRING', '');
         $fixedParameters = http_build_query([self::PROCEDURE_PARAMETER => $procedureId, 'pagination' => 'false']);
 
         return implode('&', array_filter([
-            $this->removeParameters($rawQueryString, self::IGNORED_PARAMETERS),
+            $this->withoutParameters($exportQuery, self::EXPORT_ONLY_PARAMETERS),
             $fixedParameters,
         ]));
     }
@@ -100,7 +89,7 @@ class SegmentExportFilter
     /**
      * @param list<string> $names names without brackets, `order` removes `order[x]=y` too
      */
-    private function removeParameters(string $queryString, array $names): string
+    private function withoutParameters(string $queryString, array $names): string
     {
         $remaining = array_filter(
             explode('&', $queryString),
@@ -114,11 +103,39 @@ class SegmentExportFilter
         return implode('&', $remaining);
     }
 
+    // --- The recipe: how to call an API Platform provider from your own code ---
+
+    /**
+     * 1. Take the operation of the resource, here its list operation.
+     * 2. Build a request for the API URL. The filters are read from its raw QUERY_STRING.
+     * 3. Name the resource and the operation in the request attributes.
+     * 4. Call the main state provider: parameter validation, filters, access conditions and paging run.
+     *
+     * @return list<Segment>
+     */
+    private function callListProvider(string $queryString): array
+    {
+        $operation = $this->getListOperation();                                    // 1
+        $request = Request::create(self::LIST_PATH.'?'.$queryString);               // 2
+        $request->attributes->add([                                                // 3
+            '_format'             => 'jsonapi',
+            '_api_resource_class' => StatementSegmentResource::class,
+            '_api_operation_name' => $operation->getName(),
+        ]);
+
+        return $this->stateProvider->provide($operation, [], [                     // 4
+            'request'                                 => $request,
+            'uri_variables'                           => [],
+            'resource_class'                          => StatementSegmentResource::class,
+            StatementSegmentProvider::RETURN_ENTITIES => true,
+        ]);
+    }
+
     /**
      * The flags are set like API Platform's main controller does for a GET request, because that
      * controller is not involved here.
      */
-    private function getCollectionOperation(): HttpOperation
+    private function getListOperation(): HttpOperation
     {
         foreach ($this->resourceMetadataFactory->create(StatementSegmentResource::class) as $resource) {
             foreach ($resource->getOperations() as $operation) {
