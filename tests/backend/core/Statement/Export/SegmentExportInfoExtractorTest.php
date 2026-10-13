@@ -131,7 +131,8 @@ class SegmentExportInfoExtractorTest extends FunctionalTestCase
     private function extract(string $queryString): SegmentExportInfo
     {
         $requestStack = $this->getContainer()->get(RequestStack::class);
-        $requestStack->push(Request::create("/export?$queryString"));
+        // The list always sends the columns, a later columns parameter wins.
+        $requestStack->push(Request::create("/export?columns=externId&$queryString"));
 
         try {
             return $this->sut->extract();
