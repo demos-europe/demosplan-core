@@ -129,13 +129,10 @@ const isVisible: ComputedRef<boolean> = computed(() => slidebar.value.showTab ==
 const isApplyingBookmark: ComputedRef<boolean> = computed(() => store.state.SegmentsBookmarks.isApplyingBookmark)
 
 /* Store actions */
-const createBookmark = (payload: CreateBookmarkPayload): Promise<boolean> =>
-  store.dispatch('SegmentsBookmarks/createBookmark', payload)
-const deleteBookmark = (id: string): Promise<boolean> =>
-  store.dispatch('SegmentsBookmarks/deleteBookmark', id)
+const createBookmark = (payload: CreateBookmarkPayload): Promise<boolean> => store.dispatch('SegmentsBookmarks/createBookmark', payload)
+const deleteBookmark = (id: string): Promise<boolean> => store.dispatch('SegmentsBookmarks/deleteBookmark', id)
 const fetchBookmarks = (): Promise<Bookmark[]> => store.dispatch('SegmentsBookmarks/fetchBookmarks')
-const updateBookmark = (payload: UpdateBookmarkPayload): Promise<boolean> =>
-  store.dispatch('SegmentsBookmarks/updateBookmark', payload)
+const updateBookmark = (payload: UpdateBookmarkPayload): Promise<boolean> => store.dispatch('SegmentsBookmarks/updateBookmark', payload)
 
 /* Emits */
 interface SegmentsBookmarksEmits {
