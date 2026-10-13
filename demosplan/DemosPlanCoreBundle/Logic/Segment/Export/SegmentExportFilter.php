@@ -24,17 +24,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * Finds the segments to export with the same query the segment list uses, so a filter only has to
- * exist once: the filters of `GET /api/3.0/StatementSegment` apply to the export too.
- *
- * The export URL carries the same query parameters as the list request (`tags.id[]`, `customField[..]`,
- * `search[value]`, `order[..]`, ...). They are sent through the API Platform provider chain, just
- * without the HTTP layer around it.
- *
- * This class only bridges the export routes, which are no API Platform routes, to that provider chain:
- * the request it builds, the raw query string handling and the operation lookup exist for no other
- * reason. If the export becomes an operation of the StatementSegment resource, API Platform does all
- * of this itself and the class is deleted together with the `Provider::RETURN_ENTITIES` flag.
+ * Finds the segments to export with the same API Platform provider that the segment list uses.
+ * This way the export and the list always use the same filters.
  */
 class SegmentExportFilter
 {
