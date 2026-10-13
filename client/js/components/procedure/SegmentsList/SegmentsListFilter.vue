@@ -77,8 +77,8 @@ All rights reserved
                 v-for="option in getSearchedUngroupedOptions(category)"
                 :key="option.id"
                 :checked="isChecked(category, option.id)"
-                instance="ungrouped"
                 :option="option"
+                instance="ungrouped"
                 show-count
                 @change="(isSelected, option) => updateQuery(category, isSelected, option)"
               />
@@ -88,7 +88,7 @@ All rights reserved
               :key="`list_${group.id}`"
               :class="['m-0 p-0 list-none', { 'pb-2 border-b border-neutral mb-3': index < getSearchedGroupedOptions(category).length - 1 }]"
             >
-              <li class="font-semibold text-base mb-2">
+              <li class="font-semibold text-sm mb-2">
                 {{ group.label }}
               </li>
               <filter-flyout-checkbox
@@ -107,17 +107,17 @@ All rights reserved
             </span>
 
             <template v-if="getItemsSelected(category).length > 0">
-              <h3 class="text-base font-normal pt-3 border-t border-neutral">
+              <h3 class="text-sm font-normal pt-3 border-t border-neutral">
                 {{ Translator.trans('filter.active') }}
               </h3>
               <ul class="m-0 list-none pt-0">
                 <filter-flyout-checkbox
                   v-for="item in getItemsSelected(category)"
                   :key="`itemsSelected_${item.id}`"
-                  checked
                   :highlight="!category.appliedQuery.includes(item.id)"
-                  instance="itemsSelected"
                   :option="item"
+                  instance="itemsSelected"
+                  checked
                   @change="(isSelected, option) => updateQuery(category, isSelected, option)"
                 />
               </ul>
