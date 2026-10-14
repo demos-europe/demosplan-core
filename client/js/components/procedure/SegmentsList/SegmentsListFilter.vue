@@ -530,6 +530,13 @@ export default {
     }
 
     const setExpanded = (category, isExpanded) => {
+      if (isExpanded) {
+        // Only one accordion stays open
+        categories
+          .filter((other) => other.id !== category.id)
+          .forEach((other) => setIsExpanded({ categoryId: other.id, isExpanded: false }))
+      }
+
       setIsExpanded({ categoryId: category.id, isExpanded })
 
       if (isExpanded) {
