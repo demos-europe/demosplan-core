@@ -31,6 +31,7 @@
         {# Custom side panel content #}
         <segments-bookmarks
             procedure-id="{{ procedure }}"
+            :total-column-count="$refs.segmentsList?.selectableColumns?.length"
             @apply-bookmark="$refs.segmentsList.applyBookmarkSettings($event)"
             @reset-view="$refs.segmentsList.applyBookmarkSettings(null)"
             @update-button-text="$refs.bookmarksButton.updateButtonText($event)">

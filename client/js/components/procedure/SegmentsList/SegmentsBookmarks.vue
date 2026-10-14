@@ -109,9 +109,12 @@ import lscache from 'lscache'
 import { useStore } from 'vuex'
 
 /* Props */
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   procedureId: string
-}>()
+  totalColumnCount?: number
+}>(), {
+  totalColumnCount: 0
+})
 
 const store = useStore()
 
@@ -194,17 +197,29 @@ const createNewBookmark = async (): Promise<void> => {
 }
 
 const getBookmarkSummary = (bookmarkId: string): string => {
-  const bookmark = bookmarks.value.find(bookmark => bookmark.id === bookmarkId)
+  const bookmark = bookmarks.value.find(({ id }) => id === bookmarkId)
 
   if (!bookmark) {
     return ''
   }
 
-  const { filter, viewSettings } = bookmark.attributes
-  const filterCount = Object.values(filter).length
-  const columnCount = viewSettings.selectedColumns.length
+  const { filter, searchPhrase, viewSettings } = bookmark.attributes
+  const filterCount = Object.keys(filter).length
+  const selectedColumnCount = viewSettings.selectedColumns.length
 
-  return `${filterCount} ${Translator.trans('filter')} · ${columnCount} ${Translator.trans('columns')}` // ToDo: add information about the total column count
+  const filterText = `${filterCount} ${Translator.trans('filter')}`
+
+  const searchText = searchPhrase?.trim() ? 'Suchbegriff' : ''
+
+  const columnText = props.totalColumnCount > 0
+    ? `${selectedColumnCount} von ${props.totalColumnCount} ${Translator.trans('columns')}`
+    : `${selectedColumnCount} ${Translator.trans('columns')}`
+
+  return [
+    filterText,
+    searchText,
+    columnText
+  ].filter(Boolean).join(' · ')
 }
 
 const handleViewChange = async (bookmarkId: string | null): Promise<void> => {
