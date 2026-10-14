@@ -1539,7 +1539,7 @@ export default {
       let draft = ''
 
       try {
-        draft = sessionStorage.getItem(`commentDraft:${this.segment.id}`) ?? ''
+        draft = sessionStorage.getItem(`commentDraft:${this.currentUserId}:${this.segment.id}`) ?? ''
       } catch (err) {
         console.error(err)
       }

@@ -81,7 +81,7 @@ export default {
     ]),
 
     draftStorageKey () {
-      return `commentDraft:${this.segmentId}`
+      return `commentDraft:${this.currentUser.id}:${this.segmentId}`
     },
 
     segment () {
