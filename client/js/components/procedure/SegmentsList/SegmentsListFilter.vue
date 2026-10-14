@@ -41,13 +41,13 @@ All rights reserved
       <dp-accordion
         v-for="category in categories"
         :key="category.id"
+        :class="['p-4 border-b border-neutral', { 'pb-1': getIsExpandedByCategoryId(category.id) }]"
         :data-cy="`segmentsListFilter:${category.id}`"
         :is-open="getIsExpandedByCategoryId(category.id)"
         :show-border="false"
         :show-status-dot="categoryHasPendingChanges(category)"
         :status-dot-label="Translator.trans('unsaved.changes')"
         :title="category.label"
-        class="p-4 border-b border-neutral"
         compressed
         @item:toggle="(isExpanded) => setExpanded(category, isExpanded)"
       >
@@ -75,11 +75,11 @@ All rights reserved
 
           <div
             v-else
-            class="mt-3 pt-3 border-t border-neutral"
+            class="mt-3"
           >
             <ul
               v-if="getSearchedUngroupedOptions(category).length > 0"
-              class="m-0 p-0 pb-2 list-none mb-2"
+              class="m-0 p-0 pb-1 list-none"
             >
               <filter-flyout-checkbox
                 v-for="option in getSearchedUngroupedOptions(category)"
@@ -94,7 +94,7 @@ All rights reserved
             <ul
               v-for="(group, index) in getSearchedGroupedOptions(category)"
               :key="`list_${group.id}`"
-              :class="['m-0 p-0 list-none', { 'pb-2 border-b border-neutral mb-3': index < getSearchedGroupedOptions(category).length - 1 }]"
+              class="m-0 p-0 pt-3 pb-1 list-none border-t border-neutral"
             >
               <li class="font-semibold text-sm mb-2">
                 {{ group.label }}
