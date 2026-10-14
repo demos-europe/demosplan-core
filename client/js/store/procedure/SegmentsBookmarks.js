@@ -113,10 +113,12 @@ const SegmentsBookmarksStore = {
         await dispatch('FilterFlyout/commitFilterQuery', null, { root: true })
 
         commit('setIsApplyingBookmark', false)
+
         return true
       } catch (error) {
         console.error('Failed to apply bookmark:', error)
         commit('setIsApplyingBookmark', false)
+
         return false
       }
     },

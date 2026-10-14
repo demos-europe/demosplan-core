@@ -29,12 +29,12 @@
       />
       <div
         v-for="bookmark in bookmarks"
+        :key="bookmark.id"
         class="flex justify-between border my-2 p-1"
         :class="bookmark.id === currentBookmarkId ? 'border-blue-base' : 'border-neutral-light-3'"
       >
         <dp-radio
           :id="bookmark.id"
-          :key="bookmark.id"
           :checked="bookmark.id === currentBookmarkId"
           :disabled="isApplyingBookmark"
           :label="{

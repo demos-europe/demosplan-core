@@ -7,10 +7,12 @@
         flush: true
     } %}
         {% block pageheader_actions %}
-            <segments-bookmarks-button
-                ref="bookmarksButton"
-                @click="$refs.segmentsList.openBookmarks()">
-            </segments-bookmarks-button>
+            {% if hasPermission('feature_procedure_user_filter_sets') %}
+                <segments-bookmarks-button
+                    ref="bookmarksButton"
+                    @click="$refs.segmentsList.openBookmarks()">
+                </segments-bookmarks-button>
+            {% endif %}
         {% endblock %}
     {% endembed %}
 
@@ -29,13 +31,16 @@
             @filter-options:request="$refs.segmentsList.sendFilterOptionsRequest($event)"
         ></segments-list-filter>
         {# Custom side panel content #}
-        <segments-bookmarks
-            procedure-id="{{ procedure }}"
-            :total-column-count="$refs.segmentsList?.selectableColumns?.length"
-            @apply-bookmark="$refs.segmentsList.applyBookmarkSettings($event)"
-            @reset-view="$refs.segmentsList.applyBookmarkSettings(null)"
-            @update-button-text="$refs.bookmarksButton.updateButtonText($event)">
-        </segments-bookmarks>
+
+        {% if hasPermission('feature_procedure_user_filter_sets') %}
+            <segments-bookmarks
+                procedure-id="{{ procedure }}"
+                :total-column-count="$refs.segmentsList?.selectableColumns?.length"
+                @apply-bookmark="$refs.segmentsList.applyBookmarkSettings($event)"
+                @reset-view="$refs.segmentsList.applyBookmarkSettings(null)"
+                @update-button-text="$refs.bookmarksButton.updateButtonText($event)">
+            </segments-bookmarks>
+        {% endif %}
     </segment-slidebar>
 
     <segments-list

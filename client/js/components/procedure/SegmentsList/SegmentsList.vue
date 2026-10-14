@@ -1096,6 +1096,40 @@ export default {
       setCurrentQueryHash: 'setCurrentQueryHash',
     }),
 
+    async applyBookmarkSettings (bookmark) {
+      if (!bookmark) {
+        await this.setDefaultView()
+
+        return
+      }
+
+      const { searchPhrase, viewSettings, filter, queryHash } = bookmark.attributes
+      const { selectedColumns, sorting } = viewSettings || {}
+
+      this.searchTerm = searchPhrase || ''
+
+      if (selectedColumns) {
+        this.currentSelection = selectedColumns
+        localStorage.setItem('segmentList', JSON.stringify(selectedColumns))
+      }
+
+      if (sorting) {
+        this.selectedSort = sorting
+        lscache.set(this.lsKey.selectedSort, sorting)
+      }
+
+      this.appliedFilterQuery = filter
+
+      if (queryHash && this.currentQueryHash !== queryHash) {
+        this.updateQueryHashInURL(this.currentQueryHash, queryHash)
+        this.currentQueryHash = queryHash
+        this.setCurrentQueryHash(queryHash)
+      }
+
+      this.resetSelection()
+      this.applyQuery(1)
+    },
+
     applySort (sortValue) {
       this.selectedSort = sortValue
       lscache.set(this.lsKey.selectedSort, sortValue)
@@ -1515,6 +1549,22 @@ export default {
       return parts.filter(Boolean).join(', ')
     },
 
+    initializeFilters () {
+      const filters = this.initialFilter
+
+      if (!Array.isArray(filters) && filters && Object.keys(filters).length) {
+        Object.values(filters).forEach(filter => {
+          if (!filter.condition) return
+
+          this.updateFilterQuery({
+            [filter.condition.value]: filter
+          })
+        })
+      }
+
+      this.commitFilterQuery()
+    },
+
     getSelectedSortParams () {
       const sortPaths = {
         internId: 'parentStatementOfSegment.original.internId',
@@ -1768,6 +1818,14 @@ export default {
       return this.toggledItems.map(item => item.id)
     },
 
+    restoreSorting () {
+      const storedSort = lscache.get(this.lsKey.selectedSort)
+
+      if (storedSort) {
+        this.selectedSort = storedSort
+      }
+    },
+
     /**
      *
      * @param params {Object}
@@ -2019,6 +2077,26 @@ export default {
       this.applyQuery(1)
     },
 
+    setCurrentQueryHashFromUrl () {
+      const hrefParts = globalThis.location.href.split('/')
+
+      this.currentQueryHash = hrefParts[hrefParts.length - 1]
+      this.setCurrentQueryHash(this.currentQueryHash)
+    },
+
+    async setDefaultView () {
+      await this.resetQuery()
+
+      this.currentSelection = [...this.defaultColumnSelection]
+      localStorage.setItem('segmentList', JSON.stringify(this.defaultColumnSelection))
+
+      this.selectedSort = ''
+      lscache.remove(this.lsKey.selectedSort)
+
+      await this.updateQueryHash()
+      this.applyQuery(1)
+    },
+
     showVersionHistory (segmentId, externId) {
       this.setSlidebarContent({ externId, isOpen: true, segmentId, showTab: 'history' })
       this.$root.$emit('version:history', segmentId, 'segment', externId)
@@ -2047,76 +2125,6 @@ export default {
       this.setSlidebarContent({ externId: '', isOpen: !closing, segmentId: '', showTab: 'bookmarks' })
     },
 
-    async applyBookmarkSettings (bookmark) {
-      // If bookmark is null, reset everything (default view)
-      if (!bookmark) {
-        // Reset filters and search
-        this.resetQuery()
-
-        // Reset view settings
-        this.currentSelection = [...this.defaultColumnSelection]
-        localStorage.setItem('segmentList', JSON.stringify(this.defaultColumnSelection))
-
-        this.selectedSort = ''
-        lscache.remove(this.lsKey.selectedSort)
-
-        // Update query hash and apply
-        await this.updateQueryHash()
-        this.applyQuery(1)
-        return
-      }
-
-      // Apply search phrase from bookmark
-      if (bookmark.attributes.searchPhrase) {
-        this.searchTerm = bookmark.attributes.searchPhrase
-      } else {
-        this.searchTerm = ''
-      }
-
-      // Apply view settings from bookmark
-      if (bookmark.attributes.viewSettings) {
-        const viewSettings = bookmark.attributes.viewSettings
-
-        // Apply column selection
-        if (viewSettings.selectedColumns) {
-          this.currentSelection = viewSettings.selectedColumns
-          // Save to localStorage (same key as DpColumnSelector uses)
-          localStorage.setItem('segmentList', JSON.stringify(viewSettings.selectedColumns))
-        }
-
-        // Apply sorting
-        if (viewSettings.sorting) {
-          this.selectedSort = viewSettings.sorting
-          lscache.set(this.lsKey.selectedSort, viewSettings.sorting)
-        }
-      }
-
-      // Wait a tick to ensure all reactive updates are processed
-      await this.$nextTick()
-
-      this.appliedFilterQuery = bookmark.attributes.filter
-
-      // ToDo: test cases
-      // Use the bookmark's queryHash instead of generating a new one
-      if (bookmark.attributes.queryHash) {
-        // Get the current hash from the URL (last segment)
-        const hrefParts = globalThis.location.href.split('/')
-        const currentHashInUrl = hrefParts[hrefParts.length - 1]
-
-        this.currentQueryHash = bookmark.attributes.queryHash
-        this.setCurrentQueryHash(bookmark.attributes.queryHash)
-
-        // Update URL to reflect the bookmark's queryHash only if different
-        if (currentHashInUrl !== bookmark.attributes.queryHash) {
-          this.updateQueryHashInURL(currentHashInUrl, bookmark.attributes.queryHash)
-        }
-      }
-
-      // Apply query without updating hash (hash already set above)
-      this.resetSelection()
-      this.applyQuery(1)
-    },
-
     updateQueryHash () {
       const hrefParts = globalThis.location.href.split('/')
       const oldQueryHash = hrefParts[hrefParts.length - 1]
@@ -2130,8 +2138,8 @@ export default {
       const data = {
         filter: this.getFilterQuery,
         viewSettings: {
-          selectedColumns: this.currentSelection,
           columnOrder: columns.join(','),
+          selectedColumns: this.currentSelection,
           sorting: this.selectedSort,
         }
       }
@@ -2179,66 +2187,43 @@ export default {
 
   async mounted () {
     const addons = await loadAddonComponents('tag.style.segments.list')
-
     this.hasStyledTopicalTags = addons.length > 0
 
-    // Get queryHash from URL
-    const hrefParts = globalThis.location.href.split('/')
+    this.setCurrentQueryHashFromUrl()
 
-    this.currentQueryHash = hrefParts[hrefParts.length - 1]
-    this.setCurrentQueryHash(this.currentQueryHash)
-
-    // When returning from bulk edit flow, the currentQueryHash which was used there to build a return link must be deleted.
+    /*
+     * Clear temporary navigation state. When returning from bulk edit flow,
+     * the currentQueryHash which was used there to build a return link must be deleted.
+     */
     lscache.remove(this.lsKey.currentQueryHash)
 
-    const storedSort = lscache.get(this.lsKey.selectedSort)
+    const navigationSourceKey = `${this.procedureId}:navigation:source`
+    lscache.remove(navigationSourceKey)
 
-    if (storedSort) {
-      this.selectedSort = storedSort
-    }
+    this.restoreSorting()
 
-    if (lscache.get(`${this.procedureId}:navigation:source`)) {
-      lscache.remove(`${this.procedureId}:navigation:source`)
-    }
-
-    // ToDo: add permission
-    // Check if there's a saved bookmark - if so, skip initial setup and let bookmark component handle it
     const savedBookmarkId = lscache.get(`${this.procedureId}:segments:currentBookmarkId`)
     const hasSavedBookmark = !!savedBookmarkId
 
-    if (!hasSavedBookmark) {
-      if (
-        Array.isArray(this.initialFilter) === false &&
-        Object.keys(this.initialFilter).length
-      ) {
-        Object.values(this.initialFilter).forEach((filter) => {
-          if (!filter.condition) {
-            return
-          }
-
-          const query = {}
-
-          query[filter.condition.value] = filter
-          this.updateFilterQuery(query)
-        })
-      }
-
-      // Snapshot the initial filters as applied so the first applyQuery fetches with them
-      this.commitFilterQuery()
+    if (!hasSavedBookmark && !hasPermission('feature_procedure_user_filter_sets')) {
+      this.initializeFilters()
     }
 
     this.initPagination()
+
     if (hasPermission('field_segments_custom_fields')) {
-      this.loadSegmentCustomFields()
+      await this.loadSegmentCustomFields()
     }
 
-    // Only run initial query if no saved bookmark exists
-    // If bookmark exists, SegmentsBookmarks component will trigger applyQuery via applyBookmarkSettings
+    /*
+     * Only run initial query if no saved bookmark exists.
+     * If bookmark exists, SegmentsBookmarks component will trigger applyQuery via applyBookmarkSettings
+     */
     if (!hasSavedBookmark) {
       this.applyQuery(this.pagination.currentPage)
     }
 
-    this.fetchPlaces({
+    await this.fetchPlaces({
       fields: {
         Place: [
           'name',
@@ -2248,7 +2233,7 @@ export default {
         ].join(),
       },
     })
-    this.fetchAssignableUsers({ sort: 'lastname' })
+    await this.fetchAssignableUsers({ sort: 'lastname' })
   },
 }
 </script>
