@@ -610,6 +610,7 @@ import {
   DpRadio,
   hasOwnProp,
 } from '@demos-europe/demosplan-ui'
+import { pollExportJob } from '@DpJs/lib/shared/persistentExportPoll'
 
 export default {
   name: 'ExportModal',
@@ -920,11 +921,9 @@ export default {
     },
 
     submit () {
-      const oldAction = document.bpform.action
-
-      document.bpform.action = Routing.generate(this.route, {
-        procedureId: this.procedureId,
-      })
+      if (this.route === null) {
+        return
+      }
 
       // Set data params
       document.bpform.r_export_format.value = this.currentTab
@@ -936,11 +935,26 @@ export default {
         document.bpform.currentTableSort.value = this.currentTableSort
       }
 
-      //  Submit form
-      document.bpform.submit()
+      // The export runs as a background job; poll it and download the file once it is ready
+      dplan.notify.notify('info', Translator.trans('export.processing'))
+      fetch(Routing.generate(`${this.route}_async_start`, { procedureId: this.procedureId }), {
+        method: 'POST',
+        body: new FormData(document.bpform),
+        credentials: 'same-origin',
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(response.statusText)
+          }
 
-      //  Restore original form action
-      document.bpform.action = oldAction
+          return response.json()
+        })
+        .then(({ jobId }) => pollExportJob({
+          key: `assessment.${this.procedureId}.${jobId}`,
+          statusUrl: Routing.generate('DemosPlan_assessment_table_export_status', { procedureId: this.procedureId, jobId }),
+          downloadUrl: Routing.generate('DemosPlan_assessment_table_export_download', { procedureId: this.procedureId, jobId }),
+        }))
+        .catch(() => dplan.notify.error(Translator.trans('error.export')))
     },
 
     toggleModal (tab) {

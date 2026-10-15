@@ -168,6 +168,25 @@ class BoilerplateGroup extends CoreEntity implements UuidEntityInterface, Boiler
     }
 
     /**
+     * Boilerplates awaiting async deletion (DPLAN-18271) are, conceptually, already gone —
+     * excluded here for display/edit consumers (e.g. the admin Textbausteine list, the
+     * group-edit form) so they don't keep showing a boilerplate the user just deleted until
+     * the background purge job actually removes it. Bookkeeping consumers that must see
+     * every member boilerplate regardless (detaching the group reference before the group
+     * itself is deleted: {@see self::removeAllBoilerplates}, {@see BoilerplateGroupRepository::delete})
+     * keep using {@see self::getBoilerplates} directly.
+     *
+     * @return Boilerplate[]
+     */
+    public function getBoilerplatesExcludingPendingDeletion(): array
+    {
+        return array_values(array_filter(
+            $this->getBoilerplates()->toArray(),
+            static fn (Boilerplate $boilerplate): bool => !$boilerplate->isPendingDeletion()
+        ));
+    }
+
+    /**
      * Returns a specific Boilerplate of this group, if exists.
      *
      * @param string $id identifies the Boilerplate

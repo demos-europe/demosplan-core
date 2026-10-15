@@ -29,9 +29,9 @@ class CustomFieldDisplayResolver
     }
 
     /**
-     * Resolves a list of custom field values to display-ready name/value pairs.
+     * Resolves a list of custom field values to display-ready id/name/value entries.
      *
-     * @return array<int, array{name: string, value: string}>
+     * @return array<int, array{id: string, name: string, value: string}>
      */
     public function resolveForDisplay(
         CustomFieldValuesList $values,
@@ -75,6 +75,7 @@ class CustomFieldDisplayResolver
             }
 
             $resolved[] = [
+                'id'    => $fieldValue->getId(),
                 'name'  => $customFieldDefinition->getName(),
                 'value' => $customFieldDefinition->formatValueForDisplay($fieldValue->getValue()),
             ];

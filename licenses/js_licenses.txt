@@ -58,7 +58,7 @@ deep-object-diff: MIT
 dompurify: (MPL-2.0 OR Apache-2.0)
 eslint: MIT
 eslint-import-resolver-alias: MIT
-eslint-plugin-import: MIT
+eslint-plugin-import-x: MIT
 eslint-plugin-jquery: MIT
 eslint-plugin-n: MIT
 eslint-plugin-vue: MIT

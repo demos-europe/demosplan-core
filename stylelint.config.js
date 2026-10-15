@@ -17,8 +17,9 @@ module.exports = {
     'block-no-empty': true,
     'declaration-empty-line-before': null,
     'no-descending-specificity': null,
+    'no-invalid-position-at-import-rule': null, // Sass @import is nested in @layer blocks for cascade ordering and resolved at compile time
     'scss/at-extend-no-missing-placeholder': null, // Fontawesome does not provide placeholders for individual icons
-    'scss/at-import-no-partial-leading-underscore': null,
+    'scss/load-no-partial-leading-underscore': null,
     'scss/at-rule-conditional-no-parentheses': null,
     'scss/at-rule-no-unknown': [
       true, // Allow @tailwind expression while keeping the rest of the rule

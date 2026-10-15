@@ -8,10 +8,10 @@
 </license>
 
 <template>
-  <div class="u-mt-0_5">
+  <div class="mt-2">
     <!-- Pending organisations list (renders only when the orga-self-registration feature is enabled) -->
     <template v-if="hasPermission('area_organisations_applications_manage')">
-      <h3>
+      <h3 class="u-mt-2">
         {{ Translator.trans('organisations.pending') }}
       </h3>
       <template v-if="pendingOrganisationsLoading">
@@ -23,13 +23,13 @@
           v-for="(idx) in pendingOrgs"
           v-else
           :key="`skeleton:${idx}`"
-          class="u-mb-0_5"
+          class="mb-2"
           height="54px"
         />
       </template>
       <template v-else-if="Object.keys(pendingOrgs).length">
         <ul
-          class="o-list o-list--card u-mb"
+          class="o-list space-y-2 u-mb"
           data-cy="pendingOrganisationList"
         >
           <dp-organisation-list-item
@@ -37,12 +37,13 @@
             :key="`pendingOrganisation:${idx}`"
             :additional-field-options="additionalFieldOptions"
             :available-orga-types="availableOrgaTypes"
-            class="o-list__item"
+            class="o-list__item bg-surface border border-neutral"
             data-cy="pendingOrganisationListBlk"
             module-name="Pending"
             :organisation="item"
             :selectable="false"
             @addon-options:loaded="setAdditionalFieldOptions"
+            @items:get="fetchPendingAndAllOrganisations()"
           />
         </ul>
         <dp-sliding-pagination
@@ -154,19 +155,20 @@
         class="layout__item u-1-of-1"
         data-cy="organisationList"
       >
-        <ul class="o-list o-list--card u-mb">
+        <ul class="o-list space-y-2 u-mb">
           <dp-organisation-list-item
             v-for="(item, idx) in items"
             :key="`organisation:${idx}`"
             :additional-field-options="additionalFieldOptions"
             :available-orga-types="availableOrgaTypes"
-            class="o-list__item"
+            class="o-list__item bg-surface border border-neutral"
             data-cy="organisationListBlk"
             :selected="hasOwnProp(itemSelections, item.id) && itemSelections[item.id] === true"
             :selectable="hasPermission('feature_orga_delete')"
             :organisation="item"
             @addon-options:loaded="setAdditionalFieldOptions"
             @item:selected="dpToggleOne"
+            @items:get="fetchPendingAndAllOrganisations()"
           />
         </ul>
 
@@ -613,10 +615,6 @@ export default {
 
   mounted () {
     this.fetchPendingAndAllOrganisations(1)
-
-    this.$root.$on('items:get', () => {
-      this.fetchPendingAndAllOrganisations()
-    })
   },
 }
 </script>

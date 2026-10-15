@@ -122,6 +122,54 @@ class UserAccessControlService extends CoreService implements UserAccessControlS
         return false;
     }
 
+    /**
+     * Users who currently hold an individual (per-user) grant of the given permission in the given
+     * organisation/customer, restricted to the given role codes. Used to warn an admin about to enable
+     * the same permission org-wide that these individual grants already exist and would become redundant.
+     *
+     * @param list<non-empty-string> $roleCodes
+     *
+     * @return UserInterface[]
+     */
+    public function getUsersWithPermissionInOrga(
+        OrgaInterface $orga,
+        CustomerInterface $customer,
+        string $permission,
+        array $roleCodes,
+    ): array {
+        $grants = $this->userAccessControlRepository->findByOrgaCustomerPermissionAndRoles($orga, $customer, $permission, $roleCodes);
+
+        $users = [];
+        foreach ($grants as $grant) {
+            $user = $grant->getUser();
+            $users[$user->getId()] = $user;
+        }
+
+        return array_values($users);
+    }
+
+    /**
+     * Removes every individual (per-user) grant of the given permission in the given organisation/customer,
+     * restricted to the given role codes. Used when an admin enables the same permission org-wide and
+     * explicitly confirms that the now-redundant individual grants should be cleaned up.
+     *
+     * @param list<non-empty-string> $roleCodes
+     */
+    public function removePermissionForUsersInOrga(
+        OrgaInterface $orga,
+        CustomerInterface $customer,
+        string $permission,
+        array $roleCodes,
+    ): void {
+        $grants = $this->userAccessControlRepository->findByOrgaCustomerPermissionAndRoles($orga, $customer, $permission, $roleCodes);
+
+        foreach ($grants as $grant) {
+            $this->entityManager->remove($grant);
+        }
+
+        $this->entityManager->flush();
+    }
+
     public function getUserPermissions(UserInterface $user): array
     {
         $orga = $user->getOrga();

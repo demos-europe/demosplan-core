@@ -9,6 +9,14 @@
 
 <template>
   <div :class="{ 'top-0 left-0 flex flex-col w-full h-full fixed z-fixed bg-surface': isFullscreen }">
+    <dp-inline-notification
+      v-if="isReadOnly && !isFullscreen"
+      :message="Translator.trans('procedure.archived.hint.statements')"
+      :title="Translator.trans('procedure.archived.hint.title')"
+      class="mt-4 mb-2"
+      data-cy="listStatements:readOnlyHint"
+      type="info"
+    />
     <dp-sticky-element
       :class="{ 'fixed top-0 left-0 w-full px-2': isFullscreen }"
       class="pt-2 pb-3"
@@ -61,7 +69,9 @@
         />
       </dp-bulk-edit-header>
       <statement-export-modal
+        v-if="hasPermission('feature_segments_of_statement_list_export') || hasPermission('feature_admin_assessmenttable_export_statement_generic_xlsx') || hasPermission('feature_statement_segments_export_csv')"
         :has-permission-adjust-preamble="hasPermission('feature_adjust_preamble_export_file')"
+        :is-export-disabled="!hasStatements"
         :procedure-id="procedureId"
         :procedure-name="procedureName"
         data-cy="listStatements:export"
@@ -138,7 +148,7 @@
             v-text="externId"
           />
           <dp-claim
-            v-if="!synchronized"
+            v-if="!synchronized && hasPermission('feature_statement_claim')"
             :assigned-id="assignee.id || ''"
             :assigned-name="assignee.name || ''"
             :assigned-organisation="assignee.orgaName || ''"
@@ -199,7 +209,7 @@
         <template v-slot:flyout="{ assignee, id, originalId, originalPdf, segmentsCount, synchronized }">
           <dp-flyout data-cy="listStatements:statementActionsMenu">
             <button
-              v-if="hasPermission('area_statement_segmentation')"
+              v-if="hasPermission('feature_segmentation_start')"
               :class="{
                 'is-disabled': segmentsCount > 0 && segmentsCount !== '-',
                 'hover:underline active:underline': segmentsCount <= 0 || segmentsCount === '-' }"
@@ -242,6 +252,7 @@
               {{ Translator.trans('statement.original') }}
             </a>
             <button
+              v-if="hasPermission('feature_statement_delete')"
               :class="{
                 'is-disabled': synchronized || assignee.id !== currentUserId,
                 'hover:underline active:underline': !(synchronized || assignee.id !== currentUserId) }"
@@ -321,6 +332,10 @@
                   <dd v-else>
                     -
                   </dd>
+                  <template v-if="hasPermission('field_procedure_elements')">
+                    <dt>{{ Translator.trans('plandocument') }}:</dt>
+                    <dd>{{ planningDocumentLabel(statementsObject[id]) }}</dd>
+                  </template>
                 </dl>
               </div>
             </template>
@@ -378,6 +393,7 @@ import CustomSearchStatements from './CustomSearchStatements'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
+import { pollExportJob } from '@DpJs/lib/shared/persistentExportPoll'
 import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
 import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge'
@@ -420,6 +436,12 @@ export default {
      * respective target procedure, while HEARING_AUTHORITY_WORKER users may see which statements are synchronized.
      */
     isSourceAndCoupledProcedure: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+
+    isReadOnly: {
       type: Boolean,
       required: false,
       default: false,
@@ -476,6 +498,7 @@ export default {
         'orgaCity',
         'organisationName',
         'orgaPostalCode',
+        'planDocument',
         'statementId',
         'statementText',
         'typeOfSubmission',
@@ -483,16 +506,6 @@ export default {
       searchFieldsSelected: null,
       searchValue: '',
       selectedSort: '-submitDate',
-      sortOptions: [
-        { value: '-submitDate', label: Translator.trans('sort.date.descending') },
-        { value: 'submitDate', label: Translator.trans('sort.date.ascending') },
-        { value: '-submitName', label: Translator.trans('sort.author.descending') },
-        { value: 'submitName', label: Translator.trans('sort.author.ascending') },
-        { value: '-internId', label: Translator.trans('sort.internId.descending') },
-        { value: 'internId', label: Translator.trans('sort.internId.ascending') },
-        { value: '-initialOrganisationName', label: Translator.trans('sort.organisation.descending') },
-        { value: 'initialOrganisationName', label: Translator.trans('sort.organisation.ascending') },
-      ],
     }
   },
 
@@ -520,6 +533,23 @@ export default {
             id: user.id,
           })) :
         []
+    },
+
+    sortOptions () {
+      return [
+        { value: '-submitDate', label: Translator.trans('sort.date.descending') },
+        { value: 'submitDate', label: Translator.trans('sort.date.ascending') },
+        { value: '-submitName', label: Translator.trans('sort.author.descending') },
+        { value: 'submitName', label: Translator.trans('sort.author.ascending') },
+        { value: '-internId', label: Translator.trans('sort.internId.descending') },
+        { value: 'internId', label: Translator.trans('sort.internId.ascending') },
+        { value: '-initialOrganisationName', label: Translator.trans('sort.organisation.descending') },
+        { value: 'initialOrganisationName', label: Translator.trans('sort.organisation.ascending') },
+        ...(hasPermission('field_procedure_elements') ? [
+          { value: '-elementTitle,-documentTitle,-paragraphTitle', label: Translator.trans('sort.plandocument.descending') },
+          { value: 'elementTitle,documentTitle,paragraphTitle', label: Translator.trans('sort.plandocument.ascending') },
+        ] : []),
+      ]
     },
 
     exportRoute: function () {
@@ -565,6 +595,10 @@ export default {
 
         return Routing.generate(exportRoute, parameters)
       }
+    },
+
+    hasStatements () {
+      return !this.isLoading && this.items.length > 0
     },
 
     items () {
@@ -623,6 +657,13 @@ export default {
       }
 
       return inlineImageAnchors(attributes.isFulltextDisplayed ? attributes.fullText : attributes.text)
+    },
+
+    planningDocumentLabel (statement) {
+      const { documentTitle, elementTitle, paragraphTitle } = statement.attributes || {}
+      const parts = [elementTitle, documentTitle, paragraphTitle].filter(Boolean)
+
+      return parts.length > 0 ? parts.join(' / ') : '–'
     },
 
     getAssignee (statement) {
@@ -883,6 +924,10 @@ export default {
      * endpoint. The 2.0 statement list does not carry the count, so it is loaded per head.
      */
     fetchGroupMemberCounts () {
+      if (!hasPermission('feature_statement_cluster')) {
+        return
+      }
+
       Object.values(this.statementsObject)
         .filter(statement => statement.attributes.isCluster && this.groupMemberCounts[statement.id] == null)
         .forEach(head => {
@@ -901,6 +946,8 @@ export default {
         // Attributes:
         'authoredDate',
         'authorName',
+        'documentTitle',
+        'elementTitle',
         'externId',
         'isSubmittedByCitizen',
         'initialOrganisationCity',
@@ -915,6 +962,7 @@ export default {
         'memo',
         'name',
         'originalId',
+        'paragraphTitle',
         'status',
         'segmentsCount',
         'submitDate',
@@ -1185,11 +1233,32 @@ export default {
     },
 
     showHintAndDoExport ({ route, docxHeaders, fileNameTemplate, shouldConfirm, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds, customHeaderText }) {
-      const url = this.exportRoute(route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds, customHeaderText)
+      // The grouped DOCX/ODT and the ZIP export can time out, so they run as a background job
+      const asyncStartRoute = {
+        dplan_statement_segments_export: 'dplan_statement_segments_export_async_start',
+        dplan_statement_segments_export_packaged: 'dplan_statement_segments_export_packaged_async_start',
+      }[route]
+      const url = this.exportRoute(asyncStartRoute ?? route, docxHeaders, fileNameTemplate, isObscured, isInstitutionDataCensored, isCitizenDataCensored, tagFilterIds, customHeaderText)
 
-      if (!shouldConfirm || window.dpconfirm(Translator.trans('export.statements.hint'))) {
-        window.location.href = url
+      if (shouldConfirm && !window.dpconfirm(Translator.trans('export.statements.hint'))) {
+        return
       }
+
+      if (!asyncStartRoute) {
+        window.location.href = url
+
+        return
+      }
+
+      dplan.notify.notify('info', Translator.trans('export.processing'))
+      fetch(url, { method: 'POST', credentials: 'same-origin' })
+        .then(response => response.json())
+        .then(({ jobId }) => pollExportJob({
+          key: `segments.${this.procedureId}.${jobId}`,
+          statusUrl: Routing.generate('dplan_statement_segments_export_status', { procedureId: this.procedureId, jobId }),
+          downloadUrl: Routing.generate('dplan_statement_segments_export_download', { procedureId: this.procedureId, jobId }),
+        }))
+        .catch(() => dplan.notify.error(Translator.trans('error.export')))
     },
 
     storeNavigationContextInLocalStorage () {
@@ -1240,7 +1309,9 @@ export default {
     },
 
     updateSearchFields (selectedFields) {
-      this.searchFieldsSelected = selectedFields
+      const planDocumentFields = ['documentTitle', 'elementTitle', 'paragraphTitle']
+
+      this.searchFieldsSelected = selectedFields?.flatMap(field => field === 'planDocument' ? planDocumentFields : [field]) ?? null
     },
   },
 

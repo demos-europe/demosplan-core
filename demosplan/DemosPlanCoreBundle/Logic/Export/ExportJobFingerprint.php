@@ -39,6 +39,17 @@ final class ExportJobFingerprint
     }
 
     /**
+     * The export type (docx vs. zip) is part of the fingerprint: the same query params requested as
+     * both formats are two different exports, not duplicates of each other.
+     *
+     * @param array<string, mixed> $queryParams the raw request params the sync route reads
+     */
+    public static function forSegmentsExport(string $exportType, array $queryParams): string
+    {
+        return self::hash([$exportType, $queryParams]);
+    }
+
+    /**
      * The selection is sorted so that picking the same procedures in a different order still counts
      * as the same export.
      *
