@@ -179,10 +179,6 @@ const SegmentsBookmarksStore = {
       commit('setCurrentBookmarkId', null)
       commit('setCurrentBookmark', null)
 
-      // Clear all filters
-      await dispatch('FilterFlyout/updateFilterQuery', {}, { root: true })
-      await dispatch('FilterFlyout/commitFilterQuery', null, { root: true })
-
       // Return true to indicate caller should trigger applyQuery
       return true
     },

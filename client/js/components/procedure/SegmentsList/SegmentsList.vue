@@ -1790,8 +1790,8 @@ export default {
 
     // Filters live in SegmentsListFilter (in the slidebar); delegate the reset there via the twig template.
     async resetQuery () {
-      await this.resetBookmarks()
       this.resetSearchQuery()
+      this.resetBookmarks() // ToDo: permission
       this.$emit('resetFilters')
     },
 
@@ -2073,7 +2073,7 @@ export default {
       }
 
       this.updateQueryHash()
-      this.resetSelection()
+      this.resetSelection() // ToDo: check where is it from
       this.applyQuery(1)
     },
 

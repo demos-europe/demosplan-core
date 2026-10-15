@@ -36,8 +36,8 @@
             <segments-bookmarks
                 procedure-id="{{ procedure }}"
                 :total-column-count="$refs.segmentsList?.selectableColumns?.length"
-                @apply-bookmark="$refs.segmentsList.applyBookmarkSettings($event)"
-                @reset-view="$refs.segmentsList.applyBookmarkSettings(null)"
+                @apply-bookmark="$refs.segmentsList.applyBookmarkSettings($event); $refs.segmentsListFilter.syncFromBookmark($event.attributes.filter)"
+                @reset-view="$refs.segmentsList.applyBookmarkSettings(null); $refs.segmentsListFilter.syncFromBookmark({})"
                 @update-button-text="$refs.bookmarksButton.updateButtonText($event)">
             </segments-bookmarks>
         {% endif %}
@@ -52,7 +52,7 @@
         initial-search-term="{{ segmentListQuery.searchPhrase|default }}"
         {# Empty when the hash carries no view settings, in which case it arrives as [] rather than {} #}
         :initial-view-settings="JSON.parse('{{ segmentListQuery.viewSettings|json_encode|e('js', 'utf-8') }}')"
-        @reset-filters="$refs.segmentsListFilter.resetAllFilters(); $refs.bookmarksButton.updateButtonText('{{ 'views'|trans }}')"
+        @reset-filters="$refs.segmentsListFilter.resetAllFilters(); $refs.bookmarksButton.updateButtonText('{{ 'views'|trans }}')">
     </segments-list>
 {% endblock %}
 
