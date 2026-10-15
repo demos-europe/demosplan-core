@@ -21,6 +21,18 @@ api_platform:
             standard_put: true
             rfc_7807_compliant_errors: true
     use_symfony_listeners: false
+    swagger:
+        # Adds "Authorize" fields for the headers the frontend sends with its API requests.
+        api_keys:
+            Cookie:
+                name: Cookie
+                type: header
+            CSRF:
+                name: X-CSRF-Token
+                type: header
+            ProcedureId:
+                name: X-Demosplan-Procedure-Id
+                type: header
     serializer:
         # Preserve the current JSON-LD output; api-platform 4 defaults this to false.
         hydra_prefix: true
