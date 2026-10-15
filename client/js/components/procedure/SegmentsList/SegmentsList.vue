@@ -555,7 +555,7 @@ import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaToolti
 import StatusBadge from '../Shared/StatusBadge'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
-import { useApiPlatformFilters } from '@DpJs/composables/useApiPlatformFilters'
+import { CUSTOM_FIELD_GROUP_PREFIX, useApiPlatformFilters } from '@DpJs/composables/useApiPlatformFilters'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
 
@@ -861,7 +861,7 @@ export default {
       const valuesByPath = {}
 
       Object.values(this.getLastAppliedFilterQuery).forEach((filter) => {
-        if (!filter.condition) {
+        if (!filter.condition || filter.condition.memberOf?.startsWith(CUSTOM_FIELD_GROUP_PREFIX) === true) {
           return
         }
 
@@ -1219,8 +1219,15 @@ export default {
     handleExportSegments ({ type }) {
       const selectedSegmentIds = this.resolveSelectedSegmentIds()
 
+      // CF filters are not supported by the export yet
+      const exportFilterQuery = Object.fromEntries(
+        Object.entries(this.getLastAppliedFilterQuery).filter(
+          ([, condition]) => condition.condition?.memberOf?.startsWith(CUSTOM_FIELD_GROUP_PREFIX) !== true,
+        ),
+      )
+
       const filter = {
-        ...this.getLastAppliedFilterQuery,
+        ...exportFilterQuery,
         sameProcedure: {
           condition: {
             path: 'parentStatement.procedure.id',
