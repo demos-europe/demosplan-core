@@ -86,10 +86,17 @@ export interface FilterChange {
   newValue: string
 }
 
+export interface IndividualFilterChange {
+  filterCategory: string
+  filterValue: string
+  action: 'added' | 'removed'
+}
+
 export interface DetailedChange {
   type: 'filter' | 'search' | 'sorting' | 'columns'
   label: string
   details?: FilterChange[]
+  individualFilters?: IndividualFilterChange[]
   oldValue?: string
   newValue?: string
   added?: string[]

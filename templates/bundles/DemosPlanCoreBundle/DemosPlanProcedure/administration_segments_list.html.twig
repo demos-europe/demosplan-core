@@ -39,7 +39,6 @@
                 :current-search-phrase="$refs.segmentsList?.searchTerm || ''"
                 :current-sorting="$refs.segmentsList?.selectedSort || ''"
                 :current-selected-columns="$refs.segmentsList?.currentSelection || []"
-                :current-filters="$refs.segmentsList?.getFilterQuery || {}"
                 :filters="JSON.parse('{{ filterNames|json_encode|e('js', 'utf-8') }}')"
                 @apply-bookmark="$refs.segmentsList.applyBookmarkSettings($event); $refs.segmentsListFilter.syncFromBookmark($event.attributes.filter)"
                 @reset-view="$refs.segmentsList.applyBookmarkSettings(null); $refs.segmentsListFilter.syncFromBookmark({})"

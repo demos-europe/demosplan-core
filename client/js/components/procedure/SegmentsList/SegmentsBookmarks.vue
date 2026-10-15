@@ -37,33 +37,21 @@
 
             <!-- Filter details -->
             <div
-              v-if="change.type === 'filter' && change.details"
-              class="border-b border-neutral-light-3 "
+              v-if="change.type === 'filter' && change.individualFilters"
+              class="border-b border-neutral-light-3"
             >
               <div
-                v-for="(detail, index) in change.details"
+                v-for="(filterChange, index) in change.individualFilters"
                 :key="index"
-                class="text-sm"
+                class="text-sm py-1"
               >
-                <p class="font-medium">
-                  {{ detail.filterName }}
-                </p>
-                <p>
+                <p :class="filterChange.action === 'removed' ? 'text-status-failed-icon' : ''">
                   <dp-icon
-                    icon="minus"
-                    class="inline-block text-status-failed-icon mr-1"
+                    :icon="filterChange.action === 'added' ? 'plus' : 'minus'"
+                    :class="['inline-block', 'mr-1', filterChange.action === 'removed' ? 'text-status-failed-icon' : '']"
                   />
                   <span>
-                    {{ detail.oldValue }}
-                  </span>
-                </p>
-                <p>
-                  <dp-icon
-                    icon="plus"
-                    class="inline-block mr-1"
-                  />
-                  <span>
-                    {{ detail.newValue }}
+                    {{ Translator.trans('filter') }} &gt; {{ filterChange.filterCategory }} &gt; {{ filterChange.filterValue }}
                   </span>
                 </p>
               </div>
@@ -81,7 +69,7 @@
                 />
                 <span>{{ change.oldValue }}</span>
               </p>
-              <p >
+              <p>
                 <dp-icon
                   icon="plus"
                   class="inline-block mr-1"
@@ -217,22 +205,32 @@ import {
   DpButton,
   DpButtonRow,
   DpIcon,
-  DpInput,
   DpInlineNotification,
+  DpInput,
   DpRadio,
 } from '@demos-europe/demosplan-ui'
 import type {
   Bookmark,
   CreateBookmarkPayload,
-  UpdateBookmarkPayload,
-  Slidebar,
   DetailedChange,
-  FilterChange,
+  IndividualFilterChange,
+  Slidebar,
+  UpdateBookmarkPayload,
 } from '@DpJs/types/bookmarks'
 
-import { computed, onMounted, ref, toRaw, type ComputedRef, type Ref } from 'vue'
+import { computed, type ComputedRef, onMounted, type Ref, ref, watch } from 'vue'
 import lscache from 'lscache'
 import { useStore } from 'vuex'
+
+/* Interfaces */
+interface FilterOption {
+  id: string
+  label: string
+}
+
+interface FilterGroup {
+  options?: FilterOption[]
+}
 
 /* Props */
 const props = withDefaults(defineProps<{
@@ -241,23 +239,61 @@ const props = withDefaults(defineProps<{
   currentSearchPhrase?: string
   currentSorting?: string
   currentSelectedColumns?: string[]
-  currentFilters?: Record<string, any>
   filters?: Record<string, { labelTranslationKey: string, rootPath: string, comparisonOperator: string }>
 }>(), {
   totalColumnCount: 0,
   currentSearchPhrase: '',
   currentSorting: '',
   currentSelectedColumns: () => [],
-  currentFilters: () => ({}),
-  filters: () => ({})
+  filters: () => ({}),
 })
 
 const store = useStore()
 
 const newBookmarkName: Ref<string> = ref('')
 const showUnsavedChanges: Ref<boolean> = ref(false)
-const isInitialized: Ref<boolean> = ref(false)
 const lsKey = `${props.procedureId}:segments:currentBookmarkId`
+
+// Cache for filter value labels - accumulates labels so removed options can still be looked up
+const filterLabelCache: Ref<Record<string, string>> = ref({
+  unassigned: Translator.trans('not.assigned'),
+})
+
+/**
+ * Updates the label cache with all labels from the store's filter options.
+ * Only adds new labels, never removes existing ones.
+ */
+const updateLabelCache = (): void => {
+  const allGroupedOptions = store.state.FilterFlyout?.groupedOptions || {}
+  const allUngroupedOptions = store.state.FilterFlyout?.ungroupedOptions || {}
+
+  // Add labels from grouped options
+  for (const groups of Object.values(allGroupedOptions)) {
+    for (const group of (groups as FilterGroup[])) {
+      group.options?.forEach(option => {
+        if (option.id && option.label) {
+          filterLabelCache.value[option.id] = option.label
+        }
+      })
+    }
+  }
+
+  // Add labels from ungrouped options
+  for (const options of Object.values(allUngroupedOptions)) {
+    (options as FilterOption[]).forEach(option => {
+      if (option.id && option.label) {
+        filterLabelCache.value[option.id] = option.label
+      }
+    })
+  }
+}
+
+// Watch store options and update cache when they change
+watch(
+  () => [store.state.FilterFlyout?.groupedOptions, store.state.FilterFlyout?.ungroupedOptions],
+  () => updateLabelCache(),
+  { deep: true },
+)
 
 /* Computed */
 const bookmarks: ComputedRef<Bookmark[]> = computed(() => store.state.SegmentsBookmarks.allBookmarks)
@@ -270,15 +306,11 @@ const isVisible: ComputedRef<boolean> = computed(() => slidebar.value.showTab ==
 const isApplyingBookmark: ComputedRef<boolean> = computed(() => store.state.SegmentsBookmarks.isApplyingBookmark)
 
 const currentViewChanges: ComputedRef<string[]> = computed(() => {
-  // Don't calculate changes until fully initialized or while applying a bookmark
-  // to avoid interference during mount and bookmark application
-  if (!isInitialized.value || !currentBookmarkId.value || isApplyingBookmark.value) {
+  if (!currentBookmarkId.value) {
     return []
   }
 
-  return []
-
-  //return getBookmarkChanges(currentBookmarkId.value)
+  return getBookmarkChanges(currentBookmarkId.value)
 })
 
 const changesMessage: ComputedRef<string> = computed(() => {
@@ -290,9 +322,7 @@ const changesMessage: ComputedRef<string> = computed(() => {
 })
 
 const currentDetailedChanges: ComputedRef<DetailedChange[]> = computed(() => {
-  // Don't calculate changes until fully initialized or while applying a bookmark
-  // to avoid interference during mount and bookmark application
-  if (!isInitialized.value || !currentBookmarkId.value || isApplyingBookmark.value) {
+  if (!currentBookmarkId.value) {
     return []
   }
 
@@ -308,6 +338,7 @@ const updateBookmark = (payload: UpdateBookmarkPayload): Promise<boolean> => sto
 const getGroupedOptions = (category) => store.getters['FilterFlyout/getGroupedOptionsByCategoryId'](category.id) || []
 
 const getUngroupedOptions = (category) => store.getters['FilterFlyout/getUngroupedOptionsByCategoryId'](category.id) || []
+
 /* Emits */
 interface SegmentsBookmarksEmits {
   (e: 'apply-bookmark', bookmark: Bookmark): void
@@ -331,7 +362,7 @@ const applySelectedBookmark = async (bookmarkId): Promise<void> => {
 
   const success = await store.dispatch('SegmentsBookmarks/applyBookmark', {
     bookmarkId,
-    bookmark: selectedBookmark
+    bookmark: selectedBookmark,
   })
 
   if (!success) {
@@ -355,8 +386,8 @@ const createNewBookmark = async (): Promise<void> => {
     type: 'Bookmark',
     attributes: {
       name,
-      queryHash
-    }
+      queryHash,
+    },
   }
 
   const success = await createBookmark(payload)
@@ -375,11 +406,8 @@ const getBookmarkChanges = (bookmarkId: string): string[] => {
   }
 
   const changes: string[] = []
-
-  // Use toRaw() to get non-reactive copies and avoid interfering with store state
-  const bookmarkAttributes = toRaw(bookmark.attributes)
-  const { filter, searchPhrase, viewSettings } = bookmarkAttributes
-  const currentFilters = toRaw(props.currentFilters) || {}
+  const { filter, searchPhrase, viewSettings } = bookmark.attributes
+  const currentFilters = store.state.FilterFlyout?.filterQuery || {}
 
   // Check filter changes
   const bookmarkFilterKeys = Object.keys(filter || {})
@@ -406,165 +434,14 @@ const getBookmarkChanges = (bookmarkId: string): string[] => {
   }
 
   // Check column selection changes
-  const bookmarkColumns = [...(viewSettings.selectedColumns || [])]
-  const currentColumns = [...(props.currentSelectedColumns || [])]
+  const bookmarkColumns = viewSettings.selectedColumns || []
+  const currentColumns = props.currentSelectedColumns || []
 
   if (JSON.stringify(bookmarkColumns.sort()) !== JSON.stringify(currentColumns.sort())) {
     changes.push(Translator.trans('columns'))
   }
 
   return changes
-}
-
-const getFilterNameByPath = (filterPath: string): string => {
-  // Use toRaw to avoid reactive dependencies
-  const filters = toRaw(props.filters) || {}
-
-  // Find the filter configuration by rootPath
-  const filterConfig = Object.values(filters).find(
-    filter => filter.rootPath === filterPath
-  )
-
-  if (filterConfig) {
-    return Translator.trans(filterConfig.labelTranslationKey)
-  }
-
-  // Fallback to translation key if not found
-  return Translator.trans(filterPath)
-}
-
-const formatFilterValue = (filterKey: string, value: any): string => {
-  if (!value) {
-    return Translator.trans('none')
-  }
-
-  // Handle array values (multiple selections)
-  if (Array.isArray(value)) {
-    return value.map(v => formatFilterValue(filterKey, v)).join(', ')
-  }
-
-  // Handle object values
-  if (typeof value === 'object' && value !== null) {
-    // If it has a display name property
-    if (value.name) return value.name
-    if (value.label) return value.label
-
-    // Otherwise stringify
-    return JSON.stringify(value)
-  }
-
-  // For specific filter types, try to get human-readable names
-  // This is a simplified version - you may need to expand based on your filter types
-  return String(value)
-}
-
-const getDetailedBookmarkChanges = (bookmarkId: string): DetailedChange[] => {
-  const bookmark = bookmarks.value.find(({ id }) => id === bookmarkId)
-
-  if (!bookmark) {
-    return []
-  }
-
-  const detailedChanges: DetailedChange[] = []
-
-  // Use toRaw() and JSON.parse/stringify to create deep non-reactive copies
-  // This encapsulates the change detection and prevents interference with store state
-  const bookmarkAttributes = JSON.parse(JSON.stringify(toRaw(bookmark.attributes)))
-  const { filter, searchPhrase, viewSettings } = bookmarkAttributes
-  const currentFilters = JSON.parse(JSON.stringify(toRaw(props.currentFilters) || {}))
-
-  // Check filter changes
-  const bookmarkFilterEntries = Object.entries(filter || {})
-  const currentFilterEntries = Object.entries(currentFilters)
-
-  const filterChanges: FilterChange[] = []
-
-  // Find filters that changed or were removed
-  bookmarkFilterEntries.forEach(([key, bookmarkFilter]: [string, any]) => {
-    const currentFilter = currentFilters[key]
-    const filterPath = bookmarkFilter.condition?.path || key
-
-    if (!currentFilter) {
-      // Filter was removed
-      filterChanges.push({
-        filterName: getFilterNameByPath(filterPath),
-        oldValue: formatFilterValue(filterPath, bookmarkFilter.condition?.value),
-        newValue: Translator.trans('removed')
-      })
-    } else if (JSON.stringify(bookmarkFilter) !== JSON.stringify(currentFilter)) {
-      // Filter changed
-      filterChanges.push({
-        filterName: getFilterNameByPath(filterPath),
-        oldValue: formatFilterValue(filterPath, bookmarkFilter.condition?.value),
-        newValue: formatFilterValue(filterPath, currentFilter.condition?.value)
-      })
-    }
-  })
-
-  // Find new filters
-  currentFilterEntries.forEach(([key, currentFilter]: [string, any]) => {
-    if (!filter[key]) {
-      const filterPath = currentFilter.condition?.path || key
-
-      filterChanges.push({
-        filterName: getFilterNameByPath(filterPath),
-        oldValue: Translator.trans('none'),
-        newValue: formatFilterValue(filterPath, currentFilter.condition?.value)
-      })
-    }
-  })
-
-  if (filterChanges.length > 0) {
-    detailedChanges.push({
-      type: 'filter',
-      label: Translator.trans('filter'),
-      details: filterChanges
-    })
-  }
-
-  // Check search phrase changes
-  const bookmarkSearch = searchPhrase?.trim() || ''
-  const currentSearch = props.currentSearchPhrase?.trim() || ''
-
-  if (bookmarkSearch !== currentSearch) {
-    detailedChanges.push({
-      type: 'search',
-      label: Translator.trans('search'),
-      oldValue: bookmarkSearch || Translator.trans('none'),
-      newValue: currentSearch || Translator.trans('none')
-    })
-  }
-
-  // Check sorting changes
-  const bookmarkSorting = viewSettings.sorting || ''
-  const currentSortingValue = props.currentSorting || ''
-
-  if (bookmarkSorting !== currentSortingValue) {
-    detailedChanges.push({
-      type: 'sorting',
-      label: Translator.trans('sorting'),
-      oldValue: bookmarkSorting || Translator.trans('none'),
-      newValue: currentSortingValue || Translator.trans('none')
-    })
-  }
-
-  // Check column selection changes
-  const bookmarkColumns = [...(viewSettings.selectedColumns || [])]
-  const currentColumns = [...(props.currentSelectedColumns || [])]
-
-  const addedColumns = currentColumns.filter(col => !bookmarkColumns.includes(col))
-  const removedColumns = bookmarkColumns.filter(col => !currentColumns.includes(col))
-
-  if (addedColumns.length > 0 || removedColumns.length > 0) {
-    detailedChanges.push({
-      type: 'columns',
-      label: Translator.trans('columns'),
-      added: addedColumns,
-      removed: removedColumns
-    })
-  }
-
-  return detailedChanges
 }
 
 const getBookmarkSummary = (bookmarkId: string): string => {
@@ -582,19 +459,213 @@ const getBookmarkSummary = (bookmarkId: string): string => {
 
   const searchText = searchPhrase?.trim() ? 'Suchbegriff' : ''
 
-  const columnText = props.totalColumnCount > 0
-    ? `${selectedColumnCount} von ${props.totalColumnCount} ${Translator.trans('columns')}`
-    : `${selectedColumnCount} ${Translator.trans('columns')}`
+  const columnText = props.totalColumnCount > 0 ?
+    `${selectedColumnCount} von ${props.totalColumnCount} ${Translator.trans('columns')}` :
+    `${selectedColumnCount} ${Translator.trans('columns')}`
 
   const summary = [
     filterText,
     searchText,
-    columnText
+    columnText,
   ].filter(Boolean).join(' · ')
 
   return summary
 }
 
+const getFilterNameByPath = (filterPath: string): string => {
+  // Find the filter configuration by rootPath
+  const filterConfig = Object.values(props.filters || {}).find(
+    filter => filter.rootPath === filterPath,
+  )
+
+  if (filterConfig) {
+    return Translator.trans(filterConfig.labelTranslationKey)
+  }
+
+  // Fallback to translation key if not found
+  return Translator.trans(filterPath)
+}
+
+/**
+ * Looks up the label for a filter value.
+ * First checks the label cache, then searches the store's options.
+ */
+const getFilterValueLabel = (valueId: string): string => {
+  // Check the cache first (includes 'unassigned' and all previously seen labels)
+  if (filterLabelCache.value[valueId]) {
+    return filterLabelCache.value[valueId]
+  }
+
+  const allGroupedOptions = store.state.FilterFlyout?.groupedOptions || {}
+
+  for (const groups of Object.values(allGroupedOptions)) {
+    for (const group of (groups as FilterGroup[])) {
+      const option = group.options?.find(opt => opt.id === valueId)
+
+      if (option) {
+        // Cache it for future lookups
+        filterLabelCache.value[valueId] = option.label
+
+        return option.label
+      }
+    }
+  }
+
+  const allUngroupedOptions = store.state.FilterFlyout?.ungroupedOptions || {}
+
+  for (const options of Object.values(allUngroupedOptions)) {
+    const option = (options as FilterOption[]).find(opt => opt.id === valueId)
+
+    if (option) {
+      // Cache it for future lookups
+      filterLabelCache.value[valueId] = option.label
+
+      return option.label
+    }
+  }
+
+  return valueId
+}
+
+const extractFilterValues = (filters: Record<string, any> = {}) => {
+  const filterValues = new Set<string>()
+  const filterPaths: Record<string, string> = {}
+
+  Object.entries(filters || {}).forEach(([key, filter]) => {
+    if (filter.condition) {
+      const valueKey = filter.condition.value || 'unassigned'
+
+      filterValues.add(valueKey)
+      filterPaths[valueKey] = filter.condition.path
+    }
+  })
+
+  return {
+    filterValues,
+    filterPaths,
+  }
+}
+
+const getDetailedColumnChanges = (
+  bookmarkColumns: string[] = [],
+  currentColumns: string[] = [],
+): DetailedChange | null => {
+  const added = currentColumns.filter(col => !bookmarkColumns.includes(col))
+  const removed = bookmarkColumns.filter(col => !currentColumns.includes(col))
+
+  if (!added.length && !removed.length) {
+    return null
+  }
+
+  return {
+    type: 'columns',
+    label: Translator.trans('columns'),
+    added,
+    removed,
+  }
+}
+
+const getDetailedFilterChanges = (
+  bookmarkFilters: Record<string, any>,
+  currentFilters: Record<string, any>,
+): DetailedChange | null => {
+  const {
+    filterValues: bookmarkFilterValues,
+    filterPaths: bookmarkFilterPaths,
+  } = extractFilterValues(bookmarkFilters)
+
+  const {
+    filterValues: currentFilterValues,
+    filterPaths: currentFilterPaths,
+  } = extractFilterValues(currentFilters)
+
+  const individualFilterChanges: IndividualFilterChange[] = [
+    ...getFilterChanges(
+      bookmarkFilterValues,
+      currentFilterValues,
+      bookmarkFilterPaths,
+      'removed',
+    ),
+    ...getFilterChanges(
+      currentFilterValues,
+      bookmarkFilterValues,
+      currentFilterPaths,
+      'added',
+    ),
+  ]
+
+  if (!individualFilterChanges.length) {
+    return null
+  }
+
+  return {
+    type: 'filter',
+    label: Translator.trans('filter'),
+    individualFilters: individualFilterChanges,
+  }
+}
+
+const getDetailedSearchChanges = (
+  bookmarkSearch: string = '',
+  currentSearch: string = '',
+): DetailedChange | null => {
+  const oldValue = bookmarkSearch.trim()
+  const newValue = currentSearch.trim()
+
+  if (oldValue === newValue) return null
+
+  return {
+    type: 'search',
+    label: Translator.trans('search'),
+    oldValue: oldValue || Translator.trans('none'),
+    newValue: newValue || Translator.trans('none'),
+  }
+}
+
+const getDetailedSortingChanges = (
+  bookmarkSorting: string = '',
+  currentSorting: string = '',
+): DetailedChange | null => {
+  if (bookmarkSorting === currentSorting) return null
+
+  return {
+    type: 'sorting',
+    label: Translator.trans('sorting'),
+    oldValue: bookmarkSorting || Translator.trans('none'),
+    newValue: currentSorting || Translator.trans('none'),
+  }
+}
+
+const getDetailedBookmarkChanges = (bookmarkId: string): DetailedChange[] => {
+  const bookmark = bookmarks.value.find(({ id }) => id === bookmarkId)
+
+  if (!bookmark) return []
+
+  const { filter, searchPhrase, viewSettings } = bookmark.attributes
+  const currentFilters = store.state.FilterFlyout?.filterQuery || {}
+
+  return [
+    getDetailedFilterChanges(filter, currentFilters),
+    getDetailedSearchChanges(searchPhrase, props.currentSearchPhrase),
+    getDetailedSortingChanges(viewSettings.sorting, props.currentSorting),
+    getDetailedColumnChanges(viewSettings.selectedColumns, props.currentSelectedColumns),
+  ].filter((change): change is DetailedChange => change !== null)
+}
+
+const getFilterChanges = (
+  sourceValues: Set<string>,
+  targetValues: Set<string>,
+  filterPaths: Record<string, string>,
+  action: 'added' | 'removed',
+): IndividualFilterChange[] => {
+  return [...sourceValues]
+    .filter(valueKey => !targetValues.has(valueKey))
+    .map(valueKey => ({
+      filterCategory: getFilterNameByPath(filterPaths[valueKey]),
+      filterValue: getFilterValueLabel(valueKey),
+      action,
+    }))
+}
 const handleViewChange = async (bookmarkId: string | null): Promise<void> => {
   if (bookmarkId === null) {
     await setDefaultBookmark()
@@ -606,11 +677,11 @@ const handleViewChange = async (bookmarkId: string | null): Promise<void> => {
 }
 
 const setDefaultBookmark = async (): Promise<void> => {
- /* const success = await store.dispatch('SegmentsBookmarks/resetToDefaultView')
+  const success = await store.dispatch('SegmentsBookmarks/resetToDefaultView')
 
   if (!success) {
     return
-  }*/
+  }
 
   lscache.remove(lsKey)
   updateBookmarkButtonText(null)
@@ -640,7 +711,7 @@ const restoreSavedBookmark = async (): Promise<void> => {
 
   const success: boolean = await store.dispatch('SegmentsBookmarks/applyBookmark', {
     bookmarkId: savedBookmarkId,
-    bookmark: savedBookmark
+    bookmark: savedBookmark,
   })
 
   if (success) {
@@ -652,11 +723,6 @@ const restoreSavedBookmark = async (): Promise<void> => {
 onMounted(async (): Promise<void> => {
   await fetchBookmarks()
   await restoreSavedBookmark()
-
-  // Mark as initialized after bookmark restoration is complete
-  // This allows change detection to start working
-  isInitialized.value = true
 })
 </script>
-
 
