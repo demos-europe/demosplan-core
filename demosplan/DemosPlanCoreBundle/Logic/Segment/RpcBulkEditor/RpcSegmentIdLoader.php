@@ -120,18 +120,22 @@ class RpcSegmentIdLoader implements RpcMethodSolverInterface
         if (property_exists($params, 'sort')) {
             Assert::stringNotEmpty($params->sort);
         }
-        if (property_exists($params, 'filter')) {
-            Assert::isArray($params->filter);
-        }
-        if (property_exists($params, 'search')) {
-            Assert::isArray($params->searh);
+        // Both arrive as an object for `{...}` and as an array for the empty
+        // `[]` a client sends when nothing is set.
+        foreach (['filter', 'search'] as $parameterName) {
+            if (property_exists($params, $parameterName)) {
+                Assert::true(
+                    $params->$parameterName instanceof stdClass || is_array($params->$parameterName),
+                    sprintf('Expected RPC parameter "%s" to be an object or an array.', $parameterName)
+                );
+            }
         }
     }
 
-    private function getConditions(stdClass $params, string $procedureId)
+    private function getConditions(stdClass $params, string $procedureId): array
     {
-        $drupalFilter = $this->toArray($params->filter);
-        $conditions = null === $drupalFilter || [] === $drupalFilter
+        $drupalFilter = $this->toArray($params->filter ?? null);
+        $conditions = [] === $drupalFilter
             ? []
             : $this->drupalFilterParser->parseFilter($this->drupalFilterParser->validateFilter($drupalFilter));
 
@@ -231,8 +235,8 @@ class RpcSegmentIdLoader implements RpcMethodSolverInterface
         return false;
     }
 
-    private function toArray(stdClass $object): array
+    private function toArray(stdClass|array|null $value): array
     {
-        return json_decode(json_encode($object), true);
+        return null === $value ? [] : json_decode(json_encode($value), true);
     }
 }
