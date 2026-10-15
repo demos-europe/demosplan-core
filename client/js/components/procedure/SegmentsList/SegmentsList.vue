@@ -540,6 +540,7 @@ import {
   tableSelectAllItems,
   VPopover,
 } from '@demos-europe/demosplan-ui'
+import { CUSTOM_FIELD_GROUP_PREFIX, useApiPlatformFilters } from '@DpJs/composables/useApiPlatformFilters'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
@@ -555,7 +556,6 @@ import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaToolti
 import StatusBadge from '../Shared/StatusBadge'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
-import { CUSTOM_FIELD_GROUP_PREFIX, useApiPlatformFilters } from '@DpJs/composables/useApiPlatformFilters'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
 
