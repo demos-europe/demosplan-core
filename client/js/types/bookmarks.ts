@@ -79,3 +79,19 @@ export interface RootState {
   }
   [key: string]: any
 }
+
+export interface FilterChange {
+  filterName: string
+  oldValue: string
+  newValue: string
+}
+
+export interface DetailedChange {
+  type: 'filter' | 'search' | 'sorting' | 'columns'
+  label: string
+  details?: FilterChange[]
+  oldValue?: string
+  newValue?: string
+  added?: string[]
+  removed?: string[]
+}

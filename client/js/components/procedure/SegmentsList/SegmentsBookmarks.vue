@@ -11,6 +11,127 @@
     </div>
 
     <!-- Content -->
+    <!-- Unsaved changes -->
+    <div v-if="currentViewChanges.length">
+      <dp-inline-notification
+        class="mt-3 mb-2"
+        message="Da die Standardansicht nicht überschreibbar ist, speichern Sie die Änderungen als neue Ansicht oder verwerfen Sie sie."
+        type="info"
+      />
+
+      <dp-accordion
+        :is-open="showUnsavedChanges"
+        title="Ungespeicherte Änderungen anzeigen"
+        compressed
+        @item:toggle="showUnsavedChanges = !showUnsavedChanges"
+      >
+        <div class="space-y-3 p-4">
+          <div
+            v-for="change in currentDetailedChanges"
+            :key="change.type"
+            class=""
+          >
+            <p class="font-semibold text-sm mb-2">
+              {{ change.label }}
+            </p>
+
+            <!-- Filter details -->
+            <div
+              v-if="change.type === 'filter' && change.details"
+              class="border-b border-neutral-light-3 "
+            >
+              <div
+                v-for="(detail, index) in change.details"
+                :key="index"
+                class="text-sm"
+              >
+                <p class="font-medium">
+                  {{ detail.filterName }}
+                </p>
+                <p>
+                  <dp-icon
+                    icon="minus"
+                    class="inline-block text-status-failed-icon mr-1"
+                  />
+                  <span>
+                    {{ detail.oldValue }}
+                  </span>
+                </p>
+                <p>
+                  <dp-icon
+                    icon="plus"
+                    class="inline-block mr-1"
+                  />
+                  <span>
+                    {{ detail.newValue }}
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            <!-- Search/Sorting details -->
+            <div
+              v-if="(change.type === 'search' || change.type === 'sorting') && change.oldValue !== undefined"
+              class="border-b border-neutral-light-3 "
+            >
+              <p>
+                <dp-icon
+                  icon="minus"
+                  class="inline-block text-status-failed-icon mr-1"
+                />
+                <span>{{ change.oldValue }}</span>
+              </p>
+              <p >
+                <dp-icon
+                  icon="plus"
+                  class="inline-block mr-1"
+                />
+                <span>{{ change.newValue }}</span>
+              </p>
+            </div>
+
+            <!-- Column details -->
+            <div
+              v-if="change.type === 'columns'"
+              class="border-b border-neutral-light-3 "
+            >
+              <div v-if="change.added && change.added.length > 0">
+                <ul>
+                  <li
+                    v-for="col in change.added"
+                    :key="col"
+                    class="mb-1"
+                  >
+                    <dp-icon
+                      icon="plus"
+                      class="inline-block mr-1"
+                    />
+                    <span>{{ Translator.trans(col) }}</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div v-if="change.removed && change.removed.length > 0">
+                <ul>
+                  <li
+                    v-for="col in change.removed"
+                    :key="col"
+                    class="mb-1"
+                  >
+                    <dp-icon
+                      icon="minus"
+                      class="inline-block text-status-failed-icon mr-1"
+                    />
+                    <span>{{ Translator.trans(col) }}</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </dp-accordion>
+    </div>
+
     <div class="p-4">
       <p class="font-semibold">
         {{ Translator.trans('segments.view.saved') }}
@@ -92,16 +213,21 @@
 
 <script setup lang="ts">
 import {
-  DpRadio,
+  DpAccordion,
   DpButton,
-  DpInput,
   DpButtonRow,
+  DpIcon,
+  DpInput,
+  DpInlineNotification,
+  DpRadio,
 } from '@demos-europe/demosplan-ui'
 import type {
   Bookmark,
   CreateBookmarkPayload,
   UpdateBookmarkPayload,
   Slidebar,
+  DetailedChange,
+  FilterChange,
 } from '@DpJs/types/bookmarks'
 
 import { computed, onMounted, ref, type Ref, type ComputedRef } from 'vue'
@@ -112,13 +238,22 @@ import { useStore } from 'vuex'
 const props = withDefaults(defineProps<{
   procedureId: string
   totalColumnCount?: number
+  currentSearchPhrase?: string
+  currentSorting?: string
+  currentSelectedColumns?: string[]
+  filters?: Record<string, { labelTranslationKey: string, rootPath: string, comparisonOperator: string }>
 }>(), {
-  totalColumnCount: 0
+  totalColumnCount: 0,
+  currentSearchPhrase: '',
+  currentSorting: '',
+  currentSelectedColumns: () => [],
+  filters: () => ({})
 })
 
 const store = useStore()
 
 const newBookmarkName: Ref<string> = ref('')
+const showUnsavedChanges: Ref<boolean> = ref(false)
 const lsKey = `${props.procedureId}:segments:currentBookmarkId`
 
 /* Computed */
@@ -131,12 +266,39 @@ const slidebar: ComputedRef<Slidebar> = computed(() => store.state.SegmentSlideb
 const isVisible: ComputedRef<boolean> = computed(() => slidebar.value.showTab === 'bookmarks')
 const isApplyingBookmark: ComputedRef<boolean> = computed(() => store.state.SegmentsBookmarks.isApplyingBookmark)
 
+const currentViewChanges: ComputedRef<string[]> = computed(() => {
+  if (!currentBookmarkId.value) {
+    return []
+  }
+
+  return getBookmarkChanges(currentBookmarkId.value)
+})
+
+const changesMessage: ComputedRef<string> = computed(() => {
+  if (currentViewChanges.value.length === 0) {
+    return ''
+  }
+
+  return `${Translator.trans('segments.view.changes')}: ${currentViewChanges.value.join(', ')}`
+})
+
+const currentDetailedChanges: ComputedRef<DetailedChange[]> = computed(() => {
+  if (!currentBookmarkId.value) {
+    return []
+  }
+
+  return getDetailedBookmarkChanges(currentBookmarkId.value)
+})
+
 /* Store actions */
 const createBookmark = (payload: CreateBookmarkPayload): Promise<boolean> => store.dispatch('SegmentsBookmarks/createBookmark', payload)
 const deleteBookmark = (id: string): Promise<boolean> => store.dispatch('SegmentsBookmarks/deleteBookmark', id)
 const fetchBookmarks = (): Promise<Bookmark[]> => store.dispatch('SegmentsBookmarks/fetchBookmarks')
 const updateBookmark = (payload: UpdateBookmarkPayload): Promise<boolean> => store.dispatch('SegmentsBookmarks/updateBookmark', payload)
 
+const getGroupedOptions = (category) => store.getters['FilterFlyout/getGroupedOptionsByCategoryId'](category.id) || []
+
+const getUngroupedOptions = (category) => store.getters['FilterFlyout/getUngroupedOptionsByCategoryId'](category.id) || []
 /* Emits */
 interface SegmentsBookmarksEmits {
   (e: 'apply-bookmark', bookmark: Bookmark): void
@@ -196,6 +358,196 @@ const createNewBookmark = async (): Promise<void> => {
   }
 }
 
+const getBookmarkChanges = (bookmarkId: string): string[] => {
+  const bookmark = bookmarks.value.find(({ id }) => id === bookmarkId)
+
+  if (!bookmark) {
+    return []
+  }
+
+  const changes: string[] = []
+  const { filter, searchPhrase, viewSettings } = bookmark.attributes
+  const currentFilters = store.state.FilterFlyout?.filterQuery || {}
+
+  // Check filter changes
+  const bookmarkFilterKeys = Object.keys(filter || {})
+  const currentFilterKeys = Object.keys(currentFilters)
+
+  if (JSON.stringify(bookmarkFilterKeys.sort()) !== JSON.stringify(currentFilterKeys.sort())) {
+    changes.push(Translator.trans('filter'))
+  }
+
+  // Check search phrase changes
+  const bookmarkSearch = searchPhrase?.trim() || ''
+  const currentSearch = props.currentSearchPhrase?.trim() || ''
+
+  if (bookmarkSearch !== currentSearch) {
+    changes.push(Translator.trans('search'))
+  }
+
+  // Check sorting changes
+  const bookmarkSorting = viewSettings.sorting || ''
+  const currentSortingValue = props.currentSorting || ''
+
+  if (bookmarkSorting !== currentSortingValue) {
+    changes.push(Translator.trans('sorting'))
+  }
+
+  // Check column selection changes
+  const bookmarkColumns = viewSettings.selectedColumns || []
+  const currentColumns = props.currentSelectedColumns || []
+
+  if (JSON.stringify(bookmarkColumns.sort()) !== JSON.stringify(currentColumns.sort())) {
+    changes.push(Translator.trans('columns'))
+  }
+
+  return changes
+}
+
+const getFilterNameByPath = (filterPath: string): string => {
+  // Find the filter configuration by rootPath
+  const filterConfig = Object.values(props.filters || {}).find(
+    filter => filter.rootPath === filterPath
+  )
+
+  if (filterConfig) {
+    return Translator.trans(filterConfig.labelTranslationKey)
+  }
+
+  // Fallback to translation key if not found
+  return Translator.trans(filterPath)
+}
+
+const formatFilterValue = (filterKey: string, value: any): string => {
+  if (!value) {
+    return Translator.trans('none')
+  }
+
+  // Handle array values (multiple selections)
+  if (Array.isArray(value)) {
+    return value.map(v => formatFilterValue(filterKey, v)).join(', ')
+  }
+
+  // Handle object values
+  if (typeof value === 'object' && value !== null) {
+    // If it has a display name property
+    if (value.name) return value.name
+    if (value.label) return value.label
+
+    // Otherwise stringify
+    return JSON.stringify(value)
+  }
+
+  // For specific filter types, try to get human-readable names
+  // This is a simplified version - you may need to expand based on your filter types
+  return String(value)
+}
+
+const getDetailedBookmarkChanges = (bookmarkId: string): DetailedChange[] => {
+  const bookmark = bookmarks.value.find(({ id }) => id === bookmarkId)
+
+  if (!bookmark) {
+    return []
+  }
+
+  const detailedChanges: DetailedChange[] = []
+  const { filter, searchPhrase, viewSettings } = bookmark.attributes
+  const currentFilters = store.state.FilterFlyout?.filterQuery || {}
+
+  // Check filter changes
+  const bookmarkFilterEntries = Object.entries(filter || {})
+  const currentFilterEntries = Object.entries(currentFilters)
+
+  const filterChanges: FilterChange[] = []
+
+  // Find filters that changed or were removed
+  bookmarkFilterEntries.forEach(([key, bookmarkFilter]) => {
+    const currentFilter = currentFilters[key]
+    const filterPath = bookmarkFilter.condition?.path || key
+
+    if (!currentFilter) {
+      // Filter was removed
+      filterChanges.push({
+        filterName: getFilterNameByPath(filterPath),
+        oldValue: formatFilterValue(filterPath, bookmarkFilter.condition?.value),
+        newValue: Translator.trans('removed')
+      })
+    } else if (JSON.stringify(bookmarkFilter) !== JSON.stringify(currentFilter)) {
+      // Filter changed
+      filterChanges.push({
+        filterName: getFilterNameByPath(filterPath),
+        oldValue: formatFilterValue(filterPath, bookmarkFilter.condition?.value),
+        newValue: formatFilterValue(filterPath, currentFilter.condition?.value)
+      })
+    }
+  })
+
+  // Find new filters
+  currentFilterEntries.forEach(([key, currentFilter]) => {
+    if (!filter[key]) {
+      const filterPath = currentFilter.condition?.path || key
+
+      filterChanges.push({
+        filterName: getFilterNameByPath(filterPath),
+        oldValue: Translator.trans('none'),
+        newValue: formatFilterValue(filterPath, currentFilter.condition?.value)
+      })
+    }
+  })
+
+  if (filterChanges.length > 0) {
+    detailedChanges.push({
+      type: 'filter',
+      label: Translator.trans('filter'),
+      details: filterChanges
+    })
+  }
+
+  // Check search phrase changes
+  const bookmarkSearch = searchPhrase?.trim() || ''
+  const currentSearch = props.currentSearchPhrase?.trim() || ''
+
+  if (bookmarkSearch !== currentSearch) {
+    detailedChanges.push({
+      type: 'search',
+      label: Translator.trans('search'),
+      oldValue: bookmarkSearch || Translator.trans('none'),
+      newValue: currentSearch || Translator.trans('none')
+    })
+  }
+
+  // Check sorting changes
+  const bookmarkSorting = viewSettings.sorting || ''
+  const currentSortingValue = props.currentSorting || ''
+
+  if (bookmarkSorting !== currentSortingValue) {
+    detailedChanges.push({
+      type: 'sorting',
+      label: Translator.trans('sorting'),
+      oldValue: bookmarkSorting || Translator.trans('none'),
+      newValue: currentSortingValue || Translator.trans('none')
+    })
+  }
+
+  // Check column selection changes
+  const bookmarkColumns = viewSettings.selectedColumns || []
+  const currentColumns = props.currentSelectedColumns || []
+
+  const addedColumns = currentColumns.filter(col => !bookmarkColumns.includes(col))
+  const removedColumns = bookmarkColumns.filter(col => !currentColumns.includes(col))
+
+  if (addedColumns.length > 0 || removedColumns.length > 0) {
+    detailedChanges.push({
+      type: 'columns',
+      label: Translator.trans('columns'),
+      added: addedColumns,
+      removed: removedColumns
+    })
+  }
+
+  return detailedChanges
+}
+
 const getBookmarkSummary = (bookmarkId: string): string => {
   const bookmark = bookmarks.value.find(({ id }) => id === bookmarkId)
 
@@ -215,11 +567,13 @@ const getBookmarkSummary = (bookmarkId: string): string => {
     ? `${selectedColumnCount} von ${props.totalColumnCount} ${Translator.trans('columns')}`
     : `${selectedColumnCount} ${Translator.trans('columns')}`
 
-  return [
+  const summary = [
     filterText,
     searchText,
     columnText
   ].filter(Boolean).join(' · ')
+
+  return summary
 }
 
 const handleViewChange = async (bookmarkId: string | null): Promise<void> => {

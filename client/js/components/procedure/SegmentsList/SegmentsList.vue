@@ -1111,6 +1111,7 @@ export default {
       if (selectedColumns) {
         this.currentSelection = selectedColumns
         localStorage.setItem('segmentList', JSON.stringify(selectedColumns))
+        this.columnSelectorKey++
       }
 
       if (sorting) {
@@ -2215,13 +2216,7 @@ export default {
       await this.loadSegmentCustomFields()
     }
 
-    /*
-     * Only run initial query if no saved bookmark exists.
-     * If bookmark exists, SegmentsBookmarks component will trigger applyQuery via applyBookmarkSettings
-     */
-    if (!hasSavedBookmark) {
-      this.applyQuery(this.pagination.currentPage)
-    }
+    this.applyQuery(this.pagination.currentPage)
 
     await this.fetchPlaces({
       fields: {

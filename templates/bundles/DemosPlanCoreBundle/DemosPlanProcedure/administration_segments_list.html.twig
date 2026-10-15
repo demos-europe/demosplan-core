@@ -35,8 +35,12 @@
         {% if hasPermission('feature_procedure_user_filter_sets') %}
             <segments-bookmarks
                 procedure-id="{{ procedure }}"
-                :total-column-count="$refs.segmentsList?.selectableColumns?.length"
+                :total-column-count="$refs.segmentsList?.selectableColumns?.length || 0"
+                :current-search-phrase="$refs.segmentsList?.searchTerm || ''"
+                :current-sorting="$refs.segmentsList?.selectedSort || ''"
+                :current-selected-columns="$refs.segmentsList?.currentSelection || []"
                 @apply-bookmark="$refs.segmentsList.applyBookmarkSettings($event)"
+                :filters="JSON.parse('{{ filterNames|json_encode|e('js', 'utf-8') }}')"
                 @reset-view="$refs.segmentsList.applyBookmarkSettings(null)"
                 @update-button-text="$refs.bookmarksButton.updateButtonText($event)">
             </segments-bookmarks>
