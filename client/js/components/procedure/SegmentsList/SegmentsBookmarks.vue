@@ -606,9 +606,11 @@ const handleViewChange = async (bookmarkId: string | null): Promise<void> => {
 }
 
 const setDefaultBookmark = async (): Promise<void> => {
-  const success = await store.dispatch('SegmentsBookmarks/resetToDefaultView')
+ /* const success = await store.dispatch('SegmentsBookmarks/resetToDefaultView')
 
-  if (!success) return
+  if (!success) {
+    return
+  }*/
 
   lscache.remove(lsKey)
   updateBookmarkButtonText(null)
