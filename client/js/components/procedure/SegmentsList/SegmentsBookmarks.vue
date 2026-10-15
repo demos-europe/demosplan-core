@@ -310,7 +310,7 @@ const currentViewChanges: ComputedRef<string[]> = computed(() => {
     return []
   }
 
-  return getBookmarkChanges(currentBookmarkId.value)
+  return getBookmarkChangeLabels(currentBookmarkId.value)
 })
 
 const changesMessage: ComputedRef<string> = computed(() => {
@@ -333,11 +333,6 @@ const currentDetailedChanges: ComputedRef<DetailedChange[]> = computed(() => {
 const createBookmark = (payload: CreateBookmarkPayload): Promise<boolean> => store.dispatch('SegmentsBookmarks/createBookmark', payload)
 const deleteBookmark = (id: string): Promise<boolean> => store.dispatch('SegmentsBookmarks/deleteBookmark', id)
 const fetchBookmarks = (): Promise<Bookmark[]> => store.dispatch('SegmentsBookmarks/fetchBookmarks')
-const updateBookmark = (payload: UpdateBookmarkPayload): Promise<boolean> => store.dispatch('SegmentsBookmarks/updateBookmark', payload)
-
-const getGroupedOptions = (category) => store.getters['FilterFlyout/getGroupedOptionsByCategoryId'](category.id) || []
-
-const getUngroupedOptions = (category) => store.getters['FilterFlyout/getUngroupedOptionsByCategoryId'](category.id) || []
 
 /* Emits */
 interface SegmentsBookmarksEmits {
@@ -398,7 +393,26 @@ const createNewBookmark = async (): Promise<void> => {
   }
 }
 
-const getBookmarkChanges = (bookmarkId: string): string[] => getDetailedBookmarkChanges(bookmarkId).map(({ label }) => label)
+const extractFilterValues = (filters: Record<string, any> = {}) => {
+  const filterValues = new Set<string>()
+  const filterPaths: Record<string, string> = {}
+
+  Object.entries(filters || {}).forEach(([key, filter]) => {
+    if (filter.condition) {
+      const valueKey = filter.condition.value || 'unassigned'
+
+      filterValues.add(valueKey)
+      filterPaths[valueKey] = filter.condition.path
+    }
+  })
+
+  return {
+    filterValues,
+    filterPaths,
+  }
+}
+
+const getBookmarkChangeLabels = (bookmarkId: string): string[] => getDetailedBookmarkChanges(bookmarkId).map(({ label }) => label)
 
 const getBookmarkSummary = (bookmarkId: string): string => {
   const bookmark = bookmarks.value.find(({ id }) => id === bookmarkId)
@@ -428,70 +442,23 @@ const getBookmarkSummary = (bookmarkId: string): string => {
   return summary
 }
 
-const getFilterNameByPath = (filterPath: string): string => {
-  const filterConfig = Object.values(props.filters || {}).find(
-    filter => filter.rootPath === filterPath,
-  )
+const getDetailedBookmarkChanges = (bookmarkId: string): DetailedChange[] => {
+  const bookmark = bookmarks.value.find(({ id }) => id === bookmarkId)
 
-  if (filterConfig) {
-    return Translator.trans(filterConfig.labelTranslationKey)
-  }
+  if (!bookmark) return []
 
-  return Translator.trans(filterPath)
+  const { filter, searchPhrase, viewSettings } = bookmark.attributes
+  const currentFilters = store.state.FilterFlyout?.filterQuery || {}
+
+  return [
+    getDetailedFilterChanges(filter, currentFilters),
+    getDetailedSearchChanges(searchPhrase, props.currentSearchPhrase),
+    getDetailedSortingChanges(viewSettings.sorting, props.currentSorting),
+    getDetailedColumnChanges(viewSettings.selectedColumns, props.currentSelectedColumns),
+  ].filter((change): change is DetailedChange => change !== null)
 }
 
-/**
- * Looks up the label for a filter value.
- * First checks the label cache, then searches the store's options.
- */
-const getFilterValueLabel = (valueId: string): string => {
-  const cachedLabel = filterLabelCache.value[valueId]
-
-  if (cachedLabel !== undefined) {
-    return cachedLabel
-  }
-
-  const { groupedOptions = {}, ungroupedOptions = {} } = store.state.FilterFlyout || {}
-
-  const grouped = Object.values(groupedOptions)
-    .flatMap(groups => (groups as FilterGroup[]).flatMap(group => group.options || []))
-
-  const ungrouped = Object.values(ungroupedOptions)
-    .flatMap(options => options as FilterOption[])
-
-  const label = [...grouped, ...ungrouped]
-    .find(option => option.id === valueId)?.label
-
-  if (label !== undefined) {
-    filterLabelCache.value[valueId] = label
-  }
-
-  return label ?? valueId
-}
-
-const extractFilterValues = (filters: Record<string, any> = {}) => {
-  const filterValues = new Set<string>()
-  const filterPaths: Record<string, string> = {}
-
-  Object.entries(filters || {}).forEach(([key, filter]) => {
-    if (filter.condition) {
-      const valueKey = filter.condition.value || 'unassigned'
-
-      filterValues.add(valueKey)
-      filterPaths[valueKey] = filter.condition.path
-    }
-  })
-
-  return {
-    filterValues,
-    filterPaths,
-  }
-}
-
-const getDetailedColumnChanges = (
-  bookmarkColumns: string[] = [],
-  currentColumns: string[] = [],
-): DetailedChange | null => {
+const getDetailedColumnChanges = (bookmarkColumns: string[] = [], currentColumns: string[] = []): DetailedChange | null => {
   const added = currentColumns.filter(col => !bookmarkColumns.includes(col))
   const removed = bookmarkColumns.filter(col => !currentColumns.includes(col))
 
@@ -571,22 +538,6 @@ const getDetailedSortingChanges = (bookmarkSorting: string = '', currentSorting:
   }
 }
 
-const getDetailedBookmarkChanges = (bookmarkId: string): DetailedChange[] => {
-  const bookmark = bookmarks.value.find(({ id }) => id === bookmarkId)
-
-  if (!bookmark) return []
-
-  const { filter, searchPhrase, viewSettings } = bookmark.attributes
-  const currentFilters = store.state.FilterFlyout?.filterQuery || {}
-
-  return [
-    getDetailedFilterChanges(filter, currentFilters),
-    getDetailedSearchChanges(searchPhrase, props.currentSearchPhrase),
-    getDetailedSortingChanges(viewSettings.sorting, props.currentSorting),
-    getDetailedColumnChanges(viewSettings.selectedColumns, props.currentSelectedColumns),
-  ].filter((change): change is DetailedChange => change !== null)
-}
-
 const getFilterChanges = (sourceValues: Set<string>, targetValues: Set<string>, filterPaths: Record<string, string>, action: 'added' | 'removed'): IndividualFilterChange[] => {
   return [...sourceValues]
     .filter(valueKey => !targetValues.has(valueKey))
@@ -596,6 +547,48 @@ const getFilterChanges = (sourceValues: Set<string>, targetValues: Set<string>, 
       action,
     }))
 }
+
+const getFilterNameByPath = (filterPath: string): string => {
+  const filterConfig = Object.values(props.filters || {}).find(
+    filter => filter.rootPath === filterPath,
+  )
+
+  if (filterConfig) {
+    return Translator.trans(filterConfig.labelTranslationKey)
+  }
+
+  return Translator.trans(filterPath)
+}
+
+/**
+ * Looks up the label for a filter value.
+ * First checks the label cache, then searches the store's options.
+ */
+const getFilterValueLabel = (valueId: string): string => {
+  const cachedLabel = filterLabelCache.value[valueId]
+
+  if (cachedLabel !== undefined) {
+    return cachedLabel
+  }
+
+  const { groupedOptions = {}, ungroupedOptions = {} } = store.state.FilterFlyout || {}
+
+  const grouped = Object.values(groupedOptions)
+    .flatMap(groups => (groups as FilterGroup[]).flatMap(group => group.options || []))
+
+  const ungrouped = Object.values(ungroupedOptions)
+    .flatMap(options => options as FilterOption[])
+
+  const label = [...grouped, ...ungrouped]
+    .find(option => option.id === valueId)?.label
+
+  if (label !== undefined) {
+    filterLabelCache.value[valueId] = label
+  }
+
+  return label ?? valueId
+}
+
 const handleViewChange = async (bookmarkId: string | null): Promise<void> => {
   if (bookmarkId === null) {
     await setDefaultBookmark()
@@ -604,24 +597,6 @@ const handleViewChange = async (bookmarkId: string | null): Promise<void> => {
   }
 
   await applySelectedBookmark(bookmarkId)
-}
-
-const setDefaultBookmark = async (): Promise<void> => {
-  const success = await store.dispatch('SegmentsBookmarks/resetToDefaultView')
-
-  if (!success) {
-    return
-  }
-
-  lscache.remove(lsKey)
-  updateBookmarkButtonText(null)
-  emit('reset-view')
-}
-
-const updateBookmarkButtonText = (bookmark: Bookmark | null): void => {
-  const buttonText = bookmark?.attributes?.name || Translator.trans('views')
-
-  emit('update-button-text', buttonText)
 }
 
 const restoreSavedBookmark = async (): Promise<void> => {
@@ -648,6 +623,24 @@ const restoreSavedBookmark = async (): Promise<void> => {
     updateBookmarkButtonText(savedBookmark)
     emit('apply-bookmark', savedBookmark)
   }
+}
+
+const setDefaultBookmark = async (): Promise<void> => {
+  const success = await store.dispatch('SegmentsBookmarks/resetToDefaultView')
+
+  if (!success) {
+    return
+  }
+
+  lscache.remove(lsKey)
+  updateBookmarkButtonText(null)
+  emit('reset-view')
+}
+
+const updateBookmarkButtonText = (bookmark: Bookmark | null): void => {
+  const buttonText = bookmark?.attributes?.name || Translator.trans('views')
+
+  emit('update-button-text', buttonText)
 }
 
 onMounted(async (): Promise<void> => {
