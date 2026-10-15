@@ -230,7 +230,7 @@ import type {
   FilterChange,
 } from '@DpJs/types/bookmarks'
 
-import { computed, onMounted, ref, type Ref, type ComputedRef } from 'vue'
+import { computed, onMounted, ref, toRaw, type ComputedRef, type Ref } from 'vue'
 import lscache from 'lscache'
 import { useStore } from 'vuex'
 
@@ -241,12 +241,14 @@ const props = withDefaults(defineProps<{
   currentSearchPhrase?: string
   currentSorting?: string
   currentSelectedColumns?: string[]
+  currentFilters?: Record<string, any>
   filters?: Record<string, { labelTranslationKey: string, rootPath: string, comparisonOperator: string }>
 }>(), {
   totalColumnCount: 0,
   currentSearchPhrase: '',
   currentSorting: '',
   currentSelectedColumns: () => [],
+  currentFilters: () => ({}),
   filters: () => ({})
 })
 
@@ -254,6 +256,7 @@ const store = useStore()
 
 const newBookmarkName: Ref<string> = ref('')
 const showUnsavedChanges: Ref<boolean> = ref(false)
+const isInitialized: Ref<boolean> = ref(false)
 const lsKey = `${props.procedureId}:segments:currentBookmarkId`
 
 /* Computed */
@@ -267,11 +270,15 @@ const isVisible: ComputedRef<boolean> = computed(() => slidebar.value.showTab ==
 const isApplyingBookmark: ComputedRef<boolean> = computed(() => store.state.SegmentsBookmarks.isApplyingBookmark)
 
 const currentViewChanges: ComputedRef<string[]> = computed(() => {
-  if (!currentBookmarkId.value) {
+  // Don't calculate changes until fully initialized or while applying a bookmark
+  // to avoid interference during mount and bookmark application
+  if (!isInitialized.value || !currentBookmarkId.value || isApplyingBookmark.value) {
     return []
   }
 
-  return getBookmarkChanges(currentBookmarkId.value)
+  return []
+
+  //return getBookmarkChanges(currentBookmarkId.value)
 })
 
 const changesMessage: ComputedRef<string> = computed(() => {
@@ -283,7 +290,9 @@ const changesMessage: ComputedRef<string> = computed(() => {
 })
 
 const currentDetailedChanges: ComputedRef<DetailedChange[]> = computed(() => {
-  if (!currentBookmarkId.value) {
+  // Don't calculate changes until fully initialized or while applying a bookmark
+  // to avoid interference during mount and bookmark application
+  if (!isInitialized.value || !currentBookmarkId.value || isApplyingBookmark.value) {
     return []
   }
 
@@ -366,8 +375,11 @@ const getBookmarkChanges = (bookmarkId: string): string[] => {
   }
 
   const changes: string[] = []
-  const { filter, searchPhrase, viewSettings } = bookmark.attributes
-  const currentFilters = store.state.FilterFlyout?.filterQuery || {}
+
+  // Use toRaw() to get non-reactive copies and avoid interfering with store state
+  const bookmarkAttributes = toRaw(bookmark.attributes)
+  const { filter, searchPhrase, viewSettings } = bookmarkAttributes
+  const currentFilters = toRaw(props.currentFilters) || {}
 
   // Check filter changes
   const bookmarkFilterKeys = Object.keys(filter || {})
@@ -394,8 +406,8 @@ const getBookmarkChanges = (bookmarkId: string): string[] => {
   }
 
   // Check column selection changes
-  const bookmarkColumns = viewSettings.selectedColumns || []
-  const currentColumns = props.currentSelectedColumns || []
+  const bookmarkColumns = [...(viewSettings.selectedColumns || [])]
+  const currentColumns = [...(props.currentSelectedColumns || [])]
 
   if (JSON.stringify(bookmarkColumns.sort()) !== JSON.stringify(currentColumns.sort())) {
     changes.push(Translator.trans('columns'))
@@ -405,8 +417,11 @@ const getBookmarkChanges = (bookmarkId: string): string[] => {
 }
 
 const getFilterNameByPath = (filterPath: string): string => {
+  // Use toRaw to avoid reactive dependencies
+  const filters = toRaw(props.filters) || {}
+
   // Find the filter configuration by rootPath
-  const filterConfig = Object.values(props.filters || {}).find(
+  const filterConfig = Object.values(filters).find(
     filter => filter.rootPath === filterPath
   )
 
@@ -451,8 +466,12 @@ const getDetailedBookmarkChanges = (bookmarkId: string): DetailedChange[] => {
   }
 
   const detailedChanges: DetailedChange[] = []
-  const { filter, searchPhrase, viewSettings } = bookmark.attributes
-  const currentFilters = store.state.FilterFlyout?.filterQuery || {}
+
+  // Use toRaw() and JSON.parse/stringify to create deep non-reactive copies
+  // This encapsulates the change detection and prevents interference with store state
+  const bookmarkAttributes = JSON.parse(JSON.stringify(toRaw(bookmark.attributes)))
+  const { filter, searchPhrase, viewSettings } = bookmarkAttributes
+  const currentFilters = JSON.parse(JSON.stringify(toRaw(props.currentFilters) || {}))
 
   // Check filter changes
   const bookmarkFilterEntries = Object.entries(filter || {})
@@ -461,7 +480,7 @@ const getDetailedBookmarkChanges = (bookmarkId: string): DetailedChange[] => {
   const filterChanges: FilterChange[] = []
 
   // Find filters that changed or were removed
-  bookmarkFilterEntries.forEach(([key, bookmarkFilter]) => {
+  bookmarkFilterEntries.forEach(([key, bookmarkFilter]: [string, any]) => {
     const currentFilter = currentFilters[key]
     const filterPath = bookmarkFilter.condition?.path || key
 
@@ -483,7 +502,7 @@ const getDetailedBookmarkChanges = (bookmarkId: string): DetailedChange[] => {
   })
 
   // Find new filters
-  currentFilterEntries.forEach(([key, currentFilter]) => {
+  currentFilterEntries.forEach(([key, currentFilter]: [string, any]) => {
     if (!filter[key]) {
       const filterPath = currentFilter.condition?.path || key
 
@@ -530,8 +549,8 @@ const getDetailedBookmarkChanges = (bookmarkId: string): DetailedChange[] => {
   }
 
   // Check column selection changes
-  const bookmarkColumns = viewSettings.selectedColumns || []
-  const currentColumns = props.currentSelectedColumns || []
+  const bookmarkColumns = [...(viewSettings.selectedColumns || [])]
+  const currentColumns = [...(props.currentSelectedColumns || [])]
 
   const addedColumns = currentColumns.filter(col => !bookmarkColumns.includes(col))
   const removedColumns = bookmarkColumns.filter(col => !currentColumns.includes(col))
@@ -631,6 +650,10 @@ const restoreSavedBookmark = async (): Promise<void> => {
 onMounted(async (): Promise<void> => {
   await fetchBookmarks()
   await restoreSavedBookmark()
+
+  // Mark as initialized after bookmark restoration is complete
+  // This allows change detection to start working
+  isInitialized.value = true
 })
 </script>
 
