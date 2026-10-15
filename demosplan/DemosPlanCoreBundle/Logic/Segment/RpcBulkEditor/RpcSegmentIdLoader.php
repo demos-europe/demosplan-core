@@ -157,7 +157,7 @@ class RpcSegmentIdLoader implements RpcMethodSolverInterface
      * equality conditions (including their group wrappers) from the parsed conditions.
      *
      * @param array<non-empty-string, mixed> $drupalFilter
-     * @param list<PathsBasedInterface>     $conditions
+     * @param list<PathsBasedInterface>      $conditions
      *
      * @return array{0: list<PathsBasedInterface>, 1: list<PathsBasedInterface>}
      */
