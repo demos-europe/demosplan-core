@@ -92,7 +92,7 @@ All rights reserved
               />
             </ul>
             <ul
-              v-for="(group, index) in getSearchedGroupedOptions(category)"
+              v-for="group in getSearchedGroupedOptions(category)"
               :key="`list_${group.id}`"
               class="m-0 p-0 pt-3 pb-1 list-none border-t border-neutral"
             >
@@ -305,9 +305,12 @@ export default {
     // *** CUSTOM FIELDS ***
     const getCustomFieldCategoryId = (field) => `${CUSTOM_FIELD_GROUP_PREFIX}${field.id}`
 
+    // If reset happens before the custom fields are loaded, prevent their checkboxes from restoring the set selection.
+    let isResetDone = false
+
     // Option ids of a custom field from the filters in the URL, so the matching checkboxes start out selected
     const getInitialCustomFieldOptionIds = (field) => {
-      if (Array.isArray(props.initialFilter)) {
+      if (isResetDone || Array.isArray(props.initialFilter)) {
         return []
       }
 
@@ -513,7 +516,10 @@ export default {
 
     // Resets every category's selection and notifies the parent, mirroring FilterFlyout's resetAndApply.
     const resetAllFilters = () => {
+      isResetDone = true
       categories.forEach((category) => resetCategory(category))
+      // Also clears conditions of categories not loaded yet (e.g. custom fields from the URL)
+      updateFilters({})
       commitFilterQuery()
       emit('filterApply', {})
     }
