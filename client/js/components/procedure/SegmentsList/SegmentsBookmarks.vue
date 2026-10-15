@@ -398,51 +398,7 @@ const createNewBookmark = async (): Promise<void> => {
   }
 }
 
-const getBookmarkChanges = (bookmarkId: string): string[] => {
-  const bookmark = bookmarks.value.find(({ id }) => id === bookmarkId)
-
-  if (!bookmark) {
-    return []
-  }
-
-  const changes: string[] = []
-  const { filter, searchPhrase, viewSettings } = bookmark.attributes
-  const currentFilters = store.state.FilterFlyout?.filterQuery || {}
-
-  // Check filter changes
-  const bookmarkFilterKeys = Object.keys(filter || {})
-  const currentFilterKeys = Object.keys(currentFilters)
-
-  if (JSON.stringify(bookmarkFilterKeys.sort()) !== JSON.stringify(currentFilterKeys.sort())) {
-    changes.push(Translator.trans('filter'))
-  }
-
-  // Check search phrase changes
-  const bookmarkSearch = searchPhrase?.trim() || ''
-  const currentSearch = props.currentSearchPhrase?.trim() || ''
-
-  if (bookmarkSearch !== currentSearch) {
-    changes.push(Translator.trans('search'))
-  }
-
-  // Check sorting changes
-  const bookmarkSorting = viewSettings.sorting || ''
-  const currentSortingValue = props.currentSorting || ''
-
-  if (bookmarkSorting !== currentSortingValue) {
-    changes.push(Translator.trans('sorting'))
-  }
-
-  // Check column selection changes
-  const bookmarkColumns = viewSettings.selectedColumns || []
-  const currentColumns = props.currentSelectedColumns || []
-
-  if (JSON.stringify(bookmarkColumns.sort()) !== JSON.stringify(currentColumns.sort())) {
-    changes.push(Translator.trans('columns'))
-  }
-
-  return changes
-}
+const getBookmarkChanges = (bookmarkId: string): string[] => getDetailedBookmarkChanges(bookmarkId).map(({ label }) => label)
 
 const getBookmarkSummary = (bookmarkId: string): string => {
   const bookmark = bookmarks.value.find(({ id }) => id === bookmarkId)
@@ -473,7 +429,6 @@ const getBookmarkSummary = (bookmarkId: string): string => {
 }
 
 const getFilterNameByPath = (filterPath: string): string => {
-  // Find the filter configuration by rootPath
   const filterConfig = Object.values(props.filters || {}).find(
     filter => filter.rootPath === filterPath,
   )
@@ -482,7 +437,6 @@ const getFilterNameByPath = (filterPath: string): string => {
     return Translator.trans(filterConfig.labelTranslationKey)
   }
 
-  // Fallback to translation key if not found
   return Translator.trans(filterPath)
 }
 
@@ -491,40 +445,28 @@ const getFilterNameByPath = (filterPath: string): string => {
  * First checks the label cache, then searches the store's options.
  */
 const getFilterValueLabel = (valueId: string): string => {
-  // Check the cache first (includes 'unassigned' and all previously seen labels)
-  if (filterLabelCache.value[valueId]) {
-    return filterLabelCache.value[valueId]
+  const cachedLabel = filterLabelCache.value[valueId]
+
+  if (cachedLabel !== undefined) {
+    return cachedLabel
   }
 
-  const allGroupedOptions = store.state.FilterFlyout?.groupedOptions || {}
+  const { groupedOptions = {}, ungroupedOptions = {} } = store.state.FilterFlyout || {}
 
-  for (const groups of Object.values(allGroupedOptions)) {
-    for (const group of (groups as FilterGroup[])) {
-      const option = group.options?.find(opt => opt.id === valueId)
+  const grouped = Object.values(groupedOptions)
+    .flatMap(groups => (groups as FilterGroup[]).flatMap(group => group.options || []))
 
-      if (option) {
-        // Cache it for future lookups
-        filterLabelCache.value[valueId] = option.label
+  const ungrouped = Object.values(ungroupedOptions)
+    .flatMap(options => options as FilterOption[])
 
-        return option.label
-      }
-    }
+  const label = [...grouped, ...ungrouped]
+    .find(option => option.id === valueId)?.label
+
+  if (label !== undefined) {
+    filterLabelCache.value[valueId] = label
   }
 
-  const allUngroupedOptions = store.state.FilterFlyout?.ungroupedOptions || {}
-
-  for (const options of Object.values(allUngroupedOptions)) {
-    const option = (options as FilterOption[]).find(opt => opt.id === valueId)
-
-    if (option) {
-      // Cache it for future lookups
-      filterLabelCache.value[valueId] = option.label
-
-      return option.label
-    }
-  }
-
-  return valueId
+  return label ?? valueId
 }
 
 const extractFilterValues = (filters: Record<string, any> = {}) => {
@@ -565,10 +507,7 @@ const getDetailedColumnChanges = (
   }
 }
 
-const getDetailedFilterChanges = (
-  bookmarkFilters: Record<string, any>,
-  currentFilters: Record<string, any>,
-): DetailedChange | null => {
+const getDetailedFilterChanges = (bookmarkFilters: Record<string, any>, currentFilters: Record<string, any>): DetailedChange | null => {
   const {
     filterValues: bookmarkFilterValues,
     filterPaths: bookmarkFilterPaths,
@@ -605,14 +544,13 @@ const getDetailedFilterChanges = (
   }
 }
 
-const getDetailedSearchChanges = (
-  bookmarkSearch: string = '',
-  currentSearch: string = '',
-): DetailedChange | null => {
+const getDetailedSearchChanges = (bookmarkSearch: string = '', currentSearch: string = ''): DetailedChange | null => {
   const oldValue = bookmarkSearch.trim()
   const newValue = currentSearch.trim()
 
-  if (oldValue === newValue) return null
+  if (oldValue === newValue) {
+    return null
+  }
 
   return {
     type: 'search',
@@ -622,10 +560,7 @@ const getDetailedSearchChanges = (
   }
 }
 
-const getDetailedSortingChanges = (
-  bookmarkSorting: string = '',
-  currentSorting: string = '',
-): DetailedChange | null => {
+const getDetailedSortingChanges = (bookmarkSorting: string = '', currentSorting: string = ''): DetailedChange | null => {
   if (bookmarkSorting === currentSorting) return null
 
   return {
@@ -652,12 +587,7 @@ const getDetailedBookmarkChanges = (bookmarkId: string): DetailedChange[] => {
   ].filter((change): change is DetailedChange => change !== null)
 }
 
-const getFilterChanges = (
-  sourceValues: Set<string>,
-  targetValues: Set<string>,
-  filterPaths: Record<string, string>,
-  action: 'added' | 'removed',
-): IndividualFilterChange[] => {
+const getFilterChanges = (sourceValues: Set<string>, targetValues: Set<string>, filterPaths: Record<string, string>, action: 'added' | 'removed'): IndividualFilterChange[] => {
   return [...sourceValues]
     .filter(valueKey => !targetValues.has(valueKey))
     .map(valueKey => ({
