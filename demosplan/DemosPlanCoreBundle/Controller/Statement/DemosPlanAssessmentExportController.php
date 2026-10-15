@@ -17,16 +17,14 @@ use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\AssessmentTableExportJob;
 use demosplan\DemosPlanCoreBundle\Exception\AssessmentTableZipExportException;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidPostParameterTypeException;
 use demosplan\DemosPlanCoreBundle\Exception\MissingPostParameterException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableServiceOutput;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\AssessmentTableViewMode;
-use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobDownloadResponseFactory;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobFingerprint;
-use demosplan\DemosPlanCoreBundle\Logic\Export\RunningExportJobLookup;
+use demosplan\DemosPlanCoreBundle\Logic\Export\ProcedureExportJobService;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentExportOptions;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentHandler;
@@ -37,14 +35,11 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Message\ExportAssessmentTableMessage;
 use demosplan\DemosPlanCoreBundle\ValueObject\ToBy;
-use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Psr\Log\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 use function array_key_exists;
@@ -130,10 +125,8 @@ class DemosPlanAssessmentExportController extends BaseController
         Request $request,
         CurrentUserService $currentUserService,
         CustomerService $customerService,
-        EntityManagerInterface $entityManager,
-        MessageBusInterface $messageBus,
         PermissionsInterface $permissions,
-        RunningExportJobLookup $runningExportJobLookup,
+        ProcedureExportJobService $exportJobService,
         string $procedureId,
         bool $original = false,
     ): Response {
@@ -146,42 +139,22 @@ class DemosPlanAssessmentExportController extends BaseController
         $hashList = $session->has('hashList') ? $session->get('hashList') : [];
 
         $userId = $currentUserService->getUser()->getId();
-        $parametersHash = ExportJobFingerprint::forAssessmentTable($exportParameters, $hashList);
-
-        // The export gives no progress feedback, so a slow one invites re-triggering. Hand back the
-        // job that is already running for this exact request instead of queueing a duplicate on the
-        // serial worker; the client then polls the running job rather than orphaning it.
-        $running = $runningExportJobLookup->find(
-            AssessmentTableExportJob::class,
-            [
-                'userId'         => $userId,
-                'procedureId'    => $procedureId,
-                'parametersHash' => $parametersHash,
-            ],
-            [AssessmentTableExportJob::STATUS_PENDING, AssessmentTableExportJob::STATUS_PROCESSING]
-        );
-        if ($running instanceof AssessmentTableExportJob) {
-            return new JsonResponse(['jobId' => $running->getId()]);
-        }
-
-        $job = new AssessmentTableExportJob();
-        $job->setProcedureId($procedureId);
-        $job->setUserId($userId);
-        $job->setParametersHash($parametersHash);
-        $entityManager->persist($job);
-        $entityManager->flush();
-
-        $messageBus->dispatch(new ExportAssessmentTableMessage(
-            $job->getId(),
-            $exportFormat,
-            $exportParameters,
+        $jobId = $exportJobService->start(
             $userId,
             $procedureId,
-            $customerService->getCurrentCustomer()->getId(),
-            $hashList
-        ));
+            ExportJobFingerprint::forAssessmentTable($exportParameters, $hashList),
+            static fn (string $jobId): ExportAssessmentTableMessage => new ExportAssessmentTableMessage(
+                $jobId,
+                $exportFormat,
+                $exportParameters,
+                $userId,
+                $procedureId,
+                $customerService->getCurrentCustomer()->getId(),
+                $hashList
+            )
+        );
 
-        return new JsonResponse(['jobId' => $job->getId()]);
+        return new JsonResponse(['jobId' => $jobId]);
     }
 
     /**
@@ -195,22 +168,11 @@ class DemosPlanAssessmentExportController extends BaseController
         methods: ['GET']
     )]
     public function exportStatus(
-        CurrentUserService $currentUserService,
-        EntityManagerInterface $entityManager,
+        ProcedureExportJobService $exportJobService,
         string $procedureId,
         string $jobId,
     ): Response {
-        $job = $entityManager->find(AssessmentTableExportJob::class, $jobId);
-        if (!$job instanceof AssessmentTableExportJob
-            || $job->getUserId() !== $currentUserService->getUser()->getId()
-            || $job->getProcedureId() !== $procedureId) {
-            return new JsonResponse(['status' => 'not_found'], Response::HTTP_NOT_FOUND);
-        }
-
-        return new JsonResponse([
-            'status' => $job->getStatus(),
-            'error'  => $job->getErrorMessage(),
-        ]);
+        return $exportJobService->createStatusResponse($procedureId, $jobId);
     }
 
     /**
@@ -224,21 +186,11 @@ class DemosPlanAssessmentExportController extends BaseController
         methods: ['GET']
     )]
     public function exportDownload(
-        CurrentUserService $currentUserService,
-        EntityManagerInterface $entityManager,
-        ExportJobDownloadResponseFactory $downloadResponseFactory,
+        ProcedureExportJobService $exportJobService,
         string $procedureId,
         string $jobId,
     ): Response {
-        $job = $entityManager->find(AssessmentTableExportJob::class, $jobId);
-        if (!$job instanceof AssessmentTableExportJob
-            || $job->getUserId() !== $currentUserService->getUser()->getId()
-            || $job->getProcedureId() !== $procedureId
-            || AssessmentTableExportJob::STATUS_COMPLETED !== $job->getStatus()) {
-            throw new NotFoundHttpException();
-        }
-
-        return $downloadResponseFactory->createForJob($job) ?? throw new NotFoundHttpException();
+        return $exportJobService->createDownloadResponse($procedureId, $jobId);
     }
 
     /**

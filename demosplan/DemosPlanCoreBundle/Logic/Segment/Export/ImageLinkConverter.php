@@ -20,8 +20,9 @@ use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ConvertedSegment;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\ImageReference;
 use Exception;
 use Psr\Log\LoggerInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
-final class ImageLinkConverter
+final class ImageLinkConverter implements ResetInterface
 {
     public const IMAGE_REFERENCE_RECOMMENDATION_SUFFIX = '_Darstellung_Erw_';
     public const IMAGE_REFERENCE_SEGMENT_TEXT_SUFFIX = '_Darstellung_Stell_';
@@ -38,7 +39,18 @@ final class ImageLinkConverter
     private array $currentImagesFromRecommendationText = [];
     private int $imageCounter = 1;
 
+    /**
+     * Maps file hash to the local path it was staged (and optimized) to, so an image
+     * referenced multiple times in one export is staged and optimized only once.
+     * Cleared only by {@see reset()}, not by {@see resetImages()}, because the
+     * staged files are still needed by PhpWord until the document is saved.
+     *
+     * @var array<string, string>
+     */
+    private array $stagedImagePaths = [];
+
     public function __construct(private readonly HtmlHelper $htmlHelper, private readonly FileService $fileService, private readonly EditorService $editorService,
+        private readonly ExportImageOptimizer $imageOptimizer,
         private readonly LoggerInterface $logger)
     {
     }
@@ -144,8 +156,16 @@ final class ImageLinkConverter
 
     private function getAbsoluteImagePath(string $hash): string
     {
+        if (isset($this->stagedImagePaths[$hash])) {
+            return $this->stagedImagePaths[$hash];
+        }
+
         try {
-            return $this->fileService->ensureLocalFileFromHash($hash);
+            $stagedPath = $this->fileService->ensureLocalFileFromHash($hash);
+            $path = $this->imageOptimizer->optimize($stagedPath);
+            $this->stagedImagePaths[$hash] = $path;
+
+            return $path;
         } catch (Exception $e) {
             // Log the specific error to help debug file storage issues
             $this->logger->error('Failed to retrieve file from storage', [
@@ -155,8 +175,25 @@ final class ImageLinkConverter
             ]);
 
             // The src attribute probably didn't contain a hash --> assume it is a valid path instead.
+            // Not a staged temp copy, so it must never be cached for deletion.
             return trim($hash);
         }
+    }
+
+    /**
+     * Removes every image staged locally by {@see getAbsoluteImagePath()} for this export run,
+     * including the optimized copy and the per-hash directory {@see FileService::ensureLocalFile()}
+     * created. Safe to call multiple times.
+     *
+     * Invoked by Symfony Messenger after each handled message (`kernel.reset`), so the cache
+     * never hands the next message paths that have already been deleted.
+     */
+    public function reset(): void
+    {
+        foreach ($this->stagedImagePaths as $path) {
+            $this->fileService->deleteLocalFile(dirname($path));
+        }
+        $this->stagedImagePaths = [];
     }
 
     private function resetCurrentImagesFromRecommendationText(): void
@@ -171,7 +208,6 @@ final class ImageLinkConverter
 
     public function resetImages(): void
     {
-        // temporary images are needed during export afterwards, they cannot be removed
         $this->images = [];
         $this->imageCounter = 1;
     }

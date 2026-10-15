@@ -300,9 +300,9 @@
         "website": "https://github.com/johvin/eslint-import-resolver-alias"
     },
     {
-        "package": "eslint-plugin-import",
+        "package": "eslint-plugin-import-x",
         "license": "MIT",
-        "website": "https://github.com/import-js/eslint-plugin-import"
+        "website": "https://github.com/un-ts/eslint-plugin-import-x"
     },
     {
         "package": "eslint-plugin-jquery",

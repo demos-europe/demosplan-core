@@ -23,15 +23,7 @@
       # target<String>
       # >>> Has to match the Layername of the Layer wich includes the Vector-Feature this Component should be able to manipulate
       #
-      # Emits:
-      # > 'setDrawingActive'
-      # >>> fired after clicking the Control
-      # >>> Payload: [name]|''
-      #
-      # On:
-      # > 'setDrawingActive'
-      # >>> updates the active-state of the control and the featureLayer (Einzeichnungs-Ebene)
-      # >>> checks against the provided name
+      # Only one draw/edit tool per map is active at a time, tracked by name in olMapState.activeTool
   -->
   <usage variant="With Control rendered">
     <dp-ol-map-edit-feature
@@ -140,10 +132,6 @@ export default {
     },
   },
 
-  emits: [
-    'setDrawingActive',
-  ],
-
   data () {
     return {
       selectInteraction: new Select({
@@ -162,7 +150,6 @@ export default {
         },
       }),
       modifyInteraction: null,
-      currentlyActive: this.initActive,
       selectedFeatureId: [],
       layerNameOfSelectedFeature: '',
       disabled: true,
@@ -172,6 +159,12 @@ export default {
   },
 
   computed: {
+    currentlyActive () {
+      const { activeTool } = this.olMapState
+
+      return activeTool === this.name || (this.defaultControl && activeTool === '')
+    },
+
     tooltipClass () {
       return this.zIndexUltimate ? 'z-ultimate' : ''
     },
@@ -181,23 +174,27 @@ export default {
     },
   },
 
+  watch: {
+    currentlyActive (isActive) {
+      this.setInteractions(isActive)
+    },
+  },
+
   methods: {
-    activateTool (name) {
-      if (this.map === null || this.renderControl === false) {
+    setInteractions (isActive) {
+      if (this.map === null) {
         return
       }
 
-      if ((!this.currentlyActive && name === this.name) || (this.defaultControl && name === '')) {
+      if (isActive) {
         this.selectInteraction.getFeatures().on('add', this.addInteraction)
         this.selectInteraction.getFeatures().on('remove', this.removeInteraction)
 
         this.map.addInteraction(this.selectInteraction)
         this.map.addInteraction(this.modifyInteraction)
-        this.currentlyActive = true
       } else {
         this.map.removeInteraction(this.selectInteraction)
         this.map.removeInteraction(this.modifyInteraction)
-        this.currentlyActive = false
       }
     },
 
@@ -244,11 +241,7 @@ export default {
     },
 
     toggle () {
-      if (this.currentlyActive === false) {
-        this.$root.$emit('setDrawingActive', this.name)
-      } else {
-        this.$root.$emit('setDrawingActive', '')
-      }
+      this.olMapState.activeTool = this.currentlyActive ? '' : this.name
     },
 
     removeFeature () {
@@ -294,7 +287,10 @@ export default {
 
   mounted () {
     this.modifyInteraction = new Modify({ features: this.selectInteraction.getFeatures() })
-    this.$root.$on('setDrawingActive', name => this.activateTool(name))
+
+    if (this.initActive) {
+      this.olMapState.activeTool = this.name
+    }
 
     /**
      * This logic should be implemented within demosplan-ui tooltip directive,
