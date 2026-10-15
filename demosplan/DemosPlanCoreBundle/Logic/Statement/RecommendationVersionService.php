@@ -78,6 +78,33 @@ class RecommendationVersionService
     }
 
     /**
+     * DPLAN-18271, Clarified Decision 10: a version entry is desired whenever the tag
+     * form actually changed — including unlink, where the substituted (rendered) text
+     * stays byte-identical before and after (the boilerplate's live content, now frozen
+     * in). {@see recordVersion()}'s own equality check compares whatever it is given, so
+     * calling it with two substituted values that happen to coincide would wrongly skip
+     * recording — this method exists so Hook A can decide change on the raw/tag form
+     * while still storing a substituted snapshot.
+     *
+     * @return RecommendationVersion|null the newly created version entity, or null if
+     *                                    skipped (no change, or first recommendation being set)
+     */
+    public function recordVersionIfTagFormChanged(
+        Statement $statement,
+        string $oldRawRecommendation,
+        string $newRawRecommendation,
+        string $oldSubstitutedRecommendation,
+    ): ?RecommendationVersion {
+        if ($oldRawRecommendation === $newRawRecommendation) {
+            return null;
+        }
+
+        $latestVersionNumber = $this->repository->getLatestVersionNumber($statement->getId());
+
+        return $this->createVersionIfNeeded($statement, $oldSubstitutedRecommendation, $latestVersionNumber);
+    }
+
+    /**
      * Batch-aware version of {@see recordVersion()} for bulk edits.
      *
      * Pre-fetches all latest version numbers in a single query to avoid N+1.
@@ -105,6 +132,34 @@ class RecommendationVersionService
             $latestVersionNumber = $versionNumbers[$segment->getId()] ?? 0;
             $this->createVersionIfNeeded($segment, $oldRecommendation, $latestVersionNumber);
         }
+    }
+
+    /**
+     * Computes the current recommendation version number for each segment, batched to avoid
+     * N+1 queries and without loading recommendationText. Mirrors the "virtual version" rule
+     * described in the class docblock: no current version (null) if the segment's live
+     * recommendation text is empty, otherwise one more than the highest stored version number.
+     *
+     * @param Segment[] $segments
+     *
+     * @return array<string, int|null> segment/statement id => current version number
+     */
+    public function getCurrentVersionNumbersForSegments(array $segments): array
+    {
+        $statementIds = array_map(
+            static fn (Segment $segment): string => $segment->getId(),
+            $segments
+        );
+        $maxVersionNumbers = $this->repository->getVersionCountsForStatementIds($statementIds);
+
+        $result = [];
+        foreach ($segments as $segment) {
+            $result[$segment->getId()] = '' === $segment->getRecommendation()
+                ? null
+                : ($maxVersionNumbers[$segment->getId()] ?? 0) + 1;
+        }
+
+        return $result;
     }
 
     private function createVersionIfNeeded(Statement $statement, string $oldRecommendation, int $latestVersionNumber): ?RecommendationVersion

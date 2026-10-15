@@ -11,6 +11,7 @@
 namespace Tests\Core\User\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagFactory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\ReservedSystemNameException;
@@ -56,6 +57,18 @@ class UserHandlerTest extends FunctionalTestCase
     public function testWipeUser()
     {
         $this->wipeUserDataFields();
+    }
+
+    public function testWipeUserClearsTagDefaultAssignee(): void
+    {
+        $tag = TagFactory::createOne(['defaultAssignee' => $this->testUser]);
+        $otherTag = TagFactory::createOne();
+
+        $this->sut->wipeUserData($this->testUser->getId());
+
+        $this->getEntityManager()->clear();
+        static::assertNull(TagFactory::find($tag->getId())->getDefaultAssignee());
+        static::assertNotNull(TagFactory::find($otherTag->getId()));
     }
 
     /**

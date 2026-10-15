@@ -66,7 +66,6 @@ const LayersStore = {
     removeElement (state, element) {
       const included = state.apiData.included
       let relationships
-      let indexRelationships = []
 
       // Get the index to delete later on
       const indexIncluded = included.findIndex(elem => elem.id === element.id)
@@ -82,7 +81,7 @@ const LayersStore = {
       }
 
       // Get index of data in relationships based on above switch
-      indexRelationships = relationships.findIndex(elem => elem.id === element.id)
+      const indexRelationships = relationships.findIndex(elem => elem.id === element.id)
 
       // Delete data
       included.splice(indexIncluded, 1)

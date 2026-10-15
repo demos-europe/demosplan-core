@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Statement\Functional;
 
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\BoilerplateFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\RecommendationVersionFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\RecommendationVersion;
@@ -150,5 +151,29 @@ class RecommendationVersionServiceTest extends FunctionalTestCase
         static::assertCount(1, $storedVersions);
         static::assertSame(self::OLD_TEXT, $storedVersions[0]->getRecommendationText());
         static::assertSame(1, $storedVersions[0]->getVersionNumber());
+    }
+
+    public function testBulkEditVersionRecordingSubstitutesTagInOldValueSnapshot(): void
+    {
+        // DPLAN-18271 Hook B (SegmentService::editSegmentRecommendations() bypasses
+        // Statement::setRecommendation() via raw DQL for performance): the version
+        // snapshot must never contain a tag, same guarantee as Hook A. No extra
+        // substitution code is needed here — recordVersionsForBulkEdit() reads the old
+        // value via getRecommendation(), which already substitutes as of Step 2 — this
+        // test proves that end to end rather than trusting the code trace.
+        $boilerplate = BoilerplateFactory::createOne(['text' => 'Aktueller Textbausteininhalt'])->_real();
+        $segment = SegmentFactory::createOne([
+            'procedure'      => $boilerplate->getProcedure(),
+            'recommendation' => "Hallo, <dp-boilerplate boilerplate-id=\"{$boilerplate->getId()}\"></dp-boilerplate> mit Grüßen",
+        ])->_real();
+        self::getContainer()->get('doctrine.orm.entity_manager')->refresh($segment);
+
+        $this->sut->recordVersionsForBulkEdit([$segment], ' Angehängter Text', true);
+        self::getContainer()->get('doctrine.orm.entity_manager')->flush();
+
+        $storedVersions = $this->repository->findByStatementId($segment->getId());
+        static::assertCount(1, $storedVersions);
+        static::assertSame('Hallo, Aktueller Textbausteininhalt mit Grüßen', $storedVersions[0]->getRecommendationText());
+        static::assertStringNotContainsString('dp-boilerplate', $storedVersions[0]->getRecommendationText());
     }
 }

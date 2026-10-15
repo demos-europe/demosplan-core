@@ -42,6 +42,7 @@
 
 <template>
   <dp-edit-field
+    ref="editField"
     :editable="editable"
     :label="label"
     :label-grid-cols="labelGridCols"
@@ -170,11 +171,12 @@ export default {
       return emitData
     },
 
-    reset () {
-      const editFieldComponent = this.$children.find(child => child.$options.name === 'DpEditField')
+    finishEditing () {
+      this.$refs.editField?.finishEditing()
+    },
 
-      editFieldComponent.$data.loading = false
-      editFieldComponent.$data.editingEnabled = false
+    reset () {
+      this.finishEditing()
       this.$emit('toggleEditing', false)
       this.selected = this.selectedBefore
     },
