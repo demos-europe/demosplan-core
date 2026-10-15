@@ -211,15 +211,10 @@
   "scripts": {
     "pre-autoload-dump": "Aws\\Script\\Composer\\Composer::removeUnusedServices",
     "post-install-cmd": [
-      "@remove-vendor-docs",
-      "@install-dev-assets"
+      "@remove-vendor-docs"
     ],
     "post-update-cmd": [
-      "@remove-vendor-docs",
-      "@install-dev-assets"
-    ],
-    "install-dev-assets": [
-      "[ \"$COMPOSER_DEV_MODE\" = \"1\" ] && [ -f bin/console ] && php bin/console assets:install public --symlink --relative || true"
+      "@remove-vendor-docs"
     ],
     "remove-vendor-docs": [
       "echo 'Removing CC-BY-NC-ND licensed documentation from vendor...'",
