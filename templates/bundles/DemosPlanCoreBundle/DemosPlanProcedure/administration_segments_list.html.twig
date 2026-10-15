@@ -2,10 +2,19 @@
 {% set procedure = procedureId %}
 
 {% block component_part %}
-    {% include '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
+    {% embed '@DemosPlanCore/DemosPlanCore/includes/base_pageheader.html.twig' with {
         heading: 'segments'|trans,
         flush: true
     } %}
+        {% block pageheader_actions %}
+            {% if hasPermission('feature_procedure_user_filter_sets') %}
+                <segments-bookmarks-button
+                    ref="bookmarksButton"
+                    @click="$refs.segmentsList.openBookmarks()">
+                </segments-bookmarks-button>
+            {% endif %}
+        {% endblock %}
+    {% endembed %}
 
     {# Version history, send-via-mail and filter panels, driven by the SegmentSlidebar store. Each panel toggles its own visibility. #}
     <segment-slidebar>
@@ -19,8 +28,19 @@
             :filters="JSON.parse('{{ filterNames|json_encode|e('js', 'utf-8') }}')"
             :initial-filter="JSON.parse('{{ segmentListQuery.filter|json_encode|e('js', 'utf-8') }}')"
             @filter-apply="$refs.segmentsList.sendFilterQuery($event)"
-            @filter-options:request="$refs.segmentsList.sendFilterOptionsRequest($event)">
-        </segments-list-filter>
+            @filter-options:request="$refs.segmentsList.sendFilterOptionsRequest($event)"
+        ></segments-list-filter>
+        {# Custom side panel content #}
+
+        {% if hasPermission('feature_procedure_user_filter_sets') %}
+            <segments-bookmarks
+                procedure-id="{{ procedure }}"
+                :total-column-count="$refs.segmentsList?.selectableColumns?.length"
+                @apply-bookmark="$refs.segmentsList.applyBookmarkSettings($event)"
+                @reset-view="$refs.segmentsList.applyBookmarkSettings(null)"
+                @update-button-text="$refs.bookmarksButton.updateButtonText($event)">
+            </segments-bookmarks>
+        {% endif %}
     </segment-slidebar>
 
     <segments-list
@@ -33,7 +53,7 @@
         initial-search-term="{{ segmentListQuery.searchPhrase|default }}"
         {# Empty when the hash carries no view settings, in which case it arrives as [] rather than {} #}
         :initial-view-settings="JSON.parse('{{ segmentListQuery.viewSettings|json_encode|e('js', 'utf-8') }}')"
-        @reset-filters="$refs.segmentsListFilter.resetAllFilters()">
+        @reset-filters="$refs.segmentsListFilter.resetAllFilters(); $refs.bookmarksButton.updateButtonText('{{ 'views'|trans }}')"
     </segments-list>
 {% endblock %}
 
