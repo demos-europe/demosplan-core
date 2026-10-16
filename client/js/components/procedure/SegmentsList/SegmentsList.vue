@@ -1209,50 +1209,24 @@ export default {
     },
 
     /*
-     * Mirrors the filter/search/sort construction in applyQuery() so the export always contains
-     * exactly the segments currently shown in the list - no more (StatementSegmentResourceType's
-     * access conditions alone would also allow segments from procedures coupled via
-     * getAllowedSegmentAccessProcedures(), which sameProcedure excludes here just like it does
-     * for the list itself). columns mirrors orderedHeaderFields, same as buildClipboardText(): the
-     * user's current column selection in their current drag&drop order, externId always first.
+     * Sends the list's filter and search parameters to the export, so it contains exactly the
+     * listed segments. The procedure comes from the route, so no sameProcedure filter is needed.
      */
     handleExportSegments ({ type }) {
       const selectedSegmentIds = this.resolveSelectedSegmentIds()
 
-      // CF filters are not supported by the export yet
-      const exportFilterQuery = Object.fromEntries(
-        Object.entries(this.getLastAppliedFilterQuery).filter(
-          ([, condition]) => condition.condition?.memberOf?.startsWith(CUSTOM_FIELD_GROUP_PREFIX) !== true,
-        ),
-      )
-
       const filter = {
-        ...exportFilterQuery,
-        sameProcedure: {
-          condition: {
-            path: 'parentStatement.procedure.id',
-            value: this.procedureId,
-          },
-        },
-        ...(selectedSegmentIds.length > 0 ? {
-          selectedSegments: {
-            condition: {
-              path: 'id',
-              operator: 'IN',
-              value: selectedSegmentIds,
-            },
-          },
-        } : {}),
+        ...this.transformFiltersToApiPlatform(this.getLastAppliedFilterQuery),
+        // The id filter also marks the export as a manual selection
+        ...(selectedSegmentIds.length > 0 ? { id: selectedSegmentIds } : {}),
       }
 
       const orderedFields = this.$refs.dataTable?.orderedHeaderFields || this.availableHeaderFields
-      const columns = orderedFields.map(headerField => headerField.field)
 
       const params = {
         procedureId: this.procedureId,
-        filter,
-        sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
-        columns: columns.join(','),
+        ...filter,
+        columns: orderedFields.map(headerField => headerField.field).join(','),
       }
 
       if (this.searchTerm !== '') {
