@@ -564,6 +564,9 @@ const SEGMENT_EXPORT_ROUTES = {
   csv_normal: 'dplan_segment_csv_export',
 }
 
+// Shown for a filter value without a known label, so no raw UUID is shown
+const UNRESOLVED_LABEL_PLACEHOLDER = '…'
+
 export default {
   name: 'SegmentsList',
 
@@ -857,30 +860,7 @@ export default {
 
     // Filter categories for the export modal, shaped [{ label, values: [String] }]
     appliedFiltersSummary () {
-      const LABEL_PENDING = '…'
-      const valuesByPath = {}
-
-      Object.values(this.getLastAppliedFilterQuery).forEach((filter) => {
-        if (!filter.condition || filter.condition.memberOf?.startsWith(CUSTOM_FIELD_GROUP_PREFIX) === true) {
-          return
-        }
-
-        const { path, value } = filter.condition
-
-        valuesByPath[path] = [...(valuesByPath[path] ?? []), value ?? 'unassigned']
-      })
-
-      return Object.entries(valuesByPath).map(([path, values]) => {
-        const labelKey = Object.values(this.filterNames).find(
-          (filterName) => filterName.rootPath === path,
-        )?.labelTranslationKey
-
-        return {
-          label: Translator.trans(labelKey ?? path),
-          // Never surface a raw UUID; show a placeholder until the label resolves
-          values: values.map((id) => this.filterSummaryLabels[id] ?? LABEL_PENDING),
-        }
-      })
+      return [...this.filterSummaryStatic, ...this.filterSummaryCustomFields]
     },
 
     // Overrides tableSelectAllItems mixin to exclude locked segments from selection for users without unlock permission
@@ -920,6 +900,30 @@ export default {
         Translator.trans('filter')
     },
 
+    // Custom field categories of the applied filter, ordered like the filter panel
+    filterSummaryCustomFields () {
+      const valuesByFieldId = {}
+
+      Object.values(this.getLastAppliedFilterQuery).forEach((filter) => {
+        const { memberOf, value } = filter.condition ?? {}
+
+        if (memberOf?.startsWith(CUSTOM_FIELD_GROUP_PREFIX) !== true) {
+          return
+        }
+
+        const fieldId = memberOf.slice(CUSTOM_FIELD_GROUP_PREFIX.length)
+
+        valuesByFieldId[fieldId] = [...(valuesByFieldId[fieldId] ?? []), value]
+      })
+
+      return this.customFieldDefinitions
+        .filter((definition) => valuesByFieldId[definition.id])
+        .map((definition) => ({
+          label: definition.attributes.name,
+          values: valuesByFieldId[definition.id].map((optionId) => this.filterSummaryLabels[optionId] ?? UNRESOLVED_LABEL_PLACEHOLDER),
+        }))
+    },
+
     // Option label by filter value id, sourced from the filter flyout's fetched options
     filterSummaryLabels () {
       // Seed the unassigned label so it resolves regardless of which category was fetched
@@ -937,6 +941,33 @@ export default {
         }))
 
       return labels
+    },
+
+    // Static filter categories of the applied filter, ordered as applied
+    filterSummaryStatic () {
+      const valuesByPath = {}
+
+      Object.values(this.getLastAppliedFilterQuery).forEach((filter) => {
+        // Custom fields are summarized in filterSummaryCustomFields
+        if (!filter.condition || filter.condition.memberOf?.startsWith(CUSTOM_FIELD_GROUP_PREFIX) === true) {
+          return
+        }
+
+        const { path, value } = filter.condition
+
+        valuesByPath[path] = [...(valuesByPath[path] ?? []), value ?? 'unassigned']
+      })
+
+      return Object.entries(valuesByPath).map(([path, values]) => {
+        const labelKey = Object.values(this.filterNames).find(
+          (filterName) => filterName.rootPath === path,
+        )?.labelTranslationKey
+
+        return {
+          label: Translator.trans(labelKey ?? path),
+          values: values.map((id) => this.filterSummaryLabels[id] ?? UNRESOLVED_LABEL_PLACEHOLDER),
+        }
+      })
     },
 
     hasLockedInSelection () {
@@ -1209,50 +1240,24 @@ export default {
     },
 
     /*
-     * Mirrors the filter/search/sort construction in applyQuery() so the export always contains
-     * exactly the segments currently shown in the list - no more (StatementSegmentResourceType's
-     * access conditions alone would also allow segments from procedures coupled via
-     * getAllowedSegmentAccessProcedures(), which sameProcedure excludes here just like it does
-     * for the list itself). columns mirrors orderedHeaderFields, same as buildClipboardText(): the
-     * user's current column selection in their current drag&drop order, externId always first.
+     * Sends the list's filter and search parameters to the export, so it contains exactly the
+     * listed segments. The procedure comes from the route, so no sameProcedure filter is needed.
      */
     handleExportSegments ({ type }) {
       const selectedSegmentIds = this.resolveSelectedSegmentIds()
 
-      // CF filters are not supported by the export yet
-      const exportFilterQuery = Object.fromEntries(
-        Object.entries(this.getLastAppliedFilterQuery).filter(
-          ([, condition]) => condition.condition?.memberOf?.startsWith(CUSTOM_FIELD_GROUP_PREFIX) !== true,
-        ),
-      )
-
       const filter = {
-        ...exportFilterQuery,
-        sameProcedure: {
-          condition: {
-            path: 'parentStatement.procedure.id',
-            value: this.procedureId,
-          },
-        },
-        ...(selectedSegmentIds.length > 0 ? {
-          selectedSegments: {
-            condition: {
-              path: 'id',
-              operator: 'IN',
-              value: selectedSegmentIds,
-            },
-          },
-        } : {}),
+        ...this.transformFiltersToApiPlatform(this.getLastAppliedFilterQuery),
+        // The id filter also marks the export as a manual selection
+        ...(selectedSegmentIds.length > 0 ? { id: selectedSegmentIds } : {}),
       }
 
       const orderedFields = this.$refs.dataTable?.orderedHeaderFields || this.availableHeaderFields
-      const columns = orderedFields.map(headerField => headerField.field)
 
       const params = {
         procedureId: this.procedureId,
-        filter,
-        sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
-        columns: columns.join(','),
+        ...filter,
+        columns: orderedFields.map(headerField => headerField.field).join(','),
       }
 
       if (this.searchTerm !== '') {
