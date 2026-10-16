@@ -17,6 +17,7 @@ use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ParameterNotFound;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use Doctrine\ORM\QueryBuilder;
 
 /**
@@ -55,8 +56,7 @@ final class CustomFieldFilter implements FilterInterface
             foreach ($optionIds as $optionId) {
                 $parameterName = $queryNameGenerator->generateParameterName('customFieldOption');
                 $anyOption->add("$rootAlias.customFields LIKE :$parameterName");
-                // The values are stored as JSON text, so a segment holds the option if its text contains the quoted id.
-                $queryBuilder->setParameter($parameterName, '%"'.$optionId.'"%');
+                $queryBuilder->setParameter($parameterName, '%'.CustomFieldValuesList::getOptionSearchText($optionId).'%');
             }
             $queryBuilder->andWhere($anyOption);
         }

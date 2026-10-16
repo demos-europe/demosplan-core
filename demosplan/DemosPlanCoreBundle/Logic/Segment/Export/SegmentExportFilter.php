@@ -24,6 +24,7 @@ class SegmentExportFilter
     public function __construct(
         protected readonly JsonApiActionService $jsonApiActionService,
         protected readonly RequestStack $requestStack,
+        protected readonly SegmentExportCustomFieldFilter $customFieldFilter,
         protected readonly StatementExportTagFilter $statementExportTagFilter,
         protected readonly StatementSegmentResourceType $statementSegmentResourceType,
     ) {
@@ -35,10 +36,14 @@ class SegmentExportFilter
      */
     public function filter(): array
     {
+        $query = $this->requestStack->getCurrentRequest()->query;
+        $customFieldConditions = $this->customFieldFilter->extractConditions($query);
+
         return array_values(
             $this->jsonApiActionService->getObjectsByQueryParams(
-                $this->requestStack->getCurrentRequest()->query,
+                $query,
                 $this->statementSegmentResourceType,
+                $customFieldConditions,
             )->getList()
         );
     }

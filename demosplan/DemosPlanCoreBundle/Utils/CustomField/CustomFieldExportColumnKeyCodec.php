@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
 /**
- * Encodes and decodes the `customField_<id>` column key format shared by the segment export's
- * column definitions, column selection, and export data rows.
+ * Encodes and decodes the `customField_<id>` key format shared by the segment export's column
+ * definitions, column selection, export data rows and the custom field conditions of its filter.
  */
 final class CustomFieldExportColumnKeyCodec
 {
@@ -23,6 +23,14 @@ final class CustomFieldExportColumnKeyCodec
     public static function forId(string $customFieldId): string
     {
         return self::PREFIX.$customFieldId;
+    }
+
+    /**
+     * @return string|null the custom field id, null if the key is not a custom field key
+     */
+    public static function extractId(string $key): ?string
+    {
+        return self::extractIds([$key])[0] ?? null;
     }
 
     /**
