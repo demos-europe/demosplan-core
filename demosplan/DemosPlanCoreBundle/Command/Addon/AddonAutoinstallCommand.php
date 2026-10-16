@@ -59,12 +59,13 @@ class AddonAutoinstallCommand extends CoreCommand
             $name = $addonConfig['name'];
             $repo = 'demos-europe/'.$name;
             if (array_key_exists($repo, $enabledAddons)) {
-                if ($addonConfig['version'] === $enabledAddons[$repo]->getVersion()) {
+                // a branch has no comparable version, so it is reinstalled on every run
+                if (!isset($addonConfig['branch']) && $addonConfig['version'] === $enabledAddons[$repo]->getVersion()) {
                     $output->note("Addon {$name} is already installed in Version {$addonConfig['version']}");
                     unset($addons[$key]);
                 } else {
                     // uninstall addon if it is installed but in the wrong version
-                    $this->uninstallOutdatedAddon($output, $name, $enabledAddons[$repo], $addonConfig['version']);
+                    $this->uninstallOutdatedAddon($output, $name, $enabledAddons[$repo], isset($addonConfig['branch']) ? "branch {$addonConfig['branch']}" : "Version {$addonConfig['version']}");
                     $changesWereMade = true;
                 }
                 // unset from enabled addons to find addons that are enabled but not in the config
@@ -119,22 +120,29 @@ class AddonAutoinstallCommand extends CoreCommand
 
         foreach ($addons as $addonConfig) {
             $name = $addonConfig['name'];
-            $output->note("Installing addon {$name} in Version {$addonConfig['version']}");
+            $branch = $addonConfig['branch'] ?? null;
+            $target = null === $branch ? "Version {$addonConfig['version']}" : "branch {$branch}";
+            $output->note("Installing addon {$name} in {$target}");
 
             $arguments = [
                 '--name'                => $name,
-                '--tag'                 => $addonConfig['version'],
                 '--github'              => true,
                 '--skip-cache-clear'    => true,
                 '--skip-frontend-build' => true,
             ];
+            if (null === $branch) {
+                $arguments['--tag'] = $addonConfig['version'];
+            } else {
+                $arguments['--branch'] = $branch;
+                $arguments['--reinstall'] = true;
+            }
             try {
                 $result = $this->runCommand($this->addonInstallCommand, $arguments, $output);
                 if (Command::SUCCESS === $result) {
                     $installedNames[] = $name;
                 }
             } catch (Exception $e) {
-                $output->error("Failed to install addon {$name} in Version {$addonConfig['version']}. {$e->getMessage()}");
+                $output->error("Failed to install addon {$name} in {$target}. {$e->getMessage()}");
             }
         }
 
@@ -153,9 +161,9 @@ class AddonAutoinstallCommand extends CoreCommand
         }
     }
 
-    private function uninstallOutdatedAddon(SymfonyStyle $output, string $name, $enabledAddon, string $version): void
+    private function uninstallOutdatedAddon(SymfonyStyle $output, string $name, $enabledAddon, string $target): void
     {
-        $output->note("Addon {$name} is already installed in Version {$enabledAddon->getVersion()}, but should be in Version {$version}");
+        $output->note("Addon {$name} is already installed in Version {$enabledAddon->getVersion()}, but should be in {$target}");
         $arguments = [
             'name'               => sprintf('demos-europe/%s', $name),
             '--skip-cache-clear' => true,

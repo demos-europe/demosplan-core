@@ -9,10 +9,11 @@ All rights reserved
 
 <documentation>
   <!--
-  SegmentsListFilter renders one accordion per filter category (tags, assignee, place) in the
-  segments list slidebar. Reuses FilterFlyout's checkbox/search content and filter-building logic,
-  but keeps currentQuery/appliedQuery per category so one shared pair of buttons resets/applies all
-  categories at once. Emits `filterApply` and `filterOptions:request`, same payloads as FilterFlyout.
+  SegmentsListFilter renders one accordion per filter category (tags, assignee, place, procedure
+  custom fields) in the segments list slidebar. Reuses FilterFlyout's checkbox/search content and
+  filter-building logic, but keeps currentQuery/appliedQuery per category so one shared pair of
+  buttons resets/applies all categories at once.
+  Emits `filterApply` and `filterOptions:request`, same payloads as FilterFlyout.
   -->
 </documentation>
 
@@ -26,15 +27,21 @@ All rights reserved
     v-show="isVisible"
     class="flex flex-col flex-1 min-h-0 -ml-5"
   >
-    <h2 class="shrink-0 p-4 pt-0 border-b border-neutral bg-surface shadow-[0_3px_4px_-3px_rgba(0,0,0,0.26)]">
+    <h2
+      :class="{ 'shadow-[0_3px_4px_-3px_rgba(0,0,0,0.26)]': isScrolled }"
+      class="shrink-0 p-4 pt-0 mb-0 border-b border-neutral bg-surface"
+    >
       {{ Translator.trans('filter') }}
     </h2>
 
-    <div class="flex-1 min-h-0 overflow-y-auto">
+    <div
+      class="flex-1 min-h-0 overflow-y-auto"
+      @scroll.passive="onScroll"
+    >
       <dp-accordion
         v-for="category in categories"
         :key="category.id"
-        class="p-4 border-b border-neutral"
+        :class="['p-4 border-b border-neutral', { 'pb-1': getIsExpandedByCategoryId(category.id) }]"
         :data-cy="`segmentsListFilter:${category.id}`"
         :is-open="getIsExpandedByCategoryId(category.id)"
         :show-border="false"
@@ -53,9 +60,10 @@ All rights reserved
           </p>
 
           <dp-resettable-input
-            :id="`searchField_${category.path}`"
+            v-if="showSearch(category)"
+            :id="`searchField_${category.searchFieldId}`"
             v-model="category.searchTerm"
-            :data-cy="`searchField:${category.path}`"
+            :data-cy="`searchField:${category.searchFieldId}`"
             :input-attributes="{ placeholder: Translator.trans('search.list'), type: 'search' }"
             @reset="resetSearch(category)"
           />
@@ -67,28 +75,28 @@ All rights reserved
 
           <div
             v-else
-            class="mt-3 pt-3 border-t border-neutral"
+            class="mt-3"
           >
             <ul
               v-if="getSearchedUngroupedOptions(category).length > 0"
-              class="m-0 p-0 pb-2 list-none mb-2"
+              class="m-0 p-0 pb-1 list-none"
             >
               <filter-flyout-checkbox
                 v-for="option in getSearchedUngroupedOptions(category)"
                 :key="option.id"
                 :checked="isChecked(category, option.id)"
-                instance="ungrouped"
                 :option="option"
-                show-count
+                :show-count="!category.isCustomField"
+                instance="ungrouped"
                 @change="(isSelected, option) => updateQuery(category, isSelected, option)"
               />
             </ul>
             <ul
-              v-for="(group, index) in getSearchedGroupedOptions(category)"
+              v-for="group in getSearchedGroupedOptions(category)"
               :key="`list_${group.id}`"
-              :class="['m-0 p-0 list-none', { 'pb-2 border-b border-neutral mb-3': index < getSearchedGroupedOptions(category).length - 1 }]"
+              class="m-0 p-0 pt-3 pb-1 list-none border-t border-neutral"
             >
-              <li class="font-semibold text-base mb-2">
+              <li class="font-semibold text-sm mb-2">
                 {{ group.label }}
               </li>
               <filter-flyout-checkbox
@@ -107,17 +115,17 @@ All rights reserved
             </span>
 
             <template v-if="getItemsSelected(category).length > 0">
-              <h3 class="text-base font-normal pt-3 border-t border-neutral">
+              <h3 class="text-sm font-normal pt-3 border-t border-neutral">
                 {{ Translator.trans('filter.active') }}
               </h3>
               <ul class="m-0 list-none pt-0">
                 <filter-flyout-checkbox
                   v-for="item in getItemsSelected(category)"
                   :key="`itemsSelected_${item.id}`"
-                  checked
                   :highlight="!category.appliedQuery.includes(item.id)"
-                  instance="itemsSelected"
                   :option="item"
+                  instance="itemsSelected"
+                  checked
                   @change="(isSelected, option) => updateQuery(category, isSelected, option)"
                 />
               </ul>
@@ -127,7 +135,10 @@ All rights reserved
       </dp-accordion>
     </div>
 
-    <div class="shrink-0 flex justify-end gap-2 p-4 bg-surface shadow-lg">
+    <div
+      :class="{ 'shadow-lg': isScrolled }"
+      class="shrink-0 flex justify-end gap-2 p-4 bg-surface border-t border-neutral"
+    >
       <dp-button
         data-cy="segmentsListFilter:reset"
         variant="outline"
@@ -154,7 +165,9 @@ import {
   DpLoading,
   DpResettableInput,
 } from '@demos-europe/demosplan-ui'
+import { CUSTOM_FIELD_GROUP_PREFIX } from '@DpJs/composables/useApiPlatformFilters'
 import FilterFlyoutCheckbox from './FilterFlyoutCheckbox'
+import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useStore } from 'vuex'
 
 export default {
@@ -192,6 +205,11 @@ export default {
       required: false,
       default: () => ({}),
     },
+
+    procedureId: {
+      type: String,
+      required: true,
+    },
   },
 
   emits: [
@@ -214,6 +232,7 @@ export default {
     const setGroupedSelected = (payload) => store.commit('FilterFlyout/setGroupedOptionSelected', payload)
     const setIsExpanded = (payload) => store.commit('FilterFlyout/setIsExpanded', payload)
     const setIsLoadingMutation = (payload) => store.commit('FilterFlyout/setIsLoading', payload)
+    const setUngroupedOptions = (payload) => store.commit('FilterFlyout/setUngroupedOptions', payload)
     const setUngroupedSelected = (payload) => store.commit('FilterFlyout/setUngroupedOptionSelected', payload)
 
     const closeSlidebar = () => {
@@ -230,33 +249,44 @@ export default {
       isVisible.value = showTab === 'filter'
     })
 
+    // *** SCROLL STATE ***
+    const isScrolled = ref(false)
+
+    // Shadows below the h2 and above the buttons appear on scroll
+    const onScroll = (event) => {
+      isScrolled.value = event.target.scrollTop > 0
+    }
+
     // *** CATEGORIES ***
     /*
      * Filters within one category are OR-combined by giving them a shared group key (memberOf).
-     * 'tags' is the exception and uses none. Group keys can't contain '.', so 'workflow.place'
-     * from segmentsFilterNames.yaml becomes 'workflow-place_group'.
+     * 'tags' is the exception and uses none. Group keys are built from labelTranslationKey (not
+     * filterType) because saved hashes and bookmarks store them. They can't contain '.', so
+     * 'workflow.place' becomes 'workflow-place_group'.
      */
-    const groupName = (filterType) => {
-      if (filterType === 'tags') {
+    const groupName = (labelTranslationKey) => {
+      if (labelTranslationKey === 'tags') {
         return null
       }
 
-      if (filterType === 'assignee') {
+      if (labelTranslationKey === 'assignee') {
         return 'assigneeOrUnassigned'
       }
 
-      return `${filterType.replaceAll('.', '-')}_group`
+      return `${labelTranslationKey.replaceAll('.', '-')}_group`
     }
 
-    const categories = reactive(Object.values(props.filters).map((filterDefinition, idx) => ({
+    const categories = reactive(Object.entries(props.filters).map(([filterType, filterDefinition], idx) => ({
       appliedQuery: [],
       currentQuery: [],
-      hint: filterDefinition.labelTranslationKey !== 'tags',
+      filterType,
+      hint: filterType !== 'tags',
       id: `${filterDefinition.labelTranslationKey}:${idx}`,
       label: Translator.trans(filterDefinition.labelTranslationKey),
       memberOf: groupName(filterDefinition.labelTranslationKey),
       operator: filterDefinition.comparisonOperator,
       path: filterDefinition.rootPath,
+      searchFieldId: filterDefinition.rootPath,
       searchTerm: '',
     })))
 
@@ -271,6 +301,61 @@ export default {
     const hasPendingChanges = computed(() => categories.some((category) => categoryHasPendingChanges(category)))
 
     const hasSelectedFilters = computed(() => categories.some((category) => category.currentQuery.length > 0))
+
+    // *** CUSTOM FIELDS ***
+    const getCustomFieldCategoryId = (field) => `${CUSTOM_FIELD_GROUP_PREFIX}${field.id}`
+
+    // If reset happens before the custom fields are loaded, prevent their checkboxes from restoring the set selection.
+    let isResetDone = false
+
+    // Option ids of a custom field from the filters in the URL, so the matching checkboxes start out selected
+    const getInitialCustomFieldOptionIds = (field) => {
+      if (isResetDone || Array.isArray(props.initialFilter)) {
+        return []
+      }
+
+      return Object.values(props.initialFilter)
+        .filter((el) => el.condition?.memberOf === getCustomFieldCategoryId(field))
+        .map((el) => el.condition.value)
+    }
+
+    // Same shape as the static categories, so apply/reset/discard work for custom fields too
+    const buildCustomFieldCategory = (field) => ({
+      appliedQuery: getInitialCustomFieldOptionIds(field),
+      currentQuery: getInitialCustomFieldOptionIds(field),
+      hint: true,
+      id: getCustomFieldCategoryId(field),
+      isCustomField: true,
+      label: field.attributes.name,
+      memberOf: getCustomFieldCategoryId(field),
+      operator: '=',
+      path: 'customFields',
+      searchFieldId: getCustomFieldCategoryId(field),
+      searchTerm: '',
+    })
+
+    if (hasPermission('field_segments_custom_fields')) {
+      const { fetchCustomFields } = useCustomFields()
+
+      // Served from the module cache when SegmentsList already fetched the same definitions
+      fetchCustomFields(props.procedureId, { sourceEntity: 'PROCEDURE', targetEntity: 'SEGMENT' })
+        .then((definitions) => {
+          // Fields without options (e.g. text type) have nothing to filter by
+          const optionFields = definitions.filter((field) => (field.attributes.options?.length ?? 0) > 0)
+
+          optionFields.forEach((field) => {
+            categories.push(buildCustomFieldCategory(field))
+            // Static options: no facet fetch, selected flags exist for the checkbox machinery
+            setUngroupedOptions({
+              categoryId: getCustomFieldCategoryId(field),
+              options: field.attributes.options.map((option) => ({ ...option, selected: false })),
+            })
+          })
+        })
+        .catch(() => {
+          /* Notification already shown by useCustomFieldDefinitions */
+        })
+    }
 
     // Same extraction as SegmentsList's own `queryIds` computed, applied to the same initialFilter data.
     const queryIds = computed(() => {
@@ -303,6 +388,11 @@ export default {
      * {Array of Objects} selected filterItems, same structure as items
      */
     const getItemsSelected = (category) => {
+      // Custom field options are static and never refetched, so their selected flags would go stale
+      if (category.isCustomField) {
+        return getUngroupedOptions(category).filter((item) => category.currentQuery.includes(item.id))
+      }
+
       const items = [
         ...getUngroupedOptions(category),
         ...getGroupedOptions(category).flatMap((group) => group.options),
@@ -319,6 +409,18 @@ export default {
     const getSearchedUngroupedOptions = (category) => dataTableSearch(category.searchTerm, getUngroupedOptions(category), ['label'])
 
     const isChecked = (category, optionId) => category.currentQuery.includes(optionId)
+
+    // Tags are always searchable, others only with at least 10 options
+    const showSearch = (category) => {
+      if (category.filterType === 'tags') {
+        return true
+      }
+
+      const optionCount = getUngroupedOptions(category).length +
+        getGroupedOptions(category).flatMap((group) => group.options).length
+
+      return optionCount >= 10
+    }
 
     const isLoading = (category) => store.getters['FilterFlyout/getIsLoadingByCategoryId'](category.id) ?? false
 
@@ -349,9 +451,18 @@ export default {
 
     // Emits a 'filterOptions:request' event with the provided query parameters.
     const requestFilterOptions = (category, isInitialWithQuery = false) => {
-      // For OR groups (memberOf is set), exclude this group's own filters so counts always show full availability
-      let filter = getFilterQuery.value
+      if (category.isCustomField) {
+        return
+      }
 
+      // Custom field conditions are not supported by facets yet
+      let filter = Object.fromEntries(
+        Object.entries(getFilterQuery.value).filter(([, val]) =>
+          val.condition?.memberOf?.startsWith(CUSTOM_FIELD_GROUP_PREFIX) !== true,
+        ),
+      )
+
+      // For OR groups (memberOf is set), exclude this group's own filters so counts always show full availability
       if (category.memberOf && !isInitialWithQuery) {
         filter = Object.fromEntries(
           Object.entries(filter).filter(([key, val]) => {
@@ -405,7 +516,10 @@ export default {
 
     // Resets every category's selection and notifies the parent, mirroring FilterFlyout's resetAndApply.
     const resetAllFilters = () => {
+      isResetDone = true
       categories.forEach((category) => resetCategory(category))
+      // Also clears conditions of categories not loaded yet (e.g. custom fields from the URL)
+      updateFilters({})
       commitFilterQuery()
       emit('filterApply', {})
     }
@@ -422,6 +536,13 @@ export default {
     }
 
     const setExpanded = (category, isExpanded) => {
+      if (isExpanded) {
+        // Only one accordion stays open
+        categories
+          .filter((other) => other.id !== category.id)
+          .forEach((other) => setIsExpanded({ categoryId: other.id, isExpanded: false }))
+      }
+
       setIsExpanded({ categoryId: category.id, isExpanded })
 
       if (isExpanded) {
@@ -474,6 +595,11 @@ export default {
 
     onMounted(() => {
       categories.forEach((category) => {
+        // Custom field options are static, they need no loading flag nor an initial facet request
+        if (category.isCustomField) {
+          return
+        }
+
         setIsLoadingMutation({ categoryId: category.id, isLoading: true })
         setIsExpanded({ categoryId: category.id, isExpanded: false })
 
@@ -510,10 +636,13 @@ export default {
       hasSelectedFilters,
       isChecked,
       isLoading,
+      isScrolled,
       isVisible,
+      onScroll,
       resetAllFilters,
       resetSearch,
       setExpanded,
+      showSearch,
       updateQuery,
     }
   },
