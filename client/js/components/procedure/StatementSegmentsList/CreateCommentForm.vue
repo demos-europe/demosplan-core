@@ -25,7 +25,7 @@
       secondary
       :busy="isLoading"
       @primary-action="save"
-      @secondary-action="resetCurrentComment"
+      @secondary-action="discardDraft"
     />
   </div>
 </template>
@@ -60,6 +60,12 @@ export default {
     'update',
   ],
 
+  data () {
+    return {
+      isResettingEditor: false,
+    }
+  },
+
   computed: {
     ...mapGetters('SegmentSlidebar', [
       'commentsList',
@@ -73,6 +79,10 @@ export default {
     ...mapState('SegmentSlidebar', [
       'isLoading',
     ]),
+
+    draftStorageKey () {
+      return `commentDraft:${this.currentUser.id}:${this.segmentId}`
+    },
 
     segment () {
       return this.segments[this.segmentId]
@@ -102,9 +112,29 @@ export default {
       setComment: 'setItem',
     }),
 
+    discardDraft () {
+      this.removeDraft()
+      this.resetCurrentComment()
+    },
+
+    removeDraft () {
+      try {
+        sessionStorage.removeItem(this.draftStorageKey)
+      } catch (err) {
+        console.error(err)
+      }
+    },
+
     resetCurrentComment (show = true) {
       this.setContent({ prop: 'commentsList', val: { ...this.commentsList, currentCommentText: '', showForm: false, show } })
-      this.$refs.createComment.resetEditor()
+      // Resetting the editor emits an empty input event, which must not wipe the stored draft
+      this.isResettingEditor = true
+
+      try {
+        this.$refs.createComment.resetEditor()
+      } finally {
+        this.isResettingEditor = false
+      }
     },
 
     save () {
@@ -184,7 +214,7 @@ export default {
           this.setComment(newCommentData)
           this.updateSegment(relationPayload)
           this.$emit('update')
-          this.resetCurrentComment()
+          this.discardDraft()
           this.setProperty({ prop: 'isLoading', val: false })
         })
         .catch((err) => {
@@ -194,6 +224,25 @@ export default {
 
     update (val) {
       this.setContent({ prop: 'commentsList', val: { ...this.commentsList, currentCommentText: val } })
+
+      if (!this.isResettingEditor) {
+        this.saveDraft(val)
+      }
+    },
+
+    saveDraft (val) {
+      // The editor reports an empty paragraph instead of an empty string
+      const isEmpty = val.replace(/<[^>]*>/g, '').trim() === ''
+
+      try {
+        if (isEmpty) {
+          sessionStorage.removeItem(this.draftStorageKey)
+        } else {
+          sessionStorage.setItem(this.draftStorageKey, val)
+        }
+      } catch (err) {
+        console.error(err)
+      }
     },
   },
 }

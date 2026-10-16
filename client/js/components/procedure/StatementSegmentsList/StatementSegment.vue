@@ -1536,11 +1536,19 @@ export default {
 
       this.$parent.$parent.resetSlidebar()
 
+      let draft = ''
+
+      try {
+        draft = sessionStorage.getItem(`commentDraft:${this.currentUserId}:${this.segment.id}`) ?? ''
+      } catch (err) {
+        console.error(err)
+      }
+
       this.toggleSlidebarContent({
         prop: 'commentsList',
         val: {
           ...this.commentsList,
-          currentCommentText: '',
+          currentCommentText: draft,
           externId: this.segment.attributes.externId,
           segmentId: this.segment.id,
           show: true,
