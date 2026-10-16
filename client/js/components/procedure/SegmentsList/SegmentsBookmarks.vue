@@ -37,22 +37,36 @@
 
             <!-- Filter details -->
             <div
-              v-if="change.type === 'filter' && change.individualFilters"
+              v-if="change.type === 'filter' && change.groupedFilterChanges"
               class="border-b border-neutral-light-3"
             >
               <div
-                v-for="(filterChange, index) in change.individualFilters"
+                v-for="(groupedChange, index) in change.groupedFilterChanges"
                 :key="index"
                 class="text-sm py-1"
               >
-                <p :class="filterChange.action === 'removed' ? 'text-status-failed-icon' : ''">
+                <p class="font-semibold mb-1">
+                  {{ groupedChange.category }}
+                </p>
+                <p
+                  v-if="groupedChange.removed.length > 0"
+                  class="text-status-failed-icon ml-4"
+                >
                   <dp-icon
-                    :icon="filterChange.action === 'added' ? 'plus' : 'minus'"
-                    :class="['inline-block', 'mr-1', filterChange.action === 'removed' ? 'text-status-failed-icon' : '']"
+                    icon="minus"
+                    class="inline-block mr-1 text-status-failed-icon"
                   />
-                  <span>
-                    {{ Translator.trans('filter') }} &gt; {{ filterChange.filterCategory }} &gt; {{ filterChange.filterValue }}
-                  </span>
+                  <span>{{ groupedChange.removed.join('; ') }}</span>
+                </p>
+                <p
+                  v-if="groupedChange.added.length > 0"
+                  class="ml-4"
+                >
+                  <dp-icon
+                    icon="plus"
+                    class="inline-block mr-1"
+                  />
+                  <span>{{ groupedChange.added.join('; ') }}</span>
                 </p>
               </div>
             </div>
@@ -60,16 +74,22 @@
             <!-- Search/Sorting details -->
             <div
               v-if="(change.type === 'search' || change.type === 'sorting') && change.oldValue !== undefined"
-              class="border-b border-neutral-light-3 "
+              class="border-b border-neutral-light-3"
             >
-              <p>
+              <p
+                v-if="change.oldValue"
+                class="text-status-failed-icon ml-4 text-sm"
+              >
                 <dp-icon
                   icon="minus"
-                  class="inline-block text-status-failed-icon mr-1"
+                  class="inline-block mr-1 text-status-failed-icon"
                 />
                 <span>{{ change.oldValue }}</span>
               </p>
-              <p>
+              <p
+                v-if="change.newValue"
+                class="ml-4 text-sm"
+              >
                 <dp-icon
                   icon="plus"
                   class="inline-block mr-1"
@@ -81,39 +101,28 @@
             <!-- Column details -->
             <div
               v-if="change.type === 'columns'"
-              class="border-b border-neutral-light-3 "
+              class="border-b border-neutral-light-3"
             >
-              <div v-if="change.added && change.added.length > 0">
-                <ul>
-                  <li
-                    v-for="col in change.added"
-                    :key="col"
-                    class="mb-1"
-                  >
-                    <dp-icon
-                      icon="plus"
-                      class="inline-block mr-1"
-                    />
-                    <span>{{ Translator.trans(col) }}</span>
-                  </li>
-                </ul>
-              </div>
-
-              <div v-if="change.removed && change.removed.length > 0">
-                <ul>
-                  <li
-                    v-for="col in change.removed"
-                    :key="col"
-                    class="mb-1"
-                  >
-                    <dp-icon
-                      icon="minus"
-                      class="inline-block text-status-failed-icon mr-1"
-                    />
-                    <span>{{ Translator.trans(col) }}</span>
-                  </li>
-                </ul>
-              </div>
+              <p
+                v-if="change.removed && change.removed.length > 0"
+                class="text-status-failed-icon ml-4 text-sm"
+              >
+                <dp-icon
+                  icon="minus"
+                  class="inline-block mr-1 text-status-failed-icon"
+                />
+                <span>{{ change.removed.map(col => getColumnLabel(col)).join('; ') }}</span>
+              </p>
+              <p
+                v-if="change.added && change.added.length > 0"
+                class="ml-4 text-sm"
+              >
+                <dp-icon
+                  icon="plus"
+                  class="inline-block mr-1"
+                />
+                <span>{{ change.added.map(col => getColumnLabel(col)).join('; ') }}</span>
+              </p>
             </div>
           </div>
         </div>
@@ -205,6 +214,7 @@ import type {
   CreateBookmarkPayload,
   DetailedChange,
   FilterLabelCache,
+  GroupedFilterChange,
   IndividualFilterChange,
 } from '@DpJs/types/bookmarks'
 import type {
@@ -484,10 +494,31 @@ const getDetailedFilterChanges = (bookmarkFilters: Record<string, any>, currentF
     return null
   }
 
+  // Group changes by filter category
+  const groupedByCategory: Record<string, GroupedFilterChange> = {}
+
+  individualFilterChanges.forEach(change => {
+    if (!groupedByCategory[change.filterCategory]) {
+      groupedByCategory[change.filterCategory] = {
+        category: change.filterCategory,
+        removed: [],
+        added: [],
+      }
+    }
+
+    if (change.action === 'removed') {
+      groupedByCategory[change.filterCategory].removed.push(change.filterValue)
+    } else {
+      groupedByCategory[change.filterCategory].added.push(change.filterValue)
+    }
+  })
+
+  const groupedFilterChanges: GroupedFilterChange[] = Object.values(groupedByCategory)
+
   return {
     type: 'filter',
     label: Translator.trans('filter'),
-    individualFilters: individualFilterChanges,
+    groupedFilterChanges,
   }
 }
 
@@ -512,11 +543,18 @@ const getDetailedSortingChanges = (bookmarkSorting: string = '', currentSorting:
     return null
   }
 
+  const sortingLabels = {
+    'deadline-desc': Translator.trans('sort.deadline.descending'),
+    'deadline-asc': Translator.trans('sort.deadline.ascending'),
+    'internId-desc': Translator.trans('sort.internId.descending'),
+    'internId-asc': Translator.trans('sort.internId.ascending'),
+  }
+
   return {
     type: 'sorting',
     label: Translator.trans('sorting'),
-    oldValue: bookmarkSorting || Translator.trans('none'),
-    newValue: currentSorting || Translator.trans('none'),
+    oldValue: bookmarkSorting ? (sortingLabels[bookmarkSorting] || bookmarkSorting) : Translator.trans('none'),
+    newValue: currentSorting ? (sortingLabels[currentSorting] || currentSorting) : Translator.trans('none'),
   }
 }
 
@@ -528,6 +566,23 @@ const getFilterChanges = (sourceValues: Set<string>, targetValues: Set<string>, 
       filterValue: getFilterValueLabel(valueKey),
       action,
     }))
+}
+
+const getColumnLabel = (fieldName: string): string => {
+  const columnTranslations: Record<string, string> = {
+    externId: 'id',
+    statementStatus: 'statement.status',
+    internId: 'internId.shortened',
+    deadline: 'deadline',
+    submitter: 'submitter',
+    organisation: 'organisation',
+    text: 'text',
+    recommendation: 'segment.recommendation',
+    tags: 'segment.tags',
+    place: 'workflow.place',
+  }
+
+  return Translator.trans(columnTranslations[fieldName] || fieldName)
 }
 
 const getFilterNameByPath = (filterPath: string): string => {

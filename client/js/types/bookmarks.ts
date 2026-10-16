@@ -67,11 +67,18 @@ export interface IndividualFilterChange {
   action: 'added' | 'removed'
 }
 
+export interface GroupedFilterChange {
+  category: string
+  removed: string[]
+  added: string[]
+}
+
 export interface DetailedChange {
   type: 'filter' | 'search' | 'sorting' | 'columns'
   label: string
   details?: FilterChange[]
   individualFilters?: IndividualFilterChange[]
+  groupedFilterChanges?: GroupedFilterChange[]
   oldValue?: string
   newValue?: string
   added?: string[]
