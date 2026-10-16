@@ -200,6 +200,19 @@
 </template>
 
 <script setup lang="ts">
+import type {
+  Bookmark,
+  CreateBookmarkPayload,
+  DetailedChange,
+  FilterLabelCache,
+  IndividualFilterChange,
+} from '@DpJs/types/bookmarks'
+import type {
+  FilterGroup,
+  FilterOption,
+  RootState,
+  Slidebar,
+} from '@DpJs/types/store'
 import {
   DpAccordion,
   DpButton,
@@ -209,28 +222,9 @@ import {
   DpInput,
   DpRadio,
 } from '@demos-europe/demosplan-ui'
-import type {
-  Bookmark,
-  CreateBookmarkPayload,
-  DetailedChange,
-  IndividualFilterChange,
-  Slidebar,
-  UpdateBookmarkPayload,
-} from '@DpJs/types/bookmarks'
-
 import { computed, type ComputedRef, onMounted, type Ref, ref, watch } from 'vue'
-import lscache from 'lscache'
 import { useStore } from 'vuex'
-
-/* Interfaces */
-interface FilterOption {
-  id: string
-  label: string
-}
-
-interface FilterGroup {
-  options?: FilterOption[]
-}
+import lscache from 'lscache'
 
 /* Props */
 const props = withDefaults(defineProps<{
@@ -248,14 +242,15 @@ const props = withDefaults(defineProps<{
   filters: () => ({}),
 })
 
-const store = useStore()
+const store = useStore<RootState>()
+const state = store.state as RootState
 
 const newBookmarkName: Ref<string> = ref('')
 const showUnsavedChanges: Ref<boolean> = ref(false)
 const lsKey = `${props.procedureId}:segments:currentBookmarkId`
 
 // Cache for filter value labels - accumulates labels so removed options can still be looked up
-const filterLabelCache: Ref<Record<string, string>> = ref({
+const filterLabelCache: Ref<FilterLabelCache> = ref({
   unassigned: Translator.trans('not.assigned'),
 })
 
@@ -264,46 +259,37 @@ const filterLabelCache: Ref<Record<string, string>> = ref({
  * Only adds new labels, never removes existing ones.
  */
 const updateLabelCache = (): void => {
-  const allGroupedOptions = store.state.FilterFlyout?.groupedOptions || {}
-  const allUngroupedOptions = store.state.FilterFlyout?.ungroupedOptions || {}
+  const { groupedOptions = {}, ungroupedOptions = {} } = state.FilterFlyout || {}
 
-  // Add labels from grouped options
-  for (const groups of Object.values(allGroupedOptions)) {
-    for (const group of (groups as FilterGroup[])) {
-      group.options?.forEach(option => {
-        if (option.id && option.label) {
-          filterLabelCache.value[option.id] = option.label
-        }
-      })
+  const options = [
+    ...Object.values(groupedOptions).flatMap(groups =>
+      (groups as FilterGroup[]).flatMap(group => group.options || []),
+    ),
+    ...Object.values(ungroupedOptions).flatMap(options => options as FilterOption[]),
+  ]
+
+  options.forEach(({ id, label }) => {
+    if (id && label) {
+      filterLabelCache.value[id] = label
     }
-  }
-
-  // Add labels from ungrouped options
-  for (const options of Object.values(allUngroupedOptions)) {
-    (options as FilterOption[]).forEach(option => {
-      if (option.id && option.label) {
-        filterLabelCache.value[option.id] = option.label
-      }
-    })
-  }
+  })
 }
 
 // Watch store options and update cache when they change
 watch(
-  () => [store.state.FilterFlyout?.groupedOptions, store.state.FilterFlyout?.ungroupedOptions],
+  () => [state.FilterFlyout?.groupedOptions, state.FilterFlyout?.ungroupedOptions],
   () => updateLabelCache(),
   { deep: true },
 )
 
 /* Computed */
-const bookmarks: ComputedRef<Bookmark[]> = computed(() => store.state.SegmentsBookmarks.allBookmarks)
-const currentBookmark: ComputedRef<Bookmark | null> = computed(() => store.state.SegmentsBookmarks.currentBookmark)
-const currentBookmarkId: ComputedRef<string | null> = computed(() => store.state.SegmentsBookmarks.currentBookmarkId)
-const currentQueryHash: ComputedRef<string> = computed(() => store.state.SegmentSlidebar.currentQueryHash)
+const bookmarks: ComputedRef<Bookmark[]> = computed(() => state.SegmentsBookmarks.allBookmarks)
+const currentBookmarkId: ComputedRef<string | null> = computed(() => state.SegmentsBookmarks.currentBookmarkId)
+const currentQueryHash: ComputedRef<string> = computed(() => state.SegmentSlidebar.currentQueryHash)
 
-const slidebar: ComputedRef<Slidebar> = computed(() => store.state.SegmentSlidebar.slidebar)
+const slidebar: ComputedRef<Slidebar> = computed(() => state.SegmentSlidebar.slidebar)
 const isVisible: ComputedRef<boolean> = computed(() => slidebar.value.showTab === 'bookmarks')
-const isApplyingBookmark: ComputedRef<boolean> = computed(() => store.state.SegmentsBookmarks.isApplyingBookmark)
+const isApplyingBookmark: ComputedRef<boolean> = computed(() => state.SegmentsBookmarks.isApplyingBookmark)
 
 const currentViewChanges: ComputedRef<string[]> = computed(() => {
   if (!currentBookmarkId.value) {
@@ -311,14 +297,6 @@ const currentViewChanges: ComputedRef<string[]> = computed(() => {
   }
 
   return getBookmarkChangeLabels(currentBookmarkId.value)
-})
-
-const changesMessage: ComputedRef<string> = computed(() => {
-  if (currentViewChanges.value.length === 0) {
-    return ''
-  }
-
-  return `${Translator.trans('segments.view.changes')}: ${currentViewChanges.value.join(', ')}`
 })
 
 const currentDetailedChanges: ComputedRef<DetailedChange[]> = computed(() => {
@@ -336,9 +314,9 @@ const fetchBookmarks = (): Promise<Bookmark[]> => store.dispatch('SegmentsBookma
 
 /* Emits */
 interface SegmentsBookmarksEmits {
-  (e: 'apply-bookmark', bookmark: Bookmark): void
-  (e: 'reset-view'): void
-  (e: 'update-button-text', text: string): void
+  (e: 'applyBookmark', bookmark: Bookmark): void
+  (e: 'resetView'): void
+  (e: 'updateButtonText', text: string): void
 }
 
 const emit = defineEmits<SegmentsBookmarksEmits>()
@@ -366,7 +344,7 @@ const applySelectedBookmark = async (bookmarkId): Promise<void> => {
 
   lscache.set(lsKey, bookmarkId)
   updateBookmarkButtonText(selectedBookmark)
-  emit('apply-bookmark', selectedBookmark)
+  emit('applyBookmark', selectedBookmark)
 }
 
 const createNewBookmark = async (): Promise<void> => {
@@ -445,10 +423,12 @@ const getBookmarkSummary = (bookmarkId: string): string => {
 const getDetailedBookmarkChanges = (bookmarkId: string): DetailedChange[] => {
   const bookmark = bookmarks.value.find(({ id }) => id === bookmarkId)
 
-  if (!bookmark) return []
+  if (!bookmark) {
+    return []
+  }
 
   const { filter, searchPhrase, viewSettings } = bookmark.attributes
-  const currentFilters = store.state.FilterFlyout?.filterQuery || {}
+  const currentFilters = state.FilterFlyout?.filterQuery || {}
 
   return [
     getDetailedFilterChanges(filter, currentFilters),
@@ -528,7 +508,9 @@ const getDetailedSearchChanges = (bookmarkSearch: string = '', currentSearch: st
 }
 
 const getDetailedSortingChanges = (bookmarkSorting: string = '', currentSorting: string = ''): DetailedChange | null => {
-  if (bookmarkSorting === currentSorting) return null
+  if (bookmarkSorting === currentSorting) {
+    return null
+  }
 
   return {
     type: 'sorting',
@@ -571,7 +553,7 @@ const getFilterValueLabel = (valueId: string): string => {
     return cachedLabel
   }
 
-  const { groupedOptions = {}, ungroupedOptions = {} } = store.state.FilterFlyout || {}
+  const { groupedOptions = {}, ungroupedOptions = {} } = state.FilterFlyout || {}
 
   const grouped = Object.values(groupedOptions)
     .flatMap(groups => (groups as FilterGroup[]).flatMap(group => group.options || []))
@@ -621,7 +603,7 @@ const restoreSavedBookmark = async (): Promise<void> => {
 
   if (success) {
     updateBookmarkButtonText(savedBookmark)
-    emit('apply-bookmark', savedBookmark)
+    emit('applyBookmark', savedBookmark)
   }
 }
 
@@ -634,13 +616,13 @@ const setDefaultBookmark = async (): Promise<void> => {
 
   lscache.remove(lsKey)
   updateBookmarkButtonText(null)
-  emit('reset-view')
+  emit('resetView')
 }
 
 const updateBookmarkButtonText = (bookmark: Bookmark | null): void => {
   const buttonText = bookmark?.attributes?.name || Translator.trans('views')
 
-  emit('update-button-text', buttonText)
+  emit('updateButtonText', buttonText)
 }
 
 onMounted(async (): Promise<void> => {
