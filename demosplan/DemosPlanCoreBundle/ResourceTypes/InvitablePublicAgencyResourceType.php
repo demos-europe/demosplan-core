@@ -25,12 +25,19 @@ use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\ApiDocumentation\DefaultInclude;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\Querying\Contracts\PathException;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * @template-extends DplanResourceType<Orga>
  */
 class InvitablePublicAgencyResourceType extends DplanResourceType
 {
+    public function __construct(
+        #[Autowire(param: 'institution_list_allow_orgas_without_users')]
+        private readonly bool $allowOrgasWithoutUsers,
+    ) {
+    }
+
     public static function getName(): string
     {
         return 'InvitableToeb';
@@ -68,10 +75,6 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
             $this->conditionFactory->propertyHasValue(false, Paths::orga()->deleted),
             $this->conditionFactory->propertyHasValue(true, Paths::orga()->statusInCustomers->showlist),
             $this->conditionFactory->propertyHasValue(
-                RoleInterface::GPSORG,
-                Paths::orga()->users->roleInCustomers->role->groupCode
-            ),
-            $this->conditionFactory->propertyHasValue(
                 OrgaTypeInterface::PUBLIC_AGENCY,
                 Paths::orga()->statusInCustomers->orgaType->name
             ),
@@ -84,6 +87,13 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
                 Paths::orga()->statusInCustomers->status
             ),
         ];
+        if (!$this->allowOrgasWithoutUsers) {
+            $conditions[] = $this->conditionFactory->propertyHasValue(
+                RoleInterface::GPSORG,
+                Paths::orga()->users->roleInCustomers->role->groupCode
+            );
+        }
+
         // avoid already invited organisations
         $invitedOrgaIdsCondition[] = [] === $invitedOrgaIds->toArray()
             ? $this->conditionFactory->true()
