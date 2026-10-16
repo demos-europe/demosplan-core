@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldExportColumnKeyCodec;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldProvider;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\SegmentExportInfo;
 use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\Request;
@@ -51,6 +52,7 @@ class SegmentExportInfoExtractor
     ];
 
     public function __construct(
+        protected readonly CustomFieldProvider $customFieldProvider,
         protected readonly PermissionsInterface $permissions,
         protected readonly PlaceRepository $placeRepository,
         protected readonly RequestStack $requestStack,
@@ -92,7 +94,7 @@ class SegmentExportInfoExtractor
             $this->nullIfEmpty($selectedColumnKeys),
             $this->nullIfEmpty($selectedCustomFieldIds),
             $isManualSelection,
-            $this->hasCustomFieldFilter($request)
+            $this->nullIfEmpty($this->getCustomFieldFilterLabels($filter))
         );
     }
 
@@ -141,11 +143,33 @@ class SegmentExportInfoExtractor
 
     /**
      * Without the permission the list ignores the custom field filter, so the export is not filtered by it.
+     * Fields and options that no longer exist are left out.
+     *
+     * @return list<array{0: string, 1: list<string>}> Field name and selected option labels per custom field
      */
-    private function hasCustomFieldFilter(Request $request): bool
+    private function getCustomFieldFilterLabels(array $filter): array
     {
-        return $request->query->has(self::CUSTOM_FIELD_FILTER_PARAM)
-            && $this->permissions->hasPermission(CustomFieldFilter::PERMISSION);
+        $selection = $filter[self::CUSTOM_FIELD_FILTER_PARAM] ?? [];
+        if (!is_array($selection) || !$this->permissions->hasPermission(CustomFieldFilter::PERMISSION)) {
+            return [];
+        }
+
+        $customFields = $this->customFieldProvider->getCustomFieldsByIds(array_map('strval', array_keys($selection)));
+        $labels = [];
+        foreach ($customFields as $fieldId => $customField) {
+            $optionLabels = collect((array) $selection[$fieldId])
+                ->map(static fn (mixed $optionId): ?string => is_string($optionId)
+                    ? $customField->getCustomOptionValueById($optionId)?->getLabel()
+                    : null)
+                ->filter()
+                ->values()
+                ->all();
+            if ([] !== $optionLabels) {
+                $labels[] = [$customField->getName(), $optionLabels];
+            }
+        }
+
+        return $labels;
     }
 
     /**

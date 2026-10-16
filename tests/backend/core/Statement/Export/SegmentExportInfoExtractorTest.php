@@ -14,6 +14,7 @@ namespace Tests\Core\Statement\Export;
 
 use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\CustomFieldFilter;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagTopicFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
@@ -23,12 +24,15 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Tests\Base\FunctionalTestCase;
+use Tests\Core\JsonApi\StatementSegment\SegmentCustomFieldTestTrait;
 
 /**
  * The extractor reads the query parameters of the segment list from the export URL.
  */
 class SegmentExportInfoExtractorTest extends FunctionalTestCase
 {
+    use SegmentCustomFieldTestTrait;
+
     private ?SegmentExportInfoExtractor $sut = null;
 
     protected function setUp(): void
@@ -76,7 +80,7 @@ class SegmentExportInfoExtractorTest extends FunctionalTestCase
         self::assertNull($info->getPlaceNames());
         self::assertNull($info->getSearchPhrase());
         self::assertFalse($info->getIsManualSelection());
-        self::assertFalse($info->getHasCustomFieldFilter());
+        self::assertNull($info->getCustomFieldFilterLabels());
         self::assertFalse($info->getIsFiltered());
     }
 
@@ -106,25 +110,44 @@ class SegmentExportInfoExtractorTest extends FunctionalTestCase
         self::assertTrue($info->getIsFiltered());
     }
 
-    public function testACustomFieldFilterMakesTheExportFiltered(): void
+    public function testACustomFieldFilterIsResolvedToLabelsAndMakesTheExportFiltered(): void
     {
         $this->loginTestUser();
         $this->enablePermissions([CustomFieldFilter::PERMISSION]);
+        $customField = $this->createSegmentCustomField(ProcedureFactory::createOne()->_real(), 'Priority', ['High', 'Medium', 'Low']);
+        [$high, , $low] = $this->getOptionIds($customField);
 
-        $info = $this->extract(http_build_query(['customField' => [Uuid::uuid4()->toString() => [Uuid::uuid4()->toString()]]]));
+        $info = $this->extract(http_build_query(['customField' => [$customField->getId() => [$high, $low]]]));
 
-        self::assertTrue($info->getHasCustomFieldFilter());
+        self::assertSame([['Priority', ['High', 'Low']]], $info->getCustomFieldFilterLabels());
         self::assertTrue($info->getIsFiltered());
+    }
+
+    public function testUnknownCustomFieldsAndOptionsAreLeftOut(): void
+    {
+        $this->loginTestUser();
+        $this->enablePermissions([CustomFieldFilter::PERMISSION]);
+        $customField = $this->createSegmentCustomField(ProcedureFactory::createOne()->_real(), 'Priority', ['High']);
+        [$high] = $this->getOptionIds($customField);
+
+        $info = $this->extract(http_build_query(['customField' => [
+            $customField->getId()       => [$high, Uuid::uuid4()->toString()],
+            Uuid::uuid4()->toString()   => [Uuid::uuid4()->toString()],
+        ]]));
+
+        self::assertSame([['Priority', ['High']]], $info->getCustomFieldFilterLabels());
     }
 
     public function testACustomFieldFilterWithoutThePermissionDoesNotMakeTheExportFiltered(): void
     {
         $this->loginTestUser();
         $this->disablePermissions([CustomFieldFilter::PERMISSION]);
+        $customField = $this->createSegmentCustomField(ProcedureFactory::createOne()->_real(), 'Priority', ['High']);
+        [$high] = $this->getOptionIds($customField);
 
-        $info = $this->extract(http_build_query(['customField' => [Uuid::uuid4()->toString() => [Uuid::uuid4()->toString()]]]));
+        $info = $this->extract(http_build_query(['customField' => [$customField->getId() => [$high]]]));
 
-        self::assertFalse($info->getHasCustomFieldFilter());
+        self::assertNull($info->getCustomFieldFilterLabels());
         self::assertFalse($info->getIsFiltered());
     }
 
