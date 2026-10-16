@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+### Added
+- New env var `INSTITUTION_LIST_ALLOW_ORGAS_WITHOUT_USERS` (default `false`). If `true`, organisations accepted as institution stay in the institution lists and can be invited to a procedure even if none of their users has an institution role.
+
 ## v4.59.0 (2026-09-09)
 - uses TagListCsvExportEventInterface
 - dpends on demosplan-addon version >= v0.82
