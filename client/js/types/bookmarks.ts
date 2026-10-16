@@ -51,31 +51,29 @@ export interface UpdateBookmarkPayload {
   queryHash?: string
 }
 
-// ToDo: check if we need it
-export interface Slidebar {
-  showTab: string
-  isOpen: boolean
-  externId: string
-  segmentId: string
+export interface FilterLabelCache {
+  [id: string]: string
 }
 
-export interface SegmentsBookmarksState {
-  allBookmarks: Bookmark[]
-  currentBookmark: Bookmark | null
-  currentBookmarkId: string | null
-  isApplyingBookmark: boolean
+export interface FilterChange {
+  filterName: string
+  oldValue: string
+  newValue: string
 }
 
-export interface SegmentSlidebarState {
-  slidebar: Slidebar
-  currentQueryHash: string
+export interface IndividualFilterChange {
+  filterCategory: string
+  filterValue: string
+  action: 'added' | 'removed'
 }
 
-export interface RootState {
-  SegmentsBookmarks: SegmentsBookmarksState
-  SegmentSlidebar: SegmentSlidebarState
-  Bookmark?: {
-    items: Record<string, Bookmark>
-  }
-  [key: string]: any
+export interface DetailedChange {
+  type: 'filter' | 'search' | 'sorting' | 'columns'
+  label: string
+  details?: FilterChange[]
+  individualFilters?: IndividualFilterChange[]
+  oldValue?: string
+  newValue?: string
+  added?: string[]
+  removed?: string[]
 }
