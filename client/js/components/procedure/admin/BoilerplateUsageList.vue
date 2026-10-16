@@ -85,12 +85,12 @@
         {{ rowData.placeName ?? '—' }}
       </template>
       <template v-slot:expandedContent="rowData">
-        <p class="font-bold mb-1">
+        <p class="font-bold mb-1 pl-4">
           {{ Translator.trans('recommendation.text') }}:
         </p>
         <div
           v-cleanhtml="rowData.recommendation"
-          class="c-styled-html"
+          class="c-styled-html pl-4"
           data-cy="boilerplateUsageList:recommendation"
         />
       </template>
