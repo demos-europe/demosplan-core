@@ -10,6 +10,8 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -17,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\PublicAffairsAgentNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\CoreHandler;
 use Exception;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 class PublicAffairsAgentHandler extends CoreHandler
 {
@@ -25,8 +28,12 @@ class PublicAffairsAgentHandler extends CoreHandler
         return $this->orgaHandler;
     }
 
-    public function __construct(private readonly OrgaHandler $orgaHandler, MessageBagInterface $messageBag)
-    {
+    public function __construct(
+        private readonly OrgaHandler $orgaHandler,
+        MessageBagInterface $messageBag,
+        #[Autowire(param: 'institution_list_allow_orgas_without_users')]
+        private readonly bool $allowOrgasWithoutUsers,
+    ) {
         parent::__construct($messageBag);
     }
 
@@ -87,16 +94,30 @@ class PublicAffairsAgentHandler extends CoreHandler
     }
 
     /**
-     * Note: do not use Orga::getTypes to check if an Orga is a PublicAffairsAgent. Instead check if any User has the GPSORG
-     * role. Orga::getTypes really does not matter at all, the truth is stored in the group roles of the users.
+     * An organisation counts as public affairs agent if any of its users has a GPSORG role. If the parameter
+     * institution_list_allow_orgas_without_users is set, it is sufficient that the organisation is accepted as public
+     * agency in at least one customer, as an institution may be invited by its participation email address before any
+     * of its users has registered.
      */
     public function isPublicAffairsAgent(Orga $orga): bool
     {
+        if ($this->allowOrgasWithoutUsers && $this->isAcceptedAsPublicAgency($orga)) {
+            return true;
+        }
+
         // ArrayCollection::contains may return false due to lazy loading,
         // using collect we retrieve all elements before using
         // laravels Collection::contains.
         return collect($orga->getAllUsers())->contains(
             static fn (User $user) => $user->isPublicAgency()
+        );
+    }
+
+    private function isAcceptedAsPublicAgency(Orga $orga): bool
+    {
+        return [] !== $orga->getCustomersByActivationStatus(
+            OrgaTypeInterface::PUBLIC_AGENCY,
+            OrgaStatusInCustomerInterface::STATUS_ACCEPTED
         );
     }
 }

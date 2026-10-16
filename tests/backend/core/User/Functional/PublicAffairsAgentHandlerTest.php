@@ -10,21 +10,23 @@
 
 namespace Tests\Core\User\Functional;
 
+use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use demosplan\DemosPlanCoreBundle\Logic\User\OrgaHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\PublicAffairsAgentHandler;
 use Tests\Base\FunctionalTestCase;
+use Tests\Core\User\PublicAgencyOrgaTestTrait;
 
 class PublicAffairsAgentHandlerTest extends FunctionalTestCase
 {
-    /**
-     * @var PublicAffairsAgentHandler
-     */
-    protected $sut;
+    use PublicAgencyOrgaTestTrait;
+
+    protected ?PublicAffairsAgentHandler $sut = null;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->sut = self::getContainer()->get(PublicAffairsAgentHandler::class);
+        $this->sut = $this->createSut(false);
     }
 
     /**
@@ -50,5 +52,38 @@ class PublicAffairsAgentHandlerTest extends FunctionalTestCase
         self::assertFalse($this->sut->isPublicAffairsAgent($orga7));
         self::assertFalse($this->sut->isPublicAffairsAgent($orga8));
         self::assertFalse($this->sut->isPublicAffairsAgent($orga9));
+    }
+
+    public function testIsPublicAffairsAgentIsFalseForAcceptedPublicAgencyWithoutInstitutionRoleByDefault(): void
+    {
+        // Arrange
+        $orga = $this->createPublicAgencyWithOnlyPlanningAgencyAdminUser();
+
+        // Act
+        $result = $this->createSut(false)->isPublicAffairsAgent($orga);
+
+        // Assert
+        self::assertFalse($result);
+    }
+
+    public function testIsPublicAffairsAgentIsTrueForAcceptedPublicAgencyWithoutInstitutionRoleIfAllowed(): void
+    {
+        // Arrange
+        $orga = $this->createPublicAgencyWithOnlyPlanningAgencyAdminUser();
+
+        // Act
+        $result = $this->createSut(true)->isPublicAffairsAgent($orga);
+
+        // Assert
+        self::assertTrue($result);
+    }
+
+    private function createSut(bool $allowOrgasWithoutUsers): PublicAffairsAgentHandler
+    {
+        return new PublicAffairsAgentHandler(
+            self::getContainer()->get(OrgaHandler::class),
+            $this->createMock(MessageBagInterface::class),
+            $allowOrgasWithoutUsers
+        );
     }
 }

@@ -30,6 +30,7 @@ use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\Wrapping\PropertyBehavior\Attribute\Factory\CallbackAttributeSetBehaviorFactory;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToMany\CallbackToManyRelationshipSetBehavior;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * @template-extends DplanResourceType<Orga>
@@ -38,6 +39,8 @@ final class InvitableInstitutionResourceType extends DplanResourceType
 {
     public function __construct(
         private readonly CustomFieldValueCreator $customFieldValueCreator,
+        #[Autowire(param: 'institution_list_allow_orgas_without_users')]
+        private readonly bool $allowOrgasWithoutUsers,
     ) {
     }
 
@@ -80,15 +83,11 @@ final class InvitableInstitutionResourceType extends DplanResourceType
     {
         $customer = $this->currentCustomerService->getCurrentCustomer();
 
-        return [
+        $conditions = [
             $this->conditionFactory->propertyHasValue(false, Paths::orga()->deleted),
             $this->conditionFactory->propertyHasValue(
                 OrgaStatusInCustomerInterface::STATUS_ACCEPTED,
                 Paths::orga()->statusInCustomers->status
-            ),
-            $this->conditionFactory->propertyHasValue(
-                RoleInterface::GPSORG,
-                Paths::orga()->users->roleInCustomers->role->groupCode
             ),
             $this->conditionFactory->propertyHasValue(
                 OrgaTypeInterface::PUBLIC_AGENCY,
@@ -99,6 +98,14 @@ final class InvitableInstitutionResourceType extends DplanResourceType
                 Paths::orga()->statusInCustomers->customer->id
             ),
         ];
+        if (!$this->allowOrgasWithoutUsers) {
+            $conditions[] = $this->conditionFactory->propertyHasValue(
+                RoleInterface::GPSORG,
+                Paths::orga()->users->roleInCustomers->role->groupCode
+            );
+        }
+
+        return $conditions;
     }
 
     protected function getProperties(): ResourceConfigBuilderInterface

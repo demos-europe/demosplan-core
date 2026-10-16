@@ -51,6 +51,12 @@ parameters:
     # who are granted access (true)
     procedure_user_restricted_access: false
 
+    # If false, an organisation is only listed as invitable institution (tenant admin list and procedure
+    # "add institution" list) and can only be added to a procedure if at least one of its users has an
+    # institution role (GPSORG). If true, an organisation accepted as institution is sufficient.
+    # Set per instance via the env var INSTITUTION_LIST_ALLOW_ORGAS_WITHOUT_USERS.
+    institution_list_allow_orgas_without_users: '%env(bool:INSTITUTION_LIST_ALLOW_ORGAS_WITHOUT_USERS)%'
+
     # User activity checking thresholds (in days)
     user_activity_last_login_threshold_days: 180
     user_activity_claimed_statements_threshold_days: 180
