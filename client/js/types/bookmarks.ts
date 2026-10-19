@@ -47,35 +47,42 @@ export interface CreateBookmarkPayload {
 
 export interface UpdateBookmarkPayload {
   id: string
-  name?: string
-  queryHash?: string
-}
-
-// ToDo: check if we need it
-export interface Slidebar {
-  showTab: string
-  isOpen: boolean
-  externId: string
-  segmentId: string
-}
-
-export interface SegmentsBookmarksState {
-  allBookmarks: Bookmark[]
-  currentBookmark: Bookmark | null
-  currentBookmarkId: string | null
-  isApplyingBookmark: boolean
-}
-
-export interface SegmentSlidebarState {
-  slidebar: Slidebar
-  currentQueryHash: string
-}
-
-export interface RootState {
-  SegmentsBookmarks: SegmentsBookmarksState
-  SegmentSlidebar: SegmentSlidebarState
-  Bookmark?: {
-    items: Record<string, Bookmark>
+  type: 'Bookmark'
+  attributes: {
+    queryHash: string
   }
-  [key: string]: any
+}
+
+export interface FilterLabelCache {
+  [id: string]: string
+}
+
+export interface FilterChange {
+  filterName: string
+  oldValue: string
+  newValue: string
+}
+
+export interface IndividualFilterChange {
+  filterCategory: string
+  filterValue: string
+  action: 'added' | 'removed'
+}
+
+export interface GroupedFilterChange {
+  category: string
+  removed: string[]
+  added: string[]
+}
+
+export interface DetailedChange {
+  type: 'filter' | 'search' | 'sorting' | 'columns'
+  label: string
+  details?: FilterChange[]
+  individualFilters?: IndividualFilterChange[]
+  groupedFilterChanges?: GroupedFilterChange[]
+  oldValue?: string
+  newValue?: string
+  added?: string[]
+  removed?: string[]
 }

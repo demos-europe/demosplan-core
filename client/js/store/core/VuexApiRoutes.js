@@ -116,8 +116,9 @@ const api3_0Modules = {
     'list',
     'get',
     'create',
+    'update',
     'delete',
-  ]
+  ],
 }
 
 // Store bundle-specific 3.0 overrides (set during store initialization)
