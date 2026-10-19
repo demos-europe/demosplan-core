@@ -2064,6 +2064,19 @@ export default {
       this.updateStatement({ r_ident: this.draftStatementId, ...data })
     },
 
+    setLocation (data = {}, toggle = true) {
+      this.setStatementData(data)
+
+      if (toggle) {
+        this.toggleModal(false)
+        // We need this to reset the animation so it can be fired again.
+        this.updateHighlighted({ key: 'location', val: true })
+        setTimeout(() => {
+          this.updateHighlighted({ key: 'location', val: false })
+        }, 2000)
+      }
+    },
+
     toggleModal (resetOnClose = true, data = null) {
       const isClosing = this.$refs.statementModal && this.$refs.statementModal.isOpen
 
@@ -2217,16 +2230,9 @@ export default {
       }
     })
 
-    this.$root.$on('updateStatementFormMapData', (data = {}, toggle = true) => {
-      this.setStatementData(data)
-      if (toggle) {
-        this.toggleModal(false)
-        // We need this to reset the animation so it can be fired again.
-        this.updateHighlighted({ key: 'location', val: true })
-        setTimeout(() => {
-          this.updateHighlighted({ key: 'location', val: false })
-        }, 2000)
-      }
+    // Set data from map
+    this.$root.$on('updateStatementFormMapData', (data, toggle) => {
+      this.setLocation(data, toggle)
     })
 
     this.$root.$on('statementModal:goToTab', tabname => {
