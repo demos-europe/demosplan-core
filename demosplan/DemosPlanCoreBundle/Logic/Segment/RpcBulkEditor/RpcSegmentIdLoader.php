@@ -157,7 +157,7 @@ class RpcSegmentIdLoader implements RpcMethodSolverInterface
          * Replace them with the same substring semantics the 3.0 filter applies: a segment matches if
          * its customFields JSON contains the quoted option id.
          */
-        [$customFieldConditions, $conditions] = $this->extractCustomFieldConditions($drupalFilter ?? [], $conditions);
+        [$customFieldConditions, $conditions] = $this->extractCustomFieldConditions($drupalFilter, $conditions);
         array_push($conditions, ...$customFieldConditions);
 
         $conditions[] = $this->conditionFactory->propertyHasValue(
