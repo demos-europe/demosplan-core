@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\SearchParams;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\StatementSegmentResourceType;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Constraint\CustomFieldOptionSelection;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\JsonApi\RequestHandling\JsonApiSortingParser;
 use EDT\Querying\ConditionParsers\Drupal\DrupalFilterParser;
@@ -27,6 +28,13 @@ use EDT\Querying\Contracts\PathsBasedInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
 use stdClass;
+use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Sequentially;
+use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\Constraints\Uuid;
+use Symfony\Component\Validator\Exception\ValidatorException;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Webmozart\Assert\Assert;
 
 class RpcSegmentIdLoader implements RpcMethodSolverInterface
@@ -48,6 +56,7 @@ class RpcSegmentIdLoader implements RpcMethodSolverInterface
         protected readonly LoggerInterface $logger,
         protected RpcErrorGenerator $errorGenerator,
         protected readonly PermissionsInterface $permissions,
+        protected readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -87,6 +96,9 @@ class RpcSegmentIdLoader implements RpcMethodSolverInterface
                 }
 
                 $resultResponse[] = $this->generateMethodResult($rpcRequest, $segmentIdentifiers);
+            } catch (ValidatorException $exception) {
+                $this->logger->info('Invalid custom field selection while loading segment IDs', ['exception' => $exception]);
+                $resultResponse[] = $this->errorGenerator->invalidParams($rpcRequest);
             } catch (Exception $exception) {
                 $this->logger->error('Error while loading segment IDs', ['exception' => $exception]);
                 $resultResponse[] = $this->errorGenerator->serverError($rpcRequest);
@@ -145,7 +157,7 @@ class RpcSegmentIdLoader implements RpcMethodSolverInterface
          * Replace them with the same substring semantics the 3.0 filter applies: a segment matches if
          * its customFields JSON contains the quoted option id.
          */
-        [$customFieldConditions, $conditions] = $this->extractCustomFieldConditions($drupalFilter ?? [], $conditions);
+        [$customFieldConditions, $conditions] = $this->extractCustomFieldConditions($drupalFilter, $conditions);
         array_push($conditions, ...$customFieldConditions);
 
         $conditions[] = $this->conditionFactory->propertyHasValue(
@@ -173,6 +185,8 @@ class RpcSegmentIdLoader implements RpcMethodSolverInterface
             return [[], $conditions];
         }
 
+        $this->assertValidCustomFieldSelection($customFieldFilter);
+
         $customFieldConditions = [];
         foreach ($customFieldFilter as $optionIds) {
             $anyOptionMatches = array_map(
@@ -198,11 +212,36 @@ class RpcSegmentIdLoader implements RpcMethodSolverInterface
     }
 
     /**
+     * The same rules as the `customField` parameter of the 3.0 API: every option is a UUID that belongs to
+     * the custom field it is selected for. Anything else would be dropped or never match without an error.
+     *
+     * @param array<non-empty-string, list<mixed>> $customFieldFilter
+     *
+     * @throws ValidatorException
+     */
+    private function assertValidCustomFieldSelection(array $customFieldFilter): void
+    {
+        $violations = $this->validator->validate($customFieldFilter, new All([
+            new All([
+                new Sequentially([new Type('string'), new NotBlank(), new Uuid(strict: false)]),
+            ]),
+        ]));
+        if (0 === count($violations)) {
+            // Only look the options up once the shape is known to be valid
+            $violations = $this->validator->validate($customFieldFilter, new CustomFieldOptionSelection());
+        }
+
+        if (0 !== count($violations)) {
+            throw new ValidatorException((string) $violations);
+        }
+    }
+
+    /**
      * Extracts the option ids per custom field from the group conditions the filter panel sends.
      *
      * @param array<non-empty-string, mixed> $drupalFilter
      *
-     * @return array<non-empty-string, list<string>>
+     * @return array<non-empty-string, list<mixed>>
      */
     private function collectCustomFieldOptions(array $drupalFilter): array
     {
@@ -211,10 +250,8 @@ class RpcSegmentIdLoader implements RpcMethodSolverInterface
             $memberOf = $filter['condition']['memberOf'] ?? null;
             if (is_string($memberOf) && str_starts_with($memberOf, self::CUSTOM_FIELD_GROUP_PREFIX)) {
                 $fieldId = substr($memberOf, strlen(self::CUSTOM_FIELD_GROUP_PREFIX));
-                $optionId = $filter['condition']['value'] ?? null;
-                if (is_string($optionId)) {
-                    $customFieldFilter[$fieldId][] = $optionId;
-                }
+                // Collected as sent: a value of the wrong type has to fail the validation, not vanish with the replaced conditions
+                $customFieldFilter[$fieldId][] = $filter['condition']['value'] ?? null;
             }
         }
 
