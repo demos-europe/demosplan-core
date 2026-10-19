@@ -65,7 +65,7 @@ class ScheduledExportResource
     #[ApiProperty(readable: true, writable: true)]
     #[Assert\NotBlank(message: 'A frequency is required to create a scheduled export.', groups: ['scheduledExport:create'])]
     #[Assert\NotBlank(allowNull: true, message: 'A frequency may not be empty.', groups: ['scheduledExport:update'])]
-    #[Assert\Choice(choices: ['daily', 'weekly', 'monthly'], message: 'Frequency must be one of: daily, weekly, monthly.')]
+    #[Assert\Choice(choices: ['daily', 'weekly', 'monthly'], message: 'Frequency must be one of: daily, weekly, monthly.', groups: ['scheduledExport:create', 'scheduledExport:update'])]
     public ?string $frequency = null;
 
     /**
@@ -74,7 +74,7 @@ class ScheduledExportResource
      * running - that cross-field check happens in the processor instead.
      */
     #[ApiProperty(readable: true, writable: true)]
-    #[Assert\Range(min: 1, max: 7, notInRangeMessage: 'Weekday must be between 1 (Monday) and 7 (Sunday).')]
+    #[Assert\Range(min: 1, max: 7, notInRangeMessage: 'Weekday must be between 1 (Monday) and 7 (Sunday).', groups: ['scheduledExport:create', 'scheduledExport:update'])]
     public ?int $weekday = null;
 
     /**
@@ -82,7 +82,7 @@ class ScheduledExportResource
      * optional here, required-when-monthly is enforced in the processor.
      */
     #[ApiProperty(readable: true, writable: true)]
-    #[Assert\Choice(choices: [1, 5, 10, 15, 20, 25], message: 'Day of month must be one of the allowed presets.')]
+    #[Assert\Choice(choices: [1, 5, 10, 15, 20, 25], message: 'Day of month must be one of the allowed presets.', groups: ['scheduledExport:create', 'scheduledExport:update'])]
     public ?int $dayOfMonth = null;
 
     #[ApiProperty(readable: true, writable: true)]
