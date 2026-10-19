@@ -38,8 +38,8 @@ class RpcSegmentIdLoaderCustomFieldFilterTest extends FunctionalTestCase
     use SegmentCustomFieldTestTrait;
 
     private ?Procedure $procedure = null;
-    private ?CustomFieldConfiguration $priority = null;
-    private ?CustomFieldConfiguration $topics = null;
+    protected ?CustomFieldConfiguration $priority = null;
+    protected ?CustomFieldConfiguration $topics = null;
 
     /** @var array<string, Segment>|null */
     private ?array $segments = null;
@@ -127,13 +127,47 @@ class RpcSegmentIdLoaderCustomFieldFilterTest extends FunctionalTestCase
         self::assertEqualsCanonicalizing($this->idsOf('highHousing', 'mediumTraffic'), $result);
     }
 
-    public function testAnOptionNobodyHoldsMatchesNothing(): void
+    public function testAnOptionOfTheFieldNobodyHoldsMatchesNothing(): void
     {
-        $result = $this->loadSegmentIds($this->customFieldFilter([
-            $this->priority->getId() => ['99999999-9999-4999-8999-999999999999'],
-        ]));
+        $field = $this->createSegmentCustomField($this->procedure, 'Unused', ['Never', 'Chosen']);
+        [$never] = $this->getOptionIds($field);
+
+        $result = $this->loadSegmentIds($this->customFieldFilter([$field->getId() => [$never]]));
 
         self::assertSame([], $result);
+    }
+
+    /**
+     * @dataProvider invalidSelectionProvider
+     *
+     * @param callable(self): array<string, list<mixed>> $optionIdsByFieldId
+     */
+    public function testAnInvalidSelectionIsRejectedInsteadOfDropped(callable $optionIdsByFieldId): void
+    {
+        $result = $this->execute($this->customFieldFilter($optionIdsByFieldId($this)));
+
+        self::assertObjectHasProperty('error', $result[0]);
+        self::assertSame(-32602, $result[0]->error['code']);
+        self::assertObjectNotHasProperty('result', $result[0]);
+    }
+
+    /**
+     * @return array<string, array{callable(self): array<string, list<mixed>>}>
+     */
+    public static function invalidSelectionProvider(): array
+    {
+        return [
+            'option that is not a UUID'      => [fn (self $test): array => [$test->priority->getId() => ['High']]],
+            'blank option'                   => [fn (self $test): array => [$test->priority->getId() => ['']]],
+            'option that is not a string'    => [fn (self $test): array => [$test->priority->getId() => [42]]],
+            'UUID that is no option at all'  => [fn (self $test): array => [$test->priority->getId() => ['99999999-9999-4999-8999-999999999999']]],
+            'option of another field'        => [fn (self $test): array => [$test->priority->getId() => [$test->getOptionIds($test->topics)[0]]]],
+            'field that does not exist'      => [fn (self $test): array => ['99999999-9999-4999-8999-999999999999' => [$test->getOptionIds($test->priority)[0]]]],
+            'valid next to an invalid field' => [fn (self $test): array => [
+                $test->priority->getId() => [$test->getOptionIds($test->priority)[0]],
+                $test->topics->getId()   => ['Noise'],
+            ]],
+        ];
     }
 
     public function testOtherConditionsStayNextToTheCustomFieldConditions(): void
