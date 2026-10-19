@@ -17,6 +17,6 @@ fe
 package.json
 stylelint.config.js
 symfony.lock
-vitest.config.ts
+vitest.config.mts
 yarn.lock
 .yarnrc.yml

@@ -287,6 +287,9 @@ export default {
     save () {
       this.isOpen = !this.isOpen
       this.saveUserAction(this.user.id)
+        .then(() => {
+          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+        })
     },
 
     async resetTwoFactor () {

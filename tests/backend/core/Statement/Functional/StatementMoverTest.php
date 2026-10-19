@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Statement\Functional;
 
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\BoilerplateFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
@@ -22,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementDeleter;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementMover;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
+use demosplan\DemosPlanCoreBundle\Repository\BoilerplateUsageRepository;
 use Tests\Base\FunctionalTestCase;
 
 class StatementMoverTest extends FunctionalTestCase
@@ -162,6 +164,41 @@ class StatementMoverTest extends FunctionalTestCase
         static::assertCount(1, $placeholder->getParent()->getChildren());
         static::assertCount(1, $movedStatement->getOriginal()->getChildren());
         static::assertCount(1, $movedStatement->getParent()->getChildren());
+    }
+
+    /**
+     * DPLAN-18271, decision 4 ("cross-procedure move/copy materializes the content and
+     * drops the link"): the moved statement must not keep a live tag referencing a
+     * boilerplate that now lives in a different procedure, and the placeholder left behind
+     * (a raw PHP clone of the pre-move statement) must not carry the tag over unreconciled
+     * either.
+     */
+    public function testMoveStatementMaterializesBoilerplateTagAndBlanksPlaceholder(): void
+    {
+        $statementToMove = $this->getStatementReference('testStatement1');
+        $targetProcedure = $this->getProcedureReference('testProcedure3');
+        $sourceProcedure = $statementToMove->getProcedure();
+
+        $boilerplate = BoilerplateFactory::createOne([
+            'procedure' => $sourceProcedure,
+            'text'      => 'Aktueller Textbausteininhalt',
+        ])->_real();
+        $this->getEntityManager()->refresh($statementToMove);
+        $statementToMove->setRecommendation("<dp-boilerplate boilerplate-id=\"{$boilerplate->getId()}\"></dp-boilerplate>");
+        $this->getEntityManager()->flush();
+
+        $boilerplateUsageRepository = self::getContainer()->get(BoilerplateUsageRepository::class);
+        static::assertCount(1, $boilerplateUsageRepository->findUsagesForStatementOrSegment($statementToMove));
+
+        $movedStatement = $this->sut->moveStatementToProcedure($statementToMove, $targetProcedure);
+        static::assertInstanceOf(Statement::class, $movedStatement);
+
+        static::assertSame('Aktueller Textbausteininhalt', $movedStatement->getRecommendationEmbedded());
+        static::assertCount(0, $boilerplateUsageRepository->findUsagesForStatementOrSegment($movedStatement));
+
+        $placeholder = $movedStatement->getPlaceholderStatement();
+        static::assertSame('', $placeholder->getRecommendationEmbedded());
+        static::assertCount(0, $boilerplateUsageRepository->findUsagesForStatementOrSegment($placeholder));
     }
 
     /**

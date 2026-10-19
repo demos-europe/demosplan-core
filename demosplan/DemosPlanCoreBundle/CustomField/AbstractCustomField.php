@@ -50,7 +50,7 @@ abstract class AbstractCustomField implements CustomFieldInterface
         }
 
         // Check for duplicate labels using Collections
-        $labels = collect($options)->pluck('label')->map('trim');
+        $labels = collect($options)->pluck('label')->map(fn ($label) => trim((string) $label));
         if ($labels->count() !== $labels->unique()->count()) {
             throw new InvalidArgumentException('Option labels must be unique');
         }
