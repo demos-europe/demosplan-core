@@ -21,7 +21,9 @@ use proj4php\Point;
 use proj4php\Proj;
 use proj4php\Proj4php;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
+#[AsAlias(MapProjectionConverterInterface::class)]
 class MapProjectionConverter implements MapProjectionConverterInterface
 {
     final public const OBJECT_RETURN_TYPE = 'object';
