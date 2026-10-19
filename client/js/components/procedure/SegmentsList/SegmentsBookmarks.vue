@@ -179,13 +179,16 @@
       </div>
 
       <span
-        v-if="currentViewChanges.length"
+        v-if="!currentViewChanges.length"
         class="text-sm"
       >
         {{ Translator.trans('segments.view.none.saved') }}
       </span>
 
-      <div class="border-t border-neutral-light-3 my-4">
+      <div
+        v-if="currentViewChanges.length && shouldNewBookmarkCreated"
+        class="border-t border-neutral-light-3 my-4"
+      >
         <span class="pt-4 block font-semibold mb-3">
           {{ Translator.trans('segments.view.new.save') }}
         </span>
@@ -203,9 +206,33 @@
 
     <!-- Footer -->
     <div class="border-t-2 border-neutral-light-3 w-full mt-auto flex justify-end p-4">
+      <dp-button
+        v-if="currentViewChanges.length && !shouldNewBookmarkCreated"
+        data-cy="segmentsBookmarks:abort"
+        :text="'Änderung verwerfen'"
+        variant="outline"
+        @click="abort"
+      />
+      <dp-button
+        v-if="currentViewChanges.length && !shouldNewBookmarkCreated"
+        data-cy="segmentsBookmarks:abort"
+        :text="'Als neue Ansicht speichern'"
+        @click="shouldNewBookmarkCreated = true"
+      />
+
+      <dp-button
+        v-if="currentBookmarkId && currentViewChanges.length && !shouldNewBookmarkCreated"
+        data-cy="segmentsBookmarks:abort"
+        :text="'Änderung übernehmen'"
+        variant="outline"
+        @click="handleUpdateBookmark"
+      />
+
       <dp-button-row
+        v-if="currentViewChanges.length && shouldNewBookmarkCreated"
         primary
         secondary
+        :disabled="newBookmarkName"
         data-cy="segmentsBookmarks:save"
         @primary-action="handlePrimaryAction"
         @secondary-action="abort"
@@ -250,12 +277,14 @@ const props = withDefaults(defineProps<{
   currentSearchPhrase?: string
   currentSorting?: string
   currentSelectedColumns?: string[]
+  defaultSelectedColumns?: string[]
   filters?: Record<string, { labelTranslationKey: string, rootPath: string, comparisonOperator: string }>
 }>(), {
   totalColumnCount: 0,
   currentSearchPhrase: '',
   currentSorting: '',
   currentSelectedColumns: () => [],
+  defaultSelectedColumns: () => [],
   filters: () => ({}),
 })
 
@@ -265,6 +294,7 @@ const state = store.state as RootState
 const newBookmarkName: Ref<string> = ref('')
 const showUnsavedChanges: Ref<boolean> = ref(false)
 const lsKey = `${props.procedureId}:segments:currentBookmarkId`
+const shouldNewBookmarkCreated: Ref<boolean> = ref(false)
 
 // Cache for filter value labels - accumulates labels so removed options can still be looked up
 const filterLabelCache: Ref<FilterLabelCache> = ref({
@@ -309,19 +339,20 @@ const isVisible: ComputedRef<boolean> = computed(() => slidebar.value.showTab ==
 const isApplyingBookmark: ComputedRef<boolean> = computed(() => state.SegmentsBookmarks.isApplyingBookmark)
 
 const currentViewChanges: ComputedRef<string[]> = computed(() => {
-  if (!currentBookmarkId.value) {
-    return []
+  if (currentBookmarkId.value) {
+    return getBookmarkChangeLabels(currentBookmarkId.value)
   }
 
-  return getBookmarkChangeLabels(currentBookmarkId.value)
+  return getDefaultViewChangeLabels()
 })
 
 const currentDetailedChanges: ComputedRef<DetailedChange[]> = computed(() => {
-  if (!currentBookmarkId.value) {
-    return []
+  if (currentBookmarkId.value) {
+    return getDetailedBookmarkChanges(currentBookmarkId.value)
   }
 
-  return getDetailedBookmarkChanges(currentBookmarkId.value)
+  // For default view, get detailed changes from the default state
+  return getDetailedDefaultViewChanges()
 })
 
 /* Store actions */
@@ -340,8 +371,15 @@ interface SegmentsBookmarksEmits {
 const emit = defineEmits<SegmentsBookmarksEmits>()
 
 /* Methods */
-const abort = (): void => {
-  console.log('Abort') // Todo: adjust method
+const abort = async (): Promise<void> => {
+  // Discard unsaved changes by re-applying the current view
+  if (currentBookmarkId.value) {
+    // Re-apply the current bookmark
+    await applySelectedBookmark(currentBookmarkId.value)
+  } else {
+    // Re-apply the default view
+    await setDefaultBookmark()
+  }
 }
 
 const applySelectedBookmark = async (bookmarkId): Promise<void> => {
@@ -410,6 +448,28 @@ const extractFilterValues = (filters: Record<string, any> = {}) => {
 
 const getBookmarkChangeLabels = (bookmarkId: string): string[] => getDetailedBookmarkChanges(bookmarkId).map(({ label }) => label)
 
+const getDefaultViewChangeLabels = (): string[] => getDetailedDefaultViewChanges().map(({ label }) => label)
+
+/**
+ * Get detailed changes comparing current state against the default view.
+ * Default view has: no filters, no search phrase, default sorting, default columns.
+ */
+const getDetailedDefaultViewChanges = (): DetailedChange[] => {
+  const currentFilters = state.FilterFlyout?.filterQuery || {}
+
+  // Default view has empty filters, empty search, empty sorting, but specific default columns
+  const defaultFilter = {}
+  const defaultSearchPhrase = ''
+  const defaultSorting = ''
+
+  return [
+    getDetailedFilterChanges(defaultFilter, currentFilters),
+    getDetailedSearchChanges(defaultSearchPhrase, props.currentSearchPhrase),
+    getDetailedSortingChanges(defaultSorting, props.currentSorting),
+    getDetailedColumnChanges(props.defaultSelectedColumns, props.currentSelectedColumns),
+  ].filter((change): change is DetailedChange => change !== null)
+}
+
 const getBookmarkSummary = (bookmarkId: string): string => {
   const bookmark = bookmarks.value.find(({ id }) => id === bookmarkId)
 
@@ -419,7 +479,7 @@ const getBookmarkSummary = (bookmarkId: string): string => {
 
   const { filter, searchPhrase, viewSettings } = bookmark.attributes
   const filterCount = Object.keys(filter).length
-  const selectedColumnCount = viewSettings.selectedColumns.length
+  const selectedColumnCount = viewSettings.selectedColumns?.length || 0 // ToDo: what if there are no selected column
 
   const filterText = `${filterCount} ${Translator.trans('filter')}`
 
@@ -635,14 +695,19 @@ const getFilterValueLabel = (valueId: string): string => {
 }
 
 const handlePrimaryAction = async (): Promise<void> => {
-  if (newBookmarkName.value) {
+  await createNewBookmark()
+  shouldNewBookmarkCreated.value = false
+
+/*  if (newBookmarkName.value) {
     await createNewBookmark()
   } else {
     await handleUpdateBookmark()
-  }
+  }*/
 }
 
 const handleViewChange = async (bookmarkId: string | null): Promise<void> => {
+  shouldNewBookmarkCreated.value = false
+
   if (bookmarkId === null) {
     await setDefaultBookmark()
 
@@ -655,7 +720,10 @@ const handleViewChange = async (bookmarkId: string | null): Promise<void> => {
 const restoreSavedBookmark = async (): Promise<void> => {
   const savedBookmarkId: string | null = lscache.get(lsKey)
 
+  // If no bookmark was saved, apply the default view to clear all settings
   if (!savedBookmarkId) {
+    emit('resetView')
+
     return
   }
 
@@ -663,6 +731,7 @@ const restoreSavedBookmark = async (): Promise<void> => {
 
   if (!savedBookmark) {
     lscache.remove(lsKey)
+    emit('resetView')
 
     return
   }

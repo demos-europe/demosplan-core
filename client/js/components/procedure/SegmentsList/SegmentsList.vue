@@ -1108,11 +1108,10 @@ export default {
 
       this.searchTerm = searchPhrase || ''
 
-      if (selectedColumns) {
-        this.currentSelection = selectedColumns
-        localStorage.setItem('segmentList', JSON.stringify(selectedColumns))
-        this.columnSelectorKey++
-      }
+      const columnsToApply = Array.isArray(selectedColumns) ? selectedColumns : []
+      this.currentSelection = columnsToApply
+      localStorage.setItem('segmentList', JSON.stringify(columnsToApply))
+      this.columnSelectorKey++
 
       if (sorting) {
         this.selectedSort = sorting
