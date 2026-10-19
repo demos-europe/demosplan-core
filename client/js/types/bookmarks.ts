@@ -47,8 +47,10 @@ export interface CreateBookmarkPayload {
 
 export interface UpdateBookmarkPayload {
   id: string
-  name?: string
-  queryHash?: string
+  type: 'Bookmark'
+  attributes: {
+    queryHash: string
+  }
 }
 
 export interface FilterLabelCache {

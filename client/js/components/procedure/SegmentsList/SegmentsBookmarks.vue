@@ -11,46 +11,52 @@
     </div>
 
     <!-- Content -->
+
     <!-- Unsaved changes -->
-    <div v-if="currentViewChanges.length">
+    <div
+      v-if="currentViewChanges.length"
+      class="px-4 pt-4"
+    >
       <dp-inline-notification
-        class="mt-3 mb-2"
+        class="mb-2"
         message="Da die Standardansicht nicht überschreibbar ist, speichern Sie die Änderungen als neue Ansicht oder verwerfen Sie sie."
         type="info"
       />
 
       <dp-accordion
         :is-open="showUnsavedChanges"
-        title="Ungespeicherte Änderungen anzeigen"
+        :title="showUnsavedChanges ? 'Ungespeicherte Änderungen ausblenden' : 'Ungespeicherte Änderungen anzeigen'"
+        font-weight="normal"
         compressed
+        highlight-toggled-trigger
         @item:toggle="showUnsavedChanges = !showUnsavedChanges"
       >
-        <div class="space-y-3 p-4">
+        <div class="py-2">
           <div
             v-for="change in currentDetailedChanges"
             :key="change.type"
             class=""
           >
-            <p class="font-semibold text-sm mb-2">
+            <p class="font-semibold my-2">
               {{ change.label }}
             </p>
 
             <!-- Filter details -->
             <div
               v-if="change.type === 'filter' && change.groupedFilterChanges"
-              class="border-b border-neutral-light-3"
+              class="border-b border-neutral-light-3 pb-2"
             >
               <div
                 v-for="(groupedChange, index) in change.groupedFilterChanges"
                 :key="index"
-                class="text-sm py-1"
+                class="py-1"
               >
-                <p class="font-semibold mb-1">
+                <p class="text-sm text-interactive-secondary font-semibold mb-1">
                   {{ groupedChange.category }}
                 </p>
                 <p
-                  v-if="groupedChange.removed.length > 0"
-                  class="text-status-failed-icon ml-4"
+                  v-if="groupedChange.removed.length"
+                  class="mb-0"
                 >
                   <dp-icon
                     icon="minus"
@@ -59,8 +65,8 @@
                   <span>{{ groupedChange.removed.join('; ') }}</span>
                 </p>
                 <p
-                  v-if="groupedChange.added.length > 0"
-                  class="ml-4"
+                  v-if="groupedChange.added.length"
+                  class="mb-0"
                 >
                   <dp-icon
                     icon="plus"
@@ -73,12 +79,12 @@
 
             <!-- Search/Sorting details -->
             <div
-              v-if="(change.type === 'search' || change.type === 'sorting') && change.oldValue !== undefined"
-              class="border-b border-neutral-light-3"
+              v-if="(change.type === 'search' || change.type === 'sorting') && change.oldValue"
+              class="border-b border-neutral-light-3 pb-2"
             >
               <p
                 v-if="change.oldValue"
-                class="text-status-failed-icon ml-4 text-sm"
+                class="mb-0"
               >
                 <dp-icon
                   icon="minus"
@@ -88,7 +94,7 @@
               </p>
               <p
                 v-if="change.newValue"
-                class="ml-4 text-sm"
+                class="mb-0"
               >
                 <dp-icon
                   icon="plus"
@@ -101,11 +107,11 @@
             <!-- Column details -->
             <div
               v-if="change.type === 'columns'"
-              class="border-b border-neutral-light-3"
+              class="border-b border-neutral-light-3 pb-2"
             >
               <p
-                v-if="change.removed && change.removed.length > 0"
-                class="text-status-failed-icon ml-4 text-sm"
+                v-if="change.removed && change.removed.length"
+                class="mb-0"
               >
                 <dp-icon
                   icon="minus"
@@ -114,8 +120,8 @@
                 <span>{{ change.removed.map(col => getColumnLabel(col)).join('; ') }}</span>
               </p>
               <p
-                v-if="change.added && change.added.length > 0"
-                class="ml-4 text-sm"
+                v-if="change.added && change.added.length"
+                class="mb-0"
               >
                 <dp-icon
                   icon="plus"
@@ -173,7 +179,7 @@
       </div>
 
       <span
-        v-if="!bookmarks.length"
+        v-if="currentViewChanges.length"
         class="text-sm"
       >
         {{ Translator.trans('segments.view.none.saved') }}
@@ -201,7 +207,7 @@
         primary
         secondary
         data-cy="segmentsBookmarks:save"
-        @primary-action="createNewBookmark"
+        @primary-action="handlePrimaryAction"
         @secondary-action="abort"
       />
     </div>
@@ -216,6 +222,7 @@ import type {
   FilterLabelCache,
   GroupedFilterChange,
   IndividualFilterChange,
+  UpdateBookmarkPayload,
 } from '@DpJs/types/bookmarks'
 import type {
   FilterGroup,
@@ -321,6 +328,7 @@ const currentDetailedChanges: ComputedRef<DetailedChange[]> = computed(() => {
 const createBookmark = (payload: CreateBookmarkPayload): Promise<boolean> => store.dispatch('SegmentsBookmarks/createBookmark', payload)
 const deleteBookmark = (id: string): Promise<boolean> => store.dispatch('SegmentsBookmarks/deleteBookmark', id)
 const fetchBookmarks = (): Promise<Bookmark[]> => store.dispatch('SegmentsBookmarks/fetchBookmarks')
+const updateBookmark = (payload: UpdateBookmarkPayload): Promise<boolean> => store.dispatch('SegmentsBookmarks/updateBookmark', payload)
 
 /* Emits */
 interface SegmentsBookmarksEmits {
@@ -626,6 +634,14 @@ const getFilterValueLabel = (valueId: string): string => {
   return label ?? valueId
 }
 
+const handlePrimaryAction = async (): Promise<void> => {
+  if (newBookmarkName.value) {
+    await createNewBookmark()
+  } else {
+    await handleUpdateBookmark()
+  }
+}
+
 const handleViewChange = async (bookmarkId: string | null): Promise<void> => {
   if (bookmarkId === null) {
     await setDefaultBookmark()
@@ -672,6 +688,29 @@ const setDefaultBookmark = async (): Promise<void> => {
   lscache.remove(lsKey)
   updateBookmarkButtonText(null)
   emit('resetView')
+}
+
+const handleUpdateBookmark = async (): Promise<void> => {
+  const bookmarkId = currentBookmarkId.value
+  const queryHash = currentQueryHash.value
+
+  if (!bookmarkId || !queryHash) {
+    return
+  }
+
+  const payload: UpdateBookmarkPayload = {
+    id: bookmarkId,
+    type: 'Bookmark',
+    attributes: {
+      queryHash,
+    },
+  }
+
+  const success = await updateBookmark(payload)
+
+  if (success) {
+    dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+  }
 }
 
 const updateBookmarkButtonText = (bookmark: Bookmark | null): void => {

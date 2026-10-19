@@ -7,6 +7,8 @@
  * All rights reserved
  */
 
+import { dpApi } from '@demos-europe/demosplan-ui'
+
 const SegmentsBookmarksStore = {
   namespaced: true,
 
@@ -47,18 +49,20 @@ const SegmentsBookmarksStore = {
         await dispatch('Bookmark/list', {
           params: {
             fields: {
-              Bookmark: 'name,queryHash,filter,searchPhrase,viewSettings'
-            }
-          }
+              Bookmark: 'name,queryHash,filter,searchPhrase,viewSettings',
+            },
+          },
         }, { root: true })
 
         // After fetching, get the bookmarks from the Bookmark store and save to our store
         const bookmarks = await dispatch('getBookmarksFromApiStore', null, { root: false })
+
         commit('setAllBookmarks', bookmarks)
 
         return bookmarks
       } catch (error) {
         console.error('Failed to fetch bookmarks:', error)
+
         return []
       }
     },
@@ -69,6 +73,7 @@ const SegmentsBookmarksStore = {
      */
     getBookmarksFromApiStore ({ rootState }) {
       const items = rootState.Bookmark?.items || {}
+
       return Object.values(items)
     },
 
@@ -104,6 +109,7 @@ const SegmentsBookmarksStore = {
             }
 
             const query = {}
+
             query[filter.condition.value] = filter
             dispatch('FilterFlyout/updateFilterQuery', query, { root: true })
           })
@@ -132,9 +138,11 @@ const SegmentsBookmarksStore = {
       try {
         await dispatch('Bookmark/create', payload, { root: true })
         await dispatch('fetchBookmarks')
+
         return true
       } catch (error) {
         console.error('Failed to create bookmark:', error)
+
         return false
       }
     },
@@ -146,11 +154,25 @@ const SegmentsBookmarksStore = {
      */
     async updateBookmark ({ dispatch }, payload) {
       try {
-        await dispatch('Bookmark/update', payload, { root: true })
+        const apiPayload = {
+          data: {
+            id: payload.id,
+            type: 'Bookmark',
+            attributes: {
+              queryHash: payload.attributes.queryHash,
+            },
+          },
+        }
+
+        const url = `${Routing.getBaseUrl()}/api/3.0/Bookmark/${encodeURIComponent(payload.id)}`
+
+        await dpApi.patch(url, {}, apiPayload)
         await dispatch('fetchBookmarks')
+
         return true
       } catch (error) {
         console.error('Failed to update bookmark:', error)
+
         return false
       }
     },
@@ -164,9 +186,11 @@ const SegmentsBookmarksStore = {
       try {
         await dispatch('Bookmark/delete', id, { root: true })
         await dispatch('fetchBookmarks')
+
         return true
       } catch (error) {
         console.error('Failed to delete bookmark:', error)
+
         return false
       }
     },
