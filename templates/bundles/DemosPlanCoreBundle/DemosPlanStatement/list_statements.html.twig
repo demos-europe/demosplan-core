@@ -32,6 +32,7 @@
 
     <list-statements
         current-user-id="{{ currentUser.ident }}"
+        :is-read-only="{{ procedureObject.readOnly ? 'true' : 'false' }}"
         :is-source-and-coupled-procedure="{{ templateVars.isSourceAndCoupledProcedure == 1 ? 'true' : 'false' }}"
         procedure-id="{{ procedureId }}"
         procedure-name="{{ procedureObject.name }}"
