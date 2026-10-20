@@ -466,9 +466,6 @@
     "pagerfanta/pagerfanta": {
         "version": "v2.7.2"
     },
-    "paragonie/random_compat": {
-        "version": "v9.99.100"
-    },
     "phar-io/manifest": {
         "version": "1.0.3"
     },
