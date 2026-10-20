@@ -25,66 +25,15 @@
       />
 
       <div class="px-4 py-3">
-      <p class="font-semibold">
-        {{ Translator.trans('segments.bookmarks.saved') }}
-      </p>
-      <dp-radio
-        id="defaultBookmark"
-        class="border my-2 p-1"
-        :class="!currentBookmarkId ? 'border-blue-base' : 'border-neutral-light-3'"
-        :checked="!currentBookmarkId"
-        :disabled="isBookmarkLoading"
-        :label="{
-          hint: Translator.trans('segments.bookmarks.default.description'),
-          text: Translator.trans('segments.bookmarks.default'),
-        }"
-        @change="handleViewChange(null)"
-      />
-      <div
-        v-for="bookmark in bookmarks"
-        :key="bookmark.id"
-        class="flex justify-between border my-2 p-1"
-        :class="bookmark.id === currentBookmarkId ? 'border-blue-base' : 'border-neutral-light-3'"
-      >
-        <dp-radio
-          :id="bookmark.id"
-          :checked="bookmark.id === currentBookmarkId"
-          :disabled="isBookmarkLoading"
-          :label="{
-            hint: getBookmarkSummary(bookmark.id),
-            text: bookmark.attributes.name,
-          }"
-          @change="handleViewChange(bookmark.id)"
+        <segments-bookmarks-list
+          :bookmarks="bookmarks"
+          :current-bookmark-id="currentBookmarkId"
+          :deleting-bookmark-id="deletingBookmarkId"
+          :is-loading="isBookmarkLoading"
+          :total-column-count="totalColumnCount"
+          @select="handleViewChange"
+          @delete="handleDeleteBookmark"
         />
-        <dp-button
-          v-if="deletingBookmarkId !== bookmark.id"
-          color="primary"
-          data-cy="segmentsBookmarks:delete"
-          hide-text
-          icon="delete"
-          :text="Translator.trans('delete')"
-          variant="subtle"
-          @click="handleDeleteBookmark(bookmark.id)"
-        />
-        <dp-loading
-          v-if="deletingBookmarkId === bookmark.id"
-          class="inline-flex mr-1"
-          hide-label
-        />
-      </div>
-
-      <dp-loading
-        v-if="isBookmarkLoading"
-        class="justify-center my-2"
-        hide-label
-      />
-
-      <span
-        v-if="!bookmarks.length && !isBookmarkLoading"
-        class="text-sm"
-      >
-        {{ Translator.trans('segments.bookmarks.none.saved') }}
-      </span>
 
       <div
         v-if="hasUnsavedChanges && showNewBookmarkForm"
@@ -173,6 +122,7 @@ import { computed, type ComputedRef, onMounted, type Ref, ref } from 'vue'
 import { useStore } from 'vuex'
 import lscache from 'lscache'
 import SegmentsBookmarksUnsavedChanges from './SegmentsBookmarksUnsavedChanges.vue'
+import SegmentsBookmarksList from './SegmentsBookmarksList.vue'
 
 /* Props */
 const props = withDefaults(defineProps<{

@@ -1123,7 +1123,8 @@ export default {
 
     async applyBookmarkSettings (bookmark) {
       if (!bookmark) {
-        await this.setDefaultView()
+        await this.resetQuery()
+        this.setDefaultView()
 
         return
       }
@@ -1810,12 +1811,6 @@ export default {
       return div.children.length > 0
     },
 
-    resetBookmarks () {
-      const bookmarkLsKey = `${this.procedureId}:segments:currentBookmarkId`
-      lscache.remove(bookmarkLsKey)
-      this.$store.dispatch('SegmentsBookmarks/resetToDefaultView')
-    },
-
     resetColumnSelection () {
       localStorage.removeItem('segmentList')
       this.setCurrentSelection([...this.defaultColumnSelection])
@@ -1835,7 +1830,7 @@ export default {
       this.resetSearchQuery()
 
       if (hasPermission('feature_procedure_user_filter_sets')) {
-        this.resetBookmarks()
+        this.setDefaultView()
       }
 
       this.$emit('resetFilters')
@@ -2130,15 +2125,14 @@ export default {
       this.setCurrentQueryHash(this.currentQueryHash)
     },
 
-    async setDefaultView () {
-      await this.resetQuery()
-
+    setDefaultView () {
       this.currentSelection = [...this.defaultColumnSelection]
       localStorage.setItem('segmentList', JSON.stringify(this.defaultColumnSelection))
       this.columnSelectorKey++
 
       this.selectedSort = ''
       lscache.remove(this.lsKey.selectedSort)
+      this.$store.dispatch('SegmentsBookmarks/resetToDefaultView')
     },
 
     showVersionHistory (segmentId, externId) {
