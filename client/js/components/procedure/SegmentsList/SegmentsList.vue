@@ -1173,18 +1173,11 @@ export default {
         ...defaultFilter,
       }
 
-      const defaultOrder = {
-        'parentStatementOfSegment.submit': 'asc',
-        'parentStatementOfSegment.externId': 'asc',
-        orderInProcedure: 'asc',
-      }
-      const order = this.getSelectedSortParams() ?? defaultOrder
-
       const payload = {
         include,
         fields,
         pagination: true,
-        order,
+        order: this.getSortParams(),
         page,
         itemsPerPage: this.pagination.perPage,
         ...filter,
@@ -1240,8 +1233,8 @@ export default {
     },
 
     /*
-     * Sends the list's filter and search parameters to the export, so it contains exactly the
-     * listed segments. The procedure comes from the route, so no sameProcedure filter is needed.
+     * Sends the list's filter, search, and sort parameters to the export.
+     * The procedure comes from the route, so no sameProcedure filter is needed.
      */
     handleExportSegments ({ type }) {
       const selectedSegmentIds = this.resolveSelectedSegmentIds()
@@ -1257,6 +1250,7 @@ export default {
       const params = {
         procedureId: this.procedureId,
         ...filter,
+        order: this.getSortParams(),
         columns: orderedFields.map(headerField => headerField.field).join(','),
       }
 
@@ -1550,7 +1544,14 @@ export default {
       return parts.filter(Boolean).join(', ')
     },
 
-    getSelectedSortParams () {
+    // Effective order of the list and its export: the user-selected sort, or the default order
+    getSortParams () {
+      const defaultOrder = {
+        'parentStatementOfSegment.submit': 'asc',
+        'parentStatementOfSegment.externId': 'asc',
+        orderInProcedure: 'asc',
+      }
+
       const sortPaths = {
         deadline: 'deadline',
         externId: 'externId',
@@ -1564,7 +1565,7 @@ export default {
 
       return sortPath && direction ?
         { [sortPath]: direction } :
-        null
+        defaultOrder
     },
 
     /**
