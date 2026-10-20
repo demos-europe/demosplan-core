@@ -134,7 +134,9 @@ const SegmentsBookmarksStore = {
      * @param {Object} context - Vuex context
      * @param {Object} payload - Bookmark data
      */
-    async createBookmark ({ dispatch }, payload) {
+    async createBookmark ({ commit, dispatch }, payload) {
+      commit('setIsApplyingBookmark', true)
+
       try {
         await dispatch('Bookmark/create', payload, { root: true })
         await dispatch('fetchBookmarks')
@@ -144,6 +146,8 @@ const SegmentsBookmarksStore = {
         console.error('Failed to create bookmark:', error)
 
         return false
+      } finally {
+        commit('setIsApplyingBookmark', false)
       }
     },
 
@@ -152,7 +156,9 @@ const SegmentsBookmarksStore = {
      * @param {Object} context - Vuex context
      * @param {Object} payload - Bookmark update data
      */
-    async updateBookmark ({ dispatch }, payload) {
+    async updateBookmark ({ commit, dispatch }, payload) {
+      commit('setIsApplyingBookmark', true)
+
       try {
         const apiPayload = {
           data: {
@@ -174,6 +180,8 @@ const SegmentsBookmarksStore = {
         console.error('Failed to update bookmark:', error)
 
         return false
+      } finally {
+        commit('setIsApplyingBookmark', false)
       }
     },
 

@@ -1,31 +1,31 @@
 <template>
   <div
     v-show="isVisible"
-    class="-ml-5 flex h-full flex-col"
+    class="-ml-5 flex h-full flex-col overflow-auto"
   >
     <!-- Header -->
-    <div class="border-b-2 border-neutral-light-3 px-4 py-2">
+    <div class="shrink-0 border-b-2 border-neutral-light-3 px-4 py-2">
       <h2>
         {{ Translator.trans('views') }}
       </h2>
     </div>
 
     <!-- Content -->
-
-    <!-- Unsaved changes -->
-    <div
-      v-if="currentViewChanges.length"
-      class="px-4 pt-4"
-    >
+    <div class="flex-1 overflow-y-auto min-h-0">
+      <!-- Unsaved changes -->
+      <div
+        v-if="currentViewChanges.length"
+        class="px-4 pt-4"
+      >
       <dp-inline-notification
         class="mb-2"
-        message="Da die Standardansicht nicht überschreibbar ist, speichern Sie die Änderungen als neue Ansicht oder verwerfen Sie sie."
+        :message="Translator.trans('segments.bookmarks.default.not.overwritable')"
         type="info"
       />
 
       <dp-accordion
         :is-open="showUnsavedChanges"
-        :title="showUnsavedChanges ? 'Ungespeicherte Änderungen ausblenden' : 'Ungespeicherte Änderungen anzeigen'"
+        :title="showUnsavedChanges ? Translator.trans('segments.bookmarks.unsaved.changes.hide') : Translator.trans('segments.bookmarks.unsaved.changes.show')"
         font-weight="normal"
         compressed
         highlight-toggled-trigger
@@ -44,7 +44,7 @@
             <!-- Filter details -->
             <div
               v-if="change.type === 'filter' && change.groupedFilterChanges"
-              class="border-b border-neutral-light-3 pb-2"
+              class="border-b border-neutral-light-3 pb-3"
             >
               <div
                 v-for="(groupedChange, index) in change.groupedFilterChanges"
@@ -80,7 +80,7 @@
             <!-- Search/Sorting details -->
             <div
               v-if="(change.type === 'search' || change.type === 'sorting') && change.oldValue"
-              class="border-b border-neutral-light-3 pb-2"
+              class="border-b border-neutral-light-3 pb-3"
             >
               <p
                 v-if="change.oldValue"
@@ -135,9 +135,9 @@
       </dp-accordion>
     </div>
 
-    <div class="p-4">
+    <div class="px-4 py-1">
       <p class="font-semibold">
-        {{ Translator.trans('segments.view.saved') }}
+        {{ Translator.trans('segments.bookmarks.saved') }}
       </p>
       <dp-radio
         id="defaultBookmark"
@@ -146,8 +146,8 @@
         :checked="currentBookmarkId === null"
         :disabled="isApplyingBookmark"
         :label="{
-          text: Translator.trans('segments.view.default'),
-          hint: Translator.trans('segments.view.default.description')
+          text: Translator.trans('segments.bookmarks.default'),
+          hint: Translator.trans('segments.bookmarks.default.description')
         }"
         @change="handleViewChange(null)"
       />
@@ -168,21 +168,32 @@
           @change="handleViewChange(bookmark.id)"
         />
         <dp-button
+          v-if="deletingBookmarkId !== bookmark.id"
           color="primary"
           data-cy="segmentsBookmarks:delete"
           hide-text
           icon="delete"
           :text="Translator.trans('delete')"
           variant="subtle"
-          @click="deleteBookmark(bookmark.id)"
+          @click="handleDeleteBookmark(bookmark.id)"
+        />
+        <dp-loading
+          v-if="deletingBookmarkId === bookmark.id"
+          class="inline-flex mr-1"
+          hide-label
         />
       </div>
+      <dp-loading
+        v-if="isApplyingBookmark"
+        class="justify-center my-2"
+        hide-label
+      />
 
       <span
-        v-if="!currentViewChanges.length"
+        v-if="!bookmarks.length && !isApplyingBookmark"
         class="text-sm"
       >
-        {{ Translator.trans('segments.view.none.saved') }}
+        {{ Translator.trans('segments.bookmarks.none.saved') }}
       </span>
 
       <div
@@ -190,49 +201,56 @@
         class="border-t border-neutral-light-3 my-4"
       >
         <span class="pt-4 block font-semibold mb-3">
-          {{ Translator.trans('segments.view.new.save') }}
+          {{ Translator.trans('segments.bookmarks.new.save') }}
         </span>
         <dp-input
           id="newBookmarkName"
           v-model="newBookmarkName"
           data-cy="segmentsBookmarks:newName"
           :label="{
-            text: Translator.trans('segments.view.name'),
-            tooltip: Translator.trans('segments.view.name.tooltip')
+            text: Translator.trans('segments.bookmarks.name'),
+            tooltip: Translator.trans('segments.bookmarks.name.tooltip')
           }"
         />
       </div>
     </div>
+    </div>
 
     <!-- Footer -->
-    <div class="border-t-2 border-neutral-light-3 w-full mt-auto flex justify-end p-4">
-      <dp-button
-        v-if="currentViewChanges.length && !shouldNewBookmarkCreated"
-        data-cy="segmentsBookmarks:abort"
-        :text="'Änderung verwerfen'"
-        variant="outline"
-        @click="abort"
-      />
-      <dp-button
-        v-if="currentViewChanges.length && !shouldNewBookmarkCreated"
-        data-cy="segmentsBookmarks:abort"
-        :text="'Als neue Ansicht speichern'"
-        @click="shouldNewBookmarkCreated = true"
-      />
-
-      <dp-button
-        v-if="currentBookmarkId && currentViewChanges.length && !shouldNewBookmarkCreated"
-        data-cy="segmentsBookmarks:abort"
-        :text="'Änderung übernehmen'"
-        variant="outline"
-        @click="handleUpdateBookmark"
-      />
+    <div class="shrink-0 border-t-2 border-neutral-light-3 w-full flex justify-end p-4">
+      <div class="grid grid-cols-2 gap-2">
+        <dp-button
+          v-if="currentViewChanges.length && !shouldNewBookmarkCreated"
+          data-cy="segmentsBookmarks:abort"
+          :disabled="isApplyingBookmark"
+          :text="Translator.trans('segments.bookmarks.changes.discard')"
+          variant="subtle"
+          @click="abort"
+        />
+        <dp-button
+          v-if="currentViewChanges.length && !shouldNewBookmarkCreated"
+          data-cy="segmentsBookmarks:abort"
+          :disabled="isApplyingBookmark"
+          :text="Translator.trans('segments.bookmarks.save.as.new')"
+          variant="outline"
+          @click="shouldNewBookmarkCreated = true; showUnsavedChanges = false"
+        />
+        <div class="col-span-2 justify-self-end">
+          <dp-button
+            v-if="currentBookmarkId && currentViewChanges.length && !shouldNewBookmarkCreated"
+            data-cy="segmentsBookmarks:abort"
+            :disabled="isApplyingBookmark"
+            :text="Translator.trans('segments.bookmarks.changes.apply')"
+            @click="handleUpdateBookmark"
+          />
+        </div>
+      </div>
 
       <dp-button-row
         v-if="currentViewChanges.length && shouldNewBookmarkCreated"
         primary
         secondary
-        :disabled="newBookmarkName"
+        :disabled="!newBookmarkName || isApplyingBookmark"
         data-cy="segmentsBookmarks:save"
         @primary-action="handlePrimaryAction"
         @secondary-action="abort"
@@ -265,6 +283,7 @@ import {
   DpInlineNotification,
   DpInput,
   DpRadio,
+  DpLoading,
 } from '@demos-europe/demosplan-ui'
 import { computed, type ComputedRef, onMounted, type Ref, ref, watch } from 'vue'
 import { useStore } from 'vuex'
@@ -292,6 +311,7 @@ const store = useStore<RootState>()
 const state = store.state as RootState
 
 const newBookmarkName: Ref<string> = ref('')
+const deletingBookmarkId: Ref<string | null> = ref(null)
 const showUnsavedChanges: Ref<boolean> = ref(false)
 const lsKey = `${props.procedureId}:segments:currentBookmarkId`
 const shouldNewBookmarkCreated: Ref<boolean> = ref(false)
@@ -336,7 +356,7 @@ const currentQueryHash: ComputedRef<string> = computed(() => state.SegmentSlideb
 
 const slidebar: ComputedRef<Slidebar> = computed(() => state.SegmentSlidebar.slidebar)
 const isVisible: ComputedRef<boolean> = computed(() => slidebar.value.showTab === 'bookmarks')
-const isApplyingBookmark: ComputedRef<boolean> = computed(() => state.SegmentsBookmarks.isApplyingBookmark)
+const isApplyingBookmark: ComputedRef<boolean> = computed(() => state.SegmentsBookmarks.isApplyingBookmark) // ToDo: check if we need this
 
 const currentViewChanges: ComputedRef<string[]> = computed(() => {
   if (currentBookmarkId.value) {
@@ -357,7 +377,7 @@ const currentDetailedChanges: ComputedRef<DetailedChange[]> = computed(() => {
 
 /* Store actions */
 const createBookmark = (payload: CreateBookmarkPayload): Promise<boolean> => store.dispatch('SegmentsBookmarks/createBookmark', payload)
-const deleteBookmark = (id: string): Promise<boolean> => store.dispatch('SegmentsBookmarks/deleteBookmark', id)
+const deleteBookmarkAction = (id: string): Promise<boolean> => store.dispatch('SegmentsBookmarks/deleteBookmark', id)
 const fetchBookmarks = (): Promise<Bookmark[]> => store.dispatch('SegmentsBookmarks/fetchBookmarks')
 const updateBookmark = (payload: UpdateBookmarkPayload): Promise<boolean> => store.dispatch('SegmentsBookmarks/updateBookmark', payload)
 
@@ -376,6 +396,22 @@ const abort = async (): Promise<void> => {
     await applySelectedBookmark(currentBookmarkId.value)
   } else {
     await setDefaultBookmark()
+  }
+}
+
+const handleDeleteBookmark = async (bookmarkId: string): Promise<void> => {
+  const wasSelected = currentBookmarkId.value === bookmarkId
+
+  deletingBookmarkId.value = bookmarkId
+
+  try {
+    const success = await deleteBookmarkAction(bookmarkId)
+
+    if (success && wasSelected) {
+      setDefaultBookmark()
+    }
+  } finally {
+    deletingBookmarkId.value = null
   }
 }
 
@@ -420,7 +456,15 @@ const createNewBookmark = async (): Promise<void> => {
 
   if (success) {
     newBookmarkName.value = ''
+    shouldNewBookmarkCreated.value = false
     dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+
+    // Find the newly created bookmark by name and apply it
+    const newBookmark = bookmarks.value.find(b => b.attributes.name === name)
+
+    if (newBookmark) {
+      await applySelectedBookmark(newBookmark.id)
+    }
   }
 }
 
@@ -694,12 +738,7 @@ const getFilterValueLabel = (valueId: string): string => {
 const handlePrimaryAction = async (): Promise<void> => {
   await createNewBookmark()
   shouldNewBookmarkCreated.value = false
-
-/*  if (newBookmarkName.value) {
-    await createNewBookmark()
-  } else {
-    await handleUpdateBookmark()
-  }*/
+  showUnsavedChanges.value = false
 }
 
 const handleViewChange = async (bookmarkId: string | null): Promise<void> => {
@@ -772,6 +811,7 @@ const handleUpdateBookmark = async (): Promise<void> => {
 
   if (success) {
     dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+    showUnsavedChanges.value = false
   }
 }
 

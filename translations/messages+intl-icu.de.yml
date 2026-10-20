@@ -3521,6 +3521,19 @@ segments.view.name.tooltip: "In der Ansicht gespeichert werden: Spaltenauswahl, 
 segments.view.new.save: "Neue Ansicht speichern"
 segments.view.none.saved: "Bisher noch keine eigene Ansicht gespeichert. Passen Sie Filter oder Spalten an, um Ihre Konfiguration als neue Ansicht zu speichern."
 segments.view.saved: "Gespeicherte Ansichten"
+segments.bookmarks.default: "Standardansicht"
+segments.bookmarks.default.description: "Spalten: ID, Text, Bearbeitungsfrist, Schritt · ohne Filter"
+segments.bookmarks.default.not.overwritable: "Da die Standardansicht nicht überschreibbar ist, speichern Sie die Änderungen als neue Ansicht oder verwerfen Sie sie."
+segments.bookmarks.name: "Name der Ansicht"
+segments.bookmarks.name.tooltip: "In der Ansicht gespeichert werden: Spaltenauswahl, Spaltenreihenfolge und angewendete Filter"
+segments.bookmarks.new.save: "Neue Ansicht speichern"
+segments.bookmarks.none.saved: "Bisher noch keine eigene Ansicht gespeichert. Passen Sie Filter oder Spalten an, um Ihre Konfiguration als neue Ansicht zu speichern."
+segments.bookmarks.saved: "Gespeicherte Ansichten"
+segments.bookmarks.unsaved.changes.hide: "Ungespeicherte Änderungen ausblenden"
+segments.bookmarks.unsaved.changes.show: "Ungespeicherte Änderungen anzeigen"
+segments.bookmarks.changes.discard: "Änderung verwerfen"
+segments.bookmarks.save.as.new: "Als neue Ansicht speichern"
+segments.bookmarks.changes.apply: "Änderungen übernehmen"
 items.selected.multi.page: |
     {count, plural,
         =1 { Ein Element ausgewählt (u.U. nicht auf Seite 1). }
