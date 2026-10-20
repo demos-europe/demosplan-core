@@ -1768,10 +1768,10 @@ export default {
       return div.children.length > 0
     },
 
-    async resetBookmarks () {
+    resetBookmarks () {
       const bookmarkLsKey = `${this.procedureId}:segments:currentBookmarkId`
       lscache.remove(bookmarkLsKey)
-      await this.$store.dispatch('SegmentsBookmarks/resetToDefaultView')
+      this.$store.dispatch('SegmentsBookmarks/resetToDefaultView')
     },
 
     resetColumnSelection () {
@@ -1789,7 +1789,7 @@ export default {
     },
 
     // Filters live in SegmentsListFilter (in the slidebar); delegate the reset there via the twig template.
-    async resetQuery () {
+    resetQuery () {
       this.resetSearchQuery()
       this.resetBookmarks() // ToDo: permission
       this.$emit('resetFilters')
@@ -2092,9 +2092,6 @@ export default {
 
       this.selectedSort = ''
       lscache.remove(this.lsKey.selectedSort)
-
-      await this.updateQueryHash()
-      this.applyQuery(1)
     },
 
     showVersionHistory (segmentId, externId) {

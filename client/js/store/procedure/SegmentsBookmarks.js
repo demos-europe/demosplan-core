@@ -199,12 +199,9 @@ const SegmentsBookmarksStore = {
      * Reset to default view
      * @param {Object} context - Vuex context
      */
-    async resetToDefaultView ({ commit, dispatch }) {
+    resetToDefaultView ({ commit, dispatch }) {
       commit('setCurrentBookmarkId', null)
       commit('setCurrentBookmark', null)
-
-      // Return true to indicate caller should trigger applyQuery
-      return true
     },
   },
 

@@ -372,12 +372,9 @@ const emit = defineEmits<SegmentsBookmarksEmits>()
 
 /* Methods */
 const abort = async (): Promise<void> => {
-  // Discard unsaved changes by re-applying the current view
   if (currentBookmarkId.value) {
-    // Re-apply the current bookmark
     await applySelectedBookmark(currentBookmarkId.value)
   } else {
-    // Re-apply the default view
     await setDefaultBookmark()
   }
 }
@@ -747,12 +744,8 @@ const restoreSavedBookmark = async (): Promise<void> => {
   }
 }
 
-const setDefaultBookmark = async (): Promise<void> => {
-  const success = await store.dispatch('SegmentsBookmarks/resetToDefaultView')
-
-  if (!success) {
-    return
-  }
+const setDefaultBookmark = (): void => {
+  store.dispatch('SegmentsBookmarks/resetToDefaultView')
 
   lscache.remove(lsKey)
   updateBookmarkButtonText(null)
