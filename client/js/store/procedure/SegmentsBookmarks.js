@@ -9,6 +9,8 @@
 
 import { dpApi } from '@demos-europe/demosplan-ui'
 
+const bookmarkApiUrl = () => `${Routing.getBaseUrl()}/api/3.0/Bookmark`
+
 const SegmentsBookmarksStore = {
   namespaced: true,
 
@@ -18,12 +20,28 @@ const SegmentsBookmarksStore = {
     allBookmarks: [],
     currentBookmark: null,
     currentBookmarkId: null,
-    isApplyingBookmark: false,
+    isBookmarkLoading: false,
   },
 
   mutations: {
-    setAllBookmarks (state, bookmarks) {
+    setBookmarks (state, bookmarks) {
       state.allBookmarks = bookmarks
+    },
+
+    addBookmark (state, bookmark) {
+      state.allBookmarks.push(bookmark)
+    },
+
+    updateBookmarkInStore (state, updatedBookmark) {
+      const index = state.allBookmarks.findIndex(b => b.id === updatedBookmark.id)
+
+      if (index !== -1) {
+        state.allBookmarks[index] = updatedBookmark
+      }
+    },
+
+    removeBookmark (state, bookmarkId) {
+      state.allBookmarks = state.allBookmarks.filter(b => b.id !== bookmarkId)
     },
 
     setCurrentBookmark (state, bookmark) {
@@ -34,47 +52,43 @@ const SegmentsBookmarksStore = {
       state.currentBookmarkId = bookmarkId
     },
 
-    setIsApplyingBookmark (state, isApplying) {
-      state.isApplyingBookmark = isApplying
+    setIsBookmarkLoading (state, isLoading) {
+      state.isBookmarkLoading = isLoading
     },
   },
 
   actions: {
     /**
-     * Fetch all bookmarks from the Bookmark API store
+     * Fetch all bookmarks
      * @param {Object} context - Vuex context
      */
-    async fetchBookmarks ({ commit, dispatch }) {
+    async fetchBookmarks ({ commit }) {
+      commit('setIsBookmarkLoading', true)
+
       try {
-        await dispatch('Bookmark/list', {
-          params: {
-            fields: {
-              Bookmark: 'name,queryHash,filter,searchPhrase,viewSettings',
-            },
+        const response = await dpApi.get(bookmarkApiUrl(), {
+          fields: {
+            Bookmark: [
+              'name',
+              'queryHash',
+              'filter',
+              'searchPhrase',
+              'viewSettings',
+            ].join(),
           },
-        }, { root: true })
+        })
 
-        // After fetching, get the bookmarks from the Bookmark store and save to our store
-        const bookmarks = await dispatch('getBookmarksFromApiStore', null, { root: false })
-
-        commit('setAllBookmarks', bookmarks)
+        const bookmarks = response.data?.data || []
+        commit('setBookmarks', bookmarks)
 
         return bookmarks
       } catch (error) {
         console.error('Failed to fetch bookmarks:', error)
 
         return []
+      } finally {
+        commit('setIsBookmarkLoading', false)
       }
-    },
-
-    /**
-     * Get bookmarks from the Bookmark API store
-     * @param {Object} context - Vuex context
-     */
-    getBookmarksFromApiStore ({ rootState }) {
-      const items = rootState.Bookmark?.items || {}
-
-      return Object.values(items)
     },
 
     /**
@@ -89,41 +103,31 @@ const SegmentsBookmarksStore = {
      * @param {Object} payload.bookmark - The bookmark object with attributes (filter, searchPhrase, viewSettings, queryHash)
      */
     async applyBookmark ({ commit, dispatch }, { bookmarkId, bookmark }) {
-      commit('setIsApplyingBookmark', true)
+      commit('setIsBookmarkLoading', true)
       commit('setCurrentBookmarkId', bookmarkId)
       commit('setCurrentBookmark', bookmark)
 
       try {
-        // First, clear all existing filters
-        await dispatch('FilterFlyout/updateFilterQuery', {}, { root: true })
+        await dispatch('FilterFlyout/updateFilterQuery', {}, { root: true }) // First, clear all existing filters
 
-        // Apply filters from bookmark - same pattern as mounted() with initialFilter
-        if (
-          bookmark.attributes.filter &&
-          Array.isArray(bookmark.attributes.filter) === false &&
-          Object.keys(bookmark.attributes.filter).length
-        ) {
-          Object.values(bookmark.attributes.filter).forEach((filter) => {
-            if (!filter.condition) {
-              return
+        const filters = bookmark.attributes.filter
+
+        if (filters && !Array.isArray(filters)) {
+          Object.values(filters).forEach(filter => {
+            if (filter.condition) {
+              dispatch('FilterFlyout/updateFilterQuery', {
+                [filter.condition.value]: filter,
+              }, { root: true })
             }
-
-            const query = {}
-
-            query[filter.condition.value] = filter
-            dispatch('FilterFlyout/updateFilterQuery', query, { root: true })
           })
         }
 
-        // Commit the filters
         await dispatch('FilterFlyout/commitFilterQuery', null, { root: true })
-
-        commit('setIsApplyingBookmark', false)
+        commit('setIsBookmarkLoading', false)
 
         return true
-      } catch (error) {
-        console.error('Failed to apply bookmark:', error)
-        commit('setIsApplyingBookmark', false)
+      } catch {
+        commit('setIsBookmarkLoading', false)
 
         return false
       }
@@ -134,20 +138,22 @@ const SegmentsBookmarksStore = {
      * @param {Object} context - Vuex context
      * @param {Object} payload - Bookmark data
      */
-    async createBookmark ({ commit, dispatch }, payload) {
-      commit('setIsApplyingBookmark', true)
+    async createBookmark ({ commit }, payload) {
+      commit('setIsBookmarkLoading', true)
 
       try {
-        await dispatch('Bookmark/create', payload, { root: true })
-        await dispatch('fetchBookmarks')
+        const response = await dpApi.post(bookmarkApiUrl(), {}, { data: payload })
+        const newBookmark = response.data?.data
+
+        if (newBookmark) {
+          commit('addBookmark', newBookmark)
+        }
 
         return true
-      } catch (error) {
-        console.error('Failed to create bookmark:', error)
-
+      } catch {
         return false
       } finally {
-        commit('setIsApplyingBookmark', false)
+        commit('setIsBookmarkLoading', false)
       }
     },
 
@@ -156,10 +162,11 @@ const SegmentsBookmarksStore = {
      * @param {Object} context - Vuex context
      * @param {Object} payload - Bookmark update data
      */
-    async updateBookmark ({ commit, dispatch }, payload) {
-      commit('setIsApplyingBookmark', true)
+    async updateBookmark ({ commit }, payload) {
+      commit('setIsBookmarkLoading', true)
 
       try {
+        const url = `${bookmarkApiUrl()}/${encodeURIComponent(payload.id)}`
         const apiPayload = {
           data: {
             id: payload.id,
@@ -170,18 +177,18 @@ const SegmentsBookmarksStore = {
           },
         }
 
-        const url = `${Routing.getBaseUrl()}/api/3.0/Bookmark/${encodeURIComponent(payload.id)}`
+        const response = await dpApi.patch(url, {}, apiPayload)
+        const updatedBookmark = response.data?.data
 
-        await dpApi.patch(url, {}, apiPayload)
-        await dispatch('fetchBookmarks')
+        if (updatedBookmark) {
+          commit('updateBookmarkInStore', updatedBookmark)
+        }
 
         return true
-      } catch (error) {
-        console.error('Failed to update bookmark:', error)
-
+      } catch {
         return false
       } finally {
-        commit('setIsApplyingBookmark', false)
+        commit('setIsBookmarkLoading', false)
       }
     },
 
@@ -190,15 +197,14 @@ const SegmentsBookmarksStore = {
      * @param {Object} context - Vuex context
      * @param {String} id - Bookmark ID
      */
-    async deleteBookmark ({ dispatch }, id) {
+    async deleteBookmark ({ commit }, id) {
       try {
-        await dispatch('Bookmark/delete', id, { root: true })
-        await dispatch('fetchBookmarks')
+        const url = `${bookmarkApiUrl()}/${encodeURIComponent(id)}`
+        await dpApi.delete(url)
+        commit('removeBookmark', id)
 
         return true
-      } catch (error) {
-        console.error('Failed to delete bookmark:', error)
-
+      } catch {
         return false
       }
     },
@@ -207,7 +213,7 @@ const SegmentsBookmarksStore = {
      * Reset to default view
      * @param {Object} context - Vuex context
      */
-    resetToDefaultView ({ commit, dispatch }) {
+    resetToDefaultView ({ commit }) {
       commit('setCurrentBookmarkId', null)
       commit('setCurrentBookmark', null)
     },
@@ -217,7 +223,7 @@ const SegmentsBookmarksStore = {
     allBookmarks: (state) => state.allBookmarks,
     currentBookmark: (state) => state.currentBookmark,
     currentBookmarkId: (state) => state.currentBookmarkId,
-    isApplyingBookmark: (state) => state.isApplyingBookmark,
+    isBookmarkLoading: (state) => state.isBookmarkLoading,
   },
 }
 

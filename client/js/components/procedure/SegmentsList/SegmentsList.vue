@@ -1830,7 +1830,11 @@ export default {
     // Filters live in SegmentsListFilter (in the slidebar); delegate the reset there via the twig template.
     resetQuery () {
       this.resetSearchQuery()
-      this.resetBookmarks() // ToDo: permission
+
+      if (hasPermission('feature_procedure_user_filter_sets')) {
+        this.resetBookmarks()
+      }
+
       this.$emit('resetFilters')
     },
 
@@ -2128,6 +2132,7 @@ export default {
 
       this.currentSelection = [...this.defaultColumnSelection]
       localStorage.setItem('segmentList', JSON.stringify(this.defaultColumnSelection))
+      this.columnSelectorKey++
 
       this.selectedSort = ''
       lscache.remove(this.lsKey.selectedSort)

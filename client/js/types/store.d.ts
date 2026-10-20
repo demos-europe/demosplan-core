@@ -30,7 +30,7 @@ export interface SegmentsBookmarksState {
   allBookmarks: Bookmark[]
   currentBookmark: Bookmark | null
   currentBookmarkId: string | null
-  isApplyingBookmark: boolean
+  isBookmarkLoading: boolean
 }
 
 export interface SegmentSlidebarState {
