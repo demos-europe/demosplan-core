@@ -2125,6 +2125,26 @@ export default {
   },
 
   async mounted () {
+    // Seed the store before awaiting anything, so a quick reset can't be overwritten by the URL filter
+    if (
+      Array.isArray(this.initialFilter) === false &&
+      Object.keys(this.initialFilter).length
+    ) {
+      Object.values(this.initialFilter).forEach((filter) => {
+        if (!filter.condition) {
+          return
+        }
+
+        const query = {}
+
+        query[filter.condition.value] = filter
+        this.updateFilterQuery(query)
+      })
+    }
+
+    // Snapshot the initial filters as applied so the first applyQuery fetches with them
+    this.commitFilterQuery()
+
     const addons = await loadAddonComponents('tag.style.segments.list')
 
     this.hasStyledTopicalTags = addons.length > 0
@@ -2146,25 +2166,6 @@ export default {
     if (lscache.get(`${this.procedureId}:navigation:source`)) {
       lscache.remove(`${this.procedureId}:navigation:source`)
     }
-
-    if (
-      Array.isArray(this.initialFilter) === false &&
-      Object.keys(this.initialFilter).length
-    ) {
-      Object.values(this.initialFilter).forEach((filter) => {
-        if (!filter.condition) {
-          return
-        }
-
-        const query = {}
-
-        query[filter.condition.value] = filter
-        this.updateFilterQuery(query)
-      })
-    }
-
-    // Snapshot the initial filters as applied so the first applyQuery fetches with them
-    this.commitFilterQuery()
 
     this.initPagination()
     if (hasPermission('field_segments_custom_fields')) {
