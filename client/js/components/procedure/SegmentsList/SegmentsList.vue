@@ -1141,6 +1141,9 @@ export default {
       if (sorting) {
         this.selectedSort = sorting
         lscache.set(this.lsKey.selectedSort, sorting)
+      } else {
+        this.selectedSort = ''
+        lscache.remove(this.lsKey.selectedSort)
       }
 
       this.appliedFilterQuery = filter
