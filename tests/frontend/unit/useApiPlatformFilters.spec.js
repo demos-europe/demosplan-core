@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { useApiPlatformFilters } from '@DpJs/composables/useApiPlatformFilters'
+import { CUSTOM_FIELD_GROUP_PREFIX, useApiPlatformFilters } from '@DpJs/composables/useApiPlatformFilters'
 
 describe('useApiPlatformFilters', () => {
   let transformFiltersToApiPlatform
@@ -17,6 +17,15 @@ describe('useApiPlatformFilters', () => {
       path,
       value,
       operator,
+    },
+  })
+
+  const createCustomFieldFilter = (fieldId, value) => ({
+    condition: {
+      path: 'customFields',
+      value,
+      operator: '=',
+      memberOf: `${CUSTOM_FIELD_GROUP_PREFIX}${fieldId}`,
     },
   })
 
@@ -83,6 +92,47 @@ describe('useApiPlatformFilters', () => {
 
       expect(transformFiltersToApiPlatform(filters)).toEqual({
         'exists[assignee]': false,
+        'tag.id': ['tag-uuid-123'],
+      })
+    })
+
+    it('collects multiple options of the same custom field into a single OR array', () => {
+      const filters = {
+        filter1: createCustomFieldFilter('field-uuid-1', 'option-uuid-1'),
+        filter2: createCustomFieldFilter('field-uuid-1', 'option-uuid-2'),
+      }
+
+      expect(transformFiltersToApiPlatform(filters)).toEqual({
+        customField: {
+          'field-uuid-1': ['option-uuid-1', 'option-uuid-2'],
+        },
+      })
+    })
+
+    it('keeps each custom field under its own key', () => {
+      const filters = {
+        filter1: createCustomFieldFilter('field-uuid-1', 'option-uuid-1'),
+        filter2: createCustomFieldFilter('field-uuid-2', 'option-uuid-2'),
+      }
+
+      expect(transformFiltersToApiPlatform(filters)).toEqual({
+        customField: {
+          'field-uuid-1': ['option-uuid-1'],
+          'field-uuid-2': ['option-uuid-2'],
+        },
+      })
+    })
+
+    it('coexists with a regular value filter', () => {
+      const filters = {
+        filter1: createCustomFieldFilter('field-uuid-1', 'option-uuid-1'),
+        filter2: createFilter('tag', 'tag-uuid-123'),
+      }
+
+      expect(transformFiltersToApiPlatform(filters)).toEqual({
+        customField: {
+          'field-uuid-1': ['option-uuid-1'],
+        },
         'tag.id': ['tag-uuid-123'],
       })
     })

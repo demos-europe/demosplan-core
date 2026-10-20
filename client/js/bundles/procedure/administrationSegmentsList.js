@@ -42,6 +42,7 @@ const apiStores = [
   'AssignableUser',
   'Bookmark',
   'Place',
+  'RecommendationVersion',
   'Statement',
   'StatementSegment',
   'Tag',

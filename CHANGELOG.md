@@ -5,6 +5,15 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+### Added
+- Custom fields are added to the segments' list filter side panel (version without filter count)
+- The boilerplate edit page lists the segments that use the boilerplate in the recommendation text, with assignee, workflow step and the current recommendation text
+- Specific branches of an addon can be installed
+
+## v4.63.0 (2026-10-08)
+
+## v4.62.0 (2026-10-08)
 - bump contract layer demosplan-addon to v0.83
 - depends on contract layer >= v0.83
 - new SegmentTagsChangedEvent implements new interface added to contract layer in v0.83

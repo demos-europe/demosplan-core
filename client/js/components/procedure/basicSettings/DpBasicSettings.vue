@@ -13,7 +13,9 @@
       :activate-interface="activateInterface"
       :auth-users-options="authUsersOptions"
       :handle-auto-switch-phase-update="handleAutoSwitchPhaseUpdate"
+      :interface-char-limits="interfaceCharLimits"
       :select-all-auth-users="selectAllAuthUsers"
+      :set-interface-addon-loaded="setInterfaceAddonLoaded"
       :set-interface-warning-modal-ref="setInterfaceWarningModalRef"
       :set-selected-internal-phase="setSelectedInternalPhase"
       :set-selected-public-phase="setSelectedPublicPhase"
@@ -95,6 +97,12 @@ export default {
       default: () => [],
     },
 
+    initProcedureExternalName: {
+      required: false,
+      type: String,
+      default: '',
+    },
+
     initProcedureName: {
       required: false,
       type: String,
@@ -148,6 +156,7 @@ export default {
       pictogramAltText: props.initPictogramAltText,
       pictogramCopyright: props.initPictogramCopyright,
       procedureDescription: props.procedureExternalDesc,
+      procedureExternalName: props.initProcedureExternalName,
       procedureName: props.initProcedureName,
       publicParticipationFeedbackEnabled: props.initPublicParticipationFeedbackEnabled,
       selectedAgencies: props.initAgencies,
@@ -212,11 +221,18 @@ export default {
         value: '',
       },
       bypassAddonWarningModal: false,
+      isInterfaceAddonLoaded: false,
       isLoadingPlisData: false,
     }
   },
 
   computed: {
+    interfaceCharLimits () {
+      return this.isInterfaceAddonLoaded ?
+        { externalDesc: 250, externalName: 120 } :
+        { externalDesc: 10000, externalName: 200 }
+    },
+
     // Needed for the addon-modal on submit
     isAddonInterfaceActivated () {
       return this.addonPayload.attributes?.isInterfaceActivated ?? false
@@ -338,6 +354,10 @@ export default {
         this.addonCheckAutoSwitchPhase = payload.phase
         this.addonCheckAutoSwitchEnabled = payload.enabled
       }
+    },
+
+    setInterfaceAddonLoaded (addonNames) {
+      this.isInterfaceAddonLoaded = addonNames.length > 0
     },
 
     submitWithoutInterfaceActivation (formElement) {

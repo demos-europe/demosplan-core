@@ -1185,7 +1185,13 @@ class DraftStatementService
             return null;
         }
         $statementAttributes = $draftStatement->getStatementAttributes();
+        $hasCustomFields = $draftStatement instanceof DraftStatement;
+        $customFields = $hasCustomFields ? $draftStatement->getCustomFields() : null;
         $draftStatement = $this->entityHelper->toArray($draftStatement);
+        if ($hasCustomFields) {
+            // toArray() reflects on the object's class, which skips private properties of a Doctrine proxy's parent class
+            $draftStatement['customFields'] = $customFields;
+        }
         if ($draftStatement['phaseDefinition'] instanceof ProcedurePhaseDefinition) {
             $draftStatement['phaseDefinition'] = $this->entityHelper->toArray($draftStatement['phaseDefinition']);
         }
@@ -2172,11 +2178,13 @@ class DraftStatementService
 
     private function attachResolvedCustomFields(array $statement, string $procedureId): array
     {
-        if ($this->currentUser->hasPermission('feature_statements_custom_fields')
-            && $statement['customFields'] instanceof CustomFieldValuesList
+        $customFields = $statement['customFields'] ?? null;
+
+        if ($customFields instanceof CustomFieldValuesList
+            && $this->currentUser->hasPermission('feature_statements_custom_fields')
         ) {
             $statement['resolvedCustomFields'] = $this->customFieldDisplayResolver->resolveForDisplay(
-                $statement['customFields'],
+                $customFields,
                 CustomFieldSupportedEntity::procedure,
                 $procedureId,
                 CustomFieldSupportedEntity::statement

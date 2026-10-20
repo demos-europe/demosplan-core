@@ -61,6 +61,23 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     final public const PROCEDURE_PERMISSION_SCOPE_EXTERNAL = 'external';
 
     /**
+     * Read permissions granted to the owner of a read-only procedure instead of the normal
+     * procedure permissions, see {@link self::readOnlyProcedurePermissions()}.
+     *
+     * Limited to what core's own procedure-owner branch grants, so every project gets the same
+     * baseline. Project-specific reference views belong in
+     * {@link self::projectReadOnlyProcedurePermissions()}. Permissions granted outside a
+     * procedure (platform/global/access_control) are deliberately absent: those stay enabled
+     * anyway, this set only replaces the procedure-scoped grants.
+     */
+    final public const READ_ONLY_PROCEDURE_PERMISSIONS = [
+        'area_admin',  // layout/nav parent of the reference views
+        'area_admin_protocol',
+        'feature_procedure_get_base_data',
+        'field_statement_memo',
+    ];
+
+    /**
      * @var Procedure|null
      */
     protected $procedure;
@@ -544,8 +561,62 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
     /**
      * Setze die Rechte, die ein Verfahren betreffen.
+     *
+     * Dispatches to the full or the read-only procedure permission set. Final so a read-only
+     * procedure cannot be granted write permissions by a project override; extend
+     * {@link self::setFullProcedurePermissions()} instead.
      */
-    public function setProcedurePermissions(): void
+    final public function setProcedurePermissions(): void
+    {
+        if (!$this->isReadOnlyProcedure()) {
+            $this->setFullProcedurePermissions();
+
+            return;
+        }
+
+        $this->logger->debug('Procedure is read-only');
+
+        if ($this->ownsProcedure()) {
+            $this->enablePermissions($this->readOnlyProcedurePermissions());
+
+            return;
+        }
+
+        // members keep their phase-based read set and never reach the write variant
+        $this->setProcedurePermissionsetRead();
+    }
+
+    protected function isReadOnlyProcedure(): bool
+    {
+        return $this->procedure instanceof Procedure && $this->procedure->isReadOnly();
+    }
+
+    /**
+     * Read permissions granted inside a read-only procedure, core set plus whatever a project
+     * adds in {@link self::projectReadOnlyProcedurePermissions()}.
+     *
+     * @return list<non-empty-string>
+     */
+    protected function readOnlyProcedurePermissions(): array
+    {
+        return array_values(array_unique(array_merge(
+            self::READ_ONLY_PROCEDURE_PERMISSIONS,
+            $this->projectReadOnlyProcedurePermissions()
+        )));
+    }
+
+    /**
+     * Projects may add read permissions their reference views need. Additive on purpose: a
+     * project cannot drop a core entry and thereby widen what stays writable.
+     *
+     * @return list<non-empty-string>
+     */
+    protected function projectReadOnlyProcedurePermissions(): array
+    {
+        return [];
+    }
+
+    protected function setFullProcedurePermissions(): void
     {
         // Ist Inhaberin des Verfahrens. Nur FP*-Rollen
         if ($this->ownsProcedure()) {
@@ -1246,6 +1317,12 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 
     protected function isResolvablePermissionEnabled(ResolvablePermission $resolvablePermission): bool
     {
+        // addon permissions are not part of the read-only procedure permission set; an opt-in
+        // would need a flag on the addon permission meta in the demosplan-addon SDK
+        if ($this->isReadOnlyProcedure()) {
+            return false;
+        }
+
         return $this->permissionResolver->isPermissionEnabled(
             $resolvablePermission,
             $this->user,
