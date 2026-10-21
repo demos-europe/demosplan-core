@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+### Fixed
+- Setting a password via the link in the password recovery or invitation mail now shows a message and keeps the form open when the chosen password was used recently, instead of silently redirecting to the login page without saving it
+
 ## v4.61.3 (2026-09-30)
 
 ### Added
