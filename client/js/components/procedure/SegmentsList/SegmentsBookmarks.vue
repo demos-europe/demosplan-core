@@ -92,7 +92,7 @@
           data-cy="segmentsBookmarks:update"
           :disabled="isBookmarkLoading"
           :text="Translator.trans('segments.bookmarks.changes.apply')"
-          @click="handleUpdateBookmark"
+          @click="handleBookmarkUpdate"
         />
       </div>
     </div>
@@ -310,7 +310,7 @@ const setDefaultBookmark = (): void => {
   emit('resetView')
 }
 
-const handleUpdateBookmark = async (): Promise<void> => {
+const handleBookmarkUpdate = async (): Promise<void> => {
   const bookmarkId = currentBookmarkId.value
   const queryHash = currentQueryHash.value
 

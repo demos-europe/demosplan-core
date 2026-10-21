@@ -21,103 +21,105 @@
       :show-border="false"
       @item:toggle="$emit('toggle', !isOpen)"
     >
-      <div>
+      <div
+        v-for="change in detailedChanges"
+        :key="change.type"
+      >
+        <p class="font-semibold my-2">
+          {{ change.label }}
+        </p>
+
+        <!-- Filter details -->
         <div
-          v-for="change in detailedChanges"
-          :key="change.type"
+          v-if="change.type === 'filter' && change.groupedFilterChanges?.length"
+          class="border-b border-neutral-light-3 pb-3"
         >
-          <!-- Filter details -->
-          <p class="font-semibold my-2">
-            {{ change.label }}
+          <div
+            v-for="(groupedChange, index) in change.groupedFilterChanges"
+            :key="index"
+            class="py-1"
+          >
+            <p class="text-sm text-interactive-secondary font-semibold mb-1">
+              {{ groupedChange.category }}
+            </p>
+            <p
+              v-if="groupedChange.removed.length"
+              class="mb-0"
+            >
+              <dp-icon
+                icon="minus"
+                class="inline-block mr-1 text-status-failed-icon"
+              />
+              <span>{{ groupedChange.removed.join('; ') }}</span>
+            </p>
+
+            <p
+              v-if="groupedChange.added.length"
+              class="mb-0"
+            >
+              <dp-icon
+                icon="plus"
+                class="inline-block mr-1"
+              />
+              <span>{{ groupedChange.added.join('; ') }}</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Search/Sorting details -->
+        <div
+          v-else-if="['search', 'sorting'].includes(change.type)"
+          class="border-b border-neutral-light-3 pb-3"
+        >
+          <p
+            v-if="change.oldValue"
+            class="mb-0"
+          >
+            <dp-icon
+              icon="minus"
+              class="inline-block mr-1 text-status-failed-icon"
+            />
+            <span>{{ change.oldValue }}</span>
           </p>
-          <div
-            v-if="change.type === 'filter' && change.groupedFilterChanges"
-            class="border-b border-neutral-light-3 pb-3"
-          >
-            <div
-              v-for="(groupedChange, index) in change.groupedFilterChanges"
-              :key="index"
-              class="py-1"
-            >
-              <p class="text-sm text-interactive-secondary font-semibold mb-1">
-                {{ groupedChange.category }}
-              </p>
-              <p
-                v-if="groupedChange.removed.length"
-                class="mb-0"
-              >
-                <dp-icon
-                  icon="minus"
-                  class="inline-block mr-1 text-status-failed-icon"
-                />
-                <span>{{ groupedChange.removed.join('; ') }}</span>
-              </p>
-              <p
-                v-if="groupedChange.added.length"
-                class="mb-0"
-              >
-                <dp-icon
-                  icon="plus"
-                  class="inline-block mr-1"
-                />
-                <span>{{ groupedChange.added.join('; ') }}</span>
-              </p>
-            </div>
-          </div>
 
-          <!-- Search/Sorting details -->
-          <div
-            v-if="(change.type === 'search' || change.type === 'sorting') && change.oldValue"
-            class="border-b border-neutral-light-3 pb-3"
+          <p
+            v-if="change.newValue"
+            class="mb-0"
           >
-            <p
-              v-if="change.oldValue"
-              class="mb-0"
-            >
-              <dp-icon
-                icon="minus"
-                class="inline-block mr-1 text-status-failed-icon"
-              />
-              <span>{{ change.oldValue }}</span>
-            </p>
-            <p
-              v-if="change.newValue"
-              class="mb-0"
-            >
-              <dp-icon
-                icon="plus"
-                class="inline-block mr-1"
-              />
-              <span>{{ change.newValue }}</span>
-            </p>
-          </div>
+            <dp-icon
+              icon="plus"
+              class="inline-block mr-1"
+            />
+            <span>{{ change.newValue }}</span>
+          </p>
+        </div>
 
-          <!-- Column details -->
-          <div
-            v-if="change.type === 'columns'"
-            class="border-b border-neutral-light-3 pb-3"
+        <!-- Column details -->
+        <div
+          v-else-if="change.type === 'columns'"
+          class="border-b border-neutral-light-3 pb-3"
+        >
+          <p
+            v-if="change.removed?.length"
+            class="mb-0"
           >
-            <p
-              v-if="change.removed && change.removed.length"
-              class="mb-0"
-            >
-              <dp-icon
-                icon="minus"
-                class="inline-block mr-1 text-status-failed-icon"
-              />
-              <span>{{ change.removed.map(col => getColumnLabel(col)).join('; ') }}</span>
-            </p>
-            <p
-              v-if="change.added && change.added.length"
-              class="mb-0"
-            >
-              <dp-icon
-                icon="plus"
-                class="inline-block mr-1"
-              />
-              <span>{{ change.added.map(col => getColumnLabel(col)).join('; ') }}</span>
-            </p>
-          </div>
+            <dp-icon
+              icon="minus"
+              class="inline-block mr-1 text-status-failed-icon"
+            />
+            <span>{{ change.removed.map(getColumnLabel).join('; ') }}</span>
+          </p>
+
+          <p
+            v-if="change.added?.length"
+            class="mb-0"
+          >
+            <dp-icon
+              icon="plus"
+              class="inline-block mr-1"
+            />
+            <span>{{ change.added.map(getColumnLabel).join('; ') }}</span>
+          </p>
         </div>
       </div>
     </dp-accordion>
@@ -193,12 +195,17 @@ const updateLabelCache = (): void => {
   })
 }
 
-// Watch store options and update cache when they change
-watch(
-  () => [state.FilterFlyout?.groupedOptions, state.FilterFlyout?.ungroupedOptions],
-  () => updateLabelCache(),
-  { deep: true },
-)
+/* Computed */
+const currentFilters: ComputedRef<Record<string, any>> = computed(() => state.FilterFlyout?.filterQuery || {})
+
+const detailedChanges: ComputedRef<DetailedChange[]> = computed(() => {
+  if (props.currentBookmark) {
+    return getDetailedBookmarkChanges()
+  }
+
+  return getDetailedDefaultViewChanges()
+})
+const hasChanges: ComputedRef<boolean> = computed(() => detailedChanges.value.length > 0)
 
 /* Methods */
 const extractFilterValues = (filters: Record<string, any> = {}) => {
@@ -220,12 +227,7 @@ const extractFilterValues = (filters: Record<string, any> = {}) => {
   }
 }
 
-/**
- * Get detailed changes comparing current state against the default view.
- * Default view has: no filters, no search phrase, default sorting, default columns.
- */
 const getDetailedDefaultViewChanges = (): DetailedChange[] => {
-  // Default view has empty filters, empty search, empty sorting, but specific default columns
   const defaultFilter = {}
   const defaultSearchPhrase = ''
   const defaultSorting = ''
@@ -299,7 +301,6 @@ const getDetailedFilterChanges = (bookmarkFilters: Record<string, any>, currentF
     return null
   }
 
-  // Group changes by filter category
   const groupedByCategory: Record<string, GroupedFilterChange> = {}
 
   individualFilterChanges.forEach(change => {
@@ -437,20 +438,13 @@ const getFilterValueLabel = (valueId: string): string => {
   return label ?? valueId
 }
 
-/* Computed */
-const currentFilters: ComputedRef<Record<string, any>> = computed(() => state.FilterFlyout?.filterQuery || {})
+/* Watchers */
+watch(
+  () => [state.FilterFlyout?.groupedOptions, state.FilterFlyout?.ungroupedOptions],
+  () => updateLabelCache(),
+  { deep: true },
+)
 
-const detailedChanges: ComputedRef<DetailedChange[]> = computed(() => {
-  if (props.currentBookmark) {
-    return getDetailedBookmarkChanges()
-  }
-
-  return getDetailedDefaultViewChanges()
-})
-
-const hasChanges: ComputedRef<boolean> = computed(() => detailedChanges.value.length > 0)
-
-// Emit hasChanges whenever it changes
 watch(hasChanges, (value) => {
   emit('hasChanges', value)
 }, { immediate: true })

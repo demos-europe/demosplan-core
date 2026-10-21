@@ -1590,7 +1590,9 @@ export default {
 
       if (!Array.isArray(filters) && filters && Object.keys(filters).length) {
         Object.values(filters).forEach(filter => {
-          if (!filter.condition) return
+          if (!filter.condition) {
+            return
+          }
 
           this.updateFilterQuery({
             [filter.condition.value]: filter
@@ -1784,6 +1786,7 @@ export default {
 
     handleResetSearch () {
       this.resetSearchQuery()
+      this.updateQueryHash()
       this.applyQuery(1)
     },
 
@@ -2170,21 +2173,21 @@ export default {
         queryHash: oldQueryHash,
       })
 
-      const orderedFields = this.$refs.dataTable?.orderedHeaderFields || this.availableHeaderFields
-      const columns = orderedFields.map(headerField => headerField.field)
+      const data = { filter: this.getFilterQuery }
 
-      const data = {
-        filter: this.getFilterQuery,
-        viewSettings: {
-          columnOrder: columns.join(','),
-          selectedColumns: this.currentSelection,
-          sorting: this.selectedSort,
+      if (hasPermission('feature_procedure_user_filter_sets')) {
+        const orderedFields = this.$refs.dataTable?.orderedHeaderFields || this.availableHeaderFields
+        const columns = orderedFields.map(headerField => headerField.field)
+
+        data.viewSettings = {
+            columnOrder: columns.join(','),
+            selectedColumns: this.currentSelection,
+            sorting: this.selectedSort,
         }
       }
 
-      if (this.searchTerm !== '') {
-        data.searchPhrase = this.searchTerm
-      }
+      // Always include searchPhrase so clearing it updates the query hash
+      data.searchPhrase = this.searchTerm
 
       return dpApi
         .patch(url, {}, data)
