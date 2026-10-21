@@ -23,7 +23,6 @@
         @toggle="showUnsavedChanges = $event"
         @has-changes="hasUnsavedChanges = $event"
       />
-
       <div class="px-4 py-3">
         <segments-bookmarks-list
           :bookmarks="bookmarks"
@@ -34,25 +33,24 @@
           @select="handleViewChange"
           @delete="handleDeleteBookmark"
         />
-
-      <div
-        v-if="hasUnsavedChanges && showNewBookmarkForm"
-        class="border-t border-neutral-light-3 my-4"
-      >
-        <span class="pt-4 block font-semibold mb-3">
-          {{ Translator.trans('segments.bookmarks.new.save') }}
-        </span>
-        <dp-input
-          id="newBookmarkName"
-          v-model="newBookmarkName"
-          data-cy="segmentsBookmarks:newName"
-          :label="{
-            text: Translator.trans('segments.bookmarks.name'),
-            tooltip: Translator.trans('segments.bookmarks.name.tooltip')
-          }"
-        />
+        <div
+          v-if="hasUnsavedChanges && showNewBookmarkForm"
+          class="border-t border-neutral-light-3 my-4"
+        >
+          <span class="pt-4 block font-semibold mb-3">
+            {{ Translator.trans('segments.bookmarks.new.save') }}
+          </span>
+          <dp-input
+            id="newBookmarkName"
+            v-model="newBookmarkName"
+            data-cy="segmentsBookmarks:newName"
+            :label="{
+              text: Translator.trans('segments.bookmarks.name'),
+              tooltip: Translator.trans('segments.bookmarks.name.tooltip')
+            }"
+          />
+        </div>
       </div>
-    </div>
     </div>
 
     <!-- Footer -->
@@ -82,11 +80,11 @@
           @click="abort"
         />
         <dp-button
-          data-cy="segmentsBookmarks:saveAsNew"
+          data-cy="segmentsBookmarks:showNewBookmarkForm"
           :disabled="isBookmarkLoading"
           :text="Translator.trans('segments.bookmarks.save.as.new')"
           variant="outline"
-          @click="showNewBookmarkForm = true; showUnsavedChanges = false"
+          @click="openNewBookmarkForm"
         />
         <dp-button
           v-if="currentBookmarkId"
@@ -115,14 +113,14 @@ import {
   DpButton,
   DpButtonRow,
   DpInput,
-  DpRadio,
-  DpLoading,
 } from '@demos-europe/demosplan-ui'
 import { computed, type ComputedRef, onMounted, type Ref, ref } from 'vue'
 import { useStore } from 'vuex'
 import lscache from 'lscache'
 import SegmentsBookmarksUnsavedChanges from './SegmentsBookmarksUnsavedChanges.vue'
 import SegmentsBookmarksList from './SegmentsBookmarksList.vue'
+
+const { Translator, dplan } = window as typeof globalThis
 
 /* Props */
 const props = withDefaults(defineProps<{
@@ -247,7 +245,6 @@ const createNewBookmark = async (): Promise<void> => {
     showNewBookmarkForm.value = false
     dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
 
-    // Find the newly created bookmark by name and apply it
     const newBookmark = bookmarks.value.find(b => b.attributes.name === name)
 
     if (newBookmark) {
@@ -255,35 +252,6 @@ const createNewBookmark = async (): Promise<void> => {
     }
   }
 }
-
-const getBookmarkSummary = (bookmarkId: string): string => {
-  const bookmark = bookmarks.value.find(({ id }) => id === bookmarkId)
-
-  if (!bookmark) {
-    return ''
-  }
-
-  const { filter, searchPhrase, viewSettings } = bookmark.attributes
-  const filterCount = Object.keys(filter).length
-  const selectedColumnCount = viewSettings.selectedColumns?.length || 0 // ToDo: what if there are no selected column
-
-  const filterText = `${filterCount} ${Translator.trans('filter')}`
-
-  const searchText = searchPhrase?.trim() ? 'Suchbegriff' : ''
-
-  const columnText = props.totalColumnCount > 0 ?
-    `${selectedColumnCount} von ${props.totalColumnCount} ${Translator.trans('columns')}` :
-    `${selectedColumnCount} ${Translator.trans('columns')}`
-
-  const summary = [
-    filterText,
-    searchText,
-    columnText,
-  ].filter(Boolean).join(' · ')
-
-  return summary
-}
-
 const handlePrimaryAction = async (): Promise<void> => {
   await createNewBookmark()
   showNewBookmarkForm.value = false
@@ -302,10 +270,14 @@ const handleViewChange = async (bookmarkId: string | null): Promise<void> => {
   await applySelectedBookmark(bookmarkId)
 }
 
+const openNewBookmarkForm = (): void => {
+  showNewBookmarkForm.value = true
+  showUnsavedChanges.value = false
+}
+
 const restoreSavedBookmark = async (): Promise<void> => {
   const savedBookmarkId: string | null = lscache.get(lsKey)
 
-  // If no bookmark was saved, apply the default view to clear all settings
   if (!savedBookmarkId) {
     emit('resetView')
 

@@ -3549,6 +3549,7 @@ segments.bookmarks.unsaved.changes.show: "Ungespeicherte Änderungen anzeigen"
 segments.bookmarks.changes.discard: "Änderung verwerfen"
 segments.bookmarks.save.as.new: "Als neue Ansicht speichern"
 segments.bookmarks.changes.apply: "Änderungen übernehmen"
+segments.bookmarks.summary.columns.of.total: "{count} von {total} Spalten"
 items.selected.multi.page: |
     {count, plural,
         =1 { Ein Element ausgewählt (u.U. nicht auf Seite 1). }

@@ -2114,7 +2114,7 @@ export default {
       }
 
       this.updateQueryHash()
-      this.resetSelection() // ToDo: check where is it from
+      this.resetSelection()
       this.applyQuery(1)
     },
 

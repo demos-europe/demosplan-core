@@ -10,6 +10,7 @@
       class="border my-2 p-1"
       :class="!currentBookmarkId ? 'border-blue-base' : 'border-neutral-light-3'"
       :checked="!currentBookmarkId"
+      data-cy="segmentsBookmarksList:defaultBookmark"
       :disabled="isLoading"
       :label="{
         hint: Translator.trans('segments.bookmarks.default.description'),
@@ -29,6 +30,7 @@
         :id="bookmark.id"
         :checked="bookmark.id === currentBookmarkId"
         :disabled="isLoading"
+        data-cy="segmentsBookmarksList:bookmark"
         :label="{
           hint: getBookmarkSummary(bookmark),
           text: bookmark.attributes.name,
@@ -38,7 +40,7 @@
       <dp-button
         v-if="deletingBookmarkId !== bookmark.id"
         color="primary"
-        data-cy="segmentsBookmarks:delete"
+        data-cy="segmentsBookmarksList:delete"
         hide-text
         icon="delete"
         :text="Translator.trans('delete')"
@@ -51,13 +53,11 @@
         hide-label
       />
     </div>
-
     <dp-loading
       v-if="isLoading"
       class="justify-center my-2"
       hide-label
     />
-
     <span
       v-if="!bookmarks.length && !isLoading"
       class="text-sm"
@@ -100,10 +100,10 @@ const getBookmarkSummary = (bookmark: Bookmark): string => {
 
   const filterText = `${filterCount} ${Translator.trans('filter')}`
 
-  const searchText = searchPhrase?.trim() ? 'Suchbegriff' : ''
+  const searchText = searchPhrase?.trim() ? Translator.trans('searchterm') : ''
 
   const columnText = props.totalColumnCount > 0 ?
-    `${selectedColumnCount} von ${props.totalColumnCount} ${Translator.trans('columns')}` :
+    Translator.trans('segments.bookmarks.summary.columns.of.total', { count: String(selectedColumnCount), total: String(props.totalColumnCount) }) :
     `${selectedColumnCount} ${Translator.trans('columns')}`
 
   const summary = [
