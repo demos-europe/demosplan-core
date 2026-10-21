@@ -34,63 +34,33 @@
     />
     <!-- List of all users -->
     <div v-if="!isLoading">
-      <div
+      <dp-selection-card
         v-if="isUserSelected"
-        class="shadow-sm rounded-lg mt-2 py-4 px-6"
+        :count-text="Translator.trans('users.selected', { count: selectedUsersCount })"
+        :is-loading-items="isLoadingSelectionList"
+        :items="selectedUsersForDropdown"
+        :show-items="showSelectionList"
+        :toggle-disabled="trackDeselected && toggledUsers.length === 0"
+        data-cy="userList:selectionCard"
+        @remove:item="toggleOne"
+        @reset="resetSelection"
+        @toggle:items="toggleSelectionList"
       >
-        <div class="flex items-center justify-between border-b border-neutral py-2">
-          <span>{{ Translator.trans('users.selected', { count: selectedUsersCount }) }}</span>
-          <dp-button
-            :disabled="trackDeselected && toggledUsers.length === 0"
-            :icon="showSelectionList ? 'caret-up' : 'caret-down'"
-            :text="Translator.trans('selection.show')"
-            variant="subtle"
-            @click="toggleSelectionList"
-          />
-        </div>
-        <dp-transition-expand>
-          <div v-show="showSelectionList">
-            <dp-loading
-              v-if="isLoadingSelectionList"
-              class="mt-1"
-            />
-            <template v-else>
-              <div
-                v-for="user in selectedUsersForDropdown"
-                :key="user.id"
-                class="grid grid-cols-[1fr_2fr_auto] gap-4 items-center border-b border-neutral py-2 my-2"
-              >
-                <div class="font-semibold">
-                  {{ user.attributes.firstname }} {{ user.attributes.lastname }}
-                </div>
-                <div>
-                  {{ user.attributes.email }}
-                </div>
-                <dp-button
-                  variant="subtle"
-                  icon="x"
-                  icon-weight="bold"
-                  :text="Translator.trans('remove')"
-                  hide-text
-                  @click="toggleOne(user.id)"
-                />
-              </div>
-            </template>
+        <template v-slot:item="{ item }">
+          <div class="grid grid-cols-[1fr_2fr] gap-4 items-center">
+            <div class="font-semibold">
+              {{ item.attributes.firstname }} {{ item.attributes.lastname }}
+            </div>
+            <div>
+              {{ item.attributes.email }}
+            </div>
           </div>
-        </dp-transition-expand>
-        <!--Button row -->
-        <div class="text-right mt-4 space-x-2">
-          <dp-button
-            class="p-1"
-            color="secondary"
-            variant="outline"
-            :text="Translator.trans('unselect')"
-            @click="resetSelection"
-          />
+        </template>
+        <template v-slot:actions>
           <dp-button
             v-if="hasPermission('feature_user_delete')"
             class="p-1"
-            color="warning"
+            color="primary"
             data-cy="deleteSelectedItems"
             variant="outline"
             :disabled="!isUserSelected"
@@ -105,8 +75,8 @@
             :text="Translator.trans('invite') + ` (${selectedUsersCount})`"
             @click="inviteUsers"
           />
-        </div>
-      </div>
+        </template>
+      </dp-selection-card>
       <dp-checkbox
         id="select_all"
         class="my-4 ml-2"
@@ -154,11 +124,11 @@ import {
   DpContextualHelp,
   DpLoading,
   DpSearchField,
-  DpTransitionExpand,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import { addFormHiddenField } from '@DpJs/lib/core/libs/FormActions'
 import { defineAsyncComponent } from 'vue'
+import DpSelectionCard from '@DpJs/components/shared/DpSelectionCard'
 
 export default {
   name: 'DpUserList',
@@ -169,7 +139,7 @@ export default {
     DpContextualHelp,
     DpLoading,
     DpSearchField,
-    DpTransitionExpand,
+    DpSelectionCard,
     DpSlidingPagination: defineAsyncComponent(async () => {
       const { DpSlidingPagination } = await import('@demos-europe/demosplan-ui')
 

@@ -86,55 +86,17 @@
     </div>
 
     <template v-if="canBulkEdit">
-      <!-- Selection card -->
-      <div
+      <dp-selection-card
         v-if="isOrganisationSelected"
-        class="shadow-sm rounded-lg mt-2 py-4 px-6"
+        :count-text="Translator.trans('organisations.selected', { count: selectedCount })"
+        :items="selectedOrganisationsList"
+        :show-items="showSelectionList"
         data-cy="organisationList:selectionCard"
+        @remove:item="toggleOne"
+        @reset="resetSelection"
+        @toggle:items="showSelectionList = !showSelectionList"
       >
-        <div class="flex items-center justify-between border-b border-neutral py-2">
-          <span data-cy="organisationList:selectedCount">
-            {{ Translator.trans('organisations.selected', { count: selectedCount }) }}
-          </span>
-          <dp-button
-            :icon="showSelectionList ? 'caret-up' : 'caret-down'"
-            :text="Translator.trans(showSelectionList ? 'selection.hide' : 'selection.show')"
-            variant="subtle"
-            @click="showSelectionList = !showSelectionList"
-          />
-        </div>
-        <dp-transition-expand>
-          <div v-show="showSelectionList">
-            <div
-              v-for="organisation in selectedOrganisationsList"
-              :key="organisation.id"
-              class="flex items-center justify-between border-b border-neutral py-2 my-2"
-            >
-              <span class="font-semibold">
-                {{ organisation.name }}
-              </span>
-              <dp-button
-                :text="Translator.trans('remove')"
-                hide-text
-                icon="x"
-                icon-weight="bold"
-                variant="subtle"
-                @click="toggleOne(organisation.id)"
-              />
-            </div>
-          </div>
-        </dp-transition-expand>
-        <!-- Button row -->
-        <div class="text-right mt-4 space-x-2">
-          <dp-button
-            :disabled="isUpdatingTwoFactor"
-            :text="Translator.trans('unselect')"
-            class="p-1"
-            color="secondary"
-            data-cy="resetSelectedItems"
-            variant="outline"
-            @click="resetSelection"
-          />
+        <template v-slot:actions>
           <dp-button
             v-if="hasPermission('feature_orga_delete')"
             :disabled="isUpdatingTwoFactor"
@@ -154,8 +116,8 @@
             data-cy="organisationList:changeTwoFactor"
             @click="openTwoFactorModal"
           />
-        </div>
-      </div>
+        </template>
+      </dp-selection-card>
       <dp-checkbox
         id="select_all"
         :checked="allOnPageSelected"
@@ -291,11 +253,11 @@ import {
   DpSearchField,
   DpSkeletonBox,
   DpSlidingPagination,
-  DpTransitionExpand,
   hasPermission,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import DpOrganisationListItem from './DpOrganisationListItem'
+import DpSelectionCard from '@DpJs/components/shared/DpSelectionCard'
 
 const orgaFieldsArrays = {
   Branding: [
@@ -385,9 +347,9 @@ export default {
     DpOrganisationListItem,
     DpRadio,
     DpSearchField,
+    DpSelectionCard,
     DpSkeletonBox,
     DpSlidingPagination,
-    DpTransitionExpand,
   },
 
   directives: {

@@ -110,12 +110,12 @@ describe('DpOrganisationList', () => {
 
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.find('[data-cy="organisationList:selectionCard"]').exists()).toBe(false)
+    expect(wrapper.findComponent({ name: 'DpSelectionCard' }).exists()).toBe(false)
 
     wrapper.vm.toggleOne('orga-2')
     await wrapper.vm.$nextTick()
 
-    expect(wrapper.find('[data-cy="organisationList:selectionCard"]').exists()).toBe(true)
+    expect(wrapper.findComponent({ name: 'DpSelectionCard' }).exists()).toBe(true)
   })
 
   it('flags a selection with differing two-factor values', async () => {
