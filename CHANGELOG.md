@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+## v4.59.1 (2026-10-21)
+- PHP updated to 8.4.27
+
 ## v4.59.0 (2026-09-09)
 - uses TagListCsvExportEventInterface
 - dpends on demosplan-addon version >= v0.82
