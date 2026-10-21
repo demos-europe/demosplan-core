@@ -12,9 +12,8 @@ ENV PROJECT_PREFIX=$PROJECT_NAME \
 
 # Setup timezone
 RUN ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ"> /etc/timezone
-COPY zzz-dplan.ini /etc/php/8.2/fpm/conf.d/zzz-dplan.ini
-COPY zzz-dplan-cli.ini /etc/php/8.2/cli/conf.d/zzz-dplan-cli.ini
-COPY php-fpm_www.conf /etc/php/8.2/fpm/pool.d/zzz-www.conf
+COPY zzz-dplan-cli.ini /usr/local/etc/php/conf.d/zzz-dplan-cli.ini
+COPY php-fpm_www.conf /usr/local/etc/php-fpm.d/zzz-www.conf
 
 RUN npm install --ignore-scripts -g n && \
     rm -rf /root/.npm && \
@@ -126,10 +125,10 @@ ENV PROJECT_PREFIX=$PROJECT_NAME \
 RUN mkdir -p /opt/config && \
     chown -R www-data:www-data /opt/config
 
-COPY zzz-dplan.ini /etc/php/8.2/fpm/conf.d/zzz-dplan.ini
-COPY zzz-dplan-cli.ini /etc/php/8.2/cli/conf.d/zzz-dplan-cli.ini
-COPY php-fpm_www.conf /etc/php/8.2/fpm/pool.d/zzz-www.conf
-COPY php-fpm.conf /etc/php/8.2/fpm/php-fpm.conf
+# Single conf.d for every SAPI; FPM-only overrides live in php-fpm_www.conf.
+COPY zzz-dplan-cli.ini /usr/local/etc/php/conf.d/zzz-dplan-cli.ini
+COPY php-fpm_www.conf /usr/local/etc/php-fpm.d/zzz-www.conf
+COPY php-fpm.conf /usr/local/etc/php-fpm.conf
 
 WORKDIR /srv/www
 
@@ -147,7 +146,9 @@ RUN rm -rf /srv/www/var/cache/* && \
     touch /srv/www/var/certs/ca.crt && \
     ln -s /srv/www/var/certs/ca.crt /usr/local/share/ca-certificates/ca.crt&& \
     # avoid conflict with the default www.conf
-    rm /etc/php/8.2/fpm/pool.d/www.conf
+    rm -f /usr/local/etc/php-fpm.d/www.conf /usr/local/etc/php-fpm.d/www.conf.default && \
+    # the k8s deployment args reference this path
+    ln -s /usr/local/sbin/php-fpm /usr/sbin/php-fpm8.2
 
 # run as rootless container
 USER www-data
