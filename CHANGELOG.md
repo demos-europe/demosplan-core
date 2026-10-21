@@ -5,6 +5,12 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+## v4.26.4 (2026-10-21)
+- Virus scans of very large files no longer fail with a timeout or report false virus matches
+- Importing very large element archives no longer fails with an out-of-memory error
+- Element import can no longer be submitted before the uploaded file has been checked and stored; the submit button shows "Datei wird geprüft …" until then
+- Security update of PHP to 8.2.35
+
 ## v4.26.1 (2026-04-30)
 ## v4.26.0 (2025-11-07)
 ## v4.22.1 (2025-10-30)
