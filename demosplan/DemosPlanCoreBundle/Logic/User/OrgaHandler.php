@@ -185,6 +185,10 @@ class OrgaHandler extends CoreHandler
             $writableAttributes[] = 'imprint';
         }
 
+        if ($this->currentUser->hasPermission('field_organisation_two_factor_required')) {
+            $writableAttributes[] = 'twoFactorRequired';
+        }
+
         // these are writable in 'portal' mode only
         if ('portal' === $this->getDemosplanConfig()->getProjectType()) {
             $writableAttributes = [...$writableAttributes, 'allowedRoleIds', 'competence', 'contactPerson', 'city', 'dataProtection', 'emailReviewerAdmin', 'houseNumber', 'imprint', 'name', 'paperCopy', 'paperCopySpec', 'phone', 'postalcode', 'street', 'submissionType', 'types'];

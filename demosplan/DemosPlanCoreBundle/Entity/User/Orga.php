@@ -130,6 +130,11 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     #[ORM\Column(name: '_o_showlist', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $showlist = true;
     /**
+     * Forces every user of this orga to log in with a second factor.
+     */
+    #[ORM\Column(name: '_o_two_factor_required', type: 'boolean', nullable: false, options: ['default' => false])]
+    protected bool $twoFactorRequired = false;
+    /**
      * @var string|null
      */
     #[ORM\Column(name: '_o_gw_id', type: 'string', length: 250, nullable: true)]
@@ -497,6 +502,18 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     public function isShowlist(): bool
     {
         return $this->getShowlist();
+    }
+
+    public function isTwoFactorRequired(): bool
+    {
+        return $this->twoFactorRequired;
+    }
+
+    public function setTwoFactorRequired(bool $twoFactorRequired): self
+    {
+        $this->twoFactorRequired = $twoFactorRequired;
+
+        return $this;
     }
 
     /**

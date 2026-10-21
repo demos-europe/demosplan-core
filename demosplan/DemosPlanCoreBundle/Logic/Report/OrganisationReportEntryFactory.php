@@ -51,6 +51,29 @@ class OrganisationReportEntryFactory extends AbstractReportEntryFactory
         return $entry;
     }
 
+    /**
+     * Documents who switched the two-factor requirement of an orga on or off.
+     */
+    public function createTwoFactorRequiredEntry(
+        $user,
+        string $identifier,
+        string $orgaName,
+        bool $twoFactorRequired
+    ): ReportEntry {
+        $entry = $this->createReportEntry();
+        $entry->setCategory(ReportEntry::CATEGORY_ORGA_TWO_FACTOR_REQUIRED_CHANGE);
+        $entry->setUser($user);
+        $entry->setIdentifier($identifier);
+        $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_ORGANISATION);
+        $entry->setMessage(Json::encode([
+            'ident'             => $identifier,
+            'name'              => $orgaName,
+            'twoFactorRequired' => $twoFactorRequired,
+        ], JSON_UNESCAPED_UNICODE));
+
+        return $entry;
+    }
+
     protected function createReportEntry(): ReportEntry
     {
         $entry = parent::createReportEntry();
