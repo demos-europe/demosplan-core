@@ -1134,31 +1134,34 @@ export default {
       if (!bookmark) {
         await this.resetQuery()
         this.setDefaultView()
-
         return
       }
 
       const { searchPhrase, viewSettings, filter, queryHash } = bookmark.attributes
-      const { selectedColumns, sorting } = viewSettings || {}
+      const { selectedColumns, sorting } = viewSettings ?? {}
 
-      this.searchTerm = searchPhrase || ''
+      // Apply search
+      this.searchTerm = searchPhrase ?? ''
 
-      const columnsToApply = Array.isArray(selectedColumns) ? selectedColumns : []
-      this.currentSelection = columnsToApply
-      localStorage.setItem('segmentList', JSON.stringify(columnsToApply))
+      // Apply columns
+      this.currentSelection = Array.isArray(selectedColumns) ? selectedColumns : []
+      localStorage.setItem('segmentList', JSON.stringify(this.currentSelection))
       this.columnSelectorKey++
 
-      if (sorting) {
-        this.selectedSort = sorting
-        lscache.set(this.lsKey.selectedSort, sorting)
+      // Apply sorting
+      this.selectedSort = sorting || ''
+
+      if (this.selectedSort) {
+        lscache.set(this.lsKey.selectedSort, this.selectedSort)
       } else {
-        this.selectedSort = ''
         lscache.remove(this.lsKey.selectedSort)
       }
 
+      // Apply filters
       this.appliedFilterQuery = filter
 
-      if (queryHash && this.currentQueryHash !== queryHash) {
+      // Update query hash
+      if (queryHash && queryHash !== this.currentQueryHash) {
         this.updateQueryHashInURL(this.currentQueryHash, queryHash)
         this.currentQueryHash = queryHash
         this.setCurrentQueryHash(queryHash)

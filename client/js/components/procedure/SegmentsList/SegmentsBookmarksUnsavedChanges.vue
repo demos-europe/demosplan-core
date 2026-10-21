@@ -416,7 +416,7 @@ const getFilterNameByPath = (filterPath: string): string => {
 const getFilterValueLabel = (valueId: string): string => {
   const cachedLabel = filterLabelCache.value[valueId]
 
-  if (cachedLabel !== undefined) {
+  if (cachedLabel) {
     return cachedLabel
   }
 
@@ -438,7 +438,7 @@ const getFilterValueLabel = (valueId: string): string => {
   return label ?? valueId
 }
 
-/* Watchers */
+/* Watch */
 watch(
   () => [state.FilterFlyout?.groupedOptions, state.FilterFlyout?.ungroupedOptions],
   () => updateLabelCache(),
