@@ -6,6 +6,11 @@
 
 ## UNRELEASED
 
+## v4.61.4 (2026-10-21)
+
+### Changed
+- PHP updated to version 8.4.27
+
 ### Fixed
 - Setting a password via the link in the password recovery or invitation mail now shows a message and keeps the form open when the chosen password was used recently, instead of silently redirecting to the login page without saving it
 
