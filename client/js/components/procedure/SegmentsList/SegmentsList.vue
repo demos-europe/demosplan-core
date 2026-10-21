@@ -651,11 +651,6 @@ export default {
       appliedFilterQuery: this.initialFilter,
       currentQueryHash: '',
       columnSelectorKey: 0,
-      defaultColumnSelection: [
-        'deadline',
-        'place',
-        'text',
-      ],
       currentSelection: [],
       customFieldDefinitions: [],
       customFieldsReady: !hasPermission('field_segments_custom_fields'),
@@ -797,6 +792,16 @@ export default {
           id: user.id,
         })) :
         []
+    },
+
+    defaultColumnSelection () {
+      const columns = ['place', 'text']
+
+      if (this.hasDeadlineColumn) {
+        columns.unshift('deadline')
+      }
+
+      return columns
     },
 
     hasDeadlineColumn () {
@@ -1162,7 +1167,11 @@ export default {
     applySort (sortValue) {
       this.selectedSort = sortValue
       lscache.set(this.lsKey.selectedSort, sortValue)
-      this.updateQueryHash()
+
+      if (hasPermission('feature_procedure_user_filter_sets')) {
+        this.updateQueryHash()
+      }
+
       this.applyQuery(1)
     },
 
@@ -2072,7 +2081,10 @@ export default {
 
     setCurrentSelection (selection) {
       this.currentSelection = selection
-      this.updateQueryHash()
+
+      if (hasPermission('feature_procedure_user_filter_sets')) {
+        this.updateQueryHash()
+      }
     },
 
     // Saves the Ids of all segments represented by the current filterQuery for later use in bulk edit view.
