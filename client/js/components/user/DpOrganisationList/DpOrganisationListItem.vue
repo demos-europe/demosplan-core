@@ -31,6 +31,14 @@
           @click="isOpen = !isOpen"
         >
           {{ initialOrganisation.attributes.name }}
+          <dp-badge
+            v-if="organisation.attributes.twoFactorRequired"
+            :text="Translator.trans('2fa.required.badge')"
+            class="ml-2 font-normal"
+            color="info"
+            data-cy="organisationTwoFactorBadge"
+            size="small"
+          />
         </div>
         <button
           type="button"
@@ -92,7 +100,7 @@
 </template>
 
 <script>
-import { dpApi, DpButtonRow, DpConfirmDialog, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpBadge, DpButtonRow, DpConfirmDialog, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { defineAsyncComponent } from 'vue'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
 import { mapState } from 'vuex'
@@ -101,6 +109,7 @@ export default {
   name: 'DpOrganisationListItem',
 
   components: {
+    DpBadge,
     DpButtonRow,
     DpConfirmDialog,
     DpIcon,

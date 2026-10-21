@@ -891,13 +891,57 @@
         @input="emitOrganisationUpdate"
       />
     </fieldset>
+
+    <!-- Two-factor authentication -->
+    <fieldset v-if="hasPermission('field_organisation_two_factor_required')">
+      <legend class="layout__item u-p-0 u-pb-0_5">
+        {{ Translator.trans('2fa.required.label') }}
+      </legend>
+      <template v-if="canEdit('twoFactorRequired')">
+        <dp-radio
+          :id="`${twoFactorRadioGroup}:mandatory`"
+          :checked="localOrganisation.attributes.twoFactorRequired === true"
+          :label="{ text: Translator.trans('2fa.required.mandatory') }"
+          :name="twoFactorRadioGroup"
+          class="mb-1"
+          data-cy="orgaFormField:twoFactorRequired:mandatory"
+          value="1"
+          @change="setTwoFactorRequired(true)"
+        />
+        <dp-radio
+          :id="`${twoFactorRadioGroup}:optional`"
+          :checked="localOrganisation.attributes.twoFactorRequired !== true"
+          :label="{ text: Translator.trans('2fa.required.optional') }"
+          :name="twoFactorRadioGroup"
+          data-cy="orgaFormField:twoFactorRequired:optional"
+          value="0"
+          @change="setTwoFactorRequired(false)"
+        />
+        <dp-inline-notification
+          :message="Translator.trans('2fa.required.hint')"
+          class="mt-2"
+          data-cy="orgaFormField:twoFactorRequired:hint"
+          dismissible
+          dismissible-key="orgaTwoFactorRequiredHint"
+          type="info"
+        />
+      </template>
+      <p
+        v-else
+        class="text-muted"
+      >
+        {{ Translator.trans(localOrganisation.attributes.twoFactorRequired ? '2fa.required.mandatory' : '2fa.required.optional') }}
+      </p>
+    </fieldset>
   </div>
 </template>
 
 <script>
-import { CleanHtml, dpApi, DpCheckbox, DpDetails, DpEditor, DpSelect, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { CleanHtml, dpApi, DpCheckbox, DpDetails, DpEditor, DpInlineNotification, DpRadio, DpSelect, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import { isOrgaAcceptedAsType } from '@DpJs/lib/shared/isOrgaAcceptedAsType'
+
+let formFieldsInstanceCount = 0
 
 export default {
   name: 'DpOrganisationFormFields',
@@ -907,6 +951,8 @@ export default {
     DpCheckbox,
     DpDetails,
     DpEditor,
+    DpInlineNotification,
+    DpRadio,
     DpTextArea,
     DpSelect,
   },
@@ -988,6 +1034,7 @@ export default {
             street: '',
             houseNumber: '',
             submissionType: 'standard',
+            twoFactorRequired: false,
             type: '',
           },
           relationships: {
@@ -1043,6 +1090,8 @@ export default {
     return {
       hasFetchedIndividualGrants: false,
       localOrganisation: {},
+      // A pending orga is rendered in both lists; radios of the same name would share one group across the page
+      twoFactorRadioGroup: `twoFactorRequired-${formFieldsInstanceCount++}`,
       typeStatuses: [
         {
           value: 'accepted',
@@ -1205,6 +1254,11 @@ export default {
      * this one is still being edited, which would otherwise make an in-progress enable/disable
      * detection based on that prop flicker back to "unchanged".
      */
+    setTwoFactorRequired (required) {
+      this.localOrganisation.attributes.twoFactorRequired = required
+      this.emitOrganisationUpdate()
+    },
+
     onCanCreateProceduresChange (checked) {
       this.emitOrganisationUpdate()
       // Under @vue/compat this listener runs before the legacy v-model write, so localOrganisation is still stale here
