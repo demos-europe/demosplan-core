@@ -812,6 +812,10 @@ export default {
       return hasPermission('feature_segments_list_export_xlsx') || hasPermission('feature_segments_list_export_csv')
     },
 
+    hasBookmarks () {
+      return hasPermission('feature_procedure_user_filter_sets')
+    },
+
     // Passed as headerFields to DpDataTable
     availableHeaderFields () {
       const externIdField = this.headerFieldsAvailable.find(
@@ -1168,7 +1172,7 @@ export default {
       this.selectedSort = sortValue
       lscache.set(this.lsKey.selectedSort, sortValue)
 
-      if (hasPermission('feature_procedure_user_filter_sets')) {
+      if (this.hasBookmarks) {
         this.updateQueryHash()
       }
 
@@ -1841,7 +1845,7 @@ export default {
     resetQuery () {
       this.resetSearchQuery()
 
-      if (hasPermission('feature_procedure_user_filter_sets')) {
+      if (this.hasBookmarks) {
         this.setDefaultView()
       }
 
@@ -2082,7 +2086,7 @@ export default {
     setCurrentSelection (selection) {
       this.currentSelection = selection
 
-      if (hasPermission('feature_procedure_user_filter_sets')) {
+      if (this.hasBookmarks) {
         this.updateQueryHash()
       }
     },
@@ -2187,7 +2191,7 @@ export default {
 
       const data = { filter: this.getFilterQuery }
 
-      if (hasPermission('feature_procedure_user_filter_sets')) {
+      if (this.hasBookmarks) {
         const orderedFields = this.$refs.dataTable?.orderedHeaderFields || this.availableHeaderFields
         const columns = orderedFields.map(headerField => headerField.field)
 
@@ -2258,7 +2262,7 @@ export default {
     const savedBookmarkId = lscache.get(`${this.procedureId}:segments:currentBookmarkId`)
     const hasSavedBookmark = !!savedBookmarkId
 
-    if (!hasSavedBookmark && !hasPermission('feature_procedure_user_filter_sets')) {
+    if (!hasSavedBookmark && !this.hasBookmarks) {
       this.initializeFilters()
     }
 
