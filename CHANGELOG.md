@@ -5,6 +5,8 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+## v4.64.0 (2026-10-21)
 - bump contract layer demosplan-addon to v0.83
 - depends on contract layer >= v0.83
 - new SegmentTagsChangedEvent implements new interface added to contract layer in v0.83
