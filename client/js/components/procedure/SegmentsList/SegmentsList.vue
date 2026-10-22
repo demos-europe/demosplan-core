@@ -1161,7 +1161,7 @@ export default {
       this.appliedFilterQuery = filter
 
       // Update query hash
-      if (queryHash && queryHash !== this.currentQueryHash) {
+      if (queryHash && this.currentQueryHash && queryHash !== this.currentQueryHash) {
         this.updateQueryHashInURL(this.currentQueryHash, queryHash)
         this.currentQueryHash = queryHash
         this.setCurrentQueryHash(queryHash)
@@ -2246,10 +2246,10 @@ export default {
   },
 
   async mounted () {
+    this.setCurrentQueryHashFromUrl()
+
     const addons = await loadAddonComponents('tag.style.segments.list')
     this.hasStyledTopicalTags = addons.length > 0
-
-    this.setCurrentQueryHashFromUrl()
 
     /*
      * Clear temporary navigation state. When returning from bulk edit flow,

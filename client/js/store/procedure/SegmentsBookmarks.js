@@ -182,6 +182,7 @@ const SegmentsBookmarksStore = {
 
         if (updatedBookmark) {
           commit('updateBookmarkInStore', updatedBookmark)
+          commit('setCurrentBookmark', updatedBookmark)
         }
 
         return true

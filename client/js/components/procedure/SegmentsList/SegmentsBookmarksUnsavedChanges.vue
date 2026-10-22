@@ -445,7 +445,18 @@ watch(
   { deep: true },
 )
 
-watch(hasChanges, (value) => {
-  emit('hasChanges', value)
-}, { immediate: true })
+// Watch all props that affect change detection and emit whenever they change
+watch(
+  () => [
+    props.currentSearchPhrase,
+    props.currentSorting,
+    props.currentSelectedColumns,
+    props.currentBookmark,
+    currentFilters.value,
+  ],
+  () => {
+    emit('hasChanges', hasChanges.value)
+  },
+  { deep: true },
+)
 </script>

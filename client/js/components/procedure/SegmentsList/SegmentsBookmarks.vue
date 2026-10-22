@@ -114,7 +114,7 @@ import {
   DpButtonRow,
   DpInput,
 } from '@demos-europe/demosplan-ui'
-import { computed, type ComputedRef, onMounted, type Ref, ref } from 'vue'
+import { computed, type ComputedRef, onMounted, type Ref, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 import lscache from 'lscache'
 import SegmentsBookmarksUnsavedChanges from './SegmentsBookmarksUnsavedChanges.vue'
@@ -170,11 +170,17 @@ const updateBookmarkAction = (payload: UpdateBookmarkPayload): Promise<boolean> 
 /* Emits */
 interface SegmentsBookmarksEmits {
   (e: 'applyBookmark', bookmark: Bookmark): void
+  (e: 'hasUnsavedChanges', value: boolean): void
   (e: 'resetView'): void
   (e: 'updateButtonText', text: string): void
 }
 
 const emit = defineEmits<SegmentsBookmarksEmits>()
+
+/* Watch */
+watch(hasUnsavedChanges, (newValue: boolean): void => {
+  emit('hasUnsavedChanges', newValue)
+})
 
 /* Methods */
 const abort = async (): Promise<void> => {
@@ -220,6 +226,8 @@ const applySelectedBookmark = async (bookmarkId): Promise<void> => {
   lscache.set(lsKey, bookmarkId)
   updateBookmarkButtonText(selectedBookmark)
   emit('applyBookmark', selectedBookmark)
+  hasUnsavedChanges.value = false
+  emit('hasUnsavedChanges', false)
 }
 
 const createNewBookmark = async (): Promise<void> => {
@@ -301,6 +309,8 @@ const restoreSavedBookmark = async (): Promise<void> => {
   if (success) {
     updateBookmarkButtonText(savedBookmark)
     emit('applyBookmark', savedBookmark)
+    hasUnsavedChanges.value = false
+    emit('hasUnsavedChanges', false)
   }
 }
 
@@ -331,6 +341,8 @@ const handleBookmarkUpdate = async (): Promise<void> => {
   if (success) {
     dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
     showUnsavedChanges.value = false
+    hasUnsavedChanges.value = false
+    emit('hasUnsavedChanges', false)
   }
 }
 
