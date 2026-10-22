@@ -27,7 +27,7 @@
     </dp-tooltip>
     <span
       v-if="hasUnsavedChanges"
-      class="absolute top-1 left-4 w-1 h-1 bg-interactive rounded-full"
+      class="absolute bottom-3 left-4 w-1 h-1 bg-interactive rounded-full"
       data-cy="segmentsBookmarksButton:unsavedIndicator"
     />
   </div>
