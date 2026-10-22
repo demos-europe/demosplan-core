@@ -229,7 +229,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
     apt-get update -y \
     && apt-get --no-install-recommends install acl bind9-host ca-certificates curl \
-       default-mysql-client gettext-base libfcgi-bin lnav unzip vim-tiny -y \
+       default-mysql-client gettext-base libfcgi-bin lnav procps unzip vim-tiny -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir -p /opt/uploads \
