@@ -582,6 +582,43 @@ class EntityContentChangeService
     }
 
     /**
+     * Versionsverlauf entry for a statement/segment whose rendered recommendation changed
+     * because a boilerplate it uses was edited. Stored as an ordinary `recommendation` diff
+     * (rendered old vs. rendered new), attributed to the user who edited the boilerplate.
+     *
+     * Needed explicitly: the stored recommendation holds only the reference tag, so the
+     * generic change tracking never sees a change. Persists without flushing.
+     */
+    public function createBoilerplateTextChangeEntry(
+        Statement $statementOrSegment,
+        string $oldRenderedRecommendation,
+        string $newRenderedRecommendation,
+    ): void {
+        $entityType = ClassUtils::getClass($statementOrSegment);
+        $diffJson = $this->generateActualDiff(
+            $oldRenderedRecommendation,
+            $newRenderedRecommendation,
+            SegmentInterface::RECOMMENDATION_FIELD_NAME,
+            $entityType,
+            [],
+        );
+        if (null === $diffJson) {
+            return;
+        }
+
+        $this->entityContentChangeRepository->persistEntities([
+            $this->createEntityContentChangeEntity(
+                $statementOrSegment,
+                SegmentInterface::RECOMMENDATION_FIELD_NAME,
+                $diffJson,
+                $this->determineChanger(false),
+                $entityType,
+                new DateTime('now', new DateTimeZone('Europe/Berlin')),
+            ),
+        ]);
+    }
+
+    /**
      * Deadline feature — Versionsverlauf entry for a segment whose workflow
      * place changed and thereby triggered the automatic deadline reset.
      *
