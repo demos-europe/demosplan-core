@@ -6,6 +6,8 @@
 
 ## UNRELEASED
 
+## v4.62.1 (2026-10-22)
+
 ## v4.62.0 (2026-10-08)
 - bump contract layer demosplan-addon to v0.83
 - depends on contract layer >= v0.83
