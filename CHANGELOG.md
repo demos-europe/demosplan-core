@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+## v4.63.1 (2026-10-22)
+- PHP runtime updated to 8.4.27 (security fix)
+
 ## v4.63.0 (2026-10-08)
 
 ## v4.61.3 (2026-09-30)
