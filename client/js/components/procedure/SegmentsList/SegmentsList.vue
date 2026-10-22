@@ -1138,6 +1138,10 @@ export default {
       setViewStateInitialized: 'setViewStateInitialized',
     }),
 
+    ...mapActions('SegmentsBookmarks', {
+      resetToDefaultView: 'resetToDefaultView',
+    }),
+
     async applyBookmarkSettings (bookmark) {
       if (!bookmark) {
         await this.resetQuery()
@@ -1185,10 +1189,10 @@ export default {
 
     applySort (sortValue) {
       this.selectedSort = sortValue
-      this.setStoreSorting(sortValue)
       lscache.set(this.lsKey.selectedSort, sortValue)
 
       if (this.hasBookmarks) {
+        this.setStoreSorting(sortValue)
         this.updateQueryHash()
       }
 
@@ -1870,7 +1874,11 @@ export default {
 
     resetSearchQuery () {
       this.searchTerm = ''
-      this.setStoreSearchPhrase('')
+
+      if (this.hasBookmarks) {
+        this.setStoreSearchPhrase('')
+      }
+
       this.$refs.customSearch.reset()
     },
 
@@ -1897,7 +1905,10 @@ export default {
 
       if (storedSort) {
         this.selectedSort = storedSort
-        this.setStoreSorting(storedSort)
+
+        if (this.hasBookmarks) {
+          this.setStoreSorting(storedSort)
+        }
       }
     },
 
@@ -2103,9 +2114,9 @@ export default {
 
     setCurrentSelection (selection) {
       this.currentSelection = selection
-      this.setStoreSelectedColumns(selection)
 
       if (this.hasBookmarks) {
+        this.setStoreSelectedColumns(selection)
         this.updateQueryHash()
       }
     },
@@ -2176,7 +2187,7 @@ export default {
       this.searchTerm = ''
       this.setStoreSearchPhrase('')
 
-      this.$store.dispatch('SegmentsBookmarks/resetToDefaultView')
+      this.resetToDefaultView()
     },
 
     showVersionHistory (segmentId, externId) {
@@ -2261,9 +2272,13 @@ export default {
 
     updateSearchQuery (term) {
       this.searchTerm = term
-      this.setStoreSearchPhrase(term)
+
+      if (this.hasBookmarks) {
+        this.setStoreSearchPhrase(term)
+        this.updateQueryHash()
+      }
+
       this.resetSelection()
-      this.updateQueryHash()
       this.applyQuery(1)
     },
   },
@@ -2287,11 +2302,12 @@ export default {
 
     this.restoreSorting()
 
-    // Sync initial values to store for reactive change detection
-    this.setStoreDefaultSelectedColumns(this.defaultColumnSelection)
-    this.setStoreSearchPhrase(this.searchTerm)
-    this.setStoreSelectedColumns(this.currentSelection)
-    this.setViewStateInitialized(true)
+    if (this.hasBookmarks) {
+      this.setStoreDefaultSelectedColumns(this.defaultColumnSelection)
+      this.setStoreSearchPhrase(this.searchTerm)
+      this.setStoreSelectedColumns(this.currentSelection)
+      this.setViewStateInitialized(true)
+    }
 
     const savedBookmarkId = lscache.get(`${this.procedureId}:segments:currentBookmarkId`)
     const hasSavedBookmark = !!savedBookmarkId

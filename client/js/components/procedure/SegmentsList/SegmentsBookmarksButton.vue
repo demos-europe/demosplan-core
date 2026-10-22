@@ -15,7 +15,7 @@
       :text="tooltipText"
     >
       <dp-button
-        class="max-w-11"
+        class="max-w-11 mx-0.5"
         color="secondary"
         data-cy="segmentsBookmarksButton:open"
         icon="bookmark"
