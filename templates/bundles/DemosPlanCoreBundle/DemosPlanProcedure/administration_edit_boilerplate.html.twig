@@ -13,7 +13,10 @@
 
 
     <dp-edit-boilerplate
-        :selected-boilerplate-group="JSON.parse('{{ selectedGroup|json_encode|e('js', 'utf-8') }}')">
+        :selected-boilerplate-group="JSON.parse('{{ selectedGroup|json_encode|e('js', 'utf-8') }}')"
+        :usage-count="{{ boilerplateUsages|default([])|length }}"
+        boilerplate-title="{{ form.vars.value.title|default('') }}"
+        original-text="{{ form.vars.value.text|default('') }}">
         <template v-slot:default="{ boilerplateGroup, setBoilerplateGroup }">
             <form
                 class="layout flow-root"
