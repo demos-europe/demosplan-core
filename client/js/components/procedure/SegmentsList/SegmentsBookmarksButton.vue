@@ -9,14 +9,22 @@
 
 <template>
   <div class="relative float-right">
-    <dp-button
-      color="secondary"
-      data-cy="segmentsBookmarksButton:open"
-      icon="bookmark"
-      :text="buttonText"
-      variant="outline"
-      @click="$emit('click')"
-    />
+    <dp-tooltip
+      :key="tooltipKey"
+      data-cy="segmentsBookmarksButton:bookmarkTitle"
+      :text="tooltipText"
+    >
+      <dp-button
+        class="max-w-11"
+        color="secondary"
+        data-cy="segmentsBookmarksButton:open"
+        icon="bookmark"
+        :text="buttonText"
+        text-truncate
+        variant="outline"
+        @click="$emit('click')"
+      />
+    </dp-tooltip>
     <span
       v-if="hasUnsavedChanges"
       class="absolute top-1 left-4 w-1 h-1 bg-interactive rounded-full"
@@ -26,14 +34,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { DpButton } from '@demos-europe/demosplan-ui'
+import { computed, ref, type ComputedRef } from 'vue'
+import { DpButton, DpTooltip } from '@demos-europe/demosplan-ui'
 
-const buttonText = ref<string>(Translator.trans('views'))
+const defaultViewsLabel = Translator.trans('views')
+const buttonText = ref<string>(defaultViewsLabel)
 const hasUnsavedChanges = ref<boolean>(false)
+const tooltipKey = ref<number>(0)
+
+const tooltipText: ComputedRef<string> = computed(() => {
+  return buttonText.value === defaultViewsLabel
+    ? defaultViewsLabel
+    : `${Translator.trans('segments.bookmarks.view')}: ${buttonText.value}`
+})
 
 const updateButtonText = (newText: string): void => {
   buttonText.value = newText
+  tooltipKey.value++
 }
 
 const setHasUnsavedChanges = (value: boolean): void => {

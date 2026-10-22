@@ -95,16 +95,24 @@ const emit = defineEmits<BookmarksListEmits>()
 /* Methods */
 const getBookmarkSummary = (bookmark: Bookmark): string => {
   const { filter, searchPhrase, viewSettings } = bookmark.attributes
-  const filterCount = Object.keys(filter).length
+  const filterCount = Object.values(filter).filter(f => f.condition).length
   const selectedColumnCount = viewSettings.selectedColumns?.length || 0
 
-  const filterText = `${filterCount} ${Translator.trans('filter')}`
+  const filterText = filterCount > 0
+    ? `${filterCount} ${Translator.trans('filter')}`
+    : Translator.trans('filter.none')
 
   const searchText = searchPhrase?.trim() ? Translator.trans('searchterm') : ''
 
-  const columnText = props.totalColumnCount > 0 ?
-    Translator.trans('segments.bookmarks.summary.columns.of.total', { count: String(selectedColumnCount), total: String(props.totalColumnCount) }) :
-    `${selectedColumnCount} ${Translator.trans('columns')}`
+  let columnText
+
+  if (selectedColumnCount === props.totalColumnCount) {
+    columnText = Translator.trans('columns.all')
+  } else if (props.totalColumnCount > 0) {
+    columnText = Translator.trans('segments.bookmarks.summary.columns.of.total', { count: String(selectedColumnCount), total: String(props.totalColumnCount) })
+  } else {
+    columnText = `${selectedColumnCount} ${Translator.trans('columns')}`
+  }
 
   const summary = [
     filterText,
