@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, type ComputedRef } from 'vue'
+import { computed, type ComputedRef, ref } from 'vue'
 import { DpButton, DpTooltip } from '@demos-europe/demosplan-ui'
 
 const defaultViewsLabel = Translator.trans('views')
@@ -43,9 +43,9 @@ const hasUnsavedChanges = ref<boolean>(false)
 const tooltipKey = ref<number>(0)
 
 const tooltipText: ComputedRef<string> = computed(() => {
-  return buttonText.value === defaultViewsLabel
-    ? defaultViewsLabel
-    : `${Translator.trans('segments.bookmarks.view')}: ${buttonText.value}`
+  return buttonText.value === defaultViewsLabel ?
+    defaultViewsLabel :
+    `${Translator.trans('segments.bookmarks.view')}: ${buttonText.value}`
 })
 
 const updateButtonText = (newText: string): void => {
