@@ -1544,17 +1544,21 @@ export default {
         console.error(err)
       }
 
-      this.toggleSlidebarContent({
-        prop: 'commentsList',
-        val: {
-          ...this.commentsList,
-          currentCommentText: draft,
-          externId: this.segment.attributes.externId,
-          segmentId: this.segment.id,
-          show: true,
-        },
-      })
+      const commentsList = {
+        ...this.commentsList,
+        currentCommentText: '',
+        externId: this.segment.attributes.externId,
+        segmentId: this.segment.id,
+        show: true,
+      }
+
+      this.toggleSlidebarContent({ prop: 'commentsList', val: commentsList })
       this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'comments' } })
+
+      // Set the draft after the reset was rendered, otherwise the editor never sees a value change
+      this.$nextTick(() => {
+        this.toggleSlidebarContent({ prop: 'commentsList', val: { ...commentsList, currentCommentText: draft } })
+      })
     },
 
     showMap () {

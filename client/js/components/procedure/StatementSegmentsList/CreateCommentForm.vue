@@ -231,14 +231,11 @@ export default {
     },
 
     saveDraft (val) {
-      // The editor reports an empty paragraph instead of an empty string
-      const isEmpty = val.replace(/<[^>]*>/g, '').trim() === ''
-
       try {
-        if (isEmpty) {
-          sessionStorage.removeItem(this.draftStorageKey)
-        } else {
+        if (val) {
           sessionStorage.setItem(this.draftStorageKey, val)
+        } else {
+          sessionStorage.removeItem(this.draftStorageKey)
         }
       } catch (err) {
         console.error(err)
