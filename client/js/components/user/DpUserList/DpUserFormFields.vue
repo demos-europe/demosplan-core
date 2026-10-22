@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div class="whitespace-nowrap py-4">
+  <div class="whitespace-nowrap pb-4">
     <div class="inline-block w-1/2 pr-3">
       <dp-input
         :id="userId + ':firstName'"
@@ -52,7 +52,7 @@
 
     <div class="w-1/2 pr-3 inline-block">
       <label
-        class="mb-1.5 mt-3"
+        class="mb-0.5"
         :for="userId + ':organisationId'"
       >
         {{ Translator.trans('organisation') }}*
@@ -116,7 +116,7 @@
       <dp-multiselect
         :id="userId + ':userRoles'"
         ref="rolesDropdown"
-        class="u-mb-0_5 whitespace-normal"
+        class="whitespace-normal"
         :custom-label="option =>`${ roles[option.id].attributes.name }`"
         data-cy="roles"
         label="name"
@@ -149,18 +149,43 @@
         </template>
       </dp-multiselect>
     </div>
+
+    <!-- Individual procedure-management permission (RMOPSA / RMOPHA only) -->
+    <div
+      v-if="hasPermission('feature_manage_user_procedure_creation_permission') && isProcedureManagementRoleSelected && isOrgaAcceptedAsMunicipalityOrHearingAuthority"
+      class="w-1/2 pr-3 mt-4 whitespace-normal flex items-center gap-1"
+    >
+      <dp-checkbox
+        :id="userId + ':canManageProcedures'"
+        v-model="canManageProceduresDisplay"
+        data-cy="userFormField:canManageProcedures"
+        :disabled="localUser.attributes.procedureCreationEnabledForOrga"
+        :label="{
+          text: Translator.trans('procedure.canManage'),
+          bold: true
+        }"
+        @change="emitUserUpdate"
+      />
+      <dp-contextual-help
+        data-cy="userFormField:canManageProcedures:hint"
+        :text="localUser.attributes.procedureCreationEnabledForOrga ?
+          Translator.trans('procedure.canManage.hint.enabledForOrga') :
+          Translator.trans('procedure.canManage.hint.disabledForOrga')"
+      />
+    </div>
   </div>
   <dp-inline-notification
     v-if="isCreateItem"
-    class="mt-4"
+    class="my-2"
     type="info"
     :message="Translator.trans('user.automated.email.info')"
   />
 </template>
 
 <script>
-import { dpApi, DpInlineNotification, DpInput, DpMultiselect, DpSelect, hasOwnProp, sortAlphabetically } from '@demos-europe/demosplan-ui'
+import { dpApi, DpCheckbox, DpContextualHelp, DpInlineNotification, DpInput, DpMultiselect, DpSelect, hasOwnProp, sortAlphabetically } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import { isOrgaAcceptedAsType } from '@DpJs/lib/shared/isOrgaAcceptedAsType'
 import { nextTick } from 'vue'
 import qs from 'qs'
 
@@ -168,6 +193,8 @@ export default {
   name: 'DpUserFormFields',
 
   components: {
+    DpCheckbox,
+    DpContextualHelp,
     DpInlineNotification,
     DpInput,
     DpMultiselect,
@@ -181,6 +208,7 @@ export default {
     },
     presetUserOrgaId: 'presetUserOrgaId',
     projectName: 'projectName',
+    subdomain: 'subdomain',
   },
 
   props: {
@@ -305,6 +333,50 @@ export default {
 
     isDepartmentSet () {
       return this.localUser.relationships.department.data?.id !== ''
+    },
+
+    /**
+     * RMOPSA/RMOPHA are only meaningful for orgs accepted as Kommune or Anhörungsbehörde —
+     * e.g. Planungsbüro orgs use a different role (RMOPPO) entirely. "Pending" doesn't count:
+     * the backend only grants the permission once actually accepted.
+     */
+    isOrgaAcceptedAsMunicipalityOrHearingAuthority () {
+      const orga = this.organisations[this.currentUserOrga.id]
+
+      if (!orga) {
+        return false
+      }
+
+      const registrationStatuses = Object.values(orga.attributes.registrationStatuses || {})
+        .filter(el => el.subdomain === this.subdomain)
+
+      return isOrgaAcceptedAsType(registrationStatuses, ['OLAUTH', 'OHAUTH'])
+    },
+
+    /**
+     * While the org-wide grant is active, this FPA effectively has the right regardless of their
+     * own individual grant - show the (disabled) checkbox as checked to reflect that, rather than
+     * the underlying individual grant, which the backend ignores while org-wide is active anyway.
+     */
+    canManageProceduresDisplay: {
+      get () {
+        return this.localUser.attributes.procedureCreationEnabledForOrga || this.localUser.attributes.canManageProcedures
+      },
+
+      set (value) {
+        this.localUser.attributes.canManageProcedures = value
+      },
+    },
+
+    /**
+     * Whether RMOPSA (Fachplaner-Admin) or RMOPHA (Anhörungsbehörde-Admin) is among the currently
+     * selected roles for this user. The individual procedure-management permission checkbox is only
+     * relevant for those roles.
+     */
+    isProcedureManagementRoleSelected () {
+      return (this.localUser.relationships.roles.data || []).some(
+        roleRef => ['RMOPSA', 'RMOPHA'].includes(this.roles[roleRef.id]?.attributes?.code),
+      )
     },
 
     isManagingSingleOrganisation () {

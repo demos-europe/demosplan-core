@@ -352,6 +352,9 @@ parameters:
                         field: "meta.orgaCity"
                     initialOrganisationPostalCode:
                         field: "meta.orgaPostalCode"
+                    documentTitle:
+                    elementTitle:
+                    paragraphTitle:
         statementSegment:
             filter:
                 all: []

@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
 
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
+use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -34,5 +36,45 @@ class CustomFieldProvider
         }
 
         return $this->cache[$cacheKey];
+    }
+
+    /**
+     * @param string[] $customFieldIds
+     *
+     * @return array<string, string> Display label keyed by custom field id
+     */
+    public function getCustomFieldLabelsByIds(array $customFieldIds): array
+    {
+        $labels = [];
+        foreach ($this->getCustomFieldConfigurationsByIds($customFieldIds) as $customFieldConfiguration) {
+            $labels[$customFieldConfiguration->getId()] = $customFieldConfiguration->getConfiguration()->getName();
+        }
+
+        return $labels;
+    }
+
+    /**
+     * @param list<string> $customFieldIds
+     *
+     * @return array<string, CustomFieldInterface> Existing custom fields keyed by custom field id
+     */
+    public function getCustomFieldsByIds(array $customFieldIds): array
+    {
+        $customFields = [];
+        foreach ($this->getCustomFieldConfigurationsByIds($customFieldIds) as $customFieldConfiguration) {
+            $customFields[$customFieldConfiguration->getId()] = $customFieldConfiguration->getConfiguration();
+        }
+
+        return $customFields;
+    }
+
+    /**
+     * @param string[] $customFieldIds
+     *
+     * @return CustomFieldConfiguration[]
+     */
+    private function getCustomFieldConfigurationsByIds(array $customFieldIds): array
+    {
+        return $this->customFieldConfigurationRepository->findBy(['id' => $customFieldIds]);
     }
 }

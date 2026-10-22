@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <dp-slidebar
-      ref="slidebar"
+      v-model:open="isSlidebarOpen"
       data-cy="layerFeatureInfoSidebar"
     >
       <template v-slot:dragHandle>
@@ -70,6 +70,7 @@ export default {
   data () {
     return {
       currentLayerFeatureInfoPage: 1,
+      isSlidebarOpen: false,
       layersFeatureInfoResults: null,
     }
   },
@@ -258,9 +259,9 @@ export default {
           this.layersFeatureInfoResults = sanitizedResults
 
           if (this.layersFeatureInfoResults.length > 0) {
-            this.$refs.slidebar.showSlideBar()
+            this.isSlidebarOpen = true
           } else {
-            this.$refs.slidebar.hideSlideBar()
+            this.isSlidebarOpen = false
             dplan.notify.notify('info', Translator.trans('map.getfeatureinfo.none'))
           }
         })
