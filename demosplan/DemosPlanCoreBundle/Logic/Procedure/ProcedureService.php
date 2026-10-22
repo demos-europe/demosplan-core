@@ -1678,6 +1678,9 @@ class ProcedureService implements ProcedureServiceInterface
     /**
      * Loads a specific boilerplateentry from the DB and edit this text and/or title.
      *
+     * Does NOT propagate a changed text: recommendations using the boilerplate get no version or
+     * history entry and are not reindexed. Use {@see updateBoilerplateVO()} to change the text.
+     *
      * @param string $boilerplateId - Identify the boilerplate, which is to be updated
      * @param array  $data          - Contains the keys and values, which are to be updated
      *
