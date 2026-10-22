@@ -156,12 +156,6 @@ export default {
       type: String,
     },
 
-    fragmentsTotal: {
-      required: false,
-      type: Number,
-      default: 0,
-    },
-
     inaccessibleProcedures: {
       required: false,
       type: Object,
@@ -272,17 +266,10 @@ export default {
         })
       }
 
-      // If fragments are already loaded don't load them again
-      if (this.fragmentsTotal === this.fragmentsByStatement(statementId).fragments.length) {
-        setFragmentsInComponent()
-
-        return Promise.resolve(true)
-      } else {
-        return this.loadFragments({ procedureId: this.procedureId, statementId })
-          .then(() => {
-            setFragmentsInComponent()
-          })
-      }
+      return this.loadFragments({ procedureId: this.procedureId, statementId })
+        .then(() => {
+          setFragmentsInComponent()
+        })
     },
 
     resetFragments () {

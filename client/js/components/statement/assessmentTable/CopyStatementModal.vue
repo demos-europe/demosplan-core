@@ -119,12 +119,6 @@ export default {
       type: String,
     },
 
-    fragmentsTotal: {
-      required: false,
-      type: Number,
-      default: 0,
-    },
-
     inaccessibleProcedures: {
       required: false,
       type: Object,
@@ -209,6 +203,9 @@ export default {
         statementId: this.statementId,
         targetProcedureId: this.selectedProcedureId,
       })
+        .catch(() => {
+          dplan.notify.notify('error', Translator.trans('error.results.loading'))
+        })
         .finally(() => {
           this.setModalProperty({
             prop: 'copyStatementModal',
@@ -275,17 +272,10 @@ export default {
         })
       }
 
-      // If fragments are already loaded don't load them again
-      if (this.fragmentsTotal === this.fragmentsByStatement(this.statementId).fragments.length) {
-        setFragmentsInComponent()
-
-        return Promise.resolve(true)
-      } else {
-        return this.loadFragments({ procedureId: this.procedureId, statementId: this.statementId })
-          .then(() => {
-            setFragmentsInComponent()
-          })
-      }
+      return this.loadFragments({ procedureId: this.procedureId, statementId: this.statementId })
+        .then(() => {
+          setFragmentsInComponent()
+        })
     },
 
     resetFragments () {

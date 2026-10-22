@@ -72,7 +72,6 @@
         v-if="hasPermission('feature_statement_copy_to_procedure') && copyStatementModal.show"
         :accessible-procedures="accessibleProcedures"
         :current-user-id="currentUserId"
-        :fragments-total="statementsObject[copyStatementModal.statementId]?.attributes.fragmentsCount || 0"
         :inaccessible-procedures="inaccessibleProcedures"
         :procedure-id="procedureId"
       />
@@ -80,7 +79,6 @@
         v-if="hasPermission('feature_statement_move_to_procedure') && moveStatementModal.show"
         :accessible-procedures="accessibleProcedures"
         :current-user-id="currentUserId"
-        :fragments-total="statementsObject[moveStatementModal.statementId]?.attributes.fragmentsCount || 0"
         :inaccessible-procedures="inaccessibleProcedures"
         :procedure-id="procedureId"
       />
@@ -1019,7 +1017,6 @@ export default {
         'authoredDate',
         'authorName',
         'externId',
-        'fragmentsCount',
         'isSubmittedByCitizen',
         'initialOrganisationCity',
         'initialOrganisationDepartmentName',
@@ -1117,7 +1114,7 @@ export default {
      * Returns the tooltip message for a locked checkbox, specific to why the statement cannot be selected.
      */
     getLockMessage (statement) {
-      const { isCluster, segmentsCount, synchronized } = statement.attributes
+      const { isCluster, isPlaceholder, segmentsCount, synchronized } = statement.attributes
 
       if (synchronized) {
         return Translator.trans('item.lockedForSelection.sharedStatement')
@@ -1125,6 +1122,10 @@ export default {
 
       if (isCluster) {
         return Translator.trans('item.lockedForSelection.cluster')
+      }
+
+      if (isPlaceholder) {
+        return Translator.trans('item.lockedForSelection.placeholder')
       }
 
       if (segmentsCount > 0) {

@@ -112,7 +112,6 @@
       v-if="hasPermission('feature_statement_move_to_procedure') && copyStatementModal.show"
       :accessible-procedures="accessibleProcedures"
       :current-user-id="currentUserId"
-      :fragments-total="statements[copyStatementModal.statementId]?.fragmentsTotal || 0"
       :inaccessible-procedures="inaccessibleProcedures"
       :procedure-id="procedureId"
     />
@@ -121,7 +120,6 @@
       v-if="hasPermission('feature_statement_move_to_procedure') && moveStatementModal.show"
       :accessible-procedures="accessibleProcedures"
       :current-user-id="currentUserId"
-      :fragments-total="statements[moveStatementModal.statementId]?.fragmentsTotal || 0"
       :inaccessible-procedures="inaccessibleProcedures"
       :procedure-id="procedureId"
     />
