@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFacto
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeDisplayService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeRollbackVersionService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
@@ -273,7 +274,7 @@ class BoilerplateTextChangePropagatorTest extends FunctionalTestCase
     /**
      * @return list<EntityContentChange>
      */
-    private function getRecommendationEntries(Segment $segment): array
+    private function getRecommendationEntries(Statement $segment): array
     {
         return $this->getEntries(
             EntityContentChange::class,
@@ -294,6 +295,49 @@ class BoilerplateTextChangePropagatorTest extends FunctionalTestCase
             $this->statementPersister,
             $logger ?? new NullLogger(),
         );
+    }
+
+    public function testReindexesPlainStatementsWithTheStatementPersister(): void
+    {
+        $boilerplate = BoilerplateFactory::createOne(['text' => 'Alter Text'])->_real();
+        $statement = $this->createLinkedStatement($boilerplate);
+        $this->segmentPersister->expects(self::never())->method('replaceMany');
+        $this->statementPersister->expects(self::once())->method('replaceMany')
+            ->with(self::callback(static fn (array $statements): bool => [$statement->getId()] === array_map(
+                static fn (Statement $s): string => $s->getId(),
+                $statements
+            )));
+
+        $boilerplate->setText('Neuer Text');
+        $this->sut->saveAndPropagate($boilerplate, 'Alter Text');
+
+        $this->entityManager->refresh($statement);
+        static::assertSame('Vorher Neuer Text nachher', $statement->getRecommendation());
+        static::assertCount(1, $this->getRecommendationEntries($statement));
+    }
+
+    public function testReindexesSegmentsAndStatementsEachWithTheirOwnPersister(): void
+    {
+        $boilerplate = BoilerplateFactory::createOne(['text' => 'Alter Text'])->_real();
+        $this->createLinkedSegment($boilerplate);
+        $this->createLinkedStatement($boilerplate);
+        $this->segmentPersister->expects(self::once())->method('replaceMany')
+            ->with(self::callback(static fn (array $items): bool => 1 === count($items) && $items[0] instanceof Segment));
+        $this->statementPersister->expects(self::once())->method('replaceMany')
+            ->with(self::callback(static fn (array $items): bool => 1 === count($items) && !$items[0] instanceof Segment));
+
+        $boilerplate->setText('Neuer Text');
+        $this->sut->saveAndPropagate($boilerplate, 'Alter Text');
+    }
+
+    private function createLinkedStatement(Boilerplate $boilerplate): Statement
+    {
+        $statement = StatementFactory::createOne(['procedure' => $boilerplate->getProcedure()])->_real();
+        $this->entityManager->refresh($statement);
+        $statement->setRecommendation("Vorher <dp-boilerplate boilerplate-id=\"{$boilerplate->getId()}\"></dp-boilerplate> nachher");
+        $this->entityManager->flush();
+
+        return $statement;
     }
 
     private function createLinkedSegment(Boilerplate $boilerplate): Segment
