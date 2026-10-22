@@ -82,6 +82,7 @@ const fields = [
   'orgaCity',
   'organisationName',
   'orgaPostalCode',
+  'planDocument',
   'statementId',
   'statementText',
   'typeOfSubmission']

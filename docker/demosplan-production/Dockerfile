@@ -74,7 +74,8 @@ WORKDIR /srv/www
 # yarn install in the next RUN cannot mkdir /srv/www/node_modules.
 COPY composer.json composer.lock package.json yarn.lock .yarnrc.yml ./
 # do not use --no-scripts, as we do not need all the aws stuff
-RUN --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=locked \
+RUN --mount=type=secret,id=ado,env=ADO_NPM_AUTH_IDENT,required=false \
+    --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=locked \
     --mount=type=cache,target=/var/www/.yarn,uid=33,gid=33,sharing=locked \
     --mount=type=cache,target=/var/www/.cache,uid=33,gid=33,sharing=locked \
     if [ "$BUILD_MODE" = "dev" ]; then \
@@ -168,6 +169,7 @@ USER www-data
 # during addon install the cache is deleted and the command "fails" because it does not find the cache
 # the command is executed with "|| true" to prevent the build from failing
 RUN --mount=type=secret,id=envlocal,target=/srv/www/.env.local,uid=33 \
+    --mount=type=secret,id=ado,env=ADO_NPM_AUTH_IDENT,required=false \
     --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=locked \
     --mount=type=cache,target=/var/www/.yarn,uid=33,gid=33,sharing=locked \
     --mount=type=cache,target=/var/www/.cache,uid=33,gid=33,sharing=locked \
@@ -202,7 +204,10 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     mkdir -p /srv/www/public/uploads/files && \
     chmod -R 775 /srv/www/public/uploads && \
     mkdir -p /opt/uploads && \
-    chown -R root:root /srv/www/public && \
+# Code PHP-FPM loads (vendor, addons, ...) must not be writable by the worker user; the fpm stage
+# re-grants var/ and tmp/. dompdf writes font metrics (JSON) into its font dir at runtime. \
+    chown -R root:root /srv/www && \
+    chown -R www-data /srv/www/vendor/dompdf/dompdf/lib/fonts && \
     chown -R www-data /opt/uploads && \
     chown -R www-data /srv/www/public/uploads && \
 # build-time only, see the sbom-js stage \

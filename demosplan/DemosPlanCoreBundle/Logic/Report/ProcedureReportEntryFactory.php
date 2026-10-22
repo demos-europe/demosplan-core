@@ -166,6 +166,25 @@ class ProcedureReportEntryFactory extends AbstractReportEntryFactory
     /**
      * @throws JsonException
      */
+    public function createReadOnlyToggleEntry(
+        Procedure $procedure,
+        bool $readOnly,
+    ): ReportEntry {
+        $data = ['readOnly' => $readOnly];
+
+        $entry = $this->createReportEntry();
+        $entry->setCategory(ReportEntry::CATEGORY_UPDATE);
+        $entry->setUser($this->getCurrentUser());
+        $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_PROCEDURE);
+        $entry->setIdentifier($procedure->getId());
+        $entry->setMessage(Json::encode($data, JSON_UNESCAPED_UNICODE));
+
+        return $entry;
+    }
+
+    /**
+     * @throws JsonException
+     */
     public function createTargetProcedureCoupleEntry(
         string $procedureIdToCreateTheReportEntryFor,
         Procedure $coupledProcedure,
