@@ -5,7 +5,8 @@
   >
     <dp-inline-notification
       class="mb-2"
-      :message="Translator.trans('segments.bookmarks.default.not.overwritable')"
+      :message="notificationMessage"
+      :title="notificationTitle"
       type="info"
     />
 
@@ -48,7 +49,7 @@
             >
               <dp-icon
                 icon="minus"
-                class="inline-block mr-1 text-status-failed-icon"
+                class="inline-block mr-1 text-status-failed-icon mb-0.5"
               />
               <span>{{ groupedChange.removed.join('; ') }}</span>
             </p>
@@ -59,7 +60,7 @@
             >
               <dp-icon
                 icon="plus"
-                class="inline-block mr-1"
+                class="inline-block mr-1 text-message-success mb-0.5"
               />
               <span>{{ groupedChange.added.join('; ') }}</span>
             </p>
@@ -77,7 +78,7 @@
           >
             <dp-icon
               icon="minus"
-              class="inline-block mr-1 text-status-failed-icon"
+              class="inline-block mr-1 text-status-failed-icon mb-0.5"
             />
             <span>{{ change.oldValue }}</span>
           </p>
@@ -88,7 +89,7 @@
           >
             <dp-icon
               icon="plus"
-              class="inline-block mr-1"
+              class="inline-block mr-1 text-message-success mb-0.5"
             />
             <span>{{ change.newValue }}</span>
           </p>
@@ -105,7 +106,7 @@
           >
             <dp-icon
               icon="minus"
-              class="inline-block mr-1 text-status-failed-icon"
+              class="inline-block mr-1 text-status-failed-icon mb-0.5"
             />
             <span>{{ change.removed.map(getColumnLabel).join('; ') }}</span>
           </p>
@@ -116,7 +117,7 @@
           >
             <dp-icon
               icon="plus"
-              class="inline-block mr-1"
+              class="inline-block mr-1 text-message-success mb-0.5"
             />
             <span>{{ change.added.map(getColumnLabel).join('; ') }}</span>
           </p>
@@ -207,6 +208,22 @@ const detailedChanges: ComputedRef<DetailedChange[]> = computed(() => {
   return getDetailedDefaultViewChanges()
 })
 const hasChanges: ComputedRef<boolean> = computed(() => isViewStateInitialized.value && detailedChanges.value.length > 0)
+
+const notificationTitle: ComputedRef<string> = computed(() => {
+  if (props.currentBookmark) {
+    return Translator.trans('segments.bookmarks.unsaved.changes.title', { name: props.currentBookmark.attributes.name })
+  }
+
+  return Translator.trans('segments.bookmarks.default.changed.title')
+})
+
+const notificationMessage: ComputedRef<string> = computed(() => {
+  if (props.currentBookmark) {
+    return Translator.trans('segments.bookmarks.unsaved.changes.message')
+  }
+
+  return Translator.trans('segments.bookmarks.default.not.overwritable')
+})
 
 /* Methods */
 const extractFilterValues = (filters: Record<string, any> = {}) => {
