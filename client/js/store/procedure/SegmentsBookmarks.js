@@ -79,6 +79,7 @@ const SegmentsBookmarksStore = {
         })
 
         const bookmarks = response.data?.data || []
+
         commit('setBookmarks', bookmarks)
 
         return bookmarks
@@ -201,6 +202,7 @@ const SegmentsBookmarksStore = {
     async deleteBookmark ({ commit }, id) {
       try {
         const url = `${bookmarkApiUrl()}/${encodeURIComponent(id)}`
+
         await dpApi.delete(url)
         commit('removeBookmark', id)
 

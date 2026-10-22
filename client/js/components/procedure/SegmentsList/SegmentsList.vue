@@ -1134,6 +1134,7 @@ export default {
       if (!bookmark) {
         await this.resetQuery()
         this.setDefaultView()
+
         return
       }
 
@@ -1611,7 +1612,7 @@ export default {
           }
 
           this.updateFilterQuery({
-            [filter.condition.value]: filter
+            [filter.condition.value]: filter,
           })
         })
       }
@@ -2199,9 +2200,9 @@ export default {
         const columns = orderedFields.map(headerField => headerField.field)
 
         data.viewSettings = {
-            columnOrder: columns.join(','),
-            selectedColumns: this.currentSelection,
-            sorting: this.selectedSort,
+          columnOrder: columns.join(','),
+          selectedColumns: this.currentSelection,
+          sorting: this.selectedSort,
         }
       }
 
@@ -2249,6 +2250,7 @@ export default {
     this.setCurrentQueryHashFromUrl()
 
     const addons = await loadAddonComponents('tag.style.segments.list')
+
     this.hasStyledTopicalTags = addons.length > 0
 
     /*
@@ -2258,6 +2260,7 @@ export default {
     lscache.remove(this.lsKey.currentQueryHash)
 
     const navigationSourceKey = `${this.procedureId}:navigation:source`
+
     lscache.remove(navigationSourceKey)
 
     this.restoreSorting()

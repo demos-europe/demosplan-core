@@ -71,8 +71,8 @@
 import type { Bookmark } from '@DpJs/types/bookmarks'
 import {
   DpButton,
-  DpRadio,
   DpLoading,
+  DpRadio,
 } from '@demos-europe/demosplan-ui'
 
 /* Props */
