@@ -3,7 +3,7 @@
     ref="modal"
     content-classes="w-1/3"
   >
-    <template #header>
+    <template v-slot:header>
       <h3
         class="text-lg font-semibold"
         data-cy="boilerplateSaveConfirm:title"
@@ -24,7 +24,7 @@
       <span v-text="Translator.trans('boilerplate.usage.confirm.hint.after')" />
     </dp-inline-notification>
 
-    <template #footer>
+    <template v-slot:footer>
       <dp-button-row
         :primary-text="Translator.trans('boilerplate.usage.confirm.button')"
         data-cy="boilerplateSaveConfirm"
@@ -52,7 +52,7 @@ const emit = defineEmits<{
   confirm: []
 }>()
 
-const modal = ref<{ toggle: () => void } | null>(null)
+const modal = ref<{ toggle(): void } | null>(null)
 
 const toggle = () => modal.value?.toggle()
 
