@@ -2533,11 +2533,22 @@ class DemosPlanProcedureController extends BaseController
             $boilerplate = $form->getData();
             // boilerplateId is set to 'new' via route defaults if the value in form is empty
             // string comparison for readable urls
-            if ('new' === $boilerplateId) {
-                $updatedBoilerplate = $procedureService->addBoilerplateVO($procedure, $boilerplate);
-                $confirmMessage = 'confirm.boilerplate.created';
-            } else {
-                $updatedBoilerplate = $procedureService->updateBoilerplateVO($boilerplate);
+            try {
+                if ('new' === $boilerplateId) {
+                    $updatedBoilerplate = $procedureService->addBoilerplateVO($procedure, $boilerplate);
+                    $confirmMessage = 'confirm.boilerplate.created';
+                } else {
+                    $updatedBoilerplate = $procedureService->updateBoilerplateVO($boilerplate);
+                }
+            } catch (Exception $e) {
+                $this->logger->error('Could not save boilerplate', ['boilerplateId' => $boilerplateId, 'exception' => $e]);
+            }
+
+            if (!$updatedBoilerplate instanceof Boilerplate) {
+                // leave the edit view: after a failed flush the entity manager may be closed
+                $this->getMessageBag()->add('error', 'error.save');
+
+                return $this->redirectToRoute('DemosPlan_procedure_boilerplate_list', ['procedure' => $procedure]);
             }
         }
 
