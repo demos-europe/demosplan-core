@@ -18,14 +18,8 @@
       # > 'layerFeatures:changed'
       # >>> fired after feature-data changed
       # >>> Payload: features
-      # > 'setDrawingActive'
-      # >>> fired after clicking the Control
-      # >>> Payload: [name]|''
       #
-      # On:
-      # > 'setDrawingActive'
-      # >>> updates the active-state of the control and the featureLayer (Einzeichnungs-Ebene)
-      # >>> checks against the provided name
+      # Only one draw/edit tool per map is active at a time, tracked by name in olMapState.activeTool
   -->
   <usage variant="With Control rendered">
     <dp-ol-map-draw-feature
@@ -163,12 +157,10 @@ export default {
 
   emits: [
     'layerFeatures:changed',
-    'setDrawingActive',
   ],
 
   data () {
     return {
-      currentlyActive: this.initActive,
       drawingExtent: '',
       drawInteraction: null,
       featureId: uuid(),
@@ -179,22 +171,31 @@ export default {
   },
 
   computed: {
+    currentlyActive () {
+      const { activeTool } = this.olMapState
+
+      return this.renderControl && (activeTool === this.name || (this.defaultControl && activeTool === ''))
+    },
+
     map () {
       return this.olMapState.map
     },
   },
 
+  watch: {
+    currentlyActive (isActive) {
+      this.setInteractions(isActive)
+    },
+  },
+
   methods: {
-    /**
-     *
-     * @param name
-     */
-    activateTool (name) {
-      if (this.map === null || this.renderControl === false) {
+    setInteractions (isActive) {
+      if (this.map === null) {
         return
       }
 
-      if (((this.currentlyActive === false && name === this.name) || (this.defaultControl && name === ''))) {
+      // Guard against adding twice: init() and the watcher both fire when initActive is set
+      if (isActive && this.drawInteraction === null) {
         const style = this.drawStyle ? this.drawStyle : this.olMapState.drawStyles
 
         this.drawInteraction = new Draw({
@@ -216,11 +217,11 @@ export default {
         })
         this.map.addInteraction(this.drawInteraction)
         this.map.addInteraction(this.snap)
-        this.currentlyActive = true
-      } else {
+      } else if (!isActive && this.drawInteraction !== null) {
         this.map.removeInteraction(this.drawInteraction)
         this.map.removeInteraction(this.snap)
-        this.currentlyActive = false
+        this.drawInteraction = null
+        this.snap = null
       }
     },
 
@@ -286,7 +287,7 @@ export default {
       }
 
       if (this.currentlyActive) {
-        this.activateTool(this.name)
+        this.setInteractions(true)
       }
 
       this.map.updateSize()
@@ -319,17 +320,16 @@ export default {
     },
 
     toggle () {
-      if (this.currentlyActive === false) {
-        this.$root.$emit('setDrawingActive', this.name)
-      } else {
-        this.$root.$emit('setDrawingActive', '')
-      }
+      this.olMapState.activeTool = this.currentlyActive ? '' : this.name
     },
   },
 
   mounted () {
+    if (this.initActive) {
+      this.olMapState.activeTool = this.name
+    }
+
     this.init()
-    this.$root.$on('setDrawingActive', name => this.activateTool(name))
   },
 }
 </script>

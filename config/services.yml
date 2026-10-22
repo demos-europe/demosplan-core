@@ -28,6 +28,10 @@ services:
         tags:
         - { name: api_platform.filter }
 
+    demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\CustomFieldFilter:
+        tags:
+        - { name: api_platform.filter }
+
     demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\HashedQueryService: ~
 
     demosplan\DemosPlanCoreBundle\Logic\AzureUserDataMapper: ~
@@ -391,6 +395,16 @@ services:
             - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\User\Role, lazy: true }
 
     demosplan\DemosPlanCoreBundle\EventListener\RecommendationVersionEntityListener:
+        lazy: true
+        tags:
+            - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\Statement\Statement, lazy: true }
+
+    demosplan\DemosPlanCoreBundle\EventListener\BoilerplateTagSubstitutionEntityListener:
+        lazy: true
+        tags:
+            - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\Statement\Statement, lazy: true }
+
+    demosplan\DemosPlanCoreBundle\EventListener\BoilerplateUsageReconciliationEntityListener:
         lazy: true
         tags:
             - { name: doctrine.orm.entity_listener, event: postLoad, entity: demosplan\DemosPlanCoreBundle\Entity\Statement\Statement, lazy: true }

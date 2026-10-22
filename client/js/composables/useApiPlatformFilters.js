@@ -7,6 +7,9 @@
  * All rights reserved
  */
 
+// Group key prefix (memberOf) of custom field conditions, followed by the field id
+export const CUSTOM_FIELD_GROUP_PREFIX = 'customField_'
+
 /**
  * Composable for transforming EDT-style filters to API Platform 3.0 format.
  */
@@ -23,10 +26,14 @@ export function useApiPlatformFilters () {
    * API Platform 3:
    * path.id[]=uuid
    * exists[path]=false
+   * customField[fieldId][]=optionId
    *
    * Special handling for OR groups:
    * - IS NULL operators in OR groups use the `memberOf` value as the API filter key (with empty string)
    * - Regular values in OR groups are treated as ungrouped filters (path.id format)
+   * - Custom field conditions are collected via their `memberOf` value (customField_<fieldId>)
+   *   into the `customField[fieldId][]` shape that GET /api/3.0/StatementSegment expects:
+   *   options of the same field are OR-combined, different fields AND-combined.
    *
    * @param {Object} edtFilters
    * @returns {Object}
@@ -34,10 +41,17 @@ export function useApiPlatformFilters () {
   const transformFiltersToApiPlatform = (edtFilters) => {
     const apiFilters = {}
     const groupedFilters = {}
+    const customFieldFilters = {}
 
     Object.entries(edtFilters).forEach(([key, { condition, group } = {}]) => {
       if (group) {
         groupedFilters[key] = { conjunction: group.conjunction }
+      }
+
+      if (condition?.memberOf?.startsWith(CUSTOM_FIELD_GROUP_PREFIX)) {
+        const fieldId = condition.memberOf.slice(CUSTOM_FIELD_GROUP_PREFIX.length)
+
+        customFieldFilters[fieldId] = [...(customFieldFilters[fieldId] ?? []), condition.value]
       }
     })
 
@@ -46,11 +60,17 @@ export function useApiPlatformFilters () {
         return
       }
 
+      if (condition.memberOf?.startsWith(CUSTOM_FIELD_GROUP_PREFIX)) {
+        // Already collected above via the customField_<fieldId> memberOf
+        return
+      }
+
       const { path, value, operator, memberOf } = condition
       const isNull = operator === IS_NULL
       const isOrGroup = memberOf && groupedFilters[memberOf]?.conjunction === OR
+      const isAssigneeFilterGroup = isOrGroup && memberOf === 'assigneeOrUnassigned'
 
-      if (isOrGroup) {
+      if (isAssigneeFilterGroup) {
         apiFilters[memberOf] ??= []
         apiFilters[memberOf].push(isNull ? '' : value)
 
@@ -71,6 +91,10 @@ export function useApiPlatformFilters () {
         value,
       ]
     })
+
+    if (Object.keys(customFieldFilters).length > 0) {
+      apiFilters.customField = customFieldFilters
+    }
 
     return apiFilters
   }

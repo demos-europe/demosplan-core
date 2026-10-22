@@ -2,7 +2,7 @@
 #
 # Shared base for the build and fpm stages. Do not source PHP from packages.sury.org: its php-fpm
 # has DNS telemetry compiled in (telemetry.sury.org:53) with no opt-out.
-FROM php:8.4.25-fpm-bookworm AS php-base
+FROM php:8.4.27-fpm-bookworm AS php-base
 
 # Extensions that are not already compiled into the base image.
 COPY --link --from=mlocati/php-extension-installer:2.11.17 /usr/bin/install-php-extensions /usr/local/bin/
@@ -74,7 +74,8 @@ WORKDIR /srv/www
 # yarn install in the next RUN cannot mkdir /srv/www/node_modules.
 COPY composer.json composer.lock package.json yarn.lock .yarnrc.yml ./
 # do not use --no-scripts, as we do not need all the aws stuff
-RUN --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=locked \
+RUN --mount=type=secret,id=ado,env=ADO_NPM_AUTH_IDENT,required=false \
+    --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=locked \
     --mount=type=cache,target=/var/www/.yarn,uid=33,gid=33,sharing=locked \
     --mount=type=cache,target=/var/www/.cache,uid=33,gid=33,sharing=locked \
     if [ "$BUILD_MODE" = "dev" ]; then \
@@ -168,6 +169,7 @@ USER www-data
 # during addon install the cache is deleted and the command "fails" because it does not find the cache
 # the command is executed with "|| true" to prevent the build from failing
 RUN --mount=type=secret,id=envlocal,target=/srv/www/.env.local,uid=33 \
+    --mount=type=secret,id=ado,env=ADO_NPM_AUTH_IDENT,required=false \
     --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=locked \
     --mount=type=cache,target=/var/www/.yarn,uid=33,gid=33,sharing=locked \
     --mount=type=cache,target=/var/www/.cache,uid=33,gid=33,sharing=locked \

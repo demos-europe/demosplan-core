@@ -12,16 +12,24 @@
  */
 
 import { DpEditor, DpMultiselect, DpRadio, dpValidate } from '@demos-europe/demosplan-ui'
+import BoilerplateUsageList from '@DpJs/components/procedure/admin/BoilerplateUsageList'
 import DpEditBoilerplate from '@DpJs/components/procedure/admin/DpEditBoilerplate'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
+  BoilerplateUsageList,
   DpEditBoilerplate,
   DpEditor,
   DpMultiselect,
   DpRadio,
 }
 
-initialize(components).then(() => {
+// Needed by the unlock modal inside BoilerplateUsageList
+const apiStores = [
+  'AssignableUser',
+  'Place',
+]
+
+initialize(components, {}, apiStores).then(() => {
   dpValidate()
 })

@@ -25,11 +25,15 @@ use ApiPlatform\Serializer\Filter\PropertyFilter;
 use demosplan\DemosPlanCoreBundle\Api\AssignableUser\AssignableUserResource;
 use demosplan\DemosPlanCoreBundle\Api\Place\PlaceResource;
 use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\AssigneeOrUnassignedFilter;
+use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\CustomFieldFilter;
+use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\ExternIdNaturalOrderFilter;
 use demosplan\DemosPlanCoreBundle\Api\Tag\Resource as TagResource;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
 use demosplan\DemosPlanCoreBundle\ApiResources\StatementResource;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment as SegmentEntity;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag as TagEntity;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Constraint\CustomFieldOptionSelection;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ApiResource(
     shortName: 'StatementSegment',
@@ -37,15 +41,30 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag as TagEntity;
         new GetCollection(
             uriTemplate: '/StatementSegment',
             paginationEnabled: true,
-            paginationClientEnabled: true,
-            paginationClientItemsPerPage: true,
-            // Matches the largest page size offered by the frontend's page-size selector.
             paginationMaximumItemsPerPage: 100,
+            paginationClientEnabled: true,
+            // Matches the largest page size offered by the frontend's page-size selector.
+            paginationClientItemsPerPage: true,
             parameters: [
                 // Use only when a specific assignee and "unassigned" are both selected together.
                 'assigneeOrUnassigned' => new QueryParameter(
                     filter: AssigneeOrUnassignedFilter::class,
                     castToArray: true,
+                ),
+                // customField[<fieldId>][]=<optionId>: any selected option of a field, every selected field.
+                'customField' => new QueryParameter(
+                    filter: CustomFieldFilter::class,
+                    constraints: [
+                        // Sequentially: the options are only looked up once the shape is known to be valid.
+                        new Assert\Sequentially([
+                            new Assert\Type('array'),
+                            new Assert\All([
+                                new Assert\Type('array'),
+                                new Assert\All([new Assert\Type('string'), new Assert\NotBlank(), new Assert\Uuid(strict: false)]),
+                            ]),
+                            new CustomFieldOptionSelection(),
+                        ]),
+                    ],
                 ),
             ],
         ),
@@ -56,6 +75,8 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag as TagEntity;
     provider: Provider::class,
 )]
 #[ApiFilter(PropertyFilter::class)]
+// `order[externId]` sorts naturally (M2-1 before M10-1), which the plain OrderFilter cannot do.
+#[ApiFilter(ExternIdNaturalOrderFilter::class)]
 class Resource
 {
     #[ApiFilter(SearchFilter::class, properties: ['id' => 'exact'])]
@@ -102,6 +123,7 @@ class Resource
         'parentStatementOfSegment.original.internId',
         'parentStatementOfSegment.submit',
         'parentStatementOfSegment.externId',
+        'parentStatementOfSegment.meta.submitName',
     ])]
     #[ApiProperty(readable: true, writable: false)]
     public ?StatementResource $parentStatement = null;
@@ -112,6 +134,8 @@ class Resource
     public ?AssignableUserResource $assignee = null;
 
     #[ApiFilter(SearchFilter::class, properties: ['place.id' => 'exact'])]
+    // "Schritt" sorts by workflow position, not alphabetically by name.
+    #[ApiFilter(OrderFilter::class, properties: ['place.sortIndex'])]
     #[ApiProperty(readable: true, writable: false)]
     public ?PlaceResource $place = null;
 
