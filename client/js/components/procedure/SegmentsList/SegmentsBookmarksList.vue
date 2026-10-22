@@ -98,9 +98,9 @@ const getBookmarkSummary = (bookmark: Bookmark): string => {
   const filterCount = Object.values(filter).filter(f => f.condition).length
   const selectedColumnCount = viewSettings.selectedColumns?.length || 0
 
-  const filterText = filterCount > 0
-    ? `${filterCount} ${Translator.trans('filter')}`
-    : Translator.trans('filter.none')
+  const filterText = filterCount > 0 ?
+    `${filterCount} ${Translator.trans('filter')}` :
+    Translator.trans('filter.none')
 
   const searchText = searchPhrase?.trim() ? Translator.trans('searchterm') : ''
 
