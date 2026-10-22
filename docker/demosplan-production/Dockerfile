@@ -204,7 +204,10 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     mkdir -p /srv/www/public/uploads/files && \
     chmod -R 775 /srv/www/public/uploads && \
     mkdir -p /opt/uploads && \
-    chown -R root:root /srv/www/public && \
+# Code PHP-FPM loads (vendor, addons, ...) must not be writable by the worker user; the fpm stage
+# re-grants var/ and tmp/. dompdf writes font metrics (JSON) into its font dir at runtime. \
+    chown -R root:root /srv/www && \
+    chown -R www-data /srv/www/vendor/dompdf/dompdf/lib/fonts && \
     chown -R www-data /opt/uploads && \
     chown -R www-data /srv/www/public/uploads && \
 # build-time only, see the sbom-js stage \
