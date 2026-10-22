@@ -459,6 +459,7 @@ watch(
     if (!isViewStateInitialized.value) {
       return
     }
+
     emit('hasChanges', hasChanges.value)
   },
   { deep: true },
