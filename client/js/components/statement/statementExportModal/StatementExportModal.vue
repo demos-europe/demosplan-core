@@ -11,6 +11,7 @@
   <div>
     <dp-button
       data-cy="exportModal:open"
+      :disabled="isExportDisabled"
       :text="Translator.trans('export.verb')"
       variant="subtle"
       @click.prevent="openModal"
@@ -451,6 +452,12 @@ export default {
 
   props: {
     hasPermissionAdjustPreamble: {
+      required: false,
+      type: Boolean,
+      default: false,
+    },
+
+    isExportDisabled: {
       required: false,
       type: Boolean,
       default: false,
