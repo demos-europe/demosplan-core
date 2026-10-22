@@ -144,7 +144,7 @@ import {
   DpIcon,
   DpInlineNotification,
 } from '@demos-europe/demosplan-ui'
-import { computed, type ComputedRef, type Ref, ref, watch } from 'vue'
+import { computed, type ComputedRef, ref, type Ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
 /* Props */
@@ -206,7 +206,7 @@ const detailedChanges: ComputedRef<DetailedChange[]> = computed(() => {
 
   return getDetailedDefaultViewChanges()
 })
-const hasChanges: ComputedRef<boolean> = computed(() => detailedChanges.value.length > 0)
+const hasChanges: ComputedRef<boolean> = computed(() => isViewStateInitialized.value && detailedChanges.value.length > 0)
 
 /* Methods */
 const extractFilterValues = (filters: Record<string, any> = {}) => {

@@ -30,7 +30,12 @@ export interface SegmentsBookmarksState {
   allBookmarks: Bookmark[]
   currentBookmark: Bookmark | null
   currentBookmarkId: string | null
+  currentSearchPhrase: string
+  currentSelectedColumns: string[]
+  currentSorting: string
+  defaultSelectedColumns: string[]
   isBookmarkLoading: boolean
+  isViewStateInitialized: boolean
 }
 
 export interface SegmentSlidebarState {
