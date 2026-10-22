@@ -157,6 +157,33 @@ class BoilerplateUsageRepositoryTest extends FunctionalTestCase
         static::assertSame($segment->getId(), $usages[0]->getStatementOrSegment()->getId());
     }
 
+    public function testCountUsagesForBoilerplateExcludesDeletedSegments(): void
+    {
+        // arrange
+        $segment = SegmentFactory::createOne()->_real();
+        $deletedSegment = SegmentFactory::createOne([
+            'parentStatementOfSegment' => $segment->getParentStatementOfSegment(),
+            'procedure'                => $segment->getProcedure(),
+        ])->_real();
+        $boilerplate = $this->createBoilerplate($segment);
+        $this->sut->addUsage($boilerplate, $segment);
+        $this->sut->addUsage($boilerplate, $deletedSegment);
+
+        $deletedSegment->setDeleted(true);
+        $this->getEntityManager()->persist($deletedSegment);
+        $this->getEntityManager()->flush();
+
+        // act & assert
+        static::assertSame(1, $this->sut->countUsagesForBoilerplate($boilerplate->getId()));
+    }
+
+    public function testCountUsagesForBoilerplateWithoutUsagesIsZero(): void
+    {
+        $boilerplate = $this->createBoilerplate(SegmentFactory::createOne()->_real());
+
+        static::assertSame(0, $this->sut->countUsagesForBoilerplate($boilerplate->getId()));
+    }
+
     public function testGetUsagesForBoilerplateInitializesPlaces(): void
     {
         // arrange

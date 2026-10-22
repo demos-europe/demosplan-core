@@ -158,6 +158,22 @@ class BoilerplateUsageRepository extends CoreRepository
     }
 
     /**
+     * Number of usages of the given boilerplate whose Statement/Segment still exists.
+     * Same filter as {@see getUsagesForBoilerplate()}, without loading the rows.
+     */
+    public function countUsagesForBoilerplate(string $boilerplateId): int
+    {
+        return (int) $this->createQueryBuilder('boilerplateUsage')
+            ->select('COUNT(boilerplateUsage.id)')
+            ->join('boilerplateUsage.statementOrSegment', 'statementOrSegment')
+            ->where('boilerplateUsage.boilerplate = :boilerplateId')
+            ->andWhere('statementOrSegment.deleted = false')
+            ->setParameter('boilerplateId', $boilerplateId)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
      * Loads the places of all segments in one query. The query above cannot join them:
      * `place` exists only on Segment, while the join column is typed as Statement.
      * Without this, Doctrine would run one query per place as soon as it is read.

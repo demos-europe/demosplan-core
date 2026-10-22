@@ -183,6 +183,7 @@ class ProcedureService implements ProcedureServiceInterface
         private readonly BoilerplateGroupRepository $boilerplateGroupRepository,
         private readonly BoilerplateRepository $boilerplateRepository,
         private readonly BoilerplateUsageRepository $boilerplateUsageRepository,
+        private readonly BoilerplateTextChangePropagator $boilerplateTextChangePropagator,
         ContentService $contentService,
         private readonly CurrentUserInterface $currentUser,
         private readonly CustomerService $customerService,
@@ -1677,6 +1678,9 @@ class ProcedureService implements ProcedureServiceInterface
     /**
      * Loads a specific boilerplateentry from the DB and edit this text and/or title.
      *
+     * Does NOT propagate a changed text: recommendations using the boilerplate get no version or
+     * history entry and are not reindexed. Use {@see updateBoilerplateVO()} to change the text.
+     *
      * @param string $boilerplateId - Identify the boilerplate, which is to be updated
      * @param array  $data          - Contains the keys and values, which are to be updated
      *
@@ -2257,6 +2261,7 @@ class ProcedureService implements ProcedureServiceInterface
             $boilerplate->setVerified($boilerplateVO->getVerified());
         }
 
+        $oldText = $boilerplate->getText();
         $boilerplate->setTitle($boilerplateVO->getTitle());
         $boilerplate->setText($boilerplateVO->getText());
 
@@ -2275,6 +2280,11 @@ class ProcedureService implements ProcedureServiceInterface
         if (null !== $boilerplateVO->getGroupId()) {
             $group = $this->boilerplateGroupRepository->get($boilerplateVO->getGroupId());
             $boilerplate->setGroup($group);
+        }
+
+        // recommendations using this boilerplate render its new text, so they need history entries and reindexing
+        if ($oldText !== $boilerplate->getText()) {
+            return $this->boilerplateTextChangePropagator->saveAndPropagate($boilerplate, $oldText);
         }
 
         return $this->boilerplateRepository->updateObject($boilerplate);
@@ -2483,6 +2493,22 @@ class ProcedureService implements ProcedureServiceInterface
             },
             $this->boilerplateUsageRepository->getUsagesForBoilerplate($boilerplateId)
         );
+    }
+
+    /**
+     * Number of statements/segments whose recommendation uses the given boilerplate. Not
+     * permission-gated, unlike {@see getBoilerplateUsagesForDisplay()}: saving a changed text
+     * rewrites all of them, so the confirmation must not depend on who may list them.
+     *
+     * @throws Exception
+     */
+    public function getBoilerplateUsageCount(string $boilerplateId, string $procedureId): int
+    {
+        if ('new' === $boilerplateId || null === $this->getBoilerplateOfProcedure($boilerplateId, $procedureId)) {
+            return 0;
+        }
+
+        return $this->boilerplateUsageRepository->countUsagesForBoilerplate($boilerplateId);
     }
 
     /**

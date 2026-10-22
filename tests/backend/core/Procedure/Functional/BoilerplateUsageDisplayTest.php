@@ -170,6 +170,33 @@ class BoilerplateUsageDisplayTest extends FunctionalTestCase
         static::assertSame([], $rows);
     }
 
+    public function testUsageCountIsAvailableWithoutUsageListPermission(): void
+    {
+        // arrange
+        $this->disablePermissions(['feature_boilerplate_usage_list']);
+        $segment = SegmentFactory::createOne()->_real();
+        $boilerplate = $this->createBoilerplateFor($segment->getProcedure());
+        $this->boilerplateUsageRepository->addUsage($boilerplate, $segment);
+        $this->getEntityManager()->flush();
+
+        // act & assert
+        static::assertSame(1, $this->sut->getBoilerplateUsageCount($boilerplate->getId(), $boilerplate->getProcedureId()));
+    }
+
+    public function testUsageCountIsZeroForNewAndForeignBoilerplate(): void
+    {
+        // arrange
+        $segment = SegmentFactory::createOne()->_real();
+        $boilerplate = $this->createBoilerplateFor($segment->getProcedure());
+        $this->boilerplateUsageRepository->addUsage($boilerplate, $segment);
+        $otherProcedure = ProcedureFactory::createOne()->_real();
+        $this->getEntityManager()->flush();
+
+        // act & assert
+        static::assertSame(0, $this->sut->getBoilerplateUsageCount('new', $boilerplate->getProcedureId()));
+        static::assertSame(0, $this->sut->getBoilerplateUsageCount($boilerplate->getId(), $otherProcedure->getId()));
+    }
+
     private function createBoilerplateFor(object $procedure, string $text = 'Textbaustein'): Boilerplate
     {
         return BoilerplateFactory::createOne(['procedure' => $procedure, 'text' => $text])->_real();
