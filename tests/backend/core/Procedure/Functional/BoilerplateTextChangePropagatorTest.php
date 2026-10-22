@@ -19,7 +19,10 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFacto
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeDisplayService;
+use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeRollbackVersionService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
+use demosplan\DemosPlanCoreBundle\Logic\NullablePropertyAccessor;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\BoilerplateTextChangePropagator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\BoilerplateTagSubstitutionService;
@@ -208,6 +211,74 @@ class BoilerplateTextChangePropagatorTest extends FunctionalTestCase
             EntityContentChange::class,
             ['entityId' => $segment->getId(), 'entityField' => SegmentInterface::RECOMMENDATION_FIELD_NAME]
         ));
+    }
+
+    /**
+     * The history view rebuilds older texts by reversing the stored diffs, starting from the
+     * segment's current (rendered) recommendation. Chained boilerplate edits must therefore
+     * reverse step by step to the original text.
+     */
+    public function testStoredHistoryEntriesReverseToTheOriginalRenderedText(): void
+    {
+        $boilerplate = BoilerplateFactory::createOne(['text' => 'Erster Absatz'])->_real();
+        $segment = $this->createLinkedSegment($boilerplate);
+
+        $boilerplate->setText('Zweiter Absatz');
+        $this->sut->saveAndPropagate($boilerplate, 'Erster Absatz');
+        $afterFirstEdit = $this->getRecommendationEntries($segment);
+        $boilerplate->setText('Dritter Absatz');
+        $this->sut->saveAndPropagate($boilerplate, 'Zweiter Absatz');
+        $entries = $this->getRecommendationEntries($segment);
+        $secondEntry = array_values(array_filter(
+            $entries,
+            static fn (EntityContentChange $entry): bool => !in_array($entry, $afterFirstEdit, true)
+        ))[0];
+
+        $this->entityManager->refresh($segment);
+        $rollback = self::getContainer()->get(EntityContentChangeRollbackVersionService::class);
+        $text = $segment->getRecommendation();
+        static::assertSame('Vorher Dritter Absatz nachher', $text);
+
+        $text = $rollback->rollBackTextToPreviousVersion($text, $secondEntry->getContentChange(), 'recommendation', Segment::class);
+        static::assertSame('Vorher Zweiter Absatz nachher', $text);
+
+        $text = $rollback->rollBackTextToPreviousVersion($text, $afterFirstEdit[0]->getContentChange(), 'recommendation', Segment::class);
+        static::assertSame('Vorher Erster Absatz nachher', $text);
+
+        // and the history view itself can render the comparison for such an entry
+        static::assertNotNull(
+            self::getContainer()->get(EntityContentChangeDisplayService::class)->getContentChangeComparisonString($afterFirstEdit[0])
+        );
+    }
+
+    /**
+     * Elasticsearch fills the `recommendation` field through this accessor (see the
+     * `path_based_model_to_elastica_transformer` service), so the indexed text is the rendered
+     * one, containing the boilerplate's current text instead of the reference tag.
+     */
+    public function testIndexedRecommendationContainsTheCurrentBoilerplateText(): void
+    {
+        $boilerplate = BoilerplateFactory::createOne(['text' => 'Alter Text'])->_real();
+        $segment = $this->createLinkedSegment($boilerplate);
+        $accessor = self::getContainer()->get(NullablePropertyAccessor::class);
+
+        $boilerplate->setText('Neuer Text');
+        $this->sut->saveAndPropagate($boilerplate, 'Alter Text');
+        $this->entityManager->refresh($segment);
+
+        static::assertSame('Vorher Neuer Text nachher', $accessor->getValue($segment, 'recommendation'));
+        static::assertStringContainsString('dp-boilerplate', $segment->getRecommendationEmbedded());
+    }
+
+    /**
+     * @return list<EntityContentChange>
+     */
+    private function getRecommendationEntries(Segment $segment): array
+    {
+        return $this->getEntries(
+            EntityContentChange::class,
+            ['entityId' => $segment->getId(), 'entityField' => SegmentInterface::RECOMMENDATION_FIELD_NAME]
+        );
     }
 
     private function createSut(
