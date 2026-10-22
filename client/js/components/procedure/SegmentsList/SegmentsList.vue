@@ -1130,6 +1130,14 @@ export default {
       setCurrentQueryHash: 'setCurrentQueryHash',
     }),
 
+    ...mapMutations('SegmentsBookmarks', {
+      setStoreSearchPhrase: 'setCurrentSearchPhrase',
+      setStoreSorting: 'setCurrentSorting',
+      setStoreSelectedColumns: 'setCurrentSelectedColumns',
+      setStoreDefaultSelectedColumns: 'setDefaultSelectedColumns',
+      setViewStateInitialized: 'setViewStateInitialized',
+    }),
+
     async applyBookmarkSettings (bookmark) {
       if (!bookmark) {
         await this.resetQuery()
@@ -1143,14 +1151,17 @@ export default {
 
       // Apply search
       this.searchTerm = searchPhrase ?? ''
+      this.setStoreSearchPhrase(this.searchTerm)
 
       // Apply columns
       this.currentSelection = Array.isArray(selectedColumns) ? selectedColumns : []
+      this.setStoreSelectedColumns(this.currentSelection)
       localStorage.setItem('segmentList', JSON.stringify(this.currentSelection))
       this.columnSelectorKey++
 
       // Apply sorting
       this.selectedSort = sorting || ''
+      this.setStoreSorting(this.selectedSort)
 
       if (this.selectedSort) {
         lscache.set(this.lsKey.selectedSort, this.selectedSort)
@@ -1174,6 +1185,7 @@ export default {
 
     applySort (sortValue) {
       this.selectedSort = sortValue
+      this.setStoreSorting(sortValue)
       lscache.set(this.lsKey.selectedSort, sortValue)
 
       if (this.hasBookmarks) {
@@ -1858,6 +1870,7 @@ export default {
 
     resetSearchQuery () {
       this.searchTerm = ''
+      this.setStoreSearchPhrase('')
       this.$refs.customSearch.reset()
     },
 
@@ -1884,6 +1897,7 @@ export default {
 
       if (storedSort) {
         this.selectedSort = storedSort
+        this.setStoreSorting(storedSort)
       }
     },
 
@@ -2089,6 +2103,7 @@ export default {
 
     setCurrentSelection (selection) {
       this.currentSelection = selection
+      this.setStoreSelectedColumns(selection)
 
       if (this.hasBookmarks) {
         this.updateQueryHash()
@@ -2150,11 +2165,17 @@ export default {
 
     setDefaultView () {
       this.currentSelection = [...this.defaultColumnSelection]
+      this.setStoreSelectedColumns(this.currentSelection)
       localStorage.setItem('segmentList', JSON.stringify(this.defaultColumnSelection))
       this.columnSelectorKey++
 
       this.selectedSort = ''
+      this.setStoreSorting('')
       lscache.remove(this.lsKey.selectedSort)
+
+      this.searchTerm = ''
+      this.setStoreSearchPhrase('')
+
       this.$store.dispatch('SegmentsBookmarks/resetToDefaultView')
     },
 
@@ -2240,6 +2261,7 @@ export default {
 
     updateSearchQuery (term) {
       this.searchTerm = term
+      this.setStoreSearchPhrase(term)
       this.resetSelection()
       this.updateQueryHash()
       this.applyQuery(1)
@@ -2264,6 +2286,12 @@ export default {
     lscache.remove(navigationSourceKey)
 
     this.restoreSorting()
+
+    // Sync initial values to store for reactive change detection
+    this.setStoreDefaultSelectedColumns(this.defaultColumnSelection)
+    this.setStoreSearchPhrase(this.searchTerm)
+    this.setStoreSelectedColumns(this.currentSelection)
+    this.setViewStateInitialized(true)
 
     const savedBookmarkId = lscache.get(`${this.procedureId}:segments:currentBookmarkId`)
     const hasSavedBookmark = !!savedBookmarkId

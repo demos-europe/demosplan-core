@@ -14,10 +14,6 @@
     <div class="flex-1 overflow-y-auto min-h-0">
       <segments-bookmarks-unsaved-changes
         :current-bookmark="currentBookmark"
-        :current-search-phrase="currentSearchPhrase"
-        :current-sorting="currentSorting"
-        :current-selected-columns="currentSelectedColumns"
-        :default-selected-columns="defaultSelectedColumns"
         :filters="filters"
         :is-open="showUnsavedChanges"
         @toggle="showUnsavedChanges = $event"
@@ -126,17 +122,9 @@ const { Translator, dplan } = window as typeof globalThis
 const props = withDefaults(defineProps<{
   procedureId: string
   totalColumnCount?: number
-  currentSearchPhrase?: string
-  currentSorting?: string
-  currentSelectedColumns?: string[]
-  defaultSelectedColumns?: string[]
   filters?: Record<string, { labelTranslationKey: string, rootPath: string, comparisonOperator: string }>
 }>(), {
   totalColumnCount: 0,
-  currentSearchPhrase: '',
-  currentSorting: '',
-  currentSelectedColumns: () => [],
-  defaultSelectedColumns: () => [],
   filters: () => ({}),
 })
 
@@ -180,6 +168,12 @@ const emit = defineEmits<SegmentsBookmarksEmits>()
 /* Watch */
 watch(hasUnsavedChanges, (newValue: boolean): void => {
   emit('hasUnsavedChanges', newValue)
+})
+
+watch(isVisible, (visible: boolean): void => {
+  if (visible) {
+    emit('hasUnsavedChanges', hasUnsavedChanges.value)
+  }
 })
 
 /* Methods */

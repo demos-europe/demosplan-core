@@ -20,7 +20,12 @@ const SegmentsBookmarksStore = {
     allBookmarks: [],
     currentBookmark: null,
     currentBookmarkId: null,
+    currentSearchPhrase: '',
+    currentSorting: '',
+    currentSelectedColumns: [],
+    defaultSelectedColumns: [],
     isBookmarkLoading: false,
+    isViewStateInitialized: false,
   },
 
   mutations: {
@@ -54,6 +59,26 @@ const SegmentsBookmarksStore = {
 
     setIsBookmarkLoading (state, isLoading) {
       state.isBookmarkLoading = isLoading
+    },
+
+    setCurrentSearchPhrase (state, searchPhrase) {
+      state.currentSearchPhrase = searchPhrase
+    },
+
+    setCurrentSorting (state, sorting) {
+      state.currentSorting = sorting
+    },
+
+    setCurrentSelectedColumns (state, columns) {
+      state.currentSelectedColumns = columns
+    },
+
+    setDefaultSelectedColumns (state, columns) {
+      state.defaultSelectedColumns = columns
+    },
+
+    setViewStateInitialized (state, value) {
+      state.isViewStateInitialized = value
     },
   },
 
@@ -226,7 +251,12 @@ const SegmentsBookmarksStore = {
     allBookmarks: (state) => state.allBookmarks,
     currentBookmark: (state) => state.currentBookmark,
     currentBookmarkId: (state) => state.currentBookmarkId,
+    currentSearchPhrase: (state) => state.currentSearchPhrase,
+    currentSelectedColumns: (state) => state.currentSelectedColumns,
+    currentSorting: (state) => state.currentSorting,
+    defaultSelectedColumns: (state) => state.defaultSelectedColumns,
     isBookmarkLoading: (state) => state.isBookmarkLoading,
+    isViewStateInitialized: (state) => state.isViewStateInitialized,
   },
 }
 

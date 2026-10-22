@@ -150,10 +150,6 @@ import { useStore } from 'vuex'
 /* Props */
 const props = defineProps<{
   currentBookmark: Bookmark | null
-  currentSearchPhrase: string
-  currentSorting: string
-  currentSelectedColumns: string[]
-  defaultSelectedColumns: string[]
   filters: Record<string, { labelTranslationKey: string, rootPath: string, comparisonOperator: string }>
   isOpen: boolean
 }>()
@@ -197,6 +193,11 @@ const updateLabelCache = (): void => {
 
 /* Computed */
 const currentFilters: ComputedRef<Record<string, any>> = computed(() => state.FilterFlyout?.filterQuery || {})
+const storeSearchPhrase: ComputedRef<string> = computed(() => state.SegmentsBookmarks?.currentSearchPhrase || '')
+const storeSorting: ComputedRef<string> = computed(() => state.SegmentsBookmarks?.currentSorting || '')
+const storeSelectedColumns: ComputedRef<string[]> = computed(() => state.SegmentsBookmarks?.currentSelectedColumns || [])
+const storeDefaultSelectedColumns: ComputedRef<string[]> = computed(() => state.SegmentsBookmarks?.defaultSelectedColumns || [])
+const isViewStateInitialized: ComputedRef<boolean> = computed(() => state.SegmentsBookmarks?.isViewStateInitialized || false)
 
 const detailedChanges: ComputedRef<DetailedChange[]> = computed(() => {
   if (props.currentBookmark) {
@@ -234,9 +235,9 @@ const getDetailedDefaultViewChanges = (): DetailedChange[] => {
 
   return [
     getDetailedFilterChanges(defaultFilter, currentFilters.value),
-    getDetailedSearchChanges(defaultSearchPhrase, props.currentSearchPhrase),
-    getDetailedSortingChanges(defaultSorting, props.currentSorting),
-    getDetailedColumnChanges(props.defaultSelectedColumns, props.currentSelectedColumns),
+    getDetailedSearchChanges(defaultSearchPhrase, storeSearchPhrase.value),
+    getDetailedSortingChanges(defaultSorting, storeSorting.value),
+    getDetailedColumnChanges(storeDefaultSelectedColumns.value, storeSelectedColumns.value),
   ].filter((change): change is DetailedChange => change !== null)
 }
 
@@ -249,9 +250,9 @@ const getDetailedBookmarkChanges = (): DetailedChange[] => {
 
   return [
     getDetailedFilterChanges(filter, currentFilters.value),
-    getDetailedSearchChanges(searchPhrase, props.currentSearchPhrase),
-    getDetailedSortingChanges(viewSettings.sorting, props.currentSorting),
-    getDetailedColumnChanges(viewSettings.selectedColumns, props.currentSelectedColumns),
+    getDetailedSearchChanges(searchPhrase, storeSearchPhrase.value),
+    getDetailedSortingChanges(viewSettings.sorting, storeSorting.value),
+    getDetailedColumnChanges(viewSettings.selectedColumns, storeSelectedColumns.value),
   ].filter((change): change is DetailedChange => change !== null)
 }
 
@@ -445,16 +446,19 @@ watch(
   { deep: true },
 )
 
-// Watch all props that affect change detection and emit whenever they change
 watch(
   () => [
-    props.currentSearchPhrase,
-    props.currentSorting,
-    props.currentSelectedColumns,
+    storeSearchPhrase.value,
+    storeSorting.value,
+    storeSelectedColumns.value,
     props.currentBookmark,
     currentFilters.value,
+    isViewStateInitialized.value,
   ],
   () => {
+    if (!isViewStateInitialized.value) {
+      return
+    }
     emit('hasChanges', hasChanges.value)
   },
   { deep: true },
