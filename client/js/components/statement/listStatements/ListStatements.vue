@@ -71,12 +71,16 @@
       <copy-statement-modal
         v-if="hasPermission('feature_statement_copy_to_procedure') && copyStatementModal.show"
         :accessible-procedures="accessibleProcedures"
+        :current-user-id="currentUserId"
+        :fragments-total="statementsObject[copyStatementModal.statementId]?.attributes.fragmentsCount || 0"
         :inaccessible-procedures="inaccessibleProcedures"
         :procedure-id="procedureId"
       />
       <dp-move-statement-modal
         v-if="hasPermission('feature_statement_move_to_procedure') && moveStatementModal.show"
         :accessible-procedures="accessibleProcedures"
+        :current-user-id="currentUserId"
+        :fragments-total="statementsObject[moveStatementModal.statementId]?.attributes.fragmentsCount || 0"
         :inaccessible-procedures="inaccessibleProcedures"
         :procedure-id="procedureId"
       />
@@ -1015,6 +1019,7 @@ export default {
         'authoredDate',
         'authorName',
         'externId',
+        'fragmentsCount',
         'isSubmittedByCitizen',
         'initialOrganisationCity',
         'initialOrganisationDepartmentName',
@@ -1331,22 +1336,9 @@ export default {
         .catch(() => dplan.notify.error(Translator.trans('error.export')))
     },
 
-    handleMoveToProcedure ({ movedToProcedureId, statementId, movedToProcedureName }) {
-      const statement = this.statementsObject[statementId]
-
-      if (!statement) {
-        return
-      }
-
-      this.setStatement({
-        ...statement,
-        attributes: {
-          ...statement.attributes,
-          movedToProcedureId,
-          movedToProcedureName,
-        },
-        id: statementId,
-      })
+    handleMoveToProcedure () {
+      // Reload to show the placeholder row that replaces the moved statement
+      this.getItemsByPage(this.pagination.currentPage)
     },
 
     isMovedToAccessibleProcedure (procedureId) {
