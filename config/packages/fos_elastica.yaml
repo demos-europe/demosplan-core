@@ -178,6 +178,7 @@ fos_elastica:
                 ars: {type: keyword, index: true}
                 planningArea: {type: text, index: true}
                 procedureCategoryNames: {type: keyword, index: true }
+                subdomain: {type: keyword, index: true}
                 authorizedUserIds: {type: keyword, index: true}
                 planningOfficesIds:
                     type: text
@@ -189,6 +190,7 @@ fos_elastica:
                         raw: {type: keyword, index: true}
                         rawSort: {type: icu_collation_keyword}
                         text: {type: text, analyzer: customHTMLGerman}
+                externalDesc: {type: text, index: true}
                 locationName:
                     type: text
                     fields:
@@ -201,6 +203,7 @@ fos_elastica:
                 deleted: {type: boolean }
                 master: {type: boolean }
                 organisationIds: {type: keyword, index: true}
+                coordinate: {type: text, index: true}
                 participationGuestOnly: { type: boolean }
                 allowUninvitedInstitutions: { type: boolean }
             # define callback to check whether entity should be indexed
