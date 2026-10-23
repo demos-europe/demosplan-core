@@ -55,14 +55,16 @@ class PopulateElasticaEventSubscriber implements EventSubscriberInterface
         $settings = $index->getSettings();
 
         $settings->setNumberOfReplicas($this->globalConfig->getElasticsearchNumReplicas());
-        // Use the Elastica Client's API method instead of sendRequest with string params
-        $index->getClient()->indices()->forcemerge(['max_num_segments' => 5]);
+        // Use the Elastica Client's API method instead of sendRequest with string params.
+        // Expunge deleted docs left over from the previous populate cycle
+        // (mutually exclusive with max_num_segments; expunge is the useful one here).
+        $index->getClient()->indices()->forcemerge(['only_expunge_deletes' => true]);
 
-        // set short refresh interval to avoid problems with outdated lists
-        // might lead to performance hits
-        $settings->setRefreshInterval('500ms');
+        // Reset to the ES default refresh interval; the previous 500ms override caused
+        // near-continuous segment merge/compaction work that slowed the next populate.
+        $settings->setRefreshInterval('1s');
 
-        $this->logger->info('postIndexPopulate ES Index. Set refresh interval to 500');
+        $this->logger->info('postIndexPopulate ES Index. Set refresh interval to 1s');
     }
 
     /**
