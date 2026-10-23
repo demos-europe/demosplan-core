@@ -1,7 +1,9 @@
 import { enableAutoUnmount, VueWrapper } from '@vue/test-utils'
+import { createStore } from 'vuex'
+import { createMockStore } from '../storeMock'
 import { DpModal } from '@demos-europe/demosplan-ui'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
-import StatementExportModal from '@DpJs/components/statement/StatementExportModal.vue'
+import StatementExportModal from '@DpJs/components/statement/statementExportModal/StatementExportModal.vue'
 import { vi } from 'vitest'
 
 /** Payload of the component's `export` event, mirrored from handleExport() */
@@ -51,12 +53,15 @@ describe('StatementExportModal', () => {
   }
 
   beforeEach(() => {
+    const mockStore = createStore(createMockStore('ScheduledExport'))
+
     wrapper = shallowMountWithGlobalMocks(StatementExportModal, {
       props: {
         isSingleStatementExport: false,
         procedureId: MOCK_PROCEDURE_ID,
       },
       global: {
+        plugins: [mockStore],
         renderStubDefaultSlot: true,
         stubs: {
           'dp-modal': {

@@ -27,6 +27,9 @@ services:
     demosplan\DemosPlanCoreBundle\Repository\PersonalDataLogEntryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\PersonalDataLogEntry'
 
+    demosplan\DemosPlanCoreBundle\Repository\ScheduledExportRepository:
+        $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\ExportSchedule'
+
     DemosEurope\DemosplanAddon\Contracts\Repositories\ProcedurePhaseRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseRepository'
 
     DemosEurope\DemosplanAddon\Contracts\Repositories\GisLayerCategoryRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository'

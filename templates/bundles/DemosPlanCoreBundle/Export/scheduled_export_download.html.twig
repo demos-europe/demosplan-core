@@ -1,0 +1,22 @@
+{% extends '@DemosPlanCore/DemosPlanCore/base_oeb.html.twig' %}
+
+{% block component_part %}
+    {% set scheduledExportJob = {
+        status: job.status,
+        fileName: job.fileName,
+        deleteAfter: job.deleteAfter ? job.deleteAfter|date('Y-m-d H:i:s') : null,
+    } %}
+
+    {% block content %}
+        <scheduled-export-download
+            class="mt-8"
+            :job="{{ scheduledExportJob|json_encode|e('html_attr') }}"
+            download-url="{{ downloadUrl|e('html_attr') }}"
+        ></scheduled-export-download>
+    {% endblock content %}
+{% endblock component_part %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ webpackBundles(['statement-scheduledExportDownload.js']) }}
+{% endblock javascripts %}

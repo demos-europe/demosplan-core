@@ -276,6 +276,8 @@ class BookmarkResourceApiTest extends AbstractApiTest
 
         // 204 is lifted to 200 by DemosPlanResponseEventSubscriber, which appends the message bag.
         self::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+        // The frontend's vuex-json-api rejects a 200 carrying neither `data` nor `errors`.
+        self::assertArrayHasKey('data', Json::decodeToArray($response->getContent()));
         self::assertSame(
             [$this->translate('confirm.bookmark.deleted')],
             $this->getMessages($response, 'confirm')
