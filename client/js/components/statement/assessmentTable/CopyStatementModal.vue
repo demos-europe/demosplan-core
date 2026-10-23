@@ -91,7 +91,7 @@
 
 <script>
 import { DpInlineNotification, DpLoading, DpModal, hasOwnProp } from '@demos-europe/demosplan-ui'
-import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import { mapActions, mapGetters, mapMutations } from 'vuex'
 
 export default {
   name: 'CopyStatementModal',
@@ -112,6 +112,11 @@ export default {
       required: false,
       type: Object,
       default: () => ({}),
+    },
+
+    currentUserId: {
+      required: true,
+      type: String,
     },
 
     inaccessibleProcedures: {
@@ -140,14 +145,6 @@ export default {
       'fragmentsByStatement',
     ]),
 
-    ...mapState('AssessmentTable', [
-      'currentUserId',
-    ]),
-
-    ...mapState('Statement', [
-      'statements',
-    ]),
-
     //  Always pick the list that is specified by radio inputs
     availableProcedures () {
       return this[this.procedurePermissions]
@@ -171,16 +168,16 @@ export default {
       return this.selectedProcedureId ? this.availableProcedures[this.selectedProcedureId].name : ''
     },
 
-    statement () {
-      return this.statementId ? this.statements[this.statementId] : null
-    },
-
     userIsAssigneeOfAllFragments () {
       return this.statementFragments.filter(fragment => this.currentUserId === fragment.assigneeId).length === this.statementFragments.length
     },
   },
 
   methods: {
+    ...mapActions('AssessmentTable', [
+      'copyStatementAction',
+    ]),
+
     ...mapActions('Fragment', [
       'loadFragments',
     ]),
@@ -201,10 +198,14 @@ export default {
         return
       }
 
-      this.$store.dispatch('Statement/copyStatementAction', {
-        procedureId: this.selectedProcedureId,
+      this.copyStatementAction({
+        procedureId: this.procedureId,
         statementId: this.statementId,
+        targetProcedureId: this.selectedProcedureId,
       })
+        .catch(() => {
+          dplan.notify.notify('error', Translator.trans('error.results.loading'))
+        })
         .finally(() => {
           this.setModalProperty({
             prop: 'copyStatementModal',
@@ -271,17 +272,10 @@ export default {
         })
       }
 
-      // If fragments are already loaded don't load them again
-      if (this.statement.fragmentsTotal === this.fragmentsByStatement(this.statementId).fragments.length) {
-        setFragmentsInComponent()
-
-        return Promise.resolve(true)
-      } else {
-        return this.loadFragments({ procedureId: this.procedureId, statementId: this.statementId })
-          .then(() => {
-            setFragmentsInComponent()
-          })
-      }
+      return this.loadFragments({ procedureId: this.procedureId, statementId: this.statementId })
+        .then(() => {
+          setFragmentsInComponent()
+        })
     },
 
     resetFragments () {

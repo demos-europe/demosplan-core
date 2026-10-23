@@ -23,6 +23,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+use EDT\Querying\Contracts\PathException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function in_array;
@@ -101,6 +102,8 @@ class StatementExportTagFilter
      * unchanged (full export).
      *
      * @return list<ClauseFunctionInterface<bool>>
+     *
+     * @throws PathException
      */
     public function buildStatementTagConditions(array $tagsFilter, StatementResourceType $statementResourceType, string $procedureId): array
     {

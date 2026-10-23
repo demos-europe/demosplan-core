@@ -64,6 +64,7 @@ class ExportAssessmentTableMessageHandler
             return;
         }
 
+        $this->logger->info('Assessment table export started', ['jobId' => $message->getJobId(), 'format' => $message->getExportFormat(), 'procedureId' => $message->getProcedureId()]);
         $job->setStatus(AssessmentTableExportJob::STATUS_PROCESSING);
         $job->setModifiedDate(new DateTime());
         $this->entityManager->flush();
@@ -95,6 +96,7 @@ class ExportAssessmentTableMessageHandler
             $job->setFileHash($storedFile->getFileHash());
             $job->setFileName($storedFile->getFileName());
             $job->setStatus(AssessmentTableExportJob::STATUS_COMPLETED);
+            $this->logger->info('Assessment table export completed', ['jobId' => $message->getJobId(), 'format' => $message->getExportFormat(), 'procedureId' => $message->getProcedureId()]);
         } catch (Throwable $e) {
             $this->logger->error('Asynchronous assessment table export failed', ['jobId' => $message->getJobId(), 'exception' => $e]);
             $job->setStatus(AssessmentTableExportJob::STATUS_FAILED);

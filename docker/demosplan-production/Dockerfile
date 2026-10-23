@@ -2,13 +2,12 @@
 #
 # Shared base for the build and fpm stages. Do not source PHP from packages.sury.org: its php-fpm
 # has DNS telemetry compiled in (telemetry.sury.org:53) with no opt-out.
-FROM php:8.4.25-fpm-bookworm AS php-base
+FROM php:8.4.27-fpm-bookworm AS php-base
 
 # Extensions that are not already compiled into the base image.
 COPY --link --from=mlocati/php-extension-installer:2.11.17 /usr/bin/install-php-extensions /usr/local/bin/
 RUN install-php-extensions \
-        apcu bcmath bz2 calendar excimer exif ffi gd gettext intl mysqli opcache pcntl \
-        pdo_mysql shmop soap sockets sysvmsg sysvsem sysvshm xsl zip \
+        apcu excimer exif gd intl opcache pcntl pdo_mysql sockets zip \
     && rm -f /usr/local/bin/install-php-extensions \
 # The base image ships only php.ini templates; without this display_errors defaults to On.
     && cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
@@ -26,7 +25,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && apt-get --no-install-recommends install acl bind9-host ca-certificates curl  \
     gettext-base npm unzip -y \
     && mkdir -p /opt/uploads
-COPY --link --from=composer:2.9.8 /usr/bin/composer /usr/bin/composer
+COPY --link --from=composer:2.10.3 /usr/bin/composer /usr/bin/composer
 
 ARG PROJECT_NAME
 ARG BUILD_MODE=prod
@@ -74,7 +73,8 @@ WORKDIR /srv/www
 # yarn install in the next RUN cannot mkdir /srv/www/node_modules.
 COPY composer.json composer.lock package.json yarn.lock .yarnrc.yml ./
 # do not use --no-scripts, as we do not need all the aws stuff
-RUN --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=locked \
+RUN --mount=type=secret,id=ado,env=ADO_NPM_AUTH_IDENT,required=false \
+    --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=locked \
     --mount=type=cache,target=/var/www/.yarn,uid=33,gid=33,sharing=locked \
     --mount=type=cache,target=/var/www/.cache,uid=33,gid=33,sharing=locked \
     if [ "$BUILD_MODE" = "dev" ]; then \
@@ -168,6 +168,7 @@ USER www-data
 # during addon install the cache is deleted and the command "fails" because it does not find the cache
 # the command is executed with "|| true" to prevent the build from failing
 RUN --mount=type=secret,id=envlocal,target=/srv/www/.env.local,uid=33 \
+    --mount=type=secret,id=ado,env=ADO_NPM_AUTH_IDENT,required=false \
     --mount=type=cache,target=/var/www/.composer/cache,uid=33,gid=33,sharing=locked \
     --mount=type=cache,target=/var/www/.yarn,uid=33,gid=33,sharing=locked \
     --mount=type=cache,target=/var/www/.cache,uid=33,gid=33,sharing=locked \
@@ -202,36 +203,56 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     mkdir -p /srv/www/public/uploads/files && \
     chmod -R 775 /srv/www/public/uploads && \
     mkdir -p /opt/uploads && \
-    chown -R root:root /srv/www/public && \
+# Code PHP-FPM loads (vendor, addons, ...) must not be writable by the worker user; the fpm stage
+# re-grants var/ and tmp/. dompdf writes font metrics (JSON) into its font dir at runtime. \
+    chown -R root:root /srv/www && \
+    chown -R www-data /srv/www/vendor/dompdf/dompdf/lib/fonts && \
     chown -R www-data /opt/uploads && \
     chown -R www-data /srv/www/public/uploads && \
 # build-time only, see the sbom-js stage \
     rm -f /srv/www/sbom-prod-filter.php
 
-# Runtime stage - starts fresh WITHOUT build tools (Node.js, npm, composer)
-FROM php-base AS fpm
+# Runtime OS + PHP, without build tools (Node.js, npm, composer, compiler)
+FROM php-base AS runtime-base
+
+ENV TZ=Europe/Berlin
+
+# The php image keeps its compiler toolchain ($PHPIZE_DEPS, listed below), PHP headers and source tarball installed.
+# install-php-extensions marks gcc-12 & co. manual, so autoremove alone keeps them: list them explicitly
+# and fail if a compiler survives (e.g. a base image on a newer gcc).
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+    apt-get update -y \
+    && apt-get --no-install-recommends install acl bind9-host ca-certificates curl \
+       default-mysql-client gettext-base libfcgi-bin lnav unzip vim-tiny -y \
+    && apt-get purge -y --auto-remove autoconf dpkg-dev file g++ gcc libc-dev make pkg-config re2c \
+       binutils cpp-12 g++-12 gcc-12 libc6-dev libgcc-12-dev libstdc++-12-dev \
+    && test ! -e /usr/lib/gcc \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /usr/src/php.tar.xz* /usr/local/include/php \
+    && mkdir -p /opt/uploads \
+    && ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ"> /etc/timezone
+
+# Runtime stage. Flattened, otherwise the purged toolchain still ships in the php image's layers.
+FROM scratch AS fpm
+COPY --from=runtime-base / /
 
 ARG PROJECT_NAME
 ARG BUILD_MODE=prod
 
 LABEL org.opencontainers.image.source="https://github.com/demos-europe/demosplan-core"
 
-ENV PROJECT_PREFIX=$PROJECT_NAME \
+# PATH, PHP_INI_DIR, STOPSIGNAL and ENTRYPOINT as set by the php image
+ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+    PHP_INI_DIR=/usr/local/etc/php \
+    PROJECT_PREFIX=$PROJECT_NAME \
     EXTERNAL_LINK_DIPLAN_COCKPIT=http://temporary.de \
     EXTERNAL_LINK_DIPLAN_PORTAL=http://temporary.de \
     APP_ENV=$BUILD_MODE \
     TZ=Europe/Berlin
-
-# Install only runtime dependencies (no npm, no composer, no build tools)
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
-    apt-get update -y \
-    && apt-get --no-install-recommends install acl bind9-host ca-certificates curl \
-       default-mysql-client gettext-base libfcgi-bin lnav unzip vim-tiny -y \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    && mkdir -p /opt/uploads \
-    && ln -snf /usr/share/zoneinfo/"$TZ" /etc/localtime && echo "$TZ"> /etc/timezone
+STOPSIGNAL SIGQUIT
+ENTRYPOINT ["docker-php-entrypoint"]
+EXPOSE 9000
 
 # Copy PHP configuration. --link lets these layers stay independent from each other so
 # touching one ini file doesn't invalidate the rest.

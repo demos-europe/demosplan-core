@@ -107,9 +107,25 @@ class StatementMover
                 $placeholderStatement = $statementRepository->addObject(
                     $placeholderStatement
                 );
+                // DPLAN-18271: createPlaceholderStatement() clones $statementToMove via raw
+                // PHP clone(), so the placeholder's raw recommendation carries over
+                // verbatim, including any boilerplate tag, without going through
+                // setRecommendation() — no BoilerplateUsage relation gets reconciled. Must
+                // happen here, after addObject() assigns the placeholder its own persisted
+                // id: before that point the clone still shares $statementToMove's id (the
+                // custom id generator only overwrites it at persist time), so reconciling
+                // any earlier would operate on the wrong (source) statement's usages.
+                $placeholderStatement->setRecommendation('');
             }
 
             $statementToMove->setProcedure($targetProcedure);
+            // DPLAN-18271, decision 4 ("cross-procedure move/copy materializes the content
+            // and drops the link"): re-set through the setter with the already-substituted
+            // value so a boilerplate tag becomes frozen plain content and the now
+            // cross-procedure BoilerplateUsage relation is reconciled away — otherwise
+            // getRecommendation() keeps resolving a boilerplate that lives in a different
+            // procedure than this statement now does.
+            $statementToMove->setRecommendation($statementToMove->getRecommendation());
             // handle procedure-unique internID:
             $internIdIsUnique = $this->statementService->isInternIdUniqueForProcedure(
                 $statementToMove->getInternId(),

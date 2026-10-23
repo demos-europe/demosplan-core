@@ -57,7 +57,8 @@ final class SegmentCommentResourceType extends DplanResourceType
 
     public function isAvailable(): bool
     {
-        return $this->currentUser->hasPermission('feature_segment_comment_create');
+        return $this->currentUser->hasPermission('feature_segment_comment_create')
+            || $this->currentUser->hasPermission('feature_segment_comment_list_on_segment');
     }
 
     protected function getAccessConditions(): array

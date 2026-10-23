@@ -13,6 +13,7 @@
 
 import AssessmentTableStore from '@DpJs/store/statement/AssessmentTable'
 import FilterFlyoutStore from '@DpJs/store/procedure/FilterFlyout'
+import FragmentStore from '@DpJs/store/statement/Fragment'
 import { initialize } from '@DpJs/InitVue'
 import ListOriginalStatements from '@DpJs/components/statement/listOriginalStatements/ListOriginalStatements'
 import ListStatements from '@DpJs/components/statement/listStatements/ListStatements'
@@ -23,8 +24,9 @@ const components = {
 }
 const apiStores = ['AssignableUser', 'Statement', 'OriginalStatement']
 const stores = {
-  AssessmentTableStore,
+  AssessmentTable: AssessmentTableStore,
   FilterFlyout: FilterFlyoutStore,
+  Fragment: FragmentStore,
 }
 
 initialize(components, stores, apiStores)
