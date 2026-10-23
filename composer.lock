@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7f526bb7296c51922db92f9fca1daa5d",
+    "content-hash": "aae175f2d70062e6a2bf0728ca095dcb",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -20295,20 +20295,20 @@
         },
         {
             "name": "wgirhad/geophp",
-            "version": "v3.0.0",
+            "version": "v4.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wgirhad/geoPHP.git",
-                "reference": "74f5b8bdc851cb92b8c07df99a437245f3878fcd"
+                "reference": "95890cffa3a839cd0f2f39515d1080eb3bdf22bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wgirhad/geoPHP/zipball/74f5b8bdc851cb92b8c07df99a437245f3878fcd",
-                "reference": "74f5b8bdc851cb92b8c07df99a437245f3878fcd",
+                "url": "https://api.github.com/repos/wgirhad/geoPHP/zipball/95890cffa3a839cd0f2f39515d1080eb3bdf22bc",
+                "reference": "95890cffa3a839cd0f2f39515d1080eb3bdf22bc",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.1|^8.0"
+                "php": "^8.1"
             },
             "provide": {
                 "geophp/geophp": "3.0.0"
@@ -20365,9 +20365,9 @@
                 "wkt"
             ],
             "support": {
-                "source": "https://github.com/wgirhad/geoPHP/tree/v3.0.0"
+                "source": "https://github.com/wgirhad/geoPHP/tree/v4.0.0"
             },
-            "time": "2023-02-24T12:14:17+00:00"
+            "time": "2026-10-19T12:46:21+00:00"
         },
         {
             "name": "willdurand/geocoder",
