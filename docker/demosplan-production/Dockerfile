@@ -25,7 +25,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && apt-get --no-install-recommends install acl bind9-host ca-certificates curl  \
     gettext-base npm unzip -y \
     && mkdir -p /opt/uploads
-COPY --link --from=composer:2.9.8 /usr/bin/composer /usr/bin/composer
+COPY --link --from=composer:2.10.3 /usr/bin/composer /usr/bin/composer
 
 ARG PROJECT_NAME
 ARG BUILD_MODE=prod
