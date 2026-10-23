@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\CustomerOAuthConfig;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
+use demosplan\DemosPlanCoreBundle\Exception\PasswordAlreadyUsedException;
 use demosplan\DemosPlanCoreBundle\Logic\FlashMessageHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OzgKeycloakClientFactory;
@@ -462,6 +463,7 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         FlashMessageHandler $flashMessageHandler,
         LoginFormAuthenticator $loginFormAuthenticator,
         Request $request,
+        ParameterBagInterface $parameterBag,
         UserAuthenticatorInterface $userAuthenticator,
         UserHasher $userHasher,
         UserService $userService,
@@ -469,8 +471,12 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
         string $uId,
     ) {
         try {
+            // trim like the login form does, otherwise a stored password with
+            // surrounding whitespace can never be matched at login
             $newPassword = $request->request->get('password');
+            $newPassword = is_string($newPassword) ? trim($newPassword) : null;
             $newPassword2 = $request->request->get('password_new_2');
+            $newPassword2 = is_string($newPassword2) ? trim($newPassword2) : null;
 
             if (null === $newPassword || $newPassword !== $newPassword2 || '' === $newPassword) {
                 $this->messageBag->add('warning', 'error.user.password.not.identical');
@@ -499,11 +505,21 @@ class DemosPlanUserAuthenticationController extends DemosPlanUserController
 
             // login user
             return $userAuthenticator->authenticateUser($user, $loginFormAuthenticator, $request);
+        } catch (PasswordAlreadyUsedException $exception) {
+            // the password was not changed and the token is still valid, so let the user retry
+            $this->logger->warning('Set password rejected: password already used', ['uId' => $uId]);
+            $this->messageBag->add('error', 'error.password.already.used', [
+                'passwordHistoryMaxEntries' => $parameterBag->get('password_history_max_entries'),
+            ]);
+
+            return $this->redirectToRoute('DemosPlan_user_doubleoptin_invite_confirmation', ['uId' => $uId, 'token' => $token]);
         } catch (InvalidArgumentException $exception) {
             // set redirect according to exception thrown in this method
             if (in_array($exception->getCode(), [2, 4], true)) {
                 return $this->redirectToRoute('DemosPlan_user_doubleoptin_invite_confirmation', ['uId' => $uId, 'token' => $token]);
             }
+
+            $this->logger->warning('Set password rejected', ['uId' => $uId, 'code' => $exception->getCode(), 'reason' => $exception->getMessage()]);
 
             return $this->redirectToRoute('core_home');
         }
