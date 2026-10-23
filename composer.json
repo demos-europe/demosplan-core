@@ -12,7 +12,7 @@
     }
   ],
   "require": {
-    "php": "^8.2 || ^8.3 || ^8.4",
+    "php": "^8.2.35 || ^8.3.36 || ^8.4.27",
     "ext-apcu": "*",
     "ext-ctype": "*",
     "ext-dom": "*",
@@ -238,7 +238,7 @@
       "tbachert/spi": false
     },
     "platform": {
-      "php": "8.2.0"
+      "php": "8.2.35"
     }
   },
   "conflict": {
