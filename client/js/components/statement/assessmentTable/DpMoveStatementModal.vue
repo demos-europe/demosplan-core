@@ -128,7 +128,7 @@
 
 <script>
 import { DpInlineNotification, DpLoading, DpModal, hasOwnProp } from '@demos-europe/demosplan-ui'
-import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import { mapActions, mapGetters, mapMutations } from 'vuex'
 
 export default {
   name: 'DpMoveStatementModal',
@@ -149,6 +149,11 @@ export default {
       required: false,
       type: Object,
       default: () => ({}),
+    },
+
+    currentUserId: {
+      required: true,
+      type: String,
     },
 
     inaccessibleProcedures: {
@@ -176,12 +181,6 @@ export default {
   computed: {
     ...mapGetters('AssessmentTable', ['moveStatementModal']),
     ...mapGetters('Fragment', ['fragmentsByStatement']),
-    ...mapState('AssessmentTable', ['currentUserId']),
-    ...mapState('Statement', ['statements']),
-
-    statement () {
-      return this.statementId ? this.statements[this.statementId] : null
-    },
 
     userIsAssigneeOfAllFragments () {
       return this.statementFragments.filter(fragment => this.currentUserId === fragment.assigneeId).length === this.statementFragments.length
@@ -218,6 +217,10 @@ export default {
   },
 
   methods: {
+    ...mapActions('AssessmentTable', [
+      'moveStatementAction',
+    ]),
+
     ...mapActions('Fragment', [
       'loadFragments',
     ]),
@@ -263,17 +266,10 @@ export default {
         })
       }
 
-      // If fragments are already loaded don't load them again
-      if (this.statement.fragmentsTotal === this.fragmentsByStatement(statementId).fragments.length) {
-        setFragmentsInComponent()
-
-        return Promise.resolve(true)
-      } else {
-        return this.loadFragments({ procedureId: this.procedureId, statementId })
-          .then(() => {
-            setFragmentsInComponent()
-          })
-      }
+      return this.loadFragments({ procedureId: this.procedureId, statementId })
+        .then(() => {
+          setFragmentsInComponent()
+        })
     },
 
     resetFragments () {
@@ -299,10 +295,11 @@ export default {
       }
 
       //  Fire action from store
-      this.$store.dispatch('Statement/moveStatementAction', {
-        procedureId: this.selectedProcedureId,
-        statementId: this.statementId,
+      this.moveStatementAction({
         deleteVersionHistory: this.deleteVersionHistory,
+        procedureId: this.procedureId,
+        statementId: this.statementId,
+        targetProcedureId: this.selectedProcedureId,
       })
         .then(response => {
         // If the user is not authorized to move the statement, the movedStatementId in the response is an empty string
