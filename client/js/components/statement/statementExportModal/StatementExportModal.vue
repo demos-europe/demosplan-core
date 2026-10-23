@@ -341,8 +341,8 @@
           :is-loading="hasPendingScheduledExportAction"
           :scheduled-exports="scheduledExports"
           @add="handleScheduledExportAdd"
-          @edit="handleScheduledExportEdit"
           @delete="handleScheduledExportDelete"
+          @edit="handleScheduledExportEdit"
         />
         <scheduled-export-form-fields
           v-else
@@ -468,16 +468,16 @@ export default {
       type: String,
     },
 
-    searchValue: {
-      type: String,
+    searchFieldsSelected: {
       required: false,
-      default: '',
+      type: Array,
+      default: null,
     },
 
-    searchFieldsSelected: {
-      type: Array,
+    searchValue: {
       required: false,
-      default: null,
+      type: String,
+      default: '',
     },
 
     selectedSort: {
@@ -706,8 +706,12 @@ export default {
       }
 
       this.createScheduledExport(payload)
-        .then(() => {
-          dplan.notify.confirm(Translator.trans('confirm.scheduledExport.created'))
+        .then((response) => {
+          if (response?.status >= 400) {
+            dplan.notify.error(Translator.trans('error.api.generic'))
+          } else {
+            dplan.notify.confirm(Translator.trans('confirm.scheduledExport.created'))
+          }
         })
         .finally(() => {
           this.hasPendingScheduledExportAction = false

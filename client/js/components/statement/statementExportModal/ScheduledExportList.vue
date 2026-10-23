@@ -58,22 +58,22 @@
           <div class="flex">
             <dp-button
               data-cy="scheduledExportList:edit"
+              :disabled="hasPendingExportAction(scheduledExport.id)"
               icon="edit"
               icon-size="large"
-              hide-text
-              :disabled="hasPendingExportAction(scheduledExport.id)"
               :text="Translator.trans('export.xlsx.scheduled.edit')"
               variant="transparent"
+              hide-text
               @click="handleScheduledExportAction('edit', scheduledExport.id)"
             />
             <dp-button
               data-cy="scheduledExportList:delete"
+              :disabled="hasPendingExportAction(scheduledExport.id)"
               icon="delete"
               icon-size="large"
-              hide-text
-              :disabled="hasPendingExportAction(scheduledExport.id)"
               :text="Translator.trans('export.xlsx.scheduled.delete')"
               variant="transparent"
+              hide-text
               @click="handleScheduledExportAction('delete', scheduledExport.id)"
             />
           </div>
