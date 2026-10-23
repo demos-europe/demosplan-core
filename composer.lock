@@ -25049,7 +25049,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "^8.2 || ^8.3 || ^8.4",
+        "php": "^8.2.35 || ^8.3.36 || ^8.4.27",
         "ext-apcu": "*",
         "ext-ctype": "*",
         "ext-dom": "*",
@@ -25081,7 +25081,7 @@
         "ext-pdo_sqlite": "*"
     },
     "platform-overrides": {
-        "php": "8.2.0"
+        "php": "8.2.35"
     },
     "plugin-api-version": "2.9.0"
 }
