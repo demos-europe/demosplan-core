@@ -13,8 +13,10 @@
   ],
   "require": {
     "php": "^8.2 || ^8.3 || ^8.4",
+    "ext-apcu": "*",
     "ext-ctype": "*",
     "ext-dom": "*",
+    "ext-exif": "*",
     "ext-fileinfo": "*",
     "ext-filter": "*",
     "ext-gd": "*",
@@ -24,11 +26,11 @@
     "ext-libxml": "*",
     "ext-mbstring": "*",
     "ext-openssl": "*",
+    "ext-pcntl": "*",
     "ext-pdo": "*",
-    "ext-posix": "*",
+    "ext-pdo_mysql": "*",
     "ext-session": "*",
     "ext-simplexml": "*",
-    "ext-soap": "*",
     "ext-sockets": "*",
     "ext-sodium": "*",
     "ext-tokenizer": "*",
@@ -158,6 +160,7 @@
     "willdurand/js-translation-bundle": "~7.0"
   },
   "require-dev": {
+    "ext-pdo_sqlite": "*",
     "friendsofphp/php-cs-fixer": "^v3.0",
     "liip/functional-test-bundle": "^4",
     "liip/test-fixtures-bundle": "^3.1.0",
