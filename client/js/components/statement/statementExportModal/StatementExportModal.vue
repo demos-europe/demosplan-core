@@ -173,7 +173,6 @@
               v-model="column.title"
               :data-cy="column.dataCy"
               :placeholder="Translator.trans(column.placeholder)"
-              type="text"
             />
           </div>
           <fieldset
@@ -196,7 +195,6 @@
               data-cy="exportModal:fileName"
               class="mt-1"
               :placeholder="Translator.trans('docx.export.file_name.placeholder')"
-              type="text"
             />
             <div class="text-sm mt-4">
               <span
@@ -369,14 +367,10 @@
           v-else-if="['add', 'edit'].includes(getBaseScheduledExportMode(scheduledExportMode))"
           class="flex justify-end"
         >
-          <dp-loading
-            v-if="hasPendingScheduledExportAction"
-            class="mx-2"
-            hide-label
-          />
           <dp-button-row
             class="text-right mt-auto"
             data-cy="scheduledExport"
+            :busy="hasPendingScheduledExportAction"
             :disabled="hasPendingScheduledExportAction"
             primary
             secondary
@@ -665,7 +659,7 @@ export default {
 
     ...mapMutations('ScheduledExport', {
       setScheduledExport: 'setItem',
-      deleteScheduledExportItem: 'deleteItem',
+      deleteScheduledExportItem: 'remove',
     }),
 
     ...mapActions('ScheduledExport', {
@@ -1124,7 +1118,6 @@ export default {
     resetScheduledExportState () {
       this.hasPendingScheduledExportAction = false
       this.editingScheduledExportId = null
-      this.editingScheduledExport = null
       this.currentScheduledExportFormData = {
         frequency: '',
         weekday: null,

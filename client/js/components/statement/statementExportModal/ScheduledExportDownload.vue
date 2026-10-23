@@ -19,10 +19,10 @@ All rights reserved
       v-if="!isFailed"
       class="flex"
     >
-      <span class="inline-block mr-1">
+      <span class="mr-1">
         {{ `${Translator.trans('export.xlsx.scheduled.download.from_type')}:` }}
       </span>
-      <span class="inline-block">
+      <span>
         {{ Translator.trans('export.xlsx.scheduled.download.type.xlsx') }}
       </span>
     </div>
@@ -30,7 +30,7 @@ All rights reserved
       v-if="downloadUrl && !isFailed"
       class="flex"
     >
-      <span class="inline-block mr-1">
+      <span class="mr-1">
         {{ `${Translator.trans('export.xlsx.scheduled.download.from')}:` }}
       </span>
       <a
@@ -53,12 +53,11 @@ All rights reserved
       {{ Translator.trans('export.xlsx.scheduled.download.manual_start_text') }}
     </p>
     <div class="text-right">
-      <a
+      <dp-button
+        data-cy="scheduledExportDownload:manualTrigger"
         :href="actionUrl"
-        class="btn btn--primary"
-      >
-        {{ actionLabel }}
-      </a>
+        :text="actionLabel"
+      />
     </div>
   </div>
 </template>
@@ -66,7 +65,7 @@ All rights reserved
 <script setup lang="ts">
 import type { ExportJob, StatusTranslationMap, TranslationKeys } from '@DpJs/types/scheduledExport'
 import { computed, onMounted } from 'vue'
-import { DpInlineNotification } from '@demos-europe/demosplan-ui'
+import { DpInlineNotification, DpButton } from '@demos-europe/demosplan-ui'
 
 interface Props {
   job: ExportJob

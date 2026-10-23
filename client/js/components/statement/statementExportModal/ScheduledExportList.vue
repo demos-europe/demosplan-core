@@ -67,7 +67,6 @@
               @click="handleScheduledExportAction('edit', scheduledExport.id)"
             />
             <dp-button
-              class="text-status-failed-icon"
               data-cy="scheduledExportList:delete"
               icon="delete"
               icon-size="large"
@@ -138,11 +137,17 @@ const formatScheduledExportDescription = (scheduledExport: ScheduledExport): str
   }
 }
 
-const hasPendingExportAction = (exportId: string): boolean =>
-  pendingActionExportId.value === exportId
+const handleScheduledExportAction = async (actionType: 'edit' | 'delete', scheduledExportId: string): Promise<void> => {
+  if (actionType === 'delete') {
+    if (!await window.dpconfirm(Translator.trans('check.item.delete'))) {
+      return
+    }
+  }
 
-const handleScheduledExportAction = (actionType: 'edit' | 'delete', scheduledExportId: string): void => {
   pendingActionExportId.value = scheduledExportId
   emit(actionType, scheduledExportId)
 }
+
+const hasPendingExportAction = (exportId: string): boolean =>
+  pendingActionExportId.value === exportId
 </script>
