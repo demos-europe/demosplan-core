@@ -21,7 +21,7 @@ class OrganisationReportEntryFactory extends AbstractReportEntryFactory
         string $identifier,
         array $message,
         array $incoming,
-        $user
+        $user,
     ): ReportEntry {
         $entry = $this->createReportEntry();
         $entry->setCategory(ReportEntry::CATEGORY_UPDATE);
@@ -38,7 +38,7 @@ class OrganisationReportEntryFactory extends AbstractReportEntryFactory
         $user,
         string $identifier,
         array $message,
-        $showlistChangeReason
+        $showlistChangeReason,
     ): ReportEntry {
         $entry = $this->createReportEntry();
         $entry->setCategory(ReportEntry::CATEGORY_ORGA_SHOWLIST_CHANGE);
@@ -58,7 +58,7 @@ class OrganisationReportEntryFactory extends AbstractReportEntryFactory
         $user,
         string $identifier,
         string $orgaName,
-        bool $twoFactorRequired
+        bool $twoFactorRequired,
     ): ReportEntry {
         $entry = $this->createReportEntry();
         $entry->setCategory(ReportEntry::CATEGORY_ORGA_TWO_FACTOR_REQUIRED_CHANGE);
