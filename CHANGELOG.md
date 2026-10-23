@@ -5,6 +5,10 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- composer.json declares every PHP extension the application needs (adds apcu, exif, pcntl, pdo_mysql; drops soap, posix), so a missing extension fails the image build
+- production image: PHP extensions bcmath, bz2, calendar, ffi, gettext, mysqli, shmop, soap, sysvmsg, sysvsem, sysvshm and xsl removed; compiler toolchain removed from the fpm image (~220 MB smaller)
+
+## v4.65.0 (2026-10-22)
 
 ### Added
 - `MailService` implements the new `MailServiceInterface` of the contract layer, so addons can queue mails
@@ -12,12 +16,24 @@
 - The boilerplate edit page lists the segments that use the boilerplate in the recommendation text, with assignee, workflow step and the current recommendation text
 - Specific branches of an addon can be installed
 
-## v4.63.0 (2026-10-08)
-
-## v4.62.0 (2026-10-08)
+## v4.64.0 (2026-10-21)
 - bump contract layer demosplan-addon to v0.83
 - depends on contract layer >= v0.83
 - new SegmentTagsChangedEvent implements new interface added to contract layer in v0.83
+
+## v4.63.0 (2026-10-08)
+
+## v4.62.1 (2026-10-22)
+
+## v4.62.0 (2026-10-08)
+
+## v4.61.4 (2026-10-21)
+
+### Changed
+- PHP updated to version 8.4.27
+
+### Fixed
+- Setting a password via the link in the password recovery or invitation mail now shows a message and keeps the form open when the chosen password was used recently, instead of silently redirecting to the login page without saving it
 
 ## v4.61.3 (2026-09-30)
 
