@@ -15,6 +15,7 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\Address;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -64,6 +65,59 @@ class OrgaServiceTest extends FunctionalTestCase
     }
 
     // ################## Orga ######################
+
+    public function testAddOrgaDefaultsTwoFactorRequiredToFalse(): void
+    {
+        $orga = $this->sut->addOrga(['name' => 'noTwoFactorOrga']);
+
+        static::assertFalse($orga->isTwoFactorRequired());
+        static::assertCount(0, $this->getTwoFactorReportEntries($orga->getId()));
+    }
+
+    public function testAddOrgaWithTwoFactorRequiredWritesReportEntry(): void
+    {
+        $orga = $this->sut->addOrga(['name' => 'twoFactorOrga', 'twoFactorRequired' => true]);
+
+        static::assertTrue($orga->isTwoFactorRequired());
+        $entries = $this->getTwoFactorReportEntries($orga->getId());
+        static::assertCount(1, $entries);
+        $message = json_decode($entries[0]->getMessage(), true, 512, JSON_THROW_ON_ERROR);
+        static::assertTrue($message['twoFactorRequired']);
+        static::assertSame('twoFactorOrga', $message['name']);
+    }
+
+    public function testAddReportWritesTwoFactorEntryOnlyOnChange(): void
+    {
+        $orgaId = $this->testOrgaFp->getId();
+
+        $this->sut->addReport($orgaId, ['name' => 'x', 'twoFactorRequired' => true], false, false);
+        static::assertCount(1, $this->getTwoFactorReportEntries($orgaId));
+
+        // unchanged value
+        $this->sut->addReport($orgaId, ['name' => 'x', 'twoFactorRequired' => true], false, true);
+        static::assertCount(1, $this->getTwoFactorReportEntries($orgaId));
+
+        // attribute not part of the request
+        $this->sut->addReport($orgaId, ['name' => 'x'], false, true);
+        static::assertCount(1, $this->getTwoFactorReportEntries($orgaId));
+
+        $this->sut->addReport($orgaId, ['name' => 'x', 'twoFactorRequired' => false], false, true);
+        $entries = $this->getTwoFactorReportEntries($orgaId);
+        static::assertCount(2, $entries);
+        $message = json_decode($entries[1]->getMessage(), true, 512, JSON_THROW_ON_ERROR);
+        static::assertFalse($message['twoFactorRequired']);
+    }
+
+    /**
+     * @return list<ReportEntry>
+     */
+    private function getTwoFactorReportEntries(string $orgaId): array
+    {
+        return $this->getEntries(ReportEntry::class, [
+            'category'   => ReportEntry::CATEGORY_ORGA_TWO_FACTOR_REQUIRED_CHANGE,
+            'identifier' => $orgaId,
+        ], ['createDate' => 'ASC']);
+    }
 
     public function testAddOrgaWithAddress()
     {

@@ -72,6 +72,7 @@ use Illuminate\Support\Collection as IlluminateCollection;
  * @property-read RoleResourceType                 $allowedRoles
  * @property-read InstitutionTagResourceType       $ownInstitutionTags
  * @property-read End                              $canCreateProcedures
+ * @property-read End                              $twoFactorRequired
  */
 final class OrgaResourceType extends DplanResourceType implements OrgaResourceTypeInterface
 {
@@ -210,6 +211,10 @@ final class OrgaResourceType extends DplanResourceType implements OrgaResourceTy
 
         if ($this->currentUser->hasPermission('feature_mastertoeblist')) {
             $properties[] = $this->createToOneRelationship($this->masterToeb)->sortable()->filterable()->readable();
+        }
+
+        if ($this->currentUser->hasPermission('field_organisation_two_factor_required')) {
+            $properties[] = $this->createAttribute($this->twoFactorRequired)->readable(true)->filterable()->sortable();
         }
 
         // OrgaStatusInCustomer @organisation-list filtering for orga

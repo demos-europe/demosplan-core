@@ -59,6 +59,32 @@ class UserHandlerTest extends FunctionalTestCase
         $this->wipeUserDataFields();
     }
 
+    public function testUpdateOrgaPersistsTwoFactorRequiredFromAttributes(): void
+    {
+        $this->loginTestUser();
+        $this->enablePermissions(['field_organisation_two_factor_required']);
+        $orga = $this->fixtures->getReference('testOrgaFP');
+
+        $updated = $this->sut->updateOrga($orga->getId(), ['attributes' => ['twoFactorRequired' => true]]);
+
+        static::assertTrue($updated->isTwoFactorRequired());
+    }
+
+    public function testUpdateOrgaIgnoresTwoFactorRequiredWithoutPermission(): void
+    {
+        $this->loginTestUser();
+        $this->disablePermissions([
+            'field_organisation_two_factor_required',
+            'feature_orga_edit_all_fields',
+            'area_manage_orgadata',
+        ]);
+        $orga = $this->fixtures->getReference('testOrgaFP');
+
+        $updated = $this->sut->updateOrga($orga->getId(), ['attributes' => ['twoFactorRequired' => true]]);
+
+        static::assertFalse($updated->isTwoFactorRequired());
+    }
+
     public function testWipeUserClearsTagDefaultAssignee(): void
     {
         $tag = TagFactory::createOne(['defaultAssignee' => $this->testUser]);
