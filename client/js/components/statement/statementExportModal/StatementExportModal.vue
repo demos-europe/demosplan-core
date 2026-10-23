@@ -399,7 +399,6 @@
 
 <script>
 import {
-  dpApi,
   DpButton,
   DpButtonRow,
   DpCheckbox,
@@ -416,7 +415,6 @@ import {
   sessionStorageMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
 import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
 import qs from 'qs'
 import ScheduledExportFormFields from '@DpJs/components/statement/statementExportModal/ScheduledExportFormFields'
@@ -666,6 +664,7 @@ export default {
       fetchScheduledExport: 'list',
       createScheduledExport: 'create',
       deleteScheduledExport: 'delete',
+      saveScheduledExport: 'save',
     }),
 
     addScheduledExport () {
@@ -1196,27 +1195,19 @@ export default {
 
     updateExistingScheduledExport () {
       this.hasPendingScheduledExportAction = true
-      const payload = {
-        data: {
-          id: this.editingScheduledExportId,
-          type: 'ScheduledExport',
-          attributes: this.getScheduledExportAttributes(),
-        },
-      }
 
-      return dpApi.patch(
-        apiUrl('ScheduledExport', 'update', this.editingScheduledExportId),
-        {},
-        payload,
-      )
-        .then(({ data }) => {
+      this.setScheduledExport({
+        id: this.editingScheduledExportId,
+        type: 'ScheduledExport',
+        attributes: this.getScheduledExportAttributes(),
+      })
+
+      return this.saveScheduledExport(this.editingScheduledExportId)
+        .then(() => {
           dplan.notify.confirm(Translator.trans('confirm.saved'))
-          if (data?.data) {
-            this.setScheduledExport({
-              ...data.data,
-              id: this.editingScheduledExportId,
-            })
-          }
+        })
+        .catch(() => {
+          dplan.notify.error(Translator.trans('error.changes.not.saved'))
         })
         .finally(() => {
           this.resetScheduledExportState()
