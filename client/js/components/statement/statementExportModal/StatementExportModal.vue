@@ -424,9 +424,9 @@ import {
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
 import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
+import qs from 'qs'
 import ScheduledExportFormFields from '@DpJs/components/statement/statementExportModal/ScheduledExportFormFields'
 import ScheduledExportList from '@DpJs/components/statement/statementExportModal/ScheduledExportList'
-import qs from 'qs'
 
 export default {
   name: 'StatementExportModal',
@@ -1262,7 +1262,7 @@ export default {
   },
 
   mounted () {
-    if (!this.isSingleStatementExport) {
+    if (!this.isSingleStatementExport && hasPermission('feature_admin_scheduled_xlsx_export')) {
       this.fetchScheduledExport(this.buildScheduledExportPayload())
     }
   },

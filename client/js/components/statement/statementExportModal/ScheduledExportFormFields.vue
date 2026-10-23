@@ -58,14 +58,14 @@
 </template>
 
 <script setup lang="ts">
+import type { DaySelect, DaySelectName, ScheduledExport, ScheduledExportFormData } from '@DpJs/types/scheduledExport'
 import { computed, ref, watch } from 'vue'
 import { DpSelect } from '@demos-europe/demosplan-ui'
 import { useScheduledExportDate } from '@DpJs/composables/useScheduledExportDate'
 import { useScheduledExportOptions } from '@DpJs/composables/useScheduledExportOptions'
-import type { DaySelect, DaySelectName, ScheduledExport, ScheduledExportFormData } from '@DpJs/types/scheduledExport'
 
 const DEFAULT_WEEKDAY = 1
-const DEFAULT_DAY_OF_MONTH = 5
+const DEFAULT_DAY_OF_MONTH = 1
 
 interface Props {
   editingExport?: ScheduledExport | null

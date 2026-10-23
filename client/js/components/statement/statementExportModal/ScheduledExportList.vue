@@ -91,8 +91,8 @@
 <script setup lang="ts">
 import { DpButton, DpIcon, DpLoading } from '@demos-europe/demosplan-ui'
 import { ref, watch, withDefaults } from 'vue'
-import { useScheduledExportOptions } from '@DpJs/composables/useScheduledExportOptions'
 import type { ScheduledExport } from '@DpJs/types/scheduledExport'
+import { useScheduledExportOptions } from '@DpJs/composables/useScheduledExportOptions'
 
 interface Props {
   scheduledExports: ScheduledExport[]
