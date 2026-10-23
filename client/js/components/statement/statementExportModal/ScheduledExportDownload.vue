@@ -65,7 +65,7 @@ All rights reserved
 <script setup lang="ts">
 import type { ExportJob, StatusTranslationMap, TranslationKeys } from '@DpJs/types/scheduledExport'
 import { computed, onMounted } from 'vue'
-import { DpInlineNotification, DpButton } from '@demos-europe/demosplan-ui'
+import { DpButton, DpInlineNotification } from '@demos-europe/demosplan-ui'
 
 interface Props {
   job: ExportJob
