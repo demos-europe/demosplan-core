@@ -2,7 +2,7 @@
   "name": "demos-europe/demosplan-core",
   "description": "demosplan is a web application for public participation in planning processes",
   "type": "project",
-  "version": "v4.62.0",
+  "version": "v4.65.0",
   "license": "EUPL-1.2",
   "minimum-stability": "stable",
   "repositories": [
@@ -12,9 +12,11 @@
     }
   ],
   "require": {
-    "php": "^8.2 || ^8.3 || ^8.4",
+    "php": "^8.2.35 || ^8.3.36 || ^8.4.27",
+    "ext-apcu": "*",
     "ext-ctype": "*",
     "ext-dom": "*",
+    "ext-exif": "*",
     "ext-fileinfo": "*",
     "ext-filter": "*",
     "ext-gd": "*",
@@ -24,11 +26,11 @@
     "ext-libxml": "*",
     "ext-mbstring": "*",
     "ext-openssl": "*",
+    "ext-pcntl": "*",
     "ext-pdo": "*",
-    "ext-posix": "*",
+    "ext-pdo_mysql": "*",
     "ext-session": "*",
     "ext-simplexml": "*",
-    "ext-soap": "*",
     "ext-sockets": "*",
     "ext-sodium": "*",
     "ext-tokenizer": "*",
@@ -43,7 +45,7 @@
     "cebe/php-openapi": "^1.5",
     "cocur/slugify": "^4.0",
     "composer/composer": "^2.8",
-    "demos-europe/demosplan-addon": "^0.83",
+    "demos-europe/demosplan-addon": "^0.84",
     "doctrine/annotations": "^2.0",
     "doctrine/common": "^3.2",
     "doctrine/data-fixtures": "^1.8",
@@ -158,6 +160,7 @@
     "willdurand/js-translation-bundle": "~7.0"
   },
   "require-dev": {
+    "ext-pdo_sqlite": "*",
     "friendsofphp/php-cs-fixer": "^v3.0",
     "liip/functional-test-bundle": "^4",
     "liip/test-fixtures-bundle": "^3.1.0",
@@ -235,7 +238,7 @@
       "tbachert/spi": false
     },
     "platform": {
-      "php": "8.2.0"
+      "php": "8.2.35"
     }
   },
   "conflict": {
