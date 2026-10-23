@@ -1637,7 +1637,7 @@ class DemosPlanStatementController extends BaseController
         } else {
             $draftListFilterVO = $draftFilterList[$procedureId][$templateName];
         }
-        /* @var DraftStatementListFilters $draftListFilterVO */
+        /** @var DraftStatementListFilters $draftListFilterVO */
 
         if ($request->query->has('reset')) {
             $draftFilterList[$procedureId][$templateName] = new DraftStatementListFilters();
@@ -1698,7 +1698,7 @@ class DemosPlanStatementController extends BaseController
         $draftFilterList = $session->get('draftListFilters') ?? [];
         $procedureId = $request->get('procedure');
 
-        /* @var DraftStatementListFilters $procedureFilters */
+        /** @var DraftStatementListFilters $procedureFilters */
         return $draftFilterList[$procedureId][$templateName];
     }
 
