@@ -244,11 +244,13 @@
           v-if="active === 'xlsx_normal' && hasPermission('feature_admin_scheduled_xlsx_export')"
           class="border-b border-neutral"
         >
-          <dp-label
-            class="mt-4"
-            :hint="Translator.trans('export.xlsx.scheduled.hint')"
-            :text="Translator.trans('export.xlsx.scheduled')"
+          <legend
+            class="font-semibold text-base float-left mr-1 pt-4"
+            v-text="Translator.trans('export.xlsx.scheduled')"
           />
+          <span class="inline-block text-sm pb-3">
+            {{ Translator.trans('export.xlsx.scheduled.hint') }}
+          </span>
           <div class="flex justify-end gap-2">
             <dp-button
               v-if="scheduledExports.length"
