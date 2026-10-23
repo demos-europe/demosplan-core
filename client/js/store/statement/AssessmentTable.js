@@ -194,6 +194,46 @@ const AssessmentTable = {
         return resolve(true)
       })
     },
+
+    /**
+     * @param context
+     * @param {Object} data
+     * @param {String} data.procedureId Source procedure
+     * @param {String} data.statementId
+     * @param {String} data.targetProcedureId
+     */
+    copyStatementAction (context, { procedureId, statementId, targetProcedureId }) {
+      return dpApi({
+        method: 'POST',
+        url: Routing.generate('dplan_api_statement_copy_to_procedure', {
+          procedureId,
+          statementId,
+          targetProcedureId,
+        }),
+      })
+    },
+
+    /**
+     * @param context
+     * @param {Object} data
+     * @param {String} data.procedureId Source procedure
+     * @param {String} data.statementId
+     * @param {String} data.targetProcedureId
+     * @param {Boolean} data.deleteVersionHistory
+     */
+    moveStatementAction (context, { deleteVersionHistory, procedureId, statementId, targetProcedureId }) {
+      return dpApi({
+        method: 'POST',
+        url: Routing.generate('dplan_api_statement_move', {
+          procedureId,
+          statementId,
+          targetProcedureId,
+        }),
+        data: {
+          deleteVersionHistory,
+        },
+      })
+    },
   },
 
   getters: {

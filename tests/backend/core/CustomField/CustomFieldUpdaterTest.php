@@ -133,12 +133,53 @@ class CustomFieldUpdaterTest extends UnitTestCase
                 'labelOption2'          => 'New label',
                 'expectedErrorMessage'  => 'Option labels must be unique',
             ],
+            'duplicateOptionLabelsWithSurroundingWhitespace' => [
+                'optionId1'             => null,
+                'labelOption1'          => 'New label',
+                'labelOption2'          => '  New label ',
+                'expectedErrorMessage'  => 'Option labels must be unique',
+            ],
             'invalidOptionId' => [
                 'optionId1'             => 'non-existent-id',
                 'labelOption1'          => 'Yellow',
                 'labelOption2'          => 'Green',
                 'expectedErrorMessage'  => 'Invalid option ID: non-existent-id',
             ],
+        ];
+    }
+
+    /**
+     * Labels that end with the digit of their list position must not be treated as duplicates.
+     */
+    #[DataProvider('distinctLabelsDataProvider')]
+    public function testUpdateCustomFieldAcceptsDistinctLabels(string $labelOption1, string $labelOption2): void
+    {
+        // Arrange
+        $procedure = ProcedureFactory::createOne();
+        $customField = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($procedure->_real())
+            ->asRadioButton('Color1', options: ['green', 'yellow'])->create();
+
+        $options = $customField->getConfiguration()->getOptions();
+        $attributes['options'] = [
+            ['id' => $options[0]->getId(), 'label' => $labelOption1],
+            ['id' => $options[1]->getId(), 'label' => $labelOption2],
+        ];
+
+        // Act
+        $result = $this->sut->updateCustomField($customField->getId(), $attributes);
+
+        // Assert
+        $labels = array_map(static fn ($option) => $option->getLabel(), $result->getOptions());
+        static::assertSame([$labelOption1, $labelOption2], $labels);
+    }
+
+    public static function distinctLabelsDataProvider(): array
+    {
+        return [
+            'numericLabelEndingWithItsIndex'   => ['4', '41'],
+            'sameLabelsInReversedOrder'        => ['41', '4'],
+            'textLabelEndingWithItsIndex'      => ['x', 'x1'],
         ];
     }
 

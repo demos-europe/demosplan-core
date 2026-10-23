@@ -177,7 +177,7 @@ const moduleRules =
           compatConfig: {
             MODE: 2,
           },
-          isCustomElement: (tag) => tag === 'diplan-karte'
+          isCustomElement: (tag) => tag === 'diplan-karte',
         },
       },
     },

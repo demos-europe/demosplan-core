@@ -53,6 +53,7 @@ use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
 use EDT\Querying\Contracts\PathException;
 use Elastica\Index;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Webmozart\Assert\Assert;
 
 /**
@@ -95,6 +96,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         private readonly SingleDocumentVersionRepository $singleDocumentVersionRepository,
         private readonly FileContainerRepository $fileContainerRepository,
         private readonly CustomFieldValueCreator $customFieldValueCreator,
+        private readonly RequestStack $requestStack,
     ) {
         parent::__construct($htmlSanitizer, $statementService);
     }
@@ -156,14 +158,17 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             // Statement resources can never be deleted
             $this->conditionFactory->propertyHasValue(false, $pathStartResourceType->deleted),
             $this->conditionFactory->propertyIsNull($pathStartResourceType->headStatement->id),
-            // statement placeholders are not considered actual statement resources
-            $this->conditionFactory->propertyIsNull($pathStartResourceType->movedStatement),
             [] === $allowedProcedureIds
                 ? $this->conditionFactory->false()
                 : $this->conditionFactory->propertyHasAnyOfValues($allowedProcedureIds, $pathStartResourceType->procedure->id),
             // filter out segments
             $this->conditionFactory->propertyIsNull($pathStartResourceType->parentStatementOfSegment),
         ];
+        if (!$this->isPlaceholderInclusionRequested()) {
+            // statement placeholders are not considered actual statement resources, unless the
+            // read-only Stellungnahmeliste explicitly asked to include them
+            $conditions[] = $this->conditionFactory->propertyIsNull($pathStartResourceType->movedStatement);
+        }
         if (!$allowOriginals) {
             // Normally the path to the relationship would suffice for a NULL check, but the ES
             // provides the 'original.id' path only hence we need the path to the ID to support
@@ -172,6 +177,16 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
         }
 
         return $conditions;
+    }
+
+    /**
+     * The read-only Stellungnahmeliste (`dplan_procedure_statement_list`) is the only consumer
+     * allowed to see placeholder rows left behind by a moved statement; it opts in via a query
+     * parameter on its otherwise-generic `Statement` listing request.
+     */
+    private function isPlaceholderInclusionRequested(): bool
+    {
+        return $this->requestStack->getCurrentRequest()?->query->getBoolean('includePlaceholders') ?? false;
     }
 
     /**
@@ -284,11 +299,12 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->documentParentId
                 ->readable(true, static fn (Statement $statement): ?string => $statement->getDocumentParentId());
             $configBuilder->documentTitle
-                ->readable(true, static fn (Statement $statement): ?string => $statement->getDocumentTitle());
+                ->readable(true, static fn (Statement $statement): ?string => $statement->getDocumentTitle())
+                ->sortable()->aliasedPath(Paths::statement()->document->title);
             $configBuilder->elementId
                 ->readable(true)->aliasedPath(Paths::statement()->element->id);
             $configBuilder->elementTitle
-                ->readable(true)->aliasedPath(Paths::statement()->element->title);
+                ->readable(true)->sortable()->aliasedPath(Paths::statement()->element->title);
             $configBuilder->originalId
                 ->readable(true)->aliasedPath(Paths::statement()->original->id);
             $configBuilder->paragraphParentId
@@ -319,7 +335,7 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
                 });
 
             $configBuilder->paragraphTitle
-                ->readable(true)->aliasedPath(Paths::statement()->paragraph->title);
+                ->readable(true)->sortable()->aliasedPath(Paths::statement()->paragraph->title);
             $configBuilder->assignee->readable()->filterable();
             $configBuilder->authorName->readable(true)->filterable();
             $configBuilder->submitName->readable(true)->filterable()->sortable();
@@ -516,10 +532,10 @@ final class StatementResourceType extends AbstractStatementResourceType implemen
             $configBuilder->numberOfAnonymVotes->readable()->updatable();
         }
 
-        // always updatable if access to type and instances was granted
-        $configBuilder->assignee
-            ->setRelationshipType($this->resourceTypeStore->getClaimResourceType())
-            ->updatable([$simpleStatementCondition]);
+        $configBuilder->assignee->setRelationshipType($this->resourceTypeStore->getClaimResourceType());
+        if ($this->currentUser->hasPermission('feature_statement_claim')) {
+            $configBuilder->assignee->updatable([$simpleStatementCondition]);
+        }
 
         if ($this->currentUser->hasPermission('field_statement_memo')) {
             $configBuilder->memo->updatable([$simpleStatementCondition]);

@@ -2,7 +2,7 @@
 #
 # Shared base for the build and fpm stages. Do not source PHP from packages.sury.org: its php-fpm
 # has DNS telemetry compiled in (telemetry.sury.org:53) with no opt-out.
-FROM php:8.4.25-fpm-bookworm AS php-base
+FROM php:8.4.27-fpm-bookworm AS php-base
 
 # Extensions that are not already compiled into the base image.
 COPY --link --from=mlocati/php-extension-installer:2.11.17 /usr/bin/install-php-extensions /usr/local/bin/
@@ -203,7 +203,10 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     mkdir -p /srv/www/public/uploads/files && \
     chmod -R 775 /srv/www/public/uploads && \
     mkdir -p /opt/uploads && \
-    chown -R root:root /srv/www/public && \
+# Code PHP-FPM loads (vendor, addons, ...) must not be writable by the worker user; the fpm stage
+# re-grants var/ and tmp/. dompdf writes font metrics (JSON) into its font dir at runtime. \
+    chown -R root:root /srv/www && \
+    chown -R www-data /srv/www/vendor/dompdf/dompdf/lib/fonts && \
     chown -R www-data /opt/uploads && \
     chown -R www-data /srv/www/public/uploads && \
 # build-time only, see the sbom-js stage \

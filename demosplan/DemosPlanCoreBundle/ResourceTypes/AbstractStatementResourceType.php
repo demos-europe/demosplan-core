@@ -65,6 +65,7 @@ use EDT\PathBuilding\End;
  * @property-read End $fragmentsCount @deprecated Create a {@link StatementFragment} relationship instead
  * @property-read End $isCitizen
  * @property-read End $isCluster @deprecated Cluster statements should get a separate resource type instead, which allows this attribute to be removed
+ * @property-read End $isPlaceholder
  * @property-read End $clusterStatement
  * @property-read End $likesNum @deprecated Use relationship to {@link StatementLike} instead
  * @property-read End $memo
@@ -155,6 +156,8 @@ abstract class AbstractStatementResourceType extends DplanResourceType
             ->readable(true, static fn (Statement $statement): bool => User::ANONYMOUS_USER_ORGA_NAME === $statement->getMeta()->getOrgaName());
         $configBuilder->isCluster
             ->readable(true)->aliasedPath(Paths::statement()->clusterStatement);
+        $configBuilder->isPlaceholder
+            ->readable(true, static fn (Statement $statement): bool => $statement->isPlaceholder());
         $configBuilder->likesNum
             ->readable(true, static fn (Statement $statement): int => $statement->getLikesNum());
         $configBuilder->movedFromProcedureId

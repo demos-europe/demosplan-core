@@ -37,7 +37,10 @@ initialize(components, {}, apiStores)
 function initElementImportGate () {
   const form = document.getElementById('elementImportForm')
   const submit = document.getElementById('elementImportSubmit')
-  if (!form || !submit) return
+
+  if (!form || !submit) {
+    return
+  }
 
   let pending = false
   const originalLabel = submit.value
@@ -46,15 +49,25 @@ function initElementImportGate () {
     Translator.trans('elementimport.processing')
 
   form.addEventListener('submit', (event) => {
-    if (pending) return
+    if (pending) {
+      return
+    }
+
     /*
      * DpUploadFiles renders the hidden input as `uploadedFiles[<name>]`, with
      * the hash array bound directly as the value (csv for multi-upload).
      */
     const input = form.querySelector('input[name="uploadedFiles[r_zipImport]"]')
-    if (!input?.value) return
+
+    if (!input?.value) {
+      return
+    }
+
     const fileId = input.value.split(',')[0].trim()
-    if (!fileId) return
+
+    if (!fileId) {
+      return
+    }
 
     event.preventDefault()
     pending = true
@@ -76,18 +89,23 @@ function initElementImportGate () {
             submit.disabled = false
             pending = false
             form.submit()
+
             return
           }
+
           if (attempts > 600) {
             submit.value = originalLabel
             submit.disabled = false
             pending = false
+
             return
           }
+
           setTimeout(tick, 3000)
         })
         .catch(() => setTimeout(tick, 5000))
     }
+
     tick()
   })
 }
