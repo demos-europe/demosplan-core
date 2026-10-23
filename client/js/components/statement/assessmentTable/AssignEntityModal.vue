@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import { dpApi, DpButton, DpModal, DpMultiselect } from '@demos-europe/demosplan-ui'
+import { DpButton, DpModal, DpMultiselect } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations } from 'vuex'
 
 export default {
@@ -67,6 +67,16 @@ export default {
   emits: ['assigned'],
 
   props: {
+    /**
+     * Optional function performing the assignment, receiving the same params as the entity's
+     * `setAssigneeAction`. Pages that don't register that Vuex action pass their own.
+     */
+    assignAction: {
+      required: false,
+      type: Function,
+      default: null,
+    },
+
     authorisedUsers: {
       required: false,
       type: Array,
@@ -129,21 +139,13 @@ export default {
 
       this.loading = true
 
-      /*
-       * Fire action from store, if the consuming page has the entity's Vuex module registered.
-       * Pages that only need read/list access (e.g. the statement list) don't register it, so fall
-       * back to calling the API directly in that case.
-       */
-      const dispatched = this.$store.dispatch(`${this.capitalizeFirstLetter(this.entityType)}/setAssigneeAction`, this.actionParams)
-      const assignmentPromise = (dispatched && typeof dispatched.then === 'function') ? dispatched : this.assignStatementViaApi()
+      const assignmentPromise = this.assignAction ?
+        this.assignAction(this.actionParams) :
+        this.$store.dispatch(`${this.capitalizeFirstLetter(this.entityType)}/setAssigneeAction`, this.actionParams)
 
       assignmentPromise
         .then(({ assignee }) => {
           this.$emit('assigned', { entityId: this.entityId, assignee })
-
-          if (this.entityType === 'statement') {
-            dplan.notify.notify('confirm', Translator.trans('confirm.statement.assignment.assigned.to', { name: assignee.name }))
-          }
         })
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.api.generic'))
@@ -152,38 +154,6 @@ export default {
           this.toggleModal()
           this.loading = false
         })
-    },
-
-    /**
-     * Fallback for pages that don't have the 'Statement' Vuex module's custom setAssigneeAction
-     * registered (only its generic JSON:API CRUD module, e.g. the statement list).
-     */
-    assignStatementViaApi () {
-      return dpApi({
-        method: 'PATCH',
-        url: Routing.generate('dplan_claim_statements_api', { statementId: this.entityId }),
-        data: {
-          data: {
-            type: 'user',
-            id: this.selected.id,
-          },
-        },
-        headers: {
-          'Content-type': 'application/vnd.api+json',
-          Accept: 'application/vnd.api+json',
-        },
-      }).then(response => {
-        const assignee = (this.selected.id === '' || this.selected.id == null) ?
-          { id: '', name: '', orgaName: '', uId: '' } :
-          {
-            id: response.data.data.id,
-            uId: response.data.data.id,
-            name: response.data.data.attributes.name,
-            orgaName: response.data.data.attributes.orgaName,
-          }
-
-        return { assignee }
-      })
     },
 
     capitalizeFirstLetter (str) {

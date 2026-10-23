@@ -512,7 +512,6 @@ export default {
   components: {
     AssignEntityModal,
     CopyStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "copy-statement-modal" */ '@DpJs/components/statement/assessmentTable/CopyStatementModal')),
->>>>>>> origin/main
     CustomSearchStatements,
     DpBulkEditHeader,
     DpButton,
@@ -1012,6 +1011,35 @@ export default {
       } else {
         this.unclaimStatement(statementId)
       }
+    },
+
+    // The statement list doesn't register the assessment table's `Statement/setAssigneeAction`.
+    assignStatement ({ statementId, assigneeId }) {
+      return dpApi({
+        method: 'PATCH',
+        url: Routing.generate('dplan_claim_statements_api', { statementId }),
+        data: {
+          data: {
+            type: 'user',
+            id: assigneeId,
+          },
+        },
+        headers: {
+          'Content-type': 'application/vnd.api+json',
+          Accept: 'application/vnd.api+json',
+        },
+      }).then(response => {
+        const assignee = assigneeId ?
+          {
+            id: response.data.data.id,
+            uId: response.data.data.id,
+            name: response.data.data.attributes.name,
+            orgaName: response.data.data.attributes.orgaName,
+          } :
+          { id: '', name: '', orgaName: '', uId: '' }
+
+        return { id: statementId, assignee }
+      })
     },
 
     // The modal already dispatched the assignment; update the row here so it reflects it without a reload.

@@ -11,6 +11,7 @@
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Logger\ApiLoggerInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use DemosEurope\DemosplanAddon\Controller\APIController;
@@ -41,6 +42,7 @@ use UnexpectedValueException;
 class DemosPlanClaimAPIController extends APIController
 {
     public function __construct(
+        private readonly CurrentUserInterface $currentUser,
         private readonly ProcedureHandler $procedureHandler,
         private readonly StatementHandler $statementHandler,
         private readonly UserService $userService,
@@ -99,6 +101,7 @@ class DemosPlanClaimAPIController extends APIController
         $messageArray = [
             Statement::class         => [
                 'assigned'   => 'confirm.statement.assignment.assigned',
+                'assignedTo' => 'confirm.statement.assignment.assigned.to',
                 'unassigned' => 'confirm.statement.assignment.unassigned',
                 'changed'    => 'confirm.statement.assignment.changed',
                 'error'      => 'error.statement.assignment.changed',
@@ -151,12 +154,17 @@ class DemosPlanClaimAPIController extends APIController
 
             // determine confirm messages
             $message = $messageArray[$class]['assigned'];
+            $messageParams = [];
             if (null === $assigneeIdUnvalidated) {
                 $message = $messageArray[$class]['unassigned'];
             } elseif (null !== $previousAssignee) {
                 $message = $messageArray[$class]['changed'];
+            } elseif (isset($messageArray[$class]['assignedTo'])
+                && $assignee->getId() !== $this->currentUser->getUser()->getId()) {
+                $message = $messageArray[$class]['assignedTo'];
+                $messageParams = ['name' => $assignee->getName()];
             }
-            $this->messageBag->add('confirm', $message);
+            $this->messageBag->add('confirm', $message, $messageParams);
 
             // get new assignee and prepare assignee data for return
             $assignee = $entityToUpdate->getAssignee();

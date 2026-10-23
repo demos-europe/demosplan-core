@@ -27,7 +27,7 @@ const DpModalStub = {
 describe('AssignEntityModal', () => {
   let store
 
-  const mountModal = (statementActions = {}) => {
+  const mountModal = (statementActions = {}, props = {}) => {
     store = createStore({
       modules: {
         AssessmentTable: {
@@ -62,6 +62,7 @@ describe('AssignEntityModal', () => {
         authorisedUsers: [{ id: 'user-2', name: 'Selta Seewind' }],
         currentUserId: 'user-1',
         procedureId: 'procedure-1',
+        ...props,
       },
       global: {
         plugins: [store],
@@ -72,6 +73,7 @@ describe('AssignEntityModal', () => {
 
   beforeEach(() => {
     mockDpApi.mockReset()
+    dplan.notify.notify.mockClear()
   })
 
   it('dispatches the custom Vuex action when the entity module provides one, e.g. on the assessment table', async () => {
@@ -93,27 +95,53 @@ describe('AssignEntityModal', () => {
   })
 
   /*
-   * Pages that only register the generic JSON:API 'Statement' module (e.g. the statement list) don't
-   * have this custom action. Dispatching to it used to return undefined and crash the promise chain
-   * (`Cannot read properties of undefined (reading 'then')`) instead of falling back.
+   * Pages that don't register the entity module's custom action (e.g. the statement list) pass their own
+   * assign function. The modal must not dispatch the unregistered action first.
    */
-  it('falls back to a direct API call when the entity module has no setAssigneeAction', async () => {
-    mockDpApi.mockResolvedValue({
-      data: { data: { id: 'user-2', attributes: { name: 'Selta Seewind', orgaName: 'DEMOS Berlin' } } },
-    })
-    const wrapper = mountModal({})
+  it('uses the assignAction prop instead of dispatching a Vuex action', async () => {
+    const assignAction = vi.fn(() => Promise.resolve({ id: 'statement-1', assignee: { id: 'user-2', name: 'Selta Seewind' } }))
+    const wrapper = mountModal({}, { assignAction })
+    const dispatchSpy = vi.spyOn(store, 'dispatch')
 
-    // Mounted() reads entityId/entityType from the store via a $nextTick-deferred toggleModal()
     await flushPromises()
 
     wrapper.vm.selected = { id: 'user-2', name: 'Selta Seewind' }
     wrapper.vm.assignEntity()
     await flushPromises()
 
-    expect(mockDpApi).toHaveBeenCalledWith(expect.objectContaining({ method: 'PATCH' }))
+    expect(assignAction).toHaveBeenCalledWith({ statementId: 'statement-1', assigneeId: 'user-2' })
+    expect(dispatchSpy).not.toHaveBeenCalled()
     expect(wrapper.emitted('assigned')?.[0]?.[0]).toEqual({
       entityId: 'statement-1',
-      assignee: { id: 'user-2', uId: 'user-2', name: 'Selta Seewind', orgaName: 'DEMOS Berlin' },
+      assignee: { id: 'user-2', name: 'Selta Seewind' },
     })
+  })
+
+  it('emits assigned with an empty assignee on unassign', async () => {
+    const assignAction = vi.fn(() => Promise.resolve({ id: 'statement-1', assignee: { id: '', name: '' } }))
+    const wrapper = mountModal({}, { assignAction })
+
+    await flushPromises()
+
+    wrapper.vm.selected = { id: '', name: '-' }
+    wrapper.vm.assignEntity()
+    await flushPromises()
+
+    expect(assignAction).toHaveBeenCalledWith({ statementId: 'statement-1', assigneeId: '' })
+    expect(wrapper.emitted('assigned')?.[0]?.[0].assignee.id).toBe('')
+  })
+
+  // The API response already carries the confirmation message; a second one from the modal would duplicate it.
+  it('does not raise its own success notification', async () => {
+    const assignAction = vi.fn(() => Promise.resolve({ id: 'statement-1', assignee: { id: 'user-2', name: 'Selta Seewind' } }))
+    const wrapper = mountModal({}, { assignAction })
+
+    await flushPromises()
+
+    wrapper.vm.selected = { id: 'user-2', name: 'Selta Seewind' }
+    wrapper.vm.assignEntity()
+    await flushPromises()
+
+    expect(dplan.notify.notify).not.toHaveBeenCalled()
   })
 })
