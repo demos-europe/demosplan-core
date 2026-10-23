@@ -61,6 +61,7 @@ export function useScheduledExportOptions () {
     if (dayNumber === null) {
       return ''
     }
+
     return weekdayOptions.find(option => option.value === dayNumber)?.label ?? String(dayNumber)
   }
 
@@ -68,6 +69,7 @@ export function useScheduledExportOptions () {
     if (day === null) {
       return ''
     }
+
     return `${day}.`
   }
 
