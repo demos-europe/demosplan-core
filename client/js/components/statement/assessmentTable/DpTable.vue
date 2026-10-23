@@ -111,6 +111,7 @@
     <copy-statement-modal
       v-if="hasPermission('feature_statement_move_to_procedure') && copyStatementModal.show"
       :accessible-procedures="accessibleProcedures"
+      :current-user-id="currentUserId"
       :inaccessible-procedures="inaccessibleProcedures"
       :procedure-id="procedureId"
     />
@@ -118,6 +119,7 @@
     <dp-move-statement-modal
       v-if="hasPermission('feature_statement_move_to_procedure') && moveStatementModal.show"
       :accessible-procedures="accessibleProcedures"
+      :current-user-id="currentUserId"
       :inaccessible-procedures="inaccessibleProcedures"
       :procedure-id="procedureId"
     />
