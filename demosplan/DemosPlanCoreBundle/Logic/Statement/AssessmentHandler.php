@@ -30,7 +30,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\BookmarkService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\SimpleSpreadsheetService;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplate;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
 use demosplan\DemosPlanCoreBundle\ValueObject\AssessmentTable\StatementHandlingResult;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DocxExportResult;
@@ -250,9 +249,7 @@ class AssessmentHandler extends CoreHandler
              * Keine Gliederung
              * {"anonymous":true,"exportType":"statementsOnly","sortType":"default","template":"landscape"}
              */
-            $viewOrientation = str_contains((string) $exportChoice['template'], ExportTemplate::LANDSCAPE->value)
-                ? ViewOrientation::createLandscape()
-                : ViewOrientation::createPortrait();
+            $viewOrientation = ViewOrientation::createForTemplate((string) $exportChoice['template']);
             $objWriter = $this->assessmentTableServiceOutput->generateDocx(
                 $outputResult,
                 $exportChoice['template'],
