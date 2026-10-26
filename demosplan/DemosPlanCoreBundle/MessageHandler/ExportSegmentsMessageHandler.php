@@ -56,6 +56,7 @@ class ExportSegmentsMessageHandler
             return;
         }
 
+        $this->logger->info('Segments export started', ['jobId' => $message->getJobId(), 'type' => $message->getExportType(), 'procedureId' => $message->getProcedureId()]);
         $job->setStatus(AssessmentTableExportJob::STATUS_PROCESSING);
         $job->setModifiedDate(new DateTime());
         $this->entityManager->flush();
@@ -82,6 +83,7 @@ class ExportSegmentsMessageHandler
             $job->setFileHash($storedFile->getFileHash());
             $job->setFileName($storedFile->getFileName());
             $job->setStatus(AssessmentTableExportJob::STATUS_COMPLETED);
+            $this->logger->info('Segments export completed', ['jobId' => $message->getJobId(), 'type' => $message->getExportType(), 'procedureId' => $message->getProcedureId()]);
         } catch (Throwable $e) {
             $this->logger->error('Asynchronous segments export failed', ['jobId' => $message->getJobId(), 'exception' => $e]);
             $job->setStatus(AssessmentTableExportJob::STATUS_FAILED);

@@ -2613,8 +2613,6 @@ class DemosPlanProcedureController extends BaseController
      * @param string $procedure
      * @param string $boilerplateGroupId
      *
-     * @return RedirectResponse|Response
-     *
      * @throws Exception
      */
     #[DplanPermissions('area_admin_boilerplates')]
@@ -2766,6 +2764,7 @@ class DemosPlanProcedureController extends BaseController
     protected function handleDeleteBoilerplateGroup(
         string $boilerplateGroupId,
     ) {
+        /** @var ArrayCollection<int, Boilerplate> $boilerplatesOfGroupToDelete */
         $boilerplatesOfGroupToDelete = new ArrayCollection();
         $boilerplateGroupToDelete = $this->procedureService->getBoilerplateGroup($boilerplateGroupId);
         $title = '';
@@ -2777,7 +2776,6 @@ class DemosPlanProcedureController extends BaseController
         }
 
         $successfully = $this->procedureService->deleteBoilerplateGroup($boilerplateGroupToDelete);
-        /** @var Boilerplate $boilerplate */
         foreach ($boilerplatesOfGroupToDelete as $boilerplate) {
             $successfully = $successfully && $this->procedureService->prepareBoilerplateDeletion($boilerplate->getId());
         }
@@ -2817,6 +2815,7 @@ class DemosPlanProcedureController extends BaseController
     protected function handleDeleteBoilerplateGroups(
         array $boilerplateGroupIds,
     ) {
+        /** @var ArrayCollection<int, Boilerplate> $boilerplatesOfGroupsToDelete */
         $boilerplatesOfGroupsToDelete = new ArrayCollection();
         foreach ($boilerplateGroupIds as $boilerplateGroupId) {
             $boilerplateGroup = $this->procedureService->getBoilerplateGroup($boilerplateGroupId);
@@ -2829,7 +2828,6 @@ class DemosPlanProcedureController extends BaseController
             }
         }
         $allDeleted = $this->procedureService->deleteBoilerplateGroupsByIds($boilerplateGroupIds);
-        /** @var Boilerplate $boilerplate */
         foreach ($boilerplatesOfGroupsToDelete as $boilerplate) {
             $allDeleted = $allDeleted && $this->procedureService->prepareBoilerplateDeletion($boilerplate->getId());
         }

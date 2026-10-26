@@ -182,8 +182,6 @@ class DemosPlanMailController extends BaseController
     /**
      * @param string $procedureId
      *
-     * @return RedirectResponse|Response
-     *
      * @throws Exception
      */
     #[DplanPermissions('area_procedure_send_submitter_email')]
