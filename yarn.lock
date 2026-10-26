@@ -6527,6 +6527,7 @@ __metadata:
     typescript: "npm:~6.0.3"
     typescript-eslint: "npm:^8.67.0"
     uuid: "npm:^14.0.2"
+    vite: "npm:^8.3.4"
     vitest: "npm:^4.1.11"
     vue: "npm:3.5.43"
     vue-eslint-parser: "npm:^10.4.1"
@@ -12521,7 +12522,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^6.0.0 || ^7.0.0 || ^8.0.0":
+"vite@npm:^6.0.0 || ^7.0.0 || ^8.0.0, vite@npm:^8.3.4":
   version: 8.3.5
   resolution: "vite@npm:8.3.5"
   dependencies:
