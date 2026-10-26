@@ -39,6 +39,7 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $segmentsCount
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $isCitizen
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $isCluster @deprecated Cluster statements should get a separate resource type instead, which allows this attribute to be removed
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $isPlaceholder
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $likesNum @deprecated Use relationship to {@link StatementLike} instead
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $movedFromProcedureId @deprecated Use relationship to a PlaceholderStatement resource type instead
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $movedFromProcedureName @deprecated Use relationship to a PlaceholderStatement resource type instead

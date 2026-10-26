@@ -24,6 +24,14 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class PublicIndexProcedureLister
 {
+    /**
+     * Mirrors the defaults set in DpSearchProcedureMap.vue.
+     */
+    private const DEFAULT_FILTER_PERMISSIONS = [
+        'phasePermissionset'                    => 'feature_procedure_default_filter_intern',
+        'publicParticipationPhasePermissionset' => 'feature_procedure_default_filter_extern',
+    ];
+
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
         private readonly GlobalConfigInterface $globalConfig,
@@ -35,7 +43,11 @@ class PublicIndexProcedureLister
     ) {
     }
 
-    public function getPublicIndexProcedureList(Request $request, string $orgaSlug = ''): array
+    /**
+     * @param bool $applyDefaultFilters preselect the phase filters the start page UI shows by default,
+     *                                  unless the request already carries a value for them
+     */
+    public function getPublicIndexProcedureList(Request $request, string $orgaSlug = '', bool $applyDefaultFilters = false): array
     {
         $requestPost = ['search' => '', ...$request->request->all()];
 
@@ -56,6 +68,15 @@ class PublicIndexProcedureLister
         }
 
         $requestPost['subdomain'] = $this->globalConfig->getSubdomain();
+
+        $defaultFilters = [];
+        if ($applyDefaultFilters) {
+            foreach (self::DEFAULT_FILTER_PERMISSIONS as $filterName => $permission) {
+                if (!array_key_exists($filterName, $requestPost) && $this->permissions->hasPermission($permission)) {
+                    $defaultFilters[$filterName] = 'write';
+                }
+            }
+        }
 
         // fetch user from session
         $user = $this->currentUser->getUser();
@@ -110,12 +131,31 @@ class PublicIndexProcedureLister
             }
         }
 
+        // The filter options are aggregated from the result and the client keeps them,
+        // so they have to be taken from the list without the default filters.
+        $unfilteredFilterValues = [];
+        if ([] !== $defaultFilters) {
+            $this->procedureHandler->setRequestValues($requestPost);
+            $this->procedureHandler->getProcedureList();
+            foreach ($this->procedureHandler->getEsQueryProcedure()->getAvailableFilters() as $filter) {
+                $unfilteredFilterValues[$filter->getName()] = $filter->getValues();
+            }
+            $requestPost = [...$requestPost, ...$defaultFilters];
+        }
+
         $this->procedureHandler->setRequestValues($requestPost);
         $procedures = $this->procedureHandler->getProcedureList();
+
+        foreach ($this->procedureHandler->getEsQueryProcedure()->getAvailableFilters() as $filter) {
+            if (array_key_exists($filter->getName(), $unfilteredFilterValues)) {
+                $filter->setValues($unfilteredFilterValues[$filter->getName()]);
+            }
+        }
 
         // projektspezfische Anpassung der Variablen ermöglichen
         $procedures = $this->procedureHandler->transformVariables($procedures);
         $procedures['definition'] = $this->procedureHandler->getEsQueryProcedure();
+        $procedures['defaultFiltersApplied'] = [] !== $defaultFilters;
         $procedures = $this->procedureHandler->markSelectedElementInSortByField($procedures);
 
         if ('' !== $orgaSlug) {
