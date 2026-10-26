@@ -149,7 +149,7 @@
         <div
           id="statementsListScrollContainer"
           ref="scrollContainer"
-          class="overflow-x-auto scrollbar-none isolate"
+          class="overflow-x-auto scrollbar-none isolate has-[.is-expanded-content]:overflow-x-hidden has-[.is-expanded-content]:overflow-y-hidden"
         >
           <dp-data-table
             ref="dataTable"
