@@ -121,6 +121,21 @@
             @select="applySort"
           />
         </div>
+        <dp-column-selector
+          v-if="customFieldsReady"
+          :key="columnSelectorKey"
+          :initial-selection="currentSelection"
+          :selectable-columns="selectableColumns"
+          appearance="subtle"
+          class="ml-2"
+          data-cy="statementList:selectableColumns"
+          has-reset-option
+          has-select-all-option
+          local-storage-key="statementsList"
+          use-local-storage
+          @reset="resetColumnSelection"
+          @selection-changed="setCurrentSelection"
+        />
       </div>
     </dp-sticky-element>
 
@@ -458,6 +473,7 @@ import {
   dpApi,
   DpBulkEditHeader,
   DpButton,
+  DpColumnSelector,
   DpDataTable,
   DpFlyout,
   DpIcon,
@@ -493,6 +509,7 @@ export default {
     DpBulkEditHeader,
     DpButton,
     DpClaim,
+    DpColumnSelector,
     DpDataTable,
     DpFlyout,
     DpIcon,
@@ -566,8 +583,20 @@ export default {
   },
 
   data () {
+    const defaultColumnSelection = [
+      'status',
+      'internId',
+      'meta',
+      'segmentsCount',
+    ]
+
     return {
       claimLoadingIds: [],
+      columnSelectorKey: 0,
+      // Prefilled so the column selector starts with the defaults when localStorage is empty
+      currentSelection: [...defaultColumnSelection],
+      customFieldsReady: !hasPermission('field_statements_custom_fields'),
+      defaultColumnSelection,
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
@@ -575,7 +604,7 @@ export default {
       },
       // Member counts per group head (keyed by head statement id), fetched from the 3.0 StatementGroup endpoint.
       groupMemberCounts: {},
-      headerFields: [
+      headerFieldsAvailable: [
         { field: 'externId', label: Translator.trans('id') },
         { field: 'status', label: Translator.trans('status') },
         { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },
@@ -706,6 +735,16 @@ export default {
       return !this.isLoading && this.items.length > 0
     },
 
+    headerFields () {
+      const externIdField = this.headerFieldsAvailable.find(headerField => headerField.field === 'externId')
+      const userHeaderFields = this.headerFieldsAvailable.filter(headerField =>
+        headerField.field !== 'externId' && this.currentSelection.includes(headerField.field),
+      )
+
+      // Always include externId as the first column
+      return [externIdField, ...userHeaderFields]
+    },
+
     items () {
       return Object.values(this.statementsObject)
         .map(statement => {
@@ -724,6 +763,13 @@ export default {
             originalPdf,
           }
         })
+    },
+
+    selectableColumns () {
+      // ExternId is always displayed, so it is not selectable
+      return this.headerFieldsAvailable
+        .filter(headerField => headerField.field !== 'externId')
+        .map(headerField => [headerField.field, headerField.label])
     },
 
     storageKeyPagination () {
@@ -922,6 +968,24 @@ export default {
        * image + link renders in the expanded detail panel (see displayedText).
        */
       return stripInlineImageAnchors(text)
+    },
+
+    resetColumnSelection () {
+      localStorage.removeItem('statementsList')
+      this.setCurrentSelection([...this.defaultColumnSelection])
+
+      // Clear persisted column widths
+      Object.keys(localStorage)
+        .filter((key) =>
+          key.startsWith('dpDataTable:colWidth:statementListColumnWidths:'),
+        )
+        .forEach((key) => localStorage.removeItem(key))
+
+      this.columnSelectorKey++
+    },
+
+    setCurrentSelection (selection) {
+      this.currentSelection = selection
     },
 
     applySearch (term) {
