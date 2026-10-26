@@ -528,6 +528,15 @@ import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge'
 import TableScrollbar from '@DpJs/components/shared/TableScrollbar'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 
+// The initial width of a column is also its minimum width
+const createHeaderField = (field, label, width, options = {}) => ({
+  field,
+  label,
+  colWidth: `${width}px`,
+  initialMinWidth: width,
+  ...options,
+})
+
 export default {
   name: 'ListStatements',
 
@@ -634,43 +643,12 @@ export default {
       // Member counts per group head (keyed by head statement id), fetched from the 3.0 StatementGroup endpoint.
       groupMemberCounts: {},
       headerFieldsAvailable: [
-        {
-          field: 'externId',
-          label: Translator.trans('id'),
-          colWidth: '120px',
-          initialMinWidth: 120,
-          fixed: true,
-        },
-        {
-          field: 'status',
-          label: Translator.trans('status'),
-          colWidth: '180px',
-          initialMinWidth: 180,
-        },
-        {
-          field: 'internId',
-          label: Translator.trans('internId.shortened'),
-          colWidth: '120px',
-          initialMinWidth: 120,
-        },
-        {
-          field: 'meta',
-          label: Translator.trans('submitter.invitable_institution'),
-          colWidth: '180px',
-          initialMinWidth: 180,
-        },
-        {
-          field: 'text',
-          label: Translator.trans('text'),
-          colWidth: '270px',
-          initialMinWidth: 270,
-        },
-        {
-          field: 'segmentsCount',
-          label: Translator.trans('segments'),
-          colWidth: '120px',
-          initialMinWidth: 120,
-        },
+        createHeaderField('externId', Translator.trans('id'), 120, { fixed: true }),
+        createHeaderField('status', Translator.trans('status'), 180),
+        createHeaderField('internId', Translator.trans('internId.shortened'), 120),
+        createHeaderField('meta', Translator.trans('submitter.invitable_institution'), 180),
+        createHeaderField('text', Translator.trans('text'), 270),
+        createHeaderField('segmentsCount', Translator.trans('segments'), 120),
       ],
       isFullscreen: false,
       lsKey: {
