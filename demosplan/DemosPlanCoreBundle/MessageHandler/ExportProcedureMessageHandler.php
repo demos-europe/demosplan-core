@@ -64,6 +64,7 @@ class ExportProcedureMessageHandler
             return;
         }
 
+        $this->logger->info('Procedure export started', ['jobId' => $message->getJobId(), 'procedureIds' => $message->getProcedureIds()]);
         $job->setStatus(ProcedureExportJob::STATUS_PROCESSING);
         $job->setModifiedDate(new DateTime());
         $this->entityManager->flush();
@@ -96,6 +97,7 @@ class ExportProcedureMessageHandler
             $job->setFileHash($storedFile->getFileHash());
             $job->setFileName($storedFile->getFileName());
             $job->setStatus(ProcedureExportJob::STATUS_COMPLETED);
+            $this->logger->info('Procedure export completed', ['jobId' => $message->getJobId(), 'procedureIds' => $message->getProcedureIds()]);
         } catch (Throwable $e) {
             $this->logger->error('Asynchronous procedure export failed', ['jobId' => $message->getJobId(), 'exception' => $e]);
             $job->setStatus(ProcedureExportJob::STATUS_FAILED);

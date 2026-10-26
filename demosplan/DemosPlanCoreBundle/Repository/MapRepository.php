@@ -712,8 +712,6 @@ class MapRepository extends FluentRepository implements ArrayInterface, ObjectIn
     }
 
     /**
-     * @return CoreEntity
-     *
      * @throws ORMException
      * @throws OptimisticLockException
      */

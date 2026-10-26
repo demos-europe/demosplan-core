@@ -39,7 +39,7 @@ class SqlQueriesService
         bool $isDryRun): void
     {
         if (!$this->doesTableExist($tableName)) {
-            $this->logger->warning("No table with the name $tableName exists in this database. Data could not be fetched.");
+            $this->logger->info("Table $tableName does not exist in this database, skipping.");
 
             return;
         }
@@ -65,7 +65,7 @@ class SqlQueriesService
         bool $isDryRun,
     ): void {
         if (!$this->doesTableExist($tableName)) {
-            $this->logger->warning("No table with the name $tableName exists in this database. Data could not be fetched.");
+            $this->logger->info("Table $tableName does not exist in this database, skipping.");
 
             return;
         }
@@ -94,7 +94,7 @@ class SqlQueriesService
     public function fetchFromTableByParameter(array $targetColumns, string $tableName, string $identifier, array $parameter): array
     {
         if (!$this->doesTableExist($tableName)) {
-            $this->logger->warning("No table with the name $tableName exists in this database. Data could not be fetched.");
+            $this->logger->info("Table $tableName does not exist in this database, skipping.");
 
             return [];
         }
@@ -115,7 +115,7 @@ class SqlQueriesService
     public function fetchFromTableByExcludedParameter(array $targetColumns, string $tableName, string $identifier, array $parameter): array
     {
         if (!$this->doesTableExist($tableName)) {
-            $this->logger->warning("No table with the name $tableName exists in this database. Data could not be fetched.");
+            $this->logger->info("Table $tableName does not exist in this database, skipping.");
 
             return [];
         }
