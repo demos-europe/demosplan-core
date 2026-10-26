@@ -402,7 +402,7 @@ const SplitStatementStore = {
 
           const sortByTitle = (a, b) => a.attributes.title.localeCompare(b.attributes.title, undefined, { numeric: true, sensitivity: 'base' })
 
-          const tagTopics = tags.included.filter((el) => el.type === 'TagTopic')
+          const tagTopics = (tags.included ?? []).filter((el) => el.type === 'TagTopic')
 
           tagTopics.sort(sortByTitle)
 
