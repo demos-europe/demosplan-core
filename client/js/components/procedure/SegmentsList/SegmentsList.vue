@@ -474,28 +474,15 @@
             </template>
           </dp-data-table>
         </div>
-        <div
+        <table-scrollbar
           v-show="scrollbarVisible"
           ref="scrollBar"
-          class="h-[16px] z-[11] relative bg-neutral-light-4 mt-[10px]"
-          :class="
-            isFullscreen
-              ? 'fixed bottom-3 left-0 right-0 mx-2'
-              : 'sticky bottom-0 left-0 right-0'
-          "
-        >
-          <div
-            :aria-valuenow="scrollPercent"
-            :style="thumbStyle"
-            aria-controls="segmentsListScrollContainer"
-            aria-valuemax="100"
-            aria-valuemin="0"
-            class="absolute inset-y-[2px] rounded-full bg-neutral-light-2 cursor-pointer hover:bg-interactive active:bg-interactive-hover"
-            role="scrollbar"
-            tabindex="0"
-            @mousedown="onThumbMousedown"
-          />
-        </div>
+          :is-fullscreen="isFullscreen"
+          :scroll-percent="scrollPercent"
+          :thumb-style="thumbStyle"
+          controls="segmentsListScrollContainer"
+          @thumb-mousedown="onThumbMousedown"
+        />
       </template>
 
       <dp-inline-notification
@@ -554,6 +541,7 @@ import SegmentsExportModal from './SegmentsExportModal'
 import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 import StatusBadge from '../Shared/StatusBadge'
+import TableScrollbar from '@DpJs/components/shared/TableScrollbar'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
@@ -586,6 +574,7 @@ export default {
     SegmentUnlockModal,
     StatementMetaTooltip,
     StatusBadge,
+    TableScrollbar,
     TextContentRenderer,
     VPopover,
   },

@@ -170,7 +170,8 @@ export default {
       }
 
       this.$nextTick(() => {
-        this.scrollbar = this.$refs?.scrollBar
+        // The ref can point to a component (e.g. TableScrollbar) or directly to the element
+        this.scrollbar = this.$refs?.scrollBar?.$el ?? this.$refs?.scrollBar
         /*
          * Allows components to use a separate scroll wrapper (ref="scrollContainer") to enable sticky headers,
          * while keeping the dataTable itself free of overflow that would block position: sticky.

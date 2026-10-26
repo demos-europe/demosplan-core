@@ -472,28 +472,15 @@
             </template>
           </dp-data-table>
         </div>
-        <div
+        <table-scrollbar
           v-show="scrollbarVisible"
           ref="scrollBar"
-          class="h-[16px] z-[11] relative bg-neutral-light-4 mt-[10px]"
-          :class="
-            isFullscreen
-              ? 'fixed bottom-3 left-0 right-0 mx-2'
-              : 'sticky bottom-0 left-0 right-0'
-          "
-        >
-          <div
-            :aria-valuenow="scrollPercent"
-            :style="thumbStyle"
-            aria-controls="statementsListScrollContainer"
-            aria-valuemax="100"
-            aria-valuemin="0"
-            class="absolute inset-y-[2px] rounded-full bg-neutral-light-2 cursor-pointer hover:bg-interactive active:bg-interactive-hover"
-            role="scrollbar"
-            tabindex="0"
-            @mousedown="onThumbMousedown"
-          />
-        </div>
+          :is-fullscreen="isFullscreen"
+          :scroll-percent="scrollPercent"
+          :thumb-style="thumbStyle"
+          controls="statementsListScrollContainer"
+          @thumb-mousedown="onThumbMousedown"
+        />
       </template>
 
       <dp-inline-notification
@@ -538,6 +525,7 @@ import { pollExportJob } from '@DpJs/lib/shared/persistentExportPoll'
 import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
 import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge'
+import TableScrollbar from '@DpJs/components/shared/TableScrollbar'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 
 export default {
@@ -562,6 +550,7 @@ export default {
     StatementExportModal,
     StatementMetaData,
     StatusBadge,
+    TableScrollbar,
   },
 
   directives: {
