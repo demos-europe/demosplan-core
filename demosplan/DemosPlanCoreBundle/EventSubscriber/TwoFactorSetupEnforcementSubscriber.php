@@ -13,14 +13,11 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
-use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
-use demosplan\DemosPlanCoreBundle\Logic\User\TwoFactorRequirementResolver;
+use demosplan\DemosPlanCoreBundle\Logic\User\TwoFactorSetupEnforcer;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\Routing\RouterInterface;
@@ -67,7 +64,7 @@ class TwoFactorSetupEnforcementSubscriber extends BaseEventSubscriber
 
     public function __construct(
         private readonly CurrentUserInterface $currentUser,
-        private readonly TwoFactorRequirementResolver $twoFactorRequirementResolver,
+        private readonly TwoFactorSetupEnforcer $twoFactorSetupEnforcer,
         private readonly RouterInterface $router,
     ) {
     }
@@ -84,48 +81,27 @@ class TwoFactorSetupEnforcementSubscriber extends BaseEventSubscriber
 
     public function onKernelController(ControllerEvent $event): void
     {
+        if (!$event->isMainRequest()) {
+            return;
+        }
+
+        // A user who set up a factor in the meantime is released
+        if ($this->twoFactorSetupEnforcer->completeSetupIfDone()) {
+            return;
+        }
+
         $request = $event->getRequest();
-        if (!$event->isMainRequest() || !$request->hasSession()) {
-            return;
-        }
-
-        $user = $this->currentUser->getUser();
-        if (!$user instanceof User || $user instanceof FunctionalUser) {
-            return;
-        }
-
-        $session = $request->getSession();
-        if ($this->twoFactorRequirementResolver->hasSecondFactor($user)) {
-            $this->twoFactorRequirementResolver->clearSetupPending($session);
-
-            return;
-        }
-
-        if (!$this->isEnforced($user, $session, $request)) {
+        if (!$this->twoFactorSetupEnforcer->isEnforced() || $this->isAllowedRoute($request)) {
             return;
         }
 
         $this->logger->debug('Two-factor setup pending, blocking request', [
-            'userId' => $user->getId(),
+            'userId' => $this->currentUser->getUser()->getId(),
             'route'  => $request->attributes->get('_route'),
         ]);
 
         $response = $this->createResponse($request);
         $event->setController(static fn (): Response => $response);
-    }
-
-    /**
-     * The permission checks are the project switch and the 2FA feature itself. The orga requirement is
-     * checked live, so switching it off releases the user immediately, while the session flag
-     * restricts the enforcement to sessions that started with the requirement in place.
-     */
-    private function isEnforced(User $user, SessionInterface $session, Request $request): bool
-    {
-        return $this->currentUser->hasPermission('feature_orga_two_factor_required')
-            && $this->currentUser->hasPermission('feature_2fa')
-            && $this->twoFactorRequirementResolver->isRequiredForUser($user)
-            && $this->twoFactorRequirementResolver->isSetupPending($session)
-            && !$this->isAllowedRoute($request);
     }
 
     private function isAllowedRoute(Request $request): bool

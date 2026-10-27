@@ -36,6 +36,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\User\AddressBookEntryService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
+use demosplan\DemosPlanCoreBundle\Logic\User\TwoFactorSetupEnforcer;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Types\UserFlagKey;
@@ -350,12 +351,14 @@ class DemosPlanUserController extends BaseController
         CurrentUserService $currentUser,
         ContentService $contentService,
         UserHandler $userHandler,
+        TwoFactorSetupEnforcer $twoFactorSetupEnforcer,
         string $title = 'user.profile',
     ) {
         $templateVars = [];
         $userId = $currentUser->getUser()->getId();
         $user = $userHandler->getSingleUser($userId);
         $templateVars['user'] = $user;
+        $templateVars['twoFactorSetup'] = $twoFactorSetupEnforcer->getSetupState();
 
         // get User settings
         $templateVars['emailNotificationReleasedStatement'] = false;
@@ -528,8 +531,9 @@ class DemosPlanUserController extends BaseController
      */
     #[DplanPermissions('area_portal_user')]
     #[Route(path: '/user/edit', name: 'DemosPlan_user_edit')]
-    public function editUser(CurrentUserService $currentUser, ContentService $contentService, MailService $mailService, Request $request, UserHandler $userHandler): RedirectResponse
+    public function editUser(CurrentUserService $currentUser, ContentService $contentService, MailService $mailService, Request $request, UserHandler $userHandler, TwoFactorSetupEnforcer $twoFactorSetupEnforcer): RedirectResponse
     {
+        $redirectAfterSetup = false;
         try {
             $userBefore = $currentUser->getUser();
             // Store status before update to compare it to the status after the update
@@ -561,6 +565,11 @@ class DemosPlanUserController extends BaseController
                 }
 
                 $this->getMessageBag()->add('confirm', 'confirm.user.saved');
+
+                if ($twoFactorSetupEnforcer->completeSetupIfDone()) {
+                    $this->getMessageBag()->add('confirm', 'confirm.2fa.setup.done');
+                    $redirectAfterSetup = true;
+                }
             }
 
             $data = [
@@ -573,7 +582,8 @@ class DemosPlanUserController extends BaseController
             $this->getMessageBag()->add('error', 'error.save');
         }
 
-        return $this->redirectToRoute('DemosPlan_user_portal');
+        // A user who just completed the required two-factor setup is released to the start page
+        return $this->redirectToRoute($redirectAfterSetup ? 'core_home_loggedin' : 'DemosPlan_user_portal');
     }
 
     /**

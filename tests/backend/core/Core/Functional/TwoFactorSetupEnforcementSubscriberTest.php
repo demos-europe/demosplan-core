@@ -18,12 +18,14 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\EventSubscriber\TwoFactorSetupEnforcementSubscriber;
 use demosplan\DemosPlanCoreBundle\Logic\User\TwoFactorRequirementResolver;
+use demosplan\DemosPlanCoreBundle\Logic\User\TwoFactorSetupEnforcer;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
@@ -35,12 +37,13 @@ use Tests\Base\FunctionalTestCase;
 
 class TwoFactorSetupEnforcementSubscriberTest extends FunctionalTestCase
 {
-    private const PROJECT_SWITCH = 'feature_orga_two_factor_required';
+    private const FEATURE_ORGA_REQUIREMENT = 'feature_orga_two_factor_required';
     private const FEATURE_2FA = 'feature_2fa';
     private const SETUP_ROUTE = 'DemosPlan_user_portal';
 
     protected ?TwoFactorSetupEnforcementSubscriber $sut = null;
     protected ?TwoFactorRequirementResolver $resolver = null;
+    protected ?RequestStack $requestStack = null;
     protected ?Session $session = null;
     protected ?TestHandler $logHandler = null;
 
@@ -49,9 +52,11 @@ class TwoFactorSetupEnforcementSubscriberTest extends FunctionalTestCase
         parent::setUp();
 
         $this->resolver = new TwoFactorRequirementResolver();
+        $this->requestStack = new RequestStack();
+        $currentUser = self::getContainer()->get(CurrentUserInterface::class);
         $this->sut = new TwoFactorSetupEnforcementSubscriber(
-            self::getContainer()->get(CurrentUserInterface::class),
-            $this->resolver,
+            $currentUser,
+            new TwoFactorSetupEnforcer($currentUser, $this->resolver, $this->requestStack),
             self::getContainer()->get(RouterInterface::class),
         );
         $this->logHandler = new TestHandler();
@@ -63,6 +68,7 @@ class TwoFactorSetupEnforcementSubscriberTest extends FunctionalTestCase
     {
         $this->sut = null;
         $this->resolver = null;
+        $this->requestStack = null;
         $this->session = null;
         $this->logHandler = null;
 
@@ -190,8 +196,8 @@ class TwoFactorSetupEnforcementSubscriberTest extends FunctionalTestCase
     public static function missingPermissionProvider(): array
     {
         return [
-            'project switch missing' => [self::PROJECT_SWITCH],
-            'feature 2fa missing'    => [self::FEATURE_2FA],
+            'orga requirement feature missing' => [self::FEATURE_ORGA_REQUIREMENT],
+            'feature 2fa missing'              => [self::FEATURE_2FA],
         ];
     }
 
@@ -247,7 +253,7 @@ class TwoFactorSetupEnforcementSubscriberTest extends FunctionalTestCase
     ): void {
         $user = $this->createUser($orgaRequirements, $totpEnabled, $emailAuthEnabled);
         $this->logIn($user);
-        $this->enablePermissions([self::PROJECT_SWITCH, self::FEATURE_2FA]);
+        $this->enablePermissions([self::FEATURE_ORGA_REQUIREMENT, self::FEATURE_2FA]);
         if ([] !== $disabledPermissions) {
             $this->disablePermissions($disabledPermissions);
         }
@@ -302,7 +308,10 @@ class TwoFactorSetupEnforcementSubscriberTest extends FunctionalTestCase
         $originalController = static fn (): Response => new Response('original');
         $event = new ControllerEvent(self::$kernel, $originalController, $request, $requestType);
 
+        // The enforcer reads the session of the current request
+        $this->requestStack->push($request);
         $this->sut->onKernelController($event);
+        $this->requestStack->pop();
 
         if ($event->getController() === $originalController) {
             return null;

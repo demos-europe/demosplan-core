@@ -1,3 +1,15 @@
+{# The profile page doubles as setup page while an organisation requires a second factor.
+   Orga names are escaped, because the notification renders its message as HTML. #}
+{% if templateVars.twoFactorSetup.required|default(false) %}
+    {{ uiComponent('inline-notification', {
+        message: '2fa.setup.required.hint'|trans({
+            count: templateVars.twoFactorSetup.orgaNames|length,
+            orgaNames: templateVars.twoFactorSetup.orgaNames|map(name => name|e)|join(', ')
+        }),
+        type: 'warning'
+    }) }}
+{% endif %}
+
 <form class="" method="post" action="{{ path('DemosPlan_user_edit') }}">
     {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
