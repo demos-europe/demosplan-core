@@ -624,6 +624,47 @@ export default {
       })
     })
 
+    /**
+     * Syncs the filter categories' local state from bookmark filters.
+     * Called by parent component when a bookmark is applied.
+     *
+     * @param {Object} bookmarkFilters - The filter object from the bookmark
+     */
+    const syncFromBookmark = (bookmarkFilters) => {
+      if (!bookmarkFilters || Array.isArray(bookmarkFilters) || Object.keys(bookmarkFilters).length === 0) {
+        resetAllFilters()
+
+        return
+      }
+
+      // Group filter IDs by path
+      const filtersByPath = {}
+
+      Object.entries(bookmarkFilters).forEach(([key, filter]) => {
+        if (!filter.condition) {
+          return
+        }
+
+        const path = filter.condition.path
+
+        if (!filtersByPath[path]) {
+          filtersByPath[path] = []
+        }
+
+        // The filter ID is the key (which equals condition.value for assigned, or 'unassigned' for null)
+        const filterId = filter.condition.value === undefined ? 'unassigned' : key
+
+        filtersByPath[path].push(filterId)
+      })
+
+      categories.forEach((category) => {
+        const matchingFilterIds = filtersByPath[category.path] || []
+
+        category.currentQuery = structuredClone(matchingFilterIds)
+        category.appliedQuery = structuredClone(matchingFilterIds)
+      })
+    }
+
     return {
       applyAllFilters,
       categories,
@@ -643,6 +684,7 @@ export default {
       resetSearch,
       setExpanded,
       showSearch,
+      syncFromBookmark,
       updateQuery,
     }
   },

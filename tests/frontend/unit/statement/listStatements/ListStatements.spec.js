@@ -92,6 +92,7 @@ describe('ListStatements search whitelist & sortOptions permission gating', () =
   it('always contains planDocument in the search whitelist', () => {
     const wrapper = mountComponent(true)
     const searchFields = wrapper.vm.searchFields
+
     expect(searchFields).toContain('planDocument')
     wrapper.unmount()
   })
@@ -99,6 +100,7 @@ describe('ListStatements search whitelist & sortOptions permission gating', () =
   it('hides planning-document sort options when field_procedure_elements is off', () => {
     const wrapper = mountComponent(false)
     const values = wrapper.vm.sortOptions.map(option => option.value)
+
     expect(values).not.toContain('elementTitle,documentTitle,paragraphTitle')
     expect(values).not.toContain('-elementTitle,-documentTitle,-paragraphTitle')
     wrapper.unmount()
@@ -109,6 +111,7 @@ describe('ListStatements search whitelist & sortOptions permission gating', () =
     const wrapper = mountComponent(true)
 
     const values = wrapper.vm.sortOptions.map(option => option.value)
+
     expect(values).toContain('elementTitle,documentTitle,paragraphTitle')
     expect(values).toContain('-elementTitle,-documentTitle,-paragraphTitle')
     wrapper.unmount()
@@ -117,6 +120,7 @@ describe('ListStatements search whitelist & sortOptions permission gating', () =
   it('includes planning-document attributes in the statement fields list', () => {
     const wrapper = mountComponent(false)
     const fetchStatements = vi.fn().mockReturnValue(Promise.resolve({ meta: { pagination: { currentPage: 1, count: 0, perPage: 10, total: 0, totalPages: 0 } } }))
+
     wrapper.vm.fetchStatements = fetchStatements
     wrapper.vm.pagination = { currentPage: 1, perPage: 10 }
     wrapper.vm.setLocalStorage = vi.fn()
@@ -132,6 +136,7 @@ describe('ListStatements search whitelist & sortOptions permission gating', () =
     expect(fetchStatements).toHaveBeenCalledTimes(1)
     const callArguments = fetchStatements.mock.calls[0][0]
     const fieldsCsv = callArguments.fields.Statement
+
     expect(fieldsCsv).toContain('elementTitle')
     expect(fieldsCsv).toContain('paragraphTitle')
     expect(fieldsCsv).toContain('documentTitle')
